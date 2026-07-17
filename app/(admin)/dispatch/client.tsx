@@ -678,6 +678,7 @@ import { DispatchPhase2119PuenktlichkeitsRangliste } from './phase2119-puenktlic
 import { DispatchPhase2124AusfallrisikoBoard } from './phase2124-ausfallrisiko-board';
 import { DispatchPhase2129AbschlussquotenBoard } from './phase2129-abschlussquoten-board';
 import { DispatchPhase2130TourScoreVisualisierungsMatrix } from './phase2130-tour-score-visualisierungs-matrix';
+import { DispatchPhase2134TourenVollstaendigkeitUebersicht } from './phase2134-touren-vollstaendigkeit-uebersicht';
 
 type Driver = {
   employee_id: string;
@@ -3640,6 +3641,8 @@ export function DispatchBoard({
           <DispatchPhase2129AbschlussquotenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2130: Tour-Score-Visualisierungs-Matrix — Fahrer-Ranking; Score-Balken; Team-Ø Linie; Trend-Pfeil; 5-Min-Polling */}
           <DispatchPhase2130TourScoreVisualisierungsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2134: Touren-Vollständigkeits-Übersicht — Fahrer-Kacheln mit Vollständigkeitsbalken; Alert <85%; Tipp; 30-Min-Polling */}
+          <DispatchPhase2134TourenVollstaendigkeitUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

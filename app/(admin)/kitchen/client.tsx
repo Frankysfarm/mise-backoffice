@@ -228,6 +228,7 @@ import { KitchenPhase2122VerspaetungsWarnung } from './phase2122-verspaetungs-wa
 import { KitchenPhase2127FahrerCoachingAlert } from './phase2127-fahrer-coaching-alert';
 import { KitchenPhase2130SmartTimingFarbkodierungsCockpit } from './phase2130-smart-timing-farbkodierungs-cockpit';
 import { KitchenPhase2132TourAbbruchAlert } from './phase2132-tour-abbruch-alert';
+import { KitchenPhase2137TeillieferungsMonitor } from './phase2137-teillieferungs-monitor';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3213,6 +3214,8 @@ export function KitchenBoard({
       <KitchenPhase2130SmartTimingFarbkodierungsCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2132: Tour-Abbruch-Alert — Abgebrochene Touren heute; Fahrer-Liste; Kritisch-Alert wenn ≥3; 15-Min-Polling */}
       <KitchenPhase2132TourAbbruchAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2137: Teillieferungs-Monitor — Bestellungen teilweise abgeliefert; Fahrer+fehlende Stopps; Eskalation >2; useMemo; 10-Min-Polling */}
+      <KitchenPhase2137TeillieferungsMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
