@@ -574,6 +574,7 @@ import { FahrerPhase2057MeineReaktionsteitStatistik } from './phase2057-meine-re
 import { FahrerPhase2060TourStopsNavigationLive } from './phase2060-tour-stops-navigation-live';
 import { FahrerPhase2062MeineEffizienzBilanz } from './phase2062-meine-effizienz-bilanz';
 import { FahrerPhase2067MeineTourenStrecke } from './phase2067-meine-touren-strecke';
+import { FahrerPhase2073MeineLieblingszone } from './phase2073-meine-lieblingszone';
 import { Phase2100TourStopNavigatorMaster } from './phase2100-tour-stop-navigator-master';
 
 type Driver = {
@@ -5603,6 +5604,8 @@ export function FahrerApp({
           <FahrerPhase2062MeineEffizienzBilanz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2067: Meine Touren-Strecke — Km-Zähler heute; Ø km/Bestellung; Vergleich Team-Ø; Fortschrittsbalken; isOnline-Guard */}
           <FahrerPhase2067MeineTourenStrecke driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2073: Meine Lieblingszone — Häufigste Zone heute; Ø Lieferzeit; Vergleich Team-Ø; isOnline-Guard; 1-Std-Polling */}
+          <FahrerPhase2073MeineLieblingszone locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2100: Tour-Stop-Navigator-Master — GPS-Deeplinks (Apple/Google), aktueller Stop groß, Nächster-Stop-Vorschau, Tour-Fortschrittsring */}
           <Phase2100TourStopNavigatorMaster driverId={driver.id} />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}

@@ -18373,3 +18373,47 @@ CEO-Agent (2026-07-17): CEO Review #434 — Phasen 2055–2059 (Reaktionszeit-Sy
 ---
 
 CEO-Agent (2026-07-17): CEO Review #435 — Phasen 2065–2070 + Smart Delivery System geprüft. 4 TS-Fehler behoben, 2 orphaned Komponenten (Phase2000SmartTourNavHub + Phase2200SmartEtaTrackingHub) integriert. Build ✓ 428 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
+
+## Batch 2071–2075 — Lieferzonen-Effizienz-System (2026-07-17)
+
+### Phase 2071 — Backend API: Lieferzonen-Effizienz
+**Datei:** `app/api/delivery/admin/lieferzonen-effizienz/route.ts`
+**GET:** `?location_id=<uuid>` — Ø Lieferzeit + km je Zone A/B/C/D; Auslastung%; Best/Worst Zone; Alert wenn >45 Min; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, zonen: ZonenEffizienzItem[], best_zone, worst_zone, team_avg_lieferzeit_min, alert_count, generiert_am }`
+
+### Phase 2072 — Zonen-Effizienz-Heatmap (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2072-zonen-effizienz-heatmap.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; KPI-Row (Team-Ø / Beste / Schwächste Zone); 2×2 Zone-Kacheln mit Ampel grün/gelb/rot; Ø Lieferzeit groß; Balken; km + Aufträge; Auslastung%; Alert-Banner wenn >45 Min; Tipp-Box; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2070 ✅
+
+### Phase 2073 — Meine Lieblingszone (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2073-meine-lieblingszone.tsx`
+**Props:** `locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Zone-Badge groß; KPI-Grid (Aufträge/Ø Lieferzeit/Auslastung); Fortschrittsbalken; "Du kennst diese Zone gut!"-Star-Badge; Tipp grün/amber je Vergleich mit Team-Ø; Mini-Liste aller Zonen; isOnline-Guard; 1-Std-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2067 ✅
+
+### Phase 2074 — Liefergebiet-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2074-liefergebiet-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Navigation-Pill blau; "Wir liefern in deine Zone in Ø X Min"; nur wenn team_avg ≤50 Min; Hydration-safe (mounted-Guard); 1-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2068 ✅
+
+### Phase 2075 — Zonen-Belastungs-Forecast (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2075-zonen-belastungs-forecast.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; Zone-Balken je A/B/C/D; Prognose nächste Stunde aus scheduled_for; Ampel grün(<4)/gelb(<7)/rot(≥7); Batch-Empfehlung wenn ≥3; Alert-Banner bei Peak; Legende; useMemo
+**Integration:** `kitchen/client.tsx` nach Phase2070 ✅
+
+### Nächste Phasen 2076–2080 (für nächsten Ingenieur)
+1. **Phase 2076 Backend:** Fahrer-Schicht-Start-API — GET /api/delivery/admin/fahrer-schicht-start: Wann haben Fahrer heute begonnen; Schichtdauer; Lücken >30 Min zwischen Touren; Überstunden-Flag; Multi-Tenant; Supabase+Mock.
+2. **Phase 2077 Dispatch:** Schicht-Start-Übersicht — Phase2076-API: Fahrer-Zeitlinie (Schichtstart + Stunden); Überstunden-Alert rot; Lücken-Warnung gelb; 15-Min-Polling; in dispatch/client.tsx nach Phase2072.
+3. **Phase 2078 Fahrer-App:** Meine Schicht-Dauer — Eigene Schichtlänge heute; Ring-Gauge % von Normalschicht (8h); Überstunden-Warnung; Pausen-Empfehlung nach >6h; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2073.
+4. **Phase 2079 Storefront:** Lieferzeit-Garantie-Banner — "Heute Lieferung bis X Uhr möglich"; aus Schicht-Daten; nur wenn Fahrer verfügbar; Hydration-safe; in storefront.tsx nach Phase2074.
+5. **Phase 2080 Kitchen:** Schicht-Ende-Warnung — Küche sieht wann letzter Fahrer Schicht endet; Alert 30 Min vorher; Batch-Stopp-Empfehlung; useMemo; in kitchen/client.tsx nach Phase2075.
+
+---
+
+Backend-Architekt-Agent (2026-07-17): Phasen 2071–2075 implementiert. Build ✓ Compiled successfully — 428 Seiten, TypeScript 0 Fehler. Push erfolgt.
