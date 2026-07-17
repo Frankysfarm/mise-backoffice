@@ -235,6 +235,7 @@ import { KitchenPhase2152ReaktionszeitMonitor } from './phase2152-reaktionszeit-
 import { KitchenPhase2157KmWarnung } from './phase2157-km-warnung';
 import { KitchenPhase2157KilometerMonitor } from './phase2157-kilometer-monitor';
 import { KitchenPhase2162VarianzMonitor } from './phase2162-varianz-monitor';
+import { KitchenPhase2167SpitzenzeitAlert } from './phase2167-spitzenzeit-alert';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3234,6 +3235,8 @@ export function KitchenBoard({
       <KitchenPhase2157KilometerMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2162: Varianz-Monitor — Fahrer mit σ >15 Min.; Ursachenanalyse-Hinweis; Eskalation wenn 2+; 15-Min-Polling */}
       <KitchenPhase2162VarianzMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2167: Spitzenzeit-Alert — Stoßzeit in <30 Min. ODER aktive Rush-Hour + Low-Performer; Batch-Vorbereitung; 5-Min-Polling */}
+      <KitchenPhase2167SpitzenzeitAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
