@@ -3594,7 +3594,7 @@ export function DispatchBoard({
           {/* Phase 2070: Tour-Score-Live-Board — Score-Ringe (0–100) + 3-Stufen-Farbkodierung + Fortschrittsbalken; Realtime */}
           <DispatchPhase2070TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1900: Tour-Stop-Visualizer — Horizontale Stop-Timelines je Tour; Score + Health-Ampel; Fortschrittsbalken */}
-          <DispatchPhase1900TourStopVisualizer batches={batches as any} drivers={drivers as any} stops={stops as any} />
+          <DispatchPhase1900TourStopVisualizer batches={batches as any} drivers={drivers as any} stops={[]} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

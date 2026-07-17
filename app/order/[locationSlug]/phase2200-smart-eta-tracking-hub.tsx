@@ -112,7 +112,7 @@ export function Phase2200SmartEtaTrackingHub({
   }
 
   // ETA from etaEarliest/etaLatest
-  let etaMinDynamic = initialEtaMin;
+  let etaMinDynamic: number | null = initialEtaMin ?? null;
   if (etaEarliest && phase !== 'delivered') {
     const etaMs = new Date(etaEarliest).getTime();
     etaMinDynamic = Math.max(0, Math.round((etaMs - Date.now()) / 60_000));

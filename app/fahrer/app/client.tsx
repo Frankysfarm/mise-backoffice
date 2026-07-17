@@ -554,6 +554,7 @@ import { TourStoppNaviPanel } from './tour-stopp-navi-panel';
 import { Phase1876SmartStoppNavCockpitFinal } from './phase1876-smart-stopp-nav-cockpit-final';
 import { FahrerPhase1880SmartTourStopCockpit } from './phase1880-smart-tour-stop-cockpit';
 import { FahrerPhase2000SmartTourStopKommandant } from './phase2000-smart-tour-stop-kommandant';
+import { FahrerPhase2000SmartTourNavHub } from './phase2000-smart-tour-nav-hub';
 import { FahrerPhase2001SchichtAbschlussAssistent } from './phase2001-schicht-abschluss-assistent';
 import { FahrerPhase2004MeineEtaGenauigkeit } from './phase2004-meine-eta-genauigkeit';
 import { FahrerPhase2009MeinSchichtForecast } from './phase2009-mein-schicht-forecast';
@@ -5648,6 +5649,27 @@ export function FahrerApp({
                   kunde_lieferhinweis: s.order.kunde_lieferhinweis ?? null,
                 } : null,
               }))}
+            />
+          )}
+          {/* Phase 2000: Smart Tour Nav Hub — Hero-Stop + ETA-Countdown + Nächste-Stopps-Liste + Tour-Score + Schnell-Aktionen */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2000SmartTourNavHub
+              stops={(activeBatch.stops ?? []).map((s: any, i: number) => ({
+                id: s.id,
+                sequence: s.reihenfolge ?? s.sequence ?? i,
+                status: s.geliefert_am ? 'completed' : s.angekommen_am ? 'active' : 'pending',
+                address: [s.order?.kunde_adresse, s.order?.kunde_plz].filter(Boolean).join(', ') || s.address || '',
+                customerName: s.order?.kunde_name ?? null,
+                customerPhone: s.order?.kunde_telefon ?? null,
+                etaMin: s.eta_min ?? null,
+                notes: s.order?.kunde_notiz ?? s.order?.kunde_lieferhinweis ?? null,
+                lat: s.order?.kunde_lat ?? s.lat ?? null,
+                lng: s.order?.kunde_lng ?? s.lng ?? null,
+                orderId: s.order?.id,
+                orderTotal: s.order?.gesamtbetrag ?? null,
+                paymentMethod: s.order?.zahlungsart ?? null,
+              }))}
+              tourScore={(activeBatch as any).tour_score ?? null}
             />
           )}
           {/* Phase 1851: Smart-Tour-Stopp Final-Kommando — Primäre Navigations-Karte; Countdown + Adresse + Schnellaktionen + Nächste-Stopps-Vorschau */}
