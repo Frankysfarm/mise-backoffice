@@ -2,6 +2,41 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+## Batch 2087–2091 — 2026-07-17
+
+### Phase 2087 — Bestelldurchsatz-Stunden-API (Backend)
+**Datei:** `app/api/delivery/admin/bestelldurchsatz-stunden/route.ts`
+**GET:** `?location_id=<uuid>` — Bestellungen pro Stunde heute + Vortag; Peak-Stunde; Prognose nächste Stunde; Alert wenn Durchsatz sinkt; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, stunden: StundenDurchsatz[], peak_stunde, naechste_stunde_prognose, team_gesamt_heute, alert_sinkend, generiert_am }`
+
+### Phase 2088 — Stunden-Durchsatz-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2088-stunden-durchsatz-board.tsx`
+**Props:** `locationId: string | null, className?: string`
+**UI:** Collapsible; Balkendiagramm 24h-Verlauf; Peak grün hervorgehoben; aktuelle Stunde blau; Vortag gestrichelt; KPI-Grid (Peak/Jetzt/Prognose +1h); Alert-Banner wenn Durchsatz sinkt; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2082 ✅
+
+### Phase 2089 — Meine Stunden-Bilanz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2089-meine-stunden-bilanz.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Mini-Balkendiagramm Team-Stunden; Spitzenstunde; KPI-Grid (Jetzt/Spitze/Team-Ø/h); Vergleich-Banner (über/unter Team-Ø); isOnline-Guard; 1h-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2110 ✅
+
+### Phase 2090 — Beliebteste Bestellzeit-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2090-beliebte-bestellzeit-badge.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Flame-Pill "Beliebt: X–Y Uhr · viele bestellen jetzt"; orange bei Peak-Stunde jetzt; Hydration-safe (mounted-Guard); 30-Min-Polling
+**Integration:** `storefront.tsx` nach Phase2079 ✅
+
+### Phase 2091 — Stunden-Auslastungs-Heatmap (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2091-stunden-auslastungs-heatmap.tsx`
+**Props:** `orders: Order[]`
+**UI:** Collapsible; 24×1h-Kachel-Grid (Ampel grün/amber/orange/rot); aktuelle Stunde geringt; KPI-Grid (Peak-Std/Jetzt/Prognose+1h); Batch-Empfehlung bei hoher Auslastung; useMemo; rendert nur wenn Bestellungen vorhanden
+**Integration:** `kitchen/client.tsx` nach Phase2086 ✅
+
+---
+
+Backend-Architekt-Agent (2026-07-17): Phasen 2087–2091 implementiert. Build ✓ Compiled successfully — Exit Code 0. 9 Dateien (1 API-Route, 4 Komponenten, 4 Host-Integrationen). Push erfolgt (4337f711).
+
 ## CEO Review #437 — 2026-07-17
 
 **TypeScript:** tsc EXIT 0 — 0 Fehler ✅
