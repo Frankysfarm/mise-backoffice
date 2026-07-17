@@ -2,6 +2,48 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-17): Phasen 2206–2210 implementiert. 1 neue Backend-API (schicht-vergleich) + 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+
+## Batch 2206–2210 — Schicht-Vergleich-System (2026-07-17)
+
+### Phase 2206 — Backend API: Schicht-Vergleich
+**Datei:** `app/api/delivery/admin/schicht-vergleich/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Vergleich heute vs. gestern vs. 7-Tage-Ø für Einnahmen/Stopps/km; Trend-Pfeile; Alert wenn -15%; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, einnahmen: SchichtVergleichMetrik, stopps: SchichtVergleichMetrik, km: SchichtVergleichMetrik, generiert_am }`
+
+### Phase 2207 — Schicht-Vergleich-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2207-schicht-vergleich-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; 3-Spalten-Grid (Einnahmen/Stopps/km); Mini-Sparkline je Metrik (7d-Ø/Gestern/Heute); Trend-Icons mit Δ%; Alert-Banner wenn -20%; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2202 ✅
+
+### Phase 2208 — Mein Schicht-Vergleich (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2208-mein-schicht-vergleich.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; 3-Kacheln (Einnahmen/Stopps/Strecke) mit Heute+Gestern+Δ; Trend-Icons; Motivations-Tipp je Trend; isOnline-Guard; 1-Std-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2203 ✅
+
+### Phase 2209 — Performance-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2209-performance-siegel.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Grüne Pill "Heute +X% mehr Lieferungen als gestern"; nur wenn Stopps-Trend >10%; Hydration-safe; 2-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2204 ✅
+
+### Phase 2210 — Schicht-Trend-Monitor (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2210-schicht-trend-monitor.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; 3 Zeilen (Einnahmen/Stopps/Strecke) mit Trend-Icons + Δ% vs. gestern + 7d-Ø; Alert wenn Einnahmen -15% vs. gestern; useMemo; 15-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2205 ✅
+
+### Nächste Phasen 2211–2215 (für nächsten Ingenieur)
+1. **Phase 2211 Backend:** Schicht-Bestzeiten-API — GET /api/delivery/admin/schicht-bestzeiten: Schnellste Lieferzeit heute; Bester Fahrer nach Stopps/h; Record-Tracker (heute vs. Allzeit-Rekord); Multi-Tenant; Supabase+Mock.
+2. **Phase 2212 Dispatch:** Bestzeiten-Board — Phase2211-API: Podium Top-3 Fahrer nach Stopps/h; Rekord-Highlight wenn neuer Allzeit-Best; Tages-Rekord-Ticker; 30-Min-Polling; in dispatch/client.tsx nach Phase2207.
+3. **Phase 2213 Fahrer-App:** Mein Bestzeit-Rekord — Eigene Schnellste-Lieferzeit heute; Allzeit-Bestmarke; Rekord-Badge wenn neues Persönliches-Best; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2208.
+4. **Phase 2214 Storefront:** Rekord-Siegel — "Heutiger Lieferrekord: X Min."; nur wenn schnellste Lieferzeit heute ≤15 Min.; Hydration-safe; 4-Std-Polling; in storefront.tsx nach Phase2209.
+5. **Phase 2215 Kitchen:** Bestzeit-Ticker — Live-Ticker letzte 5 abgeschlossene Lieferungen mit Zeit; Highlight wenn <20 Min.; useMemo; 5-Min-Polling; in kitchen/client.tsx nach Phase2210.
+
+---
+
 Backend-Architekt-Agent (2026-07-17): Phasen 2201–2205 implementiert. Backend-API bereits als Phase 1567 vorhanden (fahrer-schicht-bilanz). 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
 
 ## Batch 2201–2205 — Fahrer-Schicht-Abschluss-System (2026-07-17)

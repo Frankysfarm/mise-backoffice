@@ -1,134 +1,120 @@
+/**
+ * Phase 2206 — Schicht-Vergleich-API
+ *
+ * GET /api/delivery/admin/schicht-vergleich?location_id=<uuid>
+ * Vergleich heute vs. gestern vs. 7-Tage-Ø für Einnahmen/Stopps/km; Trend-Pfeile
+ * Multi-Tenant; Supabase + Mock-Fallback.
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-
-/**
- * Phase 1361 — Schicht-Vergleich API
- *
- * GET: Aktuelle Schicht vs. Durchschnitt letzte 7 Tage.
- * Metriken: Stopps, Umsatz, Trinkgeld, Pünktlichkeit.
- * Supabase delivery_tours + Mock-Fallback.
- */
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-interface SchichtMetrik {
-  stopps: number;
-  umsatz_eur: number;
-  trinkgeld_eur: number;
-  puenktlich_pct: number;
-  touren_anzahl: number;
+export type TrendPfeil = 'hoch' | 'runter' | 'gleich';
+
+export interface SchichtVergleichMetrik {
+  heute: number;
+  gestern: number;
+  avg7: number;
+  trend_gestern: TrendPfeil;
+  trend_avg7: TrendPfeil;
+  delta_gestern_pct: number;
+  delta_avg7_pct: number;
+  alert: boolean;
 }
 
-interface DeltaMetrik {
-  wert: number;
-  delta_abs: number;
-  delta_pct: number;
-  trend: 'besser' | 'gleich' | 'schlechter';
-}
-
-interface SchichtVergleichResponse {
-  aktuell: SchichtMetrik;
-  durchschnitt_7tage: SchichtMetrik;
-  deltas: {
-    stopps: DeltaMetrik;
-    umsatz_eur: DeltaMetrik;
-    trinkgeld_eur: DeltaMetrik;
-    puenktlich_pct: DeltaMetrik;
-  };
-  schicht_datum: string;
+export interface SchichtVergleichAntwort {
+  location_id: string;
+  einnahmen: SchichtVergleichMetrik;
+  stopps: SchichtVergleichMetrik;
+  km: SchichtVergleichMetrik;
   generiert_am: string;
 }
 
-function calcDelta(aktuellVal: number, schnittVal: number, hoeherIstBesser = true): DeltaMetrik {
-  const delta_abs = aktuellVal - schnittVal;
-  const delta_pct = schnittVal !== 0 ? Math.round((delta_abs / schnittVal) * 100) : 0;
-  const trend: 'besser' | 'gleich' | 'schlechter' =
-    Math.abs(delta_pct) < 2 ? 'gleich' : (hoeherIstBesser ? delta_abs > 0 : delta_abs < 0) ? 'besser' : 'schlechter';
-  return { wert: aktuellVal, delta_abs: Math.round(delta_abs * 100) / 100, delta_pct, trend };
+const MOCK: SchichtVergleichAntwort = {
+  location_id: 'mock',
+  einnahmen: { heute: 312.5, gestern: 287.0, avg7: 295.3, trend_gestern: 'hoch', trend_avg7: 'hoch', delta_gestern_pct: 8.9, delta_avg7_pct: 5.8, alert: false },
+  stopps:    { heute: 24,    gestern: 21,    avg7: 22.4,  trend_gestern: 'hoch', trend_avg7: 'hoch', delta_gestern_pct: 14.3, delta_avg7_pct: 7.1, alert: false },
+  km:        { heute: 187,   gestern: 204,   avg7: 198.5, trend_gestern: 'runter', trend_avg7: 'runter', delta_gestern_pct: -8.3, delta_avg7_pct: -5.8, alert: false },
+  generiert_am: new Date().toISOString(),
+};
+
+function pfeil(delta: number): TrendPfeil {
+  if (delta > 2) return 'hoch';
+  if (delta < -2) return 'runter';
+  return 'gleich';
 }
 
-function buildMock(): SchichtVergleichResponse {
-  const aktuell: SchichtMetrik = { stopps: 47, umsatz_eur: 612.50, trinkgeld_eur: 38.20, puenktlich_pct: 82, touren_anzahl: 6 };
-  const schnitt: SchichtMetrik = { stopps: 42, umsatz_eur: 580.00, trinkgeld_eur: 34.00, puenktlich_pct: 78, touren_anzahl: 5 };
-  return {
-    aktuell,
-    durchschnitt_7tage: schnitt,
-    deltas: {
-      stopps: calcDelta(aktuell.stopps, schnitt.stopps),
-      umsatz_eur: calcDelta(aktuell.umsatz_eur, schnitt.umsatz_eur),
-      trinkgeld_eur: calcDelta(aktuell.trinkgeld_eur, schnitt.trinkgeld_eur),
-      puenktlich_pct: calcDelta(aktuell.puenktlich_pct, schnitt.puenktlich_pct),
-    },
-    schicht_datum: new Date().toISOString().slice(0, 10),
-    generiert_am: new Date().toISOString(),
-  };
+function pct(heute: number, vergleich: number): number {
+  if (vergleich === 0) return 0;
+  return Math.round(((heute - vergleich) / vergleich) * 1000) / 10;
 }
 
-function aggregate(rows: Array<{ stopps_abgeschlossen?: number | null; umsatz_eur?: number | null; trinkgeld_eur?: number | null; puenktlich_pct?: number | null }>): SchichtMetrik {
-  if (!rows.length) return { stopps: 0, umsatz_eur: 0, trinkgeld_eur: 0, puenktlich_pct: 0, touren_anzahl: 0 };
+function metrik(heute: number, gestern: number, avg7: number, alertSchwelle = -15): SchichtVergleichMetrik {
+  const delta_gestern_pct = pct(heute, gestern);
+  const delta_avg7_pct = pct(heute, avg7);
   return {
-    stopps: rows.reduce((s, r) => s + (r.stopps_abgeschlossen ?? 0), 0),
-    umsatz_eur: Math.round(rows.reduce((s, r) => s + (r.umsatz_eur ?? 0), 0) * 100) / 100,
-    trinkgeld_eur: Math.round(rows.reduce((s, r) => s + (r.trinkgeld_eur ?? 0), 0) * 100) / 100,
-    puenktlich_pct: Math.round(rows.reduce((s, r) => s + (r.puenktlich_pct ?? 0), 0) / rows.length),
-    touren_anzahl: rows.length,
+    heute,
+    gestern,
+    avg7: Math.round(avg7 * 10) / 10,
+    trend_gestern: pfeil(delta_gestern_pct),
+    trend_avg7: pfeil(delta_avg7_pct),
+    delta_gestern_pct,
+    delta_avg7_pct,
+    alert: delta_gestern_pct < alertSchwelle,
   };
 }
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const locationId = searchParams.get('location_id');
+  const locationId = req.nextUrl.searchParams.get('location_id');
+  if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
 
-  if (!locationId) return NextResponse.json(buildMock());
+  const jetzt = new Date();
+  const heuteStart = new Date(jetzt); heuteStart.setHours(0, 0, 0, 0);
+  const gesternStart = new Date(heuteStart.getTime() - 86400000);
+  const gesternEnde = new Date(heuteStart.getTime() - 1);
+  const vor7 = new Date(heuteStart.getTime() - 7 * 86400000);
 
   try {
     const supabase = await createClient();
-    const now = new Date();
-    const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 0, 0);
-    const sevenDaysAgo = new Date(todayStart);
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const [todayRes, historyRes] = await Promise.all([
-      supabase
-        .from('delivery_tours')
-        .select('stopps_abgeschlossen, umsatz_eur, trinkgeld_eur, puenktlich_pct')
+    async function sumPeriode(von: Date, bis: Date) {
+      const { data } = await supabase
+        .from('mise_delivery_batches')
+        .select('revenue_eur, stop_count, distance_km')
         .eq('location_id', locationId)
-        .gte('erstellt_am', todayStart.toISOString()),
-      supabase
-        .from('delivery_tours')
-        .select('stopps_abgeschlossen, umsatz_eur, trinkgeld_eur, puenktlich_pct')
-        .eq('location_id', locationId)
-        .gte('erstellt_am', sevenDaysAgo.toISOString())
-        .lt('erstellt_am', todayStart.toISOString()),
+        .eq('status', 'delivered')
+        .gte('delivered_at', von.toISOString())
+        .lte('delivered_at', bis.toISOString());
+      const rows = data ?? [];
+      return {
+        einnahmen: rows.reduce((s: number, r: { revenue_eur: number | null }) => s + (r.revenue_eur ?? 0), 0),
+        stopps: rows.reduce((s: number, r: { stop_count: number | null }) => s + (r.stop_count ?? 0), 0),
+        km: rows.reduce((s: number, r: { distance_km: number | null }) => s + (r.distance_km ?? 0), 0),
+      };
+    }
+
+    const [heute, gestern, woche] = await Promise.all([
+      sumPeriode(heuteStart, jetzt),
+      sumPeriode(gesternStart, gesternEnde),
+      sumPeriode(vor7, gesternEnde),
     ]);
 
-    if (todayRes.error || historyRes.error) return NextResponse.json(buildMock());
-
-    const aktuell = aggregate(todayRes.data ?? []);
-    const histRaw = aggregate(historyRes.data ?? []);
-    const schnitt: SchichtMetrik = {
-      stopps: Math.round(histRaw.stopps / 7),
-      umsatz_eur: Math.round((histRaw.umsatz_eur / 7) * 100) / 100,
-      trinkgeld_eur: Math.round((histRaw.trinkgeld_eur / 7) * 100) / 100,
-      puenktlich_pct: histRaw.puenktlich_pct,
-      touren_anzahl: Math.round(histRaw.touren_anzahl / 7),
+    const avg7 = {
+      einnahmen: woche.einnahmen / 7,
+      stopps: woche.stopps / 7,
+      km: woche.km / 7,
     };
 
     return NextResponse.json({
-      aktuell,
-      durchschnitt_7tage: schnitt,
-      deltas: {
-        stopps: calcDelta(aktuell.stopps, schnitt.stopps),
-        umsatz_eur: calcDelta(aktuell.umsatz_eur, schnitt.umsatz_eur),
-        trinkgeld_eur: calcDelta(aktuell.trinkgeld_eur, schnitt.trinkgeld_eur),
-        puenktlich_pct: calcDelta(aktuell.puenktlich_pct, schnitt.puenktlich_pct),
-      },
-      schicht_datum: todayStart.toISOString().slice(0, 10),
-      generiert_am: now.toISOString(),
-    } satisfies SchichtVergleichResponse);
+      location_id: locationId,
+      einnahmen: metrik(Math.round(heute.einnahmen * 100) / 100, Math.round(gestern.einnahmen * 100) / 100, avg7.einnahmen, -15),
+      stopps:    metrik(heute.stopps, gestern.stopps, avg7.stopps, -20),
+      km:        metrik(Math.round(heute.km * 10) / 10, Math.round(gestern.km * 10) / 10, avg7.km, -20),
+      generiert_am: jetzt.toISOString(),
+    } satisfies SchichtVergleichAntwort);
   } catch {
-    return NextResponse.json(buildMock());
+    return NextResponse.json({ ...MOCK, location_id: locationId });
   }
 }

@@ -606,6 +606,7 @@ import { FahrerPhase2185MeineStornoBilanz } from './phase2185-meine-storno-bilan
 import { FahrerPhase2190MeinKundenfeedback } from './phase2190-mein-kundenfeedback';
 import { FahrerPhase2195MeinVerdienstHeute } from './phase2195-mein-verdienst-heute';
 import { FahrerPhase2203MeinSchichtAbschluss } from './phase2203-mein-schicht-abschluss';
+import { FahrerPhase2208MeinSchichtVergleich } from './phase2208-mein-schicht-vergleich';
 import { FahrerPhase2200SmartStoppNaviCockpit } from './phase2200-smart-stopp-navi-cockpit';
 
 type Driver = {
@@ -5773,6 +5774,8 @@ export function FahrerApp({
           <FahrerPhase2195MeinVerdienstHeute driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2203: Mein Schicht-Abschluss — Eigene Tagesleistung; Rang; Team-Ø; Motivations-Nachricht; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2203MeinSchichtAbschluss driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2208: Mein Schicht-Vergleich — Δ vs. gestern; Trend; Motivations-Tipp; isOnline-Guard; 1-Std-Polling */}
+          <FahrerPhase2208MeinSchichtVergleich driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2200: Smart-Stopp-Navi-Cockpit — 1-Tap Navigation, Stopp-Bestätigung, ETA-Timeline */}
           <FahrerPhase2200SmartStoppNaviCockpit />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}

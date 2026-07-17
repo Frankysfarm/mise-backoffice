@@ -421,6 +421,7 @@ import { StorefrontPhase2186ZuverlaessigkeitsSiegel } from './phase2186-zuverlae
 import { StorefrontPhase2191TopFahrerSiegel } from './phase2191-top-fahrer-siegel';
 import { StorefrontPhase2196VerdienstSiegel } from './phase2196-verdienst-siegel';
 import { StorefrontPhase2204SchichtEndeBanner } from './phase2204-schicht-ende-banner';
+import { StorefrontPhase2209PerformanceSiegel } from './phase2209-performance-siegel';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 
 type Props = {
@@ -1882,6 +1883,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2196VerdienstSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2204: Schicht-Ende-Banner — "Neue Fahrer übernehmen jetzt" wenn aktive_fahrer=0; Hydration-safe; 5-Min-Polling */}
       <StorefrontPhase2204SchichtEndeBanner locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2209: Performance-Siegel — "Heute X% mehr Lieferungen als gestern"; nur wenn Trend >10%; Hydration-safe; 2-Std-Polling */}
+      <StorefrontPhase2209PerformanceSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2200: LiveTrackingFortschritt — Echtzeit-Lieferfortschritt mit Phasen-Timeline und Fahrer-Position */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">
