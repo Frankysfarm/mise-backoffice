@@ -5712,7 +5712,7 @@ export function FahrerApp({
           <FahrerPhase2140MeineSchichtEffizienz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2145: Mein Feedback-Score — Eigene Sternebewertung heute; Trend; Anzahl; Tipp; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2145MeinFeedbackScore driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
-          {/* Phase 2150: Meine Reaktionszeit — Eigene Ø Reaktionszeit; Vergleich Ziel + Team-Ø; Tipp; isOnline-Guard; 1-Std-Polling */}
+          {/* Phase 2150: Meine Reaktionszeit — Ø Zeit vom Batch-Empfang bis Abfahrt; Ziel <3 Min.; vs. Team-Ø; Tipp; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2150MeineReaktionszeit driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (

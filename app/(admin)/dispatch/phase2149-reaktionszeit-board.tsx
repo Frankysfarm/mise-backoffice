@@ -31,15 +31,21 @@ const MOCK: ApiData = {
   ],
 };
 
-function ampel(avg: number): 'green' | 'yellow' | 'red' {
-  if (avg <= 3) return 'green';
-  if (avg <= 5) return 'yellow';
-  return 'red';
+function zeitColor(min: number) {
+  if (min <= 3) return 'text-green-600';
+  if (min <= 5) return 'text-amber-600';
+  return 'text-red-600';
+}
+
+function barColor(min: number) {
+  if (min <= 3) return 'bg-green-500';
+  if (min <= 5) return 'bg-amber-500';
+  return 'bg-red-500';
 }
 
 interface Props { locationId: string | null }
 
-export function DispatchPhase2149RekationszeitBoard({ locationId }: Props) {
+export function DispatchPhase2149ReaktionszeitBoard({ locationId }: Props) {
   const [open, setOpen]       = useState(true);
   const [data, setData]       = useState<ApiData>(MOCK);
   const [loading, setLoading] = useState(false);
@@ -59,10 +65,9 @@ export function DispatchPhase2149RekationszeitBoard({ locationId }: Props) {
     return () => clearInterval(id);
   }, [load]);
 
-  const alertList = data.fahrer.filter(f => f.avg_min > 5);
+  const alertList = data.fahrer.filter(f => f.alert || f.avg_min > 5);
   const hasAlert  = alertList.length > 0;
-
-  const teamColor = data.team_avg_min <= 3 ? 'text-green-600' : data.team_avg_min <= 5 ? 'text-amber-600' : 'text-red-600';
+  const sorted    = [...data.fahrer].sort((a, b) => a.avg_min - b.avg_min);
 
   return (
     <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
@@ -86,8 +91,8 @@ export function DispatchPhase2149RekationszeitBoard({ locationId }: Props) {
           <div className="rounded-lg bg-muted/30 border px-3 py-2 flex items-center gap-3">
             <div>
               <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Team-Ø Reaktionszeit</p>
-              <p className={cn('text-xl font-black tabular-nums', teamColor)}>
-                {data.team_avg_min.toFixed(1)} Min
+              <p className={cn('text-xl font-black tabular-nums', zeitColor(data.team_avg_min))}>
+                {data.team_avg_min.toFixed(1)} Min.
               </p>
             </div>
             <div className="ml-auto text-right">
@@ -99,47 +104,42 @@ export function DispatchPhase2149RekationszeitBoard({ locationId }: Props) {
             <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 flex items-start gap-2">
               <AlertTriangle className="h-3.5 w-3.5 text-red-600 mt-0.5 shrink-0" />
               <p className="text-[11px] text-red-700 font-medium leading-snug">
-                {alertList.map(f => f.name).join(', ')} — Reaktionszeit &gt;5 Min. Tipp: Batches früher bestätigen.
+                {alertList.map(f => f.name).join(', ')} — Reaktionszeit über 5 Min. Coaching empfehlen.
               </p>
             </div>
           )}
 
           <div className="space-y-2">
-            {data.fahrer.map((f, i) => {
-              const c = ampel(f.avg_min);
-              const barColor = c === 'green' ? 'bg-green-500' : c === 'yellow' ? 'bg-amber-500' : 'bg-red-500';
-              const cardClass = c === 'green'
-                ? 'bg-green-50 border-green-200 text-green-800'
-                : c === 'yellow'
-                ? 'bg-amber-50 border-amber-200 text-amber-800'
-                : 'bg-red-50 border-red-200 text-red-800';
-
-              return (
-                <div key={f.driver_id} className={cn('rounded-lg border p-2.5 space-y-1', cardClass)}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold w-4 shrink-0 opacity-50">#{i + 1}</span>
-                    <span className="text-[11px] font-semibold flex-1 truncate">{f.name}</span>
-                    <div className="flex items-center gap-1">
-                      {f.trend === 'besser'     && <TrendingDown className="h-3 w-3 text-green-500" />}
-                      {f.trend === 'schlechter' && <TrendingUp   className="h-3 w-3 text-red-500" />}
-                      {f.trend === 'gleich'     && <Minus        className="h-3 w-3 text-muted-foreground" />}
-                      <span className="text-sm font-black tabular-nums">
-                        {f.avg_min.toFixed(1)}<span className="text-[9px] font-normal"> Min</span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-muted/40 rounded-full h-1.5">
-                      <div
-                        className={cn('h-1.5 rounded-full', barColor)}
-                        style={{ width: `${Math.min(100, (f.avg_min / 15) * 100)}%` }}
-                      />
-                    </div>
-                    <span className="text-[9px] opacity-70 shrink-0">{f.auftraege} Auftr.</span>
+            {sorted.map((f, i) => (
+              <div key={f.driver_id} className={cn(
+                'rounded-lg border p-2.5 space-y-1.5',
+                f.avg_min > 5  ? 'bg-red-50 border-red-200'
+                : f.avg_min > 3 ? 'bg-amber-50 border-amber-200'
+                : 'bg-muted/10',
+              )}>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-muted-foreground font-bold w-4 shrink-0">#{i + 1}</span>
+                  <span className="text-[11px] font-semibold flex-1 truncate">{f.name}</span>
+                  <div className="flex items-center gap-1">
+                    {f.trend === 'besser'     && <TrendingDown className="h-3 w-3 text-green-500" />}
+                    {f.trend === 'schlechter' && <TrendingUp   className="h-3 w-3 text-red-500" />}
+                    {f.trend === 'gleich'     && <Minus        className="h-3 w-3 text-muted-foreground" />}
+                    <span className={cn('text-sm font-black tabular-nums', zeitColor(f.avg_min))}>
+                      {f.avg_min.toFixed(1)}m
+                    </span>
                   </div>
                 </div>
-              );
-            })}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 rounded-full bg-black/10 overflow-hidden">
+                    <div
+                      className={cn('h-full rounded-full transition-all', barColor(f.avg_min))}
+                      style={{ width: `${Math.min((f.avg_min / 12) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-[9px] text-muted-foreground shrink-0">{f.auftraege} Auftr.</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

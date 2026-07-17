@@ -231,7 +231,7 @@ import { KitchenPhase2132TourAbbruchAlert } from './phase2132-tour-abbruch-alert
 import { KitchenPhase2137TeillieferungsMonitor } from './phase2137-teillieferungs-monitor';
 import { KitchenPhase2142KapazitaetsWarnung } from './phase2142-kapazitaets-warnung';
 import { KitchenPhase2147FeedbackAlert } from './phase2147-feedback-alert';
-import { KitchenPhase2152RekationszeitMonitor } from './phase2152-reaktionszeit-monitor';
+import { KitchenPhase2152ReaktionszeitMonitor } from './phase2152-reaktionszeit-monitor';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3223,8 +3223,8 @@ export function KitchenBoard({
       <KitchenPhase2142KapazitaetsWarnung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2147: Feedback-Alert — Fahrer <3.5 Sterne heute; Eskalation wenn mehrere; 15-Min-Polling */}
       <KitchenPhase2147FeedbackAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
-      {/* Phase 2152: Reaktionszeit-Monitor — Fahrer >5 Min.; Eskalation wenn 2+; Dispatcher-Hinweis; 10-Min-Polling */}
-      <KitchenPhase2152RekationszeitMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2152: Reaktionszeit-Monitor — Fahrer >5 Min. Reaktionszeit; Eskalation wenn 2+; Dispatcher-Hinweis; 10-Min-Polling */}
+      <KitchenPhase2152ReaktionszeitMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
