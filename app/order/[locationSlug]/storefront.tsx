@@ -391,6 +391,7 @@ import { StorefrontPhase2044PuenktlichkeitsBadge } from './phase2044-puenktlichk
 import { StorefrontPhase2052StammkundenBegruessung } from './phase2052-stammkunden-begruessung';
 import { StorefrontPhase2058BlitzschnellBadge } from './phase2058-blitzschnell-badge';
 import { StorefrontPhase2060DynamischeEtaLiveTracking } from './phase2060-dynamische-eta-live-tracking';
+import { StorefrontPhase2063FrischeGarantieBadge } from './phase2063-frische-garantie-badge';
 
 type Props = {
   location: Location;
@@ -1786,6 +1787,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2052StammkundenBegruessung locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 2058: Blitzschnell-Badge — "Ø X Min Reaktion" wenn Team-Ø ≤5 Min; Zap-Pill gelb; 1-Std-Polling; Hydration-safe */}
       <StorefrontPhase2058BlitzschnellBadge locationId={location.id} className="mx-4 mt-2" />
+      {/* Phase 2063: Frische-Garantie-Badge — "Frisch zubereitet in X Min"; Ø Kochzeit; Hydration-safe; 30-Min-Polling */}
+      <StorefrontPhase2063FrischeGarantieBadge locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2060: Dynamische ETA & Live-Tracking — Bestellung→Küche→Fahrer→Lieferung; Fahrername; Countdown; 30s-Polling */}
       {activeOrderId && (
         <StorefrontPhase2060DynamischeEtaLiveTracking

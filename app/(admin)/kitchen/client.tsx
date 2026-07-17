@@ -210,6 +210,7 @@ import { KitchenPhase2053StammkundenBestellungsHighlight } from './phase2053-sta
 import { KitchenPhase2054SmartTimingFarbkodierungsLiveMatrix } from './phase2054-smart-timing-farbkodierungs-live-matrix';
 import { KitchenPhase2059BestellEingangFrequenzMonitor } from './phase2059-bestell-eingang-frequenz-monitor';
 import { KitchenPhase2060SmartTimingCountdownIntegrationsBoard } from './phase2060-smart-timing-countdown-integrations-board';
+import { KitchenPhase2064BestellwartenEskalationsAmpel } from './phase2064-bestellwarten-eskalations-ampel';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3156,6 +3157,8 @@ export function KitchenBoard({
       <KitchenPhase2059BestellEingangFrequenzMonitor orders={filtered as any} />
       {/* Phase 2060: Smart-Timing Countdown Integrations-Board — 5-Stufen-Farbampel + sekunden-genauer Countdown; Fertigstellungs-Ziel aus Timing + promised_at; sortiert nach Dringlichkeit */}
       <KitchenPhase2060SmartTimingCountdownIntegrationsBoard orders={filtered} timings={timings} />
+      {/* Phase 2064: Bestellwarten-Eskalations-Ampel — Bestellungen warten >10/15/20 Min ohne Zuweisung; Ampel + Alert; useMemo */}
+      <KitchenPhase2064BestellwartenEskalationsAmpel orders={filtered as any} />
     </div>
   );
 }
