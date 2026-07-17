@@ -4548,3 +4548,6 @@ function LieferdienstAboOverview({ locationId }: { locationId: string }) {
 
 // Smart Delivery System — Stats Panel (neu)
 export { SmartDeliveryStatsPanel } from "./smart-delivery-stats-panel";
+
+// Phase 2200 — Schicht-End KPI Cockpit
+export { LieferdienstPhase2200SchichtEndKpiCockpit } from './phase2200-schicht-end-kpi-cockpit';

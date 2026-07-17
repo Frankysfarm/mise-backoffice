@@ -11227,3 +11227,6 @@ export function DispatchActiveTourScoreBoard({ batches, drivers }: { batches: Ba
 
 // Smart Delivery System — Tour Board (neu)
 export { SmartDeliveryTourBoard } from "./smart-delivery-tour-board";
+
+// Phase 2195 — Tour Gewinn-Effizienz Cockpit
+export { DispatchPhase2195TourGewinnEffizienzCockpit } from './phase2195-tour-gewinn-effizienz-cockpit';

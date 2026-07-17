@@ -9785,3 +9785,6 @@ function PrepLearningPanel({ locationId }: { locationId: string | null }) {
 
 // Smart Delivery System — Kitchen Timing Wall (neu)
 export { SmartDeliveryTimingWall } from './smart-delivery-timing-wall';
+
+// Phase 2195 — Echtzeit Prep-Effizienz Matrix
+export { KitchenPhase2195EchtzeitPrepEffizienzMatrix } from './phase2195-echtzeit-prep-effizienz-matrix';
