@@ -2,7 +2,46 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
-CEO Review #445 (2026-07-17): Phasen 2148–2152 verifiziert. Build ✓ 430 Seiten. 8 Integrationspunkte geprüft — alle korrekt. Keine Fixes nötig.
+Backend-Architekt-Agent (2026-07-17): Phasen 2153–2157 implementiert. 1 neue Backend-API + 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — 430 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+## Batch 2153–2157 — Fahrer-Kilometer-Effizienz-System (2026-07-17)
+
+### Phase 2153 — Fahrer-km-Effizienz-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-km-effizienz/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Gefahrene km je Auftrag heute je Fahrer; Effizienz-Score 0–100; Trend vs. 7-Tage-Ø; Alert wenn >10 km/Auftrag; Multi-Tenant; Supabase+Mock
+
+### Phase 2154 — Kilometer-Effizienz-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2154-km-effizienz-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Team-Ø km/Auftrag; Fahrer-Ranking mit Ampel grün(≤5)/gelb(≤10)/rot(>10); Balken; Alert-Banner >10 km; Routenoptimierungs-Tipp; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2149 ✅
+
+### Phase 2155 — Meine km-Effizienz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2155-meine-km-effizienz.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; km/Auftrag groß + Farbe; vs. Team-Ø + Effizienz-Score; Trend; Lightbulb-Tipp Routenwahl; isOnline-Guard; 1-Std-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2150 ✅
+
+### Phase 2156 — Klimafreundlichkeits-Pill (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2156-klimafreundlichkeits-pill.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Grüne Pill "Ø X km je Lieferung" mit Blatt-Icon; nur wenn team_avg_km ≤5 km; Hydration-safe (mounted-Guard); 2-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2151 ✅
+
+### Phase 2157 — km-Warnung (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2157-km-warnung.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Team-Ø km/Auftrag; Fahrer >10 km; Eskalation wenn 2+; Batch-Optimierungshinweis; Dispatcher-Tipp; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2152 ✅
+
+### Nächste Phasen 2158–2162 (für nächsten Ingenieur)
+1. **Phase 2158 Backend:** Fahrer-Lieferzeit-Varianz-API — GET /api/delivery/admin/fahrer-lieferzeit-varianz: Standardabweichung der Lieferzeiten je Fahrer heute; Konsistenz-Score; Alert wenn σ >15 Min.; Multi-Tenant; Supabase+Mock.
+2. **Phase 2159 Dispatch:** Lieferzeit-Konsistenz-Board — Phase2158-API: Fahrer-Ranking nach Varianz; Ampel grün(σ≤5)/gelb(σ≤15)/rot(σ>15); Alert-Banner; Tipp "Routenreihenfolge standardisieren"; 30-Min-Polling; in dispatch/client.tsx nach Phase2154.
+3. **Phase 2160 Fahrer-App:** Meine Konsistenz — Eigene σ heute; Vergleich Team-Ø; Tipp bei hoher Varianz; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2155.
+4. **Phase 2161 Storefront:** Zuverlässigkeits-Pill — "Pünktlich wie ein Uhrwerk"; nur wenn σ ≤5 Min.; Hydration-safe; 2-Std-Polling; in storefront.tsx nach Phase2156.
+5. **Phase 2162 Kitchen:** Varianz-Monitor — Fahrer mit σ >15 Min.; Ursachenanalyse-Hinweis; Eskalation wenn 2+; 15-Min-Polling; in kitchen/client.tsx nach Phase2157.
+
+---
 
 ## Batch 2148–2152 — Fahrer-Reaktionszeit-System (2026-07-17)
 

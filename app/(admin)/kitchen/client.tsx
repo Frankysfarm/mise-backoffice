@@ -232,6 +232,7 @@ import { KitchenPhase2137TeillieferungsMonitor } from './phase2137-teillieferung
 import { KitchenPhase2142KapazitaetsWarnung } from './phase2142-kapazitaets-warnung';
 import { KitchenPhase2147FeedbackAlert } from './phase2147-feedback-alert';
 import { KitchenPhase2152ReaktionszeitMonitor } from './phase2152-reaktionszeit-monitor';
+import { KitchenPhase2157KmWarnung } from './phase2157-km-warnung';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3225,6 +3226,8 @@ export function KitchenBoard({
       <KitchenPhase2147FeedbackAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2152: Reaktionszeit-Monitor — Fahrer >5 Min. Reaktionszeit; Eskalation wenn 2+; Dispatcher-Hinweis; 10-Min-Polling */}
       <KitchenPhase2152ReaktionszeitMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2157: km-Warnung — Fahrer mit >10 km/Auftrag; Batch-Optimierungshinweis; Eskalation wenn mehrere; 30-Min-Polling */}
+      <KitchenPhase2157KmWarnung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
