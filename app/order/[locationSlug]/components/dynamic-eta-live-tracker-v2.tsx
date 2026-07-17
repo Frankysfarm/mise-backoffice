@@ -21,7 +21,7 @@ const MOCK_STATUS: OrderStatusData = {
   updated_at: new Date().toISOString(),
 };
 
-const PHASES: { key: OrderStatus; label: string; Icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
+const PHASES: { key: OrderStatus; label: string; Icon: React.ComponentType<{ size?: number | string; className?: string }> }[] = [
   { key: 'received', label: 'Bestellung eingegangen', Icon: Package },
   { key: 'in_preparation', label: 'Wird zubereitet', Icon: ChefHat },
   { key: 'ready_for_pickup', label: 'Abholbereit', Icon: CheckCircle2 },

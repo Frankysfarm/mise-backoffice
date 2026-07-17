@@ -5588,7 +5588,7 @@ export function FahrerApp({
           {/* Phase 2051: Meine Stammkunden-Touren — Stammkundenanteil; "Du kennst X Kunden bereits!"; Motivationstipp; isOnline-Guard */}
           <FahrerPhase2051MeineStammkundenTouren driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2052: Tour-Stopp-Navigations-Pro — Aktueller Stopp groß + Navi-CTAs; nächste 2 Stopps; ETA-Badge; Fortschrittsleiste; 15s-Polling */}
-          <FahrerPhase2052TourStoppNavigationsPro driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          <FahrerPhase2052TourStoppNavigationsPro driverId={driver.id} locationId={driver.location_id ?? ''} isOnline={isOnline} />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator
