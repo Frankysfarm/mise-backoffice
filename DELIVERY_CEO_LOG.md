@@ -4,6 +4,7 @@
 
 ### Geprüfte Commits
 - `be42782b` feat(delivery/backend): Phasen 2055–2059 — Reaktionszeit-System
+- `d3b92890` feat(delivery/frontend): Smart-Timing + Tour-Score + Navigation + ETA Erweiterungen (Phase 2060 + Phase 2010 Lieferdienst)
 
 ### Befund & Aktionen
 
@@ -18,8 +19,15 @@
 | 2057 | Fahrer-App | FahrerPhase2057MeineReaktionsteitStatistik | fahrer/app/client.tsx L572 ✅ |
 | 2058 | Storefront | StorefrontPhase2058BlitzschnellBadge | storefront.tsx L392 ✅ |
 | 2059 | Kitchen | KitchenPhase2059BestellEingangFrequenzMonitor | kitchen/client.tsx L211 ✅ |
+| 2060 | Dispatch | DispatchPhase2060TourScoreVisualisierungsKommando | dispatch/client.tsx L661 ✅ |
+| 2060 | Kitchen | KitchenPhase2060SmartTimingCountdownIntegrationsBoard | kitchen/client.tsx L212 ✅ |
+| 2060 | Fahrer-App | FahrerPhase2060TourStopsNavigationLive | fahrer/app/client.tsx L573 ✅ |
+| 2060 | Storefront | StorefrontPhase2060DynamischeEtaLiveTracking | storefront.tsx — CEO-Fix ✅ |
+| 2010 | Lieferdienst | LieferdienstPhase2010StatistikTagesZusammenfassung | lieferdienst/client.tsx ✅ |
 
 **Hinweis:** Komponenten-Namen Phase2056+2057 haben Tippfehler ("Reaktionsteit" statt "Reaktionszeit") — kein Funktionsfehler da Import/Export identisch. Kann beim nächsten Refactoring behoben werden.
+
+**CEO-Fix:** `StorefrontPhase2060DynamischeEtaLiveTracking` fehlte in storefront.tsx — Import + Verwendung nach Phase2058 nachgetragen. Bug behoben, gepusht.
 
 **System-Synchronisation:**
 | System | Status |
