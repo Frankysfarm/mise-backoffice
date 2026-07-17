@@ -598,6 +598,7 @@ import { FahrerPhase2155MeineKmEffizienz } from './phase2155-meine-km-effizienz'
 import { FahrerPhase2155MeineTageskilometer } from './phase2155-meine-tageskilometer';
 import { FahrerPhase2160MeineKonsistenz } from './phase2160-meine-konsistenz';
 import { FahrerPhase2165MeineSpitzenzeitBilanz } from './phase2165-meine-spitzenzeit-bilanz';
+import { FahrerPhase2170MeineWartezeit } from './phase2170-meine-wartezeit';
 
 type Driver = {
   id: string;
@@ -5726,6 +5727,8 @@ export function FahrerApp({
           <FahrerPhase2160MeineKonsistenz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2165: Meine Spitzenzeit-Bilanz — Peak-Score; Stoßzeit- vs. Normalzeit-Aufträge; Team-Ø; Badge Rush-Hour-Profi wenn ≥80%; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2165MeineSpitzenzeitBilanz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2170: Meine Wartezeit — Eigene Ø Wartezeit; Aufträge >5 Min.; vs. Team-Ø; Tipp Abholoptimierung; isOnline-Guard; 1-Std-Polling */}
+          <FahrerPhase2170MeineWartezeit driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator

@@ -686,6 +686,7 @@ import { DispatchPhase2154KmEffizienzBoard } from './phase2154-km-effizienz-boar
 import { DispatchPhase2154TageskilometerBoard } from './phase2154-tageskilometer-board';
 import { DispatchPhase2159LieferzeitKonsistenzBoard } from './phase2159-lieferzeit-konsistenz-board';
 import { DispatchPhase2164SpitzenzeitBoard } from './phase2164-spitzenzeit-board';
+import { DispatchPhase2169WartezeitBoard } from './phase2169-wartezeit-board';
 
 type Driver = {
   employee_id: string;
@@ -3664,6 +3665,8 @@ export function DispatchBoard({
           <DispatchPhase2159LieferzeitKonsistenzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2164: Spitzenzeit-Performance-Board — Fahrer-Ranking nach Peak-Score; Ampel grün/gelb/rot; Alert <60%; Verstärkungs-Empfehlung; 30-Min-Polling */}
           <DispatchPhase2164SpitzenzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2169: Wartezeit-Board — Fahrer-Ranking nach Ø Wartezeit; Ampel grün/gelb/rot; Alert >8 Min.; Restaurant-Kontakt-Hinweis; 30-Min-Polling */}
+          <DispatchPhase2169WartezeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

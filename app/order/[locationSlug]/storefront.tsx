@@ -415,6 +415,7 @@ import { StorefrontPhase2156KlimafreundlichkeitsPill } from './phase2156-klimafr
 import { StorefrontPhase2156LiefergebietSiegel } from './phase2156-liefergebiet-siegel';
 import { StorefrontPhase2161ZuverlaessigkeitsPill } from './phase2161-zuverlaessigkeits-pill';
 import { StorefrontPhase2166RushHourWarnung } from './phase2166-rush-hour-warnung';
+import { StorefrontPhase2171FrischeSiegel } from './phase2171-frische-siegel';
 
 type Props = {
   location: Location;
@@ -1863,6 +1864,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2161ZuverlaessigkeitsPill locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2166: Rush-Hour-Warnung — "Viele bestellen jetzt · Etwas längere Wartezeit"; 12–14 & 18–21 Uhr UND σ>15 Min.; 10-Min-Polling */}
       <StorefrontPhase2166RushHourWarnung locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2171: Frische-Siegel — "Frisch zubereitet & sofort geliefert"; nur wenn team_avg_wartezeit ≤2 Min.; Hydration-safe; 2-Std-Polling */}
+      <StorefrontPhase2171FrischeSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 1000: ETA-Live-Tracking-Ultra-Pro — 4-Stufen-Fortschrittsleiste; Sekunden-Countdown; Fahrer-Info; 30s-Polling */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">
