@@ -1,5 +1,56 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #432 — 2026-07-17
+
+### Geprüfte Commits
+- `7e793b04` feat(delivery/frontend): Phasen 2043–2048 + 1887–1888 + 1951–1953 — Smart-Timing, Tour-Scores, Navigator, Statistiken, ETA
+
+### Befund & Aktionen
+
+**TypeScript-Fehler: 4 Fehler gefunden und behoben**
+
+| Datei | Fehler | Fix |
+|---|---|---|
+| `lieferdienst/phase1888-stunden-umsatz-statistik-board.tsx:121` | TS2322: Recharts Tooltip `formatter` — `val: number` statt `ValueType\|undefined` | `Number(val)` Cast |
+| `lieferdienst/phase1888-stunden-umsatz-statistik-board.tsx:122` | TS2322: Recharts Tooltip `labelFormatter` — `h: number` statt `ReactNode` | `Number(h)` Cast |
+| `storefront.tsx:1735` | TS2339: `orderSuccess?.type` nach frühem Return → `never` | `successType`-Variable vor `if (orderSuccess)` erfasst |
+| `storefront.tsx:1738` | TS2339: `orderSuccess.orderId` nach frühem Return → `never` | `activeOrderId` statt `orderSuccess.orderId` |
+
+**Build:** ✓ Compiled successfully — TypeScript EXIT 0, Next.js BUILD_EXIT: 0 ✅
+
+**Integrationen geprüft:**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2043 | Dispatch | DispatchPhase2043TourScoreLiveVisualisierung | dispatch/client.tsx L3569 ✅ |
+| 2044 | Dispatch | DispatchPhase2044ScoreTrendAnalyseBoard | dispatch/client.tsx L3571 ✅ |
+| 2045 | Dispatch | DispatchPhase2045TourZeitplanVisualisierungPro | dispatch/client.tsx L3573 ✅ |
+| 2046 | Kitchen | KitchenPhase2046SmartTimingFarbkodierungsLiveMatrix | kitchen/client.tsx L3142 ✅ |
+| 2047 | Kitchen | KitchenPhase2047EchtzeitCountdownMatrix | kitchen/client.tsx L3144 ✅ |
+| 2048 | Kitchen | KitchenPhase2048BatchKochstartPrioraetsCockpit | kitchen/client.tsx L3146 ✅ |
+| 1887 | Lieferdienst | LieferdienstPhase1887StatistikGesamtuebersichtLive | lieferdienst/client.tsx L1342 ✅ |
+| 1888 | Lieferdienst | LieferdienstPhase1888StundenUmsatzStatistikBoard | lieferdienst/client.tsx L1344 ✅ |
+| 1951 | Fahrer-App | FahrerPhase1951TourStoppNavigatorUltra | fahrer/app/client.tsx L5468 ✅ |
+| 1952 | Fahrer-App | FahrerPhase1952TourFortschrittsRing | fahrer/app/client.tsx L5484 ✅ |
+| 1953 | Fahrer-App | FahrerPhase1953NaechsterStoppEtaCockpit | fahrer/app/client.tsx L5492 ✅ |
+| 1952 | Storefront | Phase1952EchtzeitEtaAnzeigePro | storefront.tsx L1738 ✅ |
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+
+### Nächste Phasen 2049–2053 (für nächsten Ingenieur)
+1. **Phase 2049 Backend:** Kunden-Wiederkauf-Rate-API — GET /api/delivery/admin/kunden-wiederkauf-rate: Anteil Kunden mit ≥2 Bestellungen letzte 30 Tage; Trend vs. Vormonat; Neukunden vs. Stammkunden Split; Multi-Tenant; Supabase+Mock.
+2. **Phase 2050 Dispatch:** Wiederkauf-Kunden-Monitor — Top-5 aktivste Kunden heute; Bestellfrequenz-Ring; Neukundenquote%; Alert wenn Stammkundenanteil sinkt; 30-Min-Polling; in dispatch/client.tsx nach Phase2045.
+3. **Phase 2051 Fahrer-App:** Meine Stammkunden-Touren — Anteil Touren zu bekannten Kunden; "Du kennst X Kunden bereits!"; Motivationstipp; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2043.
+4. **Phase 2052 Storefront:** Stammkunden-Begrüssungs-Banner — Personalisiertes "Willkommen zurück, [Name]!" wenn Bestellhistorie ≥3; schließbar; Hydration-safe; in storefront.tsx nach Phase1952.
+5. **Phase 2053 Kitchen:** Stammkunden-Bestellungs-Highlight — Bestellungen von Kunden mit ≥5 Bestellungen markieren; "VIP"-Badge; sortierbar; useMemo; in kitchen/client.tsx nach Phase2048.
+
+---
+
 ## CEO Review #431 — 2026-07-16
 
 ### Geprüfte Commits

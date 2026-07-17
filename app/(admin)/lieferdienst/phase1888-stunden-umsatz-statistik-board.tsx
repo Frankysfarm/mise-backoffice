@@ -118,8 +118,8 @@ export function LieferdienstPhase1888StundenUmsatzStatistikBoard({
                   tickLine={false}
                 />
                 <Tooltip
-                  formatter={(val: number) => [euro(val), 'Umsatz']}
-                  labelFormatter={(h: number) => `${String(h).padStart(2, '0')}:00`}
+                  formatter={(val) => [euro(Number(val)), 'Umsatz']}
+                  labelFormatter={(h) => `${String(Number(h)).padStart(2, '0')}:00`}
                   contentStyle={{ fontSize: 11 }}
                 />
                 <Bar dataKey="umsatz" radius={[2, 2, 0, 0]}>

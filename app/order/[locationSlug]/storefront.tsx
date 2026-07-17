@@ -808,6 +808,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
   const activeOrderId = orderSuccess?.orderId ?? null;
   const successEtaMinuten = orderSuccess?.eta ?? null;
   const successBestelltAm = orderSuccess?.orderedAt ?? null;
+  const successType = orderSuccess?.type ?? null;
   if (orderSuccess) {
     return (
       <div>
@@ -1732,10 +1733,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {/* Phase 1951: Echtzeit-Wartezeit-Indikator — "Aktuell ca. X Min Wartezeit" + Ampelfarbe; schließbar; Hydration-safe; 3-Min-Polling */}
       <Phase1951EchtzeitWartezeitIndikator locationId={location.id} className="mx-4 mt-2" />
       {/* Phase 1952: Echtzeit-ETA-Anzeige-Pro — SVG-Arc-Konfidenz-Ring + 4-Phasen-Step-Tracker + Live-Pulse; 30-Sek-Polling */}
-      {orderSuccess?.type === 'lieferung' && (
+      {successType === 'lieferung' && activeOrderId && (
         <div className="px-4 mt-2 max-w-lg mx-auto">
           <Phase1952EchtzeitEtaAnzeigePro
-            orderId={orderSuccess.orderId}
+            orderId={activeOrderId}
             locationId={location.id}
           />
         </div>
