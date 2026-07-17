@@ -673,6 +673,7 @@ import { DispatchPhase2094TourScoreLiveMatrixPro } from './phase2094-tour-score-
 import { DispatchPhase2098ReaktionsteitBoard } from './phase2098-reaktionszeit-board';
 import { DispatchPhase2104KundenFeedbackBoard } from './phase2104-kunden-feedback-board';
 import { DispatchPhase2109TourBonusBoard } from './phase2109-tour-bonus-board';
+import { DispatchPhase2114ZonenAuslastungsBoard } from './phase2114-zonen-auslastungs-board';
 
 type Driver = {
   employee_id: string;
@@ -3625,6 +3626,8 @@ export function DispatchBoard({
           <DispatchPhase2104KundenFeedbackBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2109: Tour-Bonus-Board — Fahrer-Rangliste nach Bonus; Streak-Flame-Icon; Multiplikator-Badge; Alert bei 0 Touren; 30-Min-Polling */}
           <DispatchPhase2109TourBonusBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2114: Zonen-Auslastungs-Board — Ampel grün/gelb/rot; Alert >80%; Empfehlung mehr Fahrer; 15-Min-Polling */}
+          <DispatchPhase2114ZonenAuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

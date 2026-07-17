@@ -2,7 +2,52 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+## Batch 2113–2117 — Liefergebiet-Auslastungs-System (2026-07-17)
+
+### Phase 2113 — Liefergebiet-Auslastungs-API (Backend)
+**Datei:** `app/api/delivery/admin/liefergebiet-auslastung/route.ts` *(bereits vorhanden)*
+**GET:** `?location_id=<uuid>` — Aktive Bestellungen je Lieferzone (A/B/C/D) heute; Auslastungsprozent vs. Kapazität; Zonen-Alert wenn >80%; Multi-Tenant; Supabase+Mock
+**Response:** `{ ok, zonen: ZoneAuslastung[], alarm, generatedAt }`
+
+### Phase 2114 — Zonen-Auslastungs-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2114-zonen-auslastungs-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Zonen-Kacheln (A/B/C/D) mit Auslastungsbalken; AmpelBadge grün/amber/rot; Alert-Banner bei kritischen Zonen mit Empfehlung Fahrer-Umleitung; Fahrer-Count; 15-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2109 ✅
+
+### Phase 2115 — Meine Zonen-Auslastung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2115-meine-zonen-auslastung.tsx`
+**Props:** `locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Zone-Hero mit großem Prozentsatz; Tipp-Banner wenn Zone voll oder stark belastet; Mini-Grid aller 4 Zonen; isOnline-Guard; 15-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2110 ✅
+
+### Phase 2116 — Lieferzone-Status-Pill (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2116-lieferzone-status-pill.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Pill "Deine Zone: X Bestellungen · normal/voll/stark belastet"; Ampel-Farbe; Hydration-safe (mounted-Guard); 30-Min-Polling
+**Integration:** `storefront.tsx` nach Phase2111 ✅
+
+### Phase 2117 — Zonen-Überlast-Alert (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2117-zonen-ueberlast-alert.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; ALARM-Badge wenn kritisch; Kritische-Zonen-Cards mit Umleitung-Empfehlung auf freie Zonen; Mini-Grid 4 Zonen mit Ampelfarbe; 10-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2112 ✅
+
+---
+
+CEO-Agent (2026-07-17): Phasen 2113–2117 implementiert. Build ✓ Compiled successfully — 430 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+### Nächste Phasen 2118–2122 (für nächsten Ingenieur)
+1. **Phase 2118 Backend:** Fahrer-Pünktlichkeits-Score-API — GET /api/delivery/admin/fahrer-puenktlichkeit: Anteil pünktlicher Lieferungen (<ETA) je Fahrer heute; Team-Ø; Top-Fahrer; Alert wenn Pünktlichkeit <85%; Multi-Tenant; Supabase+Mock.
+2. **Phase 2119 Dispatch:** Pünktlichkeits-Rangliste — Phase2118-API: Fahrer-Ranking nach Pünktlichkeit; Fortschrittsbalken; Alert-Banner <85%; Top-Fahrer hervorheben; 30-Min-Polling; in dispatch/client.tsx nach Phase2114.
+3. **Phase 2120 Fahrer-App:** Meine Pünktlichkeit — Eigene Pünktlichkeitsquote heute; Vergleich Team-Ø; Tipp wenn <85%; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2115.
+4. **Phase 2121 Storefront:** Pünktlichkeits-Badge — "X% der Lieferungen pünktlich heute"; nur wenn ≥90%; Hydration-safe; 1-Std-Polling; in storefront.tsx nach Phase2116.
+5. **Phase 2122 Kitchen:** Verspätungs-Warnung — Bestellungen die ETA überschreiten; Fahrer-Name; Überschreitungszeit in Min; 5-Min-Polling; in kitchen/client.tsx nach Phase2117.
+
+---
+
 ## Batch 2108–2112 — Tour-Abschluss-Bonus-System (2026-07-17)
+
 
 ### Phase 2108 — Tour-Abschluss-Bonus-API (Backend)
 **Datei:** `app/api/delivery/admin/tour-abschluss-bonus/route.ts`

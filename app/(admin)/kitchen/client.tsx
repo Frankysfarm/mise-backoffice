@@ -223,6 +223,7 @@ import { KitchenPhase2097SmartTimingLieferzeitBridge } from './phase2097-smart-t
 import { KitchenPhase2101StoppDauerWarnung } from './phase2101-stopp-dauer-warnung';
 import { KitchenPhase2107KundenzufriedenheitsTicker } from './phase2107-kundenzufriedenheits-ticker';
 import { KitchenPhase2112TourVollstaendigkeitsMonitor } from './phase2112-tour-vollstaendigkeits-monitor';
+import { KitchenPhase2117ZonenUeberlastAlert } from './phase2117-zonen-ueberlast-alert';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3198,6 +3199,8 @@ export function KitchenBoard({
       <KitchenPhase2107KundenzufriedenheitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2112: Tour-Vollständigkeits-Monitor — Fahrer mit offenen Stopps >30 Min; Alert; Countdown; 5-Min-Polling */}
       <KitchenPhase2112TourVollstaendigkeitsMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2117: Zonen-Überlast-Alert — Zonen mit >80% Auslastung; Fahrer-Umleitung empfehlen; 10-Min-Polling */}
+      <KitchenPhase2117ZonenUeberlastAlert locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
