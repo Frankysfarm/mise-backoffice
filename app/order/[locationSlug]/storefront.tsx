@@ -412,6 +412,7 @@ import { StorefrontPhase2141SchnellLieferungsSiegel } from './phase2141-schnell-
 import { StorefrontPhase2146BewertungsSiegel } from './phase2146-bewertungs-siegel';
 import { StorefrontPhase2151ExpressSiegel } from './phase2151-express-siegel';
 import { StorefrontPhase2156KlimafreundlichkeitsPill } from './phase2156-klimafreundlichkeits-pill';
+import { StorefrontPhase2156LiefergebietSiegel } from './phase2156-liefergebiet-siegel';
 
 type Props = {
   location: Location;
@@ -1852,8 +1853,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2146BewertungsSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2151: Express-Siegel — "⚡ Schnelle Reaktionszeit"; nur wenn Ø <2 Min.; Hydration-safe; 2-Std-Polling */}
       <StorefrontPhase2151ExpressSiegel locationId={location.id} className="mx-4 mt-1" />
-      {/* Phase 2156: Klimafreundlichkeits-Pill — "Ø X km je Lieferung"; nur wenn ≤5 km; Hydration-safe; 2-Std-Polling */}
+      {/* Phase 2156a: Klimafreundlichkeits-Pill — "Ø X km je Lieferung"; nur wenn ≤5 km; Hydration-safe; 2-Std-Polling */}
       <StorefrontPhase2156KlimafreundlichkeitsPill locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2156b: Liefergebiet-Siegel — "Liefert in deiner Nähe" + km-Radius; Hydration-safe; 4-Std-Polling */}
+      <StorefrontPhase2156LiefergebietSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 1000: ETA-Live-Tracking-Ultra-Pro — 4-Stufen-Fortschrittsleiste; Sekunden-Countdown; Fahrer-Info; 30s-Polling */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">

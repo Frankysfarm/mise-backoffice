@@ -683,6 +683,7 @@ import { DispatchPhase2139SchichtEffizienzUebersicht } from './phase2139-schicht
 import { DispatchPhase2144FeedbackScoreBoard } from './phase2144-feedback-score-board';
 import { DispatchPhase2149ReaktionszeitBoard } from './phase2149-reaktionszeit-board';
 import { DispatchPhase2154KmEffizienzBoard } from './phase2154-km-effizienz-board';
+import { DispatchPhase2154TageskilometerBoard } from './phase2154-tageskilometer-board';
 
 type Driver = {
   employee_id: string;
@@ -3653,8 +3654,10 @@ export function DispatchBoard({
           <DispatchPhase2144FeedbackScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2149: Reaktionszeit-Board — Fahrer-Ranking nach Reaktionszeit; Ampel grün/gelb/rot; Alert >5 Min.; 30-Min-Polling */}
           <DispatchPhase2149ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
-          {/* Phase 2154: Kilometer-Effizienz-Board — Fahrer-Ranking nach km/Auftrag; Alert >10 km; Ampel; Routenoptimierungstipp; 30-Min-Polling */}
+          {/* Phase 2154a: Kilometer-Effizienz-Board — Fahrer-Ranking nach km/Auftrag; Alert >10 km; Ampel; Routenoptimierungstipp; 30-Min-Polling */}
           <DispatchPhase2154KmEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2154b: Tageskilometer-Board — Fahrer-Ranking nach km; Fortschrittsbalken; Alert <50% nach Halbzeit; Routenoptimierungstipp; 30-Min-Polling */}
+          <DispatchPhase2154TageskilometerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

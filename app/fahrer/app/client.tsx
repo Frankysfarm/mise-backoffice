@@ -595,6 +595,7 @@ import { FahrerPhase2140MeineSchichtEffizienz } from './phase2140-meine-schicht-
 import { FahrerPhase2145MeinFeedbackScore } from './phase2145-mein-feedback-score';
 import { FahrerPhase2150MeineReaktionszeit } from './phase2150-meine-reaktionszeit';
 import { FahrerPhase2155MeineKmEffizienz } from './phase2155-meine-km-effizienz';
+import { FahrerPhase2155MeineTageskilometer } from './phase2155-meine-tageskilometer';
 
 type Driver = {
   id: string;
@@ -5715,8 +5716,10 @@ export function FahrerApp({
           <FahrerPhase2145MeinFeedbackScore driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2150: Meine Reaktionszeit — Ø Zeit vom Batch-Empfang bis Abfahrt; Ziel <3 Min.; vs. Team-Ø; Tipp; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2150MeineReaktionszeit driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
-          {/* Phase 2155: Meine km-Effizienz — Eigene km/Auftrag heute; Vergleich Team-Ø; Tipp Routenwahl; isOnline-Guard; 1-Std-Polling */}
+          {/* Phase 2155a: Meine km-Effizienz — Eigene km/Auftrag heute; Vergleich Team-Ø; Tipp Routenwahl; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2155MeineKmEffizienz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2155b: Meine Tageskilometer — Eigene km heute; vs. Ziel; % Zielerreichung; Trend; Tipp; isOnline-Guard; 1-Std-Polling */}
+          <FahrerPhase2155MeineTageskilometer driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator
