@@ -2,6 +2,49 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+## Batch 2148–2152 — Fahrer-Reaktionszeit-System (2026-07-17)
+
+### Phase 2148 — Fahrer-Reaktionszeit-API (Backend)
+**Datei:** `app/api/delivery/admin/fahrer-reaktionszeit/route.ts` *(bereits vorhanden)*
+**GET:** `?location_id=<uuid>` — Ø Zeit Batch-Empfang bis Abfahrt je Fahrer; Trend; Alert wenn >10 Min.; Multi-Tenant; Supabase+Mock
+
+### Phase 2149 — Reaktionszeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2149-reaktionszeit-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Team-Ø Min.; Fahrer-Ranking mit Ampel grün(≤3)/gelb(≤5)/rot(>5); Balken; Alert-Banner wenn >5 Min.; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2144 ✅
+
+### Phase 2150 — Meine Reaktionszeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2150-meine-reaktionszeit.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Zeit groß + Farbe; vs. Team-Ø + Ziel <3 Min.; Trend; Aufträge; Lightbulb-Tipp; isOnline-Guard; 1-Std-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2145 ✅
+
+### Phase 2151 — Express-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2151-express-siegel.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Blaue Pill "⚡ Schnelle Reaktionszeit"; nur wenn team_avg_min <2 Min.; Hydration-safe (mounted-Guard); 2-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2146 ✅
+
+### Phase 2152 — Reaktionszeit-Monitor (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2152-reaktionszeit-monitor.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Team-Ø; Fahrer >5 Min.; Eskalation wenn 2+; Dispatcher-Hinweis; 10-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2147 ✅
+
+### Nächste Phasen 2153–2157 (für nächsten Ingenieur)
+1. **Phase 2153 Backend:** Fahrer-Kilometer-Effizienz-API — GET /api/delivery/admin/fahrer-km-effizienz: Gefahrene km je Auftrag heute; Effizienz-Score; Trend vs. 7-Tage-Ø; Alert wenn >10 km/Auftrag; Multi-Tenant; Supabase+Mock.
+2. **Phase 2154 Dispatch:** Kilometer-Effizienz-Board — Phase2153-API: Fahrer-Ranking nach km/Auftrag; Alert >10 km; Ampel; Tipp Routenoptimierung; 30-Min-Polling; in dispatch/client.tsx nach Phase2149.
+3. **Phase 2155 Fahrer-App:** Meine Kilometer-Effizienz — Eigene km/Auftrag heute; Vergleich Team-Ø; Tipp Routenwahl; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2150.
+4. **Phase 2156 Storefront:** Klimafreundlichkeits-Pill — "Ø X km je Lieferung"; nur wenn ≤5 km; Hydration-safe; 2-Std-Polling; in storefront.tsx nach Phase2151.
+5. **Phase 2157 Kitchen:** Kilometer-Warnung — Fahrer mit >10 km/Auftrag; Batch-Optimierungshinweis; Eskalation wenn mehrere; 30-Min-Polling; in kitchen/client.tsx nach Phase2152.
+
+---
+
+Backend-Architekt-Agent (2026-07-17): Phasen 2148–2152 implementiert. Phase 2148 Backend bereits vorhanden. 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — 430 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
+
 ## Batch 2143–2147 — Fahrer-Feedback-Score-System (2026-07-17)
 
 ### Phase 2143 — Fahrer-Feedback-Score-API (Backend)
