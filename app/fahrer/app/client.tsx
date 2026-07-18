@@ -631,6 +631,7 @@ import { FahrerPhase2300SmartTourNavPro } from './phase2300-smart-tour-nav-pro';
 import { FahrerPhase2303MeinePausen } from './phase2303-meine-pausen';
 import { FahrerPhase2309MeineDistanz } from './phase2309-meine-distanz';
 import { FahrerPhase2313MeineKm } from './phase2313-meine-km';
+import { FahrerPhase2318MeinTempo } from './phase2318-mein-tempo';
 
 type Driver = {
   id: string;
@@ -5837,6 +5838,8 @@ export function FahrerApp({
           <FahrerPhase2309MeineDistanz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2313: Meine km — Gesamt-km heute + km/Tour + Kosten-Schätzung; Fortschrittsbalken 0–200km; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2313MeineKm driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2318: Mein Tempo — Ø km/h heute + Trend vs. Vorwoche + Team-Ø Vergleich; Coaching-Tipp; isOnline-Guard; 15-Min-Polling */}
+          <FahrerPhase2318MeinTempo driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2285: Smart Tour Stop Navigator Ultra — expandierbare Stopp-Karten, Status-Farbkodierung, Navigations-Link, Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2285SmartTourStopNavigatorUltra
@@ -8816,3 +8819,6 @@ export { FahrerPhase2309MeineDistanz } from './phase2309-meine-distanz';
 
 // Phase 2313 — Meine km (Gesamt-km heute + km/Tour + Kosten-Schätzung; Fortschrittsbalken; isOnline-Guard)
 export { FahrerPhase2313MeineKm } from './phase2313-meine-km';
+
+// Phase 2318 — Mein Tempo (Ø km/h heute + Trend vs. Vorwoche + Team-Ø; Coaching-Tipp; isOnline-Guard)
+export { FahrerPhase2318MeinTempo } from './phase2318-mein-tempo';
