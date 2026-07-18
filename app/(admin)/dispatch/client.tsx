@@ -729,6 +729,7 @@ import { DispatchPhase2349LiefergebietHeatmap } from './phase2349-liefergebiet-h
 import { DispatchPhase2354ZufriedenheitsBoard } from './phase2354-zufriedenheits-board';
 import { DispatchPhase2359PuenktlichkeitsBoard } from './phase2359-puenktlichkeits-board';
 import { DispatchPhase2364TrinkgeldBoard } from './phase2364-trinkgeld-board';
+import { DispatchPhase2369LieferzeitBenchmarkBoard } from './phase2369-lieferzeit-benchmark-board';
 
 type Driver = {
   employee_id: string;
@@ -3793,6 +3794,8 @@ export function DispatchBoard({
           <DispatchPhase2359PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2364: Trinkgeld-Board — Fahrerliste nach Ø Trinkgeld/Tour sortiert; Ampel; Alert <0,50€; Podium Top-3; 30-Min-Polling */}
           <DispatchPhase2364TrinkgeldBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2369: Lieferzeit-Benchmark-Board — Fahrerliste nach Ø Lieferzeit sortiert; Ampel grün(<30)/gelb(30–45)/rot(>45); Alert; Benchmark-Linie; 30-Min-Polling */}
+          <DispatchPhase2369LieferzeitBenchmarkBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -11394,3 +11397,5 @@ export { DispatchPhase2354ZufriedenheitsBoard } from './phase2354-zufriedenheits
 export { DispatchPhase2359PuenktlichkeitsBoard } from './phase2359-puenktlichkeits-board';
 // Phase 2364 — Trinkgeld-Board (Fahrerliste nach Ø Trinkgeld/Tour; Ampel; Alert <0,50€; Podium Top-3; 30-Min-Polling)
 export { DispatchPhase2364TrinkgeldBoard } from './phase2364-trinkgeld-board';
+// Phase 2369 — Lieferzeit-Benchmark-Board (Fahrerliste nach Ø Lieferzeit; Ampel grün<30/gelb30–45/rot>45; Alert; Benchmark-Linie; 30-Min-Polling)
+export { DispatchPhase2369LieferzeitBenchmarkBoard } from './phase2369-lieferzeit-benchmark-board';

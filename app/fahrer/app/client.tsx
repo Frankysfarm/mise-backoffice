@@ -642,6 +642,7 @@ import { FahrerPhase2350MeinLiefergebiet } from './phase2350-mein-liefergebiet';
 import { FahrerPhase2355MeineBewertungen } from './phase2355-meine-bewertungen';
 import { FahrerPhase2360MeinePuenktlichkeit } from './phase2360-meine-puenktlichkeit';
 import { FahrerPhase2365MeinTrinkgeld } from './phase2365-mein-trinkgeld';
+import { FahrerPhase2370MeineLieferzeit } from './phase2370-meine-lieferzeit';
 
 type Driver = {
   id: string;
@@ -5868,6 +5869,8 @@ export function FahrerApp({
           <FahrerPhase2360MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2365: Mein Trinkgeld — Ø Trinkgeld/Tour + Gesamt + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2365MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2370: Meine Lieferzeit — Ø Min + Fortschrittsbalken + KPI-Grid + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2370MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2328: Smart Tour-Stopps Navigation — Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google-Maps-Nav + Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2328SmartTourStopsNavigation
@@ -8895,3 +8898,5 @@ export { FahrerPhase2355MeineBewertungen } from './phase2355-meine-bewertungen';
 export { FahrerPhase2360MeinePuenktlichkeit } from './phase2360-meine-puenktlichkeit';
 // Phase 2365 — Mein Trinkgeld (Ø Trinkgeld/Tour + Gesamt + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2365MeinTrinkgeld } from './phase2365-mein-trinkgeld';
+// Phase 2370 — Meine Lieferzeit (Ø Min + Fortschrittsbalken + KPI-Grid Touren/Kürzeste/Trend/Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2370MeineLieferzeit } from './phase2370-meine-lieferzeit';
