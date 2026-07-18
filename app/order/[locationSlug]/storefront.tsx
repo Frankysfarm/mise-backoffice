@@ -445,6 +445,7 @@ import { Phase2315DynamischeEtaLiveTrackingPro } from './phase2315-dynamische-et
 import { StorefrontPhase2351LiefergebietBadge } from './phase2351-liefergebiet-badge';
 import { StorefrontPhase2356BewertungsSiegel } from './phase2356-bewertungs-siegel';
 import { StorefrontPhase2361PuenktlichkeitsBadge } from './phase2361-puenktlichkeits-badge';
+import { StorefrontPhase2365EtaLiveTrackingCockpit } from './phase2365-eta-live-tracking-cockpit';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 
 type Props = {
@@ -1947,6 +1948,16 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2356BewertungsSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2361: Pünktlichkeits-Badge — "🕐 X% pünktliche Lieferungen"; nur wenn ≥90%; Hydration-safe */}
       <StorefrontPhase2361PuenktlichkeitsBadge locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2365: ETA Live-Tracking Cockpit — Dynamische ETA mit Phasenstatus, Countdown, Fahrernähe und Farbampel */}
+      {activeOrderId && successType === 'lieferung' && (
+        <div className="mx-4 mt-2">
+          <StorefrontPhase2365EtaLiveTrackingCockpit
+            orderId={activeOrderId}
+            phase="zubereitung"
+            etaMin={25}
+          />
+        </div>
+      )}
       {/* Phase 2315: Dynamische ETA Live-Tracking Pro — 5-stufige Timeline + Prep-Fortschrittsbalken + Fahrer-Info + 15s-Polling */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">

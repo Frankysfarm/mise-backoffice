@@ -732,6 +732,7 @@ import { DispatchPhase2364TrinkgeldBoard } from './phase2364-trinkgeld-board';
 import { DispatchPhase2369LieferzeitBenchmarkBoard } from './phase2369-lieferzeit-benchmark-board';
 import { DispatchPhase2374AuslastungsBoard } from './phase2374-auslastungs-board';
 import { DispatchPhase2379ReaktionszeitBoard } from './phase2379-reaktionszeit-board';
+import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 
 type Driver = {
   employee_id: string;
@@ -3802,6 +3803,8 @@ export function DispatchBoard({
           <DispatchPhase2374AuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2379: Reaktionszeit-Board — Fahrerliste nach Ø Reaktionszeit; Ampel grün(≤60s)/gelb(61–120s)/rot(>120s); Alert >120s; Trend; 30-Min-Polling */}
           <DispatchPhase2379ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
+          <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

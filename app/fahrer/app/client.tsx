@@ -645,6 +645,7 @@ import { FahrerPhase2365MeinTrinkgeld } from './phase2365-mein-trinkgeld';
 import { FahrerPhase2370MeineLieferzeit } from './phase2370-meine-lieferzeit';
 import { FahrerPhase2375MeineAuslastung } from './phase2375-meine-auslastung';
 import { FahrerPhase2380MeineReaktionszeit } from './phase2380-meine-reaktionszeit';
+import { FahrerPhase2380TourStoppNavigatorUltra } from './phase2380-tour-stopp-navigator-ultra';
 
 type Driver = {
   id: string;
@@ -5877,6 +5878,22 @@ export function FahrerApp({
           <FahrerPhase2375MeineAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Meine Reaktionszeit — Ø Sek + Fortschrittsbalken (0–180s, Ziel 60s) + KPI-Grid + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2380MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2380TourStoppNavigatorUltra
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? s.stop_number ?? 0,
+                adresse: s.order?.kunde_adresse ?? s.address ?? s.kunde_adresse ?? null,
+                kundeName: s.order?.kunde_name ?? s.customer_name ?? null,
+                telefon: s.order?.kunde_telefon ?? s.customer_phone ?? null,
+                eta_min: s.eta_min ?? null,
+                geliefert_am: s.geliefert_am ?? s.delivered_at ?? null,
+                notiz: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? s.notes ?? null,
+              }))}
+              aktiverStoppId={null}
+            />
+          )}
           {/* Phase 2328: Smart Tour-Stopps Navigation — Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google-Maps-Nav + Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2328SmartTourStopsNavigation

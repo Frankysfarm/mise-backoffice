@@ -675,6 +675,7 @@ import { KitchenSmartDeliveryKochstartHub } from './smart-delivery-kochstart-hub
 import { KitchenSmartZubereitungsAmpelCockpit } from './phase1851-smart-zubereitungs-ampel-cockpit';
 import { KitchenPhase1878FahrerAnkunftKochstartKommando } from './phase1878-fahrer-ankunft-kochstart-kommando';
 import { KitchenPhase2065SmartTimingLiveCockpit } from './phase2065-smart-timing-live-cockpit';
+import { KitchenPhase1000SmartTimingAmpelCockpit } from './phase1000-smart-timing-ampel-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3375,6 +3376,8 @@ export function KitchenBoard({
       <KitchenPhase2377AuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2382: Reaktionszeit-Ticker — Team-Ø Reaktionszeit; Alert >120s; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2382ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
+      <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
     </div>
   );
 }
