@@ -723,6 +723,7 @@ import { DispatchPhase2322WartezeitBoard } from './phase2322-wartezeit-board';
 import { DispatchPhase2327TourScoreVisualisierungBoard } from './phase2327-tour-score-visualisierung-board';
 import { DispatchPhase2331StornoAnalyseBoard } from './phase2331-storno-analyse-board';
 import { DispatchPhase2335QualitaetsBoard } from './phase2335-qualitaets-board';
+import { DispatchPhase2340TourScoreVisualisierungUltimate } from './phase2340-tour-score-visualisierung-ultimate';
 
 type Driver = {
   employee_id: string;
@@ -3775,6 +3776,8 @@ export function DispatchBoard({
           <DispatchPhase2331StornoAnalyseBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2335: Qualitäts-Board — Fahrerliste nach Score (Pünktl./Storno/Bewert./Wartezt.); Ampel; Alert <60; 30-Min-Polling */}
           <DispatchPhase2335QualitaetsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2340: Tour-Score & Visualisierung Ultimate — Score-Ring + Stopp-Fortschritt + expandierte Tour-Stops + Farbkodierung; 25-Sek-Polling */}
+          <DispatchPhase2340TourScoreVisualisierungUltimate locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -11361,3 +11364,6 @@ export { DispatchPhase2331StornoAnalyseBoard } from './phase2331-storno-analyse-
 
 // Phase 2335 — Qualitäts-Board (Fahrerliste nach Score; Ampel grün≥80/gelb60-79/rot<60; Alert-Banner; 30-Min-Polling)
 export { DispatchPhase2335QualitaetsBoard } from './phase2335-qualitaets-board';
+
+// Phase 2340 — Tour-Score & Visualisierung Ultimate (Score-Ring + Stopp-Fortschritt + expandierte Tour-Stops + Farbkodierung; 25-Sek-Polling)
+export { DispatchPhase2340TourScoreVisualisierungUltimate } from './phase2340-tour-score-visualisierung-ultimate';

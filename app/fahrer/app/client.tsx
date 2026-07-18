@@ -636,6 +636,7 @@ import { FahrerPhase2323MeineWartezeit } from './phase2323-meine-wartezeit';
 import { FahrerPhase2328SmartTourStopsNavigation } from './phase2328-smart-tour-stops-navigation';
 import { FahrerPhase2332MeineStornoRate } from './phase2332-meine-storno-rate';
 import { FahrerPhase2336MeinQualitaetsScore } from './phase2336-mein-qualitaets-score';
+import { FahrerPhase2340TourStopsNavigationsPro } from './phase2340-tour-stops-navigations-pro';
 
 type Driver = {
   id: string;
@@ -5850,6 +5851,8 @@ export function FahrerApp({
           <FahrerPhase2332MeineStornoRate driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2336: Mein Qualitäts-Score — Score (Pünktl./Storno/Bewert./Wartezt.); Ring; Trend; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2336MeinQualitaetsScore driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2340: Tour-Stops Navigation Pro — Hero-Stopp (nächster Stopp) + alle Stopps expandierbar + Nav-Link + Anruf + ETA je Stopp; 20-Sek-Polling */}
+          <FahrerPhase2340TourStopsNavigationsPro driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2328: Smart Tour-Stopps Navigation — Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google-Maps-Nav + Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2328SmartTourStopsNavigation
@@ -8862,3 +8865,6 @@ export { FahrerPhase2332MeineStornoRate } from './phase2332-meine-storno-rate';
 
 // Phase 2336 — Mein Qualitäts-Score (Score aus Pünktl./Storno/Bewert./Wartezt.; Trend; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2336MeinQualitaetsScore } from './phase2336-mein-qualitaets-score';
+
+// Phase 2340 — Tour-Stops Navigation Pro (Hero-Stopp nächster Stopp + alle Stopps expandierbar + Nav-Link + Anruf + ETA je Stopp; 20-Sek-Polling)
+export { FahrerPhase2340TourStopsNavigationsPro } from './phase2340-tour-stops-navigations-pro';

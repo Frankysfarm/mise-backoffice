@@ -418,6 +418,7 @@ import { LieferdienstPhase2250StatistikInsightsPro } from './phase2250-statistik
 import { LieferdienstPhase2255StatistikDashboardPro } from './phase2255-statistiken-dashboard-pro';
 import { LieferdienstPhase2310PausenUebersicht } from './phase2310-pausen-uebersicht';
 import { LieferdienstPhase2315StatistikDashboardCockpit } from './phase2315-statistiken-dashboard-cockpit';
+import { LieferdienstPhase2320StatistikDashboardUltimate } from './phase2320-statistiken-dashboard-ultimate';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2147,6 +2148,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2310PausenUebersicht locationId={locationId ?? null} />
                 {/* Phase 2315: Statistiken-Dashboard Cockpit — KPI-Grid (Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit, Storno, Fahrer), Stundenverlauf-Chart, Storno-Alert; 5-Min-Polling */}
                 <LieferdienstPhase2315StatistikDashboardCockpit locationId={locationId ?? null} />
+                {/* Phase 2320: Statistiken-Dashboard Ultimate — KPI-Grid + Umsatz, Ø Lieferzeit, On-Time, Storno, Fahrer, Stunden-Chart, Zonen-Übersicht; 5-Min-Polling */}
+                <LieferdienstPhase2320StatistikDashboardUltimate locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4593,3 +4596,6 @@ export { LieferdienstPhase2310PausenUebersicht } from './phase2310-pausen-uebers
 
 // Phase 2315 — Statistiken-Dashboard Cockpit (KPI-Grid + Stundenverlauf-Chart + Storno-Alert; 5-Min-Polling)
 export { LieferdienstPhase2315StatistikDashboardCockpit } from './phase2315-statistiken-dashboard-cockpit';
+
+// Phase 2320 — Statistiken-Dashboard Ultimate (KPI-Grid + Umsatz + Lieferzeit + On-Time-Rate + Storno + Fahrer + Stunden-Chart + Zonen-Übersicht; 5-Min-Polling)
+export { LieferdienstPhase2320StatistikDashboardUltimate } from './phase2320-statistiken-dashboard-ultimate';
