@@ -21158,3 +21158,37 @@ Backend-Architekt-Agent (2026-07-18): Phasen 2368–2372 implementiert. 1 neue B
 ---
 
 Backend-Architekt-Agent (2026-07-18): Phasen 2383–2387 implementiert. 1 neue Backend-API (fahrer-abbruchquote) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2386 Storefront übersprungen. Build ✓ Compiled successfully (430 Seiten). Push erfolgt.
+
+---
+
+## Batch 2388–2392 — Fahrer-Kilometerstand-Analyse (2026-07-18)
+
+### Phase 2388 — Backend API: Fahrer-Kilometer
+**Datei:** `app/api/delivery/admin/fahrer-kilometer/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>&driver_id=<uuid>` — Gesamt-km + Ø km/Tour je Fahrer heute aus delivery_tours.distance_km; Alert >150km; Ampel grün(<100km)/gelb(100–150km)/rot(>150km); Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2389 — Kilometer-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2389-kilometer-board.tsx` *(neu)*
+**Integration:** `dispatch/client.tsx` nach Phase2384 ✅
+
+### Phase 2390 — Meine Kilometer (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2390-meine-kilometer.tsx` *(neu)*
+**Integration:** `fahrer/app/client.tsx` nach Phase2385 ✅
+
+### Phase 2391 — Storefront
+Übersprungen (km-Daten intern irrelevant für Kunden) ✅
+
+### Phase 2392 — Kilometer-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2392-kilometer-ticker.tsx` *(neu)*
+**Integration:** `kitchen/client.tsx` nach Phase2387 ✅
+
+### Nächste Phasen 2393–2397 (für nächsten Ingenieur) — Fahrer-Pausenzeit-Analyse
+1. **Phase 2393 Backend:** GET /api/delivery/admin/fahrer-pausenzeit — Ø Pausenzeit je Fahrer heute (Zeit zwischen Tour-Ende und nächstem Tour-Start in Min); Alert >30min Pause (Wartezeit zu hoch); Alert <5min (keine Pause); Ampel grün(5–20min)/gelb(20–30min)/rot(>30min oder <5min); Trend vs. Vorwoche; Multi-Tenant; Supabase+Mock.
+2. **Phase 2394 Dispatch:** Pausenzeit-Board — Fahrerliste nach Ø Pausenzeit; Ampel; Alert-Banner für lange Wartezeiten; Trend-Pfeile; in dispatch/client.tsx nach Phase2389.
+3. **Phase 2395 Fahrer-App:** Meine Pausenzeit — Ø Pause groß + Farbcode; Balken 0–40min; KPI-Grid (Pausen/Touren/Trend/Team-Ø); Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2390.
+4. **Phase 2396 Storefront:** Überspringen (Pausenzeiten intern irrelevant für Kunden).
+5. **Phase 2397 Kitchen:** Pausenzeit-Ticker — Team-Ø Pause; Alert bei Extremen; Fahrerliste kompakt; nach Phase2392.
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-18): Phasen 2388–2392 implementiert. 1 neue Backend-API (fahrer-kilometer) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2391 Storefront übersprungen. Build ✓ Compiled successfully (1298 Seiten). Push erfolgt.
