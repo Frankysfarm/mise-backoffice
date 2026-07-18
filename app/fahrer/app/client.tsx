@@ -655,6 +655,7 @@ import { FahrerPhase2410MeineSchichtBilanz } from './phase2410-meine-schicht-bil
 import { FahrerPhase2415MeinUmsatzProStunde } from './phase2415-mein-umsatz-pro-stunde';
 import { FahrerPhase2420MeineTrinkgeldQuote } from './phase2420-meine-trinkgeld-quote';
 import { FahrerPhase2425TourStopsNaviHub } from './phase2425-tour-stops-navi-hub';
+import { FahrerPhase2427MeineBewertung } from './phase2427-meine-bewertung';
 
 type Driver = {
   id: string;
@@ -5905,6 +5906,8 @@ export function FahrerApp({
           <FahrerPhase2420MeineTrinkgeldQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2425: Tour-Stops & Navigation Hub — Alle Tour-Stops mit Status + Fortschrittsbalken + Stop-Dots + Navi-Button + Anruf-Button; aktiver Stop hervorgehoben */}
           <FahrerPhase2425TourStopsNaviHub driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2427: Meine Bewertung — Ø★ groß + Farbcode; Stern-Visualisierung; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2427MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2380TourStoppNavigatorUltra
@@ -8972,3 +8975,5 @@ export { FahrerPhase2415MeinUmsatzProStunde } from './phase2415-mein-umsatz-pro-
 export { FahrerPhase2420MeineTrinkgeldQuote } from './phase2420-meine-trinkgeld-quote';
 // Phase 2425 — Tour-Stops & Navigation Hub (Alle Tour-Stops mit Status + Fortschrittsbalken + Stop-Dots + Navi-Button + Anruf-Button; aktiver Stop hervorgehoben; 30-Sek-Polling)
 export { FahrerPhase2425TourStopsNaviHub } from './phase2425-tour-stops-navi-hub';
+// Phase 2427 — Meine Bewertung (Ø★ groß + Farbcode; Stern-Visualisierung; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2427MeineBewertung } from './phase2427-meine-bewertung';

@@ -741,6 +741,7 @@ import { DispatchPhase2409SchichtBilanzBoard } from './phase2409-schicht-bilanz-
 import { DispatchPhase2414UmsatzProStundeBoard } from './phase2414-umsatz-pro-stunde-board';
 import { DispatchPhase2419TrinkgeldQuoteBoard } from './phase2419-trinkgeld-quote-board';
 import { DispatchPhase2424ScoreTourVisualisierungMaster } from './phase2424-score-tour-visualisierung-master';
+import { DispatchPhase2426BewertungsBoard } from './phase2426-bewertungs-board';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 
 type Driver = {
@@ -3830,6 +3831,8 @@ export function DispatchBoard({
           <DispatchPhase2419TrinkgeldQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2424: Score & Tour-Visualisierung Master — Score-Anzeige je Fahrer; farbkodierte Tour-Fortschrittsbalken; Stop-Dots; ETA; Alert <60 Score; 25-Sek-Polling */}
           <DispatchPhase2424ScoreTourVisualisierungMaster locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2426: Bewertungs-Board — KPI-Grid Team-Ø heute/VW/Ziel 4,5★; Podium Top-3; Fahrerliste nach Ø★ sortiert; Alert <3,5★; Ampel; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2426BewertungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
           <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
@@ -11457,3 +11460,5 @@ export { DispatchPhase2414UmsatzProStundeBoard } from './phase2414-umsatz-pro-st
 export { DispatchPhase2419TrinkgeldQuoteBoard } from './phase2419-trinkgeld-quote-board';
 // Phase 2424 — Score & Tour-Visualisierung Master (Score-Anzeige je Fahrer; farbkodierte Tour-Fortschrittsbalken; Stop-Dots; ETA; Alert <60 Score; 25-Sek-Polling)
 export { DispatchPhase2424ScoreTourVisualisierungMaster } from './phase2424-score-tour-visualisierung-master';
+// Phase 2426 — Bewertungs-Board (KPI-Grid Team-Ø heute/VW/Ziel 4,5★; Podium Top-3; Fahrerliste nach Ø★; Alert <3,5★; Ampel; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2426BewertungsBoard } from './phase2426-bewertungs-board';
