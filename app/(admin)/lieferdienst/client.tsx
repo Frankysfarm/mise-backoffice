@@ -416,6 +416,7 @@ import { LieferdienstPhase2240StatistikHubPro } from './phase2240-statistik-hub-
 import { LieferdienstPhase2245StatistikLiveDashboard } from './phase2245-statistiken-live-dashboard';
 import { LieferdienstPhase2250StatistikInsightsPro } from './phase2250-statistiken-insights-pro';
 import { LieferdienstPhase2255StatistikDashboardPro } from './phase2255-statistiken-dashboard-pro';
+import { LieferdienstPhase2310PausenUebersicht } from './phase2310-pausen-uebersicht';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2141,6 +2142,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2250StatistikInsightsPro tenantId={locationId ?? null} />
                 {/* Phase 2255: Statistiken-Dashboard Pro — KPI-Grid, Umsatz-Trend, Stunden-Balken, Storno-Alert; 5-Min-Polling */}
                 <LieferdienstPhase2255StatistikDashboardPro locationId={locationId ?? null} />
+                {/* Phase 2310: Pausen-Übersicht — Team-Pausen-Compliance, Risikofahrer-Liste, Ampel grün/gelb/rot; 15-Min-Polling */}
+                <LieferdienstPhase2310PausenUebersicht locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4581,3 +4584,6 @@ export { LieferdienstPhase2250StatistikInsightsPro } from './phase2250-statistik
 
 // Phase 2255 — Statistiken-Dashboard Pro (KPI-Grid + Umsatz-Trend + Stunden-Balken + Storno-Alert)
 export { LieferdienstPhase2255StatistikDashboardPro } from './phase2255-statistiken-dashboard-pro';
+
+// Phase 2310 — Pausen-Übersicht (Team-Compliance, Risikofahrer-Liste, Ampel grün/gelb/rot)
+export { LieferdienstPhase2310PausenUebersicht } from './phase2310-pausen-uebersicht';
