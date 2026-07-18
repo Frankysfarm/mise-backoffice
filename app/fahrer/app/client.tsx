@@ -634,6 +634,7 @@ import { FahrerPhase2313MeineKm } from './phase2313-meine-km';
 import { FahrerPhase2318MeinTempo } from './phase2318-mein-tempo';
 import { FahrerPhase2323MeineWartezeit } from './phase2323-meine-wartezeit';
 import { FahrerPhase2328SmartTourStopsNavigation } from './phase2328-smart-tour-stops-navigation';
+import { FahrerPhase2332MeineStornoRate } from './phase2332-meine-storno-rate';
 
 type Driver = {
   id: string;
@@ -5844,6 +5845,8 @@ export function FahrerApp({
           <FahrerPhase2318MeinTempo driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2323: Meine Wartezeit — Ø Wartezeit heute + Trend vs. Vorwoche + Team-Ø; Coaching-Tipp; isOnline-Guard; 15-Min-Polling */}
           <FahrerPhase2323MeineWartezeit driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2332: Meine Storno-Rate — Storno-Rate heute + Trend + Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2332MeineStornoRate driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2328: Smart Tour-Stopps Navigation — Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google-Maps-Nav + Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2328SmartTourStopsNavigation
@@ -8850,3 +8853,6 @@ export { FahrerPhase2323MeineWartezeit } from './phase2323-meine-wartezeit';
 
 // Phase 2328 — Smart Tour-Stopps Navigation (Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google Maps + Anruf)
 export { FahrerPhase2328SmartTourStopsNavigation } from './phase2328-smart-tour-stops-navigation';
+
+// Phase 2332 — Meine Storno-Rate (Storno-Rate heute + Trend + Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2332MeineStornoRate } from './phase2332-meine-storno-rate';

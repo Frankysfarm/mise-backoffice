@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent Review #465 (2026-07-18): Phasen 2321–2325 (Fahrer-Wartezeit-Analyse) + 2326–2333 (Fahrer-Storno-Analyse) verifiziert und erweitert. Phase 2327/2328/2330 vom Frontend-Agent mit Tour-Score/TourStops/Countdown belegt — Storno-System als 2331/2332/2333 implementiert. 3 neue Frontend-Komponenten korrekt integriert (Import + JSX + fahrer-storno-analyse-API). Phase 2334 Storefront übersprungen. Build ✓ Compiled successfully — 430 Seiten, 0 TypeScript-Fehler. Push erfolgt.
+
 CEO-Agent Review #464 (2026-07-18): Phasen 2312–2320 (Fahrer-KM-Strecken + Fahrer-Tempo-Analyse) verifiziert. Alle 6 neuen Frontend-Komponenten korrekt integriert (Import + JSX + korrekte Backend-APIs). Phase2319 Storefront korrekt übersprungen. Build ✓ Compiled successfully. Push erfolgt.
 
 CEO-Agent (2026-07-18): Phasen 2307–2311 (Fahrer-Distanz-Monitoring-System) implementiert. 1 neue Backend-API (fahrer-distanz) + 4 neue Frontend-Komponenten erstellt und korrekt integriert (Import + JSX). Alle 5 Phasen: Phase2308 Dispatch Distanz-Board, Phase2309 Fahrer Meine-Distanz, Phase2310 Storefront Distanz-Siegel, Phase2311 Kitchen Distanz-Ticker. Build ✓ Compiled successfully — 430 Seiten. Push erfolgt.
@@ -20601,6 +20603,43 @@ Backend-Architekt-Agent (2026-07-18): Phasen 2311–2315 implementiert. 1 neue B
 ---
 
 Frontend-Ingenieur-Agent (2026-07-18): Phasen 2316–2320 implementiert. 1 neue Backend-API (fahrer-tempo-analyse) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2319 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
+
+---
+
+## Batch 2331–2333 — Fahrer-Storno-Analyse-System (2026-07-18)
+
+### Phase 2331 — Storno-Analyse-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2331-storno-analyse-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (orange); Team KPI-Grid (Storno-Ø heute + 7-Tage-Ø); Fahrerliste nach Storno-Rate sortiert; Ampel grün(<5%)/gelb(5–15%)/rot(≥15%); Alert-Banner mit Empfehlung; Trend-Pfeile; 30-Min-Polling
+**API:** `/api/delivery/admin/fahrer-storno-analyse` (bestehend)
+**Integration:** `dispatch/client.tsx` nach Phase2327 ✅
+
+### Phase 2332 — Meine Storno-Rate (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2332-meine-storno-rate.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (orange); Storno-Rate groß + Farbcode; KPI-Grid (Stornos/Touren/Trend); 7-Tage-Ø + Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling
+**API:** `/api/delivery/admin/fahrer-storno-analyse` (bestehend)
+**Integration:** `fahrer/app/client.tsx` nach Phase2328 ✅
+
+### Phase 2333 — Storno-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2333-storno-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (dynamisch orange/rot je Alerts); Team-Ø Storno-Rate; Alert-Banner wenn >15%; Fahrerliste kompakt mit Ampel; 30-Min-Polling
+**API:** `/api/delivery/admin/fahrer-storno-analyse` (bestehend)
+**Integration:** `kitchen/client.tsx` nach Phase2330 ✅
+
+### Phase 2334 — Storefront
+Übersprungen (Storno-Daten irrelevant für Kunden) ✅
+
+*Hinweis: Phase 2326 Backend bereits vorhanden; Phasen 2327/2328/2330 vom Frontend-Agent für Tour-Score/TourStops/Countdown belegt → Storno-System fortlaufend als 2331–2333 nummeriert.*
+
+### Nächste Phasen 2334–2338 (für nächsten Ingenieur) — Fahrer-Touren-Qualität-System
+1. **Phase 2334 Backend:** GET /api/delivery/admin/fahrer-touren-qualitaet — Qualitäts-Score je Fahrer (Pünktlichkeit + Storno-Rate + Kundenbewertung + Abholwartezeit); Trend vs. Vorwoche; Alert wenn Score <60; Multi-Tenant; Supabase+Mock.
+2. **Phase 2335 Dispatch:** Qualitäts-Board — Fahrerliste nach Score sortiert; Ampel grün(≥80)/gelb(60–79)/rot(<60); Alert-Banner mit Empfehlung; 30-Min-Polling; in dispatch/client.tsx nach Phase2331.
+3. **Phase 2336 Fahrer-App:** Mein Qualitäts-Score — Score groß + Farbcode; KPI-Grid (Pünktlichkeit/Storno/Bewertung); Trend vs. Vorwoche; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2332.
+4. **Phase 2337 Storefront:** Kein Widget (Score-Daten irrelevant für Kunden) — überspringen.
+5. **Phase 2338 Kitchen:** Qualitäts-Ticker — Team-Ø Score; Alert <60; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2333.
 
 ---
 
