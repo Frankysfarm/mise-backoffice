@@ -720,6 +720,7 @@ import { DispatchPhase2308DistanzBoard } from './phase2308-distanz-board';
 import { DispatchPhase2312KmBoard } from './phase2312-km-board';
 import { DispatchPhase2317TempoAnalyseBoard } from './phase2317-tempo-analyse-board';
 import { DispatchPhase2322WartezeitBoard } from './phase2322-wartezeit-board';
+import { DispatchPhase2327TourScoreVisualisierungBoard } from './phase2327-tour-score-visualisierung-board';
 
 type Driver = {
   employee_id: string;
@@ -3766,6 +3767,8 @@ export function DispatchBoard({
           <DispatchPhase2317TempoAnalyseBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2322: Wartezeit-Board — Ø Wartezeit am Restaurant je Fahrer; Ampel; Alert >10 Min; Dispatcher-Empfehlung; 15-Min-Polling */}
           <DispatchPhase2322WartezeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2327: Tour Score Visualisierung Board — Score-Ring + Tour-Stopp-Fortschritt + Visualisierung + Farbkodierung; 25-Sek-Polling */}
+          <DispatchPhase2327TourScoreVisualisierungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -11343,3 +11346,6 @@ export { DispatchPhase2317TempoAnalyseBoard } from './phase2317-tempo-analyse-bo
 
 // Phase 2322 — Wartezeit-Board (Ø Wartezeit am Restaurant je Fahrer, Ampel, Alert >10 Min, 15-Min-Polling)
 export { DispatchPhase2322WartezeitBoard } from './phase2322-wartezeit-board';
+
+// Phase 2327 — Tour Score Visualisierung Board (Score-Ring + Tour-Stopp-Fortschritt + expandierte Stopp-Visualisierung + Farbkodierung; 25-Sek-Polling)
+export { DispatchPhase2327TourScoreVisualisierungBoard } from './phase2327-tour-score-visualisierung-board';

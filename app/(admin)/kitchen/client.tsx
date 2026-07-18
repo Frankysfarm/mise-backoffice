@@ -270,6 +270,7 @@ import { KitchenPhase2311DistanzTicker } from './phase2311-distanz-ticker';
 import { KitchenPhase2315KmTicker } from './phase2315-km-ticker';
 import { KitchenPhase2320TempoTicker } from './phase2320-tempo-ticker';
 import { KitchenPhase2325WartezeitTicker } from './phase2325-wartezeit-ticker';
+import { KitchenPhase2330SmartKochzeitCountdownBoard } from './phase2330-smart-kochzeit-countdown-board';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3339,6 +3340,8 @@ export function KitchenBoard({
       <KitchenPhase2320TempoTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2325: Wartezeit-Ticker — Team-Ø Wartezeit; Alert >10 Min; Fahrerliste kompakt; 15-Min-Polling */}
       <KitchenPhase2325WartezeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2330: Smart-Kochzeit-Countdown Board — Farbkodierter Countdown pro Bestellung (grün/gelb/rot), On-Time-Quote, Fortschrittsbalken; 30-Sek-Update */}
+      <KitchenPhase2330SmartKochzeitCountdownBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -9901,3 +9904,6 @@ export { KitchenPhase2320TempoTicker } from './phase2320-tempo-ticker';
 
 // Phase 2325 — Wartezeit-Ticker (Team-Ø Wartezeit + Alert >10 Min + Fahrerliste kompakt + 15-Min-Polling)
 export { KitchenPhase2325WartezeitTicker } from './phase2325-wartezeit-ticker';
+
+// Phase 2330 — Smart-Kochzeit-Countdown Board (Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Fortschrittsbalken; 30-Sek-Update)
+export { KitchenPhase2330SmartKochzeitCountdownBoard } from './phase2330-smart-kochzeit-countdown-board';

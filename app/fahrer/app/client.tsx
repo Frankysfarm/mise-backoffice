@@ -633,6 +633,7 @@ import { FahrerPhase2309MeineDistanz } from './phase2309-meine-distanz';
 import { FahrerPhase2313MeineKm } from './phase2313-meine-km';
 import { FahrerPhase2318MeinTempo } from './phase2318-mein-tempo';
 import { FahrerPhase2323MeineWartezeit } from './phase2323-meine-wartezeit';
+import { FahrerPhase2328SmartTourStopsNavigation } from './phase2328-smart-tour-stops-navigation';
 
 type Driver = {
   id: string;
@@ -5843,6 +5844,24 @@ export function FahrerApp({
           <FahrerPhase2318MeinTempo driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2323: Meine Wartezeit — Ø Wartezeit heute + Trend vs. Vorwoche + Team-Ø; Coaching-Tipp; isOnline-Guard; 15-Min-Polling */}
           <FahrerPhase2323MeineWartezeit driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2328: Smart Tour-Stopps Navigation — Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google-Maps-Nav + Anruf-Button */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2328SmartTourStopsNavigation
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? s.stop_number ?? 0,
+                kunde_name: s.order?.kunde_name ?? s.customer_name ?? s.kunde_name ?? null,
+                kunde_adresse: s.order?.kunde_adresse ?? s.address ?? s.kunde_adresse ?? null,
+                kunde_telefon: s.order?.kunde_telefon ?? s.customer_phone ?? s.kunde_telefon ?? null,
+                gesamtbetrag: s.order?.gesamtbetrag ?? s.gesamtbetrag ?? null,
+                geliefert_am: s.geliefert_am ?? s.delivered_at ?? null,
+                eta_min: s.eta_min ?? null,
+                distanz_km: s.distanz_km ?? null,
+                notizen: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? s.notes ?? s.notizen ?? null,
+              }))}
+              batchId={activeBatch.id}
+            />
+          )}
           {/* Phase 2285: Smart Tour Stop Navigator Ultra — expandierbare Stopp-Karten, Status-Farbkodierung, Navigations-Link, Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2285SmartTourStopNavigatorUltra
@@ -8828,3 +8847,6 @@ export { FahrerPhase2318MeinTempo } from './phase2318-mein-tempo';
 
 // Phase 2323 — Meine Wartezeit (Ø Wartezeit am Restaurant heute + Trend + Team-Ø; Coaching-Tipp; isOnline-Guard)
 export { FahrerPhase2323MeineWartezeit } from './phase2323-meine-wartezeit';
+
+// Phase 2328 — Smart Tour-Stopps Navigation (Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google Maps + Anruf)
+export { FahrerPhase2328SmartTourStopsNavigation } from './phase2328-smart-tour-stops-navigation';
