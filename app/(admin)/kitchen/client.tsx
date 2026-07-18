@@ -249,6 +249,7 @@ import { KitchenPhase2215BestzeitTicker } from './phase2215-bestzeit-ticker';
 import { KitchenPhase2220AusfallrisikoTicker } from './phase2220-ausfallrisiko-ticker';
 import { KitchenPhase2225WartezeitMonitor } from './phase2225-wartezeit-monitor';
 import { KitchenPhase2230EnergieTicker } from './phase2230-energie-ticker';
+import { KitchenPhase2231SmartTimingCountdown } from './phase2231-smart-timing-countdown';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3276,6 +3277,8 @@ export function KitchenBoard({
       <KitchenPhase2225WartezeitMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2230: Energie-Ticker — Warnung wenn Team-Energie niedrig; Pause-Empfehlung; useMemo; 15-Min-Polling */}
       <KitchenPhase2230EnergieTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2231: Smart-Timing Countdown — Farbkodierter Countdown pro Batch; Grün >5 Min, Gelb 1–5 Min, Rot <1 Min; 60-Sek-Polling */}
+      <KitchenPhase2231SmartTimingCountdown locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
