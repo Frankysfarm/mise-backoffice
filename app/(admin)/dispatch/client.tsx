@@ -738,6 +738,7 @@ import { DispatchPhase2394PausenzeitBoard } from './phase2394-pausenzeit-board';
 import { DispatchPhase2399TourenAnzahlBoard } from './phase2399-touren-anzahl-board';
 import { DispatchPhase2404EffizienzScoreBoard } from './phase2404-effizienz-score-board';
 import { DispatchPhase2409SchichtBilanzBoard } from './phase2409-schicht-bilanz-board';
+import { DispatchPhase2414UmsatzProStundeBoard } from './phase2414-umsatz-pro-stunde-board';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 
 type Driver = {
@@ -3821,6 +3822,8 @@ export function DispatchBoard({
           <DispatchPhase2404EffizienzScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2409: Schicht-Bilanz-Board — Fahrerliste nach Einnahmen; KPI-Grid Touren/km/Einnahmen/Bewertung; Alert >10h Schicht; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2409SchichtBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2414: Umsatz/h-Board — Fahrerliste nach €/h sortiert; KPI-Grid Ø heute/VW/Ziel ≥12 €/h; Podium Top-3; Alert <8 €/h; Ampel-Balken; 30-Min-Polling */}
+          <DispatchPhase2414UmsatzProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
           <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
@@ -11442,3 +11445,5 @@ export { DispatchPhase2399TourenAnzahlBoard } from './phase2399-touren-anzahl-bo
 export { DispatchPhase2404EffizienzScoreBoard } from './phase2404-effizienz-score-board';
 // Phase 2409 — Schicht-Bilanz-Board (Fahrerliste nach Einnahmen; KPI-Grid Touren/km/Einnahmen/Bewertung; Alert >10h Schicht; Ampel grün/rot; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2409SchichtBilanzBoard } from './phase2409-schicht-bilanz-board';
+// Phase 2414 — Umsatz/h-Board (Fahrerliste nach €/h; KPI-Grid Ø heute/VW/Ziel ≥12 €/h; Podium Top-3; Alert <8 €/h; Ampel-Balken; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2414UmsatzProStundeBoard } from './phase2414-umsatz-pro-stunde-board';

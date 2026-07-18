@@ -652,6 +652,7 @@ import { FahrerPhase2395MeinePausenzeit } from './phase2395-meine-pausenzeit';
 import { FahrerPhase2400MeineTourenAnzahl } from './phase2400-meine-touren-anzahl';
 import { FahrerPhase2405MeinEffizienzScore } from './phase2405-mein-effizienz-score';
 import { FahrerPhase2410MeineSchichtBilanz } from './phase2410-meine-schicht-bilanz';
+import { FahrerPhase2415MeinUmsatzProStunde } from './phase2415-mein-umsatz-pro-stunde';
 
 type Driver = {
   id: string;
@@ -5896,6 +5897,8 @@ export function FahrerApp({
           <FahrerPhase2405MeinEffizienzScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2410: Meine Schicht-Bilanz — Einnahmen groß + Farbcode; 4-KPI-Grid Touren/km/Bewertung/Schichtdauer; Trend vs. VW; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2410MeineSchichtBilanz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2415: Mein Umsatz/h — €/h groß + Farbcode; Balken 0–20 €/h mit Ziel-Linien; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2415MeinUmsatzProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2380TourStoppNavigatorUltra
@@ -8957,3 +8960,5 @@ export { FahrerPhase2400MeineTourenAnzahl } from './phase2400-meine-touren-anzah
 export { FahrerPhase2405MeinEffizienzScore } from './phase2405-mein-effizienz-score';
 // Phase 2410 — Meine Schicht-Bilanz (Einnahmen groß + Farbcode; 4-KPI-Grid Touren/km/Bewertung/Schichtdauer; Trend vs. VW; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2410MeineSchichtBilanz } from './phase2410-meine-schicht-bilanz';
+// Phase 2415 — Mein Umsatz/h (€/h groß + Farbcode; Balken 0–20 €/h mit Ziel-Linien bei 8 und 12 €/h; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2415MeinUmsatzProStunde } from './phase2415-mein-umsatz-pro-stunde';

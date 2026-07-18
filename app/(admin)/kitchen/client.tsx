@@ -288,6 +288,7 @@ import { KitchenPhase2397PausenzeitTicker } from './phase2397-pausenzeit-ticker'
 import { KitchenPhase2402TourenAnzahlTicker } from './phase2402-touren-anzahl-ticker';
 import { KitchenPhase2407EffizienzScoreTicker } from './phase2407-effizienz-score-ticker';
 import { KitchenPhase2412SchichtBilanzTicker } from './phase2412-schicht-bilanz-ticker';
+import { KitchenPhase2417UmsatzProStundeTicker } from './phase2417-umsatz-pro-stunde-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3394,6 +3395,8 @@ export function KitchenBoard({
       <KitchenPhase2407EffizienzScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2412: Schicht-Bilanz-Ticker — Team-Gesamt-Touren + Gesamt-Einnahmen; Alert >10h Schicht; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2412SchichtBilanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2417: Umsatz/h-Ticker — Team-Ø €/h; Alert <8 €/h; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling */}
+      <KitchenPhase2417UmsatzProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
       <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
     </div>
@@ -10000,3 +10003,5 @@ export { KitchenPhase2402TourenAnzahlTicker } from './phase2402-touren-anzahl-ti
 export { KitchenPhase2407EffizienzScoreTicker } from './phase2407-effizienz-score-ticker';
 // Phase 2412 — Schicht-Bilanz-Ticker (Team-Gesamt-Touren + Gesamt-Einnahmen; Alert >10h Schicht; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2412SchichtBilanzTicker } from './phase2412-schicht-bilanz-ticker';
+// Phase 2417 — Umsatz/h-Ticker (Team-Ø €/h; Alert <8 €/h; Fahrerliste kompakt mit Ampel-Dots grün/gelb/rot; 30-Min-Polling)
+export { KitchenPhase2417UmsatzProStundeTicker } from './phase2417-umsatz-pro-stunde-ticker';
