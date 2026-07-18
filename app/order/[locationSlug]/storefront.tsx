@@ -443,6 +443,7 @@ import { StorefrontPhase2299QualitaetsSiegel } from './phase2299-qualitaets-sieg
 import { StorefrontPhase2310DistanzSiegel } from './phase2310-distanz-siegel';
 import { Phase2315DynamischeEtaLiveTrackingPro } from './phase2315-dynamische-eta-live-tracking-pro';
 import { StorefrontPhase2351LiefergebietBadge } from './phase2351-liefergebiet-badge';
+import { StorefrontPhase2356BewertungsSiegel } from './phase2356-bewertungs-siegel';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 
 type Props = {
@@ -1941,6 +1942,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2310DistanzSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2351: Liefergebiet-Badge — "Schnelle Lieferung in Ihrer Zone"; nur wenn Ø ≤4 km und Auslastung <80%; Hydration-safe */}
       <StorefrontPhase2351LiefergebietBadge locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2356: Bewertungs-Siegel — "⭐ X.X von 5 — Bewertet von unseren Kunden"; nur wenn Ø ≥4.0; Hydration-safe */}
+      <StorefrontPhase2356BewertungsSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2315: Dynamische ETA Live-Tracking Pro — 5-stufige Timeline + Prep-Fortschrittsbalken + Fahrer-Info + 15s-Polling */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">

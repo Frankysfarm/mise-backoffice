@@ -276,6 +276,7 @@ import { KitchenPhase2338QualitaetsTicker } from './phase2338-qualitaets-ticker'
 import { KitchenPhase2340SmartTimingFarbkodierungCountdownPro } from './phase2340-smart-timing-farbkodierung-countdown-pro';
 import { KitchenPhase2347EffizienzTicker } from './phase2347-effizienz-ticker';
 import { KitchenPhase2352GebietTicker } from './phase2352-gebiet-ticker';
+import { KitchenPhase2357BewertungsTicker } from './phase2357-bewertungs-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3357,6 +3358,8 @@ export function KitchenBoard({
       <KitchenPhase2347EffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2352: Gebiet-Ticker — Zone mit höchster Last; Rebalancing-Tipp; 30-Min-Polling */}
       <KitchenPhase2352GebietTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2357: Bewertungs-Ticker — Team-Ø Stern + Fahrer mit schlechtester Bewertung + Tipp; 30-Min-Polling */}
+      <KitchenPhase2357BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -9937,3 +9940,5 @@ export { KitchenPhase2347EffizienzTicker } from './phase2347-effizienz-ticker';
 
 // Phase 2352 — Gebiet-Ticker (Zone mit höchster Last; Rebalancing-Tipp; 30-Min-Polling)
 export { KitchenPhase2352GebietTicker } from './phase2352-gebiet-ticker';
+// Phase 2357 — Bewertungs-Ticker (Team-Ø Stern + schlechtester Fahrer + Tipp; 30-Min-Polling)
+export { KitchenPhase2357BewertungsTicker } from './phase2357-bewertungs-ticker';
