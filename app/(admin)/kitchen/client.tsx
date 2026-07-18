@@ -281,6 +281,7 @@ import { KitchenPhase2362PuenktlichkeitsTicker } from './phase2362-puenktlichkei
 import { KitchenPhase2367TrinkgeldTicker } from './phase2367-trinkgeld-ticker';
 import { KitchenPhase2372LieferzeitTicker } from './phase2372-lieferzeit-ticker';
 import { KitchenPhase2377AuslastungsTicker } from './phase2377-auslastungs-ticker';
+import { KitchenPhase2382ReaktionszeitTicker } from './phase2382-reaktionszeit-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3372,6 +3373,8 @@ export function KitchenBoard({
       <KitchenPhase2372LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2377: Auslastungs-Ticker — Team-Ø Auslastung; Alert <40% od. >90%; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2377AuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2382: Reaktionszeit-Ticker — Team-Ø Reaktionszeit; Alert >120s; Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2382ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -9962,3 +9965,5 @@ export { KitchenPhase2367TrinkgeldTicker } from './phase2367-trinkgeld-ticker';
 export { KitchenPhase2372LieferzeitTicker } from './phase2372-lieferzeit-ticker';
 // Phase 2377 — Auslastungs-Ticker (Team-Ø Auslastung; Alert <40% od. >90%; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2377AuslastungsTicker } from './phase2377-auslastungs-ticker';
+// Phase 2382 — Reaktionszeit-Ticker (Team-Ø Reaktionszeit; Alert >120s; Fahrerliste kompakt; 30-Min-Polling)
+export { KitchenPhase2382ReaktionszeitTicker } from './phase2382-reaktionszeit-ticker';

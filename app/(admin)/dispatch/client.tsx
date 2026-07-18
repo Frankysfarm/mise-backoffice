@@ -731,6 +731,7 @@ import { DispatchPhase2359PuenktlichkeitsBoard } from './phase2359-puenktlichkei
 import { DispatchPhase2364TrinkgeldBoard } from './phase2364-trinkgeld-board';
 import { DispatchPhase2369LieferzeitBenchmarkBoard } from './phase2369-lieferzeit-benchmark-board';
 import { DispatchPhase2374AuslastungsBoard } from './phase2374-auslastungs-board';
+import { DispatchPhase2379ReaktionszeitBoard } from './phase2379-reaktionszeit-board';
 
 type Driver = {
   employee_id: string;
@@ -3799,6 +3800,8 @@ export function DispatchBoard({
           <DispatchPhase2369LieferzeitBenchmarkBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2374: Auslastungs-Board — Fahrerliste nach Auslastungs-Rate; Ampel grün(60–85%)/gelb/rot; Alert <40% od. >90%; Rebalancing-Tipp; 30-Min-Polling */}
           <DispatchPhase2374AuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2379: Reaktionszeit-Board — Fahrerliste nach Ø Reaktionszeit; Ampel grün(≤60s)/gelb(61–120s)/rot(>120s); Alert >120s; Trend; 30-Min-Polling */}
+          <DispatchPhase2379ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -11404,3 +11407,5 @@ export { DispatchPhase2364TrinkgeldBoard } from './phase2364-trinkgeld-board';
 export { DispatchPhase2369LieferzeitBenchmarkBoard } from './phase2369-lieferzeit-benchmark-board';
 // Phase 2374 — Auslastungs-Board (Fahrerliste nach Rate; Ampel grün60–85%/gelb/rot; Alert <40% od. >90%; Rebalancing-Tipp; 30-Min-Polling)
 export { DispatchPhase2374AuslastungsBoard } from './phase2374-auslastungs-board';
+// Phase 2379 — Reaktionszeit-Board (Fahrerliste nach Ø Reaktionszeit; Ampel grün≤60s/gelb61–120s/rot>120s; Alert >120s; Trend; 30-Min-Polling)
+export { DispatchPhase2379ReaktionszeitBoard } from './phase2379-reaktionszeit-board';
