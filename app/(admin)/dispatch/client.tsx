@@ -708,6 +708,7 @@ import { DispatchPhase2255BewertungsRankingBoard } from './phase2255-bewertungs-
 import { DispatchPhase2260KmRankingBoard } from './phase2260-km-ranking-board';
 import { DispatchPhase2265WartezeitBoard } from './phase2265-wartezeit-board';
 import { DispatchPhase2270EffizienzRankingBoard } from './phase2270-effizienz-ranking-board';
+import { DispatchPhase2275LieferfensterBoard } from './phase2275-lieferfenster-board';
 import { DispatchPhase1000TourScoreVisualisierungUltimate } from './phase1000-tour-score-visualisierung-ultimate';
 
 type Driver = {
@@ -3731,6 +3732,8 @@ export function DispatchBoard({
           <DispatchPhase2265WartezeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2270: Tour-Effizienz-Ranking — Fahrerliste nach Touren/Std; Ampel grün(≥2)/gelb(≥1,5)/rot(<1,5); Alert-Banner; 30-Min-Polling */}
           <DispatchPhase2270EffizienzRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2275: Lieferfenster-Board — Quote pünktlich im Fenster; Ampel grün(≥95%)/gelb(≥80%)/rot(<80%); Podium; 30-Min-Polling */}
+          <DispatchPhase2275LieferfensterBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000 Ultimate: Tour-Score-Visualisierung — Score-Ring, Stop-Fortschritt, Pünktlichkeits-Badges */}
           <DispatchPhase1000TourScoreVisualisierungUltimate batches={batches} drivers={drivers} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}

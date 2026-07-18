@@ -620,6 +620,7 @@ import { FahrerPhase2256MeineKundenbewertung } from './phase2256-meine-kundenbew
 import { FahrerPhase2261MeinKilometerstand } from './phase2261-mein-kilometerstand';
 import { FahrerPhase2266MeineAbholwartezeit } from './phase2266-meine-abholwartezeit';
 import { FahrerPhase2271MeineTourEffizienz } from './phase2271-meine-tour-effizienz';
+import { FahrerPhase2276MeinLieferfenster } from './phase2276-mein-lieferfenster';
 import { FahrerPhase2285SmartTourStopNavigatorUltra } from './phase2285-smart-tour-stop-navigator-ultra';
 import { FahrerPhase2200SmartStoppNaviCockpit } from './phase2200-smart-stopp-navi-cockpit';
 
@@ -5816,6 +5817,8 @@ export function FahrerApp({
           <FahrerPhase2266MeineAbholwartezeit driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2271: Meine Tour-Effizienz — Touren/Std + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2271MeineTourEffizienz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2276: Mein Lieferfenster — Quote pünktlich im Fenster + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 1-Std-Polling */}
+          <FahrerPhase2276MeinLieferfenster driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2285: Smart Tour Stop Navigator Ultra — expandierbare Stopp-Karten, Status-Farbkodierung, Navigations-Link, Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2285SmartTourStopNavigatorUltra
