@@ -622,6 +622,7 @@ import { FahrerPhase2266MeineAbholwartezeit } from './phase2266-meine-abholwarte
 import { FahrerPhase2271MeineTourEffizienz } from './phase2271-meine-tour-effizienz';
 import { FahrerPhase2276MeinLieferfenster } from './phase2276-mein-lieferfenster';
 import { FahrerPhase2285SmartTourStopNavigatorUltra } from './phase2285-smart-tour-stop-navigator-ultra';
+import { FahrerPhase2290TourStoppNaviKommando } from './phase2290-tour-stopp-navi-kommando';
 import { FahrerPhase2200SmartStoppNaviCockpit } from './phase2200-smart-stopp-navi-cockpit';
 
 type Driver = {
@@ -5833,6 +5834,24 @@ export function FahrerApp({
                 geliefert_am: s.geliefert_am ?? s.delivered_at ?? null,
                 eta_min: s.eta_min ?? null,
                 distanz_km: s.distanz_km ?? null,
+              }))}
+              batchId={activeBatch.id}
+            />
+          )}
+          {/* Phase 2290: Tour-Stopp-Navi-Kommando — expandierbare Stopp-Karten, Google Maps / Waze Navigation, Stop-Status-Farbkodierung */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2290TourStoppNaviKommando
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? s.stop_number ?? 0,
+                kunde_name: s.customer_name ?? s.kunde_name ?? null,
+                kunde_adresse: s.address ?? s.kunde_adresse ?? null,
+                kunde_telefon: s.customer_phone ?? s.kunde_telefon ?? null,
+                gesamtbetrag: s.gesamtbetrag ?? null,
+                geliefert_am: s.geliefert_am ?? s.delivered_at ?? null,
+                eta_min: s.eta_min ?? null,
+                distanz_km: s.distanz_km ?? null,
+                notizen: s.notes ?? s.notizen ?? null,
               }))}
               batchId={activeBatch.id}
             />

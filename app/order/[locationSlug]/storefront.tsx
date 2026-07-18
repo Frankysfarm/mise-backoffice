@@ -437,6 +437,7 @@ import { StorefrontPhase2267AbholwartezeitSiegel } from './phase2267-abholwartez
 import { StorefrontPhase2272EffizienzSiegel } from './phase2272-effizienz-siegel';
 import { StorefrontPhase2277DynamicEtaLiveTracking } from './phase2277-dynamic-eta-live-tracking';
 import { StorefrontPhase2279LieferfensterSiegel } from './phase2279-lieferfenster-siegel';
+import { StorefrontPhase2284EtaLiveTrackingHub } from './phase2284-eta-live-tracking-hub';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 
 type Props = {
@@ -856,6 +857,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
 
   /* ---------------- success screen ---------------- */
   const activeOrderId = orderSuccess?.orderId ?? null;
+  const activeBestellnummer = orderSuccess?.bestellnummer ?? null;
   const successEtaMinuten = orderSuccess?.eta ?? null;
   const successBestelltAm = orderSuccess?.orderedAt ?? null;
   const successType = orderSuccess?.type ?? null;
@@ -1926,6 +1928,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2272EffizienzSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2279: Lieferfenster-Siegel — "Lieferung wie versprochen"; nur wenn Team-Ø ≥95%; Hydration-safe; 4-Std-Polling */}
       <StorefrontPhase2279LieferfensterSiegel locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2284: ETA Live Tracking Hub — Realtime-Supabase-Subscription, Phasen-Timeline, Fahrer-Nähe; nur bei aktiver Lieferung */}
+      {activeOrderId && successType === 'lieferung' && (
+        <div className="mx-4 mt-2">
+          <StorefrontPhase2284EtaLiveTrackingHub
+            bestellnummer={activeBestellnummer}
+            locationId={location.id}
+          />
+        </div>
+      )}
       {/* Phase 2277: Dynamic ETA Live Tracking — Phasen-Timeline, ETA-Ring, Fahrer-Name, 30s Auto-Refresh */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">

@@ -1,5 +1,56 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #460 — 2026-07-18
+
+### Geprüfte Commits
+- `89346f6b` (feat/frontend: phase2290 — Smart-Timing Cockpit, Tour-Score Live, Stopp-Navigation, ETA-Tracking, Statistiken-Dashboard)
+- `3dca31db` (feat/backend: Phasen 2274–2281 — Fahrer-Lieferfenster-System)
+
+### Build-Verifikation
+✓ Compiled successfully — exit code 0, TypeScript 0 Fehler in neuen Dateien ✅
+✓ `npx next build` — exit code 0 ✅
+
+### Problem identifiziert & behoben: 5 Komponenten aus Commit 89346f6b nur als barrel-Exporte — nicht gerendert
+Selbes Muster wie in Review #459: alle 5 neuen Komponenten wurden am Ende der client.tsx-Dateien nur als `export { ... }` eingetragen, aber weder importiert noch in der JSX gerendert.
+
+**CEO-Fix: Alle 5 Komponenten korrekt integriert:**
+
+| Komponente | Datei | Import | JSX | Fix |
+|---|---|---|---|---|
+| KitchenPhase2290SmartTimingKpiCockpit | kitchen/client.tsx | nach Phase2281-Import | nach Phase2278 | ✅ CEO-Fix |
+| DispatchPhase2290TourScoreLiveKommando | dispatch/client.tsx | nach Phase1000-Import | nach Phase1000 Ultimate | ✅ CEO-Fix |
+| FahrerPhase2290TourStoppNaviKommando | fahrer/app/client.tsx | nach Phase2285-Import | nach Phase2285 (mit activeBatch.stops Mapping) | ✅ CEO-Fix |
+| StorefrontPhase2284EtaLiveTrackingHub | storefront.tsx | neu (fehlte komplett) | nach Phase2279 Siegel; activeBestellnummer als eigene Variable | ✅ CEO-Fix |
+| LieferdienstPhase2245StatistikLiveDashboard | lieferdienst/client.tsx | nach Phase2240-Import | nach Phase2240 | ✅ CEO-Fix |
+
+### TypeScript-Fix: Storefront activeBestellnummer
+`orderSuccess?.bestellnummer` innerhalb des if(orderSuccess)-Rückgabeblocks führte zu TS-Fehler (type 'never') da TypeScript die Verengung nicht über JSX-Grenzen hinweg korrekt auflöste. Fix: `activeBestellnummer` als eigene Konstante vor dem if-Block deklariert (analog zu `activeOrderId`, `successType` etc.).
+
+### Code-Qualität Phase2290 / Phase2284 / Phase2245
+- Kitchen Phase2290: Live-Countdown mit Sekunden-Tick, KPI-Leiste (Ø Prep-Zeit, On-Time-%, Alert-Anzahl), Farbkodierung ✅
+- Dispatch Phase2290: Score-Ring-SVG, Team-Score-Balken, Fahrerliste mit Trend; fetch `/api/delivery/driver-score` ✅
+- Fahrer Phase2290: Stops aus activeBatch.stops gemappt, expandierbare Karten, Google Maps / Waze-Link ✅
+- Storefront Phase2284: Realtime-Supabase-Subscription, Phasen-Timeline, Fahrer-Nähe; fetch `/api/delivery/tracking` ✅
+- Lieferdienst Phase2245: KPI-Kacheln, Stundenverlauf-Chart (Recharts), Zusammenfassung ✅
+
+### System-Synchronisation nach CEO-Fixes
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase2290 (Kitchen) + Phase2290 (Dispatch) |
+| Dispatch ↔ Driver | ✅ Phase2290 (Fahrer) |
+| Driver ↔ Storefront | ✅ Phase2284 ETA-Hub |
+| Storefront ↔ Orders API | ✅ |
+| Lieferdienst Stats | ✅ Phase2245 |
+
+### Nächste Phasen 2282–2287 — Fahrer-Liefergebiet-System (geplant)
+1. Phase 2282 Backend: GET /api/delivery/admin/fahrer-liefergebiet — Anzahl belieferter Zonen je Fahrer; Ø Lieferradius; Alert wenn nur 1 Zone
+2. Phase 2283 Dispatch: Liefergebiet-Board — nach Zonen-Anzahl sortiert; Ampel grün(≥3)/gelb(2)/rot(1); Podium
+3. Phase 2284 Fahrer-App: Mein Liefergebiet — Zonen + Radius + Trend; Team-Ø; Coaching-Tipp
+4. Phase 2286 Storefront: Reichweiten-Siegel — "Wir liefern in X Bezirken"; nur wenn Team-Ø ≥3 Zonen
+5. Phase 2287 Kitchen: Gebiet-Ticker — Team-Ø Zonen; Alert bei Engpass; 15-Min-Polling
+
+---
+
 ## CEO Review #459 — 2026-07-18
 
 ### Geprüfte Commits
