@@ -274,6 +274,7 @@ import { KitchenPhase2330SmartKochzeitCountdownBoard } from './phase2330-smart-k
 import { KitchenPhase2333StornoTicker } from './phase2333-storno-ticker';
 import { KitchenPhase2338QualitaetsTicker } from './phase2338-qualitaets-ticker';
 import { KitchenPhase2340SmartTimingFarbkodierungCountdownPro } from './phase2340-smart-timing-farbkodierung-countdown-pro';
+import { KitchenPhase2347EffizienzTicker } from './phase2347-effizienz-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3351,6 +3352,8 @@ export function KitchenBoard({
       <KitchenPhase2338QualitaetsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2340: Smart-Timing Farbkodierung Countdown Pro — Sekunden-Countdown grün/gelb/rot je Bestellung, On-Time-Quote, KPI-Strip; 30-Sek-Update */}
       <KitchenPhase2340SmartTimingFarbkodierungCountdownPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2347: Effizienz-Ticker — Team-Ø Effizienz; kompakte Fahrerliste mit Ampel; Alert <50; 30-Min-Polling */}
+      <KitchenPhase2347EffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -9925,3 +9928,6 @@ export { KitchenPhase2338QualitaetsTicker } from './phase2338-qualitaets-ticker'
 
 // Phase 2340 — Smart-Timing Farbkodierung Countdown Pro (Sekunden-Countdown grün/gelb/rot je Bestellung, On-Time-Quote, KPI-Strip; 30-Sek-Update)
 export { KitchenPhase2340SmartTimingFarbkodierungCountdownPro } from './phase2340-smart-timing-farbkodierung-countdown-pro';
+
+// Phase 2347 — Effizienz-Ticker (Team-Ø Effizienz; kompakte Fahrerliste mit Ampel; Alert <50; 30-Min-Polling)
+export { KitchenPhase2347EffizienzTicker } from './phase2347-effizienz-ticker';

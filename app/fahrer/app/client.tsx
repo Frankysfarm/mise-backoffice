@@ -637,6 +637,7 @@ import { FahrerPhase2328SmartTourStopsNavigation } from './phase2328-smart-tour-
 import { FahrerPhase2332MeineStornoRate } from './phase2332-meine-storno-rate';
 import { FahrerPhase2336MeinQualitaetsScore } from './phase2336-mein-qualitaets-score';
 import { FahrerPhase2340TourStopsNavigationsPro } from './phase2340-tour-stops-navigations-pro';
+import { FahrerPhase2346MeineSchichtEffizienz } from './phase2346-meine-schicht-effizienz';
 
 type Driver = {
   id: string;
@@ -5853,6 +5854,8 @@ export function FahrerApp({
           <FahrerPhase2336MeinQualitaetsScore driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2340: Tour-Stops Navigation Pro — Hero-Stopp (nächster Stopp) + alle Stopps expandierbar + Nav-Link + Anruf + ETA je Stopp; 20-Sek-Polling */}
           <FahrerPhase2340TourStopsNavigationsPro driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2346: Meine Schicht-Effizienz — Score + Touren/h + Wartezeit + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2346MeineSchichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2328: Smart Tour-Stopps Navigation — Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google-Maps-Nav + Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2328SmartTourStopsNavigation
@@ -8868,3 +8871,6 @@ export { FahrerPhase2336MeinQualitaetsScore } from './phase2336-mein-qualitaets-
 
 // Phase 2340 — Tour-Stops Navigation Pro (Hero-Stopp nächster Stopp + alle Stopps expandierbar + Nav-Link + Anruf + ETA je Stopp; 20-Sek-Polling)
 export { FahrerPhase2340TourStopsNavigationsPro } from './phase2340-tour-stops-navigations-pro';
+
+// Phase 2346 — Meine Schicht-Effizienz (Score + Touren/h + Wartezeit + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2346MeineSchichtEffizienz } from './phase2346-meine-schicht-effizienz';
