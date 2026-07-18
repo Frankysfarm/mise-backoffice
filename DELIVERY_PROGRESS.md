@@ -21064,3 +21064,97 @@ Frontend-Ingenieur-Agent (2026-07-18): Phasen 2363–2367 implementiert. 1 neue 
 ---
 
 Backend-Architekt-Agent (2026-07-18): Phasen 2368–2372 implementiert. 1 neue Backend-API (fahrer-lieferzeit-benchmark) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2371 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
+
+---
+
+## Batch 2373–2377 — Fahrer-Auslastungs-Analyse (2026-07-18)
+
+### Phase 2373 — Backend API: Fahrer-Auslastung
+**Datei:** `app/api/delivery/admin/fahrer-auslastung/route.ts` *(implementiert von vorherigem Agent)*
+**GET:** `?location_id=<uuid>` — Auslastungs-Rate je Fahrer heute; Alert wenn <40% od. >90%; Ampel grün(60–85%)/gelb/rot; Trend; Multi-Tenant; Supabase+Mock
+
+### Phase 2374 — Auslastungs-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2374-auslastungs-board.tsx` *(implementiert)*
+**Integration:** `dispatch/client.tsx` nach Phase2369 ✅
+
+### Phase 2375 — Meine Auslastung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2375-meine-auslastung.tsx` *(implementiert)*
+**Integration:** `fahrer/app/client.tsx` nach Phase2370 ✅
+
+### Phase 2376 — Storefront
+Übersprungen (Auslastungs-Daten irrelevant für Kunden) ✅
+
+### Phase 2377 — Auslastungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2377-auslastungs-ticker.tsx` *(implementiert)*
+**Integration:** `kitchen/client.tsx` nach Phase2372 ✅
+
+---
+
+## Batch 2378–2382 — Fahrer-Reaktionszeit-Analyse (2026-07-18)
+
+### Phase 2378 — Backend API: Fahrer-Reaktionszeit-Analyse
+**Datei:** `app/api/delivery/admin/fahrer-reaktionszeit-analyse/route.ts` *(implementiert)*
+**GET:** `?location_id=<uuid>&driver_id=<uuid>` — Ø Reaktionszeit je Fahrer (Zuweisung → Abfahrt in Sek); Alert >120s; Ampel grün(≤60s)/gelb(61–120s)/rot(>120s); Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2379 — Reaktionszeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2379-reaktionszeit-board.tsx` *(implementiert)*
+**Integration:** `dispatch/client.tsx` nach Phase2374 ✅
+
+### Phase 2380 — Meine Reaktionszeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2380-meine-reaktionszeit.tsx` *(implementiert)*
+**Integration:** `fahrer/app/client.tsx` nach Phase2375 ✅
+
+### Phase 2381 — Storefront
+Übersprungen (interne Metriken irrelevant für Kunden) ✅
+
+### Phase 2382 — Reaktionszeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2382-reaktionszeit-ticker.tsx` *(implementiert)*
+**Integration:** `kitchen/client.tsx` nach Phase2377 ✅
+
+### Nächste Phasen 2383–2387 (für nächsten Ingenieur) — Fahrer-Abbruchquoten-System
+1. **Phase 2383 Backend:** GET /api/delivery/admin/fahrer-abbruchquote — Abbruchquote je Fahrer (abgebrochene / Gesamt × 100%); Alert >10%; Ampel; Trend; Multi-Tenant; Supabase+Mock.
+2. **Phase 2384 Dispatch:** Abbruchquoten-Board — Fahrerliste nach Quote; Ampel; Alert; Trend-Pfeile; in dispatch/client.tsx nach Phase2379.
+3. **Phase 2385 Fahrer-App:** Meine Abbruchquote — Quote groß + Farbcode; KPI-Grid; Coaching-Tipp; isOnline-Guard; nach Phase2380.
+4. **Phase 2386 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2387 Kitchen:** Abbruchquoten-Ticker — Team-Ø; Alert >10%; Fahrerliste kompakt; nach Phase2382.
+
+---
+
+## Batch 2383–2387 — Fahrer-Abbruchquoten-System (2026-07-18)
+
+### Phase 2383 — Backend API: Fahrer-Abbruchquote
+**Datei:** `app/api/delivery/admin/fahrer-abbruchquote/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>&driver_id=<uuid>` — Abbruchquote je Fahrer heute (abgebrochene Touren / Gesamt-Touren × 100%); Alert wenn >10%; Ampel grün(<5%)/gelb(5–10%)/rot(>10%); Trend vs. gleicher Wochentag letzte Woche; driver_id-Modus für Fahrer-App; cancelled/aborted/storniert-Status-Filter; Multi-Tenant; Supabase+Mock
+**Response:** `{ fahrer: FahrerAbbruchquote[], team_avg_pct, team_avg_pct_vw, alert_count, generiert_am }` oder `{ fahrer_single, team_avg_pct }` bei driver_id
+
+### Phase 2384 — Abbruchquoten-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2384-abbruchquoten-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rose/rot je Alerts); KPI-Grid (Ø heute / Vorwoche / Ziel <5%); Podium Top-3; Fahrerliste nach Quote sortiert; Ampel; Trend-Pfeile; Alert-Banner >10%; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2379 ✅
+
+### Phase 2385 — Meine Abbruchquote (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2385-meine-abbruchquote.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (rose/ampelfarbe); Quote groß + Farbcode; Fortschrittsbalken 0–20% mit Ziel-Linie bei 5% und 10%; KPI-Grid (Abbrüche/Touren/Trend/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2380 ✅
+
+### Phase 2386 — Storefront
+Übersprungen (Abbruchquoten intern irrelevant für Kunden) ✅
+
+### Phase 2387 — Abbruchquoten-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2387-abbruchquoten-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rose/rot je Alerts); Team-Ø Quote; Alert-Banner >10%; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2382 ✅
+
+### Nächste Phasen 2388–2392 (für nächsten Ingenieur) — Fahrer-Kilometerstand-Analyse
+1. **Phase 2388 Backend:** GET /api/delivery/admin/fahrer-kilometer — Gefahrene km je Fahrer heute aus delivery_tours (distance_km); Ø km/Tour + Gesamt km; Alert wenn Gesamt >150 km (Überbelastung); Trend vs. Vorwoche; Multi-Tenant; Supabase+Mock.
+2. **Phase 2389 Dispatch:** Kilometer-Board — Fahrerliste nach Gesamt-km sortiert; Ampel grün(<100km)/gelb(100–150km)/rot(>150km); Alert-Banner mit Entlastungs-Empfehlung; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2384.
+3. **Phase 2390 Fahrer-App:** Meine Kilometer — Gesamt-km groß + Farbcode; Ø km/Tour; KPI-Grid (Touren/Kürzeste/Trend/Team-Ø); Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2385.
+4. **Phase 2391 Storefront:** Kein Widget (km-Daten intern irrelevant für Kunden) — überspringen.
+5. **Phase 2392 Kitchen:** Kilometer-Ticker — Team-Gesamt-km; Alert >150km; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2387.
+
+---
+
+Backend-Architekt-Agent (2026-07-18): Phasen 2383–2387 implementiert. 1 neue Backend-API (fahrer-abbruchquote) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2386 Storefront übersprungen. Build ✓ Compiled successfully (430 Seiten). Push erfolgt.
