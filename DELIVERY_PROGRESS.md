@@ -2,6 +2,47 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-18): Phasen 2436–2440 implementiert. 1 neue Backend-API (fahrer-nachtschicht) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2439 Storefront übersprungen (interne Schichtdaten). Build ✓ Compiled successfully (430 Seiten). Push erfolgt.
+
+---
+
+## Batch 2436–2440 — Fahrer-Nachtschicht-System (2026-07-18)
+
+### Phase 2436 — Backend API: Fahrer-Nachtschicht
+**Datei:** `app/api/delivery/admin/fahrer-nachtschicht/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Nachtschicht-Stunden je Fahrer heute (22:00–06:00 Uhr); Alert wenn >4h (Erschöpfungsrisiko); Ampel grün(0h)/gelb(1–4h)/rot(>4h); Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+**Response:** `{ fahrer: FahrerNachtschicht[], team_avg_nacht_h, team_avg_nacht_h_vw, alert_count, generiert_am }` / `{ fahrer_single, team_avg_nacht_h }`
+
+### Phase 2437 — Nachtschicht-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2437-nachtschicht-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (indigo/orange je Alerts); KPI-Grid 3-spaltig (Ø heute / VW / Ziel 0h); Fahrerliste sortiert nach Nachtschicht-h mit Ampel-Balken (4h Ziellinie); Alert-Banner für >4h mit Fahrernamen; Trend-Pfeile + Delta; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import + JSX nach Phase2432 + Export ✅
+
+### Phase 2438 — Meine Nachtschicht (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2438-meine-nachtschicht.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); h-Wert groß + Farbcode; Fortschrittsbalken 0–8h mit gestrichelter Ziellinie bei 4h; KPI-Grid (VW/Trend/Ziel/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import + JSX nach Phase2433 + Export ✅
+
+### Phase 2439 — Storefront: Übersprungen
+Nachtschicht-Daten sind intern irrelevant für Kunden.
+
+### Phase 2440 — Nachtschicht-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2440-nachtschicht-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (indigo/orange je Alert); Team-Ø Nachtschicht-h Header; Alert-Banner für >4h mit Fahrernamen; Fahrerliste kompakt mit Ampel-Dots; Nachtschicht-h je Fahrer; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import + JSX nach Phase2435 + Export ✅
+
+### Nächste Phasen 2441–2445 (für nächsten Ingenieur) — Fahrer-Wochenend-Schicht-System
+1. **Phase 2441 Backend:** GET /api/delivery/admin/fahrer-wochenend-schicht — Wochenend-Schichtstunden je Fahrer (Sa+So); Alert wenn >12h; Ampel grün(≤8h)/gelb(8–12h)/rot(>12h); Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2442 Dispatch:** Wochenend-Schicht-Board — KPI-Grid Team-Ø heute/VW/Ziel ≤8h; Fahrerliste nach Wochenend-h sortiert; Alert >12h; Trend-Pfeile; Ampel-Balken; 30-Min-Polling; in dispatch/client.tsx nach Phase2437.
+3. **Phase 2443 Fahrer-App:** Meine Wochenend-Schicht — h-Wert groß + Farbcode; KPI-Grid (VW/Trend/Ziel/Team-Ø); Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2438.
+4. **Phase 2444 Storefront:** Überspringen (interne Schichtdaten).
+5. **Phase 2445 Kitchen:** Wochenend-Ticker — Team-Ø Wochenend-h; Alert >12h; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2440.
+
+---
+
 Backend-Architekt-Agent (2026-07-18): Phasen 2431–2435 implementiert. 1 neue Backend-API (fahrer-ueberstunden) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2434 Storefront übersprungen (interne Schichtdaten). Build ✓ Compiled successfully (430 Seiten). Push erfolgt.
 
 ---

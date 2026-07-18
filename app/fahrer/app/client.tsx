@@ -658,6 +658,7 @@ import { FahrerPhase2425TourStopsNaviHub } from './phase2425-tour-stops-navi-hub
 import { FahrerPhase2427MeineBewertung } from './phase2427-meine-bewertung';
 import { FahrerPhase2428TourStoppNavigatorUltra } from './phase2428-tour-stopp-navigator-ultra';
 import { FahrerPhase2433MeineUeberstunden } from './phase2433-meine-ueberstunden';
+import { FahrerPhase2438MeineNachtschicht } from './phase2438-meine-nachtschicht';
 
 type Driver = {
   id: string;
@@ -5914,6 +5915,8 @@ export function FahrerApp({
           <FahrerPhase2428TourStoppNavigatorUltra driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2433: Meine Überstunden — h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2433MeineUeberstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2438: Meine Nachtschicht — h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2438MeineNachtschicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2380TourStoppNavigatorUltra
@@ -8987,3 +8990,5 @@ export { FahrerPhase2427MeineBewertung } from './phase2427-meine-bewertung';
 export { FahrerPhase2428TourStoppNavigatorUltra } from './phase2428-tour-stopp-navigator-ultra';
 // Phase 2433 — Meine Überstunden (h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2433MeineUeberstunden } from './phase2433-meine-ueberstunden';
+// Phase 2438 — Meine Nachtschicht (h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2438MeineNachtschicht } from './phase2438-meine-nachtschicht';
