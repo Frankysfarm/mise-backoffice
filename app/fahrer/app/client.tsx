@@ -8718,3 +8718,6 @@ export { SmartDeliveryNavCockpit } from "./smart-delivery-nav-cockpit";
 
 // Phase 2280 — Smart Tour-Stops Navigation Hub
 export { FahrerPhase2280SmartTourStopsNavHub } from './phase2280-smart-tour-stops-nav-hub';
+
+// Phase 2285 — Smart Tour Stop Navigator Ultra (Tour-Stops + Navigation)
+export { FahrerPhase2285SmartTourStopNavigatorUltra } from './phase2285-smart-tour-stop-navigator-ultra';

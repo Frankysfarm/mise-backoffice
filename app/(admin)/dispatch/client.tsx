@@ -11281,3 +11281,6 @@ export { DispatchPhase2195TourGewinnEffizienzCockpit } from './phase2195-tour-ge
 
 // Phase 2200 — Tour-Score Visualisierung Board
 export { DispatchPhase2200TourScoreVisualisierungBoard } from './phase2200-tour-score-visualisierung-board';
+
+// Phase 1000 — Tour Score Visualisierung Ultimate (Score-Anzeige + Tour-Visualisierung)
+export { DispatchPhase1000TourScoreVisualisierungUltimate } from './phase1000-tour-score-visualisierung-ultimate';

@@ -4557,3 +4557,6 @@ export { LieferdienstPhase2200SchichtEndKpiCockpit } from './phase2200-schicht-e
 
 // Phase 2205 — Statistiken-Dashboard Cockpit
 export { LieferdienstPhase2205StatistikDashboardCockpit } from './phase2205-statistiken-dashboard-cockpit';
+
+// Phase 2240 — Statistik Hub Pro (KPIs, Umsatz, Lieferzeit, Stornoquote)
+export { LieferdienstPhase2240StatistikHubPro } from './phase2240-statistik-hub-pro';
