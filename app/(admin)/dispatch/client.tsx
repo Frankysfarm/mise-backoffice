@@ -712,6 +712,7 @@ import { DispatchPhase2275LieferfensterBoard } from './phase2275-lieferfenster-b
 import { DispatchPhase1000TourScoreVisualisierungUltimate } from './phase1000-tour-score-visualisierung-ultimate';
 import { DispatchPhase2290TourScoreLiveKommando } from './phase2290-tour-score-live-kommando';
 import { DispatchPhase2292DurchsatzBoard } from './phase2292-durchsatz-board';
+import { DispatchPhase2295TourScoreVisualisierungPro } from './phase2295-tour-score-visualisierung-pro';
 
 type Driver = {
   employee_id: string;
@@ -3742,6 +3743,8 @@ export function DispatchBoard({
           <DispatchPhase2290TourScoreLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2292: Durchsatz-Board — B/h je Fahrer, Ampel, Podium, Alert; 30-Min-Polling */}
           <DispatchPhase2292DurchsatzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2295: Tour-Score Visualisierung Pro — Score-Ring, Fahrer-Leaderboard, Tour-Fortschrittsbalken mit Zonen; 25s-Polling */}
+          <DispatchPhase2295TourScoreVisualisierungPro tenantId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

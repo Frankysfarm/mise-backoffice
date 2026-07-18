@@ -414,6 +414,7 @@ import { LieferdienstPhase2181LiveBestellflussTrichter } from './phase2181-live-
 import { LieferdienstPhase2235StatistikDashboard } from './phase2235-statistik-dashboard';
 import { LieferdienstPhase2240StatistikHubPro } from './phase2240-statistik-hub-pro';
 import { LieferdienstPhase2245StatistikLiveDashboard } from './phase2245-statistiken-live-dashboard';
+import { LieferdienstPhase2250StatistikInsightsPro } from './phase2250-statistiken-insights-pro';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2135,6 +2136,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2240StatistikHubPro locationId={locationId ?? null} />
                 {/* Phase 2245: Statistik Live Dashboard — KPI-Kacheln, Stundenverlauf-Chart und Zusammenfassung */}
                 <LieferdienstPhase2245StatistikLiveDashboard locationId={locationId ?? null} />
+                {/* Phase 2250: Statistiken Insights Pro — Umsatz, Lieferzeit, Zonen, Trends; Stundenverlauf-Chart */}
+                <LieferdienstPhase2250StatistikInsightsPro tenantId={locationId ?? null} />
               </>
             </div>
           )}

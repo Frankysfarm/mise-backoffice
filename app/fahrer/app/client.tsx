@@ -624,6 +624,7 @@ import { FahrerPhase2276MeinLieferfenster } from './phase2276-mein-lieferfenster
 import { FahrerPhase2285SmartTourStopNavigatorUltra } from './phase2285-smart-tour-stop-navigator-ultra';
 import { FahrerPhase2290TourStoppNaviKommando } from './phase2290-tour-stopp-navi-kommando';
 import { FahrerPhase2293MeinDurchsatz } from './phase2293-mein-durchsatz';
+import { FahrerPhase2295TourStoppNavigationCockpit } from './phase2295-tour-stopp-navigation-cockpit';
 import { FahrerPhase2200SmartStoppNaviCockpit } from './phase2200-smart-stopp-navi-cockpit';
 
 type Driver = {
@@ -5859,6 +5860,8 @@ export function FahrerApp({
               batchId={activeBatch.id}
             />
           )}
+          {/* Phase 2295: Tour-Stopp Navigation Cockpit — Alle Stopps, GPS-Nav (Google/Waze/Apple), ETA-Countdown */}
+          <FahrerPhase2295TourStoppNavigationCockpit />
           {/* Phase 2200: Smart-Stopp-Navi-Cockpit — 1-Tap Navigation, Stopp-Bestätigung, ETA-Timeline */}
           <FahrerPhase2200SmartStoppNaviCockpit />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
