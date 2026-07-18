@@ -429,6 +429,7 @@ import { StorefrontPhase2229EnergieSiegel } from './phase2229-energie-siegel';
 import { StorefrontPhase2234DynamicEtaLivePanel } from './phase2234-dynamic-eta-live-panel';
 import { StorefrontPhase2238SchichtSiegel } from './phase2238-schicht-siegel';
 import { StorefrontPhase2242SchnellSiegel } from './phase2242-schnell-siegel';
+import { StorefrontPhase2247ReaktionsSiegel } from './phase2247-reaktions-siegel';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 
 type Props = {
@@ -1904,6 +1905,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2238SchichtSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2242: Schnell-Siegel — nur wenn Team-Score hoch; Hydration-safe; 4-Std-Polling */}
       <StorefrontPhase2242SchnellSiegel locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2247: Reaktions-Siegel — "Blitzschnelle Auftragsannahme"; nur wenn team_avg_min <1.5; Hydration-safe; 4-Std-Polling */}
+      <StorefrontPhase2247ReaktionsSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2234: Dynamic-ETA-Live-Panel — Countdown + Konfidenz-Balken + Phasen-Fortschritt; nur wenn aktive Lieferung; 30-Sek-Polling */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">

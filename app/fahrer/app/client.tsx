@@ -614,6 +614,7 @@ import { FahrerPhase2228MeinEnergieLevel } from './phase2228-mein-energie-level'
 import { FahrerPhase2233TourStopSmartNav } from './phase2233-tour-stop-smart-nav';
 import { FahrerPhase2237MeineSchichtBilanz } from './phase2237-meine-schicht-bilanz';
 import { FahrerPhase2241MeineRoutenEffizienz } from './phase2241-meine-routen-effizienz';
+import { FahrerPhase2246MeineReaktionszeit } from './phase2246-meine-reaktionszeit';
 import { FahrerPhase2200SmartStoppNaviCockpit } from './phase2200-smart-stopp-navi-cockpit';
 
 type Driver = {
@@ -5797,6 +5798,8 @@ export function FahrerApp({
           <FahrerPhase2237MeineSchichtBilanz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2241: Meine Routen-Effizienz — Score + km/Tour + Trend + Tipp; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2241MeineRoutenEffizienz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2246: Meine Reaktionszeit — Ø Reaktionszeit + Trend + Team-Ø + Tipp; isOnline-Guard; 1-Std-Polling */}
+          <FahrerPhase2246MeineReaktionszeit driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2200: Smart-Stopp-Navi-Cockpit — 1-Tap Navigation, Stopp-Bestätigung, ETA-Timeline */}
           <FahrerPhase2200SmartStoppNaviCockpit />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
