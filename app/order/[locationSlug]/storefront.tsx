@@ -433,6 +433,7 @@ import { StorefrontPhase2247ReaktionsSiegel } from './phase2247-reaktions-siegel
 import { StorefrontPhase2252PuenktlichkeitsSiegel } from './phase2252-puenktlichkeits-siegel';
 import { StorefrontPhase2257BewertungsSiegel } from './phase2257-bewertungs-siegel';
 import { StorefrontPhase2262EffizienzSiegel } from './phase2262-effizienz-siegel';
+import { StorefrontPhase2267AbholwartezeitSiegel } from './phase2267-abholwartezeit-siegel';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 
 type Props = {
@@ -1916,6 +1917,8 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       <StorefrontPhase2257BewertungsSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2262: Effizienz-Siegel — "Kurze Wege, schnelle Lieferung"; nur wenn Team-Ø km/Tour <5; Hydration-safe; 4-Std-Polling */}
       <StorefrontPhase2262EffizienzSiegel locationId={location.id} className="mx-4 mt-1" />
+      {/* Phase 2267: Abholwartezeit-Siegel — "Blitzschnelle Abholung"; nur wenn Team-Ø ≤3 Min; Hydration-safe; 4-Std-Polling */}
+      <StorefrontPhase2267AbholwartezeitSiegel locationId={location.id} className="mx-4 mt-1" />
       {/* Phase 2234: Dynamic-ETA-Live-Panel — Countdown + Konfidenz-Balken + Phasen-Fortschritt; nur wenn aktive Lieferung; 30-Sek-Polling */}
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">

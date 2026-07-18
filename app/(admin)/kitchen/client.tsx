@@ -256,6 +256,7 @@ import { KitchenPhase2248ReaktionszeitTicker } from './phase2248-reaktionszeit-t
 import { KitchenPhase2253PuenktlichkeitsTicker } from './phase2253-puenktlichkeits-ticker';
 import { KitchenPhase2258BewertungsTicker } from './phase2258-bewertungs-ticker';
 import { KitchenPhase2263KmMonitor } from './phase2263-km-monitor';
+import { KitchenPhase2268WartezeitTicker } from './phase2268-wartezeit-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3297,6 +3298,8 @@ export function KitchenBoard({
       <KitchenPhase2258BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2263: km-Monitor — Team-Gesamt-km heute; Alert >120 km Fahrer; Kosten-Ticker; 15-Min-Polling */}
       <KitchenPhase2263KmMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2268: Wartezeit-Ticker — Team-Ø Abholwartezeit; Alert >8 Min; Dispatcher-Hinweis; 15-Min-Polling */}
+      <KitchenPhase2268WartezeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
