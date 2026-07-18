@@ -415,6 +415,7 @@ import { LieferdienstPhase2235StatistikDashboard } from './phase2235-statistik-d
 import { LieferdienstPhase2240StatistikHubPro } from './phase2240-statistik-hub-pro';
 import { LieferdienstPhase2245StatistikLiveDashboard } from './phase2245-statistiken-live-dashboard';
 import { LieferdienstPhase2250StatistikInsightsPro } from './phase2250-statistiken-insights-pro';
+import { LieferdienstPhase2255StatistikDashboardPro } from './phase2255-statistiken-dashboard-pro';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2138,6 +2139,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2245StatistikLiveDashboard locationId={locationId ?? null} />
                 {/* Phase 2250: Statistiken Insights Pro — Umsatz, Lieferzeit, Zonen, Trends; Stundenverlauf-Chart */}
                 <LieferdienstPhase2250StatistikInsightsPro tenantId={locationId ?? null} />
+                {/* Phase 2255: Statistiken-Dashboard Pro — KPI-Grid, Umsatz-Trend, Stunden-Balken, Storno-Alert; 5-Min-Polling */}
+                <LieferdienstPhase2255StatistikDashboardPro locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4575,3 +4578,6 @@ export { LieferdienstPhase2245StatistikLiveDashboard } from './phase2245-statist
 
 // Phase 2250 — Statistiken Insights Pro (Umsatz + Lieferzeit + Zonen + Trends)
 export { LieferdienstPhase2250StatistikInsightsPro } from './phase2250-statistiken-insights-pro';
+
+// Phase 2255 — Statistiken-Dashboard Pro (KPI-Grid + Umsatz-Trend + Stunden-Balken + Storno-Alert)
+export { LieferdienstPhase2255StatistikDashboardPro } from './phase2255-statistiken-dashboard-pro';

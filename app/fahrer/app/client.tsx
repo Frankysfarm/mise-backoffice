@@ -627,6 +627,7 @@ import { FahrerPhase2293MeinDurchsatz } from './phase2293-mein-durchsatz';
 import { FahrerPhase2295TourStoppNavigationCockpit } from './phase2295-tour-stopp-navigation-cockpit';
 import { FahrerPhase2298MeineSchichtBilanz } from './phase2298-meine-schicht-bilanz';
 import { FahrerPhase2200SmartStoppNaviCockpit } from './phase2200-smart-stopp-navi-cockpit';
+import { FahrerPhase2300SmartTourNavPro } from './phase2300-smart-tour-nav-pro';
 
 type Driver = {
   id: string;
@@ -5865,6 +5866,24 @@ export function FahrerApp({
           )}
           {/* Phase 2295: Tour-Stopp Navigation Cockpit — Alle Stopps, GPS-Nav (Google/Waze/Apple), ETA-Countdown */}
           <FahrerPhase2295TourStoppNavigationCockpit />
+          {/* Phase 2300: Smart Tour Navigation Pro — Farbkodierte Stopp-Liste, Navi-Button, Anruf, ETA, Fortschrittsbalken */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2300SmartTourNavPro
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? s.stop_number ?? 0,
+                kunde_name: s.customer_name ?? s.kunde_name ?? null,
+                kunde_adresse: s.address ?? s.kunde_adresse ?? null,
+                kunde_telefon: s.customer_phone ?? s.kunde_telefon ?? null,
+                gesamtbetrag: s.gesamtbetrag ?? null,
+                geliefert_am: s.geliefert_am ?? s.delivered_at ?? null,
+                eta_min: s.eta_min ?? null,
+                distanz_km: s.distanz_km ?? null,
+                notizen: s.notes ?? s.notizen ?? null,
+              }))}
+              batchId={activeBatch.id}
+            />
+          )}
           {/* Phase 2200: Smart-Stopp-Navi-Cockpit — 1-Tap Navigation, Stopp-Bestätigung, ETA-Timeline */}
           <FahrerPhase2200SmartStoppNaviCockpit />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
@@ -8777,3 +8796,6 @@ export { FahrerPhase2290TourStoppNaviKommando } from './phase2290-tour-stopp-nav
 
 // Phase 2295 — Tour-Stopp Navigation Cockpit (Alle Stopps + GPS-Nav + ETA-Countdown)
 export { FahrerPhase2295TourStoppNavigationCockpit } from './phase2295-tour-stopp-navigation-cockpit';
+
+// Phase 2300 — Smart Tour Navigation Pro (Tour-Stops + Navi + ETA + Bestätigung)
+export { FahrerPhase2300SmartTourNavPro } from './phase2300-smart-tour-nav-pro';

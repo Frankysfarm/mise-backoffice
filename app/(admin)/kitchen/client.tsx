@@ -264,6 +264,7 @@ import { KitchenPhase2290SmartTimingKpiCockpit } from './phase2290-smart-timing-
 import { KitchenPhase2295DurchsatzTicker } from './phase2295-durchsatz-ticker';
 import { KitchenPhase2295LiveKochstatusCountdownBoard } from './phase2295-live-kochstatus-countdown-board';
 import { KitchenPhase2300SchichtMonitor } from './phase2300-schicht-monitor';
+import { KitchenPhase2305SmartCountdownUltraPro } from './phase2305-smart-countdown-ultra-pro';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3321,6 +3322,8 @@ export function KitchenBoard({
       <KitchenPhase2300SchichtMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2295: Live-Kochstatus Countdown Board — Sekunden-Countdown aktiver Orders, Farbkodierung + Batch-Kacheln */}
       <KitchenPhase2295LiveKochstatusCountdownBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2305: Smart-Countdown Ultra Pro — Farbkodierter Countdown je Bestellung, On-Time-Quote, Fortschrittsbalken, Alert */}
+      <KitchenPhase2305SmartCountdownUltraPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -9866,3 +9869,6 @@ export { KitchenPhase2295LiveKochstatusCountdownBoard } from './phase2295-live-k
 
 // Phase 2290 — Smart-Timing KPI Cockpit (Countdown + Farbkodierung + Live)
 export { KitchenPhase2290SmartTimingKpiCockpit } from './phase2290-smart-timing-kpi-cockpit';
+
+// Phase 2305 — Smart-Countdown Ultra Pro (Farbkodierung + Fortschrittsbalken + On-Time-Quote)
+export { KitchenPhase2305SmartCountdownUltraPro } from './phase2305-smart-countdown-ultra-pro';
