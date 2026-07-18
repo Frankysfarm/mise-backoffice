@@ -293,6 +293,7 @@ import { KitchenPhase2422TrinkgeldQuoteTicker } from './phase2422-trinkgeld-quot
 import { KitchenPhase2423SmartTimingCountdownCockpit } from './phase2423-smart-timing-countdown-cockpit';
 import { KitchenPhase2429BewertungsTicker } from './phase2429-bewertungs-ticker';
 import { KitchenPhase2430SmartTimingCountdownUltra } from './phase2430-smart-timing-countdown-ultra';
+import { KitchenPhase2435UeberstundenTicker } from './phase2435-ueberstunden-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3409,6 +3410,8 @@ export function KitchenBoard({
       <KitchenPhase2429BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2430: Smart-Timing Countdown Ultra — Countdown-Ring pro Batch, Farbkodierung grün/gelb/rot, On-Time-Quote, Fortschrittsbalken, 30-Sek-Polling */}
       <KitchenPhase2430SmartTimingCountdownUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2435: Überstunden-Ticker — Team-Ø; Alert >2h; Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2435UeberstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
       <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
     </div>
@@ -10001,6 +10004,8 @@ export { KitchenPhase2367TrinkgeldTicker } from './phase2367-trinkgeld-ticker';
 export { KitchenPhase2372LieferzeitTicker } from './phase2372-lieferzeit-ticker';
 // Phase 2430 — Smart-Timing Countdown Ultra (Farbkodierter Countdown grün/gelb/rot; Countdown-Ring pro Batch; On-Time-Quote; Fortschrittsbalken; KPI-Strip; 30-Sek-Polling)
 export { KitchenPhase2430SmartTimingCountdownUltra } from './phase2430-smart-timing-countdown-ultra';
+// Phase 2435 — Überstunden-Ticker (Team-Ø; Alert >2h; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling)
+export { KitchenPhase2435UeberstundenTicker } from './phase2435-ueberstunden-ticker';
 // Phase 2377 — Auslastungs-Ticker (Team-Ø Auslastung; Alert <40% od. >90%; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2377AuslastungsTicker } from './phase2377-auslastungs-ticker';
 // Phase 2382 — Reaktionszeit-Ticker (Team-Ø Reaktionszeit; Alert >120s; Fahrerliste kompakt; 30-Min-Polling)
