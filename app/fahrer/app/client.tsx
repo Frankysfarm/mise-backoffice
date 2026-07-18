@@ -8768,3 +8768,6 @@ export { FahrerPhase2285SmartTourStopNavigatorUltra } from './phase2285-smart-to
 
 // Phase 2290 — Tour-Stopp Navi Kommando (Tour-Stops + Navigation + Waze/Maps)
 export { FahrerPhase2290TourStoppNaviKommando } from './phase2290-tour-stopp-navi-kommando';
+
+// Phase 2295 — Tour-Stopp Navigation Cockpit (Alle Stopps + GPS-Nav + ETA-Countdown)
+export { FahrerPhase2295TourStoppNavigationCockpit } from './phase2295-tour-stopp-navigation-cockpit';

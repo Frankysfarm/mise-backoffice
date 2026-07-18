@@ -9855,5 +9855,8 @@ export { KitchenPhase2278SmartTimingKochzeitMatrix } from './phase2278-smart-tim
 // Phase 2200 — Smart-Timing Countdown mit Farbkodierung
 export { KitchenPhase2200SmartTimingCountdownFarbkodierung } from './phase2200-smart-timing-countdown-farbkodierung';
 
+// Phase 2295 — Live-Kochstatus Countdown Board (Sekunden-Countdown + Farbkodierung + Batch)
+export { KitchenPhase2295LiveKochstatusCountdownBoard } from './phase2295-live-kochstatus-countdown-board';
+
 // Phase 2290 — Smart-Timing KPI Cockpit (Countdown + Farbkodierung + Live)
 export { KitchenPhase2290SmartTimingKpiCockpit } from './phase2290-smart-timing-kpi-cockpit';

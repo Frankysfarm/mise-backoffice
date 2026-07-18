@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import {
   ChefHat, Package, Bike, MapPin, CheckCircle2,
   Clock, Navigation2, Phone, Star, RefreshCw,
-  AlertCircle, ArrowLeft,
+  AlertCircle, ArrowLeft, Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -57,6 +57,18 @@ function minutesUntil(isoStr: string | null): number | null {
   return Math.max(0, Math.round(diff / 60_000));
 }
 
+function secondsUntil(isoStr: string | null): number | null {
+  if (!isoStr) return null;
+  const diff = new Date(isoStr).getTime() - Date.now();
+  return Math.max(0, Math.floor(diff / 1_000));
+}
+
+function fmtMmSs(sek: number): string {
+  const m = Math.floor(sek / 60);
+  const s = sek % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
 interface Props {
   initialOrder: OrderData;
   locationSlug: string;
@@ -66,6 +78,8 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
   const [order, setOrder] = useState<OrderData>(initialOrder);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [refreshing, setRefreshing] = useState(false);
+  const [secRemain, setSecRemain] = useState<number | null>(null);
+  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const supabase = createClient();
 
   const refresh = useCallback(async () => {
@@ -129,6 +143,21 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
     return () => clearInterval(iv);
   }, [refresh]);
 
+  // Second-level countdown when ETA is within 15 minutes
+  useEffect(() => {
+    const etaSec = secondsUntil(order.eta_earliest);
+    if (etaSec !== null && etaSec <= 15 * 60 && !['geliefert', 'storniert'].includes(order.status)) {
+      setSecRemain(etaSec);
+      tickRef.current = setInterval(() => {
+        setSecRemain(prev => (prev !== null && prev > 0 ? prev - 1 : 0));
+      }, 1_000);
+    } else {
+      setSecRemain(null);
+      if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; }
+    }
+    return () => { if (tickRef.current) { clearInterval(tickRef.current); tickRef.current = null; } };
+  }, [order.eta_earliest, order.status]);
+
   const currentIdx = phaseIndex(order.status);
   const isDelivered = order.status === 'geliefert';
   const isCancelled = order.status === 'storniert';
@@ -160,7 +189,22 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
           {/* ETA display */}
           {!isCancelled && !isDelivered && (
             <div className="text-center mb-2">
-              {etaMins !== null && etaMins > 0 ? (
+              {secRemain !== null && secRemain <= 15 * 60 ? (
+                <>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <div className={cn(
+                      'font-mono text-5xl font-black tabular-nums mb-1',
+                      secRemain <= 120 ? 'animate-pulse text-yellow-300' : 'text-white',
+                    )}>
+                      {fmtMmSs(secRemain)}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center gap-1.5 text-matcha-300 text-sm">
+                    <Zap className="h-3.5 w-3.5 text-yellow-400" />
+                    Echtzeit-Countdown
+                  </div>
+                </>
+              ) : etaMins !== null && etaMins > 0 ? (
                 <>
                   <div className="text-5xl font-bold tabular-nums mb-1">{etaMins}</div>
                   <div className="text-matcha-300 text-sm">Minuten noch</div>
@@ -258,12 +302,23 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
           <div className="bg-white rounded-2xl border border-matcha-100 p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-matcha-100 flex items-center justify-center">
-                  <Bike className="h-5 w-5 text-matcha-600" />
+                {/* Proximity pulse ring */}
+                <div className="relative h-12 w-12 shrink-0">
+                  {secRemain !== null && secRemain <= 10 * 60 && (
+                    <>
+                      <span className="absolute inset-0 rounded-full bg-matcha-400 opacity-20 animate-ping" />
+                      <span className="absolute inset-1 rounded-full bg-matcha-300 opacity-30 animate-ping" style={{ animationDelay: '0.3s' }} />
+                    </>
+                  )}
+                  <div className="relative h-12 w-12 rounded-full bg-matcha-100 flex items-center justify-center">
+                    <Bike className="h-6 w-6 text-matcha-600" />
+                  </div>
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-matcha-800">{order.driver_name}</p>
-                  <p className="text-xs text-matcha-500">Dein Fahrer</p>
+                  <p className="text-xs text-matcha-500">
+                    {secRemain !== null && secRemain <= 10 * 60 ? '🚀 Fast da!' : 'Dein Fahrer'}
+                  </p>
                 </div>
               </div>
               {order.driver_phone && (

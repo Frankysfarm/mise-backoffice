@@ -4569,3 +4569,6 @@ export { LieferdienstPhase2240StatistikHubPro } from './phase2240-statistik-hub-
 
 // Phase 2245 — Statistiken Live Dashboard (KPIs, Stundenverlauf, Lieferzeit, Storno)
 export { LieferdienstPhase2245StatistikLiveDashboard } from './phase2245-statistiken-live-dashboard';
+
+// Phase 2250 — Statistiken Insights Pro (Umsatz + Lieferzeit + Zonen + Trends)
+export { LieferdienstPhase2250StatistikInsightsPro } from './phase2250-statistiken-insights-pro';
