@@ -739,6 +739,7 @@ import { DispatchPhase2399TourenAnzahlBoard } from './phase2399-touren-anzahl-bo
 import { DispatchPhase2404EffizienzScoreBoard } from './phase2404-effizienz-score-board';
 import { DispatchPhase2409SchichtBilanzBoard } from './phase2409-schicht-bilanz-board';
 import { DispatchPhase2414UmsatzProStundeBoard } from './phase2414-umsatz-pro-stunde-board';
+import { DispatchPhase2419TrinkgeldQuoteBoard } from './phase2419-trinkgeld-quote-board';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 
 type Driver = {
@@ -3824,6 +3825,8 @@ export function DispatchBoard({
           <DispatchPhase2409SchichtBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2414: Umsatz/h-Board — Fahrerliste nach €/h sortiert; KPI-Grid Ø heute/VW/Ziel ≥12 €/h; Podium Top-3; Alert <8 €/h; Ampel-Balken; 30-Min-Polling */}
           <DispatchPhase2414UmsatzProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2419: Trinkgeld-Quote-Board — Fahrerliste nach Quote sortiert; KPI-Grid Ø heute/VW/Ziel ≥10 %; Podium Top-3; Alert <5 %; Ampel-Balken; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2419TrinkgeldQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
           <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
@@ -11447,3 +11450,5 @@ export { DispatchPhase2404EffizienzScoreBoard } from './phase2404-effizienz-scor
 export { DispatchPhase2409SchichtBilanzBoard } from './phase2409-schicht-bilanz-board';
 // Phase 2414 — Umsatz/h-Board (Fahrerliste nach €/h; KPI-Grid Ø heute/VW/Ziel ≥12 €/h; Podium Top-3; Alert <8 €/h; Ampel-Balken; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2414UmsatzProStundeBoard } from './phase2414-umsatz-pro-stunde-board';
+// Phase 2419 — Trinkgeld-Quote-Board (Fahrerliste nach Quote; KPI-Grid Ø heute/VW/Ziel ≥10 %; Podium Top-3; Alert <5 %; Ampel-Balken; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2419TrinkgeldQuoteBoard } from './phase2419-trinkgeld-quote-board';

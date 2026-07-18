@@ -2,7 +2,37 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
-Frontend-Ingenieur-Agent (2026-07-18): Phasen 2413–2417 implementiert. 1 neue Backend-API (fahrer-umsatz-pro-stunde) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2416 Storefront übersprungen (interne €/h-Metrik). Build ✓. Push erfolgt.
+Backend-Architekt-Agent (2026-07-18): Phasen 2418–2422 implementiert. 1 neue Backend-API (fahrer-trinkgeld-quote) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2421 Storefront übersprungen (interne Trinkgeld-Daten). Build ✓. Push erfolgt.
+
+---
+
+## Batch 2418–2422 — Fahrer-Trinkgeld-Quote-System (2026-07-18)
+
+### Phase 2418 — Backend API: Fahrer-Trinkgeld-Quote
+**Datei:** `app/api/delivery/admin/fahrer-trinkgeld-quote/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Trinkgeld in % des Bestellwerts je Fahrer heute (tip_amount / order_total * 100); Alert wenn <5 % (niedrig); Ampel grün(≥10%)/gelb(5–10%)/rot(<5%); Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+**Response:** `{ fahrer: FahrerTrinkgeldQuote[], team_avg_quote, team_avg_quote_vw, alert_count, generiert_am }` / `{ fahrer_single, team_avg_quote }`
+
+### Phase 2419 — Trinkgeld-Quote-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2419-trinkgeld-quote-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (teal/orange je Alerts); KPI-Grid 3-spaltig (Ø heute / VW / Ziel ≥10 %); Podium Top-3 (🥇🥈🥉) mit Ampelfarben; Fahrerliste sortiert nach Quote mit Mini-Balken (5/10 % Ziellinien); Alert-Banner für <5 %; Trend-Pfeile + Delta; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import + JSX nach Phase2414 + Export ✅
+
+### Phase 2420 — Meine Trinkgeld-Quote (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2420-meine-trinkgeld-quote.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); % groß + Farbcode; Fortschrittsbalken 0–20 % mit gestrichelten Ziel-Linien bei 5 % und 10 %; KPI-Grid (VW/Trend/Ziel/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import + JSX nach Phase2415 + Export ✅
+
+### Phase 2421 — Storefront: Übersprungen
+Trinkgeld-Daten sind intern irrelevant für Kunden.
+
+### Phase 2422 — Trinkgeld-Quote-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2422-trinkgeld-quote-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (teal/orange je Alert); Team-Ø Quote Header; Alert-Banner für <5 %; Fahrerliste kompakt mit Ampel-Dots; TG-Betrag + Quote je Fahrer; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import + JSX nach Phase2417 + Export ✅
 
 ---
 
