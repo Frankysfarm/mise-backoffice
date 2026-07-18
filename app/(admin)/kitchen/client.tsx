@@ -258,6 +258,7 @@ import { KitchenPhase2258BewertungsTicker } from './phase2258-bewertungs-ticker'
 import { KitchenPhase2263KmMonitor } from './phase2263-km-monitor';
 import { KitchenPhase2268WartezeitTicker } from './phase2268-wartezeit-ticker';
 import { KitchenPhase2273EffizienzTicker } from './phase2273-effizienz-ticker';
+import { KitchenPhase2278SmartTimingKochzeitMatrix } from './phase2278-smart-timing-kochzeit-matrix';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3303,6 +3304,8 @@ export function KitchenBoard({
       <KitchenPhase2268WartezeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2273: Effizienz-Ticker — Team-Ø Touren/Std; Alert <1,5; Dispatcher-Hinweis; 15-Min-Polling */}
       <KitchenPhase2273EffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2278: Smart Timing Kochzeit-Matrix — Sekunden-Countdown, Farbkodierung grün/gelb/rot, Echtzeit-Supabase */}
+      <KitchenPhase2278SmartTimingKochzeitMatrix locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

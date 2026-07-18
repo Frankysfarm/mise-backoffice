@@ -620,6 +620,7 @@ import { FahrerPhase2256MeineKundenbewertung } from './phase2256-meine-kundenbew
 import { FahrerPhase2261MeinKilometerstand } from './phase2261-mein-kilometerstand';
 import { FahrerPhase2266MeineAbholwartezeit } from './phase2266-meine-abholwartezeit';
 import { FahrerPhase2271MeineTourEffizienz } from './phase2271-meine-tour-effizienz';
+import { FahrerPhase2285SmartTourStopNavigatorUltra } from './phase2285-smart-tour-stop-navigator-ultra';
 import { FahrerPhase2200SmartStoppNaviCockpit } from './phase2200-smart-stopp-navi-cockpit';
 
 type Driver = {
@@ -5815,6 +5816,24 @@ export function FahrerApp({
           <FahrerPhase2266MeineAbholwartezeit driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2271: Meine Tour-Effizienz — Touren/Std + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 1-Std-Polling */}
           <FahrerPhase2271MeineTourEffizienz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2285: Smart Tour Stop Navigator Ultra — expandierbare Stopp-Karten, Status-Farbkodierung, Navigations-Link, Anruf-Button */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2285SmartTourStopNavigatorUltra
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? s.stop_number ?? 0,
+                kunde_name: s.customer_name ?? s.kunde_name ?? null,
+                kunde_adresse: s.address ?? s.kunde_adresse ?? null,
+                kunde_telefon: s.customer_phone ?? s.kunde_telefon ?? null,
+                gesamtbetrag: s.gesamtbetrag ?? null,
+                angekommen_am: s.angekommen_am ?? null,
+                geliefert_am: s.geliefert_am ?? s.delivered_at ?? null,
+                eta_min: s.eta_min ?? null,
+                distanz_km: s.distanz_km ?? null,
+              }))}
+              batchId={activeBatch.id}
+            />
+          )}
           {/* Phase 2200: Smart-Stopp-Navi-Cockpit — 1-Tap Navigation, Stopp-Bestätigung, ETA-Timeline */}
           <FahrerPhase2200SmartStoppNaviCockpit />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}

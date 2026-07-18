@@ -412,6 +412,7 @@ import { LieferdienstPhase2130SmartStatistikHub } from './phase2130-smart-statis
 import { LieferdienstPhase2135StatistikenKomplettDashboard } from './phase2135-statistiken-komplett-dashboard';
 import { LieferdienstPhase2181LiveBestellflussTrichter } from './phase2181-live-bestellfluss-trichter';
 import { LieferdienstPhase2235StatistikDashboard } from './phase2235-statistik-dashboard';
+import { LieferdienstPhase2240StatistikHubPro } from './phase2240-statistik-hub-pro';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2129,6 +2130,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2181LiveBestellflussTrichter locationId={locationId ?? null} />
                 {/* Phase 2235: Statistik-Dashboard — 4-KPI-Grid + Stundenchart + Storno-Rate; Heute ab 0 Uhr; 5-Min-Polling */}
                 <LieferdienstPhase2235StatistikDashboard locationId={locationId ?? null} />
+                {/* Phase 2240: Statistik Hub Pro — 6 KPI-Kacheln (Bestellungen, Umsatz, Lieferzeit, Pünktlichkeit, Storno, Fahrer), Stunden-Balkendiagramm */}
+                <LieferdienstPhase2240StatistikHubPro locationId={locationId ?? null} />
               </>
             </div>
           )}
