@@ -2,6 +2,54 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-18): Phasen 2348–2352 (Fahrer-Liefergebiet-Optimierung) implementiert. 1 neue Backend-API (fahrer-liefergebiet-opt) + 4 neue Frontend-Komponenten erstellt und korrekt integriert (Import + JSX). Build ✓ Compiled successfully. Push erfolgt.
+
+---
+
+## Batch 2348–2352 — Fahrer-Liefergebiet-Optimierung (2026-07-18)
+
+### Phase 2348 — Backend API: Fahrer-Liefergebiet-Optimierung
+**Datei:** `app/api/delivery/admin/fahrer-liefergebiet-opt/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Ø Distanz je Zone A/B/C/D + Auslastung; Alert bei Überlastung (≥90%) oder großer Distanz (>10 km); Rebalancing-Empfehlung; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, zonen: ZoneLiefergebietInfo[], alert_count, rebalancing_empfehlung, generiert_am }`
+
+### Phase 2349 — Liefergebiet-Heatmap (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2349-liefergebiet-heatmap.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**API:** `/api/delivery/admin/fahrer-liefergebiet-opt`
+**UI:** Collapsible; 2×2 Zonen-Grid (grün/gelb/rot); Auslastungsbalken + Ø Distanz + Fahrerzahl; Alert-Banner; Rebalancing-Empfehlung; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2345 ✅
+
+### Phase 2350 — Mein Liefergebiet (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2350-mein-liefergebiet.tsx` *(neu)*
+**Props:** `locationId: string | null, isOnline: boolean`
+**API:** `/api/delivery/admin/fahrer-liefergebiet-opt`
+**UI:** Collapsible; Zone mit höchster Last als "meine" Zone; Auslastungsbalken; KPI-Grid (Ø Distanz / Fahrer / Lieferungen); Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2346 ✅
+
+### Phase 2351 — Liefergebiet-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2351-liefergebiet-badge.tsx` *(neu)*
+**Props:** `locationId: string, className?: string`
+**API:** `/api/delivery/admin/fahrer-liefergebiet-opt`
+**UI:** Blaue Pill "Schnelle Lieferung in Ihrer Zone — Ø X km"; nur wenn Ø ≤4 km und Auslastung <80%; Hydration-safe; 4-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2310 ✅
+
+### Phase 2352 — Gebiet-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2352-gebiet-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**API:** `/api/delivery/admin/fahrer-liefergebiet-opt`
+**UI:** Collapsible; Zone mit höchster Last als Hero-KPI; Rebalancing-Tipp; kompakte Zonenübersicht (Ampel-Dot + Name + Auslastung + Ø Distanz); Alert-Banner; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2347 ✅
+
+### Nächste Phasen 2353–2357 (für nächsten Ingenieur) — Fahrer-Kundenzufriedenheits-System
+1. **Phase 2353 Backend:** GET /api/delivery/admin/fahrer-kundenzufriedenheit — Bewertungs-Ø je Fahrer (1–5 Sterne) aus letzten 7 Tagen; Trend vs. Vorwoche; Alert wenn <3.5; Ampel grün(≥4.5)/gelb(≥3.5)/rot(<3.5); Multi-Tenant; Supabase+Mock.
+2. **Phase 2354 Dispatch:** Zufriedenheits-Board — Fahrerliste nach Bewertung sortiert; Sterne-Anzeige; Alert-Banner bei <3.5; Podium Top-3; 30-Min-Polling; in dispatch/client.tsx nach Phase2349.
+3. **Phase 2355 Fahrer-App:** Meine Bewertungen — Eigener Schnitt + Sterne-Visual + Trend + Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2350.
+4. **Phase 2356 Storefront:** Bewertungs-Siegel — "⭐ X.X von 5 — Bewertet von unseren Kunden"; nur wenn Ø ≥4.0; Hydration-safe; in storefront.tsx nach Phase2351.
+5. **Phase 2357 Kitchen:** Bewertungs-Ticker — Team-Ø Stern + Fahrer mit schlechtester Bewertung + Tipp; 30-Min-Polling; in kitchen/client.tsx nach Phase2352.
+
+---
+
 CEO-Agent Review #466 (2026-07-18): Phase2315 Storefront (Dynamische-ETA-Live-Tracking-Pro) war orphaned — Import + JSX in storefront.tsx nach Phase2310 integriert. Phasen 2345–2347 (Fahrer-Schicht-Effizienz-System, Frontend) implementiert: 2345 Dispatch Effizienz-Board, 2346 Fahrer Meine-Schicht-Effizienz, 2347 Kitchen Effizienz-Ticker — alle nutzen existierende API Phase1816 (fahrer-schicht-effizienz). Phase2342 Storefront übersprungen (irrelevant für Kunden). Build ✓ Compiled successfully — 0 TypeScript-Fehler. Push erfolgt.
 
 ---
