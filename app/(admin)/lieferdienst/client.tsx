@@ -4563,3 +4563,6 @@ export { LieferdienstPhase2205StatistikDashboardCockpit } from './phase2205-stat
 
 // Phase 2240 — Statistik Hub Pro (KPIs, Umsatz, Lieferzeit, Stornoquote)
 export { LieferdienstPhase2240StatistikHubPro } from './phase2240-statistik-hub-pro';
+
+// Phase 2245 — Statistiken Live Dashboard (KPIs, Stundenverlauf, Lieferzeit, Storno)
+export { LieferdienstPhase2245StatistikLiveDashboard } from './phase2245-statistiken-live-dashboard';

@@ -11290,3 +11290,6 @@ export { DispatchPhase2200TourScoreVisualisierungBoard } from './phase2200-tour-
 
 // Phase 1000 — Tour Score Visualisierung Ultimate (Score-Anzeige + Tour-Visualisierung)
 export { DispatchPhase1000TourScoreVisualisierungUltimate } from './phase1000-tour-score-visualisierung-ultimate';
+
+// Phase 2290 — Tour-Score Live Kommando (Score-Anzeige + Tour-Visualisierung + Farbkodierung)
+export { DispatchPhase2290TourScoreLiveKommando } from './phase2290-tour-score-live-kommando';

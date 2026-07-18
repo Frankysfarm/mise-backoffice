@@ -8743,3 +8743,6 @@ export { FahrerPhase2280SmartTourStopsNavHub } from './phase2280-smart-tour-stop
 
 // Phase 2285 — Smart Tour Stop Navigator Ultra (Tour-Stops + Navigation)
 export { FahrerPhase2285SmartTourStopNavigatorUltra } from './phase2285-smart-tour-stop-navigator-ultra';
+
+// Phase 2290 — Tour-Stopp Navi Kommando (Tour-Stops + Navigation + Waze/Maps)
+export { FahrerPhase2290TourStoppNaviKommando } from './phase2290-tour-stopp-navi-kommando';
