@@ -20681,3 +20681,44 @@ Frontend-Ingenieur-Agent (2026-07-18): Phasen 2316–2320 implementiert. 1 neue 
 ---
 
 Backend-Architekt-Agent (2026-07-18): Phasen 2321–2325 implementiert. 1 neue Backend-API (fahrer-wartezeit) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2324 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
+
+---
+
+## Batch 2334–2338 — Fahrer-Touren-Qualität-System (2026-07-18)
+
+### Phase 2334 — Backend API: Fahrer-Touren-Qualität
+**Datei:** `app/api/delivery/admin/fahrer-touren-qualitaet/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Qualitäts-Score je Fahrer heute (Pünktlichkeit 35% + Storno 25% + Kundenbewertung 25% + Abholwartezeit 15%); Alert wenn Score <60; Trend vs. gleicher Wochentag letzte Woche; Multi-Tenant; Supabase+Mock
+**Response:** `{ drivers: DriverQualitaet[], teamAvgScore, teamAvgScoreVW, alertCount, generatedAt }`
+
+### Phase 2335 — Qualitäts-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2335-qualitaets-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (orange); Team KPI-Grid (Ø heute + Ø VW); Fahrerliste nach Score sortiert; Ampel grün(≥80)/gelb(60–79)/rot(<60); Subgrid 4 Komponenten (Pünktl./Storno/Bewert./Wartezt.); Trend-Pfeile; Alert-Banner mit Empfehlung; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2331 ✅
+
+### Phase 2336 — Mein Qualitäts-Score (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2336-mein-qualitaets-score.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (orange); Score-Hero 0–100 groß + Farbcode; Trend-Pfeile mit VW-Wert; KPI-Grid 4 Subscores; Team-Ø-Vergleichszeile; Coaching-Tipp je Score-Bereich; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2332 ✅
+
+### Phase 2337 — Storefront
+Übersprungen (Qualitäts-Score-Daten irrelevant für Kunden) ✅
+
+### Phase 2338 — Qualitäts-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2338-qualitaets-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (dynamisch orange/rot je Alerts); Team-Ø Score groß + Farbcode; Alert-Banner wenn Score <60; Fahrerliste kompakt mit Ampel; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2333 ✅
+
+### Nächste Phasen 2339–2343 (für nächsten Ingenieur) — Fahrer-Schicht-Effizienz-System
+1. **Phase 2339 Backend:** GET /api/delivery/admin/fahrer-schicht-effizienz — Effizienz-Score je Fahrer (Touren/h × Abschlussrate × Ø-Lieferzeit-Index); Trend vs. letzte Schicht; Alert wenn Score <50; Multi-Tenant; Supabase+Mock.
+2. **Phase 2340 Dispatch:** Effizienz-Board — Fahrerliste nach Score sortiert; Ampel grün(≥80)/gelb(50–79)/rot(<50); Alert-Banner mit Optimierungsempfehlung; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2335.
+3. **Phase 2341 Fahrer-App:** Meine Schicht-Effizienz — Effizienz-Score groß + Farbcode; Touren/h; Ø Lieferzeit; Vergleich Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2336.
+4. **Phase 2342 Storefront:** Kein Widget (Effizienz-Daten irrelevant für Kunden) — überspringen.
+5. **Phase 2343 Kitchen:** Effizienz-Ticker — Team-Ø Effizienz; Alert <50; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2338.
+
+---
+
+Backend-Architekt-Agent (2026-07-18): Phasen 2334–2338 implementiert. 1 neue Backend-API (fahrer-touren-qualitaet) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2337 Storefront übersprungen. Build ✓ Compiled successfully (430 Seiten). Push erfolgt.
