@@ -701,6 +701,7 @@ import { DispatchPhase2222WartezeitRankingBoard } from './phase2222-wartezeit-ra
 import { DispatchPhase2227EnergieBoard } from './phase2227-energie-board';
 import { DispatchPhase2232TourScoreVisualisierung } from './phase2232-tour-score-visualisierung';
 import { DispatchPhase2236SchichtBilanzUebersicht } from './phase2236-schicht-bilanz-uebersicht';
+import { DispatchPhase2240RoutenOptimierungsBoard } from './phase2240-routen-optimierungs-board';
 
 type Driver = {
   employee_id: string;
@@ -3709,6 +3710,8 @@ export function DispatchBoard({
           <DispatchPhase2232TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2236: Schicht-Bilanz-Übersicht — Fahrer-Kacheln mit Score; Podium Top-3; Alert <45%; 30-Min-Polling */}
           <DispatchPhase2236SchichtBilanzUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2240: Routen-Optimierungs-Board — Score-Liste; Top-Badge; Alert; 30-Min-Polling */}
+          <DispatchPhase2240RoutenOptimierungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
