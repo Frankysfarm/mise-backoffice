@@ -254,6 +254,7 @@ import { KitchenPhase2235SchichtAuslastungsTicker } from './phase2235-schicht-au
 import { KitchenPhase2243RoutenStatusTicker } from './phase2243-routen-status-ticker';
 import { KitchenPhase2248ReaktionszeitTicker } from './phase2248-reaktionszeit-ticker';
 import { KitchenPhase2253PuenktlichkeitsTicker } from './phase2253-puenktlichkeits-ticker';
+import { KitchenPhase2258BewertungsTicker } from './phase2258-bewertungs-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3291,6 +3292,8 @@ export function KitchenBoard({
       <KitchenPhase2248ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2253: Pünktlichkeits-Ticker — Team-Ø Quote; Alert <85%; Dispatcher-Hinweis; useMemo; 15-Min-Polling */}
       <KitchenPhase2253PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2258: Bewertungs-Ticker — Team-Ø Bewertung; Alert <4.0; Dispatcher-Hinweis; useMemo; 15-Min-Polling */}
+      <KitchenPhase2258BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

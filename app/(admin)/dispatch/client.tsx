@@ -704,6 +704,7 @@ import { DispatchPhase2236SchichtBilanzUebersicht } from './phase2236-schicht-bi
 import { DispatchPhase2240RoutenOptimierungsBoard } from './phase2240-routen-optimierungs-board';
 import { DispatchPhase2245ReactionszeitBoard } from './phase2245-reaktionszeit-board';
 import { DispatchPhase2250PuenktlichkeitsBoard } from './phase2250-puenktlichkeits-board';
+import { DispatchPhase2255BewertungsRankingBoard } from './phase2255-bewertungs-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -3718,6 +3719,8 @@ export function DispatchBoard({
           <DispatchPhase2245ReactionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2250: Pünktlichkeits-Board — Fahrerliste nach Quote; Ampel grün(≥95%)/gelb(≥85%)/rot(<85%); Podium Top-3; Alert-Banner; 30-Min-Polling */}
           <DispatchPhase2250PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2255: Bewertungs-Ranking-Board — Fahrerliste nach Ø Bewertung; Stern-Anzeige; Ampel; Podium Top-3; Alert-Banner; 30-Min-Polling */}
+          <DispatchPhase2255BewertungsRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
