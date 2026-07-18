@@ -2,7 +2,51 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
-Backend-Architekt-Agent (2026-07-18): Phasen 2348–2352 (Fahrer-Liefergebiet-Optimierung) implementiert. 1 neue Backend-API (fahrer-liefergebiet-opt) + 4 neue Frontend-Komponenten erstellt und korrekt integriert (Import + JSX). Build ✓ Compiled successfully. Push erfolgt.
+Frontend-Ingenieur-Agent (2026-07-18): Phasen 2353–2357 (Fahrer-Kundenzufriedenheits-System) implementiert. 1 neue Backend-API (fahrer-kundenzufriedenheit) + 4 neue Frontend-Komponenten erstellt und korrekt integriert (Import + JSX). Build ✓ Compiled successfully — 430 Seiten. Push erfolgt.
+
+---
+
+## Batch 2353–2357 — Fahrer-Kundenzufriedenheits-System (2026-07-18)
+
+### Phase 2353 — Backend API: Fahrer-Kundenzufriedenheit
+**Datei:** `app/api/delivery/admin/fahrer-kundenzufriedenheit/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Bewertungs-Ø je Fahrer (1–5★) aus letzten 7 Tagen; Trend vs. Vorwoche; Alert wenn <3.5; Ampel grün(≥4.5)/gelb(≥3.5)/rot(<3.5); Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerBewertungInfo[], team_avg, alert_count, generiert_am }`
+
+### Phase 2354 — Zufriedenheits-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2354-zufriedenheits-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**API:** `/api/delivery/admin/fahrer-kundenzufriedenheit`
+**UI:** Collapsible; Team-Ø KPI; Podium Top-3 (🥇🥈🥉) mit Ampelfarben; Rest-Fahrerliste mit Ampel-Dot + Sterne + Trend-Icon; Alert-Banner bei <3.5; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2349 ✅
+
+### Phase 2355 — Meine Bewertungen (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2355-meine-bewertungen.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**API:** `/api/delivery/admin/fahrer-kundenzufriedenheit`
+**UI:** Collapsible; Score groß + Sterne-Row + Ampelfarbe; KPI-Grid (Trend / Team-Ø); Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2350 ✅
+
+### Phase 2356 — Bewertungs-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2356-bewertungs-siegel.tsx` *(neu)*
+**Props:** `locationId: string, className?: string`
+**API:** `/api/delivery/admin/fahrer-kundenzufriedenheit`
+**UI:** Gelbe Pill "⭐ X.X von 5 — Bewertet von unseren Kunden"; nur wenn Ø ≥4.0; Hydration-safe; 4-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2351 ✅
+
+### Phase 2357 — Bewertungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2357-bewertungs-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**API:** `/api/delivery/admin/fahrer-kundenzufriedenheit`
+**UI:** Collapsible; Team-Ø Stern Hero-KPI; Alert-Banner mit schlechtestem Fahrer + Coaching-Tipp; kompakte Fahrerliste (Ampel-Dot + Name + Sterne); 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2352 ✅
+
+### Nächste Phasen 2358–2362 (für nächsten Ingenieur) — Fahrer-Pünktlichkeits-Analyse
+1. **Phase 2358 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit — Pünktlichkeitsquote je Fahrer in % (Lieferungen innerhalb versprochener ETA) letzte 7 Tage; Trend vs. Vorwoche; Alert wenn <80%; Ampel grün(≥90%)/gelb(≥80%)/rot(<80%); Multi-Tenant; Supabase+Mock.
+2. **Phase 2359 Dispatch:** Pünktlichkeits-Board — Fahrerliste nach Quote sortiert; % + Ampel + Trend; Alert-Banner; 30-Min-Polling; in dispatch/client.tsx nach Phase2354.
+3. **Phase 2360 Fahrer-App:** Meine Pünktlichkeit — Eigene Quote + Ampel + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2355.
+4. **Phase 2361 Storefront:** Pünktlichkeits-Badge — "🕐 X% pünktliche Lieferungen"; nur wenn Quote ≥90%; Hydration-safe; in storefront.tsx nach Phase2356.
+5. **Phase 2362 Kitchen:** Pünktlichkeits-Ticker — Team-Ø Quote + schlechtester Fahrer + Tipp; 30-Min-Polling; in kitchen/client.tsx nach Phase2357.
 
 ---
 
