@@ -20316,3 +20316,48 @@ Backend-Architekt-Agent (2026-07-18): Phasen 2254–2258 implementiert. 1 neue B
 ---
 
 Backend-Architekt-Agent (2026-07-18): Phasen 2291–2295 implementiert. 1 neue Backend-API (fahrer-durchsatz) + 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — 430 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
+
+## Batch 2296–2300 — Fahrer-Schicht-Bilanz-System (2026-07-18)
+
+### Phase 2296 — Backend API: Fahrer-Schicht-KPI
+**Datei:** `app/api/delivery/admin/fahrer-schicht-kpi/route.ts` *(neu)*
+**Hinweis:** Eigener Endpunkt (fahrer-schicht-kpi), da fahrer-schicht-bilanz bereits durch Phase 1567 belegt.
+**GET:** `?location_id=<uuid>` — Schichtdauer heute je Fahrer; Ø km/Tour; Touren-Anzahl; Kosten-Schätzung (km×0,30€ + h×12,82€ Mindestlohn); Alert wenn >10h; Ampel grün(<8h)/gelb(<10h)/rot(≥10h); Trend vs. Vorwoche; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerSchichtKpi[], team_avg_stunden, alert_count, generiert_am }`
+
+### Phase 2297 — Schicht-Bilanz-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2297-schicht-bilanz-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (amber); Team KPI-Grid (Team-Ø + Alert-Anzahl); Fahrerliste nach Schichtdauer sortiert; Ampel grün(<8h)/gelb(<10h)/rot(≥10h); Podium 🥇🥈🥉; Trend-Pfeile; Kosten-Anzeige; Alert-Banner; Dispatcher-Tipp; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2292 ✅
+
+### Phase 2298 — Meine Schicht-Bilanz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2298-meine-schicht-bilanz.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (amber); Schichtdauer groß + Farbcode; Fortschrittsbalken (0–12h); KPI-Grid (Trend / Δ Vorwoche / Team-Ø); km/Tour + Kosten-Schätzung; Coaching-Tipp; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2293 ✅
+
+### Phase 2299 — Qualitäts-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2299-qualitaets-siegel.tsx` *(neu)*
+**Props:** `locationId: string, className?: string`
+**UI:** Grüne Pill "Faire Arbeitsbedingungen — zufriedene Fahrer" + Heart-Icon; nur wenn alert_count=0 (kein Fahrer >10h); Hydration-safe; 6-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2294 ✅
+
+### Phase 2300 — Schicht-Monitor (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2300-schicht-monitor.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (dynamisch grün/amber/rot); Team-Ø Schichtdauer; Längste-Schicht-Anzeige; Alert-Banner bei >10h-Fahrern; Dispatcher-Hinweis; useMemo; 15-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2295 ✅
+
+### Nächste Phasen 2301–2305 (für nächsten Ingenieur) — Fahrer-Pause-Tracking-System
+1. **Phase 2301 Backend:** GET /api/delivery/admin/fahrer-pausen — Pausenanzahl und -dauer je Fahrer heute; Alert wenn keine Pause nach 6h; Pflichtpause-Check (ArbZG); Multi-Tenant; Supabase+Mock.
+2. **Phase 2302 Dispatch:** Pausen-Monitoring-Board — Fahrerliste mit letzter Pause + Zeit seit letzter Pause; Ampel grün(Pause ok)/gelb(>4h ohne Pause)/rot(>6h ohne Pause); Alert-Banner; 15-Min-Polling; in dispatch/client.tsx nach Phase2297.
+3. **Phase 2303 Fahrer-App:** Meine Pausen — Letzte Pause + Zeit ohne Pause + Anzahl Pausen heute; Pflichtpausen-Erinnerung; isOnline-Guard; 15-Min-Polling; in fahrer/app/client.tsx nach Phase2298.
+4. **Phase 2304 Storefront:** Kein Siegel (Pausen-Daten nicht relevant für Kunden).
+5. **Phase 2305 Kitchen:** Pausen-Ticker — Fahrer ohne Pause >4h; Alert + Empfehlung; useMemo; 15-Min-Polling; in kitchen/client.tsx nach Phase2300.
+
+---
+
+Backend-Architekt-Agent (2026-07-18): Phasen 2296–2300 implementiert. 1 neue Backend-API (fahrer-schicht-kpi, eigener Endpunkt da Phase-1567 fahrer-schicht-bilanz belegt) + 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully. Push erfolgt.
