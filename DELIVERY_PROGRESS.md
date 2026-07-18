@@ -20900,3 +20900,44 @@ Backend-Architekt-Agent (2026-07-18): Phasen 2321–2325 implementiert. 1 neue B
 ---
 
 Backend-Architekt-Agent (2026-07-18): Phasen 2334–2338 implementiert. 1 neue Backend-API (fahrer-touren-qualitaet) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2337 Storefront übersprungen. Build ✓ Compiled successfully (430 Seiten). Push erfolgt.
+
+---
+
+## Batch 2363–2367 — Fahrer-Trinkgeld-Analyse-System (2026-07-18)
+
+### Phase 2363 — Backend API: Fahrer-Trinkgeld
+**Datei:** `app/api/delivery/admin/fahrer-trinkgeld/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Ø Trinkgeld/Tour + Gesamt-Trinkgeld je Fahrer heute; Ampel grün(≥0,75€)/gelb(0,50–0,75€)/rot(<0,50€); Alert wenn Ø <0,50€; Trend vs. gleicher Wochentag letzte Woche; Multi-Tenant; Supabase+Mock
+**Response:** `{ fahrer: FahrerTrinkgeld[], team_avg, team_avg_vw, alert_count, generiert_am }`
+
+### Phase 2364 — Trinkgeld-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2364-trinkgeld-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (emerald); Team KPI-Grid (Ø heute + Ø VW); Fahrerliste nach Ø Trinkgeld/Tour sortiert; Ampel grün/gelb/rot; Podium 🥇🥈🥉; Alert-Banner wenn <0,50€; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2359 ✅
+
+### Phase 2365 — Mein Trinkgeld (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2365-mein-trinkgeld.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (emerald); Ø Trinkgeld/Tour groß + Farbcode; Gesamt + Touren; KPI-Grid (Trend / Vorwoche / Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2360 ✅
+
+### Phase 2366 — Storefront
+Übersprungen (Trinkgeld-Daten irrelevant für Kunden) ✅
+
+### Phase 2367 — Trinkgeld-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2367-trinkgeld-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (dynamisch emerald/rot je Alerts); Team-Ø Trinkgeld/Tour; Alert-Banner wenn <0,50€; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2362 ✅
+
+### Nächste Phasen 2368–2372 (für nächsten Ingenieur) — Fahrer-Lieferzeit-Benchmark-System
+1. **Phase 2368 Backend:** GET /api/delivery/admin/fahrer-lieferzeit-benchmark — Ø Lieferzeit je Fahrer heute (confirmed_at → actual_delivery_at in Minuten); Vergleich mit Store-Ø und Benchmark-Ziel (30 Min); Alert wenn >45 Min; Trend vs. Vorwoche; Multi-Tenant; Supabase+Mock.
+2. **Phase 2369 Dispatch:** Lieferzeit-Benchmark-Board — Fahrerliste nach Ø Lieferzeit sortiert; Ampel grün(<30)/gelb(30–45)/rot(>45 Min); Alert-Banner mit Empfehlung; Trend-Pfeile; Benchmark-Linie; 30-Min-Polling; in dispatch/client.tsx nach Phase2364.
+3. **Phase 2370 Fahrer-App:** Meine Lieferzeit — Ø Lieferzeit groß + Farbcode; Fortschrittsbalken (0–60 Min, Ziel-Linie bei 30 Min); KPI-Grid (Touren / Kürzeste / Trend / Team-Ø); Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2365.
+4. **Phase 2371 Storefront:** Kein Widget (interne Metriken irrelevant für Kunden) — überspringen.
+5. **Phase 2372 Kitchen:** Lieferzeit-Ticker — Team-Ø Lieferzeit; Alert >45 Min; Fahrerliste kompakt mit Ampel; 30-Min-Polling; in kitchen/client.tsx nach Phase2367.
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-18): Phasen 2363–2367 implementiert. 1 neue Backend-API (fahrer-trinkgeld) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2366 Storefront übersprungen. Build ✓ Compiled successfully (430 Seiten). Push erfolgt.
