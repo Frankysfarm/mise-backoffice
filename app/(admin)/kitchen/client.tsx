@@ -269,6 +269,7 @@ import { KitchenPhase2306PausenTicker } from './phase2306-pausen-ticker';
 import { KitchenPhase2311DistanzTicker } from './phase2311-distanz-ticker';
 import { KitchenPhase2315KmTicker } from './phase2315-km-ticker';
 import { KitchenPhase2320TempoTicker } from './phase2320-tempo-ticker';
+import { KitchenPhase2325WartezeitTicker } from './phase2325-wartezeit-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3336,6 +3337,8 @@ export function KitchenBoard({
       <KitchenPhase2315KmTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2320: Tempo-Ticker — Team-Ø km/h; Alert >60 km/h oder <5 km/h; Fahrerliste kompakt; 15-Min-Polling */}
       <KitchenPhase2320TempoTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2325: Wartezeit-Ticker — Team-Ø Wartezeit; Alert >10 Min; Fahrerliste kompakt; 15-Min-Polling */}
+      <KitchenPhase2325WartezeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -9895,3 +9898,6 @@ export { KitchenPhase2315KmTicker } from './phase2315-km-ticker';
 
 // Phase 2320 — Tempo-Ticker (Team-Ø km/h + Alert >60 oder <5 km/h + Fahrerliste kompakt + 15-Min-Polling)
 export { KitchenPhase2320TempoTicker } from './phase2320-tempo-ticker';
+
+// Phase 2325 — Wartezeit-Ticker (Team-Ø Wartezeit + Alert >10 Min + Fahrerliste kompakt + 15-Min-Polling)
+export { KitchenPhase2325WartezeitTicker } from './phase2325-wartezeit-ticker';

@@ -632,6 +632,7 @@ import { FahrerPhase2303MeinePausen } from './phase2303-meine-pausen';
 import { FahrerPhase2309MeineDistanz } from './phase2309-meine-distanz';
 import { FahrerPhase2313MeineKm } from './phase2313-meine-km';
 import { FahrerPhase2318MeinTempo } from './phase2318-mein-tempo';
+import { FahrerPhase2323MeineWartezeit } from './phase2323-meine-wartezeit';
 
 type Driver = {
   id: string;
@@ -5840,6 +5841,8 @@ export function FahrerApp({
           <FahrerPhase2313MeineKm driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2318: Mein Tempo — Ø km/h heute + Trend vs. Vorwoche + Team-Ø Vergleich; Coaching-Tipp; isOnline-Guard; 15-Min-Polling */}
           <FahrerPhase2318MeinTempo driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2323: Meine Wartezeit — Ø Wartezeit heute + Trend vs. Vorwoche + Team-Ø; Coaching-Tipp; isOnline-Guard; 15-Min-Polling */}
+          <FahrerPhase2323MeineWartezeit driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2285: Smart Tour Stop Navigator Ultra — expandierbare Stopp-Karten, Status-Farbkodierung, Navigations-Link, Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2285SmartTourStopNavigatorUltra
@@ -8822,3 +8825,6 @@ export { FahrerPhase2313MeineKm } from './phase2313-meine-km';
 
 // Phase 2318 — Mein Tempo (Ø km/h heute + Trend vs. Vorwoche + Team-Ø; Coaching-Tipp; isOnline-Guard)
 export { FahrerPhase2318MeinTempo } from './phase2318-mein-tempo';
+
+// Phase 2323 — Meine Wartezeit (Ø Wartezeit am Restaurant heute + Trend + Team-Ø; Coaching-Tipp; isOnline-Guard)
+export { FahrerPhase2323MeineWartezeit } from './phase2323-meine-wartezeit';

@@ -719,6 +719,7 @@ import { DispatchPhase2302PausenMonitoringBoard } from './phase2302-pausen-monit
 import { DispatchPhase2308DistanzBoard } from './phase2308-distanz-board';
 import { DispatchPhase2312KmBoard } from './phase2312-km-board';
 import { DispatchPhase2317TempoAnalyseBoard } from './phase2317-tempo-analyse-board';
+import { DispatchPhase2322WartezeitBoard } from './phase2322-wartezeit-board';
 
 type Driver = {
   employee_id: string;
@@ -3763,6 +3764,8 @@ export function DispatchBoard({
           <DispatchPhase2312KmBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2317: Tempo-Analyse-Board — Ø km/h je Fahrer; Ampel; Alert Tempoverdacht/Stau; Dispatcher-Tipp; 15-Min-Polling */}
           <DispatchPhase2317TempoAnalyseBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2322: Wartezeit-Board — Ø Wartezeit am Restaurant je Fahrer; Ampel; Alert >10 Min; Dispatcher-Empfehlung; 15-Min-Polling */}
+          <DispatchPhase2322WartezeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -11337,3 +11340,6 @@ export { DispatchPhase2312KmBoard } from './phase2312-km-board';
 
 // Phase 2317 — Tempo-Analyse-Board (Ø km/h je Fahrer, Alert Tempoverdacht/>60 / Stau/<5, 15-Min-Polling)
 export { DispatchPhase2317TempoAnalyseBoard } from './phase2317-tempo-analyse-board';
+
+// Phase 2322 — Wartezeit-Board (Ø Wartezeit am Restaurant je Fahrer, Ampel, Alert >10 Min, 15-Min-Polling)
+export { DispatchPhase2322WartezeitBoard } from './phase2322-wartezeit-board';

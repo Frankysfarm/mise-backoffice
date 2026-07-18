@@ -20601,3 +20601,44 @@ Backend-Architekt-Agent (2026-07-18): Phasen 2311–2315 implementiert. 1 neue B
 ---
 
 Frontend-Ingenieur-Agent (2026-07-18): Phasen 2316–2320 implementiert. 1 neue Backend-API (fahrer-tempo-analyse) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2319 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
+
+---
+
+## Batch 2321–2325 — Fahrer-Wartezeit-Analyse-System (2026-07-18)
+
+### Phase 2321 — Backend API: Fahrer-Wartezeit
+**Datei:** `app/api/delivery/admin/fahrer-wartezeit/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Ø Wartezeit je Fahrer heute (Zeit von arrived_at bis actual_pickup_at); Alert wenn Ø ≥10 Min; Kosten-Ampel grün(<5)/gelb(5–10)/rot(≥10); Trend vs. gleicher Wochentag letzte Woche; Max-Wartezeit je Fahrer; Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerWartezeitHeute[], team_avg_wartezeit_min, alert_count, generiert_am }`
+
+### Phase 2322 — Wartezeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2322-wartezeit-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (cyan); Team KPI-Grid (Team-Ø + Fahrer + Alert-Count); Fahrerliste nach Ø Wartezeit sortiert; Ampel grün(<5)/gelb(5–10)/rot(≥10); Podium 🥇🥈🥉; Trend-Pfeile; Max-Wartezeit; Alert-Banner mit Küchen-Empfehlung; 15-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2317 ✅
+
+### Phase 2323 — Meine Wartezeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2323-meine-wartezeit.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (cyan); Ø Wartezeit groß + Farbcode; Fortschrittsbalken (0–20 Min, Warnlinien bei 5 und 10 Min); KPI-Grid (Touren / Längste Wartezeit / Δ Vorwoche / Team-Ø); Coaching-Tipp; isOnline-Guard; 15-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2318 ✅
+
+### Phase 2324 — Storefront
+Übersprungen (Wartezeit-Daten irrelevant für Kunden) ✅
+
+### Phase 2325 — Wartezeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2325-wartezeit-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (dynamisch cyan/rot je Alerts); Team-Ø Wartezeit; Alert-Banner wenn >10 Min; Fahrerliste kompakt mit Ampel; 15-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2320 ✅
+
+### Nächste Phasen 2326–2330 (für nächsten Ingenieur) — Fahrer-Storno-Analyse-System
+1. **Phase 2326 Backend:** GET /api/delivery/admin/fahrer-storno-analyse — Storno-Rate je Fahrer heute (stonierte Bestellungen / Gesamt-Touren); Alert wenn Storno-Rate >15%; Trend vs. Vorwoche; Multi-Tenant; Supabase+Mock.
+2. **Phase 2327 Dispatch:** Storno-Analyse-Board — Fahrerliste nach Storno-Rate sortiert; Ampel grün(<5%)/gelb(5–15%)/rot(≥15%); Alert-Banner mit Empfehlung; 30-Min-Polling; in dispatch/client.tsx nach Phase2322.
+3. **Phase 2328 Fahrer-App:** Meine Storno-Rate — Storno-Rate heute + Trend + Vergleich Team-Ø; Coaching-Tipp bei hoher Rate; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2323.
+4. **Phase 2329 Storefront:** Kein Widget (Storno-Daten irrelevant für Kunden) — überspringen.
+5. **Phase 2330 Kitchen:** Storno-Ticker — Team-Ø Storno-Rate; Alert >15%; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2325.
+
+---
+
+Backend-Architekt-Agent (2026-07-18): Phasen 2321–2325 implementiert. 1 neue Backend-API (fahrer-wartezeit) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2324 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
