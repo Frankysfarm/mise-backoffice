@@ -641,6 +641,7 @@ import { FahrerPhase2346MeineSchichtEffizienz } from './phase2346-meine-schicht-
 import { FahrerPhase2350MeinLiefergebiet } from './phase2350-mein-liefergebiet';
 import { FahrerPhase2355MeineBewertungen } from './phase2355-meine-bewertungen';
 import { FahrerPhase2360MeinePuenktlichkeit } from './phase2360-meine-puenktlichkeit';
+import { FahrerPhase2365MeinTrinkgeld } from './phase2365-mein-trinkgeld';
 
 type Driver = {
   id: string;
@@ -5865,6 +5866,8 @@ export function FahrerApp({
           <FahrerPhase2355MeineBewertungen driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2360: Meine Pünktlichkeit — Eigene Quote + Ampel + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2360MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2365: Mein Trinkgeld — Ø Trinkgeld/Tour + Gesamt + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2365MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2328: Smart Tour-Stopps Navigation — Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google-Maps-Nav + Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2328SmartTourStopsNavigation
@@ -8890,3 +8893,5 @@ export { FahrerPhase2350MeinLiefergebiet } from './phase2350-mein-liefergebiet';
 export { FahrerPhase2355MeineBewertungen } from './phase2355-meine-bewertungen';
 // Phase 2360 — Meine Pünktlichkeit (Eigene Quote + Ampel + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2360MeinePuenktlichkeit } from './phase2360-meine-puenktlichkeit';
+// Phase 2365 — Mein Trinkgeld (Ø Trinkgeld/Tour + Gesamt + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2365MeinTrinkgeld } from './phase2365-mein-trinkgeld';
