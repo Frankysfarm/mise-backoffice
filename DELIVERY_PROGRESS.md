@@ -20558,3 +20558,44 @@ Frontend-Ingenieur-Agent (2026-07-18): Phase 2310 implementiert. Phasen 2306/230
 ---
 
 Backend-Architekt-Agent (2026-07-18): Phasen 2311–2315 implementiert. 1 neue Backend-API (fahrer-km-heute) + 3 neue Frontend-Komponenten erstellt und integriert. Merge-Konflikte mit parallel laufenden Agents sauber aufgelöst (beide Seiten behalten). Build ✓ exit code 0. Push erfolgt.
+
+---
+
+## Batch 2316–2320 — Fahrer-Tempo-Analyse-System (2026-07-18)
+
+### Phase 2316 — Backend API: Fahrer-Tempo-Analyse
+**Datei:** `app/api/delivery/admin/fahrer-tempo-analyse/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Ø km/h je Fahrer heute (distance_km / Fahrzeit); Alert wenn >60 km/h (Tempoverdacht) oder <5 km/h (Stau-Indikator); Ampel grün(5–50)/gelb(50–60)/rot(>60 od. <5); Trend vs. Vorwoche; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerTempoHeute[], team_avg_kmh, alert_count, generiert_am }`
+
+### Phase 2317 — Tempo-Analyse-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2317-tempo-analyse-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (orange); Team KPI-Grid (Team-Ø / Fahrer / Alerts); Fahrerliste nach km/h sortiert; Ampel; Alert-Banner; Dispatcher-Tipp; 15-Min-Polling
+**Integration:** `dispatch/client.tsx` L721 Import + L3764 JSX ✅
+
+### Phase 2318 — Mein Tempo (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2318-mein-tempo.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (orange); km/h groß + Farbcode; Fortschrittsbalken (0–80 km/h, Warnlinie bei 60); KPI-Grid (Touren / Fahrzeit / Δ Vorwoche / Team-Ø); Coaching-Tipp; isOnline-Guard; 15-Min-Polling
+**Integration:** `fahrer/app/client.tsx` L634 Import + L5842 JSX ✅
+
+### Phase 2319 — Storefront
+Übersprungen (Tempo-Daten irrelevant für Kunden) ✅
+
+### Phase 2320 — Tempo-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2320-tempo-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (orange); Team-Ø km/h; Alert-Banner wenn >60 oder <5 km/h; Fahrerliste kompakt mit Ampel + Alert-Icons; 15-Min-Polling
+**Integration:** `kitchen/client.tsx` L271 Import + L3337 JSX ✅
+
+### Nächste Phasen 2321–2325 (für nächsten Ingenieur) — Fahrer-Wartezeit-Analyse
+1. **Phase 2321 Backend:** GET /api/delivery/admin/fahrer-wartezeit — Ø Wartezeit je Fahrer heute (Zeit von Ankunft am Restaurant bis Abholung); Alert wenn Ø >10 Min; Trend vs. Vorwoche; Multi-Tenant; Supabase+Mock.
+2. **Phase 2322 Dispatch:** Wartezeit-Board — Fahrerliste nach Ø Wartezeit (Min) sortiert; Ampel grün(<5)/gelb(<10)/rot(≥10); Alert-Banner mit Empfehlung (z.B. "Küche informieren"); 15-Min-Polling; in dispatch/client.tsx nach Phase2317.
+3. **Phase 2323 Fahrer-App:** Meine Wartezeit — Ø Wartezeit heute + Trend + Vergleich Team-Ø; Coaching-Tipp bei langer Wartezeit; isOnline-Guard; 15-Min-Polling; in fahrer/app/client.tsx nach Phase2318.
+4. **Phase 2324 Storefront:** Kein Widget (Wartezeit-Daten irrelevant für Kunden) — überspringen.
+5. **Phase 2325 Kitchen:** Wartezeit-Ticker — Team-Ø Wartezeit; Alert >10 Min; Fahrerliste kompakt; 15-Min-Polling; in kitchen/client.tsx nach Phase2320.
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-18): Phasen 2316–2320 implementiert. 1 neue Backend-API (fahrer-tempo-analyse) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2319 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
