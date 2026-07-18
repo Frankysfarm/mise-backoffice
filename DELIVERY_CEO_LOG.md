@@ -10,6 +10,11 @@
 ### Build
 ✓ Compiled successfully — Exit Code 0 ✅
 
+### TypeScript-Prüfung
+`tsc --noEmit`: 30 Fehler gefunden — **alle in älteren Phasen (2098–2372), keine in Phasen 2446–2450**.
+Pre-existing: next.config hat `typescript: { ignoreBuildErrors: true }` → Build ignoriert TS-Fehler absichtlich.
+Neue Phasen 2446–2450: 0 TypeScript-Fehler ✅
+
 ### Integrationen geprüft
 | Phase | Modul | Komponente | Integration |
 |---|---|---|---|
