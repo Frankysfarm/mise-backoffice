@@ -19931,3 +19931,47 @@ Backend-Architekt-Agent (2026-07-17): Phasen 2216–2220 implementiert. Phase 22
 ---
 
 Backend-Architekt-Agent (2026-07-18): Phasen 2239–2243 implementiert. 1 neue Backend-API + 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+
+---
+
+## Batch 2244–2248 — Fahrer-Reaktionszeit-Analyse (2026-07-18)
+
+### Phase 2244 — Backend API: Fahrer-Reaktionszeit
+**Datei:** `app/api/delivery/admin/fahrer-reaktionszeit/route.ts` *(bereits vorhanden)*
+**GET:** `?location_id=<uuid>` — Ø Reaktionszeit je Fahrer (Auftragseingang bis Annahme); Trend vs. Vorwoche; Alert wenn >10 Min.; Ampel-Level; Multi-Tenant; Supabase+Mock
+**Response:** `{ fahrer, team_avg_min, alert_count, generiert_am }`
+
+### Phase 2245 — Reaktionszeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2245-reaktionszeit-board.tsx`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Team KPI-Grid (Team-Ø + Alert-Anzahl); Fahrerliste mit Ampel (🟢<3/🟡<6/🔴≥6 Min.); Trend-Pfeile; Alert-Banner; Dispatcher-Tipp für langsame Fahrer; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2240 ✅
+
+### Phase 2246 — Meine Reaktionszeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2246-meine-reaktionszeit.tsx`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Ø Reaktionszeit groß + Farbcode; Fortschrittsbalken; KPI-Grid (Trend / Δ Vorwoche / Team-Ø); Coaching-Tipp; isOnline-Guard; 1-Std-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2241 ✅
+
+### Phase 2247 — Reaktions-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2247-reaktions-siegel.tsx`
+**Props:** `locationId: string, className?: string`
+**UI:** Grüne Pill "Blitzschnelle Auftragsannahme" + Zap-Icon; nur wenn team_avg_min <1.5 Min.; Hydration-safe; 4-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2242 ✅
+
+### Phase 2248 — Reaktionszeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2248-reaktionszeit-ticker.tsx`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Team-Ø Reaktionszeit + Farbcode; Alert-Banner + Dispatcher-Hinweis wenn alert_count>0; Fahrerliste mit Alerts; useMemo; 15-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2243 ✅
+
+### Nächste Phasen 2249–2253 (für nächsten Ingenieur) — Fahrer-Pünktlichkeits-System
+1. **Phase 2249 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit — Pünktlichkeitsquote je Fahrer (geliefert bis ETA vs. zu spät) heute; Trend vs. Vorwoche; Alert wenn <85%; Multi-Tenant; Supabase+Mock.
+2. **Phase 2250 Dispatch:** Pünktlichkeits-Board — Fahrerliste nach Quote sortiert; Ampel grün(≥95%)/gelb(≥85%)/rot(<85%); Alert-Banner; Podium Top-3; 30-Min-Polling; in dispatch/client.tsx nach Phase2245.
+3. **Phase 2251 Fahrer-App:** Meine Pünktlichkeit — Eigene Quote + Trend; Vergleich Team-Ø; Coaching-Tipp; isOnline-Guard; 1-Std-Polling; in fahrer/app/client.tsx nach Phase2246.
+4. **Phase 2252 Storefront:** Pünktlichkeits-Siegel — "X% pünktliche Lieferungen"; nur wenn ≥95%; Hydration-safe; 4-Std-Polling; in storefront.tsx nach Phase2247.
+5. **Phase 2253 Kitchen:** Pünktlichkeits-Ticker — Team-Ø Quote; Alert <85%; Dispatcher-Hinweis; useMemo; 15-Min-Polling; in kitchen/client.tsx nach Phase2248.
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-18): Phasen 2245–2248 implementiert. Backend-API Phase 2244 war bereits vorhanden. 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully. Push erfolgt.
