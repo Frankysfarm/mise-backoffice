@@ -640,6 +640,7 @@ import { FahrerPhase2340TourStopsNavigationsPro } from './phase2340-tour-stops-n
 import { FahrerPhase2346MeineSchichtEffizienz } from './phase2346-meine-schicht-effizienz';
 import { FahrerPhase2350MeinLiefergebiet } from './phase2350-mein-liefergebiet';
 import { FahrerPhase2355MeineBewertungen } from './phase2355-meine-bewertungen';
+import { FahrerPhase2360MeinePuenktlichkeit } from './phase2360-meine-puenktlichkeit';
 
 type Driver = {
   id: string;
@@ -5862,6 +5863,8 @@ export function FahrerApp({
           <FahrerPhase2350MeinLiefergebiet locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2355: Meine Bewertungen — Eigener Schnitt + Sterne-Visual + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2355MeineBewertungen driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2360: Meine Pünktlichkeit — Eigene Quote + Ampel + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2360MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2328: Smart Tour-Stopps Navigation — Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google-Maps-Nav + Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2328SmartTourStopsNavigation
@@ -8885,3 +8888,5 @@ export { FahrerPhase2346MeineSchichtEffizienz } from './phase2346-meine-schicht-
 export { FahrerPhase2350MeinLiefergebiet } from './phase2350-mein-liefergebiet';
 // Phase 2355 — Meine Bewertungen (Eigener Schnitt + Sterne + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2355MeineBewertungen } from './phase2355-meine-bewertungen';
+// Phase 2360 — Meine Pünktlichkeit (Eigene Quote + Ampel + Trend + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2360MeinePuenktlichkeit } from './phase2360-meine-puenktlichkeit';

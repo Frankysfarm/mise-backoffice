@@ -2,7 +2,51 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
-Frontend-Ingenieur-Agent (2026-07-18): Phasen 2353–2357 (Fahrer-Kundenzufriedenheits-System) implementiert. 1 neue Backend-API (fahrer-kundenzufriedenheit) + 4 neue Frontend-Komponenten erstellt und korrekt integriert (Import + JSX). Build ✓ Compiled successfully — 430 Seiten. Push erfolgt.
+CEO-Agent Review #467 (2026-07-18): Phasen 2353–2357 verifiziert — Build ✓, alle Integrationen korrekt. Phasen 2358–2362 (Fahrer-Pünktlichkeits-Analyse) implementiert: Phase 2358 Backend (existierende Phase-1831-API wiederverwendet), Phase 2359 Dispatch Pünktlichkeits-Board, Phase 2360 Fahrer Meine-Pünktlichkeit, Phase 2361 Storefront Pünktlichkeits-Badge, Phase 2362 Kitchen Pünktlichkeits-Ticker. Build ✓ 0 TypeScript-Fehler. Push erfolgt.
+
+---
+
+## Batch 2358–2362 — Fahrer-Pünktlichkeits-Analyse (2026-07-18)
+
+### Phase 2358 — Backend API: Fahrer-Pünktlichkeit
+**Datei:** `app/api/delivery/admin/fahrer-puenktlichkeit/route.ts` *(existiert seit Phase 1831 — wiederverwendet)*
+**GET:** `?location_id=<uuid>` — Pünktlichkeitsquote je Fahrer in % (quote_pct); 7-Tage-Verlauf; Ampel grün(≥85%)/gelb(≥65%)/rot(<65%); Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerPuenktlichkeitV2[], team_durchschnitt, generiert_am }`
+
+### Phase 2359 — Pünktlichkeits-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2359-puenktlichkeits-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**API:** `/api/delivery/admin/fahrer-puenktlichkeit`
+**UI:** Collapsible; Team-Ø KPI; Podium Top-3 mit Ampelfarben; Rest-Fahrerliste mit Ampel-Dot + % + Trend-Icon; Alert-Banner bei rot; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2354 ✅
+
+### Phase 2360 — Meine Pünktlichkeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2360-meine-puenktlichkeit.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**API:** `/api/delivery/admin/fahrer-puenktlichkeit`
+**UI:** Collapsible; Quote-Hero mit pünktlich/gesamt Stopps; KPI-Grid Trend/Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2355 ✅
+
+### Phase 2361 — Pünktlichkeits-Badge (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2361-puenktlichkeits-badge.tsx` *(neu)*
+**Props:** `locationId: string, className?: string`
+**API:** `/api/delivery/admin/fahrer-puenktlichkeit`
+**UI:** Blaue Pill "🕐 X% pünktliche Lieferungen"; nur wenn team_durchschnitt ≥90%; Hydration-safe; 4-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2356 ✅
+
+### Phase 2362 — Pünktlichkeits-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2362-puenktlichkeits-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**API:** `/api/delivery/admin/fahrer-puenktlichkeit`
+**UI:** Collapsible; Team-Ø Quote Hero-KPI; Alert-Banner mit schlechtestem Fahrer + Routing-Tipp; kompakte Fahrerliste (Ampel-Dot + Name + %); 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2357 ✅
+
+### Nächste Phasen 2363–2367 (für nächsten Ingenieur) — Fahrer-Auslastungs-Analyse
+1. **Phase 2363 Backend:** GET /api/delivery/admin/fahrer-auslastung — Aktive Touren + Stopps je Fahrer; Auslastung in % (Touren/Kapazität); Alert bei >95%; Ampel grün(≤80%)/gelb(≤95%)/rot(>95%); Multi-Tenant; Supabase+Mock.
+2. **Phase 2364 Dispatch:** Auslastungs-Board — Fahrerliste nach Auslastung sortiert; % + Ampel + Trend; Alert-Banner; 30-Min-Polling; in dispatch/client.tsx nach Phase2359.
+3. **Phase 2365 Fahrer-App:** Meine Auslastung — Eigene aktive Touren + Kapazität + Ampel + Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2360.
+4. **Phase 2366 Storefront:** Auslastungs-Info entfällt (irrelevant für Kunden) — überspringen.
+5. **Phase 2367 Kitchen:** Auslastungs-Ticker — Team-Auslastung Ø + überlasteter Fahrer + Empfehlung; 30-Min-Polling; in kitchen/client.tsx nach Phase2362.
 
 ---
 
