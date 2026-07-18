@@ -717,6 +717,7 @@ import { DispatchPhase2297SchichtBilanzBoard } from './phase2297-schicht-bilanz-
 import { DispatchPhase2300TourScoreUltimate } from './phase2300-tour-score-ultimate';
 import { DispatchPhase2302PausenMonitoringBoard } from './phase2302-pausen-monitoring-board';
 import { DispatchPhase2308DistanzBoard } from './phase2308-distanz-board';
+import { DispatchPhase2312KmBoard } from './phase2312-km-board';
 
 type Driver = {
   employee_id: string;
@@ -3757,6 +3758,8 @@ export function DispatchBoard({
           <DispatchPhase2302PausenMonitoringBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2308: Distanz-Board — Km je Fahrer heute; Ø km/Tour; Trend vs. Vorwoche; Alert <10 km/h oder >500 km/Tag; 30-Min-Polling */}
           <DispatchPhase2308DistanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2312: KM-Board — Fahrerliste nach km/Tag sortiert; Alert >150 km; Trend-Pfeile; Kosten-Schätzung; 30-Min-Polling */}
+          <DispatchPhase2312KmBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -11325,3 +11328,6 @@ export { DispatchPhase2300TourScoreUltimate } from './phase2300-tour-score-ultim
 export { DispatchPhase2302PausenMonitoringBoard } from './phase2302-pausen-monitoring-board';
 // Phase 2308 — Distanz-Board (km je Fahrer, Ø km/Tour, Trend vs. Vorwoche, Alert-Banner, Podium)
 export { DispatchPhase2308DistanzBoard } from './phase2308-distanz-board';
+
+// Phase 2312 — KM-Board (Fahrer-Kilometerstand heute, Alert >150 km, Kosten-Schätzung, Trend)
+export { DispatchPhase2312KmBoard } from './phase2312-km-board';
