@@ -725,6 +725,7 @@ import { DispatchPhase2331StornoAnalyseBoard } from './phase2331-storno-analyse-
 import { DispatchPhase2335QualitaetsBoard } from './phase2335-qualitaets-board';
 import { DispatchPhase2340TourScoreVisualisierungUltimate } from './phase2340-tour-score-visualisierung-ultimate';
 import { DispatchPhase2345EffizienzBoard } from './phase2345-effizienz-board';
+import { DispatchPhase2349LiefergebietHeatmap } from './phase2349-liefergebiet-heatmap';
 
 type Driver = {
   employee_id: string;
@@ -3781,6 +3782,8 @@ export function DispatchBoard({
           <DispatchPhase2340TourScoreVisualisierungUltimate locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2345: Effizienz-Board — Score-Liste nach Rang, Ampel, Trend-Pfeile, Alert <50; 30-Min-Polling */}
           <DispatchPhase2345EffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2349: Liefergebiet-Heatmap — Zonen A/B/C/D mit Auslastung + Ø Distanz; Alert bei Überlastung; Rebalancing-Empfehlung; 30-Min-Polling */}
+          <DispatchPhase2349LiefergebietHeatmap locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -11373,3 +11376,6 @@ export { DispatchPhase2340TourScoreVisualisierungUltimate } from './phase2340-to
 
 // Phase 2345 — Effizienz-Board (Score-Liste nach Rang, Ampel, Trend-Pfeile, Alert <50; 30-Min-Polling)
 export { DispatchPhase2345EffizienzBoard } from './phase2345-effizienz-board';
+
+// Phase 2349 — Liefergebiet-Heatmap (Zonen A/B/C/D, Auslastung, Ø Distanz, Rebalancing; 30-Min-Polling)
+export { DispatchPhase2349LiefergebietHeatmap } from './phase2349-liefergebiet-heatmap';

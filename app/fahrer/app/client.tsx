@@ -638,6 +638,7 @@ import { FahrerPhase2332MeineStornoRate } from './phase2332-meine-storno-rate';
 import { FahrerPhase2336MeinQualitaetsScore } from './phase2336-mein-qualitaets-score';
 import { FahrerPhase2340TourStopsNavigationsPro } from './phase2340-tour-stops-navigations-pro';
 import { FahrerPhase2346MeineSchichtEffizienz } from './phase2346-meine-schicht-effizienz';
+import { FahrerPhase2350MeinLiefergebiet } from './phase2350-mein-liefergebiet';
 
 type Driver = {
   id: string;
@@ -5856,6 +5857,8 @@ export function FahrerApp({
           <FahrerPhase2340TourStopsNavigationsPro driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2346: Meine Schicht-Effizienz — Score + Touren/h + Wartezeit + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2346MeineSchichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2350: Mein Liefergebiet — Eigene Zone + Auslastung + Ø Distanz + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2350MeinLiefergebiet locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2328: Smart Tour-Stopps Navigation — Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google-Maps-Nav + Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2328SmartTourStopsNavigation
@@ -8874,3 +8877,6 @@ export { FahrerPhase2340TourStopsNavigationsPro } from './phase2340-tour-stops-n
 
 // Phase 2346 — Meine Schicht-Effizienz (Score + Touren/h + Wartezeit + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2346MeineSchichtEffizienz } from './phase2346-meine-schicht-effizienz';
+
+// Phase 2350 — Mein Liefergebiet (Eigene Zone + Auslastung + Ø Distanz + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2350MeinLiefergebiet } from './phase2350-mein-liefergebiet';
