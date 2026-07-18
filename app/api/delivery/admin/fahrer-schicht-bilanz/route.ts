@@ -1,151 +1,210 @@
-/**
- * GET /api/delivery/admin/fahrer-schicht-bilanz?location_id=<uuid>
- *
- * Phase 1567 — Fahrer-Schicht-Bilanz-API
- * Aktuelle Schichtbilanz aller Fahrer: Einnahmen + Stopps + Bewertungs-Ø + Km + Status.
- * Supabase + Mock-Fallback. Multi-Tenant: jede Query filtert location_id.
- */
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { NextResponse } from 'next/server';
+import { createServiceClient } from '@/lib/supabase/server';
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export interface FahrerBilanzEintrag {
+type Ampel = 'gruen' | 'rot';
+
+function calcAmpel(einnahmen: number, bewertung: number, touren: number): Ampel {
+  if (einnahmen >= 80 && bewertung >= 4.0 && touren >= 5) return 'gruen';
+  return 'rot';
+}
+
+export interface FahrerSchichtBilanz {
   fahrer_id: string;
   fahrer_name: string;
-  status: 'aktiv' | 'pause' | 'offline';
-  einnahmen_eur: number;
-  stopps_heute: number;
-  bewertung_avg: number | null;
-  km_heute: number;
-  schicht_start: string | null;
+  touren: number;
+  touren_vw: number;
+  gesamt_km: number;
+  gesamt_km_vw: number;
+  einnahmen: number;
+  einnahmen_vw: number;
+  bewertung: number;
+  bewertung_vw: number;
+  schichtdauer_h: number;
+  schichtdauer_h_vw: number;
+  trend_einnahmen: 'steigend' | 'fallend' | 'stabil';
+  trend_delta_einnahmen: number;
+  ampel: Ampel;
+  alert_schicht: boolean;
 }
 
 export interface FahrerSchichtBilanzResponse {
-  fahrer: FahrerBilanzEintrag[];
-  gesamt_einnahmen_eur: number;
-  gesamt_stopps: number;
-  aktive_fahrer: number;
-  location_id: string;
+  fahrer: FahrerSchichtBilanz[];
+  team_touren: number;
+  team_einnahmen: number;
+  alert_count: number;
   generiert_am: string;
 }
 
-function buildMock(locationId: string): FahrerSchichtBilanzResponse {
-  const now = new Date().toISOString();
-  const fahrer: FahrerBilanzEintrag[] = [
-    {
-      fahrer_id: 'mock-1',
-      fahrer_name: 'Max Müller',
-      status: 'aktiv',
-      einnahmen_eur: 87.5,
-      stopps_heute: 14,
-      bewertung_avg: 4.7,
-      km_heute: 42,
-      schicht_start: new Date(Date.now() - 5 * 3600_000).toISOString(),
-    },
-    {
-      fahrer_id: 'mock-2',
-      fahrer_name: 'Sara Klein',
-      status: 'aktiv',
-      einnahmen_eur: 62.0,
-      stopps_heute: 10,
-      bewertung_avg: 4.3,
-      km_heute: 31,
-      schicht_start: new Date(Date.now() - 4 * 3600_000).toISOString(),
-    },
-    {
-      fahrer_id: 'mock-3',
-      fahrer_name: 'Tom Bauer',
-      status: 'pause',
-      einnahmen_eur: 45.0,
-      stopps_heute: 7,
-      bewertung_avg: 4.0,
-      km_heute: 22,
-      schicht_start: new Date(Date.now() - 6 * 3600_000).toISOString(),
-    },
+function buildMock(locationId: string, driverId?: string) {
+  const drivers = [
+    { id: 'd1', name: 'Max M.', touren: 9, km: 54, einnahmen: 135, bew: 4.7, dauer: 7.5, touren_vw: 8, km_vw: 48, einnahmen_vw: 120, bew_vw: 4.5, dauer_vw: 7.0 },
+    { id: 'd2', name: 'Sara K.', touren: 7, km: 42, einnahmen: 98, bew: 4.2, dauer: 8.0, touren_vw: 7, km_vw: 40, einnahmen_vw: 95, bew_vw: 4.1, dauer_vw: 7.5 },
+    { id: 'd3', name: 'Tim B.', touren: 3, km: 22, einnahmen: 45, bew: 3.5, dauer: 10.5, touren_vw: 5, km_vw: 30, einnahmen_vw: 70, bew_vw: 3.8, dauer_vw: 9.0 },
+    { id: 'd4', name: 'Julia F.', touren: 8, km: 40, einnahmen: 112, bew: 4.9, dauer: 6.5, touren_vw: 7, km_vw: 38, einnahmen_vw: 105, bew_vw: 4.8, dauer_vw: 6.0 },
   ];
-  return {
-    fahrer,
-    gesamt_einnahmen_eur: fahrer.reduce((s, f) => s + f.einnahmen_eur, 0),
-    gesamt_stopps: fahrer.reduce((s, f) => s + f.stopps_heute, 0),
-    aktive_fahrer: fahrer.filter((f) => f.status === 'aktiv').length,
-    location_id: locationId,
-    generiert_am: now,
-  };
-}
 
-export async function GET(req: NextRequest) {
-  const locationId = req.nextUrl.searchParams.get('location_id');
-  if (!locationId) {
-    return NextResponse.json({ error: 'location_id required' }, { status: 400 });
+  const fahrer: FahrerSchichtBilanz[] = drivers.map(d => ({
+    fahrer_id: d.id,
+    fahrer_name: d.name,
+    touren: d.touren,
+    touren_vw: d.touren_vw,
+    gesamt_km: d.km,
+    gesamt_km_vw: d.km_vw,
+    einnahmen: d.einnahmen,
+    einnahmen_vw: d.einnahmen_vw,
+    bewertung: d.bew,
+    bewertung_vw: d.bew_vw,
+    schichtdauer_h: d.dauer,
+    schichtdauer_h_vw: d.dauer_vw,
+    trend_einnahmen: d.einnahmen > d.einnahmen_vw ? 'steigend' : d.einnahmen < d.einnahmen_vw ? 'fallend' : 'stabil',
+    trend_delta_einnahmen: Math.round((d.einnahmen - d.einnahmen_vw) * 10) / 10,
+    ampel: calcAmpel(d.einnahmen, d.bew, d.touren),
+    alert_schicht: d.dauer > 10,
+  })).sort((a, b) => b.einnahmen - a.einnahmen);
+
+  const team_touren = fahrer.reduce((s, f) => s + f.touren, 0);
+  const team_einnahmen = Math.round(fahrer.reduce((s, f) => s + f.einnahmen, 0) * 10) / 10;
+  const alert_count = fahrer.filter(f => f.alert_schicht).length;
+
+  if (driverId) {
+    const f = fahrer.find(d => d.fahrer_id === driverId) ?? fahrer[0];
+    return { fahrer_single: f, team_touren, team_einnahmen };
   }
 
+  return { fahrer, team_touren, team_einnahmen, alert_count, generiert_am: new Date().toISOString() };
+}
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const locationId = searchParams.get('location_id');
+  const driverId = searchParams.get('driver_id') ?? undefined;
+
+  if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
+
   try {
-    const sb = await createClient();
+    const supabase = createServiceClient();
     const today = new Date().toISOString().slice(0, 10);
+    const lastWeek = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString().slice(0, 10);
 
-    const { data: drivers, error: dErr } = await (sb as any)
-      .from('mise_drivers')
-      .select('id, name, is_online, status')
-      .eq('location_id', locationId);
+    const { data: drivers } = await supabase
+      .from('drivers')
+      .select('id, name')
+      .eq('location_id', locationId)
+      .eq('is_active', true);
 
-    if (dErr || !drivers || (drivers as unknown[]).length === 0) {
-      return NextResponse.json(buildMock(locationId));
+    if (!drivers?.length) return NextResponse.json(buildMock(locationId, driverId));
+
+    async function getTouren(dId: string, date: string): Promise<number> {
+      const { count } = await supabase
+        .from('delivery_tours')
+        .select('id', { count: 'exact', head: true })
+        .eq('driver_id', dId)
+        .gte('created_at', date + 'T00:00:00')
+        .lte('created_at', date + 'T23:59:59')
+        .in('status', ['completed', 'delivered']);
+      return count ?? 0;
     }
 
-    const { data: batches } = await (sb as any)
-      .from('mise_delivery_batches')
-      .select('driver_id, total_earnings, km_total, completed_at, created_at')
-      .eq('location_id', locationId)
-      .gte('created_at', `${today}T00:00:00`)
-      .eq('status', 'delivered');
+    async function getGesamtKm(dId: string, date: string): Promise<number> {
+      const { data } = await supabase
+        .from('delivery_tours')
+        .select('distance_km')
+        .eq('driver_id', dId)
+        .gte('created_at', date + 'T00:00:00')
+        .lte('created_at', date + 'T23:59:59')
+        .not('distance_km', 'is', null);
+      return data?.reduce((s, r) => s + (r.distance_km ?? 0), 0) ?? 0;
+    }
 
-    const { data: ratings } = await (sb as any)
-      .from('delivery_ratings')
-      .select('driver_id, rating')
-      .eq('location_id', locationId)
-      .gte('created_at', `${today}T00:00:00`);
+    async function getEinnahmen(dId: string, date: string): Promise<number> {
+      const { data } = await supabase
+        .from('delivery_tours')
+        .select('earnings')
+        .eq('driver_id', dId)
+        .gte('created_at', date + 'T00:00:00')
+        .lte('created_at', date + 'T23:59:59')
+        .not('earnings', 'is', null);
+      return data?.reduce((s, r) => s + (r.earnings ?? 0), 0) ?? 0;
+    }
 
-    type BatchRow = { driver_id: string; total_earnings: number; km_total: number; created_at: string };
-    type RatingRow = { driver_id: string; rating: number };
-    type DriverRow = { id: string; name: string; is_online: boolean; status: string };
+    async function getBewertung(dId: string, date: string): Promise<number> {
+      const { data } = await supabase
+        .from('delivery_tours')
+        .select('rating')
+        .eq('driver_id', dId)
+        .gte('created_at', date + 'T00:00:00')
+        .lte('created_at', date + 'T23:59:59')
+        .not('rating', 'is', null);
+      if (!data?.length) return 0;
+      return data.reduce((s, r) => s + (r.rating ?? 0), 0) / data.length;
+    }
 
-    const batchArr: BatchRow[] = Array.isArray(batches) ? batches : [];
-    const ratingArr: RatingRow[] = Array.isArray(ratings) ? ratings : [];
+    async function getSchichtdauer(dId: string, date: string): Promise<number> {
+      const { data } = await supabase
+        .from('driver_shifts')
+        .select('started_at, ended_at')
+        .eq('driver_id', dId)
+        .gte('started_at', date + 'T00:00:00')
+        .lte('started_at', date + 'T23:59:59')
+        .not('started_at', 'is', null);
+      if (!data?.length) return 0;
+      return data.reduce((s, r) => {
+        const end = r.ended_at ? new Date(r.ended_at) : new Date();
+        return s + (end.getTime() - new Date(r.started_at).getTime()) / 3600000;
+      }, 0);
+    }
 
-    const fahrerList: FahrerBilanzEintrag[] = (drivers as DriverRow[]).map((d) => {
-      const myBatches = batchArr.filter((b) => b.driver_id === d.id);
-      const myRatings = ratingArr.filter((r) => r.driver_id === d.id);
-      const einnahmen = myBatches.reduce((s, b) => s + (b.total_earnings ?? 0), 0);
-      const km = myBatches.reduce((s, b) => s + (b.km_total ?? 0), 0);
-      const avgRating =
-        myRatings.length > 0
-          ? Math.round((myRatings.reduce((s, r) => s + r.rating, 0) / myRatings.length) * 10) / 10
-          : null;
-      const schichtStart = myBatches.length > 0 ? myBatches[0].created_at : null;
+    const fahrerData = await Promise.all(
+      drivers.map(async d => {
+        const [touren, touren_vw, km, km_vw, einnahmen, einnahmen_vw, bew, bew_vw, dauer, dauer_vw] =
+          await Promise.all([
+            getTouren(d.id, today),
+            getTouren(d.id, lastWeek),
+            getGesamtKm(d.id, today),
+            getGesamtKm(d.id, lastWeek),
+            getEinnahmen(d.id, today),
+            getEinnahmen(d.id, lastWeek),
+            getBewertung(d.id, today),
+            getBewertung(d.id, lastWeek),
+            getSchichtdauer(d.id, today),
+            getSchichtdauer(d.id, lastWeek),
+          ]);
 
-      return {
-        fahrer_id: d.id,
-        fahrer_name: d.name,
-        status: d.is_online ? 'aktiv' : d.status === 'pause' ? 'pause' : 'offline',
-        einnahmen_eur: Math.round(einnahmen * 100) / 100,
-        stopps_heute: myBatches.length,
-        bewertung_avg: avgRating,
-        km_heute: Math.round(km),
-        schicht_start: schichtStart,
-      };
-    });
+        return {
+          fahrer_id: d.id,
+          fahrer_name: d.name ?? 'Fahrer',
+          touren,
+          touren_vw,
+          gesamt_km: Math.round(km * 10) / 10,
+          gesamt_km_vw: Math.round(km_vw * 10) / 10,
+          einnahmen: Math.round(einnahmen * 10) / 10,
+          einnahmen_vw: Math.round(einnahmen_vw * 10) / 10,
+          bewertung: Math.round(bew * 10) / 10,
+          bewertung_vw: Math.round(bew_vw * 10) / 10,
+          schichtdauer_h: Math.round(dauer * 10) / 10,
+          schichtdauer_h_vw: Math.round(dauer_vw * 10) / 10,
+          trend_einnahmen: einnahmen > einnahmen_vw ? 'steigend' : einnahmen < einnahmen_vw ? 'fallend' : 'stabil',
+          trend_delta_einnahmen: Math.round((einnahmen - einnahmen_vw) * 10) / 10,
+          ampel: calcAmpel(einnahmen, bew, touren),
+          alert_schicht: dauer > 10,
+        } satisfies FahrerSchichtBilanz;
+      })
+    );
 
-    return NextResponse.json({
-      fahrer: fahrerList,
-      gesamt_einnahmen_eur: Math.round(fahrerList.reduce((s, f) => s + f.einnahmen_eur, 0) * 100) / 100,
-      gesamt_stopps: fahrerList.reduce((s, f) => s + f.stopps_heute, 0),
-      aktive_fahrer: fahrerList.filter((f) => f.status === 'aktiv').length,
-      location_id: locationId,
-      generiert_am: new Date().toISOString(),
-    } satisfies FahrerSchichtBilanzResponse);
+    const sorted = fahrerData.sort((a, b) => b.einnahmen - a.einnahmen);
+    const team_touren = sorted.reduce((s, f) => s + f.touren, 0);
+    const team_einnahmen = Math.round(sorted.reduce((s, f) => s + f.einnahmen, 0) * 10) / 10;
+    const alert_count = sorted.filter(f => f.alert_schicht).length;
+
+    if (driverId) {
+      const f = sorted.find(d => d.fahrer_id === driverId) ?? sorted[0];
+      return NextResponse.json({ fahrer_single: f, team_touren, team_einnahmen });
+    }
+
+    return NextResponse.json({ fahrer: sorted, team_touren, team_einnahmen, alert_count, generiert_am: new Date().toISOString() });
   } catch {
-    return NextResponse.json(buildMock(locationId));
+    return NextResponse.json(buildMock(locationId, driverId));
   }
 }
