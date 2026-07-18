@@ -20941,3 +20941,44 @@ Backend-Architekt-Agent (2026-07-18): Phasen 2334–2338 implementiert. 1 neue B
 ---
 
 Frontend-Ingenieur-Agent (2026-07-18): Phasen 2363–2367 implementiert. 1 neue Backend-API (fahrer-trinkgeld) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2366 Storefront übersprungen. Build ✓ Compiled successfully (430 Seiten). Push erfolgt.
+
+---
+
+## Batch 2368–2372 — Fahrer-Lieferzeit-Benchmark-System (2026-07-18)
+
+### Phase 2368 — Backend API: Fahrer-Lieferzeit-Benchmark
+**Datei:** `app/api/delivery/admin/fahrer-lieferzeit-benchmark/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Ø Lieferzeit je Fahrer heute (confirmed_at → actual_delivery_at in Minuten); Vergleich mit Store-Ø und Benchmark-Ziel (30 Min); Ampel grün(<30)/gelb(30–45)/rot(>45 Min); Alert wenn Ø >45 Min; Trend vs. gleicher Wochentag letzte Woche; kürzeste Tour je Fahrer; Multi-Tenant; Supabase+Mock
+**Response:** `{ fahrer: FahrerLieferzeit[], team_avg_min, team_avg_min_vw, benchmark_min, alert_count, generiert_am }`
+
+### Phase 2369 — Lieferzeit-Benchmark-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2369-lieferzeit-benchmark-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (blau); KPI-Grid (Team-Ø heute / Vorwoche / Ziel 30 Min); Podium Top-3; Fahrerliste sortiert nach Ø Min; Ampel; Trend-Pfeile; Alert-Banner >45 Min; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` L731 Import + L3797 JSX + L11397 Export ✅
+
+### Phase 2370 — Meine Lieferzeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2370-meine-lieferzeit.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (blau); Ø Min groß + Farbcode; Fortschrittsbalken 0–60 Min mit Ziel-Linie bei 30 Min; KPI-Grid (Touren / Kürzeste / Trend / Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` L644 Import + L5872 JSX + L8898 Export ✅
+
+### Phase 2371 — Storefront
+Übersprungen (interne Metriken irrelevant für Kunden) ✅
+
+### Phase 2372 — Lieferzeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2372-lieferzeit-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (blau/rot je Alerts); Team-Ø Lieferzeit; Ziel-Referenz; Alert-Banner wenn >45 Min mit langsamsten Fahrer; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` L282 Import + L3370 JSX + L9956 Export ✅
+
+### Nächste Phasen 2373–2377 (für nächsten Ingenieur) — Fahrer-Auslastungs-Analyse
+1. **Phase 2373 Backend:** GET /api/delivery/admin/fahrer-auslastung — Auslastungs-Rate je Fahrer heute (aktive Fahrzeit / Schichtdauer in %); Alert wenn <40% oder >90%; Ampel grün(60–85%)/gelb(40–59% od. 86–90%)/rot(<40% od. >90%); Trend vs. Vorwoche; Multi-Tenant; Supabase+Mock.
+2. **Phase 2374 Dispatch:** Auslastungs-Board — Fahrerliste nach Rate sortiert; Ampel; Alert-Banner; Rebalancing-Empfehlung; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2369.
+3. **Phase 2375 Fahrer-App:** Meine Auslastung — Rate groß + Farbcode; Schichtdauer + Fahrzeit; Vergleich Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2370.
+4. **Phase 2376 Storefront:** Kein Widget (Auslastungs-Daten irrelevant für Kunden) — überspringen.
+5. **Phase 2377 Kitchen:** Auslastungs-Ticker — Team-Ø Auslastung; Alert <40% oder >90%; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2372.
+
+---
+
+Backend-Architekt-Agent (2026-07-18): Phasen 2368–2372 implementiert. 1 neue Backend-API (fahrer-lieferzeit-benchmark) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2371 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
