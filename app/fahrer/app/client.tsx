@@ -628,6 +628,7 @@ import { FahrerPhase2295TourStoppNavigationCockpit } from './phase2295-tour-stop
 import { FahrerPhase2298MeineSchichtBilanz } from './phase2298-meine-schicht-bilanz';
 import { FahrerPhase2200SmartStoppNaviCockpit } from './phase2200-smart-stopp-navi-cockpit';
 import { FahrerPhase2300SmartTourNavPro } from './phase2300-smart-tour-nav-pro';
+import { FahrerPhase2303MeinePausen } from './phase2303-meine-pausen';
 
 type Driver = {
   id: string;
@@ -5828,6 +5829,8 @@ export function FahrerApp({
           <FahrerPhase2293MeinDurchsatz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2298: Meine Schicht-Bilanz — Schichtdauer+Touren+km+Kosten, Fortschrittsbalken, Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2298MeineSchichtBilanz driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
+          {/* Phase 2303: Meine Pausen — Letzte Pause + Anzahl Pausen; Pflichtpausen-Erinnerung; isOnline-Guard; 15-Min-Polling */}
+          <FahrerPhase2303MeinePausen driverId={driver.id} locationId={driver.location_id} isOnline={isOnline} />
           {/* Phase 2285: Smart Tour Stop Navigator Ultra — expandierbare Stopp-Karten, Status-Farbkodierung, Navigations-Link, Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2285SmartTourStopNavigatorUltra
@@ -8799,3 +8802,6 @@ export { FahrerPhase2295TourStoppNavigationCockpit } from './phase2295-tour-stop
 
 // Phase 2300 — Smart Tour Navigation Pro (Tour-Stops + Navi + ETA + Bestätigung)
 export { FahrerPhase2300SmartTourNavPro } from './phase2300-smart-tour-nav-pro';
+
+// Phase 2303 — Meine Pausen (Letzte Pause + Anzahl + Pflichtpausen-Erinnerung; isOnline-Guard)
+export { FahrerPhase2303MeinePausen } from './phase2303-meine-pausen';
