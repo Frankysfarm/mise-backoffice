@@ -1,5 +1,62 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #471 — 2026-07-18
+
+### Geprüfte Commits
+- `999a8e4f` (docs: Phasen 2383–2392 dokumentiert)
+- `87428fc6` (feat/backend: Phasen 2383–2387 — Fahrer-Abbruchquoten-System)
+- `8054f980` (feat/frontend: Phasen 2388–2392 — Fahrer-Kilometerstand-Analyse)
+- `e26df3b6` (docs: Phasen 2388–2392 dokumentiert)
+
+### Build-Verifikation
+✓ `npx next build` — Compiled successfully, 430 Seiten, TypeScript 0 Fehler ✅
+
+### Code-Prüfung
+| Phase | Datei | Status |
+|---|---|---|
+| 2383 | `app/api/delivery/admin/fahrer-abbruchquote/route.ts` | ✅ API korrekt — Ampel grün(<5%)/gelb(5–10%)/rot(>10%), Trend, Mock, Multi-Tenant, driver_id-Modus |
+| 2384 | `dispatch/phase2384-abbruchquoten-board.tsx` | ✅ Fahrerliste nach Quote sortiert, Ampel, Alert-Banner, Trend-Pfeile |
+| 2385 | `fahrer/app/phase2385-meine-abbruchquote.tsx` | ✅ Quote-Hero, KPI-Grid, Coaching-Tipp, isOnline-Guard |
+| 2386 | Storefront | ✅ Korrekt übersprungen (Abbruchquoten irrelevant für Kunden) |
+| 2387 | `kitchen/phase2387-abbruchquoten-ticker.tsx` | ✅ Team-Ø Quote, Alert-Banner >10%, kompakte Fahrerliste |
+| 2388 | `app/api/delivery/admin/fahrer-kilometerstand/route.ts` | ✅ Gesamt-km, avg km/Tour, Alert >120km, Trend, Kosten-Schätzung (0,30€/km) |
+| 2389 | `dispatch/phase2389-kilometer-board.tsx` | ✅ Fetcht korrekt von /fahrer-kilometer, Medals 🥇🥈🥉, KPI-Grid, Farbampel |
+| 2390 | `fahrer/app/phase2390-meine-kilometer.tsx` | ✅ km-Hero, isOnline-Guard, driver_id-Modus, Coaching-Tipp |
+| 2391 | Storefront | ✅ Korrekt übersprungen (interne Fahrermetriken) |
+| 2392 | `kitchen/phase2392-kilometer-ticker.tsx` | ✅ Team-Gesamt-km, Alert-Banner, kompakte Fahrerliste |
+
+### API-Routen-Prüfung
+- `app/api/delivery/admin/fahrer-kilometer/route.ts` ✅ — Interface FahrerKilometer passt zu Komponenten-Props
+- `app/api/delivery/admin/fahrer-kilometerstand/route.ts` ✅ — Separater endpoint für Kilometerstand-Detailansicht
+- Alle fetch()-Aufrufe zeigen auf existierende Routen ✅
+
+### Integrationen
+| Modul | Import | JSX | Export |
+|---|---|---|---|
+| dispatch/client.tsx | L735 Phase2384 ✅, L736 Phase2389 ✅ | L3809 ✅, L3811 ✅ | L11422 ✅, L11424 ✅ |
+| fahrer/app/client.tsx | L649 Phase2385 ✅, L650 Phase2390 ✅ | L5884 ✅, L5886 ✅ | L8937 ✅, L8939 ✅ |
+| kitchen/client.tsx | L285 Phase2387 ✅, L286 Phase2392 ✅ | L3382 ✅, L3384 ✅ | L9980 ✅, L9982 ✅ |
+
+### Befunde
+Keine Fehler. Keine Fixes notwendig. Alle 10 Phasen (2383–2392) korrekt implementiert und integriert. API-Interfaces konsistent mit Komponenten-Props.
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ AbbruchquotenTicker (2387) + AbbruchquotenBoard (2384) synchron; KilometerTicker (2392) + KilometerBoard (2389) synchron |
+| Dispatch ↔ Driver | ✅ Phase2384 + Phase2385; Phase2389 + Phase2390 |
+| Driver ↔ Storefront | ✅ Korrekt — kein Storefront-Widget (interne Daten) |
+| Storefront ↔ Orders API | ✅ |
+
+### Nächste Phasen 2393–2397 (Fahrer-Wartezeit-System)
+1. **Phase 2393 Backend:** GET /api/delivery/admin/fahrer-wartezeit — Ø Wartezeit je Fahrer heute (Zeit von Ankunft Restaurant bis Abholung); Alert wenn >10 min; Ampel grün(≤5min)/gelb(5–10min)/rot(>10min); Trend vs. Vorwoche; Multi-Tenant; Supabase+Mock.
+2. **Phase 2394 Dispatch:** Wartezeit-Board — Fahrerliste nach Ø Wartezeit sortiert; Ampel; Alert-Banner; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2389.
+3. **Phase 2395 Fahrer-App:** Meine Wartezeit — Ø Min groß + Farbcode; KPI-Grid (Wartezeiten / Touren / Trend / Team-Ø); Coaching-Tipp bei langen Wartezeiten; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2390.
+4. **Phase 2396 Storefront:** Kein Widget (Wartezeiten irrelevant für Kunden) — überspringen.
+5. **Phase 2397 Kitchen:** Wartezeit-Ticker — Team-Ø Wartezeit; Alert >10min; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2392.
+
+---
+
 ## CEO Review #470 — 2026-07-18
 
 ### Geprüfte Commits
