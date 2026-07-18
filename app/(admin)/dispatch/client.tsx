@@ -736,6 +736,7 @@ import { DispatchPhase2384AbbruchquotenBoard } from './phase2384-abbruchquoten-b
 import { DispatchPhase2389KilometerBoard } from './phase2389-kilometer-board';
 import { DispatchPhase2394PausenzeitBoard } from './phase2394-pausenzeit-board';
 import { DispatchPhase2399TourenAnzahlBoard } from './phase2399-touren-anzahl-board';
+import { DispatchPhase2404EffizienzScoreBoard } from './phase2404-effizienz-score-board';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 
 type Driver = {
@@ -3815,6 +3816,8 @@ export function DispatchBoard({
           <DispatchPhase2394PausenzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2399: Touren-Anzahl-Board — Fahrerliste nach Gesamt-Touren; Ampel grün(6–10)/gelb(4–6 od. 10–12)/rot(<4 od. >12); Alert-Banner; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2399TourenAnzahlBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2404: Effizienz-Score-Board — Fahrerliste nach Score (0–100); Podium Top-3; Ampel grün≥75/gelb50–74/rot<50; Alert; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2404EffizienzScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
           <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
@@ -11432,3 +11435,5 @@ export { DispatchPhase2389KilometerBoard } from './phase2389-kilometer-board';
 export { DispatchPhase2394PausenzeitBoard } from './phase2394-pausenzeit-board';
 // Phase 2399 — Touren-Anzahl-Board (Fahrerliste nach Gesamt-Touren; Ampel grün6–10/gelb4–6 od. 10–12/rot<4 od. >12; Alert-Banner; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2399TourenAnzahlBoard } from './phase2399-touren-anzahl-board';
+// Phase 2404 — Effizienz-Score-Board (Fahrerliste nach Score 0–100; Podium Top-3; Ampel grün≥75/gelb50–74/rot<50; Alert <50; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2404EffizienzScoreBoard } from './phase2404-effizienz-score-board';

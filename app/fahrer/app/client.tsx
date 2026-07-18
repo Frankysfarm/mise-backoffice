@@ -650,6 +650,7 @@ import { FahrerPhase2385MeineAbbruchquote } from './phase2385-meine-abbruchquote
 import { FahrerPhase2390MeineKilometer } from './phase2390-meine-kilometer';
 import { FahrerPhase2395MeinePausenzeit } from './phase2395-meine-pausenzeit';
 import { FahrerPhase2400MeineTourenAnzahl } from './phase2400-meine-touren-anzahl';
+import { FahrerPhase2405MeinEffizienzScore } from './phase2405-mein-effizienz-score';
 
 type Driver = {
   id: string;
@@ -5890,6 +5891,8 @@ export function FahrerApp({
           <FahrerPhase2395MeinePausenzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2400: Meine Touren-Anzahl — Touren groß + Farbcode; Balken 0–14; KPI-Grid (VW/Ziel/Trend/Team-Ø); Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2400MeineTourenAnzahl driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2405: Mein Effizienz-Score — Score 0–100 groß; Balken; 5-Faktoren-Aufschlüsselung; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2405MeinEffizienzScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2380TourStoppNavigatorUltra
@@ -8947,3 +8950,5 @@ export { FahrerPhase2390MeineKilometer } from './phase2390-meine-kilometer';
 export { FahrerPhase2395MeinePausenzeit } from './phase2395-meine-pausenzeit';
 // Phase 2400 — Meine Touren-Anzahl (Touren groß + Farbcode + Balken 0–14 + KPI-Grid VW/Ziel/Trend/Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2400MeineTourenAnzahl } from './phase2400-meine-touren-anzahl';
+// Phase 2405 — Mein Effizienz-Score (Score 0–100 groß + Balken + 5-Faktoren-Aufschlüsselung + KPI-Grid VW/Trend/Ziel/Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2405MeinEffizienzScore } from './phase2405-mein-effizienz-score';
