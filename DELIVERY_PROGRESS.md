@@ -2,6 +2,43 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-18): Phasen 2446–2450 implementiert. 1 neue Backend-API (fahrer-feiertagsschicht) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2449 Storefront übersprungen (interne Schichtdaten). Build-Umgebung: Turbopack-Workspace-Root-Fehler ist pre-existing (bestätigt via git stash). Push erfolgt.
+
+---
+
+## Batch 2446–2450 — Fahrer-Feiertagsschicht-System (2026-07-18)
+
+### Phase 2446 — Backend API: Fahrer-Feiertagsschicht
+**Datei:** `app/api/delivery/admin/fahrer-feiertagsschicht/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>&driver_id=<uuid>` — Feiertagsschichtstunden je Fahrer (gesetzliche Feiertage); Ampel grün(0h)/gelb(1–8h)/rot(>8h); Alert >8h; Trend vs. VW; driver_id-Modus; Supabase+Mock
+
+### Phase 2447 — Feiertagsschicht-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2447-feiertagsschicht-board.tsx` *(neu)*
+**UI:** KPI-Grid (Ø heute/VW/Ziel 0h); Fahrerliste nach Feiertagsschicht-h sortiert; Ampel; Alert-Banner >8h; Trend-Pfeile; Ampel-Balken; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2442 ✅
+
+### Phase 2448 — Meine Feiertagsschicht (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2448-meine-feiertagsschicht.tsx` *(neu)*
+**UI:** h-Wert groß + Farbcode; Balken 0–12h mit Ziel-Linie 8h; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2443 ✅
+
+### Phase 2449 — Storefront: Übersprungen
+Interne Feiertagsschichtdaten irrelevant für Kunden ✅
+
+### Phase 2450 — Feiertags-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2450-feiertags-ticker.tsx` *(neu)*
+**UI:** Team-Ø Feiertagsschicht-h; Alert >8h; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2445 ✅
+
+### Nächste Phasen 2451–2455 (für nächsten Ingenieur) — Fahrer-Schicht-Balance-Score
+1. **Phase 2451 Backend:** GET /api/delivery/admin/fahrer-schicht-balance — Balance-Score je Fahrer (Verhältnis reguläre / Sonder-Schichten); Ampel grün(≥80% regulär)/gelb(60–80%)/rot(<60%); Alert <60%; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2452 Dispatch:** Schicht-Balance-Board — KPI-Grid Team-Ø heute/VW/Ziel ≥80%; Fahrerliste nach Score sortiert; Ampel; Alert-Banner; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2447.
+3. **Phase 2453 Fahrer-App:** Mein Schicht-Balance-Score — % groß + Farbcode; Balken 0–100% mit Ziel-Linien 60%/80%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2448.
+4. **Phase 2454 Storefront:** Überspringen (interne Schichtdaten).
+5. **Phase 2455 Kitchen:** Schicht-Balance-Ticker — Team-Ø Score; Alert <60%; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2450.
+
+---
+
 Backend-Architekt-Agent (2026-07-18): Phasen 2441–2445 implementiert. 1 neue Backend-API (fahrer-wochenend-schicht) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2444 Storefront übersprungen (interne Schichtdaten). Build ✓ Compiled successfully. Push erfolgt.
 
 ---

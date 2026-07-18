@@ -296,6 +296,7 @@ import { KitchenPhase2430SmartTimingCountdownUltra } from './phase2430-smart-tim
 import { KitchenPhase2435UeberstundenTicker } from './phase2435-ueberstunden-ticker';
 import { KitchenPhase2440NachtschichtTicker } from './phase2440-nachtschicht-ticker';
 import { KitchenPhase2445WochenendTicker } from './phase2445-wochenend-ticker';
+import { KitchenPhase2450FeiertagsTicker } from './phase2450-feiertags-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3418,6 +3419,8 @@ export function KitchenBoard({
       <KitchenPhase2440NachtschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2445: Wochenend-Ticker — Team-Ø Wochenend-h; Alert >12h; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2445WochenendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2450: Feiertags-Ticker — Team-Ø Feiertagsschicht-h; Alert >8h; Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2450FeiertagsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
       <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
     </div>
@@ -10016,6 +10019,8 @@ export { KitchenPhase2435UeberstundenTicker } from './phase2435-ueberstunden-tic
 export { KitchenPhase2440NachtschichtTicker } from './phase2440-nachtschicht-ticker';
 // Phase 2445 — Wochenend-Ticker (Team-Ø Wochenend-h; Alert >12h; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling)
 export { KitchenPhase2445WochenendTicker } from './phase2445-wochenend-ticker';
+// Phase 2450 — Feiertags-Ticker (Team-Ø Feiertagsschicht-h; Alert >8h; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling)
+export { KitchenPhase2450FeiertagsTicker } from './phase2450-feiertags-ticker';
 // Phase 2377 — Auslastungs-Ticker (Team-Ø Auslastung; Alert <40% od. >90%; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2377AuslastungsTicker } from './phase2377-auslastungs-ticker';
 // Phase 2382 — Reaktionszeit-Ticker (Team-Ø Reaktionszeit; Alert >120s; Fahrerliste kompakt; 30-Min-Polling)
