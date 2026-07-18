@@ -272,6 +272,7 @@ import { KitchenPhase2320TempoTicker } from './phase2320-tempo-ticker';
 import { KitchenPhase2325WartezeitTicker } from './phase2325-wartezeit-ticker';
 import { KitchenPhase2330SmartKochzeitCountdownBoard } from './phase2330-smart-kochzeit-countdown-board';
 import { KitchenPhase2333StornoTicker } from './phase2333-storno-ticker';
+import { KitchenPhase2338QualitaetsTicker } from './phase2338-qualitaets-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3345,6 +3346,8 @@ export function KitchenBoard({
       <KitchenPhase2330SmartKochzeitCountdownBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2333: Storno-Ticker — Team-Ø Storno-Rate; Alert >15%; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2333StornoTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2338: Qualitäts-Ticker — Team-Ø Score; Alert <60; Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2338QualitaetsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -9913,3 +9916,6 @@ export { KitchenPhase2330SmartKochzeitCountdownBoard } from './phase2330-smart-k
 
 // Phase 2333 — Storno-Ticker (Team-Ø Storno-Rate; Alert >15%; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2333StornoTicker } from './phase2333-storno-ticker';
+
+// Phase 2338 — Qualitäts-Ticker (Team-Ø Score; Alert <60; Fahrerliste kompakt; 30-Min-Polling)
+export { KitchenPhase2338QualitaetsTicker } from './phase2338-qualitaets-ticker';
