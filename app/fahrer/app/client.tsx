@@ -643,6 +643,7 @@ import { FahrerPhase2355MeineBewertungen } from './phase2355-meine-bewertungen';
 import { FahrerPhase2360MeinePuenktlichkeit } from './phase2360-meine-puenktlichkeit';
 import { FahrerPhase2365MeinTrinkgeld } from './phase2365-mein-trinkgeld';
 import { FahrerPhase2370MeineLieferzeit } from './phase2370-meine-lieferzeit';
+import { FahrerPhase2375MeineAuslastung } from './phase2375-meine-auslastung';
 
 type Driver = {
   id: string;
@@ -5871,6 +5872,8 @@ export function FahrerApp({
           <FahrerPhase2365MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2370: Meine Lieferzeit — Ø Min + Fortschrittsbalken + KPI-Grid + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2370MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2375: Meine Auslastung — Rate groß + Farbcode + Schichtdauer + Fahrzeit + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2375MeineAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2328: Smart Tour-Stopps Navigation — Hero-Stopp + Fortschrittsbalken + expandierbare Stopp-Liste + Google-Maps-Nav + Anruf-Button */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2328SmartTourStopsNavigation
@@ -8900,3 +8903,5 @@ export { FahrerPhase2360MeinePuenktlichkeit } from './phase2360-meine-puenktlich
 export { FahrerPhase2365MeinTrinkgeld } from './phase2365-mein-trinkgeld';
 // Phase 2370 — Meine Lieferzeit (Ø Min + Fortschrittsbalken + KPI-Grid Touren/Kürzeste/Trend/Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2370MeineLieferzeit } from './phase2370-meine-lieferzeit';
+// Phase 2375 — Meine Auslastung (Rate groß + Farbcode + Schichtdauer/Fahrzeit + Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2375MeineAuslastung } from './phase2375-meine-auslastung';
