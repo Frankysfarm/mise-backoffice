@@ -248,6 +248,7 @@ import { KitchenPhase2210SchichtTrendMonitor } from './phase2210-schicht-trend-m
 import { KitchenPhase2215BestzeitTicker } from './phase2215-bestzeit-ticker';
 import { KitchenPhase2220AusfallrisikoTicker } from './phase2220-ausfallrisiko-ticker';
 import { KitchenPhase2225WartezeitMonitor } from './phase2225-wartezeit-monitor';
+import { KitchenPhase2230EnergieTicker } from './phase2230-energie-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3273,6 +3274,8 @@ export function KitchenBoard({
       <KitchenPhase2220AusfallrisikoTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2225: Wartezeit-Monitor — Fahrer >15 Min.; Alert-Banner; Dispatcher-Hinweis; useMemo; 10-Min-Polling */}
       <KitchenPhase2225WartezeitMonitor locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2230: Energie-Ticker — Warnung wenn Team-Energie niedrig; Pause-Empfehlung; useMemo; 15-Min-Polling */}
+      <KitchenPhase2230EnergieTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

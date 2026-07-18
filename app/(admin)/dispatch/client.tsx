@@ -698,6 +698,7 @@ import { DispatchPhase2207SchichtVergleichBoard } from './phase2207-schicht-verg
 import { DispatchPhase2212BestzeitenBoard } from './phase2212-bestzeiten-board';
 import { DispatchPhase2217AusfallrisikoBord } from './phase2217-ausfallrisiko-board';
 import { DispatchPhase2222WartezeitRankingBoard } from './phase2222-wartezeit-ranking-board';
+import { DispatchPhase2227EnergieBoard } from './phase2227-energie-board';
 
 type Driver = {
   employee_id: string;
@@ -3700,6 +3701,8 @@ export function DispatchBoard({
           <DispatchPhase2217AusfallrisikoBord locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2222: Wartezeit-Ranking-Board — Ampel grün/gelb/rot; Dispatcher-Tipp; Alert-Banner; 30-Min-Polling */}
           <DispatchPhase2222WartezeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2227: Energie-Board — Fahrerliste mit Energie-Ampel; Top-Performer Badge; Alert >2 Rot; 30-Min-Polling */}
+          <DispatchPhase2227EnergieBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
