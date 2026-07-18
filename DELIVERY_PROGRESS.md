@@ -21233,3 +21233,43 @@ Backend-Architekt-Agent (2026-07-18): Phasen 2383–2387 implementiert. 1 neue B
 ---
 
 Frontend-Ingenieur-Agent (2026-07-18): Phasen 2388–2392 implementiert. 1 neue Backend-API (fahrer-kilometer) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2391 Storefront übersprungen. Build ✓ Compiled successfully (1298 Seiten). Push erfolgt.
+
+---
+
+## Batch 2398–2402 — Fahrer-Touren-Anzahl-Analyse (2026-07-18)
+
+### Phase 2398 — Backend API: Fahrer-Touren-Anzahl
+**Datei:** `app/api/delivery/admin/fahrer-touren-anzahl/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>&driver_id=<uuid>` — Abgeschlossene Touren je Fahrer heute; Ziel 6–10 Touren/Schicht; Alert <4 (Unterauslastung) und >12 (Überbelastung); Ampel grün(6–10)/gelb(4–6 od. 10–12)/rot(<4 od. >12); Trend vs. gleicher Wochentag letzte Woche; driver_id-Modus für Fahrer-App; Multi-Tenant; Supabase+Mock
+
+### Phase 2399 — Touren-Anzahl-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2399-touren-anzahl-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (orange je Alerts); KPI-Grid (Ø heute / Vorwoche / Ziel 6–10); Fahrerliste nach Touren-Anzahl sortiert; Ampel; Trend-Pfeile; Alert-Banner Unterauslastung/Überbelastung; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2394 ✅
+
+### Phase 2400 — Meine Touren-Anzahl (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2400-meine-touren-anzahl.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Touren-Zahl groß + Farbcode; Fortschrittsbalken 0–14 mit Ziel-Linien bei 6 und 10; KPI-Grid (VW/Ziel/Trend/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2395 ✅
+
+### Phase 2401 — Storefront
+Übersprungen (Touren-Anzahl intern irrelevant für Kunden) ✅
+
+### Phase 2402 — Touren-Anzahl-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2402-touren-anzahl-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (orange je Alerts); Team-Ø Touren-Anzahl; Alert-Banner Unterauslastung (<4) und Überbelastung (>12); Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2397 ✅
+
+### Nächste Phasen 2403–2407 (für nächsten Ingenieur) — Fahrer-Wartezeit-Abholung
+1. **Phase 2403 Backend:** GET /api/delivery/admin/fahrer-wartezeit-abholung — Ø Wartezeit je Fahrer an der Abholung heute (Zeit zwischen Ankunft am Restaurant und Abholung der Bestellung in Min); Alert >10min (Küchenabstimmungsproblem); Ampel grün(<5min)/gelb(5–10min)/rot(>10min); Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2404 Dispatch:** Wartezeit-Abholungs-Board — Fahrerliste nach Ø Wartezeit; Ampel; Alert-Banner >10min mit Küchenempfehlung; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2399.
+3. **Phase 2405 Fahrer-App:** Meine Wartezeit Abholung — Ø Wartezeit groß + Farbcode; Balken 0–15min; KPI-Grid (Aufträge/Ø Restaurant/Trend/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase2400.
+4. **Phase 2406 Storefront:** Überspringen (Wartezeit-Abholung intern irrelevant für Kunden).
+5. **Phase 2407 Kitchen:** Wartezeit-Ticker — Team-Ø Wartezeit; Alert >10min mit Handlungsempfehlung für Küche; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2402.
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-18): Phasen 2398–2402 implementiert. 1 neue Backend-API (fahrer-touren-anzahl) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2401 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.

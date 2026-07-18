@@ -735,6 +735,7 @@ import { DispatchPhase2379ReaktionszeitBoard } from './phase2379-reaktionszeit-b
 import { DispatchPhase2384AbbruchquotenBoard } from './phase2384-abbruchquoten-board';
 import { DispatchPhase2389KilometerBoard } from './phase2389-kilometer-board';
 import { DispatchPhase2394PausenzeitBoard } from './phase2394-pausenzeit-board';
+import { DispatchPhase2399TourenAnzahlBoard } from './phase2399-touren-anzahl-board';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 
 type Driver = {
@@ -3812,6 +3813,8 @@ export function DispatchBoard({
           <DispatchPhase2389KilometerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2394: Pausenzeit-Board — Fahrerliste nach Ø Pause; Ampel grün(5–20Min)/gelb(20–30Min)/rot(>30Min od. <5Min); Alert-Banner; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2394PausenzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2399: Touren-Anzahl-Board — Fahrerliste nach Gesamt-Touren; Ampel grün(6–10)/gelb(4–6 od. 10–12)/rot(<4 od. >12); Alert-Banner; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2399TourenAnzahlBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
           <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
@@ -11427,3 +11430,5 @@ export { DispatchPhase2384AbbruchquotenBoard } from './phase2384-abbruchquoten-b
 export { DispatchPhase2389KilometerBoard } from './phase2389-kilometer-board';
 // Phase 2394 — Pausenzeit-Board (Fahrerliste nach Ø Pause; Ampel grün5–20Min/gelb20–30Min/rot>30Min od. <5Min; Alert-Banner; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2394PausenzeitBoard } from './phase2394-pausenzeit-board';
+// Phase 2399 — Touren-Anzahl-Board (Fahrerliste nach Gesamt-Touren; Ampel grün6–10/gelb4–6 od. 10–12/rot<4 od. >12; Alert-Banner; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2399TourenAnzahlBoard } from './phase2399-touren-anzahl-board';

@@ -285,6 +285,7 @@ import { KitchenPhase2382ReaktionszeitTicker } from './phase2382-reaktionszeit-t
 import { KitchenPhase2387AbbruchquotenTicker } from './phase2387-abbruchquoten-ticker';
 import { KitchenPhase2392KilometerTicker } from './phase2392-kilometer-ticker';
 import { KitchenPhase2397PausenzeitTicker } from './phase2397-pausenzeit-ticker';
+import { KitchenPhase2402TourenAnzahlTicker } from './phase2402-touren-anzahl-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3385,6 +3386,8 @@ export function KitchenBoard({
       <KitchenPhase2392KilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2397: Pausenzeit-Ticker — Team-Ø Pause; Alert bei Extremen (>30Min od. <5Min); Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2397PausenzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2402: Touren-Anzahl-Ticker — Team-Ø Touren; Alert <4 (Unterauslastung) od. >12 (Überbelastung); Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2402TourenAnzahlTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
       <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
     </div>
@@ -9985,3 +9988,5 @@ export { KitchenPhase2387AbbruchquotenTicker } from './phase2387-abbruchquoten-t
 export { KitchenPhase2392KilometerTicker } from './phase2392-kilometer-ticker';
 // Phase 2397 — Pausenzeit-Ticker (Team-Ø Pause; Alert bei Extremen >30Min od. <5Min; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2397PausenzeitTicker } from './phase2397-pausenzeit-ticker';
+// Phase 2402 — Touren-Anzahl-Ticker (Team-Ø Touren; Alert <4 Unterauslastung od. >12 Überbelastung; Fahrerliste kompakt; 30-Min-Polling)
+export { KitchenPhase2402TourenAnzahlTicker } from './phase2402-touren-anzahl-ticker';
