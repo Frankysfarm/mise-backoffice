@@ -11278,3 +11278,6 @@ export { SmartDeliveryTourBoard } from "./smart-delivery-tour-board";
 
 // Phase 2195 — Tour Gewinn-Effizienz Cockpit
 export { DispatchPhase2195TourGewinnEffizienzCockpit } from './phase2195-tour-gewinn-effizienz-cockpit';
+
+// Phase 2200 — Tour-Score Visualisierung Board
+export { DispatchPhase2200TourScoreVisualisierungBoard } from './phase2200-tour-score-visualisierung-board';

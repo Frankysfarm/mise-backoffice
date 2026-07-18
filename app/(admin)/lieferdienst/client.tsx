@@ -4554,3 +4554,6 @@ export { SmartDeliveryStatsPanel } from "./smart-delivery-stats-panel";
 
 // Phase 2200 — Schicht-End KPI Cockpit
 export { LieferdienstPhase2200SchichtEndKpiCockpit } from './phase2200-schicht-end-kpi-cockpit';
+
+// Phase 2205 — Statistiken-Dashboard Cockpit
+export { LieferdienstPhase2205StatistikDashboardCockpit } from './phase2205-statistiken-dashboard-cockpit';

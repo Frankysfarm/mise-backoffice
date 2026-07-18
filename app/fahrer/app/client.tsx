@@ -8715,3 +8715,6 @@ function PositioningSuggestionBanner() {
 
 // Smart Delivery System — Navigation Cockpit (neu)
 export { SmartDeliveryNavCockpit } from "./smart-delivery-nav-cockpit";
+
+// Phase 2280 — Smart Tour-Stops Navigation Hub
+export { FahrerPhase2280SmartTourStopsNavHub } from './phase2280-smart-tour-stops-nav-hub';

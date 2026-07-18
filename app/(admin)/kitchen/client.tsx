@@ -9836,3 +9836,6 @@ export { SmartDeliveryTimingWall } from './smart-delivery-timing-wall';
 
 // Phase 2195 — Echtzeit Prep-Effizienz Matrix
 export { KitchenPhase2195EchtzeitPrepEffizienzMatrix } from './phase2195-echtzeit-prep-effizienz-matrix';
+
+// Phase 2200 — Smart-Timing Countdown mit Farbkodierung
+export { KitchenPhase2200SmartTimingCountdownFarbkodierung } from './phase2200-smart-timing-countdown-farbkodierung';

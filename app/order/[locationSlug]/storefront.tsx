@@ -3662,3 +3662,6 @@ function LiveEtaBar({ locationId, baseEtaMin }: { locationId: string; baseEtaMin
     </div>
   );
 }
+
+// Phase 2065 — Dynamische ETA Live-Tracking
+export { StorefrontPhase2065DynamischeEtaLiveTracking } from './phase2065-dynamische-eta-live-tracking';
