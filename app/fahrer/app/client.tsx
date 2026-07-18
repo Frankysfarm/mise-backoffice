@@ -659,6 +659,7 @@ import { FahrerPhase2427MeineBewertung } from './phase2427-meine-bewertung';
 import { FahrerPhase2428TourStoppNavigatorUltra } from './phase2428-tour-stopp-navigator-ultra';
 import { FahrerPhase2433MeineUeberstunden } from './phase2433-meine-ueberstunden';
 import { FahrerPhase2438MeineNachtschicht } from './phase2438-meine-nachtschicht';
+import { FahrerPhase2443MeineWochenendSchicht } from './phase2443-meine-wochenend-schicht';
 
 type Driver = {
   id: string;
@@ -5917,6 +5918,8 @@ export function FahrerApp({
           <FahrerPhase2433MeineUeberstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2438: Meine Nachtschicht — h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2438MeineNachtschicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2443: Meine Wochenend-Schicht — h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2443MeineWochenendSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2380TourStoppNavigatorUltra
@@ -8992,3 +8995,5 @@ export { FahrerPhase2428TourStoppNavigatorUltra } from './phase2428-tour-stopp-n
 export { FahrerPhase2433MeineUeberstunden } from './phase2433-meine-ueberstunden';
 // Phase 2438 — Meine Nachtschicht (h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2438MeineNachtschicht } from './phase2438-meine-nachtschicht';
+// Phase 2443 — Meine Wochenend-Schicht (h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2443MeineWochenendSchicht } from './phase2443-meine-wochenend-schicht';
