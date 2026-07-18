@@ -9996,6 +9996,8 @@ export { KitchenPhase2362PuenktlichkeitsTicker } from './phase2362-puenktlichkei
 export { KitchenPhase2367TrinkgeldTicker } from './phase2367-trinkgeld-ticker';
 // Phase 2372 — Lieferzeit-Ticker (Team-Ø Lieferzeit + Alert >45 Min + Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2372LieferzeitTicker } from './phase2372-lieferzeit-ticker';
+// Phase 2430 — Smart-Timing Countdown Ultra (Farbkodierter Countdown grün/gelb/rot; Countdown-Ring pro Batch; On-Time-Quote; Fortschrittsbalken; KPI-Strip; 30-Sek-Polling)
+export { KitchenPhase2430SmartTimingCountdownUltra } from './phase2430-smart-timing-countdown-ultra';
 // Phase 2377 — Auslastungs-Ticker (Team-Ø Auslastung; Alert <40% od. >90%; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2377AuslastungsTicker } from './phase2377-auslastungs-ticker';
 // Phase 2382 — Reaktionszeit-Ticker (Team-Ø Reaktionszeit; Alert >120s; Fahrerliste kompakt; 30-Min-Polling)

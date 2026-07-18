@@ -11462,3 +11462,5 @@ export { DispatchPhase2419TrinkgeldQuoteBoard } from './phase2419-trinkgeld-quot
 export { DispatchPhase2424ScoreTourVisualisierungMaster } from './phase2424-score-tour-visualisierung-master';
 // Phase 2426 — Bewertungs-Board (KPI-Grid Team-Ø heute/VW/Ziel 4,5★; Podium Top-3; Fahrerliste nach Ø★; Alert <3,5★; Ampel; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2426BewertungsBoard } from './phase2426-bewertungs-board';
+// Phase 2427 — Tour-Score Board Ultra (Score-Ring je Fahrer; Stop-Dots; Tour-Fortschrittsbalken; ETA; Status-Ampel; Alert verzögert; 25-Sek-Polling)
+export { DispatchPhase2427TourScoreBoardUltra } from './phase2427-tour-score-board-ultra';

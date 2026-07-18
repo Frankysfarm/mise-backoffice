@@ -8977,3 +8977,5 @@ export { FahrerPhase2420MeineTrinkgeldQuote } from './phase2420-meine-trinkgeld-
 export { FahrerPhase2425TourStopsNaviHub } from './phase2425-tour-stops-navi-hub';
 // Phase 2427 — Meine Bewertung (Ø★ groß + Farbcode; Stern-Visualisierung; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2427MeineBewertung } from './phase2427-meine-bewertung';
+// Phase 2428 — Tour-Stopp Navigator Ultra (alle Stopps + Status-Ampel; Next-Stop Hero-Karte; Fortschrittsbalken; Navi-Button; Anruf-Button; Notiz-Anzeige; 20-Sek-Polling)
+export { FahrerPhase2428TourStoppNavigatorUltra } from './phase2428-tour-stopp-navigator-ultra';

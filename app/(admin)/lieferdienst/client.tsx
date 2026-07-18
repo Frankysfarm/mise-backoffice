@@ -4607,3 +4607,5 @@ export { LieferdienstPhase2315StatistikDashboardCockpit } from './phase2315-stat
 export { LieferdienstPhase2320StatistikDashboardUltimate } from './phase2320-statistiken-dashboard-ultimate';
 // Phase 2325 — Statistiken-Dashboard Pro-Ultimate (8 KPIs + Stundenverlauf-Chart + Alert-Strip Storno/Lieferzeit/Pünktlichkeit; 5-Min-Polling)
 export { LieferdienstPhase2325StatistikDashboardProUltimate } from './phase2325-statistiken-dashboard-pro-ultimate';
+// Phase 2326 — Statistiken Echtzeit Komplett (8 KPIs Raster; Ampel-Farbkodierung; Alert-Strip; Stunden-Chart mit Umschalten Umsatz/Bestellungen; 1-Min-Polling)
+export { LieferdienstPhase2326StatistikEchtzeitKomplett } from './phase2326-statistiken-echtzeit-komplett';
