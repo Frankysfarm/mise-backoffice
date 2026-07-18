@@ -261,6 +261,7 @@ import { KitchenPhase2273EffizienzTicker } from './phase2273-effizienz-ticker';
 import { KitchenPhase2278SmartTimingKochzeitMatrix } from './phase2278-smart-timing-kochzeit-matrix';
 import { KitchenPhase2281LieferfensterTicker } from './phase2281-lieferfenster-ticker';
 import { KitchenPhase2290SmartTimingKpiCockpit } from './phase2290-smart-timing-kpi-cockpit';
+import { KitchenPhase2295DurchsatzTicker } from './phase2295-durchsatz-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3312,6 +3313,8 @@ export function KitchenBoard({
       <KitchenPhase2278SmartTimingKochzeitMatrix locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2290: Smart Timing KPI Cockpit — Live-Countdown aktiver Bestellungen, KPI-Leiste (Ø Prep, On-Time, Alerts) */}
       <KitchenPhase2290SmartTimingKpiCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2295: Durchsatz-Ticker — Team-Ø B/h; Alert <2/h; Dispatcher-Hinweis; useMemo; 15-Min-Polling */}
+      <KitchenPhase2295DurchsatzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

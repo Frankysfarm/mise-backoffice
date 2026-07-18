@@ -20243,3 +20243,72 @@ CEO-Agent Review #456 (2026-07-18): Phasen 2249–2253 implementiert und verifiz
 ---
 
 Backend-Architekt-Agent (2026-07-18): Phasen 2254–2258 implementiert. 1 neue Backend-API (fahrer-kundenbewertung) + 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — 430 Seiten, TypeScript 0 Fehler. Push erfolgt.
+
+---
+
+## Batch 2259–2263 — Fahrer-Kilometerstand-System (2026-07-18) [BEREITS IMPLEMENTIERT]
+
+### Phase 2259 — Backend API: Fahrer-Kilometerstand
+**Datei:** `app/api/delivery/admin/fahrer-kilometerstand/route.ts` *(bereits vorhanden)*
+**GET:** `?location_id=<uuid>` — Gesamt-km je Fahrer heute; Ø km je Tour; Trend vs. Vorwoche; Alert wenn >120 km/Tag; Ampel grün(<80)/gelb(<120)/rot(≥120 km); Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer, team_gesamt_km, team_avg_km_tour, alert_count, generiert_am }`
+
+### Phase 2260 — km-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2260-km-ranking-board.tsx` *(bereits vorhanden)*
+**Integration:** `dispatch/client.tsx` nach Phase2255 ✅
+
+### Phase 2261 — Mein Kilometerstand (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2261-mein-kilometerstand.tsx` *(bereits vorhanden)*
+**Integration:** `fahrer/app/client.tsx` nach Phase2256 ✅
+
+### Phase 2262 — Effizienz-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2262-effizienz-siegel.tsx` *(bereits vorhanden)*
+**Integration:** `storefront.tsx` nach Phase2257 ✅
+
+### Phase 2263 — km-Monitor (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2263-km-monitor.tsx` *(bereits vorhanden)*
+**Integration:** `kitchen/client.tsx` nach Phase2258 ✅
+
+---
+
+## Batch 2291–2295 — Fahrer-Bestellungs-Durchsatz-System (2026-07-18)
+
+### Phase 2291 — Backend API: Fahrer-Durchsatz
+**Datei:** `app/api/delivery/admin/fahrer-durchsatz/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Bestellungen je Stunde (B/h) je Fahrer heute; Stunden aktiv; Trend vs. Vorwoche; Alert wenn <2 B/h; Ampel grün(≥4)/gelb(≥2)/rot(<2 B/h); Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerDurchsatz[], team_avg_bph, alert_count, generiert_am }`
+
+### Phase 2292 — Durchsatz-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2292-durchsatz-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Team KPI-Grid (Team-Ø B/h + Alert-Anzahl); Fahrerliste nach B/h sortiert; Ampel grün(≥4)/gelb(≥2)/rot(<2); Podium 🥇🥈🥉 Top-3; Trend-Pfeile; Alert-Banner; Dispatcher-Tipp; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2290 ✅
+
+### Phase 2293 — Mein Durchsatz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2293-mein-durchsatz.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; B/h groß + Farbcode; Fortschrittsbalken; KPI-Grid (Trend / Δ Vorwoche / Team-Ø); Coaching-Tipp; isOnline-Guard; 1-Std-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2276 ✅
+
+### Phase 2294 — Tempo-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2294-tempo-siegel.tsx` *(neu)*
+**Props:** `locationId: string, className?: string`
+**UI:** Grüne Pill "Blitzschnell — X.X Bestellungen/Std" + Zap-Icon; nur wenn team_avg_bph ≥4; Hydration-safe; 2-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2279 ✅
+
+### Phase 2295 — Durchsatz-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2295-durchsatz-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Team-Ø B/h + Farbcode; Alert-Banner + Dispatcher-Hinweis wenn <2 B/h; Fahrerliste mit Alerts; useMemo; 15-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2290 ✅
+
+### Nächste Phasen 2296–2300 (für nächsten Ingenieur) — Fahrer-Schicht-Bilanz-System
+1. **Phase 2296 Backend:** GET /api/delivery/admin/fahrer-schicht-bilanz — Schichtdauer heute je Fahrer; Ø km/Schicht; Touren/Schicht; Kosten-Schätzung (km × 0,30€ + Stunden × Mindestlohn); Alert wenn Schicht >10h; Multi-Tenant; Supabase+Mock.
+2. **Phase 2297 Dispatch:** Schicht-Bilanz-Board — Fahrerliste nach Schichtdauer sortiert; Ampel grün(<8h)/gelb(<10h)/rot(≥10h); Kosten-Anzeige; Alert-Banner; 30-Min-Polling; in dispatch/client.tsx nach Phase2292.
+3. **Phase 2298 Fahrer-App:** Meine Schicht-Bilanz — Schichtdauer + Touren + km + Kosten; Fortschrittsbalken; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2293.
+4. **Phase 2299 Storefront:** Qualitäts-Siegel — "Faire Arbeitsbedingungen — zufriedene Fahrer"; nur wenn kein Fahrer >10h; Hydration-safe; 6-Std-Polling; in storefront.tsx nach Phase2294.
+5. **Phase 2300 Kitchen:** Schicht-Monitor — Team-Schichtdauer Ø + längste aktive Schicht; Alert >10h; Empfehlung Pause; useMemo; 15-Min-Polling; in kitchen/client.tsx nach Phase2295.
+
+---
+
+Backend-Architekt-Agent (2026-07-18): Phasen 2291–2295 implementiert. 1 neue Backend-API (fahrer-durchsatz) + 4 neue Frontend-Komponenten erstellt und integriert. Build ✓ Compiled successfully — 430 Seiten, TypeScript 0 Fehler. Push erfolgt.
