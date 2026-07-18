@@ -654,6 +654,7 @@ import { FahrerPhase2405MeinEffizienzScore } from './phase2405-mein-effizienz-sc
 import { FahrerPhase2410MeineSchichtBilanz } from './phase2410-meine-schicht-bilanz';
 import { FahrerPhase2415MeinUmsatzProStunde } from './phase2415-mein-umsatz-pro-stunde';
 import { FahrerPhase2420MeineTrinkgeldQuote } from './phase2420-meine-trinkgeld-quote';
+import { FahrerPhase2425TourStopsNaviHub } from './phase2425-tour-stops-navi-hub';
 
 type Driver = {
   id: string;
@@ -5902,6 +5903,8 @@ export function FahrerApp({
           <FahrerPhase2415MeinUmsatzProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2420: Meine Trinkgeld-Quote — % groß + Farbcode; Balken 0–20 % mit Ziel-Linien bei 5 % und 10 %; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2420MeineTrinkgeldQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2425: Tour-Stops & Navigation Hub — Alle Tour-Stops mit Status + Fortschrittsbalken + Stop-Dots + Navi-Button + Anruf-Button; aktiver Stop hervorgehoben */}
+          <FahrerPhase2425TourStopsNaviHub driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2380TourStoppNavigatorUltra
@@ -8967,3 +8970,5 @@ export { FahrerPhase2410MeineSchichtBilanz } from './phase2410-meine-schicht-bil
 export { FahrerPhase2415MeinUmsatzProStunde } from './phase2415-mein-umsatz-pro-stunde';
 // Phase 2420 — Meine Trinkgeld-Quote (% groß + Farbcode; Balken 0–20 % mit Ziel-Linien bei 5 % und 10 %; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2420MeineTrinkgeldQuote } from './phase2420-meine-trinkgeld-quote';
+// Phase 2425 — Tour-Stops & Navigation Hub (Alle Tour-Stops mit Status + Fortschrittsbalken + Stop-Dots + Navi-Button + Anruf-Button; aktiver Stop hervorgehoben; 30-Sek-Polling)
+export { FahrerPhase2425TourStopsNaviHub } from './phase2425-tour-stops-navi-hub';

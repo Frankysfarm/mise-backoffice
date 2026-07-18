@@ -290,6 +290,7 @@ import { KitchenPhase2407EffizienzScoreTicker } from './phase2407-effizienz-scor
 import { KitchenPhase2412SchichtBilanzTicker } from './phase2412-schicht-bilanz-ticker';
 import { KitchenPhase2417UmsatzProStundeTicker } from './phase2417-umsatz-pro-stunde-ticker';
 import { KitchenPhase2422TrinkgeldQuoteTicker } from './phase2422-trinkgeld-quote-ticker';
+import { KitchenPhase2423SmartTimingCountdownCockpit } from './phase2423-smart-timing-countdown-cockpit';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3400,6 +3401,8 @@ export function KitchenBoard({
       <KitchenPhase2417UmsatzProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2422: Trinkgeld-Quote-Ticker — Team-Ø Quote; Alert <5 %; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling */}
       <KitchenPhase2422TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2423: Smart-Timing Countdown Cockpit — Farbkodierter Sekunden-Countdown je Bestellung grün/gelb/rot; On-Time-Quote; Alarm bei Überfälligkeit; 30-Sek-Update */}
+      <KitchenPhase2423SmartTimingCountdownCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
       <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
     </div>
@@ -10010,3 +10013,5 @@ export { KitchenPhase2412SchichtBilanzTicker } from './phase2412-schicht-bilanz-
 export { KitchenPhase2417UmsatzProStundeTicker } from './phase2417-umsatz-pro-stunde-ticker';
 // Phase 2422 — Trinkgeld-Quote-Ticker (Team-Ø Quote; Alert <5 %; Fahrerliste kompakt mit Ampel-Dots grün/gelb/rot; 30-Min-Polling)
 export { KitchenPhase2422TrinkgeldQuoteTicker } from './phase2422-trinkgeld-quote-ticker';
+// Phase 2423 — Smart-Timing Countdown Cockpit (Farbkodierter Sekunden-Countdown je Bestellung; On-Time-Quote; Alarm; 30-Sek-Update)
+export { KitchenPhase2423SmartTimingCountdownCockpit } from './phase2423-smart-timing-countdown-cockpit';
