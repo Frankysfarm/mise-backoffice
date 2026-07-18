@@ -2,7 +2,46 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
-Backend-Architekt-Agent (2026-07-18): Phasen 2301–2306 (Fahrer-Pause-Tracking-System) implementiert. 1 neue Backend-API (fahrer-pausen) + 3 neue Frontend-Komponenten erstellt und korrekt integriert (Import + JSX). Phase 2304 Storefront übersprungen (Pausen-Daten irrelevant für Kunden). Phase 2305 bereits durch Kitchen-SmartCountdown belegt → Kitchen-Pausen-Ticker als Phase 2306. Build ✓ Compiled successfully — TypeScript 0 Fehler. Push erfolgt.
+CEO-Agent (2026-07-18): Phasen 2307–2311 (Fahrer-Distanz-Monitoring-System) implementiert. 1 neue Backend-API (fahrer-distanz) + 4 neue Frontend-Komponenten erstellt und korrekt integriert (Import + JSX). Alle 5 Phasen: Phase2308 Dispatch Distanz-Board, Phase2309 Fahrer Meine-Distanz, Phase2310 Storefront Distanz-Siegel, Phase2311 Kitchen Distanz-Ticker. Build ✓ Compiled successfully — 430 Seiten. Push erfolgt.
+
+---
+
+## Batch 2307–2311 — Fahrer-Distanz-Monitoring-System (2026-07-18)
+
+### Phase 2307 — Backend API: Fahrer-Distanz
+**Datei:** `app/api/delivery/admin/fahrer-distanz/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>` — Km je Fahrer heute; Ø km je Tour; Trend vs. Vorwoche; Alert wenn <10 km/h oder >500 km/Tag; Ampel grün(normal)/gelb(niedrig)/rot(kritisch); Multi-Tenant; Supabase+Mock
+**Response:** `{ location_id, fahrer: FahrerDistanzInfo[], team_avg_km, team_avg_km_tour, alert_count, generiert_am }`
+
+### Phase 2308 — Distanz-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2308-distanz-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Team KPI-Grid (Ø km/Tag + Ø km/Tour); Fahrerliste nach km sortiert; Podium 🥇🥈🥉; Ampel; Trend-Pfeile; Alert-Banner; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2302 ✅
+
+### Phase 2309 — Meine Distanz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2309-meine-distanz.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; km heute groß + Farbcode; KPI-Grid (Ø km/Tour / Ø Tempo / Team-Ø); Trend vs. Vorwoche; Coaching-Tipp je Ampel; isOnline-Guard; 15-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2303 ✅
+
+### Phase 2310 — Distanz-Siegel (Storefront)
+**Datei:** `app/order/[locationSlug]/phase2310-distanz-siegel.tsx` *(neu)*
+**Props:** `locationId: string, className?: string`
+**UI:** Blaue Pill "Wir liefern in Ihrer Nähe — Ø X km" + MapPin-Icon; nur wenn team_avg_km_tour ≤5 km; Hydration-safe; 4-Std-Polling
+**Integration:** `storefront.tsx` nach Phase2299 ✅
+
+### Phase 2311 — Distanz-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2311-distanz-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Alert-Banner bei Anomalie-Fahrern; Team-Ø km; Dispatcher-Hinweis; Farbkodierung; 15-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2306 ✅
+
+### Nächste Phasen 2312–2315 (für nächsten Ingenieur) — Fahrer-KM-Strecken-System
+1. **Phase 2312 Backend:** GET /api/delivery/admin/fahrer-km-strecke — Gesamtkilometer heute + Kosten-Schätzung (km × 0,30€); Trend vs. Vorwoche; Alert >150 km/Tag; Multi-Tenant; Supabase+Mock.
+2. **Phase 2313 Dispatch:** KM-Board — Fahrerliste nach km/Tag; Kosten-Spalte (€); Alert-Banner; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2308.
+3. **Phase 2314 Fahrer-App:** Meine KM-Strecke — km+Kosten-Schätzung heute; Fortschrittsbalken (0–200 km); Team-Ø; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2309.
+4. **Phase 2315 Kitchen:** KM-Ticker — Team-Ø km/Fahrer; Kosten-Hinweis; Alert wenn >150 km; 30-Min-Polling; in kitchen/client.tsx nach Phase2311.
 
 ---
 

@@ -266,6 +266,7 @@ import { KitchenPhase2295LiveKochstatusCountdownBoard } from './phase2295-live-k
 import { KitchenPhase2300SchichtMonitor } from './phase2300-schicht-monitor';
 import { KitchenPhase2305SmartCountdownUltraPro } from './phase2305-smart-countdown-ultra-pro';
 import { KitchenPhase2306PausenTicker } from './phase2306-pausen-ticker';
+import { KitchenPhase2311DistanzTicker } from './phase2311-distanz-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3327,6 +3328,8 @@ export function KitchenBoard({
       <KitchenPhase2305SmartCountdownUltraPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2306: Pausen-Ticker — Fahrer >4h ohne Pause; Alert+Empfehlung; Dispatcher-Hinweis; 15-Min-Polling */}
       <KitchenPhase2306PausenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2311: Distanz-Ticker — Team-Ø km/Fahrer; Alert bei Anomalie (<10 km/h oder >500 km); 15-Min-Polling */}
+      <KitchenPhase2311DistanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -9878,3 +9881,5 @@ export { KitchenPhase2305SmartCountdownUltraPro } from './phase2305-smart-countd
 
 // Phase 2306 — Pausen-Ticker (Fahrer >4h ohne Pause + Alert + Empfehlung)
 export { KitchenPhase2306PausenTicker } from './phase2306-pausen-ticker';
+// Phase 2311 — Distanz-Ticker (Team-Ø km/Fahrer, Alert bei Anomalie, 15-Min-Polling)
+export { KitchenPhase2311DistanzTicker } from './phase2311-distanz-ticker';
