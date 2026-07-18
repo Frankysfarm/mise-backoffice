@@ -703,6 +703,7 @@ import { DispatchPhase2232TourScoreVisualisierung } from './phase2232-tour-score
 import { DispatchPhase2236SchichtBilanzUebersicht } from './phase2236-schicht-bilanz-uebersicht';
 import { DispatchPhase2240RoutenOptimierungsBoard } from './phase2240-routen-optimierungs-board';
 import { DispatchPhase2245ReactionszeitBoard } from './phase2245-reaktionszeit-board';
+import { DispatchPhase2250PuenktlichkeitsBoard } from './phase2250-puenktlichkeits-board';
 
 type Driver = {
   employee_id: string;
@@ -3715,6 +3716,8 @@ export function DispatchBoard({
           <DispatchPhase2240RoutenOptimierungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2245: Reaktionszeit-Board — Ampel grün/gelb/rot; Alert-Banner; Dispatcher-Tipp; 30-Min-Polling */}
           <DispatchPhase2245ReactionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2250: Pünktlichkeits-Board — Fahrerliste nach Quote; Ampel grün(≥95%)/gelb(≥85%)/rot(<85%); Podium Top-3; Alert-Banner; 30-Min-Polling */}
+          <DispatchPhase2250PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
