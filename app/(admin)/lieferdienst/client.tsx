@@ -390,6 +390,7 @@ import { LieferdienstPhase1000StatistikenEchtzeitCockpit } from './phase1000-sta
 import { LieferdienstPhase1827SchichtStatistikEchtzeitKommando } from './phase1827-schicht-statistik-echtzeit-kommando';
 import { LieferdienstPhase1880CrossKpiCockpit } from './phase1880-lieferdienst-cross-kpi-cockpit';
 import { LieferdienstPhase1885StatistikKompaktDashboard } from './phase1885-statistiken-kompakt-dashboard';
+import { LieferdienstPhase2326StatistikEchtzeitKomplett } from './phase2326-statistiken-echtzeit-komplett';
 import { LieferdienstPhase1886FahrerEffizienzSchnellBoard } from './phase1886-fahrer-effizienz-schnell-board';
 import { LieferdienstPhase1887StatistikGesamtuebersichtLive } from './phase1887-statistik-gesamtuebersicht-live';
 import { LieferdienstPhase1888StundenUmsatzStatistikBoard } from './phase1888-stunden-umsatz-statistik-board';
@@ -1362,6 +1363,8 @@ export function LieferdienstClient() {
               <LieferdienstPhase2015ExecutiveLiveStats locationId={locationId ?? null} />
               {/* Phase 1885: Statistiken-Kompakt-Dashboard — KPI-Raster Heute: Bestellungen, Umsatz, Ø Lieferzeit, Bewertung; Abschlussquote; 5-Min-Polling */}
               <LieferdienstPhase1885StatistikKompaktDashboard locationId={locationId ?? null} />
+              {/* Phase 2326: Statistiken Echtzeit Komplett — 8 KPIs Raster, Ampel-Farbkodierung, Alert-Strip, Stunden-Chart mit Umsatz/Bestellungen-Umschalten, 1-Min-Polling */}
+              <LieferdienstPhase2326StatistikEchtzeitKomplett locationId={locationId ?? null} />
               {/* Phase 1886: Fahrer-Effizienz-Schnell-Board — Tabelle Fahrer × Score × Stopps × Ø Stoppzeit; Alert <60; 5-Min-Polling; Collapsible */}
               <LieferdienstPhase1886FahrerEffizienzSchnellBoard locationId={locationId ?? null} />
               {/* Phase 1887: Statistik-Gesamtübersicht-Live — Heute vs. Gestern: Umsatz, Bestellungen, Ø Lieferzeit, Bewertung, Pünktlichkeit, Storno */}

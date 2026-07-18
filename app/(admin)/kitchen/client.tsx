@@ -292,6 +292,7 @@ import { KitchenPhase2417UmsatzProStundeTicker } from './phase2417-umsatz-pro-st
 import { KitchenPhase2422TrinkgeldQuoteTicker } from './phase2422-trinkgeld-quote-ticker';
 import { KitchenPhase2423SmartTimingCountdownCockpit } from './phase2423-smart-timing-countdown-cockpit';
 import { KitchenPhase2429BewertungsTicker } from './phase2429-bewertungs-ticker';
+import { KitchenPhase2430SmartTimingCountdownUltra } from './phase2430-smart-timing-countdown-ultra';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3406,6 +3407,8 @@ export function KitchenBoard({
       <KitchenPhase2423SmartTimingCountdownCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2429: Bewertungs-Ticker — Team-Ø Sterne; Alert <3,5★; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling */}
       <KitchenPhase2429BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2430: Smart-Timing Countdown Ultra — Countdown-Ring pro Batch, Farbkodierung grün/gelb/rot, On-Time-Quote, Fortschrittsbalken, 30-Sek-Polling */}
+      <KitchenPhase2430SmartTimingCountdownUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
       <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
     </div>
