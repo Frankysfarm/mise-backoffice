@@ -647,6 +647,7 @@ import { FahrerPhase2375MeineAuslastung } from './phase2375-meine-auslastung';
 import { FahrerPhase2380MeineReaktionszeit } from './phase2380-meine-reaktionszeit';
 import { FahrerPhase2380TourStoppNavigatorUltra } from './phase2380-tour-stopp-navigator-ultra';
 import { FahrerPhase2385MeineAbbruchquote } from './phase2385-meine-abbruchquote';
+import { FahrerPhase2390MeineKilometer } from './phase2390-meine-kilometer';
 
 type Driver = {
   id: string;
@@ -5881,6 +5882,8 @@ export function FahrerApp({
           <FahrerPhase2380MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2385: Meine Abbruchquote — Quote groß + Farbcode; KPI-Grid (Abbrüche/Touren/Trend/Team-Ø); Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2385MeineAbbruchquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2390: Meine Kilometer — Gesamt-km groß + Farbcode; Ø km/Tour; KPI-Grid (Touren/Kürzeste/Trend/Team-Ø); Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2390MeineKilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2380TourStoppNavigatorUltra
@@ -8932,3 +8935,5 @@ export { FahrerPhase2375MeineAuslastung } from './phase2375-meine-auslastung';
 export { FahrerPhase2380MeineReaktionszeit } from './phase2380-meine-reaktionszeit';
 // Phase 2385 — Meine Abbruchquote (Quote groß + Farbcode + KPI-Grid Abbrüche/Touren/Trend/Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2385MeineAbbruchquote } from './phase2385-meine-abbruchquote';
+// Phase 2390 — Meine Kilometer (Gesamt-km groß + Farbcode + Ø km/Tour + KPI-Grid Touren/Kürzeste/Trend/Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2390MeineKilometer } from './phase2390-meine-kilometer';
