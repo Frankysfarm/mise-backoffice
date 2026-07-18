@@ -648,6 +648,7 @@ import { FahrerPhase2380MeineReaktionszeit } from './phase2380-meine-reaktionsze
 import { FahrerPhase2380TourStoppNavigatorUltra } from './phase2380-tour-stopp-navigator-ultra';
 import { FahrerPhase2385MeineAbbruchquote } from './phase2385-meine-abbruchquote';
 import { FahrerPhase2390MeineKilometer } from './phase2390-meine-kilometer';
+import { FahrerPhase2395MeinePausenzeit } from './phase2395-meine-pausenzeit';
 
 type Driver = {
   id: string;
@@ -5884,6 +5885,8 @@ export function FahrerApp({
           <FahrerPhase2385MeineAbbruchquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2390: Meine Kilometer — Gesamt-km groß + Farbcode; Ø km/Tour; KPI-Grid (Touren/Kürzeste/Trend/Team-Ø); Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2390MeineKilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2395: Meine Pausenzeit — Ø Pause groß + Farbcode; Balken 0–40Min; KPI-Grid (Pausen/Touren/Trend/Team-Ø); Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2395MeinePausenzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2380TourStoppNavigatorUltra
@@ -8937,3 +8940,5 @@ export { FahrerPhase2380MeineReaktionszeit } from './phase2380-meine-reaktionsze
 export { FahrerPhase2385MeineAbbruchquote } from './phase2385-meine-abbruchquote';
 // Phase 2390 — Meine Kilometer (Gesamt-km groß + Farbcode + Ø km/Tour + KPI-Grid Touren/Kürzeste/Trend/Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2390MeineKilometer } from './phase2390-meine-kilometer';
+// Phase 2395 — Meine Pausenzeit (Ø Pause groß + Farbcode + Balken 0–40Min + KPI-Grid Pausen/Touren/Trend/Team-Ø + Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2395MeinePausenzeit } from './phase2395-meine-pausenzeit';
