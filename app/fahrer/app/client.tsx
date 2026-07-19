@@ -679,6 +679,7 @@ import { FahrerPhase2526MeineAkzeptanzrate } from './phase2526-meine-akzeptanzra
 import { FahrerPhase2531MeineWartezeitDepot } from './phase2531-meine-wartezeit-depot';
 import { FahrerPhase2536MeineErreichbarkeit } from './phase2536-meine-erreichbarkeit';
 import { FahrerPhase2541MeineStornoRate } from './phase2541-meine-storno-rate';
+import { FahrerPhase2546MeineBewertung } from './phase2546-meine-bewertung';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
 import { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';
 import { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
@@ -5987,6 +5988,8 @@ export function FahrerApp({
           <FahrerPhase2536MeineErreichbarkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2541: Meine Storno-Rate — %-Wert groß + Farbcode; Balken 0–30% mit Ziel-Linien 5%/15%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2541MeineStornoRate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2546: Meine Bewertung — Ø-Sterne groß + Stern-Visualisierung; Balken 1–5 mit Ziel-Linien 3.5/4.5★; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2546MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
