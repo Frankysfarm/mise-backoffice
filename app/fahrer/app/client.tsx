@@ -677,6 +677,7 @@ import { FahrerPhase2509MeinUmsatz } from './phase2509-mein-umsatz';
 import { FahrerPhase2519MeinTrinkgeld } from './phase2519-mein-trinkgeld';
 import { FahrerPhase2526MeineAkzeptanzrate } from './phase2526-meine-akzeptanzrate';
 import { FahrerPhase2531MeineWartezeitDepot } from './phase2531-meine-wartezeit-depot';
+import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
 import { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
 import { FahrerPhase2600SmartTourStoppNavigatorFinal } from './phase2600-smart-tour-stopp-navigator-final';
 import { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
@@ -5979,6 +5980,8 @@ export function FahrerApp({
           <FahrerPhase2526MeineAkzeptanzrate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2531: Meine Wartezeit am Depot — Min groß + Farbcode; Balken 0–30min mit Ziel-Linien 10/20min; KPI-Grid VW/Trend/Team-Ø/Intervalle; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2531MeineWartezeitDepot driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
+          <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2600: Smart Tour-Stopp Navigator Final — Aktueller Stopp + Navigation + Telefon + Bestätigung; Stop-Liste mit Status-Dots; ETA; 1-Sek-Tick + 30-Sek-Polling */}
           <FahrerPhase2600SmartTourStoppNavigatorFinal
             batchId={activeBatch?.id ?? null}
@@ -6634,7 +6637,7 @@ export function FahrerApp({
                 lng: s.order?.kunde_lng ?? undefined,
                 orderId: s.order_id ?? undefined,
                 orderTotal: s.order?.gesamtbetrag ?? undefined,
-                paymentMethod: s.order?.zahlungsart ?? undefined,
+                paymentMethod: (s.order as any)?.zahlungsart ?? undefined,
                 etaMin: (s as any).eta_min ?? null,
               };
             })}

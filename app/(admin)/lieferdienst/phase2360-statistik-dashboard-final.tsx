@@ -117,15 +117,15 @@ export function LieferdienstPhase2360StatistikDashboardFinal() {
     if (!orders) return;
 
     const total = orders.length;
-    const storniert = orders.filter(o => o.status === 'storniert').length;
-    const completed = orders.filter(o =>
+    const storniert = orders.filter((o: any) => o.status === 'storniert').length;
+    const completed = orders.filter((o: any) =>
       ['geliefert', 'abgeholt', 'abgeschlossen'].includes(o.status),
     );
-    const revenue = completed.reduce((sum, o) => sum + (o.gesamtbetrag ?? 0), 0);
+    const revenue = completed.reduce((sum: number, o: any) => sum + (o.gesamtbetrag ?? 0), 0);
 
     // On-Time (estimate: delivered within 45 min of order)
-    const withTimes = completed.filter(o => o.bestellt_am && o.fertig_am);
-    const onTimeCount = withTimes.filter(o => {
+    const withTimes = completed.filter((o: any) => o.bestellt_am && o.fertig_am);
+    const onTimeCount = withTimes.filter((o: any) => {
       const diff = (new Date(o.fertig_am!).getTime() - new Date(o.bestellt_am!).getTime()) / 60_000;
       return diff <= 45;
     }).length;
@@ -133,7 +133,7 @@ export function LieferdienstPhase2360StatistikDashboardFinal() {
 
     // Avg delivery time
     const avgMin = withTimes.length > 0
-      ? withTimes.reduce((s, o) => {
+      ? withTimes.reduce((s: number, o: any) => {
           return s + (new Date(o.fertig_am!).getTime() - new Date(o.bestellt_am!).getTime()) / 60_000;
         }, 0) / withTimes.length
       : null;
@@ -271,7 +271,7 @@ export function LieferdienstPhase2360StatistikDashboardFinal() {
                 <BarChart data={stats.hourly} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                   <XAxis dataKey="label" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    formatter={(v: number) => chartMode === 'revenue' ? fmt(v) : String(v)}
+                    formatter={(v: any) => chartMode === 'revenue' ? fmt(v as number) : String(v)}
                     labelFormatter={l => `${l}:00 Uhr`}
                     contentStyle={{ fontSize: 11 }}
                   />

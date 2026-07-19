@@ -98,25 +98,25 @@ export function LieferdienstPhase2522StatistikenExecutiveLiveCockpit({ locationI
       const orders = rawOrders ?? [];
 
       const total = orders.length;
-      const delivered = orders.filter(o => ['geliefert', 'abgeschlossen'].includes(o.status)).length;
-      const storniert = orders.filter(o => o.status === 'storniert').length;
-      const umsatzCt = orders.filter(o => !['storniert'].includes(o.status)).reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
+      const delivered = orders.filter((o: any) => ['geliefert', 'abgeschlossen'].includes(o.status)).length;
+      const storniert = orders.filter((o: any) => o.status === 'storniert').length;
+      const umsatzCt = orders.filter((o: any) => !['storniert'].includes(o.status)).reduce((s: number, o: any) => s + (o.gesamtbetrag ?? 0), 0);
       const stornoPct = total > 0 ? Math.round((storniert / total) * 100) : 0;
 
       // Pünktlichkeit
-      const mitEta = orders.filter(o => o.geliefert_am && o.eta_earliest);
-      const puenktlich = mitEta.filter(o => {
+      const mitEta = orders.filter((o: any) => o.geliefert_am && o.eta_earliest);
+      const puenktlich = mitEta.filter((o: any) => {
         const diff = new Date(o.geliefert_am!).getTime() - new Date(o.eta_earliest!).getTime();
         return diff <= 5 * 60_000;
       }).length;
       const puentPct = mitEta.length > 0 ? Math.round((puenktlich / mitEta.length) * 100) : null;
 
       // Ø Lieferzeit
-      const withTimes = orders.filter(o => o.geliefert_am && o.bestellt_am);
-      const avgMinArr = withTimes.map(o =>
+      const withTimes = orders.filter((o: any) => o.geliefert_am && o.bestellt_am);
+      const avgMinArr = withTimes.map((o: any) =>
         (new Date(o.geliefert_am!).getTime() - new Date(o.bestellt_am!).getTime()) / 60_000
       );
-      const avgMin = avgMinArr.length > 0 ? Math.round(avgMinArr.reduce((a, b) => a + b, 0) / avgMinArr.length) : null;
+      const avgMin = avgMinArr.length > 0 ? Math.round(avgMinArr.reduce((a: number, b: number) => a + b, 0) / avgMinArr.length) : null;
 
       // Aktive Fahrer
       let activeDrivers = 0;
@@ -222,7 +222,7 @@ export function LieferdienstPhase2522StatistikenExecutiveLiveCockpit({ locationI
         },
         {
           label: 'Aktiv',
-          value: orders.filter(o => !['geliefert', 'storniert', 'abgeschlossen'].includes(o.status)).length.toString(),
+          value: orders.filter((o: any) => !['geliefert', 'storniert', 'abgeschlossen'].includes(o.status)).length.toString(),
           sub: `Offene Bestellungen`,
           color: 'neutral',
           icon: TrendingUp,
@@ -349,7 +349,7 @@ export function LieferdienstPhase2522StatistikenExecutiveLiveCockpit({ locationI
                   <BarChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                     <XAxis dataKey="h" tick={{ fontSize: 8 }} tickLine={false} axisLine={false} />
                     <Tooltip
-                      formatter={(v: number) => chartMode === 'umsatz' ? [`${v} €`, 'Umsatz'] : [v, 'Bestellungen']}
+                      formatter={(v: any) => chartMode === 'umsatz' ? [`${v as number} €`, 'Umsatz'] : [v, 'Bestellungen']}
                       contentStyle={{ fontSize: 10 }}
                     />
                     <Bar dataKey={chartMode} radius={[3, 3, 0, 0]} maxBarSize={24}>

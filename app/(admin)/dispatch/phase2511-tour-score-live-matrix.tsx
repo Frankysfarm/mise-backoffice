@@ -110,14 +110,14 @@ export function DispatchPhase2511TourScoreLiveMatrix() {
       if (!statuses?.length) { setTours([]); setLoading(false); return; }
 
       const activeBatchIds = statuses
-        .map(s => s.aktueller_batch_id)
+        .map((s: any) => s.aktueller_batch_id)
         .filter(Boolean) as string[];
 
       const [{ data: drivers }, { data: batches }, { data: stops }] = await Promise.all([
         supabase
           .from('employees')
           .select('id, vorname, nachname, fahrzeug:driver_status(fahrzeug)')
-          .in('id', statuses.map(s => s.driver_id)),
+          .in('id', statuses.map((s: any) => s.driver_id)),
         activeBatchIds.length
           ? supabase
             .from('mise_delivery_batches')
@@ -134,25 +134,25 @@ export function DispatchPhase2511TourScoreLiveMatrix() {
           : Promise.resolve({ data: [] }),
       ]);
 
-      const driverMap = new Map<string, any>((drivers ?? []).map(d => [d.id, d]));
+      const driverMap = new Map<string, any>((drivers ?? []).map((d: any) => [d.id, d]));
 
-      const result: DriverTour[] = statuses.map(s => {
+      const result: DriverTour[] = statuses.map((s: any) => {
         const driver = driverMap.get(s.driver_id);
         const name = driver
           ? `${driver.vorname ?? ''} ${driver.nachname ?? ''}`.trim()
           : s.driver_id.slice(-6);
         const vehicle = (driver?.fahrzeug as any)?.[0]?.fahrzeug ?? null;
-        const batch = (batches ?? []).find(b => b.driver_id === s.driver_id);
+        const batch = (batches ?? []).find((b: any) => b.driver_id === s.driver_id);
         const batchId = batch?.id ?? null;
         const batchStops = batchId
-          ? (stops ?? []).filter(st => st.batch_id === batchId)
+          ? (stops ?? []).filter((st: any) => st.batch_id === batchId)
           : [];
 
         const now = Date.now();
         const startedAt = batch?.started_at ? new Date(batch.started_at).getTime() : now;
         const elapsedMin = Math.floor((now - startedAt) / 60_000);
 
-        const stopRows: Stop[] = batchStops.map((st, i) => ({
+        const stopRows: Stop[] = batchStops.map((st: any, i: number) => ({
           idx: i,
           done: !!st.completed_at,
           late: !st.completed_at && elapsedMin > (i + 1) * 12,
@@ -171,7 +171,7 @@ export function DispatchPhase2511TourScoreLiveMatrix() {
           state: s.status,
           batchId,
         };
-      }).sort((a, b) => b.score - a.score);
+      }).sort((a: DriverTour, b: DriverTour) => b.score - a.score);
 
       setTours(result);
     } catch {}

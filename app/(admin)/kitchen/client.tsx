@@ -320,6 +320,7 @@ import { KitchenPhase2515SmartTimingFarbkodierungUltra } from './phase2515-smart
 import { KitchenPhase2520SmartTimingPrepPrognoseCockpit } from './phase2520-smart-timing-prep-prognose-cockpit';
 import { KitchenPhase2528AkzeptanzrateTicker } from './phase2528-akzeptanzrate-ticker';
 import { KitchenPhase2533WartezeitDepotTicker } from './phase2533-wartezeit-depot-ticker';
+import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
@@ -3493,6 +3494,8 @@ export function KitchenBoard({
       <KitchenPhase2528AkzeptanzrateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2533: Wartezeit-Depot-Ticker — Team-Ø; Alert >20min "Disposition prüfen!"; Fahrerliste kompakt nach Wartezeit sortiert (längste oben) mit Ampel-Dots; 30-Min-Polling */}
       <KitchenPhase2533WartezeitDepotTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
+      <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
       <KitchenPhase2600SmartTimingCountdownKommandant locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>

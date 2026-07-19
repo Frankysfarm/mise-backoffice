@@ -135,7 +135,7 @@ export function KitchenPhase2605SmartTimingBatchCountdownAmpel({ locationId }: {
     if (!data) { setLoading(false); return; }
 
     // Get kitchen timings
-    const ids = data.map(o => o.id);
+    const ids = data.map((o: any) => o.id);
     const { data: timings } = await supabase
       .from('kitchen_timings')
       .select('order_id, ready_target, cook_start_at, prep_min')
