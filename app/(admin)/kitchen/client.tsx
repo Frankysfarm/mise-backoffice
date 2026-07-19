@@ -303,6 +303,7 @@ import { KitchenPhase2460EffizienzIndexTicker } from './phase2460-effizienz-inde
 import { KitchenPhase2465KapazitaetTicker } from './phase2465-kapazitaet-ticker';
 import { KitchenPhase2471RueckkehrDepotTicker } from './phase2471-rueckkehr-depot-ticker';
 import { KitchenPhase2476LieferzeitEffizienzTicker } from './phase2476-lieferzeit-effizienz-ticker';
+import { KitchenPhase2481StoppzeitTicker } from './phase2481-stoppzeit-ticker';
 import { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-ticker';
 import { KitchenPhase2444StornoQuoteTicker } from './phase2444-storno-quote-ticker';
 import { KitchenPhase2449UeberstundenTicker } from './phase2449-ueberstunden-ticker';
@@ -3443,6 +3444,8 @@ export function KitchenBoard({
       <KitchenPhase2471RueckkehrDepotTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2476: Lieferzeit-Effizienz-Ticker — Team-Ø; Alert >30 min; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2476LieferzeitEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2481: Stoppzeit-Ticker — Team-Ø; Alert >10 min; Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2481StoppzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2439: Reaktionszeit-Ticker — Team-Ø; Alert >7min mit Beschleunigungshinweis; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2439ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2444: Storno-Quote-Ticker — Team-Ø; Alert >10% mit Handlungsempfehlung; Fahrerliste kompakt; 30-Min-Polling */}
@@ -10060,6 +10063,8 @@ export { KitchenPhase2465KapazitaetTicker } from './phase2465-kapazitaet-ticker'
 export { KitchenPhase2471RueckkehrDepotTicker } from './phase2471-rueckkehr-depot-ticker';
 // Phase 2476 — Lieferzeit-Effizienz-Ticker (Team-Ø; Alert >30 min; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2476LieferzeitEffizienzTicker } from './phase2476-lieferzeit-effizienz-ticker';
+// Phase 2481 — Stoppzeit-Ticker (Team-Ø; Alert >10 min; Fahrerliste kompakt; 30-Min-Polling)
+export { KitchenPhase2481StoppzeitTicker } from './phase2481-stoppzeit-ticker';
 // Phase 2439 — Reaktionszeit-Ticker (Team-Ø Reaktionszeit; Alert >7min; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-ticker';
 // Phase 2444 — Storno-Quote-Ticker (Team-Ø Quote; Alert >10%; Fahrerliste kompakt; 30-Min-Polling)
