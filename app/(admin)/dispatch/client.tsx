@@ -755,6 +755,7 @@ import { DispatchPhase2468RueckkehrDepotEtaBoard } from './phase2468-rueckkehr-d
 import { DispatchPhase2473LieferzeitEffizienzBoard } from './phase2473-lieferzeit-effizienz-board';
 import { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
 import { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
+import { DispatchPhase2446UeberstundenBoard } from './phase2446-ueberstunden-board';
 import { DispatchPhase2467TourScoreVisualisierungLiveCockpit } from './phase2467-tour-score-visualisierung-live-cockpit';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 
@@ -3873,6 +3874,8 @@ export function DispatchBoard({
           <DispatchPhase2436ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2441: Storno-Quote-Board — KPI-Grid Team-Ø heute/VW/Ziel <5%; Fahrerliste nach Quote sortiert; Alert >10%; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2441StornoQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2446: Überstunden-Board — KPI-Grid Team-Ø heute/VW/Ziel <8h; Fahrerliste nach Schichtdauer sortiert; Alert >10h; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2446UeberstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2467: Tour-Score & Visualisierung Live Cockpit — Score-Ring je Fahrer; Stop-Dots farbkodiert; Tour-Fortschritt; ETA; Alert <60; expandierbare Stop-Liste; 25-Sek-Polling */}
           <DispatchPhase2467TourScoreVisualisierungLiveCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
@@ -11529,6 +11532,8 @@ export { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-b
 export { DispatchPhase2470ScoreTourVisualisierungCockpit } from './phase2470-score-tour-visualisierung-cockpit';
 // Phase 2441 — Storno-Quote-Board (Stornierungen/Gesamt-Touren × 100%; Ampel <5%/5-10%/>10%; Alert >10%)
 export { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
+// Phase 2446 — Überstunden-Board (Schichtdauer h; Ampel <8h/8-10h/>10h; Alert >10h; Trend)
+export { DispatchPhase2446UeberstundenBoard } from './phase2446-ueberstunden-board';
 // Phase 2467 — Tour-Score & Visualisierung Live Cockpit (Score-Ring je Fahrer; Stop-Dots farbkodiert; Tour-Fortschritt; ETA; Alert <60; expandierbare Stop-Liste; 25-Sek-Polling)
 export { DispatchPhase2467TourScoreVisualisierungLiveCockpit } from './phase2467-tour-score-visualisierung-live-cockpit';
 // Phase 2473 — Lieferzeit-Effizienz-Board (KPI-Grid Team-Ø heute/VW/Ziel ≤20 min; Fahrerliste nach Ø-Zeit sortiert; Alert >30 min; Trend-Pfeile; 30-Min-Polling)

@@ -305,6 +305,7 @@ import { KitchenPhase2471RueckkehrDepotTicker } from './phase2471-rueckkehr-depo
 import { KitchenPhase2476LieferzeitEffizienzTicker } from './phase2476-lieferzeit-effizienz-ticker';
 import { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-ticker';
 import { KitchenPhase2444StornoQuoteTicker } from './phase2444-storno-quote-ticker';
+import { KitchenPhase2449UeberstundenTicker } from './phase2449-ueberstunden-ticker';
 import { KitchenPhase2470SmartTimingCountdownFarbkodierungUltimate } from './phase2470-smart-timing-countdown-farbkodierung-ultimate';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
@@ -3446,6 +3447,8 @@ export function KitchenBoard({
       <KitchenPhase2439ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2444: Storno-Quote-Ticker — Team-Ø; Alert >10% mit Handlungsempfehlung; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2444StornoQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2449: Überstunden-Ticker — Team-Ø Schichtdauer; Alert >10h mit Entlastungshinweis; Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2449UeberstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2470: Smart-Timing Countdown Farbkodierung Ultimate — Sekunden-Countdown grün/gelb/rot je Bestellung; Countdown-Ring; Fortschrittsbalken; On-Time-Quote; Alert; 30-Sek-Update */}
       <KitchenPhase2470SmartTimingCountdownFarbkodierungUltimate locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
@@ -10061,6 +10064,8 @@ export { KitchenPhase2476LieferzeitEffizienzTicker } from './phase2476-lieferzei
 export { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-ticker';
 // Phase 2444 — Storno-Quote-Ticker (Team-Ø Quote; Alert >10%; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2444StornoQuoteTicker } from './phase2444-storno-quote-ticker';
+// Phase 2449 — Überstunden-Ticker (Team-Ø Schichtdauer h; Alert >10h; Fahrerliste kompakt; 30-Min-Polling)
+export { KitchenPhase2449UeberstundenTicker } from './phase2449-ueberstunden-ticker';
 // Phase 2377 — Auslastungs-Ticker (Team-Ø Auslastung; Alert <40% od. >90%; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2377AuslastungsTicker } from './phase2377-auslastungs-ticker';
 // Phase 2382 — Reaktionszeit-Ticker (Team-Ø Reaktionszeit; Alert >120s; Fahrerliste kompakt; 30-Min-Polling)

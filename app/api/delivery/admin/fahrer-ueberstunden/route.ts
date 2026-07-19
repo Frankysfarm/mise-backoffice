@@ -1,150 +1,170 @@
-import { NextResponse } from 'next/server';
-import { createServiceClient } from '@/lib/supabase/server';
+/**
+ * GET /api/delivery/admin/fahrer-ueberstunden?location_id=<uuid>[&driver_id=<uuid>]
+ *
+ * Phase 2445 — Fahrer-Überstunden-API
+ * Schichtdauer je Fahrer heute in Stunden.
+ * Ampel grün(<8h)/gelb(8–10h)/rot(>10h); Alert >10h; Trend vs. Vorwoche; Multi-Tenant; Supabase+Mock.
+ */
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Ampel = 'gruen' | 'gelb' | 'rot';
-
-function calcAmpel(ueberstunden_h: number): Ampel {
-  if (ueberstunden_h <= 0) return 'gruen';
-  if (ueberstunden_h <= 2) return 'gelb';
-  return 'rot';
-}
+export type Ampel = 'gruen' | 'gelb' | 'rot';
+export type Trend = 'steigend' | 'fallend' | 'stabil';
 
 export interface FahrerUeberstunden {
   fahrer_id: string;
   fahrer_name: string;
-  ueberstunden_h: number;
-  ueberstunden_h_vw: number;
-  schicht_dauer_h: number;
-  soll_dauer_h: number;
-  trend: 'steigend' | 'fallend' | 'stabil';
-  trend_delta: number;
+  schicht_stunden: number;
   ampel: Ampel;
-  alert_ueberstunden: boolean;
+  trend: Trend;
+  trend_delta: number;
+  vw_stunden: number;
+  rang: number;
 }
 
-export interface FahrerUeberstundenResponse {
+export interface UeberstundenAntwort {
+  location_id: string;
   fahrer: FahrerUeberstunden[];
-  team_avg_ueberstunden: number;
-  team_avg_ueberstunden_vw: number;
+  team_durchschnitt: number;
   alert_count: number;
   generiert_am: string;
 }
 
-function buildMock(_locationId: string, driverId?: string) {
-  const drivers = [
-    { id: 'd1', name: 'Max M.',   schicht: 9.5,  soll: 8.0, schicht_vw: 7.8,  soll_vw: 8.0 },
-    { id: 'd2', name: 'Sara K.',  schicht: 10.5, soll: 8.0, schicht_vw: 10.8, soll_vw: 8.0 },
-    { id: 'd3', name: 'Tim B.',   schicht: 7.5,  soll: 8.0, schicht_vw: 8.3,  soll_vw: 8.0 },
-    { id: 'd4', name: 'Julia F.', schicht: 8.2,  soll: 8.0, schicht_vw: 8.5,  soll_vw: 8.0 },
-  ];
-
-  const fahrer: FahrerUeberstunden[] = drivers.map(d => {
-    const ue = Math.round((d.schicht - d.soll) * 10) / 10;
-    const ue_vw = Math.round((d.schicht_vw - d.soll_vw) * 10) / 10;
-    return {
-      fahrer_id: d.id,
-      fahrer_name: d.name,
-      ueberstunden_h: ue,
-      ueberstunden_h_vw: ue_vw,
-      schicht_dauer_h: d.schicht,
-      soll_dauer_h: d.soll,
-      trend: ue > ue_vw ? 'steigend' : ue < ue_vw ? 'fallend' : 'stabil',
-      trend_delta: Math.round((ue - ue_vw) * 10) / 10,
-      ampel: calcAmpel(ue),
-      alert_ueberstunden: ue > 2,
-    };
-  }).sort((a, b) => b.ueberstunden_h - a.ueberstunden_h);
-
-  const team_avg = Math.round((fahrer.reduce((s, f) => s + f.ueberstunden_h, 0) / fahrer.length) * 10) / 10;
-  const team_avg_vw = Math.round((fahrer.reduce((s, f) => s + f.ueberstunden_h_vw, 0) / fahrer.length) * 10) / 10;
-  const alert_count = fahrer.filter(f => f.alert_ueberstunden).length;
-
-  if (driverId) {
-    const f = fahrer.find(d => d.fahrer_id === driverId) ?? fahrer[0];
-    return { fahrer_single: f, team_avg_ueberstunden: team_avg };
-  }
-
-  return { fahrer, team_avg_ueberstunden: team_avg, team_avg_ueberstunden_vw: team_avg_vw, alert_count, generiert_am: new Date().toISOString() };
+function ampelVon(h: number): Ampel {
+  if (h < 8) return 'gruen';
+  if (h <= 10) return 'gelb';
+  return 'rot';
 }
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const locationId = searchParams.get('location_id');
-  const driverId = searchParams.get('driver_id') ?? undefined;
+function trendVon(heute: number, vorwoche: number): { trend: Trend; delta: number } {
+  const delta = Math.round((heute - vorwoche) * 10) / 10;
+  if (delta > 0.5) return { trend: 'steigend', delta };
+  if (delta < -0.5) return { trend: 'fallend', delta };
+  return { trend: 'stabil', delta };
+}
 
+const MOCK_FAHRER = [
+  { fahrer_id: 'mock-f1', fahrer_name: 'Max Müller', stunden: 6.5, vw_stunden: 7.0 },
+  { fahrer_id: 'mock-f2', fahrer_name: 'Sara Koch', stunden: 8.2, vw_stunden: 7.8 },
+  { fahrer_id: 'mock-f3', fahrer_name: 'Tim Weber', stunden: 9.5, vw_stunden: 8.5 },
+  { fahrer_id: 'mock-f4', fahrer_name: 'Anna Bauer', stunden: 11.3, vw_stunden: 9.0 },
+];
+
+function buildMock(locationId: string): UeberstundenAntwort {
+  const unsorted = MOCK_FAHRER.map(f => {
+    const { trend, delta } = trendVon(f.stunden, f.vw_stunden);
+    return {
+      fahrer_id: f.fahrer_id,
+      fahrer_name: f.fahrer_name,
+      schicht_stunden: f.stunden,
+      ampel: ampelVon(f.stunden),
+      trend,
+      trend_delta: delta,
+      vw_stunden: f.vw_stunden,
+    };
+  });
+  const sorted = [...unsorted].sort((a, b) => b.schicht_stunden - a.schicht_stunden);
+  const fahrer: FahrerUeberstunden[] = sorted.map((f, i) => ({ ...f, rang: i + 1 }));
+  const team_durchschnitt =
+    Math.round((fahrer.reduce((s, f) => s + f.schicht_stunden, 0) / fahrer.length) * 10) / 10;
+  return {
+    location_id: locationId,
+    fahrer,
+    team_durchschnitt,
+    alert_count: fahrer.filter(f => f.schicht_stunden > 10).length,
+    generiert_am: new Date().toISOString(),
+  };
+}
+
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl;
+  const locationId = searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
 
   try {
-    const supabase = createServiceClient();
-    const today = new Date().toISOString().slice(0, 10);
-    const lastWeek = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+    const sb = await createClient();
+    const jetzt = new Date();
+    const heuteStart = new Date(jetzt);
+    heuteStart.setHours(0, 0, 0, 0);
+    const vwStart = new Date(heuteStart.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const vwEnd = new Date(heuteStart.getTime() - 6 * 24 * 60 * 60 * 1000);
 
-    const { data: drivers } = await supabase
+    const { data: drivers, error: dErr } = await sb
       .from('drivers')
-      .select('id, name, soll_stunden')
+      .select('id, full_name')
       .eq('location_id', locationId)
       .eq('is_active', true);
 
-    if (!drivers?.length) return NextResponse.json(buildMock(locationId, driverId));
+    if (dErr || !drivers || drivers.length === 0) return NextResponse.json(buildMock(locationId));
 
-    async function getSchichtDauer(dId: string, date: string): Promise<number> {
-      const { data } = await supabase
-        .from('driver_shifts')
-        .select('started_at, ended_at')
-        .eq('driver_id', dId)
-        .gte('started_at', date + 'T00:00:00')
-        .lte('started_at', date + 'T23:59:59');
-      if (!data?.length) return 0;
-      const durationMs = data.reduce((s, r) => {
-        const end = r.ended_at ? new Date(r.ended_at).getTime() : Date.now();
-        return s + (end - new Date(r.started_at).getTime());
-      }, 0);
-      return Math.round((durationMs / 3600000) * 10) / 10;
-    }
+    type Driver = { id: string; full_name: string | null };
 
-    const results = await Promise.all(
-      drivers.map(async d => {
-        const soll = (d.soll_stunden as number | null) ?? 8;
-        const [schicht, schicht_vw] = await Promise.all([
-          getSchichtDauer(d.id, today),
-          getSchichtDauer(d.id, lastWeek),
-        ]);
-        const ue = Math.round((schicht - soll) * 10) / 10;
-        const ue_vw = Math.round((schicht_vw - soll) * 10) / 10;
+    const unsorted = await Promise.all(
+      (drivers as Driver[]).map(async (d) => {
+        const { data: shiftsHeute } = await sb
+          .from('driver_shifts')
+          .select('started_at, ended_at')
+          .eq('driver_id', d.id)
+          .eq('location_id', locationId)
+          .gte('started_at', heuteStart.toISOString());
+
+        type ShiftRow = { started_at: string | null; ended_at: string | null };
+        const rowsHeute = (shiftsHeute as ShiftRow[] | null) ?? [];
+        const stunden_heute = rowsHeute.reduce((sum, s) => {
+          if (!s.started_at) return sum;
+          const start = new Date(s.started_at).getTime();
+          const end = s.ended_at ? new Date(s.ended_at).getTime() : jetzt.getTime();
+          return sum + (end - start) / 3_600_000;
+        }, 0);
+        const stunden_gerundet = Math.round(stunden_heute * 10) / 10;
+
+        const { data: shiftsVW } = await sb
+          .from('driver_shifts')
+          .select('started_at, ended_at')
+          .eq('driver_id', d.id)
+          .eq('location_id', locationId)
+          .gte('started_at', vwStart.toISOString())
+          .lt('started_at', vwEnd.toISOString());
+
+        const rowsVW = (shiftsVW as ShiftRow[] | null) ?? [];
+        const stunden_vw = rowsVW.reduce((sum, s) => {
+          if (!s.started_at || !s.ended_at) return sum;
+          return sum + (new Date(s.ended_at).getTime() - new Date(s.started_at).getTime()) / 3_600_000;
+        }, 0);
+        const vw_gerundet = rowsVW.length > 0 ? Math.round(stunden_vw * 10) / 10 : stunden_gerundet;
+
+        const { trend, delta } = trendVon(stunden_gerundet, vw_gerundet);
+
         return {
           fahrer_id: d.id,
-          fahrer_name: d.name,
-          ueberstunden_h: ue,
-          ueberstunden_h_vw: ue_vw,
-          schicht_dauer_h: schicht,
-          soll_dauer_h: soll,
-          trend: ue > ue_vw ? 'steigend' : ue < ue_vw ? 'fallend' : 'stabil',
-          trend_delta: Math.round((ue - ue_vw) * 10) / 10,
-          ampel: calcAmpel(ue),
-          alert_ueberstunden: ue > 2 && schicht > 0,
-        } as FahrerUeberstunden;
-      }),
+          fahrer_name: d.full_name ?? 'Fahrer',
+          schicht_stunden: stunden_gerundet,
+          ampel: ampelVon(stunden_gerundet),
+          trend,
+          trend_delta: delta,
+          vw_stunden: vw_gerundet,
+        };
+      })
     );
 
-    const fahrer = results.sort((a, b) => b.ueberstunden_h - a.ueberstunden_h);
-    const team_avg = fahrer.length
-      ? Math.round((fahrer.reduce((s, f) => s + f.ueberstunden_h, 0) / fahrer.length) * 10) / 10
-      : 0;
-    const team_avg_vw = fahrer.length
-      ? Math.round((fahrer.reduce((s, f) => s + f.ueberstunden_h_vw, 0) / fahrer.length) * 10) / 10
-      : 0;
-    const alert_count = fahrer.filter(f => f.alert_ueberstunden).length;
+    const sorted = [...unsorted].sort((a, b) => b.schicht_stunden - a.schicht_stunden);
+    const fahrer: FahrerUeberstunden[] = sorted.map((f, i) => ({ ...f, rang: i + 1 }));
+    const team_durchschnitt =
+      fahrer.length > 0
+        ? Math.round((fahrer.reduce((s, f) => s + f.schicht_stunden, 0) / fahrer.length) * 10) / 10
+        : 0;
 
-    if (driverId) {
-      const f = fahrer.find(d => d.fahrer_id === driverId) ?? fahrer[0];
-      return NextResponse.json({ fahrer_single: f, team_avg_ueberstunden: team_avg });
-    }
-
-    return NextResponse.json({ fahrer, team_avg_ueberstunden: team_avg, team_avg_ueberstunden_vw: team_avg_vw, alert_count, generiert_am: new Date().toISOString() });
-  } catch (err) {
-    console.error('fahrer-ueberstunden error', err);
-    return NextResponse.json(buildMock(locationId, driverId));
+    return NextResponse.json({
+      location_id: locationId,
+      fahrer,
+      team_durchschnitt,
+      alert_count: fahrer.filter(f => f.schicht_stunden > 10).length,
+      generiert_am: jetzt.toISOString(),
+    } satisfies UeberstundenAntwort);
+  } catch {
+    return NextResponse.json(buildMock(locationId));
   }
 }

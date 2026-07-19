@@ -670,6 +670,7 @@ import { FahrerPhase2474MeineLieferzeitEffizienz } from './phase2474-meine-liefe
 import { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
 import { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
 import { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote';
+import { FahrerPhase2447MeineUeberstunden } from './phase2447-meine-ueberstunden';
 
 type Driver = {
   id: string;
@@ -5950,6 +5951,8 @@ export function FahrerApp({
           <FahrerPhase2437MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2442: Meine Storno-Quote — % groß + Farbcode; Balken 0–20% mit Ziel-Linien 5%/10%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp */}
           <FahrerPhase2442MeineStornoQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2447: Meine Schichtdauer — h groß + Farbcode; Balken 0–12h mit Ziel-Linien 8h/10h; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp */}
+          <FahrerPhase2447MeineUeberstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2380TourStoppNavigatorUltra
@@ -9044,6 +9047,8 @@ export { FahrerPhase2474MeineLieferzeitEffizienz } from './phase2474-meine-liefe
 export { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
 // Phase 2442 — Meine Storno-Quote (Stornierungen/Gesamt × 100%; Balken 0–20% mit Ziel-Linien 5%/10%; Ampel <5%/5-10%/>10%; Coaching-Tipp)
 export { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote';
+// Phase 2447 — Meine Schichtdauer (Stunden; Balken 0–12h mit Ziel-Linien 8h/10h; Ampel <8h/8-10h/>10h; Coaching-Tipp)
+export { FahrerPhase2447MeineUeberstunden } from './phase2447-meine-ueberstunden';
 // Phase 2467 — Tour-Stops Navigation Live Kommando (alle Stops mit Status-Dots; Hero Next-Stop; Navi-Button; Anruf-Button; Notiz-Alert; Fortschrittsbalken; 20-Sek-Polling)
 export { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
 // Phase 2480 — Tour-Stopp Navigator Ultimate (vollständige Stop-Liste; Next-Stop-Fokus; ETA-Countdown; Nav-Buttons Google/Waze/Apple; Stop-Bestätigung angekommen/zugestellt)
