@@ -22399,3 +22399,43 @@ Interne Kennzahl irrelevant für Kunden ✅
 4. **Phase 2532 Storefront:** Überspringen (Wartezeiten intern irrelevant für Kunden).
 5. **Phase 2533 Kitchen:** Wartezeit-Depot-Ticker — Team-Ø; Alert >20min "Disposition prüfen!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2528.
 
+---
+
+## Batch 2529–2533 — Fahrer-Wartezeit-Depot (2026-07-19)
+
+### Phase 2529 — Backend API: Fahrer-Wartezeit-Depot
+**Datei:** `app/api/delivery/admin/fahrer-wartezeit-depot/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Ø Wartezeit am Depot je Fahrer heute (Zeit zwischen Tour-Ende und nächstem Tour-Start); Ampel grün(≤10min)/gelb(10–20min)/rot(>20min); Alert >20min; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2530 — Wartezeit-Depot-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2530-wartezeit-depot-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute/VW/Ziel ≤10min); Fahrerliste nach Wartezeit sortiert (längste oben); DepotBar 0–30min mit Ziel-Linien 10min (gelb) und 20min (rot); Ampel-Dots; Trend-Pfeile + Delta; Intervalle-Count; Alert-Banner >20min "Disposition prüfen!"; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2525 ✅
+
+### Phase 2531 — Meine Wartezeit am Depot (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2531-meine-wartezeit-depot.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Min groß + Farbcode; Fortschrittsbalken 0–30min mit Ziel-Linien 10min/20min; KPI-Grid (VW/Team-Ø/Trend/Intervalle); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; driverId-Filter clientseitig
+**Integration:** `fahrer/app/client.tsx` nach Phase2526 ✅
+
+### Phase 2532 — Storefront
+Übersprungen (Wartezeiten intern irrelevant für Kunden) ✅
+
+### Phase 2533 — Wartezeit-Depot-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2533-wartezeit-depot-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Wartezeit; Alert-Banner >20min "Disposition prüfen!" mit Fahrernamen; Fahrerliste kompakt nach Wartezeit sortiert (längste oben) mit Ampel-Dots und min-Wert; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2528 ✅
+
+### Nächste Phasen 2534–2538 (für nächsten Ingenieur) — Fahrer-Erreichbarkeits-Score
+1. **Phase 2534 Backend:** GET /api/delivery/admin/fahrer-erreichbarkeit-score — Score 0–100 je Fahrer (Reaktionszeit auf Aufträge in Sek; Ampel grün(≤30s)/gelb(30–60s)/rot(>60s); Alert >60s; Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2535 Dispatch:** Erreichbarkeits-Board — KPI-Grid Team-Ø Score heute/VW/Ziel ≤30s; Fahrerliste nach Score sortiert (längste Reaktionszeit oben); Balken 0–120s mit Ziel-Linien 30s/60s; Alert-Banner >60s; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2530.
+3. **Phase 2536 Fahrer-App:** Meine Erreichbarkeit — Score-Wert groß + Farbcode; Balken 0–120s mit Ziel-Linien 30s/60s; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2531.
+4. **Phase 2537 Storefront:** Überspringen (Erreichbarkeits-Daten intern irrelevant für Kunden).
+5. **Phase 2538 Kitchen:** Erreichbarkeits-Ticker — Team-Ø Score; Alert >60s "Fahrer Erreichbarkeit prüfen!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2533.
+
+---
+
+Backend-Architekt-Agent (2026-07-19): Phasen 2529–2533 implementiert. 1 neue Backend-API (fahrer-wartezeit-depot) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2532 Storefront übersprungen. Build-Umgebung: Turbopack-Workspace-Root-Fehler pre-existing (identisch mit Phase-2493-Fehleridentität — next.config.js bereits korrekt konfiguriert mit turbopack.root). TypeScript-Fehler ebenfalls pre-existing (identisch mit Phase2525/2528). Push erfolgt.
+
