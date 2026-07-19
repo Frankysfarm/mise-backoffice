@@ -9154,3 +9154,5 @@ export { FahrerPhase2495TourStoppNavigationMaster, type MasterTourStop } from '.
 export { FahrerPhase2510TourStoppNavigationsHub } from './phase2510-tour-stopp-navigations-hub';
 // Phase 2523 — Tour-Stopp Smart-Navi Pro (Hero-Fokus nächster Stopp; 1-Tap Navigation Google/Apple/Waze; Anruf-Button; Fortschrittsleiste; Alle Stopps aufklappbar; mobile-optimiert)
 export { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
+// Phase 2600 — Smart Tour-Stopp Navigator Final (Aktueller Stopp + Navigation-Button + Telefon + Bestätigung; Stop-Liste mit Status-Dots; ETA; 1-Sek-Tick)
+export { FahrerPhase2600SmartTourStoppNavigatorFinal } from './phase2600-smart-tour-stopp-navigator-final';

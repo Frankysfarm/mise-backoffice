@@ -11594,3 +11594,5 @@ export { DispatchPhase2490ScoreTourVisualisierungBoardV2 } from './phase2490-sco
 export { DispatchPhase2515ScoreTourVisualisierungHub } from './phase2515-score-tour-visualisierung-hub';
 // Phase 2521 — Tour-Score Echtzeit-Hub (Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert; 25-Sek-Update)
 export { DispatchPhase2521TourScoreEchtzeitHub } from './phase2521-tour-score-echtzeit-hub';
+// Phase 2600 — Tour-Score Visualisierung Kommandant (Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling)
+export { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';

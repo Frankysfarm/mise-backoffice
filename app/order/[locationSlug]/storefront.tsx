@@ -3763,3 +3763,5 @@ export { StorefrontPhase2065DynamischeEtaLiveTracking } from './phase2065-dynami
 export { StorefrontPhase2277DynamicEtaLiveTracking } from './phase2277-dynamic-eta-live-tracking';
 // Phase 2375 — Dynamische ETA Live-Tracking Board (7-Status-Timeline; ETA-Balken mit Konfidenz; Fahrer-Info; Delay-Alert; 30-Sek-Polling)
 export { StorefrontPhase2375DynamischeEtaLiveTrackingBoard } from './phase2375-dynamische-eta-live-tracking-board';
+// Phase 2600 — Dynamische ETA Live Final (Phasen-Fortschrittsbalken; Countdown-Minuten; Fahrer-Info; Konfidenz-Indikator; 30-Sek-Polling + 1-Sek-Tick)
+export { StorefrontPhase2600DynamischeEtaLiveFinal } from './phase2600-dynamische-eta-live-final';
