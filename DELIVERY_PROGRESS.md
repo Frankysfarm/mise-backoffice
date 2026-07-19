@@ -22665,3 +22665,41 @@ Trinkgeld-Quote intern irrelevant für Kunden ✅
 ---
 
 Frontend-Ingenieur-Agent (2026-07-19): Phasen 2544–2548 implementiert. 1 neue Backend-API (fahrer-bewertung-score, Supabase: delivery_ratings.rating) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2545 Dispatch (Bewertungs-Board) / Phase2546 Fahrer-App (Meine Bewertung) / Phase2548 Kitchen (Bewertungs-Ticker). Phase 2547 Storefront übersprungen (Bewertungsdetails intern irrelevant). Turbopack-Build-Fehler pre-existing. TS-Fehler alle in pre-existing Dateien. Push erfolgt.
+
+## Batch 2569–2573 — Fahrer-Lieferzeit-Pünktlichkeit (2026-07-19)
+
+### Phase 2569 — Backend API: Fahrer-Lieferzeit-Pünktlichkeit
+**Datei:** `app/api/delivery/admin/fahrer-lieferzeit-puenktlichkeit/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — % Lieferungen innerhalb zugesagter ETA je Fahrer heute (delivered_at <= estimated_delivery_at); Ampel grün(≥90%)/gelb(75–89%)/rot(<75%); Alert <75%; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase (delivery_tours.delivered_at vs. estimated_delivery_at)+Mock
+
+### Phase 2570 — Pünktlichkeits-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2570-puenktlichkeit-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute / Vorwoche / Ziel ≥90%); Fahrerliste nach Pünktlichkeit sortiert (niedrigste oben); Balken 0–100% mit Ziel-Linien 75% (rot/gestrichelt) und 90% (amber/gestrichelt); Trend-Pfeile; Alert-Banner <75%; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2565 ✅
+
+### Phase 2571 — Meine Pünktlichkeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2571-meine-puenktlichkeit.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); %-Wert groß + Farbcode; Fortschrittsbalken 0–100% mit gestrichelten Ziel-Linien bei 75% und 90%; KPI-Grid (VW/Trend/Ziel/Team-Ø); Lieferungen-Statistik (X von Y pünktlich); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2566 ✅
+
+### Phase 2572 — Storefront
+Übersprungen (interne Pünktlichkeitsdaten irrelevant für Kunden) ✅
+
+### Phase 2573 — Pünktlichkeits-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2573-puenktlichkeit-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Pünktlichkeit; Alert-Banner <75% "Pünktlichkeit <75%!" mit Fahrernamen; Fahrerliste kompakt nach Pünktlichkeit sortiert (niedrigste oben) mit Ampel-Dots und %-Wert; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2568 ✅
+
+### Nächste Phasen 2574–2578 (für nächsten Ingenieur) — Fahrer-Lieferzeit-Abweichung
+1. **Phase 2574 Backend:** GET /api/delivery/admin/fahrer-lieferzeit-abweichung — Ø Abweichung in Min von zugesagter ETA je Fahrer heute (delivered_at - estimated_delivery_at); Ampel grün(≤0 Min)/gelb(1–10 Min)/rot(>10 Min); Alert >10 Min; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2575 Dispatch:** Lieferzeit-Abweichungs-Board — Fahrerliste nach Abweichung sortiert (größte oben); Balken -10 bis +30 Min mit Nulllinie; KPI-Grid Team-Ø/VW/Ziel ≤0; Alert-Banner >10 Min; 30-Min-Polling; in dispatch/client.tsx nach Phase2570.
+3. **Phase 2576 Fahrer-App:** Meine Lieferzeit-Abweichung — Min-Wert groß + Farbcode; Balken mit Nulllinie; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2571.
+4. **Phase 2577 Storefront:** Überspringen (Abweichungsdaten intern irrelevant für Kunden).
+5. **Phase 2578 Kitchen:** Abweichungs-Ticker — Team-Ø; Alert >10 Min "Lieferzeit überschritten!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2573.
+
+---
+
+Backend-Architekt-Agent (2026-07-19): Phasen 2569–2573 implementiert. 1 neue Backend-API (fahrer-lieferzeit-puenktlichkeit, Supabase: delivery_tours.delivered_at vs. estimated_delivery_at) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2570 Dispatch (Pünktlichkeits-Board) / Phase2571 Fahrer-App (Meine Pünktlichkeit) / Phase2573 Kitchen (Pünktlichkeits-Ticker). Phase 2572 Storefront übersprungen (interne Daten irrelevant für Kunden). Push erfolgt.

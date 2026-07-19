@@ -327,6 +327,7 @@ import { KitchenPhase2553TrinkgeldQuoteV2Ticker } from './phase2553-trinkgeld-qu
 import { KitchenPhase2558ZufriedenheitsScoreTicker } from './phase2558-zufriedenheits-score-ticker';
 import { KitchenPhase2563OnlineZeitTicker } from './phase2563-online-zeit-ticker';
 import { KitchenPhase2568RoutenEffizienzTicker } from './phase2568-routen-effizienz-ticker';
+import { KitchenPhase2573PuenktlichkeitTicker } from './phase2573-puenktlichkeit-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3516,6 +3517,8 @@ export function KitchenBoard({
       <KitchenPhase2563OnlineZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2568: Routen-Effizienz-Ticker — Team-Ø Effizienz; Alert <60% mit Routentipp; Fahrerliste kompakt nach Effizienz sortiert; 30-Min-Polling */}
       <KitchenPhase2568RoutenEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2573: Pünktlichkeits-Ticker — Team-Ø % Lieferungen innerhalb ETA; Alert <75%; Fahrerliste kompakt nach Pünktlichkeit sortiert; 30-Min-Polling */}
+      <KitchenPhase2573PuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}

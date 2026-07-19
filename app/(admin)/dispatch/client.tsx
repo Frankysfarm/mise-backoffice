@@ -778,6 +778,7 @@ import { DispatchPhase2550TrinkgeldQuoteV2Board } from './phase2550-trinkgeld-qu
 import { DispatchPhase2555ZufriedenheitsScoreBoard } from './phase2555-zufriedenheits-score-board';
 import { DispatchPhase2560OnlineZeitEffizienzBoard } from './phase2560-online-zeit-effizienz-board';
 import { DispatchPhase2565RoutenEffizienzBoard } from './phase2565-routen-effizienz-board';
+import { DispatchPhase2570PuenktlichkeitBoard } from './phase2570-puenktlichkeit-board';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
 import { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';
 import { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
@@ -3943,6 +3944,8 @@ export function DispatchBoard({
           <DispatchPhase2560OnlineZeitEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2565: Routen-Effizienz-Board — Effizienz = Direkt-km/Ist-km × 100; Ampel grün≥80%/gelb60-79%/rot<60%; Alert <60%; Fahrerliste sortiert; 30-Min-Polling */}
           <DispatchPhase2565RoutenEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2570: Pünktlichkeits-Board — % Lieferungen innerhalb ETA je Fahrer; Ampel grün≥90%/gelb75-89%/rot<75%; Alert <75%; Balken mit Ziel-Linien; 30-Min-Polling */}
+          <DispatchPhase2570PuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2483: Tour-Score Live-Board — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2483TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2600: Tour-Score Visualisierung Kommandant — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
