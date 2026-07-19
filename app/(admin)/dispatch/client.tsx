@@ -743,6 +743,7 @@ import { DispatchPhase2419TrinkgeldQuoteBoard } from './phase2419-trinkgeld-quot
 import { DispatchPhase2424ScoreTourVisualisierungMaster } from './phase2424-score-tour-visualisierung-master';
 import { DispatchPhase2426BewertungsBoard } from './phase2426-bewertungs-board';
 import { DispatchPhase2427TourScoreBoardUltra } from './phase2427-tour-score-board-ultra';
+import { DispatchPhase2431PuenktlichkeitsBoard } from './phase2431-puenktlichkeits-board';
 import { DispatchPhase2432UeberstundenBoard } from './phase2432-ueberstunden-board';
 import { DispatchPhase2437NachtschichtBoard } from './phase2437-nachtschicht-board';
 import { DispatchPhase2442WochenendSchichtBoard } from './phase2442-wochenend-schicht-board';
@@ -3839,6 +3840,8 @@ export function DispatchBoard({
           <DispatchPhase2424ScoreTourVisualisierungMaster locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2426: Bewertungs-Board — KPI-Grid Team-Ø heute/VW/Ziel 4,5★; Podium Top-3; Fahrerliste nach Ø★ sortiert; Alert <3,5★; Ampel; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2426BewertungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2431: Pünktlichkeits-Board — KPI-Grid Team-Ø heute/Fahrer/Ziel ≥90%; Podium Top-3; Fahrerliste nach Quote sortiert; Alert <75%; Ampel; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2431PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2427: Tour-Score-Board Ultra — Score-Ring je Fahrer, Stop-Dots, Tour-Fortschrittsbalken, ETA, Status-Ampel, Alert verzögert */}
           <DispatchPhase2427TourScoreBoardUltra locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2432: Überstunden-Board — KPI-Grid Team-Ø heute/VW/Ziel ≤0h; Fahrerliste nach Überstunden sortiert; Alert >2h; Trend-Pfeile; Ampel-Balken; 30-Min-Polling */}
@@ -11480,6 +11483,8 @@ export { DispatchPhase2419TrinkgeldQuoteBoard } from './phase2419-trinkgeld-quot
 export { DispatchPhase2424ScoreTourVisualisierungMaster } from './phase2424-score-tour-visualisierung-master';
 // Phase 2426 — Bewertungs-Board (KPI-Grid Team-Ø heute/VW/Ziel 4,5★; Podium Top-3; Fahrerliste nach Ø★; Alert <3,5★; Ampel; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2426BewertungsBoard } from './phase2426-bewertungs-board';
+// Phase 2431 — Pünktlichkeits-Board (KPI-Grid Team-Ø heute/Fahrer/Ziel ≥90%; Podium Top-3; Fahrerliste nach Quote sortiert; Alert <75%; Ampel; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2431PuenktlichkeitsBoard } from './phase2431-puenktlichkeits-board';
 // Phase 2427 — Tour-Score Board Ultra (Score-Ring je Fahrer; Stop-Dots; Tour-Fortschrittsbalken; ETA; Status-Ampel; Alert verzögert; 25-Sek-Polling)
 export { DispatchPhase2427TourScoreBoardUltra } from './phase2427-tour-score-board-ultra';
 // Phase 2432 — Überstunden-Board (KPI-Grid Team-Ø heute/VW/Ziel ≤0h; Fahrerliste nach Überstunden sortiert; Alert >2h; Trend-Pfeile; Ampel-Balken; 30-Min-Polling)

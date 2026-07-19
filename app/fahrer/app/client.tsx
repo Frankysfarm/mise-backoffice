@@ -657,6 +657,7 @@ import { FahrerPhase2420MeineTrinkgeldQuote } from './phase2420-meine-trinkgeld-
 import { FahrerPhase2425TourStopsNaviHub } from './phase2425-tour-stops-navi-hub';
 import { FahrerPhase2427MeineBewertung } from './phase2427-meine-bewertung';
 import { FahrerPhase2428TourStoppNavigatorUltra } from './phase2428-tour-stopp-navigator-ultra';
+import { FahrerPhase2432MeinePuenktlichkeit } from './phase2432-meine-puenktlichkeit';
 import { FahrerPhase2433MeineUeberstunden } from './phase2433-meine-ueberstunden';
 import { FahrerPhase2438MeineNachtschicht } from './phase2438-meine-nachtschicht';
 import { FahrerPhase2443MeineWochenendSchicht } from './phase2443-meine-wochenend-schicht';
@@ -5914,6 +5915,8 @@ export function FahrerApp({
           <FahrerPhase2425TourStopsNaviHub driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2427: Meine Bewertung — Ø★ groß + Farbcode; Stern-Visualisierung; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2427MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2432: Meine Pünktlichkeit — % groß + Farbcode; Balken 0–100% mit Ziel-Linien 75%/90%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2432MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2428: Tour-Stopp Navigator Ultra — alle Stopps + Status-Ampel, Next-Stop Hero-Karte, Fortschrittsbalken, Navi-Button, Anruf-Button, Notiz-Anzeige, 20-Sek-Polling */}
           <FahrerPhase2428TourStoppNavigatorUltra driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2433: Meine Überstunden — h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
@@ -8995,6 +8998,8 @@ export { FahrerPhase2420MeineTrinkgeldQuote } from './phase2420-meine-trinkgeld-
 export { FahrerPhase2425TourStopsNaviHub } from './phase2425-tour-stops-navi-hub';
 // Phase 2427 — Meine Bewertung (Ø★ groß + Farbcode; Stern-Visualisierung; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2427MeineBewertung } from './phase2427-meine-bewertung';
+// Phase 2432 — Meine Pünktlichkeit (% groß + Farbcode; Balken 0–100% mit Ziel-Linien 75%/90%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2432MeinePuenktlichkeit } from './phase2432-meine-puenktlichkeit';
 // Phase 2428 — Tour-Stopp Navigator Ultra (alle Stopps + Status-Ampel; Next-Stop Hero-Karte; Fortschrittsbalken; Navi-Button; Anruf-Button; Notiz-Anzeige; 20-Sek-Polling)
 export { FahrerPhase2428TourStoppNavigatorUltra } from './phase2428-tour-stopp-navigator-ultra';
 // Phase 2433 — Meine Überstunden (h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)

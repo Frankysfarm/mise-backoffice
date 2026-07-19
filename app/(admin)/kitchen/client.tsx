@@ -293,6 +293,7 @@ import { KitchenPhase2422TrinkgeldQuoteTicker } from './phase2422-trinkgeld-quot
 import { KitchenPhase2423SmartTimingCountdownCockpit } from './phase2423-smart-timing-countdown-cockpit';
 import { KitchenPhase2429BewertungsTicker } from './phase2429-bewertungs-ticker';
 import { KitchenPhase2430SmartTimingCountdownUltra } from './phase2430-smart-timing-countdown-ultra';
+import { KitchenPhase2434PuenktlichkeitsTicker } from './phase2434-puenktlichkeits-ticker';
 import { KitchenPhase2435UeberstundenTicker } from './phase2435-ueberstunden-ticker';
 import { KitchenPhase2440NachtschichtTicker } from './phase2440-nachtschicht-ticker';
 import { KitchenPhase2445WochenendTicker } from './phase2445-wochenend-ticker';
@@ -3412,6 +3413,8 @@ export function KitchenBoard({
       <KitchenPhase2423SmartTimingCountdownCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2429: Bewertungs-Ticker — Team-Ø Sterne; Alert <3,5★; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling */}
       <KitchenPhase2429BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2434: Pünktlichkeits-Ticker — Team-Ø Quote; Alert <75%; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling */}
+      <KitchenPhase2434PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2430: Smart-Timing Countdown Ultra — Countdown-Ring pro Batch, Farbkodierung grün/gelb/rot, On-Time-Quote, Fortschrittsbalken, 30-Sek-Polling */}
       <KitchenPhase2430SmartTimingCountdownUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2435: Überstunden-Ticker — Team-Ø; Alert >2h; Fahrerliste kompakt; 30-Min-Polling */}
@@ -10050,3 +10053,5 @@ export { KitchenPhase2422TrinkgeldQuoteTicker } from './phase2422-trinkgeld-quot
 export { KitchenPhase2423SmartTimingCountdownCockpit } from './phase2423-smart-timing-countdown-cockpit';
 // Phase 2429 — Bewertungs-Ticker (Team-Ø Sterne; Alert <3,5★; Fahrerliste kompakt mit Ampel-Dots grün/gelb/rot; 30-Min-Polling)
 export { KitchenPhase2429BewertungsTicker } from './phase2429-bewertungs-ticker';
+// Phase 2434 — Pünktlichkeits-Ticker (Team-Ø Quote; Alert <75%; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling)
+export { KitchenPhase2434PuenktlichkeitsTicker } from './phase2434-puenktlichkeits-ticker';
