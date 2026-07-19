@@ -784,6 +784,7 @@ import { DispatchPhase2580StornoQuoteTrendBoard } from './phase2580-storno-quote
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
 import { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';
 import { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
+import { DispatchPhase2620ScoreTourVisualisierungFinal } from './phase2620-score-tour-visualisierung-final';
 
 type Driver = {
   employee_id: string;
@@ -3958,6 +3959,8 @@ export function DispatchBoard({
           <DispatchPhase2600TourScoreVisualisierungKommandant batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2605: Score & Tour Hub Ultra — Score-Ring je Fahrer + Stop-Dots + Tour-Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2605ScoreTourHubUltra locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2620: Score + Tour-Visualisierung Final — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
+          <DispatchPhase2620ScoreTourVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -11643,3 +11646,5 @@ export { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-
 export { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
 // Phase 2605 — Score & Tour Hub Ultra (Score-Ring + farbkodierte Stop-Dots mit Nummern + Fortschrittsbalken + ETA + expandierbar + Alert Score <60; 25-Sek-Polling)
 export { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
+// Phase 2620 — Score + Tour-Visualisierung Final (Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling)
+export { DispatchPhase2620ScoreTourVisualisierungFinal } from './phase2620-score-tour-visualisierung-final';

@@ -333,6 +333,7 @@ import { KitchenPhase2583StornoQuoteTrendTicker } from './phase2583-storno-quote
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
+import { KitchenPhase2620SmartTimingCountdownMaster } from './phase2620-smart-timing-countdown-master';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3531,6 +3532,8 @@ export function KitchenBoard({
       <KitchenPhase2600SmartTimingCountdownKommandant locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2610: Smart-Timing ETA-Sync Final — Farbkodierter Countdown je Bestellung + Fahrer-ETA-Sync + Kochstart-Empfehlung + On-Time-Quote-Ring; 20-Sek-Polling + 1-Sek-Tick */}
       <KitchenPhase2610SmartTimingEtaSyncFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2620: Smart-Timing Countdown Master — Countdown-Ring grün/gelb/rot je Bestellung + On-Time-Rate-Leiste + Überfällig-Alert; 25-Sek-Polling + 1-Sek-Tick */}
+      <KitchenPhase2620SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -10201,3 +10204,5 @@ export { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smar
 export { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 // Phase 2610 — Smart-Timing ETA-Sync Final (Farbkodierter Countdown grün/gelb/rot je Bestellung; Fahrer-ETA-Sync; Kochstart-Empfehlung; On-Time-Quote-Ring; 20-Sek-Polling + 1-Sek-Tick)
 export { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
+// Phase 2620 — Smart-Timing Countdown Master (Countdown-Ring je Bestellung grün/gelb/rot; On-Time-Rate-Leiste; KPI-Strip; Überfällig-Alert; 25-Sek-Polling + 1-Sek-Tick)
+export { KitchenPhase2620SmartTimingCountdownMaster } from './phase2620-smart-timing-countdown-master';

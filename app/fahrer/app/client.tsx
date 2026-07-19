@@ -689,6 +689,7 @@ import { FahrerPhase2576MeineLieferzeitAbweichung } from './phase2576-meine-lief
 import { FahrerPhase2581MeineStornoQuoteTrend } from './phase2581-meine-storno-quote-trend';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
 import { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';
+import { FahrerPhase2620SmartTourNavigationMaster } from './phase2620-smart-tour-navigation-master';
 import { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
 import { FahrerPhase2600SmartTourStoppNavigatorFinal } from './phase2600-smart-tour-stopp-navigator-final';
 import { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
@@ -6015,6 +6016,34 @@ export function FahrerApp({
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
           <FahrerPhase2610TourNavigatorGpsFinal driverId={driver.id} batchId={activeBatch?.id ?? null} />
+          {/* Phase 2620: Smart Tour Navigation Master — GPS-Links + Countdown + Lieferbestätigung + Schicht-KPI-Zusammenfassung; Mobile-first */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <div className="px-4">
+              <FahrerPhase2620SmartTourNavigationMaster
+                stops={(activeBatch.stops ?? []).map((s: any) => ({
+                  id: s.id,
+                  sequence: s.reihenfolge ?? s.stop_number ?? 0,
+                  order_id: s.order_id ?? s.id,
+                  bestellnummer: s.order?.bestellnummer ?? `#${s.reihenfolge ?? 0}`,
+                  kunde_name: s.order?.kunde_name ?? s.customer_name ?? s.kunde_name ?? null,
+                  adresse: s.order?.kunde_adresse ?? s.address ?? s.kunde_adresse ?? null,
+                  plz: s.order?.kunde_plz ?? s.kunde_plz ?? null,
+                  lat: s.order?.kunde_lat ?? s.lat ?? null,
+                  lng: s.order?.kunde_lng ?? s.lng ?? null,
+                  telefon: s.order?.kunde_telefon ?? s.customer_phone ?? s.kunde_telefon ?? null,
+                  betrag: s.order?.gesamtbetrag ?? s.gesamtbetrag ?? 0,
+                  bezahlt: s.order?.bezahlt ?? s.bezahlt ?? false,
+                  zahlungsart: s.order?.zahlungsart ?? s.zahlungsart ?? null,
+                  eta_min: s.eta_min ?? null,
+                  geliefert_am: s.geliefert_am ?? s.delivered_at ?? null,
+                  notiz: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? s.notes ?? null,
+                }))}
+                currentStopId={null}
+                onDeliverStop={markDelivered}
+                driverName={`${driver.vorname} ${driver.nachname}`}
+              />
+            </div>
+          )}
           {/* Phase 2600: Smart Tour-Stopp Navigator Final — Aktueller Stopp + Navigation + Telefon + Bestätigung; Stop-Liste mit Status-Dots; ETA; 1-Sek-Tick + 30-Sek-Polling */}
           <FahrerPhase2600SmartTourStoppNavigatorFinal
             batchId={activeBatch?.id ?? null}
@@ -9218,3 +9247,5 @@ export { FahrerPhase2600SmartTourStoppNavigatorFinal } from './phase2600-smart-t
 export { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
 // Phase 2610 — Tour Navigator GPS Final (Aktueller Stopp + One-Tap Navi Google/Apple/Waze + ETA-Countdown + Anruf + Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; 20-Sek-Polling + 1-Sek-Tick)
 export { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';
+// Phase 2620 — Smart Tour Navigation Master (GPS-Links Google/Waze + Countdown je Stopp + Lieferbestätigung + Schicht-KPI; Mobile-first)
+export { FahrerPhase2620SmartTourNavigationMaster } from './phase2620-smart-tour-navigation-master';
