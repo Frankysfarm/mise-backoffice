@@ -321,6 +321,7 @@ import { KitchenPhase2520SmartTimingPrepPrognoseCockpit } from './phase2520-smar
 import { KitchenPhase2528AkzeptanzrateTicker } from './phase2528-akzeptanzrate-ticker';
 import { KitchenPhase2533WartezeitDepotTicker } from './phase2533-wartezeit-depot-ticker';
 import { KitchenPhase2538ErreichbarkeitTicker } from './phase2538-erreichbarkeit-ticker';
+import { KitchenPhase2543StornoRateTicker } from './phase2543-storno-rate-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3498,6 +3499,8 @@ export function KitchenBoard({
       <KitchenPhase2533WartezeitDepotTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2538: Erreichbarkeits-Ticker — Team-Ø Reaktionszeit; Alert >60s "Fahrer Erreichbarkeit prüfen!"; Fahrerliste kompakt nach Reaktionszeit sortiert (längste oben) mit Ampel-Dots; 30-Min-Polling */}
       <KitchenPhase2538ErreichbarkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2543: Storno-Rate-Ticker — Team-Ø; Alert >15% "Storno-Rate kritisch!"; Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2543StornoRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}

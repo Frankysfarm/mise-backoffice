@@ -22483,3 +22483,41 @@ Backend-Architekt-Agent (2026-07-19): Phasen 2529–2533 implementiert. 1 neue B
 ---
 
 Backend-Architekt-Agent (2026-07-19): Phasen 2534–2538 implementiert. 1 neue Backend-API (fahrer-erreichbarkeit-score, Supabase: delivery_assignments.accepted_at - created_at) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2537 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
+
+Backend-Architekt-Agent (2026-07-19): Phasen 2539–2543 implementiert. 1 neue Backend-API (fahrer-storno-rate) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2540 Dispatch (Storno-Rate-Board) / Phase2541 Fahrer-App (Meine Storno-Rate) / Phase2543 Kitchen (Storno-Rate-Ticker). Phase 2542 Storefront übersprungen (Storno intern irrelevant für Kunden). Build ✓ Exit Code 0. Push erfolgt.
+
+---
+
+## Batch 2539–2543 — Fahrer-Storno-Rate (2026-07-19)
+
+### Phase 2539 — Backend API: Fahrer-Storno-Rate
+**Datei:** `app/api/delivery/admin/fahrer-storno-rate/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Storno-Rate (%) je Fahrer heute (stornierte / angebotene Touren × 100); Ampel grün(≤5%)/gelb(5–15%)/rot(>15%); Alert >15%; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase (delivery_assignments.status)+Mock
+
+### Phase 2540 — Storno-Rate-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2540-storno-rate-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot/grün je Alerts); KPI-Grid (Team-Ø heute / Ziel ≤5% / Alerts >15%); Fahrerliste nach Rate sortiert (höchste oben); StornoBar 0–30% mit Ziel-Linien 5%/15%; Alert-Banner >15% "Gespräch empfohlen!" mit Fahrernamen; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2535 ✅
+
+### Phase 2541 — Meine Storno-Rate (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2541-meine-storno-rate.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); %-Wert groß + Farbcode; Fortschrittsbalken 0–30% mit gestrichelten Ziel-Linien bei 5% und 15%; KPI-Grid (VW/Trend/Ziel/Team-Ø); Stats (Storniert/Angeboten); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2536 ✅
+
+### Phase 2542 — Storefront
+Übersprungen (Storno intern irrelevant für Kunden) ✅
+
+### Phase 2543 — Storno-Rate-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2543-storno-rate-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Storno-Rate; Alert-Banner >15% "Storno-Rate kritisch!" mit Fahrernamen; Fahrerliste kompakt nach Rate sortiert mit Ampel-Dots und %-Wert; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2538 ✅
+
+### Nächste Phasen 2544–2548 (für nächsten Ingenieur) — Fahrer-Bewertungs-Score
+1. **Phase 2544 Backend:** GET /api/delivery/admin/fahrer-bewertung-score — Ø Kundenbewertung (1–5 Sterne) je Fahrer heute; Ampel grün(≥4.5)/gelb(3.5–4.4)/rot(<3.5); Alert <3.5; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2545 Dispatch:** Bewertungs-Board — KPI-Grid Team-Ø heute/VW/Ziel ≥4.5; Fahrerliste nach Bewertung sortiert (niedrigste oben); Stern-Balken 1–5 mit Ziel-Linien 3.5/4.5; Alert-Banner <3.5 "Gespräch empfohlen!"; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2540.
+3. **Phase 2546 Fahrer-App:** Meine Bewertung — Ø-Sterne groß + Farbcode; Stern-Visualisierung; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2541.
+4. **Phase 2547 Storefront:** Überspringen (Bewertungsdetails intern irrelevant für Kunden).
+5. **Phase 2548 Kitchen:** Bewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Servicequalität prüfen!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2543.
