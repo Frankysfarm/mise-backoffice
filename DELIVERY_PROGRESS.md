@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-19): Phasen 2574–2578 implementiert. 1 neue Backend-API (fahrer-lieferzeit-abweichung, Supabase: delivery_tours.delivered_at - estimated_delivery_at) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2575 Dispatch (LieferzeitAbweichungsBoard) / Phase2576 Fahrer-App (MeineLieferzeitAbweichung) / Phase2578 Kitchen (AbweichungsTicker). Phase 2577 Storefront übersprungen (Abweichungsdaten intern irrelevant für Kunden). Turbopack-Build-Fehler pre-existing. TS-Fehler pre-existing (TS2307/TS7026). Push erfolgt.
+
 Frontend-Ingenieur-Agent (2026-07-19): Phasen 2564–2568 implementiert. 1 neue Backend-API (fahrer-routen-effizienz, Supabase: delivery_tours.actual_distance_km + direct_distance_km) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2565 Dispatch (RoutenEffizienzBoard) / Phase2566 Fahrer-App (MeineRoutenEffizienz) / Phase2568 Kitchen (RoutenEffizienzTicker). Phase 2567 Storefront übersprungen (interne Routendaten irrelevant für Kunden). Turbopack-Build-Fehler pre-existing. Push erfolgt.
 
 Backend-Architekt-Agent (2026-07-19): Phasen 2559–2563 implementiert. 1 neue Backend-API (fahrer-online-zeit) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2560 Dispatch (OnlineZeitEffizienzBoard) / Phase2561 Fahrer-App (MeineOnlineZeit) / Phase2563 Kitchen (OnlineZeitTicker). Phase 2562 Storefront übersprungen (interne Effizienz-Daten). Build-Umgebung: Turbopack-Workspace-Root-Fehler pre-existing (bestätigt). Push erfolgt.
@@ -22703,3 +22705,37 @@ Frontend-Ingenieur-Agent (2026-07-19): Phasen 2544–2548 implementiert. 1 neue 
 ---
 
 Backend-Architekt-Agent (2026-07-19): Phasen 2569–2573 implementiert. 1 neue Backend-API (fahrer-lieferzeit-puenktlichkeit, Supabase: delivery_tours.delivered_at vs. estimated_delivery_at) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2570 Dispatch (Pünktlichkeits-Board) / Phase2571 Fahrer-App (Meine Pünktlichkeit) / Phase2573 Kitchen (Pünktlichkeits-Ticker). Phase 2572 Storefront übersprungen (interne Daten irrelevant für Kunden). Push erfolgt.
+
+## Batch 2574–2578 — Fahrer-Lieferzeit-Abweichung (2026-07-19)
+
+### Phase 2574 — Backend API: Fahrer-Lieferzeit-Abweichung
+**Datei:** `app/api/delivery/admin/fahrer-lieferzeit-abweichung/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Ø Abweichung in Min von zugesagter ETA je Fahrer heute (delivered_at - estimated_delivery_at); Ampel grün(≤0 Min)/gelb(1–10 Min)/rot(>10 Min); Alert >10 Min; Trend Besser/Schlechter/Stabil vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2575 — Lieferzeit-Abweichungs-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2575-lieferzeit-abweichungs-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute / Vorwoche / Ziel ≤0 Min); Fahrerliste nach Abweichung sortiert (größte oben); Balken -10…+30 Min mit Nulllinie (grau) + Alert-Linie gestrichelt rot (+10 Min); Trend-Pfeile; Alert-Banner >10 Min; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2570 ✅
+
+### Phase 2576 — Meine Lieferzeit-Abweichung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2576-meine-lieferzeit-abweichung.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Min-Wert groß + Farbcode; Fortschrittsbalken mit Nulllinie + Alert-Linie bei +10 Min; KPI-Grid (VW/Trend/Ziel ≤0 Min/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2576 ✅
+
+### Phase 2577 — Storefront
+Übersprungen (Abweichungsdaten intern irrelevant für Kunden) ✅
+
+### Phase 2578 — Abweichungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2578-abweichungs-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Abweichung; Alert-Banner >10 Min "Lieferzeit überschritten!" mit Fahrernamen; Fahrerliste kompakt nach Abweichung sortiert (größte oben) mit Ampel-Dots und Min-Wert; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2573 ✅
+
+### Nächste Phasen 2579–2583 (für nächsten Ingenieur) — Fahrer-Storno-Quote-Trend
+1. **Phase 2579 Backend:** GET /api/delivery/admin/fahrer-storno-quote-trend — % stornierte Bestellungen je Fahrer heute (status='cancelled' / gesamt); Ampel grün(≤5%)/gelb(6–10%)/rot(>10%); Alert >10%; Trend 7-Tage vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2580 Dispatch:** Storno-Quote-Trend-Board — Fahrerliste nach Storno-Quote sortiert (höchste oben); Balken 0–30% mit Ziel-Linien 5% (grün) und 10% (rot/gestrichelt); KPI-Grid Team-Ø/VW/Ziel ≤5%; Alert-Banner >10%; 30-Min-Polling; in dispatch/client.tsx nach Phase2575.
+3. **Phase 2581 Fahrer-App:** Meine Storno-Quote — %-Wert groß + Farbcode; Balken 0–30% mit Ziel-Linien; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2576.
+4. **Phase 2582 Storefront:** Überspringen (Storno-Quote intern irrelevant für Kunden).
+5. **Phase 2583 Kitchen:** Storno-Quote-Ticker — Team-Ø; Alert >10% "Storno-Quote erhöht!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2578.
