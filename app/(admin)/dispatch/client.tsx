@@ -11522,6 +11522,8 @@ export { DispatchPhase2462KapazitaetScoreBoard } from './phase2462-kapazitaet-sc
 export { DispatchPhase2468RueckkehrDepotEtaBoard } from './phase2468-rueckkehr-depot-eta-board';
 // Phase 2436 — Reaktionszeit-Board (Ø Zeit bis Abfahrt nach Zuweisung; Ampel <3min/3-7min/>7min; Alert >7min)
 export { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
+// Phase 2470 — Score + Tour-Visualisierung Cockpit (Score-Ring je Fahrer; farbkodierte Stop-Dots; Tour-Fortschrittsbalken; ETA; Alert <60 Score; 25-Sek-Polling)
+export { DispatchPhase2470ScoreTourVisualisierungCockpit } from './phase2470-score-tour-visualisierung-cockpit';
 // Phase 2441 — Storno-Quote-Board (Stornierungen/Gesamt-Touren × 100%; Ampel <5%/5-10%/>10%; Alert >10%)
 export { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
 // Phase 2467 — Tour-Score & Visualisierung Live Cockpit (Score-Ring je Fahrer; Stop-Dots farbkodiert; Tour-Fortschritt; ETA; Alert <60; expandierbare Stop-Liste; 25-Sek-Polling)

@@ -10082,5 +10082,7 @@ export { KitchenPhase2423SmartTimingCountdownCockpit } from './phase2423-smart-t
 export { KitchenPhase2429BewertungsTicker } from './phase2429-bewertungs-ticker';
 // Phase 2434 — Pünktlichkeits-Ticker (Team-Ø Quote; Alert <75%; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling)
 export { KitchenPhase2434PuenktlichkeitsTicker } from './phase2434-puenktlichkeits-ticker';
+// Phase 2450 — Smart-Timing Countdown Pro (Farbkodierter Sekunden-Countdown grün/gelb/rot; On-Time-Quote; Batch-Fortschrittsbalken; 20-Sek-Update)
+export { KitchenPhase2450SmartTimingCountdownPro } from './phase2450-smart-timing-countdown-pro';
 // Phase 2470 — Smart-Timing Countdown Farbkodierung Ultimate (Sekunden-Countdown grün/gelb/rot je Bestellung; Countdown-Ring; Fortschrittsbalken; On-Time-Quote; Alert bei Überfälligkeit; 30-Sek-Update)
 export { KitchenPhase2470SmartTimingCountdownFarbkodierungUltimate } from './phase2470-smart-timing-countdown-farbkodierung-ultimate';

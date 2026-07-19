@@ -9041,3 +9041,5 @@ export { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionsze
 export { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote';
 // Phase 2467 — Tour-Stops Navigation Live Kommando (alle Stops mit Status-Dots; Hero Next-Stop; Navi-Button; Anruf-Button; Notiz-Alert; Fortschrittsbalken; 20-Sek-Polling)
 export { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
+// Phase 2480 — Tour-Stopp Navigator Ultimate (vollständige Stop-Liste; Next-Stop-Fokus; ETA-Countdown; Nav-Buttons Google/Waze/Apple; Stop-Bestätigung angekommen/zugestellt)
+export { FahrerPhase2480TourStoppNavUltimate } from './phase2480-tour-stopp-nav-ultimate';
