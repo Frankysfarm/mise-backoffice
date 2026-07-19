@@ -4612,3 +4612,5 @@ export { LieferdienstPhase2320StatistikDashboardUltimate } from './phase2320-sta
 export { LieferdienstPhase2325StatistikDashboardProUltimate } from './phase2325-statistiken-dashboard-pro-ultimate';
 // Phase 2326 — Statistiken Echtzeit Komplett (8 KPIs Raster; Ampel-Farbkodierung; Alert-Strip; Stunden-Chart mit Umschalten Umsatz/Bestellungen; 1-Min-Polling)
 export { LieferdienstPhase2326StatistikEchtzeitKomplett } from './phase2326-statistiken-echtzeit-komplett';
+// Phase 2331 — Statistiken-Dashboard Live Ultimate (8 KPIs + VW-Trends; Stunden-Chart 3-Modi; Zonen-Ranking; Alert-Strip; 5-Min-Polling)
+export { LieferdienstPhase2331StatistikDashboardLiveUltimate } from './phase2331-statistiken-dashboard-live-ultimate';

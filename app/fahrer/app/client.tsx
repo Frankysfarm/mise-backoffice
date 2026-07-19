@@ -9032,3 +9032,5 @@ export { FahrerPhase2463MeinKapazitaetScore } from './phase2463-mein-kapazitaet-
 export { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
 // Phase 2442 — Meine Storno-Quote (Stornierungen/Gesamt × 100%; Balken 0–20% mit Ziel-Linien 5%/10%; Ampel <5%/5-10%/>10%; Coaching-Tipp)
 export { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote';
+// Phase 2467 — Tour-Stops Navigation Live Kommando (alle Stops mit Status-Dots; Hero Next-Stop; Navi-Button; Anruf-Button; Notiz-Alert; Fortschrittsbalken; 20-Sek-Polling)
+export { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';

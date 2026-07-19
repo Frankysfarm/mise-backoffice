@@ -3740,3 +3740,5 @@ export { StorefrontPhase2065DynamischeEtaLiveTracking } from './phase2065-dynami
 
 // Phase 2277 — Dynamic ETA Live Tracking (Phasen-Timeline + ETA-Ring)
 export { StorefrontPhase2277DynamicEtaLiveTracking } from './phase2277-dynamic-eta-live-tracking';
+// Phase 2375 — Dynamische ETA Live-Tracking Board (7-Status-Timeline; ETA-Balken mit Konfidenz; Fahrer-Info; Delay-Alert; 30-Sek-Polling)
+export { StorefrontPhase2375DynamischeEtaLiveTrackingBoard } from './phase2375-dynamische-eta-live-tracking-board';
