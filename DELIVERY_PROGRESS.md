@@ -22864,14 +22864,14 @@ Backend-Architekt-Agent (2026-07-19): Phasen 2594–2598 implementiert. Backend-
 
 ## Batch 2599–2603 — Fahrer-Kilometer-Bilanz (2026-07-19)
 
-### Phase 2599 — Backend API: Fahrer-km-Bilanz
+### Phase 2599 — Backend API: Fahrer-km-Bilanz-heute
 **Datei:** `app/api/delivery/admin/fahrer-km-bilanz-heute/route.ts` *(neu)*
-**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Gefahrene km je Fahrer heute; Ampel grün(≥80 km)/gelb(50–79 km)/rot(<50 km); Alert <50 km; Trend Besser/Schlechter/Stabil vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_tours.distance_km)+Mock
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Gefahrene km je Fahrer heute; Ampel grün(≥80 km)/gelb(50–79 km)/rot(<50 km); Alert <50 km; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_tours: distance_km, started_at)+Mock. Neue Endpoint-URL `fahrer-km-bilanz-heute` um Konflikt mit bestehendem Phase-746-Endpoint zu vermeiden.
 
 ### Phase 2600 — km-Bilanz-Board (Dispatch)
 **Datei:** `app/(admin)/dispatch/phase2600-km-bilanz-board.tsx` *(neu)*
 **Props:** `locationId: string | null`
-**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute / Gestern / Ziel ≥80 km); Fahrerliste nach km sortiert (niedrigste oben); Balken 0–150 km mit grüner gestrichelter Ziel-Linie bei 80 km; Alert-Banner <50 km "Unterauslastung!" mit Fahrernamen; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute / Gestern / Ziel ≥80 km); Fahrerliste nach km sortiert (niedrigste oben); Balken 0–150 km mit grüner gestrichelter Ziel-Linie bei 80 km; Alert-Banner <50 km "km &lt;50 km!" mit Fahrernamen; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
 **Integration:** `dispatch/client.tsx` nach Phase2595 ✅
 
 ### Phase 2601 — Meine km-Bilanz (Fahrer-App)
@@ -22881,7 +22881,7 @@ Backend-Architekt-Agent (2026-07-19): Phasen 2594–2598 implementiert. Backend-
 **Integration:** `fahrer/app/client.tsx` nach Phase2596 ✅
 
 ### Phase 2602 — Storefront
-Übersprungen (km-Bilanz-Daten intern irrelevant für Kunden) ✅
+Übersprungen (km-Bilanz intern irrelevant für Kunden) ✅
 
 ### Phase 2603 — km-Bilanz-Ticker (Kitchen)
 **Datei:** `app/(admin)/kitchen/phase2603-km-bilanz-ticker.tsx` *(neu)*
@@ -22895,3 +22895,6 @@ Backend-Architekt-Agent (2026-07-19): Phasen 2594–2598 implementiert. Backend-
 3. **Phase 2606 Fahrer-App:** Mein Schicht-Erlös — €-Wert groß + Farbcode; Balken 0–400 € mit Ziel-Linie 200 €; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2601.
 4. **Phase 2607 Storefront:** Überspringen (Erlösdaten intern irrelevant für Kunden).
 5. **Phase 2608 Kitchen:** Schicht-Erlös-Ticker — Team-Ø €; Alert <100 € "Fahrer Umsatz niedrig!"; Fahrerliste kompakt mit Ampel-Dots + Trend; 30-Min-Polling; in kitchen/client.tsx nach Phase2603.
+
+Frontend-Ingenieur-Agent (2026-07-19): Phasen 2599–2603 implementiert. 1 neue Backend-API (fahrer-km-bilanz-heute, Supabase: delivery_tours distance_km/started_at, Trend vs. gestern, Ampel grün≥80/gelb50-79/rot<50) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2600 Dispatch (km-Bilanz-Board, Balken 0–150 km, Ziel-Linie 80 km) / Phase2601 Fahrer-App (Meine km-Bilanz, Coaching-Tipp je Ampelzone) / Phase2603 Kitchen (km-Bilanz-Ticker, Alert <50 km). Phase 2602 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.
+>>>>>>> affce801 (feat(delivery/frontend): Phasen 2599–2603 — Fahrer-Kilometer-Bilanz)

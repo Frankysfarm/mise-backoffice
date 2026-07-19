@@ -3539,7 +3539,7 @@ export function KitchenBoard({
       <KitchenPhase2593AuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2598: Pausenzeit-Ticker — Team-Ø Pausenzeit; Alert >30 Min "Langer Fahrer-Stillstand!"; Kompakte Fahrerliste (höchste Pause oben) mit Ampel + Trend; 30-Min-Polling */}
       <KitchenPhase2598PausenzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
-      {/* Phase 2603: km-Bilanz-Ticker — Team-Ø km; Alert <50 km "Fahrer unterausgelastet!"; Kompakte Fahrerliste (niedrigste oben) mit Ampel + Trend; 30-Min-Polling */}
+      {/* Phase 2603: km-Bilanz-Ticker — Team-Ø km; Alert <50 km "Fahrer unterausgelastet!"; Kompakte Fahrerliste (niedrigste km oben) mit Ampel + Trend; 30-Min-Polling */}
       <KitchenPhase2603KmBilanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />

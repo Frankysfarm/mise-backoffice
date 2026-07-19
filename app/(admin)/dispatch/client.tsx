@@ -3966,7 +3966,7 @@ export function DispatchBoard({
           <DispatchPhase2590TourenAuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2595: Pausenzeit-Board — Fahrerliste nach Pausenzeit sortiert (höchste oben); Balken 0–60 Min mit Ziel-Linie 15 Min; KPI-Grid Team-Ø/VW/Ziel ≤15 Min; Alert >30 Min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2595PausenzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
-          {/* Phase 2600: km-Bilanz-Board — Fahrerliste nach km sortiert (niedrigste oben); Balken 0–150 km mit Ziel-Linie 80 km; KPI-Grid Team-Ø/Gestern/Ziel ≥80 km; Alert <50 km; Trend-Pfeile; 30-Min-Polling */}
+          {/* Phase 2600 (km-Bilanz): km-Bilanz-Board — Fahrerliste nach km sortiert (niedrigste oben); Balken 0–150 km mit Ziel-Linie 80 km; KPI-Grid Team-Ø/Gestern/Ziel ≥80 km; Alert <50 km; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2600KmBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2483: Tour-Score Live-Board — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2483TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
