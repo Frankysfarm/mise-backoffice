@@ -11578,3 +11578,5 @@ export { DispatchPhase2503DurchsatzBoard } from './phase2503-durchsatz-board';
 export { DispatchPhase2508UmsatzBoard } from './phase2508-umsatz-board';
 // Phase 2490 — Score + Tour-Visualisierung Board V2 (Score-Ring je Fahrer; farbkodierte Stop-Dots mit Nummern; Fortschrittsbalken; ETA; expandierbare Stop-Liste; Alert Score <60; 25-Sek-Polling)
 export { DispatchPhase2490ScoreTourVisualisierungBoardV2 } from './phase2490-score-tour-visualisierung-board-v2';
+// Phase 2515 — Score + Tour-Visualisierung Hub (Score-Ring je Fahrer; farbkodierte Stop-Dots; Tour-Fortschrittsbalken; ETA; expandierbar; Alert Score <60; 25-Sek-Polling)
+export { DispatchPhase2515ScoreTourVisualisierungHub } from './phase2515-score-tour-visualisierung-hub';

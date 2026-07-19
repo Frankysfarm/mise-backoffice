@@ -9119,3 +9119,5 @@ export { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour
 export { FahrerPhase2480TourStoppNavUltimate } from './phase2480-tour-stopp-nav-ultimate';
 // Phase 2495 — Tour-Stopp Navigation Master (Aktueller Stopp im Fokus; Fortschrittsring; Nav-Buttons Google/Waze/Apple; ETA-Countdown; Next-Stops-Preview; Alle Stopps aufklappbar; mobile-optimiert)
 export { FahrerPhase2495TourStoppNavigationMaster, type MasterTourStop } from './phase2495-tour-stopp-navigation-master';
+// Phase 2510 — Tour-Stopp Navigations-Hub (priorisierte Stop-Liste; ETA je Stopp; One-Tap Navi; Stopp-Bestätigung; Kundentelefon; mobile-first; 30-Sek-Polling)
+export { FahrerPhase2510TourStoppNavigationsHub } from './phase2510-tour-stopp-navigations-hub';

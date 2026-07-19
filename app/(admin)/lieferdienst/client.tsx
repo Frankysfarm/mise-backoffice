@@ -4624,3 +4624,5 @@ export { LieferdienstPhase2331StatistikDashboardLiveUltimate } from './phase2331
 export { LieferdienstPhase2336StatistikEchtzeitPro } from './phase2336-statistiken-echtzeit-pro';
 // Phase 2341 — Statistiken Dashboard Master (10 KPI-Kacheln Ampel; Stunden-Chart 2-Modi Umsatz/Bestellungen; Zonen-Ranking expandierbar; Alert-Strip; 2-Min-Polling)
 export { LieferdienstPhase2341StatistikDashboardMaster } from './phase2341-statistiken-dashboard-master';
+// Phase 2350 — Statistiken Dashboard Master Ultimate (12 KPI-Kacheln Ampel; Stunden-Chart 2-Modi; Zonen-Ranking; Fahrer-Top-5; Alert-Strip Storno/Lieferzeit/On-Time/Bewertung; 2-Min-Polling)
+export { LieferdienstPhase2350StatistikDashboardMaster } from './phase2350-statistiken-dashboard-master';
