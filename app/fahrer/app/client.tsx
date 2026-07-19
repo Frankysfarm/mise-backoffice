@@ -690,6 +690,7 @@ import { FahrerPhase2581MeineStornoQuoteTrend } from './phase2581-meine-storno-q
 import { FahrerPhase2586MeinLiefervolumenTrend } from './phase2586-mein-liefervolumen-trend';
 import { FahrerPhase2591MeineTourenAuslastung } from './phase2591-meine-touren-auslastung';
 import { FahrerPhase2596MeinePausenzeit } from './phase2596-meine-pausenzeit';
+import { FahrerPhase2601MeineKmBilanz } from './phase2601-meine-km-bilanz';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
 import { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';
 import { FahrerPhase2620SmartTourNavigationMaster } from './phase2620-smart-tour-navigation-master';
@@ -6024,6 +6025,8 @@ export function FahrerApp({
           <FahrerPhase2591MeineTourenAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2596: Meine Pausenzeit — Min-Wert groß + Farbcode; Balken mit Ziel-Linie ≤15 Min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2596MeinePausenzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2601: Meine km-Bilanz — km-Wert groß + Farbcode; Balken 0–150 km mit Ziel-Linie 80 km; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2601MeineKmBilanz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9271,3 +9274,6 @@ export { FahrerPhase2620SmartTourNavigationMaster } from './phase2620-smart-tour
 export { FahrerPhase2520TourStoppNavigatorFinal } from './phase2520-tour-stopp-navigator-final';
 // Phase 2625 — Tour-Navigation Kompakt Final (Nächster Stopp Hero + One-Tap Google/Waze/Apple + Anruf-Button + Notiz-Alert + Stop-Dots + Weitere Stopps aufklappbar; 20-Sek-Polling)
 export { FahrerPhase2625TourNavigationKompaktFinal } from './phase2625-tour-navigation-kompakt-final';
+
+// Phase 2601 — Meine km-Bilanz (km-Wert groß + Farbcode; Balken 0–150 km mit Ziel-Linie 80 km; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2601MeineKmBilanz } from './phase2601-meine-km-bilanz';

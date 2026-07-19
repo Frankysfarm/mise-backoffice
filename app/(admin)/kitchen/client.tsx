@@ -333,6 +333,7 @@ import { KitchenPhase2583StornoQuoteTrendTicker } from './phase2583-storno-quote
 import { KitchenPhase2588LiefervolumenTrendTicker } from './phase2588-liefervolumen-trend-ticker';
 import { KitchenPhase2593AuslastungsTicker } from './phase2593-auslastungs-ticker';
 import { KitchenPhase2598PausenzeitTicker } from './phase2598-pausenzeit-ticker';
+import { KitchenPhase2603KmBilanzTicker } from './phase2603-km-bilanz-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3538,6 +3539,8 @@ export function KitchenBoard({
       <KitchenPhase2593AuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2598: Pausenzeit-Ticker — Team-Ø Pausenzeit; Alert >30 Min "Langer Fahrer-Stillstand!"; Kompakte Fahrerliste (höchste Pause oben) mit Ampel + Trend; 30-Min-Polling */}
       <KitchenPhase2598PausenzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2603: km-Bilanz-Ticker — Team-Ø km; Alert <50 km "Fahrer unterausgelastet!"; Kompakte Fahrerliste (niedrigste oben) mit Ampel + Trend; 30-Min-Polling */}
+      <KitchenPhase2603KmBilanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10217,6 +10220,8 @@ export { KitchenPhase2515SmartTimingFarbkodierungUltra } from './phase2515-smart
 export { KitchenPhase2520SmartTimingPrepPrognoseCockpit } from './phase2520-smart-timing-prep-prognose-cockpit';
 // Phase 2600 — Smart-Timing Countdown Kommandant (Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick)
 export { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
+// Phase 2603 — km-Bilanz-Ticker (Team-Ø km; Alert <50 km "Fahrer unterausgelastet!"; Kompakte Fahrerliste (niedrigste oben) mit Ampel + Trend; 30-Min-Polling)
+export { KitchenPhase2603KmBilanzTicker } from './phase2603-km-bilanz-ticker';
 
 // Phase 2605 — Smart-Timing Batch-Countdown Ampel (Farbkodierte Kacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling)
 export { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
