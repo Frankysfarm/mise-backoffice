@@ -324,6 +324,7 @@ import { KitchenPhase2538ErreichbarkeitTicker } from './phase2538-erreichbarkeit
 import { KitchenPhase2543StornoRateTicker } from './phase2543-storno-rate-ticker';
 import { KitchenPhase2548BewertungsTicker } from './phase2548-bewertungs-ticker';
 import { KitchenPhase2553TrinkgeldQuoteV2Ticker } from './phase2553-trinkgeld-quote-v2-ticker';
+import { KitchenPhase2558ZufriedenheitsScoreTicker } from './phase2558-zufriedenheits-score-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3507,6 +3508,8 @@ export function KitchenBoard({
       <KitchenPhase2548BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2553: Trinkgeld-Quote-v2-Ticker — Team-Ø-Rate; Alert <10% mit Hinweis; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2553TrinkgeldQuoteV2Ticker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2558: Zufriedenheits-Score-Ticker — Team-Ø Score; Alert <60 mit Servicehinweis; Fahrerliste kompakt nach Score (niedrigste oben); 30-Min-Polling */}
+      <KitchenPhase2558ZufriedenheitsScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
