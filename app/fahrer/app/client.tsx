@@ -666,6 +666,7 @@ import { FahrerPhase2453MeinSchichtBalanceScore } from './phase2453-mein-schicht
 import { FahrerPhase2458MeinEffizienzIndex } from './phase2458-mein-effizienz-index';
 import { FahrerPhase2463MeinKapazitaetScore } from './phase2463-mein-kapazitaet-score';
 import { FahrerPhase2469MeineRueckkehrDepotEta } from './phase2469-meine-rueckkehr-depot-eta';
+import { FahrerPhase2474MeineLieferzeitEffizienz } from './phase2474-meine-lieferzeit-effizienz';
 import { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
 import { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
 import { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote';
@@ -5941,6 +5942,8 @@ export function FahrerApp({
           <FahrerPhase2463MeinKapazitaetScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2469: Meine Depot-Rückkehr-ETA — ETA groß + Farbcode; Fortschrittsbalken 0–45 min mit Ziel-Linien 15/30 min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2469MeineRueckkehrDepotEta driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2474: Meine Lieferzeit-Effizienz — Ø-Zeit groß + Farbcode; Balken 0–45 min mit Ziel-Linien 20/30 min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2474MeineLieferzeitEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2467: Tour-Stops Navigation Live Kommando — Alle Stops mit Status-Dots; Hero Next-Stop; Navi-Button; Anruf-Button; Notiz-Alert; Fortschrittsbalken; 20-Sek-Polling */}
           <FahrerPhase2467TourStopsNavigationLiveKommando fahrerSchichtId={activeBatch?.id ?? null} isOnline={isOnline} />
           {/* Phase 2437: Meine Reaktionszeit — Ø-Min groß + Farbcode; Balken 0–10min mit Ziel-Linien 3min/7min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp */}
@@ -9035,6 +9038,8 @@ export { FahrerPhase2458MeinEffizienzIndex } from './phase2458-mein-effizienz-in
 // Phase 2463 — Mein Kapazitäts-Score (Score groß + Farbcode; Fortschrittsbalken 0–100% mit Ziel-Linien 60%/80%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2463MeinKapazitaetScore } from './phase2463-mein-kapazitaet-score';
 export { FahrerPhase2469MeineRueckkehrDepotEta } from './phase2469-meine-rueckkehr-depot-eta';
+// Phase 2474 — Meine Lieferzeit-Effizienz (Ø-Zeit groß + Farbcode; Balken 0–45 min mit Ziel-Linien 20/30 min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2474MeineLieferzeitEffizienz } from './phase2474-meine-lieferzeit-effizienz';
 // Phase 2437 — Meine Reaktionszeit (Ø Zeit bis Abfahrt nach Zuweisung; Balken 0–10min; Ampel <3min/3-7min/>7min; Coaching-Tipp)
 export { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
 // Phase 2442 — Meine Storno-Quote (Stornierungen/Gesamt × 100%; Balken 0–20% mit Ziel-Linien 5%/10%; Ampel <5%/5-10%/>10%; Coaching-Tipp)

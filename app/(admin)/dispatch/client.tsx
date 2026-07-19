@@ -752,6 +752,7 @@ import { DispatchPhase2452SchichtBalanceBoard } from './phase2452-schicht-balanc
 import { DispatchPhase2457EffizienzIndexBoard } from './phase2457-effizienz-index-board';
 import { DispatchPhase2462KapazitaetScoreBoard } from './phase2462-kapazitaet-score-board';
 import { DispatchPhase2468RueckkehrDepotEtaBoard } from './phase2468-rueckkehr-depot-eta-board';
+import { DispatchPhase2473LieferzeitEffizienzBoard } from './phase2473-lieferzeit-effizienz-board';
 import { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
 import { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
 import { DispatchPhase2467TourScoreVisualisierungLiveCockpit } from './phase2467-tour-score-visualisierung-live-cockpit';
@@ -3866,6 +3867,8 @@ export function DispatchBoard({
           <DispatchPhase2462KapazitaetScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2468: Rückkehr-Depot-ETA-Board — KPI-Grid Team-Ø heute/VW/Ziel ≤15 min; Fahrerliste nach ETA sortiert; Alert >30 min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2468RueckkehrDepotEtaBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2473: Lieferzeit-Effizienz-Board — KPI-Grid Team-Ø heute/VW/Ziel ≤20 min; Fahrerliste nach Ø-Zeit sortiert; Alert >30 min; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2473LieferzeitEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2436: Reaktionszeit-Board — KPI-Grid Team-Ø heute/VW/Ziel <3min; Fahrerliste nach Reaktionszeit sortiert; Alert >7min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2436ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2441: Storno-Quote-Board — KPI-Grid Team-Ø heute/VW/Ziel <5%; Fahrerliste nach Quote sortiert; Alert >10%; Trend-Pfeile; 30-Min-Polling */}
@@ -11528,3 +11531,5 @@ export { DispatchPhase2470ScoreTourVisualisierungCockpit } from './phase2470-sco
 export { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
 // Phase 2467 — Tour-Score & Visualisierung Live Cockpit (Score-Ring je Fahrer; Stop-Dots farbkodiert; Tour-Fortschritt; ETA; Alert <60; expandierbare Stop-Liste; 25-Sek-Polling)
 export { DispatchPhase2467TourScoreVisualisierungLiveCockpit } from './phase2467-tour-score-visualisierung-live-cockpit';
+// Phase 2473 — Lieferzeit-Effizienz-Board (KPI-Grid Team-Ø heute/VW/Ziel ≤20 min; Fahrerliste nach Ø-Zeit sortiert; Alert >30 min; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2473LieferzeitEffizienzBoard } from './phase2473-lieferzeit-effizienz-board';
