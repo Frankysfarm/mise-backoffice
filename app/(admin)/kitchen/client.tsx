@@ -303,6 +303,7 @@ import { KitchenPhase2460EffizienzIndexTicker } from './phase2460-effizienz-inde
 import { KitchenPhase2465KapazitaetTicker } from './phase2465-kapazitaet-ticker';
 import { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-ticker';
 import { KitchenPhase2444StornoQuoteTicker } from './phase2444-storno-quote-ticker';
+import { KitchenPhase2470SmartTimingCountdownFarbkodierungUltimate } from './phase2470-smart-timing-countdown-farbkodierung-ultimate';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3439,6 +3440,8 @@ export function KitchenBoard({
       <KitchenPhase2439ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2444: Storno-Quote-Ticker — Team-Ø; Alert >10% mit Handlungsempfehlung; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2444StornoQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2470: Smart-Timing Countdown Farbkodierung Ultimate — Sekunden-Countdown grün/gelb/rot je Bestellung; Countdown-Ring; Fortschrittsbalken; On-Time-Quote; Alert; 30-Sek-Update */}
+      <KitchenPhase2470SmartTimingCountdownFarbkodierungUltimate locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
       <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
     </div>

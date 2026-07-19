@@ -421,6 +421,7 @@ import { LieferdienstPhase2310PausenUebersicht } from './phase2310-pausen-uebers
 import { LieferdienstPhase2315StatistikDashboardCockpit } from './phase2315-statistiken-dashboard-cockpit';
 import { LieferdienstPhase2320StatistikDashboardUltimate } from './phase2320-statistiken-dashboard-ultimate';
 import { LieferdienstPhase2325StatistikDashboardProUltimate } from './phase2325-statistiken-dashboard-pro-ultimate';
+import { LieferdienstPhase2331StatistikDashboardLiveUltimate } from './phase2331-statistiken-dashboard-live-ultimate';
 import { LieferdienstPhase1000StatistikenProDashboard } from './phase1000-statistiken-pro-dashboard';
 
 export function LieferdienstClient() {
@@ -2157,6 +2158,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2320StatistikDashboardUltimate locationId={locationId ?? null} />
                 {/* Phase 2325: Statistiken-Dashboard Pro-Ultimate — KPI-Grid 8 Metriken + Stundenverlauf-Chart + Alert-Strip bei Storno/Lieferzeit/Pünktlichkeit; 5-Min-Polling */}
                 <LieferdienstPhase2325StatistikDashboardProUltimate locationId={locationId ?? null} />
+                {/* Phase 2331: Statistiken-Dashboard Live Ultimate — 8 KPIs mit VW-Trends, Stunden-Chart (3 Modi), Zonen-Ranking, Alert-Strip; 5-Min-Polling */}
+                <LieferdienstPhase2331StatistikDashboardLiveUltimate locationId={locationId ?? null} />
                 {/* Phase 1000: Statistiken Pro-Dashboard — KPI-Grid mit Umsatz/Bestellungen/Pünktlichkeit/Fahrer/Bewertung/Trinkgeld; Tagesziel-Fortschrittsbalken */}
                 <LieferdienstPhase1000StatistikenProDashboard locationId={locationId ?? null} />
               </>

@@ -442,6 +442,7 @@ import { StorefrontPhase2294TempoSiegel } from './phase2294-tempo-siegel';
 import { StorefrontPhase2299QualitaetsSiegel } from './phase2299-qualitaets-siegel';
 import { StorefrontPhase2310DistanzSiegel } from './phase2310-distanz-siegel';
 import { Phase2315DynamischeEtaLiveTrackingPro } from './phase2315-dynamische-eta-live-tracking-pro';
+import { StorefrontPhase2375DynamischeEtaLiveTrackingBoard } from './phase2375-dynamische-eta-live-tracking-board';
 import { StorefrontPhase2351LiefergebietBadge } from './phase2351-liefergebiet-badge';
 import { StorefrontPhase2356BewertungsSiegel } from './phase2356-bewertungs-siegel';
 import { StorefrontPhase2361PuenktlichkeitsBadge } from './phase2361-puenktlichkeits-badge';
@@ -1977,6 +1978,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
             initialStatus="bestätigt"
             initialEta={null}
           />
+        </div>
+      )}
+      {/* Phase 2375: Dynamische ETA Live-Tracking Board — 7-Status-Timeline mit Icons, ETA-Balken + Konfidenz-Anzeige, Fahrer-Info + Entfernung, Delay-Alert; 30-Sek-Polling */}
+      {activeOrderId && successType === 'lieferung' && (
+        <div className="mx-4 mt-2">
+          <StorefrontPhase2375DynamischeEtaLiveTrackingBoard orderId={activeOrderId} />
         </div>
       )}
       {/* Phase 2284: ETA Live Tracking Hub — Realtime-Supabase-Subscription, Phasen-Timeline, Fahrer-Nähe; nur bei aktiver Lieferung */}

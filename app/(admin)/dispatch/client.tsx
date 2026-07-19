@@ -753,6 +753,7 @@ import { DispatchPhase2457EffizienzIndexBoard } from './phase2457-effizienz-inde
 import { DispatchPhase2462KapazitaetScoreBoard } from './phase2462-kapazitaet-score-board';
 import { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
 import { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
+import { DispatchPhase2467TourScoreVisualisierungLiveCockpit } from './phase2467-tour-score-visualisierung-live-cockpit';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 
 type Driver = {
@@ -3866,6 +3867,8 @@ export function DispatchBoard({
           <DispatchPhase2436ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2441: Storno-Quote-Board — KPI-Grid Team-Ø heute/VW/Ziel <5%; Fahrerliste nach Quote sortiert; Alert >10%; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2441StornoQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2467: Tour-Score & Visualisierung Live Cockpit — Score-Ring je Fahrer; Stop-Dots farbkodiert; Tour-Fortschritt; ETA; Alert <60; expandierbare Stop-Liste; 25-Sek-Polling */}
+          <DispatchPhase2467TourScoreVisualisierungLiveCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
           <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
