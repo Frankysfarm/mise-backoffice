@@ -1,125 +1,161 @@
+/**
+ * GET /api/delivery/admin/fahrer-reaktionszeit?location_id=<uuid>[&driver_id=<uuid>]
+ *
+ * Phase 2435 — Fahrer-Reaktionszeit-API
+ * Ø Zeit (Min) zwischen Auftragszuweisung und Abfahrt je Fahrer heute.
+ * Ampel grün(<3min)/gelb(3–7min)/rot(>7min); Trend vs. Vorwoche; Multi-Tenant; Supabase+Mock.
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+export type Ampel = 'gruen' | 'gelb' | 'rot';
+export type Trend = 'steigend' | 'fallend' | 'stabil';
+
 export interface FahrerReaktionszeit {
-  driver_id: string;
-  name: string;
+  fahrer_id: string;
+  fahrer_name: string;
   avg_min: number;
-  auftraege: number;
-  trend: 'besser' | 'gleich' | 'schlechter';
+  touren_heute: number;
+  ampel: Ampel;
+  trend: Trend;
   trend_delta: number;
-  alert: boolean;
+  vw_avg_min: number;
+  rang: number;
 }
 
-export interface FahrerReaktionsteitResponse {
+export interface ReaktionszeitAntwort {
   location_id: string;
   fahrer: FahrerReaktionszeit[];
-  team_avg_min: number;
-  alert_count: number;
+  team_durchschnitt: number;
   generiert_am: string;
 }
 
-const MOCK: FahrerReaktionsteitResponse = {
-  location_id: 'mock',
-  fahrer: [
-    { driver_id: 'd1', name: 'Max M.', avg_min: 3.2, auftraege: 12, trend: 'besser', trend_delta: -0.8, alert: false },
-    { driver_id: 'd2', name: 'Sarah K.', avg_min: 5.1, auftraege: 9, trend: 'gleich', trend_delta: 0, alert: false },
-    { driver_id: 'd3', name: 'Tom B.', avg_min: 11.4, auftraege: 7, trend: 'schlechter', trend_delta: 2.3, alert: true },
-    { driver_id: 'd4', name: 'Anna L.', avg_min: 4.0, auftraege: 11, trend: 'besser', trend_delta: -1.2, alert: false },
-  ],
-  team_avg_min: 5.9,
-  alert_count: 1,
-  generiert_am: new Date().toISOString(),
-};
+function ampelVon(avgMin: number): Ampel {
+  if (avgMin < 3) return 'gruen';
+  if (avgMin <= 7) return 'gelb';
+  return 'rot';
+}
 
-const ALERT_THRESHOLD_MIN = 10;
+function trendVon(heute: number, vorwoche: number): { trend: Trend; delta: number } {
+  const delta = Math.round((heute - vorwoche) * 10) / 10;
+  if (delta < -0.5) return { trend: 'steigend', delta };
+  if (delta > 0.5) return { trend: 'fallend', delta };
+  return { trend: 'stabil', delta };
+}
+
+const MOCK_FAHRER = [
+  { fahrer_id: 'mock-f1', fahrer_name: 'Max Müller', avg_min: 2.1, touren_heute: 12, vw_avg_min: 2.8 },
+  { fahrer_id: 'mock-f2', fahrer_name: 'Sara Koch', avg_min: 4.5, touren_heute: 9, vw_avg_min: 4.0 },
+  { fahrer_id: 'mock-f3', fahrer_name: 'Tim Weber', avg_min: 8.2, touren_heute: 7, vw_avg_min: 6.5 },
+  { fahrer_id: 'mock-f4', fahrer_name: 'Anna Bauer', avg_min: 3.1, touren_heute: 11, vw_avg_min: 3.4 },
+];
+
+function buildMock(locationId: string): ReaktionszeitAntwort {
+  const fahrer: FahrerReaktionszeit[] = MOCK_FAHRER
+    .sort((a, b) => a.avg_min - b.avg_min)
+    .map((f, i) => {
+      const { trend, delta } = trendVon(f.avg_min, f.vw_avg_min);
+      return { ...f, ampel: ampelVon(f.avg_min), trend, trend_delta: delta, rang: i + 1 };
+    });
+  const team_durchschnitt =
+    Math.round((fahrer.reduce((s, f) => s + f.avg_min, 0) / fahrer.length) * 10) / 10;
+  return { location_id: locationId, fahrer, team_durchschnitt, generiert_am: new Date().toISOString() };
+}
 
 export async function GET(req: NextRequest) {
-  const locationId = req.nextUrl.searchParams.get('location_id')?.trim();
+  const { searchParams } = req.nextUrl;
+  const locationId = searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
 
   try {
     const sb = await createClient();
-    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const since48h = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+    const jetzt = new Date();
+    const heuteStart = new Date(jetzt);
+    heuteStart.setHours(0, 0, 0, 0);
+    const vwStart = new Date(heuteStart.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const vwEnd = new Date(heuteStart.getTime() - 6 * 24 * 60 * 60 * 1000);
 
-    const { data: drivers } = await sb
+    const { data: drivers, error: dErr } = await sb
       .from('drivers')
-      .select('id, vorname, nachname')
-      .eq('location_id', locationId);
-
-    const { data: batches } = await sb
-      .from('delivery_batches')
-      .select('id, driver_id, assigned_at, picked_up_at, created_at')
+      .select('id, full_name')
       .eq('location_id', locationId)
-      .gte('created_at', since48h)
-      .not('picked_up_at', 'is', null);
+      .eq('is_active', true);
 
-    if (!drivers || !batches) return NextResponse.json(MOCK);
+    if (dErr || !drivers || drivers.length === 0) return NextResponse.json(buildMock(locationId));
 
-    const fahrerList: FahrerReaktionszeit[] = [];
+    type Driver = { id: string; full_name: string | null };
+    const unsorted: Omit<FahrerReaktionszeit, 'rang'>[] = await Promise.all(
+      (drivers as Driver[]).map(async (d) => {
+        const { data: toursHeute } = await sb
+          .from('delivery_tours')
+          .select('assigned_at, picked_up_at')
+          .eq('driver_id', d.id)
+          .eq('location_id', locationId)
+          .gte('assigned_at', heuteStart.toISOString())
+          .not('picked_up_at', 'is', null);
 
-    for (const d of drivers) {
-      const recent = batches.filter(
-        b => b.driver_id === d.id && b.created_at >= since24h && b.assigned_at && b.picked_up_at,
-      );
-      const older = batches.filter(
-        b => b.driver_id === d.id && b.created_at < since24h && b.assigned_at && b.picked_up_at,
-      );
+        type TourRow = { assigned_at: string | null; picked_up_at: string | null };
+        const validHeute = ((toursHeute as TourRow[] | null) ?? []).filter(t => t.assigned_at && t.picked_up_at);
+        const avgHeute =
+          validHeute.length > 0
+            ? validHeute.reduce((s, t) => {
+                const diff = (new Date(t.picked_up_at!).getTime() - new Date(t.assigned_at!).getTime()) / 60000;
+                return s + Math.max(0, diff);
+              }, 0) / validHeute.length
+            : 3.0;
 
-      if (recent.length === 0) continue;
+        const { data: toursVW } = await sb
+          .from('delivery_tours')
+          .select('assigned_at, picked_up_at')
+          .eq('driver_id', d.id)
+          .eq('location_id', locationId)
+          .gte('assigned_at', vwStart.toISOString())
+          .lt('assigned_at', vwEnd.toISOString())
+          .not('picked_up_at', 'is', null);
 
-      const avgReaction = (arr: typeof recent) => {
-        const times = arr
-          .map(b => {
-            const assigned = new Date(b.assigned_at as string).getTime();
-            const picked = new Date(b.picked_up_at as string).getTime();
-            return (picked - assigned) / 60_000;
-          })
-          .filter(t => t >= 0 && t < 120);
-        return times.length > 0 ? times.reduce((a, b) => a + b, 0) / times.length : 0;
-      };
+        const validVW = ((toursVW as TourRow[] | null) ?? []).filter(t => t.assigned_at && t.picked_up_at);
+        const avgVW =
+          validVW.length > 0
+            ? validVW.reduce((s, t) => {
+                const diff = (new Date(t.picked_up_at!).getTime() - new Date(t.assigned_at!).getTime()) / 60000;
+                return s + Math.max(0, diff);
+              }, 0) / validVW.length
+            : avgHeute;
 
-      const recentAvg = avgReaction(recent);
+        const avg_min = Math.round(avgHeute * 10) / 10;
+        const vw_avg_min = Math.round(avgVW * 10) / 10;
+        const { trend, delta } = trendVon(avg_min, vw_avg_min);
 
-      let trend: FahrerReaktionszeit['trend'] = 'gleich';
-      let delta = 0;
-      if (older.length > 0) {
-        const olderAvg = avgReaction(older);
-        delta = Math.round((recentAvg - olderAvg) * 10) / 10;
-        if (delta < -0.5) trend = 'besser';
-        else if (delta > 0.5) trend = 'schlechter';
-      }
+        return {
+          fahrer_id: d.id,
+          fahrer_name: d.full_name ?? 'Fahrer',
+          avg_min,
+          touren_heute: validHeute.length,
+          ampel: ampelVon(avg_min),
+          trend,
+          trend_delta: delta,
+          vw_avg_min,
+        };
+      })
+    );
 
-      fahrerList.push({
-        driver_id: d.id,
-        name: `${d.vorname ?? ''} ${d.nachname ?? ''}`.trim() || 'Fahrer',
-        avg_min: Math.round(recentAvg * 10) / 10,
-        auftraege: recent.length,
-        trend,
-        trend_delta: delta,
-        alert: recentAvg > ALERT_THRESHOLD_MIN,
-      });
-    }
-
-    fahrerList.sort((a, b) => a.avg_min - b.avg_min);
-
-    const teamAvg =
-      fahrerList.length > 0
-        ? Math.round((fahrerList.reduce((s, f) => s + f.avg_min, 0) / fahrerList.length) * 10) / 10
+    const sorted = [...unsorted].sort((a, b) => a.avg_min - b.avg_min);
+    const fahrer: FahrerReaktionszeit[] = sorted.map((f, i) => ({ ...f, rang: i + 1 }));
+    const team_durchschnitt =
+      fahrer.length > 0
+        ? Math.round((fahrer.reduce((s, f) => s + f.avg_min, 0) / fahrer.length) * 10) / 10
         : 0;
 
     return NextResponse.json({
       location_id: locationId,
-      fahrer: fahrerList,
-      team_avg_min: teamAvg,
-      alert_count: fahrerList.filter(f => f.alert).length,
-      generiert_am: new Date().toISOString(),
-    } satisfies FahrerReaktionsteitResponse);
+      fahrer,
+      team_durchschnitt,
+      generiert_am: jetzt.toISOString(),
+    } satisfies ReaktionszeitAntwort);
   } catch {
-    return NextResponse.json(MOCK);
+    return NextResponse.json(buildMock(locationId));
   }
 }
