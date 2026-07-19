@@ -768,6 +768,7 @@ import { DispatchPhase2467TourScoreVisualisierungLiveCockpit } from './phase2467
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 import { DispatchPhase2511TourScoreLiveMatrix } from './phase2511-tour-score-live-matrix';
 import { DispatchPhase2515ScoreTourVisualisierungHub } from './phase2515-score-tour-visualisierung-hub';
+import { DispatchPhase2521TourScoreEchtzeitHub } from './phase2521-tour-score-echtzeit-hub';
 
 type Driver = {
   employee_id: string;
@@ -3910,6 +3911,8 @@ export function DispatchBoard({
           <DispatchPhase2511TourScoreLiveMatrix />
           {/* Phase 2515: Score + Tour-Visualisierung Hub — Score-Ring + Stop-Dots farbkodiert + Tour-Fortschritt + ETA + Alert <60; 25-Sek-Polling */}
           <DispatchPhase2515ScoreTourVisualisierungHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2521: Tour-Score Echtzeit-Hub — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert; 25-Sek-Update */}
+          <DispatchPhase2521TourScoreEchtzeitHub batches={batches as any} drivers={drivers as any} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -11586,3 +11589,5 @@ export { DispatchPhase2508UmsatzBoard } from './phase2508-umsatz-board';
 export { DispatchPhase2490ScoreTourVisualisierungBoardV2 } from './phase2490-score-tour-visualisierung-board-v2';
 // Phase 2515 — Score + Tour-Visualisierung Hub (Score-Ring je Fahrer; farbkodierte Stop-Dots; Tour-Fortschrittsbalken; ETA; expandierbar; Alert Score <60; 25-Sek-Polling)
 export { DispatchPhase2515ScoreTourVisualisierungHub } from './phase2515-score-tour-visualisierung-hub';
+// Phase 2521 — Tour-Score Echtzeit-Hub (Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert; 25-Sek-Update)
+export { DispatchPhase2521TourScoreEchtzeitHub } from './phase2521-tour-score-echtzeit-hub';

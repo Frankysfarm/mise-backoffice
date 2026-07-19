@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import {
   ChefHat, Package, Bike, MapPin, CheckCircle2,
   Clock, Navigation2, Phone, Star, RefreshCw,
-  AlertCircle, ArrowLeft, Zap,
+  AlertCircle, ArrowLeft, Zap, TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -349,16 +349,51 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
           </div>
         )}
 
-        {/* ETA detail */}
+        {/* ETA detail + Dynamische Fortschrittsanzeige */}
         {!isCancelled && !isDelivered && (
           <div className="bg-white rounded-2xl border border-matcha-100 p-4 shadow-sm">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-3">
               <Clock className="h-4 w-4 text-matcha-500 flex-shrink-0" />
-              <div>
+              <div className="flex-1">
                 <p className="text-xs text-matcha-500 mb-0.5">Voraussichtliche Ankunft</p>
                 <p className="text-sm font-semibold text-matcha-800">{formatEta(order.eta_earliest, order.eta_latest)}</p>
               </div>
+              {etaMins !== null && etaMins > 0 && (
+                <div className="flex items-center gap-1 text-xs font-semibold text-matcha-600">
+                  <TrendingUp className="h-3.5 w-3.5" />
+                  {etaMins} min
+                </div>
+              )}
             </div>
+            {/* Dynamische ETA-Fortschrittsleiste */}
+            {order.eta_earliest && order.created_at && (
+              (() => {
+                const totalMs = new Date(order.eta_earliest).getTime() - new Date(order.created_at).getTime();
+                const elapsedMs = Date.now() - new Date(order.created_at).getTime();
+                const pct = totalMs > 0 ? Math.min(100, Math.max(0, Math.round((elapsedMs / totalMs) * 100))) : 0;
+                const isLate = pct >= 100;
+                return (
+                  <div>
+                    <div className="flex justify-between text-[10px] text-matcha-400 mb-1">
+                      <span>Bestellt</span>
+                      <span className={cn(isLate ? 'text-amber-500 font-semibold' : 'text-matcha-400')}>
+                        {isLate ? 'Gleich da!' : `${pct}%`}
+                      </span>
+                      <span>Ankunft</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-matcha-100 overflow-hidden">
+                      <div
+                        className={cn(
+                          'h-full rounded-full transition-all duration-1000',
+                          isLate ? 'bg-amber-400 animate-pulse' : 'bg-matcha-500'
+                        )}
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })()
+            )}
           </div>
         )}
 

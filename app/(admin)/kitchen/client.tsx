@@ -317,6 +317,7 @@ import { KitchenPhase2449UeberstundenTicker } from './phase2449-ueberstunden-tic
 import { KitchenPhase2470SmartTimingCountdownFarbkodierungUltimate } from './phase2470-smart-timing-countdown-farbkodierung-ultimate';
 import { KitchenPhase2511SmartTimingCockpitFinal } from './phase2511-smart-timing-cockpit-final';
 import { KitchenPhase2515SmartTimingFarbkodierungUltra } from './phase2515-smart-timing-farbkodierung-ultra';
+import { KitchenPhase2520SmartTimingPrepPrognoseCockpit } from './phase2520-smart-timing-prep-prognose-cockpit';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3483,6 +3484,8 @@ export function KitchenBoard({
       <KitchenPhase2511SmartTimingCockpitFinal orders={filtered as any} timings={timings} />
       {/* Phase 2515: Smart-Timing Farbkodierung Ultra — Echtzeit-Countdown grün/gelb/rot je Bestellung; On-Time-Quote-Ring; Batch-Alert; 20-Sek-Polling */}
       <KitchenPhase2515SmartTimingFarbkodierungUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2520: Smart-Timing Prep-Prognose Cockpit — Dringlichkeits-sortierte Bestellliste; Farbkodierter Countdown-Ring grün/gelb/rot; SLA-Alert; 1-Sek-Countdown */}
+      <KitchenPhase2520SmartTimingPrepPrognoseCockpit orders={filtered as any} timings={timings as any} />
     </div>
   );
 }
@@ -10144,3 +10147,5 @@ export { KitchenPhase2470SmartTimingCountdownFarbkodierungUltimate } from './pha
 export { KitchenPhase2495SmartTimingCountdownFarbkodierungV3 } from './phase2495-smart-timing-countdown-farbkodierung-v3';
 // Phase 2515 — Smart-Timing Farbkodierung Ultra (Echtzeit-Countdown grün/gelb/rot je Bestellung; Countdown-Ring; Prep-SLA-Alert; On-Time-Quote-Ring; 20-Sek-Polling)
 export { KitchenPhase2515SmartTimingFarbkodierungUltra } from './phase2515-smart-timing-farbkodierung-ultra';
+// Phase 2520 — Smart-Timing Prep-Prognose Cockpit (Dringlichkeits-sortierte Bestellliste; Farbkodierter Countdown-Ring grün/gelb/rot; SLA-Alert; 1-Sek-Countdown)
+export { KitchenPhase2520SmartTimingPrepPrognoseCockpit } from './phase2520-smart-timing-prep-prognose-cockpit';

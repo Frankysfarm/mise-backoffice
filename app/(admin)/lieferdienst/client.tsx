@@ -425,6 +425,7 @@ import { LieferdienstPhase2331StatistikDashboardLiveUltimate } from './phase2331
 import { LieferdienstPhase1000StatistikenProDashboard } from './phase1000-statistiken-pro-dashboard';
 import { LieferdienstPhase2345StatistikenDashboardFinal } from './phase2345-statistiken-dashboard-final';
 import { LieferdienstPhase2350StatistikDashboardMaster } from './phase2350-statistiken-dashboard-master';
+import { LieferdienstPhase2522StatistikenExecutiveLiveCockpit } from './phase2522-statistiken-executive-live-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2168,6 +2169,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2345StatistikenDashboardFinal locationId={locationId ?? null} />
                 {/* Phase 2350: Statistiken Dashboard Master Ultimate — 12 KPI-Kacheln; Stunden-Chart (Bestellungen/Umsatz); Zonen-Ranking; Fahrer-Top-5; Alert-Strip; 2-Min-Polling */}
                 <LieferdienstPhase2350StatistikDashboardMaster locationId={locationId ?? null} />
+                {/* Phase 2522: Statistiken Executive Live-Cockpit — 8 KPI-Kacheln Ampel; Stunden-Chart (Bestellungen/Umsatz); Zonen-Ranking; Alert-Strip; 2-Min-Polling */}
+                <LieferdienstPhase2522StatistikenExecutiveLiveCockpit locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4629,3 +4632,5 @@ export { LieferdienstPhase2336StatistikEchtzeitPro } from './phase2336-statistik
 export { LieferdienstPhase2341StatistikDashboardMaster } from './phase2341-statistiken-dashboard-master';
 // Phase 2350 — Statistiken Dashboard Master Ultimate (12 KPI-Kacheln Ampel; Stunden-Chart 2-Modi; Zonen-Ranking; Fahrer-Top-5; Alert-Strip Storno/Lieferzeit/On-Time/Bewertung; 2-Min-Polling)
 export { LieferdienstPhase2350StatistikDashboardMaster } from './phase2350-statistiken-dashboard-master';
+// Phase 2522 — Statistiken Executive Live-Cockpit (8 KPI-Kacheln Ampel; Stunden-Chart Bestellungen/Umsatz; Zonen-Ranking; Alert-Strip; 2-Min-Polling)
+export { LieferdienstPhase2522StatistikenExecutiveLiveCockpit } from './phase2522-statistiken-executive-live-cockpit';

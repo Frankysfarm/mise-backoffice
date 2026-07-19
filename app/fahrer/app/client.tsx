@@ -675,6 +675,7 @@ import { FahrerPhase2499MeineLiefertreue } from './phase2499-meine-liefertreue';
 import { FahrerPhase2504MeinDurchsatz } from './phase2504-mein-durchsatz';
 import { FahrerPhase2509MeinUmsatz } from './phase2509-mein-umsatz';
 import { FahrerPhase2519MeinTrinkgeld } from './phase2519-mein-trinkgeld';
+import { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
 import { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
 import { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
 import { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote';
@@ -5971,6 +5972,27 @@ export function FahrerApp({
           <FahrerPhase2509MeinUmsatz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2519: Mein Trinkgeld — €/Tour groß + Farbcode; Balken 0–2€ mit Ziel-Linien 0,50/0,75€; KPI-Grid VW/Gesamt/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2519MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2523: Tour-Stopp Smart-Navi Pro — Hero-Fokus nächster Stopp; 1-Tap Navigation Google/Apple/Waze; Anruf-Button; Fortschrittsleiste; Alle Stopps aufklappbar; mobile-optimiert */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <div className="px-4">
+              <FahrerPhase2523TourStoppSmartNaviPro
+                stops={(activeBatch.stops ?? []).map((s: any) => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge ?? s.stop_number ?? 0,
+                  adresse: s.order?.kunde_adresse ?? s.address ?? s.kunde_adresse ?? null,
+                  plz: s.order?.kunde_plz ?? s.kunde_plz ?? null,
+                  kunde_name: s.order?.kunde_name ?? s.customer_name ?? s.kunde_name ?? 'Kunde',
+                  kunde_telefon: s.order?.kunde_telefon ?? s.customer_phone ?? s.kunde_telefon ?? null,
+                  gesamtbetrag: s.order?.gesamtbetrag ?? s.gesamtbetrag ?? null,
+                  geliefert_am: s.geliefert_am ?? s.delivered_at ?? null,
+                  notiz: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? s.notes ?? null,
+                  eta_min: s.eta_min ?? null,
+                }))}
+                batchId={activeBatch.id}
+                onConfirmDelivered={markDelivered}
+              />
+            </div>
+          )}
           {/* Phase 2510: Tour-Stopp Navigations-Hub — priorisierte Stop-Liste; One-Tap Navigation; Kundentelefon; Stop-Bestätigung; Next-Stop-Fokus-Karte; 30-Sek-Polling */}
           <FahrerPhase2510TourStoppNavigationsHub driverId={driver.id} />
           {/* Phase 2467: Tour-Stops Navigation Live Kommando — Alle Stops mit Status-Dots; Hero Next-Stop; Navi-Button; Anruf-Button; Notiz-Alert; Fortschrittsbalken; 20-Sek-Polling */}
@@ -9127,3 +9149,5 @@ export { FahrerPhase2480TourStoppNavUltimate } from './phase2480-tour-stopp-nav-
 export { FahrerPhase2495TourStoppNavigationMaster, type MasterTourStop } from './phase2495-tour-stopp-navigation-master';
 // Phase 2510 — Tour-Stopp Navigations-Hub (priorisierte Stop-Liste; ETA je Stopp; One-Tap Navi; Stopp-Bestätigung; Kundentelefon; mobile-first; 30-Sek-Polling)
 export { FahrerPhase2510TourStoppNavigationsHub } from './phase2510-tour-stopp-navigations-hub';
+// Phase 2523 — Tour-Stopp Smart-Navi Pro (Hero-Fokus nächster Stopp; 1-Tap Navigation Google/Apple/Waze; Anruf-Button; Fortschrittsleiste; Alle Stopps aufklappbar; mobile-optimiert)
+export { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
