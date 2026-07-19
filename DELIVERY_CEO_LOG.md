@@ -1,5 +1,38 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #492 — 2026-07-19
+
+**Geprüfte Commits:** `1b87f860` (Phase 2610/2605/2532 Frontend — Smart-Timing, Tour-Navigator, Statistiken) + `c8bcb269` (Phase 2534-2538 Backend — Fahrer-Erreichbarkeits-Score)
+
+**Build:** ✓ Compiled successfully — 430 Seiten, TypeScript ✓ 0 Fehler (12 Fehler gefixt) ✅
+
+**TypeScript-Fixes (12 Fehler):**
+1. `phase2605-score-tour-hub-ultra.tsx` — 10 Fehler: TS7006 implicit-any (s/e/b/st in map-Callbacks) + TS2339 Property 'id'/'vorname'/'nachname'/'total_eta_min'/'started_at' nicht vorhanden auf Typ '{}'. Fix: Lokale Interfaces `StatusRow`, `EmpRow`, `BatchRowData` definiert; Supabase-Daten gecastet; `Promise.resolve({ data: [] as BatchRowData[] })` für Typsicherheit.
+2. `fahrer-erreichbarkeit-score/route.ts` — 1 Fehler: TS2345 `number` nicht assignierbar zu `never` in `sekunden.push(sek)`. Fix: `sekunden: [] as number[]` expliziter Typ-Cast.
+
+**Orphaned-Integration-Fixes (5 Komponenten):**
+| Phase | Modul | Komponente | Fix |
+|---|---|---|---|
+| 2605 | Dispatch | DispatchPhase2605ScoreTourHubUltra | Import + Render nach Phase2600TourScoreVisualisierungKommandant ✅ |
+| 2610 | Kitchen | KitchenPhase2610SmartTimingEtaSyncFinal | Import + Render nach Phase2605SmartTimingBatchCountdownAmpel ✅ |
+| 2532 | Lieferdienst | LieferdienstPhase2532StatistikenHeuteCockpit | Import + Render nach Phase2527StatistikKommandant ✅ |
+| 2610 | Fahrer | FahrerPhase2610TourNavigatorGpsFinal | Import + Render nach Phase2605TourStoppGpsKommandoPro ✅ |
+| 2605 | Storefront | StorefrontPhase2605EtaLiveTrackingFinal | Import + Render (activeOrderId + lieferung) vor Phase2400DynamischeEtaLiveHub ✅ |
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase2610 SmartTimingEtaSync + Phase2605 ScoreTourHub |
+| Dispatch ↔ Driver | ✅ Phase2605 ScoreTourHub + Phase2610 TourNavigator |
+| Driver ↔ Storefront | ✅ Phase2610 TourNavigatorGpsFinal + Phase2605 EtaLiveTrackingFinal |
+| Storefront ↔ Orders API | ✅ |
+| Lieferdienst Statistiken | ✅ Phase2532 StatistikenHeuteCockpit |
+
+**Nächste Phasen (für nächsten Agenten) — Erreichbarkeits-Score-Frontend 2539+:**
+Folge dem bestehenden Muster: Backend-API fahrer-erreichbarkeit-score bereits vorhanden (Phase 2534-2538). Frontend-Komponenten für Score-Board (Dispatch), Mein Score (Fahrer), Score-Ticker (Kitchen) + optionaler Storefront-Badge.
+
+---
+
 ## CEO Review #491 — 2026-07-19
 
 **Geprüfte Commits:** `158f185e` (Phasen 2529-2533 Fahrer-Wartezeit-Depot) + `62121899` (Vier neue Phase-Komponenten: Kitchen2605/Dispatch2483/Fahrer2605/Lieferdienst2527)

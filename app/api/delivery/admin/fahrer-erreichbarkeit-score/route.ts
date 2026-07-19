@@ -101,7 +101,7 @@ export async function GET(req: NextRequest) {
       if (!a.driver_id || !a.accepted_at) continue;
       const sek = (new Date(a.accepted_at).getTime() - new Date(a.created_at).getTime()) / 1000;
       if (sek < 0 || sek > 600) continue;
-      const entry = byDriver.get(a.driver_id) ?? { name: a.driver_name ?? a.driver_id, sekunden: [] };
+      const entry = byDriver.get(a.driver_id) ?? { name: a.driver_name ?? a.driver_id, sekunden: [] as number[] };
       entry.sekunden.push(sek);
       byDriver.set(a.driver_id, entry);
     }

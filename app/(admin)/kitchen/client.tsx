@@ -323,6 +323,7 @@ import { KitchenPhase2533WartezeitDepotTicker } from './phase2533-wartezeit-depo
 import { KitchenPhase2538ErreichbarkeitTicker } from './phase2538-erreichbarkeit-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
+import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3501,6 +3502,8 @@ export function KitchenBoard({
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
       <KitchenPhase2600SmartTimingCountdownKommandant locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2610: Smart-Timing ETA-Sync Final — Farbkodierter Countdown je Bestellung + Fahrer-ETA-Sync + Kochstart-Empfehlung + On-Time-Quote-Ring; 20-Sek-Polling + 1-Sek-Tick */}
+      <KitchenPhase2610SmartTimingEtaSyncFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

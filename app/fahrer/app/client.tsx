@@ -679,6 +679,7 @@ import { FahrerPhase2526MeineAkzeptanzrate } from './phase2526-meine-akzeptanzra
 import { FahrerPhase2531MeineWartezeitDepot } from './phase2531-meine-wartezeit-depot';
 import { FahrerPhase2536MeineErreichbarkeit } from './phase2536-meine-erreichbarkeit';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
+import { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';
 import { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
 import { FahrerPhase2600SmartTourStoppNavigatorFinal } from './phase2600-smart-tour-stopp-navigator-final';
 import { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
@@ -5985,6 +5986,8 @@ export function FahrerApp({
           <FahrerPhase2536MeineErreichbarkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
+          {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
+          <FahrerPhase2610TourNavigatorGpsFinal driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2600: Smart Tour-Stopp Navigator Final — Aktueller Stopp + Navigation + Telefon + Bestätigung; Stop-Liste mit Status-Dots; ETA; 1-Sek-Tick + 30-Sek-Polling */}
           <FahrerPhase2600SmartTourStoppNavigatorFinal
             batchId={activeBatch?.id ?? null}

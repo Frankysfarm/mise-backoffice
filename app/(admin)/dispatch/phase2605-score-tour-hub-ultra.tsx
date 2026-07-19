@@ -97,6 +97,10 @@ function ProgressBar({ done, total }: { done: number; total: number }) {
   );
 }
 
+interface StatusRow { employee_id: string; aktueller_batch_id: string | null; }
+interface EmpRow { id: string; vorname: string | null; nachname: string | null; }
+interface BatchRowData { id: string; driver_id: string; started_at: string | null; total_eta_min: number | null; }
+
 interface Props {
   locationId?: string | null;
 }
@@ -116,7 +120,8 @@ export function DispatchPhase2605ScoreTourHubUltra({ locationId }: Props) {
 
     if (!statuses || statuses.length === 0) { setLoading(false); return; }
 
-    const empIds = statuses.map(s => s.employee_id);
+    const statusRows = statuses as StatusRow[];
+    const empIds = statusRows.map(s => s.employee_id);
 
     const [{ data: employees }, { data: scores }] = await Promise.all([
       supabase.from('employees')
@@ -130,21 +135,23 @@ export function DispatchPhase2605ScoreTourHubUltra({ locationId }: Props) {
     ]);
 
     // Load active batches
-    const batchIds = statuses.map(s => s.aktueller_batch_id).filter(Boolean);
+    const batchIds = statusRows.map(s => s.aktueller_batch_id).filter(Boolean) as string[];
     const [{ data: batches }, { data: stops }] = await Promise.all([
       batchIds.length > 0
         ? supabase.from('delivery_batches').select('id, driver_id, started_at, total_eta_min').in('id', batchIds)
-        : Promise.resolve({ data: [] }),
+        : Promise.resolve({ data: [] as BatchRowData[] }),
       batchIds.length > 0
         ? supabase.from('delivery_batch_stops')
             .select('id, batch_id, reihenfolge, angekommen_am, geliefert_am, adresse, eta_min')
             .in('batch_id', batchIds)
             .order('reihenfolge', { ascending: true })
-        : Promise.resolve({ data: [] }),
+        : Promise.resolve({ data: [] as (Stop & { batch_id: string })[] }),
     ]);
 
-    const empMap = new Map((employees ?? []).map(e => [e.id, e]));
-    const batchMap = new Map((batches ?? []).map(b => [b.driver_id, b]));
+    const empRows = (employees ?? []) as EmpRow[];
+    const batchRows = (batches ?? []) as BatchRowData[];
+    const empMap = new Map(empRows.map(e => [e.id, e]));
+    const batchMap = new Map(batchRows.map(b => [b.driver_id, b]));
     const stopsMap = new Map<string, Stop[]>();
     for (const s of (stops ?? []) as Stop[] & { batch_id: string }[]) {
       const list = stopsMap.get((s as any).batch_id) ?? [];
@@ -152,7 +159,7 @@ export function DispatchPhase2605ScoreTourHubUltra({ locationId }: Props) {
       stopsMap.set((s as any).batch_id, list);
     }
 
-    const rows: DriverRow[] = statuses.map(st => {
+    const rows: DriverRow[] = statusRows.map(st => {
       const emp = empMap.get(st.employee_id);
       const batch = batchMap.get(st.employee_id);
       const bStops = batch ? (stopsMap.get(batch.id) ?? []) : [];

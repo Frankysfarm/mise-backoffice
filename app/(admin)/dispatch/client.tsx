@@ -774,6 +774,7 @@ import { DispatchPhase2530WartezeitDepotBoard } from './phase2530-wartezeit-depo
 import { DispatchPhase2535ErreichbarkeitBoard } from './phase2535-erreichbarkeit-board';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
 import { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';
+import { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
 
 type Driver = {
   employee_id: string;
@@ -3928,6 +3929,8 @@ export function DispatchBoard({
           <DispatchPhase2483TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2600: Tour-Score Visualisierung Kommandant — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2600TourScoreVisualisierungKommandant batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2605: Score & Tour Hub Ultra — Score-Ring je Fahrer + Stop-Dots + Tour-Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
+          <DispatchPhase2605ScoreTourHubUltra locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

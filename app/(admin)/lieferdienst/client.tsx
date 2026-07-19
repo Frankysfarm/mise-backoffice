@@ -428,6 +428,7 @@ import { LieferdienstPhase2350StatistikDashboardMaster } from './phase2350-stati
 import { LieferdienstPhase2360StatistikDashboardFinal } from './phase2360-statistik-dashboard-final';
 import { LieferdienstPhase2522StatistikenExecutiveLiveCockpit } from './phase2522-statistiken-executive-live-cockpit';
 import { LieferdienstPhase2527StatistikKommandant } from './phase2527-statistiken-kommandant';
+import { LieferdienstPhase2532StatistikenHeuteCockpit } from './phase2532-statistiken-heute-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2177,6 +2178,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2522StatistikenExecutiveLiveCockpit locationId={locationId ?? null} />
                 {/* Phase 2527: Statistiken-Kommandant — 8 KPI-Kacheln Ampel + Stundenverlauf-Chart + Zonen-Top-5 + Alert-Strip; 5-Min-Polling */}
                 <LieferdienstPhase2527StatistikKommandant locationId={locationId ?? null} />
+                {/* Phase 2532: Statistiken Heute Cockpit — KPI-Dashboard Umsatz/Bestellungen/Ø Lieferzeit/On-Time-Rate + Stundenverlauf + Fahrer-Top-5; 5-Min-Polling */}
+                <LieferdienstPhase2532StatistikenHeuteCockpit />
               </>
             </div>
           )}
