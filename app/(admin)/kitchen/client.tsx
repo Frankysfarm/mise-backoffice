@@ -319,6 +319,7 @@ import { KitchenPhase2511SmartTimingCockpitFinal } from './phase2511-smart-timin
 import { KitchenPhase2515SmartTimingFarbkodierungUltra } from './phase2515-smart-timing-farbkodierung-ultra';
 import { KitchenPhase2520SmartTimingPrepPrognoseCockpit } from './phase2520-smart-timing-prep-prognose-cockpit';
 import { KitchenPhase2528AkzeptanzrateTicker } from './phase2528-akzeptanzrate-ticker';
+import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3489,6 +3490,8 @@ export function KitchenBoard({
       <KitchenPhase2520SmartTimingPrepPrognoseCockpit orders={filtered as any} timings={timings as any} />
       {/* Phase 2528: Akzeptanzrate-Ticker — Team-Ø %; Alert-Banner <70% "Motivationsgespräch empfohlen!"; Fahrerliste kompakt nach Rate sortiert mit Ampel-Dots; 30-Min-Polling */}
       <KitchenPhase2528AkzeptanzrateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
+      <KitchenPhase2600SmartTimingCountdownKommandant locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

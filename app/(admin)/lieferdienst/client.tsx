@@ -425,6 +425,7 @@ import { LieferdienstPhase2331StatistikDashboardLiveUltimate } from './phase2331
 import { LieferdienstPhase1000StatistikenProDashboard } from './phase1000-statistiken-pro-dashboard';
 import { LieferdienstPhase2345StatistikenDashboardFinal } from './phase2345-statistiken-dashboard-final';
 import { LieferdienstPhase2350StatistikDashboardMaster } from './phase2350-statistiken-dashboard-master';
+import { LieferdienstPhase2360StatistikDashboardFinal } from './phase2360-statistik-dashboard-final';
 import { LieferdienstPhase2522StatistikenExecutiveLiveCockpit } from './phase2522-statistiken-executive-live-cockpit';
 
 export function LieferdienstClient() {
@@ -2169,6 +2170,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2345StatistikenDashboardFinal locationId={locationId ?? null} />
                 {/* Phase 2350: Statistiken Dashboard Master Ultimate — 12 KPI-Kacheln; Stunden-Chart (Bestellungen/Umsatz); Zonen-Ranking; Fahrer-Top-5; Alert-Strip; 2-Min-Polling */}
                 <LieferdienstPhase2350StatistikDashboardMaster locationId={locationId ?? null} />
+                {/* Phase 2360: Statistiken-Dashboard Final — 6 KPI-Kacheln (Bestellungen, Umsatz, Ø Lieferzeit, On-Time, Storno, Fahrer) */}
+                <LieferdienstPhase2360StatistikDashboardFinal />
                 {/* Phase 2522: Statistiken Executive Live-Cockpit — 8 KPI-Kacheln Ampel; Stunden-Chart (Bestellungen/Umsatz); Zonen-Ranking; Alert-Strip; 2-Min-Polling */}
                 <LieferdienstPhase2522StatistikenExecutiveLiveCockpit locationId={locationId ?? null} />
               </>
