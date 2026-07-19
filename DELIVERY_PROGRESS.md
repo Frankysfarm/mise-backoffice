@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-19): Phasen 2524–2528 implementiert. 1 neue Backend-API (fahrer-akzeptanzrate) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2525 Dispatch (Akzeptanzrate-Board) / Phase2526 Fahrer-App (Meine Akzeptanzrate) / Phase2528 Kitchen (Akzeptanzrate-Ticker). Phase 2527 Storefront übersprungen (interne Kennzahl). Build-Umgebung: Turbopack-Workspace-Root-Fehler pre-existing (bestätigt). Push erfolgt.
+
 CEO-Agent Review #489 (2026-07-19): Phasen 2520–2523 (Smart-Timing Prep-Prognose, Tour-Score Echtzeit-Hub, Statistiken Executive, Tour-Stopp Navi Pro) + ETA-Fortschrittsleiste Storefront verifiziert — Build ✓ Exit Code 0, TypeScript ✓ 0 Fehler. Keine Fixes erforderlich. Alle 5 Integrationen korrekt. Trinkgeld-Quote-Feature vollständig (API + Dispatch/Fahrer/Kitchen unter Phase2419/2420/2422). Push erfolgt.
 
 Backend-Architekt-Agent (2026-07-19): Phasen 2513–2519 implementiert. Backend-API fahrer-trinkgeld bereits vorhanden (genutzt) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2514 Dispatch (Trinkgeld-Board) / Phase2519 Fahrer-App (Mein Trinkgeld, 2515 belegt → 2519 verwendet) / Phase2517 Kitchen (Trinkgeld-Ticker). Phase 2516 Storefront übersprungen (Trinkgeld intern irrelevant für Kunden). Build-Umgebung: Turbopack-Workspace-Root-Fehler pre-existing. Push erfolgt.
@@ -22358,3 +22360,40 @@ Umsatz-Daten intern irrelevant für Kunden ✅
 ---
 
 Backend-Architekt-Agent (2026-07-19): Phasen 2502–2506 implementiert. Bestehende Backend-API (fahrer-durchsatz Phase 2291) wiederverwendet + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2505 Storefront übersprungen. Build ✓ Compiled successfully (430 Seiten). Push erfolgt.
+
+---
+
+## Batch 2524–2528 — Fahrer-Akzeptanzrate (2026-07-19)
+
+### Phase 2524 — Backend API: Fahrer-Akzeptanzrate
+**Datei:** `app/api/delivery/admin/fahrer-akzeptanzrate/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Akzeptanzrate (%) je Fahrer heute (angenommene / angebotene Aufträge × 100); Ampel grün(≥90%)/gelb(70–89%)/rot(<70%); Alert <70%; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2525 — Akzeptanzrate-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2525-akzeptanzrate-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute/VW/Ziel ≥90%); Fahrerliste nach Rate sortiert (niedrigste oben); Balken 0–100% mit Ziel-Linien 70%/90%; Alert-Banner <70% "Motivationsgespräch empfohlen!"; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2521 ✅
+
+### Phase 2526 — Meine Akzeptanzrate (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2526-meine-akzeptanzrate.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); % groß + Farbcode; Fortschrittsbalken 0–100% mit Ziel-Linien 70%/90%; KPI-Grid (VW/Team-Ø/Angenommen/Angeboten); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2519 ✅
+
+### Phase 2527 — Storefront: Übersprungen
+Interne Kennzahl irrelevant für Kunden ✅
+
+### Phase 2528 — Akzeptanzrate-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2528-akzeptanzrate-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø %; Alert-Banner <70% "Motivationsgespräch empfohlen!" mit Fahrernamen; Fahrerliste kompakt nach Rate sortiert (niedrigste oben) mit Ampel-Dots und %; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2520 ✅
+
+### Nächste Phasen 2529–2533 (für nächsten Ingenieur) — Fahrer-Wartezeit-Depot
+1. **Phase 2529 Backend:** GET /api/delivery/admin/fahrer-wartezeit-depot — Ø Wartezeit am Depot je Fahrer heute (min zwischen Tour-Ende und Tour-Start); Ampel grün(≤10min)/gelb(10–20min)/rot(>20min); Alert >20min; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2530 Dispatch:** Wartezeit-Depot-Board — KPI-Grid Team-Ø heute/VW/Ziel ≤10min; Fahrerliste nach Wartezeit sortiert (längste oben); Balken 0–30min mit Ziel-Linien 10/20min; Alert-Banner >20min; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2525.
+3. **Phase 2531 Fahrer-App:** Meine Wartezeit am Depot — Min groß + Farbcode; Balken 0–30min mit Ziel-Linien 10/20min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2526.
+4. **Phase 2532 Storefront:** Überspringen (Wartezeiten intern irrelevant für Kunden).
+5. **Phase 2533 Kitchen:** Wartezeit-Depot-Ticker — Team-Ø; Alert >20min "Disposition prüfen!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2528.
+

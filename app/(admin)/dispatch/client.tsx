@@ -769,6 +769,7 @@ import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-coc
 import { DispatchPhase2511TourScoreLiveMatrix } from './phase2511-tour-score-live-matrix';
 import { DispatchPhase2515ScoreTourVisualisierungHub } from './phase2515-score-tour-visualisierung-hub';
 import { DispatchPhase2521TourScoreEchtzeitHub } from './phase2521-tour-score-echtzeit-hub';
+import { DispatchPhase2525AkzeptanzrateBoard } from './phase2525-akzeptanzrate-board';
 
 type Driver = {
   employee_id: string;
@@ -3913,6 +3914,8 @@ export function DispatchBoard({
           <DispatchPhase2515ScoreTourVisualisierungHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2521: Tour-Score Echtzeit-Hub — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert; 25-Sek-Update */}
           <DispatchPhase2521TourScoreEchtzeitHub batches={batches as any} drivers={drivers as any} />
+          {/* Phase 2525: Akzeptanzrate-Board — KPI-Grid Team-Ø heute/VW/Ziel ≥90%; Fahrerliste nach Rate sortiert; Balken 0–100% mit Ziel-Linien 70%/90%; Alert-Banner <70%; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2525AkzeptanzrateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
