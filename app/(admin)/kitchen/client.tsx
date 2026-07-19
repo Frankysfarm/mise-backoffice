@@ -313,6 +313,7 @@ import { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-t
 import { KitchenPhase2444StornoQuoteTicker } from './phase2444-storno-quote-ticker';
 import { KitchenPhase2449UeberstundenTicker } from './phase2449-ueberstunden-ticker';
 import { KitchenPhase2470SmartTimingCountdownFarbkodierungUltimate } from './phase2470-smart-timing-countdown-farbkodierung-ultimate';
+import { KitchenPhase2511SmartTimingCockpitFinal } from './phase2511-smart-timing-cockpit-final';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3471,6 +3472,8 @@ export function KitchenBoard({
       <KitchenPhase2470SmartTimingCountdownFarbkodierungUltimate locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
       <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
+      {/* Phase 2511: Smart-Timing Cockpit Final — Aggregierter Countdown-Grid mit Farbkodierung + Kritisch-Banner */}
+      <KitchenPhase2511SmartTimingCockpitFinal orders={filtered as any} timings={timings} />
     </div>
   );
 }

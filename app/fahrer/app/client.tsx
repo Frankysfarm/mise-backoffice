@@ -677,6 +677,7 @@ import { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour
 import { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
 import { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote';
 import { FahrerPhase2447MeineUeberstunden } from './phase2447-meine-ueberstunden';
+import { FahrerPhase1001TourStoppSmartNavFinal } from './phase1001-tour-stopp-smart-nav-final';
 
 type Driver = {
   id: string;
@@ -6552,6 +6553,34 @@ export function FahrerApp({
                 lng: s.order?.kunde_lng ?? undefined,
                 orderId: s.order_id ?? undefined,
                 orderTotal: s.order?.gesamtbetrag ?? undefined,
+              };
+            })}
+            onStopComplete={markDelivered}
+          />
+        </div>
+      )}
+      {/* Phase 1001: Tour-Stopp Smart-Nav Final — Hero-Karte für aktiven Stopp + GPS-Button + aufklappbare Stopp-Liste */}
+      {activeBatch && activeBatch.status === 'unterwegs' && activeBatch.stops.length > 0 && (
+        <div className="px-4 pb-4">
+          <FahrerPhase1001TourStoppSmartNavFinal
+            stops={activeBatch.stops.map((s, i) => {
+              const completed = !!s.geliefert_am;
+              const arrived = !!s.angekommen_am;
+              const isNext = !completed && activeBatch.stops.slice(0, i).every((prev) => !!prev.geliefert_am);
+              return {
+                id: s.id,
+                sequence: s.reihenfolge ?? (i + 1),
+                status: completed ? 'completed' : (isNext || arrived) ? 'active' : 'pending',
+                address: [s.order?.kunde_adresse, s.order?.kunde_plz].filter(Boolean).join(', ') || `Stopp ${i + 1}`,
+                customerName: s.order?.kunde_name ?? undefined,
+                customerPhone: s.order?.kunde_telefon ?? undefined,
+                notes: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? undefined,
+                lat: s.order?.kunde_lat ?? undefined,
+                lng: s.order?.kunde_lng ?? undefined,
+                orderId: s.order_id ?? undefined,
+                orderTotal: s.order?.gesamtbetrag ?? undefined,
+                paymentMethod: s.order?.zahlungsart ?? undefined,
+                etaMin: (s as any).eta_min ?? null,
               };
             })}
             onStopComplete={markDelivered}

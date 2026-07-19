@@ -764,6 +764,7 @@ import { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-boar
 import { DispatchPhase2446UeberstundenBoard } from './phase2446-ueberstunden-board';
 import { DispatchPhase2467TourScoreVisualisierungLiveCockpit } from './phase2467-tour-score-visualisierung-live-cockpit';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
+import { DispatchPhase2511TourScoreLiveMatrix } from './phase2511-tour-score-live-matrix';
 
 type Driver = {
   employee_id: string;
@@ -3898,6 +3899,8 @@ export function DispatchBoard({
           <DispatchPhase2467TourScoreVisualisierungLiveCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
           <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2511: Tour-Score Live-Matrix — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken je aktivem Fahrer; 20-Sek-Polling */}
+          <DispatchPhase2511TourScoreLiveMatrix />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
