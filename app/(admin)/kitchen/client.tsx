@@ -10217,3 +10217,5 @@ export { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timin
 export { KitchenPhase2620SmartTimingCountdownMaster } from './phase2620-smart-timing-countdown-master';
 // Phase 2625 — Smart-Timing Prep-Farbkodierung Live (Farbkodierter Prep-Countdown grün/gelb/rot je Bestellung; On-Time-Rate-Ring; SLA-Balken; Batch-Alert; 1-Sek-Tick + 25-Sek-Polling)
 export { KitchenPhase2625SmartTimingPrepFarbkodierungLive } from './phase2625-smart-timing-prep-farbkodierung-live';
+// Phase 2630 — Smart-Countdown Farbkodierung Ultra Final (Sekunden-Countdown grün/gelb/rot je Bestellung; Prioritätssortierung überfällig→dringend→im Plan; On-Time-Rate-Ring; SLA-Ampel-Leiste; Batch-Empfehlung; 1-Sek-Tick + 20-Sek-Polling)
+export { KitchenPhase2630SmartCountdownFarbkodierungUltraFinal } from './phase2630-smart-countdown-farbkodierung-ultra-final';

@@ -4660,3 +4660,5 @@ export { LieferdienstPhase2532StatistikenHeuteCockpit } from './phase2532-statis
 export { LieferdienstPhase2540StatistikExecutiveMaster } from './phase2540-statistiken-executive-master';
 // Phase 2545 — Statistiken Live-Dashboard Extended (10 KPI-Kacheln Ampel + Stundenverlauf-Chart 2-Modi + Zonen-Ranking + Fahrer-Top-3 + Alert-Strip; 3-Min-Polling)
 export { LieferdienstPhase2545StatistikenLiveDashboardExtended } from './phase2545-statistiken-live-dashboard-extended';
+// Phase 2550 — Statistiken Dashboard Final Ultimate (12 KPI-Kacheln Ampel + Trend vs. Vortag; Stunden-Chart 2-Modi; Zonen-Ranking expandierbar; Fahrer-Top-5; Alert-Strip 5 Dimensionen; 2-Min-Polling)
+export { LieferdienstPhase2550StatistikDashboardFinalUltimate } from './phase2550-statistiken-dashboard-final-ultimate';

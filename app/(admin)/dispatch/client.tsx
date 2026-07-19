@@ -11657,5 +11657,7 @@ export { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live
 export { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
 // Phase 2620 — Score + Tour-Visualisierung Final (Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling)
 export { DispatchPhase2620ScoreTourVisualisierungFinal } from './phase2620-score-tour-visualisierung-final';
+// Phase 2630 — Tour-Score Master Ultra (Score-Ring je Fahrer 0–100 farbkodiert; farbkodierte Stop-Dots mit Nummern; Tour-Fortschrittsbalken; ETA-Badge; expandierbare Stop-Liste; Alert Score <60; Trend vs. Schicht-Ø; 25-Sek-Polling)
+export { DispatchPhase2630TourScoreMasterUltra } from './phase2630-tour-score-master-ultra';
 // Phase 2625 — Tour-Score Visualisierung Extended (Score-Ring + Trend-Pfeil + farbkodierte Stop-Dots mit Nummern + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling)
 export { DispatchPhase2625TourScoreVisualisierungExtended } from './phase2625-tour-score-visualisierung-extended';
