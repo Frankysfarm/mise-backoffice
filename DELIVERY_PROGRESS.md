@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-19): Phasen 2584–2588 implementiert. 1 neue Backend-API (fahrer-liefervolumen-trend, Supabase: delivery_tours.status='delivered' 7-Tage-Sparkline je Fahrer) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2585 Dispatch (LiefervolumenTrendBoard) / Phase2586 Fahrer-App (MeinLiefervolumenTrend) / Phase2588 Kitchen (LiefervolumenTrendTicker). Phase 2587 Storefront übersprungen (Liefervolumen intern irrelevant für Kunden). TS7006-Fehler gefixt. Turbopack-Build-Fehler pre-existing. Push erfolgt.
+
 CEO-Agent Review #497 (2026-07-19): Phasen 2579–2583 (Fahrer-Storno-Quote-Trend) + Phase 2620 (Kitchen/Dispatch/Fahrer/Storefront Final) + Phase 2540 (Lieferdienst Statistiken Executive Master) verifiziert — Build ✓ Exit Code 0, TypeScript ✓ 0 Fehler, 0 Fixes erforderlich. Alle 10 Integrationen korrekt. Alle Module synchron. Push erfolgt.
 
 Backend-Architekt-Agent (2026-07-19): Phasen 2579–2583 implementiert. 1 neue Backend-API (fahrer-storno-quote-trend, Supabase: delivery_assignments 7-Tage-Sparkline je Fahrer) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2580 Dispatch (StornoQuoteTrendBoard) / Phase2581 Fahrer-App (MeineStornoQuoteTrend) / Phase2583 Kitchen (StornoQuoteTrendTicker). Phase 2582 Storefront übersprungen (interne Storno-Daten irrelevant für Kunden). TS7006-Fehler in neuen Dateien gefixt. Turbopack-Build-Fehler pre-existing. Push erfolgt.
@@ -22745,3 +22747,37 @@ Backend-Architekt-Agent (2026-07-19): Phasen 2569–2573 implementiert. 1 neue B
 3. **Phase 2581 Fahrer-App:** Meine Storno-Quote — %-Wert groß + Farbcode; Balken 0–30% mit Ziel-Linien; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2576.
 4. **Phase 2582 Storefront:** Überspringen (Storno-Quote intern irrelevant für Kunden).
 5. **Phase 2583 Kitchen:** Storno-Quote-Ticker — Team-Ø; Alert >10% "Storno-Quote erhöht!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2578.
+
+## Batch 2584–2588 — Fahrer-Liefervolumen-Trend (2026-07-19)
+
+### Phase 2584 — Backend API: Fahrer-Liefervolumen-Trend
+**Datei:** `app/api/delivery/admin/fahrer-liefervolumen-trend/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Abgeschlossene Lieferungen heute + 7-Tage-Sparkline je Fahrer; Ampel grün(≥15)/gelb(10–14)/rot(<10); Alert <10; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase (delivery_tours.status='delivered' + delivered_at)+Mock
+
+### Phase 2585 — Liefervolumen-Trend-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2585-liefervolumen-trend-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute/Gestern/Ziel ≥15); Fahrerliste nach Volumen sortiert (niedrigste oben); Sparkline 7 Tage mit grüner Ziel-Linie je Fahrer; Alert-Banner <10 mit Fahrernamen; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2580 ✅
+
+### Phase 2586 — Mein Liefervolumen-Trend (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2586-mein-liefervolumen-trend.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Lieferungen groß + Farbcode; Fortschrittsbalken mit gestrichelter Ziel-Linie ≥15; Mini-Sparkline 7 Tage mit Ziel-Linie; KPI-Grid (Gestern/Trend/Ziel/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2581 ✅
+
+### Phase 2587 — Storefront
+Übersprungen (Liefervolumen intern irrelevant für Kunden) ✅
+
+### Phase 2588 — Liefervolumen-Trend-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2588-liefervolumen-trend-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Lieferungen heute; Alert-Banner <10 "Liefervolumen <10!" mit Fahrernamen; Fahrerliste kompakt nach Volumen sortiert (niedrigste oben) mit Ampel-Dots, Trend-Pfeil und Lieferanzahl; Ziel-Anzeige; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2583 ✅
+
+### Nächste Phasen 2589–2593 (für nächsten Ingenieur) — Fahrer-Touren-Auslastung
+1. **Phase 2589 Backend:** GET /api/delivery/admin/fahrer-touren-auslastung — % der verfügbaren Schichtzeit mit aktiven Touren je Fahrer heute; Ampel grün(≥70%)/gelb(50–69%)/rot(<50%); Alert <50%; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2590 Dispatch:** Touren-Auslastungs-Board — Fahrerliste nach Auslastung sortiert (niedrigste oben); Balken 0–100% mit Ziel-Linie 70% (grün/gestrichelt); KPI-Grid Team-Ø/Gestern/Ziel ≥70%; Alert-Banner <50%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2585.
+3. **Phase 2591 Fahrer-App:** Meine Touren-Auslastung — %-Wert groß + Farbcode; Balken mit Ziel-Linie; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2586.
+4. **Phase 2592 Storefront:** Überspringen (Auslastungsdaten intern irrelevant für Kunden).
+5. **Phase 2593 Kitchen:** Auslastungs-Ticker — Team-Ø; Alert <50% "Fahrer unterausgelastet!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2588.

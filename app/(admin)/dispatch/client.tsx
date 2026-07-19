@@ -781,6 +781,7 @@ import { DispatchPhase2565RoutenEffizienzBoard } from './phase2565-routen-effizi
 import { DispatchPhase2570PuenktlichkeitBoard } from './phase2570-puenktlichkeit-board';
 import { DispatchPhase2575LieferzeitAbweichungsBoard } from './phase2575-lieferzeit-abweichungs-board';
 import { DispatchPhase2580StornoQuoteTrendBoard } from './phase2580-storno-quote-trend-board';
+import { DispatchPhase2585LiefervolumenTrendBoard } from './phase2585-liefervolumen-trend-board';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
 import { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';
 import { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
@@ -3953,6 +3954,8 @@ export function DispatchBoard({
           <DispatchPhase2575LieferzeitAbweichungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2580: Storno-Quote-Trend-Board — Fahrerliste nach Storno-Quote sortiert; Sparkline 7 Tage; KPI-Grid Team-Ø/Gestern/Ziel; Alert >15%; 30-Min-Polling */}
           <DispatchPhase2580StornoQuoteTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2585: Liefervolumen-Trend-Board — Fahrerliste nach Volumen sortiert (niedrigste oben); Sparkline 7 Tage + Ziel-Linie; KPI-Grid Team-Ø/Gestern/Ziel ≥15; Alert <10; 30-Min-Polling */}
+          <DispatchPhase2585LiefervolumenTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2483: Tour-Score Live-Board — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2483TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2600: Tour-Score Visualisierung Kommandant — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}

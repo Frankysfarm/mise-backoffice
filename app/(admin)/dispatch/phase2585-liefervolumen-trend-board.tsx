@@ -1,0 +1,187 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { ChevronDown, ChevronUp, AlertTriangle, TrendingUp, TrendingDown, Minus, Package } from 'lucide-react';
+
+interface SparkDayLV { datum: string; lieferungen: number }
+
+interface FahrerEntry {
+  fahrer_id: string;
+  fahrer_name: string;
+  lieferungen_heute: number;
+  lieferungen_gestern: number | null;
+  sparkline: SparkDayLV[];
+  trend: 'steigend' | 'fallend' | 'stabil';
+  trend_delta: number;
+  ampel: 'gruen' | 'gelb' | 'rot';
+  alert: boolean;
+}
+
+interface ApiData {
+  fahrer: FahrerEntry[];
+  team_avg_heute: number;
+  team_avg_gestern: number | null;
+  ziel: number;
+  alert_count: number;
+}
+
+function ampelCls(ampel: string) {
+  if (ampel === 'rot')  return { bg: 'bg-red-50 border-red-200', dot: 'bg-red-500', text: 'text-red-700' };
+  if (ampel === 'gelb') return { bg: 'bg-amber-50 border-amber-200', dot: 'bg-amber-400', text: 'text-amber-700' };
+  return { bg: 'bg-green-50 border-green-200', dot: 'bg-green-500', text: 'text-green-700' };
+}
+
+function TrendIcon({ trend }: { trend: string }) {
+  if (trend === 'steigend') return <TrendingUp size={12} className="text-green-600" />;
+  if (trend === 'fallend')  return <TrendingDown size={12} className="text-red-500" />;
+  return <Minus size={12} className="text-gray-400" />;
+}
+
+function Sparkline({ data, ziel }: { data: SparkDayLV[]; ziel: number }) {
+  if (!data.length) return <div className="w-16 h-8 bg-gray-100 rounded" />;
+  const vals  = data.map(d => d.lieferungen);
+  const min   = Math.min(...vals, 0);
+  const max   = Math.max(...vals, ziel + 5);
+  const range = max - min || 1;
+  const W = 64; const H = 24; const n = vals.length;
+  const pts = vals.map((v, i) => {
+    const x = (i / (n - 1)) * (W - 2) + 1;
+    const y = H - 2 - ((v - min) / range) * (H - 4);
+    return `${x},${y}`;
+  }).join(' ');
+  const last  = vals[vals.length - 1];
+  const color = last >= ziel ? '#22c55e' : last >= 10 ? '#f59e0b' : '#ef4444';
+  const goalY = H - 2 - ((ziel - min) / range) * (H - 4);
+  return (
+    <svg width={W} height={H} className="flex-shrink-0">
+      {goalY >= 0 && goalY <= H && (
+        <line x1="1" y1={goalY} x2={W - 1} y2={goalY} stroke="#22c55e" strokeWidth="1" strokeDasharray="3,2" opacity="0.6" />
+      )}
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+const MOCK: ApiData = {
+  fahrer: [
+    { fahrer_id: 'f2', fahrer_name: 'Jana F.', lieferungen_heute: 8,  lieferungen_gestern: 10,
+      sparkline: [14,13,12,10,9,10,8].map((v,i)=>({ datum:`07-${13+i}`, lieferungen:v })),
+      trend:'fallend', trend_delta:-2, ampel:'rot', alert:true },
+    { fahrer_id: 'f3', fahrer_name: 'Sarah K.', lieferungen_heute: 7,  lieferungen_gestern: 9,
+      sparkline: [12,11,10,9,8,9,7].map((v,i)=>({ datum:`07-${13+i}`, lieferungen:v })),
+      trend:'fallend', trend_delta:-2, ampel:'rot', alert:true },
+    { fahrer_id: 'f4', fahrer_name: 'Lena S.', lieferungen_heute: 12, lieferungen_gestern: 13,
+      sparkline: [11,12,13,12,14,13,12].map((v,i)=>({ datum:`07-${13+i}`, lieferungen:v })),
+      trend:'stabil', trend_delta:-1, ampel:'gelb', alert:false },
+    { fahrer_id: 'f1', fahrer_name: 'Max M.', lieferungen_heute: 18, lieferungen_gestern: 16,
+      sparkline: [14,15,16,17,15,16,18].map((v,i)=>({ datum:`07-${13+i}`, lieferungen:v })),
+      trend:'steigend', trend_delta:2, ampel:'gruen', alert:false },
+    { fahrer_id: 'f5', fahrer_name: 'Tom B.', lieferungen_heute: 20, lieferungen_gestern: 18,
+      sparkline: [15,16,18,17,19,18,20].map((v,i)=>({ datum:`07-${13+i}`, lieferungen:v })),
+      trend:'steigend', trend_delta:2, ampel:'gruen', alert:false },
+  ],
+  team_avg_heute: 13.0, team_avg_gestern: 13.2, ziel: 15, alert_count: 2,
+};
+
+export function DispatchPhase2585LiefervolumenTrendBoard({ locationId }: { locationId: string | null }) {
+  const [open, setOpen] = useState(true);
+  const [data, setData] = useState<ApiData | null>(null);
+
+  useEffect(() => {
+    if (!locationId) { setData(MOCK); return; }
+    const load = () =>
+      fetch(`/api/delivery/admin/fahrer-liefervolumen-trend?location_id=${locationId}`)
+        .then(r => r.json()).then(setData).catch(() => setData(MOCK));
+    load();
+    const t = setInterval(load, 30 * 60 * 1000);
+    return () => clearInterval(t);
+  }, [locationId]);
+
+  if (!data) return null;
+
+  const sorted     = [...data.fahrer].sort((a, b) => a.lieferungen_heute - b.lieferungen_heute);
+  const hasAlert   = data.alert_count > 0;
+  const teamAmpel  = data.team_avg_heute >= data.ziel ? 'gruen' : data.team_avg_heute >= 10 ? 'gelb' : 'rot';
+  const teamCls    = ampelCls(teamAmpel);
+  const alertNames = data.fahrer.filter((f: FahrerEntry) => f.alert).map((f: FahrerEntry) => f.fahrer_name);
+
+  return (
+    <div className={`rounded-xl border ${hasAlert ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-white'} shadow-sm mb-4`}>
+      <button
+        onClick={() => setOpen((o: boolean) => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left"
+      >
+        <div className="flex items-center gap-2">
+          <Package size={16} className={hasAlert ? 'text-red-500' : 'text-green-600'} />
+          <span className="font-semibold text-sm text-gray-800">Liefervolumen-Trend-Board</span>
+          {hasAlert && (
+            <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">
+              {data.alert_count} Alert{data.alert_count > 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-3">
+          <span className={`text-sm font-bold ${teamCls.text}`}>Ø {data.team_avg_heute.toFixed(1)}</span>
+          {open ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+        </div>
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 space-y-3">
+          {/* KPI-Grid */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-white rounded-lg border border-gray-100 p-2 text-center">
+              <div className={`text-lg font-bold ${teamCls.text}`}>{data.team_avg_heute.toFixed(1)}</div>
+              <div className="text-xs text-gray-500">Team Ø heute</div>
+            </div>
+            <div className="bg-white rounded-lg border border-gray-100 p-2 text-center">
+              <div className="text-lg font-bold text-gray-700">
+                {data.team_avg_gestern !== null ? data.team_avg_gestern.toFixed(1) : '—'}
+              </div>
+              <div className="text-xs text-gray-500">Gestern</div>
+            </div>
+            <div className="bg-white rounded-lg border border-gray-100 p-2 text-center">
+              <div className="text-lg font-bold text-green-600">≥{data.ziel}</div>
+              <div className="text-xs text-gray-500">Ziel</div>
+            </div>
+          </div>
+
+          {/* Alert-Banner */}
+          {hasAlert && (
+            <div className="flex items-center gap-2 bg-red-100 border border-red-200 rounded-lg px-3 py-2">
+              <AlertTriangle size={14} className="text-red-600 flex-shrink-0" />
+              <p className="text-xs text-red-700 font-medium">
+                Liefervolumen &lt;10: {alertNames.join(', ')}
+              </p>
+            </div>
+          )}
+
+          {/* Fahrerliste */}
+          <div className="space-y-1.5">
+            {sorted.map(f => {
+              const cls = ampelCls(f.ampel);
+              return (
+                <div key={f.fahrer_id} className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 ${cls.bg}`}>
+                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${cls.dot}`} />
+                  <span className="text-xs font-medium text-gray-700 w-20 truncate">{f.fahrer_name}</span>
+                  <Sparkline data={f.sparkline} ziel={data.ziel} />
+                  <span className={`text-xs font-bold w-6 text-right ${cls.text}`}>{f.lieferungen_heute}</span>
+                  <TrendIcon trend={f.trend} />
+                  <span className="text-xs text-gray-400 w-8 text-right">
+                    {f.trend_delta > 0 ? '+' : ''}{f.trend_delta}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Legende */}
+          <div className="flex gap-3 text-xs text-gray-400">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500 inline-block" />≥{data.ziel}</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />10–{data.ziel - 1}</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" />&lt;10</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

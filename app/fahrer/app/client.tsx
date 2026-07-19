@@ -687,6 +687,7 @@ import { FahrerPhase2566MeineRoutenEffizienz } from './phase2566-meine-routen-ef
 import { FahrerPhase2571MeinePuenktlichkeit } from './phase2571-meine-puenktlichkeit';
 import { FahrerPhase2576MeineLieferzeitAbweichung } from './phase2576-meine-lieferzeit-abweichung';
 import { FahrerPhase2581MeineStornoQuoteTrend } from './phase2581-meine-storno-quote-trend';
+import { FahrerPhase2586MeinLiefervolumenTrend } from './phase2586-mein-liefervolumen-trend';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
 import { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';
 import { FahrerPhase2620SmartTourNavigationMaster } from './phase2620-smart-tour-navigation-master';
@@ -6012,6 +6013,8 @@ export function FahrerApp({
           <FahrerPhase2576MeineLieferzeitAbweichung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2581: Meine Storno-Quote-Trend — Quote % heute groß; Mini-Sparkline 7 Tage; Vergleich Gestern/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2581MeineStornoQuoteTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2586: Mein Liefervolumen-Trend — Lieferungen heute groß; Balken mit Ziel-Linie ≥15; Mini-Sparkline 7 Tage; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2586MeinLiefervolumenTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
