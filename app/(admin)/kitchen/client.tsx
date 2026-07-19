@@ -299,6 +299,7 @@ import { KitchenPhase2440NachtschichtTicker } from './phase2440-nachtschicht-tic
 import { KitchenPhase2445WochenendTicker } from './phase2445-wochenend-ticker';
 import { KitchenPhase2450FeiertagsTicker } from './phase2450-feiertags-ticker';
 import { KitchenPhase2455SchichtBalanceTicker } from './phase2455-schicht-balance-ticker';
+import { KitchenPhase2460EffizienzIndexTicker } from './phase2460-effizienz-index-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3427,6 +3428,8 @@ export function KitchenBoard({
       <KitchenPhase2450FeiertagsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2455: Schicht-Balance-Ticker — Team-Ø Score; Alert <60%; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2455SchichtBalanceTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2460: Effizienz-Index-Ticker — Team-Ø; Alert <60; Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2460EffizienzIndexTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
       <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
     </div>
@@ -10029,6 +10032,8 @@ export { KitchenPhase2445WochenendTicker } from './phase2445-wochenend-ticker';
 export { KitchenPhase2450FeiertagsTicker } from './phase2450-feiertags-ticker';
 // Phase 2455 — Schicht-Balance-Ticker (Team-Ø Score; Alert <60%; Fahrerliste kompakt mit Ampel-Dots; 30-Min-Polling)
 export { KitchenPhase2455SchichtBalanceTicker } from './phase2455-schicht-balance-ticker';
+// Phase 2460 — Effizienz-Index-Ticker (Team-Ø; Alert <60; Fahrerliste kompakt; 30-Min-Polling)
+export { KitchenPhase2460EffizienzIndexTicker } from './phase2460-effizienz-index-ticker';
 // Phase 2377 — Auslastungs-Ticker (Team-Ø Auslastung; Alert <40% od. >90%; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2377AuslastungsTicker } from './phase2377-auslastungs-ticker';
 // Phase 2382 — Reaktionszeit-Ticker (Team-Ø Reaktionszeit; Alert >120s; Fahrerliste kompakt; 30-Min-Polling)
