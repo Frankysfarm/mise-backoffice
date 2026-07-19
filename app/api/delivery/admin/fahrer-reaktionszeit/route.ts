@@ -53,7 +53,17 @@ const MOCK_FAHRER = [
   { fahrer_id: 'mock-f4', fahrer_name: 'Anna Bauer', avg_min: 3.1, touren_heute: 11, vw_avg_min: 3.4 },
 ];
 
-function buildMock(locationId: string): ReaktionszeitAntwort {
+function addCompat(f: FahrerReaktionszeit) {
+  return {
+    ...f,
+    driver_id: f.fahrer_id,
+    name: f.fahrer_name,
+    auftraege: f.touren_heute,
+    alert: f.avg_min > 7,
+  };
+}
+
+function buildMock(locationId: string) {
   const fahrer: FahrerReaktionszeit[] = MOCK_FAHRER
     .sort((a, b) => a.avg_min - b.avg_min)
     .map((f, i) => {
@@ -62,7 +72,15 @@ function buildMock(locationId: string): ReaktionszeitAntwort {
     });
   const team_durchschnitt =
     Math.round((fahrer.reduce((s, f) => s + f.avg_min, 0) / fahrer.length) * 10) / 10;
-  return { location_id: locationId, fahrer, team_durchschnitt, generiert_am: new Date().toISOString() };
+  const alert_count = fahrer.filter(f => f.avg_min > 7).length;
+  return {
+    location_id: locationId,
+    fahrer: fahrer.map(addCompat),
+    team_durchschnitt,
+    team_avg_min: team_durchschnitt,
+    alert_count,
+    generiert_am: new Date().toISOString(),
+  };
 }
 
 export async function GET(req: NextRequest) {
@@ -149,12 +167,16 @@ export async function GET(req: NextRequest) {
         ? Math.round((fahrer.reduce((s, f) => s + f.avg_min, 0) / fahrer.length) * 10) / 10
         : 0;
 
+    const alert_count = fahrer.filter(f => f.avg_min > 7).length;
+
     return NextResponse.json({
       location_id: locationId,
-      fahrer,
+      fahrer: fahrer.map(addCompat),
       team_durchschnitt,
+      team_avg_min: team_durchschnitt,
+      alert_count,
       generiert_am: jetzt.toISOString(),
-    } satisfies ReaktionszeitAntwort);
+    });
   } catch {
     return NextResponse.json(buildMock(locationId));
   }
