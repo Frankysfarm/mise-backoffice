@@ -756,6 +756,7 @@ import { DispatchPhase2473LieferzeitEffizienzBoard } from './phase2473-lieferzei
 import { DispatchPhase2478StoppzeitBoard } from './phase2478-stoppzeit-board';
 import { DispatchPhase2483KmEffizienzBoard } from './phase2483-km-effizienz-board';
 import { DispatchPhase2488TourenAnzahlBoard } from './phase2488-touren-anzahl-board';
+import { DispatchPhase2493PausenComplianceBoard } from './phase2493-pausen-compliance-board';
 import { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
 import { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
 import { DispatchPhase2446UeberstundenBoard } from './phase2446-ueberstunden-board';
@@ -3879,6 +3880,8 @@ export function DispatchBoard({
           <DispatchPhase2483KmEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2488: Touren-Anzahl-Board — KPI-Grid Team-Ø Touren heute/VW/Ziel 6-10; Fahrerliste nach Touren sortiert; Alert <4 oder >12; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2488TourenAnzahlBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2493: Pausen-Compliance-Board — KPI-Grid Team-Ø Compliance heute/VW/Ziel 100%; Fahrerliste nach Compliance sortiert; Alert <80%; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2493PausenComplianceBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2436: Reaktionszeit-Board — KPI-Grid Team-Ø heute/VW/Ziel <3min; Fahrerliste nach Reaktionszeit sortiert; Alert >7min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2436ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2441: Storno-Quote-Board — KPI-Grid Team-Ø heute/VW/Ziel <5%; Fahrerliste nach Quote sortiert; Alert >10%; Trend-Pfeile; 30-Min-Polling */}
@@ -11553,5 +11556,7 @@ export { DispatchPhase2478StoppzeitBoard } from './phase2478-stoppzeit-board';
 export { DispatchPhase2483KmEffizienzBoard } from './phase2483-km-effizienz-board';
 // Phase 2488 — Touren-Anzahl-Board (KPI-Grid Team-Ø Touren; Fahrerliste nach Touren sortiert; Alert <4 oder >12; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2488TourenAnzahlBoard } from './phase2488-touren-anzahl-board';
+// Phase 2493 — Pausen-Compliance-Board (KPI-Grid Team-Ø Compliance; Fahrerliste nach Compliance sortiert; Alert <80%; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2493PausenComplianceBoard } from './phase2493-pausen-compliance-board';
 // Phase 2490 — Score + Tour-Visualisierung Board V2 (Score-Ring je Fahrer; farbkodierte Stop-Dots mit Nummern; Fortschrittsbalken; ETA; expandierbare Stop-Liste; Alert Score <60; 25-Sek-Polling)
 export { DispatchPhase2490ScoreTourVisualisierungBoardV2 } from './phase2490-score-tour-visualisierung-board-v2';

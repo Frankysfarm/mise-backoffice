@@ -1,145 +1,145 @@
-/**
- * GET /api/delivery/admin/fahrer-pausen-compliance?location_id=<uuid>
- *
- * Phase 1682 — Fahrer-Pausen-Compliance-API
- * Pflichtpausen je Fahrer (Schichtdauer >6h → 30 Min Pause); Compliance-Status.
- * Multi-Tenant: location_id je Query. Supabase + Mock-Fallback.
- */
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+// Phase 2492 — Fahrer-Pausen-Compliance
+// GET /api/delivery/admin/fahrer-pausen-compliance?location_id=<uuid>[&driver_id=<uuid>]
+// Compliance = Pausen genommen / Pflichtpausen je Schicht (%)
+// Ampel: grün ≥100%, gelb 80–99%, rot <80%. Alert <80%. Trend vs. VW.
+import { NextResponse } from 'next/server';
+import { createServiceClient } from '@/lib/supabase/server';
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type PausenStatus = 'ok' | 'pause_faellig' | 'ueberzeit';
+const ALERT_THRESHOLD = 80;
 
-interface FahrerPause {
-  fahrer_id: string;
-  fahrer_name: string;
-  schicht_start: string;
-  schicht_dauer_min: number;
-  pause_genommen_min: number;
-  pause_pflicht_min: number;
-  status: PausenStatus;
-  pause_faellig_seit_min: number | null;
+function ampel(pct: number): 'gruen' | 'gelb' | 'rot' {
+  if (pct >= 100) return 'gruen';
+  if (pct >= ALERT_THRESHOLD) return 'gelb';
+  return 'rot';
 }
 
-interface PausenComplianceResponse {
-  location_id: string;
-  fahrer: FahrerPause[];
-  compliance_rate_pct: number;
-  generiert_am: string;
-}
+function mockData(locationId: string, driverId?: string) {
+  const drivers = [
+    { id: 'd1', name: 'Max M.',   pct: 100, pct_vw: 100, genommen: 2, pflicht: 2 },
+    { id: 'd2', name: 'Sara K.',  pct: 75,  pct_vw: 90,  genommen: 3, pflicht: 4 },
+    { id: 'd3', name: 'Tim B.',   pct: 85,  pct_vw: 80,  genommen: 1, pflicht: 2 },
+    { id: 'd4', name: 'Julia F.', pct: 100, pct_vw: 100, genommen: 2, pflicht: 2 },
+  ];
 
-const PAUSE_SCHWELLE_MIN = 360; // 6 Stunden
-const PAUSE_PFLICHT_MIN = 30;
+  const fahrer = drivers
+    .map((d, i) => ({
+      fahrer_id: d.id,
+      fahrer_name: d.name,
+      compliance_heute: d.pct,
+      compliance_vw: d.pct_vw,
+      pausen_genommen: d.genommen,
+      pausen_pflicht: d.pflicht,
+      trend: d.pct > d.pct_vw ? 'steigend' : d.pct < d.pct_vw ? 'fallend' : 'stabil',
+      trend_delta: d.pct - d.pct_vw,
+      ampel: ampel(d.pct),
+      alert: d.pct < ALERT_THRESHOLD,
+      rang: i + 1,
+    }))
+    .sort((a, b) => a.compliance_heute - b.compliance_heute)
+    .map((d, i) => ({ ...d, rang: i + 1 }));
 
-function statusOf(schichtMin: number, pauseMin: number): PausenStatus {
-  if (schichtMin < PAUSE_SCHWELLE_MIN) return 'ok';
-  if (pauseMin >= PAUSE_PFLICHT_MIN) return 'ok';
-  if (schichtMin > PAUSE_SCHWELLE_MIN + 60) return 'ueberzeit';
-  return 'pause_faellig';
-}
+  const team_avg = fahrer.reduce((s, f) => s + f.compliance_heute, 0) / (fahrer.length || 1);
+  const team_avg_vw = fahrer.reduce((s, f) => s + f.compliance_vw, 0) / (fahrer.length || 1);
+  const alert_count = fahrer.filter(f => f.alert).length;
 
-function buildMock(locationId: string): PausenComplianceResponse {
-  const seed = locationId.charCodeAt(0) || 70;
-  const rng = (base: number, range: number, s: number) =>
-    Math.max(0, Math.round(base + ((seed * s) % range) - range / 2));
+  if (driverId) {
+    const f = fahrer.find(d => d.fahrer_id === driverId) ?? fahrer[0];
+    return { fahrer_single: f, team_avg_compliance: Math.round(team_avg * 10) / 10 };
+  }
 
-  const names = ['Max M.', 'Lisa B.', 'Tom K.', 'Jan S.', 'Nina R.'];
-  const fahrer: FahrerPause[] = names.map((name, i) => {
-    const schichtMin = rng(300, 200, (i + 1) * 11);
-    const pauseMin = schichtMin > PAUSE_SCHWELLE_MIN
-      ? rng(15, 40, (i + 1) * 7)
-      : 0;
-    const status = statusOf(schichtMin, pauseMin);
-    const start = new Date(Date.now() - schichtMin * 60 * 1000).toISOString();
-    return {
-      fahrer_id: `f${i + 1}`,
-      fahrer_name: name,
-      schicht_start: start,
-      schicht_dauer_min: schichtMin,
-      pause_genommen_min: pauseMin,
-      pause_pflicht_min: schichtMin >= PAUSE_SCHWELLE_MIN ? PAUSE_PFLICHT_MIN : 0,
-      status,
-      pause_faellig_seit_min:
-        status === 'pause_faellig' || status === 'ueberzeit'
-          ? Math.max(0, schichtMin - PAUSE_SCHWELLE_MIN)
-          : null,
-    };
-  });
-
-  const okCount = fahrer.filter(f => f.status === 'ok').length;
   return {
-    location_id: locationId,
     fahrer,
-    compliance_rate_pct: Math.round((okCount / fahrer.length) * 100),
+    team_avg_compliance: Math.round(team_avg * 10) / 10,
+    team_avg_compliance_vw: Math.round(team_avg_vw * 10) / 10,
+    alert_count,
     generiert_am: new Date().toISOString(),
   };
 }
 
-export async function GET(req: NextRequest) {
-  const locationId = req.nextUrl.searchParams.get('location_id') ?? 'all';
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const locationId = searchParams.get('location_id');
+  const driverId = searchParams.get('driver_id') ?? undefined;
+
+  if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
 
   try {
-    const sb = await createClient();
-    const now = new Date();
-    const eightHoursAgo = new Date(now.getTime() - 8 * 60 * 60 * 1000);
+    const supabase = createServiceClient();
+    const today = new Date().toISOString().slice(0, 10);
+    const lastWeek = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString().slice(0, 10);
 
-    // Aktive Schichten aus driver_status
-    let statusQ = (sb as any)
-      .from('driver_status')
-      .select('driver_id, online_seit, pause_start, pause_end, pause_dauer_min')
-      .eq('is_online', true)
-      .gte('online_seit', eightHoursAgo.toISOString());
-    if (locationId !== 'all') statusQ = statusQ.eq('location_id', locationId);
-    const { data: statuses, error: sErr } = await statusQ;
-
-    if (sErr || !statuses?.length) {
-      return NextResponse.json(buildMock(locationId));
-    }
-
-    // Fahrer-Namen aus drivers
-    const driverIds = statuses.map((s: { driver_id: string }) => s.driver_id);
-    const { data: drivers } = await (sb as any)
+    const { data: drivers } = await supabase
       .from('drivers')
       .select('id, name')
-      .in('id', driverIds);
+      .eq('location_id', locationId)
+      .eq('is_active', true);
 
-    const nameMap: Record<string, string> = {};
-    for (const d of drivers ?? []) nameMap[d.id] = d.name ?? d.id;
+    if (!drivers?.length) return NextResponse.json(mockData(locationId, driverId));
 
-    const fahrer: FahrerPause[] = statuses.map(
-      (s: { driver_id: string; online_seit: string; pause_dauer_min?: number }) => {
-        const schichtMin = Math.round(
-          (now.getTime() - new Date(s.online_seit).getTime()) / 60000,
-        );
-        const pauseMin = s.pause_dauer_min ?? 0;
-        const status = statusOf(schichtMin, pauseMin);
+    async function getBreaks(dId: string, date: string) {
+      const { data: tours } = await supabase
+        .from('delivery_tours')
+        .select('break_count, required_breaks')
+        .eq('driver_id', dId)
+        .gte('created_at', date + 'T00:00:00')
+        .lte('created_at', date + 'T23:59:59');
+
+      if (!tours?.length) return { genommen: 0, pflicht: 0 };
+      const genommen = tours.reduce((s: number, t: { break_count?: number }) => s + (t.break_count ?? 0), 0);
+      const pflicht = tours.reduce((s: number, t: { required_breaks?: number }) => s + (t.required_breaks ?? 1), 0);
+      return { genommen, pflicht };
+    }
+
+    const fahrerData = await Promise.all(
+      drivers.map(async (d) => {
+        const [heute, vw] = await Promise.all([
+          getBreaks(d.id, today),
+          getBreaks(d.id, lastWeek),
+        ]);
+        const compliance_heute = heute.pflicht > 0
+          ? Math.min(120, Math.round((heute.genommen / heute.pflicht) * 100))
+          : 100;
+        const compliance_vw = vw.pflicht > 0
+          ? Math.min(120, Math.round((vw.genommen / vw.pflicht) * 100))
+          : 100;
         return {
-          fahrer_id: s.driver_id,
-          fahrer_name: nameMap[s.driver_id] ?? s.driver_id,
-          schicht_start: s.online_seit,
-          schicht_dauer_min: schichtMin,
-          pause_genommen_min: pauseMin,
-          pause_pflicht_min: schichtMin >= PAUSE_SCHWELLE_MIN ? PAUSE_PFLICHT_MIN : 0,
-          status,
-          pause_faellig_seit_min:
-            status === 'pause_faellig' || status === 'ueberzeit'
-              ? Math.max(0, schichtMin - PAUSE_SCHWELLE_MIN)
-              : null,
+          fahrer_id: d.id,
+          fahrer_name: d.name ?? 'Fahrer',
+          compliance_heute,
+          compliance_vw,
+          pausen_genommen: heute.genommen,
+          pausen_pflicht: heute.pflicht,
+          trend: compliance_heute > compliance_vw ? 'steigend' : compliance_heute < compliance_vw ? 'fallend' : 'stabil',
+          trend_delta: compliance_heute - compliance_vw,
+          ampel: ampel(compliance_heute),
+          alert: compliance_heute < ALERT_THRESHOLD,
         };
-      },
+      })
     );
 
-    const okCount = fahrer.filter(f => f.status === 'ok').length;
+    const sorted = fahrerData
+      .sort((a, b) => a.compliance_heute - b.compliance_heute)
+      .map((d, i) => ({ ...d, rang: i + 1 }));
+
+    const team_avg = sorted.reduce((s, f) => s + f.compliance_heute, 0) / (sorted.length || 1);
+    const team_avg_vw = sorted.reduce((s, f) => s + f.compliance_vw, 0) / (sorted.length || 1);
+    const alert_count = sorted.filter(f => f.alert).length;
+
+    if (driverId) {
+      const f = sorted.find(d => d.fahrer_id === driverId) ?? sorted[0];
+      return NextResponse.json({ fahrer_single: f, team_avg_compliance: Math.round(team_avg * 10) / 10 });
+    }
+
     return NextResponse.json({
-      location_id: locationId,
-      fahrer,
-      compliance_rate_pct: fahrer.length > 0 ? Math.round((okCount / fahrer.length) * 100) : 100,
-      generiert_am: now.toISOString(),
-    } satisfies PausenComplianceResponse);
+      fahrer: sorted,
+      team_avg_compliance: Math.round(team_avg * 10) / 10,
+      team_avg_compliance_vw: Math.round(team_avg_vw * 10) / 10,
+      alert_count,
+      generiert_am: new Date().toISOString(),
+    });
   } catch {
-    return NextResponse.json(buildMock(locationId));
+    return NextResponse.json(mockData(locationId, driverId));
   }
 }
