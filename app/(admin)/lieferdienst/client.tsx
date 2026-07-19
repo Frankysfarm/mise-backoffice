@@ -4639,3 +4639,6 @@ export { LieferdienstPhase2350StatistikDashboardMaster } from './phase2350-stati
 export { LieferdienstPhase2360StatistikDashboardFinal } from './phase2360-statistik-dashboard-final';
 // Phase 2522 — Statistiken Executive Live-Cockpit (8 KPI-Kacheln Ampel; Stunden-Chart Bestellungen/Umsatz; Zonen-Ranking; Alert-Strip; 2-Min-Polling)
 export { LieferdienstPhase2522StatistikenExecutiveLiveCockpit } from './phase2522-statistiken-executive-live-cockpit';
+
+// Phase 2527 — Statistiken-Kommandant (8 KPI-Kacheln Ampel; Stundenverlauf-Chart 2-Modi; Zonen-Top-5; Alert-Strip Storno/Lieferzeit/On-Time; 5-Min-Polling)
+export { LieferdienstPhase2527StatistikKommandant } from './phase2527-statistiken-kommandant';

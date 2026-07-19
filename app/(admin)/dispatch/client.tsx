@@ -11602,3 +11602,6 @@ export { DispatchPhase2515ScoreTourVisualisierungHub } from './phase2515-score-t
 export { DispatchPhase2521TourScoreEchtzeitHub } from './phase2521-tour-score-echtzeit-hub';
 // Phase 2600 — Tour-Score Visualisierung Kommandant (Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling)
 export { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';
+
+// Phase 2483 — Tour-Score Live-Board (Score-Ring je Fahrer 0–100; farbkodierte Stop-Dots; Fortschrittsbalken; ETA; Alert Score <60; expandierbare Stop-Liste; 25-Sek-Polling)
+export { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';

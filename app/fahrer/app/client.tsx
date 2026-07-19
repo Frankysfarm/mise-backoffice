@@ -9177,3 +9177,6 @@ export { FahrerPhase2510TourStoppNavigationsHub } from './phase2510-tour-stopp-n
 export { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
 // Phase 2600 — Smart Tour-Stopp Navigator Final (Aktueller Stopp + Navigation-Button + Telefon + Bestätigung; Stop-Liste mit Status-Dots; ETA; 1-Sek-Tick)
 export { FahrerPhase2600SmartTourStoppNavigatorFinal } from './phase2600-smart-tour-stopp-navigator-final';
+
+// Phase 2605 — Tour-Stopp GPS-Kommando Pro (aktueller Stopp mit One-Tap-Navi Google/Apple/Waze; Anruf-Button; Stopp-Bestätigung; Fortschrittsring; Preview nächste Stopps; mobile-optimiert; 30-Sek-Polling)
+export { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';

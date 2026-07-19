@@ -10160,3 +10160,6 @@ export { KitchenPhase2515SmartTimingFarbkodierungUltra } from './phase2515-smart
 export { KitchenPhase2520SmartTimingPrepPrognoseCockpit } from './phase2520-smart-timing-prep-prognose-cockpit';
 // Phase 2600 — Smart-Timing Countdown Kommandant (Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick)
 export { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
+
+// Phase 2605 — Smart-Timing Batch-Countdown Ampel (Farbkodierte Kacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling)
+export { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
