@@ -750,6 +750,7 @@ import { DispatchPhase2442WochenendSchichtBoard } from './phase2442-wochenend-sc
 import { DispatchPhase2447FeiertagsschichtBoard } from './phase2447-feiertagsschicht-board';
 import { DispatchPhase2452SchichtBalanceBoard } from './phase2452-schicht-balance-board';
 import { DispatchPhase2457EffizienzIndexBoard } from './phase2457-effizienz-index-board';
+import { DispatchPhase2462KapazitaetScoreBoard } from './phase2462-kapazitaet-score-board';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 
 type Driver = {
@@ -3857,6 +3858,8 @@ export function DispatchBoard({
           <DispatchPhase2452SchichtBalanceBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2457: Effizienz-Index-Board — KPI-Grid Team-Ø heute/VW/Ziel ≥80; Fahrerliste nach Index sortiert; Ampel; Alert <60; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2457EffizienzIndexBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2462: Kapazitäts-Score-Board — KPI-Grid Team-Ø heute/VW/Ziel ≥80%; Fahrerliste nach Score sortiert; Alert <60%; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2462KapazitaetScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
           <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
@@ -11502,3 +11505,5 @@ export { DispatchPhase2447FeiertagsschichtBoard } from './phase2447-feiertagssch
 export { DispatchPhase2452SchichtBalanceBoard } from './phase2452-schicht-balance-board';
 // Phase 2457 — Effizienz-Index-Board (KPI-Grid Team-Ø heute/VW/Ziel ≥80; Fahrerliste nach Index sortiert; Ampel; Alert <60; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2457EffizienzIndexBoard } from './phase2457-effizienz-index-board';
+// Phase 2462 — Kapazitäts-Score-Board (KPI-Grid Team-Ø heute/VW/Ziel ≥80%; Fahrerliste nach Score sortiert; Alert <60%; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2462KapazitaetScoreBoard } from './phase2462-kapazitaet-score-board';
