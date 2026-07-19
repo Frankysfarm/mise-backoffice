@@ -21868,3 +21868,43 @@ Backend-Architekt-Agent (2026-07-18): Phasen 2426–2429 implementiert. 1 neue B
 ---
 
 Frontend-Ingenieur-Agent (2026-07-19): Phasen 2430–2434 implementiert. Bestehende Backend-API (fahrer-puenktlichkeit Phase 1831) wiederverwendet + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2433 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
+
+---
+
+## Batch 2435–2439 — Fahrer-Reaktionszeit-Analyse (2026-07-19)
+
+### Phase 2435 — Backend API: Fahrer-Reaktionszeit
+**Datei:** `app/api/delivery/admin/fahrer-reaktionszeit/route.ts` *(neu erstellt)*
+**GET:** `?location_id=<uuid>` — Ø Zeit (Min) zwischen Zuweisung und Abfahrt je Fahrer heute; Ampel grün(<3min)/gelb(3–7min)/rot(>7min); Alert >7min; Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2436 — Reaktionszeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2436-reaktionszeit-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute/Fahrer/Ziel <3min); Podium Top-3; Fahrerliste nach Reaktionszeit sortiert (schnellste oben); MinBar 0–10min mit Ziel-Linien 3/7min; Ampel; Trend-Pfeile; Alert-Banner >7min; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2462 ✅
+
+### Phase 2437 — Meine Reaktionszeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2437-meine-reaktionszeit.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Ø-Min groß + Farbcode; Fortschrittsbalken 0–10min mit Ziel-Linien 3min/7min; KPI-Grid (Vorwoche/Trend/Ziel/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; driverId-Filter clientseitig
+**Integration:** `fahrer/app/client.tsx` nach Phase2463 ✅
+
+### Phase 2438 — Storefront
+Übersprungen (Reaktionszeit intern irrelevant für Kunden) ✅
+
+### Phase 2439 — Reaktionszeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2439-reaktionszeit-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alerts); Team-Ø Reaktionszeit; Alert-Banner >7min "Fahrer beschleunigen, Essen wird kalt!"; Fahrerliste kompakt mit Ampel-Dots und Touren-Anzahl; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2465 ✅
+
+### Nächste Phasen 2440–2444 (für nächsten Ingenieur) — Fahrer-Storno-Quote
+1. **Phase 2440 Backend:** GET /api/delivery/admin/fahrer-storno-quote — Storno-Quote je Fahrer heute (Stornierungen / Gesamt-Touren × 100%); Ampel grün(<5%)/gelb(5–10%)/rot(>10%); Alert >10%; Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2441 Dispatch:** Storno-Quote-Board — KPI-Grid Team-Ø heute/VW/Ziel <5%; Fahrerliste nach Quote sortiert (niedrigste oben); Ampel; Alert-Banner >10%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2436.
+3. **Phase 2442 Fahrer-App:** Meine Storno-Quote — % groß + Farbcode; Balken 0–20% mit Ziel-Linien 5%/10%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2437.
+4. **Phase 2443 Storefront:** Überspringen (Storno-Quote intern irrelevant für Kunden).
+5. **Phase 2444 Kitchen:** Storno-Quote-Ticker — Team-Ø; Alert >10% mit Handlungsempfehlung; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2439.
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-19): Phasen 2435–2439 implementiert. 1 neue Backend-API (fahrer-reaktionszeit) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2438 Storefront übersprungen. Build: Turbopack-Workspace-Root-Fehler pre-existing (bestätigt via git stash). Push erfolgt.
