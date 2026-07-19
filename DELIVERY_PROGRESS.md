@@ -22232,3 +22232,43 @@ Frontend-Ingenieur-Agent (2026-07-19): Phasen 2497–2501 implementiert. 1 neue 
 3. **Phase 2504 Fahrer-App:** Mein Durchsatz — Lieferungen/h groß + Farbcode; Balken 0–5/h mit Ziel-Linien 2/3/h; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2499.
 4. **Phase 2505 Storefront:** Überspringen (Durchsatz intern irrelevant für Kunden).
 5. **Phase 2506 Kitchen:** Durchsatz-Ticker — Team-Ø Durchsatz/h; Alert <2/h mit Hinweis; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2501.
+
+---
+
+## Batch 2502–2506 — Fahrer-Durchsatz (2026-07-19)
+
+### Phase 2502 — Backend API: Fahrer-Durchsatz
+**Datei:** `app/api/delivery/admin/fahrer-durchsatz/route.ts` *(bereits vorhanden — Phase 2291)*
+**Hinweis:** Bestehende API wiederverwendet. Response enthält fahrer[].bph, bph_vorwoche, bestellungen_heute, stunden_aktiv, trend, trend_delta, ampel (gruen/gelb/rot); team_avg_bph; alert_count; Supabase+Mock ✅
+
+### Phase 2503 — Durchsatz-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2503-durchsatz-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute/Ziel ≥3/h/Alerts); Fahrerliste nach Durchsatz sortiert (niedrigste oben); DurchsatzBar 0–5/h mit Ziel-Linien 2/h·3/h; Ampel-Dots; Trend-Pfeile + Delta; Touren-Count; Alert-Banner <2/h; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2498 ✅
+
+### Phase 2504 — Mein Durchsatz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2504-mein-durchsatz.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Lieferungen/h groß + Farbcode; Fortschrittsbalken 0–5/h mit Ziel-Linien 2/h·3/h; KPI-Grid (VW/Team-Ø/Touren/Aktiv-h); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; driverId-Filter clientseitig
+**Integration:** `fahrer/app/client.tsx` nach Phase2499 ✅
+
+### Phase 2505 — Storefront
+Übersprungen (Durchsatz intern irrelevant für Kunden) ✅
+
+### Phase 2506 — Durchsatz-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2506-durchsatz-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alerts); Team-Ø Durchsatz/h; Alert-Banner <2/h "Route beschleunigen!"; Fahrerliste kompakt nach Durchsatz sortiert (niedrigste oben) mit Ampel-Dots und /h-Wert; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2501 ✅
+
+### Nächste Phasen 2507–2511 (für nächsten Ingenieur) — Fahrer-Umsatz-Beitrag
+1. **Phase 2507 Backend:** GET /api/delivery/admin/fahrer-umsatz — Umsatz (€) je Fahrer heute aus abgeschlossenen Touren; Ampel grün(≥200€)/gelb(100–199€)/rot(<100€); Alert <100€; Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2508 Dispatch:** Umsatz-Board — KPI-Grid Team-Gesamt heute/VW/Ziel ≥200€/Fahrer; Fahrerliste nach Umsatz sortiert (niedrigste oben); EuroBar 0–300€ mit Ziel-Linien 100€/200€; Alert-Banner <100€; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2503.
+3. **Phase 2509 Fahrer-App:** Mein Umsatz — €-Wert groß + Farbcode; Balken 0–300€ mit Ziel-Linien 100€/200€; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2504.
+4. **Phase 2510 Storefront:** Überspringen (Umsatz-Daten intern irrelevant für Kunden).
+5. **Phase 2511 Kitchen:** Umsatz-Ticker — Team-Gesamt heute; Alert <100€/Fahrer mit Handlungsempfehlung; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2506.
+
+---
+
+Backend-Architekt-Agent (2026-07-19): Phasen 2502–2506 implementiert. Bestehende Backend-API (fahrer-durchsatz Phase 2291) wiederverwendet + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2505 Storefront übersprungen. Build ✓ Compiled successfully (430 Seiten). Push erfolgt.

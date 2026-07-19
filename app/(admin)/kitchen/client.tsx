@@ -308,6 +308,7 @@ import { KitchenPhase2486KmEffizienzTicker } from './phase2486-km-effizienz-tick
 import { KitchenPhase2491TourenAnzahlTicker } from './phase2491-touren-anzahl-ticker';
 import { KitchenPhase2496PausenComplianceTicker } from './phase2496-pausen-compliance-ticker';
 import { KitchenPhase2501LiefertreueTicker } from './phase2501-liefertreue-ticker';
+import { KitchenPhase2506DurchsatzTicker } from './phase2506-durchsatz-ticker';
 import { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-ticker';
 import { KitchenPhase2444StornoQuoteTicker } from './phase2444-storno-quote-ticker';
 import { KitchenPhase2449UeberstundenTicker } from './phase2449-ueberstunden-ticker';
@@ -3458,6 +3459,8 @@ export function KitchenBoard({
       <KitchenPhase2496PausenComplianceTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2501: Liefertreue-Ticker — Team-Ø %; Alert <85% mit Route-Hinweis; Fahrerliste kompakt (niedrigste oben); 30-Min-Polling */}
       <KitchenPhase2501LiefertreueTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2506: Durchsatz-Ticker — Team-Ø Lieferungen/h; Alert <2/h mit Hinweis; Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2506DurchsatzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2439: Reaktionszeit-Ticker — Team-Ø; Alert >7min mit Beschleunigungshinweis; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2439ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2444: Storno-Quote-Ticker — Team-Ø; Alert >10% mit Handlungsempfehlung; Fahrerliste kompakt; 30-Min-Polling */}
@@ -10085,6 +10088,8 @@ export { KitchenPhase2491TourenAnzahlTicker } from './phase2491-touren-anzahl-ti
 export { KitchenPhase2496PausenComplianceTicker } from './phase2496-pausen-compliance-ticker';
 // Phase 2501 — Liefertreue-Ticker (Team-Ø Liefertreue %; Alert <85% mit Routen-Hinweis; Fahrerliste kompakt sortiert (niedrigste oben) mit Ampel-Dots und %; 30-Min-Polling)
 export { KitchenPhase2501LiefertreueTicker } from './phase2501-liefertreue-ticker';
+// Phase 2506 — Durchsatz-Ticker (Team-Ø Lieferungen/h; Alert <2/h mit Hinweis; Fahrerliste kompakt; 30-Min-Polling)
+export { KitchenPhase2506DurchsatzTicker } from './phase2506-durchsatz-ticker';
 // Phase 2439 — Reaktionszeit-Ticker (Team-Ø Reaktionszeit; Alert >7min; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-ticker';
 // Phase 2444 — Storno-Quote-Ticker (Team-Ø Quote; Alert >10%; Fahrerliste kompakt; 30-Min-Polling)
