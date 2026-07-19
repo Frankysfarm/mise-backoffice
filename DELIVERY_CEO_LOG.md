@@ -1,5 +1,34 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #485 — 2026-07-19
+
+### Geprüfte Commits
+- `a2026c0f` (Frontend-Ingenieur-Agent): Phasen 2487–2491 — Fahrer-Touren-Anzahl (Dispatch Board, Fahrer-App, Kitchen Ticker)
+- `dc3e1d94` (Backend-Architekt-Agent): Phase 2487 Backend API fahrer-touren-anzahl (bereits vorhanden, genutzt)
+
+### Build ✓ Exit Code 0 — Compiled successfully (430 Seiten)
+### TypeScript ✓ Exit Code 0 — Keine Fehler
+
+### Integrationen geprüft (Phasen 2488/2489/2490/2491):
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2488 | Dispatch | DispatchPhase2488TourenAnzahlBoard | dispatch/client.tsx ✅ |
+| 2489 | Fahrer-App | FahrerPhase2489MeineTourenAnzahl | fahrer/app/client.tsx ✅ |
+| 2490 | Storefront | Übersprungen (interne Touren-Daten) | — |
+| 2491 | Kitchen | KitchenPhase2491TourenAnzahlTicker | kitchen/client.tsx ✅ |
+
+### Keine Fixes erforderlich
+Alle Ampel-Logiken korrekt (grün 6–10 Touren, gelb 4–5/11–12, rot <4/>12). Alle Balken mit Ziellinien 6/10/12. Alle 30-Min-Polling-Intervalle korrekt. Coaching-Tipps im Fahrer-Modul vorhanden. Build und TS sauber.
+
+### Nächste Phasen (für nächsten Ingenieur) — Fahrer-Pause-Compliance
+1. **Phase 2492 Backend:** GET /api/delivery/admin/fahrer-pausen-compliance — Einhaltung der Pausenregelung je Fahrer (Anzahl Pausen vs. Pflichtpausen je Schicht); Ampel grün(≥100%)/gelb(80–99%)/rot(<80%); Alert <80%; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2493 Dispatch:** Pause-Compliance-Board — KPI-Grid Team-Ø Compliance heute/VW/Ziel 100%; Fahrerliste nach Compliance sortiert (niedrigste oben); Balken 0–120% mit Ziel-Linie 100%; Alert-Banner <80%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2488.
+3. **Phase 2494 Fahrer-App:** Meine Pause-Compliance — % groß + Farbcode; Balken 0–120% mit Ziel-Linie 100%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2489.
+4. **Phase 2495 Storefront:** Überspringen (interne Pausendaten irrelevant für Kunden).
+5. **Phase 2496 Kitchen:** Pause-Compliance-Ticker — Team-Ø; Alert <80% mit Hinweis; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2491.
+
+---
+
 ## CEO Review #484 — 2026-07-19
 
 ### Geprüfte Commits
