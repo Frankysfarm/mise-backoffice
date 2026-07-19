@@ -74,8 +74,8 @@ export function DispatchPhase2104KundenFeedbackBoard({ locationId }: Props) {
   }, [load]);
 
   const TrendIcon = ({ trend, delta }: { trend: FahrerRow['trend']; delta: number }) => {
-    if (trend === 'besser')      return <TrendingUp   className="h-3 w-3 text-matcha-600" title={`+${delta}`} />;
-    if (trend === 'schlechter')  return <TrendingDown className="h-3 w-3 text-red-500"    title={`${delta}`} />;
+    if (trend === 'besser')      return <TrendingUp   className="h-3 w-3 text-matcha-600" aria-label={`+${delta}`} />;
+    if (trend === 'schlechter')  return <TrendingDown className="h-3 w-3 text-red-500"    aria-label={`${delta}`} />;
     return <Minus className="h-3 w-3 text-muted-foreground" />;
   };
 

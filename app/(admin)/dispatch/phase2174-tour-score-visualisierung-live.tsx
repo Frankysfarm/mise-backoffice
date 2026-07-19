@@ -155,12 +155,12 @@ export function DispatchPhase2174TourScoreVisualisierungLive() {
       const { data: orderCounts } = await supabase
         .from('customer_orders')
         .select('mise_batch_id, status')
-        .in('mise_batch_id', data.map(d => d.id));
+        .in('mise_batch_id', data.map((d: any) => d.id));
 
-      const mappedTours: TourData[] = data.map(batch => {
-        const batchOrders = (orderCounts ?? []).filter(o => o.mise_batch_id === batch.id);
+      const mappedTours: TourData[] = data.map((batch: any) => {
+        const batchOrders = (orderCounts ?? []).filter((o: any) => o.mise_batch_id === batch.id);
         const total = batchOrders.length;
-        const done = batchOrders.filter(o =>
+        const done = batchOrders.filter((o: any) =>
           ['geliefert', 'abgeholt_extern'].includes(o.status)
         ).length;
         const driver = Array.isArray(batch.driver) ? batch.driver[0] : batch.driver;

@@ -174,7 +174,7 @@ export function LieferdienstPhase2205StatistikDashboardCockpit() {
             <XAxis dataKey="stunde" tick={{ fontSize: 9, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{ fontSize: 10, padding: '4px 8px', borderRadius: 6 }}
-              formatter={(v: number) => [`€${v}`, 'Umsatz']}
+              formatter={(v: any) => [`€${v}`, 'Umsatz']}
             />
             <Bar dataKey="umsatz" radius={[3, 3, 0, 0]}>
               {stats.stundenumsatz.map((s, i) => (

@@ -236,7 +236,7 @@ export function LieferdienstPhase2240StatistikHubPro({ locationId }: { locationI
               <XAxis dataKey="hour" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={{ fontSize: 10, borderRadius: 8 }}
-                formatter={(v: number, n: string) => [n === 'umsatz' ? euro(v) : v, n === 'umsatz' ? 'Umsatz' : 'Bestellungen']}
+                formatter={(v: any, n: any) => [n === 'umsatz' ? euro(v) : v, n === 'umsatz' ? 'Umsatz' : 'Bestellungen']}
               />
               <Bar dataKey="bestellungen" radius={[3, 3, 0, 0]}>
                 {stats.stunden.map((b, i) => (

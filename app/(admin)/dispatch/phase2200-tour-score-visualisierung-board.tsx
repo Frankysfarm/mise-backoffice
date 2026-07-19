@@ -70,7 +70,7 @@ export function DispatchPhase2200TourScoreVisualisierungBoard() {
         .order('score', { ascending: false })
         .limit(8);
       if (data && data.length > 0) {
-        setTouren(data.map((d) => ({
+        setTouren(data.map((d: any) => ({
           tourId: d.id,
           fahrer: d.driver_name ?? 'Unbekannt',
           score: d.score ?? 0,

@@ -165,7 +165,7 @@ export function LieferdienstPhase2250StatistikInsightsPro({ tenantId }: { tenant
               <BarChart data={d.stunden} barCategoryGap="20%">
                 <XAxis dataKey="stunde" tick={{ fontSize: 9, fill: 'currentColor' }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  formatter={(v: number) => [euro(v), 'Umsatz']}
+                  formatter={(v: any) => [euro(v), 'Umsatz']}
                   contentStyle={{ fontSize: 10, border: 'none', borderRadius: 8, padding: '4px 8px' }}
                 />
                 <Bar dataKey="umsatz" radius={[3, 3, 0, 0]}>

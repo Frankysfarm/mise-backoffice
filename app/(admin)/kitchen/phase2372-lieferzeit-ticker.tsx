@@ -43,7 +43,7 @@ export function KitchenPhase2372LieferzeitTicker({ locationId }: { locationId?: 
 
   if (!data) return null;
 
-  const alertFahrer = data.fahrer.filter((f) => f.alert || f.ampel === 'rot');
+  const alertFahrer = data.fahrer.filter((f) => (f as any).alert || f.ampel === 'rot');
   const langsamster = data.fahrer.slice().sort((a, b) => b.avg_min - a.avg_min)[0];
   const hasAlert = data.alert_count > 0 || alertFahrer.length > 0;
 

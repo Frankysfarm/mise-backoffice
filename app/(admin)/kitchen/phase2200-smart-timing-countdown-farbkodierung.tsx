@@ -59,7 +59,7 @@ export function KitchenPhase2200SmartTimingCountdownFarbkodierung() {
         .order('started_at', { ascending: true })
         .limit(8);
       if (data && data.length > 0) {
-        setOrders(data.map((d) => ({
+        setOrders(data.map((d: any) => ({
           orderId: d.id,
           customerName: d.customer_name ?? 'Unbekannt',
           itemCount: d.item_count ?? 1,

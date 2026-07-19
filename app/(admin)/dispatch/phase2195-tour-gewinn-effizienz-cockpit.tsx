@@ -47,7 +47,7 @@ export function DispatchPhase2195TourGewinnEffizienzCockpit() {
         .order('score', { ascending: false })
         .limit(6);
       if (data && data.length > 0) {
-        setTouren(data.map((d) => ({
+        setTouren(data.map((d: any) => ({
           tourId: d.id,
           fahrer: d.driver_name ?? 'Unbekannt',
           stops: d.stop_count ?? 0,

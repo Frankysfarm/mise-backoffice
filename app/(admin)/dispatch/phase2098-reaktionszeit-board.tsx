@@ -60,8 +60,8 @@ export function DispatchPhase2098ReaktionsteitBoard({ locationId }: Props) {
   }, [load]);
 
   const TrendIcon = ({ trend, delta }: { trend: FahrerRow['trend']; delta: number }) => {
-    if (trend === 'besser')      return <TrendingDown  className="h-3 w-3 text-matcha-600" title={`${Math.abs(delta)} Min besser`} />;
-    if (trend === 'schlechter')  return <TrendingUp    className="h-3 w-3 text-red-500"    title={`+${delta} Min langsamer`} />;
+    if (trend === 'besser')      return <TrendingDown  className="h-3 w-3 text-matcha-600" aria-label={`${Math.abs(delta)} Min besser`} />;
+    if (trend === 'schlechter')  return <TrendingUp    className="h-3 w-3 text-red-500"    aria-label={`+${delta} Min langsamer`} />;
     return <Minus className="h-3 w-3 text-muted-foreground" />;
   };
 

@@ -59,17 +59,17 @@ export function DispatchPhase2179TourEffizienzVergleich() {
       const { data: orders } = await supabase
         .from('customer_orders')
         .select('mise_batch_id, status, verspaetungs_minuten')
-        .in('mise_batch_id', batches.map((b) => b.id));
+        .in('mise_batch_id', batches.map((b: any) => b.id));
 
-      const rows: TourRow[] = batches.map((b) => {
-        const bOrders = (orders ?? []).filter((o) => o.mise_batch_id === b.id);
+      const rows: TourRow[] = batches.map((b: any) => {
+        const bOrders = (orders ?? []).filter((o: any) => o.mise_batch_id === b.id);
         const total = bOrders.length;
-        const done = bOrders.filter((o) => ['geliefert', 'abgeholt_extern'].includes(o.status)).length;
+        const done = bOrders.filter((o: any) => ['geliefert', 'abgeholt_extern'].includes(o.status)).length;
         const elapsed = b.started_at
           ? Math.round((Date.now() - new Date(b.started_at).getTime()) / 60_000)
           : 0;
         const onTime = total > 0
-          ? bOrders.filter((o) => !o.verspaetungs_minuten || o.verspaetungs_minuten <= 0).length / total
+          ? bOrders.filter((o: any) => !o.verspaetungs_minuten || o.verspaetungs_minuten <= 0).length / total
           : 0.8;
         const driver = Array.isArray(b.driver) ? b.driver[0] : b.driver;
 

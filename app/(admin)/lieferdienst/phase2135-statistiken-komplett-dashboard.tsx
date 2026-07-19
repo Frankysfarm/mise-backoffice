@@ -124,28 +124,28 @@ export function LieferdienstPhase2135StatistikenKomplettDashboard({
         return;
       }
 
-      const delivered = todayOrders.filter(o =>
+      const delivered = todayOrders.filter((o: any) =>
         ['geliefert', 'abgeholt_extern'].includes(o.status)
       );
-      const storniert = todayOrders.filter(o => o.status === 'storniert');
+      const storniert = todayOrders.filter((o: any) => o.status === 'storniert');
 
       setKpi({
-        umsatzHeute: todayOrders.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0),
+        umsatzHeute: todayOrders.reduce((s: number, o: any) => s + (o.gesamtbetrag ?? 0), 0),
         bestellungenHeute: todayOrders.length,
         avgLieferzeitMin: delivered.length > 0
-          ? Math.round(delivered.reduce((s, o) => s + (o.lieferzeit_min ?? 30), 0) / delivered.length)
+          ? Math.round(delivered.reduce((s: number, o: any) => s + (o.lieferzeit_min ?? 30), 0) / delivered.length)
           : 30,
         stornoquotePct: todayOrders.length > 0
           ? Math.round((storniert.length / todayOrders.length) * 1000) / 10
           : 0,
         avgBewertung: delivered.filter((o: any) => o.bewertung).length > 0
           ? Math.round(
-              delivered.filter((o: any) => o.bewertung).reduce<number>((s, o: any) => s + ((o.bewertung as number) ?? 0), 0) /
+              delivered.filter((o: any) => o.bewertung).reduce((s: number, o: any) => s + ((o.bewertung as number) ?? 0), 0) /
               delivered.filter((o: any) => o.bewertung).length * 10
             ) / 10
           : 0,
         aktiveFahrer: aktiveFahrer ?? 0,
-        umsatzGestern: (yesterdayOrders ?? []).reduce<number>((s, o: any) => s + ((o.gesamtbetrag as number | null) ?? 0), 0),
+        umsatzGestern: (yesterdayOrders ?? []).reduce((s: number, o: any) => s + ((o.gesamtbetrag as number | null) ?? 0), 0),
         bestellungenGestern: (yesterdayOrders ?? []).length,
       });
       setUseMock(false);

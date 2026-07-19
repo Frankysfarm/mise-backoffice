@@ -158,7 +158,7 @@ export function LieferdienstPhase2027StatistikenTagesExecutiveHub({ locationId }
                 <BarChart data={data.hourly} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                   <XAxis dataKey="h" tickFormatter={h => `${h}h`} tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    formatter={(v: number, name: string) => [v, name === 'orders' ? 'Bestellungen' : 'Umsatz €']}
+                    formatter={(v: any, name: any) => [v, name === 'orders' ? 'Bestellungen' : 'Umsatz €']}
                     contentStyle={{ fontSize: 11, borderRadius: 8 }}
                   />
                   <Bar dataKey="orders" radius={[3, 3, 0, 0]}>

@@ -50,7 +50,7 @@ export function KitchenPhase2195EchtzeitPrepEffizienzMatrix() {
         .select('station,active_orders,avg_prep_min,target_min,efficiency,trend,overdue_count')
         .order('efficiency', { ascending: true });
       if (data && data.length > 0) {
-        setStations(data.map((d) => ({
+        setStations(data.map((d: any) => ({
           station: d.station,
           activeOrders: d.active_orders ?? 0,
           avgPrepMin: d.avg_prep_min ?? 0,
