@@ -4645,3 +4645,5 @@ export { LieferdienstPhase2522StatistikenExecutiveLiveCockpit } from './phase252
 
 // Phase 2527 — Statistiken-Kommandant (8 KPI-Kacheln Ampel; Stundenverlauf-Chart 2-Modi; Zonen-Top-5; Alert-Strip Storno/Lieferzeit/On-Time; 5-Min-Polling)
 export { LieferdienstPhase2527StatistikKommandant } from './phase2527-statistiken-kommandant';
+// Phase 2532 — Statistiken Heute Cockpit (6 KPI-Kacheln; Stundenverlauf-Balken; Fahrer-Top-5; 5-Min-Polling)
+export { LieferdienstPhase2532StatistikenHeuteCockpit } from './phase2532-statistiken-heute-cockpit';

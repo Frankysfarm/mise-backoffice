@@ -9186,3 +9186,5 @@ export { FahrerPhase2600SmartTourStoppNavigatorFinal } from './phase2600-smart-t
 
 // Phase 2605 — Tour-Stopp GPS-Kommando Pro (aktueller Stopp mit One-Tap-Navi Google/Apple/Waze; Anruf-Button; Stopp-Bestätigung; Fortschrittsring; Preview nächste Stopps; mobile-optimiert; 30-Sek-Polling)
 export { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
+// Phase 2610 — Tour Navigator GPS Final (Aktueller Stopp + One-Tap Navi Google/Apple/Waze + ETA-Countdown + Anruf + Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; 20-Sek-Polling + 1-Sek-Tick)
+export { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';

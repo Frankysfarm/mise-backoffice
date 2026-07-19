@@ -10169,3 +10169,5 @@ export { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smar
 
 // Phase 2605 — Smart-Timing Batch-Countdown Ampel (Farbkodierte Kacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling)
 export { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
+// Phase 2610 — Smart-Timing ETA-Sync Final (Farbkodierter Countdown grün/gelb/rot je Bestellung; Fahrer-ETA-Sync; Kochstart-Empfehlung; On-Time-Quote-Ring; 20-Sek-Polling + 1-Sek-Tick)
+export { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
