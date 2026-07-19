@@ -22521,3 +22521,43 @@ Backend-Architekt-Agent (2026-07-19): Phasen 2539–2543 implementiert. 1 neue B
 3. **Phase 2546 Fahrer-App:** Meine Bewertung — Ø-Sterne groß + Farbcode; Stern-Visualisierung; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2541.
 4. **Phase 2547 Storefront:** Überspringen (Bewertungsdetails intern irrelevant für Kunden).
 5. **Phase 2548 Kitchen:** Bewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Servicequalität prüfen!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2543.
+
+---
+
+## Batch 2544–2548 — Fahrer-Bewertungs-Score (2026-07-19)
+
+### Phase 2544 — Backend API: Fahrer-Bewertungs-Score
+**Datei:** `app/api/delivery/admin/fahrer-bewertung-score/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Ø Kundenbewertung (1–5 Sterne) je Fahrer heute; Ampel grün(≥4.5)/gelb(3.5–4.4)/rot(<3.5); Alert <3.5; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase (delivery_ratings.rating)+Mock
+
+### Phase 2545 — Bewertungs-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2545-bewertungs-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute/Ziel ≥4.5★/Alerts <3.5★); Fahrerliste nach Bewertung sortiert (niedrigste oben); Stern-Balken 1–5 mit Ziel-Linien bei 3.5★ (rot/gestrichelt) und 4.5★ (amber/gestrichelt); Alert-Banner <3.5★ "Servicequalität prüfen!" mit Fahrernamen; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2540 ✅
+
+### Phase 2546 — Meine Bewertung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2546-meine-bewertung.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Ø-Sterne groß + Farbcode + Stern-Visualisierung (5 Sterne); Fortschrittsbalken 1–5 mit Ziel-Linien 3.5★/4.5★; KPI-Grid (VW/Trend/Ziel/Team-Ø); Bewertungsanzahl; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2541 ✅
+
+### Phase 2547 — Storefront
+Übersprungen (Bewertungsdetails intern irrelevant für Kunden) ✅
+
+### Phase 2548 — Bewertungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2548-bewertungs-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Sterne; Alert-Banner <3.5★ "Servicequalität prüfen!" mit Fahrernamen; Fahrerliste kompakt nach Bewertung sortiert (niedrigste oben) mit Ampel-Dots und ★-Wert; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2543 ✅
+
+### Nächste Phasen 2549–2553 (für nächsten Ingenieur) — Fahrer-Trinkgeld-Quote v2
+1. **Phase 2549 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-quote-v2 — Trinkgeld-Summe (€) und Trinkgeld-Rate (% Bestellungen mit Trinkgeld) je Fahrer heute; Ampel grün(≥20%)/gelb(10–19%)/rot(<10%); Alert <10%; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2550 Dispatch:** Trinkgeld-Board — KPI-Grid Team-Ø-Rate heute/VW/Ziel ≥20%; Fahrerliste nach Rate sortiert (niedrigste oben); Balken 0–50% mit Ziel-Linien 10%/20%; Alert-Banner <10%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2545.
+3. **Phase 2551 Fahrer-App:** Mein Trinkgeld — €-Summe + Rate groß + Farbcode; Balken 0–50%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2546.
+4. **Phase 2552 Storefront:** Überspringen.
+5. **Phase 2553 Kitchen:** Trinkgeld-Ticker — Team-Ø-Rate; Alert <10%; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2548.
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-19): Phasen 2544–2548 implementiert. 1 neue Backend-API (fahrer-bewertung-score, Supabase: delivery_ratings.rating) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2545 Dispatch (Bewertungs-Board) / Phase2546 Fahrer-App (Meine Bewertung) / Phase2548 Kitchen (Bewertungs-Ticker). Phase 2547 Storefront übersprungen (Bewertungsdetails intern irrelevant). Turbopack-Build-Fehler pre-existing. TS-Fehler alle in pre-existing Dateien. Push erfolgt.
