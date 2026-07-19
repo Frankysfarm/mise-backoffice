@@ -751,6 +751,7 @@ import { DispatchPhase2447FeiertagsschichtBoard } from './phase2447-feiertagssch
 import { DispatchPhase2452SchichtBalanceBoard } from './phase2452-schicht-balance-board';
 import { DispatchPhase2457EffizienzIndexBoard } from './phase2457-effizienz-index-board';
 import { DispatchPhase2462KapazitaetScoreBoard } from './phase2462-kapazitaet-score-board';
+import { DispatchPhase2468RueckkehrDepotEtaBoard } from './phase2468-rueckkehr-depot-eta-board';
 import { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
 import { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
 import { DispatchPhase2467TourScoreVisualisierungLiveCockpit } from './phase2467-tour-score-visualisierung-live-cockpit';
@@ -3863,6 +3864,8 @@ export function DispatchBoard({
           <DispatchPhase2457EffizienzIndexBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2462: Kapazitäts-Score-Board — KPI-Grid Team-Ø heute/VW/Ziel ≥80%; Fahrerliste nach Score sortiert; Alert <60%; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2462KapazitaetScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2468: Rückkehr-Depot-ETA-Board — KPI-Grid Team-Ø heute/VW/Ziel ≤15 min; Fahrerliste nach ETA sortiert; Alert >30 min; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2468RueckkehrDepotEtaBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2436: Reaktionszeit-Board — KPI-Grid Team-Ø heute/VW/Ziel <3min; Fahrerliste nach Reaktionszeit sortiert; Alert >7min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2436ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2441: Storno-Quote-Board — KPI-Grid Team-Ø heute/VW/Ziel <5%; Fahrerliste nach Quote sortiert; Alert >10%; Trend-Pfeile; 30-Min-Polling */}
@@ -11516,6 +11519,7 @@ export { DispatchPhase2452SchichtBalanceBoard } from './phase2452-schicht-balanc
 export { DispatchPhase2457EffizienzIndexBoard } from './phase2457-effizienz-index-board';
 // Phase 2462 — Kapazitäts-Score-Board (KPI-Grid Team-Ø heute/VW/Ziel ≥80%; Fahrerliste nach Score sortiert; Alert <60%; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2462KapazitaetScoreBoard } from './phase2462-kapazitaet-score-board';
+export { DispatchPhase2468RueckkehrDepotEtaBoard } from './phase2468-rueckkehr-depot-eta-board';
 // Phase 2436 — Reaktionszeit-Board (Ø Zeit bis Abfahrt nach Zuweisung; Ampel <3min/3-7min/>7min; Alert >7min)
 export { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
 // Phase 2441 — Storno-Quote-Board (Stornierungen/Gesamt-Touren × 100%; Ampel <5%/5-10%/>10%; Alert >10%)
