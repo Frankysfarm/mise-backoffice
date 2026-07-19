@@ -788,6 +788,7 @@ import { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-
 import { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
 import { DispatchPhase2620ScoreTourVisualisierungFinal } from './phase2620-score-tour-visualisierung-final';
 import { DispatchPhase2625TourScoreVisualisierungExtended } from './phase2625-tour-score-visualisierung-extended';
+import { DispatchPhase2630TourScoreMasterUltra } from './phase2630-tour-score-master-ultra';
 
 type Driver = {
   employee_id: string;
@@ -3970,6 +3971,8 @@ export function DispatchBoard({
           <DispatchPhase2620ScoreTourVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2625: Tour-Score Visualisierung Extended — Score-Ring + Trend-Pfeil + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2625TourScoreVisualisierungExtended batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2630: Tour-Score Master Ultra — Score-Ring je Fahrer 0–100 farbkodiert; farbkodierte Stop-Dots; Fortschrittsbalken; ETA-Badge; expandierbare Stop-Liste; Alert Score <60; Trend vs. Schicht-Ø; 25-Sek-Polling */}
+          <DispatchPhase2630TourScoreMasterUltra batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

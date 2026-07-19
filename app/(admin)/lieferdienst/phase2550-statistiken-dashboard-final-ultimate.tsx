@@ -155,14 +155,15 @@ export function LieferdienstPhase2550StatistikDashboardFinalUltimate() {
 
       if (orders && orders.length > 0) {
         const bestellungen = orders.length;
-        const umsatz = orders.reduce((s, o) => s + (o.total_price ?? 0), 0);
+        const typedOrders = orders as any[];
+        const umsatz = typedOrders.reduce((s: number, o: any) => s + (o.total_price ?? 0), 0);
         const lieferzeit_avg = Math.round(
-          orders.filter(o => o.delivery_time_min).reduce((s, o) => s + (o.delivery_time_min ?? 0), 0) /
-          Math.max(1, orders.filter(o => o.delivery_time_min).length)
+          typedOrders.filter((o: any) => o.delivery_time_min).reduce((s: number, o: any) => s + (o.delivery_time_min ?? 0), 0) /
+          Math.max(1, typedOrders.filter((o: any) => o.delivery_time_min).length)
         );
-        const storno_rate = orders.filter(o => o.status === 'storniert').length / Math.max(1, bestellungen);
-        const bewertung_avg = orders.filter(o => o.rating).reduce((s, o) => s + (o.rating ?? 0), 0) /
-          Math.max(1, orders.filter(o => o.rating).length);
+        const storno_rate = typedOrders.filter((o: any) => o.status === 'storniert').length / Math.max(1, bestellungen);
+        const bewertung_avg = typedOrders.filter((o: any) => o.rating).reduce((s: number, o: any) => s + (o.rating ?? 0), 0) /
+          Math.max(1, typedOrders.filter((o: any) => o.rating).length);
 
         setData(d => ({
           ...d,
@@ -272,7 +273,7 @@ export function LieferdienstPhase2550StatistikDashboardFinalUltimate() {
           <BarChart data={chartData} barSize={14}>
             <XAxis dataKey="stunde" tick={{ fontSize: 9, fill: '#a8a29e' }} tickLine={false} axisLine={false} />
             <Tooltip
-              formatter={(v: number) => chartMode === 'umsatz' ? [`${Math.round(v)}€`, 'Umsatz'] : [v, 'Bestellungen']}
+              formatter={((v: number) => chartMode === 'umsatz' ? [`${Math.round(v)}€`, 'Umsatz'] : [v, 'Bestellungen']) as any}
               contentStyle={{ fontSize: 11, background: '#fff', border: '1px solid #e7e5e4', borderRadius: 8 }}
             />
             <Bar dataKey={chartMode} radius={[4, 4, 0, 0]}>

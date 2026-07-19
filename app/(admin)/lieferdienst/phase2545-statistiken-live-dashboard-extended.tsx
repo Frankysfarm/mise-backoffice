@@ -233,7 +233,7 @@ export function LieferdienstPhase2545StatistikenLiveDashboardExtended({ location
               <XAxis dataKey="stunde" tick={{ fontSize: 8 }} tickLine={false} axisLine={false} interval={1} />
               <Tooltip
                 contentStyle={{ fontSize: 11, borderRadius: 6 }}
-                formatter={(v: number) => [chartMode === 'umsatz' ? `€${v}` : v, chartMode === 'bestellungen' ? 'Bestellungen' : 'Umsatz']}
+                formatter={((v: number) => [chartMode === 'umsatz' ? `€${v}` : v, chartMode === 'bestellungen' ? 'Bestellungen' : 'Umsatz']) as any}
               />
               <Bar dataKey={chartMode} radius={[2, 2, 0, 0]}>
                 {data.stunden.map((_, i) => {

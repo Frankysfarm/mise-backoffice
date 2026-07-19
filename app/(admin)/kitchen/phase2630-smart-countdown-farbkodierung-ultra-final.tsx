@@ -168,7 +168,7 @@ export function KitchenPhase2630SmartCountdownFarbkodierungUltraFinal({ location
 
       if (!error && data && data.length > 0) {
         setOrders(data as OrderRow[]);
-        const done   = data.filter(o => o.status === 'fertig').length;
+        const done   = (data as OrderRow[]).filter(o => o.status === 'fertig').length;
         const onTime = done / Math.max(1, data.length);
         setOnTimeRate(onTime);
       }

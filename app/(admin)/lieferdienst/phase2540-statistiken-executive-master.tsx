@@ -151,7 +151,7 @@ export function LieferdienstPhase2540StatistikExecutiveMaster({ locationId }: { 
             <XAxis dataKey="hour" tick={{ fontSize: 8 }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{ fontSize: 10, borderRadius: 8, border: '1px solid #e5e7eb' }}
-              formatter={(v: number) => chartMode === 'umsatz' ? euro(v) : `${v} Bestellungen`}
+              formatter={((v: number) => chartMode === 'umsatz' ? euro(v) : `${v} Bestellungen`) as any}
             />
             <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>
               {data.hourly.map((_, i) => <Cell key={i} fill={chartMode === 'umsatz' ? '#16a34a' : '#3b82f6'} />)}

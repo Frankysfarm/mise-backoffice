@@ -295,7 +295,7 @@ export function DispatchPhase2630TourScoreMasterUltra({ batches: propBatches, dr
           .limit(8);
 
         if (bData && bData.length > 0) {
-          setBatches(bData.map(b => ({ ...b, stops: (b.delivery_stops as Stop[]) ?? [] })));
+          setBatches(bData.map((b: any) => ({ ...b, stops: (b.delivery_stops as Stop[]) ?? [] })));
         }
       } catch {}
       setLoading(false);

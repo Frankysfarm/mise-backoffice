@@ -701,6 +701,7 @@ import { FahrerPhase2447MeineUeberstunden } from './phase2447-meine-ueberstunden
 import { FahrerPhase1001TourStoppSmartNavFinal } from './phase1001-tour-stopp-smart-nav-final';
 import { FahrerPhase2510TourStoppNavigationsHub } from './phase2510-tour-stopp-navigations-hub';
 import { FahrerPhase2520TourStoppNavigatorFinal } from './phase2520-tour-stopp-navigator-final';
+import { Phase2630SmartTourStoppNavigatorUltimateFinal } from './phase2630-smart-tour-stopp-navigator-ultimate-final';
 
 type Driver = {
   id: string;
@@ -6093,6 +6094,8 @@ export function FahrerApp({
           <FahrerPhase2510TourStoppNavigationsHub driverId={driver.id} />
           {/* Phase 2520: Tour-Stopp Navigator Final — Nächster Stopp Fokus-Karte; One-Tap Navigation Google Maps; Anruf-Button; Stop-Progress-Dots; ETA-Ring; 20-Sek-Polling */}
           <FahrerPhase2520TourStoppNavigatorFinal driverId={driver.id} />
+          {/* Phase 2630: Smart Tour-Stopp Navigator Ultimate Final — Nächster-Stopp-Fokus; Google/Waze/Apple-Navigation; Fortschrittsring; Stop-Dot-Reihe; Schnell-Bestätigung; Verdienst-Vorschau; Supabase-Realtime; 30-Sek-Polling */}
+          <Phase2630SmartTourStoppNavigatorUltimateFinal fahrerEmployeeId={driver.id} />
           {/* Phase 2467: Tour-Stops Navigation Live Kommando — Alle Stops mit Status-Dots; Hero Next-Stop; Navi-Button; Anruf-Button; Notiz-Alert; Fortschrittsbalken; 20-Sek-Polling */}
           <FahrerPhase2467TourStopsNavigationLiveKommando fahrerSchichtId={activeBatch?.id ?? null} isOnline={isOnline} />
           {/* Phase 2437: Meine Reaktionszeit — Ø-Min groß + Farbcode; Balken 0–10min mit Ziel-Linien 3min/7min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp */}
