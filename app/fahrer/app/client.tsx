@@ -699,6 +699,7 @@ import { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote'
 import { FahrerPhase2447MeineUeberstunden } from './phase2447-meine-ueberstunden';
 import { FahrerPhase1001TourStoppSmartNavFinal } from './phase1001-tour-stopp-smart-nav-final';
 import { FahrerPhase2510TourStoppNavigationsHub } from './phase2510-tour-stopp-navigations-hub';
+import { FahrerPhase2520TourStoppNavigatorFinal } from './phase2520-tour-stopp-navigator-final';
 
 type Driver = {
   id: string;
@@ -6087,6 +6088,8 @@ export function FahrerApp({
           )}
           {/* Phase 2510: Tour-Stopp Navigations-Hub — priorisierte Stop-Liste; One-Tap Navigation; Kundentelefon; Stop-Bestätigung; Next-Stop-Fokus-Karte; 30-Sek-Polling */}
           <FahrerPhase2510TourStoppNavigationsHub driverId={driver.id} />
+          {/* Phase 2520: Tour-Stopp Navigator Final — Nächster Stopp Fokus-Karte; One-Tap Navigation Google Maps; Anruf-Button; Stop-Progress-Dots; ETA-Ring; 20-Sek-Polling */}
+          <FahrerPhase2520TourStoppNavigatorFinal driverId={driver.id} />
           {/* Phase 2467: Tour-Stops Navigation Live Kommando — Alle Stops mit Status-Dots; Hero Next-Stop; Navi-Button; Anruf-Button; Notiz-Alert; Fortschrittsbalken; 20-Sek-Polling */}
           <FahrerPhase2467TourStopsNavigationLiveKommando fahrerSchichtId={activeBatch?.id ?? null} isOnline={isOnline} />
           {/* Phase 2437: Meine Reaktionszeit — Ø-Min groß + Farbcode; Balken 0–10min mit Ziel-Linien 3min/7min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp */}
@@ -9252,3 +9255,5 @@ export { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-g
 export { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';
 // Phase 2620 — Smart Tour Navigation Master (GPS-Links Google/Waze + Countdown je Stopp + Lieferbestätigung + Schicht-KPI; Mobile-first)
 export { FahrerPhase2620SmartTourNavigationMaster } from './phase2620-smart-tour-navigation-master';
+// Phase 2520 — Tour-Stopp Navigator Final (Nächster Stopp Fokus + One-Tap Navi Google Maps + Anruf + Stop-Progress-Dots + ETA-Ring; 20-Sek-Polling)
+export { FahrerPhase2520TourStoppNavigatorFinal } from './phase2520-tour-stopp-navigator-final';

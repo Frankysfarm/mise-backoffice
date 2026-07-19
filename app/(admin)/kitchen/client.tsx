@@ -335,6 +335,7 @@ import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smar
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
 import { KitchenPhase2620SmartTimingCountdownMaster } from './phase2620-smart-timing-countdown-master';
+import { KitchenPhase2625SmartTimingPrepFarbkodierungLive } from './phase2625-smart-timing-prep-farbkodierung-live';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3537,6 +3538,8 @@ export function KitchenBoard({
       <KitchenPhase2610SmartTimingEtaSyncFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2620: Smart-Timing Countdown Master — Countdown-Ring grün/gelb/rot je Bestellung + On-Time-Rate-Leiste + Überfällig-Alert; 25-Sek-Polling + 1-Sek-Tick */}
       <KitchenPhase2620SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2625: Smart-Timing Prep-Farbkodierung Live — Farbkodierter Prep-Countdown grün/gelb/rot je Bestellung + On-Time-Rate-Ring + SLA-Balken + Batch-Alert; 1-Sek-Tick + 25-Sek-Polling */}
+      <KitchenPhase2625SmartTimingPrepFarbkodierungLive locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -10209,3 +10212,5 @@ export { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smar
 export { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
 // Phase 2620 — Smart-Timing Countdown Master (Countdown-Ring je Bestellung grün/gelb/rot; On-Time-Rate-Leiste; KPI-Strip; Überfällig-Alert; 25-Sek-Polling + 1-Sek-Tick)
 export { KitchenPhase2620SmartTimingCountdownMaster } from './phase2620-smart-timing-countdown-master';
+// Phase 2625 — Smart-Timing Prep-Farbkodierung Live (Farbkodierter Prep-Countdown grün/gelb/rot je Bestellung; On-Time-Rate-Ring; SLA-Balken; Batch-Alert; 1-Sek-Tick + 25-Sek-Polling)
+export { KitchenPhase2625SmartTimingPrepFarbkodierungLive } from './phase2625-smart-timing-prep-farbkodierung-live';

@@ -430,6 +430,7 @@ import { LieferdienstPhase2522StatistikenExecutiveLiveCockpit } from './phase252
 import { LieferdienstPhase2527StatistikKommandant } from './phase2527-statistiken-kommandant';
 import { LieferdienstPhase2532StatistikenHeuteCockpit } from './phase2532-statistiken-heute-cockpit';
 import { LieferdienstPhase2540StatistikExecutiveMaster } from './phase2540-statistiken-executive-master';
+import { LieferdienstPhase2545StatistikenLiveDashboardExtended } from './phase2545-statistiken-live-dashboard-extended';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2183,6 +2184,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2532StatistikenHeuteCockpit />
                 {/* Phase 2540: Statistiken Executive Master — 10 KPI-Kacheln Ampel + Stunden-Chart + Zonen-Ranking + Fahrer-Top-3 + Alert-Strip; 5-Min-Polling */}
                 <LieferdienstPhase2540StatistikExecutiveMaster locationId={locationId ?? null} />
+                {/* Phase 2545: Statistiken Live-Dashboard Extended — 10 KPI-Kacheln Ampel + Stundenverlauf-Chart 2-Modi + Zonen-Ranking + Fahrer-Top-3 + Alert-Strip; 3-Min-Polling */}
+                <LieferdienstPhase2545StatistikenLiveDashboardExtended locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4655,3 +4658,5 @@ export { LieferdienstPhase2527StatistikKommandant } from './phase2527-statistike
 export { LieferdienstPhase2532StatistikenHeuteCockpit } from './phase2532-statistiken-heute-cockpit';
 // Phase 2540 — Statistiken Executive Master (10 KPI-Kacheln Ampel; Stunden-Chart 2-Modi; Zonen-Ranking Top-5; Fahrer-Top-3; Alert-Strip; 5-Min-Polling)
 export { LieferdienstPhase2540StatistikExecutiveMaster } from './phase2540-statistiken-executive-master';
+// Phase 2545 — Statistiken Live-Dashboard Extended (10 KPI-Kacheln Ampel + Stundenverlauf-Chart 2-Modi + Zonen-Ranking + Fahrer-Top-3 + Alert-Strip; 3-Min-Polling)
+export { LieferdienstPhase2545StatistikenLiveDashboardExtended } from './phase2545-statistiken-live-dashboard-extended';

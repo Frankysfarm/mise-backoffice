@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { LiveDriverKarte } from '../live-driver-karte';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 
@@ -297,40 +298,28 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
           </div>
         )}
 
-        {/* Driver info */}
-        {isOnTheWay && order.driver_name && (
-          <div className="bg-white rounded-2xl border border-matcha-100 p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {/* Proximity pulse ring */}
-                <div className="relative h-12 w-12 shrink-0">
-                  {secRemain !== null && secRemain <= 10 * 60 && (
-                    <>
-                      <span className="absolute inset-0 rounded-full bg-matcha-400 opacity-20 animate-ping" />
-                      <span className="absolute inset-1 rounded-full bg-matcha-300 opacity-30 animate-ping" style={{ animationDelay: '0.3s' }} />
-                    </>
-                  )}
-                  <div className="relative h-12 w-12 rounded-full bg-matcha-100 flex items-center justify-center">
-                    <Bike className="h-6 w-6 text-matcha-600" />
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-matcha-800">{order.driver_name}</p>
-                  <p className="text-xs text-matcha-500">
-                    {secRemain !== null && secRemain <= 10 * 60 ? '🚀 Fast da!' : 'Dein Fahrer'}
-                  </p>
-                </div>
-              </div>
-              {order.driver_phone && (
-                <a
-                  href={`tel:${order.driver_phone}`}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-matcha-50 text-matcha-700 text-sm font-medium hover:bg-matcha-100 transition-colors"
-                >
-                  <Phone className="h-4 w-4" />
-                  Anrufen
-                </a>
-              )}
-            </div>
+        {/* Driver info — Live-Karte mit Kompass-Ring */}
+        {isOnTheWay && (
+          <LiveDriverKarte
+            driverLat={order.driver_lat ?? null}
+            driverLng={order.driver_lng ?? null}
+            driverName={order.driver_name ?? null}
+            etaEarliest={order.eta_earliest}
+            etaLatest={order.eta_latest}
+            secRemain={secRemain}
+            isOnTheWay={isOnTheWay}
+          />
+        )}
+        {/* Anruf-Button (nur wenn Fahrer-Telefon verfügbar) */}
+        {isOnTheWay && order.driver_name && order.driver_phone && (
+          <div className="bg-white rounded-2xl border border-matcha-100 p-3 shadow-sm">
+            <a
+              href={`tel:${order.driver_phone}`}
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl bg-matcha-50 text-matcha-700 text-sm font-semibold hover:bg-matcha-100 transition-colors"
+            >
+              <Phone className="h-4 w-4" />
+              {order.driver_name} anrufen
+            </a>
           </div>
         )}
 

@@ -786,6 +786,7 @@ import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live
 import { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';
 import { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
 import { DispatchPhase2620ScoreTourVisualisierungFinal } from './phase2620-score-tour-visualisierung-final';
+import { DispatchPhase2625TourScoreVisualisierungExtended } from './phase2625-tour-score-visualisierung-extended';
 
 type Driver = {
   employee_id: string;
@@ -3964,6 +3965,8 @@ export function DispatchBoard({
           <DispatchPhase2605ScoreTourHubUltra locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2620: Score + Tour-Visualisierung Final — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2620ScoreTourVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2625: Tour-Score Visualisierung Extended — Score-Ring + Trend-Pfeil + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
+          <DispatchPhase2625TourScoreVisualisierungExtended batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -11651,3 +11654,5 @@ export { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live
 export { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
 // Phase 2620 — Score + Tour-Visualisierung Final (Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling)
 export { DispatchPhase2620ScoreTourVisualisierungFinal } from './phase2620-score-tour-visualisierung-final';
+// Phase 2625 — Tour-Score Visualisierung Extended (Score-Ring + Trend-Pfeil + farbkodierte Stop-Dots mit Nummern + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling)
+export { DispatchPhase2625TourScoreVisualisierungExtended } from './phase2625-tour-score-visualisierung-extended';
