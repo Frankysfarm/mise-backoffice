@@ -22190,3 +22190,43 @@ Backend-Architekt-Agent (2026-07-19): Phasen 2440–2444 implementiert. 1 neue B
 3. **Phase 2452 Fahrer-App:** Meine Pausen — Min groß + Farbcode; Balken 0–60min mit Ziel-Linien 15min/30min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2447.
 4. **Phase 2453 Storefront:** Überspringen (Pausendaten intern irrelevant für Kunden).
 5. **Phase 2454 Kitchen:** Pausen-Ticker — Team-Ø Pausenzeit; Alert <15min mit Handlungsempfehlung; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2449.
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-19): Phasen 2497–2501 implementiert. 1 neue Backend-API (fahrer-liefertreue-heute) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2500 Storefront übersprungen. Build-Umgebung: Turbopack-Workspace-Root-Fehler pre-existing (bestätigt via bestehende Phase-2493-Fehleridentität). Push erfolgt.
+
+---
+
+## Batch 2497–2501 — Fahrer-Liefertreue (2026-07-19)
+
+### Phase 2497 — Backend API: Fahrer-Liefertreue-Heute
+**Datei:** `app/api/delivery/admin/fahrer-liefertreue-heute/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Liefertreue % je Fahrer heute (pünktlich geliefert / Gesamt-Touren × 100%); Ampel grün(≥95%)/gelb(85–94%)/rot(<85%); Alert <85%; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2498 — Liefertreue-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2498-liefertreue-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute/Ziel ≥95%/Alerts); Fahrerliste nach Liefertreue sortiert (niedrigste oben); LiefertreueBar 0–100% mit Ziel-Linien 85%/95%; Ampel-Dots; Trend-Pfeile + Delta; pünktlich/gesamt-Anzeige; Alert-Banner <85%; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2493 ✅
+
+### Phase 2499 — Meine Liefertreue (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2499-meine-liefertreue.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); % groß + Farbcode; Fortschrittsbalken 0–100% mit Ziel-Linien 85%/95%; KPI-Grid (VW/Team-Ø/Pünktlich/Gesamt); Trend-Icon + Delta; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; driverId-Filter clientseitig
+**Integration:** `fahrer/app/client.tsx` nach Phase2494 ✅
+
+### Phase 2500 — Storefront
+Übersprungen (Liefertreue intern irrelevant für Kunden) ✅
+
+### Phase 2501 — Liefertreue-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2501-liefertreue-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Liefertreue %; Alert-Banner <85% "Route überprüfen!"; Fahrerliste kompakt nach Liefertreue sortiert (niedrigste oben) mit Ampel-Dots und %; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2496 ✅
+
+### Nächste Phasen 2502–2506 (für nächsten Ingenieur) — Fahrer-Durchsatz
+1. **Phase 2502 Backend:** GET /api/delivery/admin/fahrer-durchsatz — Lieferungen/Stunde je Fahrer heute; Ampel grün(≥3/h)/gelb(2–2.9/h)/rot(<2/h); Alert <2/h; Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2503 Dispatch:** Durchsatz-Board — KPI-Grid Team-Ø heute/VW/Ziel ≥3/h; Fahrerliste nach Durchsatz sortiert (niedrigste oben); DurchsatzBar 0–5/h mit Ziel-Linien 2/3/h; Alert-Banner <2/h; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2498.
+3. **Phase 2504 Fahrer-App:** Mein Durchsatz — Lieferungen/h groß + Farbcode; Balken 0–5/h mit Ziel-Linien 2/3/h; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2499.
+4. **Phase 2505 Storefront:** Überspringen (Durchsatz intern irrelevant für Kunden).
+5. **Phase 2506 Kitchen:** Durchsatz-Ticker — Team-Ø Durchsatz/h; Alert <2/h mit Hinweis; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2501.

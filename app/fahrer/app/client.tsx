@@ -671,6 +671,7 @@ import { FahrerPhase2479MeineStoppzeit } from './phase2479-meine-stoppzeit';
 import { FahrerPhase2484MeineKmEffizienz } from './phase2484-meine-km-effizienz';
 import { FahrerPhase2489MeineTourenAnzahl } from './phase2489-meine-touren-anzahl';
 import { FahrerPhase2494MeinePausenCompliance } from './phase2494-meine-pausen-compliance';
+import { FahrerPhase2499MeineLiefertreue } from './phase2499-meine-liefertreue';
 import { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
 import { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
 import { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote';
@@ -5957,6 +5958,8 @@ export function FahrerApp({
           <FahrerPhase2489MeineTourenAnzahl driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2494: Meine Pausen-Compliance — % groß + Farbcode; Balken 0–120% mit Ziel-Linie 100%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2494MeinePausenCompliance driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2499: Meine Liefertreue — % groß + Farbcode; Balken 0–100% mit Ziel-Linien 85%/95%; KPI-Grid VW/Team-Ø/Pünktlich/Gesamt; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2499MeineLiefertreue driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2467: Tour-Stops Navigation Live Kommando — Alle Stops mit Status-Dots; Hero Next-Stop; Navi-Button; Anruf-Button; Notiz-Alert; Fortschrittsbalken; 20-Sek-Polling */}
           <FahrerPhase2467TourStopsNavigationLiveKommando fahrerSchichtId={activeBatch?.id ?? null} isOnline={isOnline} />
           {/* Phase 2437: Meine Reaktionszeit — Ø-Min groß + Farbcode; Balken 0–10min mit Ziel-Linien 3min/7min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp */}
@@ -9063,6 +9066,8 @@ export { FahrerPhase2484MeineKmEffizienz } from './phase2484-meine-km-effizienz'
 export { FahrerPhase2489MeineTourenAnzahl } from './phase2489-meine-touren-anzahl';
 // Phase 2494 — Meine Pausen-Compliance (% groß + Farbcode; Balken 0–120% mit Ziel-Linie 100%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2494MeinePausenCompliance } from './phase2494-meine-pausen-compliance';
+// Phase 2499 — Meine Liefertreue (pünktlich/Gesamt×100% groß + Farbcode; Balken 0–100% mit Ziel-Linien 85%/95%; KPI-Grid VW/Team-Ø/Pünktlich/Gesamt; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2499MeineLiefertreue } from './phase2499-meine-liefertreue';
 // Phase 2437 — Meine Reaktionszeit (Ø Zeit bis Abfahrt nach Zuweisung; Balken 0–10min; Ampel <3min/3-7min/>7min; Coaching-Tipp)
 export { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
 // Phase 2442 — Meine Storno-Quote (Stornierungen/Gesamt × 100%; Balken 0–20% mit Ziel-Linien 5%/10%; Ampel <5%/5-10%/>10%; Coaching-Tipp)

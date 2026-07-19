@@ -10080,6 +10080,8 @@ export { KitchenPhase2486KmEffizienzTicker } from './phase2486-km-effizienz-tick
 export { KitchenPhase2491TourenAnzahlTicker } from './phase2491-touren-anzahl-ticker';
 // Phase 2496 — Pausen-Compliance-Ticker (Team-Ø Compliance; Alert <80% mit Pausen-Hinweis; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2496PausenComplianceTicker } from './phase2496-pausen-compliance-ticker';
+// Phase 2501 — Liefertreue-Ticker (Team-Ø Liefertreue %; Alert <85% mit Routen-Hinweis; Fahrerliste kompakt sortiert (niedrigste oben) mit Ampel-Dots und %; 30-Min-Polling)
+export { KitchenPhase2501LiefertreueTicker } from './phase2501-liefertreue-ticker';
 // Phase 2439 — Reaktionszeit-Ticker (Team-Ø Reaktionszeit; Alert >7min; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-ticker';
 // Phase 2444 — Storno-Quote-Ticker (Team-Ø Quote; Alert >10%; Fahrerliste kompakt; 30-Min-Polling)

@@ -11558,5 +11558,7 @@ export { DispatchPhase2483KmEffizienzBoard } from './phase2483-km-effizienz-boar
 export { DispatchPhase2488TourenAnzahlBoard } from './phase2488-touren-anzahl-board';
 // Phase 2493 — Pausen-Compliance-Board (KPI-Grid Team-Ø Compliance; Fahrerliste nach Compliance sortiert; Alert <80%; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2493PausenComplianceBoard } from './phase2493-pausen-compliance-board';
+// Phase 2498 — Liefertreue-Board (pünktlich/Gesamt×100%; Ampel ≥95%/85–94%/<85%; Alert <85%; Trend vs. VW; Fahrerliste nach Treue sortiert; 30-Min-Polling)
+export { DispatchPhase2498LiefertreueBoard } from './phase2498-liefertreue-board';
 // Phase 2490 — Score + Tour-Visualisierung Board V2 (Score-Ring je Fahrer; farbkodierte Stop-Dots mit Nummern; Fortschrittsbalken; ETA; expandierbare Stop-Liste; Alert Score <60; 25-Sek-Polling)
 export { DispatchPhase2490ScoreTourVisualisierungBoardV2 } from './phase2490-score-tour-visualisierung-board-v2';
