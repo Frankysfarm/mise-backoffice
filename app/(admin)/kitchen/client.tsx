@@ -331,6 +331,7 @@ import { KitchenPhase2573PuenktlichkeitTicker } from './phase2573-puenktlichkeit
 import { KitchenPhase2578AbweichungsTicker } from './phase2578-abweichungs-ticker';
 import { KitchenPhase2583StornoQuoteTrendTicker } from './phase2583-storno-quote-trend-ticker';
 import { KitchenPhase2588LiefervolumenTrendTicker } from './phase2588-liefervolumen-trend-ticker';
+import { KitchenPhase2593AuslastungsTicker } from './phase2593-auslastungs-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3530,6 +3531,8 @@ export function KitchenBoard({
       <KitchenPhase2583StornoQuoteTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2588: Liefervolumen-Trend-Ticker — Team-Ø Lieferungen heute; Alert <10 mit Fahrernamen; Kompakte Fahrerliste (niedrigste oben) mit Ampel + Trend; 30-Min-Polling */}
       <KitchenPhase2588LiefervolumenTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2593: Auslastungs-Ticker — Team-Ø Auslastung; Alert <50% "Fahrer unterausgelastet!"; Kompakte Fahrerliste (niedrigste oben) mit Ampel + Trend; 30-Min-Polling */}
+      <KitchenPhase2593AuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}

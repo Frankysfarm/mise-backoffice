@@ -22783,3 +22783,39 @@ Backend-Architekt-Agent (2026-07-19): Phasen 2569–2573 implementiert. 1 neue B
 3. **Phase 2591 Fahrer-App:** Meine Touren-Auslastung — %-Wert groß + Farbcode; Balken mit Ziel-Linie; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2586.
 4. **Phase 2592 Storefront:** Überspringen (Auslastungsdaten intern irrelevant für Kunden).
 5. **Phase 2593 Kitchen:** Auslastungs-Ticker — Team-Ø; Alert <50% "Fahrer unterausgelastet!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2588.
+
+## Batch 2589–2593 — Fahrer-Touren-Auslastung (2026-07-19)
+
+### Phase 2589 — Backend API: Fahrer-Touren-Auslastung
+**Datei:** `app/api/delivery/admin/fahrer-touren-auslastung/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — % der verfügbaren Schichtzeit (8h=480 Min) mit aktiven Touren je Fahrer heute; Ampel grün(≥70%)/gelb(50–69%)/rot(<50%); Alert <50%; Trend Besser/Schlechter/Stabil vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_tours.started_at/completed_at)+Mock
+
+### Phase 2590 — Touren-Auslastungs-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2590-touren-auslastungs-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute / Gestern / Ziel ≥70%); Fahrerliste nach Auslastung sortiert (niedrigste oben); Balken 0–100% mit grün/gestrichelter Ziel-Linie bei 70%; Trend-Pfeile; Alert-Banner <50% mit Fahrernamen; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2585 ✅
+
+### Phase 2591 — Meine Touren-Auslastung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2591-meine-touren-auslastung.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); %-Wert groß + Farbcode; Aktive Minuten heute; Fortschrittsbalken 0–100% mit gestrichelter Ziel-Linie bei 70%; KPI-Grid (Gestern/Trend/Ziel ≥70%/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2586 ✅
+
+### Phase 2592 — Storefront
+Übersprungen (Auslastungsdaten intern irrelevant für Kunden) ✅
+
+### Phase 2593 — Auslastungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2593-auslastungs-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Auslastung; Alert-Banner <50% "Fahrer unterausgelastet!" mit Fahrernamen; Fahrerliste kompakt nach Auslastung sortiert (niedrigste oben) mit Ampel-Dots, Trend-Pfeil und %-Wert; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2588 ✅
+
+### Nächste Phasen 2594–2598 (für nächsten Ingenieur) — Fahrer-Pausenzeit-Analyse
+1. **Phase 2594 Backend:** GET /api/delivery/admin/fahrer-pausenzeit — Ø Pausenzeit zwischen Touren je Fahrer heute in Min; Ampel grün(≤15 Min)/gelb(16–30 Min)/rot(>30 Min); Alert >30 Min; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_tours: gap zwischen completed_at einer Tour und started_at der nächsten)+Mock.
+2. **Phase 2595 Dispatch:** Pausenzeit-Board — Fahrerliste nach Pausenzeit sortiert (höchste oben); Balken 0–60 Min mit Ziel-Linie 15 Min (grün/gestrichelt); KPI-Grid Team-Ø/Gestern/Ziel ≤15 Min; Alert-Banner >30 Min; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2590.
+3. **Phase 2596 Fahrer-App:** Meine Pausenzeit — Min-Wert groß + Farbcode; Balken mit Ziel-Linie; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2591.
+4. **Phase 2597 Storefront:** Überspringen (Pausenzeit-Daten intern irrelevant für Kunden).
+5. **Phase 2598 Kitchen:** Pausenzeit-Ticker — Team-Ø; Alert >30 Min "Langer Fahrer-Stillstand!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2593.
+
+Backend-Architekt-Agent (2026-07-19): Phasen 2589–2593 implementiert. 1 neue Backend-API (fahrer-touren-auslastung, Supabase: delivery_tours started_at/completed_at, 8h-Schichtzeit-Referenz) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2590 Dispatch (Touren-Auslastungs-Board) / Phase2591 Fahrer-App (Meine Touren-Auslastung) / Phase2593 Kitchen (Auslastungs-Ticker). Phase 2592 Storefront übersprungen (interne Daten irrelevant für Kunden). Push erfolgt.
