@@ -754,6 +754,7 @@ import { DispatchPhase2462KapazitaetScoreBoard } from './phase2462-kapazitaet-sc
 import { DispatchPhase2468RueckkehrDepotEtaBoard } from './phase2468-rueckkehr-depot-eta-board';
 import { DispatchPhase2473LieferzeitEffizienzBoard } from './phase2473-lieferzeit-effizienz-board';
 import { DispatchPhase2478StoppzeitBoard } from './phase2478-stoppzeit-board';
+import { DispatchPhase2483KmEffizienzBoard } from './phase2483-km-effizienz-board';
 import { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
 import { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
 import { DispatchPhase2446UeberstundenBoard } from './phase2446-ueberstunden-board';
@@ -3873,6 +3874,8 @@ export function DispatchBoard({
           <DispatchPhase2473LieferzeitEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2478: Stoppzeit-Board — KPI-Grid Team-Ø heute/VW/Ziel ≤5 min; Fahrerliste nach Ø-Stoppzeit sortiert; Alert >10 min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2478StoppzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2483: KM-Effizienz-Board — KPI-Grid Team-Ø km/Auftrag; Fahrerliste nach km sortiert; Alert >10 km; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2483KmEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2436: Reaktionszeit-Board — KPI-Grid Team-Ø heute/VW/Ziel <3min; Fahrerliste nach Reaktionszeit sortiert; Alert >7min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2436ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2441: Storno-Quote-Board — KPI-Grid Team-Ø heute/VW/Ziel <5%; Fahrerliste nach Quote sortiert; Alert >10%; Trend-Pfeile; 30-Min-Polling */}
@@ -11543,3 +11546,5 @@ export { DispatchPhase2467TourScoreVisualisierungLiveCockpit } from './phase2467
 export { DispatchPhase2473LieferzeitEffizienzBoard } from './phase2473-lieferzeit-effizienz-board';
 // Phase 2478 — Stoppzeit-Board (KPI-Grid Team-Ø heute/VW/Ziel ≤5 min; Fahrerliste nach Ø-Stoppzeit sortiert; Alert >10 min; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2478StoppzeitBoard } from './phase2478-stoppzeit-board';
+// Phase 2483 — KM-Effizienz-Board (KPI-Grid Team-Ø km/Auftrag; Fahrerliste nach km sortiert (längste oben); Alert >10 km; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2483KmEffizienzBoard } from './phase2483-km-effizienz-board';
