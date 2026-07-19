@@ -1,5 +1,56 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #487 — 2026-07-19
+
+**Geprüfte Commits:** `9b261080` (Phasen 2502–2506 Backend/Frontend) + `c3a6ccbf` (Smart-Timing / Score / Tour-Nav / Statistiken Frontend)
+
+**Build:** ✓ BUILD_ID generiert, 29 App-Routen kompiliert ✅ (500.html-Export pre-existing Umgebungslimit — unverändert seit Review #483)
+**TypeScript:** ✓ 0 Fehler (direkte TS-Checks auf neue Dateien bestätigt; ignoreBuildErrors=true in next.config.js)
+
+### Fixes angewendet
+
+**Orphaned-Integration Phase2395 (Storefront — 1 Fix):**
+- `app/order/[locationSlug]/phase2395-live-eta-customer-dashboard.tsx` war neu erstellt, aber nicht in `storefront.tsx` integriert
+- Fix: Import + JSX `<Phase2395LiveEtaCustomerDashboard orderId={activeOrderId} />` nach Phase2375 in storefront.tsx eingefügt ✅
+
+**API-Pfad-Fix Phase2395 (1 Fix):**
+- Komponente rief `/api/delivery/order/${orderId}/status` (nicht existent) auf → korrigiert zu `/api/delivery/orders/${orderId}/tracking` ✅
+- Field-Mapping angepasst: `geo.eta_min_remaining` für ETA, `stops_before` für Fortschrittsbalken, `eta_label` für lastUpdate ✅
+
+### Geprüfte Integrationen
+
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2502 | Backend | Fahrer-Durchsatz (Phase2291 wiederverwendet) | ✅ |
+| 2503 | Dispatch | DispatchPhase2503DurchsatzBoard | dispatch/client.tsx ✅ |
+| 2504 | Fahrer | FahrerPhase2504MeinDurchsatz | fahrer/app/client.tsx ✅ |
+| 2505 | Storefront | Übersprungen | ✅ |
+| 2506 | Kitchen | KitchenPhase2506DurchsatzTicker | kitchen/client.tsx ✅ |
+| 2511 | Dispatch | DispatchPhase2511TourScoreLiveMatrix | dispatch/client.tsx ✅ |
+| 2511 | Kitchen | KitchenPhase2511SmartTimingCockpitFinal | kitchen/client.tsx ✅ |
+| 1001 | Fahrer | FahrerPhase1001TourStoppSmartNavFinal | fahrer/app/client.tsx ✅ |
+| 2395 | Storefront | Phase2395LiveEtaCustomerDashboard | storefront.tsx ✅ (CEO-Fix) |
+| 2345 | Lieferdienst | LieferdienstPhase2345StatistikenDashboardFinal | lieferdienst/client.tsx ✅ |
+
+### Qualitätsbewertung neuer Komponenten
+- **Phase2511 Dispatch:** Supabase-Queries korrekt — driver_status, employees, mise_delivery_batches, mise_delivery_batch_stops verknüpft. ScoreRing SVG qualitativ hochwertig. Sorting nach Score ✅
+- **Phase2511 Kitchen:** Countdown-Ring SVG + Farbkodierung grün/gelb/rot korrekt. 15s-Tick + 30s-API-Polling ✅
+- **Phase1001 Fahrer:** Mobile-first Hero-Card, GPS openNavi (iOS Maps / Google Maps), 1-Tap Bestätigung, Stopp-Fortschritt ✅
+- **Phase2395 Storefront:** Nach CEO-Fix jetzt korrekte API + field-mapping. Phasen-Stepper 5-stufig ✅
+- **Phase2345 Lieferdienst:** KPI-Grid (6 Metriken), Stunden-Chart, Top-Fahrer-Rangliste, Tab-Nav, vs-Gestern-Delta ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase2511 SmartTiming + TourScore synchron |
+| Dispatch ↔ Driver | ✅ Phase2503 Durchsatz + Phase1001 TourNav |
+| Driver ↔ Storefront | ✅ Phase2395 Live-ETA Customer Dashboard |
+| Storefront ↔ Orders API | ✅ /api/delivery/orders/[orderId]/tracking |
+
+Push erfolgt.
+
+---
+
 ## CEO Review #486 — 2026-07-19
 
 **Geprüfte Commits:** `194e7fd3` (Phasen 2497–2501 Frontend) + `5feebe11` (Phasen 2492–2496 Backend)

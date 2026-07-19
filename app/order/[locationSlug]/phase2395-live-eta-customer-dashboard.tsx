@@ -56,15 +56,18 @@ export function Phase2395LiveEtaCustomerDashboard({ orderId, orderNumber }: Prop
 
   async function load() {
     try {
-      const r = await fetch(`/api/delivery/order/${orderId}/status`);
+      const r = await fetch(`/api/delivery/orders/${orderId}/tracking`);
       if (!r.ok) return;
       const d = await r.json();
+      // Map tracking API fields: status, driver_name, geo.eta_min_remaining, stops_before
+      const totalStops = (d.stops_before ?? 0) + 1;
+      const doneFraction = totalStops > 0 ? Math.max(0, 1 - (d.stops_before ?? 0) / totalStops) : 0;
       setStatus({
         status: d.status ?? 'bestätigt',
-        etaMin: d.eta_min ?? d.etaMin ?? null,
-        driverName: d.driver_name ?? d.driverName ?? null,
-        progressPct: d.progress_pct ?? d.progressPct ?? 0,
-        lastUpdate: d.last_update ?? d.lastUpdate ?? null,
+        etaMin: d.geo?.eta_min_remaining ?? null,
+        driverName: d.driver_name ?? null,
+        progressPct: Math.round(doneFraction * 100),
+        lastUpdate: d.eta_label ?? null,
       });
     } catch {}
     finally { setLoading(false); }
