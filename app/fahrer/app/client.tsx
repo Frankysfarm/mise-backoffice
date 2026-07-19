@@ -685,6 +685,7 @@ import { FahrerPhase2556MeineZufriedenheitsScore } from './phase2556-meine-zufri
 import { FahrerPhase2561MeineOnlineZeit } from './phase2561-meine-online-zeit';
 import { FahrerPhase2566MeineRoutenEffizienz } from './phase2566-meine-routen-effizienz';
 import { FahrerPhase2571MeinePuenktlichkeit } from './phase2571-meine-puenktlichkeit';
+import { FahrerPhase2576MeineLieferzeitAbweichung } from './phase2576-meine-lieferzeit-abweichung';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
 import { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';
 import { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
@@ -6005,6 +6006,8 @@ export function FahrerApp({
           <FahrerPhase2566MeineRoutenEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2571: Meine Pünktlichkeit — % Lieferungen innerhalb ETA; Balken mit Ziel-Linien 75%/90%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2571MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2576: Meine Lieferzeit-Abweichung — Ø Min-Abweichung von ETA groß; Balken mit Nulllinie; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2576MeineLieferzeitAbweichung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
