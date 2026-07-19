@@ -677,6 +677,7 @@ import { FahrerPhase2509MeinUmsatz } from './phase2509-mein-umsatz';
 import { FahrerPhase2519MeinTrinkgeld } from './phase2519-mein-trinkgeld';
 import { FahrerPhase2526MeineAkzeptanzrate } from './phase2526-meine-akzeptanzrate';
 import { FahrerPhase2531MeineWartezeitDepot } from './phase2531-meine-wartezeit-depot';
+import { FahrerPhase2536MeineErreichbarkeit } from './phase2536-meine-erreichbarkeit';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
 import { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
 import { FahrerPhase2600SmartTourStoppNavigatorFinal } from './phase2600-smart-tour-stopp-navigator-final';
@@ -5980,6 +5981,8 @@ export function FahrerApp({
           <FahrerPhase2526MeineAkzeptanzrate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2531: Meine Wartezeit am Depot — Min groß + Farbcode; Balken 0–30min mit Ziel-Linien 10/20min; KPI-Grid VW/Trend/Team-Ø/Intervalle; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2531MeineWartezeitDepot driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2536: Meine Erreichbarkeit — Reaktionszeit groß + Farbcode; Balken 0–120s mit Ziel-Linien 30s/60s; KPI-Grid VW/Trend/Team-Ø/Angebote; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2536MeineErreichbarkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2600: Smart Tour-Stopp Navigator Final — Aktueller Stopp + Navigation + Telefon + Bestätigung; Stop-Liste mit Status-Dots; ETA; 1-Sek-Tick + 30-Sek-Polling */}

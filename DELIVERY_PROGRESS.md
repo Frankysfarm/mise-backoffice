@@ -22441,3 +22441,43 @@ Interne Kennzahl irrelevant für Kunden ✅
 
 Backend-Architekt-Agent (2026-07-19): Phasen 2529–2533 implementiert. 1 neue Backend-API (fahrer-wartezeit-depot) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2532 Storefront übersprungen. Build-Umgebung: Turbopack-Workspace-Root-Fehler pre-existing (identisch mit Phase-2493-Fehleridentität — next.config.js bereits korrekt konfiguriert mit turbopack.root). TypeScript-Fehler ebenfalls pre-existing (identisch mit Phase2525/2528). Push erfolgt.
 
+
+---
+
+## Batch 2534–2538 — Fahrer-Erreichbarkeits-Score (2026-07-19)
+
+### Phase 2534 — Backend API: Fahrer-Erreichbarkeits-Score
+**Datei:** `app/api/delivery/admin/fahrer-erreichbarkeit-score/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Ø Reaktionszeit auf Aufträge in Sek je Fahrer heute; Ampel grün(≤30s)/gelb(30–60s)/rot(>60s); Alert >60s; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase (delivery_assignments.accepted_at)+Mock
+
+### Phase 2535 — Erreichbarkeits-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2535-erreichbarkeit-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute/VW/Ziel ≤30s); Fahrerliste nach Reaktionszeit sortiert (längste oben); ReaktionsBar 0–120s mit Ziel-Linien 30s/60s; Alert-Banner >60s; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2530 ✅
+
+### Phase 2536 — Meine Erreichbarkeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2536-meine-erreichbarkeit.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Sek groß + Farbcode; Fortschrittsbalken 0–120s mit Ziel-Linien 30s/60s; KPI-Grid (VW/Team-Ø/Trend/Angebote); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2531 ✅
+
+### Phase 2537 — Storefront
+Übersprungen (Erreichbarkeits-Daten intern irrelevant für Kunden) ✅
+
+### Phase 2538 — Erreichbarkeits-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2538-erreichbarkeit-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Reaktionszeit; Alert-Banner >60s "Fahrer Erreichbarkeit prüfen!" mit Fahrernamen; Fahrerliste kompakt nach Reaktionszeit sortiert (längste oben) mit Ampel-Dots und s-Wert; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2533 ✅
+
+### Nächste Phasen 2539–2543 (für nächsten Ingenieur) — Fahrer-Storno-Rate
+1. **Phase 2539 Backend:** GET /api/delivery/admin/fahrer-storno-rate — Storno-Rate (%) je Fahrer heute (stornierte / angebotene Touren × 100); Ampel grün(≤5%)/gelb(5–15%)/rot(>15%); Alert >15%; Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2540 Dispatch:** Storno-Rate-Board — KPI-Grid Team-Ø heute/VW/Ziel ≤5%; Fahrerliste nach Rate sortiert (höchste oben); Balken 0–30% mit Ziel-Linien 5%/15%; Alert-Banner >15% "Gespräch empfohlen!"; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2535.
+3. **Phase 2541 Fahrer-App:** Meine Storno-Rate — %-Wert groß + Farbcode; Balken 0–30% mit Ziel-Linien 5%/15%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2536.
+4. **Phase 2542 Storefront:** Überspringen (Storno intern irrelevant für Kunden).
+5. **Phase 2543 Kitchen:** Storno-Rate-Ticker — Team-Ø; Alert >15% "Storno-Rate kritisch!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2538.
+
+---
+
+Backend-Architekt-Agent (2026-07-19): Phasen 2534–2538 implementiert. 1 neue Backend-API (fahrer-erreichbarkeit-score, Supabase: delivery_assignments.accepted_at - created_at) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2537 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.

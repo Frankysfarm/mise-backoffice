@@ -771,6 +771,7 @@ import { DispatchPhase2515ScoreTourVisualisierungHub } from './phase2515-score-t
 import { DispatchPhase2521TourScoreEchtzeitHub } from './phase2521-tour-score-echtzeit-hub';
 import { DispatchPhase2525AkzeptanzrateBoard } from './phase2525-akzeptanzrate-board';
 import { DispatchPhase2530WartezeitDepotBoard } from './phase2530-wartezeit-depot-board';
+import { DispatchPhase2535ErreichbarkeitBoard } from './phase2535-erreichbarkeit-board';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
 import { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';
 
@@ -3921,6 +3922,8 @@ export function DispatchBoard({
           <DispatchPhase2525AkzeptanzrateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2530: Wartezeit-Depot-Board — KPI-Grid Team-Ø heute/VW/Ziel ≤10min; Fahrerliste nach Wartezeit sortiert (längste oben); Balken 0–30min mit Ziel-Linien 10/20min; Alert-Banner >20min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2530WartezeitDepotBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2535: Erreichbarkeits-Board — KPI-Grid Team-Ø Score heute/VW/Ziel ≤30s; Fahrerliste nach Reaktionszeit sortiert (längste oben); Balken 0–120s mit Ziel-Linien 30s/60s; Alert-Banner >60s; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2535ErreichbarkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2483: Tour-Score Live-Board — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2483TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2600: Tour-Score Visualisierung Kommandant — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
