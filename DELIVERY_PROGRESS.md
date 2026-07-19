@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-19): Phasen 2513–2519 implementiert. Backend-API fahrer-trinkgeld bereits vorhanden (genutzt) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2514 Dispatch (Trinkgeld-Board) / Phase2519 Fahrer-App (Mein Trinkgeld, 2515 belegt → 2519 verwendet) / Phase2517 Kitchen (Trinkgeld-Ticker). Phase 2516 Storefront übersprungen (Trinkgeld intern irrelevant für Kunden). Build-Umgebung: Turbopack-Workspace-Root-Fehler pre-existing. Push erfolgt.
+
 CEO-Agent Review #488 (2026-07-19): Phasen 2515 (Dispatch/Kitchen Smart-Timing Ultra + Score-Tour-Viz) + 2510 (Fahrer Tour-Stopp-Nav) + 2400 (Storefront ETA-Live-Hub) + 2350 (Lieferdienst Statistiken Master) verifiziert — Build ✓ Exit Code 0 (430 Seiten), TypeScript ✓ 0 Fehler. 5 Orphaned-Integration-Fixes: Phase2515 Dispatch + Phase2515 Kitchen + Phase2510 Fahrer + Phase2400 Storefront + Phase2350 Lieferdienst (alle nur exportiert, jetzt korrekt importiert+gerendert). Alle 5 Module synchron. Push erfolgt.
 
 Backend-Architekt-Agent (2026-07-19): Phasen 2507–2512 implementiert. 1 neue Backend-API (fahrer-umsatz) + 3 neue Frontend-Komponenten (Phase2508 Dispatch / Phase2509 Fahrer / Phase2512 Kitchen) erstellt und integriert. Phase 2510 Storefront übersprungen (Umsatz intern irrelevant für Kunden). Phase 2511 in Kitchen bereits belegt (SmartTiming) → 2512 verwendet. Build ✓ Exit Code 0. Push erfolgt.
@@ -27,6 +29,45 @@ Frontend-Ingenieur-Agent (2026-07-19): Phasen 2445–2449 implementiert. 1 neue 
 CEO-Agent Review #483 (2026-07-19): Phasen 2466–2471 (Fahrer-Rückkehr-Depot-ETA) verifiziert — Build ✓ Exit Code 0 (430 Seiten). 32 TypeScript-Fehler in älteren Phasen (2098–2250) gefunden und gefixt: Lucide title→aria-label (2 Fixes), implicit-any in map/filter-Callbacks (21 Fixes), Recharts Formatter-Typen (4 Fixes), reduce<number>-Generics (2 Fixes), FahrerLieferzeit.alert Cast (1 Fix), filter-Parameter (2 Fixes). Alle 3 neuen Integrationen (2468/2469/2471) korrekt. Nächste Phasen: Fahrer-Lieferzeit-Effizienz. Push erfolgt.
 
 Backend-Architekt-Agent (2026-07-19): Phasen 2466–2471 implementiert. 1 neue Backend-API (fahrer-rueckkehr-depot-eta) + 3 neue Frontend-Komponenten erstellt und integriert. Phase 2469 Storefront übersprungen (interne Depot-Rückkehr-Daten). Build-Umgebung: Turbopack-Workspace-Root-Fehler ist pre-existing (bestätigt via git stash). Push erfolgt.
+
+---
+
+## Batch 2513–2519 — Fahrer-Trinkgeld-Quote (2026-07-19)
+
+### Phase 2513 — Backend API: Fahrer-Trinkgeld
+**Datei:** `app/api/delivery/admin/fahrer-trinkgeld/route.ts` *(bereits vorhanden — genutzt)*
+**GET:** `?location_id=<uuid>` — Ø Trinkgeld/Tour je Fahrer heute; Ampel grün(≥0,75€)/gelb(0,50–0,74€)/rot(<0,50€); Alert <0,50€; Trend vs. VW; team_avg/team_avg_vw; alert_count; Multi-Tenant; Supabase+Mock
+
+### Phase 2514 — Trinkgeld-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2514-trinkgeld-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot/grün je Alerts); KPI-Grid (Team-Ø heute / VW / Ziel ≥0,75€); Fahrerliste nach Ø-Trinkgeld sortiert (niedrigste oben); Balken 0–2€ mit Ziel-Linien 0,50€/0,75€; Alert-Banner <0,50€ mit Fahrernamen; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2508 ✅
+
+### Phase 2515 — Fahrer-App: Übersprungen (Nummer belegt)
+Phase 2515 bereits belegt durch Score-Tour-Visualisierung-Hub → Phase 2519 verwendet ✅
+
+### Phase 2516 — Storefront: Übersprungen
+Trinkgeld-Daten intern irrelevant für Kunden ✅
+
+### Phase 2517 — Trinkgeld-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2517-trinkgeld-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot/grün je Alert); Team-Ø €/Tour; Alert-Banner <0,50€ "Trinkgeld-Warnung — Servicequalität prüfen!" mit Fahrernamen; Fahrerliste kompakt mit Ampel-Dots; Ø-€/Tour je Fahrer; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2512 ✅
+
+### Phase 2519 — Mein Trinkgeld (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2519-mein-trinkgeld.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Ø €/Tour groß + Farbcode; Fortschrittsbalken 0–2€ mit gestrichelten Ziel-Linien bei 0,50€ und 0,75€; KPI-Grid (VW/Gesamt/Ziel/Team-Ø); Trend-Icon; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2509 ✅
+
+### Nächste Phasen 2520–2524 (für nächsten Ingenieur) — Fahrer-Trinkgeld-Quote (%)
+1. **Phase 2520 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-quote — Trinkgeld-Quote (%) je Fahrer heute (tip_amount / order_total × 100); Ampel grün(≥10%)/gelb(5–9%)/rot(<5%); Alert <5%; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2521 Dispatch:** Trinkgeld-Quote-Board — KPI-Grid Team-Ø % heute/VW/Ziel ≥10%; Fahrerliste nach Quote sortiert (niedrigste oben); Balken 0–20% mit Ziel-Linien 5%/10%; Alert-Banner <5%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2514.
+3. **Phase 2522 Fahrer-App:** Meine Trinkgeld-Quote — % groß + Farbcode; Balken 0–20% mit Ziel-Linien 5%/10%; KPI-Grid VW/€-Absolut/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2519.
+4. **Phase 2523 Storefront:** Überspringen (Trinkgeld-Quote intern irrelevant für Kunden).
+5. **Phase 2524 Kitchen:** Trinkgeld-Quote-Ticker — Team-Ø %; Alert <5% mit Servicehinweis; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2517.
 
 ---
 

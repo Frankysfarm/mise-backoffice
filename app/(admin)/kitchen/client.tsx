@@ -310,6 +310,7 @@ import { KitchenPhase2496PausenComplianceTicker } from './phase2496-pausen-compl
 import { KitchenPhase2501LiefertreueTicker } from './phase2501-liefertreue-ticker';
 import { KitchenPhase2506DurchsatzTicker } from './phase2506-durchsatz-ticker';
 import { KitchenPhase2512UmsatzTicker } from './phase2512-umsatz-ticker';
+import { KitchenPhase2517TrinkgeldTicker } from './phase2517-trinkgeld-ticker';
 import { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-ticker';
 import { KitchenPhase2444StornoQuoteTicker } from './phase2444-storno-quote-ticker';
 import { KitchenPhase2449UeberstundenTicker } from './phase2449-ueberstunden-ticker';
@@ -3466,6 +3467,8 @@ export function KitchenBoard({
       <KitchenPhase2506DurchsatzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2512: Umsatz-Ticker — Team-Gesamt €; Alert <100€/Fahrer mit Handlungsempfehlung; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2512UmsatzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2517: Trinkgeld-Ticker — Team-Ø €/Tour; Alert <0,50€ mit Servicehinweis; Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2517TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2439: Reaktionszeit-Ticker — Team-Ø; Alert >7min mit Beschleunigungshinweis; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2439ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2444: Storno-Quote-Ticker — Team-Ø; Alert >10% mit Handlungsempfehlung; Fahrerliste kompakt; 30-Min-Polling */}

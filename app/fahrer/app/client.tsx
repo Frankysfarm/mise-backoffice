@@ -674,6 +674,7 @@ import { FahrerPhase2494MeinePausenCompliance } from './phase2494-meine-pausen-c
 import { FahrerPhase2499MeineLiefertreue } from './phase2499-meine-liefertreue';
 import { FahrerPhase2504MeinDurchsatz } from './phase2504-mein-durchsatz';
 import { FahrerPhase2509MeinUmsatz } from './phase2509-mein-umsatz';
+import { FahrerPhase2519MeinTrinkgeld } from './phase2519-mein-trinkgeld';
 import { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
 import { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
 import { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote';
@@ -5968,6 +5969,8 @@ export function FahrerApp({
           <FahrerPhase2504MeinDurchsatz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2509: Mein Umsatz — €-Wert groß + Farbcode; Balken 0–300€ mit Ziel-Linien 100/200€; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2509MeinUmsatz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2519: Mein Trinkgeld — €/Tour groß + Farbcode; Balken 0–2€ mit Ziel-Linien 0,50/0,75€; KPI-Grid VW/Gesamt/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2519MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2510: Tour-Stopp Navigations-Hub — priorisierte Stop-Liste; One-Tap Navigation; Kundentelefon; Stop-Bestätigung; Next-Stop-Fokus-Karte; 30-Sek-Polling */}
           <FahrerPhase2510TourStoppNavigationsHub driverId={driver.id} />
           {/* Phase 2467: Tour-Stops Navigation Live Kommando — Alle Stops mit Status-Dots; Hero Next-Stop; Navi-Button; Anruf-Button; Notiz-Alert; Fortschrittsbalken; 20-Sek-Polling */}

@@ -760,6 +760,7 @@ import { DispatchPhase2493PausenComplianceBoard } from './phase2493-pausen-compl
 import { DispatchPhase2498LiefertreueBoard } from './phase2498-liefertreue-board';
 import { DispatchPhase2503DurchsatzBoard } from './phase2503-durchsatz-board';
 import { DispatchPhase2508UmsatzBoard } from './phase2508-umsatz-board';
+import { DispatchPhase2514TrinkgeldBoard } from './phase2514-trinkgeld-board';
 import { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
 import { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
 import { DispatchPhase2446UeberstundenBoard } from './phase2446-ueberstunden-board';
@@ -3893,6 +3894,8 @@ export function DispatchBoard({
           <DispatchPhase2503DurchsatzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2508: Umsatz-Board — KPI-Grid Team-Gesamt/Ø/Ziel ≥200€; Fahrerliste nach Umsatz sortiert (niedrigste oben); Alert <100€; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2508UmsatzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2514: Trinkgeld-Board — KPI-Grid Team-Ø heute/VW/Ziel ≥0,75€; Fahrerliste nach Trinkgeld sortiert (niedrigste oben); Alert <0,50€; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2514TrinkgeldBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2436: Reaktionszeit-Board — KPI-Grid Team-Ø heute/VW/Ziel <3min; Fahrerliste nach Reaktionszeit sortiert; Alert >7min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2436ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2441: Storno-Quote-Board — KPI-Grid Team-Ø heute/VW/Ziel <5%; Fahrerliste nach Quote sortiert; Alert >10%; Trend-Pfeile; 30-Min-Polling */}
