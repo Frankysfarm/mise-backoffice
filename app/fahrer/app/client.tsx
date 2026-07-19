@@ -9068,3 +9068,5 @@ export { FahrerPhase2447MeineUeberstunden } from './phase2447-meine-ueberstunden
 export { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
 // Phase 2480 — Tour-Stopp Navigator Ultimate (vollständige Stop-Liste; Next-Stop-Fokus; ETA-Countdown; Nav-Buttons Google/Waze/Apple; Stop-Bestätigung angekommen/zugestellt)
 export { FahrerPhase2480TourStoppNavUltimate } from './phase2480-tour-stopp-nav-ultimate';
+// Phase 2495 — Tour-Stopp Navigation Master (Aktueller Stopp im Fokus; Fortschrittsring; Nav-Buttons Google/Waze/Apple; ETA-Countdown; Next-Stops-Preview; Alle Stopps aufklappbar; mobile-optimiert)
+export { FahrerPhase2495TourStoppNavigationMaster, type MasterTourStop } from './phase2495-tour-stopp-navigation-master';
