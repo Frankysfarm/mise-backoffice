@@ -752,6 +752,7 @@ import { DispatchPhase2452SchichtBalanceBoard } from './phase2452-schicht-balanc
 import { DispatchPhase2457EffizienzIndexBoard } from './phase2457-effizienz-index-board';
 import { DispatchPhase2462KapazitaetScoreBoard } from './phase2462-kapazitaet-score-board';
 import { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
+import { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 
 type Driver = {
@@ -3863,6 +3864,8 @@ export function DispatchBoard({
           <DispatchPhase2462KapazitaetScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2436: Reaktionszeit-Board — KPI-Grid Team-Ø heute/VW/Ziel <3min; Fahrerliste nach Reaktionszeit sortiert; Alert >7min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2436ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2441: Storno-Quote-Board — KPI-Grid Team-Ø heute/VW/Ziel <5%; Fahrerliste nach Quote sortiert; Alert >10%; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2441StornoQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
           <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
@@ -11512,3 +11515,5 @@ export { DispatchPhase2457EffizienzIndexBoard } from './phase2457-effizienz-inde
 export { DispatchPhase2462KapazitaetScoreBoard } from './phase2462-kapazitaet-score-board';
 // Phase 2436 — Reaktionszeit-Board (Ø Zeit bis Abfahrt nach Zuweisung; Ampel <3min/3-7min/>7min; Alert >7min)
 export { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
+// Phase 2441 — Storno-Quote-Board (Stornierungen/Gesamt-Touren × 100%; Ampel <5%/5-10%/>10%; Alert >10%)
+export { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';

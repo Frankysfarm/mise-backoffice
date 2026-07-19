@@ -302,6 +302,7 @@ import { KitchenPhase2455SchichtBalanceTicker } from './phase2455-schicht-balanc
 import { KitchenPhase2460EffizienzIndexTicker } from './phase2460-effizienz-index-ticker';
 import { KitchenPhase2465KapazitaetTicker } from './phase2465-kapazitaet-ticker';
 import { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-ticker';
+import { KitchenPhase2444StornoQuoteTicker } from './phase2444-storno-quote-ticker';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3436,6 +3437,8 @@ export function KitchenBoard({
       <KitchenPhase2465KapazitaetTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2439: Reaktionszeit-Ticker — Team-Ø; Alert >7min mit Beschleunigungshinweis; Fahrerliste kompakt; 30-Min-Polling */}
       <KitchenPhase2439ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2444: Storno-Quote-Ticker — Team-Ø; Alert >10% mit Handlungsempfehlung; Fahrerliste kompakt; 30-Min-Polling */}
+      <KitchenPhase2444StornoQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing Ampel-Cockpit — Farbkodiertes Echtzeit-Countdown-Board; Grün/Gelb/Rot Ampel je Bestellung; sortiert nach Dringlichkeit */}
       <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
     </div>
@@ -10044,6 +10047,8 @@ export { KitchenPhase2460EffizienzIndexTicker } from './phase2460-effizienz-inde
 export { KitchenPhase2465KapazitaetTicker } from './phase2465-kapazitaet-ticker';
 // Phase 2439 — Reaktionszeit-Ticker (Team-Ø Reaktionszeit; Alert >7min; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2439ReaktionszeitTicker } from './phase2439-reaktionszeit-ticker';
+// Phase 2444 — Storno-Quote-Ticker (Team-Ø Quote; Alert >10%; Fahrerliste kompakt; 30-Min-Polling)
+export { KitchenPhase2444StornoQuoteTicker } from './phase2444-storno-quote-ticker';
 // Phase 2377 — Auslastungs-Ticker (Team-Ø Auslastung; Alert <40% od. >90%; Fahrerliste kompakt; 30-Min-Polling)
 export { KitchenPhase2377AuslastungsTicker } from './phase2377-auslastungs-ticker';
 // Phase 2382 — Reaktionszeit-Ticker (Team-Ø Reaktionszeit; Alert >120s; Fahrerliste kompakt; 30-Min-Polling)

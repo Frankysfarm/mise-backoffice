@@ -666,6 +666,7 @@ import { FahrerPhase2453MeinSchichtBalanceScore } from './phase2453-mein-schicht
 import { FahrerPhase2458MeinEffizienzIndex } from './phase2458-mein-effizienz-index';
 import { FahrerPhase2463MeinKapazitaetScore } from './phase2463-mein-kapazitaet-score';
 import { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
+import { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote';
 
 type Driver = {
   id: string;
@@ -5938,6 +5939,8 @@ export function FahrerApp({
           <FahrerPhase2463MeinKapazitaetScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2437: Meine Reaktionszeit — Ø-Min groß + Farbcode; Balken 0–10min mit Ziel-Linien 3min/7min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp */}
           <FahrerPhase2437MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2442: Meine Storno-Quote — % groß + Farbcode; Balken 0–20% mit Ziel-Linien 5%/10%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp */}
+          <FahrerPhase2442MeineStornoQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2380TourStoppNavigatorUltra
@@ -9027,3 +9030,5 @@ export { FahrerPhase2458MeinEffizienzIndex } from './phase2458-mein-effizienz-in
 export { FahrerPhase2463MeinKapazitaetScore } from './phase2463-mein-kapazitaet-score';
 // Phase 2437 — Meine Reaktionszeit (Ø Zeit bis Abfahrt nach Zuweisung; Balken 0–10min; Ampel <3min/3-7min/>7min; Coaching-Tipp)
 export { FahrerPhase2437MeineReaktionszeit } from './phase2437-meine-reaktionszeit';
+// Phase 2442 — Meine Storno-Quote (Stornierungen/Gesamt × 100%; Balken 0–20% mit Ziel-Linien 5%/10%; Ampel <5%/5-10%/>10%; Coaching-Tipp)
+export { FahrerPhase2442MeineStornoQuote } from './phase2442-meine-storno-quote';
