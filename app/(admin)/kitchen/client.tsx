@@ -339,6 +339,7 @@ import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timin
 import { KitchenPhase2620SmartTimingCountdownMaster } from './phase2620-smart-timing-countdown-master';
 import { KitchenPhase2625SmartTimingPrepFarbkodierungLive } from './phase2625-smart-timing-prep-farbkodierung-live';
 import { KitchenPhase2630SmartCountdownFarbkodierungUltraFinal } from './phase2630-smart-countdown-farbkodierung-ultra-final';
+import { KitchenPhase2635SmartKochzeitAmpelBoard } from './phase2635-smart-kochzeit-ampel-board';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3549,6 +3550,8 @@ export function KitchenBoard({
       <KitchenPhase2625SmartTimingPrepFarbkodierungLive locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2630: Smart-Countdown Farbkodierung Ultra Final — Sekunden-Countdown grün/gelb/rot je Bestellung; Prioritätssortierung überfällig→dringend→im Plan; On-Time-Rate-Ring; SLA-Ampel-Leiste; Batch-Empfehlung; 1-Sek-Tick + 20-Sek-Polling */}
       <KitchenPhase2630SmartCountdownFarbkodierungUltraFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2635: Smart-Kochzeit-Ampel-Board — Farbkodierte Batch-Kacheln grün/gelb/rot; Countdown Min:Sek; Fortschrittsbalken; Überfällig-Alert; 1-Sek-Tick + 30-Sek-Polling */}
+      <KitchenPhase2635SmartKochzeitAmpelBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -10225,3 +10228,5 @@ export { KitchenPhase2620SmartTimingCountdownMaster } from './phase2620-smart-ti
 export { KitchenPhase2625SmartTimingPrepFarbkodierungLive } from './phase2625-smart-timing-prep-farbkodierung-live';
 // Phase 2630 — Smart-Countdown Farbkodierung Ultra Final (Sekunden-Countdown grün/gelb/rot je Bestellung; Prioritätssortierung überfällig→dringend→im Plan; On-Time-Rate-Ring; SLA-Ampel-Leiste; Batch-Empfehlung; 1-Sek-Tick + 20-Sek-Polling)
 export { KitchenPhase2630SmartCountdownFarbkodierungUltraFinal } from './phase2630-smart-countdown-farbkodierung-ultra-final';
+// Phase 2635 — Smart-Kochzeit-Ampel-Board (Farbkodierte Batch-Kacheln grün/gelb/rot; Countdown Min:Sek; Fortschrittsbalken; Überfällig-Alert; 1-Sek-Tick + 30-Sek-Polling)
+export { KitchenPhase2635SmartKochzeitAmpelBoard } from './phase2635-smart-kochzeit-ampel-board';

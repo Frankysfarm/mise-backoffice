@@ -693,6 +693,7 @@ import { FahrerPhase2596MeinePausenzeit } from './phase2596-meine-pausenzeit';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
 import { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';
 import { FahrerPhase2620SmartTourNavigationMaster } from './phase2620-smart-tour-navigation-master';
+import { FahrerPhase2625TourNavigationKompaktFinal } from './phase2625-tour-navigation-kompakt-final';
 import { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
 import { FahrerPhase2600SmartTourStoppNavigatorFinal } from './phase2600-smart-tour-stopp-navigator-final';
 import { FahrerPhase2467TourStopsNavigationLiveKommando } from './phase2467-tour-stops-navigation-live-kommando';
@@ -6099,6 +6100,8 @@ export function FahrerApp({
           <FahrerPhase2520TourStoppNavigatorFinal driverId={driver.id} />
           {/* Phase 2630: Smart Tour-Stopp Navigator Ultimate Final — Nächster-Stopp-Fokus; Google/Waze/Apple-Navigation; Fortschrittsring; Stop-Dot-Reihe; Schnell-Bestätigung; Verdienst-Vorschau; Supabase-Realtime; 30-Sek-Polling */}
           <Phase2630SmartTourStoppNavigatorUltimateFinal fahrerEmployeeId={driver.id} />
+          {/* Phase 2625: Tour-Navigation Kompakt Final — Nächster Stopp Hero; One-Tap Google/Waze/Apple; Anruf; Notiz-Alert; Stop-Dots; Weitere Stopps aufklappbar; 20-Sek-Polling */}
+          <FahrerPhase2625TourNavigationKompaktFinal driverId={driver.id} />
           {/* Phase 2467: Tour-Stops Navigation Live Kommando — Alle Stops mit Status-Dots; Hero Next-Stop; Navi-Button; Anruf-Button; Notiz-Alert; Fortschrittsbalken; 20-Sek-Polling */}
           <FahrerPhase2467TourStopsNavigationLiveKommando fahrerSchichtId={activeBatch?.id ?? null} isOnline={isOnline} />
           {/* Phase 2437: Meine Reaktionszeit — Ø-Min groß + Farbcode; Balken 0–10min mit Ziel-Linien 3min/7min; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp */}
@@ -9266,3 +9269,5 @@ export { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator
 export { FahrerPhase2620SmartTourNavigationMaster } from './phase2620-smart-tour-navigation-master';
 // Phase 2520 — Tour-Stopp Navigator Final (Nächster Stopp Fokus + One-Tap Navi Google Maps + Anruf + Stop-Progress-Dots + ETA-Ring; 20-Sek-Polling)
 export { FahrerPhase2520TourStoppNavigatorFinal } from './phase2520-tour-stopp-navigator-final';
+// Phase 2625 — Tour-Navigation Kompakt Final (Nächster Stopp Hero + One-Tap Google/Waze/Apple + Anruf-Button + Notiz-Alert + Stop-Dots + Weitere Stopps aufklappbar; 20-Sek-Polling)
+export { FahrerPhase2625TourNavigationKompaktFinal } from './phase2625-tour-navigation-kompakt-final';
