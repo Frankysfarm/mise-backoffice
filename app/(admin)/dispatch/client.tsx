@@ -774,6 +774,7 @@ import { DispatchPhase2530WartezeitDepotBoard } from './phase2530-wartezeit-depo
 import { DispatchPhase2535ErreichbarkeitBoard } from './phase2535-erreichbarkeit-board';
 import { DispatchPhase2540StornoRateBoard } from './phase2540-storno-rate-board';
 import { DispatchPhase2545BewertungsBoard } from './phase2545-bewertungs-board';
+import { DispatchPhase2550TrinkgeldQuoteV2Board } from './phase2550-trinkgeld-quote-v2-board';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
 import { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';
 import { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
@@ -3931,6 +3932,8 @@ export function DispatchBoard({
           <DispatchPhase2540StornoRateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2545: Bewertungs-Board — KPI-Grid Team-Ø heute/VW/Ziel ≥4.5★; Fahrerliste nach Bewertung sortiert (niedrigste oben); Stern-Balken 1–5 mit Ziel-Linien 3.5/4.5★; Alert-Banner <3.5★ "Servicequalität prüfen!"; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2545BewertungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2550: Trinkgeld-Quote-v2-Board — KPI-Grid Team-Ø-Rate heute/VW/Ziel ≥20%; Fahrerliste nach Rate sortiert (niedrigste oben); Balken 0–50% mit Ziel-Linien 10%/20%; Alert-Banner <10%; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2550TrinkgeldQuoteV2Board locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2483: Tour-Score Live-Board — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2483TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2600: Tour-Score Visualisierung Kommandant — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}

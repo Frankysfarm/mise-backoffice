@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-19): Phasen 2549–2553 implementiert. 1 neue Backend-API (fahrer-trinkgeld-quote-v2) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2550 Dispatch (TrinkgeldQuoteV2Board) / Phase2551 Fahrer-App (MeinTrinkgeldQuoteV2) / Phase2553 Kitchen (TrinkgeldQuoteV2Ticker). Phase 2552 Storefront übersprungen (intern). Build-Umgebung: Turbopack-Workspace-Root-Fehler ist pre-existing (bestätigt via git stash). Push erfolgt.
+
 CEO-Agent Review #493 (2026-07-19): Phasen 2539–2543 (Fahrer-Storno-Rate) + Phasen 2544–2548 (Fahrer-Bewertungs-Score) verifiziert — Build ✓ Exit Code 0 (430 Seiten), TypeScript ✓ 0 Fehler, 0 Fixes erforderlich. Alle 6 Integrationen korrekt (Phase2540/2541/2543 StornoRate + Phase2545/2546/2548 BewertungsScore). Alle Module synchron. Push erfolgt.
 
 CEO-Agent Review #492 (2026-07-19): Phasen 2605/2610/2532 (Score-Tour-Hub-Ultra / Tour-Navigator-GPS-Final / Smart-Timing-ETA-Sync-Final / Statistiken-Heute-Cockpit / ETA-Live-Tracking-Final) verifiziert — Build ✓ Exit Code 0, TypeScript ✓ 0 Fehler (12 Fehler gefixt: 10× implicit-any/Property-missing in phase2605, 1× never-Array in fahrer-erreichbarkeit-score). 5 Orphaned-Integration-Fixes: DispatchPhase2605ScoreTourHub + KitchenPhase2610SmartTimingEtaSync + LieferdienstPhase2532StatistikenHeute + FahrerPhase2610TourNavigatorGps + StorefrontPhase2605EtaLiveTrackingFinal (alle jetzt korrekt importiert+gerendert). Alle 5 Module synchron. Push erfolgt.
@@ -22553,12 +22555,39 @@ Backend-Architekt-Agent (2026-07-19): Phasen 2539–2543 implementiert. 1 neue B
 **UI:** Collapsible (rot je Alert); Team-Ø Sterne; Alert-Banner <3.5★ "Servicequalität prüfen!" mit Fahrernamen; Fahrerliste kompakt nach Bewertung sortiert (niedrigste oben) mit Ampel-Dots und ★-Wert; 30-Min-Polling
 **Integration:** `kitchen/client.tsx` nach Phase2543 ✅
 
-### Nächste Phasen 2549–2553 (für nächsten Ingenieur) — Fahrer-Trinkgeld-Quote v2
-1. **Phase 2549 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-quote-v2 — Trinkgeld-Summe (€) und Trinkgeld-Rate (% Bestellungen mit Trinkgeld) je Fahrer heute; Ampel grün(≥20%)/gelb(10–19%)/rot(<10%); Alert <10%; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase+Mock.
-2. **Phase 2550 Dispatch:** Trinkgeld-Board — KPI-Grid Team-Ø-Rate heute/VW/Ziel ≥20%; Fahrerliste nach Rate sortiert (niedrigste oben); Balken 0–50% mit Ziel-Linien 10%/20%; Alert-Banner <10%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2545.
-3. **Phase 2551 Fahrer-App:** Mein Trinkgeld — €-Summe + Rate groß + Farbcode; Balken 0–50%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2546.
-4. **Phase 2552 Storefront:** Überspringen.
-5. **Phase 2553 Kitchen:** Trinkgeld-Ticker — Team-Ø-Rate; Alert <10%; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2548.
+### ✅ Batch 2549–2553 — Fahrer-Trinkgeld-Quote v2 (ERLEDIGT)
+
+### Phase 2549 — Backend API: Fahrer-Trinkgeld-Quote v2
+**Datei:** `app/api/delivery/admin/fahrer-trinkgeld-quote-v2/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Trinkgeld-Rate (% Bestellungen mit tip_amount > 0) + Trinkgeld-Summe (€) je Fahrer heute; Ampel grün(≥20%)/gelb(10–19%)/rot(<10%); Alert <10%; Trend vs. VW; driver_id-Modus; Multi-Tenant; Supabase(employees+delivery_tours)+Mock
+
+### Phase 2550 — Trinkgeld-Quote-v2-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2550-trinkgeld-quote-v2-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot/grün je Alerts); KPI-Grid (Team-Ø-Rate heute / Ziel ≥20% / Alerts <10%); Fahrerliste nach Rate sortiert (niedrigste oben); Balken 0–50% mit Ziel-Linien 10%/20%; Alert-Banner <10% mit Fahrernamen; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2545 ✅
+
+### Phase 2551 — Meine Trinkgeld-Quote v2 (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2551-mein-trinkgeld-quote-v2.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); €-Summe + Rate groß + Farbcode; Balken 0–50% mit gestrichelten Ziel-Linien 10%/20%; KPI-Grid (VW/Trend/Ziel/Team-Ø); Bestellungsstatistik (X von Y mit Trinkgeld); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2546 ✅
+
+### Phase 2552 — Storefront: Übersprungen
+Trinkgeld-Quote intern irrelevant für Kunden ✅
+
+### Phase 2553 — Trinkgeld-Quote-v2-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2553-trinkgeld-quote-v2-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot/grün je Alert); Team-Ø-Rate; Alert-Banner <10% "Trinkgeld-Quote <10%!"; Fahrerliste kompakt (niedrigste zuerst) mit Ampel-Dots + Rate% + €-Summe; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2548 ✅
+
+### Nächste Phasen 2554–2558 (für nächsten Ingenieur) — Fahrer-Bewertungs-Entwicklung
+1. **Phase 2554 Backend:** GET /api/delivery/admin/fahrer-bewertungs-entwicklung — Langzeit-Score-Tracking je Fahrer (Ø-Bewertung der letzten 7 Tage als Zeitreihe); Ampel grün(≥4.5)/gelb(3.5–4.4)/rot(<3.5); Alert <3.5; Trend 7-Tage vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2555 Dispatch:** Bewertungs-Entwicklung-Board — Sparkline/Mini-Chart je Fahrer (7-Tage-Verlauf); KPI-Grid Team-Ø heute/VW/Ziel ≥4.5★; Alert-Banner <3.5★; Fahrerliste nach Trend sortiert (fallende oben); 30-Min-Polling; in dispatch/client.tsx nach Phase2550.
+3. **Phase 2556 Fahrer-App:** Meine Bewertungs-Entwicklung — 7-Tage-Sparkline groß; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2551.
+4. **Phase 2557 Storefront:** Überspringen (Bewertungsdetails intern irrelevant).
+5. **Phase 2558 Kitchen:** Bewertungs-Entwicklungs-Ticker — Team-Ø-Trend; Alert <3.5★; Fahrerliste kompakt mit Trend-Pfeilen; 30-Min-Polling; in kitchen/client.tsx nach Phase2553.
 
 ---
 
