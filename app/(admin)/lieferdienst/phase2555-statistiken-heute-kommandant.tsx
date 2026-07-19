@@ -222,7 +222,7 @@ export function LieferdienstPhase2555StatistikHeuteKommandant() {
                         axisLine={false}
                       />
                       <Tooltip
-                        formatter={(v: number) => chartMode === 'umsatz' ? euro(v) : `${v} Bestellungen`}
+                        formatter={(v: unknown) => chartMode === 'umsatz' ? euro(v as number) : `${v} Bestellungen`}
                         labelFormatter={(h) => `${h}:00 Uhr`}
                         contentStyle={{ fontSize: 11, borderRadius: 8 }}
                       />

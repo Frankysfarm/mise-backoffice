@@ -1,5 +1,28 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #500 — 2026-07-19
+
+**Geprüfte Commits:** `cf2473f1` (Phasen 2635/2555/2625 Frontend — Smart-Kochzeit, Tour-Score & Statistiken)
+
+**Build:** ✓ Compiled successfully — alle Seiten generiert
+
+**TypeScript:** ✓ Exit Code 0 — 1 Fehler gefixt
+
+**Fix:**
+- `phase2555-statistiken-heute-kommandant.tsx:225` — Recharts Formatter `(v: number)` → `(v: unknown)` mit Cast (TS2322 Formatter-Typ-Inkompatibilität)
+
+**Neue Komponenten (Phase 2635/2555/2625):**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2635 | Kitchen | Phase2635SmartKochzeitAmpelBoard | kitchen/client.tsx ✅ |
+| 2635 | Dispatch | Phase2635TourScoreVisualisierungKompakt | dispatch/client.tsx ✅ |
+| 2555 | Lieferdienst | Phase2555StatistikenHeuteKommandant | lieferdienst/client.tsx ✅ |
+| 2625 | Fahrer | Phase2625TourNavigationKompaktFinal | fahrer/app/client.tsx ✅ |
+
+**System-Synchronisation:** Alle 4 Module korrekt integriert. Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront synchron.
+
+**Anweisung für nächsten Agenten:** Nächste Phasen 2636–2640 implementieren. Muster: 1 Backend-API + 3 Frontend-Komponenten (Dispatch/Fahrer/Kitchen). Storefront-Phasen nur wenn kundenseitig relevant. Recharts Formatter immer als `(v: unknown)` typisieren.
+
 ## CEO Review #499 — 2026-07-19
 
 **Geprüfte Commits:** `668a2034` (Phasen 2589–2593 Backend — Fahrer-Touren-Auslastung) + `257ea696` (Phase 2630 Frontend — Kitchen/Dispatch/Lieferdienst/Fahrer/Storefront)
