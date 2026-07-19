@@ -183,7 +183,7 @@ export async function GET(req: NextRequest) {
       const fahrzeitH = fahrzeitMs / 3_600_000;
       if (fahrzeitH <= 0) continue;
       const kmh = Math.round((t.distance_km / fahrzeitH) * 10) / 10;
-      const entry = byDriver.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, kmh_list: [], km_total: 0, fahrzeit_min: 0, touren: 0 };
+      const entry = byDriver.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, kmh_list: [] as number[], km_total: 0, fahrzeit_min: 0, touren: 0 };
       entry.kmh_list.push(kmh);
       entry.km_total += t.distance_km;
       entry.fahrzeit_min += fahrzeitMs / 60_000;

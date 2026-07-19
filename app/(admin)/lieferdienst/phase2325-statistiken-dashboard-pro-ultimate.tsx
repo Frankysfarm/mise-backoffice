@@ -149,7 +149,7 @@ export function LieferdienstPhase2325StatistikDashboardProUltimate({ locationId 
                   tickLine={false}
                 />
                 <Tooltip
-                  formatter={(v: number) => [`${v.toFixed(2)} €`, 'Umsatz']}
+                  formatter={((v: number) => [`${v.toFixed(2)} €`, 'Umsatz']) as any}
                   labelFormatter={l => `${l}:00 Uhr`}
                   contentStyle={{ fontSize: 11, borderRadius: 8 }}
                 />

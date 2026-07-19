@@ -219,7 +219,7 @@ export function LieferdienstPhase2326StatistikEchtzeitKomplett({ locationId }: {
             <BarChart data={chartData} barSize={10} margin={{ top: 0, right: 0, left: -32, bottom: 0 }}>
               <XAxis dataKey="stunde" tick={{ fontSize: 9 }} tickFormatter={h => `${h}h`} />
               <Tooltip
-                formatter={(v: number) => chartMode === 'umsatz' ? fmtEur(v) : `${v} Bestellungen`}
+                formatter={((v: number) => chartMode === 'umsatz' ? fmtEur(v) : `${v} Bestellungen`) as any}
                 labelFormatter={h => `${h}:00 Uhr`}
               />
               <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>

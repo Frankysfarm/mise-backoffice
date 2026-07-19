@@ -205,7 +205,7 @@ export function FahrerPhase2428TourStoppNavigatorUltra({ driverId, locationId, i
                           )}
                           {(s.status !== 'abgeliefert') && (
                             <div className="flex gap-1.5 mt-2 flex-wrap">
-                              {s.status !== 'abgeliefert' && (
+                              {(
                                 <NaviLink adresse={s.adresse} />
                               )}
                               {s.telefon && (

@@ -286,7 +286,7 @@ export function LieferdienstPhase2341StatistikDashboardMaster() {
           <BarChart data={data.hours} margin={{ top: 2, right: 2, left: -20, bottom: 0 }}>
             <XAxis dataKey="hour" tick={{ fontSize: 8 }} interval={2} />
             <Tooltip
-              formatter={(v: number) => chartMode === 'umsatz' ? `€${v}` : `${v} Bestellungen`}
+              formatter={((v: number) => chartMode === 'umsatz' ? `€${v}` : `${v} Bestellungen`) as any}
               labelStyle={{ fontSize: 10 }}
               contentStyle={{ fontSize: 10 }}
             />

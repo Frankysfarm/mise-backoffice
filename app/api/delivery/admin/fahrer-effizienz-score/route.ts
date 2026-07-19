@@ -125,7 +125,7 @@ function mockData(locationId: string, driverId?: string) {
       fahrer_name: d.name,
       score: heute.score,
       score_vw: vw.score,
-      trend: heute.score > vw.score ? 'steigend' : heute.score < vw.score ? 'fallend' : 'stabil',
+      trend: (heute.score > vw.score ? 'steigend' : heute.score < vw.score ? 'fallend' : 'stabil') as 'steigend' | 'fallend' | 'stabil',
       trend_delta: heute.score - vw.score,
       ampel: ampel(heute.score),
       alert: heute.score < 50,

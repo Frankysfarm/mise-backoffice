@@ -158,7 +158,7 @@ export async function GET(req: NextRequest) {
       if (!t.driver_id || !t.arrived_at || !t.actual_pickup_at) continue;
       const diffMin = (new Date(t.actual_pickup_at).getTime() - new Date(t.arrived_at).getTime()) / 60_000;
       if (diffMin < 0) continue;
-      const entry = byDriver.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, wartezeiten: [], max: 0 };
+      const entry = byDriver.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, wartezeiten: [] as number[], max: 0 };
       entry.wartezeiten.push(diffMin);
       if (diffMin > entry.max) entry.max = diffMin;
       byDriver.set(t.driver_id, entry);

@@ -58,7 +58,7 @@ function buildMock(locationId: string, driverId?: string) {
     bewertung_vw: d.bew_vw,
     schichtdauer_h: d.dauer,
     schichtdauer_h_vw: d.dauer_vw,
-    trend_einnahmen: d.einnahmen > d.einnahmen_vw ? 'steigend' : d.einnahmen < d.einnahmen_vw ? 'fallend' : 'stabil',
+    trend_einnahmen: (d.einnahmen > d.einnahmen_vw ? 'steigend' : d.einnahmen < d.einnahmen_vw ? 'fallend' : 'stabil') as 'steigend' | 'fallend' | 'stabil',
     trend_delta_einnahmen: Math.round((d.einnahmen - d.einnahmen_vw) * 10) / 10,
     ampel: calcAmpel(d.einnahmen, d.bew, d.touren),
     alert_schicht: d.dauer > 10,

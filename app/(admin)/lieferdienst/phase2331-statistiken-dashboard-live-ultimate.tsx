@@ -211,10 +211,10 @@ export function LieferdienstPhase2331StatistikDashboardLiveUltimate({ locationId
             <YAxis tick={{ fontSize: 9, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e5e7eb' }}
-              formatter={(v: number) => [
+              formatter={((v: number) => [
                 chartMode === 'umsatz' ? fmtEur(v) : chartMode === 'on_time' ? `${v.toFixed(1)}%` : v,
                 chartMode === 'umsatz' ? 'Umsatz' : chartMode === 'bestellungen' ? 'Bestellungen' : 'On-Time',
-              ]}
+              ]) as any}
               labelFormatter={h => `${h}:00 Uhr`}
             />
             <Bar dataKey={chartKey} radius={[3, 3, 0, 0]}>

@@ -59,7 +59,7 @@ export function FahrerPhase2280SmartTourStopsNavHub({ tourId }: { tourId?: strin
         .eq('tour_id', tourId)
         .order('position', { ascending: true });
       if (data && data.length > 0) {
-        setStops(data.map((d) => ({
+        setStops(data.map((d: any) => ({
           stopId: d.id,
           position: d.position,
           adresse: d.address,

@@ -88,24 +88,24 @@ export function LieferdienstPhase2336StatistikEchtzeitPro({ locationId }: { loca
 
     if (!orders) { setLoading(false); return; }
 
-    const done = orders.filter(o => o.status === 'zugestellt' || o.status === 'geliefert' || o.status === 'fertig');
-    const storno = orders.filter(o => o.status === 'storniert');
-    const aktiv = orders.filter(o => ['neu', 'angenommen', 'in_zubereitung', 'bereit', 'unterwegs'].includes(o.status));
+    const done = orders.filter((o: any) => o.status === 'zugestellt' || o.status === 'geliefert' || o.status === 'fertig');
+    const storno = orders.filter((o: any) => o.status === 'storniert');
+    const aktiv = orders.filter((o: any) => ['neu', 'angenommen', 'in_zubereitung', 'bereit', 'unterwegs'].includes(o.status));
 
-    const totalUmsatz = done.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
+    const totalUmsatz = done.reduce((s: number, o: any) => s + (o.gesamtbetrag ?? 0), 0);
     const stornoQuote = orders.length > 0 ? (storno.length / orders.length) * 100 : 0;
 
     const lieferzeiten = done
-      .filter(o => o.bestellt_am && o.fertig_am)
-      .map(o => (new Date(o.fertig_am!).getTime() - new Date(o.bestellt_am!).getTime()) / 60_000);
+      .filter((o: any) => o.bestellt_am && o.fertig_am)
+      .map((o: any) => (new Date(o.fertig_am!).getTime() - new Date(o.bestellt_am!).getTime()) / 60_000);
     const avgLieferzeit = lieferzeiten.length > 0
-      ? lieferzeiten.reduce((a, b) => a + b, 0) / lieferzeiten.length : 0;
+      ? lieferzeiten.reduce((a: number, b: number) => a + b, 0) / lieferzeiten.length : 0;
 
-    const bewertungen = orders.filter(o => o.bewertung_note).map(o => o.bewertung_note as number);
+    const bewertungen = orders.filter((o: any) => o.bewertung_note).map((o: any) => o.bewertung_note as number);
     const avgBewertung = bewertungen.length > 0
-      ? bewertungen.reduce((a, b) => a + b, 0) / bewertungen.length : 0;
+      ? bewertungen.reduce((a: number, b: number) => a + b, 0) / bewertungen.length : 0;
 
-    const onTime = done.filter(o => {
+    const onTime = done.filter((o: any) => {
       if (!o.bestellt_am || !o.fertig_am) return false;
       return (new Date(o.fertig_am).getTime() - new Date(o.bestellt_am).getTime()) / 60_000 <= 45;
     });
@@ -120,7 +120,7 @@ export function LieferdienstPhase2336StatistikEchtzeitPro({ locationId }: { loca
     for (let h = 10; h <= Math.min(22, nowH); h++) {
       stundenMap[h] = { h: `${h}:00`, umsatz: 0, bestellungen: 0 };
     }
-    orders.forEach(o => {
+    orders.forEach((o: any) => {
       if (!o.bestellt_am) return;
       const h = new Date(o.bestellt_am).getHours();
       if (stundenMap[h]) {
@@ -132,7 +132,7 @@ export function LieferdienstPhase2336StatistikEchtzeitPro({ locationId }: { loca
 
     // Zonen-Ranking
     const zonenMap: Record<string, { bestellungen: number; zeiten: number[] }> = {};
-    orders.forEach(o => {
+    orders.forEach((o: any) => {
       const z = o.delivery_zone ?? 'Unbekannt';
       if (!zonenMap[z]) zonenMap[z] = { bestellungen: 0, zeiten: [] };
       zonenMap[z].bestellungen++;
@@ -306,7 +306,7 @@ export function LieferdienstPhase2336StatistikEchtzeitPro({ locationId }: { loca
               <XAxis dataKey="h" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ fontSize: 10, padding: '4px 8px' }}
-                formatter={(v: number) => chartMode === 'umsatz' ? euro(v) : `${v} Bestellungen`}
+                formatter={((v: number) => chartMode === 'umsatz' ? euro(v) : `${v} Bestellungen`) as any}
               />
               <Bar dataKey={chartMode} radius={[3, 3, 0, 0]} maxBarSize={24}>
                 {data.stunden.map((_, i) => (

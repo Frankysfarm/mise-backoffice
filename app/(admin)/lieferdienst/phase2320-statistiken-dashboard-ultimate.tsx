@@ -169,7 +169,7 @@ export function LieferdienstPhase2320StatistikDashboardUltimate({ locationId }: 
                   <XAxis dataKey="hour" tick={{ fontSize: 9 }} tickFormatter={h => `${h}h`} />
                   <Tooltip
                     contentStyle={{ fontSize: 11, padding: '4px 8px' }}
-                    formatter={(v: any, name: string) => [v, name === 'orders' ? 'Bestellungen' : name]}
+                    formatter={((v: any, name: string) => [v, name === 'orders' ? 'Bestellungen' : name]) as any}
                     labelFormatter={l => `${l}:00 Uhr`}
                   />
                   <Bar dataKey="orders" radius={[3, 3, 0, 0]}>

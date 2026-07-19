@@ -171,7 +171,7 @@ export function LieferdienstPhase2315StatistikDashboardCockpit({
                 <XAxis dataKey="stunde" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{ fontSize: 11, borderRadius: 6 }}
-                  formatter={(v: number) => [`${v} Bestellungen`, '']}
+                  formatter={((v: number) => [`${v} Bestellungen`, '']) as any}
                 />
                 <Bar dataKey="bestellungen" radius={[2, 2, 0, 0]}>
                   {stunden.map((entry, index) => (

@@ -757,6 +757,7 @@ import { DispatchPhase2478StoppzeitBoard } from './phase2478-stoppzeit-board';
 import { DispatchPhase2483KmEffizienzBoard } from './phase2483-km-effizienz-board';
 import { DispatchPhase2488TourenAnzahlBoard } from './phase2488-touren-anzahl-board';
 import { DispatchPhase2493PausenComplianceBoard } from './phase2493-pausen-compliance-board';
+import { DispatchPhase2498LiefertreueBoard } from './phase2498-liefertreue-board';
 import { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
 import { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
 import { DispatchPhase2446UeberstundenBoard } from './phase2446-ueberstunden-board';
@@ -3882,6 +3883,8 @@ export function DispatchBoard({
           <DispatchPhase2488TourenAnzahlBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2493: Pausen-Compliance-Board — KPI-Grid Team-Ø Compliance heute/VW/Ziel 100%; Fahrerliste nach Compliance sortiert; Alert <80%; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2493PausenComplianceBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2498: Liefertreue-Board — KPI-Grid Team-Ø/Ziel ≥95%/Alerts; Fahrerliste nach Liefertreue sortiert; Alert <85%; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2498LiefertreueBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2436: Reaktionszeit-Board — KPI-Grid Team-Ø heute/VW/Ziel <3min; Fahrerliste nach Reaktionszeit sortiert; Alert >7min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2436ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2441: Storno-Quote-Board — KPI-Grid Team-Ø heute/VW/Ziel <5%; Fahrerliste nach Quote sortiert; Alert >10%; Trend-Pfeile; 30-Min-Polling */}

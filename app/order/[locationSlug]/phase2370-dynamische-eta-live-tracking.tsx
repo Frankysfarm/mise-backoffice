@@ -15,7 +15,7 @@ interface Props {
   locationSlug?: string;
 }
 
-const PHASES: { key: DeliveryPhase; label: string; icon: React.ComponentType<{ className?: string; size?: number }> }[] = [
+const PHASES: { key: DeliveryPhase; label: string; icon: React.ComponentType<any> }[] = [
   { key: 'bestaetigt',  label: 'Bestätigt',   icon: Package },
   { key: 'zubereitung', label: 'Zubereitung', icon: ChefHat },
   { key: 'abholung',    label: 'Abholung',    icon: Bike },

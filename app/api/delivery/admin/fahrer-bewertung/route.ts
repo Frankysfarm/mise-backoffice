@@ -45,7 +45,7 @@ function buildMock(locationId: string, driverId?: string) {
     avg_sterne: d.avg,
     avg_sterne_vw: d.avg_vw,
     anzahl_bewertungen: d.anzahl,
-    trend: d.avg > d.avg_vw ? 'steigend' : d.avg < d.avg_vw ? 'fallend' : 'stabil',
+    trend: (d.avg > d.avg_vw ? 'steigend' : d.avg < d.avg_vw ? 'fallend' : 'stabil') as 'steigend' | 'fallend' | 'stabil',
     trend_delta: Math.round((d.avg - d.avg_vw) * 10) / 10,
     ampel: calcAmpel(d.avg),
     alert_niedrig: d.avg < 3.5,

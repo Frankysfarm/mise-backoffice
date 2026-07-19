@@ -43,7 +43,7 @@ function buildMock(_locationId: string, driverId?: string) {
     fahrer_name: d.name,
     nacht_h: d.nacht,
     nacht_h_vw: d.nacht_vw,
-    trend: d.nacht > d.nacht_vw ? 'steigend' : d.nacht < d.nacht_vw ? 'fallend' : 'stabil',
+    trend: (d.nacht > d.nacht_vw ? 'steigend' : d.nacht < d.nacht_vw ? 'fallend' : 'stabil') as 'steigend' | 'fallend' | 'stabil',
     trend_delta: Math.round((d.nacht - d.nacht_vw) * 10) / 10,
     ampel: calcAmpel(d.nacht),
     alert_erschoepfung: d.nacht > 4,

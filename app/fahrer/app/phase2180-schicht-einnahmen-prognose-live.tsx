@@ -58,7 +58,7 @@ export function FahrerPhase2180SchichtEinnahmenPrognoseLive({ driverId, location
         .in('status', ['geliefert', 'abgeholt_extern']);
 
       const completed = orders ?? [];
-      const earnedToday = completed.reduce<number>((sum, o: any) => {
+      const earnedToday = (completed as any[]).reduce<number>((sum: number, o: any) => {
         return sum + ((o.trinkgeld as number | null) ?? 0) + ((o.lieferdienst_provision as number | null) ?? 0);
       }, 0);
 
