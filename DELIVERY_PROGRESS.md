@@ -22821,3 +22821,39 @@ Backend-Architekt-Agent (2026-07-19): Phasen 2569–2573 implementiert. 1 neue B
 5. **Phase 2598 Kitchen:** Pausenzeit-Ticker — Team-Ø; Alert >30 Min "Langer Fahrer-Stillstand!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2593.
 
 Backend-Architekt-Agent (2026-07-19): Phasen 2589–2593 implementiert. 1 neue Backend-API (fahrer-touren-auslastung, Supabase: delivery_tours started_at/completed_at, 8h-Schichtzeit-Referenz) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2590 Dispatch (Touren-Auslastungs-Board) / Phase2591 Fahrer-App (Meine Touren-Auslastung) / Phase2593 Kitchen (Auslastungs-Ticker). Phase 2592 Storefront übersprungen (interne Daten irrelevant für Kunden). Push erfolgt.
+
+## Batch 2594–2598 — Fahrer-Pausenzeit-Analyse (2026-07-19)
+
+### Phase 2594 — Backend API: Fahrer-Pausenzeit
+**Datei:** `app/api/delivery/admin/fahrer-pausenzeit/route.ts` *(bereits vorhanden, Phase 2393)*
+**Wiederverwendet:** Ø Pausenzeit zwischen Touren je Fahrer heute (Gap zwischen Tour-Ende und nächstem Tour-Start in Min); Ampel grün(5–20 Min)/gelb(20–30 Min)/rot(>30 Min oder <5 Min); Alert >30 Min (alert_lang) / <5 Min (alert_kurz); Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase(delivery_batches)+Mock
+
+### Phase 2595 — Pausenzeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2595-pausenzeit-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute / Vorwoche / Ziel ≤15 Min); Fahrerliste nach Pausenzeit sortiert (höchste oben); Balken 0–60 Min mit grüner Ziel-Linie bei 15 Min; Alert-Banner >30 Min "Langer Stillstand!" mit Fahrernamen; Trend-Pfeile (↑=schlechter/rot, ↓=besser/grün); Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2590 ✅
+
+### Phase 2596 — Meine Pausenzeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2596-meine-pausenzeit.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Min-Wert groß + Farbcode; Pausen-Anzahl + Touren-Anzahl; Fortschrittsbalken 0–60 Min mit gestrichelter Ziel-Linie bei 15 Min; KPI-Grid (VW/Trend/Ziel ≤15'/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2591 ✅
+
+### Phase 2597 — Storefront
+Übersprungen (Pausenzeit-Daten intern irrelevant für Kunden) ✅
+
+### Phase 2598 — Pausenzeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2598-pausenzeit-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Pausenzeit; Alert-Banner >30 Min "Langer Fahrer-Stillstand!" mit Fahrernamen; Fahrerliste kompakt nach Pausenzeit sortiert (höchste oben) mit Ampel-Dots, Trend-Pfeil und Min-Wert; Ziel-Anzeige; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2593 ✅
+
+### Nächste Phasen 2599–2603 (für nächsten Ingenieur) — Fahrer-Kilometer-Bilanz
+1. **Phase 2599 Backend:** GET /api/delivery/admin/fahrer-km-bilanz — Gefahrene km je Fahrer heute; Ampel grün(≥80 km)/gelb(50–79 km)/rot(<50 km); Alert <50 km; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_tours.distance_km)+Mock.
+2. **Phase 2600 Dispatch:** km-Bilanz-Board — Fahrerliste nach km sortiert (niedrigste oben); Balken 0–150 km mit Ziel-Linie 80 km (grün/gestrichelt); KPI-Grid Team-Ø/Gestern/Ziel ≥80 km; Alert-Banner <50 km; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2595.
+3. **Phase 2601 Fahrer-App:** Meine km-Bilanz — km-Wert groß + Farbcode; Balken 0–150 km mit Ziel-Linie 80 km; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2596.
+4. **Phase 2602 Storefront:** Überspringen (km-Bilanz intern irrelevant für Kunden).
+5. **Phase 2603 Kitchen:** km-Bilanz-Ticker — Team-Ø km; Alert <50 km "Fahrer unterausgelastet!"; Fahrerliste kompakt mit Ampel-Dots + Trend; 30-Min-Polling; in kitchen/client.tsx nach Phase2598.
+
+Backend-Architekt-Agent (2026-07-19): Phasen 2594–2598 implementiert. Backend-API wiederverwendet (fahrer-pausenzeit Phase 2393). 3 neue Frontend-Komponenten erstellt und integriert: Phase2595 Dispatch (Pausenzeit-Board, Balken 0–60 Min mit Ziel-Linie 15 Min, Alert >30 Min) / Phase2596 Fahrer-App (Meine Pausenzeit, coaching-Tipp je Ampelzone) / Phase2598 Kitchen (Pausenzeit-Ticker, Alert "Langer Fahrer-Stillstand!"). Phase 2597 Storefront übersprungen. TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.

@@ -783,6 +783,7 @@ import { DispatchPhase2575LieferzeitAbweichungsBoard } from './phase2575-lieferz
 import { DispatchPhase2580StornoQuoteTrendBoard } from './phase2580-storno-quote-trend-board';
 import { DispatchPhase2585LiefervolumenTrendBoard } from './phase2585-liefervolumen-trend-board';
 import { DispatchPhase2590TourenAuslastungsBoard } from './phase2590-touren-auslastungs-board';
+import { DispatchPhase2595PausenzeitBoard } from './phase2595-pausenzeit-board';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
 import { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';
 import { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
@@ -3961,6 +3962,8 @@ export function DispatchBoard({
           <DispatchPhase2585LiefervolumenTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2590: Touren-Auslastungs-Board — Fahrerliste nach Auslastung sortiert (niedrigste oben); Balken 0–100% mit Ziel-Linie 70%; KPI-Grid Team-Ø/Gestern/Ziel ≥70%; Alert <50%; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2590TourenAuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2595: Pausenzeit-Board — Fahrerliste nach Pausenzeit sortiert (höchste oben); Balken 0–60 Min mit Ziel-Linie 15 Min; KPI-Grid Team-Ø/VW/Ziel ≤15 Min; Alert >30 Min; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2595PausenzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2483: Tour-Score Live-Board — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2483TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2600: Tour-Score Visualisierung Kommandant — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
