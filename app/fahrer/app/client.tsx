@@ -661,6 +661,7 @@ import { FahrerPhase2433MeineUeberstunden } from './phase2433-meine-ueberstunden
 import { FahrerPhase2438MeineNachtschicht } from './phase2438-meine-nachtschicht';
 import { FahrerPhase2443MeineWochenendSchicht } from './phase2443-meine-wochenend-schicht';
 import { FahrerPhase2448MeineFeiertagsschicht } from './phase2448-meine-feiertagsschicht';
+import { FahrerPhase2453MeinSchichtBalanceScore } from './phase2453-mein-schicht-balance-score';
 
 type Driver = {
   id: string;
@@ -5923,6 +5924,8 @@ export function FahrerApp({
           <FahrerPhase2443MeineWochenendSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2448: Meine Feiertagsschicht — h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2448MeineFeiertagsschicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2453: Mein Schicht-Balance-Score — % groß + Farbcode; Balken 0–100% mit Ziel-Linien 60%/80%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2453MeinSchichtBalanceScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2380: Tour-Stopp Navigator Ultra — Stopp-Timeline mit Reihenfolge, ETA-Ampel, Navigations-Link, Anruf-Button, Fortschrittsleiste */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2380TourStoppNavigatorUltra
@@ -9002,3 +9005,5 @@ export { FahrerPhase2438MeineNachtschicht } from './phase2438-meine-nachtschicht
 export { FahrerPhase2443MeineWochenendSchicht } from './phase2443-meine-wochenend-schicht';
 // Phase 2448 — Meine Feiertagsschicht (h-Wert groß + Farbcode; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2448MeineFeiertagsschicht } from './phase2448-meine-feiertagsschicht';
+// Phase 2453 — Mein Schicht-Balance-Score (% groß + Farbcode; Balken 0–100% mit Ziel-Linien 60%/80%; KPI-Grid VW/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2453MeinSchichtBalanceScore } from './phase2453-mein-schicht-balance-score';

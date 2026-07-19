@@ -747,6 +747,7 @@ import { DispatchPhase2432UeberstundenBoard } from './phase2432-ueberstunden-boa
 import { DispatchPhase2437NachtschichtBoard } from './phase2437-nachtschicht-board';
 import { DispatchPhase2442WochenendSchichtBoard } from './phase2442-wochenend-schicht-board';
 import { DispatchPhase2447FeiertagsschichtBoard } from './phase2447-feiertagsschicht-board';
+import { DispatchPhase2452SchichtBalanceBoard } from './phase2452-schicht-balance-board';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 
 type Driver = {
@@ -3848,6 +3849,8 @@ export function DispatchBoard({
           <DispatchPhase2442WochenendSchichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2447: Feiertagsschicht-Board — KPI-Grid Team-Ø heute/VW/Ziel 0h; Fahrerliste nach Feiertagsschicht-h sortiert; Alert >8h; Trend-Pfeile; Ampel-Balken; 30-Min-Polling */}
           <DispatchPhase2447FeiertagsschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2452: Schicht-Balance-Board — KPI-Grid Team-Ø heute/VW/Ziel ≥80%; Fahrerliste nach Score sortiert; Alert <60%; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2452SchichtBalanceBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 1000: Tour-Score Cockpit Pro — Fahrer-Rangliste nach Score; Farbkodierte Stop-Fortschrittsleiste; ETA-Ampel pro Tour */}
           <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
@@ -11487,3 +11490,5 @@ export { DispatchPhase2437NachtschichtBoard } from './phase2437-nachtschicht-boa
 export { DispatchPhase2442WochenendSchichtBoard } from './phase2442-wochenend-schicht-board';
 // Phase 2447 — Feiertagsschicht-Board (KPI-Grid Team-Ø heute/VW/Ziel 0h; Fahrerliste nach Feiertagsschicht-h sortiert; Alert >8h; Trend-Pfeile; Ampel-Balken; 30-Min-Polling)
 export { DispatchPhase2447FeiertagsschichtBoard } from './phase2447-feiertagsschicht-board';
+// Phase 2452 — Schicht-Balance-Board (KPI-Grid Team-Ø heute/VW/Ziel ≥80%; Fahrerliste nach Score sortiert; Alert <60%; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2452SchichtBalanceBoard } from './phase2452-schicht-balance-board';
