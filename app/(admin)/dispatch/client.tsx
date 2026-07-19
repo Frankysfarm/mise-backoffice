@@ -759,6 +759,7 @@ import { DispatchPhase2488TourenAnzahlBoard } from './phase2488-touren-anzahl-bo
 import { DispatchPhase2493PausenComplianceBoard } from './phase2493-pausen-compliance-board';
 import { DispatchPhase2498LiefertreueBoard } from './phase2498-liefertreue-board';
 import { DispatchPhase2503DurchsatzBoard } from './phase2503-durchsatz-board';
+import { DispatchPhase2508UmsatzBoard } from './phase2508-umsatz-board';
 import { DispatchPhase2436ReaktionszeitBoard } from './phase2436-reaktionszeit-board';
 import { DispatchPhase2441StornoQuoteBoard } from './phase2441-storno-quote-board';
 import { DispatchPhase2446UeberstundenBoard } from './phase2446-ueberstunden-board';
@@ -3889,6 +3890,8 @@ export function DispatchBoard({
           <DispatchPhase2498LiefertreueBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2503: Durchsatz-Board — KPI-Grid Team-Ø heute/VW/Ziel ≥3/h; Fahrerliste nach Durchsatz sortiert (niedrigste oben); Alert <2/h; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2503DurchsatzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2508: Umsatz-Board — KPI-Grid Team-Gesamt/Ø/Ziel ≥200€; Fahrerliste nach Umsatz sortiert (niedrigste oben); Alert <100€; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2508UmsatzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2436: Reaktionszeit-Board — KPI-Grid Team-Ø heute/VW/Ziel <3min; Fahrerliste nach Reaktionszeit sortiert; Alert >7min; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2436ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2441: Storno-Quote-Board — KPI-Grid Team-Ø heute/VW/Ziel <5%; Fahrerliste nach Quote sortiert; Alert >10%; Trend-Pfeile; 30-Min-Polling */}
@@ -11571,5 +11574,7 @@ export { DispatchPhase2493PausenComplianceBoard } from './phase2493-pausen-compl
 export { DispatchPhase2498LiefertreueBoard } from './phase2498-liefertreue-board';
 // Phase 2503 — Durchsatz-Board (Lieferungen/h; Ampel ≥3/2–2.9/<2; Alert <2/h; Fahrerliste niedrigste oben; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2503DurchsatzBoard } from './phase2503-durchsatz-board';
+// Phase 2508 — Umsatz-Board (€ je Fahrer; Ampel ≥200/100–199/<100; Alert <100€; Fahrerliste niedrigste oben; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2508UmsatzBoard } from './phase2508-umsatz-board';
 // Phase 2490 — Score + Tour-Visualisierung Board V2 (Score-Ring je Fahrer; farbkodierte Stop-Dots mit Nummern; Fortschrittsbalken; ETA; expandierbare Stop-Liste; Alert Score <60; 25-Sek-Polling)
 export { DispatchPhase2490ScoreTourVisualisierungBoardV2 } from './phase2490-score-tour-visualisierung-board-v2';
