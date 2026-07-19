@@ -766,6 +766,7 @@ import { DispatchPhase2446UeberstundenBoard } from './phase2446-ueberstunden-boa
 import { DispatchPhase2467TourScoreVisualisierungLiveCockpit } from './phase2467-tour-score-visualisierung-live-cockpit';
 import { DispatchPhase1000TourScoreCockpitPro } from './phase1000-tour-score-cockpit-pro';
 import { DispatchPhase2511TourScoreLiveMatrix } from './phase2511-tour-score-live-matrix';
+import { DispatchPhase2515ScoreTourVisualisierungHub } from './phase2515-score-tour-visualisierung-hub';
 
 type Driver = {
   employee_id: string;
@@ -3904,6 +3905,8 @@ export function DispatchBoard({
           <DispatchPhase1000TourScoreCockpitPro batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2511: Tour-Score Live-Matrix — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken je aktivem Fahrer; 20-Sek-Polling */}
           <DispatchPhase2511TourScoreLiveMatrix />
+          {/* Phase 2515: Score + Tour-Visualisierung Hub — Score-Ring + Stop-Dots farbkodiert + Tour-Fortschritt + ETA + Alert <60; 25-Sek-Polling */}
+          <DispatchPhase2515ScoreTourVisualisierungHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

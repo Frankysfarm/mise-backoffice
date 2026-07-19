@@ -424,6 +424,7 @@ import { LieferdienstPhase2325StatistikDashboardProUltimate } from './phase2325-
 import { LieferdienstPhase2331StatistikDashboardLiveUltimate } from './phase2331-statistiken-dashboard-live-ultimate';
 import { LieferdienstPhase1000StatistikenProDashboard } from './phase1000-statistiken-pro-dashboard';
 import { LieferdienstPhase2345StatistikenDashboardFinal } from './phase2345-statistiken-dashboard-final';
+import { LieferdienstPhase2350StatistikDashboardMaster } from './phase2350-statistiken-dashboard-master';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2165,6 +2166,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase1000StatistikenProDashboard locationId={locationId ?? null} />
                 {/* Phase 2345: Statistiken Dashboard Final — KPI-Grid + Stunden-Verlauf + Top-Fahrer + Vergleich vs. gestern; 30-Sek-Polling */}
                 <LieferdienstPhase2345StatistikenDashboardFinal locationId={locationId ?? null} />
+                {/* Phase 2350: Statistiken Dashboard Master Ultimate — 12 KPI-Kacheln; Stunden-Chart (Bestellungen/Umsatz); Zonen-Ranking; Fahrer-Top-5; Alert-Strip; 2-Min-Polling */}
+                <LieferdienstPhase2350StatistikDashboardMaster locationId={locationId ?? null} />
               </>
             </div>
           )}

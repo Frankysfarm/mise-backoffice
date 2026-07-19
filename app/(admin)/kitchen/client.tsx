@@ -315,6 +315,7 @@ import { KitchenPhase2444StornoQuoteTicker } from './phase2444-storno-quote-tick
 import { KitchenPhase2449UeberstundenTicker } from './phase2449-ueberstunden-ticker';
 import { KitchenPhase2470SmartTimingCountdownFarbkodierungUltimate } from './phase2470-smart-timing-countdown-farbkodierung-ultimate';
 import { KitchenPhase2511SmartTimingCockpitFinal } from './phase2511-smart-timing-cockpit-final';
+import { KitchenPhase2515SmartTimingFarbkodierungUltra } from './phase2515-smart-timing-farbkodierung-ultra';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3477,6 +3478,8 @@ export function KitchenBoard({
       <KitchenPhase1000SmartTimingAmpelCockpit orders={filtered as any} />
       {/* Phase 2511: Smart-Timing Cockpit Final — Aggregierter Countdown-Grid mit Farbkodierung + Kritisch-Banner */}
       <KitchenPhase2511SmartTimingCockpitFinal orders={filtered as any} timings={timings} />
+      {/* Phase 2515: Smart-Timing Farbkodierung Ultra — Echtzeit-Countdown grün/gelb/rot je Bestellung; On-Time-Quote-Ring; Batch-Alert; 20-Sek-Polling */}
+      <KitchenPhase2515SmartTimingFarbkodierungUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
