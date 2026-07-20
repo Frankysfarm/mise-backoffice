@@ -701,6 +701,7 @@ import { FahrerPhase2648MeineSchichtPuenktlichkeit } from './phase2648-meine-sch
 import { FahrerPhase2653MeineStoppzeit } from './phase2653-meine-stoppzeit';
 import { FahrerPhase2658MeinKilometerstand } from './phase2658-mein-kilometerstand';
 import { FahrerPhase2663MeineKraftstoffkosten } from './phase2663-meine-kraftstoffkosten';
+import { FahrerPhase2668MeineUeberstunden } from './phase2668-meine-ueberstunden';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6059,6 +6060,8 @@ export function FahrerApp({
           <FahrerPhase2658MeinKilometerstand driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2663: Meine Kraftstoffkosten — €-Wert groß + Farbcode; Balken 0–15€ Ziel-Linie 5€; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2663MeineKraftstoffkosten driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2668: Meine Überstunden — Min-Wert groß + Farbcode; Balken 0–90 Min Ziel-Linie 15 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2668MeineUeberstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9331,3 +9334,5 @@ export { FahrerPhase2653MeineStoppzeit } from './phase2653-meine-stoppzeit';
 export { FahrerPhase2658MeinKilometerstand } from './phase2658-mein-kilometerstand';
 // Phase 2663 — Meine Kraftstoffkosten (€-Wert groß + Farbcode; Balken 0–15€ Ziel-Linie 5€; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2663MeineKraftstoffkosten } from './phase2663-meine-kraftstoffkosten';
+// Phase 2668 — Meine Überstunden (Min-Wert groß + Farbcode; Balken 0–90 Min Ziel-Linie 15 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2668MeineUeberstunden } from './phase2668-meine-ueberstunden';

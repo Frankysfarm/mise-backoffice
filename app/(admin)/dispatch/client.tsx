@@ -795,6 +795,7 @@ import { DispatchPhase2647SchichtPuenktlichkeitsBoard } from './phase2647-schich
 import { DispatchPhase2652StoppzeitBoard } from './phase2652-stoppzeit-board';
 import { DispatchPhase2657KilometerstandBoard } from './phase2657-kilometerstand-board';
 import { DispatchPhase2662KraftstoffkostenBoard } from './phase2662-kraftstoffkosten-board';
+import { DispatchPhase2667UeberstundenBoard } from './phase2667-ueberstunden-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4000,6 +4001,8 @@ export function DispatchBoard({
           <DispatchPhase2657KilometerstandBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2662 (Kraftstoffkosten): Fahrerliste nach Kosten sortiert höchste oben; Balken 0–15€ Ziel-Linie 5€; KPI-Grid Team-Ø/Bester/Ziel ≤5€; Alert >10€; 30-Min-Polling */}
           <DispatchPhase2662KraftstoffkostenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2667 (Überstunden): Fahrerliste nach Überstunden sortiert höchste oben; Balken 0–90 Min Ziel-Linie 15 Min; KPI-Grid Team-Ø/Bester/Ziel ≤15 Min; Alert >45 Min; 30-Min-Polling */}
+          <DispatchPhase2667UeberstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11731,3 +11734,5 @@ export { DispatchPhase2652StoppzeitBoard } from './phase2652-stoppzeit-board';
 export { DispatchPhase2657KilometerstandBoard } from './phase2657-kilometerstand-board';
 // Phase 2662 — Kraftstoffkosten-Board (Fahrerliste nach Kosten sortiert höchste oben; Balken 0–15€ Ziel-Linie 5€; KPI-Grid Team-Ø/Bester/Ziel ≤5€; Alert >10€ "Kraftstoffkosten zu hoch!"; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2662KraftstoffkostenBoard } from './phase2662-kraftstoffkosten-board';
+// Phase 2667 — Überstunden-Board (Fahrerliste nach Überstunden sortiert höchste oben; Balken 0–90 Min Ziel-Linie 15 Min; KPI-Grid Team-Ø/Bester/Ziel ≤15 Min; Alert >45 Min "Überstunden zu hoch!"; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2667UeberstundenBoard } from './phase2667-ueberstunden-board';

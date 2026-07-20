@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-20): Phasen 2666–2670 implementiert. 1 neue Backend-API (fahrer-ueberstunden-v2, Überstunden in Min = actual_end - planned_end, Ampel grün≤15/gelb16–45/rot>45 Min, Supabase driver_shifts+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2667 Dispatch (UeberstundenBoard, Balken 0–90 Min, Ziel-Linie 15 Min, Alert >45 Min "Überstunden zu hoch!", KPI-Grid Team-Ø/Bester/Ziel ≤15 Min, Trend-Pfeile, Ampel-Legende) / Phase2668 Fahrer-App (MeineUeberstunden, Min-Wert 4xl groß + Farbcode, Balken 0–90 Min Ziel-Linie 15 Min, KPI-Grid Trend/Ziel/Ampel/Team-Ø, Coaching-Tipp je Ampelzone, isOnline-Guard, 30-Min-Polling) / Phase2670 Kitchen (UeberstundenTicker, Team-Ø Min, Alert >45 Min "Überstunden zu hoch!", Fahrerliste kompakt nach Überstunden sortiert höchste oben mit Ampel-Dots + Trend, Ziel ≤15 Min, 30-Min-Polling). Phase 2669 Storefront übersprungen (Überstunden intern irrelevant für Kunden). Build ✓ erfolgreich. Push erfolgt.
+
 Frontend-Ingenieur-Agent (2026-07-20): Phasen 2656–2660 implementiert. Backend-API fahrer-kilometerstand bereits vorhanden (wiederverwendet, avg_km_tour-Feld, Supabase: delivery_batches distanz_km, Ampel grün≤8/gelb9–15/rot>15 km/Tour). 3 neue Frontend-Komponenten erstellt und integriert: Phase2657 Dispatch (KilometerstandBoard, Balken 0–20 km, Ziel-Linie 8 km, Alert >15 km, KPI-Grid Team-Ø/Bester/Ziel ≤8 km, Trend-Pfeile, Ampel-Legende) / Phase2658 Fahrer-App (MeinKilometerstand, km-Wert 4xl groß + Farbcode, Balken 0–20 km Ziel-Linie 8 km, KPI-Grid Trend/Ziel/Ampel/Team-Ø, Coaching-Tipp je Ampelzone, isOnline-Guard, 30-Min-Polling) / Phase2660 Kitchen (KilometerstandTicker, Team-Ø km/Tour, Alert >15 km "Fahrer fährt zu weit!", Fahrerliste kompakt nach km/Tour sortiert höchste oben mit Ampel-Dots + Trend, Ziel ≤8 km/Tour, 30-Min-Polling). Phase 2659 Storefront übersprungen (Kilometerstand intern irrelevant für Kunden). next.config.js: turbopack.root via __dirname stabilisiert → Build ✓ erfolgreich. Push erfolgt.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2651–2655 implementiert. Backend-API fahrer-stoppzeit bereits vorhanden (wiederverwendet, avg_stoppzeit_min-Feld, Supabase: batch_stops arrived_at→departed_at). 3 neue Frontend-Komponenten erstellt und integriert: Phase2652 Dispatch (StoppzeitBoard, Balken 0–15 Min, Ziel-Linie 3 Min, Alert >7 Min "Stoppzeit >7 Min:", Ampel grün≤3/gelb4–7/rot>7 Min, KPI-Grid Team-Ø/Bester/Ziel, Trend-Pfeile, Ampel-Legende) / Phase2653 Fahrer-App (MeineStoppzeit, Min-Wert 4xl groß + Farbcode, Balken 0–15 Min Ziel-Linie 3 Min, KPI-Grid Trend/Ziel/Ampel/Team-Ø, Coaching-Tipp je Ampelzone, isOnline-Guard, 30-Min-Polling) / Phase2655 Kitchen (StoppzeitTicker, Team-Ø Min, Alert >7 Min "Stoppzeit zu lang!", Fahrerliste kompakt nach Stoppzeit sortiert höchste oben mit Ampel-Dots + Trend + Min-Wert, Ziel ≤3 Min, 30-Min-Polling). Phase 2654 Storefront übersprungen (Stoppzeit intern irrelevant für Kunden). Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.
@@ -23266,3 +23268,42 @@ Frontend-Ingenieur-Agent (2026-07-20): Phasen 2656–2660 implementiert. Backend
 5. **Phase 2670 Kitchen:** Überstunden-Ticker — Team-Ø Min; Alert >45 Min "Überstunden zu hoch!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2665.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2661–2665 implementiert. 1 neue Backend-API (fahrer-kraftstoffkosten, gesamt_km × 0.12€/km, Ampel grün≤5€/gelb6–10€/rot>10€, Supabase delivery_batches+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2662 Dispatch (Kraftstoffkosten-Board, Balken 0–15€, Ziel-Linie 5€, Alert >10€) / Phase2663 Fahrer-App (Meine Kraftstoffkosten, €-Wert 4xl, Coaching-Tipp je Ampelzone) / Phase2665 Kitchen (Kraftstoffkosten-Ticker, Alert >10€ "Kraftstoffkosten zu hoch!"). Phase 2664 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler pre-existing (ignoreBuildErrors: true). Push erfolgt.
+
+---
+
+## Batch 2666–2670 — Fahrer-Überstunden (2026-07-20)
+
+### Phase 2666 — Backend API: Fahrer-Überstunden (v2)
+**Datei:** `app/api/delivery/admin/fahrer-ueberstunden-v2/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Überstunden je Fahrer heute in Min (actual_end − planned_end aus driver_shifts); Ampel grün(≤15 Min)/gelb(16–45 Min)/rot(>45 Min); Alert >45 Min; Trend vs. gestern; team_avg_ueberstunden; alert_count; Multi-Tenant; Supabase(driver_shifts: planned_end vs actual_end)+Mock
+
+### Phase 2667 — Überstunden-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2667-ueberstunden-board.tsx` *(neu)*
+**Component:** `DispatchPhase2667UeberstundenBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >45 Min "Überstunden zu hoch!" mit Fahrernamen; KPI-Grid (Team-Ø/Bester heute/Ziel ≤15 Min); Fahrerliste nach ueberstunden_min sortiert (höchste oben); Balken 0–90 Min mit grüner gestrichelter Ziel-Linie bei 15 Min; Ampel-Dots + Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2662 ✅
+
+### Phase 2668 — Meine Überstunden (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2668-meine-ueberstunden.tsx` *(neu)*
+**Component:** `FahrerPhase2668MeineUeberstunden`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Min-Wert 4xl groß + Farbcode; Balken 0–90 Min mit gestrichelter Ziel-Linie 15 Min; KPI-Grid (Trend/Ziel ≤15 Min/Ampel-Emoji/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2663 ✅
+
+### Phase 2669 — Storefront
+Übersprungen (Überstunden intern irrelevant für Kunden) ✅
+
+### Phase 2670 — Überstunden-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2670-ueberstunden-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2670UeberstundenTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Min; Alert-Banner "Überstunden zu hoch!" mit Fahrernamen; Fahrerliste kompakt nach ueberstunden_min sortiert (höchste oben) mit Ampel-Dots, Trend-Pfeil und Min-Wert; Ziel-Anzeige ≤15 Min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2665 ✅
+
+### Nächste Phasen 2671–2675 (für nächsten Ingenieur) — Fahrer-Nachtschichten
+1. **Phase 2671 Backend:** GET /api/delivery/admin/fahrer-nachtschicht — Anzahl Nachtschicht-Stunden je Fahrer heute (Schichtstunden zwischen 22:00–06:00); Ampel grün(0 h)/gelb(1–3 h)/rot(>3 h); Alert >3 h; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(driver_shifts: actual_start/actual_end)+Mock.
+2. **Phase 2672 Dispatch:** Nachtschicht-Board — Fahrerliste nach Nachtschicht-h sortiert (höchste oben); Balken 0–8 h mit Ziel-Linie 0 h; KPI-Grid Team-Ø/Bester/Ziel 0 h; Alert-Banner >3 h; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2667.
+3. **Phase 2673 Fahrer-App:** Meine Nachtschicht — h-Wert groß + Farbcode; Balken 0–8 h; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2668.
+4. **Phase 2674 Storefront:** Überspringen (Nachtschicht intern irrelevant für Kunden).
+5. **Phase 2675 Kitchen:** Nachtschicht-Ticker — Team-Ø h; Alert >3 h "Nachtschicht zu lang!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2670.
