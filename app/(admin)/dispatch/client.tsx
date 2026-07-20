@@ -819,6 +819,7 @@ import { DispatchPhase2767FehlerquoteBoard } from './phase2767-fehlerquote-board
 import { DispatchPhase2772TagesPerformanceBoard } from './phase2772-tages-performance-board';
 import { DispatchPhase2777AuslastungsPrognosBoard } from './phase2777-auslastungs-prognose-board';
 import { DispatchPhase2780TourScoreFinalRangliste } from './phase2780-tour-score-final-rangliste';
+import { DispatchPhase2785TourScoreEchtzeitPro } from './phase2785-tour-score-echtzeit-pro';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4075,6 +4076,8 @@ export function DispatchBoard({
           <DispatchPhase2777AuslastungsPrognosBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2780: Tour-Score Final-Rangliste — Score-Ring SVG 0–100 je Fahrer farbkodiert; Team-Ø + Trend; farbkodierte Stop-Dots; Fortschrittsbalken; ETA-Badge; expandierbare Stop-Liste; Ranking-Badges; 25-Sek-Polling */}
           <DispatchPhase2780TourScoreFinalRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2785: Tour-Score Echtzeit Pro — Score-Ring SVG je Fahrer 0–100; Sub-Scores Pünktlichkeit/Effizienz/Kundenbewertung; Trend-Visualisierung; Team-Rangliste; Alert Score <60; expandierbare Sub-Scores; 20-Sek-Polling */}
+          <DispatchPhase2785TourScoreEchtzeitPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11851,3 +11854,7 @@ export { DispatchPhase2767FehlerquoteBoard } from './phase2767-fehlerquote-board
 // Phase 2772 — Tages-Performance-Board (Composite Score 0–100; Touren 30+Pünktl 30+Fehler 20+Abschl 20; absteigend; Alert <60 "Tagesleistung zu niedrig!"; Teilscore-Drill-down; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2772TagesPerformanceBoard } from './phase2772-tages-performance-board';
 export { DispatchPhase2777AuslastungsPrognosBoard } from './phase2777-auslastungs-prognose-board';
+// Phase 2780 — Tour-Score Final-Rangliste (Score-Ring SVG 0–100 je Fahrer farbkodiert; Team-Ø + Trend; farbkodierte Stop-Dots; Fortschrittsbalken; ETA-Badge; expandierbare Stop-Liste; 25-Sek-Polling)
+export { DispatchPhase2780TourScoreFinalRangliste } from './phase2780-tour-score-final-rangliste';
+// Phase 2785 — Tour-Score Echtzeit Pro (Score-Ring SVG je Fahrer 0–100; Sub-Scores Pünktlichkeit/Effizienz/Kundenbewertung; Trend-Visualisierung; Team-Rangliste; Alert Score <60; 20-Sek-Polling)
+export { DispatchPhase2785TourScoreEchtzeitPro } from './phase2785-tour-score-echtzeit-pro';

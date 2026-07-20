@@ -439,6 +439,7 @@ import { LieferdienstPhase2565StatistikenHeuteFinal } from './phase2565-statisti
 import { LieferdienstPhase2570StatistikenEchtzeitKompaktDashboard } from './phase2570-statistiken-echtzeit-kompakt-dashboard';
 import { LieferdienstPhase2575StatistikenMasterCockpit } from './phase2575-statistiken-master-cockpit';
 import { LieferdienstPhase2580StatistikDashboardLive } from './phase2580-statistiken-dashboard-live';
+import { LieferdienstPhase2585StatistikLiveCockpitPro } from './phase2585-statistiken-live-cockpit-pro';
 import { SmartStatsCockpit } from './smart-stats-cockpit';
 import { LieferdienstEchtzeitStatistikHub } from './lieferdienst-echtzeit-statistik-hub';
 
@@ -2216,6 +2217,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2575StatistikenMasterCockpit locationId={locationId ?? null} />
                 {/* Phase 2580: Statistiken Dashboard Live — 10 KPI-Kacheln Ampel + Trend; Stundenverlauf-Chart Bestellungen/Umsatz umschaltbar; Zonen-Ranking; Top-5-Fahrer-Tabelle; Alert-Strip; 3-Min-Polling */}
                 <LieferdienstPhase2580StatistikDashboardLive locationId={locationId ?? null} />
+                {/* Phase 2585: Statistiken Live Cockpit Pro — 10 KPIs Ampel + Trend; Stundenverlauf-Chart 2-Modi; Zonen-Top-5; Fahrer-Top-3; Alert-Strip; 3-Min-Polling */}
+                <LieferdienstPhase2585StatistikLiveCockpitPro locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4702,3 +4705,7 @@ export { LieferdienstPhase2565StatistikenHeuteFinal } from './phase2565-statisti
 export { SmartStatsCockpit } from './smart-stats-cockpit';
 // Phase 2575 — Statistiken Master Cockpit (8 KPI-Kacheln Ampel; Stundenverlauf-Chart 2-Modi Bestellungen/Umsatz; Zonen-Ranking 4 Dimensionen; Alert-Strip; 5-Min-Polling)
 export { LieferdienstPhase2575StatistikenMasterCockpit } from './phase2575-statistiken-master-cockpit';
+// Phase 2580 — Statistiken Dashboard Live (10 KPI-Kacheln Ampel + Trend; Stundenverlauf-Chart Bestellungen/Umsatz; Zonen-Ranking; Top-5-Fahrer; Alert-Strip; 3-Min-Polling)
+export { LieferdienstPhase2580StatistikDashboardLive } from './phase2580-statistiken-dashboard-live';
+// Phase 2585 — Statistiken Live Cockpit Pro (10 KPIs Ampel + Trend; Stundenverlauf-Chart 2-Modi; Zonen-Top-5; Fahrer-Top-3; Alert-Strip; 3-Min-Polling)
+export { LieferdienstPhase2585StatistikLiveCockpitPro } from './phase2585-statistiken-live-cockpit-pro';
