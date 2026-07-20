@@ -23586,3 +23586,44 @@ Frontend-Ingenieur-Agent (2026-07-20): Phasen 2706–2710 implementiert. 1 neue 
 5. **Phase 2720 Kitchen:** Abbruch-Rate-Ticker — Team-Ø %; Alert >10% "Zu hohe Abbruchrate!"; Fahrerliste kompakt absteigend; Ziel <5%; 30-Min-Polling; in kitchen/client.tsx nach Phase2715.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2711–2715 implementiert. 1 neue Backend-API (fahrer-lieferdichte, Stopps/km aus delivery_batches+batch_stops, Ampel grün≥0.3/gelb0.15–0.29/rot<0.15, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2712 Dispatch (Lieferdichte-Board, Balken 0–0.6 Stopps/km, Ziel-Linie 0.3, Alert-Banner je Fahrer) / Phase2713 Fahrer-App (Meine Lieferdichte, Dichte 4xl, Coaching-Tipp, Rang-Anzeige) / Phase2715 Kitchen (Lieferdichte-Ticker, Alert je Fahrer, aufsteigend nach Dichte). Phase 2714 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler pre-existing (ignoreBuildErrors: true). Push erfolgt.
+
+---
+
+## Batch 2721–2725 — Fahrer-Leerfahrten-Quote (2026-07-20)
+
+### Phase 2721 — Backend API: Fahrer-Leerfahrten-Quote
+**Datei:** `app/api/delivery/admin/fahrer-leerfahrten/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Leerfahrten-Quote je Fahrer heute (stornierte/leere Touren / Gesamt-Touren × 100%); Ampel grün(<10%)/gelb(10–25%)/rot(>25%); Alert >25% "Zu viele Leerfahrten!"; Trend vs. gestern; absteigend nach Quote sortiert; driver_id-Modus; Multi-Tenant; Supabase(delivery_batches: state cancelled/failed)+Mock
+
+### Phase 2722 — Leerfahrten-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2722-leerfahrten-board.tsx` *(neu)*
+**Component:** `DispatchPhase2722LeerfahrtenBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >25% "Zu viele Leerfahrten!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel <10%); Fahrerliste nach Quote absteigend sortiert; Balken 0–50% mit Ziel-Linie 10%; Ampel-Dots + Trend-Pfeile (rot=steigend/grün=fallend); Leer- und Gesamt-Touren je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2717 ✅
+
+### Phase 2723 — Meine Leerfahrten (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2723-meine-leerfahrten.tsx` *(neu)*
+**Component:** `FahrerPhase2723MeineLeerfahrten`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Quote % 4xl groß + Farbcode; Balken 0–50% mit Ziel-Linie 10%; KPI-Grid (Trend/Ziel/Ampel/Team-Ø); Coaching-Tipp je Ampelzone; Rang-Anzeige; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2718 ✅
+
+### Phase 2724 — Storefront
+Übersprungen (Leerfahrten intern irrelevant für Kunden) ✅
+
+### Phase 2725 — Leerfahrten-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2725-leerfahrten-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2725LeerfahrtenTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø %; Alert-Banner je Fahrer >25% "Zu viele Leerfahrten!"; Fahrerliste kompakt nach Quote absteigend sortiert (schlechteste oben) mit Ampel-Dots, Trend-Pfeil und Quote-Wert; Ziel-Anzeige <10%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2720 ✅
+
+### Nächste Phasen 2726–2730 (für nächsten Ingenieur) — Fahrer-Touren-Frequenz
+1. **Phase 2726 Backend:** GET /api/delivery/admin/fahrer-touren-frequenz — Touren pro Stunde je Fahrer heute (Touren-Count / aktive Stunden); Ampel grün(≥1.5/h)/gelb(1.0–1.49/h)/rot(<1.0/h); Alert <1.0/h "Frequenz zu niedrig!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_batches+driver_shifts)+Mock.
+2. **Phase 2727 Dispatch:** Touren-Frequenz-Board — Fahrerliste nach Frequenz absteigend; Balken 0–3/h mit Ziel-Linie 1.5/h; KPI-Grid Team-Ø/Bester/Ziel ≥1.5/h; Alert-Banner <1.0/h; Trend-Pfeile; 30-Min-Polling; nach Phase2722.
+3. **Phase 2728 Fahrer-App:** Meine Touren-Frequenz — /h-Wert 4xl groß + Farbcode; Balken 0–3/h Ziel 1.5/h; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2723.
+4. **Phase 2729 Storefront:** Überspringen (Touren-Frequenz intern irrelevant für Kunden).
+5. **Phase 2730 Kitchen:** Touren-Frequenz-Ticker — Team-Ø /h; Alert <1.0/h "Frequenz zu niedrig!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥1.5/h; 30-Min-Polling; in kitchen/client.tsx nach Phase2725.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2721–2725 implementiert. 1 neue Backend-API (fahrer-leerfahrten, delivery_batches state=cancelled/failed / Gesamt × 100%, Ampel grün<10%/gelb10–25%/rot>25%, Alert "Zu viele Leerfahrten!", Trend vs. gestern, BatchRow-Typed, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2722 Dispatch (LeerfahrtenBoard, Balken 0–50% Ziel-Linie 10%, Alert-Banner je Fahrer, KPI-Grid Team-Ø/Bester/Ziel, Trend-Pfeile rot=steigend/grün=fallend) / Phase2723 Fahrer-App (MeineLeerfahrten, Quote 4xl groß + Farbcode, Balken 0–50% Ziel 10%, KPI-Grid, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2725 Kitchen (LeerfahrtenTicker, Team-Ø %, Alert je Fahrer, absteigend nach Quote, Ziel <10%). Phase 2724 Storefront übersprungen. TypeScript ✓ 0 neue Fehler (BatchRow-Typisierung, hasYesterday-Flag). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
