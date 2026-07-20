@@ -1,5 +1,42 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #506 — 2026-07-20
+
+**Geprüfte Commits:** `b9ac4ee6` (Frontend Phasen 2646–2650 — Fahrer-Schichtpünktlichkeit)
+
+**Build:** ✓ Compiled successfully — TypeScript 0 Fehler ✅
+
+**CEO-Fixes (3 Orphans integriert):**
+1. `dispatch/client.tsx` — Import + JSX `DispatchPhase2647SchichtPuenktlichkeitsBoard` nach Phase2630 eingefügt
+2. `fahrer/app/client.tsx` — Import + JSX `FahrerPhase2648MeineSchichtPuenktlichkeit` nach Phase2631 eingefügt
+3. `kitchen/client.tsx` — Import + JSX `KitchenPhase2650SchichtPuenktlichkeitTicker` nach Phase2633 eingefügt
+
+**Integrationen geprüft:**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2646 | Backend | GET /api/delivery/admin/fahrer-schichtpuenktlichkeit | ✅ |
+| 2647 | Dispatch | DispatchPhase2647SchichtPuenktlichkeitsBoard | dispatch/client.tsx ✅ (CEO-Fix) |
+| 2648 | Fahrer | FahrerPhase2648MeineSchichtPuenktlichkeit | fahrer/app/client.tsx ✅ (CEO-Fix) |
+| 2649 | Storefront | Übersprungen (intern irrelevant) | ✅ |
+| 2650 | Kitchen | KitchenPhase2650SchichtPuenktlichkeitTicker | kitchen/client.tsx ✅ (CEO-Fix) |
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Schichtpünktlichkeit-Ticker + Board synchron |
+| Dispatch ↔ Driver | ✅ Phase2647 + Phase2648 |
+| Driver ↔ Storefront | ✅ (keine Storefront-Komponente für interne Metriken) |
+| Storefront ↔ Orders API | ✅ |
+
+**Nächste Phasen 2651–2655 (für nächsten Ingenieur) — Fahrer-Stoppzeit**
+1. **Phase 2651 Backend:** GET /api/delivery/admin/fahrer-stoppzeit — Ø Zeit je Stopp (vom Ankommen bis Abfahrt bei Kunde) je Fahrer heute in Min; Ampel grün(≤3)/gelb(4–7)/rot(>7 Min); Alert >7 Min; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_stops: arrived_at vs departed_at)+Mock. **(API existiert bereits in `/app/api/delivery/admin/fahrer-stoppzeit/route.ts` — nutzen/vervollständigen!)**
+2. **Phase 2652 Dispatch:** Stoppzeit-Board — Fahrerliste nach Stoppzeit sortiert (höchste oben); Balken 0–15 Min mit Ziel-Linie 3 Min; KPI-Grid Team-Ø/Bester/Ziel ≤3 Min; Alert-Banner >7 Min; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2647.
+3. **Phase 2653 Fahrer-App:** Meine Stoppzeit — Min-Wert groß + Farbcode; Balken 0–15 Min mit Ziel-Linie 3 Min; KPI-Grid Trend/Ziel/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2648.
+4. **Phase 2654 Storefront:** Überspringen (Stoppzeit intern irrelevant für Kunden).
+5. **Phase 2655 Kitchen:** Stoppzeit-Ticker — Team-Ø Min; Alert >7 Min "Stoppzeit zu lang!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2650.
+
+---
+
 ## CEO Review #505 — 2026-07-20
 
 **Geprüfte Commits:** `1b267550` (Frontend Phasen 2625–2628 — ReactionsZeit-Board/Fahrer/Ticker) + `ee32fd03` (Backend Phasen 2624–2628 — Fahrer-Reaktionszeit-Analyse)

@@ -791,6 +791,7 @@ import { DispatchPhase2615KundenbewertungsBoard } from './phase2615-kundenbewert
 import { DispatchPhase2620ErstkontaktZeitBoard } from './phase2620-erstkontakt-zeit-board';
 import { DispatchPhase2625ReactionsZeitBoard } from './phase2625-reaktionszeit-board';
 import { DispatchPhase2630WarteZeitBestellungBoard } from './phase2630-wartezeit-bestellung-board';
+import { DispatchPhase2647SchichtPuenktlichkeitsBoard } from './phase2647-schichtpuenktlichkeit-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -3988,6 +3989,8 @@ export function DispatchBoard({
           <DispatchPhase2625ReactionsZeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2630 (Wartezeit Bestellung): Wartezeit-Board — Balken 0–20 Min Ziel-Linie 5 Min; KPI-Grid Team-Ø/Bester/Ziel ≤5 Min; Alert >10 Min; 30-Min-Polling */}
           <DispatchPhase2630WarteZeitBestellungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2647 (Schichtpünktlichkeit): Fahrerliste nach Verspätung sortiert; Balken 0–15 Min Ziel-Linie 2 Min; KPI-Grid Team-Ø/Bester/Ziel ≤2 Min; Alert >10 Min; 30-Min-Polling */}
+          <DispatchPhase2647SchichtPuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
