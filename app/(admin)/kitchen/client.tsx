@@ -365,6 +365,7 @@ import { KitchenPhase2730TourenFrequenzTicker } from './phase2730-touren-frequen
 import { KitchenPhase2735RueckkehrZuverlaessigkeitsTicker } from './phase2735-rueckkehr-zuverlaessigkeits-ticker';
 import { KitchenPhase2740StreckenEffizienzTicker } from './phase2740-strecken-effizienz-ticker';
 import { KitchenPhase2745WartezeitTicker } from './phase2745-wartezeit-ticker';
+import { KitchenPhase2750SchichtPunkteTicker } from './phase2750-schicht-punkte-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3630,6 +3631,8 @@ export function KitchenBoard({
       <KitchenPhase2740StreckenEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2745: Wartezeit-Ticker — Team-Ø Min; Alert >6 Min "Zu lange Wartezeit!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≤3 Min; 30-Min-Polling */}
       <KitchenPhase2745WartezeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2750: Schicht-Punkte-Ticker — Team-Ø Pkt; Alert <50 "Schicht-Score zu niedrig!"; Fahrerliste kompakt aufsteigend nach Punkten (schlechteste oben); Ziel ≥75 Pkt; 30-Min-Polling */}
+      <KitchenPhase2750SchichtPunkteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10384,3 +10387,5 @@ export { KitchenPhase2735RueckkehrZuverlaessigkeitsTicker } from './phase2735-ru
 export { KitchenPhase2740StreckenEffizienzTicker } from './phase2740-strecken-effizienz-ticker';
 // Phase 2745 — Wartezeit-Ticker (Team-Ø Min; Alert >6 Min "Zu lange Wartezeit!"; Fahrerliste kompakt absteigend nach Wartezeit; Ziel ≤3 Min; 30-Min-Polling)
 export { KitchenPhase2745WartezeitTicker } from './phase2745-wartezeit-ticker';
+// Phase 2750 — Schicht-Punkte-Ticker (Team-Ø Pkt; Alert <50 "Schicht-Score zu niedrig!"; Fahrerliste aufsteigend nach Punkten; Ziel ≥75 Pkt; 30-Min-Polling)
+export { KitchenPhase2750SchichtPunkteTicker } from './phase2750-schicht-punkte-ticker';

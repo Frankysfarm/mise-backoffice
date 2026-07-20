@@ -719,6 +719,7 @@ import { FahrerPhase2728MeineTourenFrequenz } from './phase2728-meine-touren-fre
 import { FahrerPhase2733MeineRueckkehrZuverlaessigkeit } from './phase2733-meine-rueckkehr-zuverlaessigkeit';
 import { FahrerPhase2738MeineStreckenEffizienz } from './phase2738-meine-strecken-effizienz';
 import { FahrerPhase2743MeineWartezeit } from './phase2743-meine-wartezeit';
+import { FahrerPhase2748MeineSchichtPunkte } from './phase2748-meine-schicht-punkte';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6113,6 +6114,8 @@ export function FahrerApp({
           <FahrerPhase2738MeineStreckenEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2743: Meine Wartezeit am Stopp — Ø Wartezeit 4xl groß + Farbcode; Balken 0–10 Min Ziel 3 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2743MeineWartezeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2748: Meine Schicht-Punkte — Composite Score 0–100 Pkt 4xl; Teilscores Lieferungen/Pünktlichkeit/Auslastung/Wartezeit; Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2748MeineSchichtPunkte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9419,3 +9422,5 @@ export { FahrerPhase2733MeineRueckkehrZuverlaessigkeit } from './phase2733-meine
 export { FahrerPhase2738MeineStreckenEffizienz } from './phase2738-meine-strecken-effizienz';
 // Phase 2743 — Meine Wartezeit am Stopp (Ø Wartezeit 4xl groß + Farbcode; Balken 0–10 Min Ziel-Linie 3 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2743MeineWartezeit } from './phase2743-meine-wartezeit';
+// Phase 2748 — Meine Schicht-Punkte (Composite Score 0–100 Pkt; Teilscores; Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2748MeineSchichtPunkte } from './phase2748-meine-schicht-punkte';
