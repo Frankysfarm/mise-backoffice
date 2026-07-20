@@ -813,6 +813,7 @@ import { DispatchPhase2737StreckenEffizienzBoard } from './phase2737-strecken-ef
 import { DispatchPhase2742WartezeitBoard } from './phase2742-wartezeit-board';
 import { DispatchPhase2747SchichtPunkteBoard } from './phase2747-schicht-punkte-board';
 import { DispatchPhase2752TourScoreLiveVisualisierung } from './phase2752-tour-score-live-visualisierung';
+import { DispatchPhase2757BestellwertBoard } from './phase2757-bestellwert-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4054,6 +4055,8 @@ export function DispatchBoard({
           <DispatchPhase2747SchichtPunkteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2752: Tour-Score Live-Visualisierung — Score-Ring (0–100) pro Fahrer; expandierbare Stopp-Sequenz mit Delay-Anzeige; Flotten-Score + On-Time-Rate; 15-Sek-Polling */}
           <DispatchPhase2752TourScoreLiveVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2757: Bestellwert-Board — Ø Bestellwert je Tour je Fahrer; absteigend sortiert; Balken 0–50€ Ziel-Linie 25€; KPI-Grid Team-Ø/Bester/Ziel ≥25€; Alert <15€ "Niedriger Bestellwert!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2757BestellwertBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11821,3 +11824,5 @@ export { DispatchPhase2742WartezeitBoard } from './phase2742-wartezeit-board';
 export { DispatchPhase2747SchichtPunkteBoard } from './phase2747-schicht-punkte-board';
 // Phase 2752 — Tour-Score Live-Visualisierung (Score-Ring pro Fahrer; Stopp-Sequenz expandierbar; Delay-Anzeige; Flotten-Score + On-Time-Rate; 15-Sek-Polling)
 export { DispatchPhase2752TourScoreLiveVisualisierung } from './phase2752-tour-score-live-visualisierung';
+// Phase 2757 — Bestellwert-Board (Ø €/Tour je Fahrer; absteigend; Balken 0–50€ Ziel 25€; KPI-Grid Team-Ø/Bester/Ziel; Alert <15€; Trend; 30-Min-Polling)
+export { DispatchPhase2757BestellwertBoard } from './phase2757-bestellwert-board';

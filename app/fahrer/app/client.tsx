@@ -721,6 +721,7 @@ import { FahrerPhase2738MeineStreckenEffizienz } from './phase2738-meine-strecke
 import { FahrerPhase2743MeineWartezeit } from './phase2743-meine-wartezeit';
 import { FahrerPhase2748MeineSchichtPunkte } from './phase2748-meine-schicht-punkte';
 import { FahrerPhase2753SmartTourStoppCockpit } from './phase2753-smart-tour-stopp-cockpit';
+import { FahrerPhase2758MeinBestellwert } from './phase2758-mein-bestellwert';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6119,6 +6120,8 @@ export function FahrerApp({
           <FahrerPhase2748MeineSchichtPunkte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2753: Smart Tour-Stopp Cockpit — alle Stops mit Status + ETA; aktueller Stopp hervorgehoben; Navi-App-Wahl Waze/Google/Apple; Kunden-Telefon + Notizen; Fortschrittsleiste; 15-Sek-Polling */}
           <FahrerPhase2753SmartTourStoppCockpit driverId={driver.id} />
+          {/* Phase 2758: Mein Ø Bestellwert — €/Tour 4xl + Farbcode; Balken 0–50€ Ziel 25€; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2758MeinBestellwert driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9429,3 +9432,5 @@ export { FahrerPhase2743MeineWartezeit } from './phase2743-meine-wartezeit';
 export { FahrerPhase2748MeineSchichtPunkte } from './phase2748-meine-schicht-punkte';
 // Phase 2753 — Smart Tour-Stopp Cockpit (Alle Stops mit Status + ETA; aktueller Stopp hervorgehoben; Navi-App-Wahl Waze/Google/Apple; Kunden-Telefon; Notizen; Fortschrittsleiste; 15-Sek-Polling)
 export { FahrerPhase2753SmartTourStoppCockpit } from './phase2753-smart-tour-stopp-cockpit';
+// Phase 2758 — Mein Ø Bestellwert (€/Tour 4xl groß + Farbcode; Balken 0–50€ Ziel 25€; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2758MeinBestellwert } from './phase2758-mein-bestellwert';
