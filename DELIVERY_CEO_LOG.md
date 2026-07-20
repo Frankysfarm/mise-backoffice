@@ -1,5 +1,43 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #504 — 2026-07-20
+
+**Geprüfte Commits:** `758feea3` (Phasen 2619–2623 Fahrer-Erstkontakt-Zeit) + `8c10cebc` (Phasen 2614–2618 Fahrer-Kundenbewertungs-Score)
+
+**TypeScript:** ✓ 0 Fehler (skipLibCheck)
+
+**Integrationen geprüft:**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2615 | Dispatch | DispatchPhase2615KundenbewertungsBoard | dispatch/client.tsx ✅ |
+| 2618 | Kitchen | KitchenPhase2618KundenbewertungsTicker | kitchen/client.tsx ✅ |
+| 2616 | Fahrer | FahrerPhase2616MeineKundenbewertung | fahrer/app/client.tsx ✅ |
+| 2620 | Dispatch | DispatchPhase2620ErstkontaktZeitBoard | dispatch/client.tsx ✅ |
+| 2623 | Kitchen | KitchenPhase2623ErstkontaktTicker | kitchen/client.tsx ✅ |
+| 2621 | Fahrer | FahrerPhase2621MeineErstkontaktZeit | fahrer/app/client.tsx ✅ |
+
+**CEO-Fixes:**
+1. `app/api/delivery/dispatch/score-rangliste/route.ts` — Phase-2645-Backend-API neu erstellt (war Mock-Fallback). Supabase: delivery_tours, Score-Berechnung onTimePct×0.6 + completedRatio×0.4, Rank-Trends, DriverEntry-Typ für korrekte TS-Inferenz.
+2. `app/api/delivery/lieferdienst/statistiken-heute/route.ts` — Phase-2565-Backend-API neu erstellt (war Mock-Fallback). Supabase: orders + delivery_tours, 9 KPI-Kacheln, Stundenverlauf, Top-3-Zonen, Fahrer-Übersicht, Alert-Strip.
+   Beide APIs: Mock-Fallback wenn keine Supabase-Daten.
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+
+**Nächste Phasen 2624–2628 (für nächsten Ingenieur) — Fahrer-Reaktionszeit-Analyse:**
+1. **Phase 2624 Backend:** GET /api/delivery/admin/fahrer-reaktionszeit — Zeit zwischen Auftragseingang und Fahrerannahme je Fahrer heute; Ampel grün(≤2)/gelb(3–5)/rot(>5 Min); Alert >5 Min; Trend vs. gestern; Supabase(delivery_assignments: created_at→accepted_at)+Mock.
+2. **Phase 2625 Dispatch:** ReactionsZeitBoard — Balken 0–10 Min, Ziel-Linie 2 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner, 30-Min-Polling; in dispatch/client.tsx nach Phase2620.
+3. **Phase 2626 Fahrer-App:** MeineReaktionszeit — Min-Wert groß + Farbcode, Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2621.
+4. **Phase 2627 Storefront:** übersprungen (Reaktionszeit intern).
+5. **Phase 2628 Kitchen:** ReactionsZeitTicker — Team-Ø Min, Alert "Reaktionszeit zu lang!", Fahrerliste mit Ampel-Dots; 30-Min-Polling; in kitchen/client.tsx nach Phase2623.
+
+---
+
 ## CEO Review #503 — 2026-07-20
 
 **Geprüfte Commits:** `9ddf9a3f` (Phasen 2609–2613 Backend — fahrer-trinkgeld-analyse API + Dispatch/Fahrer/Kitchen) + `b821a586` (Phasen 2645/2565 Frontend — Kitchen/Dispatch/Fahrer Phase2645 + Lieferdienst Phase2565)
