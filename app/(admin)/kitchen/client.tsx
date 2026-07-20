@@ -358,6 +358,7 @@ import { KitchenPhase2700SmartSchichtAbschlussBoard } from './phase2700-smart-sc
 import { KitchenPhase2705SchichtUeberlappungsTicker } from './phase2705-schicht-ueberlappungs-ticker';
 import { KitchenPhase2710AuftragsquoteTicker } from './phase2710-auftragsquote-ticker';
 import { KitchenPhase2715LieferdichteTicker } from './phase2715-lieferdichte-ticker';
+import { KitchenPhase2720SmartKochstartCountdownCockpit } from './phase2720-smart-kochstart-countdown-cockpit';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3609,6 +3610,8 @@ export function KitchenBoard({
       <KitchenPhase2710AuftragsquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2715: Lieferdichte-Ticker — Team-Ø Stopps/km; Alert <0.15 "Lieferdichte zu gering!"; Fahrerliste kompakt aufsteigend (kritischste oben); Ziel ≥0.3/km; 30-Min-Polling */}
       <KitchenPhase2715LieferdichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2720: Smart Kochstart Countdown Cockpit — Echtzeit-Sekunden-Countdown je aktiver Bestellung; Farbkodierung grün/gelb/rot; Fortschrittsbalken; Überfälligkeits-Alert; 1-Sek-Polling */}
+      <KitchenPhase2720SmartKochstartCountdownCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
