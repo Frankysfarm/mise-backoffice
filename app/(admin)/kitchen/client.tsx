@@ -335,6 +335,7 @@ import { KitchenPhase2593AuslastungsTicker } from './phase2593-auslastungs-ticke
 import { KitchenPhase2598PausenzeitTicker } from './phase2598-pausenzeit-ticker';
 import { KitchenPhase2603KmBilanzTicker } from './phase2603-km-bilanz-ticker';
 import { KitchenPhase2608SchichtErloesTicker } from './phase2608-schicht-erloes-ticker';
+import { KitchenPhase2640SmartKochzeitPrognoseCockpit } from './phase2640-smart-kochzeit-prognose-cockpit';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3558,6 +3559,8 @@ export function KitchenBoard({
       <KitchenPhase2630SmartCountdownFarbkodierungUltraFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2635: Smart-Kochzeit-Ampel-Board — Farbkodierte Batch-Kacheln grün/gelb/rot; Countdown Min:Sek; Fortschrittsbalken; Überfällig-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2635SmartKochzeitAmpelBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2640: Smart-Kochzeit-Prognose-Cockpit — Prep-Prognose je Batch + Fahrer-ETA-Sync + Kochstart-Empfehlung (start_now/wait) + Komplexitätsindikatoren; Farbkodierung grün/gelb/rot; 1-Sek-Tick + 25-Sek-Polling */}
+      <KitchenPhase2640SmartKochzeitPrognoseCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

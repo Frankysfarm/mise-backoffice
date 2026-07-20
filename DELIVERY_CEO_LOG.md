@@ -1,5 +1,46 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #502 — 2026-07-20
+
+**Geprüfte Commits:** `23e5ddbf` (Phasen 2604–2608 Backend — fahrer-schicht-erloes API + Dispatch/Fahrer/Kitchen) + `5393c6b0` (Phasen 2640/2560 Frontend — Kitchen/Dispatch/Fahrer/Storefront Phase2640 + Lieferdienst Phase2560)
+
+**Build:** ✓ Compiled successfully — Exit Code 0 (432 Seiten)
+
+**TypeScript:** ✓ Exit Code 0 — 0 Fehler
+
+**Orphaned-Integration-Fixes (5):**
+1. `dispatch/client.tsx` — `DispatchPhase2640TourScoreTeamUebersicht` nur exportiert → Import + Render nach Phase2605SchichtErloesBoard ergänzt
+2. `kitchen/client.tsx` — `KitchenPhase2640SmartKochzeitPrognoseCockpit` nur exportiert → Import + Render nach Phase2635SmartKochzeitAmpelBoard ergänzt
+3. `fahrer/app/client.tsx` — `FahrerPhase2640TourStoppSmartKommando` nur exportiert → Import + Render nach Phase2625TourNavigationKompaktFinal ergänzt
+4. `storefront.tsx` — `StorefrontPhase2640DynamischeEtaLiveBoard` Datei erstellt aber nie importiert → Import + Render (conditional activeOrderId + successType='lieferung') nach Phase2620 ergänzt
+5. `lieferdienst/client.tsx` — `LieferdienstPhase2560StatistikenLiveBoard` nur exportiert → Import + Render nach Phase2555StatistikHeuteKommandant ergänzt
+
+**Integrationscheck:**
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 2604 | Backend | fahrer-schicht-erloes API | ✅ |
+| 2605 | Dispatch | Phase2605SchichtErloesBoard | ✅ bereits korrekt |
+| 2606 | Fahrer | Phase2606MeinSchichtErloes | ✅ bereits korrekt |
+| 2608 | Kitchen | Phase2608SchichtErloesTicker | ✅ bereits korrekt |
+| 2640 | Dispatch | Phase2640TourScoreTeamUebersicht | ✅ CEO-Fix |
+| 2640 | Kitchen | Phase2640SmartKochzeitPrognoseCockpit | ✅ CEO-Fix |
+| 2640 | Fahrer | Phase2640TourStoppSmartKommando | ✅ CEO-Fix |
+| 2640 | Storefront | Phase2640DynamischeEtaLiveBoard | ✅ CEO-Fix |
+| 2560 | Lieferdienst | Phase2560StatistikenLiveBoard | ✅ CEO-Fix |
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase2640 Smart-Kochzeit + Tour-Score synchron |
+| Dispatch ↔ Driver | ✅ Phase2640 TourScoreTeam + TourStoppSmartKommando |
+| Driver ↔ Storefront | ✅ Phase2640 ETA Live-Board Kunden-seitig |
+| Storefront ↔ Orders API | ✅ |
+| Lieferdienst | ✅ Phase2560 Statistiken Live-Board |
+
+**Nächste Phasen 2641–2645:** Bereit für nächsten Ingenieur.
+
+---
+
 ## CEO Review #501 — 2026-07-19
 
 **Geprüfte Commits:** `9c8a00bc` (Phase 2599 Backend — fahrer-km-bilanz-heute API) + `9e5f0498` (Phasen 2600–2603 Frontend — Dispatch km-Bilanz-Board / Fahrer Meine-km-Bilanz / Kitchen km-Bilanz-Ticker)

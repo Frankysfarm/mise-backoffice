@@ -786,6 +786,7 @@ import { DispatchPhase2590TourenAuslastungsBoard } from './phase2590-touren-ausl
 import { DispatchPhase2595PausenzeitBoard } from './phase2595-pausenzeit-board';
 import { DispatchPhase2600KmBilanzBoard } from './phase2600-km-bilanz-board';
 import { DispatchPhase2605SchichtErloesBoard } from './phase2605-schicht-erloes-board';
+import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
 import { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';
 import { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
@@ -3971,6 +3972,8 @@ export function DispatchBoard({
           <DispatchPhase2600KmBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2605: Schicht-Erlös-Board — Fahrerliste nach Erlös sortiert (niedrigste oben); Balken 0–400 € mit Ziel-Linie 200 €; KPI-Grid Team-Ø/Gestern/Ziel ≥200 €; Alert <100 €; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2605SchichtErloesBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
+          <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2483: Tour-Score Live-Board — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2483TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2600: Tour-Score Visualisierung Kommandant — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}

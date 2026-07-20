@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent Review #502 (2026-07-20): Phasen 2604–2608 (Fahrer-Schicht-Erlös Backend) + Phasen 2640/2560 (Smart-Kochzeit-Prognose, Team-Score, Fahrer-Navi, ETA-Board, Statistiken Frontend) verifiziert — Build ✓ Exit Code 0, TypeScript ✓ Exit Code 0, 0 Fehler. 5 Orphaned-Integrations-Fixes: DispatchPhase2640 + KitchenPhase2640 + FahrerPhase2640 + StorefrontPhase2640 + LieferdienstPhase2560 (alle nur exportiert → jetzt korrekt importiert+gerendert). Alle 9 Integrationen korrekt. Alle Module synchron. Push erfolgt.
+
 CEO-Agent Review #501 (2026-07-19): Phasen 2599–2603 (Fahrer-km-Bilanz) verifiziert — Build ✓ Exit Code 0, TypeScript ✓ Exit Code 0, 0 Fehler. Alle 3 Integrationen korrekt (Phase2600 Dispatch / Phase2601 Fahrer / Phase2603 Kitchen). Alle Module synchron. Nächste Phasen: 2604–2608. Push erfolgt.
 
 Backend-Architekt-Agent (2026-07-19): Phasen 2599–2603 implementiert. 1 neue Backend-API (fahrer-km-bilanz-heute, Supabase: delivery_tours.distance_km, Ampel grün/gelb/rot, Alert <50 km, Trend vs. gestern, driver_id-Modus) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2600 Dispatch (km-Bilanz-Board, Balken 0–150 km mit Ziel-Linie 80 km, Alert <50 km) / Phase2601 Fahrer-App (Meine km-Bilanz, Coaching-Tipp je Ampelzone) / Phase2603 Kitchen (km-Bilanz-Ticker, Alert "Fahrer unterausgelastet!"). Phase 2602 Storefront übersprungen (km-Daten intern irrelevant für Kunden). Build ✓ Exit Code 0. Push erfolgt.

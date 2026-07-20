@@ -433,6 +433,7 @@ import { LieferdienstPhase2540StatistikExecutiveMaster } from './phase2540-stati
 import { LieferdienstPhase2545StatistikenLiveDashboardExtended } from './phase2545-statistiken-live-dashboard-extended';
 import { LieferdienstPhase2550StatistikDashboardFinalUltimate } from './phase2550-statistiken-dashboard-final-ultimate';
 import { LieferdienstPhase2555StatistikHeuteKommandant } from './phase2555-statistiken-heute-kommandant';
+import { LieferdienstPhase2560StatistikenLiveBoard } from './phase2560-statistiken-live-board';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2192,6 +2193,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2550StatistikDashboardFinalUltimate />
                 {/* Phase 2555: Statistiken Heute Kommandant — 6 KPI-Kacheln Ampel + Stundenverlauf-Chart 2-Modi + Alert-Strip; 5-Min-Polling */}
                 <LieferdienstPhase2555StatistikHeuteKommandant />
+                {/* Phase 2560: Statistiken Live-Board — 8 KPI-Kacheln Ampel + Trend-Pfeile; Stundenverlauf-Chart 2-Modi; Top-3-Zonen-Ranking; Alert-Strip; 3-Min-Polling */}
+                <LieferdienstPhase2560StatistikenLiveBoard locationId={locationId ?? null} />
               </>
             </div>
           )}
