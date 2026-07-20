@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, PhoneCall, ArrowRight, Map as MapIcon, Flag, TrendingUp, Share2, AlertTriangle, MessageSquare, AlertCircle, Camera, ImageIcon, Clock } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
+import { enqueueOutbox, flushOutbox } from './outbox';
 
 type FailedReason = 'no_answer' | 'wrong_address' | 'refused' | 'access_denied' | 'not_home' | 'other';
 const FAILED_REASON_LABELS: Record<FailedReason, string> = {
@@ -118,7 +119,11 @@ export function DeliveryView({
     return () => clearInterval(t);
   }, []);
   useEffect(() => {
-    const on = () => setIsOnline(true);
+    const getToken = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session?.access_token ?? null;
+    };
+    const on = () => { setIsOnline(true); flushOutbox(getToken).catch(() => {}); };
     const off = () => setIsOnline(false);
     window.addEventListener('online', on);
     window.addEventListener('offline', off);
@@ -390,12 +395,34 @@ export function DeliveryView({
   async function markArrived(stopId: string) {
     vibrate([50, 30, 50]);
     const now = new Date().toISOString();
-    await Promise.all([
-      supabase.from('delivery_batch_stops').update({ angekommen_am: now }).eq('id', stopId),
-      supabase.from('mise_delivery_batch_stops').update({ arrived_at: now }).eq('id', stopId),
-    ]);
+    // Optimistic UI update immediately
     setArrivedIds((s) => new Set([...s, stopId]));
     setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, angekommen_am: now } : x));
+    // Persist arrived_at via API (with outbox fallback when offline)
+    const url = `/api/driver/v1/batch/${batchId}/stops/${stopId}/arrived`;
+    if (!isOnline) {
+      enqueueOutbox(url, 'POST', {});
+      return;
+    }
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({}),
+      });
+      if (!res.ok) {
+        // Fallback: direct supabase writes
+        await Promise.all([
+          supabase.from('delivery_batch_stops').update({ angekommen_am: now }).eq('id', stopId),
+          supabase.from('mise_delivery_batch_stops').update({ arrived_at: now }).eq('id', stopId),
+        ]);
+      }
+    } catch {
+      // Network error — enqueue for retry
+      enqueueOutbox(url, 'POST', {});
+    }
   }
 
   async function markDelivered(stopId: string) {
@@ -403,21 +430,46 @@ export function DeliveryView({
     setPending(stopId);
     const now = new Date().toISOString();
     const stop = stops.find((s) => s.id === stopId);
-    await Promise.all([
-      supabase.from('delivery_batch_stops')
-        .update({ geliefert_am: now, angekommen_am: now })
-        .eq('id', stopId),
-      supabase.from('mise_delivery_batch_stops')
-        .update({ completed_at: now, arrived_at: now })
-        .eq('id', stopId),
-      stop?.order_id
-        ? supabase.from('customer_orders')
-            .update({ status: 'geliefert', geliefert_am: now })
-            .eq('id', stop.order_id)
-        : Promise.resolve(),
-    ]);
-    setPending(null);
+    // Optimistic UI update
     setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, geliefert_am: now } : x));
+    const url = `/api/driver/v1/orders/${stop?.order_id}/delivered`;
+    if (!stop?.order_id) {
+      // No order_id: fallback direct writes
+      await Promise.all([
+        supabase.from('delivery_batch_stops').update({ geliefert_am: now, angekommen_am: now }).eq('id', stopId),
+        supabase.from('mise_delivery_batch_stops').update({ completed_at: now, arrived_at: now }).eq('id', stopId),
+      ]);
+      setPending(null);
+      if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
+      return;
+    }
+    if (!isOnline) {
+      enqueueOutbox(url, 'POST', { stop_id: stopId });
+      setPending(null);
+      if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
+      return;
+    }
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ stop_id: stopId }),
+      });
+      if (!res.ok) {
+        // API failed — fallback to direct writes so delivery is never lost
+        await Promise.all([
+          supabase.from('delivery_batch_stops').update({ geliefert_am: now, angekommen_am: now }).eq('id', stopId),
+          supabase.from('mise_delivery_batch_stops').update({ completed_at: now, arrived_at: now }).eq('id', stopId),
+          supabase.from('customer_orders').update({ status: 'geliefert', geliefert_am: now }).eq('id', stop.order_id),
+        ]);
+      }
+    } catch {
+      // Network error — enqueue for retry
+      enqueueOutbox(url, 'POST', { stop_id: stopId });
+    }
+    setPending(null);
     if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
   }
 
