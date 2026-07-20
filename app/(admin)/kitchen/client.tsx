@@ -359,6 +359,7 @@ import { KitchenPhase2705SchichtUeberlappungsTicker } from './phase2705-schicht-
 import { KitchenPhase2710AuftragsquoteTicker } from './phase2710-auftragsquote-ticker';
 import { KitchenPhase2715LieferdichteTicker } from './phase2715-lieferdichte-ticker';
 import { KitchenPhase2720SmartKochstartCountdownCockpit } from './phase2720-smart-kochstart-countdown-cockpit';
+import { KitchenPhase2725SmartPrepPrioritaetsCockpit } from './phase2725-smart-prep-prioritaets-cockpit';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3612,6 +3613,8 @@ export function KitchenBoard({
       <KitchenPhase2715LieferdichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2720: Smart Kochstart Countdown Cockpit — Echtzeit-Sekunden-Countdown je aktiver Bestellung; Farbkodierung grün/gelb/rot; Fortschrittsbalken; Überfälligkeits-Alert; 1-Sek-Polling */}
       <KitchenPhase2720SmartKochstartCountdownCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2725: Smart Prep-Prioritäts-Cockpit — Farbkodierte Prioritätsliste (Score 0–100); Prep-Countdown + Fortschrittsbalken; Komplexitäts-Badge einfach/mittel/komplex; Überfälligkeits-Alert; 1-Sek-Tick + 25-Sek-Polling */}
+      <KitchenPhase2725SmartPrepPrioritaetsCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10354,3 +10357,5 @@ export { KitchenPhase2710AuftragsquoteTicker } from './phase2710-auftragsquote-t
 export { KitchenPhase2715LieferdichteTicker } from './phase2715-lieferdichte-ticker';
 // Phase 2720 — Smart Kochstart Countdown Cockpit (Echtzeit-Countdowns je Bestellung in Zubereitung; Farbkodierung grün/gelb/rot nach verbleibender Zeit; Fortschrittsbalken; Überfälligkeits-Alert; Wartend-auf-Fahrer-Anzeige; 20-Sek-Polling + 1-Sek-Tick)
 export { KitchenPhase2720SmartKochstartCountdownCockpit } from './phase2720-smart-kochstart-countdown-cockpit';
+// Phase 2725 — Smart Prep-Prioritäts-Cockpit (Priorisierte Bestellliste nach Score 0–100; Farbkodierung rot/gelb/grün; Prep-Countdown Min:Sek + Fortschrittsbalken; Komplexitäts-Badge; Überfälligkeits-Alert; 1-Sek-Tick + 25-Sek-Polling)
+export { KitchenPhase2725SmartPrepPrioritaetsCockpit } from './phase2725-smart-prep-prioritaets-cockpit';

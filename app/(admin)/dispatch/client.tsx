@@ -805,6 +805,7 @@ import { DispatchPhase2702SchichtUeberlappungsBoard } from './phase2702-schicht-
 import { DispatchPhase2707AuftragsquoteBoard } from './phase2707-auftragsquote-board';
 import { DispatchPhase2712LieferdichteBoard } from './phase2712-lieferdichte-board';
 import { DispatchPhase2717TourScoreEchtzeitBoard } from './phase2717-tour-score-echtzeit-board';
+import { DispatchPhase2722TourLiveVisualisierungCockpit } from './phase2722-tour-live-visualisierung-cockpit';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4030,6 +4031,8 @@ export function DispatchBoard({
           <DispatchPhase2712LieferdichteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2717: Tour-Score Echtzeit-Board — Rangliste aller Fahrer nach Score; Sub-Scores Pünktlichkeit/Effizienz/Kundenzufriedenheit; Farbkodierung + Trend-Pfeile; Bester-Fahrer-Banner; Handlungsbedarf-Alert; 30-Sek-Polling */}
           <DispatchPhase2717TourScoreEchtzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2722: Tour Live-Visualisierung Cockpit — Score-Ring SVG je Fahrer; farbkodierte Stop-Dots (grün/gelb/grau); Tour-Fortschrittsbalken; ETA-Rückkehr; expandierbare Stop-Liste mit Adressen + ETAs; Alert Score <60; 25-Sek-Polling */}
+          <DispatchPhase2722TourLiveVisualisierungCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11781,3 +11784,5 @@ export { DispatchPhase2707AuftragsquoteBoard } from './phase2707-auftragsquote-b
 export { DispatchPhase2712LieferdichteBoard } from './phase2712-lieferdichte-board';
 // Phase 2717 — Tour-Score Echtzeit-Board (Rangliste aller Fahrer nach Score; Sub-Scores Pünktlichkeit/Effizienz/Kundenzufriedenheit; Farbkodierung + Trend-Pfeile; Bester-Fahrer-Banner; Handlungsbedarf-Alert; 30-Sek-Polling)
 export { DispatchPhase2717TourScoreEchtzeitBoard } from './phase2717-tour-score-echtzeit-board';
+// Phase 2722 — Tour Live-Visualisierung Cockpit (Score-Ring SVG je Fahrer 0–100; farbkodierte Stop-Dots; Tour-Fortschrittsbalken; ETA-Rückkehr; expandierbare Stop-Liste; Alert Score <60; 25-Sek-Polling)
+export { DispatchPhase2722TourLiveVisualisierungCockpit } from './phase2722-tour-live-visualisierung-cockpit';
