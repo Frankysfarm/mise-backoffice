@@ -1,5 +1,34 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #518 — 2026-07-20
+
+**Geprüfte Commits:** `ff34cb11` (Phasen 2746–2750 Backend: Fahrer-Schicht-Punkte) + `895bec10` (Phasen 2751–2755 Frontend: Smart-Timing, Tour-Score, Fahrer-Stops, ETA-Tracker, Statistiken)
+
+**TypeScript:** ✓ Exit Code 0 — 0 Fehler nach 3 CEO-Fixes
+
+**Build:** Background-Build läuft (pre-existing OOM-Grenze in Container; ignoreBuildErrors: true aktiv)
+
+**CEO-Fixes (3):**
+- `phase2747-schicht-punkte-board.tsx:42,43` — TS2322 LucideProps `title` → `aria-label` (korrekt)
+- `phase2748-meine-schicht-punkte.tsx:47,48` — TS2322 LucideProps `title` → `aria-label` (korrekt)
+- `phase2575-statistiken-master-cockpit.tsx:204` — TS2322 Recharts Formatter `v: number` → `typeof v === 'number' ? v : 0` (korrekt)
+
+**Orphaned-Integration-Fixes (5):**
+| Phase | Modul | Komponente | Fix |
+|---|---|---|---|
+| 2752 | Dispatch | DispatchPhase2752TourScoreLiveVisualisierung | Import+Render nach Phase 2747 ✅ |
+| 2755 | Kitchen | KitchenPhase2755SmartTimingFahrerSyncCockpit | Import+Render nach Phase 2750 ✅ |
+| 2575 | Lieferdienst | LieferdienstPhase2575StatistikenMasterCockpit | Import+Render nach Phase 2570 ✅ |
+| 2753 | Fahrer | FahrerPhase2753SmartTourStoppCockpit | Import+Render nach Phase 2748 ✅ |
+| - | Storefront | SmartEtaLiveTracker | Import+Render nach Phase2640 ✅ |
+
+**Neue Backend-API (Phase 2746):**
+- `fahrer-schicht-punkte`: Composite Score 0–100, Ampel grün≥75/gelb50–74/rot<50, Alert <50, Trend, Supabase+Mock ✅
+
+**Nächste Phasen: 2756–2760**
+
+---
+
 ## CEO Review #517 — 2026-07-20
 
 **Geprüfte Commits:** `1922a79e` (Phasen 2736–2740 Backend: Fahrer-Strecken-Effizienz) + `b5429a15` (Phasen 2741–2745 Frontend: Fahrer-Wartezeit-am-Stopp)

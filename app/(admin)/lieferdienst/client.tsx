@@ -437,6 +437,7 @@ import { LieferdienstPhase2555StatistikHeuteKommandant } from './phase2555-stati
 import { LieferdienstPhase2560StatistikenLiveBoard } from './phase2560-statistiken-live-board';
 import { LieferdienstPhase2565StatistikenHeuteFinal } from './phase2565-statistiken-heute-final';
 import { LieferdienstPhase2570StatistikenEchtzeitKompaktDashboard } from './phase2570-statistiken-echtzeit-kompakt-dashboard';
+import { LieferdienstPhase2575StatistikenMasterCockpit } from './phase2575-statistiken-master-cockpit';
 import { SmartStatsCockpit } from './smart-stats-cockpit';
 
 export function LieferdienstClient() {
@@ -2207,6 +2208,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2565StatistikenHeuteFinal />
                 {/* Phase 2570: Statistiken Echtzeit Kompakt Dashboard — 8 KPI-Kacheln Ampel-Farbkodierung grün/gelb/rot; Trend-Pfeile mit %; Alert-Strip; 4-Spalten-Grid Mobile-first; 2-Min-Polling */}
                 <LieferdienstPhase2570StatistikenEchtzeitKompaktDashboard locationId={locationId ?? null} />
+                {/* Phase 2575: Statistiken Master Cockpit — 8 KPI-Kacheln Ampel + Trend; Stundenverlauf-Chart 2-Modi Bestellungen/Umsatz; Zonen-Ranking; Alert-Strip; 5-Min-Polling */}
+                <LieferdienstPhase2575StatistikenMasterCockpit locationId={locationId ?? null} />
               </>
             </div>
           )}

@@ -201,7 +201,7 @@ export function LieferdienstPhase2575StatistikenMasterCockpit({ locationId }: { 
             <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
               <XAxis dataKey="hour" tick={{ fontSize: 10, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
               <Tooltip
-                formatter={(v: number) => chartMode === 'umsatz' ? [`${v.toFixed(0)} €`, 'Umsatz'] : [v, 'Bestellungen']}
+                formatter={(v) => { const n = typeof v === 'number' ? v : 0; return chartMode === 'umsatz' ? [`${n.toFixed(0)} €`, 'Umsatz'] : [n, 'Bestellungen']; }}
                 contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e7e5e4' }}
               />
               <Bar dataKey={chartKey} radius={[4, 4, 0, 0]}>

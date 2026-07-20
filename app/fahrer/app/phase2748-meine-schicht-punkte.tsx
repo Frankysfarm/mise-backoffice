@@ -44,8 +44,8 @@ function coaching(pts: number, alert: string | null): string {
 }
 
 function TrendIcon({ trend, delta }: { trend: string; delta: number }) {
-  if (trend === 'steigend') return <TrendingUp   size={14} className="text-green-600" title={`+${delta} Pkt`} />;
-  if (trend === 'fallend')  return <TrendingDown size={14} className="text-red-500"   title={`${delta} Pkt`} />;
+  if (trend === 'steigend') return <TrendingUp   size={14} className="text-green-600" aria-label={`+${delta} Pkt`} />;
+  if (trend === 'fallend')  return <TrendingDown size={14} className="text-red-500"   aria-label={`${delta} Pkt`} />;
   return                           <Minus        size={14} className="text-gray-400"  />;
 }
 

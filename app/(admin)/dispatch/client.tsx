@@ -812,6 +812,7 @@ import { DispatchPhase2732RueckkehrZuverlaessigkeitsBoard } from './phase2732-ru
 import { DispatchPhase2737StreckenEffizienzBoard } from './phase2737-strecken-effizienz-board';
 import { DispatchPhase2742WartezeitBoard } from './phase2742-wartezeit-board';
 import { DispatchPhase2747SchichtPunkteBoard } from './phase2747-schicht-punkte-board';
+import { DispatchPhase2752TourScoreLiveVisualisierung } from './phase2752-tour-score-live-visualisierung';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4051,6 +4052,8 @@ export function DispatchBoard({
           <DispatchPhase2742WartezeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2747: Schicht-Punkte-Board — Composite Score 0–100 Pkt je Fahrer; Teilscores Lieferungen/Pünktlichkeit/Auslastung/Wartezeit; Ampel grün≥75/gelb50–74/rot<50; Alert <50 "Schicht-Score zu niedrig!"; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2747SchichtPunkteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2752: Tour-Score Live-Visualisierung — Score-Ring (0–100) pro Fahrer; expandierbare Stopp-Sequenz mit Delay-Anzeige; Flotten-Score + On-Time-Rate; 15-Sek-Polling */}
+          <DispatchPhase2752TourScoreLiveVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}

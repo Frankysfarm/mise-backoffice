@@ -453,6 +453,7 @@ import { StorefrontPhase2400DynamischeEtaLiveHub } from './phase2400-dynamische-
 import { StorefrontPhase2605EtaLiveTrackingFinal } from './phase2605-eta-live-tracking-final';
 import { StorefrontPhase2620DynamischeEtaLiveMaster } from './phase2620-dynamische-eta-live-master';
 import { StorefrontPhase2640DynamischeEtaLiveBoard } from './phase2640-dynamische-eta-live-board';
+import { SmartEtaLiveTracker } from './smart-eta-live-tracker';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 
 type Props = {
@@ -2010,6 +2011,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">
           <StorefrontPhase2640DynamischeEtaLiveBoard orderId={activeOrderId} />
+        </div>
+      )}
+      {/* SmartEtaLiveTracker: Dynamische ETA + Konfidenz-Ring; Live-Countdown Sek; Phasen-Timeline Bestätigt/Zubereitung/Fertig/Unterwegs/Geliefert; Fahrer-Distanz; 30-Sek-Polling */}
+      {activeOrderId && successType === 'lieferung' && (
+        <div className="mx-4 mt-2">
+          <SmartEtaLiveTracker orderId={activeOrderId} locationSlug={location.id} />
         </div>
       )}
       {/* Phase 2400: Dynamische ETA Live-Hub — Animierter Fortschrittsring; ETA-Konfidenz-Balken; Phasen-Timeline; Fahrer-Profil-Card; Bewertungs-Sterne */}
