@@ -439,6 +439,7 @@ import { LieferdienstPhase2565StatistikenHeuteFinal } from './phase2565-statisti
 import { LieferdienstPhase2570StatistikenEchtzeitKompaktDashboard } from './phase2570-statistiken-echtzeit-kompakt-dashboard';
 import { LieferdienstPhase2575StatistikenMasterCockpit } from './phase2575-statistiken-master-cockpit';
 import { SmartStatsCockpit } from './smart-stats-cockpit';
+import { LieferdienstEchtzeitStatistikHub } from './lieferdienst-echtzeit-statistik-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -1864,6 +1865,8 @@ export function LieferdienstClient() {
               <LieferdienstTagesPerformanceExecutiveCockpit />
               {/* Phase 195: Lieferdienst-Statistiken-Dashboard — Schicht-KPIs, Stündliches Volumen, Pünktlichkeit */}
               <LieferdienstStatsDashboard />
+              {/* Echtzeit-Statistik-Hub: 8 KPI-Kacheln mit Sparklines + Ziel-Ampel + Tages-Trend */}
+              <LieferdienstEchtzeitStatistikHub locationId={locationId ?? undefined} />
               {/* Statistik Live-Hub: Aggregierte KPIs (Bestellungen, Umsatz, ETA, Fahrer, Storno, Bewertung) + Stundenverlauf-Chart */}
               <StatistikLiveHub locationId={locationId} />
               {/* Phase 789: Schicht-Statistiken-Cockpit — Live KPI-Dashboard mit Trend-Vergleich Vortag */}

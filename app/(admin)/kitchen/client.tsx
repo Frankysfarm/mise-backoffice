@@ -772,6 +772,8 @@ import { KitchenPhase1878FahrerAnkunftKochstartKommando } from './phase1878-fahr
 import { KitchenPhase2065SmartTimingLiveCockpit } from './phase2065-smart-timing-live-cockpit';
 import { KitchenPhase1000SmartTimingAmpelCockpit } from './phase1000-smart-timing-ampel-cockpit';
 
+import { KitchenPhase2780KuechenDispatchSyncCockpit } from './phase2780-kuechen-dispatch-sync-cockpit';
+
 /* ------------------------------ Types ------------------------------ */
 
 type Item = {
@@ -1263,6 +1265,8 @@ export function KitchenBoard({
       <KitchenSchichtEndstand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Smart Delivery Kochstart-Hub: Farbkodierter Countdown + Fahrer-Sync für alle aktiven Bestellungen */}
       <KitchenSmartDeliveryKochstartHub orders={filtered as any} timings={timings as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2780: Küchen-Dispatch-Sync-Cockpit — Cross-System-Ansicht Küche→Dispatch→Fahrer mit Countdown + Kochstart-Empfehlung */}
+      <KitchenPhase2780KuechenDispatchSyncCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Kochstart-Entscheidung: Smart "Jetzt kochen?" — einzige wichtigste Handlungsempfehlung */}
       <KitchenKochstartEntscheidung orders={filtered} timings={timings} />
       {/* Phase 485: Schicht-Wochen-Stats — Vergleich Heute vs. Ø 7 Tage (Kochzeit, Pünktlichkeit, Bestellungen) */}

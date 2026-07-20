@@ -740,6 +740,7 @@ import { FahrerPhase1001TourStoppSmartNavFinal } from './phase1001-tour-stopp-sm
 import { FahrerPhase2510TourStoppNavigationsHub } from './phase2510-tour-stopp-navigations-hub';
 import { FahrerPhase2520TourStoppNavigatorFinal } from './phase2520-tour-stopp-navigator-final';
 import { Phase2630SmartTourStoppNavigatorUltimateFinal } from './phase2630-smart-tour-stopp-navigator-ultimate-final';
+import { SmartTourStopHubV2 } from './smart-tour-stop-hub-v2';
 
 type Driver = {
   id: string;
@@ -2478,6 +2479,32 @@ export function FahrerApp({
                 stops={activeBatch.stops as any}
                 batchStartedAt={activeBatch.started_at}
                 totalDistanceKm={(activeBatch as any).total_distance_km ?? null}
+              />
+            </div>
+          )}
+          {/* Smart Tour-Stop-Hub V2 — Kompakte Stopp-Übersicht mit Navigation, ETA-Countdown und Bestätigung */}
+          {activeBatch.stops.length > 0 && (
+            <div className="px-4">
+              <SmartTourStopHubV2
+                stops={activeBatch.stops.map((s: any) => ({
+                  id: s.id,
+                  reihenfolge: s.reihenfolge ?? 0,
+                  geliefert_am: s.geliefert_am ?? null,
+                  order: s.order ? {
+                    id: s.order.id ?? s.order_id ?? s.id,
+                    bestellnummer: s.order.bestellnummer ?? '',
+                    kunde_name: s.order.kunde_name ?? '',
+                    kunde_adresse: s.order.kunde_adresse ?? s.order.adresse ?? '',
+                    kunde_plz: s.order.kunde_plz ?? '',
+                    kunde_telefon: s.order.kunde_telefon ?? null,
+                    gesamtbetrag: s.order.gesamtbetrag ?? 0,
+                    bezahlt: s.order.bezahlt ?? false,
+                    zahlungsart: s.order.zahlungsart ?? null,
+                    eta_earliest: s.order.eta_earliest ?? null,
+                    eta_latest: s.order.eta_latest ?? null,
+                    kunde_notiz: s.order.kunde_notiz ?? s.order.kunde_lieferhinweis ?? null,
+                  } : null,
+                }))}
               />
             </div>
           )}

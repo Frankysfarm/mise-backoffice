@@ -825,6 +825,7 @@ import { DispatchPhase2620ScoreTourVisualisierungFinal } from './phase2620-score
 import { DispatchPhase2625TourScoreVisualisierungExtended } from './phase2625-tour-score-visualisierung-extended';
 import { DispatchPhase2630TourScoreMasterUltra } from './phase2630-tour-score-master-ultra';
 import { DispatchPhase2635TourScoreVisualisierungKompakt } from './phase2635-tour-score-visualisierung-kompakt';
+import { DispatchTourQualitaetsGauge } from './dispatch-tour-qualitaets-gauge';
 
 type Driver = {
   employee_id: string;
@@ -2541,6 +2542,8 @@ export function DispatchBoard({
       <DispatchFahrerEchtzeitMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 423: Live-Score-Rangliste — Echtzeit Fahrer-Score nach Tour-Effizienz */}
       <DispatchScoreLiveLeaderboard batches={batches} />
+      {/* Tour-Qualitäts-Gauge: Radiale Score-Gauges je Fahrer + Farb-Ampel */}
+      <DispatchTourQualitaetsGauge locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Fahrer-Rangliste heute: Top-Fahrer nach Lieferungen + Pünktlichkeit */}
       <DriverLeaderboardStrip locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Fahrer-Zuverlässigkeit: Score + No-Show-Tracking */}
