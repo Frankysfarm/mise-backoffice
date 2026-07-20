@@ -705,6 +705,7 @@ import { FahrerPhase2668MeineUeberstunden } from './phase2668-meine-ueberstunden
 import { FahrerPhase2673MeineNachtschicht } from './phase2673-meine-nachtschicht';
 import { FahrerPhase2678MeineRuhezeit } from './phase2678-meine-ruhezeit';
 import { FahrerPhase2683MeineSchichtBilanz } from './phase2683-meine-schicht-bilanz';
+import { FahrerPhase2688MeinePausen } from './phase2688-meine-pausen';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6071,6 +6072,8 @@ export function FahrerApp({
           <FahrerPhase2678MeineRuhezeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2683: Meine Schicht-Bilanz — %-Wert groß + Farbcode; Balken 0–100% Ziel 90%; KPI-Grid geplante h/gearbeitete h/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2683MeineSchichtBilanz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2688: Meine Pausen — Min-Wert groß + Farbcode; Balken 0–90 Min Ziel-Zone 20–40 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2688MeinePausen driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9351,3 +9354,5 @@ export { FahrerPhase2673MeineNachtschicht } from './phase2673-meine-nachtschicht
 export { FahrerPhase2678MeineRuhezeit } from './phase2678-meine-ruhezeit';
 // Phase 2683 — Meine Schicht-Bilanz (%-Wert groß + Farbcode; Balken 0–100% Ziel ≥90%; KPI-Grid geplante h/gearbeitete h/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2683MeineSchichtBilanz } from './phase2683-meine-schicht-bilanz';
+// Phase 2688 — Meine Pausen (Min-Wert groß + Farbcode; Balken 0–90 Min Ziel-Zone 20–40 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2688MeinePausen } from './phase2688-meine-pausen';
