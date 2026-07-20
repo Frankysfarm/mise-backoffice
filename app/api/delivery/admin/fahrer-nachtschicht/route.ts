@@ -6,8 +6,8 @@ export const dynamic = 'force-dynamic';
 type Ampel = 'gruen' | 'gelb' | 'rot';
 
 function calcAmpel(nacht_h: number): Ampel {
-  if (nacht_h <= 0) return 'gruen';
-  if (nacht_h <= 4) return 'gelb';
+  if (nacht_h === 0) return 'gruen';
+  if (nacht_h <= 3)  return 'gelb';
   return 'rot';
 }
 
@@ -46,7 +46,7 @@ function buildMock(_locationId: string, driverId?: string) {
     trend: (d.nacht > d.nacht_vw ? 'steigend' : d.nacht < d.nacht_vw ? 'fallend' : 'stabil') as 'steigend' | 'fallend' | 'stabil',
     trend_delta: Math.round((d.nacht - d.nacht_vw) * 10) / 10,
     ampel: calcAmpel(d.nacht),
-    alert_erschoepfung: d.nacht > 4,
+    alert_erschoepfung: d.nacht > 3,
   })).sort((a, b) => b.nacht_h - a.nacht_h);
 
   const team_avg = Math.round((fahrer.reduce((s, f) => s + f.nacht_h, 0) / fahrer.length) * 10) / 10;
@@ -141,14 +141,14 @@ export async function GET(req: Request) {
         trend: 'stabil' as const,
         trend_delta: 0,
         ampel: calcAmpel(nacht),
-        alert_erschoepfung: nacht > 4,
+        alert_erschoepfung: nacht > 3,
       };
     }).sort((a, b) => b.nacht_h - a.nacht_h);
 
     const team_avg = fahrerList.length
       ? Math.round((fahrerList.reduce((s, f) => s + f.nacht_h, 0) / fahrerList.length) * 10) / 10
       : 0;
-    const alert_count = fahrerList.filter(f => f.alert_erschoepfung).length;
+    const alert_count = fahrerList.filter(f => f.nacht_h > 3).length;
 
     if (driverId) {
       const f = fahrerList.find(d => d.fahrer_id === driverId) ?? fahrerList[0];

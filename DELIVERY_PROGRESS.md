@@ -23309,3 +23309,16 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2661–2665 implementiert. 1 neue B
 3. **Phase 2673 Fahrer-App:** Meine Nachtschicht — h-Wert groß + Farbcode; Balken 0–8 h; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2668.
 4. **Phase 2674 Storefront:** Überspringen (Nachtschicht intern irrelevant für Kunden).
 5. **Phase 2675 Kitchen:** Nachtschicht-Ticker — Team-Ø h; Alert >3 h "Nachtschicht zu lang!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2670.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2671–2675 implementiert. Backend-API fahrer-nachtschicht bereits vorhanden (Ampel-Schwellwert auf >3 h korrigiert, alert_erschoepfung auf >3 h, Supabase driver_shifts: actual_start/actual_end) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2672 Dispatch (Nachtschicht-Board, Balken 0–8 h, Ziel-Linie 0 h, Alert >3 h "Nachtschicht zu lang!") / Phase2673 Fahrer-App (Meine Nachtschicht, h-Wert 4xl, Coaching-Tipp je Ampelzone) / Phase2675 Kitchen (Nachtschicht-Ticker, Alert >3 h "Nachtschicht zu lang!"). Phase 2674 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler pre-existing (ignoreBuildErrors: true). Push erfolgt.
+
+---
+
+## Batch 2676–2680 — Fahrer-Ruhezeiten (2026-07-20)
+
+### Nächste Phasen 2676–2680 (für nächsten Ingenieur) — Fahrer-Ruhezeiten
+1. **Phase 2676 Backend:** GET /api/delivery/admin/fahrer-ruhezeiten — Ruhezeit je Fahrer (Zeit seit letzter Schicht in h); Ampel grün(≥11 h)/gelb(8–10 h)/rot(<8 h); Alert <8 h; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(driver_shifts: actual_end → Zeit bis jetzt)+Mock.
+2. **Phase 2677 Dispatch:** Ruhezeiten-Board — Fahrerliste nach Ruhezeit aufsteigend sortiert (kürzeste oben); Balken 0–16 h mit Ziel-Linie 11 h; KPI-Grid Team-Ø/Kürzeste/Ziel ≥11 h; Alert-Banner <8 h; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2672.
+3. **Phase 2678 Fahrer-App:** Meine Ruhezeit — h-Wert groß + Farbcode; Balken 0–16 h mit Ziel-Linie 11 h; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2673.
+4. **Phase 2679 Storefront:** Überspringen (Ruhezeiten intern irrelevant für Kunden).
+5. **Phase 2680 Kitchen:** Ruhezeiten-Ticker — Team-Ø h; Alert <8 h "Ruhezeit zu kurz!"; Fahrerliste kompakt nach Ruhezeit aufsteigend sortiert (kürzeste oben); 30-Min-Polling; in kitchen/client.tsx nach Phase2675.
