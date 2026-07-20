@@ -19,6 +19,9 @@
  *    nicht antwortet.
  *  - Frank-Decisions werden geloggt (mise_frank_decisions) — Trigger
  *    fn_enqueue_push_on_assign feuert auf type='assign' den Push.
+ *
+ * Phase 4 (2026-07-20): Smart Hold-Window, Single-Driver-Modus, dynamischer CAP,
+ *    pickBest Restaurant-Präferenz.
  */
 import 'server-only';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -78,19 +81,33 @@ const CAP_BASE = 4;                 // Basis: max aktive Liefer-Stopps pro Fahre
 const CAP_CLUSTER = 5;              // bis 5 erlaubt, WENN die neue Order nah an der bestehenden Tour liegt
 const CAP_CLUSTER_RADIUS_KM = 2.0;  // "nah beieinander" = neue Lieferadresse <= 2 km an einem bestehenden Stopp
 
+// Sibling-Hold (Founder-Idee): Fern-Order max. HOLD_MAX_MS warten wenn nahe Schwester-Order fast fertig
+const FAR_KM = 3.5;        // ab dieser Dropoff-Distanz gilt "Fern" (Orders < 3.5 km werden IMMER sofort geschickt)
+// HOLD_MAX_MS wird jetzt dynamisch aus tenants.dispatch_strategy gelesen (s.u.)
+const siblingHoldMap = new Map<string, number>(); // orderId -> hold_until_ms
+// Speichert den Sibling, auf den gewartet wird (für geografischen Hold-Check)
+const siblingTargetMap = new Map<string, { siblingId: string; siblingLat: number; siblingLng: number }>(); // orderId -> sibling-info
+
 // --- Dispatch-Strategien pro Restaurant (tenants.dispatch_strategy) ---
 type DispatchStrategy = 'speed' | 'balance' | 'spar';
-interface StrategyPreset { detourKm: number; slotBonus: number; holdSec: number; }
+interface StrategyPreset {
+  detourKm: number;
+  slotBonus: number;
+  holdSec: number;    // Hold-Window in Sekunden (0 = kein Hold)
+  maxStops: number;   // Maximale Stops pro Fahrer (CAP_BASE override)
+  maxStopsCluster: number; // CAP_CLUSTER override
+}
 const STRATEGY_PRESETS: Record<DispatchStrategy, StrategyPreset> = {
-  speed:   { detourKm: 0.5, slotBonus: 0, holdSec: 0 },
-  balance: { detourKm: 1.5, slotBonus: 0, holdSec: 0 },
-  spar:    { detourKm: 2.5, slotBonus: 1, holdSec: 180 },
+  speed:   { detourKm: 0.5, slotBonus: 0, holdSec: 0,   maxStops: 3, maxStopsCluster: 4 },
+  balance: { detourKm: 1.5, slotBonus: 0, holdSec: 300,  maxStops: 4, maxStopsCluster: 5 },
+  spar:    { detourKm: 2.5, slotBonus: 1, holdSec: 600,  maxStops: 5, maxStopsCluster: 6 },
 };
 
-async function tenantStrategy(tenantId: string): Promise<StrategyPreset> {
+async function tenantStrategy(tenantId: string): Promise<StrategyPreset & { strategy: DispatchStrategy }> {
   const { data } = await sb().from('tenants').select('dispatch_strategy').eq('id', tenantId).maybeSingle();
   const s = ((data as { dispatch_strategy?: string } | null)?.dispatch_strategy as DispatchStrategy) ?? 'balance';
-  return STRATEGY_PRESETS[s] ?? STRATEGY_PRESETS.balance;
+  const preset = STRATEGY_PRESETS[s] ?? STRATEGY_PRESETS.balance;
+  return { ...preset, strategy: s };
 }
 
 export interface DispatchTickResult {
@@ -105,6 +122,9 @@ export interface DispatchTickResult {
  * und ordnet sie zu.
  */
 export async function dispatchTick(): Promise<DispatchTickResult> {
+  // Stale-Tour-Rettung: haengende pending-Batches aufraeumen
+  try { await rescueStaleTours(); } catch { /* nicht fatal */ }
+
   const c = sb();
   const { data: orders } = await c
     .from('customer_orders')
@@ -146,7 +166,6 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     .maybeSingle();
   if (!locRaw) return 'held';
   const loc = locRaw as LocationRow;
-  // (Strategie/Preset entfernt — simpler Dispatch, Buendeln kommt spaeter)
 
   // 2) Customer-Adresse geocoden falls nötig
   if (o.kunde_lat == null || o.kunde_lng == null) {
@@ -175,22 +194,42 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     }
   }
 
-  // 3) SIMPLER Dispatch (Founder 2026-06): jede Order EINZELN dem online-Fahrer anbieten.
-  //    Kein Auto-Buendeln, kein Hold. EIN Fahrer kriegt alle (auch waehrend er unterwegs ist).
-  //    Buendeln/Smart-Routing fuer MEHRERE Fahrer (damit keiner kreuz und quer faehrt) kommt
-  //    spaeter — mit echten Daten + harten Grenzen.
-  const drivers = await driversForTenant(loc.tenant_id);
-  if (drivers.length === 0) {
+  // Tenant-Strategie laden (für Hold-Window, CAP etc.)
+  const preset = await tenantStrategy(loc.tenant_id);
+
+  // 2b) Smart Geographic Hold: Fern-Order halten wenn nahe Schwester-Order wartet
+  const shouldHoldForSibling = await checkSiblingHold(o, preset.holdSec).catch(() => false);
+  if (shouldHoldForSibling) return 'held';
+
+  // 3) Fahrer für Tenant laden
+  const allDrivers = await driversForTenant(loc.tenant_id);
+
+  // Single-Driver-Modus: Wenn nur 1 Fahrer online, spezielle Behandlung
+  const soloMode = allDrivers.length === 1;
+
+  if (allDrivers.length === 0) {
     await logDecision('hold', null, [o.id], 'Kein Fahrer online');
+    if (o.created_at && Date.now() - new Date(o.created_at).getTime() > 5 * 60 * 1000) {
+      void alertOwnerNoDriver(o).catch((err) => { console.error('[frank] alertOwnerNoDriver fehlgeschlagen:', err?.message ?? err); });
+    }
     return 'held';
   }
-  // Dynamischer CAP: Basis CAP_BASE Stopps/Fahrer; bis CAP_CLUSTER WENN die neue Order nah an der Tour liegt.
+
+  // Dynamischer CAP: aus Tenant-Strategie holen; im Solo-Modus +2 Bonus
+  const capBase    = soloMode ? preset.maxStops + 2    : preset.maxStops;
+  const capCluster = soloMode ? preset.maxStopsCluster + 2 : preset.maxStopsCluster;
+
+  // Solo-Modus: Radius-Filter überspringen und maximalen Radius setzen
+  const driversWithRadius: DriverRow[] = soloMode
+    ? allDrivers.map((d) => ({ ...d, max_radius_km: 9999 }))
+    : allDrivers;
+
   const eligible: DriverRow[] = [];
-  for (const d of drivers) {
+  for (const d of driversWithRadius) {
     const dropoffs = await driverActiveDropoffs(d.id);
     const n = dropoffs.length;
-    if (n < CAP_BASE) { eligible.push(d); continue; }
-    if (n < CAP_CLUSTER && o.kunde_lat != null && o.kunde_lng != null) {
+    if (n < capBase) { eligible.push(d); continue; }
+    if (n < capCluster && o.kunde_lat != null && o.kunde_lng != null) {
       const nearCluster = dropoffs.some((st) => haversineKm(st, { lat: o.kunde_lat!, lng: o.kunde_lng! }) <= CAP_CLUSTER_RADIUS_KM);
       if (nearCluster) eligible.push(d);
     }
@@ -198,26 +237,47 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   if (eligible.length === 0) {
     // Ueberlauf: Order in die Koch-Warteschlange -> Kueche kocht erst wenn ein Fahrer auf Rueckweg ist (JIT-Frische)
     if (o.location_id) { try { await scheduleKitchenHold(o.id, o.location_id, null); } catch { /* nicht fatal */ } }
-    await logDecision('hold', null, [o.id], `Alle Fahrer voll (Basis ${CAP_BASE}, Cluster bis ${CAP_CLUSTER}) - Order wartet (kochgesperrt)`);
+    const capLabel = soloMode ? `Solo-Modus: Fahrer voll (Basis ${capBase}, Cluster bis ${capCluster})` : `Alle Fahrer voll (Basis ${capBase}, Cluster bis ${capCluster})`;
+    await logDecision('hold', null, [o.id], `${capLabel} - Order wartet (kochgesperrt)`);
     return 'held';
   }
-  const available = eligible;
-  // Radius nur als BEVORZUGUNG: wer im Radius ist zuerst; wenn keiner im Radius
-  // (z.B. Fahrer schon unterwegs), trotzdem allen online-Fahrern anbieten — NICHT halten.
-  const inRadius = available.filter((d) => {
-    if (d.last_lat == null || d.last_lng == null) return true;
-    if (loc.lat == null || loc.lng == null) return true;
-    return haversineKm({ lat: d.last_lat, lng: d.last_lng }, { lat: loc.lat, lng: loc.lng }) <= d.max_radius_km;
-  });
-  const pool = inRadius.length > 0 ? inRadius : available;
-  const best = pickBest(pool, loc);
-  const batchId = await createBundle(best.id, o, loc);
-  await logDecision('assign', best.id, [o.id], 'Einzeln angeboten (simpler Dispatch)');
-  // Push an den Fahrer queuen (ging bei der Frank-Vereinfachung verloren -> kein Push seit heute frueh)
+
+  // Radius-Präferenz: wer im Radius ist zuerst; bei Solo-Modus Radius-Filter komplett überspringen
+  let pool: DriverRow[];
+  if (soloMode) {
+    // Im Solo-Modus: Radius-Filter vollständig überspringen
+    pool = eligible;
+  } else {
+    const inRadius = eligible.filter((d) => {
+      if (d.last_lat == null || d.last_lng == null) return true;
+      if (loc.lat == null || loc.lng == null) return true;
+      return haversineKm({ lat: d.last_lat, lng: d.last_lng }, { lat: loc.lat, lng: loc.lng }) <= d.max_radius_km;
+    });
+    pool = inRadius.length > 0 ? inRadius : eligible;
+  }
+
+  const dropoffCountMap = new Map<string, number>();
+  for (const d of pool) {
+    const dc = await driverActiveDropoffs(d.id);
+    dropoffCountMap.set(d.id, dc.length);
+  }
+  const best = pickBest(pool, loc, dropoffCountMap);
   const restaurantName = [loc.adresse, loc.plz, loc.stadt].filter(Boolean).join(', ') || loc.name;
   const distanceKm = (best.last_lat != null && best.last_lng != null && loc.lat != null && loc.lng != null)
     ? haversineKm({ lat: best.last_lat, lng: best.last_lng }, { lat: loc.lat, lng: loc.lng })
     : 0;
+
+  // Cross-shop bundling: gleiche Pickup-Adresse, selber Fahrer, noch pending_acceptance
+  const existingBatchId = await findBundleableBatch(best.id, loc, capBase);
+  if (existingBatchId) {
+    await addOrderToBundle(existingBatchId, o.id, loc, best.vehicle);
+    await logDecision('bundle', best.id, [o.id], `Cross-shop Bundle (gleiche Pickup-Adresse)${soloMode ? ' [Solo-Modus]' : ''}`);
+    void enqueueBatchPush({ driverId: best.id, batchId: existingBatchId, orderCount: 2, restaurantName, distanceKm, outcome: 'dispatched' }).catch(() => {});
+    return 'bundled';
+  }
+
+  const batchId = await createBundle(best.id, o, loc);
+  await logDecision('assign', best.id, [o.id], `Einzeln angeboten (simpler Dispatch)${soloMode ? ' [Solo-Modus]' : ''}`);
   void enqueueBatchPush({ driverId: best.id, batchId, orderCount: 1, restaurantName, distanceKm, outcome: 'dispatched' }).catch(() => {});
   return 'assigned';
 }
@@ -241,17 +301,22 @@ async function driverActiveDropoffs(driverId: string): Promise<Array<{ lat: numb
 
 async function driversForTenant(tenantId: string): Promise<DriverRow[]> {
   const c = sb();
+  const nowIso = new Date().toISOString();
   const { data } = await c
     .from('mise_driver_tenants')
     .select(
       `status,
-       driver:driver_id(id, vehicle, max_radius_km, last_lat, last_lng, state, active)`,
+       driver:driver_id(id, vehicle, max_radius_km, last_lat, last_lng, state, active, excluded_until, last_position_at)`,
     )
     .eq('tenant_id', tenantId)
     .eq('status', 'active');
   return (data ?? [])
     .map((row: any) => row.driver)
     .filter((d: any) => d && d.active && d.state !== 'offline')
+    // Fahrer ausschliessen die gerade im DB-Timeout sind (excluded_until in der Zukunft)
+    .filter((d: any) => !d.excluded_until || d.excluded_until < nowIso)
+    // Ghost-Driver-Fix: Fahrer ohne frisches GPS (>15 Min) aus dem Pool
+    .filter((d: any) => !d.last_position_at || d.last_position_at > new Date(Date.now() - 15 * 60 * 1000).toISOString())
     .map((d: any) => ({
       id: d.id,
       vehicle: d.vehicle,
@@ -306,20 +371,43 @@ async function canBundle(
   return samePickup && nearDropoff;
 }
 
-function pickBest(drivers: DriverRow[], pickupLoc: LocationRow): DriverRow {
+/**
+ * Wählt den besten Fahrer aus dem Pool.
+ * Priorität:
+ *  1. Fahrer, der bereits am selben Restaurant wartet (at_restaurant) — direkter Bundle-Vorteil
+ *  2. Fahrer mit wenigsten aktiven Stops
+ *  3. Fahrer der räumlich am nächsten zum Restaurant ist
+ */
+function pickBest(drivers: DriverRow[], pickupLoc: LocationRow, activeDropoffCounts?: Map<string, number>): DriverRow {
   if (pickupLoc.lat == null || pickupLoc.lng == null) return drivers[0];
+
+  // Prüfen ob Pickup-Koordinaten vorhanden
+  const pickupCoord = { lat: pickupLoc.lat!, lng: pickupLoc.lng! };
+
   return drivers
-    .map((d) => ({
-      d,
-      km:
+    .map((d) => {
+      const km =
         d.last_lat != null && d.last_lng != null
-          ? haversineKm(
-              { lat: d.last_lat, lng: d.last_lng },
-              { lat: pickupLoc.lat!, lng: pickupLoc.lng! },
-            )
-          : 999,
-    }))
-    .sort((a, b) => a.km - b.km)[0].d;
+          ? haversineKm({ lat: d.last_lat, lng: d.last_lng }, pickupCoord)
+          : 999;
+      const stops = activeDropoffCounts?.get(d.id) ?? 0;
+
+      // Restaurant-Präferenz: Fahrer der bereits am Pickup ist bekommt Bonus
+      // (state='at_restaurant' UND nah am Restaurant → sehr wahrscheinlich warten sie dort)
+      const atRestaurant =
+        d.state === 'at_restaurant' &&
+        d.last_lat != null &&
+        d.last_lng != null &&
+        haversineKm({ lat: d.last_lat, lng: d.last_lng }, pickupCoord) < 0.3; // < 300m
+
+      return { d, km, stops, atRestaurant };
+    })
+    // Sortierung: 1. am Restaurant (true vor false), 2. wenigste Stops, 3. kürzeste Distanz
+    .sort((a, b) => {
+      if (a.atRestaurant !== b.atRestaurant) return a.atRestaurant ? -1 : 1;
+      if (a.stops !== b.stops) return a.stops - b.stops;
+      return a.km - b.km;
+    })[0].d;
 }
 
 async function createBundle(driverId: string, o: OrderRow, loc: LocationRow): Promise<string> {
@@ -457,8 +545,7 @@ export async function rerouteBundle(batchId: string): Promise<void> {
     .order('sequence', { ascending: true });
   if (!stops || stops.length < 2) return;
 
-  // Pickups zuerst, dann Dropoffs (vereinfacht; bei mehr als 1 pickup wird Google
-  // optimieren). Driver-Position als origin wäre besser, ist aber für v1 weggelassen.
+  // Fahrer-Position als Route-Origin fuer korrekte ETAs waehrend Fahrt
   const pickups = stops.filter((s: any) => s.type === 'pickup');
   const dropoffs = stops.filter((s: any) => s.type === 'dropoff');
   const ordered = [...pickups, ...dropoffs].filter(
@@ -466,7 +553,17 @@ export async function rerouteBundle(batchId: string): Promise<void> {
   );
   if (ordered.length < 2) return;
 
-  const origin = { lat: ordered[0].lat as number, lng: ordered[0].lng as number };
+  const { data: batchOriginRow } = await c
+    .from('mise_delivery_batches')
+    .select('driver:mise_drivers(last_lat, last_lng, last_position_at)')
+    .eq('id', batchId)
+    .maybeSingle();
+  const dp = (batchOriginRow as any)?.driver;
+  const dpAge = dp?.last_position_at ? Date.now() - new Date(dp.last_position_at).getTime() : Infinity;
+  const useDriverPos = dp?.last_lat != null && dp?.last_lng != null && dpAge < 5 * 60 * 1000;
+  const origin = useDriverPos
+    ? { lat: dp.last_lat as number, lng: dp.last_lng as number }
+    : { lat: ordered[0].lat as number, lng: ordered[0].lng as number };
   const destination = {
     lat: ordered[ordered.length - 1].lat as number,
     lng: ordered[ordered.length - 1].lng as number,
@@ -512,15 +609,236 @@ export async function rerouteBundle(batchId: string): Promise<void> {
         { lat: ordered[i + 1].lat as number, lng: ordered[i + 1].lng as number },
       );
     }
+    // Fahrzeug-Typ fuer realistische ETA (B2-Fix: 'car' statt 'auto')
+    const { data: bv } = await c
+      .from('mise_delivery_batches')
+      .select('driver:mise_drivers(vehicle)')
+      .eq('id', batchId)
+      .maybeSingle();
+    const vType = (bv as any)?.driver?.vehicle ?? 'bike';
+    const speedKmh = vType === 'car' || vType === 'scooter' ? 40 : 18;
     await c
       .from('mise_delivery_batches')
       .update({
         polyline: null,
         total_distance_km: Math.round(km * 10) / 10,
-        total_eta_min: Math.round((km / 18) * 60), // bike-Annahme
+        total_eta_min: Math.round((km / speedKmh) * 60),
       })
       .eq('id', batchId);
   }
+}
+
+
+/**
+ * Smart Geographic Hold — ersetzt den alten 4-Minuten-In-Memory-Hold.
+ *
+ * Logik:
+ *  - Nahe Orders (Dropoff <= FAR_KM vom Restaurant): nie halten, sofort dispatchen.
+ *  - Ferne Orders: Suche Sibling-Order im selben Standort die noch in_zubereitung/neu ist
+ *    UND deren Dropoff geographisch nahe an unserer Order liegt (< 5 km).
+ *  - Hold-Window kommt aus tenants.dispatch_strategy (speed=0s, balance=300s, spar=600s).
+ *  - Hold wird in siblingHoldMap+siblingTargetMap gespeichert und pro Tick re-evaluated.
+ *
+ * @param o - Die zu prüfende Order
+ * @param holdSec - Hold-Dauer in Sekunden aus dem Tenant-Preset (0 = kein Hold)
+ */
+async function checkSiblingHold(o: OrderRow, holdSec: number): Promise<boolean> {
+  if (!o.kunde_lat || !o.kunde_lng || !o.location_id) return false;
+  if (!o.created_at) return false;
+
+  // Wenn hold_window = 0 (Speed-Strategie), nie halten
+  if (holdSec <= 0) return false;
+
+  // Nur Fern-Orders halten (nahe Orders sofort schicken)
+  const restaurantLoc = await sb().from('locations').select('lat, lng').eq('id', o.location_id).maybeSingle();
+  if (!restaurantLoc.data?.lat || !restaurantLoc.data?.lng) return false;
+  const dropoffDist = haversineKm(
+    { lat: restaurantLoc.data.lat, lng: restaurantLoc.data.lng },
+    { lat: o.kunde_lat, lng: o.kunde_lng }
+  );
+  if (dropoffDist <= FAR_KM) return false; // Nahe Order -> immer sofort schicken
+
+  // Aktiver Hold? Prüfen ob noch gültig
+  const existingHoldUntil = siblingHoldMap.get(o.id);
+  if (existingHoldUntil) {
+    if (Date.now() > existingHoldUntil) {
+      siblingHoldMap.delete(o.id);
+      siblingTargetMap.delete(o.id);
+      return false; // Hold abgelaufen -> normal dispatchen
+    }
+
+    // Hold aktiv: prüfen ob Sibling noch existiert (nicht storniert/fertig-dispatched)
+    const siblingTarget = siblingTargetMap.get(o.id);
+    if (siblingTarget) {
+      // Prüfe per ID ob Sibling noch undispatched ist
+      const { data: sibling } = await sb()
+        .from('customer_orders')
+        .select('id, status, mise_batch_id')
+        .eq('id', siblingTarget.siblingId)
+        .maybeSingle();
+
+      // Sibling weg, storniert, oder bereits in einem Batch → sofort dispatchen
+      if (!sibling || sibling.status === 'storniert' || sibling.mise_batch_id) {
+        siblingHoldMap.delete(o.id);
+        siblingTargetMap.delete(o.id);
+        return false;
+      }
+    } else {
+      // Kein Sibling-Target mehr bekannt → generische Prüfung
+      const { data: sibling } = await sb()
+        .from('customer_orders')
+        .select('id, status')
+        .eq('location_id', o.location_id)
+        .eq('typ', 'lieferung')
+        .is('mise_batch_id', null)
+        .neq('id', o.id)
+        .in('status', ['in_zubereitung', 'neu'])
+        .limit(1)
+        .maybeSingle();
+      if (!sibling) {
+        siblingHoldMap.delete(o.id);
+        return false;
+      }
+    }
+    return true; // Hold weiter aktiv
+  }
+
+  // Kein aktiver Hold: Sibling suchen
+  // Geografischer Hold: suche Orders desselben Standorts, deren Dropoff < 5km von unserer liegt
+  const GEO_SIBLING_RADIUS_KM = 5.0;
+  const holdWindowMs = holdSec * 1000;
+
+  // Suche Sibling-Orders: gleicher Standort, in Zubereitung/neu, noch nicht dispatched
+  // und erstellt innerhalb des Hold-Windows
+  const windowStart = new Date(Date.now() - holdWindowMs).toISOString();
+  const { data: siblings } = await sb()
+    .from('customer_orders')
+    .select('id, bestellnummer, created_at, kunde_lat, kunde_lng')
+    .eq('location_id', o.location_id)
+    .eq('typ', 'lieferung')
+    .is('mise_batch_id', null)
+    .neq('id', o.id)
+    .in('status', ['in_zubereitung', 'neu', 'fertig'])
+    .gt('created_at', windowStart)  // Nur Orders die nicht älter als hold_window sind
+    .limit(10);
+
+  if (!siblings || siblings.length === 0) return false;
+
+  // Sibling muss geografisch nah genug sein
+  const nearSibling = (siblings as any[]).find((s: any) => {
+    if (s.kunde_lat == null || s.kunde_lng == null) return false;
+    const dist = haversineKm(
+      { lat: s.kunde_lat, lng: s.kunde_lng },
+      { lat: o.kunde_lat!, lng: o.kunde_lng! }
+    );
+    return dist <= GEO_SIBLING_RADIUS_KM;
+  });
+
+  if (!nearSibling) return false;
+
+  // Hold starten: merke Sibling-ID für präzisen Re-Check
+  const holdUntil = Date.now() + holdWindowMs;
+  siblingHoldMap.set(o.id, holdUntil);
+  siblingTargetMap.set(o.id, {
+    siblingId: nearSibling.id,
+    siblingLat: nearSibling.kunde_lat,
+    siblingLng: nearSibling.kunde_lng,
+  });
+
+  const nearSiblingDist = nearSibling.kunde_lat != null && nearSibling.kunde_lng != null
+    ? haversineKm({ lat: nearSibling.kunde_lat, lng: nearSibling.kunde_lng }, { lat: o.kunde_lat!, lng: o.kunde_lng! })
+    : 0;
+
+  await logDecision('hold', null, [o.id],
+    `geographic_hold: Fern-Order (${dropoffDist.toFixed(1)} km) wartet auf Bestellung #${String(nearSibling.bestellnummer ?? '').slice(-5)} ` +
+    `(Sibling-Dropoff ${nearSiblingDist.toFixed(1)} km entfernt, max ${Math.round(holdSec / 60)} min)`
+  );
+  return true;
+}
+
+// Findet einen bestehenden pending_acceptance-Batch des Fahrers am selben Pickup-Ort (Cross-shop bundling)
+async function findBundleableBatch(driverId: string, loc: LocationRow, capBase: number = CAP_BASE): Promise<string | null> {
+  if (!loc.lat || !loc.lng) return null;
+  const c = sb();
+  const { data: batches } = await c
+    .from('mise_delivery_batches')
+    .select('id, stops:mise_delivery_batch_stops(type, lat, lng, completed_at)')
+    .eq('driver_id', driverId)
+    .in('state', ['pending_acceptance', 'assigned', 'at_restaurant'])
+    .limit(5);
+  for (const batch of (batches ?? []) as any[]) {
+    const stops = (batch.stops ?? []) as any[];
+    const pickups = stops.filter((s: any) => s.type === 'pickup' && s.completed_at == null);
+    const dropoffs = stops.filter((s: any) => s.type === 'dropoff' && s.completed_at == null);
+    if (dropoffs.length >= capBase) continue;
+    const samePickup = pickups.some((p: any) =>
+      p.lat != null && p.lng != null &&
+      haversineKm({ lat: p.lat, lng: p.lng }, { lat: loc.lat!, lng: loc.lng! }) < 0.1
+    );
+    if (samePickup) return batch.id as string;
+  }
+  return null;
+}
+
+// Haengende pending_acceptance-Batches abraeumen — Timeout 3 min (Fahrer hat nicht reagiert)
+// Der abgelehnde Fahrer wird fuer 10 min per DB-Spalte excluded_until gesperrt (persistent, crash-sicher).
+
+async function rescueStaleTours(): Promise<void> {
+  const c = sb();
+  const ago3 = new Date(Date.now() - 3 * 60 * 1000).toISOString();
+  const { data: stale } = await c
+    .from('mise_delivery_batches')
+    .select('id, driver_id, stops:mise_delivery_batch_stops(order_id)')
+    .eq('state', 'pending_acceptance')
+    .lt('created_at', ago3);
+  for (const batch of (stale ?? []) as any[]) {
+    const orderIds = Array.from(new Set((batch.stops ?? []).map((s: any) => s.order_id).filter(Boolean))) as string[];
+    // Nicht-reagierenden Fahrer kurz sperren damit er nicht sofort wieder angeboten bekommt (DB-persistent)
+    if (batch.driver_id) {
+      await c.from('mise_drivers').update({ excluded_until: new Date(Date.now() + 10 * 60_000).toISOString() }).eq('id', batch.driver_id);
+    }
+    await c.from('mise_delivery_batches')
+      .update({ state: 'cancelled', cancelled_at: new Date().toISOString() })
+      .eq('id', batch.id);
+    if (orderIds.length > 0) {
+      await c.from('customer_orders')
+        .update({ mise_batch_id: null, mise_driver_id: null })
+        .in('id', orderIds);
+    }
+    await logDecision('cancel', batch.driver_id ?? null, orderIds, 'Stale pending_acceptance >3min — Order freigegeben, Fahrer 10min gesperrt');
+  }
+  // Abgelaufene DB-Exclusions bereinigen (excluded_until in der Vergangenheit → zurücksetzen)
+  await c.from('mise_drivers').update({ excluded_until: null }).lt('excluded_until', new Date().toISOString());
+}
+
+// Betreiber-Push bei "Kein Fahrer" fuer laengere Zeit (fire-and-forget)
+async function alertOwnerNoDriver(o: OrderRow): Promise<void> {
+  if (!o.location_id) return;
+  const c = sb();
+  const { data: loc } = await c.from('locations').select('tenant_id').eq('id', o.location_id).maybeSingle();
+  if (!loc?.tenant_id) return;
+  // Nur pushen wenn >=2 Hold-Decisions in letzten 5 min (verhindert Spam beim ersten Tick)
+  const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+  const { data: recent } = await c.from('mise_frank_decisions')
+    .select('id').eq('type', 'hold').contains('order_ids', [o.id]).gte('created_at', fiveMinAgo).limit(3);
+  if (!recent || recent.length < 2) return;
+  const { data: subs } = await c.from('owner_push_subscriptions').select('endpoint, p256dh_key, auth_key').eq('tenant_id', loc.tenant_id);
+  if (!subs || subs.length === 0) return;
+  const wp = (await import('web-push').then(m => (m as any).default ?? m)) as typeof import('web-push');
+  const pub = process.env.VAPID_PUBLIC_KEY || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const priv = process.env.VAPID_PRIVATE_KEY;
+  if (!pub || !priv) return;
+  wp.setVapidDetails(process.env.VAPID_CONTACT ?? 'mailto:ops@mise-gastro.de', pub, priv);
+  const payload = JSON.stringify({
+    title: 'Kein Fahrer verfuegbar',
+    body: 'Bestellung #' + String(o.bestellnummer ?? '').slice(-5) + ' wartet — kein Fahrer online!',
+    url: '/neo/app/lieferzentrale',
+    tag: 'no-driver-' + o.id,
+    urgent: true,
+  });
+  await Promise.allSettled((subs as any[]).map((s: any) =>
+    wp.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh_key, auth: s.auth_key } }, payload).catch(() => {})
+  ));
 }
 
 async function logDecision(
