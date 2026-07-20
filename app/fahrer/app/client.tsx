@@ -16,6 +16,7 @@ import { AlarmRinger } from './alarm-ringer';
 import { PushRegister } from './push-register';
 import { UpdateBanner } from './update-banner';
 import { PermissionsGate } from './permissions-gate';
+import { startBgLocation, stopBgLocation, updateBatchId } from './bg-location';
 
 
 type Driver = {
@@ -152,9 +153,7 @@ export function FahrerApp({
   const [pending, startTransition] = useTransition();
 
   const isOnline = status?.ist_online ?? false;
-  const gpsWatchRef = useRef<number | null>(null);
-  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
-  const bgKeepaliveRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // GPS-Zustand wird von bg-location.ts verwaltet (kein lokaler Ref noetig)
   const lastGpsPushRef = useRef<number>(0);
   const [gpsOk, setGpsOk] = useState<boolean | null>(null);
   const [gpsSpeed, setGpsSpeed] = useState<number | null>(null);
@@ -306,168 +305,50 @@ export function FahrerApp({
     return () => document.removeEventListener('visibilitychange', onVis);
   }, [activeBatch, pickOpen]);
 
-  /* GPS-Tracking: bei Online-Status watchPosition starten, Updates alle 10s */
+  /* GPS-Tracking: bei Online-Status → bg-location.ts (Capacitor+PWA, Wake Lock, sendBeacon, Offline-Queue) */
   useEffect(() => {
     if (!isOnline) {
-      if (gpsWatchRef.current != null) {
-        navigator.geolocation.clearWatch(gpsWatchRef.current);
-        gpsWatchRef.current = null;
-      }
-      // Wake-Lock freigeben wenn offline
-      if (wakeLockRef.current) {
-        wakeLockRef.current.release().catch(() => {});
-        wakeLockRef.current = null;
-      }
-      if (bgKeepaliveRef.current != null) {
-        clearInterval(bgKeepaliveRef.current);
-        bgKeepaliveRef.current = null;
-      }
+      stopBgLocation();
       return;
     }
     if (!('geolocation' in navigator)) { setGpsOk(false); return; }
 
-    // Wake-Lock: Verhindert Sleep wenn Fahrer die App offen haelt
-    if ('wakeLock' in navigator && wakeLockRef.current == null) {
-      (navigator as any).wakeLock.request('screen').then((lock: WakeLockSentinel) => {
-        wakeLockRef.current = lock;
-      }).catch(() => { /* kein Wake-Lock Support oder Permission verweigert */ });
-    }
+    // Hilfsfunktion: Position an Server senden (mit React-State-Update)
+    const pushFn = async (fix: { lat: number; lng: number; heading?: number | null; speed_kmh?: number | null; accuracy_m?: number | null }) => {
+      const accuracy = fix.accuracy_m ?? null;
+      // Genauigkeits-Check: > 100m ignorieren
+      if (accuracy != null && accuracy > 100) {
+        setGpsCalibrating(true);
+        return;
+      }
+      setGpsCalibrating(false);
+      setGpsOk(true);
+      if (fix.speed_kmh != null) setGpsSpeed(Math.round(fix.speed_kmh));
+      setDriverPos({ lat: fix.lat, lng: fix.lng });
+      const now = Date.now();
+      setGpsLastAt(now);
+      if (now - lastGpsPushRef.current < 10000) return; // max alle 10s
+      lastGpsPushRef.current = now;
 
-    // Hilfsfunktion: Position an Server senden
-    const pushPosition = (lat: number, lng: number, heading: number | null, speed_kmh: number | null, accuracy_m: number | null) => {
-      supabase.auth.getSession().then(({ data: sessData }) => {
-        const token = sessData.session?.access_token ?? '';
-        const body = JSON.stringify({ lat, lng, heading, speed_kmh, accuracy_m });
-        fetch('/api/driver/v1/me/position', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-          body,
-        }).catch(() => {
-          // Offline-Queue: letzten Fix in localStorage puffern, Flush beim naechsten Push
-          try {
-            const queue = JSON.parse(localStorage.getItem('gps_queue') ?? '[]');
-            queue.push({ lat, lng, heading, speed_kmh, accuracy_m, ts: Date.now() });
-            localStorage.setItem('gps_queue', JSON.stringify(queue.slice(-50)));
-          } catch { /* noop */ }
-        });
-        // Offline-Queue leeren
-        try {
-          const raw = localStorage.getItem('gps_queue');
-          if (raw) {
-            const queue = JSON.parse(raw);
-            if (queue.length > 0) {
-              localStorage.removeItem('gps_queue');
-              // Gepufferte Punkte als einzelne POSTs nachschicken
-              for (const pt of queue) {
-                fetch('/api/driver/v1/me/position', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-                  body: JSON.stringify(pt),
-                }).catch(() => {});
-              }
-            }
-          }
-        } catch { /* noop */ }
+      const { data: sessData } = await supabase.auth.getSession();
+      const token = sessData.session?.access_token ?? '';
+      await fetch('/api/driver/v1/me/position', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ lat: fix.lat, lng: fix.lng, heading: fix.heading ?? null, speed_kmh: fix.speed_kmh ?? null, accuracy_m: accuracy }),
       });
     };
 
-    gpsWatchRef.current = navigator.geolocation.watchPosition(
-      (pos) => {
-        const accuracy = pos.coords.accuracy ?? null;
+    startBgLocation(pushFn, activeBatch?.id ?? null).catch(() => setGpsOk(false));
 
-        // Genauigkeits-Check: > 100m → ignorieren, Kalibrierungs-Hinweis anzeigen
-        if (accuracy != null && accuracy > 100) {
-          setGpsCalibrating(true);
-          return;
-        }
-        setGpsCalibrating(false);
-        setGpsOk(true);
-        if (pos.coords.speed != null) setGpsSpeed(Math.round(pos.coords.speed * 3.6));
-        setDriverPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-
-        const now = Date.now();
-        setGpsLastAt(now);
-        if (now - lastGpsPushRef.current < 10000) return;   // max alle 10s
-        lastGpsPushRef.current = now;
-
-        pushPosition(
-          pos.coords.latitude,
-          pos.coords.longitude,
-          pos.coords.heading ?? null,
-          pos.coords.speed != null ? Math.round(pos.coords.speed * 3.6) : null,
-          accuracy,
-        );
-      },
-      () => setGpsOk(false),
-      { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 },
-    );
-
-    // sendBeacon bei Sichtbarkeits-Wechsel (App minimiert / Handy sperrt)
-    const onHide = () => {
-      if (document.visibilityState !== 'hidden') return;
-      if (lastGpsPushRef.current === 0) return;
-      // Position bereits lokal bekannt → letzten Fix per Beacon sichern
-      // (Kein Fetch moeglich wenn App im BG, sendBeacon laeuft noch durch)
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          supabase.auth.getSession().then(({ data: sd }) => {
-            const token = sd.session?.access_token ?? '';
-            const body = JSON.stringify({
-              lat: pos.coords.latitude,
-              lng: pos.coords.longitude,
-              heading: pos.coords.heading ?? null,
-              speed_kmh: pos.coords.speed != null ? Math.round(pos.coords.speed * 3.6) : null,
-              accuracy_m: pos.coords.accuracy ?? null,
-            });
-            navigator.sendBeacon(
-              '/api/driver/v1/me/position',
-              new Blob([body], { type: 'application/json' }),
-            );
-          });
-        },
-        () => {},
-        { enableHighAccuracy: false, maximumAge: 30000, timeout: 2000 },
-      );
-    };
-    document.addEventListener('visibilitychange', onHide);
-
-    // Background-Keepalive: alle 30s ein manueller GPS-Request wenn App im Hintergrund
-    // Verhindert GPS-Ausfall wenn Fahrer Handy sperrt
-    bgKeepaliveRef.current = setInterval(() => {
-      if (!document.hidden) return; // im Vordergrund macht watchPosition das
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const accuracy = pos.coords.accuracy ?? null;
-          if (accuracy != null && accuracy > 100) return;
-          const now = Date.now();
-          setGpsLastAt(now);
-          lastGpsPushRef.current = now;
-          pushPosition(
-            pos.coords.latitude,
-            pos.coords.longitude,
-            pos.coords.heading ?? null,
-            pos.coords.speed != null ? Math.round(pos.coords.speed * 3.6) : null,
-            accuracy,
-          );
-        },
-        () => {},
-        { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 },
-      );
-    }, 30000);
-
-    return () => {
-      if (gpsWatchRef.current != null) {
-        navigator.geolocation.clearWatch(gpsWatchRef.current);
-        gpsWatchRef.current = null;
-      }
-      document.removeEventListener('visibilitychange', onHide);
-      if (bgKeepaliveRef.current != null) {
-        clearInterval(bgKeepaliveRef.current);
-        bgKeepaliveRef.current = null;
-      }
-    };
+    return () => stopBgLocation();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline]);
+
+  /* Batch-ID an bg-location weitergeben wenn sich activeBatch aendert */
+  useEffect(() => {
+    updateBatchId(activeBatch?.id ?? null);
+  }, [activeBatch?.id]);
 
   /* Audio-Ton + Bundling-Hint: reagiert auf neue openBatches */
   useEffect(() => {
