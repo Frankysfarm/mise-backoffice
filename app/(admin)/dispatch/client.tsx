@@ -787,6 +787,7 @@ import { DispatchPhase2595PausenzeitBoard } from './phase2595-pausenzeit-board';
 import { DispatchPhase2600KmBilanzBoard } from './phase2600-km-bilanz-board';
 import { DispatchPhase2605SchichtErloesBoard } from './phase2605-schicht-erloes-board';
 import { DispatchPhase2610TrinkgeldAnalyseBoard } from './phase2610-trinkgeld-analyse-board';
+import { DispatchPhase2615KundenbewertungsBoard } from './phase2615-kundenbewertungs-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -3976,6 +3977,8 @@ export function DispatchBoard({
           <DispatchPhase2605SchichtErloesBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2610: Trinkgeld-Analyse-Board — Fahrerliste nach Trinkgeld sortiert (niedrigste oben); Balken 0–15 € mit Ziel-Linie 5 €; KPI-Grid Team-Ø/Gestern/Ziel ≥5 €; Alert <2 €; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2610TrinkgeldAnalyseBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2615: Kundenbewertungs-Board — Fahrerliste nach Sterne sortiert (niedrigste oben); Balken 0–5 ★ mit Ziel-Linie 4.5; KPI-Grid Team-Ø/Gesamt/Ziel ≥4.5 ★; Alert <3.5; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2615KundenbewertungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}

@@ -22976,3 +22976,39 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2604–2608 implementiert. 1 neue B
 5. **Phase 2618 Kitchen:** Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Schlechte Kundenbewertung!"; Fahrerliste kompakt mit Ampel-Dots + Trend; 30-Min-Polling; in kitchen/client.tsx nach Phase2613.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2609–2613 implementiert. 1 neue Backend-API (fahrer-trinkgeld-analyse, Supabase: orders.tip_amount via delivery_tours, Ø=Summe/Touren-Anzahl, Trend vs. gestern, Ampel grün≥5/gelb2-4.99/rot<2) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2610 Dispatch (Trinkgeld-Analyse-Board, Balken 0–15 €, Ziel-Linie 5 €) / Phase2611 Fahrer-App (Mein Trinkgeld, Coaching-Tipp je Ampelzone) / Phase2613 Kitchen (Trinkgeld-Ticker, Alert <2 € "Trinkgeld sehr niedrig!"). Phase 2612 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.
+
+## Batch 2614–2618 — Fahrer-Kundenbewertungs-Score (2026-07-20)
+
+### Phase 2614 — Backend API: Fahrer-Kundenbewertungs-Score
+**Datei:** `app/api/delivery/admin/fahrer-kundenbewertung/route.ts` *(bereits vorhanden, Phase 2254)*
+**Wiederverwendet:** Ø Kundenbewertung (1–5 Sterne) je Fahrer heute; Ampel grün(≥4.5)/gelb(≥4.0)/rot(<4.0); Alert rot; Trend steigend/fallend/stabil vs. Vorwoche; Rang; Multi-Tenant; Supabase(order_ratings)+Mock
+
+### Phase 2615 — Kundenbewertungs-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2615-kundenbewertungs-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute / Gesamt-Bewertungen / Ziel ≥4.5 ★); Fahrerliste nach Rating sortiert (niedrigste oben); Balken 0–5 ★ mit grüner gestrichelter Ziel-Linie bei 4.5 ★; Alert-Banner rot "Schlechte Bewertung!" mit Fahrernamen; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2610 ✅
+
+### Phase 2616 — Meine Kundenbewertung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2616-meine-kundenbewertung.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Sternwert groß + Sterne-Icons + Farbcode; Balken 0–5 ★ mit gestrichelter Ziel-Linie bei 4.5 ★; KPI-Grid (Trend/Ziel ≥4.5 ★/Rang heute/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2611 ✅
+
+### Phase 2617 — Storefront
+Übersprungen (Bewertungsdaten intern irrelevant für Kunden) ✅
+
+### Phase 2618 — Kundenbewertungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2618-kundenbewertungs-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø ★; Alert-Banner "Schlechte Kundenbewertung!" mit Fahrernamen; Fahrerliste kompakt nach ★ sortiert (niedrigste oben) mit Ampel-Dots, Trend-Pfeil und ★-Wert; Ziel-Anzeige; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2613 ✅
+
+### Nächste Phasen 2619–2623 (für nächsten Ingenieur) — Fahrer-Erstkontakt-Zeit
+1. **Phase 2619 Backend:** GET /api/delivery/admin/fahrer-erstkontakt-zeit — Ø Zeit vom Schichtbeginn bis zur ersten Lieferung je Fahrer heute in Min; Ampel grün(≤10 Min)/gelb(11–20 Min)/rot(>20 Min); Alert >20 Min; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_tours: diff zwischen driver login-time und first started_at)+Mock.
+2. **Phase 2620 Dispatch:** Erstkontakt-Board — Fahrerliste nach Zeit sortiert (höchste oben); Balken 0–30 Min mit Ziel-Linie 10 Min (grün/gestrichelt); KPI-Grid Team-Ø/Gestern/Ziel ≤10 Min; Alert-Banner >20 Min; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2615.
+3. **Phase 2621 Fahrer-App:** Meine Erstkontakt-Zeit — Min-Wert groß + Farbcode; Balken mit Ziel-Linie 10 Min; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2616.
+4. **Phase 2622 Storefront:** Überspringen (Erstkontakt-Daten intern irrelevant für Kunden).
+5. **Phase 2623 Kitchen:** Erstkontakt-Ticker — Team-Ø Min; Alert >20 Min "Fahrer Anlaufzeit zu lang!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2618.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2614–2618 implementiert. Backend-API wiederverwendet (fahrer-kundenbewertung Phase 2254). 3 neue Frontend-Komponenten erstellt und integriert: Phase2615 Dispatch (Kundenbewertungs-Board, Balken 0–5 ★, Ziel-Linie 4.5 ★, Sterne-Icons) / Phase2616 Fahrer-App (Meine Kundenbewertung, Sterne-Icons groß, Coaching-Tipp je Ampelzone) / Phase2618 Kitchen (Kundenbewertungs-Ticker, Alert "Schlechte Kundenbewertung!"). Phase 2617 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.

@@ -336,6 +336,7 @@ import { KitchenPhase2598PausenzeitTicker } from './phase2598-pausenzeit-ticker'
 import { KitchenPhase2603KmBilanzTicker } from './phase2603-km-bilanz-ticker';
 import { KitchenPhase2608SchichtErloesTicker } from './phase2608-schicht-erloes-ticker';
 import { KitchenPhase2613TrinkgeldTicker } from './phase2613-trinkgeld-ticker';
+import { KitchenPhase2618KundenbewertungsTicker } from './phase2618-kundenbewertungs-ticker';
 import { KitchenPhase2640SmartKochzeitPrognoseCockpit } from './phase2640-smart-kochzeit-prognose-cockpit';
 import { KitchenPhase2645SmartTimingEchtzeitCockpitFinal } from './phase2645-smart-timing-echtzeit-cockpit-final';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
@@ -3549,6 +3550,8 @@ export function KitchenBoard({
       <KitchenPhase2608SchichtErloesTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2613: Trinkgeld-Ticker — Team-Ø €; Alert <2 € "Trinkgeld sehr niedrig!"; Kompakte Fahrerliste (niedrigstes Trinkgeld oben) mit Ampel + Trend; 30-Min-Polling */}
       <KitchenPhase2613TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2618: Kundenbewertungs-Ticker — Team-Ø ★; Alert <3.5 "Schlechte Kundenbewertung!"; Kompakte Fahrerliste (niedrigste ★ oben) mit Ampel + Trend; 30-Min-Polling */}
+      <KitchenPhase2618KundenbewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
