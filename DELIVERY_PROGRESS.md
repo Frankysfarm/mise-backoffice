@@ -23886,3 +23886,44 @@ Frontend-Ingenieur-Agent (2026-07-20): Phasen 2741–2745 implementiert. 1 neue 
 5. **Phase 2780 Kitchen:** Auslastungs-Prognose-Ticker — Team-Ø Auslastung; Alert <50% "Fahrer unterausgelastet!"; Fahrerliste kompakt; Ziel >80%; 30-Min-Polling; in kitchen/client.tsx nach Phase2775.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2771–2775 implementiert. 1 neue Backend-API (fahrer-tages-performance-index, Composite Score 0–100 aus 4 Teilscores: Touren 30+Pünktlichkeit 30+Fehlerquote invertiert 20+Abschlussrate 20, Ampel grün≥80/gelb60–79/rot<60, Alert "Tagesleistung zu niedrig!", Trend vs. gestern, driver_id-Modus, Supabase delivery_batches+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2772 Dispatch (TagesPerformanceBoard, Score-Balken 0–100 Ziel-Linie 80, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, interaktiver Drill-down Teilscores, Trend-Pfeile grün=steigend/rot=fallend) / Phase2773 Fahrer-App (MeinTagesPerformanceIndex, Score 4xl, Teilscore-Balken alle 4 Kategorien, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2775 Kitchen (TagesPerformanceTicker, Team-Ø Pkt, Alert je Fahrer <60, aufsteigend nach Score niedrigste oben, Ziel ≥80 Pkt). Phase 2774 Storefront übersprungen. TypeScript ✓ 0 neue Fehler (224619 pre-existing, unverändert). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2776–2780 — Fahrer-Schicht-Auslastungs-Prognose (2026-07-20)
+
+### Phase 2776 — Backend API: Fahrer-Schicht-Auslastungs-Prognose
+**Datei:** `app/api/delivery/admin/fahrer-schicht-auslastung/route.ts` *(bereits vorhanden)*
+**GET:** `?location_id=<uuid>` — Prognostizierte Auslastung je Fahrer für Restschicht (ratePerHour × remainingMin/60); remainingMin, deliveriesToday, activeTours, ratePerHour, projectedTotal; Multi-Tenant; Supabase(driver_shifts+mise_delivery_batches)+Mock
+
+### Phase 2777 — Schicht-Auslastungs-Prognose-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2777-auslastungs-prognose-board.tsx` *(neu)*
+**Component:** `DispatchPhase2777AuslastungsPrognosBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <50% "Fahrer unterausgelastet!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel >80%); Fahrerliste nach Auslastung absteigend; Balken 0–150% mit Ziel-Linie >80%; Ampel-Dots + Trend-Pfeile; Prognose Touren-Total + Rate/h; Freie-Kapazität-Anzeige; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2772 ✅
+
+### Phase 2778 — Meine Restschicht-Prognose (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2778-meine-restschicht-prognose.tsx` *(neu)*
+**Component:** `FahrerPhase2778MeineRestschichtPrognose`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Prognostizierte Auslastung % 4xl groß + Farbcode; Restschicht-Countdown (Stunden/Minuten); Balken 0–150% Ziel >80%; KPI-Grid (Trend/Ziel/Ampel/Team-Ø); Prognose-Details (Touren/Rate/Gesamt); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2773 ✅
+
+### Phase 2779 — Storefront
+Übersprungen (Schicht-Prognose intern irrelevant für Kunden) ✅
+
+### Phase 2780 — Schicht-Auslastungs-Prognose-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2781-auslastungs-prognose-ticker.tsx` *(neu, als Phase2781 — Phase2780 bereits durch anderen Agenten belegt)*
+**Component:** `KitchenPhase2781AuslastungsPrognoseTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø %; Alert-Banner je Fahrer <50% "Fahrer unterausgelastet!"; Fahrerliste kompakt nach Auslastung absteigend sortiert mit Ampel-Dots, Trend-Pfeil, Restschicht-Zeit und %-Wert; Freie-Kapazität-Hinweis; Ziel-Anzeige >80%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2775 ✅
+
+### Nächste Phasen 2786–2790 (für nächsten Ingenieur) — Fahrer-Reaktionszeit-auf-Zuweisung
+1. **Phase 2786 Backend:** GET /api/delivery/admin/fahrer-reaktionszeit — Zeit von Zuweisung bis Annahme je Fahrer heute (assigned_at bis accepted_at in mise_delivery_batches); Ampel grün(≤2 Min)/gelb(2–5 Min)/rot(>5 Min); Alert >5 Min "Langsame Reaktion!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2787 Dispatch:** Reaktionszeit-Board — Fahrerliste nach Ø-Reaktionszeit aufsteigend (schnellste oben); Balken 0–10 Min mit Ziel-Linie 2 Min; KPI-Grid Team-Ø/Bester/Ziel ≤2 Min; Alert-Banner >5 Min; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2777.
+3. **Phase 2788 Fahrer-App:** Meine Reaktionszeit — Ø Min 4xl groß + Farbcode; Balken 0–10 Min Ziel 2 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2778.
+4. **Phase 2789 Storefront:** Überspringen (Reaktionszeit intern irrelevant für Kunden).
+5. **Phase 2790 Kitchen:** Reaktionszeit-Ticker — Team-Ø Min; Alert >5 Min "Langsame Reaktion!"; Fahrerliste kompakt aufsteigend; Ziel ≤2 Min; 30-Min-Polling; in kitchen/client.tsx nach Phase2781.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2776–2780 implementiert. Phase2776 Backend bereits vorhanden (fahrer-schicht-auslastung API: ratePerHour, remainingMin, projectedTotal, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2777 Dispatch (AuslastungsPrognosBoard, Balken 0–150% Ziel-Linie >80%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <50%, Prognose Touren+Rate) / Phase2778 Fahrer-App (MeineRestschichtPrognose, % 4xl, Restschicht-Countdown, Prognose-Details, Coaching-Tipp, isOnline-Guard) / Phase2781 Kitchen (AuslastungsPrognoseTicker, Team-Ø %, Alert je Fahrer, absteigend nach %, Restschicht-Zeit, Ziel >80%). Phase 2779 Storefront übersprungen. Phase 2780 Kitchen als Phase2781 implementiert (Phase2780-Name bereits durch anderen Agenten belegt). TS7006 pre-existing (12.715 global, Muster identisch zu allen anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.

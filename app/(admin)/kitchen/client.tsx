@@ -371,6 +371,7 @@ import { KitchenPhase2760BestellwertTicker } from './phase2760-bestellwert-ticke
 import { KitchenPhase2765LiefergebietTicker } from './phase2765-liefergebiet-ticker';
 import { KitchenPhase2770FehlerquoteTicker } from './phase2770-fehlerquote-ticker';
 import { KitchenPhase2775TagesPerformanceTicker } from './phase2775-tages-performance-ticker';
+import { KitchenPhase2781AuslastungsPrognoseTicker } from './phase2781-auslastungs-prognose-ticker';
 import { KitchenPhase2785SmartTimingUltimateCockpit } from './phase2785-smart-timing-ultimate-cockpit';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
@@ -3653,6 +3654,8 @@ export function KitchenBoard({
       <KitchenPhase2770FehlerquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2775: Tages-Performance-Ticker — Team-Ø Pkt; Alert <60 "Tagesleistung zu niedrig!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ampel-Dots + Trend; Ziel ≥80 Pkt; 30-Min-Polling */}
       <KitchenPhase2775TagesPerformanceTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2781: Schicht-Auslastungs-Prognose-Ticker — Team-Ø Auslastung %; Alert <50% "Fahrer unterausgelastet!"; Fahrerliste kompakt absteigend; Restschicht-Zeit; Ziel >80%; 30-Min-Polling */}
+      <KitchenPhase2781AuslastungsPrognoseTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2785: Smart-Timing Ultimate Cockpit — Echtzeit-Countdown + Farbkodierung grün/gelb/rot + Fahrer-ETA-Bridge + On-Time-Rate-Gauge + Kochstart-Empfehlung + Batch-Alert; 15-Sek-Polling + 1-Sek-Tick */}
       <KitchenPhase2785SmartTimingUltimateCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
@@ -10421,3 +10424,4 @@ export { KitchenPhase2765LiefergebietTicker } from './phase2765-liefergebiet-tic
 export { KitchenPhase2770FehlerquoteTicker } from './phase2770-fehlerquote-ticker';
 // Phase 2775 — Tages-Performance-Ticker (Team-Ø Composite Score; Alert <60 "Tagesleistung zu niedrig!"; aufsteigend sortiert niedrigste oben; Ampel-Dots + Trend; Ziel ≥80 Pkt; 30-Min-Polling)
 export { KitchenPhase2775TagesPerformanceTicker } from './phase2775-tages-performance-ticker';
+export { KitchenPhase2781AuslastungsPrognoseTicker } from './phase2781-auslastungs-prognose-ticker';

@@ -817,6 +817,7 @@ import { DispatchPhase2757BestellwertBoard } from './phase2757-bestellwert-board
 import { DispatchPhase2762LiefergebietBoard } from './phase2762-liefergebiet-board';
 import { DispatchPhase2767FehlerquoteBoard } from './phase2767-fehlerquote-board';
 import { DispatchPhase2772TagesPerformanceBoard } from './phase2772-tages-performance-board';
+import { DispatchPhase2777AuslastungsPrognosBoard } from './phase2777-auslastungs-prognose-board';
 import { DispatchPhase2780TourScoreFinalRangliste } from './phase2780-tour-score-final-rangliste';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
@@ -4070,6 +4071,8 @@ export function DispatchBoard({
           <DispatchPhase2767FehlerquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2772: Tages-Performance-Board — Composite Score 0–100 je Fahrer (Touren 30+Pünktl 30+Fehler 20+Abschl 20); absteigend; KPI-Grid Team-Ø/Bester/Ziel ≥80; Alert <60 "Tagesleistung zu niedrig!"; Teilscore-Drill-down; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2772TagesPerformanceBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2777: Schicht-Auslastungs-Prognose-Board — Prognostizierte Auslastung je Fahrer; Balken 0–150% Ziel-Linie >80%; KPI-Grid Team-Ø/Bester/Ziel; Alert <50% "Fahrer unterausgelastet!"; Prognose Touren + Rate; 30-Min-Polling */}
+          <DispatchPhase2777AuslastungsPrognosBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2780: Tour-Score Final-Rangliste — Score-Ring SVG 0–100 je Fahrer farbkodiert; Team-Ø + Trend; farbkodierte Stop-Dots; Fortschrittsbalken; ETA-Badge; expandierbare Stop-Liste; Ranking-Badges; 25-Sek-Polling */}
           <DispatchPhase2780TourScoreFinalRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
@@ -11847,3 +11850,4 @@ export { DispatchPhase2762LiefergebietBoard } from './phase2762-liefergebiet-boa
 export { DispatchPhase2767FehlerquoteBoard } from './phase2767-fehlerquote-board';
 // Phase 2772 — Tages-Performance-Board (Composite Score 0–100; Touren 30+Pünktl 30+Fehler 20+Abschl 20; absteigend; Alert <60 "Tagesleistung zu niedrig!"; Teilscore-Drill-down; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2772TagesPerformanceBoard } from './phase2772-tages-performance-board';
+export { DispatchPhase2777AuslastungsPrognosBoard } from './phase2777-auslastungs-prognose-board';

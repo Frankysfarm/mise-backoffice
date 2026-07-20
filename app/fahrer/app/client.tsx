@@ -725,6 +725,7 @@ import { FahrerPhase2758MeinBestellwert } from './phase2758-mein-bestellwert';
 import { FahrerPhase2763MeinLiefergebiet } from './phase2763-mein-liefergebiet';
 import { FahrerPhase2768MeineFehlerquote } from './phase2768-meine-fehlerquote';
 import { FahrerPhase2773MeinTagesPerformanceIndex } from './phase2773-mein-tages-performance-index';
+import { FahrerPhase2778MeineRestschichtPrognose } from './phase2778-meine-restschicht-prognose';
 import { FahrerPhase2780TourStoppNavigationsFinalHub } from './phase2780-tour-stopp-navigations-final-hub';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
@@ -6159,6 +6160,8 @@ export function FahrerApp({
           <FahrerPhase2768MeineFehlerquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2773: Mein Tages-Performance-Index — Composite Score 0–100 (Touren+Pünktl+Fehler+Abschl) 4xl; Teilscore-Balken; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2773MeinTagesPerformanceIndex driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2778: Meine Restschicht-Prognose — Prognostizierte Auslastung % 4xl; Restschicht-Countdown; Balken 0–150% Ziel >80%; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Prognose Touren + Rate; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2778MeineRestschichtPrognose driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2780: Tour-Stopp Navigations-Final-Hub — Hero-Stopp + One-Tap-Navigation Google Maps/Waze + ETA-Countdown + Kunden-Anruf + Stopp-Bestätigung + Nächste-Stopps-Vorschau + Fortschrittsring; 20-Sek-Polling + 1-Sek-Tick */}
           <FahrerPhase2780TourStoppNavigationsFinalHub driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
@@ -9479,3 +9482,4 @@ export { FahrerPhase2763MeinLiefergebiet } from './phase2763-mein-liefergebiet';
 export { FahrerPhase2768MeineFehlerquote } from './phase2768-meine-fehlerquote';
 // Phase 2773 — Mein Tages-Performance-Index (Composite Score 0–100 4xl; Teilscore-Balken Touren/Pünktl/Fehler/Abschl; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2773MeinTagesPerformanceIndex } from './phase2773-mein-tages-performance-index';
+export { FahrerPhase2778MeineRestschichtPrognose } from './phase2778-meine-restschicht-prognose';
