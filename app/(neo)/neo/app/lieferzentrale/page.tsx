@@ -1,7 +1,7 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
 import QRCode from 'qrcode';
-import { Kanban, CopyBtn, FahrerLiveMap, BatchPanel } from './client';
+import { Kanban, CopyBtn, FahrerLiveMap, BatchPanel, HealthBar, DispatchControls } from './client';
 export const dynamic = 'force-dynamic';
 export default async function Lieferzentrale() {
   const emp = await getCurrentEmployee();
@@ -19,7 +19,6 @@ export default async function Lieferzentrale() {
     .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig', 'unterwegs'])
     .order('created_at', { ascending: true })
     .limit(80);
-  // Fahrer für diesen Tenant laden
   const { data: driverLinks } = emp?.tenant_id
     ? await supabase.from('mise_driver_tenants').select('driver_id').eq('tenant_id', emp.tenant_id)
     : { data: null };
@@ -45,13 +44,17 @@ export default async function Lieferzentrale() {
   const locationId = loc?.id ?? '';
   return (
     <div style={{ maxWidth: 1180 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 7, background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 999, padding: '6px 13px' }}><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#10B981' }} /><span style={{ fontSize: 13, fontWeight: 700, color: '#047857' }}>Shop geöffnet · live verbunden</span></span>
           <span style={{ fontSize: 13, color: '#64748B' }}>{open} offene Bestellungen</span>
         </div>
         <span style={{ fontSize: 13, color: '#94A3B8' }}>Verknüpft mit Shop & Backoffice</span>
       </div>
+
+      {/* Health Bar: KPI-Chips */}
+      <HealthBar />
+
       <div style={{ display: 'flex', alignItems: 'center', gap: 24, background: 'linear-gradient(120deg,#1E1B4B,#312E81 60%,#4338CA)', borderRadius: 16, padding: '20px 26px', marginBottom: 18, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, opacity: .5, backgroundImage: 'radial-gradient(circle at 1px 1px,rgba(255,255,255,.1) 1px,transparent 0)', backgroundSize: '22px 22px' }} />
         <div style={{ position: 'relative', flex: 1 }}>
@@ -66,8 +69,13 @@ export default async function Lieferzentrale() {
         </div>
         {qr && <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}><div style={{ width: 108, height: 108, background: '#fff', borderRadius: 14, padding: 9, boxShadow: '0 10px 26px rgba(0,0,0,.25)' }}><img src={qr} alt="QR-Code zur Lieferzentrale" width={90} height={90} style={{ display: 'block', width: '100%', height: '100%' }} /></div><span style={{ fontSize: 11.5, fontWeight: 600, color: '#C7D2FE' }}>Scannen zum Öffnen</span></div>}
       </div>
+
       <FahrerLiveMap initial={drivers} center={{ lat: locPos?.lat ?? null, lng: locPos?.lng ?? null }} locationId={locationId} />
       <BatchPanel initial={batches} locationId={locationId} />
+
+      {/* Dispatch Steuerung: Strategy, Hold-Window, Stale Orders */}
+      <DispatchControls />
+
       <Kanban orders={list} locationId={locationId} />
     </div>
   );

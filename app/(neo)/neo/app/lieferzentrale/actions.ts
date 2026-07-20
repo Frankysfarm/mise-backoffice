@@ -49,7 +49,6 @@ export async function getDriverPositions() {
       overdue = (now - pickupMs) > b.total_eta_min * 1.5 * 60 * 1000;
     }
     const stationary = d.state === 'in_progress' && posAgeMs > 10 * 60 * 1000;
-    // Next unfinished dropoff stop for polyline
     const nextStop = b?.stops
       ? (b.stops as any[])
           .filter((s: any) => s.type === 'dropoff' && !s.completed_at && s.lat != null && s.lng != null)
@@ -90,4 +89,209 @@ export async function getOrdersForKanban(locationId: string) {
     .order('created_at', { ascending: true })
     .limit(80);
   return (orders ?? []) as any[];
+}
+
+// ─── NEU: Health Stats ──────────────────────────────────────────────────────
+export async function getHealthStats(): Promise<{
+  avgDeliveryMin: number | null;
+  onTimePct: number | null;
+  onlineDrivers: number;
+  waitingOrders: number;
+}> {
+  const emp = await getCurrentEmployee();
+  if (!emp?.tenant_id) return { avgDeliveryMin: null, onTimePct: null, onlineDrivers: 0, waitingOrders: 0 };
+  const svc = createServiceClient();
+  const { data: links } = await svc.from('mise_driver_tenants').select('driver_id').eq('tenant_id', emp.tenant_id);
+  const driverIds = (links ?? []).map((x: any) => x.driver_id as string).filter(Boolean);
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const [driversRes, batchesRes, staleRes] = await Promise.all([
+    driverIds.length
+      ? svc.from('mise_drivers').select('id, state').in('id', driverIds)
+      : { data: [] as any[] },
+    driverIds.length
+      ? svc.from('mise_delivery_batches')
+          .select('id, accepted_at, completed_at, total_eta_min, stops:mise_delivery_batch_stops(completed_at, deliver_by)')
+          .in('driver_id', driverIds)
+          .eq('state', 'completed')
+          .gte('completed_at', todayStart.toISOString())
+          .limit(200)
+      : { data: [] as any[] },
+    emp.location_id
+      ? svc.from('customer_orders')
+          .select('id, bestellnummer, created_at, kunde_name')
+          .eq('location_id', emp.location_id)
+          .eq('status', 'fertig')
+          .eq('typ', 'lieferung')
+          .is('mise_batch_id', null)
+          .is('mise_driver_id', null)
+          .order('created_at', { ascending: true })
+          .limit(50)
+      : { data: [] as any[] },
+  ]);
+
+  const drivers = driversRes.data ?? [];
+  const batches = batchesRes.data ?? [];
+  const stale = staleRes.data ?? [];
+
+  const onlineDrivers = drivers.filter((d: any) => d.state !== 'offline').length;
+
+  const completedWithBoth = batches.filter((b: any) => b.accepted_at && b.completed_at);
+  const avgDeliveryMin = completedWithBoth.length > 0
+    ? Math.round(
+        completedWithBoth.reduce((sum: number, b: any) => {
+          return sum + (new Date(b.completed_at).getTime() - new Date(b.accepted_at).getTime()) / 60000;
+        }, 0) / completedWithBoth.length
+      )
+    : null;
+
+  let onTimeCount = 0;
+  let measurableCount = 0;
+  for (const b of completedWithBoth) {
+    const stops = (b.stops ?? []) as any[];
+    const dropoffs = stops.filter((s: any) => s.completed_at);
+    for (const s of dropoffs) {
+      measurableCount++;
+      const completedMs = new Date(s.completed_at).getTime();
+      if (s.deliver_by) {
+        if (completedMs <= new Date(s.deliver_by).getTime()) onTimeCount++;
+      } else {
+        const acceptedMs = new Date(b.accepted_at).getTime();
+        if (completedMs - acceptedMs < 45 * 60 * 1000) onTimeCount++;
+      }
+    }
+  }
+  const onTimePct = measurableCount > 0 ? Math.round((onTimeCount / measurableCount) * 100) : null;
+
+  const now = Date.now();
+  const waitingOrders = stale.filter((o: any) => {
+    const ageMin = (now - new Date(o.created_at).getTime()) / 60000;
+    return ageMin >= 2;
+  }).length;
+
+  return { avgDeliveryMin, onTimePct, onlineDrivers, waitingOrders };
+}
+
+// ─── NEU: Stale Orders ──────────────────────────────────────────────────────
+export type StaleOrder = {
+  id: string;
+  bestellnummer: string | null;
+  created_at: string;
+  kunde_name: string | null;
+  address: string | null;
+  waitMin: number;
+};
+
+export async function getStaleOrders(): Promise<StaleOrder[]> {
+  const emp = await getCurrentEmployee();
+  if (!emp?.location_id) return [];
+  const svc = createServiceClient();
+  const { data } = await svc
+    .from('customer_orders')
+    .select('id, bestellnummer, created_at, kunde_name, lieferadresse')
+    .eq('location_id', emp.location_id)
+    .eq('status', 'fertig')
+    .eq('typ', 'lieferung')
+    .is('mise_batch_id', null)
+    .is('mise_driver_id', null)
+    .order('created_at', { ascending: true })
+    .limit(50);
+
+  const now = Date.now();
+  return ((data ?? []) as any[])
+    .filter((o: any) => (now - new Date(o.created_at).getTime()) >= 2 * 60 * 1000)
+    .map((o: any) => ({
+      id: o.id,
+      bestellnummer: o.bestellnummer ?? null,
+      created_at: o.created_at,
+      kunde_name: o.kunde_name ?? null,
+      address: o.lieferadresse ?? null,
+      waitMin: Math.floor((now - new Date(o.created_at).getTime()) / 60000),
+    }));
+}
+
+// ─── NEU: Dispatch Config ───────────────────────────────────────────────────
+export async function getDispatchConfig(): Promise<{ preset: string; hold_window_min: number } | null> {
+  const emp = await getCurrentEmployee();
+  if (!emp?.tenant_id) return null;
+  const svc = createServiceClient();
+  const { data } = await svc
+    .from('mise_dispatch_config')
+    .select('preset, hold_window_min')
+    .eq('tenant_id', emp.tenant_id)
+    .maybeSingle();
+  return data ?? { preset: 'balance', hold_window_min: 5 };
+}
+
+export async function setDispatchConfig(preset: string, holdWindowMin: number): Promise<void> {
+  const emp = await getCurrentEmployee();
+  if (!emp?.tenant_id) throw new Error('Nicht autorisiert');
+  const svc = createServiceClient();
+  const { error } = await svc
+    .from('mise_dispatch_config')
+    .upsert({ tenant_id: emp.tenant_id, preset, hold_window_min: holdWindowMin }, { onConflict: 'tenant_id' });
+  if (error) throw new Error('Config-Update fehlgeschlagen: ' + error.message);
+}
+
+export async function getOnlineDrivers() {
+  const emp = await getCurrentEmployee();
+  if (!emp?.tenant_id) return [];
+  const svc = createServiceClient();
+  const { data: links } = await svc.from('mise_driver_tenants').select('driver_id').eq('tenant_id', emp.tenant_id);
+  const ids = (links ?? []).map((x: any) => x.driver_id as string).filter(Boolean);
+  if (!ids.length) return [];
+  const { data } = await svc
+    .from('mise_drivers')
+    .select('id, name, vehicle, state')
+    .in('id', ids)
+    .neq('state', 'offline');
+  return (data ?? []) as { id: string; name: string; vehicle: string; state: string }[];
+}
+
+// ─── NEU: Cancel & Reassign ─────────────────────────────────────────────────
+export async function cancelBatch(batchId: string): Promise<void> {
+  const emp = await getCurrentEmployee();
+  if (!emp?.tenant_id) throw new Error('Nicht autorisiert');
+  const svc = createServiceClient();
+  const { error } = await svc.rpc('cancel_mise_batch', { p_batch_id: batchId, p_reason: 'manual' });
+  if (error) throw new Error('Tour-Storno fehlgeschlagen: ' + error.message);
+  revalidatePath('/neo/app/lieferzentrale');
+}
+
+export async function reassignBatch(batchId: string, newDriverId: string): Promise<void> {
+  const emp = await getCurrentEmployee();
+  if (!emp?.tenant_id) throw new Error('Nicht autorisiert');
+  const svc = createServiceClient();
+  const { error } = await svc.rpc('reassign_mise_batch', { p_batch_id: batchId, p_new_driver_id: newDriverId });
+  if (error) throw new Error('Fahrerwechsel fehlgeschlagen: ' + error.message);
+  revalidatePath('/neo/app/lieferzentrale');
+}
+
+export async function reorderBatchStop(stopId: string, newSequence: number): Promise<void> {
+  const emp = await getCurrentEmployee();
+  if (!emp?.tenant_id) throw new Error('Nicht autorisiert');
+  const svc = createServiceClient();
+  const { error } = await svc
+    .from('mise_delivery_batch_stops')
+    .update({ sequence: newSequence })
+    .eq('id', stopId);
+  if (error) throw new Error('Stop-Reihenfolge fehlgeschlagen: ' + error.message);
+  revalidatePath('/neo/app/lieferzentrale');
+}
+
+export async function triggerSmartDispatch(): Promise<{ ok: boolean; message?: string }> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000';
+    const bearer = process.env.CRON_SECRET ?? '';
+    const res = await fetch(`${baseUrl}/api/cron/smart-dispatch`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${bearer}` },
+    });
+    if (!res.ok) return { ok: false, message: await res.text() };
+    return { ok: true };
+  } catch (e: any) {
+    return { ok: false, message: e?.message };
+  }
 }
