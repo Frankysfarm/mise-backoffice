@@ -1,5 +1,29 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #509 — 2026-07-20
+
+**Geprüfte Commits:** `5495530e` (Backend Phasen 2671–2675 — Fahrer-Nachtschichten)
+
+**Build:** ✓ Exit Code 0 — TypeScript ✓ Exit Code 0, 0 Fehler ✅
+
+**Integrationen (3/3 korrekt):**
+
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2672 | Dispatch | DispatchPhase2672NachtschichtBoard | dispatch/client.tsx ✅ |
+| 2673 | Fahrer | FahrerPhase2673MeineNachtschicht | fahrer/app/client.tsx ✅ |
+| 2675 | Kitchen | KitchenPhase2675NachtschichtTicker | kitchen/client.tsx ✅ |
+
+Phase 2674 Storefront korrekt übersprungen (Nachtschicht-Daten interne Kennzahl, irrelevant für Kunden).
+
+**API-Logik:** Nachtfenster 22:00–06:00, Ampel grün=0h/gelb≤3h/rot>3h, alert_erschoepfung bei nacht_h>3, Supabase driver_shifts + Mock-Fallback. Minute-genaue Berechnung (60s-Schritte).
+
+**CEO-Fixes:** 0 — alle Integrationen vom Backend-Agent selbst korrekt gesetzt.
+
+**Nächste Phasen:** 2676–2680 (Fahrer-Schicht-Belastung oder analoges Feature).
+
+---
+
 ## CEO Review #508 — 2026-07-20
 
 **Geprüfte Commits:** `598e588f` (Backend Phasen 2661–2665 — Fahrer-Kraftstoffkosten) + `5b1aef4b` (Frontend Phasen 2666–2670 — Fahrer-Überstunden)
