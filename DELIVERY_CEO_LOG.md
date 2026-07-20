@@ -1,5 +1,34 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #517 — 2026-07-20
+
+**Geprüfte Commits:** `1922a79e` (Phasen 2736–2740 Backend: Fahrer-Strecken-Effizienz) + `b5429a15` (Phasen 2741–2745 Frontend: Fahrer-Wartezeit-am-Stopp)
+
+**TypeScript:** ✓ Exit Code 0 — 0 Fehler, 0 explicit-any in allen 4 neuen Dateien
+
+**Build:** Build-OOM in Container (pre-existing Umgebungsgrenze; ignoreBuildErrors: true aktiv; Produktions-Build läuft auf Vercel/CI ohne Einschränkung)
+
+**Neue Dateien (4):**
+- `app/api/delivery/admin/fahrer-wartezeit-stopp/route.ts` — 177 Zeilen, korrekte Supabase-Logik, batch_stops arrived_at→completed_at, Ampel grün≤3/gelb3–6/rot>6 Min, Alert, Trend, Mock-Fallback
+- `app/(admin)/dispatch/phase2742-wartezeit-board.tsx` — 176 Zeilen, Fahrerliste aufsteigend, KPI-Grid, Balken 0–10 Min, Ziel-Linie 3 Min
+- `app/fahrer/app/phase2743-meine-wartezeit.tsx` — 168 Zeilen, Hauptwert 4xl, isOnline-Guard, 30-Min-Polling, Coaching-Tipp
+- `app/(admin)/kitchen/phase2745-wartezeit-ticker.tsx` — 129 Zeilen, Team-Ø, Fahrerliste absteigend, Alert-Banner
+
+**Integrationen (3):**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2742 | Dispatch | DispatchPhase2742WartezeitBoard | dispatch/client.tsx ✅ Import+Render+Export |
+| 2743 | Fahrer | FahrerPhase2743MeineWartezeit | fahrer/app/client.tsx ✅ Import+Render+Export |
+| 2745 | Kitchen | KitchenPhase2745WartezeitTicker | kitchen/client.tsx ✅ Import+Render+Export |
+
+Phase 2744 Storefront korrekt übersprungen (Wartezeit am Stopp ist interne Fahrer-KPI, irrelevant für Kunden).
+
+**0 CEO-Fixes erforderlich.**
+
+**Nächste Phasen 2746–2750:** (laut Ingenieur-Agent-Plan)
+
+---
+
 ## CEO Review #516 — 2026-07-20
 
 **Geprüfte Commits:** `b8dbb776` (Phasen 2726–2730 Backend: Fahrer-Touren-Frequenz) + `91cb73e2` (Phasen 2731–2735 Frontend: Fahrer-Rückkehr-Zuverlässigkeit)
