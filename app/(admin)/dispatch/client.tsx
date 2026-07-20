@@ -11816,3 +11816,5 @@ export { DispatchPhase2737StreckenEffizienzBoard } from './phase2737-strecken-ef
 export { DispatchPhase2742WartezeitBoard } from './phase2742-wartezeit-board';
 // Phase 2747 — Schicht-Punkte-Board (Composite Score 0–100 Pkt; Teilscores; Ampel grün≥75/gelb50–74/rot<50; Alert <50; Trend; 30-Min-Polling)
 export { DispatchPhase2747SchichtPunkteBoard } from './phase2747-schicht-punkte-board';
+// Phase 2752 — Tour-Score Live-Visualisierung (Score-Ring pro Fahrer; Stopp-Sequenz expandierbar; Delay-Anzeige; Flotten-Score + On-Time-Rate; 15-Sek-Polling)
+export { DispatchPhase2752TourScoreLiveVisualisierung } from './phase2752-tour-score-live-visualisierung';

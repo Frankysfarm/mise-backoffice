@@ -10389,3 +10389,5 @@ export { KitchenPhase2740StreckenEffizienzTicker } from './phase2740-strecken-ef
 export { KitchenPhase2745WartezeitTicker } from './phase2745-wartezeit-ticker';
 // Phase 2750 — Schicht-Punkte-Ticker (Team-Ø Pkt; Alert <50 "Schicht-Score zu niedrig!"; Fahrerliste aufsteigend nach Punkten; Ziel ≥75 Pkt; 30-Min-Polling)
 export { KitchenPhase2750SchichtPunkteTicker } from './phase2750-schicht-punkte-ticker';
+// Phase 2755 — Smart-Timing Fahrer-Sync Cockpit (Echtzeit-Countdown Farbkodierung grün/gelb/rot; Fortschrittsbalken; Fahrer-ETA Sync-Anzeige; Ampel; 20-Sek-Polling + 1-Sek-Tick)
+export { KitchenPhase2755SmartTimingFahrerSyncCockpit } from './phase2755-smart-timing-fahrer-sync-cockpit';

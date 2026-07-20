@@ -9424,3 +9424,5 @@ export { FahrerPhase2738MeineStreckenEffizienz } from './phase2738-meine-strecke
 export { FahrerPhase2743MeineWartezeit } from './phase2743-meine-wartezeit';
 // Phase 2748 — Meine Schicht-Punkte (Composite Score 0–100 Pkt; Teilscores; Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2748MeineSchichtPunkte } from './phase2748-meine-schicht-punkte';
+// Phase 2753 — Smart Tour-Stopp Cockpit (Alle Stops mit Status + ETA; aktueller Stopp hervorgehoben; Navi-App-Wahl Waze/Google/Apple; Kunden-Telefon; Notizen; Fortschrittsleiste; 15-Sek-Polling)
+export { FahrerPhase2753SmartTourStoppCockpit } from './phase2753-smart-tour-stopp-cockpit';
