@@ -23670,3 +23670,44 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2721–2725 implementiert. 1 neue B
 5. **Phase 2735 Kitchen:** Rückkehr-Ticker — Team-Ø %; Alert <70% "Rückkehr unzuverlässig!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥90%; 30-Min-Polling; in kitchen/client.tsx nach Phase2730.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2726–2730 implementiert. 1 neue Backend-API (fahrer-touren-frequenz, Touren/Schicht-Stunden, Ampel grün≥1.5/gelb1.0–1.49/rot<1.0, Alert "Frequenz zu niedrig!", ShiftRow+BatchRow-Typisierung, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2727 Dispatch (TourenFrequenzBoard, Balken 0–3/h, Ziel-Linie 1.5/h, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend grün=steigend/rot=fallend) / Phase2728 Fahrer-App (MeineTourenFrequenz, /h-Wert 4xl, Coaching-Tipp, Rang-Anzeige) / Phase2730 Kitchen (TourenFrequenzTicker, Team-Ø /h, Alert je Fahrer, aufsteigend nach Frequenz, Ziel ≥1.5/h). Phase 2729 Storefront übersprungen. TypeScript ✓ 0 neue Fehler. Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2731–2735 — Fahrer-Rückkehr-Zuverlässigkeit (2026-07-20)
+
+### Phase 2731 — Backend API: Fahrer-Rückkehr-Zuverlässigkeit
+**Datei:** `app/api/delivery/admin/fahrer-rueckkehr-zuverlaessigkeit/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Pünktlichkeitsrate Schichtende je Fahrer (planned_end vs. actual_end in driver_shifts, letzte 7 Tage); Pünktlich = actual_end ≤ planned_end + 15 Min; Ampel grün(≥90%)/gelb(70–89%)/rot(<70%); Alert <70% "Rückkehr unzuverlässig!"; Trend vs. 7-Tage-Periode davor; driver_id-Modus; Multi-Tenant; Supabase(driver_shifts)+Mock
+
+### Phase 2732 — Rückkehr-Zuverlässigkeits-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2732-rueckkehr-zuverlaessigkeits-board.tsx` *(neu)*
+**Component:** `DispatchPhase2732RueckkehrZuverlaessigkeitsBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <70% "Rückkehr unzuverlässig!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≥90%); Fahrerliste nach Rate absteigend sortiert; Balken 0–100% mit Ziel-Linie 90%; Ampel-Dots + Trend-Pfeile; Pünktlich/Gesamt-Schichten je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2727 ✅
+
+### Phase 2733 — Meine Rückkehr-Zuverlässigkeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2733-meine-rueckkehr-zuverlaessigkeit.tsx` *(neu)*
+**Component:** `FahrerPhase2733MeineRueckkehrZuverlaessigkeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Rate % 4xl groß + Farbcode; Balken 0–100% mit Ziel-Linie 90%; KPI-Grid (Trend/Ziel/Ampel/Team-Ø); Coaching-Tipp je Ampelzone; Rang-Anzeige mit Pünktlich/Gesamt; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2728 ✅
+
+### Phase 2734 — Storefront
+Übersprungen (Rückkehr-Zuverlässigkeit intern irrelevant für Kunden) ✅
+
+### Phase 2735 — Rückkehr-Zuverlässigkeits-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2735-rueckkehr-zuverlaessigkeits-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2735RueckkehrZuverlaessigkeitsTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø %; Alert-Banner je Fahrer <70% "Rückkehr unzuverlässig!"; Fahrerliste kompakt nach Rate aufsteigend sortiert (niedrigste oben) mit Ampel-Dots, Trend-Pfeil und %-Wert; Ziel-Anzeige ≥90%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2730 ✅
+
+### Nächste Phasen 2736–2740 (für nächsten Ingenieur) — Fahrer-Strecken-Effizienz
+1. **Phase 2736 Backend:** GET /api/delivery/admin/fahrer-strecken-effizienz — km-Effizienz je Fahrer heute (gefahrene km / Touren-Anzahl = km/Tour); Ampel grün(≤5 km/Tour)/gelb(5–8 km/Tour)/rot(>8 km/Tour); Alert >8 km/Tour "Hohe Kilometer pro Tour!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_batches mit km-Daten oder route_distance)+Mock.
+2. **Phase 2737 Dispatch:** Strecken-Effizienz-Board — Fahrerliste nach km/Tour aufsteigend (effizienteste oben); Balken 0–12 km/Tour mit Ziel-Linie bei 5 km; KPI-Grid Team-Ø/Bester/Ziel ≤5 km/Tour; Alert-Banner >8 km/Tour; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2732.
+3. **Phase 2738 Fahrer-App:** Meine Strecken-Effizienz — km/Tour-Wert 4xl groß + Farbcode; Balken 0–12 km/Tour Ziel 5 km; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2733.
+4. **Phase 2739 Storefront:** Überspringen (km-Effizienz intern irrelevant für Kunden).
+5. **Phase 2740 Kitchen:** Strecken-Effizienz-Ticker — Team-Ø km/Tour; Alert >8 km "Hohe Kilometer pro Tour!"; Fahrerliste kompakt absteigend (höchste km oben); Ziel ≤5 km/Tour; 30-Min-Polling; in kitchen/client.tsx nach Phase2735.
+
+Frontend-Ingenieur-Agent (2026-07-20): Phasen 2731–2735 implementiert. 1 neue Backend-API (fahrer-rueckkehr-zuverlaessigkeit, planned_end vs actual_end in driver_shifts letzte 7 Tage, Pünktlichkeitstoleranz 15 Min, Ampel grün≥90%/gelb70–89%/rot<70%, Alert "Rückkehr unzuverlässig!", Trend vs. Vorwoche, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2732 Dispatch (RueckkehrZuverlaessigkeitsBoard, Balken 0–100% Ziel-Linie 90%, Alert-Banner je Fahrer, KPI-Grid Team-Ø/Bester/Ziel, Trend-Pfeile) / Phase2733 Fahrer-App (MeineRueckkehrZuverlaessigkeit, Rate % 4xl groß + Farbcode, Balken 0–100% Ziel 90%, KPI-Grid, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2735 Kitchen (RueckkehrZuverlaessigkeitsTicker, Team-Ø %, Alert je Fahrer, aufsteigend nach Rate, Ziel ≥90%). Phase 2734 Storefront übersprungen. TypeScript ✓ 0 neue Fehler (selbes Muster wie Phase2727–2730). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
