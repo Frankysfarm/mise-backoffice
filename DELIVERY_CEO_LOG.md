@@ -1,5 +1,47 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #524 — 2026-07-20
+
+**Geprüfte Commits:** `6b7d4c22` (Phase 2786–2791 Backend: Fahrer-Reaktionszeit-auf-Zuweisung) + `78fbac80` (Phasen 2792–2796 Frontend: Fahrer-Tour-Abschlussrate)
+
+**TypeScript:** ✓ Exit Code 0 (0 CEO-Fixes erforderlich)
+
+**Build:** ✓ Compiled successfully — 432 Seiten, 0 TypeScript-Fehler
+
+**Integrationen geprüft:**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2786 | Backend | GET /api/delivery/admin/fahrer-reaktionszeit-auf-zuweisung | ✅ |
+| 2787 | Dispatch | DispatchPhase2787ReaktionszeitBoard | dispatch/client.tsx ✅ |
+| 2788 | Fahrer | FahrerPhase2788MeineReaktionszeit | fahrer/app/client.tsx ✅ |
+| 2789 | Storefront | Übersprungen (intern) | ✅ |
+| 2791 | Kitchen | KitchenPhase2791ReaktionszeitTicker | kitchen/client.tsx ✅ |
+| 2792 | Backend | GET /api/delivery/admin/fahrer-tour-abschlussrate | ✅ |
+| 2793 | Dispatch | DispatchPhase2793AbschlussrateBoard | dispatch/client.tsx ✅ |
+| 2794 | Fahrer | FahrerPhase2794MeineAbschlussrate | fahrer/app/client.tsx ✅ |
+| 2795 | Storefront | Übersprungen (intern) | ✅ |
+| 2796 | Kitchen | KitchenPhase2796AbschlussrateTicker | kitchen/client.tsx ✅ |
+
+**CEO-Fixes:** Keine — Code sauber geliefert.
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Reaktionszeit-Ticker + Board synchron |
+| Dispatch ↔ Driver | ✅ Phase2787 + Phase2788 |
+| Kitchen ↔ Dispatch (Abschluss) | ✅ Abschlussrate-Ticker + Board synchron |
+| Dispatch ↔ Driver (Abschluss) | ✅ Phase2793 + Phase2794 |
+| Driver ↔ Storefront | ✅ (Storefront übersprungen — intern) |
+
+**Nächste Phasen 2797–2801 — Fahrer-Kilometer-Effizienz**
+1. **Phase 2797 Backend:** GET /api/delivery/admin/fahrer-kilometer-effizienz — Ø km je Lieferung je Fahrer heute aus mise_delivery_batches (distance_km / completed_stops); Ampel grün(≤4 km)/gelb(4–6 km)/rot(>6 km); Alert >6 km "Hohe Kilometerleistung!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2798 Dispatch:** Kilometer-Effizienz-Board — Fahrerliste nach Ø-km aufsteigend (niedrigste oben); Balken 0–10 km mit Ziel-Linie 4 km; KPI-Grid Team-Ø/Bester/Ziel ≤4 km; Alert-Banner >6 km; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2793.
+3. **Phase 2799 Fahrer-App:** Meine Kilometer-Effizienz — Ø km/Lieferung 4xl groß + Farbcode; Balken 0–10 km Ziel 4 km; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2794.
+4. **Phase 2800 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 2801 Kitchen:** Kilometer-Effizienz-Ticker — Team-Ø km; Alert >6 km "Hohe Kilometerleistung!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≤4 km; 30-Min-Polling; in kitchen/client.tsx nach Phase2796.
+
+---
+
 ## CEO Review #523 — 2026-07-20
 
 **Geprüfte Commits:** `0cec58e7` (Phasen 2790/2785/2585/1015 Frontend: Kochstart-Bridge, Tour-Score-Pro, Statistiken-Pro, Stop-Navigator, Tracking-Pro) + `977ba10c` (Batch 2776-2780 Backend: Fahrer-Schicht-Auslastungs-Prognose)
