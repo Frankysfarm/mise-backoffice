@@ -341,6 +341,7 @@ import { KitchenPhase2640SmartKochzeitPrognoseCockpit } from './phase2640-smart-
 import { KitchenPhase2645SmartTimingEchtzeitCockpitFinal } from './phase2645-smart-timing-echtzeit-cockpit-final';
 import { KitchenPhase2623ErstkontaktTicker } from './phase2623-erstkontakt-ticker';
 import { KitchenPhase2628ReactionsZeitTicker } from './phase2628-reaktionszeit-ticker';
+import { KitchenPhase2633WarteZeitBestellungTicker } from './phase2633-wartezeit-bestellung-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3558,6 +3559,8 @@ export function KitchenBoard({
       <KitchenPhase2623ErstkontaktTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2628: Reaktionszeit-Ticker — Team-Ø Min; Alert >5 Min "Reaktionszeit zu lang!"; Kompakte Fahrerliste mit Ampel-Dots; Ziel ≤2 Min; 30-Min-Polling */}
       <KitchenPhase2628ReactionsZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2633: Wartezeit-Bestellung-Ticker — Team-Ø Min; Alert >10 Min "Wartezeit zu lang!"; Fahrerliste mit Ampel-Dots; Ziel ≤5 Min; 30-Min-Polling */}
+      <KitchenPhase2633WarteZeitBestellungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10264,3 +10267,5 @@ export { KitchenPhase2645SmartTimingEchtzeitCockpitFinal } from './phase2645-sma
 export { KitchenPhase2623ErstkontaktTicker } from './phase2623-erstkontakt-ticker';
 // Phase 2628 — Reaktionszeit-Ticker (Team-Ø Min; Alert >5 Min "Reaktionszeit zu lang!"; Fahrerliste mit Ampel-Dots; Ziel ≤2 Min; 30-Min-Polling)
 export { KitchenPhase2628ReactionsZeitTicker } from './phase2628-reaktionszeit-ticker';
+// Phase 2633 — Wartezeit-Bestellung-Ticker (Team-Ø Min; Alert >10 Min "Wartezeit zu lang!"; Fahrerliste mit Ampel-Dots; Ziel ≤5 Min; 30-Min-Polling)
+export { KitchenPhase2633WarteZeitBestellungTicker } from './phase2633-wartezeit-bestellung-ticker';
