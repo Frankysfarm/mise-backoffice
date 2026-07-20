@@ -434,6 +434,7 @@ import { LieferdienstPhase2545StatistikenLiveDashboardExtended } from './phase25
 import { LieferdienstPhase2550StatistikDashboardFinalUltimate } from './phase2550-statistiken-dashboard-final-ultimate';
 import { LieferdienstPhase2555StatistikHeuteKommandant } from './phase2555-statistiken-heute-kommandant';
 import { LieferdienstPhase2560StatistikenLiveBoard } from './phase2560-statistiken-live-board';
+import { LieferdienstPhase2565StatistikenHeuteFinal } from './phase2565-statistiken-heute-final';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2195,6 +2196,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2555StatistikHeuteKommandant />
                 {/* Phase 2560: Statistiken Live-Board — 8 KPI-Kacheln Ampel + Trend-Pfeile; Stundenverlauf-Chart 2-Modi; Top-3-Zonen-Ranking; Alert-Strip; 3-Min-Polling */}
                 <LieferdienstPhase2560StatistikenLiveBoard locationId={locationId ?? null} />
+                {/* Phase 2565: Statistiken Heute Final — 9 KPI-Kacheln Ampel; Stundenverlauf-Chart (Bestellungen/Umsatz umschaltbar); Top-3-Zonen Balken; Alert-Strip; Fahrer-Übersicht kompakt; 2-Min-Polling */}
+                <LieferdienstPhase2565StatistikenHeuteFinal />
               </>
             </div>
           )}
@@ -4675,3 +4678,5 @@ export { LieferdienstPhase2550StatistikDashboardFinalUltimate } from './phase255
 export { LieferdienstPhase2555StatistikHeuteKommandant } from './phase2555-statistiken-heute-kommandant';
 // Phase 2560 — Statistiken Live-Board (8 KPI-Kacheln Ampel + Trend; Stundenverlauf-Chart 2-Modi; Top-3-Zonen; Alert-Strip; 3-Min-Polling)
 export { LieferdienstPhase2560StatistikenLiveBoard } from './phase2560-statistiken-live-board';
+// Phase 2565 — Statistiken Heute Final (9 KPI-Kacheln Ampel + Trend-Pfeile; Stundenverlauf-Chart Bestellungen/Umsatz umschaltbar; Top-3-Zonen Balken; Alert-Strip; Fahrer-Übersicht kompakt; 2-Min-Polling)
+export { LieferdienstPhase2565StatistikenHeuteFinal } from './phase2565-statistiken-heute-final';

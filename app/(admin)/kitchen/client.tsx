@@ -337,6 +337,7 @@ import { KitchenPhase2603KmBilanzTicker } from './phase2603-km-bilanz-ticker';
 import { KitchenPhase2608SchichtErloesTicker } from './phase2608-schicht-erloes-ticker';
 import { KitchenPhase2613TrinkgeldTicker } from './phase2613-trinkgeld-ticker';
 import { KitchenPhase2640SmartKochzeitPrognoseCockpit } from './phase2640-smart-kochzeit-prognose-cockpit';
+import { KitchenPhase2645SmartTimingEchtzeitCockpitFinal } from './phase2645-smart-timing-echtzeit-cockpit-final';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3564,6 +3565,8 @@ export function KitchenBoard({
       <KitchenPhase2635SmartKochzeitAmpelBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2640: Smart-Kochzeit-Prognose-Cockpit — Prep-Prognose je Batch + Fahrer-ETA-Sync + Kochstart-Empfehlung (start_now/wait) + Komplexitätsindikatoren; Farbkodierung grün/gelb/rot; 1-Sek-Tick + 25-Sek-Polling */}
       <KitchenPhase2640SmartKochzeitPrognoseCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2645: Smart-Timing Echtzeit-Cockpit Final — Sekundengenauer Countdown grün/gelb/rot je Bestellung + Fahrer-ETA-Bridge (Δ-Zeit) + On-Time-Rate-Gauge + Kochstart-Empfehlung + Überfällig-Alert; 1-Sek-Tick + 20-Sek-Polling */}
+      <KitchenPhase2645SmartTimingEchtzeitCockpitFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -10246,3 +10249,5 @@ export { KitchenPhase2630SmartCountdownFarbkodierungUltraFinal } from './phase26
 export { KitchenPhase2635SmartKochzeitAmpelBoard } from './phase2635-smart-kochzeit-ampel-board';
 // Phase 2640 — Smart-Kochzeit-Prognose-Cockpit (Prep-Prognose + Fahrer-ETA-Sync + Komplexitätsindikatoren + Kochstart-Empfehlung; Farbkodierung grün/gelb/rot; 1-Sek-Tick + 25-Sek-Polling)
 export { KitchenPhase2640SmartKochzeitPrognoseCockpit } from './phase2640-smart-kochzeit-prognose-cockpit';
+// Phase 2645 — Smart-Timing Echtzeit-Cockpit Final (Sekundengenauer Countdown grün/gelb/rot je Bestellung + Fahrer-ETA-Bridge (Δ-Zeit) + On-Time-Rate-Gauge + Kochstart-Empfehlung + Überfällig-Alert; 1-Sek-Tick + 20-Sek-Polling)
+export { KitchenPhase2645SmartTimingEchtzeitCockpitFinal } from './phase2645-smart-timing-echtzeit-cockpit-final';

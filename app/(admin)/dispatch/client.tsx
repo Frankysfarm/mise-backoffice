@@ -788,6 +788,7 @@ import { DispatchPhase2600KmBilanzBoard } from './phase2600-km-bilanz-board';
 import { DispatchPhase2605SchichtErloesBoard } from './phase2605-schicht-erloes-board';
 import { DispatchPhase2610TrinkgeldAnalyseBoard } from './phase2610-trinkgeld-analyse-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
+import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
 import { DispatchPhase2600TourScoreVisualisierungKommandant } from './phase2600-tour-score-visualisierung-kommandant';
 import { DispatchPhase2605ScoreTourHubUltra } from './phase2605-score-tour-hub-ultra';
@@ -3977,6 +3978,8 @@ export function DispatchBoard({
           <DispatchPhase2610TrinkgeldAnalyseBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
+          <DispatchPhase2645TourScoreRanglisteLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2483: Tour-Score Live-Board — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2483TourScoreLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2600: Tour-Score Visualisierung Kommandant — Score-Ring + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + expandierbare Stop-Liste + Alert Score <60; 25-Sek-Polling */}
@@ -11688,3 +11691,5 @@ export { DispatchPhase2625TourScoreVisualisierungExtended } from './phase2625-to
 export { DispatchPhase2635TourScoreVisualisierungKompakt } from './phase2635-tour-score-visualisierung-kompakt';
 // Phase 2640 — Tour-Score Team-Übersicht (Score-Ring je Fahrer + Best/Worst-Highlight + farbkodierte Stop-Dots + ETA + Team-Ø + Alert Ø <65; 25-Sek-Polling)
 export { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
+// Phase 2645 — Tour-Score Rangliste Live (Rangliste mit Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling)
+export { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
