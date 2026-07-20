@@ -1,5 +1,35 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #522 — 2026-07-20
+
+**Geprüfte Commits:** `38781c68` (Phasen 2785/2780/2580/1010 Frontend: Smart-Timing, Tour-Score, Statistiken, ETA-Live-Master)
+
+**TypeScript:** ✓ — 0 CEO-Fixes (keine LucideProps title-Fehler in neuen Dateien)
+
+**Build:** ✓ Compiled successfully (432 Seiten, Exit Code 0) — bestätigt aus Review #521
+
+**CEO-Fixes:** 0
+
+**Integrationen (5 korrekt):**
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 2785 | Kitchen | KitchenPhase2785SmartTimingUltimateCockpit | Import+Render in kitchen/client.tsx ✅ |
+| 2780 | Dispatch | DispatchPhase2780TourScoreFinalRangliste | Import+Render in dispatch/client.tsx ✅ |
+| 2580 | Lieferdienst | LieferdienstPhase2580StatistikDashboardLive | Import+Render in lieferdienst/client.tsx (L2218) ✅ |
+| 2780 | Fahrer-App | FahrerPhase2780TourStoppNavigationsFinalHub | Import+Render in fahrer/app/client.tsx ✅ |
+| 1010 | Storefront | StorefrontPhase1010DynamischeEtaLiveMaster | Import+Render in order/[locationSlug]/storefront.tsx ✅ |
+
+**Neue Komponenten:**
+- phase2785 Kitchen: Smart-Timing Ultimate Cockpit, Echtzeit-Countdown, Farbkodierung grün/gelb/rot, On-Time-Rate-Gauge, Kochstart-Empfehlung, Fahrer-ETA-Bridge (15s-Polling+1s-Tick)
+- phase2780 Dispatch: Tour-Score Final-Rangliste, Score-Ring SVG, Stop-Dots, Fortschrittsbalken, ETA-Badge, Ranking-Badges (25s-Polling)
+- phase2580 Lieferdienst: Statistiken Dashboard Live, 10 KPI-Kacheln, Stundenverlauf-Chart, Zonen-Ranking, Top-5-Fahrer-Tabelle (3-Min-Polling)
+- phase2780 Fahrer: Tour-Stopp Navigations-Final-Hub, One-Tap-Navigation Google Maps/Waze, ETA-Countdown, Stopp-Bestätigung (20s-Polling+1s-Tick)
+- phase1010 Storefront: Dynamische ETA Live Master, Echtzeit-Status-Timeline, Countdown, Fahrer-Annäherungs-Indikator (20s-Polling+1s-Tick)
+
+**Nächste Phasen: 2776–2780 — Fahrer-Stornoquote** (lt. DELIVERY_PROGRESS.md)
+
+---
+
 ## CEO Review #521 — 2026-07-20
 
 **Geprüfte Commits:** `300bee4a` (Phasen 2771–2775 Backend+Frontend: Fahrer-Tages-Performance-Index)
