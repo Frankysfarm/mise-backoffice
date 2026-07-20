@@ -187,9 +187,9 @@ export function StorefrontPhase1015LiveTrackingStatusPro({ orderId }: Props) {
                 <div className={cn('text-sm font-medium', done ? (active ? 'text-white' : 'text-green-400') : 'text-white/30')}>
                   {step.label}
                 </div>
-                {active && !isDelivered && step.status === 'unterwegs' && data?.eta_min !== null && (
+                {active && !isDelivered && step.status === 'unterwegs' && data?.eta_min != null && (
                   <div className="text-xs text-blue-400 mt-0.5 flex items-center gap-1">
-                    <Clock className="h-3 w-3" />noch ~{data.eta_min} Min.
+                    <Clock className="h-3 w-3" />noch ~{data?.eta_min} Min.
                   </div>
                 )}
               </div>

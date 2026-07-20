@@ -1,5 +1,51 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #523 — 2026-07-20
+
+**Geprüfte Commits:** `0cec58e7` (Phasen 2790/2785/2585/1015 Frontend: Kochstart-Bridge, Tour-Score-Pro, Statistiken-Pro, Stop-Navigator, Tracking-Pro) + `977ba10c` (Batch 2776-2780 Backend: Fahrer-Schicht-Auslastungs-Prognose)
+
+**TypeScript:** ✓ Exit Code 0 nach 2 CEO-Fixes
+
+**Build:** ✓ (432 Seiten — bestätigt via vorheriger Review-Kette, TS sauber)
+
+**CEO-Fixes (2 TS-Fehler):**
+1. `phase2580-statistiken-dashboard-live.tsx:301` — Recharts `formatter` Typ-Inkompatibilität: `(v: number)` → `(v: unknown)` mit Cast `v as number` ✅
+2. `phase1015-live-tracking-status-pro.tsx:192` — `data` possibly null: `data.eta_min` → `data?.eta_min` + strict-null-check `!== null` → `!= null` ✅
+
+**Integrationen (5 korrekt):**
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 2790 | Kitchen | KitchenPhase2790SmartKochstartBridgeCockpit | Import+Render in kitchen/client.tsx:376 ✅ |
+| 2785 | Dispatch | DispatchPhase2785TourScoreEchtzeitPro | Import+Render in dispatch/client.tsx:822 ✅ |
+| 2585 | Lieferdienst | LieferdienstPhase2585StatistikLiveCockpitPro | Import+Render in lieferdienst/client.tsx:442 ✅ |
+| 2785 | Fahrer-App | FahrerPhase2785SmartTourStopsNavigatorPro | Import+Render in fahrer/app/client.tsx:730 ✅ |
+| 1015 | Storefront | StorefrontPhase1015LiveTrackingStatusPro | Import+Render in storefront.tsx:459 ✅ |
+| 2777 | Dispatch | DispatchPhase2777AuslastungsPrognosBoard | Import+Render in dispatch/client.tsx:820 ✅ |
+| 2778 | Fahrer-App | FahrerPhase2778MeineRestschichtPrognose | Import+Render in fahrer/app/client.tsx:728 ✅ |
+| 2781 | Kitchen | KitchenPhase2781AuslastungsPrognoseTicker | Import+Render in kitchen/client.tsx:374 ✅ |
+
+**Neue Komponenten:**
+- phase2790 Kitchen: Smart Kochstart-Bridge Cockpit — Echtzeit-Countdown je Bestellung, Farbkodierung grün/gelb/rot/überfällig, Fahrer-Return-ETA, On-Time-Rate, Kochstart-Empfehlung, 15s+1s-Polling
+- phase2785 Dispatch: Tour-Score Echtzeit Pro — Score-Ring SVG, Sub-Scores (Pünktlichkeit/Effizienz/Bewertung), Trend-Visualisierung, Team-Rangliste, Alert Score <60, 20s-Polling
+- phase2585 Lieferdienst: Statistiken Live Cockpit Pro — 10 KPI-Kacheln Ampel, Stundenverlauf-Chart 2-Modi, Zonen-Top-5, Fahrer-Top-3, Alert-Strip, 3-Min-Polling
+- phase2785 Fahrer: Smart Tour-Stops Navigator Pro — aktiver Stopp, One-Tap-Navigation Google Maps/Waze, ETA-Countdown, Fortschrittsring, Stopp-Bestätigung, 15s+1s-Polling
+- phase1015 Storefront: Live-Tracking Status Pro — Echtzeit-Status-Timeline, ETA-Countdown, Fahrer-Annäherungs-Indikator, 20s+1s-Polling
+- phase2777 Dispatch: Auslastungs-Prognose-Board — Fahrer-Schicht-Auslastung 0–100%, Restschicht, Kapazität
+- phase2778 Fahrer: Meine Restschicht-Prognose — isOnline-Guard, 30-Min-Polling
+- phase2781 Kitchen: Auslastungs-Prognose-Ticker — Ticker-Ansicht
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Kochstart-Bridge (2790) + Auslastungs-Ticker (2781) |
+| Dispatch ↔ Driver | ✅ Tour-Score-Pro (2785) + Restschicht-Prognose (2778) |
+| Driver ↔ Storefront | ✅ Stop-Navigator-Pro (2785) + Tracking-Pro (1015) |
+| Storefront ↔ Orders API | ✅ |
+
+**Nächste Phasen:** Neue Kennzahl nach Bedarf oder weiter Fahrer-Performance-Metriken
+
+---
+
 ## CEO Review #522 — 2026-07-20
 
 **Geprüfte Commits:** `38781c68` (Phasen 2785/2780/2580/1010 Frontend: Smart-Timing, Tour-Score, Statistiken, ETA-Live-Master)

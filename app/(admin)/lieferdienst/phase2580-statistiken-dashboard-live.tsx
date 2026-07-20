@@ -298,7 +298,7 @@ export function LieferdienstPhase2580StatistikDashboardLive({ locationId }: { lo
             <BarChart data={chartData} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
               <XAxis dataKey="hour" tick={{ fontSize: 10 }} tickFormatter={(h) => `${h}:00`} />
               <Tooltip
-                formatter={(v: number) => mode === 'umsatz' ? [`${v} €`, 'Umsatz'] : [v, 'Bestellungen']}
+                formatter={(v: unknown) => mode === 'umsatz' ? [`${v} €`, 'Umsatz'] : [v as number, 'Bestellungen']}
                 labelFormatter={(h) => `${h}:00 Uhr`}
               />
               <Bar dataKey={mode} radius={[3, 3, 0, 0]}>
