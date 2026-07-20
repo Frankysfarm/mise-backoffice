@@ -23713,3 +23713,44 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2726–2730 implementiert. 1 neue B
 5. **Phase 2740 Kitchen:** Strecken-Effizienz-Ticker — Team-Ø km/Tour; Alert >8 km "Hohe Kilometer pro Tour!"; Fahrerliste kompakt absteigend (höchste km oben); Ziel ≤5 km/Tour; 30-Min-Polling; in kitchen/client.tsx nach Phase2735.
 
 Frontend-Ingenieur-Agent (2026-07-20): Phasen 2731–2735 implementiert. 1 neue Backend-API (fahrer-rueckkehr-zuverlaessigkeit, planned_end vs actual_end in driver_shifts letzte 7 Tage, Pünktlichkeitstoleranz 15 Min, Ampel grün≥90%/gelb70–89%/rot<70%, Alert "Rückkehr unzuverlässig!", Trend vs. Vorwoche, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2732 Dispatch (RueckkehrZuverlaessigkeitsBoard, Balken 0–100% Ziel-Linie 90%, Alert-Banner je Fahrer, KPI-Grid Team-Ø/Bester/Ziel, Trend-Pfeile) / Phase2733 Fahrer-App (MeineRueckkehrZuverlaessigkeit, Rate % 4xl groß + Farbcode, Balken 0–100% Ziel 90%, KPI-Grid, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2735 Kitchen (RueckkehrZuverlaessigkeitsTicker, Team-Ø %, Alert je Fahrer, aufsteigend nach Rate, Ziel ≥90%). Phase 2734 Storefront übersprungen. TypeScript ✓ 0 neue Fehler (selbes Muster wie Phase2727–2730). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2736–2740 — Fahrer-Strecken-Effizienz (2026-07-20)
+
+### Phase 2736 — Backend API: Fahrer-Strecken-Effizienz
+**Datei:** `app/api/delivery/admin/fahrer-strecken-effizienz/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — km/Tour je Fahrer heute (route_distance_km / Touren-Count); Ampel grün(≤5 km/Tour)/gelb(5–8 km/Tour)/rot(>8 km/Tour); Alert >8 km "Hohe Kilometer pro Tour!"; Trend vs. gestern; absteigend nach km/Tour sortiert (effizienteste zuerst); driver_id-Modus; Multi-Tenant; Supabase(delivery_batches: route_distance_km, total_distance_km)+Mock
+
+### Phase 2737 — Strecken-Effizienz-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2737-strecken-effizienz-board.tsx` *(neu)*
+**Component:** `DispatchPhase2737StreckenEffizienzBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >8 km/Tour "Hohe Kilometer pro Tour!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≤5 km/Tour); Fahrerliste nach km/Tour aufsteigend sortiert (effizienteste oben); Balken 0–12 mit Ziel-Linie bei 5 km; Ampel-Dots + Trend-Pfeile (rot=steigend/grün=fallend); Touren + Gesamt-km je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2732 ✅
+
+### Phase 2738 — Meine Strecken-Effizienz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2738-meine-strecken-effizienz.tsx` *(neu)*
+**Component:** `FahrerPhase2738MeineStreckenEffizienz`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; km/Tour-Wert 4xl groß + Farbcode; Balken 0–12 km/Tour mit Ziel-Linie 5 km; KPI-Grid (Trend/Ziel/Ampel/Team-Ø); Coaching-Tipp je Ampelzone; Rang-Anzeige mit Touren + Gesamt-km; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2733 ✅
+
+### Phase 2739 — Storefront
+Übersprungen (km-Effizienz intern irrelevant für Kunden) ✅
+
+### Phase 2740 — Strecken-Effizienz-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2740-strecken-effizienz-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2740StreckenEffizienzTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø km/Tour; Alert-Banner je Fahrer >8 km "Hohe Kilometer pro Tour!"; Fahrerliste kompakt nach km/Tour absteigend sortiert (schlechteste oben) mit Ampel-Dots, Trend-Pfeil und km/Tour-Wert; Ziel-Anzeige ≤5 km/Tour; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2735 ✅
+
+### Nächste Phasen 2741–2745 (für nächsten Ingenieur) — Fahrer-Wartezeit-am-Stopp
+1. **Phase 2741 Backend:** GET /api/delivery/admin/fahrer-wartezeit-stopp — Ø Wartezeit je Stopp je Fahrer heute (stop_arrived_at bis stop_completed_at in batch_stops); Ampel grün(≤3 Min)/gelb(3–6 Min)/rot(>6 Min); Alert >6 Min "Zu lange Wartezeit!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(batch_stops: arrived_at, completed_at)+Mock.
+2. **Phase 2742 Dispatch:** Wartezeit-Board — Fahrerliste nach Ø-Wartezeit aufsteigend (niedrigste oben); Balken 0–10 Min mit Ziel-Linie 3 Min; KPI-Grid Team-Ø/Bester/Ziel ≤3 Min; Alert-Banner >6 Min; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2737.
+3. **Phase 2743 Fahrer-App:** Meine Wartezeit — Ø Wartezeit 4xl groß + Farbcode; Balken 0–10 Min Ziel 3 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2738.
+4. **Phase 2744 Storefront:** Überspringen (Wartezeit intern irrelevant für Kunden).
+5. **Phase 2745 Kitchen:** Wartezeit-Ticker — Team-Ø Min; Alert >6 Min "Zu lange Wartezeit!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≤3 Min; 30-Min-Polling; in kitchen/client.tsx nach Phase2740.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2736–2740 implementiert. 1 neue Backend-API (fahrer-strecken-effizienz, route_distance_km / Touren-Count, Ampel grün≤5/gelb5–8/rot>8 km/Tour, Alert "Hohe Kilometer pro Tour!", Trend vs. gestern, BatchRow-Typisierung, aggregateForDrivers-Helper, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2737 Dispatch (StreckenEffizienzBoard, Balken 0–12 km Ziel-Linie 5 km, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend rot=steigend/grün=fallend) / Phase2738 Fahrer-App (MeineStreckenEffizienz, km/Tour 4xl, Coaching-Tipp, Rang-Anzeige) / Phase2740 Kitchen (StreckenEffizienzTicker, Team-Ø km/Tour, Alert je Fahrer, absteigend nach km, Ziel ≤5 km/Tour). Phase 2739 Storefront übersprungen. TypeScript TS7006 ✓ 0 neue Fehler. Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
