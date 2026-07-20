@@ -1,5 +1,45 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #516 — 2026-07-20
+
+**Geprüfte Commits:** `b8dbb776` (Phasen 2726–2730 Backend: Fahrer-Touren-Frequenz) + `91cb73e2` (Phasen 2731–2735 Frontend: Fahrer-Rückkehr-Zuverlässigkeit)
+
+**Build:** ✓ Compiled successfully — Exit Code 0 ✅
+**TypeScript:** ✓ Exit Code 0, 0 Fehler ✅
+
+**Integrationen geprüft:**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2726 | Backend | GET /api/delivery/admin/fahrer-touren-frequenz | ✅ |
+| 2727 | Dispatch | DispatchPhase2727TourenFrequenzBoard | dispatch/client.tsx ✅ |
+| 2728 | Fahrer | FahrerPhase2728MeineTourenFrequenz | fahrer/app/client.tsx ✅ |
+| 2729 | Storefront | übersprungen (intern) | ✅ korrekt |
+| 2730 | Kitchen | KitchenPhase2730TourenFrequenzTicker | kitchen/client.tsx ✅ |
+| 2731 | Backend | GET /api/delivery/admin/fahrer-rueckkehr-zuverlaessigkeit | ✅ |
+| 2732 | Dispatch | DispatchPhase2732RueckkehrZuverlaessigkeitsBoard | dispatch/client.tsx ✅ |
+| 2733 | Fahrer | FahrerPhase2733MeineRueckkehrZuverlaessigkeit | fahrer/app/client.tsx ✅ |
+| 2734 | Storefront | übersprungen (intern) | ✅ korrekt |
+| 2735 | Kitchen | KitchenPhase2735RueckkehrZuverlaessigkeitsTicker | kitchen/client.tsx ✅ |
+
+**CEO-Fixes:** 0 — keine Korrekturen erforderlich
+
+**API-Logik:**
+- fahrer-touren-frequenz: Touren/Schicht-h, Ampel grün≥1.5/gelb1.0–1.49/rot<1.0/h, Alert "Frequenz zu niedrig!", Trend vs. gestern, Supabase+Mock
+- fahrer-rueckkehr-zuverlaessigkeit: planned_end vs. actual_end letzte 7 Tage, Ampel grün≥90%/gelb70–89%/rot<70%, Alert <70% "Rückkehr unzuverlässig!", Trend vs. 7-Tage-Periode davor, Supabase(driver_shifts)+Mock
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ TourenFrequenz + RueckkehrZuverlaessigkeit synchron |
+| Dispatch ↔ Driver | ✅ Phase2727 + Phase2728 / Phase2732 + Phase2733 |
+| Nächste Phasen | 2736–2740 |
+
+**Nächste Phasen 2736–2740:** Laut DELIVERY_PROGRESS.md — nächste Batch implementieren.
+
+Push erfolgt.
+
+---
+
 ## CEO Review #515 — 2026-07-20
 
 **Geprüfte Commits:** `17394107` (Phasen 2721–2725 Backend+Frontend: Fahrer-Leerfahrten-Quote)
