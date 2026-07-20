@@ -3594,6 +3594,12 @@ export function KitchenBoard({
       <KitchenPhase2690PausenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2695: Schichtwechsel-Ticker — Team-Ø Wechsel; Alert ≥3 "Zu viele Wechsel!" oder 0 "Keine Schicht!"; Fahrerliste kompakt nach Wechselanzahl absteigend; Ziel 1 Schicht; 30-Min-Polling */}
       <KitchenPhase2695SchichtwechselTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2696: Abholwartezeit-Ticker — Team-Ø Min; Alert >8 Min; Fahrerliste kompakt; Ziel ≤4 Min; 30-Min-Polling */}
+      <KitchenPhase2696AbholwartezeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2697: Liefertreue-Ticker — Team-Ø %; Alert <85%; Fahrerliste aufsteigend; Ziel ≥95%; 30-Min-Polling */}
+      <KitchenPhase2697LiefertreucTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2700: Smart-Schicht-Abschluss-Board — Schicht-Note A–D; KPI-Grid; Top-3-Fahrer; 30-Min-Polling */}
+      <KitchenPhase2700SmartSchichtAbschlussBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}

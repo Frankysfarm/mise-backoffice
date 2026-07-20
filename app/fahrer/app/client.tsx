@@ -6079,6 +6079,10 @@ export function FahrerApp({
           <FahrerPhase2688MeinePausen driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2693: Meine Schichtwechsel — Anzahl groß + Farbcode; Balken 0–5 Ziel 1; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2693MeineSchichtwechsel driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2698: Meine Abholwartezeit — Min groß + Farbcode; Balken; KPI-Grid; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2698MeineAbholwartezeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2699: Meine Liefertreue — % groß + Farbcode; Pünktlich-Count; Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2699MeineLiefertreue driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
