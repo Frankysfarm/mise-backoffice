@@ -24062,3 +24062,42 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2786–2791 implementiert. 1 neue B
 5. **Phase 2806 Kitchen:** Pünktlichkeits-Ticker — Team-Ø %; Alert <70% "Niedrige Pünktlichkeit!"; Fahrerliste kompakt absteigend (niedrigste oben); Ziel ≥90%; 30-Min-Polling; in kitchen/client.tsx nach Phase2801.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2797–2801 implementiert. 1 neue Backend-API (fahrer-kilometer-effizienz, distance_km/completed_stops in mise_delivery_batches, Ampel grün≤4/gelb4–6/rot>6 km, Alert "Hohe Kilometerleistung!", Trend vs. gestern, calcKm-Helper, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2798 Dispatch (KilometerEffizienzBoard, aufsteigend nach km, Balken 0–10 km Ziel-Linie 4 km, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend invertiert steigend=rot/fallend=grün) / Phase2799 Fahrer-App (MeineKilometerEffizienz, Ø km 4xl, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2801 Kitchen (KilometerEffizienzTicker, Team-Ø km, Alert je Fahrer, absteigend nach km, Ziel ≤4 km). Phase 2800 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+## Batch 2807–2811 — Fahrer-Storno-Rate (2026-07-20)
+
+### Phase 2807 — Backend API: Fahrer-Storno-Rate
+**Datei:** `app/api/delivery/admin/fahrer-storno-rate/route.ts` *(bereits vorhanden, Phase 2539)*
+**Wiederverwendet:** delivery_assignments.status=cancelled/rejected; Ampel grün(≤5%)/gelb(5–15%)/rot(>15%); Alert >15% "Hohe Storno-Rate!"; Trend vs. Vorwoche; driver_id-Modus; fahrer_single-Feld; Multi-Tenant; Supabase+Mock
+
+### Phase 2808 — Storno-Rate-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2808-storno-rate-board.tsx` *(neu)*
+**Component:** `DispatchPhase2808StornoRateBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >15% "Hohe Storno-Rate!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≤5%); Fahrerliste nach Rate aufsteigend sortiert (niedrigste oben = beste zuerst); Balken 0–30% mit Ziel-Linie 5%; Ampel-Dots + Trend-Pfeile invertiert (steigend=rot/fallend=grün); Stornos/Gesamt je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2803 ✅
+
+### Phase 2809 — Meine Storno-Rate (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2809-meine-storno-rate.tsx` *(neu)*
+**Component:** `FahrerPhase2809MeineStornoRate`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Rate % 4xl groß + Farbcode (rot=hoch=schlecht); Balken 0–30% mit Ziel-Linie 5%; KPI-Grid (Ziel/Team-Ø/Ampel/Touren); Coaching-Tipp je Ampelzone; Rang-Anzeige (aufsteigend = niedrigste Rate = Rang 1); isOnline-Guard; Trend-Pfeile invertiert; fahrer_single-Support; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2804 ✅
+
+### Phase 2810 — Storefront
+Übersprungen (Storno-Rate intern irrelevant für Kunden) ✅
+
+### Phase 2811 — Storno-Rate-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2811-storno-rate-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2811StornoRateTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø %; Alert-Banner je Fahrer >15% "Hohe Storno-Rate!"; Fahrerliste kompakt nach Rate absteigend sortiert (höchste oben = schlechteste zuerst) mit Ampel-Dots, invertierte Trend-Pfeile und Rate %; Stornos/Gesamt je Fahrer; Ziel-Anzeige ≤5%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2806 ✅
+
+### Nächste Phasen 2812–2816 (für nächsten Ingenieur) — Fahrer-Kundenbewertungs-Score
+1. **Phase 2812 Backend:** GET /api/delivery/admin/fahrer-kundenbewertung — Ø Kundenbewertung (1–5 Sterne) je Fahrer heute aus mise_delivery_batches oder delivery_assignments; Ampel grün(≥4.5)/gelb(3.5–4.4)/rot(<3.5); Alert <3.5 "Niedrige Kundenbewertung!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2813 Dispatch:** Kundenbewertungs-Board — Fahrerliste nach Score absteigend (höchste oben); Balken 0–5 mit Ziel-Linie 4.5; KPI-Grid Team-Ø/Bester/Ziel ≥4.5; Alert-Banner <3.5; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2808.
+3. **Phase 2814 Fahrer-App:** Meine Kundenbewertung — Score 4xl groß + Sterndarstellung + Farbcode; Balken 0–5 Ziel 4.5; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2809.
+4. **Phase 2815 Storefront:** Überspringen (Kundenbewertung intern irrelevant für Kunden).
+5. **Phase 2816 Kitchen:** Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling; in kitchen/client.tsx nach Phase2811.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2807–2811 implementiert. Backend-API wiederverwendet (fahrer-storno-rate Phase 2539, delivery_assignments cancelled/rejected, Ampel grün≤5%/gelb5–15%/rot>15%, Alert "Hohe Storno-Rate!", Trend vs. Vorwoche, fahrer_single-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2808 Dispatch (StornoRateBoard, aufsteigend nach Rate, Balken 0–30% Ziel-Linie 5%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend invertiert steigend=rot/fallend=grün) / Phase2809 Fahrer-App (MeineStornoRate, Rate % 4xl, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, fahrer_single-Support, 30-Min-Polling) / Phase2811 Kitchen (StornoRateTicker, Team-Ø %, Alert je Fahrer, absteigend nach Rate, Ziel ≤5%). Phase 2810 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.

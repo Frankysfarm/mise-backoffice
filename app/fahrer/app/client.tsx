@@ -732,6 +732,7 @@ import { FahrerPhase2788MeineReaktionszeit } from './phase2788-meine-reaktionsze
 import { FahrerPhase2794MeineAbschlussrate } from './phase2794-meine-abschlussrate';
 import { FahrerPhase2799MeineKilometerEffizienz } from './phase2799-meine-kilometer-effizienz';
 import { FahrerPhase2804MeinePuenktlichkeit } from './phase2804-meine-puenktlichkeit';
+import { FahrerPhase2809MeineStornoRate } from './phase2809-meine-storno-rate';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6179,6 +6180,8 @@ export function FahrerApp({
           <FahrerPhase2799MeineKilometerEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2804: Meine Pünktlichkeit — Rate % 4xl groß + Farbcode; Balken 0–100% Ziel 90%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2804MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2809: Meine Storno-Rate — Rate % 4xl groß + Farbcode; Balken 0–30% Ziel 5%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2809MeineStornoRate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9510,3 +9513,5 @@ export { FahrerPhase2794MeineAbschlussrate } from './phase2794-meine-abschlussra
 export { FahrerPhase2799MeineKilometerEffizienz } from './phase2799-meine-kilometer-effizienz';
 // Phase 2804 — Meine Pünktlichkeit (Rate % 4xl groß + Farbcode; Balken 0–100% Ziel 90%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2804MeinePuenktlichkeit } from './phase2804-meine-puenktlichkeit';
+// Phase 2809 — Meine Storno-Rate (Rate % 4xl groß + Farbcode; Balken 0–30% Ziel 5%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2809MeineStornoRate } from './phase2809-meine-storno-rate';

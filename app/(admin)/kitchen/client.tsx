@@ -378,6 +378,7 @@ import { KitchenPhase2791ReaktionszeitTicker } from './phase2791-reaktionszeit-t
 import { KitchenPhase2796AbschlussrateTicker } from './phase2796-abschlussrate-ticker';
 import { KitchenPhase2801KilometerEffizienzTicker } from './phase2801-kilometer-effizienz-ticker';
 import { KitchenPhase2806PuenktlichkeitsTicker } from './phase2806-puenktlichkeits-ticker';
+import { KitchenPhase2811StornoRateTicker } from './phase2811-storno-rate-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3673,6 +3674,8 @@ export function KitchenBoard({
       <KitchenPhase2801KilometerEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2806: Pünktlichkeits-Ticker — Team-Ø %; Alert <70% "Niedrige Pünktlichkeit!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥90%; 30-Min-Polling */}
       <KitchenPhase2806PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2811: Storno-Rate-Ticker — Team-Ø %; Alert >15% "Hohe Storno-Rate!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≤5%; 30-Min-Polling */}
+      <KitchenPhase2811StornoRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10452,3 +10455,5 @@ export { KitchenPhase2796AbschlussrateTicker } from './phase2796-abschlussrate-t
 export { KitchenPhase2801KilometerEffizienzTicker } from './phase2801-kilometer-effizienz-ticker';
 // Phase 2806 — Pünktlichkeits-Ticker (Team-Ø %; Alert <70% "Niedrige Pünktlichkeit!"; Fahrerliste kompakt aufsteigend; Ziel ≥90%; 30-Min-Polling)
 export { KitchenPhase2806PuenktlichkeitsTicker } from './phase2806-puenktlichkeits-ticker';
+// Phase 2811 — Storno-Rate-Ticker (Team-Ø %; Alert >15% "Hohe Storno-Rate!"; Fahrerliste kompakt absteigend; Ziel ≤5%; 30-Min-Polling)
+export { KitchenPhase2811StornoRateTicker } from './phase2811-storno-rate-ticker';
