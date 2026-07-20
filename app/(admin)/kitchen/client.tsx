@@ -370,6 +370,7 @@ import { KitchenPhase2755SmartTimingFahrerSyncCockpit } from './phase2755-smart-
 import { KitchenPhase2760BestellwertTicker } from './phase2760-bestellwert-ticker';
 import { KitchenPhase2765LiefergebietTicker } from './phase2765-liefergebiet-ticker';
 import { KitchenPhase2770FehlerquoteTicker } from './phase2770-fehlerquote-ticker';
+import { KitchenPhase2775TagesPerformanceTicker } from './phase2775-tages-performance-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3649,6 +3650,8 @@ export function KitchenBoard({
       <KitchenPhase2765LiefergebietTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2770: Fehlerquote-Ticker — Team-Ø %; Alert >15% "Fehlerquote zu hoch!"; Fahrerliste kompakt absteigend (höchste Fehlerquote oben); Ampel-Dots + Trend; Ziel <5%; 30-Min-Polling */}
       <KitchenPhase2770FehlerquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2775: Tages-Performance-Ticker — Team-Ø Pkt; Alert <60 "Tagesleistung zu niedrig!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ampel-Dots + Trend; Ziel ≥80 Pkt; 30-Min-Polling */}
+      <KitchenPhase2775TagesPerformanceTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10413,3 +10416,5 @@ export { KitchenPhase2760BestellwertTicker } from './phase2760-bestellwert-ticke
 export { KitchenPhase2765LiefergebietTicker } from './phase2765-liefergebiet-ticker';
 // Phase 2770 — Fehlerquote-Ticker (Team-Ø %; Alert >15% "Fehlerquote zu hoch!"; Fahrerliste kompakt absteigend höchste oben; Ampel-Dots + Trend; Ziel <5%; 30-Min-Polling)
 export { KitchenPhase2770FehlerquoteTicker } from './phase2770-fehlerquote-ticker';
+// Phase 2775 — Tages-Performance-Ticker (Team-Ø Composite Score; Alert <60 "Tagesleistung zu niedrig!"; aufsteigend sortiert niedrigste oben; Ampel-Dots + Trend; Ziel ≥80 Pkt; 30-Min-Polling)
+export { KitchenPhase2775TagesPerformanceTicker } from './phase2775-tages-performance-ticker';

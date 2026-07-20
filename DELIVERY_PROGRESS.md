@@ -23830,3 +23830,44 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2736–2740 implementiert. 1 neue B
 5. **Phase 2750 Kitchen:** Abbruchquote-Ticker — Team-Ø %; Alert >15% "Hohe Abbruchquote!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≤5%; 30-Min-Polling; in kitchen/client.tsx nach Phase2745.
 
 Frontend-Ingenieur-Agent (2026-07-20): Phasen 2741–2745 implementiert. 1 neue Backend-API (fahrer-wartezeit-stopp, arrived_at→completed_at Differenz in Minuten aus batch_stops, Ampel grün≤3/gelb3–6/rot>6 Min, Alert "Zu lange Wartezeit!", Trend vs. gestern, aggregateStopps-Helper mit Sanity-Check, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2742 Dispatch (WartezeitBoard, Balken 0–10 Min Ziel-Linie 3 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend rot=steigend/grün=fallend) / Phase2743 Fahrer-App (MeineWartezeit, Ø Min 4xl, Coaching-Tipp, Rang-Anzeige, isOnline-Guard) / Phase2745 Kitchen (WartezeitTicker, Team-Ø Min, Alert je Fahrer, absteigend nach Min, Ziel ≤3 Min). Phase 2744 Storefront übersprungen. TypeScript ✓ 0 neue Fehler. Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2771–2775 — Fahrer-Tages-Performance-Index (2026-07-20)
+
+### Phase 2771 — Backend API: Fahrer-Tages-Performance-Index
+**Datei:** `app/api/delivery/admin/fahrer-tages-performance-index/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Composite Score 0–100 je Fahrer heute aus Touren-Anzahl (30 Pkt) + Pünktlichkeitsrate (30 Pkt) + Fehlerquote invertiert (20 Pkt) + Abschlussrate (20 Pkt); Ampel grün(≥80)/gelb(60–79)/rot(<60); Alert <60 "Tagesleistung zu niedrig!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_batches)+Mock
+
+### Phase 2772 — Tages-Performance-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2772-tages-performance-board.tsx` *(neu)*
+**Component:** `DispatchPhase2772TagesPerformanceBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <60 "Tagesleistung zu niedrig!" mit Fahrernamen + Score; KPI-Grid (Team-Ø/Bester/Ziel ≥80 Pkt); Fahrerliste nach Score absteigend sortiert; Balken 0–100 mit Ziel-Linie 80; Ampel-Dots + Trend-Pfeile; Drill-down Teilscore-Balken (Touren/Pünktl/Fehler/Abschl); 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2767 ✅
+
+### Phase 2773 — Mein Tages-Performance-Index (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2773-mein-tages-performance-index.tsx` *(neu)*
+**Component:** `FahrerPhase2773MeinTagesPerformanceIndex`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Score 4xl groß + Farbcode; Balken 0–100 mit Ziel-Linie 80; KPI-Grid (Trend/Ziel/Ampel/Team-Ø); Teilscore-Balken für alle 4 Kategorien; Coaching-Tipp je Ampelzone; Rang-Anzeige; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2768 ✅
+
+### Phase 2774 — Storefront
+Übersprungen (Tages-Performance-Index intern irrelevant für Kunden) ✅
+
+### Phase 2775 — Tages-Performance-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2775-tages-performance-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2775TagesPerformanceTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Pkt; Alert-Banner je Fahrer <60 "Tagesleistung zu niedrig!"; Fahrerliste kompakt nach Score aufsteigend sortiert (niedrigste oben) mit Ampel-Dots, Trend-Pfeil und Pkt-Wert; Ziel-Anzeige ≥80 Pkt; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2770 ✅
+
+### Nächste Phasen 2776–2780 (für nächsten Ingenieur) — Fahrer-Schicht-Auslastungs-Prognose
+1. **Phase 2776 Backend:** GET /api/delivery/admin/fahrer-schicht-auslastungs-prognose — Prognostizierte Auslastung je Fahrer für Restschicht (verbleibende Stunden × durchschnittliche Touren/h); Ampel grün(>80%)/gelb(50–80%)/rot(<50%); Alert <50% "Fahrer unterausgelastet!"; driver_id-Modus; Multi-Tenant; Supabase(driver_shifts+delivery_batches)+Mock.
+2. **Phase 2777 Dispatch:** Auslastungs-Prognose-Board — Fahrerliste nach Prognose absteigend; Balken 0–150% mit Ziel-Linie 100%; KPI-Grid Team-Ø/Bester/Ziel; Alert-Banner; Restschicht-Zeit; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2772.
+3. **Phase 2778 Fahrer-App:** Meine Restschicht-Prognose — Prognostizierte Auslastung % 4xl; Restschicht-Countdown; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2773.
+4. **Phase 2779 Storefront:** Überspringen (Schicht-Prognose intern irrelevant für Kunden).
+5. **Phase 2780 Kitchen:** Auslastungs-Prognose-Ticker — Team-Ø Auslastung; Alert <50% "Fahrer unterausgelastet!"; Fahrerliste kompakt; Ziel >80%; 30-Min-Polling; in kitchen/client.tsx nach Phase2775.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2771–2775 implementiert. 1 neue Backend-API (fahrer-tages-performance-index, Composite Score 0–100 aus 4 Teilscores: Touren 30+Pünktlichkeit 30+Fehlerquote invertiert 20+Abschlussrate 20, Ampel grün≥80/gelb60–79/rot<60, Alert "Tagesleistung zu niedrig!", Trend vs. gestern, driver_id-Modus, Supabase delivery_batches+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2772 Dispatch (TagesPerformanceBoard, Score-Balken 0–100 Ziel-Linie 80, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, interaktiver Drill-down Teilscores, Trend-Pfeile grün=steigend/rot=fallend) / Phase2773 Fahrer-App (MeinTagesPerformanceIndex, Score 4xl, Teilscore-Balken alle 4 Kategorien, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2775 Kitchen (TagesPerformanceTicker, Team-Ø Pkt, Alert je Fahrer <60, aufsteigend nach Score niedrigste oben, Ziel ≥80 Pkt). Phase 2774 Storefront übersprungen. TypeScript ✓ 0 neue Fehler (224619 pre-existing, unverändert). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
