@@ -23449,3 +23449,44 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2681–2685 implementiert. 1 neue B
 5. **Phase 2695 Kitchen:** Schichtwechsel-Ticker — Team-Ø Wechsel; Alert ≥3 "Zu viele Wechsel!" oder 0 "Keine Schicht!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2690.
 
 Frontend-Ingenieur-Agent (2026-07-20): Phasen 2686–2690 implementiert. 1 neue Backend-API (fahrer-schicht-pausen, Ampel grün20–40/gelb10–19od41–60/rot<10od>60, Supabase driver_shift_breaks+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2687 Dispatch (Pausen-Board, Balken 0–90 Min, Ziel-Zone 20–40 Min grün, Alert je Fahrer) / Phase2688 Fahrer-App (Meine Pausen, Min-Wert 4xl, Coaching-Tipp) / Phase2690 Kitchen (Pausen-Ticker, Alert je Fahrer). Phase 2689 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler pre-existing (ignoreBuildErrors: true). Push erfolgt.
+
+---
+
+## Batch 2691–2695 — Fahrer-Schicht-Wechsel (2026-07-20)
+
+### Phase 2691 — Backend API: Fahrer-Schicht-Wechsel
+**Datei:** `app/api/delivery/admin/fahrer-schicht-wechsel/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Anzahl Schichtwechsel je Fahrer heute (driver_shifts.count pro Fahrer); Ampel grün(1)/gelb(2)/rot(≥3 oder 0); Alert ≥3 "Zu viele Schichtwechsel!" oder 0 "Keine Schicht!"; Trend vs. gestern; absteigend nach Wechselanzahl sortiert; driver_id-Modus; Multi-Tenant; Supabase(driver_shifts: planned_start)+Mock
+
+### Phase 2692 — Schichtwechsel-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2692-schichtwechsel-board.tsx` *(neu)*
+**Component:** `DispatchPhase2692SchichtwechselBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner je Fahrer; KPI-Grid (Team-Ø/Meiste/Wenigste); Fahrerliste nach Wechselanzahl absteigend sortiert; Balken 0–5 mit grüner Ziel-Linie bei 1 Wechsel; Ampel-Dots + Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2687 ✅
+
+### Phase 2693 — Meine Schichtwechsel (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2693-meine-schichtwechsel.tsx` *(neu)*
+**Component:** `FahrerPhase2693MeineSchichtwechsel`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Anzahl 4xl groß + Farbcode; Balken 0–5 mit Ziel-Linie 1; KPI-Grid (Trend/Ziel/Ampel/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2688 ✅
+
+### Phase 2694 — Storefront
+Übersprungen (Schichtwechsel intern irrelevant für Kunden) ✅
+
+### Phase 2695 — Schichtwechsel-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2695-schichtwechsel-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2695SchichtwechselTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Wechsel; Alert-Banner "Zu viele Wechsel!" oder "Keine Schicht!" je Fahrer; Fahrerliste kompakt nach Wechselanzahl absteigend mit Ampel-Dots, Trend-Pfeil und Anzahl; Ziel-Anzeige 1 Schicht; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2690 ✅
+
+### Nächste Phasen 2696–2700 (für nächsten Ingenieur) — Fahrer-Schicht-Produktivität
+1. **Phase 2696 Backend:** GET /api/delivery/admin/fahrer-schicht-produktivitaet-v2 — Produktivitäts-Score je Fahrer (Touren/Schichtstunde × Abschlussrate); Ampel grün(≥0.8)/gelb(0.5–0.79)/rot(<0.5); Alert <0.5; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_batches + driver_shifts)+Mock.
+2. **Phase 2697 Dispatch:** Produktivitäts-Ranking — Fahrerliste nach Score absteigend; Balken 0–1.5 mit Ziel-Linie 0.8; KPI-Grid Team-Ø/Bester/Ziel ≥0.8; Alert-Banner <0.5; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2692.
+3. **Phase 2698 Fahrer-App:** Meine Produktivität — Score groß + Farbcode; Balken 0–1.5 mit Ziel-Linie 0.8; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2693.
+4. **Phase 2699 Storefront:** Überspringen (Produktivität intern irrelevant für Kunden).
+5. **Phase 2700 Kitchen:** Produktivitäts-Ticker — Team-Ø Score; Alert <0.5 "Zu niedrige Produktivität!"; Fahrerliste kompakt nach Score absteigend; 30-Min-Polling; in kitchen/client.tsx nach Phase2695.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2691–2695 implementiert. 1 neue Backend-API (fahrer-schicht-wechsel, Ampel grün=1/gelb=2/rot≥3oder0, Alert "Zu viele Schichtwechsel!" und "Keine Schicht!", Supabase driver_shifts+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2692 Dispatch (Schichtwechsel-Board, Balken 0–5, Ziel-Linie 1, Alert-Banner je Fahrer) / Phase2693 Fahrer-App (Meine Schichtwechsel, Anzahl 4xl, Coaching-Tipp je Ampelzone) / Phase2695 Kitchen (Schichtwechsel-Ticker, Alert je Fahrer, absteigend nach Wechselanzahl). Phase 2694 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler pre-existing (ignoreBuildErrors: true). Push erfolgt.

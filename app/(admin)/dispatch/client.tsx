@@ -800,6 +800,7 @@ import { DispatchPhase2672NachtschichtBoard } from './phase2672-nachtschicht-boa
 import { DispatchPhase2677RuhezeitenBoard } from './phase2677-ruhezeiten-board';
 import { DispatchPhase2682SchichtBilanzBoard } from './phase2682-schicht-bilanz-board';
 import { DispatchPhase2687PausenBoard } from './phase2687-pausen-board';
+import { DispatchPhase2692SchichtwechselBoard } from './phase2692-schichtwechsel-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4015,6 +4016,8 @@ export function DispatchBoard({
           <DispatchPhase2682SchichtBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2687 (Pausen): Fahrerliste nach Abweichung sortiert; Balken 0–90 Min Ziel-Zone 20–40 Min; KPI-Grid Team-Ø/Kürzeste/Längste; Alert <10 Min "Zu wenig Pause!" oder >60 Min "Zu lange Pause!"; 30-Min-Polling */}
           <DispatchPhase2687PausenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2692 (Schichtwechsel): Fahrerliste nach Anzahl Wechsel absteigend; Balken 0–5 Ziel-Linie 1; KPI-Grid Team-Ø/Meiste/Wenigste; Alert ≥3 "Zu viele Schichtwechsel!" oder 0 "Keine Schicht!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2692SchichtwechselBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11756,3 +11759,5 @@ export { DispatchPhase2677RuhezeitenBoard } from './phase2677-ruhezeiten-board';
 export { DispatchPhase2682SchichtBilanzBoard } from './phase2682-schicht-bilanz-board';
 // Phase 2687 — Pausen-Board (Fahrerliste nach Abweichung von Ziel-Zone sortiert; Balken 0–90 Min Ziel-Zone 20–40 Min; KPI-Grid Team-Ø/Kürzeste/Längste; Alert <10 Min oder >60 Min; 30-Min-Polling)
 export { DispatchPhase2687PausenBoard } from './phase2687-pausen-board';
+// Phase 2692 — Schichtwechsel-Board (Fahrerliste nach Anzahl Wechsel absteigend; Balken 0–5 Ziel-Linie 1; KPI-Grid Team-Ø/Meiste/Wenigste; Alert ≥3 "Zu viele Schichtwechsel!" oder 0 "Keine Schicht!"; 30-Min-Polling)
+export { DispatchPhase2692SchichtwechselBoard } from './phase2692-schichtwechsel-board';

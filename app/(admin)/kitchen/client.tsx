@@ -351,6 +351,7 @@ import { KitchenPhase2675NachtschichtTicker } from './phase2675-nachtschicht-tic
 import { KitchenPhase2680RuhezeitenTicker } from './phase2680-ruhezeiten-ticker';
 import { KitchenPhase2685SchichtBilanzTicker } from './phase2685-schicht-bilanz-ticker';
 import { KitchenPhase2690PausenTicker } from './phase2690-pausen-ticker';
+import { KitchenPhase2695SchichtwechselTicker } from './phase2695-schichtwechsel-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3588,6 +3589,8 @@ export function KitchenBoard({
       <KitchenPhase2685SchichtBilanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2690: Pausen-Ticker — Team-Ø Min; Alert <10 Min "Zu wenig Pause!" oder >60 Min "Zu lange Pause!"; Fahrerliste kompakt mit Ampel-Dots; Ziel 20–40 Min; 30-Min-Polling */}
       <KitchenPhase2690PausenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2695: Schichtwechsel-Ticker — Team-Ø Wechsel; Alert ≥3 "Zu viele Wechsel!" oder 0 "Keine Schicht!"; Fahrerliste kompakt nach Wechselanzahl absteigend; Ziel 1 Schicht; 30-Min-Polling */}
+      <KitchenPhase2695SchichtwechselTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10314,3 +10317,5 @@ export { KitchenPhase2680RuhezeitenTicker } from './phase2680-ruhezeiten-ticker'
 export { KitchenPhase2685SchichtBilanzTicker } from './phase2685-schicht-bilanz-ticker';
 // Phase 2690 — Pausen-Ticker (Team-Ø Min; Alert <10 Min "Zu wenig Pause!" oder >60 Min "Zu lange Pause!"; Fahrerliste kompakt mit Ampel-Dots; Ziel 20–40 Min; 30-Min-Polling)
 export { KitchenPhase2690PausenTicker } from './phase2690-pausen-ticker';
+// Phase 2695 — Schichtwechsel-Ticker (Team-Ø Wechsel; Alert ≥3 "Zu viele Wechsel!" oder 0 "Keine Schicht!"; Fahrerliste kompakt nach Wechselanzahl absteigend; Ziel 1; 30-Min-Polling)
+export { KitchenPhase2695SchichtwechselTicker } from './phase2695-schichtwechsel-ticker';
