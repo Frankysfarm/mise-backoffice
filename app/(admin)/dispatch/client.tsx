@@ -807,6 +807,7 @@ import { DispatchPhase2712LieferdichteBoard } from './phase2712-lieferdichte-boa
 import { DispatchPhase2717TourScoreEchtzeitBoard } from './phase2717-tour-score-echtzeit-board';
 import { DispatchPhase2722TourLiveVisualisierungCockpit } from './phase2722-tour-live-visualisierung-cockpit';
 import { DispatchPhase2722LeerfahrtenBoard } from './phase2722-leerfahrten-board';
+import { DispatchPhase2727TourenFrequenzBoard } from './phase2727-touren-frequenz-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4036,6 +4037,8 @@ export function DispatchBoard({
           <DispatchPhase2722TourLiveVisualisierungCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2722: Leerfahrten-Board — Fahrerliste nach Quote absteigend; Balken 0–50% Ziel-Linie 10%; KPI-Grid Team-Ø/Bester/Ziel <10%; Alert >25% "Zu viele Leerfahrten!"; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2722LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2727: Touren-Frequenz-Board — Fahrerliste nach /h absteigend; Balken 0–3/h Ziel-Linie 1.5/h; KPI-Grid Team-Ø/Bester/Ziel ≥1.5/h; Alert <1.0/h "Frequenz zu niedrig!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2727TourenFrequenzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11791,3 +11794,5 @@ export { DispatchPhase2717TourScoreEchtzeitBoard } from './phase2717-tour-score-
 export { DispatchPhase2722TourLiveVisualisierungCockpit } from './phase2722-tour-live-visualisierung-cockpit';
 // Phase 2722 — Leerfahrten-Board (Fahrerliste nach Quote absteigend; Balken 0–50% Ziel-Linie 10%; KPI-Grid Team-Ø/Bester/Ziel <10%; Alert >25% "Zu viele Leerfahrten!"; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2722LeerfahrtenBoard } from './phase2722-leerfahrten-board';
+// Phase 2727 — Touren-Frequenz-Board (Fahrerliste nach /h absteigend; Balken 0–3/h Ziel-Linie 1.5/h; KPI-Grid Team-Ø/Bester/Ziel ≥1.5/h; Alert <1.0/h "Frequenz zu niedrig!"; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2727TourenFrequenzBoard } from './phase2727-touren-frequenz-board';

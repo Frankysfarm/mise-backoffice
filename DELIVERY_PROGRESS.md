@@ -23629,3 +23629,44 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2711–2715 implementiert. 1 neue B
 5. **Phase 2730 Kitchen:** Touren-Frequenz-Ticker — Team-Ø /h; Alert <1.0/h "Frequenz zu niedrig!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥1.5/h; 30-Min-Polling; in kitchen/client.tsx nach Phase2725.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2721–2725 implementiert. 1 neue Backend-API (fahrer-leerfahrten, delivery_batches state=cancelled/failed / Gesamt × 100%, Ampel grün<10%/gelb10–25%/rot>25%, Alert "Zu viele Leerfahrten!", Trend vs. gestern, BatchRow-Typed, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2722 Dispatch (LeerfahrtenBoard, Balken 0–50% Ziel-Linie 10%, Alert-Banner je Fahrer, KPI-Grid Team-Ø/Bester/Ziel, Trend-Pfeile rot=steigend/grün=fallend) / Phase2723 Fahrer-App (MeineLeerfahrten, Quote 4xl groß + Farbcode, Balken 0–50% Ziel 10%, KPI-Grid, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2725 Kitchen (LeerfahrtenTicker, Team-Ø %, Alert je Fahrer, absteigend nach Quote, Ziel <10%). Phase 2724 Storefront übersprungen. TypeScript ✓ 0 neue Fehler (BatchRow-Typisierung, hasYesterday-Flag). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2726–2730 — Fahrer-Touren-Frequenz (2026-07-20)
+
+### Phase 2726 — Backend API: Fahrer-Touren-Frequenz
+**Datei:** `app/api/delivery/admin/fahrer-touren-frequenz/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Touren pro Stunde je Fahrer heute (Touren-Count / aktive Schicht-Stunden); Ampel grün(≥1.5/h)/gelb(1.0–1.49/h)/rot(<1.0/h); Alert <1.0/h "Frequenz zu niedrig!"; Trend vs. gestern; absteigend nach Frequenz sortiert; driver_id-Modus; Multi-Tenant; Supabase(delivery_batches + driver_shifts)+Mock
+
+### Phase 2727 — Touren-Frequenz-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2727-touren-frequenz-board.tsx` *(neu)*
+**Component:** `DispatchPhase2727TourenFrequenzBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner je Fahrer <1.0/h "Frequenz zu niedrig!" mit Name + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≥1.5/h); Fahrerliste nach Frequenz absteigend sortiert; Balken 0–3/h mit Ziel-Linie bei 1.5/h; Ampel-Dots + Trend-Pfeile (grün=steigend/rot=fallend); Schicht-Stunden je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2722 ✅
+
+### Phase 2728 — Meine Touren-Frequenz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2728-meine-touren-frequenz.tsx` *(neu)*
+**Component:** `FahrerPhase2728MeineTourenFrequenz`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); /h-Wert 4xl groß + Farbcode; Balken 0–3/h mit Ziel-Linie 1.5/h; KPI-Grid (Trend/Ziel/Ampel/Team-Ø); Coaching-Tipp je Ampelzone; Rang-Anzeige; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2723 ✅
+
+### Phase 2729 — Storefront
+Übersprungen (Touren-Frequenz intern irrelevant für Kunden) ✅
+
+### Phase 2730 — Touren-Frequenz-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2730-touren-frequenz-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2730TourenFrequenzTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø /h; Alert-Banner je Fahrer <1.0/h "Frequenz zu niedrig!"; Fahrerliste kompakt nach Frequenz aufsteigend sortiert (niedrigste oben) mit Ampel-Dots, Trend-Pfeil und /h-Wert; Ziel-Anzeige ≥1.5/h; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2725 ✅
+
+### Nächste Phasen 2731–2735 (für nächsten Ingenieur) — Fahrer-Rückkehr-Zuverlässigkeit
+1. **Phase 2731 Backend:** GET /api/delivery/admin/fahrer-rueckkehr-zuverlaessigkeit — Pünktlichkeitsrate Schichtende je Fahrer (planned_end vs. actual_end in driver_shifts); Ampel grün(≥90%)/gelb(70–89%)/rot(<70%); Alert <70% "Rückkehr unzuverlässig!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(driver_shifts)+Mock.
+2. **Phase 2732 Dispatch:** Rückkehr-Zuverlässigkeits-Board — Fahrerliste nach Rate absteigend; Balken 0–100% mit Ziel-Linie 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert-Banner <70%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2727.
+3. **Phase 2733 Fahrer-App:** Meine Rückkehr-Zuverlässigkeit — Rate % 4xl groß + Farbcode; Balken 0–100% Ziel 90%; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2728.
+4. **Phase 2734 Storefront:** Überspringen (Rückkehr-Zuverlässigkeit intern irrelevant für Kunden).
+5. **Phase 2735 Kitchen:** Rückkehr-Ticker — Team-Ø %; Alert <70% "Rückkehr unzuverlässig!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥90%; 30-Min-Polling; in kitchen/client.tsx nach Phase2730.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2726–2730 implementiert. 1 neue Backend-API (fahrer-touren-frequenz, Touren/Schicht-Stunden, Ampel grün≥1.5/gelb1.0–1.49/rot<1.0, Alert "Frequenz zu niedrig!", ShiftRow+BatchRow-Typisierung, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2727 Dispatch (TourenFrequenzBoard, Balken 0–3/h, Ziel-Linie 1.5/h, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend grün=steigend/rot=fallend) / Phase2728 Fahrer-App (MeineTourenFrequenz, /h-Wert 4xl, Coaching-Tipp, Rang-Anzeige) / Phase2730 Kitchen (TourenFrequenzTicker, Team-Ø /h, Alert je Fahrer, aufsteigend nach Frequenz, Ziel ≥1.5/h). Phase 2729 Storefront übersprungen. TypeScript ✓ 0 neue Fehler. Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.

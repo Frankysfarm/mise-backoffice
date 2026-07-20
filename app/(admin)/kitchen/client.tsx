@@ -361,6 +361,7 @@ import { KitchenPhase2715LieferdichteTicker } from './phase2715-lieferdichte-tic
 import { KitchenPhase2720SmartKochstartCountdownCockpit } from './phase2720-smart-kochstart-countdown-cockpit';
 import { KitchenPhase2725SmartPrepPrioritaetsCockpit } from './phase2725-smart-prep-prioritaets-cockpit';
 import { KitchenPhase2725LeerfahrtenTicker } from './phase2725-leerfahrten-ticker';
+import { KitchenPhase2730TourenFrequenzTicker } from './phase2730-touren-frequenz-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3618,6 +3619,8 @@ export function KitchenBoard({
       <KitchenPhase2725SmartPrepPrioritaetsCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2725: Leerfahrten-Ticker — Team-Ø %; Alert >25% "Zu viele Leerfahrten!"; Fahrerliste kompakt absteigend (höchste Quote oben); Ziel <10%; 30-Min-Polling */}
       <KitchenPhase2725LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2730: Touren-Frequenz-Ticker — Team-Ø /h; Alert <1.0/h "Frequenz zu niedrig!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥1.5/h; 30-Min-Polling */}
+      <KitchenPhase2730TourenFrequenzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10364,3 +10367,5 @@ export { KitchenPhase2720SmartKochstartCountdownCockpit } from './phase2720-smar
 export { KitchenPhase2725SmartPrepPrioritaetsCockpit } from './phase2725-smart-prep-prioritaets-cockpit';
 // Phase 2725 — Leerfahrten-Ticker (Team-Ø %; Alert >25% "Zu viele Leerfahrten!"; Fahrerliste kompakt absteigend nach Quote; Ziel <10%; 30-Min-Polling)
 export { KitchenPhase2725LeerfahrtenTicker } from './phase2725-leerfahrten-ticker';
+// Phase 2730 — Touren-Frequenz-Ticker (Team-Ø /h; Alert <1.0/h "Frequenz zu niedrig!"; Fahrerliste kompakt aufsteigend nach Frequenz; Ziel ≥1.5/h; 30-Min-Polling)
+export { KitchenPhase2730TourenFrequenzTicker } from './phase2730-touren-frequenz-ticker';
