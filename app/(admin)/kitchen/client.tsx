@@ -3556,7 +3556,7 @@ export function KitchenBoard({
       <KitchenPhase2618KundenbewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2623: Anlaufzeit-Ticker — Team-Ø Min; Alert >20 Min "Fahrer Anlaufzeit zu lang!"; Kompakte Fahrerliste (höchste Zeit oben) mit Ampel + Trend; 30-Min-Polling */}
       <KitchenPhase2623ErstkontaktTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
-      {/* Phase 2628: Reaktionszeit-Ticker — Team-Ø Min; Alert >5 Min "Reaktionszeit zu lang!"; Kompakte Fahrerliste mit Ampel-Dots + Trend; 30-Min-Polling */}
+      {/* Phase 2628: Reaktionszeit-Ticker — Team-Ø Min; Alert >5 Min "Reaktionszeit zu lang!"; Kompakte Fahrerliste mit Ampel-Dots; Ziel ≤2 Min; 30-Min-Polling */}
       <KitchenPhase2628ReactionsZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -10262,5 +10262,5 @@ export { KitchenPhase2640SmartKochzeitPrognoseCockpit } from './phase2640-smart-
 export { KitchenPhase2645SmartTimingEchtzeitCockpitFinal } from './phase2645-smart-timing-echtzeit-cockpit-final';
 // Phase 2623 — Erstkontakt-Ticker (Team-Ø Min; Alert >20 Min "Fahrer Anlaufzeit zu lang!"; Kompakte Fahrerliste höchste Zeit oben; Ampel + Trend; 30-Min-Polling)
 export { KitchenPhase2623ErstkontaktTicker } from './phase2623-erstkontakt-ticker';
-// Phase 2628 — Reaktionszeit-Ticker (Team-Ø Min; Alert >5 Min "Reaktionszeit zu lang!"; Kompakte Fahrerliste mit Ampel-Dots + Trend; 30-Min-Polling)
+// Phase 2628 — Reaktionszeit-Ticker (Team-Ø Min; Alert >5 Min "Reaktionszeit zu lang!"; Fahrerliste mit Ampel-Dots; Ziel ≤2 Min; 30-Min-Polling)
 export { KitchenPhase2628ReactionsZeitTicker } from './phase2628-reaktionszeit-ticker';

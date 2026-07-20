@@ -80,13 +80,13 @@ export function DispatchPhase2625ReactionsZeitBoard({ locationId }: { locationId
 
   if (!data) return null;
 
-  const enriched = data.fahrer.map(f => ({ ...f, ampel: ampelVon(f.avg_min) }));
-  const sorted   = [...enriched].sort((a, b) => b.avg_min - a.avg_min);
-  const alerts   = enriched.filter(f => f.avg_min > 5);
-  const hasAlert = alerts.length > 0;
+  const enriched  = data.fahrer.map(f => ({ ...f, ampel: ampelVon(f.avg_min) }));
+  const sorted    = [...enriched].sort((a, b) => b.avg_min - a.avg_min);
+  const alerts    = enriched.filter(f => f.avg_min > 5);
+  const hasAlert  = alerts.length > 0;
   const teamAmpel = ampelVon(data.team_durchschnitt);
   const teamCls   = ampelCls(teamAmpel);
-  const best      = enriched.length > 0 ? Math.min(...enriched.map(f => f.avg_min)) : null;
+  const bestMin   = enriched.length > 0 ? Math.min(...enriched.map(f => f.avg_min)) : null;
 
   return (
     <div className={`rounded-xl border ${hasAlert ? 'border-red-200 bg-red-50' : 'border-gray-200 bg-white'} shadow-sm mb-4`}>
@@ -111,6 +111,15 @@ export function DispatchPhase2625ReactionsZeitBoard({ locationId }: { locationId
 
       {open && (
         <div className="px-4 pb-4 space-y-3">
+          {hasAlert && (
+            <div className="flex items-start gap-2 bg-red-100 border border-red-200 rounded-lg px-3 py-2">
+              <AlertTriangle size={14} className="text-red-600 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-red-700 font-medium">
+                Reaktionszeit &gt;5 Min — sofortiger Handlungsbedarf: {alerts.map((f: { fahrer_name: string }) => f.fahrer_name).join(', ')}
+              </p>
+            </div>
+          )}
+
           {/* KPI-Grid */}
           <div className="grid grid-cols-3 gap-2">
             <div className="bg-white rounded-lg border border-gray-100 p-2 text-center">
@@ -119,7 +128,7 @@ export function DispatchPhase2625ReactionsZeitBoard({ locationId }: { locationId
             </div>
             <div className="bg-white rounded-lg border border-gray-100 p-2 text-center">
               <div className="text-lg font-bold text-gray-700">
-                {best !== null ? `${best.toFixed(1)} Min` : '—'}
+                {bestMin !== null ? `${bestMin.toFixed(1)} Min` : '—'}
               </div>
               <div className="text-xs text-gray-500">Bester heute</div>
             </div>
@@ -129,41 +138,24 @@ export function DispatchPhase2625ReactionsZeitBoard({ locationId }: { locationId
             </div>
           </div>
 
-          {/* Alert-Banner */}
-          {hasAlert && (
-            <div className="flex items-center gap-2 bg-red-100 border border-red-200 rounded-lg px-3 py-2">
-              <AlertTriangle size={14} className="text-red-600 flex-shrink-0" />
-              <p className="text-xs text-red-700 font-medium">
-                Reaktionszeit zu lang: {alerts.map(f => f.fahrer_name).join(', ')}
-              </p>
-            </div>
-          )}
-
           {/* Fahrerliste */}
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {sorted.map(f => {
               const cls = ampelCls(f.ampel);
               return (
-                <div key={f.fahrer_id} className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 ${cls.bg}`}>
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${cls.dot}`} />
-                  <span className="text-xs font-medium text-gray-700 w-20 truncate">{f.fahrer_name}</span>
+                <div key={f.fahrer_id} className={`rounded-lg border p-2 ${cls.bg}`}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${cls.dot}`} />
+                    <span className="text-xs font-medium text-gray-800 flex-1 truncate">{f.fahrer_name}</span>
+                    <TrendIcon trend={f.trend} />
+                    <span className={`text-xs font-bold ${cls.text}`}>{f.avg_min.toFixed(1)} Min</span>
+                  </div>
                   <ZeitBalken min={f.avg_min} barClass={cls.bar} />
-                  <span className={`text-xs font-bold w-14 text-right ${cls.text}`}>{f.avg_min.toFixed(1)} Min</span>
-                  <TrendIcon trend={f.trend} />
-                  <span className="text-xs text-gray-400 w-10 text-right">
-                    {f.trend_delta > 0 ? '+' : ''}{f.trend_delta.toFixed(1)}
-                  </span>
                 </div>
               );
             })}
           </div>
-
-          {/* Legende */}
-          <div className="flex gap-3 text-xs text-gray-400">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500 inline-block" />≤2 Min</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />3–5 Min</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" />&gt;5 Min</span>
-          </div>
+          <div className="text-xs text-gray-400 text-right">Ziel ≤2 Min — alle 30 Min aktualisiert</div>
         </div>
       )}
     </div>

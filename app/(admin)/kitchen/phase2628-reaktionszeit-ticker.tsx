@@ -42,7 +42,7 @@ function TrendIcon({ trend }: { trend: string }) {
 const MOCK: ApiData = {
   fahrer: [
     { fahrer_id: 'f3', fahrer_name: 'Tim W.',  avg_min: 8.2, trend: 'steigend' },
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.', avg_min: 4.5, trend: 'fallend'  },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.', avg_min: 4.5, trend: 'stabil'   },
     { fahrer_id: 'f4', fahrer_name: 'Anna B.', avg_min: 3.1, trend: 'stabil'   },
     { fahrer_id: 'f1', fahrer_name: 'Max M.',  avg_min: 2.1, trend: 'fallend'  },
   ],
@@ -100,7 +100,7 @@ export function KitchenPhase2628ReactionsZeitTicker({ locationId }: { locationId
             <div className="flex items-start gap-1.5 bg-red-100 border border-red-200 rounded-lg px-2 py-1.5">
               <AlertTriangle size={12} className="text-red-600 flex-shrink-0 mt-0.5" />
               <p className="text-xs text-red-700 font-medium">
-                Reaktionszeit zu lang: {alerts.map(f => f.fahrer_name).join(', ')}
+                Reaktionszeit zu lang: {alerts.map((f: { fahrer_name: string }) => f.fahrer_name).join(', ')}
               </p>
             </div>
           )}
