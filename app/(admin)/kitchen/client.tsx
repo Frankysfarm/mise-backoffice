@@ -348,6 +348,7 @@ import { KitchenPhase2660KilometerstandTicker } from './phase2660-kilometerstand
 import { KitchenPhase2665KraftstoffkostenTicker } from './phase2665-kraftstoffkosten-ticker';
 import { KitchenPhase2670UeberstundenTicker } from './phase2670-ueberstunden-ticker';
 import { KitchenPhase2675NachtschichtTicker } from './phase2675-nachtschicht-ticker';
+import { KitchenPhase2680RuhezeitenTicker } from './phase2680-ruhezeiten-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3579,6 +3580,8 @@ export function KitchenBoard({
       <KitchenPhase2670UeberstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2675: Nachtschicht-Ticker — Team-Ø h; Alert >3 h "Nachtschicht zu lang!"; Fahrerliste kompakt mit Ampel-Dots; Ziel 0 h; 30-Min-Polling */}
       <KitchenPhase2675NachtschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2680: Ruhezeiten-Ticker — Team-Ø h; Alert <8 h "Ruhezeit zu kurz!"; Fahrerliste kompakt nach Ruhezeit aufsteigend sortiert; Ziel ≥11 h; 30-Min-Polling */}
+      <KitchenPhase2680RuhezeitenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10299,3 +10302,5 @@ export { KitchenPhase2665KraftstoffkostenTicker } from './phase2665-kraftstoffko
 export { KitchenPhase2670UeberstundenTicker } from './phase2670-ueberstunden-ticker';
 // Phase 2675 — Nachtschicht-Ticker (Team-Ø h; Alert >3 h "Nachtschicht zu lang!"; Fahrerliste kompakt mit Ampel-Dots + Trend; Ziel 0 h; 30-Min-Polling)
 export { KitchenPhase2675NachtschichtTicker } from './phase2675-nachtschicht-ticker';
+// Phase 2680 — Ruhezeiten-Ticker (Team-Ø h; Alert <8 h "Ruhezeit zu kurz!"; Fahrerliste kompakt nach Ruhezeit aufsteigend sortiert kürzeste oben; Ziel ≥11 h; 30-Min-Polling)
+export { KitchenPhase2680RuhezeitenTicker } from './phase2680-ruhezeiten-ticker';
