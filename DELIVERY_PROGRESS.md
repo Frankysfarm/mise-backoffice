@@ -22900,3 +22900,39 @@ Backend-Architekt-Agent (2026-07-19): Phasen 2594–2598 implementiert. Backend-
 
 Frontend-Ingenieur-Agent (2026-07-19): Phasen 2599–2603 implementiert. 1 neue Backend-API (fahrer-km-bilanz-heute, Supabase: delivery_tours distance_km/started_at, Trend vs. gestern, Ampel grün≥80/gelb50-79/rot<50) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2600 Dispatch (km-Bilanz-Board, Balken 0–150 km, Ziel-Linie 80 km) / Phase2601 Fahrer-App (Meine km-Bilanz, Coaching-Tipp je Ampelzone) / Phase2603 Kitchen (km-Bilanz-Ticker, Alert <50 km). Phase 2602 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.
 >>>>>>> affce801 (feat(delivery/frontend): Phasen 2599–2603 — Fahrer-Kilometer-Bilanz)
+
+## Batch 2604–2608 — Fahrer-Schicht-Erlös (2026-07-20)
+
+### Phase 2604 — Backend API: Fahrer-Schicht-Erlös
+**Datei:** `app/api/delivery/admin/fahrer-schicht-erloes/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Erlös (Bestellwert) je Fahrer heute in €; Ampel grün(≥200 €)/gelb(100–199 €)/rot(<100 €); Alert <100 €; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(orders.total_amount via delivery_tours)+Mock
+
+### Phase 2605 — Schicht-Erlös-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2605-schicht-erloes-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute / Gestern / Ziel ≥200 €); Fahrerliste nach Erlös sortiert (niedrigste oben); Balken 0–400 € mit grüner gestrichelter Ziel-Linie bei 200 €; Alert-Banner <100 € "Erlös <100 €!" mit Fahrernamen; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2600 ✅
+
+### Phase 2606 — Mein Schicht-Erlös (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2606-mein-schicht-erloes.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); €-Wert groß + Farbcode; Fortschrittsbalken 0–400 € mit gestrichelter Ziel-Linie bei 200 €; KPI-Grid (Gestern/Trend/Ziel ≥200 €/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2601 ✅
+
+### Phase 2607 — Storefront
+Übersprungen (Erlösdaten intern irrelevant für Kunden) ✅
+
+### Phase 2608 — Schicht-Erlös-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2608-schicht-erloes-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Erlös; Alert-Banner <100 € "Fahrer Umsatz niedrig!" mit Fahrernamen; Fahrerliste kompakt nach Erlös sortiert (niedrigste oben) mit Ampel-Dots, Trend-Pfeil und €-Wert; Ziel-Anzeige; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2603 ✅
+
+### Nächste Phasen 2609–2613 (für nächsten Ingenieur) — Fahrer-Trinkgeld-Analyse
+1. **Phase 2609 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-analyse — Ø Trinkgeld je Fahrer heute in €; Ampel grün(≥5 €)/gelb(2–4.99 €)/rot(<2 €); Alert <2 €; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(orders.tip_amount via delivery_tours)+Mock.
+2. **Phase 2610 Dispatch:** Trinkgeld-Analyse-Board — Fahrerliste nach Trinkgeld sortiert (niedrigste oben); Balken 0–15 € mit Ziel-Linie 5 € (grün/gestrichelt); KPI-Grid Team-Ø/Gestern/Ziel ≥5 €; Alert-Banner <2 €; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2605.
+3. **Phase 2611 Fahrer-App:** Mein Trinkgeld — €-Wert groß + Farbcode; Balken 0–15 € mit Ziel-Linie 5 €; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2606.
+4. **Phase 2612 Storefront:** Überspringen (Trinkgelddaten intern irrelevant für Kunden).
+5. **Phase 2613 Kitchen:** Trinkgeld-Ticker — Team-Ø €; Alert <2 € "Trinkgeld sehr niedrig!"; Fahrerliste kompakt mit Ampel-Dots + Trend; 30-Min-Polling; in kitchen/client.tsx nach Phase2608.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2604–2608 implementiert. 1 neue Backend-API (fahrer-schicht-erloes, Supabase: orders.total_amount via delivery_tours, Trend vs. gestern, Ampel grün≥200/gelb100-199/rot<100) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2605 Dispatch (Schicht-Erlös-Board, Balken 0–400 €, Ziel-Linie 200 €) / Phase2606 Fahrer-App (Mein Schicht-Erlös, Coaching-Tipp je Ampelzone) / Phase2608 Kitchen (Schicht-Erlös-Ticker, Alert <100 € "Fahrer Umsatz niedrig!"). Phase 2607 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.

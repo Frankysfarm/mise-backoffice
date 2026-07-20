@@ -334,6 +334,7 @@ import { KitchenPhase2588LiefervolumenTrendTicker } from './phase2588-liefervolu
 import { KitchenPhase2593AuslastungsTicker } from './phase2593-auslastungs-ticker';
 import { KitchenPhase2598PausenzeitTicker } from './phase2598-pausenzeit-ticker';
 import { KitchenPhase2603KmBilanzTicker } from './phase2603-km-bilanz-ticker';
+import { KitchenPhase2608SchichtErloesTicker } from './phase2608-schicht-erloes-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3541,6 +3542,8 @@ export function KitchenBoard({
       <KitchenPhase2598PausenzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2603: km-Bilanz-Ticker — Team-Ø km; Alert <50 km "Fahrer unterausgelastet!"; Kompakte Fahrerliste (niedrigste km oben) mit Ampel + Trend; 30-Min-Polling */}
       <KitchenPhase2603KmBilanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2608: Schicht-Erlös-Ticker — Team-Ø €; Alert <100 € "Fahrer Umsatz niedrig!"; Kompakte Fahrerliste (niedrigster Erlös oben) mit Ampel + Trend; 30-Min-Polling */}
+      <KitchenPhase2608SchichtErloesTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}

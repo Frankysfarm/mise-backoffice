@@ -691,6 +691,7 @@ import { FahrerPhase2586MeinLiefervolumenTrend } from './phase2586-mein-liefervo
 import { FahrerPhase2591MeineTourenAuslastung } from './phase2591-meine-touren-auslastung';
 import { FahrerPhase2596MeinePausenzeit } from './phase2596-meine-pausenzeit';
 import { FahrerPhase2601MeineKmBilanz } from './phase2601-meine-km-bilanz';
+import { FahrerPhase2606MeinSchichtErloes } from './phase2606-mein-schicht-erloes';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
 import { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';
 import { FahrerPhase2620SmartTourNavigationMaster } from './phase2620-smart-tour-navigation-master';
@@ -6027,6 +6028,8 @@ export function FahrerApp({
           <FahrerPhase2596MeinePausenzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2601: Meine km-Bilanz — km-Wert groß + Farbcode; Balken 0–150 km mit Ziel-Linie 80 km; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2601MeineKmBilanz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2606: Mein Schicht-Erlös — €-Wert groß + Farbcode; Balken 0–400 € mit Ziel-Linie 200 €; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2606MeinSchichtErloes driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
