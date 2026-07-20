@@ -23012,3 +23012,42 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2609–2613 implementiert. 1 neue B
 5. **Phase 2623 Kitchen:** Erstkontakt-Ticker — Team-Ø Min; Alert >20 Min "Fahrer Anlaufzeit zu lang!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2618.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2614–2618 implementiert. Backend-API wiederverwendet (fahrer-kundenbewertung Phase 2254). 3 neue Frontend-Komponenten erstellt und integriert: Phase2615 Dispatch (Kundenbewertungs-Board, Balken 0–5 ★, Ziel-Linie 4.5 ★, Sterne-Icons) / Phase2616 Fahrer-App (Meine Kundenbewertung, Sterne-Icons groß, Coaching-Tipp je Ampelzone) / Phase2618 Kitchen (Kundenbewertungs-Ticker, Alert "Schlechte Kundenbewertung!"). Phase 2617 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.
+
+## Batch 2619–2623 — Fahrer-Erstkontakt-Zeit (2026-07-20)
+
+### Phase 2619 — Backend API: Fahrer-Erstkontakt-Zeit
+**Datei:** `app/api/delivery/admin/fahrer-erstkontakt-zeit/route.ts` *(neu)*
+**UI:** Ø Zeit vom Schichtbeginn bis zur ersten Lieferung je Fahrer heute in Min; Ampel grün(≤10)/gelb(11–20)/rot(>20); Alert >20 Min; Trend vs. gestern; Supabase(delivery_tours: created_at → first started_at)+Mock
+
+### Phase 2620 — Erstkontakt-Zeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2620-erstkontakt-zeit-board.tsx` *(neu)*
+**Component:** `DispatchPhase2620ErstkontaktZeitBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); KPI-Grid (Team-Ø/Bester heute/Ziel ≤10 Min); Fahrerliste nach Zeit sortiert (höchste oben); Balken 0–30 Min mit grüner gestrichelter Ziel-Linie bei 10 Min; Alert-Banner >20 Min; Trend-Pfeile; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2615 ✅
+
+### Phase 2621 — Meine Anlaufzeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2621-meine-erstkontakt-zeit.tsx` *(neu)*
+**Component:** `FahrerPhase2621MeineErstkontaktZeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Min-Wert groß + Farbcode; Balken 0–30 Min mit Ziel-Linie 10 Min (gestrichelt grün); KPI-Grid (Trend vs. gestern/Ziel ≤10 Min/Rang heute/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2616 ✅
+
+### Phase 2622 — Storefront
+Übersprungen (Erstkontakt-Daten intern irrelevant für Kunden) ✅
+
+### Phase 2623 — Anlaufzeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2623-erstkontakt-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2623ErstkontaktTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Min; Alert-Banner "Fahrer Anlaufzeit zu lang!" mit Fahrernamen; Fahrerliste kompakt nach Zeit sortiert (höchste oben) mit Ampel-Dots, Trend-Pfeil und Min-Wert; Ziel-Anzeige; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2618 ✅
+
+### Nächste Phasen 2624–2628 (für nächsten Ingenieur) — Fahrer-Schichtpünktlichkeit
+1. **Phase 2624 Backend:** GET /api/delivery/admin/fahrer-schichtpuenktlichkeit — Ø Verspätung am Schichtbeginn je Fahrer heute in Min; Ampel grün(≤2 Min)/gelb(3–10 Min)/rot(>10 Min); Alert >10 Min; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(driver_shifts: planned_start vs actual_start)+Mock.
+2. **Phase 2625 Dispatch:** Schichtpünktlichkeits-Board — Fahrerliste nach Verspätung sortiert (höchste oben); Balken 0–15 Min mit Ziel-Linie 2 Min; KPI-Grid Team-Ø/Gestern/Ziel ≤2 Min; Alert-Banner >10 Min; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2620(Erstkontakt).
+3. **Phase 2626 Fahrer-App:** Meine Schichtpünktlichkeit — Min-Wert groß + Farbcode; Balken 0–15 Min mit Ziel-Linie 2 Min; KPI-Grid Trend/Ziel/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2621.
+4. **Phase 2627 Storefront:** Überspringen (Schichtpünktlichkeit intern irrelevant für Kunden).
+5. **Phase 2628 Kitchen:** Schichtpünktlichkeits-Ticker — Team-Ø Min; Alert >10 Min "Fahrer Schicht-Verspätung!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2623.
+
+Frontend-Ingenieur-Agent (2026-07-20): Phasen 2619–2623 implementiert. 1 neue Backend-API (fahrer-erstkontakt-zeit, Supabase: delivery_tours created_at→first started_at, Ampel grün≤10/gelb11–20/rot>20 Min) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2620 Dispatch (Erstkontakt-Zeit-Board, Balken 0–30 Min, Ziel-Linie 10 Min) / Phase2621 Fahrer-App (Meine Anlaufzeit, Coaching-Tipp je Ampelzone) / Phase2623 Kitchen (Anlaufzeit-Ticker, Alert >20 Min "Fahrer Anlaufzeit zu lang!"). Phase 2622 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.
