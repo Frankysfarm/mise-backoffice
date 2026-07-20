@@ -707,6 +707,8 @@ import { FahrerPhase2678MeineRuhezeit } from './phase2678-meine-ruhezeit';
 import { FahrerPhase2683MeineSchichtBilanz } from './phase2683-meine-schicht-bilanz';
 import { FahrerPhase2688MeinePausen } from './phase2688-meine-pausen';
 import { FahrerPhase2693MeineSchichtwechsel } from './phase2693-meine-schichtwechsel';
+import { FahrerPhase2698MeineAbholwartezeit } from './phase2698-meine-abholwartezeit';
+import { FahrerPhase2699MeineLiefertreue } from './phase2699-meine-liefertreue';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -9361,3 +9363,7 @@ export { FahrerPhase2683MeineSchichtBilanz } from './phase2683-meine-schicht-bil
 export { FahrerPhase2688MeinePausen } from './phase2688-meine-pausen';
 // Phase 2693 — Meine Schichtwechsel (Anzahl groß + Farbcode; Balken 0–5 Ziel 1; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2693MeineSchichtwechsel } from './phase2693-meine-schichtwechsel';
+// Phase 2698 — Meine Abholwartezeit (Min-Wert groß + Farbcode; Balken 0–15 Min Ziel ≤4 Min; KPI-Grid Trend/Ziel/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2698MeineAbholwartezeit } from './phase2698-meine-abholwartezeit';
+// Phase 2699 — Meine Liefertreue (%-Wert groß + Farbcode; Balken 0–100% Ziel ≥95%; KPI-Grid Trend/Vorwoche/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2699MeineLiefertreue } from './phase2699-meine-liefertreue';

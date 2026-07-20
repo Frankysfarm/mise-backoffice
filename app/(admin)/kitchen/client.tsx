@@ -352,6 +352,9 @@ import { KitchenPhase2680RuhezeitenTicker } from './phase2680-ruhezeiten-ticker'
 import { KitchenPhase2685SchichtBilanzTicker } from './phase2685-schicht-bilanz-ticker';
 import { KitchenPhase2690PausenTicker } from './phase2690-pausen-ticker';
 import { KitchenPhase2695SchichtwechselTicker } from './phase2695-schichtwechsel-ticker';
+import { KitchenPhase2696AbholwartezeitTicker } from './phase2696-abholwartezeit-ticker';
+import { KitchenPhase2697LiefertreucTicker } from './phase2697-liefertreue-ticker';
+import { KitchenPhase2700SmartSchichtAbschlussBoard } from './phase2700-smart-schicht-abschluss-board';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -10319,3 +10322,9 @@ export { KitchenPhase2685SchichtBilanzTicker } from './phase2685-schicht-bilanz-
 export { KitchenPhase2690PausenTicker } from './phase2690-pausen-ticker';
 // Phase 2695 — Schichtwechsel-Ticker (Team-Ø Wechsel; Alert ≥3 "Zu viele Wechsel!" oder 0 "Keine Schicht!"; Fahrerliste kompakt nach Wechselanzahl absteigend; Ziel 1; 30-Min-Polling)
 export { KitchenPhase2695SchichtwechselTicker } from './phase2695-schichtwechsel-ticker';
+// Phase 2696 — Abholwartezeit-Ticker (Team-Ø Min; Alert >8 Min; Fahrerliste kompakt höchste Wartezeit oben; Ampel + Trend; Ziel ≤4 Min; 30-Min-Polling)
+export { KitchenPhase2696AbholwartezeitTicker } from './phase2696-abholwartezeit-ticker';
+// Phase 2697 — Liefertreue-Ticker (Team-Ø %; Alert <85%; Fahrerliste kompakt aufsteigend; Ampel + Trend; Ziel ≥95%; 30-Min-Polling)
+export { KitchenPhase2697LiefertreucTicker } from './phase2697-liefertreue-ticker';
+// Phase 2700 — Smart-Schicht-Abschluss-Board (Schicht-Note A–D; KPI-Grid Pünktlichkeit/Abholzeit/Liefertreue/Touren; Top-3-Fahrer; Quick-Stats; expandierbar)
+export { KitchenPhase2700SmartSchichtAbschlussBoard } from './phase2700-smart-schicht-abschluss-board';
