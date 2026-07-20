@@ -695,6 +695,7 @@ import { FahrerPhase2606MeinSchichtErloes } from './phase2606-mein-schicht-erloe
 import { FahrerPhase2611MeinTrinkgeld } from './phase2611-mein-trinkgeld';
 import { FahrerPhase2616MeineKundenbewertung } from './phase2616-meine-kundenbewertung';
 import { FahrerPhase2621MeineErstkontaktZeit } from './phase2621-meine-erstkontakt-zeit';
+import { FahrerPhase2626MeineReaktionszeit } from './phase2626-meine-reaktionszeit';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6041,6 +6042,8 @@ export function FahrerApp({
           <FahrerPhase2616MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2621: Meine Anlaufzeit — Min-Wert groß + Farbcode; Balken 0–30 Min mit Ziel-Linie 10 Min; KPI-Grid Trend/Ziel/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2621MeineErstkontaktZeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2626: Meine Reaktionszeit — Min-Wert groß + Farbcode; Balken 0–10 Min Ziel-Linie 2 Min; KPI-Grid Trend/Ziel/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2626MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9301,3 +9304,5 @@ export { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-sm
 export { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 // Phase 2621 — Meine Anlaufzeit (Min-Wert groß + Farbcode; Balken 0–30 Min Ziel-Linie 10 Min; KPI-Grid Trend/Ziel/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2621MeineErstkontaktZeit } from './phase2621-meine-erstkontakt-zeit';
+// Phase 2626 — Meine Reaktionszeit (Min-Wert groß + Farbcode; Balken 0–10 Min Ziel-Linie 2 Min; Alert >5 Min; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2626MeineReaktionszeit } from './phase2626-meine-reaktionszeit';
