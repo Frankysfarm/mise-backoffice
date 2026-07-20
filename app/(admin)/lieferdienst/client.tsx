@@ -4670,3 +4670,5 @@ export { LieferdienstPhase2545StatistikenLiveDashboardExtended } from './phase25
 export { LieferdienstPhase2550StatistikDashboardFinalUltimate } from './phase2550-statistiken-dashboard-final-ultimate';
 // Phase 2555 — Statistiken Heute Kommandant (6 KPI-Kacheln Ampel; Stundenverlauf-Chart 2-Modi; Alert-Strip Storno/Lieferzeit/Pünktlichkeit; 5-Min-Polling)
 export { LieferdienstPhase2555StatistikHeuteKommandant } from './phase2555-statistiken-heute-kommandant';
+// Phase 2560 — Statistiken Live-Board (8 KPI-Kacheln Ampel + Trend; Stundenverlauf-Chart 2-Modi; Top-3-Zonen; Alert-Strip; 3-Min-Polling)
+export { LieferdienstPhase2560StatistikenLiveBoard } from './phase2560-statistiken-live-board';

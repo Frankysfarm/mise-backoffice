@@ -10238,3 +10238,5 @@ export { KitchenPhase2625SmartTimingPrepFarbkodierungLive } from './phase2625-sm
 export { KitchenPhase2630SmartCountdownFarbkodierungUltraFinal } from './phase2630-smart-countdown-farbkodierung-ultra-final';
 // Phase 2635 — Smart-Kochzeit-Ampel-Board (Farbkodierte Batch-Kacheln grün/gelb/rot; Countdown Min:Sek; Fortschrittsbalken; Überfällig-Alert; 1-Sek-Tick + 30-Sek-Polling)
 export { KitchenPhase2635SmartKochzeitAmpelBoard } from './phase2635-smart-kochzeit-ampel-board';
+// Phase 2640 — Smart-Kochzeit-Prognose-Cockpit (Prep-Prognose + Fahrer-ETA-Sync + Komplexitätsindikatoren + Kochstart-Empfehlung; Farbkodierung grün/gelb/rot; 1-Sek-Tick + 25-Sek-Polling)
+export { KitchenPhase2640SmartKochzeitPrognoseCockpit } from './phase2640-smart-kochzeit-prognose-cockpit';

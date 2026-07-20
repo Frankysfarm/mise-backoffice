@@ -9280,3 +9280,5 @@ export { FahrerPhase2625TourNavigationKompaktFinal } from './phase2625-tour-navi
 
 // Phase 2601 — Meine km-Bilanz (km-Wert groß + Farbcode; Balken 0–150 km mit Ziel-Linie 80 km; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2601MeineKmBilanz } from './phase2601-meine-km-bilanz';
+// Phase 2640 — Tour-Stopp Smart-Kommando (Hero-Stopp-Fokus + One-Tap Navi Google/Waze/Apple + Anruf + Notiz-Alert + ETA-Countdown + Stop-Dots + Weitere Stopps aufklappbar + Schicht-Einnahmen; 20-Sek-Polling + 1-Sek-ETA-Tick)
+export { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
