@@ -798,6 +798,7 @@ import { DispatchPhase2662KraftstoffkostenBoard } from './phase2662-kraftstoffko
 import { DispatchPhase2667UeberstundenBoard } from './phase2667-ueberstunden-board';
 import { DispatchPhase2672NachtschichtBoard } from './phase2672-nachtschicht-board';
 import { DispatchPhase2677RuhezeitenBoard } from './phase2677-ruhezeiten-board';
+import { DispatchPhase2682SchichtBilanzBoard } from './phase2682-schicht-bilanz-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4009,6 +4010,8 @@ export function DispatchBoard({
           <DispatchPhase2672NachtschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2677 (Ruhezeiten): Fahrerliste nach Ruhezeit aufsteigend sortiert kürzeste oben; Balken 0–16 h Ziel-Linie 11 h; KPI-Grid Team-Ø/Kürzeste/Längste; Alert <8 h; 30-Min-Polling */}
           <DispatchPhase2677RuhezeitenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2682 (Schicht-Bilanz): Fahrerliste nach Erfüllungsrate aufsteigend sortiert; Balken 0–100% Ziel-Linie 90%; KPI-Grid Team-Ø/Niedrigste/Bester; Alert <70% "Schicht unterbesetzt!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2682SchichtBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11746,3 +11749,5 @@ export { DispatchPhase2667UeberstundenBoard } from './phase2667-ueberstunden-boa
 export { DispatchPhase2672NachtschichtBoard } from './phase2672-nachtschicht-board';
 // Phase 2677 — Ruhezeiten-Board (Fahrerliste nach Ruhezeit aufsteigend sortiert kürzeste oben; Balken 0–16 h Ziel-Linie 11 h; KPI-Grid; Alert <8 h "Ruhezeit zu kurz!"; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2677RuhezeitenBoard } from './phase2677-ruhezeiten-board';
+// Phase 2682 — Schicht-Bilanz-Board (Fahrerliste nach Erfüllungsrate aufsteigend; Balken 0–100% Ziel 90%; Alert <70% "Schicht unterbesetzt!"; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2682SchichtBilanzBoard } from './phase2682-schicht-bilanz-board';

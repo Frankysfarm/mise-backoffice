@@ -23366,3 +23366,45 @@ Ruhezeiten intern irrelevant für Kunden ✅
 3. **Phase 2683 Fahrer-App:** Meine Schicht-Bilanz — %-Wert groß + Farbcode; Balken 0–100% mit Ziel-Linie 90%; KPI-Grid geplante h/gearbeitete h/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2678.
 4. **Phase 2684 Storefront:** Überspringen (Schicht-Bilanz intern irrelevant für Kunden).
 5. **Phase 2685 Kitchen:** Schicht-Bilanz-Ticker — Team-Ø %; Alert <70% "Schicht unterbesetzt!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2680.
+
+---
+
+## Batch 2681–2685 — Fahrer-Schicht-Bilanz (2026-07-20)
+
+### Phase 2681 — Backend API: Fahrer-Schicht-Bilanz-V2
+**Datei:** `app/api/delivery/admin/fahrer-schicht-bilanz-v2/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — geplante vs. gearbeitete Stunden heute je Fahrer; Erfüllungsrate = gearbeitete_h/geplante_h×100; Ampel grün(≥90%)/gelb(70–89%)/rot(<70%); Alert <70%; aufsteigend nach Erfüllungsrate sortiert; driver_id-Modus; Multi-Tenant; Supabase(driver_shifts: planned_start/planned_end/actual_start/actual_end)+Mock
+*Hinweis: `/api/delivery/admin/fahrer-schicht-bilanz` existiert bereits mit anderem Datenmodell (Einnahmen/Touren), daher v2-Pfad verwendet.*
+
+### Phase 2682 — Schicht-Bilanz-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2682-schicht-bilanz-board.tsx` *(neu)*
+**Component:** `DispatchPhase2682SchichtBilanzBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <70% "Schicht unterbesetzt!" mit Fahrernamen; KPI-Grid (Team-Ø/Niedrigste/Bester); Fahrerliste nach Erfüllungsrate aufsteigend sortiert; Balken 0–100% mit Ziel-Linie 90%; Ampel-Dots + Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2677 ✅
+
+### Phase 2683 — Meine Schicht-Bilanz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2683-meine-schicht-bilanz.tsx` *(neu)*
+**Component:** `FahrerPhase2683MeineSchichtBilanz`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); %-Wert 4xl groß + Farbcode; Balken 0–100% mit Ziel-Linie 90%; KPI-Grid (Geplant h/Gearbeitet h/Ampel/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2678 ✅
+
+### Phase 2684 — Storefront
+Übersprungen (Schicht-Bilanz intern irrelevant für Kunden) ✅
+
+### Phase 2685 — Schicht-Bilanz-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2685-schicht-bilanz-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2685SchichtBilanzTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø %; Alert-Banner <70% "Schicht unterbesetzt!" mit Fahrernamen; Fahrerliste kompakt nach Erfüllungsrate aufsteigend sortiert (niedrigste oben) mit Ampel-Dots, Trend-Pfeil und %-Wert; Ziel-Anzeige ≥90%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2680 ✅
+
+### Nächste Phasen 2686–2690 (für nächsten Ingenieur) — Fahrer-Schicht-Pausen
+1. **Phase 2686 Backend:** GET /api/delivery/admin/fahrer-schicht-pausen — Pausenzeit je Fahrer heute in Min (Summe aller Pausen aus driver_shift_breaks); Ampel grün(20–40 Min)/gelb(10–19 Min oder 41–60 Min)/rot(<10 Min oder >60 Min); Alert <10 Min oder >60 Min; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(driver_shift_breaks: started_at/ended_at)+Mock.
+2. **Phase 2687 Dispatch:** Pausen-Board — Fahrerliste nach Pausenzeit sortiert (abweichendste oben); Balken 0–90 Min mit Ziel-Zone 20–40 Min (grün schraffiert); KPI-Grid Team-Ø/Kürzeste/Längste; Alert-Banner <10 Min oder >60 Min; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2682.
+3. **Phase 2688 Fahrer-App:** Meine Pausen — Min-Wert groß + Farbcode; Balken 0–90 Min mit Ziel-Zone 20–40 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2683.
+4. **Phase 2689 Storefront:** Überspringen (Pausen intern irrelevant für Kunden).
+5. **Phase 2690 Kitchen:** Pausen-Ticker — Team-Ø Min; Alert <10 Min "Zu wenig Pause!" oder >60 Min "Zu lange Pause!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2685.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2681–2685 implementiert. 1 neue Backend-API (fahrer-schicht-bilanz-v2, Erfüllungsrate geplante vs. gearbeitete Stunden, Ampel grün≥90%/gelb70–89%/rot<70%, Supabase driver_shifts+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2682 Dispatch (Schicht-Bilanz-Board, Balken 0–100%, Ziel-Linie 90%, Alert <70% "Schicht unterbesetzt!") / Phase2683 Fahrer-App (Meine Schicht-Bilanz, %-Wert 4xl, geplante/gearbeitete h, Coaching-Tipp) / Phase2685 Kitchen (Schicht-Bilanz-Ticker, Alert <70%). Phase 2684 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler pre-existing (ignoreBuildErrors: true). Push erfolgt.
