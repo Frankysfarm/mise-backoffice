@@ -179,8 +179,8 @@ export function SmartStatsCockpit({ locationId }: { locationId?: string | null }
               <XAxis dataKey="stunde" tick={{ fontSize: 10, fill: '#6b7280' }} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e5e7eb', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}
-                labelFormatter={(l: string) => `${l}:00 Uhr`}
-                formatter={(v: number) => tab === 'umsatz' ? [`${v} €`, 'Umsatz'] : [v, 'Bestellungen']}
+                labelFormatter={(l) => `${l}:00 Uhr`}
+                formatter={(v) => tab === 'umsatz' ? [`${Number(v)} €`, 'Umsatz'] : [Number(v), 'Bestellungen']}
               />
               <Bar dataKey={tab} radius={[3, 3, 0, 0]}>
                 {data.stunden_verlauf.map((_, i) => (

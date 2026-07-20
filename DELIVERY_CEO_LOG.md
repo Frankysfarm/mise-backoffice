@@ -1,5 +1,44 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #515 — 2026-07-20
+
+**Geprüfte Commits:** `17394107` (Phasen 2721–2725 Backend+Frontend: Fahrer-Leerfahrten-Quote)
+
+**Build:** ✓ Compiled successfully — Exit Code 0 ✅
+**TypeScript:** ✓ 0 Fehler nach 1 CEO-Fix ✅
+
+**CEO-Fix (1 TS-Fehler):**
+1. `lieferdienst/smart-stats-cockpit.tsx:182–183` — Recharts `labelFormatter`/`formatter` Typ-Annotation `(l: string)`/`(v: number)` entfernt → inferierte Typen + `Number(v)` Cast (TS2322 ReactNode-vs-string + ValueType-vs-number)
+
+**Neue Komponenten (Phase 2721–2725):**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2721 | Backend | `/api/delivery/admin/fahrer-leerfahrten` | ✅ Supabase+Mock |
+| 2722 | Dispatch | `DispatchPhase2722LeerfahrtenBoard` | dispatch/client.tsx ✅ |
+| 2723 | Fahrer | `FahrerPhase2723MeineLeerfahrten` | fahrer/app/client.tsx ✅ |
+| 2724 | Storefront | übersprungen (intern) | — |
+| 2725 | Kitchen | `KitchenPhase2725LeerfahrtenTicker` | kitchen/client.tsx ✅ |
+
+**API-Logik (Phase 2721):**
+- `delivery_batches` → cancelled/failed = Leerfahrt; Ampel grün<10%/gelb10–25%/rot>25%; Alert >25% "Zu viele Leerfahrten!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant+Mock-Fallback
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase2722/2725 synchron |
+| Dispatch ↔ Driver | ✅ Phase2722/2723 synchron |
+| Driver ↔ Storefront | ✅ |
+| Lieferdienst Stats | ✅ SmartStatsCockpit TS-Fix |
+
+**Nächste Phasen 2726–2730 (für nächsten Agenten):**
+1. **Phase 2726 Backend:** GET /api/delivery/admin/fahrer-tourenlaenge — Ø Tourlänge (Stopp-Anzahl) je Fahrer heute; Ampel grün≤6/gelb7–10/rot>10 Stopps; Alert >10 "Tour zu lang!"; Trend vs. Vortag; Multi-Tenant+Mock
+2. **Phase 2727 Dispatch:** TourenlaengeBoard — Balken 0–15 Stopps Ziel-Linie 6; KPI-Grid Team-Ø/Höchste/Ziel; Alert-Banner; Trend-Pfeile; 30-Min-Polling
+3. **Phase 2728 Fahrer-App:** MeineTourenlaenge — Stopp-Anzahl 4xl groß + Farbcode; Balken 0–15 Ziel 6; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+4. **Phase 2729 Storefront:** übersprungen (intern irrelevant für Kunden)
+5. **Phase 2730 Kitchen:** TourenlaengeTicker — Team-Ø Stopps; Alert >10 "Tour zu lang!"; Fahrerliste absteigend nach Stopp-Anzahl; Ziel ≤6 Stopps; 30-Min-Polling
+
+---
+
 ## CEO Review #514 — 2026-07-20
 
 **Geprüfte Commits:** `a0b3b7f9` (Phasen 2711–2715 Backend: Fahrer-Lieferdichteanalyse) + `af2a88af` (Phasen 2717/2718/2720 + SmartStatsCockpit Frontend)

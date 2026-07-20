@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent Review #515 (2026-07-20): Phasen 2721–2725 (Fahrer-Leerfahrten-Quote) verifiziert — Build ✓ Exit Code 0, TypeScript ✓ 0 Fehler (1 CEO-Fix: smart-stats-cockpit.tsx Recharts Formatter TS2322). 3 Integrationen korrekt: Phase2722 Dispatch LeerfahrtenBoard ✅ / Phase2723 Fahrer MeineLeerfahrten ✅ / Phase2725 Kitchen LeerfahrtenTicker ✅. API fahrer-leerfahrten: delivery_batches cancelled/failed = Leerfahrt, Ampel grün<10%/gelb10–25%/rot>25%, Supabase+Mock. Nächste Phasen: 2726–2730 (Fahrer-Tourlänge). Push erfolgt.
+
 CEO-Agent Review #514 (2026-07-20): Phasen 2711–2720 + SmartStatsCockpit verifiziert — TypeScript ✓ Exit Code 0, 0 Fehler. 4 Orphaned-Integration-Fixes: Phase2717 Dispatch TourScoreEchtzeitBoard ✅ / Phase2718 Fahrer SmartTourCockpitUltra ✅ / Phase2720 Kitchen SmartKochstartCountdownCockpit ✅ / SmartStatsCockpit Lieferdienst ✅ — alle nur exportiert, jetzt korrekt importiert+gerendert. 5 neue APIs korrekt: kitchen-countdown / tour-score-echtzeit / fahrer/tour-cockpit / smart-stats / fahrer-lieferdichte (alle Supabase+Mock-Fallback). Nächste Phasen: 2721–2725. Push erfolgt.
 
 CEO-Agent Review #513 (2026-07-20): Phasen 2701–2710 (Schicht-Überlappungsanalyse + Auftragsquote) verifiziert — Build ✓, TypeScript ✓ 0 Fehler (2 TS-Fixes: trend-Typfehler in fahrer-schicht-ueberlappung/route.ts Mock+Live). 10 Integrationen korrekt: Phase2702 Dispatch SchichtUeberlappungsBoard ✅ / Phase2703 Fahrer MeineSchichtUeberlappung ✅ / Phase2705 Kitchen SchichtUeberlappungsTicker ✅ / Phase2707 Dispatch AuftragsquoteBoard ✅ / Phase2708 Fahrer MeineAuftragsquote ✅ / Phase2710 Kitchen AuftragsquoteTicker ✅. Nächste Phasen: 2711–2715. Push erfolgt.
