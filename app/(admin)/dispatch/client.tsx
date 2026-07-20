@@ -823,6 +823,7 @@ import { DispatchPhase2785TourScoreEchtzeitPro } from './phase2785-tour-score-ec
 import { DispatchPhase2787ReaktionszeitBoard } from './phase2787-reaktionszeit-board';
 import { DispatchPhase2793AbschlussrateBoard } from './phase2793-abschlussrate-board';
 import { DispatchPhase2798KilometerEffizienzBoard } from './phase2798-kilometer-effizienz-board';
+import { DispatchPhase2803PuenktlichkeitsBoard } from './phase2803-puenktlichkeits-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4087,6 +4088,8 @@ export function DispatchBoard({
           <DispatchPhase2793AbschlussrateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2798: Kilometer-Effizienz-Board — Fahrerliste nach Ø-km aufsteigend; Balken 0–10 km Ziel 4 km; KPI-Grid Team-Ø/Bester/Ziel ≤4 km; Alert >6 km "Hohe Kilometerleistung!"; 30-Min-Polling */}
           <DispatchPhase2798KilometerEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2803: Pünktlichkeits-Board — Fahrerliste nach Rate absteigend; Balken 0–100% Ziel 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert <70% "Niedrige Pünktlichkeit!"; 30-Min-Polling */}
+          <DispatchPhase2803PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11873,3 +11876,5 @@ export { DispatchPhase2787ReaktionszeitBoard } from './phase2787-reaktionszeit-b
 export { DispatchPhase2793AbschlussrateBoard } from './phase2793-abschlussrate-board';
 // Phase 2798 — Kilometer-Effizienz-Board (Fahrerliste nach Ø-km aufsteigend; Balken 0–10 km Ziel 4 km; KPI-Grid Team-Ø/Bester/Ziel ≤4 km; Alert >6 km "Hohe Kilometerleistung!"; 30-Min-Polling)
 export { DispatchPhase2798KilometerEffizienzBoard } from './phase2798-kilometer-effizienz-board';
+// Phase 2803 — Pünktlichkeits-Board (Fahrerliste nach Rate absteigend; Balken 0–100% Ziel 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert <70% "Niedrige Pünktlichkeit!"; 30-Min-Polling)
+export { DispatchPhase2803PuenktlichkeitsBoard } from './phase2803-puenktlichkeits-board';
