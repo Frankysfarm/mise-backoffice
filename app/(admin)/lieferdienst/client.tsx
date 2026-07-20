@@ -440,6 +440,7 @@ import { LieferdienstPhase2570StatistikenEchtzeitKompaktDashboard } from './phas
 import { LieferdienstPhase2575StatistikenMasterCockpit } from './phase2575-statistiken-master-cockpit';
 import { LieferdienstPhase2580StatistikDashboardLive } from './phase2580-statistiken-dashboard-live';
 import { LieferdienstPhase2585StatistikLiveCockpitPro } from './phase2585-statistiken-live-cockpit-pro';
+import { LieferdienstPhase2590StatistikenEchtzeitKommando } from './phase2590-statistiken-echtzeit-kommando';
 import { SmartStatsCockpit } from './smart-stats-cockpit';
 import { LieferdienstEchtzeitStatistikHub } from './lieferdienst-echtzeit-statistik-hub';
 
@@ -2219,6 +2220,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2580StatistikDashboardLive locationId={locationId ?? null} />
                 {/* Phase 2585: Statistiken Live Cockpit Pro — 10 KPIs Ampel + Trend; Stundenverlauf-Chart 2-Modi; Zonen-Top-5; Fahrer-Top-3; Alert-Strip; 3-Min-Polling */}
                 <LieferdienstPhase2585StatistikLiveCockpitPro locationId={locationId ?? null} />
+                {/* Phase 2590: Statistiken Echtzeit-Kommando — KPI-Grid Bestellungen/Umsatz/Ø-Lieferzeit/SLA; Aktive-Fahrer; Top-Fahrer; Zonen-KPIs; 5-Min-Polling */}
+                <LieferdienstPhase2590StatistikenEchtzeitKommando locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4709,3 +4712,5 @@ export { LieferdienstPhase2575StatistikenMasterCockpit } from './phase2575-stati
 export { LieferdienstPhase2580StatistikDashboardLive } from './phase2580-statistiken-dashboard-live';
 // Phase 2585 — Statistiken Live Cockpit Pro (10 KPIs Ampel + Trend; Stundenverlauf-Chart 2-Modi; Zonen-Top-5; Fahrer-Top-3; Alert-Strip; 3-Min-Polling)
 export { LieferdienstPhase2585StatistikLiveCockpitPro } from './phase2585-statistiken-live-cockpit-pro';
+// Phase 2590 — Statistiken Echtzeit-Kommando (KPI-Grid Bestellungen/Umsatz/Ø-Lieferzeit/SLA; Aktive-Fahrer; Top-Fahrer; Zonen-KPIs; 5-Min-Polling)
+export { LieferdienstPhase2590StatistikenEchtzeitKommando } from './phase2590-statistiken-echtzeit-kommando';

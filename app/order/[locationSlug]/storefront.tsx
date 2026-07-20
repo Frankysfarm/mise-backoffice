@@ -453,6 +453,7 @@ import { StorefrontPhase2400DynamischeEtaLiveHub } from './phase2400-dynamische-
 import { StorefrontPhase2605EtaLiveTrackingFinal } from './phase2605-eta-live-tracking-final';
 import { StorefrontPhase2620DynamischeEtaLiveMaster } from './phase2620-dynamische-eta-live-master';
 import { StorefrontPhase2640DynamischeEtaLiveBoard } from './phase2640-dynamische-eta-live-board';
+import { Phase2645DynamischeEtaLiveTrackingKommando } from './phase2645-dynamische-eta-live-tracking-kommando';
 import { SmartEtaLiveTracker } from './smart-eta-live-tracker';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 import { StorefrontPhase1010DynamischeEtaLiveMaster } from './phase1010-dynamische-eta-live-master';
@@ -2013,6 +2014,12 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">
           <StorefrontPhase2640DynamischeEtaLiveBoard orderId={activeOrderId} />
+        </div>
+      )}
+      {/* Phase 2645: Dynamische ETA Live-Tracking Kommando — Phasen-Timeline + ETA-Countdown + Fahrer-Distanz + On-Time-Konfidenz; 1-Sek-Tick + 30-Sek-Polling */}
+      {activeOrderId && successType === 'lieferung' && (
+        <div className="mx-4 mt-2">
+          <Phase2645DynamischeEtaLiveTrackingKommando orderId={activeOrderId} />
         </div>
       )}
       {/* SmartEtaLiveTracker: Dynamische ETA + Konfidenz-Ring; Live-Countdown Sek; Phasen-Timeline Bestätigt/Zubereitung/Fertig/Unterwegs/Geliefert; Fahrer-Distanz; 30-Sek-Polling */}

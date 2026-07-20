@@ -825,6 +825,7 @@ import { DispatchPhase2793AbschlussrateBoard } from './phase2793-abschlussrate-b
 import { DispatchPhase2798KilometerEffizienzBoard } from './phase2798-kilometer-effizienz-board';
 import { DispatchPhase2803PuenktlichkeitsBoard } from './phase2803-puenktlichkeits-board';
 import { DispatchPhase2808StornoRateBoard } from './phase2808-storno-rate-board';
+import { DispatchPhase2813TourScoreVisualisierungKommando } from './phase2813-tour-score-visualisierung-kommando';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4093,6 +4094,8 @@ export function DispatchBoard({
           <DispatchPhase2803PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2808: Storno-Rate-Board — Fahrerliste nach Rate aufsteigend; Balken 0–30% Ziel 5%; KPI-Grid Team-Ø/Bester/Ziel ≤5%; Alert >15% "Hohe Storno-Rate!"; 30-Min-Polling */}
           <DispatchPhase2808StornoRateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2813: Tour-Score Visualisierung Kommando — Score-Ring SVG je Fahrer + Stopp-Dots + expandierbare Stopp-Liste + ETA + Sub-Scores; Alert Score <60; 20-Sek-Polling */}
+          <DispatchPhase2813TourScoreVisualisierungKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11883,3 +11886,5 @@ export { DispatchPhase2798KilometerEffizienzBoard } from './phase2798-kilometer-
 export { DispatchPhase2803PuenktlichkeitsBoard } from './phase2803-puenktlichkeits-board';
 // Phase 2808 — Storno-Rate-Board (Fahrerliste nach Rate aufsteigend; Balken 0–30% Ziel 5%; KPI-Grid Team-Ø/Bester/Ziel ≤5%; Alert >15% "Hohe Storno-Rate!"; 30-Min-Polling)
 export { DispatchPhase2808StornoRateBoard } from './phase2808-storno-rate-board';
+// Phase 2813 — Tour-Score Visualisierung Kommando (Score-Ring SVG je Fahrer + Stopp-Dots + expandierbare Stopp-Liste + ETA + Sub-Scores; Alert Score <60; 20-Sek-Polling)
+export { DispatchPhase2813TourScoreVisualisierungKommando } from './phase2813-tour-score-visualisierung-kommando';
