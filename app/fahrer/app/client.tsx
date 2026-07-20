@@ -725,6 +725,7 @@ import { FahrerPhase2758MeinBestellwert } from './phase2758-mein-bestellwert';
 import { FahrerPhase2763MeinLiefergebiet } from './phase2763-mein-liefergebiet';
 import { FahrerPhase2768MeineFehlerquote } from './phase2768-meine-fehlerquote';
 import { FahrerPhase2773MeinTagesPerformanceIndex } from './phase2773-mein-tages-performance-index';
+import { FahrerPhase2780TourStoppNavigationsFinalHub } from './phase2780-tour-stopp-navigations-final-hub';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6158,6 +6159,8 @@ export function FahrerApp({
           <FahrerPhase2768MeineFehlerquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2773: Mein Tages-Performance-Index — Composite Score 0–100 (Touren+Pünktl+Fehler+Abschl) 4xl; Teilscore-Balken; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2773MeinTagesPerformanceIndex driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2780: Tour-Stopp Navigations-Final-Hub — Hero-Stopp + One-Tap-Navigation Google Maps/Waze + ETA-Countdown + Kunden-Anruf + Stopp-Bestätigung + Nächste-Stopps-Vorschau + Fortschrittsring; 20-Sek-Polling + 1-Sek-Tick */}
+          <FahrerPhase2780TourStoppNavigationsFinalHub driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}

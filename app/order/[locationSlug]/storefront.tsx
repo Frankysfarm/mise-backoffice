@@ -455,6 +455,7 @@ import { StorefrontPhase2620DynamischeEtaLiveMaster } from './phase2620-dynamisc
 import { StorefrontPhase2640DynamischeEtaLiveBoard } from './phase2640-dynamische-eta-live-board';
 import { SmartEtaLiveTracker } from './smart-eta-live-tracker';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
+import { StorefrontPhase1010DynamischeEtaLiveMaster } from './phase1010-dynamische-eta-live-master';
 
 type Props = {
   location: Location;
@@ -3158,6 +3159,17 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           orderId={order.orderId}
           initialStatus={(order.status as any) ?? 'eingegangen'}
           locationId={locationId ?? null}
+        />
+      )}
+      {/* Phase 1010: Dynamische ETA Live Master — Echtzeit-Status-Timeline + Countdown + Fahrer-Annäherungs-Indikator; 20-Sek-Polling + 1-Sek-Tick */}
+      {order.isDelivery && (
+        <StorefrontPhase1010DynamischeEtaLiveMaster
+          orderId={order.orderId ?? null}
+          locationId={locationId ?? null}
+          initialStatus={(order.status as any) ?? null}
+          initialEtaMin={order.etaMin ?? null}
+          driverName={(order as any).fahrer_name ?? null}
+          className="mx-4 mb-3"
         />
       )}
       {/* Phase 1006: Live-Küchen-Auslastungs-Anzeige — Echtzeit-Ampel Niedrig/Normal/Hoch/Peak + erwartete Wartezeit */}
