@@ -1,23 +1,48 @@
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
 import QRCode from 'qrcode';
-import { Kanban, CopyBtn } from './client';
+import { Kanban, CopyBtn, FahrerLiveMap, BatchPanel } from './client';
 export const dynamic = 'force-dynamic';
 export default async function Lieferzentrale() {
   const emp = await getCurrentEmployee();
   const supabase = createServiceClient();
-  const { data: loc } = await supabase.from('locations').select('id, kitchen_token').eq('id', emp?.location_id ?? '').maybeSingle();
+  const [{ data: loc }, { data: locPos }] = await Promise.all([
+    supabase.from('locations').select('id, kitchen_token').eq('id', emp?.location_id ?? '').maybeSingle(),
+    supabase.from('locations').select('lat, lng').eq('id', emp?.location_id ?? '').maybeSingle(),
+  ]);
   const url = loc?.kitchen_token ? `https://mise-gastro.de/kuche/${loc.kitchen_token}` : '';
   const qr = url ? await QRCode.toDataURL(url, { width: 108, margin: 0, color: { dark: '#0F172A', light: '#FFFFFF' } }) : '';
   const { data: orders } = await supabase
     .from('customer_orders')
-    .select('id, bestellnummer, status, typ, gesamtbetrag, zwischensumme, bezahlt, kunde_name, voucher_code, voucher_rabatt, reward_items_count, items:order_items(name, menge, einzelpreis, notiz)')
+    .select('id, bestellnummer, status, typ, gesamtbetrag, zwischensumme, bezahlt, kunde_name, voucher_code, voucher_rabatt, reward_items_count, mise_batch_id, mise_driver_id, created_at, items:order_items(name, menge, einzelpreis, notiz)')
     .eq('location_id', loc?.id ?? '')
     .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig', 'unterwegs'])
     .order('created_at', { ascending: true })
     .limit(80);
+  // Fahrer für diesen Tenant laden
+  const { data: driverLinks } = emp?.tenant_id
+    ? await supabase.from('mise_driver_tenants').select('driver_id').eq('tenant_id', emp.tenant_id)
+    : { data: null };
+  const driverIds = (driverLinks ?? []).map((x: any) => x.driver_id as string).filter(Boolean);
+  const [driverResult, batchResult] = await Promise.all([
+    driverIds.length
+      ? supabase.from('mise_drivers').select('id, name, vehicle, state, last_lat, last_lng, last_position_at').in('id', driverIds)
+      : { data: null },
+    driverIds.length
+      ? supabase
+          .from('mise_delivery_batches')
+          .select('id, state, total_eta_min, accepted_at, picked_up_at, created_at, driver_id, driver:mise_drivers(id, name, vehicle), stops:mise_delivery_batch_stops(id, order_id, sequence, type, address, lat, lng, completed_at, order:customer_orders(bestellnummer, kunde_name, gesamtbetrag))')
+          .in('driver_id', driverIds)
+          .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'picked_up', 'in_progress'])
+          .order('created_at', { ascending: false })
+          .limit(20)
+      : { data: null },
+  ]);
+  const drivers = (driverResult?.data ?? []) as any[];
+  const batches = (batchResult?.data ?? []) as any[];
   const list = (orders ?? []) as any[];
   const open = list.length;
+  const locationId = loc?.id ?? '';
   return (
     <div style={{ maxWidth: 1180 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -41,7 +66,9 @@ export default async function Lieferzentrale() {
         </div>
         {qr && <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}><div style={{ width: 108, height: 108, background: '#fff', borderRadius: 14, padding: 9, boxShadow: '0 10px 26px rgba(0,0,0,.25)' }}><img src={qr} alt="QR-Code zur Lieferzentrale" width={90} height={90} style={{ display: 'block', width: '100%', height: '100%' }} /></div><span style={{ fontSize: 11.5, fontWeight: 600, color: '#C7D2FE' }}>Scannen zum Öffnen</span></div>}
       </div>
-      <Kanban orders={list} />
+      <FahrerLiveMap initial={drivers} center={{ lat: locPos?.lat ?? null, lng: locPos?.lng ?? null }} locationId={locationId} />
+      <BatchPanel initial={batches} locationId={locationId} />
+      <Kanban orders={list} locationId={locationId} />
     </div>
   );
 }
