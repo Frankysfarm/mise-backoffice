@@ -815,6 +815,7 @@ import { DispatchPhase2747SchichtPunkteBoard } from './phase2747-schicht-punkte-
 import { DispatchPhase2752TourScoreLiveVisualisierung } from './phase2752-tour-score-live-visualisierung';
 import { DispatchPhase2757BestellwertBoard } from './phase2757-bestellwert-board';
 import { DispatchPhase2762LiefergebietBoard } from './phase2762-liefergebiet-board';
+import { DispatchPhase2767FehlerquoteBoard } from './phase2767-fehlerquote-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4060,6 +4061,8 @@ export function DispatchBoard({
           <DispatchPhase2757BestellwertBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2762: Liefergebiet-Board — Anzahl belieferter Zonen je Fahrer; absteigend sortiert; Balken 0–6 Zonen Ziel-Linie 3; KPI-Grid Team-Ø/Meiste/Ziel ≥3; Alert ≤1 Zone "Geringe Gebietsabdeckung!"; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2762LiefergebietBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2767: Fehlerquote-Board — Anzahl Lieferfehler je Fahrer; Fehlerquote %; absteigend sortiert; Balken 0–30% Ziel-Linie 5%; KPI-Grid Team-Ø/Höchste/Ziel <5%; Alert >15% "Fehlerquote zu hoch!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2767FehlerquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11831,3 +11834,5 @@ export { DispatchPhase2752TourScoreLiveVisualisierung } from './phase2752-tour-s
 export { DispatchPhase2757BestellwertBoard } from './phase2757-bestellwert-board';
 // Phase 2762 — Liefergebiet-Board (Zonen je Fahrer; absteigend; Balken 0–6 Ziel 3; KPI-Grid Team-Ø/Meiste/Ziel; Alert ≤1 Zone "Geringe Gebietsabdeckung!"; Trend; 30-Min-Polling)
 export { DispatchPhase2762LiefergebietBoard } from './phase2762-liefergebiet-board';
+// Phase 2767 — Fehlerquote-Board (Lieferfehler je Fahrer; Fehlerquote %; absteigend; Balken 0–30% Ziel 5%; KPI-Grid Team-Ø/Höchste/Ziel <5%; Alert >15% "Fehlerquote zu hoch!"; Trend-Pfeile; Ampel-Legende; 30-Min-Polling)
+export { DispatchPhase2767FehlerquoteBoard } from './phase2767-fehlerquote-board';

@@ -723,6 +723,7 @@ import { FahrerPhase2748MeineSchichtPunkte } from './phase2748-meine-schicht-pun
 import { FahrerPhase2753SmartTourStoppCockpit } from './phase2753-smart-tour-stopp-cockpit';
 import { FahrerPhase2758MeinBestellwert } from './phase2758-mein-bestellwert';
 import { FahrerPhase2763MeinLiefergebiet } from './phase2763-mein-liefergebiet';
+import { FahrerPhase2768MeineFehlerquote } from './phase2768-meine-fehlerquote';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6125,6 +6126,8 @@ export function FahrerApp({
           <FahrerPhase2758MeinBestellwert driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2763: Mein Liefergebiet — Anzahl Zonen 4xl + Farbcode; Balken 0–6 Ziel 3; KPI-Grid Gestern/Ziel/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2763MeinLiefergebiet driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2768: Meine Fehlerquote — %-Wert 4xl + Farbcode; Balken 0–30% Ziel 5%; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2768MeineFehlerquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9439,3 +9442,5 @@ export { FahrerPhase2753SmartTourStoppCockpit } from './phase2753-smart-tour-sto
 export { FahrerPhase2758MeinBestellwert } from './phase2758-mein-bestellwert';
 // Phase 2763 — Mein Liefergebiet (Anzahl Zonen 4xl groß + Farbcode; Balken 0–6 Ziel 3; KPI-Grid Gestern/Ziel/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2763MeinLiefergebiet } from './phase2763-mein-liefergebiet';
+// Phase 2768 — Meine Fehlerquote (%-Wert 4xl groß + Farbcode; Balken 0–30% Ziel 5%; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2768MeineFehlerquote } from './phase2768-meine-fehlerquote';
