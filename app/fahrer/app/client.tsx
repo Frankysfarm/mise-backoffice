@@ -55,6 +55,7 @@ type OpenBatch = {
   source_system: 'legacy' | 'mise' | null;
   zahlungsart?: string | null;
   bezahlt?: boolean | null;
+  created_at?: string | null;
 };
 
 type ActiveBatch = {
@@ -152,8 +153,13 @@ export function FahrerApp({
 
   const isOnline = status?.ist_online ?? false;
   const gpsWatchRef = useRef<number | null>(null);
+  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
+  const bgKeepaliveRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastGpsPushRef = useRef<number>(0);
   const [gpsOk, setGpsOk] = useState<boolean | null>(null);
   const [gpsSpeed, setGpsSpeed] = useState<number | null>(null);
+  const [gpsLastAt, setGpsLastAt] = useState<number | null>(null);
+  const [gpsCalibrating, setGpsCalibrating] = useState(false);
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
   const [pickOrderId, setPickOrderId] = useState<string | null>(null);
@@ -167,6 +173,14 @@ export function FahrerApp({
   const [shiftSnapshot, setShiftSnapshot] = useState<{
     deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number;
   } | null>(null);
+
+  // Kapazitäts-Badge: CAP_BASE = 4 Stopps (Standard, aus Config)
+  const CAP_BASE = 4;
+  // Audio-Ton für neue Tours
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const prevOpenBatchIdsRef = useRef<Set<string>>(new Set(initialOpenBatches.map((b) => b.batch_id)));
+  // Bundling-Hint: zeige "Wird gebündelt..." wenn keine offenen Batches aber fertige Orders warten
+  const [bundlingHint, setBundlingHint] = useState(false);
 
   // Betriebsnachrichten vom Dispatch
   const [broadcasts, setBroadcasts] = useState<{ id: string; message: string; priority: string; sentByName: string | null; createdAt: string }[]>([]);
@@ -292,45 +306,230 @@ export function FahrerApp({
     return () => document.removeEventListener('visibilitychange', onVis);
   }, [activeBatch, pickOpen]);
 
-  /* GPS-Tracking: bei Online-Status watchPosition starten, Updates alle ~15s */
+  /* GPS-Tracking: bei Online-Status watchPosition starten, Updates alle 10s */
   useEffect(() => {
     if (!isOnline) {
       if (gpsWatchRef.current != null) {
         navigator.geolocation.clearWatch(gpsWatchRef.current);
         gpsWatchRef.current = null;
       }
+      // Wake-Lock freigeben wenn offline
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release().catch(() => {});
+        wakeLockRef.current = null;
+      }
+      if (bgKeepaliveRef.current != null) {
+        clearInterval(bgKeepaliveRef.current);
+        bgKeepaliveRef.current = null;
+      }
       return;
     }
     if (!('geolocation' in navigator)) { setGpsOk(false); return; }
 
-    let lastPush = 0;
+    // Wake-Lock: Verhindert Sleep wenn Fahrer die App offen haelt
+    if ('wakeLock' in navigator && wakeLockRef.current == null) {
+      (navigator as any).wakeLock.request('screen').then((lock: WakeLockSentinel) => {
+        wakeLockRef.current = lock;
+      }).catch(() => { /* kein Wake-Lock Support oder Permission verweigert */ });
+    }
+
+    // Hilfsfunktion: Position an Server senden
+    const pushPosition = (lat: number, lng: number, heading: number | null, speed_kmh: number | null, accuracy_m: number | null) => {
+      supabase.auth.getSession().then(({ data: sessData }) => {
+        const token = sessData.session?.access_token ?? '';
+        const body = JSON.stringify({ lat, lng, heading, speed_kmh, accuracy_m });
+        fetch('/api/driver/v1/me/position', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body,
+        }).catch(() => {
+          // Offline-Queue: letzten Fix in localStorage puffern, Flush beim naechsten Push
+          try {
+            const queue = JSON.parse(localStorage.getItem('gps_queue') ?? '[]');
+            queue.push({ lat, lng, heading, speed_kmh, accuracy_m, ts: Date.now() });
+            localStorage.setItem('gps_queue', JSON.stringify(queue.slice(-50)));
+          } catch { /* noop */ }
+        });
+        // Offline-Queue leeren
+        try {
+          const raw = localStorage.getItem('gps_queue');
+          if (raw) {
+            const queue = JSON.parse(raw);
+            if (queue.length > 0) {
+              localStorage.removeItem('gps_queue');
+              // Gepufferte Punkte als einzelne POSTs nachschicken
+              for (const pt of queue) {
+                fetch('/api/driver/v1/me/position', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+                  body: JSON.stringify(pt),
+                }).catch(() => {});
+              }
+            }
+          }
+        } catch { /* noop */ }
+      });
+    };
+
     gpsWatchRef.current = navigator.geolocation.watchPosition(
       (pos) => {
+        const accuracy = pos.coords.accuracy ?? null;
+
+        // Genauigkeits-Check: > 100m → ignorieren, Kalibrierungs-Hinweis anzeigen
+        if (accuracy != null && accuracy > 100) {
+          setGpsCalibrating(true);
+          return;
+        }
+        setGpsCalibrating(false);
         setGpsOk(true);
         if (pos.coords.speed != null) setGpsSpeed(Math.round(pos.coords.speed * 3.6));
         setDriverPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+
         const now = Date.now();
-        if (now - lastPush < 15000) return;   // max alle 15s
-        lastPush = now;
-        supabase.from('driver_status').update({
-          last_lat: pos.coords.latitude,
-          last_lng: pos.coords.longitude,
-          last_heading: pos.coords.heading ?? null,
-          last_speed_kmh: pos.coords.speed != null ? Math.round(pos.coords.speed * 3.6) : null,
-          last_update: new Date().toISOString(),
-        }).eq('employee_id', driver.id).then(() => {});
+        setGpsLastAt(now);
+        if (now - lastGpsPushRef.current < 10000) return;   // max alle 10s
+        lastGpsPushRef.current = now;
+
+        pushPosition(
+          pos.coords.latitude,
+          pos.coords.longitude,
+          pos.coords.heading ?? null,
+          pos.coords.speed != null ? Math.round(pos.coords.speed * 3.6) : null,
+          accuracy,
+        );
       },
       () => setGpsOk(false),
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 },
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 },
     );
+
+    // sendBeacon bei Sichtbarkeits-Wechsel (App minimiert / Handy sperrt)
+    const onHide = () => {
+      if (document.visibilityState !== 'hidden') return;
+      if (lastGpsPushRef.current === 0) return;
+      // Position bereits lokal bekannt → letzten Fix per Beacon sichern
+      // (Kein Fetch moeglich wenn App im BG, sendBeacon laeuft noch durch)
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          supabase.auth.getSession().then(({ data: sd }) => {
+            const token = sd.session?.access_token ?? '';
+            const body = JSON.stringify({
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+              heading: pos.coords.heading ?? null,
+              speed_kmh: pos.coords.speed != null ? Math.round(pos.coords.speed * 3.6) : null,
+              accuracy_m: pos.coords.accuracy ?? null,
+            });
+            navigator.sendBeacon(
+              '/api/driver/v1/me/position',
+              new Blob([body], { type: 'application/json' }),
+            );
+          });
+        },
+        () => {},
+        { enableHighAccuracy: false, maximumAge: 30000, timeout: 2000 },
+      );
+    };
+    document.addEventListener('visibilitychange', onHide);
+
+    // Background-Keepalive: alle 30s ein manueller GPS-Request wenn App im Hintergrund
+    // Verhindert GPS-Ausfall wenn Fahrer Handy sperrt
+    bgKeepaliveRef.current = setInterval(() => {
+      if (!document.hidden) return; // im Vordergrund macht watchPosition das
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const accuracy = pos.coords.accuracy ?? null;
+          if (accuracy != null && accuracy > 100) return;
+          const now = Date.now();
+          setGpsLastAt(now);
+          lastGpsPushRef.current = now;
+          pushPosition(
+            pos.coords.latitude,
+            pos.coords.longitude,
+            pos.coords.heading ?? null,
+            pos.coords.speed != null ? Math.round(pos.coords.speed * 3.6) : null,
+            accuracy,
+          );
+        },
+        () => {},
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 },
+      );
+    }, 30000);
+
     return () => {
       if (gpsWatchRef.current != null) {
         navigator.geolocation.clearWatch(gpsWatchRef.current);
         gpsWatchRef.current = null;
       }
+      document.removeEventListener('visibilitychange', onHide);
+      if (bgKeepaliveRef.current != null) {
+        clearInterval(bgKeepaliveRef.current);
+        bgKeepaliveRef.current = null;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline]);
+
+  /* Audio-Ton + Bundling-Hint: reagiert auf neue openBatches */
+  useEffect(() => {
+    const currentIds = new Set(openBatches.map((b) => b.batch_id));
+    const isNew = openBatches.some((b) => !prevOpenBatchIdsRef.current.has(b.batch_id));
+    prevOpenBatchIdsRef.current = currentIds;
+    if (isNew && isOnline && typeof document !== 'undefined' && !document.hidden) {
+      // Bundling-Hint ausblenden, da Tour jetzt da
+      setBundlingHint(false);
+      // Audio-Ton abspielen (kurzer Doppel-Beep)
+      try {
+        const ctx = new AudioContext();
+        const play = (freq: number, startTime: number) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = freq;
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0, startTime);
+          gain.gain.linearRampToValueAtTime(0.35, startTime + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.25);
+          osc.start(startTime);
+          osc.stop(startTime + 0.25);
+        };
+        play(880, ctx.currentTime);
+        play(1100, ctx.currentTime + 0.18);
+      } catch { /* AudioContext blockiert -> kein Ton, kein Crash */ }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openBatches]);
+
+  /* Bundling-Hint: Realtime auf fertige Orders ohne Batch -> zeige "Wird gebündelt" */
+  useEffect(() => {
+    if (!isOnline || !!activeBatch || openBatches.length > 0) { setBundlingHint(false); return; }
+    if (!miseDriverId) return;
+    // Erst-Check: gibt es fertige Orders ohne Batch?
+    (async () => {
+      const { count } = await supabase
+        .from('customer_orders')
+        .select('id', { count: 'exact', head: true })
+        .eq('typ', 'lieferung')
+        .eq('status', 'fertig')
+        .is('mise_batch_id', null)
+        .is('mise_driver_id', null);
+      if ((count ?? 0) > 0) setBundlingHint(true);
+    })();
+    // Realtime: lausche auf Statuswechsel zu "fertig"
+    const ch = supabase
+      .channel('bundling-hint')
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'customer_orders',
+        filter: 'status=eq.fertig',
+      }, (payload: any) => {
+        if (!payload.new.mise_batch_id && !payload.new.mise_driver_id) setBundlingHint(true);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline, !!activeBatch, openBatches.length]);
 
   /* Push-Subscribe beim ersten Online-Gehen */
   useEffect(() => {
@@ -522,25 +721,19 @@ export function FahrerApp({
 
   async function markDelivered(stopId: string) {
     startTransition(async () => {
-      const now = new Date().toISOString();
-
-      // Legacy-Stop updaten
-      await supabase.from('delivery_batch_stops')
-        .update({ geliefert_am: now })
-        .eq('id', stopId);
-
-      // Mise-Stop updaten (falls dieser Stop aus dem Mise-System stammt)
-      await supabase.from('mise_delivery_batch_stops')
-        .update({ completed_at: now })
-        .eq('id', stopId);
-
       const stop = activeBatch?.stops.find((s) => s.id === stopId);
-      if (stop) {
-        await supabase.from('customer_orders')
-          .update({ status: 'geliefert', geliefert_am: now })
-          .eq('id', stop.order_id);
+      if (stop?.order_id) {
+        const session = await supabase.auth.getSession();
+        const token = session.data.session?.access_token ?? '';
+        await fetch('/api/driver/v1/orders/' + stop.order_id + '/delivered', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify({ photo_url: null, signature: null }),
+        });
+      } else {
+        const now = new Date().toISOString();
+        await supabase.from('mise_delivery_batch_stops').update({ completed_at: now }).eq('id', stopId);
       }
-
       router.refresh();
     });
   }
@@ -568,6 +761,24 @@ export function FahrerApp({
             <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink-2)]">Fahrer</div>
             <div className="font-display font-bold truncate">{driver.vorname} {driver.nachname}</div>
           </div>
+          {/* Kapazitäts-Badge: zeige Stopp-Auslastung wenn online + aktiver Batch */}
+          {isOnline && activeBatch && (() => {
+            const stopCount = activeBatch.stops.length;
+            const bg = stopCount < 3 ? '#16a34a' : stopCount === 3 ? '#ea580c' : '#dc2626';
+            return (
+              <div
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  padding: '4px 9px', borderRadius: 9, fontSize: 12, fontWeight: 700,
+                  background: bg, color: '#fff',
+                }}
+                title={`${stopCount} von ${CAP_BASE} Stopps belegt`}
+              >
+                <MapPin size={12} />
+                {stopCount}/{CAP_BASE}
+              </div>
+            );
+          })()}
           <button
             onClick={logout}
             className="h-10 w-10 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] flex items-center justify-center"
@@ -639,8 +850,25 @@ export function FahrerApp({
                 {/* GPS-Status */}
                 <div className="mt-3 flex items-center gap-2 text-[11px]">
                   {gpsOk === false && <span className="text-[var(--danger)]">⚠️ GPS blockiert — in Safari/Chrome Standort erlauben</span>}
-                  {gpsOk === true && <span className="text-accent">📍 GPS aktiv</span>}
-                  {gpsOk === null && <span className="text-[var(--ink-3)]">📍 Warte auf GPS-Signal…</span>}
+                  {gpsCalibrating && <span className="text-[var(--ink-2)]">📍 GPS wird kalibriert…</span>}
+                  {gpsOk === true && !gpsCalibrating && (() => {
+                    const ageMs = gpsLastAt ? Date.now() - gpsLastAt : null;
+                    if (ageMs != null && ageMs > 60000) {
+                      return (
+                        <button
+                          className="text-[var(--danger)] font-semibold"
+                          onClick={() => { navigator.geolocation.getCurrentPosition(() => {}, () => {}, { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 }); }}
+                        >
+                          🔴 GPS veraltet ({Math.round(ageMs / 1000)}s) — Antippen zum Neustarten
+                        </button>
+                      );
+                    }
+                    if (ageMs != null && ageMs > 30000) {
+                      return <span className="text-[var(--warning,#f59e0b)] font-semibold">⚠️ GPS schwach — vor {Math.round(ageMs / 1000)}s</span>;
+                    }
+                    return <span className="text-accent">📍 GPS aktiv</span>;
+                  })()}
+                  {gpsOk === null && !gpsCalibrating && <span className="text-[var(--ink-3)]">📍 Warte auf GPS-Signal…</span>}
                 </div>
               </>
             )}
@@ -911,9 +1139,29 @@ export function FahrerApp({
             driverName={`${driver.vorname} ${driver.nachname}`.trim()}
             vehicle={driver.fahrzeug_praeferenz}
             gpsOk={gpsOk}
+            gpsLastAt={gpsLastAt}
+            gpsCalibrating={gpsCalibrating}
             onGoOffline={toggleOnline}
             offlinePending={pending}
           />
+        )}
+
+        {/* Bundling-Hint: Frank hält eine Order für besseres Bündelungsergebnis */}
+        {isOnline && !activeBatch && openBatches.length === 0 && bundlingHint && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+            borderRadius: 16, background: 'var(--accent-tint)',
+            boxShadow: 'inset 0 0 0 1px var(--accent)/30',
+            animation: 'drv-pulse-soft 2s ease-in-out infinite',
+          }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <DIcon name="clock" size={18} stroke={2} style={{ color: '#fff' }} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--accent)' }}>Nächste Tour wird gebündelt…</div>
+              <div style={{ fontSize: 12, color: 'var(--ink-2)', marginTop: 2 }}>Frank wartet kurz auf nahe Bestellungen, damit du sie zusammen lieferst.</div>
+            </div>
+          </div>
         )}
 
         {/* Offline state */}
@@ -1343,6 +1591,8 @@ function FahrerWarteAnzeige({
   driverName,
   vehicle,
   gpsOk,
+  gpsLastAt,
+  gpsCalibrating,
   onGoOffline,
   offlinePending,
 }: {
@@ -1351,6 +1601,8 @@ function FahrerWarteAnzeige({
   driverName: string;
   vehicle: string | null;
   gpsOk: boolean | null;
+  gpsLastAt: number | null;
+  gpsCalibrating: boolean;
   onGoOffline: () => void;
   offlinePending: boolean;
 }) {
@@ -1442,6 +1694,56 @@ function FahrerWarteAnzeige({
             GPS aus
           </span>
         )}
+        {gpsCalibrating && (
+          <span
+            style={{
+              padding: '7px 11px',
+              borderRadius: 12,
+              background: 'var(--surface-2)',
+              color: 'var(--ink-2)',
+              fontSize: 11.5,
+              fontWeight: 700,
+            }}
+          >
+            GPS kalibriert…
+          </span>
+        )}
+        {gpsOk === true && !gpsCalibrating && (() => {
+          const ageMs = gpsLastAt ? Date.now() - gpsLastAt : null;
+          if (ageMs != null && ageMs > 60000) {
+            return (
+              <span
+                style={{
+                  padding: '7px 11px',
+                  borderRadius: 12,
+                  background: 'var(--danger-tint)',
+                  color: 'var(--danger)',
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                }}
+              >
+                🔴 GPS {Math.round(ageMs / 1000)}s alt
+              </span>
+            );
+          }
+          if (ageMs != null && ageMs > 30000) {
+            return (
+              <span
+                style={{
+                  padding: '7px 11px',
+                  borderRadius: 12,
+                  background: 'rgba(245,158,11,.12)',
+                  color: '#f59e0b',
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                }}
+              >
+                ⚠️ GPS schwach
+              </span>
+            );
+          }
+          return null;
+        })()}
       </div>
 
       {/* Zentrierte Warte-Karte: Puls-Ring + Bag-Icon */}
@@ -1662,6 +1964,7 @@ function OpenBatchSection({
         maxEta: stops.reduce((m, x) => Math.max(m, x.geschaetzte_lieferung_min ?? 0), 0),
         totalDistanceKm: totalDistanceKm > 0 ? totalDistanceKm : null,
         estEtaMin: estEtaMin > 0 ? estEtaMin : null,
+        created_at: stops[0].created_at ?? null,
       };
     });
   }, [openBatches]);
@@ -1697,7 +2000,10 @@ function OpenBatchSection({
             {grouped.length} {grouped.length === 1 ? 'Bestellung' : 'Bestellungen'} · {restaurantName}
           </div>
         </div>
-        {grouped.length > 0 && <CountdownRing seconds={60} onExpire={onExpire} />}
+        {grouped.length > 0 && (() => {
+          const secsLeft = Math.max(10, Math.round((new Date(grouped[0]?.created_at ?? Date.now()).getTime() + 180_000 - Date.now()) / 1000));
+          return <CountdownRing key={secsLeft} seconds={secsLeft} onExpire={onExpire} />;
+        })()}
       </div>
 
       {/* Drive-Metriken: Artikel · Strecke · Dauer */}
@@ -1732,7 +2038,7 @@ function OpenBatchSection({
            Nummerierte mono-Box | Adresse + Untertitel | rechts mono #Code.
            Keine Accent-Karte/Zap/„Beste Wahl"/Verdienst-Chips/Route-Viz mehr. */
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {grouped.map(({ batchId, stops, cashAmount, locationLat, locationLng }) => {
+          {grouped.map(({ batchId, stops, cashAmount, locationLat, locationLng, estDriverEarnings }) => {
             const isMise = stops[0]?.source_system === 'mise';
             const canDecline = isMise && !!onDecline;
             const isDeclining = decliningBatch === batchId;
@@ -1799,6 +2105,20 @@ function OpenBatchSection({
                     );
                   })}
                 </div>
+
+                {/* Verdienst-Schätzung */}
+                {estDriverEarnings > 0 && (
+                  <div
+                    className="flex items-center gap-2"
+                    style={{
+                      background: 'var(--success-tint, rgba(34,197,94,0.08))', borderRadius: 12,
+                      padding: '9px 12px', marginBottom: 12,
+                      fontSize: 13, fontWeight: 600, color: 'var(--success, #16a34a)',
+                    }}
+                  >
+                    <Banknote size={15} /> ~{estDriverEarnings.toFixed(2)} € Verdienst (Schätzung)
+                  </div>
+                )}
 
                 {/* Bar-Hinweis (nur wenn Bargeld zu kassieren) */}
                 {cashAmount > 0 && (
