@@ -793,6 +793,7 @@ import { DispatchPhase2625ReactionsZeitBoard } from './phase2625-reaktionszeit-b
 import { DispatchPhase2630WarteZeitBestellungBoard } from './phase2630-wartezeit-bestellung-board';
 import { DispatchPhase2647SchichtPuenktlichkeitsBoard } from './phase2647-schichtpuenktlichkeit-board';
 import { DispatchPhase2652StoppzeitBoard } from './phase2652-stoppzeit-board';
+import { DispatchPhase2657KilometerstandBoard } from './phase2657-kilometerstand-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -3994,6 +3995,8 @@ export function DispatchBoard({
           <DispatchPhase2647SchichtPuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2652 (Stoppzeit): Fahrerliste nach Stoppzeit sortiert; Balken 0–15 Min Ziel-Linie 3 Min; KPI-Grid Team-Ø/Bester/Ziel ≤3 Min; Alert >7 Min; 30-Min-Polling */}
           <DispatchPhase2652StoppzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2657 (Kilometerstand): Fahrerliste nach km/Tour sortiert; Balken 0–20 km Ziel-Linie 8 km; KPI-Grid Team-Ø/Bester/Ziel ≤8 km; Alert >15 km; 30-Min-Polling */}
+          <DispatchPhase2657KilometerstandBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11721,3 +11724,5 @@ export { DispatchPhase2630WarteZeitBestellungBoard } from './phase2630-wartezeit
 export { DispatchPhase2647SchichtPuenktlichkeitsBoard } from './phase2647-schichtpuenktlichkeit-board';
 // Phase 2652 — Stoppzeit-Board (Fahrerliste nach Stoppzeit sortiert höchste oben; Balken 0–15 Min Ziel-Linie 3 Min; KPI-Grid Team-Ø/Bester/Ziel ≤3 Min; Alert >7 Min; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2652StoppzeitBoard } from './phase2652-stoppzeit-board';
+// Phase 2657 — Kilometerstand-Board (Fahrerliste nach km/Tour sortiert höchste oben; Balken 0–20 km Ziel-Linie 8 km; KPI-Grid Team-Ø/Bester/Ziel ≤8 km; Alert >15 km; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2657KilometerstandBoard } from './phase2657-kilometerstand-board';

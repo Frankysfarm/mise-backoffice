@@ -4,7 +4,7 @@ const nextConfig = {
   reactStrictMode: true,
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
-  turbopack: { root: path.resolve(__dirname) },
+  turbopack: { root: __dirname },
   experimental: {
     outputFileTracingExcludes: {
       '*': ['**/@swc/**', '**/node_modules/**'],
