@@ -4683,3 +4683,5 @@ export { LieferdienstPhase2555StatistikHeuteKommandant } from './phase2555-stati
 export { LieferdienstPhase2560StatistikenLiveBoard } from './phase2560-statistiken-live-board';
 // Phase 2565 — Statistiken Heute Final (9 KPI-Kacheln Ampel + Trend-Pfeile; Stundenverlauf-Chart Bestellungen/Umsatz umschaltbar; Top-3-Zonen Balken; Alert-Strip; Fahrer-Übersicht kompakt; 2-Min-Polling)
 export { LieferdienstPhase2565StatistikenHeuteFinal } from './phase2565-statistiken-heute-final';
+// SmartStatsCockpit — Konsolidiertes Statistiken-Dashboard (Live-Status-Kacheln 4er-Grid; 6 KPI-Karten mit Farbkodierung + Trend; Stundenverlauf BarChart Bestellungen/Umsatz umschaltbar; 60-Sek-Polling)
+export { SmartStatsCockpit } from './smart-stats-cockpit';

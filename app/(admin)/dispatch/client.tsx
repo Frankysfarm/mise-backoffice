@@ -11776,3 +11776,5 @@ export { DispatchPhase2702SchichtUeberlappungsBoard } from './phase2702-schicht-
 export { DispatchPhase2707AuftragsquoteBoard } from './phase2707-auftragsquote-board';
 // Phase 2712 — Lieferdichte-Board (Stopps/km je Fahrer; Balken 0–0.6 Ziel-Linie 0.3; KPI-Grid Team-Ø/Bester/Ziel ≥0.3/km; Alert <0.15 "Lieferdichte zu gering!"; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2712LieferdichteBoard } from './phase2712-lieferdichte-board';
+// Phase 2717 — Tour-Score Echtzeit-Board (Rangliste aller Fahrer nach Score; Sub-Scores Pünktlichkeit/Effizienz/Kundenzufriedenheit; Farbkodierung + Trend-Pfeile; Bester-Fahrer-Banner; Handlungsbedarf-Alert; 30-Sek-Polling)
+export { DispatchPhase2717TourScoreEchtzeitBoard } from './phase2717-tour-score-echtzeit-board';

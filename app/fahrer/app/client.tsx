@@ -9386,3 +9386,5 @@ export { FahrerPhase2703MeineSchichtUeberlappung } from './phase2703-meine-schic
 export { FahrerPhase2708MeineAuftragsquote } from './phase2708-meine-auftragsquote';
 // Phase 2713 — Meine Lieferdichte (Stopps/km 4xl groß + Farbcode; Balken 0–0.6 Ziel ≥0.3/km; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2713MeineLieferdichte } from './phase2713-meine-lieferdichte';
+// Phase 2718 — Smart Tour Cockpit Ultra (Hero-Stopp-Fokus mit ETA-Sekunden-Countdown; One-Tap Navigation Google/Apple/Waze; Anruf-Button; Notiz-Alert; Fortschrittsring; Weitere Stopps aufklappbar mit Mini-ETAs; 20-Sek-Polling + 1-Sek-ETA-Tick)
+export { FahrerPhase2718SmartTourCockpitUltra } from './phase2718-smart-tour-cockpit-ultra';

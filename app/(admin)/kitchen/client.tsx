@@ -10349,3 +10349,5 @@ export { KitchenPhase2705SchichtUeberlappungsTicker } from './phase2705-schicht-
 export { KitchenPhase2710AuftragsquoteTicker } from './phase2710-auftragsquote-ticker';
 // Phase 2715 — Lieferdichte-Ticker (Stopps/km je Fahrer; Alert <0.15 "Lieferdichte zu gering!"; Fahrerliste kompakt aufsteigend nach Dichte (kritischste oben); Ziel ≥0.3/km; 30-Min-Polling)
 export { KitchenPhase2715LieferdichteTicker } from './phase2715-lieferdichte-ticker';
+// Phase 2720 — Smart Kochstart Countdown Cockpit (Echtzeit-Countdowns je Bestellung in Zubereitung; Farbkodierung grün/gelb/rot nach verbleibender Zeit; Fortschrittsbalken; Überfälligkeits-Alert; Wartend-auf-Fahrer-Anzeige; 20-Sek-Polling + 1-Sek-Tick)
+export { KitchenPhase2720SmartKochstartCountdownCockpit } from './phase2720-smart-kochstart-countdown-cockpit';
