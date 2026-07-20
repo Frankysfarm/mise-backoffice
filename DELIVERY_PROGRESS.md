@@ -23754,3 +23754,44 @@ Frontend-Ingenieur-Agent (2026-07-20): Phasen 2731–2735 implementiert. 1 neue 
 5. **Phase 2745 Kitchen:** Wartezeit-Ticker — Team-Ø Min; Alert >6 Min "Zu lange Wartezeit!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≤3 Min; 30-Min-Polling; in kitchen/client.tsx nach Phase2740.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2736–2740 implementiert. 1 neue Backend-API (fahrer-strecken-effizienz, route_distance_km / Touren-Count, Ampel grün≤5/gelb5–8/rot>8 km/Tour, Alert "Hohe Kilometer pro Tour!", Trend vs. gestern, BatchRow-Typisierung, aggregateForDrivers-Helper, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2737 Dispatch (StreckenEffizienzBoard, Balken 0–12 km Ziel-Linie 5 km, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend rot=steigend/grün=fallend) / Phase2738 Fahrer-App (MeineStreckenEffizienz, km/Tour 4xl, Coaching-Tipp, Rang-Anzeige) / Phase2740 Kitchen (StreckenEffizienzTicker, Team-Ø km/Tour, Alert je Fahrer, absteigend nach km, Ziel ≤5 km/Tour). Phase 2739 Storefront übersprungen. TypeScript TS7006 ✓ 0 neue Fehler. Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2741–2745 — Fahrer-Wartezeit-am-Stopp (2026-07-20)
+
+### Phase 2741 — Backend API: Fahrer-Wartezeit-am-Stopp
+**Datei:** `app/api/delivery/admin/fahrer-wartezeit-stopp/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Ø Wartezeit je Stopp je Fahrer heute (completed_at - arrived_at in batch_stops); Ampel grün(≤3 Min)/gelb(3–6 Min)/rot(>6 Min); Alert >6 Min "Zu lange Wartezeit!"; Trend vs. gestern; absteigend nach Wartezeit + Rang; driver_id-Modus; Multi-Tenant; Supabase(batch_stops: arrived_at, completed_at)+Mock
+
+### Phase 2742 — Wartezeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2742-wartezeit-board.tsx` *(neu)*
+**Component:** `DispatchPhase2742WartezeitBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >6 Min "Zu lange Wartezeit!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≤3 Min); Fahrerliste nach Ø-Wartezeit aufsteigend sortiert (niedrigste oben); Balken 0–10 Min mit Ziel-Linie 3 Min; Ampel-Dots + Trend-Pfeile (rot=steigend/grün=fallend); Stopps je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2737 ✅
+
+### Phase 2743 — Meine Wartezeit am Stopp (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2743-meine-wartezeit.tsx` *(neu)*
+**Component:** `FahrerPhase2743MeineWartezeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Ø Wartezeit 4xl groß + Farbcode; Balken 0–10 Min mit Ziel-Linie 3 Min; KPI-Grid (Trend/Ziel/Ampel/Team-Ø); Coaching-Tipp je Ampelzone; Rang-Anzeige mit Stopps; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2738 ✅
+
+### Phase 2744 — Storefront
+Übersprungen (Wartezeit intern irrelevant für Kunden) ✅
+
+### Phase 2745 — Wartezeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2745-wartezeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2745WartezeitTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Min; Alert-Banner je Fahrer >6 Min "Zu lange Wartezeit!"; Fahrerliste kompakt nach Ø-Wartezeit absteigend sortiert (höchste oben) mit Ampel-Dots, Trend-Pfeil und Min-Wert; Ziel-Anzeige ≤3 Min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2740 ✅
+
+### Nächste Phasen 2746–2750 (für nächsten Ingenieur) — Fahrer-Abbruchquote
+1. **Phase 2746 Backend:** GET /api/delivery/admin/fahrer-abbruchquote — Abbruchquote je Fahrer heute (cancelled oder failed Stopps / Gesamt-Stopps in batch_stops); Ampel grün(≤5%)/gelb(5–15%)/rot(>15%); Alert >15% "Hohe Abbruchquote!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(batch_stops: state)+Mock.
+2. **Phase 2747 Dispatch:** Abbruchquote-Board — Fahrerliste nach Quote aufsteigend (niedrigste oben); Balken 0–30% mit Ziel-Linie 5%; KPI-Grid Team-Ø/Bester/Ziel ≤5%; Alert-Banner >15%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2742.
+3. **Phase 2748 Fahrer-App:** Meine Abbruchquote — Quote % 4xl groß + Farbcode; Balken 0–30% Ziel 5%; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2743.
+4. **Phase 2749 Storefront:** Überspringen (Abbruchquote intern irrelevant für Kunden).
+5. **Phase 2750 Kitchen:** Abbruchquote-Ticker — Team-Ø %; Alert >15% "Hohe Abbruchquote!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≤5%; 30-Min-Polling; in kitchen/client.tsx nach Phase2745.
+
+Frontend-Ingenieur-Agent (2026-07-20): Phasen 2741–2745 implementiert. 1 neue Backend-API (fahrer-wartezeit-stopp, arrived_at→completed_at Differenz in Minuten aus batch_stops, Ampel grün≤3/gelb3–6/rot>6 Min, Alert "Zu lange Wartezeit!", Trend vs. gestern, aggregateStopps-Helper mit Sanity-Check, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2742 Dispatch (WartezeitBoard, Balken 0–10 Min Ziel-Linie 3 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend rot=steigend/grün=fallend) / Phase2743 Fahrer-App (MeineWartezeit, Ø Min 4xl, Coaching-Tipp, Rang-Anzeige, isOnline-Guard) / Phase2745 Kitchen (WartezeitTicker, Team-Ø Min, Alert je Fahrer, absteigend nach Min, Ziel ≤3 Min). Phase 2744 Storefront übersprungen. TypeScript ✓ 0 neue Fehler. Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
