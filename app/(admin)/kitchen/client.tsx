@@ -368,6 +368,7 @@ import { KitchenPhase2745WartezeitTicker } from './phase2745-wartezeit-ticker';
 import { KitchenPhase2750SchichtPunkteTicker } from './phase2750-schicht-punkte-ticker';
 import { KitchenPhase2755SmartTimingFahrerSyncCockpit } from './phase2755-smart-timing-fahrer-sync-cockpit';
 import { KitchenPhase2760BestellwertTicker } from './phase2760-bestellwert-ticker';
+import { KitchenPhase2765LiefergebietTicker } from './phase2765-liefergebiet-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3639,6 +3640,8 @@ export function KitchenBoard({
       <KitchenPhase2755SmartTimingFahrerSyncCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2760: Bestellwert-Ticker — Ø €/Tour je Fahrer; Alert <15€ "Niedriger Bestellwert!"; absteigend (höchster oben); Ziel ≥25€/Tour; 30-Min-Polling */}
       <KitchenPhase2760BestellwertTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2765: Liefergebiet-Ticker — Anzahl belieferter Zonen je Fahrer; Alert ≤1 Zone "Geringe Gebietsabdeckung!"; aufsteigend (wenigste oben); Ziel ≥3 Zonen; 30-Min-Polling */}
+      <KitchenPhase2765LiefergebietTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10399,3 +10402,5 @@ export { KitchenPhase2750SchichtPunkteTicker } from './phase2750-schicht-punkte-
 export { KitchenPhase2755SmartTimingFahrerSyncCockpit } from './phase2755-smart-timing-fahrer-sync-cockpit';
 // Phase 2760 — Bestellwert-Ticker (Ø €/Tour je Fahrer; Alert <15€ "Niedriger Bestellwert!"; absteigend sortiert; Ziel ≥25€/Tour; 30-Min-Polling)
 export { KitchenPhase2760BestellwertTicker } from './phase2760-bestellwert-ticker';
+// Phase 2765 — Liefergebiet-Ticker (Zonen je Fahrer; Alert ≤1 Zone "Geringe Gebietsabdeckung!"; aufsteigend sortiert wenigste oben; Ziel ≥3 Zonen; 30-Min-Polling)
+export { KitchenPhase2765LiefergebietTicker } from './phase2765-liefergebiet-ticker';
