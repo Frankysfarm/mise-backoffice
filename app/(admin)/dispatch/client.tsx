@@ -803,6 +803,7 @@ import { DispatchPhase2687PausenBoard } from './phase2687-pausen-board';
 import { DispatchPhase2692SchichtwechselBoard } from './phase2692-schichtwechsel-board';
 import { DispatchPhase2702SchichtUeberlappungsBoard } from './phase2702-schicht-ueberlappungs-board';
 import { DispatchPhase2707AuftragsquoteBoard } from './phase2707-auftragsquote-board';
+import { DispatchPhase2712LieferdichteBoard } from './phase2712-lieferdichte-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4024,6 +4025,8 @@ export function DispatchBoard({
           <DispatchPhase2702SchichtUeberlappungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2707 (Auftragsquote): Fahrerliste nach Quote/h absteigend; Balken 0–6/h Ziel-Linie 3/h; KPI-Grid Team-Ø/Bester/Ziel; Alert <1.5/h "Auftragsquote zu niedrig!"; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2707AuftragsquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2712 (Lieferdichte): Stopps/km je Fahrer; Balken 0–0.6 Ziel-Linie 0.3; KPI-Grid Team-Ø/Bester/Ziel; Alert <0.15 "Lieferdichte zu gering!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2712LieferdichteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11771,3 +11774,5 @@ export { DispatchPhase2692SchichtwechselBoard } from './phase2692-schichtwechsel
 export { DispatchPhase2702SchichtUeberlappungsBoard } from './phase2702-schicht-ueberlappungs-board';
 // Phase 2707 — Auftragsquote-Board (Fahrerliste nach Quote/h absteigend; Balken 0–6/h Ziel-Linie 3/h; KPI-Grid Team-Ø/Bester/Ziel ≥3/h; Alert <1.5/h; 30-Min-Polling)
 export { DispatchPhase2707AuftragsquoteBoard } from './phase2707-auftragsquote-board';
+// Phase 2712 — Lieferdichte-Board (Stopps/km je Fahrer; Balken 0–0.6 Ziel-Linie 0.3; KPI-Grid Team-Ø/Bester/Ziel ≥0.3/km; Alert <0.15 "Lieferdichte zu gering!"; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2712LieferdichteBoard } from './phase2712-lieferdichte-board';

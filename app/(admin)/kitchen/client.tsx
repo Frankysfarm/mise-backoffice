@@ -357,6 +357,7 @@ import { KitchenPhase2697LiefertreucTicker } from './phase2697-liefertreue-ticke
 import { KitchenPhase2700SmartSchichtAbschlussBoard } from './phase2700-smart-schicht-abschluss-board';
 import { KitchenPhase2705SchichtUeberlappungsTicker } from './phase2705-schicht-ueberlappungs-ticker';
 import { KitchenPhase2710AuftragsquoteTicker } from './phase2710-auftragsquote-ticker';
+import { KitchenPhase2715LieferdichteTicker } from './phase2715-lieferdichte-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3606,6 +3607,8 @@ export function KitchenBoard({
       <KitchenPhase2705SchichtUeberlappungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2710: Auftragsquote-Ticker — Team-Ø /h; Alert <1.5/h "Auftragsquote zu niedrig!"; Fahrerliste kompakt aufsteigend nach Quote (kritischste oben); Ziel ≥3/h; 30-Min-Polling */}
       <KitchenPhase2710AuftragsquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2715: Lieferdichte-Ticker — Team-Ø Stopps/km; Alert <0.15 "Lieferdichte zu gering!"; Fahrerliste kompakt aufsteigend (kritischste oben); Ziel ≥0.3/km; 30-Min-Polling */}
+      <KitchenPhase2715LieferdichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10344,3 +10347,5 @@ export { KitchenPhase2700SmartSchichtAbschlussBoard } from './phase2700-smart-sc
 export { KitchenPhase2705SchichtUeberlappungsTicker } from './phase2705-schicht-ueberlappungs-ticker';
 // Phase 2710 — Auftragsquote-Ticker (Team-Ø /h; Alert <1.5/h "Auftragsquote zu niedrig!"; Fahrerliste kompakt aufsteigend nach Quote (kritischste oben); Ampel + Trend; Ziel ≥3/h; 30-Min-Polling)
 export { KitchenPhase2710AuftragsquoteTicker } from './phase2710-auftragsquote-ticker';
+// Phase 2715 — Lieferdichte-Ticker (Stopps/km je Fahrer; Alert <0.15 "Lieferdichte zu gering!"; Fahrerliste kompakt aufsteigend nach Dichte (kritischste oben); Ziel ≥0.3/km; 30-Min-Polling)
+export { KitchenPhase2715LieferdichteTicker } from './phase2715-lieferdichte-ticker';

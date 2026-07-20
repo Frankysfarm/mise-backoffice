@@ -23543,3 +23543,44 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2691–2695 implementiert. 1 neue B
 5. **Phase 2715 Kitchen:** Lieferdichte-Ticker — Team-Ø Dichte; Alert <0.15 "Lieferdichte zu gering!"; Fahrerliste kompakt aufsteigend; Ziel ≥0.3; 30-Min-Polling; in kitchen/client.tsx nach Phase2710.
 
 Frontend-Ingenieur-Agent (2026-07-20): Phasen 2706–2710 implementiert. 1 neue Backend-API (fahrer-schicht-auftragsquote, Ampel grün≥3/gelb1.5–2.99/rot<1.5, Supabase delivery_batches+driver_shifts+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2707 Dispatch (Auftragsquote-Board, Balken 0–6/h, Ziel-Linie 3/h, Alert je Fahrer) / Phase2708 Fahrer-App (Meine Auftragsquote, Quote 4xl, Coaching-Tipp, Rang-Anzeige) / Phase2710 Kitchen (Auftragsquote-Ticker, Alert je Fahrer, aufsteigend nach Quote). Phase 2709 Storefront übersprungen. TS7006-Fehler gefixt (alle 0). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2711–2715 — Fahrer-Lieferdichteanalyse (2026-07-20)
+
+### Phase 2711 — Backend API: Fahrer-Lieferdichte
+**Datei:** `app/api/delivery/admin/fahrer-lieferdichte/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Stopps/km je Fahrer heute (Effizienz der Routenplanung); Ampel grün(≥0.3)/gelb(0.15–0.29)/rot(<0.15); Alert <0.15 "Lieferdichte zu gering!"; Trend vs. gestern; absteigend nach Dichte sortiert; driver_id-Modus; Multi-Tenant; Supabase(delivery_batches + batch_stops: total_distance_km)+Mock
+
+### Phase 2712 — Lieferdichte-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2712-lieferdichte-board.tsx` *(neu)*
+**Component:** `DispatchPhase2712LieferdichteBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <0.15 "Lieferdichte zu gering!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≥0.3/km); Fahrerliste nach Dichte absteigend sortiert; Balken 0–0.6 mit Ziel-Linie 0.3; Ampel-Dots + Trend-Pfeile; Stopps/km-Info je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2707 ✅
+
+### Phase 2713 — Meine Lieferdichte (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2713-meine-lieferdichte.tsx` *(neu)*
+**Component:** `FahrerPhase2713MeineLieferdichte`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Dichte-Wert 4xl groß + Farbcode; Balken 0–0.6 mit Ziel-Linie 0.3; KPI-Grid (Trend/Ziel/Ampel/Team-Ø); Coaching-Tipp je Ampelzone; Rang-Anzeige; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2708 ✅
+
+### Phase 2714 — Storefront
+Übersprungen (Lieferdichte intern irrelevant für Kunden) ✅
+
+### Phase 2715 — Lieferdichte-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2715-lieferdichte-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2715LieferdichteTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Stopps/km; Alert-Banner je Fahrer <0.15 "Lieferdichte zu gering!"; Fahrerliste kompakt nach Dichte aufsteigend sortiert (kritischste oben) mit Ampel-Dots, Trend-Pfeil und Dichte-Wert; Ziel-Anzeige ≥0.3/km; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2710 ✅
+
+### Nächste Phasen 2716–2720 (für nächsten Ingenieur) — Fahrer-Abbruch-Rate
+1. **Phase 2716 Backend:** GET /api/delivery/admin/fahrer-abbruch-rate — Abbruchrate je Fahrer heute (abgebrochene Touren / Gesamt-Touren × 100%); Ampel grün(<5%)/gelb(5–10%)/rot(>10%); Alert >10% "Zu hohe Abbruchrate!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_batches: state='cancelled')+Mock.
+2. **Phase 2717 Dispatch:** Abbruch-Rate-Board — Fahrerliste nach Rate absteigend (höchste oben); Balken 0–20% mit Ziel-Linie 5%; KPI-Grid Team-Ø/Höchste/Ziel <5%; Alert-Banner >10%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2712.
+3. **Phase 2718 Fahrer-App:** Meine Abbruchrate — %-Wert groß + Farbcode; Balken 0–20% Ziel-Linie 5%; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2713.
+4. **Phase 2719 Storefront:** Überspringen (Abbruchrate intern irrelevant für Kunden).
+5. **Phase 2720 Kitchen:** Abbruch-Rate-Ticker — Team-Ø %; Alert >10% "Zu hohe Abbruchrate!"; Fahrerliste kompakt absteigend; Ziel <5%; 30-Min-Polling; in kitchen/client.tsx nach Phase2715.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2711–2715 implementiert. 1 neue Backend-API (fahrer-lieferdichte, Stopps/km aus delivery_batches+batch_stops, Ampel grün≥0.3/gelb0.15–0.29/rot<0.15, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2712 Dispatch (Lieferdichte-Board, Balken 0–0.6 Stopps/km, Ziel-Linie 0.3, Alert-Banner je Fahrer) / Phase2713 Fahrer-App (Meine Lieferdichte, Dichte 4xl, Coaching-Tipp, Rang-Anzeige) / Phase2715 Kitchen (Lieferdichte-Ticker, Alert je Fahrer, aufsteigend nach Dichte). Phase 2714 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler pre-existing (ignoreBuildErrors: true). Push erfolgt.
