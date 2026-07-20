@@ -23098,3 +23098,44 @@ Frontend-Ingenieur-Agent (2026-07-20): Phasen 2619–2623 implementiert. 1 neue 
 3. **Phase 2631 Fahrer-App:** MeineSchichtpünktlichkeit — Min-Wert groß, Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2626.
 4. **Phase 2632 Storefront:** Überspringen.
 5. **Phase 2633 Kitchen:** SchichtpünktlichkeitsTicker — Team-Ø Min, Alert "Schicht-Verspätung!"; 30-Min-Polling; nach Phase2628.
+
+---
+
+## Batch 2646–2650 — Fahrer-Schichtpünktlichkeit (2026-07-20)
+
+### Phase 2646 — Backend API: Fahrer-Schichtpünktlichkeit
+**Datei:** `app/api/delivery/admin/fahrer-schichtpuenktlichkeit/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Ø Verspätung am Schichtbeginn je Fahrer heute in Min; Ampel grün(≤2)/gelb(3–10)/rot(>10); Alert >10 Min; Trend vs. gestern; Supabase(driver_shifts: planned_start vs actual_start)+Mock
+
+### Phase 2647 — Schichtpünktlichkeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2647-schichtpuenktlichkeit-board.tsx` *(neu)*
+**Component:** `DispatchPhase2647SchichtPuenktlichkeitsBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); KPI-Grid (Team-Ø/Bester heute/Ziel ≤2 Min); Fahrerliste nach Verspätung sortiert (höchste oben); Balken 0–15 Min mit grüner gestrichelter Ziel-Linie bei 2 Min; Alert-Banner >10 Min "Schicht-Verspätung!"; Trend-Pfeile; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2630 ✅
+
+### Phase 2648 — Meine Schichtpünktlichkeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2648-meine-schichtpuenktlichkeit.tsx` *(neu)*
+**Component:** `FahrerPhase2648MeineSchichtPuenktlichkeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Min-Wert groß + Farbcode; Balken 0–15 Min mit gestrichelter Ziel-Linie 2 Min; KPI-Grid (Trend vs. gestern/Ziel ≤2 Min/Rang heute/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2631 ✅
+
+### Phase 2649 — Storefront
+Übersprungen (Schichtpünktlichkeit intern irrelevant für Kunden) ✅
+
+### Phase 2650 — Schichtpünktlichkeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2650-schichtpuenktlichkeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2650SchichtPuenktlichkeitTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Min; Alert-Banner "Schicht-Verspätung!" mit Fahrernamen; Fahrerliste kompakt nach Verspätung sortiert (höchste oben) mit Ampel-Dots, Trend-Pfeil und Min-Wert; Ziel-Anzeige ≤2 Min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2633 ✅
+
+### Nächste Phasen 2651–2655 (für nächsten Ingenieur) — Fahrer-Stoppzeit
+1. **Phase 2651 Backend:** GET /api/delivery/admin/fahrer-stoppzeit — Ø Zeit je Stopp (vom Ankommen bis Abfahrt bei Kunde) je Fahrer heute in Min; Ampel grün(≤3)/gelb(4–7)/rot(>7 Min); Alert >7 Min; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(delivery_stops: arrived_at vs departed_at)+Mock.
+2. **Phase 2652 Dispatch:** Stoppzeit-Board — Fahrerliste nach Stoppzeit sortiert (höchste oben); Balken 0–15 Min mit Ziel-Linie 3 Min; KPI-Grid Team-Ø/Bester/Ziel ≤3 Min; Alert-Banner >7 Min; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2647.
+3. **Phase 2653 Fahrer-App:** Meine Stoppzeit — Min-Wert groß + Farbcode; Balken 0–15 Min mit Ziel-Linie 3 Min; KPI-Grid Trend/Ziel/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2648.
+4. **Phase 2654 Storefront:** Überspringen (Stoppzeit intern irrelevant für Kunden).
+5. **Phase 2655 Kitchen:** Stoppzeit-Ticker — Team-Ø Min; Alert >7 Min "Stoppzeit zu lang!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2650.
+
+Frontend-Ingenieur-Agent (2026-07-20): Phasen 2646–2650 implementiert. 1 neue Backend-API (fahrer-schichtpuenktlichkeit, Supabase: driver_shifts planned_start→actual_start, Ampel grün≤2/gelb3–10/rot>10 Min) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2647 Dispatch (Schichtpünktlichkeit-Board, Balken 0–15 Min, Ziel-Linie 2 Min) / Phase2648 Fahrer-App (Meine Schichtpünktlichkeit, Coaching-Tipp je Ampelzone) / Phase2650 Kitchen (Schichtpünktlichkeit-Ticker, Alert >10 Min "Schicht-Verspätung!"). Phase 2649 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.

@@ -9311,3 +9311,5 @@ export { FahrerPhase2621MeineErstkontaktZeit } from './phase2621-meine-erstkonta
 export { FahrerPhase2626MeineReaktionszeit } from './phase2626-meine-reaktionszeit';
 // Phase 2631 — Meine Wartezeit (Min-Wert groß + Farbcode; Balken 0–20 Min Ziel-Linie 5 Min; KPI-Grid Trend/Ziel/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2631MeineWartezeit } from './phase2631-meine-wartezeit';
+// Phase 2648 — Meine Schichtpünktlichkeit (Min-Wert groß + Farbcode; Balken 0–15 Min Ziel-Linie 2 Min; KPI-Grid Trend/Ziel/Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2648MeineSchichtPuenktlichkeit } from './phase2648-meine-schichtpuenktlichkeit';

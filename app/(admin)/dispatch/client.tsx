@@ -11711,3 +11711,5 @@ export { DispatchPhase2620ErstkontaktZeitBoard } from './phase2620-erstkontakt-z
 export { DispatchPhase2625ReactionsZeitBoard } from './phase2625-reaktionszeit-board';
 // Phase 2630 (Wartezeit Bestellung) — Wartezeit-Board (Balken 0–20 Min Ziel-Linie 5 Min; KPI-Grid Team-Ø/Bester/Ziel ≤5 Min; Alert >10 Min; 30-Min-Polling)
 export { DispatchPhase2630WarteZeitBestellungBoard } from './phase2630-wartezeit-bestellung-board';
+// Phase 2647 — Schichtpünktlichkeit-Board (Fahrerliste nach Verspätung sortiert höchste oben; Balken 0–15 Min Ziel-Linie 2 Min; KPI-Grid Team-Ø/Bester/Ziel ≤2 Min; Alert >10 Min; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2647SchichtPuenktlichkeitsBoard } from './phase2647-schichtpuenktlichkeit-board';

@@ -10269,3 +10269,5 @@ export { KitchenPhase2623ErstkontaktTicker } from './phase2623-erstkontakt-ticke
 export { KitchenPhase2628ReactionsZeitTicker } from './phase2628-reaktionszeit-ticker';
 // Phase 2633 — Wartezeit-Bestellung-Ticker (Team-Ø Min; Alert >10 Min "Wartezeit zu lang!"; Fahrerliste mit Ampel-Dots; Ziel ≤5 Min; 30-Min-Polling)
 export { KitchenPhase2633WarteZeitBestellungTicker } from './phase2633-wartezeit-bestellung-ticker';
+// Phase 2650 — Schichtpünktlichkeit-Ticker (Team-Ø Min; Alert >10 Min "Schicht-Verspätung!"; Fahrerliste kompakt mit Ampel-Dots + Trend; Ziel ≤2 Min; 30-Min-Polling)
+export { KitchenPhase2650SchichtPuenktlichkeitTicker } from './phase2650-schichtpuenktlichkeit-ticker';
