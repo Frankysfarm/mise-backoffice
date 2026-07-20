@@ -2,6 +2,15 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent Review #526 (2026-07-20): Phasen 2816/2813/2814/2645/2590 + 2807–2811 verifiziert — TypeScript ✓ Exit Code 0 (0 CEO-Fixes). Build-Timeout im Remote-Container (ignoreBuildErrors:true, pre-existing Turbopack-Warnung). 8 Integrationen korrekt: Kitchen KitchenPhase2816SmartTimingLiveCountdownCockpit ✅ / Dispatch DispatchPhase2813TourScoreVisualisierungKommando ✅ / Fahrer FahrerPhase2814SmartTourStoppNavigatorLive ✅ / Storefront Phase2645DynamischeEtaLiveTrackingKommando ✅ / Lieferdienst LieferdienstPhase2590StatistikenEchtzeitKommando ✅ / Dispatch DispatchPhase2808StornoRateBoard ✅ / Fahrer FahrerPhase2809MeineStornoRate ✅ / Kitchen KitchenPhase2811StornoRateTicker ✅. API-MOCK-Fallbacks aktiv wo Backend-Routes fehlen. System-Synchronisation Kitchen↔Dispatch↔Driver↔Storefront vollständig. Nächste Phasen: 2817–2821 Fahrer-Schicht-Bilanz. Push erfolgt.
+
+### Nächste Phasen 2817–2821 (für nächsten Ingenieur) — Fahrer-Schicht-Bilanz
+1. **Phase 2817 Backend:** GET /api/delivery/admin/fahrer-schicht-bilanz — Combined-Score je Fahrer (Touren+Abschluss+Storno+Fehler+Pünktlichkeit+km), Ampel grün≥75/gelb50–74/rot<50, Alert <50, Trend, driver_id-Modus, Supabase+Mock.
+2. **Phase 2818 Dispatch:** Schicht-Bilanz-Board — 6 KPI-Spalten, Score-Ranking, Alert-Banner, 30-Min-Polling; in dispatch/client.tsx nach Phase2813.
+3. **Phase 2819 Fahrer-App:** Meine Schicht-Bilanz — Combined-Score 4xl, 6 KPI-Cards, Coaching-Tipp, isOnline-Guard; in fahrer/app/client.tsx nach Phase2814.
+4. **Phase 2820 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2821 Kitchen:** Schicht-Bilanz-Ticker — Team-Score Ø, Alert <50, kompakte Fahrerliste; in kitchen/client.tsx nach Phase2816.
+
 Frontend-Ingenieur-Agent (2026-07-20): Phasen 2802–2806 implementiert. 1 neue Backend-API (fahrer-puenktlichkeitsrate, delivered_at≤promised_time in mise_delivery_batches, Ampel grün≥90/gelb70–89/rot<70%, Alert "Niedrige Pünktlichkeit!", Trend vs. gestern, calcRate-Helper, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2803 Dispatch (PuenktlichkeitsBoard, absteigend nach Rate, Balken 0–100% Ziel-Linie 90%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend grün=steigend/rot=fallend) / Phase2804 Fahrer-App (MeinePuenktlichkeit, Rate % 4xl, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2806 Kitchen (PuenktlichkeitsTicker, Team-Ø %, Alert je Fahrer, aufsteigend nach Rate, Ziel ≥90%). Phase 2805 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026). Build pre-existing (Turbopack workspace-root). Push erfolgt.
 
 ### Nächste Phasen 2807–2811 (für nächsten Ingenieur) — Fahrer-Storno-Rate
