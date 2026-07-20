@@ -588,30 +588,69 @@ export function FahrerApp({
   async function toggleOnline() {
     const next = !isOnline;
     if (!next) {
-      // Going offline — check if there are deliveries to show summary
+      // Going offline — aggregate Legacy + Mise Batches für Schicht-Zusammenfassung
       const today = new Date(); today.setHours(0, 0, 0, 0);
-      const { data: batches } = await supabase
-        .from('delivery_batches')
-        .select('id, total_distance_km')
-        .eq('fahrer_id', driver.id)
-        .gte('created_at', today.toISOString());
-      if (batches && (batches as any[]).length > 0) {
-        const { data: stops } = await supabase
-          .from('delivery_batch_stops')
-          .select('id, order:customer_orders(gesamtbetrag)')
-          .in('batch_id', (batches as any[]).map((b: any) => b.id))
-          .not('geliefert_am', 'is', null);
-        const deliveries = (stops as any[])?.length ?? 0;
-        if (deliveries > 0) {
-          const betrag = ((stops as any[]) ?? []).reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
-          const distKm = ((batches as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
-          const onlineMin = status?.online_seit
-            ? Math.floor((Date.now() - new Date(status.online_seit as string).getTime()) / 60_000)
-            : 0;
-          setShiftSnapshot({ deliveries, tours: (batches as any[]).length, distKm, betrag, onlineMin });
-          setShowShiftEnd(true);
-          return;
-        }
+
+      // Parallel: Legacy + Mise Batches abrufen
+      const [
+        { data: legacyBatches },
+        { data: miseBatchesRaw },
+      ] = await Promise.all([
+        supabase
+          .from('delivery_batches')
+          .select('id, total_distance_km')
+          .eq('fahrer_id', driver.id)
+          .gte('created_at', today.toISOString()),
+        miseDriverId
+          ? supabase
+              .from('mise_delivery_batches')
+              .select('id, total_distance_km')
+              .eq('driver_id', miseDriverId)
+              .gte('created_at', today.toISOString())
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      const [
+        { data: legacyStops },
+        { data: miseStops },
+      ] = await Promise.all([
+        (legacyBatches as any[])?.length
+          ? supabase
+              .from('delivery_batch_stops')
+              .select('id, order:customer_orders(gesamtbetrag)')
+              .in('batch_id', (legacyBatches as any[]).map((b: any) => b.id))
+              .not('geliefert_am', 'is', null)
+          : Promise.resolve({ data: [] }),
+        (miseBatchesRaw as any[])?.length
+          ? supabase
+              .from('mise_delivery_batch_stops')
+              .select('id, completed_at, type, order:customer_orders(gesamtbetrag)')
+              .in('batch_id', (miseBatchesRaw as any[]).map((b: any) => b.id))
+              .eq('type', 'dropoff')
+              .not('completed_at', 'is', null)
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      const totalDeliveries = ((legacyStops as any[])?.length ?? 0) + ((miseStops as any[])?.length ?? 0);
+      const totalTours = ((legacyBatches as any[])?.length ?? 0) + ((miseBatchesRaw as any[])?.length ?? 0);
+
+      if (totalDeliveries > 0) {
+        const legacyBetrag = ((legacyStops as any[]) ?? []).reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
+        const miseBetrag = ((miseStops as any[]) ?? []).reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
+        const legacyDist = ((legacyBatches as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
+        const miseDist = ((miseBatchesRaw as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
+        const onlineMin = status?.online_seit
+          ? Math.floor((Date.now() - new Date(status.online_seit as string).getTime()) / 60_000)
+          : 0;
+        setShiftSnapshot({
+          deliveries: totalDeliveries,
+          tours: totalTours,
+          distKm: legacyDist + miseDist,
+          betrag: legacyBetrag + miseBetrag,
+          onlineMin,
+        });
+        setShowShiftEnd(true);
+        return;
       }
       await goOffline();
       return;
@@ -975,6 +1014,11 @@ export function FahrerApp({
               : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
           })();
 
+          // ETA Berechnung: total_eta_min aus Batch oder Schätzung
+          const totalEtaMin = activeBatch.total_eta_min
+            ?? (total > 0 ? Math.round((total * 8) + 5) : null);
+          const etaPerStop = totalEtaMin && total > 0 ? Math.round(totalEtaMin / total) : null;
+
           return (
           <section style={{ margin: '-24px -16px 0' }}>
             {/* Drive-Header */}
@@ -985,13 +1029,24 @@ export function FahrerApp({
                   {total} {total === 1 ? 'Bestellung' : 'Bestellungen'} · {hubName}
                 </div>
               </div>
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px 5px 9px',
-                borderRadius: 9, fontSize: 12.5, fontWeight: 700, letterSpacing: '0.01em', lineHeight: 1,
-                background: 'var(--accent-tint)', color: 'var(--accent)', marginTop: 4,
-              }}>
-                <DIcon name="bag" size={14} stroke={2.4} />{readyCount}/{total}
-              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, marginTop: 4 }}>
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px 5px 9px',
+                  borderRadius: 9, fontSize: 12.5, fontWeight: 700, letterSpacing: '0.01em', lineHeight: 1,
+                  background: 'var(--accent-tint)', color: 'var(--accent)',
+                }}>
+                  <DIcon name="bag" size={14} stroke={2.4} />{readyCount}/{total}
+                </span>
+                {totalEtaMin != null && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 9px',
+                    borderRadius: 9, fontSize: 11.5, fontWeight: 700,
+                    background: 'var(--surface-2)', color: 'var(--ink-2)',
+                  }}>
+                    <Clock size={12} />~{totalEtaMin} min
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Küche / Bar — schlanke Drive-Hinweiszeile */}
@@ -1054,6 +1109,29 @@ export function FahrerApp({
                         <span style={{ padding: '5px 11px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, background: 'var(--surface-2)', color: 'var(--ink-2)' }}>Offen</span>
                       )}
                     </div>
+                    {/* ETA + Distanz pro Stopp */}
+                    {(() => {
+                      const stopIdx = stops.indexOf(stop);
+                      const stopEtaMin = etaPerStop != null ? (stopIdx + 1) * etaPerStop : null;
+                      const distKm = driverPos && o.kunde_lat && o.kunde_lng
+                        ? haversineKm(driverPos, { lat: o.kunde_lat, lng: o.kunde_lng })
+                        : null;
+                      if (!stopEtaMin && !distKm) return null;
+                      return (
+                        <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
+                          {stopEtaMin != null && (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 7, fontSize: 11.5, fontWeight: 700, background: 'var(--surface-2)', color: 'var(--ink-2)' }}>
+                              <Clock size={11} />~{stopEtaMin} min
+                            </span>
+                          )}
+                          {distKm != null && (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 7, fontSize: 11.5, fontWeight: 700, background: 'var(--surface-2)', color: 'var(--ink-2)' }}>
+                              <Navigation size={11} />{distKm < 1 ? `${Math.round(distKm * 1000)}m` : `${distKm.toFixed(1)}km`}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
                       <Avatar name={o.kunde_name} size={44} />
                       <div style={{ flex: 1, minWidth: 0 }}>
