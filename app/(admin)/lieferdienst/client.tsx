@@ -386,6 +386,7 @@ import { LieferdienstPhase1825LiveRentabilitaetsCockpit } from './phase1825-live
 import { LieferdienstPhase1826SchichtKpiPerformanceRing } from './phase1826-schicht-kpi-performance-ring';
 import { LieferdienstPhase890KompaktStatistikenCockpit } from './phase890-kompakt-statistiken-cockpit';
 import { SmartDeliveryStatsHub } from './smart-delivery-stats-hub';
+import { SmartSystemLiveDashboard } from './smart-system-live-dashboard';
 import { LieferdienstPhase1000StatistikenEchtzeitCockpit } from './phase1000-statistiken-echtzeit-cockpit'
 import { LieferdienstPhase1827SchichtStatistikEchtzeitKommando } from './phase1827-schicht-statistik-echtzeit-kommando';
 import { LieferdienstPhase1880CrossKpiCockpit } from './phase1880-lieferdienst-cross-kpi-cockpit';
@@ -1370,6 +1371,8 @@ export function LieferdienstClient() {
 
           {currentView === 'stats' && (
             <div className="p-6 space-y-6">
+              {/* Smart Delivery System Live Dashboard — Echtzeit-Systemstatus: Küche, Dispatch, Fahrer, SLA in einer Übersicht */}
+              <SmartSystemLiveDashboard locationId={locationId} />
               {/* Phase 800: Statistiken Master Dashboard — 6 KPI-Kacheln (Umsatz, Bestellungen, Lieferzeit, Pünktlichkeit, Fahrer, Storno) + Auslastungs-Progress-Bars */}
               <LieferdienstPhase800StatistikenMasterDashboard locationId={locationId ?? null} />
               {/* Phase 2015: Executive-Live-Statistiken — 6 KPI-Kacheln + Stunden-Chart + Alert-Leiste; 60s-Polling + Realtime */}
