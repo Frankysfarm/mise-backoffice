@@ -22,6 +22,9 @@
  *
  * Phase 4 (2026-07-20): Smart Hold-Window, Single-Driver-Modus, dynamischer CAP,
  *    pickBest Restaurant-Präferenz.
+ *
+ * Phase 4.1 (2026-07-20): DB-persistente Holds (statt in-memory siblingHoldMap),
+ *    N+1-Fix (Driver-Cache pro Tick), Advisory-Lock via mise_frank_decisions.
  */
 import 'server-only';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -84,9 +87,8 @@ const CAP_CLUSTER_RADIUS_KM = 2.0;  // "nah beieinander" = neue Lieferadresse <=
 // Sibling-Hold (Founder-Idee): Fern-Order max. HOLD_MAX_MS warten wenn nahe Schwester-Order fast fertig
 const FAR_KM = 3.5;        // ab dieser Dropoff-Distanz gilt "Fern" (Orders < 3.5 km werden IMMER sofort geschickt)
 // HOLD_MAX_MS wird jetzt dynamisch aus tenants.dispatch_strategy gelesen (s.u.)
-const siblingHoldMap = new Map<string, number>(); // orderId -> hold_until_ms
-// Speichert den Sibling, auf den gewartet wird (für geografischen Hold-Check)
-const siblingTargetMap = new Map<string, { siblingId: string; siblingLat: number; siblingLng: number }>(); // orderId -> sibling-info
+// ENTFERNT: siblingHoldMap und siblingTargetMap — nicht restart-sicher.
+// Holds werden DB-persistent in customer_orders.dispatch_after / hold_reason / hold_for_order_id gespeichert.
 
 // --- Dispatch-Strategien pro Restaurant (tenants.dispatch_strategy) ---
 type DispatchStrategy = 'speed' | 'balance' | 'spar';
@@ -120,12 +122,41 @@ export interface DispatchTickResult {
 /**
  * Periodisch vom Cron aufgerufen — scannt unzugewiesene Lieferungs-Orders
  * und ordnet sie zu.
+ *
+ * Änderung 3 (Advisory-Lock): Verhindert Doppel-Ticks via mise_frank_decisions.
+ * Änderung 2 (N+1-Fix): Fahrer werden einmal pro Tick geladen, nicht pro Order.
+ * Änderung 1 (DB-Holds): dispatch_after-Filter in der Query schließt gehaltene Orders aus.
  */
 export async function dispatchTick(): Promise<DispatchTickResult> {
+  const c = sb();
+
+  // --- Änderung 3: Advisory-Lock via mise_frank_decisions ---
+  // Prüfe ob in den letzten 55 Sekunden ein tick_lock-Eintrag existiert.
+  // Verhindert parallele Ticks wenn Cron-Intervall kürzer ist als Tick-Dauer.
+  const { data: recentLock } = await c
+    .from('mise_frank_decisions')
+    .select('created_at')
+    .eq('type', 'tick_lock')
+    .gt('created_at', new Date(Date.now() - 55_000).toISOString())
+    .limit(1);
+  if (recentLock && recentLock.length > 0) {
+    console.log('[frank] Tick bereits aktiv, überspringe');
+    return { scanned_orders: 0, bundled: 0, assigned: 0, held: 0 };
+  }
+  // Lock setzen
+  await c.from('mise_frank_decisions').insert({
+    type: 'tick_lock',
+    driver_id: null,
+    order_ids: [],
+    reason_text: 'tick_lock:' + new Date().toISOString(),
+  });
+
   // Stale-Tour-Rettung: haengende pending-Batches aufraeumen
   try { await rescueStaleTours(); } catch { /* nicht fatal */ }
 
-  const c = sb();
+  // --- Änderung 1: dispatch_after-Filter — Orders im Hold werden übersprungen ---
+  // Orders ohne dispatch_after (kein Hold) oder mit dispatch_after in der Vergangenheit werden geladen.
+  const nowIso = new Date().toISOString();
   const { data: orders } = await c
     .from('customer_orders')
     .select('id, bestellnummer, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, created_at')
@@ -133,6 +164,7 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
     .is('mise_driver_id', null)
     .is('mise_batch_id', null)
     .in('status', ['fertig'])  // B: Fahrer erst rufen wenn die Kueche FERTIG gekocht hat (Kueche zuerst)
+    .or(`dispatch_after.is.null,dispatch_after.lte.${nowIso}`)
     .order('created_at', { ascending: true })
     .limit(50);
 
@@ -143,8 +175,30 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
     held: 0,
   };
 
+  // --- Änderung 2: N+1-Fix — alle Tenant-Fahrer einmal vorladen ---
+  // Sammle alle unique tenant_ids der pending Orders und lade Fahrer in einem Query pro Tenant.
+  // Dazu müssen wir die tenant_id der Orders über ihre location_id auflösen.
+  // Da OrderRow keine tenant_id hat, laden wir locations parallel.
+  const tenantDriverCache = new Map<string, DriverRow[]>();
+
+  if (orders && orders.length > 0) {
+    // Alle unique location_ids holen
+    const uniqueLocationIds = [...new Set((orders as OrderRow[]).map(o => o.location_id).filter(Boolean))] as string[];
+    // Locations laden um tenant_ids zu erhalten
+    const { data: locationsForCache } = await c
+      .from('locations')
+      .select('id, tenant_id')
+      .in('id', uniqueLocationIds);
+    // Unique tenant_ids extrahieren
+    const uniqueTenantIds = [...new Set((locationsForCache ?? []).map((l: any) => l.tenant_id).filter(Boolean))] as string[];
+    // Fahrer für alle Tenants vorladen
+    for (const tid of uniqueTenantIds) {
+      tenantDriverCache.set(tid, await driversForTenant(tid));
+    }
+  }
+
   for (const o of orders ?? []) {
-    const outcome = await dispatchOrder(o as OrderRow);
+    const outcome = await dispatchOrder(o as OrderRow, tenantDriverCache);
     if (outcome === 'bundled') result.bundled++;
     else if (outcome === 'assigned') result.assigned++;
     else result.held++;
@@ -154,7 +208,29 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
 
 type Outcome = 'bundled' | 'assigned' | 'held';
 
-export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
+/**
+ * Prüft ob ein Hold für eine Order noch aktiv ist (DB-persistent).
+ * Gibt false zurück wenn:
+ *  - dispatch_after in der Vergangenheit liegt (Hold abgelaufen)
+ *  - hold_for_order_id bereits einen Batch hat (Sibling wurde dispatcht → sofort freigeben)
+ */
+async function isStillOnHold(orderId: string, holdForOrderId: string | null, dispatchAfter: string | null): Promise<boolean> {
+  if (!dispatchAfter) return false;
+  // Ist der Hold-Zeitpunkt bereits abgelaufen?
+  if (new Date(dispatchAfter) <= new Date()) return false;
+  // Ist der Sibling bereits in einem Batch? → sofort freigeben
+  if (holdForOrderId) {
+    const { data: siblingOrder } = await sb()
+      .from('customer_orders')
+      .select('mise_batch_id')
+      .eq('id', holdForOrderId)
+      .maybeSingle();
+    if (siblingOrder?.mise_batch_id) return false; // Sibling dispatcht → Hold aufheben
+  }
+  return true; // Hold noch aktiv
+}
+
+export async function dispatchOrder(o: OrderRow, tenantDriverCache?: Map<string, DriverRow[]>): Promise<Outcome> {
   const c = sb();
 
   // 1) Pickup-Location (Restaurant) laden
@@ -198,11 +274,13 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   const preset = await tenantStrategy(loc.tenant_id);
 
   // 2b) Smart Geographic Hold: Fern-Order halten wenn nahe Schwester-Order wartet
+  // Änderung 1: DB-persistente Holds statt in-memory siblingHoldMap
   const shouldHoldForSibling = await checkSiblingHold(o, preset.holdSec).catch(() => false);
   if (shouldHoldForSibling) return 'held';
 
   // 3) Fahrer für Tenant laden
-  const allDrivers = await driversForTenant(loc.tenant_id);
+  // Änderung 2: aus Cache laden wenn vorhanden (N+1-Fix)
+  const allDrivers = tenantDriverCache?.get(loc.tenant_id) ?? await driversForTenant(loc.tenant_id);
 
   // Single-Driver-Modus: Wenn nur 1 Fahrer online, spezielle Behandlung
   const soloMode = allDrivers.length === 1;
@@ -630,14 +708,17 @@ export async function rerouteBundle(batchId: string): Promise<void> {
 
 
 /**
- * Smart Geographic Hold — ersetzt den alten 4-Minuten-In-Memory-Hold.
+ * Smart Geographic Hold — DB-persistent (Änderung 1, Phase 4.1).
+ *
+ * Hält ferne Orders in der DB (dispatch_after / hold_reason / hold_for_order_id),
+ * statt in-memory siblingHoldMap. Restart-sicher.
  *
  * Logik:
  *  - Nahe Orders (Dropoff <= FAR_KM vom Restaurant): nie halten, sofort dispatchen.
  *  - Ferne Orders: Suche Sibling-Order im selben Standort die noch in_zubereitung/neu ist
  *    UND deren Dropoff geographisch nahe an unserer Order liegt (< 5 km).
  *  - Hold-Window kommt aus tenants.dispatch_strategy (speed=0s, balance=300s, spar=600s).
- *  - Hold wird in siblingHoldMap+siblingTargetMap gespeichert und pro Tick re-evaluated.
+ *  - Hold wird in customer_orders.dispatch_after/hold_reason/hold_for_order_id gespeichert.
  *
  * @param o - Die zu prüfende Order
  * @param holdSec - Hold-Dauer in Sekunden aus dem Tenant-Preset (0 = kein Hold)
@@ -658,47 +739,28 @@ async function checkSiblingHold(o: OrderRow, holdSec: number): Promise<boolean> 
   );
   if (dropoffDist <= FAR_KM) return false; // Nahe Order -> immer sofort schicken
 
-  // Aktiver Hold? Prüfen ob noch gültig
-  const existingHoldUntil = siblingHoldMap.get(o.id);
-  if (existingHoldUntil) {
-    if (Date.now() > existingHoldUntil) {
-      siblingHoldMap.delete(o.id);
-      siblingTargetMap.delete(o.id);
-      return false; // Hold abgelaufen -> normal dispatchen
-    }
+  // --- Änderung 1: DB-persistenter Hold-Check statt in-memory Map ---
+  // Lade aktuellen Hold-Status aus der DB
+  const { data: currentOrderData } = await sb()
+    .from('customer_orders')
+    .select('dispatch_after, hold_reason, hold_for_order_id')
+    .eq('id', o.id)
+    .maybeSingle();
 
-    // Hold aktiv: prüfen ob Sibling noch existiert (nicht storniert/fertig-dispatched)
-    const siblingTarget = siblingTargetMap.get(o.id);
-    if (siblingTarget) {
-      // Prüfe per ID ob Sibling noch undispatched ist
-      const { data: sibling } = await sb()
-        .from('customer_orders')
-        .select('id, status, mise_batch_id')
-        .eq('id', siblingTarget.siblingId)
-        .maybeSingle();
+  const dispatchAfter: string | null = (currentOrderData as any)?.dispatch_after ?? null;
+  const holdForOrderId: string | null = (currentOrderData as any)?.hold_for_order_id ?? null;
 
-      // Sibling weg, storniert, oder bereits in einem Batch → sofort dispatchen
-      if (!sibling || sibling.status === 'storniert' || sibling.mise_batch_id) {
-        siblingHoldMap.delete(o.id);
-        siblingTargetMap.delete(o.id);
-        return false;
-      }
-    } else {
-      // Kein Sibling-Target mehr bekannt → generische Prüfung
-      const { data: sibling } = await sb()
+  if (dispatchAfter) {
+    // Aktiver Hold vorhanden: prüfen ob noch gültig
+    const stillHeld = await isStillOnHold(o.id, holdForOrderId, dispatchAfter);
+    if (!stillHeld) {
+      // Hold abgelaufen oder Sibling dispatcht → Hold in DB zurücksetzen
+      await sb()
         .from('customer_orders')
-        .select('id, status')
-        .eq('location_id', o.location_id)
-        .eq('typ', 'lieferung')
-        .is('mise_batch_id', null)
-        .neq('id', o.id)
-        .in('status', ['in_zubereitung', 'neu'])
-        .limit(1)
-        .maybeSingle();
-      if (!sibling) {
-        siblingHoldMap.delete(o.id);
-        return false;
-      }
+        .update({ dispatch_after: null, hold_reason: null, hold_for_order_id: null })
+        .eq('id', o.id)
+        .is('mise_batch_id', null);
+      return false;
     }
     return true; // Hold weiter aktiv
   }
@@ -736,14 +798,17 @@ async function checkSiblingHold(o: OrderRow, holdSec: number): Promise<boolean> 
 
   if (!nearSibling) return false;
 
-  // Hold starten: merke Sibling-ID für präzisen Re-Check
-  const holdUntil = Date.now() + holdWindowMs;
-  siblingHoldMap.set(o.id, holdUntil);
-  siblingTargetMap.set(o.id, {
-    siblingId: nearSibling.id,
-    siblingLat: nearSibling.kunde_lat,
-    siblingLng: nearSibling.kunde_lng,
-  });
+  // --- Änderung 1: Hold DB-persistent speichern statt in-memory Map ---
+  const holdUntilIso = new Date(Date.now() + holdWindowMs).toISOString();
+  await sb()
+    .from('customer_orders')
+    .update({
+      dispatch_after: holdUntilIso,
+      hold_reason: 'bundling_window',
+      hold_for_order_id: nearSibling.id,
+    })
+    .eq('id', o.id)
+    .is('mise_batch_id', null);
 
   const nearSiblingDist = nearSibling.kunde_lat != null && nearSibling.kunde_lng != null
     ? haversineKm({ lat: nearSibling.kunde_lat, lng: nearSibling.kunde_lng }, { lat: o.kunde_lat!, lng: o.kunde_lng! })
@@ -842,7 +907,7 @@ async function alertOwnerNoDriver(o: OrderRow): Promise<void> {
 }
 
 async function logDecision(
-  type: 'assign' | 'hold' | 'rebalance' | 'reroute' | 'bundle' | 'cancel',
+  type: 'assign' | 'hold' | 'rebalance' | 'reroute' | 'bundle' | 'cancel' | 'tick_lock',
   driverId: string | null,
   orderIds: string[],
   reasonText: string,
