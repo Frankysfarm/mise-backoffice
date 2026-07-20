@@ -376,6 +376,7 @@ import { KitchenPhase2785SmartTimingUltimateCockpit } from './phase2785-smart-ti
 import { KitchenPhase2790SmartKochstartBridgeCockpit } from './phase2790-smart-kochstart-bridge-cockpit';
 import { KitchenPhase2791ReaktionszeitTicker } from './phase2791-reaktionszeit-ticker';
 import { KitchenPhase2796AbschlussrateTicker } from './phase2796-abschlussrate-ticker';
+import { KitchenPhase2801KilometerEffizienzTicker } from './phase2801-kilometer-effizienz-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3667,6 +3668,8 @@ export function KitchenBoard({
       <KitchenPhase2791ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2796: Abschlussrate-Ticker — Team-Ø %; Alert <80% "Niedrige Abschlussrate!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥95%; 30-Min-Polling */}
       <KitchenPhase2796AbschlussrateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2801: Kilometer-Effizienz-Ticker — Team-Ø km; Alert >6 km "Hohe Kilometerleistung!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≤4 km; 30-Min-Polling */}
+      <KitchenPhase2801KilometerEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10442,3 +10445,5 @@ export { KitchenPhase2790SmartKochstartBridgeCockpit } from './phase2790-smart-k
 export { KitchenPhase2791ReaktionszeitTicker } from './phase2791-reaktionszeit-ticker';
 // Phase 2796 — Abschlussrate-Ticker (Team-Ø %; Alert <80% "Niedrige Abschlussrate!"; Fahrerliste kompakt aufsteigend; Ziel ≥95%; 30-Min-Polling)
 export { KitchenPhase2796AbschlussrateTicker } from './phase2796-abschlussrate-ticker';
+// Phase 2801 — Kilometer-Effizienz-Ticker (Team-Ø km; Alert >6 km "Hohe Kilometerleistung!"; Fahrerliste kompakt absteigend; Ziel ≤4 km; 30-Min-Polling)
+export { KitchenPhase2801KilometerEffizienzTicker } from './phase2801-kilometer-effizienz-ticker';

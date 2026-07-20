@@ -24012,3 +24012,42 @@ Frontend-Ingenieur-Agent (2026-07-20): Phasen 2792–2796 implementiert. 1 neue 
 5. **Phase 2796 Kitchen:** Abschlussrate-Ticker — Team-Ø %; Alert <80% "Niedrige Abschlussrate!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥95%; 30-Min-Polling; in kitchen/client.tsx nach Phase2791.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2786–2791 implementiert. 1 neue Backend-API (fahrer-reaktionszeit-auf-zuweisung, created_at→accepted_at in mise_delivery_batches, Ampel grün≤2/gelb2–5/rot>5 Min, Alert "Langsame Reaktion!", Trend vs. gestern, avgReaktionszeit-Helper mit Sanity-Check, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2787 Dispatch (ReaktionszeitBoard, Balken 0–10 Min Ziel-Linie 2 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend rot=steigend/grün=fallend) / Phase2788 Fahrer-App (MeineReaktionszeit, Ø Min 4xl, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2791 Kitchen (ReaktionszeitTicker, Team-Ø Min, Alert je Fahrer, absteigend nach Min, Ziel ≤2 Min). Phase 2789 Storefront übersprungen. Phase 2790 Kitchen als Phase2791 implementiert (Phase2790-Name bereits belegt). TypeScript ✓ 0 neue Fehler. Build exit code 0. Push erfolgt.
+
+## Batch 2797–2801 — Fahrer-Kilometer-Effizienz (2026-07-20)
+
+### Phase 2797 — Backend API: Fahrer-Kilometer-Effizienz
+**Datei:** `app/api/delivery/admin/fahrer-kilometer-effizienz/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Ø km je Lieferung je Fahrer heute aus mise_delivery_batches (distance_km / completed_stops); Ampel grün(≤4 km)/gelb(4–6 km)/rot(>6 km); Alert >6 km "Hohe Kilometerleistung!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(mise_delivery_batches)+Mock
+
+### Phase 2798 — Kilometer-Effizienz-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2798-kilometer-effizienz-board.tsx` *(neu)*
+**Component:** `DispatchPhase2798KilometerEffizienzBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >6 km "Hohe Kilometerleistung!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≤4 km); Fahrerliste nach Ø-km aufsteigend sortiert (niedrigste oben = effizienteste); Balken 0–10 km mit Ziel-Linie 4 km; Ampel-Dots + Trend-Pfeile (invertiert: steigend=rot/fallend=grün); Lieferungen je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2793 ✅
+
+### Phase 2799 — Meine Kilometer-Effizienz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2799-meine-kilometer-effizienz.tsx` *(neu)*
+**Component:** `FahrerPhase2799MeineKilometerEffizienz`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Ø km/Lieferung 4xl groß + Farbcode; Balken 0–10 km mit Ziel-Linie 4 km; KPI-Grid (Ziel/Team-Ø/Ampel/Touren); Coaching-Tipp je Ampelzone; Rang-Anzeige; isOnline-Guard; 30-Min-Polling; invertierte Trend-Pfeile (steigend=rot da schlechter)
+**Integration:** `fahrer/app/client.tsx` nach Phase2794 ✅
+
+### Phase 2800 — Storefront
+Übersprungen (Kilometerleistung intern irrelevant für Kunden) ✅
+
+### Phase 2801 — Kilometer-Effizienz-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2801-kilometer-effizienz-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2801KilometerEffizienzTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø km; Alert-Banner je Fahrer >6 km "Hohe Kilometerleistung!"; Fahrerliste kompakt nach Ø-km absteigend sortiert (höchste oben = schlechteste zuerst) mit Ampel-Dots, invertierte Trend-Pfeile und km-Wert; Lieferungen je Fahrer; Ziel-Anzeige ≤4 km; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2796 ✅
+
+### Nächste Phasen 2802–2806 (für nächsten Ingenieur) — Fahrer-Pünktlichkeitsrate
+1. **Phase 2802 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeitsrate — Anteil pünktlicher Lieferungen (delivered_at ≤ promised_time) je Fahrer heute aus mise_delivery_batches; Ampel grün(≥90%)/gelb(70–89%)/rot(<70%); Alert <70% "Niedrige Pünktlichkeit!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2803 Dispatch:** Pünktlichkeits-Board — Fahrerliste nach Rate absteigend (höchste oben); Balken 0–100% mit Ziel-Linie 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert-Banner <70%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2798.
+3. **Phase 2804 Fahrer-App:** Meine Pünktlichkeit — Rate % 4xl groß + Farbcode; Balken 0–100% Ziel 90%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2799.
+4. **Phase 2805 Storefront:** Überspringen (Pünktlichkeit intern irrelevant für Kunden).
+5. **Phase 2806 Kitchen:** Pünktlichkeits-Ticker — Team-Ø %; Alert <70% "Niedrige Pünktlichkeit!"; Fahrerliste kompakt absteigend (niedrigste oben); Ziel ≥90%; 30-Min-Polling; in kitchen/client.tsx nach Phase2801.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2797–2801 implementiert. 1 neue Backend-API (fahrer-kilometer-effizienz, distance_km/completed_stops in mise_delivery_batches, Ampel grün≤4/gelb4–6/rot>6 km, Alert "Hohe Kilometerleistung!", Trend vs. gestern, calcKm-Helper, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2798 Dispatch (KilometerEffizienzBoard, aufsteigend nach km, Balken 0–10 km Ziel-Linie 4 km, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend invertiert steigend=rot/fallend=grün) / Phase2799 Fahrer-App (MeineKilometerEffizienz, Ø km 4xl, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2801 Kitchen (KilometerEffizienzTicker, Team-Ø km, Alert je Fahrer, absteigend nach km, Ziel ≤4 km). Phase 2800 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
