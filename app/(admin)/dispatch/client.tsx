@@ -820,6 +820,7 @@ import { DispatchPhase2772TagesPerformanceBoard } from './phase2772-tages-perfor
 import { DispatchPhase2777AuslastungsPrognosBoard } from './phase2777-auslastungs-prognose-board';
 import { DispatchPhase2780TourScoreFinalRangliste } from './phase2780-tour-score-final-rangliste';
 import { DispatchPhase2785TourScoreEchtzeitPro } from './phase2785-tour-score-echtzeit-pro';
+import { DispatchPhase2787ReaktionszeitBoard } from './phase2787-reaktionszeit-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4078,6 +4079,8 @@ export function DispatchBoard({
           <DispatchPhase2780TourScoreFinalRangliste locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2785: Tour-Score Echtzeit Pro — Score-Ring SVG je Fahrer 0–100; Sub-Scores Pünktlichkeit/Effizienz/Kundenbewertung; Trend-Visualisierung; Team-Rangliste; Alert Score <60; expandierbare Sub-Scores; 20-Sek-Polling */}
           <DispatchPhase2785TourScoreEchtzeitPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2787: Reaktionszeit-Board — Fahrerliste nach Ø-Reaktionszeit aufsteigend; Balken 0–10 Min Ziel 2 Min; KPI-Grid Team-Ø/Bester/Ziel ≤2 Min; Alert >5 Min "Langsame Reaktion!"; 30-Min-Polling */}
+          <DispatchPhase2787ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11858,3 +11861,5 @@ export { DispatchPhase2777AuslastungsPrognosBoard } from './phase2777-auslastung
 export { DispatchPhase2780TourScoreFinalRangliste } from './phase2780-tour-score-final-rangliste';
 // Phase 2785 — Tour-Score Echtzeit Pro (Score-Ring SVG je Fahrer 0–100; Sub-Scores Pünktlichkeit/Effizienz/Kundenbewertung; Trend-Visualisierung; Team-Rangliste; Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2785TourScoreEchtzeitPro } from './phase2785-tour-score-echtzeit-pro';
+// Phase 2787 — Reaktionszeit-Board (Fahrerliste aufsteigend Ø-Min; Balken 0–10 Min Ziel 2 Min; KPI-Grid; Alert >5 Min "Langsame Reaktion!"; 30-Min-Polling)
+export { DispatchPhase2787ReaktionszeitBoard } from './phase2787-reaktionszeit-board';

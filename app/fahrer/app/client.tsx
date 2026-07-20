@@ -728,6 +728,7 @@ import { FahrerPhase2773MeinTagesPerformanceIndex } from './phase2773-mein-tages
 import { FahrerPhase2778MeineRestschichtPrognose } from './phase2778-meine-restschicht-prognose';
 import { FahrerPhase2780TourStoppNavigationsFinalHub } from './phase2780-tour-stopp-navigations-final-hub';
 import { FahrerPhase2785SmartTourStopsNavigatorPro } from './phase2785-smart-tour-stops-navigator-pro';
+import { FahrerPhase2788MeineReaktionszeit } from './phase2788-meine-reaktionszeit';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6167,6 +6168,8 @@ export function FahrerApp({
           <FahrerPhase2780TourStoppNavigationsFinalHub driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2785: Smart Tour-Stops Navigator Pro — Aktiver Stopp + Nächste-Stopps-Liste + One-Tap-Navigation Google Maps/Waze + Kunden-Anruf + ETA-Countdown + Fortschrittsring + Stopp-Bestätigung; 15-Sek-Polling + 1-Sek-Tick */}
           <FahrerPhase2785SmartTourStopsNavigatorPro driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 2788: Meine Reaktionszeit — Ø Min 4xl groß + Farbcode; Balken 0–10 Min Ziel 2 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2788MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9490,3 +9493,5 @@ export { FahrerPhase2778MeineRestschichtPrognose } from './phase2778-meine-rests
 export { FahrerPhase2780TourStoppNavigationsFinalHub } from './phase2780-tour-stopp-navigations-final-hub';
 // Phase 2785 — Smart Tour-Stops Navigator Pro (Aktiver Stopp + Nächste-Stopps-Liste + One-Tap-Navigation + Kunden-Anruf + ETA-Countdown + Fortschrittsring; 15-Sek-Polling + 1-Sek-Tick)
 export { FahrerPhase2785SmartTourStopsNavigatorPro } from './phase2785-smart-tour-stops-navigator-pro';
+// Phase 2788 — Meine Reaktionszeit (Ø Min 4xl; Balken 0–10 Min Ziel 2 Min; KPI-Grid; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2788MeineReaktionszeit } from './phase2788-meine-reaktionszeit';

@@ -374,6 +374,7 @@ import { KitchenPhase2775TagesPerformanceTicker } from './phase2775-tages-perfor
 import { KitchenPhase2781AuslastungsPrognoseTicker } from './phase2781-auslastungs-prognose-ticker';
 import { KitchenPhase2785SmartTimingUltimateCockpit } from './phase2785-smart-timing-ultimate-cockpit';
 import { KitchenPhase2790SmartKochstartBridgeCockpit } from './phase2790-smart-kochstart-bridge-cockpit';
+import { KitchenPhase2791ReaktionszeitTicker } from './phase2791-reaktionszeit-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3661,6 +3662,8 @@ export function KitchenBoard({
       <KitchenPhase2785SmartTimingUltimateCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2790: Smart-Kochstart-Bridge-Cockpit — Echtzeit-Countdown + Farbkodierung grün/gelb/rot + Fahrer-Return-ETA + On-Time-Rate + Kochstart-Empfehlung; 15-Sek-Polling + 1-Sek-Tick */}
       <KitchenPhase2790SmartKochstartBridgeCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2791: Reaktionszeit-Ticker — Team-Ø Min; Alert >5 Min "Langsame Reaktion!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≤2 Min; 30-Min-Polling */}
+      <KitchenPhase2791ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10432,3 +10435,5 @@ export { KitchenPhase2781AuslastungsPrognoseTicker } from './phase2781-auslastun
 export { KitchenPhase2785SmartTimingUltimateCockpit } from './phase2785-smart-timing-ultimate-cockpit';
 // Phase 2790 — Smart-Kochstart-Bridge-Cockpit (Echtzeit-Countdown + Farbkodierung grün/gelb/rot + Fahrer-Return-ETA + On-Time-Rate + Kochstart-Empfehlung; 15-Sek-Polling + 1-Sek-Tick)
 export { KitchenPhase2790SmartKochstartBridgeCockpit } from './phase2790-smart-kochstart-bridge-cockpit';
+// Phase 2791 — Reaktionszeit-Ticker (Team-Ø Min; Alert >5 Min "Langsame Reaktion!"; Fahrerliste kompakt absteigend; Ziel ≤2 Min; 30-Min-Polling)
+export { KitchenPhase2791ReaktionszeitTicker } from './phase2791-reaktionszeit-ticker';
