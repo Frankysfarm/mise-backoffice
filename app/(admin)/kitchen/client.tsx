@@ -335,6 +335,7 @@ import { KitchenPhase2593AuslastungsTicker } from './phase2593-auslastungs-ticke
 import { KitchenPhase2598PausenzeitTicker } from './phase2598-pausenzeit-ticker';
 import { KitchenPhase2603KmBilanzTicker } from './phase2603-km-bilanz-ticker';
 import { KitchenPhase2608SchichtErloesTicker } from './phase2608-schicht-erloes-ticker';
+import { KitchenPhase2613TrinkgeldTicker } from './phase2613-trinkgeld-ticker';
 import { KitchenPhase2640SmartKochzeitPrognoseCockpit } from './phase2640-smart-kochzeit-prognose-cockpit';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
@@ -3545,6 +3546,8 @@ export function KitchenBoard({
       <KitchenPhase2603KmBilanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2608: Schicht-Erlös-Ticker — Team-Ø €; Alert <100 € "Fahrer Umsatz niedrig!"; Kompakte Fahrerliste (niedrigster Erlös oben) mit Ampel + Trend; 30-Min-Polling */}
       <KitchenPhase2608SchichtErloesTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2613: Trinkgeld-Ticker — Team-Ø €; Alert <2 € "Trinkgeld sehr niedrig!"; Kompakte Fahrerliste (niedrigstes Trinkgeld oben) mit Ampel + Trend; 30-Min-Polling */}
+      <KitchenPhase2613TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}

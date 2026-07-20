@@ -22938,3 +22938,39 @@ Frontend-Ingenieur-Agent (2026-07-19): Phasen 2599–2603 implementiert. 1 neue 
 5. **Phase 2613 Kitchen:** Trinkgeld-Ticker — Team-Ø €; Alert <2 € "Trinkgeld sehr niedrig!"; Fahrerliste kompakt mit Ampel-Dots + Trend; 30-Min-Polling; in kitchen/client.tsx nach Phase2608.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2604–2608 implementiert. 1 neue Backend-API (fahrer-schicht-erloes, Supabase: orders.total_amount via delivery_tours, Trend vs. gestern, Ampel grün≥200/gelb100-199/rot<100) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2605 Dispatch (Schicht-Erlös-Board, Balken 0–400 €, Ziel-Linie 200 €) / Phase2606 Fahrer-App (Mein Schicht-Erlös, Coaching-Tipp je Ampelzone) / Phase2608 Kitchen (Schicht-Erlös-Ticker, Alert <100 € "Fahrer Umsatz niedrig!"). Phase 2607 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.
+
+## Batch 2609–2613 — Fahrer-Trinkgeld-Analyse (2026-07-20)
+
+### Phase 2609 — Backend API: Fahrer-Trinkgeld-Analyse
+**Datei:** `app/api/delivery/admin/fahrer-trinkgeld-analyse/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Ø Trinkgeld je Fahrer heute in €; Ampel grün(≥5 €)/gelb(2–4.99 €)/rot(<2 €); Alert <2 €; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(orders.tip_amount via delivery_tours, Ø=Summe/Anzahl-Touren)+Mock
+
+### Phase 2610 — Trinkgeld-Analyse-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2610-trinkgeld-analyse-board.tsx` *(neu)*
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alerts); KPI-Grid (Team-Ø heute / Gestern / Ziel ≥5 €); Fahrerliste nach Trinkgeld sortiert (niedrigste oben); Balken 0–15 € mit grüner gestrichelter Ziel-Linie bei 5 €; Alert-Banner <2 € "Trinkgeld <2 €!" mit Fahrernamen; Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2605 ✅
+
+### Phase 2611 — Mein Trinkgeld (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2611-mein-trinkgeld.tsx` *(neu)*
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); Ø €-Wert groß + Farbcode; Lieferungen-Anzahl; Fortschrittsbalken 0–15 € mit gestrichelter Ziel-Linie bei 5 €; KPI-Grid (Gestern/Trend/Ziel ≥5 €/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2606 ✅
+
+### Phase 2612 — Storefront
+Übersprungen (Trinkgelddaten intern irrelevant für Kunden) ✅
+
+### Phase 2613 — Trinkgeld-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2613-trinkgeld-ticker.tsx` *(neu)*
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Trinkgeld; Alert-Banner <2 € "Trinkgeld sehr niedrig!" mit Fahrernamen; Fahrerliste kompakt nach Trinkgeld sortiert (niedrigste oben) mit Ampel-Dots, Trend-Pfeil und €-Wert; Ziel-Anzeige; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2608 ✅
+
+### Nächste Phasen 2614–2618 (für nächsten Ingenieur) — Fahrer-Kundenbewertungs-Score
+1. **Phase 2614 Backend:** GET /api/delivery/admin/fahrer-kundenbewertung — Ø Kundenbewertung (1–5 Sterne) je Fahrer heute; Ampel grün(≥4.5)/gelb(3.5–4.49)/rot(<3.5); Alert <3.5; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(orders.rating via delivery_tours)+Mock.
+2. **Phase 2615 Dispatch:** Kundenbewertungs-Board — Fahrerliste nach Rating sortiert (niedrigste oben); Balken 0–5 Sterne mit Ziel-Linie 4.5 (grün/gestrichelt); KPI-Grid Team-Ø/Gestern/Ziel ≥4.5 Sterne; Alert-Banner <3.5; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2610.
+3. **Phase 2616 Fahrer-App:** Meine Kundenbewertung — Sternwert groß + Farbcode; Balken 0–5 Sterne mit Ziel-Linie 4.5; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2611.
+4. **Phase 2617 Storefront:** Überspringen (Bewertungsdaten intern irrelevant für Kunden).
+5. **Phase 2618 Kitchen:** Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Schlechte Kundenbewertung!"; Fahrerliste kompakt mit Ampel-Dots + Trend; 30-Min-Polling; in kitchen/client.tsx nach Phase2613.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2609–2613 implementiert. 1 neue Backend-API (fahrer-trinkgeld-analyse, Supabase: orders.tip_amount via delivery_tours, Ø=Summe/Touren-Anzahl, Trend vs. gestern, Ampel grün≥5/gelb2-4.99/rot<2) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2610 Dispatch (Trinkgeld-Analyse-Board, Balken 0–15 €, Ziel-Linie 5 €) / Phase2611 Fahrer-App (Mein Trinkgeld, Coaching-Tipp je Ampelzone) / Phase2613 Kitchen (Trinkgeld-Ticker, Alert <2 € "Trinkgeld sehr niedrig!"). Phase 2612 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler alle pre-existing (ignoreBuildErrors: true). Push erfolgt.
