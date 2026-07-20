@@ -355,6 +355,7 @@ import { KitchenPhase2695SchichtwechselTicker } from './phase2695-schichtwechsel
 import { KitchenPhase2696AbholwartezeitTicker } from './phase2696-abholwartezeit-ticker';
 import { KitchenPhase2697LiefertreucTicker } from './phase2697-liefertreue-ticker';
 import { KitchenPhase2700SmartSchichtAbschlussBoard } from './phase2700-smart-schicht-abschluss-board';
+import { KitchenPhase2705SchichtUeberlappungsTicker } from './phase2705-schicht-ueberlappungs-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3600,6 +3601,8 @@ export function KitchenBoard({
       <KitchenPhase2697LiefertreucTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2700: Smart-Schicht-Abschluss-Board — Schicht-Note A–D; KPI-Grid; Top-3-Fahrer; 30-Min-Polling */}
       <KitchenPhase2700SmartSchichtAbschlussBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2705: Schicht-Überlappungs-Ticker — Team-Ø Min; Alert >30 Min "Schicht-Überlappung!"; Fahrerliste kompakt höchste Überlappung oben; Ziel 0 Min; 30-Min-Polling */}
+      <KitchenPhase2705SchichtUeberlappungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10334,3 +10337,5 @@ export { KitchenPhase2696AbholwartezeitTicker } from './phase2696-abholwartezeit
 export { KitchenPhase2697LiefertreucTicker } from './phase2697-liefertreue-ticker';
 // Phase 2700 — Smart-Schicht-Abschluss-Board (Schicht-Note A–D; KPI-Grid Pünktlichkeit/Abholzeit/Liefertreue/Touren; Top-3-Fahrer; Quick-Stats; expandierbar)
 export { KitchenPhase2700SmartSchichtAbschlussBoard } from './phase2700-smart-schicht-abschluss-board';
+// Phase 2705 — Schicht-Überlappungs-Ticker (Team-Ø Min; Alert >30 Min "Schicht-Überlappung!"; Fahrerliste kompakt absteigend; Ziel 0 Min; 30-Min-Polling)
+export { KitchenPhase2705SchichtUeberlappungsTicker } from './phase2705-schicht-ueberlappungs-ticker';
