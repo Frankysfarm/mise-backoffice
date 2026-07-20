@@ -23500,3 +23500,44 @@ Frontend-Ingenieur-Agent (2026-07-20): Phasen 2686–2690 implementiert. 1 neue 
 5. **Phase 2700 Kitchen:** Produktivitäts-Ticker — Team-Ø Score; Alert <0.5 "Zu niedrige Produktivität!"; Fahrerliste kompakt nach Score absteigend; 30-Min-Polling; in kitchen/client.tsx nach Phase2695.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2691–2695 implementiert. 1 neue Backend-API (fahrer-schicht-wechsel, Ampel grün=1/gelb=2/rot≥3oder0, Alert "Zu viele Schichtwechsel!" und "Keine Schicht!", Supabase driver_shifts+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2692 Dispatch (Schichtwechsel-Board, Balken 0–5, Ziel-Linie 1, Alert-Banner je Fahrer) / Phase2693 Fahrer-App (Meine Schichtwechsel, Anzahl 4xl, Coaching-Tipp je Ampelzone) / Phase2695 Kitchen (Schichtwechsel-Ticker, Alert je Fahrer, absteigend nach Wechselanzahl). Phase 2694 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler pre-existing (ignoreBuildErrors: true). Push erfolgt.
+
+---
+
+## Batch 2706–2710 — Fahrer-Schicht-Auftragsquote (2026-07-20)
+
+### Phase 2706 — Backend API: Fahrer-Schicht-Auftragsquote
+**Datei:** `app/api/delivery/admin/fahrer-schicht-auftragsquote/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Lieferungen/Schichtstunde je Fahrer heute; Ampel grün(≥3)/gelb(1.5–2.99)/rot(<1.5); Alert <1.5 "Auftragsquote zu niedrig!"; Trend vs. gestern; Supabase(delivery_batches + driver_shifts)+Mock
+
+### Phase 2707 — Auftragsquote-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2707-auftragsquote-board.tsx` *(neu)*
+**Component:** `DispatchPhase2707AuftragsquoteBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner je Fahrer; KPI-Grid (Team-Ø/Bester/Ziel ≥3/h); Fahrerliste nach Quote/h absteigend sortiert; Balken 0–6/h mit Ziel-Linie bei 3/h; Ampel-Dots + Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2702 ✅
+
+### Phase 2708 — Meine Auftragsquote (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2708-meine-auftragsquote.tsx` *(neu)*
+**Component:** `FahrerPhase2708MeineAuftragsquote`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Quote/h 4xl groß + Farbcode; Balken 0–6/h Ziel-Linie 3/h; KPI-Grid (Trend/Ziel/Ampel/Team-Ø); Coaching-Tipp je Ampelzone; Rang-Anzeige; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2703 ✅
+
+### Phase 2709 — Storefront
+Übersprungen (Auftragsquote intern irrelevant für Kunden) ✅
+
+### Phase 2710 — Auftragsquote-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2710-auftragsquote-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2710AuftragsquoteTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø /h; Alert-Banner je Fahrer <1.5/h "Auftragsquote zu niedrig!"; Fahrerliste kompakt nach Quote aufsteigend (kritischste oben) mit Ampel-Dots + Trend-Pfeil + Quote-Wert; Ziel-Anzeige ≥3/h; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2705 ✅
+
+### Nächste Phasen 2711–2715 (für nächsten Ingenieur) — Fahrer-Lieferdichteanalyse
+1. **Phase 2711 Backend:** GET /api/delivery/admin/fahrer-lieferdichte — Stopps/km je Fahrer heute (Effizienz der Routenplanung); Ampel grün(≥0.3)/gelb(0.15–0.29)/rot(<0.15); Alert <0.15 "Lieferdichte zu gering!"; Trend vs. gestern; Supabase(delivery_batches+stops)+Mock.
+2. **Phase 2712 Dispatch:** Lieferdichte-Board — Fahrerliste nach Dichte absteigend; Balken 0–0.6 Stopps/km Ziel-Linie 0.3; KPI-Grid Team-Ø/Bester/Ziel ≥0.3; Alert-Banner <0.15; Trend-Pfeile; 30-Min-Polling; nach Phase2707.
+3. **Phase 2713 Fahrer-App:** Meine Lieferdichte — Dichte groß + Farbcode; Balken 0–0.6 Ziel 0.3; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2708.
+4. **Phase 2714 Storefront:** Überspringen (Lieferdichte intern irrelevant für Kunden).
+5. **Phase 2715 Kitchen:** Lieferdichte-Ticker — Team-Ø Dichte; Alert <0.15 "Lieferdichte zu gering!"; Fahrerliste kompakt aufsteigend; Ziel ≥0.3; 30-Min-Polling; in kitchen/client.tsx nach Phase2710.
+
+Frontend-Ingenieur-Agent (2026-07-20): Phasen 2706–2710 implementiert. 1 neue Backend-API (fahrer-schicht-auftragsquote, Ampel grün≥3/gelb1.5–2.99/rot<1.5, Supabase delivery_batches+driver_shifts+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2707 Dispatch (Auftragsquote-Board, Balken 0–6/h, Ziel-Linie 3/h, Alert je Fahrer) / Phase2708 Fahrer-App (Meine Auftragsquote, Quote 4xl, Coaching-Tipp, Rang-Anzeige) / Phase2710 Kitchen (Auftragsquote-Ticker, Alert je Fahrer, aufsteigend nach Quote). Phase 2709 Storefront übersprungen. TS7006-Fehler gefixt (alle 0). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.

@@ -710,6 +710,7 @@ import { FahrerPhase2693MeineSchichtwechsel } from './phase2693-meine-schichtwec
 import { FahrerPhase2698MeineAbholwartezeit } from './phase2698-meine-abholwartezeit';
 import { FahrerPhase2699MeineLiefertreue } from './phase2699-meine-liefertreue';
 import { FahrerPhase2703MeineSchichtUeberlappung } from './phase2703-meine-schicht-ueberlappung';
+import { FahrerPhase2708MeineAuftragsquote } from './phase2708-meine-auftragsquote';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6086,6 +6087,8 @@ export function FahrerApp({
           <FahrerPhase2699MeineLiefertreue driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2703: Meine Schicht-Überlappung — Min groß + Farbcode; Balken 0–60 Min Ziel 0 Min; KPI-Grid Trend/Gestern/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2703MeineSchichtUeberlappung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2708: Meine Auftragsquote — Quote/h 4xl groß + Farbcode; Balken 0–6/h Ziel 3/h; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2708MeineAuftragsquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9376,3 +9379,5 @@ export { FahrerPhase2698MeineAbholwartezeit } from './phase2698-meine-abholwarte
 export { FahrerPhase2699MeineLiefertreue } from './phase2699-meine-liefertreue';
 // Phase 2703 — Meine Schicht-Überlappung (Min groß + Farbcode; Balken 0–60 Min Ziel 0 Min; KPI-Grid Trend/Gestern/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2703MeineSchichtUeberlappung } from './phase2703-meine-schicht-ueberlappung';
+// Phase 2708 — Meine Auftragsquote (Quote/h 4xl groß + Farbcode; Balken 0–6/h Ziel ≥3/h; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2708MeineAuftragsquote } from './phase2708-meine-auftragsquote';
