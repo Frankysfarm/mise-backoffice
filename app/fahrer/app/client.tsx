@@ -713,6 +713,7 @@ import { FahrerPhase2703MeineSchichtUeberlappung } from './phase2703-meine-schic
 import { FahrerPhase2708MeineAuftragsquote } from './phase2708-meine-auftragsquote';
 import { FahrerPhase2713MeineLieferdichte } from './phase2713-meine-lieferdichte';
 import { FahrerPhase2718SmartTourCockpitUltra } from './phase2718-smart-tour-cockpit-ultra';
+import { FahrerPhase2723MeineLeerfahrten } from './phase2723-meine-leerfahrten';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6095,6 +6096,8 @@ export function FahrerApp({
           <FahrerPhase2713MeineLieferdichte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2718: Smart Tour Cockpit Ultra — Hero-Stopp-Fokus mit ETA-Sekunden-Countdown; One-Tap Navigation Google/Apple/Waze; Anruf-Button; Notiz-Alert; Fortschrittsring; Weitere Stopps aufklappbar mit Mini-ETAs; 20-Sek-Polling + 1-Sek-ETA-Tick */}
           <FahrerPhase2718SmartTourCockpitUltra driverId={driver.id} batchId={activeBatch?.id ?? null} />
+          {/* Phase 2723: Meine Leerfahrten — Quote % 4xl groß + Farbcode; Balken 0–50% Ziel <10%; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2723MeineLeerfahrten driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9391,3 +9394,5 @@ export { FahrerPhase2708MeineAuftragsquote } from './phase2708-meine-auftragsquo
 export { FahrerPhase2713MeineLieferdichte } from './phase2713-meine-lieferdichte';
 // Phase 2718 — Smart Tour Cockpit Ultra (Hero-Stopp-Fokus mit ETA-Sekunden-Countdown; One-Tap Navigation Google/Apple/Waze; Anruf-Button; Notiz-Alert; Fortschrittsring; Weitere Stopps aufklappbar mit Mini-ETAs; 20-Sek-Polling + 1-Sek-ETA-Tick)
 export { FahrerPhase2718SmartTourCockpitUltra } from './phase2718-smart-tour-cockpit-ultra';
+// Phase 2723 — Meine Leerfahrten (Quote % 4xl groß + Farbcode; Balken 0–50% Ziel-Linie <10%; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2723MeineLeerfahrten } from './phase2723-meine-leerfahrten';
