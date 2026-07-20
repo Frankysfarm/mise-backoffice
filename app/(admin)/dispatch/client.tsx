@@ -808,6 +808,7 @@ import { DispatchPhase2717TourScoreEchtzeitBoard } from './phase2717-tour-score-
 import { DispatchPhase2722TourLiveVisualisierungCockpit } from './phase2722-tour-live-visualisierung-cockpit';
 import { DispatchPhase2722LeerfahrtenBoard } from './phase2722-leerfahrten-board';
 import { DispatchPhase2727TourenFrequenzBoard } from './phase2727-touren-frequenz-board';
+import { DispatchPhase2732RueckkehrZuverlaessigkeitsBoard } from './phase2732-rueckkehr-zuverlaessigkeits-board';
 import { DispatchPhase2640TourScoreTeamUebersicht } from './phase2640-tour-score-team-uebersicht';
 import { DispatchPhase2645TourScoreRanglisteLive } from './phase2645-tour-score-rangliste-live';
 import { DispatchPhase2483TourScoreLiveBoard } from './phase2483-tour-score-live-board';
@@ -4039,6 +4040,8 @@ export function DispatchBoard({
           <DispatchPhase2722LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2727: Touren-Frequenz-Board — Fahrerliste nach /h absteigend; Balken 0–3/h Ziel-Linie 1.5/h; KPI-Grid Team-Ø/Bester/Ziel ≥1.5/h; Alert <1.0/h "Frequenz zu niedrig!"; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2727TourenFrequenzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2732: Rückkehr-Zuverlässigkeits-Board — Fahrerliste nach Rate absteigend; Balken 0–100% Ziel-Linie 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert <70% "Rückkehr unzuverlässig!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2732RueckkehrZuverlaessigkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11796,3 +11799,5 @@ export { DispatchPhase2722TourLiveVisualisierungCockpit } from './phase2722-tour
 export { DispatchPhase2722LeerfahrtenBoard } from './phase2722-leerfahrten-board';
 // Phase 2727 — Touren-Frequenz-Board (Fahrerliste nach /h absteigend; Balken 0–3/h Ziel-Linie 1.5/h; KPI-Grid Team-Ø/Bester/Ziel ≥1.5/h; Alert <1.0/h "Frequenz zu niedrig!"; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2727TourenFrequenzBoard } from './phase2727-touren-frequenz-board';
+// Phase 2732 — Rückkehr-Zuverlässigkeits-Board (Fahrerliste nach Rate absteigend; Balken 0–100% Ziel-Linie 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert <70% "Rückkehr unzuverlässig!"; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2732RueckkehrZuverlaessigkeitsBoard } from './phase2732-rueckkehr-zuverlaessigkeits-board';

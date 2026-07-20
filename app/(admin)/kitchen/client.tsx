@@ -362,6 +362,7 @@ import { KitchenPhase2720SmartKochstartCountdownCockpit } from './phase2720-smar
 import { KitchenPhase2725SmartPrepPrioritaetsCockpit } from './phase2725-smart-prep-prioritaets-cockpit';
 import { KitchenPhase2725LeerfahrtenTicker } from './phase2725-leerfahrten-ticker';
 import { KitchenPhase2730TourenFrequenzTicker } from './phase2730-touren-frequenz-ticker';
+import { KitchenPhase2735RueckkehrZuverlaessigkeitsTicker } from './phase2735-rueckkehr-zuverlaessigkeits-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3621,6 +3622,8 @@ export function KitchenBoard({
       <KitchenPhase2725LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2730: Touren-Frequenz-Ticker — Team-Ø /h; Alert <1.0/h "Frequenz zu niedrig!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥1.5/h; 30-Min-Polling */}
       <KitchenPhase2730TourenFrequenzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2735: Rückkehr-Zuverlässigkeits-Ticker — Team-Ø %; Alert <70% "Rückkehr unzuverlässig!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥90%; 30-Min-Polling */}
+      <KitchenPhase2735RueckkehrZuverlaessigkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10369,3 +10372,5 @@ export { KitchenPhase2725SmartPrepPrioritaetsCockpit } from './phase2725-smart-p
 export { KitchenPhase2725LeerfahrtenTicker } from './phase2725-leerfahrten-ticker';
 // Phase 2730 — Touren-Frequenz-Ticker (Team-Ø /h; Alert <1.0/h "Frequenz zu niedrig!"; Fahrerliste kompakt aufsteigend nach Frequenz; Ziel ≥1.5/h; 30-Min-Polling)
 export { KitchenPhase2730TourenFrequenzTicker } from './phase2730-touren-frequenz-ticker';
+// Phase 2735 — Rückkehr-Zuverlässigkeits-Ticker (Team-Ø %; Alert <70% "Rückkehr unzuverlässig!"; Fahrerliste kompakt aufsteigend nach Rate; Ziel ≥90%; 30-Min-Polling)
+export { KitchenPhase2735RueckkehrZuverlaessigkeitsTicker } from './phase2735-rueckkehr-zuverlaessigkeits-ticker';
