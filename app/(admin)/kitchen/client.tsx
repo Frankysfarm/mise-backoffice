@@ -345,6 +345,7 @@ import { KitchenPhase2633WarteZeitBestellungTicker } from './phase2633-wartezeit
 import { KitchenPhase2650SchichtPuenktlichkeitTicker } from './phase2650-schichtpuenktlichkeit-ticker';
 import { KitchenPhase2655StoppzeitTicker } from './phase2655-stoppzeit-ticker';
 import { KitchenPhase2660KilometerstandTicker } from './phase2660-kilometerstand-ticker';
+import { KitchenPhase2665KraftstoffkostenTicker } from './phase2665-kraftstoffkosten-ticker';
 import { KitchenPhase2605SmartTimingBatchCountdownAmpel } from './phase2605-smart-timing-batch-countdown-ampel';
 import { KitchenPhase2600SmartTimingCountdownKommandant } from './phase2600-smart-timing-countdown-kommandant';
 import { KitchenPhase2610SmartTimingEtaSyncFinal } from './phase2610-smart-timing-eta-sync-final';
@@ -3570,6 +3571,8 @@ export function KitchenBoard({
       <KitchenPhase2655StoppzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2660: Kilometerstand-Ticker — Team-Ø km/Tour; Alert >15 km "Fahrer fährt zu weit!"; Fahrerliste kompakt mit Ampel-Dots; Ziel ≤8 km/Tour; 30-Min-Polling */}
       <KitchenPhase2660KilometerstandTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2665: Kraftstoffkosten-Ticker — Team-Ø €/Tag; Alert >10€ "Kraftstoffkosten zu hoch!"; Fahrerliste kompakt mit Ampel-Dots; Ziel ≤5€/Tag; 30-Min-Polling */}
+      <KitchenPhase2665KraftstoffkostenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
       <KitchenPhase2605SmartTimingBatchCountdownAmpel locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2600: Smart-Timing Countdown Kommandant — Farbkodierter Countdown grün/gelb/rot + On-Time-Quote + Score-Gauge + KPI-Strip; 30-Sek-Polling + 1-Sek-Tick */}
@@ -10284,3 +10287,5 @@ export { KitchenPhase2650SchichtPuenktlichkeitTicker } from './phase2650-schicht
 export { KitchenPhase2655StoppzeitTicker } from './phase2655-stoppzeit-ticker';
 // Phase 2660 — Kilometerstand-Ticker (Team-Ø km/Tour; Alert >15 km "Fahrer fährt zu weit!"; Fahrerliste kompakt mit Ampel-Dots + Trend; Ziel ≤8 km/Tour; 30-Min-Polling)
 export { KitchenPhase2660KilometerstandTicker } from './phase2660-kilometerstand-ticker';
+// Phase 2665 — Kraftstoffkosten-Ticker (Team-Ø €/Tag; Alert >10€ "Kraftstoffkosten zu hoch!"; Fahrerliste kompakt mit Ampel-Dots + Trend; Ziel ≤5€/Tag; 30-Min-Polling)
+export { KitchenPhase2665KraftstoffkostenTicker } from './phase2665-kraftstoffkosten-ticker';

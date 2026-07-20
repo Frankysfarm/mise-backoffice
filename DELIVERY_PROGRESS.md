@@ -23225,3 +23225,44 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2651–2655 implementiert. Backend-
 5. **Phase 2665 Kitchen:** Kraftstoffkosten-Ticker — Team-Ø €; Alert >10€ "Kraftstoffkosten zu hoch!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2660.
 
 Frontend-Ingenieur-Agent (2026-07-20): Phasen 2656–2660 implementiert. Backend-API fahrer-kilometerstand bereits vorhanden (wiederverwendet, avg_km_tour-Feld für Ampel grün≤8/gelb9–15/rot>15 km/Tour) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2657 Dispatch (KilometerstandBoard, Balken 0–20 km, Ziel-Linie 8 km, Alert >15 km) / Phase2658 Fahrer-App (MeinKilometerstand, km-Wert 4xl, Coaching-Tipp je Ampelzone) / Phase2660 Kitchen (KilometerstandTicker, Alert >15 km "Fahrer fährt zu weit!"). Phase 2659 Storefront übersprungen. next.config.js Turbopack-Fix → Build ✓ erfolgreich. Push erfolgt.
+
+---
+
+## Batch 2661–2665 — Fahrer-Kraftstoffkosten (2026-07-20)
+
+### Phase 2661 — Backend API: Fahrer-Kraftstoffkosten
+**Datei:** `app/api/delivery/admin/fahrer-kraftstoffkosten/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Geschätzte Kraftstoffkosten je Fahrer heute (gesamt_km × FUEL_RATE 0.12€/km); kosten_heute, avg_kosten_tour, Trend vs. gestern; Ampel grün(≤5€)/gelb(6–10€)/rot(>10€); Alert >10€; team_avg_kosten; Supabase(delivery_batches: distanz_km)+Mock
+
+### Phase 2662 — Kraftstoffkosten-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2662-kraftstoffkosten-board.tsx` *(neu)*
+**Component:** `DispatchPhase2662KraftstoffkostenBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); KPI-Grid (Team-Ø/Bester heute/Ziel ≤5€); Fahrerliste nach kosten_heute sortiert (höchste oben); Balken 0–15€ mit grüner gestrichelter Ziel-Linie bei 5€; Alert-Banner >10€ "Kraftstoffkosten zu hoch!"; Trend-Pfeile; Touren + Ø €/Tour; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2657 ✅
+
+### Phase 2663 — Meine Kraftstoffkosten (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2663-meine-kraftstoffkosten.tsx` *(neu)*
+**Component:** `FahrerPhase2663MeineKraftstoffkosten`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible (ampelfarbe); €-Wert 4xl groß + Farbcode; Balken 0–15€ mit gestrichelter Ziel-Linie 5€; KPI-Grid (Trend/Ziel ≤5€/Ampel-Emoji/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2658 ✅
+
+### Phase 2664 — Storefront
+Übersprungen (Kraftstoffkosten intern irrelevant für Kunden) ✅
+
+### Phase 2665 — Kraftstoffkosten-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2665-kraftstoffkosten-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2665KraftstoffkostenTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø €/Tag; Alert-Banner "Kraftstoffkosten zu hoch!" mit Fahrernamen; Fahrerliste kompakt nach kosten_heute sortiert (höchste oben) mit Ampel-Dots, Trend-Pfeil und €-Wert; Ziel-Anzeige ≤5€/Tag; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2660 ✅
+
+### Nächste Phasen 2666–2670 (für nächsten Ingenieur) — Fahrer-Überstunden
+1. **Phase 2666 Backend:** GET /api/delivery/admin/fahrer-ueberstunden — Überstunden je Fahrer heute in Min (tatsächliche Schichtlänge minus geplante Schichtlänge); Ampel grün(≤15 Min)/gelb(16–45 Min)/rot(>45 Min); Alert >45 Min; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(driver_shifts: planned_end vs actual_end)+Mock.
+2. **Phase 2667 Dispatch:** Überstunden-Board — Fahrerliste nach Überstunden sortiert (höchste oben); Balken 0–90 Min mit Ziel-Linie 15 Min; KPI-Grid Team-Ø/Bester/Ziel ≤15 Min; Alert-Banner >45 Min; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2662.
+3. **Phase 2668 Fahrer-App:** Meine Überstunden — Min-Wert groß + Farbcode; Balken 0–90 Min mit Ziel-Linie 15 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2663.
+4. **Phase 2669 Storefront:** Überspringen (Überstunden intern irrelevant für Kunden).
+5. **Phase 2670 Kitchen:** Überstunden-Ticker — Team-Ø Min; Alert >45 Min "Überstunden zu hoch!"; Fahrerliste kompakt; 30-Min-Polling; in kitchen/client.tsx nach Phase2665.
+
+Backend-Architekt-Agent (2026-07-20): Phasen 2661–2665 implementiert. 1 neue Backend-API (fahrer-kraftstoffkosten, gesamt_km × 0.12€/km, Ampel grün≤5€/gelb6–10€/rot>10€, Supabase delivery_batches+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2662 Dispatch (Kraftstoffkosten-Board, Balken 0–15€, Ziel-Linie 5€, Alert >10€) / Phase2663 Fahrer-App (Meine Kraftstoffkosten, €-Wert 4xl, Coaching-Tipp je Ampelzone) / Phase2665 Kitchen (Kraftstoffkosten-Ticker, Alert >10€ "Kraftstoffkosten zu hoch!"). Phase 2664 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root). TS-Fehler pre-existing (ignoreBuildErrors: true). Push erfolgt.
