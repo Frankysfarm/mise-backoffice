@@ -295,3 +295,35 @@ export async function triggerSmartDispatch(): Promise<{ ok: boolean; message?: s
     return { ok: false, message: e?.message };
   }
 }
+
+// ─── NEU: Eskalations-Alerts (mise_alerts) ─────────────────────────────────
+export type ActiveAlert = {
+  id: string;
+  type: string;
+  message: string;
+  created_at: string;
+};
+
+export async function getActiveAlerts(): Promise<ActiveAlert[]> {
+  const emp = await getCurrentEmployee();
+  if (!emp?.tenant_id) return [];
+  const svc = createServiceClient();
+  // Zeige Alerts der letzten 55 Minuten die noch nicht gesehen wurden
+  const since = new Date(Date.now() - 55 * 60 * 1000).toISOString();
+  const { data } = await svc
+    .from('mise_alerts')
+    .select('id, type, message, created_at')
+    .eq('tenant_id', emp.tenant_id)
+    .is('seen_at', null)
+    .gte('created_at', since)
+    .order('created_at', { ascending: false })
+    .limit(10);
+  return (data ?? []) as ActiveAlert[];
+}
+
+export async function markAlertSeen(alertId: string): Promise<void> {
+  const emp = await getCurrentEmployee();
+  if (!emp?.tenant_id) return;
+  const svc = createServiceClient();
+  await svc.from('mise_alerts').update({ seen_at: new Date().toISOString() }).eq('id', alertId).eq('tenant_id', emp.tenant_id);
+}

@@ -25,6 +25,10 @@
  *
  * Phase 4.1 (2026-07-20): DB-persistente Holds (statt in-memory siblingHoldMap),
  *    N+1-Fix (Driver-Cache pro Tick), Advisory-Lock via mise_frank_decisions.
+ *
+ * Phase 4.2 (2026-07-20): Präzise Hold-Reasons (NO_DRIVER/DRIVER_STALE_GPS/DRIVER_FULL),
+ *    Stale-Driver-Reconciliation (state='stale'), In-Memory Tick-Throttle pro Tenant,
+ *    Eskalations-Alert via mise_alerts-Tabelle nach 5 min ohne Fahrer.
  */
 import 'server-only';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -77,6 +81,12 @@ function sb(): SupabaseClient {
   );
   return _sb;
 }
+
+// FIX 2: In-Memory Tick-Throttle — vermeidet sinnlose DB-Writes wenn Tenant dauerhaft kein Fahrer hat.
+// Map<tenantId, lastNoDriverAt (ms)> — verliert sich bei Restart, ist OK.
+const tenantNoDriverThrottle = new Map<string, number>();
+// FIX 4: Throttle für Eskalations-Alerts — max 1 Alert pro Tenant pro 55min.
+const tenantAlertThrottle = new Map<string, number>();
 
 const VEHICLE_SLOTS: Record<'bike' | 'car', number> = { bike: 2, car: 4 };
 const MAX_BUNDLE_DETOUR_KM = 1.5;
@@ -153,6 +163,9 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
 
   // Stale-Tour-Rettung: haengende pending-Batches aufraeumen
   try { await rescueStaleTours(); } catch { /* nicht fatal */ }
+
+  // FIX 3: Stale-Driver-Reconciliation — setzt GPS-tote Fahrer auf state='stale'
+  try { await reconcileStaleDrivers(); } catch { /* nicht fatal */ }
 
   // --- Änderung 1: dispatch_after-Filter — Orders im Hold werden übersprungen ---
   // Orders ohne dispatch_after (kein Hold) oder mit dispatch_after in der Vergangenheit werden geladen.
@@ -286,8 +299,27 @@ export async function dispatchOrder(o: OrderRow, tenantDriverCache?: Map<string,
   const soloMode = allDrivers.length === 1;
 
   if (allDrivers.length === 0) {
-    await logDecision('hold', null, [o.id], 'Kein Fahrer online');
+    // FIX 2: In-Memory Tick-Throttle — schreibe hold nur wenn letzter für diesen Tenant > 60s alt
+    const lastNoDriver = tenantNoDriverThrottle.get(loc.tenant_id) ?? 0;
+    const throttleAge = Date.now() - lastNoDriver;
+    if (throttleAge > 60_000) {
+      // FIX 1: Präziser Hold-Reason — unterscheide stale vs. wirklich offline
+      const staleInfo = await getStaleDriverInfo(loc.tenant_id);
+      let reasonCode: string;
+      let reasonData: Record<string, unknown> | undefined;
+      if (staleInfo.staleCount > 0 && staleInfo.totalActive === 0) {
+        reasonCode = `ALL_DRIVERS_STALE (${staleInfo.staleCount} Fahrer, GPS >15min)`;
+        reasonData = { stale_drivers: staleInfo.staleDrivers };
+      } else {
+        reasonCode = 'NO_DRIVER_ONLINE';
+      }
+      await logDecision('hold', null, [o.id], reasonCode, reasonData);
+      tenantNoDriverThrottle.set(loc.tenant_id, Date.now());
+    }
+    // FIX 4: Eskalations-Alert nach 5 min ohne Fahrer
     if (o.created_at && Date.now() - new Date(o.created_at).getTime() > 5 * 60 * 1000) {
+      void checkEscalation(loc.tenant_id, o).catch((err) => { console.error('[frank] checkEscalation fehlgeschlagen:', err?.message ?? err); });
+      // Legacy-Push weiterhin feuern (VAPID-Fallback)
       void alertOwnerNoDriver(o).catch((err) => { console.error('[frank] alertOwnerNoDriver fehlgeschlagen:', err?.message ?? err); });
     }
     return 'held';
@@ -315,8 +347,14 @@ export async function dispatchOrder(o: OrderRow, tenantDriverCache?: Map<string,
   if (eligible.length === 0) {
     // Ueberlauf: Order in die Koch-Warteschlange -> Kueche kocht erst wenn ein Fahrer auf Rueckweg ist (JIT-Frische)
     if (o.location_id) { try { await scheduleKitchenHold(o.id, o.location_id, null); } catch { /* nicht fatal */ } }
+    // FIX 1: Präziser Hold-Reason DRIVER_FULL
     const capLabel = soloMode ? `Solo-Modus: Fahrer voll (Basis ${capBase}, Cluster bis ${capCluster})` : `Alle Fahrer voll (Basis ${capBase}, Cluster bis ${capCluster})`;
-    await logDecision('hold', null, [o.id], `${capLabel} - Order wartet (kochgesperrt)`);
+    await logDecision('hold', null, [o.id], `DRIVER_FULL: ${capLabel} - Order wartet (kochgesperrt)`, {
+      reason_code: 'DRIVER_FULL',
+      cap_base: capBase,
+      cap_cluster: capCluster,
+      solo_mode: soloMode,
+    });
     return 'held';
   }
 
@@ -876,6 +914,125 @@ async function rescueStaleTours(): Promise<void> {
   await c.from('mise_drivers').update({ excluded_until: null }).lt('excluded_until', new Date().toISOString());
 }
 
+// ─── FIX 1: Stale-Driver-Info — liefert detaillierte Fahrer-Stats für Hold-Reason ───────────────
+interface StaleDriverInfo {
+  totalActive: number;    // Fahrer active=true, state != 'offline', GPS frisch
+  staleCount: number;     // Fahrer active=true, state != 'offline', aber GPS >15min alt
+  staleDrivers: Array<{ id: string; name?: string; last_position_at: string | null }>;
+}
+
+async function getStaleDriverInfo(tenantId: string): Promise<StaleDriverInfo> {
+  const c = sb();
+  const staleThresholdIso = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  const { data } = await c
+    .from('mise_driver_tenants')
+    .select('driver:driver_id(id, name, active, state, last_position_at)')
+    .eq('tenant_id', tenantId)
+    .eq('status', 'active');
+  const drivers = (data ?? []).map((row: any) => row.driver).filter((d: any) => d && d.active && d.state !== 'offline');
+  const freshDrivers = drivers.filter((d: any) => !d.last_position_at || d.last_position_at > staleThresholdIso);
+  const staleDrivers = drivers.filter((d: any) => d.last_position_at && d.last_position_at <= staleThresholdIso);
+  return {
+    totalActive: freshDrivers.length,
+    staleCount: staleDrivers.length,
+    staleDrivers: staleDrivers.map((d: any) => ({ id: d.id, name: d.name ?? undefined, last_position_at: d.last_position_at })),
+  };
+}
+
+// ─── FIX 3: Stale-Driver-Reconciliation — setzt GPS-tote Fahrer auf state='stale' ─────────────
+async function reconcileStaleDrivers(): Promise<void> {
+  const c = sb();
+  const staleThreshold = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  // Fahrer die aktiv + nicht offline sind, aber GPS älter als 15 min → auf 'stale' setzen
+  const { data: staleDrivers } = await c
+    .from('mise_drivers')
+    .select('id, name, last_position_at, state')
+    .eq('active', true)
+    .neq('state', 'offline')
+    .neq('state', 'stale')
+    .not('last_position_at', 'is', null)
+    .lt('last_position_at', staleThreshold);
+
+  if (!staleDrivers || staleDrivers.length === 0) return;
+
+  for (const d of staleDrivers as any[]) {
+    await c.from('mise_drivers').update({ state: 'stale' }).eq('id', d.id);
+    await logDecision('driver_stale', d.id, [], `GPS-Timeout: ${d.name ?? d.id} — letzte Position ${d.last_position_at}`, {
+      reason_code: 'DRIVER_STALE_GPS',
+      driver_name: d.name ?? null,
+      last_position_at: d.last_position_at,
+    });
+    console.log(`[frank] Fahrer ${d.name ?? d.id} → state='stale' (GPS ${d.last_position_at})`);
+  }
+}
+
+// ─── FIX 4: Eskalations-Alert — schreibt in mise_alerts wenn 5min kein Fahrer ─────────────────
+async function checkEscalation(tenantId: string, o: OrderRow): Promise<void> {
+  // In-Memory Throttle: max 1 Alert pro Tenant alle 55 min
+  const lastAlert = tenantAlertThrottle.get(tenantId) ?? 0;
+  if (Date.now() - lastAlert < 55 * 60 * 1000) return;
+
+  const c = sb();
+
+  // DB-Throttle zusätzlich (überlebt Restarts): prüfe mise_frank_decisions auf no_driver_alert
+  const throttleAgo = new Date(Date.now() - 55 * 60 * 1000).toISOString();
+  const { data: recentAlert } = await c
+    .from('mise_frank_decisions')
+    .select('id')
+    .eq('type', 'no_driver_alert')
+    .eq('reason_text', `no_driver_alert:${tenantId}`)
+    .gte('created_at', throttleAgo)
+    .limit(1);
+  if (recentAlert && recentAlert.length > 0) {
+    tenantAlertThrottle.set(tenantId, Date.now()); // In-Memory sync
+    return;
+  }
+
+  // Alle wartenden Orders des Tenants zählen
+  if (!o.location_id) return;
+  const { data: loc } = await c.from('locations').select('id').eq('tenant_id', tenantId).limit(20);
+  const locationIds = (loc ?? []).map((l: any) => l.id as string).filter(Boolean);
+  if (!locationIds.length) return;
+
+  const { data: waitingOrders } = await c
+    .from('customer_orders')
+    .select('id, created_at')
+    .in('location_id', locationIds)
+    .eq('typ', 'lieferung')
+    .eq('status', 'fertig')
+    .is('mise_batch_id', null)
+    .is('mise_driver_id', null);
+
+  const orderCount = waitingOrders?.length ?? 0;
+  if (orderCount === 0) return;
+
+  // Älteste Order berechnen
+  const now = Date.now();
+  const oldestOrderMin = waitingOrders
+    ? Math.max(...(waitingOrders as any[]).map((wo: any) => Math.floor((now - new Date(wo.created_at).getTime()) / 60000)))
+    : 0;
+
+  const message = `${orderCount} Bestellung${orderCount > 1 ? 'en' : ''} warten — kein Fahrer verfügbar! (älteste: ${oldestOrderMin} min)`;
+
+  // Schreibe in mise_alerts (Lieferzentrale liest dies als rotes Banner)
+  await c.from('mise_alerts').insert({
+    tenant_id: tenantId,
+    type: 'no_driver',
+    message,
+  });
+
+  // Logge in frank_decisions für Cooldown-Check und Messbarkeit
+  await logDecision('no_driver_alert', null, (waitingOrders ?? []).map((wo: any) => wo.id as string), `no_driver_alert:${tenantId}`, {
+    reason_code: 'NO_DRIVER_ALERT',
+    order_count: orderCount,
+    oldest_order_min: oldestOrderMin,
+    tenant_id: tenantId,
+  });
+
+  tenantAlertThrottle.set(tenantId, Date.now());
+  console.log(`[frank] Eskalations-Alert für Tenant ${tenantId}: ${message}`);
+}
+
 // Betreiber-Push bei "Kein Fahrer" fuer laengere Zeit (fire-and-forget)
 async function alertOwnerNoDriver(o: OrderRow): Promise<void> {
   if (!o.location_id) return;
@@ -907,10 +1064,11 @@ async function alertOwnerNoDriver(o: OrderRow): Promise<void> {
 }
 
 async function logDecision(
-  type: 'assign' | 'hold' | 'rebalance' | 'reroute' | 'bundle' | 'cancel' | 'tick_lock',
+  type: 'assign' | 'hold' | 'rebalance' | 'reroute' | 'bundle' | 'cancel' | 'tick_lock' | 'no_driver_alert' | 'driver_stale',
   driverId: string | null,
   orderIds: string[],
   reasonText: string,
+  reasonData?: Record<string, unknown>,
 ): Promise<void> {
   const c = sb();
   await c.from('mise_frank_decisions').insert({
@@ -918,5 +1076,6 @@ async function logDecision(
     driver_id: driverId,
     order_ids: orderIds,
     reason_text: reasonText,
+    ...(reasonData !== undefined ? { reason_data: reasonData } : {}),
   });
 }
