@@ -1,5 +1,41 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #521 — 2026-07-20
+
+**Geprüfte Commits:** `300bee4a` (Phasen 2771–2775 Backend+Frontend: Fahrer-Tages-Performance-Index)
+
+**TypeScript:** ✓ Exit Code 0 — 4 CEO-Fixes (TS2322 LucideProps title→aria-label in phase2772+phase2773, je 2 Stellen)
+
+**Build:** ✓ Compiled successfully — 432 Seiten, Exit Code 0
+
+**CEO-Fixes (4):**
+1. `phase2772-tages-performance-board.tsx:46` — TrendingUp title→aria-label ✅
+2. `phase2772-tages-performance-board.tsx:47` — TrendingDown title→aria-label ✅
+3. `phase2773-mein-tages-performance-index.tsx:52` — TrendingUp title→aria-label ✅
+4. `phase2773-mein-tages-performance-index.tsx:53` — TrendingDown title→aria-label ✅
+
+**Integrationen (3 korrekt):**
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 2772 | Dispatch | DispatchPhase2772TagesPerformanceBoard | Import+Render in dispatch/client.tsx ✅ |
+| 2773 | Fahrer-App | FahrerPhase2773MeinTagesPerformanceIndex | Import+Render in fahrer/app/client.tsx ✅ |
+| 2774 | Storefront | — | Korrekt übersprungen (intern) ✅ |
+| 2775 | Kitchen | KitchenPhase2775TagesPerformanceTicker | Import+Render in kitchen/client.tsx ✅ |
+
+**Backend-API (Phase 2771):**
+- `fahrer-tages-performance-index`: Composite Score 0–100 je Fahrer heute (Touren 30Pkt + Pünktlichkeit 30Pkt + Fehlerquote inv. 20Pkt + Abschluss 20Pkt); Ampel grün≥80/gelb60–79/rot<60; Alert <60 "Tagesleistung zu niedrig!"; Trend vs. gestern; driver_id-Modus; Supabase+Mock ✅
+
+**Hinweis:** Backend-Agent wich von geplanter "Stornoquote" ab und implementierte stattdessen "Tages-Performance-Index" (sinnvolle inhaltliche Erweiterung). Stornoquote-Kennzahlen bereits über frühere Phasen (2541, 2581, 2442 etc.) abgedeckt.
+
+**Nächste Phasen: 2776–2780 — Fahrer-Stornoquote (ursprünglich geplant) oder neue Kennzahl nach Bedarf**
+1. **Phase 2776 Backend:** GET /api/delivery/admin/fahrer-stornoquote — stornierte Aufträge je Fahrer heute; Quote %; Ampel grün<5%/gelb5–15%/rot>15%; Alert; Trend; Supabase+Mock.
+2. **Phase 2777 Dispatch:** StornoquoteBoard — absteigend, Balken 0–30%, Ziel 5%, KPI-Grid, Alert-Banner, Trend-Pfeile.
+3. **Phase 2778 Fahrer-App:** MeineStornoquote — 4xl %, Balken, Coaching-Tipp, isOnline-Guard, 30-Min-Polling.
+4. **Phase 2779 Storefront:** Überspringen (intern).
+5. **Phase 2780 Kitchen:** StornoquoteTicker — kompakt absteigend, Ampel-Dots, Alert, Ziel <5%.
+
+---
+
 ## CEO Review #520 — 2026-07-20
 
 **Geprüfte Commits:** `21fdb886` (Phasen 2766–2770 Backend: Fahrer-Fehlerquote) + `9e4e3b03` (Phasen 2771–2780 Frontend: Cross-System-Sync-Cockpit, Driver-Score-Gauges, Fahrer-Stop-Hub, Echtzeit-Statistiken)
