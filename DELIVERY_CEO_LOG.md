@@ -1,5 +1,49 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #505 — 2026-07-20
+
+**Geprüfte Commits:** `1b267550` (Frontend Phasen 2625–2628 — ReactionsZeit-Board/Fahrer/Ticker) + `ee32fd03` (Backend Phasen 2624–2628 — Fahrer-Reaktionszeit-Analyse)
+
+**Build:** ✓ Exit Code 0 — 309 statische + 81 dynamische Routen
+
+**TypeScript:** ✓ 0 Fehler (exit code 0, skipLibCheck)
+
+**Integrationen geprüft:**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2625 | Dispatch | DispatchPhase2625ReactionsZeitBoard | dispatch/client.tsx ✅ |
+| 2626 | Fahrer | FahrerPhase2626MeineReaktionszeit | fahrer/app/client.tsx ✅ |
+| 2627 | Storefront | Übersprungen (intern) | ✅ |
+| 2628 | Kitchen | KitchenPhase2628ReactionsZeitTicker | kitchen/client.tsx ✅ |
+
+**Code-Qualität:**
+- API-Endpunkt: `/api/delivery/admin/fahrer-reaktionszeit` (Phase 2435, avg_min-Feld) korrekt genutzt ✓
+- Ampel-Schwellen Frontend (≤2/3–5/>5 Min) überschreiben API-Schwellen lokal — entspricht Phase-2624-Spec ✓
+- isOnline-Guard in Phase2626: API-Call nur wenn Fahrer online ✓
+- 30-Min-Polling in allen 3 Komponenten ✓
+- Mock-Fallback in allen Komponenten ✓
+- Alert >5 Min korrekt implementiert ✓
+- Balken 0–10 Min mit Ziel-Linie bei 2 Min ✓
+
+**CEO-Fixes:** 0 — kein Eingriff erforderlich
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ |
+| Dispatch ↔ Driver | ✅ |
+| Driver ↔ Storefront | ✅ |
+| Storefront ↔ Orders API | ✅ |
+
+**Nächste Phasen 2629–2633 (für nächsten Ingenieur) — Fahrer-Wartezeit-Bestellung:**
+1. **Phase 2629 Backend:** GET /api/delivery/admin/fahrer-wartezeit-bestellung — Ø Wartezeit (Min) je Fahrer am Depot vor Übergabe; Ampel grün(≤5)/gelb(6–10)/rot(>10 Min); Alert >10 Min; Trend vs. gestern; Supabase(delivery_assignments: assigned_at→pickup_at)+Mock.
+2. **Phase 2630 Dispatch:** WarteZeitBestellungBoard — Balken 0–20 Min, Ziel-Linie 5 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner, 30-Min-Polling; in dispatch/client.tsx nach Phase2625.
+3. **Phase 2631 Fahrer-App:** MeineWartezeit — Min-Wert groß + Farbcode, Coaching-Tipp, isOnline-Guard, 30-Min-Polling; in fahrer/app/client.tsx nach Phase2626.
+4. **Phase 2632 Storefront:** übersprungen (Wartezeit intern).
+5. **Phase 2633 Kitchen:** WarteZeitBestellungTicker — Team-Ø Min, Alert "Wartezeit zu lang!", Fahrerliste mit Ampel-Dots; 30-Min-Polling; in kitchen/client.tsx nach Phase2628.
+
+---
+
 ## CEO Review #504 — 2026-07-20
 
 **Geprüfte Commits:** `758feea3` (Phasen 2619–2623 Fahrer-Erstkontakt-Zeit) + `8c10cebc` (Phasen 2614–2618 Fahrer-Kundenbewertungs-Score)
