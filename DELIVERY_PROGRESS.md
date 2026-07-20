@@ -23932,6 +23932,45 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2776–2780 implementiert. Phase277
 
 ---
 
+## Batch 2792–2796 — Fahrer-Tour-Abschlussrate (2026-07-20)
+
+### Phase 2792 — Backend API: Fahrer-Tour-Abschlussrate
+**Datei:** `app/api/delivery/admin/fahrer-tour-abschlussrate/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Abgeschlossene Touren / Zugewiesene Touren je Fahrer heute in mise_delivery_batches (status completed vs. cancelled/failed); Ampel grün(≥95%)/gelb(80–94%)/rot(<80%); Alert <80% "Niedrige Abschlussrate!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(mise_delivery_batches)+Mock
+
+### Phase 2793 — Abschlussrate-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2793-abschlussrate-board.tsx` *(neu)*
+**Component:** `DispatchPhase2793AbschlussrateBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <80% "Niedrige Abschlussrate!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≥95%); Fahrerliste nach Rate absteigend sortiert (höchste oben); Balken 0–100% mit Ziel-Linie 95%; Ampel-Dots + Trend-Pfeile (grün=steigend/rot=fallend); Abschlüsse/Gesamt je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2787 ✅
+
+### Phase 2794 — Meine Abschlussrate (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2794-meine-abschlussrate.tsx` *(neu)*
+**Component:** `FahrerPhase2794MeineAbschlussrate`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Rate % 4xl groß + Farbcode; Balken 0–100% mit Ziel-Linie 95%; KPI-Grid (Ziel/Team-Ø/Ampel/Touren); Coaching-Tipp je Ampelzone; Rang-Anzeige; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2788 ✅
+
+### Phase 2795 — Storefront
+Übersprungen (Abschlussrate intern irrelevant für Kunden) ✅
+
+### Phase 2796 — Abschlussrate-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2796-abschlussrate-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2796AbschlussrateTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø %; Alert-Banner je Fahrer <80% "Niedrige Abschlussrate!"; Fahrerliste kompakt nach Rate aufsteigend sortiert (niedrigste oben) mit Ampel-Dots, Trend-Pfeil und Rate %; Abschlüsse/Gesamt je Fahrer; Ziel-Anzeige ≥95%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2791 ✅
+
+### Nächste Phasen 2797–2801 (für nächsten Ingenieur) — Fahrer-Kilometer-Effizienz
+1. **Phase 2797 Backend:** GET /api/delivery/admin/fahrer-kilometer-effizienz — Ø km je Lieferung je Fahrer heute aus mise_delivery_batches (distance_km / completed_stops); Ampel grün(≤4 km)/gelb(4–6 km)/rot(>6 km); Alert >6 km "Hohe Kilometerleistung!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2798 Dispatch:** Kilometer-Effizienz-Board — Fahrerliste nach Ø-km aufsteigend (niedrigste oben); Balken 0–10 km mit Ziel-Linie 4 km; KPI-Grid Team-Ø/Bester/Ziel ≤4 km; Alert-Banner >6 km; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2793.
+3. **Phase 2799 Fahrer-App:** Meine Kilometer-Effizienz — Ø km/Lieferung 4xl groß + Farbcode; Balken 0–10 km Ziel 4 km; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2794.
+4. **Phase 2800 Storefront:** Überspringen (Kilometerleistung intern irrelevant für Kunden).
+5. **Phase 2801 Kitchen:** Kilometer-Effizienz-Ticker — Team-Ø km; Alert >6 km "Hohe Kilometerleistung!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≤4 km; 30-Min-Polling; in kitchen/client.tsx nach Phase2796.
+
+Frontend-Ingenieur-Agent (2026-07-20): Phasen 2792–2796 implementiert. 1 neue Backend-API (fahrer-tour-abschlussrate, completed vs. cancelled/failed in mise_delivery_batches, Ampel grün≥95%/gelb80–94%/rot<80%, Alert "Niedrige Abschlussrate!", Trend vs. gestern, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2793 Dispatch (AbschlussrateBoard, Balken 0–100% Ziel-Linie 95%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend grün=steigend/rot=fallend) / Phase2794 Fahrer-App (MeineAbschlussrate, Rate % 4xl, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2796 Kitchen (AbschlussrateTicker, Team-Ø %, Alert je Fahrer, aufsteigend nach Rate, Ziel ≥95%). Phase 2795 Storefront übersprungen. TypeScript wird geprüft. Build wird geprüft. Push erfolgt.
+
 ## Batch 2786–2791 — Fahrer-Reaktionszeit-auf-Zuweisung (2026-07-20)
 
 ### Phase 2786 — Backend API: Fahrer-Reaktionszeit-auf-Zuweisung

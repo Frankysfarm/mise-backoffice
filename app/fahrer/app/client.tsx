@@ -729,6 +729,7 @@ import { FahrerPhase2778MeineRestschichtPrognose } from './phase2778-meine-rests
 import { FahrerPhase2780TourStoppNavigationsFinalHub } from './phase2780-tour-stopp-navigations-final-hub';
 import { FahrerPhase2785SmartTourStopsNavigatorPro } from './phase2785-smart-tour-stops-navigator-pro';
 import { FahrerPhase2788MeineReaktionszeit } from './phase2788-meine-reaktionszeit';
+import { FahrerPhase2794MeineAbschlussrate } from './phase2794-meine-abschlussrate';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6170,6 +6171,8 @@ export function FahrerApp({
           <FahrerPhase2785SmartTourStopsNavigatorPro driverId={driver.id} isOnline={isOnline} />
           {/* Phase 2788: Meine Reaktionszeit — Ø Min 4xl groß + Farbcode; Balken 0–10 Min Ziel 2 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2788MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2794: Meine Abschlussrate — Rate % 4xl groß + Farbcode; Balken 0–100% Ziel 95%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2794MeineAbschlussrate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9495,3 +9498,5 @@ export { FahrerPhase2780TourStoppNavigationsFinalHub } from './phase2780-tour-st
 export { FahrerPhase2785SmartTourStopsNavigatorPro } from './phase2785-smart-tour-stops-navigator-pro';
 // Phase 2788 — Meine Reaktionszeit (Ø Min 4xl; Balken 0–10 Min Ziel 2 Min; KPI-Grid; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2788MeineReaktionszeit } from './phase2788-meine-reaktionszeit';
+// Phase 2794 — Meine Abschlussrate (Rate % 4xl groß + Farbcode; Balken 0–100% Ziel 95%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2794MeineAbschlussrate } from './phase2794-meine-abschlussrate';
