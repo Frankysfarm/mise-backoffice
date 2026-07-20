@@ -42,40 +42,40 @@ export function LoyaltyPickerModal({
   if (!open) return null;
 
   return (
-    <div className=fixed inset-0 bg-black/50 flex items-center justify-center z-50>
-      <div className=bg-white rounded-lg p-6 max-w-md w-full>
-        <h2 className=text-xl font-bold mb-4>Bonusprodukt wählen</h2>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <h2 className="text-xl font-bold mb-4">Bonusprodukt wählen</h2>
 
-        <div className=space-y-3 mb-6>
+        <div className="space-y-3 mb-6">
           {items.map(item => (
-            <label key={item.menu_item_id} className=flex items-center p-3 border rounded cursor-pointer hover:bg-gray-50>
+            <label key={item.menu_item_id} className="flex items-center p-3 border rounded cursor-pointer hover:bg-gray-50">
               <input
-                type=radio
-                name=bonus
+                type="radio"
+                name="bonus"
                 value={item.menu_item_id}
                 checked={selectedItemId === item.menu_item_id}
                 onChange={e => setSelectedItemId(e.target.value)}
-                className=mr-3
+                className="mr-3"
               />
-              <div className=flex-1>
-                <p className=font-medium>{item.name}</p>
-                <p className=text-sm text-gray-600>{item.beschreibung}</p>
-                <p className=text-sm font-semibold text-green-600>GRATIS</p>
+              <div className="flex-1">
+                <p className="font-medium">{item.name}</p>
+                <p className="text-sm text-gray-600">{item.beschreibung}</p>
+                <p className="text-sm font-semibold text-green-600">GRATIS</p>
               </div>
             </label>
           ))}
         </div>
 
-        <div className=flex gap-3>
+        <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className=flex-1 px-4 py-2 border rounded hover:bg-gray-50
+            className="flex-1 px-4 py-2 border rounded hover:bg-gray-50"
           >
             Abbrechen
           </button>
           <button
             onClick={handleConfirm}
-            className=flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700
+            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             Bonusprodukt hinzufügen
           </button>

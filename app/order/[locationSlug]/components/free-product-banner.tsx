@@ -22,7 +22,7 @@ export function FreeProductBanner({ eligibleItems, selectedItemId, onSelect, tri
       <div className="flex items-center gap-2 mb-2">
         <Gift size={16} className={unlocked ? 'text-yellow-600' : 'text-gray-500'} />
         <span className="font-bold text-sm">
-          {unlocked ? '🎁 Wähle dein Gratis-Produkt!' : \`Noch €\${remaining.toFixed(2)}\`}
+          {unlocked ? '🎁 Wähle dein Gratis-Produkt!' : `Noch €${remaining.toFixed(2)}`}
         </span>
       </div>
       {unlocked && (
