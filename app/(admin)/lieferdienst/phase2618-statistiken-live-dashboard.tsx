@@ -144,7 +144,7 @@ export function LieferdienstPhase2618StatistikenLiveDashboard({ locationId }: { 
               <BarChart data={data.hourly} barSize={14}>
                 <XAxis dataKey="hour" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  formatter={(val: number) => mode === 'revenue' ? [`${val} €`, 'Umsatz'] : [val, 'Bestellungen']}
+                  formatter={(val) => mode === 'revenue' ? [`${val} €`, 'Umsatz'] : [val, 'Bestellungen']}
                   contentStyle={{ fontSize: 11 }}
                 />
                 <Bar dataKey={mode} radius={[3, 3, 0, 0]}>

@@ -20,7 +20,7 @@ interface EtaData {
   steps_done: Step[];
 }
 
-const STEPS: { key: Step; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
+const STEPS: { key: Step; label: string; icon: React.ElementType }[] = [
   { key: 'bestaetigt',  label: 'Bestätigt',   icon: CheckCircle2 },
   { key: 'zubereitung', label: 'In der Küche', icon: ChefHat      },
   { key: 'unterwegs',   label: 'Unterwegs',    icon: Bike         },
