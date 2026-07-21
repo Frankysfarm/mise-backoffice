@@ -857,6 +857,7 @@ import { DispatchPhase2895TourScoreEchtzeitKommando } from './phase2895-tour-sco
 import { DispatchPhase2897LieferQualitaetsBoard } from './phase2897-liefer-qualitaets-board';
 import { DispatchPhase2903KundenkontaktBoard } from './phase2903-kundenkontakt-board';
 import { DispatchPhase2908TourScoreLiveMatrix } from './phase2908-tour-score-live-matrix';
+import { DispatchPhase2910StoppzeitBoard } from './phase2910-stoppzeit-board';
 
 type Driver = {
   employee_id: string;
@@ -4153,6 +4154,8 @@ export function DispatchBoard({
           <DispatchPhase2903KundenkontaktBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2908: Tour-Score Live-Matrix — Score-Ring SVG je Fahrer 0–100; Stop-Fortschrittsbalken; ETA; Pünktlichkeits%; Flotten-Ø; Alert <60; 25-Sek-Polling */}
           <DispatchPhase2908TourScoreLiveMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2910: Stoppzeit-Board — Fahrerliste aufsteigend nach Min; Balken 0–15 Min Ziel 5 Min; KPI-Grid Team-Ø/Bester/Ziel; Alert >10 Min "Stoppzeit zu lang!"; Trend invertiert; 30-Min-Polling */}
+          <DispatchPhase2910StoppzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
           <DispatchPhase2853TourScoreVisualisierungUltimate batches={batches} drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}
@@ -11991,3 +11994,5 @@ export { DispatchPhase2895TourScoreEchtzeitKommando } from './phase2895-tour-sco
 export { DispatchPhase2897LieferQualitaetsBoard } from './phase2897-liefer-qualitaets-board';
 export { DispatchPhase2903KundenkontaktBoard } from './phase2903-kundenkontakt-board';
 export { DispatchPhase2908TourScoreLiveMatrix } from './phase2908-tour-score-live-matrix';
+// Phase 2910 — Stoppzeit-Board (Fahrerliste aufsteigend nach Min; Balken 0–15 Min Ziel 5 Min; KPI-Grid Team-Ø/Bester/Ziel; Alert >10 Min "Stoppzeit zu lang!"; 30-Min-Polling)
+export { DispatchPhase2910StoppzeitBoard } from './phase2910-stoppzeit-board';

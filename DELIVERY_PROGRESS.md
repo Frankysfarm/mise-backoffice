@@ -24551,3 +24551,41 @@ Backend-Architekt-Agent (2026-07-21): Phasen 2871–2875 implementiert. Backend-
 5. **Phase 2890 Kitchen:** Stoppzeit-Ticker — Team-Ø Sek; Alert >150s "Stoppzeit zu lang!"; Fahrerliste aufsteigend; Ziel ≤90s; 30-Min-Polling; in kitchen/client.tsx nach Phase2885.
 
 Backend-Architekt-Agent (2026-07-21): Phasen 2881–2885 implementiert. Backend-API neu erstellt (fahrer-liefergeschwindigkeit, confirmed_at→actual_delivery_at, Ampel grün≤25/gelb26–35/rot>35 Min, Alert "Zu langsam!", Trend vs. gestern, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2882 Dispatch (LiefergeschwindigkeitBoard, aufsteigend nach Min, Balken 0–60 Min Ziel-Linie 25 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner >35 Min, Trend-Pfeile invertiert) / Phase2883 Fahrer-App (MeineLiefergeschwindigkeit, Min 4xl + Farbcode, Coaching-Tipp, Rang, isOnline-Guard, 30-Min-Polling) / Phase2885 Kitchen (LiefergeschwindigkeitTicker, Team-Ø Min, Alert >35 Min, aufsteigend, Ziel ≤25 Min). Phase 2884 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2910–2913 — Fahrer-Stoppzeit-Optimierung (2026-07-21)
+
+### Phase 2910 — Stoppzeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2910-stoppzeit-board.tsx` *(neu)*
+**Component:** `DispatchPhase2910StoppzeitBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >10 Min "Stoppzeit zu lang!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≤5 Min); Fahrerliste aufsteigend sortiert (kürzeste oben = effizienteste zuerst); Balken 0–15 Min mit Ziel-Linie 5 Min; Ampel grün(≤5)/gelb(5–10)/rot(>10 Min); Trend-Pfeile invertiert (fallend=grün/steigend=rot); Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2908 ✅
+**Backend:** Wiederverwendet `fahrer-stoppzeit` (arrived_at→departed_at aus batch_stops, avg_stoppzeit_min, Ampel grün≤5/gelb5–10/rot>10 Min, alert_zu_lang >10 Min, Trend vs. Vorwoche, Supabase+Mock)
+
+### Phase 2911 — Meine Stoppzeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2911-meine-stoppzeit.tsx` *(neu)*
+**Component:** `FahrerPhase2911MeineStoppzeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Min 4xl groß + Farbcode; Balken 0–15 Min mit Ziel-Linie 5 Min; KPI-Grid (Trend-Delta/Ziel ≤5 Min/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2904 ✅
+
+### Phase 2912 — Storefront
+Übersprungen (Stoppzeit intern irrelevant für Kunden) ✅
+
+### Phase 2913 — Stoppzeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2913-stoppzeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2913StoppzeitTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Min; Alert-Banner je Fahrer >10 Min "Stoppzeit zu lang!"; Fahrerliste kompakt aufsteigend sortiert (kürzeste oben) mit Ampel-Dots, Trend-Pfeil, und Min-Wert; Ziel-Anzeige ≤5 Min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2907 ✅
+
+### Nächste Phasen 2914–2918 (für nächsten Ingenieur) — Fahrer-Kilometerstand-Score
+1. **Phase 2914 Backend:** GET /api/delivery/admin/fahrer-kilometerstand — Ø km je Tour je Fahrer heute; Ampel grün(≤5 km)/gelb(5–8 km)/rot(>8 km); Alert >8 km "Hohe km-Leistung!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2915 Dispatch:** Kilometerstand-Board — Fahrerliste aufsteigend nach km (niedrigste oben = effiziensteste); Balken 0–12 km Ziel-Linie 5 km; KPI-Grid Team-Ø/Bester/Ziel ≤5 km; Alert-Banner >8 km "Hohe km-Leistung!"; Trend invertiert fallend=grün/steigend=rot; 30-Min-Polling; in dispatch/client.tsx nach Phase2910.
+3. **Phase 2916 Fahrer-App:** Meine km/Tour — km-Wert 4xl groß + Farbcode; Balken 0–12 km Ziel 5 km; KPI-Grid Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2911.
+4. **Phase 2917 Storefront:** Überspringen (km intern irrelevant für Kunden).
+5. **Phase 2918 Kitchen:** km/Tour-Ticker — Team-Ø km; Alert >8 km "Hohe km-Leistung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≤5 km; 30-Min-Polling; in kitchen/client.tsx nach Phase2913.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2910–2913 implementiert. Backend-API wiederverwendet (fahrer-stoppzeit, arrived_at→departed_at aus batch_stops, avg_stoppzeit_min, Ampel grün≤5/gelb5–10/rot>10 Min, alert_zu_lang >10 Min, Trend, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2910 Dispatch (StoppzeitBoard, aufsteigend nach Min, Balken 0–15 Min Ziel-Linie 5 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner >10 Min "Stoppzeit zu lang!", Trend invertiert fallend=grün/steigend=rot) / Phase2911 Fahrer-App (MeineStoppzeit, Min 4xl + Farbcode, Coaching-Tipp, isOnline-Guard, 30-Min-Polling) / Phase2913 Kitchen (StoppzeitTicker, Team-Ø Min, Alert >10 Min, aufsteigend, Ziel ≤5 Min). Phase 2912 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.

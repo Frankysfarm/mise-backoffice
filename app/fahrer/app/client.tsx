@@ -752,6 +752,7 @@ import { FahrerPhase2893MeineBewertungsTrend } from './phase2893-meine-bewertung
 import { FahrerPhase2898MeineLieferQualitaet } from './phase2898-meine-liefer-qualitaet';
 import { FahrerPhase2904MeinKundenkontakt } from './phase2904-mein-kundenkontakt';
 import { FahrerPhase2909TourStoppSequenzNavigator } from './phase2909-tour-stopp-sequenz-navigator';
+import { FahrerPhase2911MeineStoppzeit } from './phase2911-meine-stoppzeit';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
 import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
@@ -6234,6 +6235,8 @@ export function FahrerApp({
           <FahrerPhase2898MeineLieferQualitaet driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2904: Mein Kundenkontakt — Score 4xl (Trinkgeld 35%+Wiederbestellung 40%+Beschwerden 25%); 3 Sub-Scores; Balken Ziel 80; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2904MeinKundenkontakt driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2911: Meine Stoppzeit — Ø Min 4xl + Farbcode; Balken 0–15 Min Ziel 5 Min; KPI-Grid Trend/Ziel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2911MeineStoppzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2909: Tour-Stopp Sequenz-Navigator — Nächster-Stopp-Hero + Maps/Waze/Anruf; Sequenzliste mit ETA; isOnline-Guard */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2909TourStoppSequenzNavigator
@@ -9700,4 +9703,6 @@ export { FahrerPhase2893MeineBewertungsTrend } from './phase2893-meine-bewertung
 export { FahrerPhase2898MeineLieferQualitaet } from './phase2898-meine-liefer-qualitaet';
 export { FahrerPhase2904MeinKundenkontakt } from './phase2904-mein-kundenkontakt';
 export { FahrerPhase2909TourStoppSequenzNavigator } from './phase2909-tour-stopp-sequenz-navigator';
+// Phase 2911 — Meine Stoppzeit (Min 4xl + Farbcode; Balken 0–15 Min Ziel 5 Min; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2911MeineStoppzeit } from './phase2911-meine-stoppzeit';
 export { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
