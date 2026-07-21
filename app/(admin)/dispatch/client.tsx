@@ -11933,3 +11933,5 @@ export { DispatchPhase2841AbschlussrateBoard } from './phase2841-abschlussrate-b
 export { DispatchPhase2846PuenktlichkeitsBoard } from './phase2846-puenktlichkeits-board';
 // Phase 2851 — Reaktionszeit-Board (Fahrerliste aufsteigend nach Min; Balken 0–10 Min Ziel 3 Min; Alert >7 Min "Langsame Reaktion!"; Trend invertiert fallend=grün/steigend=rot; 30-Min-Polling)
 export { DispatchPhase2851ReaktionszeitBoard } from './phase2851-reaktionszeit-board';
+// Phase 2853 — Tour-Score Visualisierung Ultimate (Echtzeit-Score 0–100 je aktiver Tour; Rangliste nach Live-Score; Stopp-Fortschritts-Dots; ETA-Verbrauch; Pünktlichkeit-Ampel; Tour-Visualisierung)
+export { DispatchPhase2853TourScoreVisualisierungUltimate } from './phase2853-tour-score-visualisierung-ultimate';

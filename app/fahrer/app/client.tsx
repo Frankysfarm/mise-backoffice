@@ -9565,3 +9565,5 @@ export { FahrerPhase2842MeineAbschlussrate } from './phase2842-meine-abschlussra
 export { FahrerPhase2847MeinePuenktlichkeit } from './phase2847-meine-puenktlichkeit';
 // Phase 2852 — Meine Reaktionszeit (Min 4xl + Farbcode; Balken 0–10 Min Ziel 3 Min; KPI-Grid; Team-Ø + Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2852MeineReaktionszeit } from './phase2852-meine-reaktionszeit';
+// Phase 2855 — Tour-Stops Navigation Echtzeit-Hub (Nächster Stopp Hero + One-Tap Google Maps/Waze + Kunden-Anruf + Angekommen/Zugestellt-Buttons + ETA-Countdown + Stop-Dots + Weitere Stopps aufklappbar; 15-Sek-Polling + 1-Sek-ETA-Tick)
+export { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';

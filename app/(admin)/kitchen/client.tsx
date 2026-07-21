@@ -10507,3 +10507,5 @@ export { KitchenPhase2849PuenktlichkeitsTicker } from './phase2849-puenktlichkei
 export { KitchenPhase2854ReaktionszeitTicker } from './phase2854-reaktionszeit-ticker';
 // Phase 2830 — Smart-Timing Countdown Farbkodierung Master (Echtzeit-Countdown grün/gelb/rot + Fortschrittsbalken + Kochstart-Empfehlung + Fahrer-ETA-Bridge + SLA-Balance; 1-Sek-Tick + 20-Sek-Polling)
 export { KitchenPhase2830SmartTimingCountdownFarbkodierungMaster } from './phase2830-smart-timing-countdown-farbkodierung-master';
+// Phase 2856 — Smart-Timing Farbkodierung Live Master (Echtzeit-Farbkodierung aller aktiven Bestellungen; Ampel grün/gelb/rot/kritisch nach Prep-Fortschritt; Sekunden-genaue Countdowns; Überfälligkeits-Alert; 1-Sek-Tick)
+export { KitchenPhase2856SmartTimingFarbkodierungLiveMaster } from './phase2856-smart-timing-farbkodierung-live-master';

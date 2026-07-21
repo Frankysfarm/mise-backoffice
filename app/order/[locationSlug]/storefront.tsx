@@ -3831,3 +3831,5 @@ export { StorefrontPhase2600DynamischeEtaLiveFinal } from './phase2600-dynamisch
 export { StorefrontPhase2620DynamischeEtaLiveMaster } from './phase2620-dynamische-eta-live-master';
 // Phase 2650 — Dynamische ETA Live-Tracking Master (ETA-Hero-Countdown + Phasen-Timeline + Fahrer-Info + Konfidenz-Indikator + Verzögerungs-Warnung; 1-Sek-Tick + 30-Sek-Polling)
 export { StorefrontPhase2650DynamischeEtaLiveTrackingMaster } from './phase2650-dynamische-eta-live-tracking-master';
+// Phase 2655 — Dynamische ETA Live-Tracking Ultra (ETA-Countdown + 5-Phasen-Fortschritt Bestellt→Geliefert + Fahrer-Info + compact-Modus; 1-Sek-Tick; mobile-first)
+export { StorefrontPhase2655DynamischeEtaLiveTrackingUltra } from './phase2655-dynamische-eta-live-tracking-ultra';
