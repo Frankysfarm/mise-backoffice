@@ -25190,3 +25190,45 @@ Nächste Aufgabe: **Phasen 2980–2984 — Fahrer-Umsatz-pro-Stunde-Index**
 5. **Phase 2999 Kitchen:** CO2-Ticker — Team-Ø CO2-kg; Alert >25 kg "Hoher CO2-Aussto!"; Fahrerliste kompakt aufsteigend (niedrigste zuerst); Trend INVERTIERT; Ziel ≤15 kg; 30-Min-Polling; in kitchen/client.tsx nach Phase2994.
 
 Backend-Architekt-Agent (2026-07-21): Phasen 2990–2994 implementiert — Fahrer-Kraftstoff-Effizienz-Index. Neue Backend-API /api/delivery/admin/fahrer-kraftstoff-effizienz (Ø km/l je Fahrer, Supabase driver_vehicle_stats → Fallback batch_stops distance_km → Mock, Ampel grün≥15/gelb10-14/rot<10, Alert <10 "Hoher Verbrauch!", Trend vs. gestern) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2991 Dispatch (KraftstoffBoard, absteigend nach km_pro_liter, Balken 0–20 km/l Ziel-Linie 15, KPI-Grid Team-Ø/Bester/Ziel ≥15, Alert-Banner <10 "Hoher Verbrauch!", Trend normal steigend=grün, Import L878+Render L4213+Barrel-Export L12085 ✅) / Phase2992 Fahrer-App (MeineKraftstoffEffizienz, Ø km/l 4xl+Farbcode, Balken 0–20 km/l Ziel 15, Coaching-Tipp, driverId-Filter, isOnline-Guard, 30-Min-Polling, Import L773+Render L6292+Barrel-Export L9800 ✅) / Phase2994 Kitchen (KraftstoffTicker, Team-Ø km/l im Header, Alert <10 "Hoher Verbrauch!", absteigend effizienteste zuerst, Ziel ≥15 km/l, Import L825+Render L3794+Barrel-Export L10662 ✅). Phase 2993 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors: true aktiv, node_modules nicht im Remote-Container). Push erfolgt.
+
+---
+
+## Batch 3000–3004 — Fahrer-Reaktionszeit-Index (2026-07-21)
+
+### Phase 3000 — Backend API: Fahrer-Reaktionszeit
+**Datei:** `app/api/delivery/admin/fahrer-reaktionszeit/route.ts` *(bereits vorhanden aus Phase 2435)*
+**Endpoint:** GET /api/delivery/admin/fahrer-reaktionszeit?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Ø Zeit (Min) von Zuweisung bis Abfahrt je Fahrer heute; Ampel grün(<3)/gelb(3–7)/rot(>7); Alert >7 "Langsame Reaktion!"; Trend vs. Vorwoche; Supabase(delivery_tours assigned_at+picked_up_at)+Mock; Phasenübernahme aus Phase 2435.
+
+### Phase 3001 — Reaktionszeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3001-reaktionszeit-board.tsx` *(neu)*
+**Component:** `DispatchPhase3001ReaktionszeitBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >7 Min "Langsame Reaktion!" mit Fahrernamen + Min; KPI-Grid (Team-Ø/Bester/Ziel ≤3 Min); Fahrerliste aufsteigend nach avg_min (kürzeste=schnellste oben); Balken 0–10 Min mit Ziel-Linie 3 Min; Ampel grün(<3)/gelb(3–7)/rot(>7); Trend-Pfeile INVERTIERT fallend=grün/steigend=rot; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` L880 Import + L4219 Render nach Phase2996 + L12093 Barrel-Export ✅
+
+### Phase 3002 — Meine Reaktionszeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3002-meine-reaktionszeit.tsx` *(neu)*
+**Component:** `FahrerPhase3002MeineReaktionszeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Ø Min 4xl farbkodiert; Balken 0–10 Min mit Ziel-Linie 3 Min; KPI-Grid (Trend-Delta/Team-Ø); Gelb-Coaching-Tipp je Ampelzone; driver_id-Modus; isOnline-Guard; Trend invertiert; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` L775 Import + L6298 Render nach Phase2997 + L9808 Barrel-Export ✅
+
+### Phase 3003 — Storefront
+Übersprungen (Reaktionszeit intern irrelevant für Kunden) ✅
+
+### Phase 3004 — Reaktionszeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3004-reaktionszeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3004ReaktionszeitTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Min im Header; Alert je Fahrer >7 Min "Langsame Reaktion!"; Fahrerliste kompakt aufsteigend nach avg_min (kürzeste zuerst) mit Ampel-Dots + Trend-Pfeil + Min-Wert; Trend INVERTIERT; Ziel-Anzeige ≤3 Min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` L827 Import + L3800 Render nach Phase2999 + L10670 Barrel-Export ✅
+
+### Nächste Phasen 3005–3009 (für nächsten Ingenieur) — Fahrer-Stornoquote-Index
+1. **Phase 3005 Backend:** GET /api/delivery/admin/fahrer-stornoquote — Stornierungsrate (%) je Fahrer heute; stornierte Aufträge / Gesamtaufträge je Fahrer; Ampel grün(≤5%)/gelb(5–15%)/rot(>15%); Alert >15% "Hohe Stornoquote!"; Trend vs. gestern; driver_id-Modus; Supabase(orders status='cancelled' + total orders)+Mock.
+2. **Phase 3006 Dispatch:** StornoquoteBoard — Fahrerliste aufsteigend nach Stornoquote (niedrigste=beste oben); Balken 0–30% Ziel-Linie 5%; KPI-Grid Team-Ø/Bester/Ziel ≤5%; Alert-Banner >15% "Hohe Stornoquote!"; Trend-Pfeile INVERTIERT (fallend=grün/steigend=rot); 30-Min-Polling; in dispatch/client.tsx nach Phase3001.
+3. **Phase 3007 Fahrer-App:** Meine Stornoquote — %-Wert 4xl+Farbcode; Balken 0–30% Ziel 5%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3002.
+4. **Phase 3008 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3009 Kitchen:** Stornoquote-Ticker — Team-Ø % im Header; Alert >15% "Hohe Stornoquote!"; Fahrerliste kompakt aufsteigend; Trend INVERTIERT; Ziel ≤5%; 30-Min-Polling; in kitchen/client.tsx nach Phase3004.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 3000–3004 implementiert — Fahrer-Reaktionszeit-Index. Backend-API bereits vorhanden aus Phase 2435 (/api/delivery/admin/fahrer-reaktionszeit, avg_min je Fahrer, Supabase delivery_tours assigned_at+picked_up_at + Mock, Ampel grün<3/gelb3-7/rot>7) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3001 Dispatch (DispatchPhase3001ReaktionszeitBoard, aufsteigend nach avg_min kürzeste=schnellste oben, Balken 0–10 Min Ziel-Linie 3 Min, KPI-Grid Team-Ø/Bester/Ziel ≤3 Min, Alert-Banner >7 Min "Langsame Reaktion!", Trend INVERTIERT fallend=grün/steigend=rot, Import L880+Render L4219+Barrel-Export L12093 ✅) / Phase3002 Fahrer-App (FahrerPhase3002MeineReaktionszeit, Min 4xl+Farbcode, Balken 0–10 Min Ziel 3 Min, Coaching-Tipp, isOnline-Guard, Trend invertiert, 30-Min-Polling, Import L775+Render L6298+Barrel-Export L9808 ✅) / Phase3004 Kitchen (KitchenPhase3004ReaktionszeitTicker, Team-Ø Min im Header, Alert >7 Min "Langsame Reaktion!", aufsteigend kürzeste zuerst, Trend invertiert fallend=grün, Ziel ≤3 Min, Import L827+Render L3800+Barrel-Export L10670 ✅). Phase 3003 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS2344 in .next/types/validator.ts — kein Fehler in neuen Phase-Dateien, tsc exit 0). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors: true aktiv, node_modules nicht im Remote-Container). Push erfolgt.
