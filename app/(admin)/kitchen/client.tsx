@@ -825,6 +825,7 @@ import { KitchenPhase2989LiefergebietTicker } from './phase2989-liefergebiet-tic
 import { KitchenPhase2994KraftstoffTicker } from './phase2994-kraftstoff-ticker';
 import { KitchenPhase2999Co2Ticker } from './phase2999-co2-ticker';
 import { KitchenPhase3004ReaktionszeitTicker } from './phase3004-reaktionszeit-ticker';
+import { KitchenPhase3009StornoquoteTicker } from './phase3009-stornoquote-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3798,6 +3799,8 @@ export function KitchenBoard({
       <KitchenPhase2999Co2Ticker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3004: Reaktionszeit-Ticker — Team-Ø Min im Header; Alert >7 Min "Langsame Reaktion!"; Fahrerliste kompakt aufsteigend (kürzeste zuerst); Trend invertiert fallend=grün; Ziel ≤3 Min; 30-Min-Polling */}
       <KitchenPhase3004ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3009: Stornoquote-Ticker — Team-Ø % im Header; Alert >15% "Hohe Stornoquote!"; Fahrerliste kompakt aufsteigend (niedrigste zuerst); Trend invertiert fallend=grün; Ziel ≤5%; 30-Min-Polling */}
+      <KitchenPhase3009StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10668,6 +10671,7 @@ export { KitchenPhase2989LiefergebietTicker } from './phase2989-liefergebiet-tic
 export { KitchenPhase2994KraftstoffTicker } from './phase2994-kraftstoff-ticker';
 export { KitchenPhase2999Co2Ticker } from './phase2999-co2-ticker';
 export { KitchenPhase3004ReaktionszeitTicker } from './phase3004-reaktionszeit-ticker';
+export { KitchenPhase3009StornoquoteTicker } from './phase3009-stornoquote-ticker';
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
