@@ -2,6 +2,22 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-21): Phasen 2980–2984 implementiert — Fahrer-Umsatz-pro-Stunde-Index. Backend-API bereits vorhanden (Phase 2980, fahrer-umsatz-pro-stunde, Ø Umsatz €/h je Fahrer heute aus Einnahmen/Schichtdauer, Supabase+Mock) + 3 neue Frontend-Komponenten korrekt importiert+gerendert: Phase2981 Dispatch (DispatchPhase2981UmsatzProStundeBoard, absteigend nach €/h höchste=beste oben, Balken 0–40 €/h Ziel-Linie 25 €/h, KPI-Grid Team-Ø/Bester/Ziel ≥25 €/h, Alert <15 €/h "Umsatz zu niedrig!", Trend-Pfeile normal steigend=grün, 30-Min-Polling, Import L876+Render L4206+Export L12077 ✅) / Phase2982 Fahrer-App (FahrerPhase2982MeinUmsatzProStunde, €/h 4xl+Farbcode, Balken 0–40 €/h Ziel 25 €/h, Coaching-Tipp je Ampelzone, isOnline-Guard, 30-Min-Polling, fahrer[]-Filter nach driverId, Import L771+Render L6285+Export L9792 ✅) / Phase2984 Kitchen (KitchenPhase2984UmsatzProStundeTicker, Team-Ø €/h im Header, Alert <15 €/h "Umsatz zu niedrig!", absteigend nach €/h, Ziel ≥25 €/h, 30-Min-Polling, Import L823+Render L3787+Export L10654 ✅). Phase 2983 Storefront übersprungen (intern). Kein Recharts, reine CSS-Balken. Trend-Pfeile normal (steigend=grün — mehr €/h = besser). Lokale Ampel-Thresholds CEO-Spec: grün≥25/gelb15-24/rot<15. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors:true aktiv). Push erfolgt.
+
+### Nächste Phasen 2980–2984 (für nächsten Ingenieur) — Fahrer-Umsatz-pro-Stunde-Index (ABGESCHLOSSEN)
+1. **Phase 2980 Backend:** ✅ FERTIG (war bereits vorhanden, fahrer-umsatz-pro-stunde)
+2. **Phase 2981 Dispatch:** ✅ FERTIG
+3. **Phase 2982 Fahrer-App:** ✅ FERTIG
+4. **Phase 2983 Storefront:** ✅ Übersprungen (korrekt)
+5. **Phase 2984 Kitchen:** ✅ FERTIG
+
+### Nächste Phasen 2985–2989 (für nächsten Ingenieur) — Fahrer-Liefergebiet-Auslastung
+1. **Phase 2985 Backend:** GET /api/delivery/admin/fahrer-liefergebiet-auslastung — Ø Lieferradius (km) + Auslastung je Zone je Fahrer heute; Ampel grün(≤4 km Radius + <80% Auslastung)/gelb(4–6 km oder 80–90%)/rot(>6 km oder >90%); Alert "Gebiet überlastet!"; Trend vs. gestern; driver_id-Modus; Supabase(batch_stops lat/lng)+Mock.
+2. **Phase 2986 Dispatch:** LiefergebietBoard — Fahrerliste absteigend nach Auslastung; Balken 0–100% Ziel-Linie 80%; KPI-Grid Team-Ø-Radius/Ø-Auslastung/Ziel <80%; Alert-Banner >90%; Trend-Pfeile invertiert; 30-Min-Polling; in dispatch/client.tsx nach Phase2981.
+3. **Phase 2987 Fahrer-App:** MeinLiefergebiet — Eigene Zone + Auslastung%; Balken 0–100% Ziel 80%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2982.
+4. **Phase 2988 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2989 Kitchen:** LiefergebietTicker — Team-Ø Auslastung%; Alert >90% "Gebiet überlastet!"; Fahrerliste kompakt absteigend; Ziel <80%; 30-Min-Polling; in kitchen/client.tsx nach Phase2984.
+
 Backend-Architekt-Agent (2026-07-21): Phasen 2970–2974 implementiert — Fahrer-Wartezeit-an-Stopps-Index. Backend-API bereits vorhanden (Phase 2741, fahrer-wartezeit-stopp, Ø Wartezeit je Stopp je Fahrer heute aus batch_stops arrived_at→completed_at, Ampel grün(≤3 Min)/gelb(3–6 Min)/rot(>6 Min), Alert >6 Min "Zu lange Wartezeit!", Trend vs. gestern, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten korrekt importiert+gerendert: Phase2971 Dispatch (DispatchPhase2971WartezeitStoppBoard, aufsteigend nach Ø-Wartezeit niedrigste=beste oben, Balken 0–10 Min Ziel-Linie 3 Min, KPI-Grid Team-Ø/Bester/Ziel ≤3 Min, Alert >6 Min "Zu lange Wartezeit!", Trend-Pfeile INVERTIERT fallend=grün/steigend=rot, 30-Min-Polling ✅) / Phase2972 Fahrer-App (FahrerPhase2972MeineWartezeitStopp, Ø Wartezeit 4xl+Farbcode, Balken 0–10 Min Ziel 3 Min, Coaching-Tipp je Ampelzone, isOnline-Guard, 30-Min-Polling, fahrer[0] aus API-Array ✅) / Phase2974 Kitchen (KitchenPhase2974WartezeitStoppTicker, Team-Ø Min im Header, Alert >6 Min "Zu lange Wartezeit!", aufsteigend nach Wartezeit, Ziel ≤3 Min, 30-Min-Polling ✅). Phase 2973 Storefront übersprungen (intern). Kein Recharts, reine CSS-Balken. Trend-Pfeile invertiert korrekt (weniger Wartezeit = besser). TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors:true aktiv). Push erfolgt.
 
 ### Nächste Phasen 2970–2974 (für nächsten Ingenieur) — Fahrer-Wartezeit-an-Stopps-Index (ABGESCHLOSSEN)

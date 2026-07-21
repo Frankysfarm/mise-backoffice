@@ -873,6 +873,7 @@ import { DispatchPhase2961KmProTourBoard } from './phase2961-km-pro-tour-board';
 import { DispatchPhase2966StoppsProStundeBoard } from './phase2966-stopps-pro-stunde-board';
 import { DispatchPhase2971WartezeitStoppBoard } from './phase2971-wartezeit-stopp-board';
 import { DispatchPhase2976TourenProTagBoard } from './phase2976-touren-pro-tag-board';
+import { DispatchPhase2981UmsatzProStundeBoard } from './phase2981-umsatz-pro-stunde-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4202,6 +4203,8 @@ export function DispatchBoard({
           <DispatchPhase2971WartezeitStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2976: Touren/Tag-Board — Fahrerliste absteigend nach Tourenanzahl; Balken 0–6 Ziel-Linie 3; KPI-Grid Team-Ø/Bester/Ziel ≥3; Alert <2 "Zu wenige Touren!"; Trend normal steigend=grün; 30-Min-Polling */}
           <DispatchPhase2976TourenProTagBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2981: Umsatz/h-Board — Fahrerliste absteigend nach €/h; Balken 0–40 Ziel-Linie 25 €/h; KPI-Grid Team-Ø/Bester/Ziel ≥25 €/h; Alert <15 €/h "Umsatz zu niedrig!"; Trend normal steigend=grün; 30-Min-Polling */}
+          <DispatchPhase2981UmsatzProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12071,6 +12074,7 @@ export { DispatchPhase2961KmProTourBoard } from './phase2961-km-pro-tour-board';
 export { DispatchPhase2966StoppsProStundeBoard } from './phase2966-stopps-pro-stunde-board';
 export { DispatchPhase2971WartezeitStoppBoard } from './phase2971-wartezeit-stopp-board';
 export { DispatchPhase2976TourenProTagBoard } from './phase2976-touren-pro-tag-board';
+export { DispatchPhase2981UmsatzProStundeBoard } from './phase2981-umsatz-pro-stunde-board';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
