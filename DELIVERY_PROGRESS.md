@@ -24754,3 +24754,44 @@ Frontend-Ingenieur-Agent (2026-07-21): Phasen 2925–2929 implementiert — Fahr
 5. **Phase 2939 Kitchen:** Reaktionszeit-Ticker — Team-Ø Min; Alert >5 Min "Reaktionszeit zu hoch!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≤2 Min; 30-Min-Polling; in kitchen/client.tsx nach Phase2934.
 
 Backend-Architekt-Agent (2026-07-21): Phasen 2930–2934 implementiert. Backend-API neu erstellt (fahrer-abschlussquote, Rate=delivered/total×100, Ampel grün≥95/gelb85–94/rot<85, Alert "Abschlussquote zu niedrig!", Trend vs. gestern, driver_id-Modus, Supabase batch_stops status='delivered'+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2931 Dispatch (AbschlussquotenBoard, absteigend nach quote_pct %, Balken 0–100% Ziel-Linie 95%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <85% "Abschlussquote zu niedrig!", Trend steigend=grün/fallend=rot) / Phase2932 Fahrer-App (MeineAbschlussquote, Quote % 4xl + Farbcode, Coaching-Tipp, isOnline-Guard, 30-Min-Polling) / Phase2934 Kitchen (AbschlussquotenTicker, Team-Ø %, Alert <85% "Abschlussquote zu niedrig!", absteigend, Ziel ≥95%). Phase 2933 Storefront übersprungen. Build: Exit Code 0 ✓. Push erfolgt.
+
+---
+
+## Batch 2935–2939 — Fahrer-Reaktionszeit-Index (2026-07-21)
+
+### Phase 2935 — Backend API: Fahrer-Reaktionszeit
+**Datei:** `app/api/delivery/admin/fahrer-reaktionszeit/route.ts` *(vorhanden seit Phase 2435)*
+**Wiederverwendet:** Bestehende API (avg_min je Fahrer, team_durchschnitt, ampel, trend, trend_delta). Phase 2935 Backend bereits implementiert.
+
+### Phase 2936 — Reaktionszeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2936-reaktionszeit-board.tsx` *(neu)*
+**Component:** `DispatchPhase2936ReaktionszeitBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >5 Min "Reaktionszeit zu hoch!"; KPI-Grid (Team-Ø/Bester/Ziel ≤2 Min); Fahrerliste aufsteigend nach avg_min (schnellste oben); Balken 0–10 Min mit Ziel-Linie 2 Min; Trend-Pfeile invertiert (fallend=grün/steigend=rot); Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2931 ✅
+
+### Phase 2937 — Meine Reaktionszeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2937-meine-reaktionszeit.tsx` *(neu)*
+**Component:** `FahrerPhase2937MeineReaktionszeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Ø Min 4xl farbkodiert; Balken 0–10 Min mit Ziel-Linie 2 Min; KPI-Grid (Trend-Delta/Team-Ø); Blau-Coaching-Tipp je Ampelzone; client-seitiges Filtern nach driverId; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2932 ✅
+
+### Phase 2938 — Storefront
+Übersprungen (Reaktionszeit intern irrelevant für Kunden) ✅
+
+### Phase 2939 — Reaktionszeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2939-reaktionszeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2939ReaktionszeitTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Min im Header; Alert je Fahrer >5 Min "Reaktionszeit zu hoch!"; Fahrerliste kompakt aufsteigend nach avg_min (schnellste oben) mit Ampel-Dots + Trend-Pfeil (invertiert) + Min; Ziel-Anzeige ≤2 Min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2934 ✅
+
+### Nächste Phasen 2940–2944 (für nächsten Ingenieur) — Fahrer-Storno-Rate-Index
+1. **Phase 2940 Backend:** GET /api/delivery/admin/fahrer-stornorate — Storno-Rate (stornierte/abgebrochene Stopps / Gesamt-Stopps × 100) je Fahrer heute; Ampel grün(≤5%)/gelb(5–10%)/rot(>10%); Alert >10% "Stornorate zu hoch!"; Trend vs. gestern; driver_id-Modus; Supabase(batch_stops status='cancelled'|'failed' vs. total)+Mock.
+2. **Phase 2941 Dispatch:** StornoRateBoard — Fahrerliste aufsteigend nach Rate (niedrigste = beste oben); Balken 0–20% Ziel-Linie 5%; KPI-Grid Team-Ø/Bester/Ziel ≤5%; Alert-Banner >10% "Stornorate zu hoch!"; Trend-Pfeile invertiert (fallend=grün/steigend=rot); 30-Min-Polling; in dispatch/client.tsx nach Phase2936.
+3. **Phase 2942 Fahrer-App:** Meine Stornorate — Rate % 4xl + Farbcode; Balken 0–20% Ziel 5%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2937.
+4. **Phase 2943 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2944 Kitchen:** Stornorate-Ticker — Team-Ø %; Alert >10% "Stornorate zu hoch!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≤5%; 30-Min-Polling; in kitchen/client.tsx nach Phase2939.
+
+Frontend-Ingenieur-Agent (2026-07-21): Phasen 2935–2939 implementiert — Fahrer-Reaktionszeit-Index. Backend-API wiederverwendet (fahrer-reaktionszeit von Phase 2435, avg_min/team_durchschnitt/ampel/trend) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2936 Dispatch (ReaktionszeitBoard, aufsteigend nach avg_min Min, Balken 0–10 Min Ziel-Linie 2 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner >5 Min "Reaktionszeit zu hoch!", Trend invertiert fallend=grün/steigend=rot, Import + Render nach Phase2931 + Barrel-Export ✅) / Phase2937 Fahrer-App (MeineReaktionszeit, Ø Min 4xl + Farbcode, Balken 0–10 Min Ziel 2 Min, Trend vs. Vorwoche, Blau-Coaching-Tipp, driverId-Filter, isOnline-Guard, 30-Min-Polling, Import + Render nach Phase2932 + Barrel-Export ✅) / Phase2939 Kitchen (ReaktionszeitTicker, Team-Ø Min im Header, Alert >5 Min "Reaktionszeit zu hoch!", aufsteigend, Ziel ≤2 Min, Import + Render nach Phase2934 + Barrel-Export ✅). Phase 2938 Storefront übersprungen. Build: ✓ Exit Code 0 "Compiled successfully". TS ZERO neue Fehler. Push erfolgt.

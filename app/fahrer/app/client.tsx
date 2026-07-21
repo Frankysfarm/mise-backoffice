@@ -759,6 +759,7 @@ import { FahrerPhase2920TourStoppUltraNavigator } from './phase2920-tour-stopp-u
 import { FahrerPhase2922MeineRoutenOptimierung } from './phase2922-meine-routen-optimierung';
 import { FahrerPhase2927MeinePuenktlichkeit } from './phase2927-meine-puenktlichkeit';
 import { FahrerPhase2932MeineAbschlussquote } from './phase2932-meine-abschlussquote';
+import { FahrerPhase2937MeineReaktionszeit } from './phase2937-meine-reaktionszeit';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
 import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
@@ -6253,6 +6254,8 @@ export function FahrerApp({
           <FahrerPhase2927MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2932: Meine Abschlussquote — Quote % 4xl; Balken 0–100% Ziel 95%; Trend vs. gestern; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2932MeineAbschlussquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2937: Meine Reaktionszeit — Ø Min 4xl; Balken 0–10 Min Ziel 2 Min; Trend; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2937MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2920: Tour-Stopp Ultra-Navigator — Hero-Stopp farbkodiert ETA-Countdown; Maps/Waze/Anruf; Angekommen/Zugestellt; Sequenz-Dots; 1-Sek-Tick+15-Sek-Polling */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2920TourStoppUltraNavigator
@@ -9741,3 +9744,5 @@ export { FahrerPhase2922MeineRoutenOptimierung } from './phase2922-meine-routen-
 export { FahrerPhase2927MeinePuenktlichkeit } from './phase2927-meine-puenktlichkeit';
 // Phase 2932 — Meine Abschlussquote (Quote % 4xl farbkodiert; Balken 0–100% Ziel ≥95%; Trend vs. gestern; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2932MeineAbschlussquote } from './phase2932-meine-abschlussquote';
+// Phase 2937 — Meine Reaktionszeit (Ø Min 4xl farbkodiert; Balken 0–10 Min Ziel ≤2 Min; Trend vs. Vorwoche; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2937MeineReaktionszeit } from './phase2937-meine-reaktionszeit';
