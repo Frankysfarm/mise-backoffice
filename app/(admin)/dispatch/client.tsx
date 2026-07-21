@@ -861,6 +861,7 @@ import { DispatchPhase2910StoppzeitBoard } from './phase2910-stoppzeit-board';
 import { DispatchPhase2911TourenEffizienzBoard } from './phase2911-touren-effizienz-board';
 import { DispatchPhase2916HeimwegEffizienzBoard } from './phase2916-heimweg-effizienz-board';
 import { DispatchPhase2920TourScoreEchtzeitVisualisierungUltimate } from './phase2920-tour-score-echtzeit-visualisierung-ultimate';
+import { DispatchPhase2921RoutenOptimierungsBoard } from './phase2921-routen-optimierungs-board';
 
 type Driver = {
   employee_id: string;
@@ -4165,6 +4166,8 @@ export function DispatchBoard({
           <DispatchPhase2916HeimwegEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2920: Tour-Score Echtzeit-Visualisierung Ultimate — Score-Ring SVG je Fahrer; Sub-Scores; Expandierbar; Team-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2920TourScoreEchtzeitVisualisierungUltimate locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2921: Routen-Optimierungs-Board — Score je Fahrer (ideal/actual km ×100); absteigend nach Score; Balken 0–100 Ziel 90; Alert <75 "Ineffiziente Route!"; Trend; 30-Min-Polling */}
+          <DispatchPhase2921RoutenOptimierungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
           <DispatchPhase2853TourScoreVisualisierungUltimate batches={batches} drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}
@@ -12011,3 +12014,5 @@ export { DispatchPhase2911TourenEffizienzBoard } from './phase2911-touren-effizi
 export { DispatchPhase2916HeimwegEffizienzBoard } from './phase2916-heimweg-effizienz-board';
 // Phase 2920 — Tour-Score Echtzeit-Visualisierung Ultimate (Score-Ring SVG je Fahrer 0–100 + Sub-Scores Pünktlichkeit/Abschlussrate/Wartezeit/Bewertung + farbkodierte Balken + Team-Ø + Alert <60; 20-Sek-Polling)
 export { DispatchPhase2920TourScoreEchtzeitVisualisierungUltimate } from './phase2920-tour-score-echtzeit-visualisierung-ultimate';
+// Phase 2921 — Routen-Optimierungs-Board (Score ideal/actual km ×100 je Fahrer; absteigend; Balken 0–100 Ziel 90; Alert <75 "Ineffiziente Route!"; Trend; 30-Min-Polling)
+export { DispatchPhase2921RoutenOptimierungsBoard } from './phase2921-routen-optimierungs-board';
