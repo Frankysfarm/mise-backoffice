@@ -41,8 +41,8 @@ function ampelVon(avgMin: number): Ampel {
 
 function trendVon(heute: number, vorwoche: number): { trend: Trend; delta: number } {
   const delta = Math.round((heute - vorwoche) * 10) / 10;
-  if (delta < -0.5) return { trend: 'steigend', delta };
-  if (delta > 0.5) return { trend: 'fallend', delta };
+  if (delta < -0.5) return { trend: 'fallend', delta };
+  if (delta > 0.5) return { trend: 'steigend', delta };
   return { trend: 'stabil', delta };
 }
 

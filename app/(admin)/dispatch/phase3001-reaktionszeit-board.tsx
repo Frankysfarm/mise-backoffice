@@ -137,7 +137,7 @@ export function DispatchPhase3001ReaktionszeitBoard({ locationId }: { locationId
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500 inline-block" />&lt;3 Min</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />3-7 Min</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" />&gt;7 Min</span>
-            <span className="text-gray-400">| Ziel &lt;3 Min</span>
+            <span className="text-gray-400">| Ziel ≤2 Min</span>
           </div>
         </div>
       )}
