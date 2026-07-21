@@ -882,6 +882,7 @@ import { DispatchPhase3006StornoquoteBoard } from './phase3006-stornoquote-board
 import { DispatchPhase3011BewertungsBoard } from './phase3011-bewertungs-board';
 import { DispatchPhase3016PuenktlichkeitV2Board } from './phase3016-puenktlichkeit-v2-board';
 import { DispatchPhase3021ZuverlaessigkeitsBoard } from './phase3021-zuverlaessigkeits-board';
+import { DispatchPhase3026DurchschnittsLieferzeitBoard } from './phase3026-durchschnitts-lieferzeit-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4229,6 +4230,8 @@ export function DispatchBoard({
           <DispatchPhase3016PuenktlichkeitV2Board locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3021: Zuverlässigkeits-Board — absteigend nach abschluss_pct (höchste=beste oben); Balken 0–100% Ziel-Linie 95%; KPI-Grid Team-Ø/Bester/Ziel ≥95%; Alert <85% "Geringe Zuverlässigkeit!"; Trend normal steigend=grün; 30-Min-Polling */}
           <DispatchPhase3021ZuverlaessigkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3026: Ø Lieferzeit-Board — aufsteigend nach avg_min; Balken 0–60 Min Ziel-Linie 25 Min; KPI-Grid Team-Ø/Bester/Ziel ≤25 Min; Alert >35 Min; Trend INVERTIERT fallend=grün; 30-Min-Polling */}
+          <DispatchPhase3026DurchschnittsLieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12107,6 +12110,7 @@ export { DispatchPhase3006StornoquoteBoard } from './phase3006-stornoquote-board
 export { DispatchPhase3011BewertungsBoard } from './phase3011-bewertungs-board';
 export { DispatchPhase3016PuenktlichkeitV2Board } from './phase3016-puenktlichkeit-v2-board';
 export { DispatchPhase3021ZuverlaessigkeitsBoard } from './phase3021-zuverlaessigkeits-board';
+export { DispatchPhase3026DurchschnittsLieferzeitBoard } from './phase3026-durchschnitts-lieferzeit-board';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
