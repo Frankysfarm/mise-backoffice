@@ -163,7 +163,7 @@ export function LieferdienstPhase2595StatistikenLiveMasterCockpit({ locationId }
                 <XAxis dataKey="h" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
                 <Tooltip
                   contentStyle={{ fontSize: 10, borderRadius: 6, padding: '4px 8px' }}
-                  formatter={(v: number) => chartMode === 'umsatz' ? [`${v}€`, 'Umsatz'] : [v, 'Bestellungen']}
+                  formatter={(v) => chartMode === 'umsatz' ? [`${v != null ? v : ''}€`, 'Umsatz'] : [v ?? '', 'Bestellungen']}
                 />
                 <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>
                   {data.stunden.map((_, i) => (
