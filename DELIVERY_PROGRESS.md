@@ -24609,3 +24609,44 @@ Backend-Architekt-Agent (2026-07-21): Phasen 2881–2885 implementiert. Backend-
 5. **Phase 2918 Kitchen:** km/Tour-Ticker — Team-Ø km; Alert >8 km "Hohe km-Leistung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≤5 km; 30-Min-Polling; in kitchen/client.tsx nach Phase2913.
 
 Backend-Architekt-Agent (2026-07-21): Phasen 2910–2913 implementiert. Backend-API wiederverwendet (fahrer-stoppzeit, arrived_at→departed_at aus batch_stops, avg_stoppzeit_min, Ampel grün≤5/gelb5–10/rot>10 Min, alert_zu_lang >10 Min, Trend, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2910 Dispatch (StoppzeitBoard, aufsteigend nach Min, Balken 0–15 Min Ziel-Linie 5 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner >10 Min "Stoppzeit zu lang!", Trend invertiert fallend=grün/steigend=rot) / Phase2911 Fahrer-App (MeineStoppzeit, Min 4xl + Farbcode, Coaching-Tipp, isOnline-Guard, 30-Min-Polling) / Phase2913 Kitchen (StoppzeitTicker, Team-Ø Min, Alert >10 Min, aufsteigend, Ziel ≤5 Min). Phase 2912 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2920–2924 — Fahrer-Routen-Optimierungs-Index (2026-07-21)
+
+### Phase 2920 — Backend API: Fahrer-Routen-Optimierung
+**Datei:** `app/api/delivery/admin/fahrer-routen-optimierung/route.ts` *(neu)*
+**Implementiert:** Score = (ideal_distance_km / distance_km) × 100 (100=perfekt, <75=ineffizient) je Fahrer heute; Ampel grün(≥90)/gelb(75–89)/rot(<75); Alert <75 "Ineffiziente Route!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase(distance_km+ideal_distance_km in delivery_batches)+Mock
+
+### Phase 2921 — Routen-Optimierungs-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2921-routen-optimierungs-board.tsx` *(neu)*
+**Component:** `DispatchPhase2921RoutenOptimierungsBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <75 Pkt "Ineffiziente Route!" mit Fahrernamen + Score; KPI-Grid (Team-Ø/Bester/Ziel ≥90 Pkt); Fahrerliste absteigend nach Score (beste oben); Balken 0–100 Pkt mit Ziel-Linie 90; Ampel grün(≥90)/gelb(75–89)/rot(<75); Trend-Pfeile (steigend=grün/fallend=rot); Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2920 (TourScoreEchtzeitVisualisierungUltimate) ✅
+
+### Phase 2922 — Meine Routen-Optimierung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2922-meine-routen-optimierung.tsx` *(neu)*
+**Component:** `FahrerPhase2922MeineRoutenOptimierung`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Score 4xl groß + Farbcode; Balken 0–100 Pkt mit Ziel-Linie 90; KPI-Grid (Trend-Delta/Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2917 ✅
+
+### Phase 2923 — Storefront
+Übersprungen (Routen-Optimierung intern irrelevant für Kunden) ✅
+
+### Phase 2924 — Routen-Optimierungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2924-routen-optimierungs-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2924RoutenOptimierungsTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Score; Alert-Banner je Fahrer <75 "Ineffiziente Route!"; Fahrerliste kompakt absteigend nach Score (beste zuerst) mit Ampel-Dots + Trend-Pfeil + Score; Ziel-Anzeige ≥90 Pkt; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2919 ✅
+
+### Nächste Phasen 2925–2929 (für nächsten Ingenieur) — Fahrer-Pünktlichkeits-Index
+1. **Phase 2925 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit — Pünktlichkeits-Rate (pünktliche Lieferungen / Gesamt-Lieferungen × 100) je Fahrer heute; Ampel grün(≥90%)/gelb(75–89%)/rot(<75%); Alert <75% "Pünktlichkeit zu niedrig!"; Trend vs. gestern; driver_id-Modus; Supabase(promised_at vs. actual_delivery_at in batch_stops)+Mock.
+2. **Phase 2926 Dispatch:** PünktlichkeitsBoard — Fahrerliste absteigend nach Rate (beste oben); Balken 0–100% Ziel-Linie 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert-Banner <75% "Pünktlichkeit zu niedrig!"; Trend-Pfeile (steigend=grün); 30-Min-Polling; in dispatch/client.tsx nach Phase2921.
+3. **Phase 2927 Fahrer-App:** Meine Pünktlichkeit — Rate % 4xl + Farbcode; Balken 0–100% Ziel 90%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2922.
+4. **Phase 2928 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2929 Kitchen:** Pünktlichkeits-Ticker — Team-Ø %; Alert <75% "Pünktlichkeit zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥90%; 30-Min-Polling; in kitchen/client.tsx nach Phase2924.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2920–2924 implementiert. Backend-API neu erstellt (fahrer-routen-optimierung, Score=ideal_km/actual_km×100, Ampel grün≥90/gelb75–89/rot<75, Alert "Ineffiziente Route!", Trend vs. gestern, driver_id-Modus, Supabase distance_km+ideal_distance_km+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2921 Dispatch (RoutenOptimierungsBoard, absteigend nach Score, Balken 0–100 Pkt Ziel-Linie 90, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <75 "Ineffiziente Route!", Trend steigend=grün/fallend=rot) / Phase2922 Fahrer-App (MeineRoutenOptimierung, Score 4xl + Farbcode, Coaching-Tipp, isOnline-Guard, 30-Min-Polling) / Phase2924 Kitchen (RoutenOptimierungsTicker, Team-Ø Score, Alert <75 "Ineffiziente Route!", absteigend, Ziel ≥90 Pkt). Phase 2923 Storefront übersprungen. Build: ✓ Exit Code 0 "Compiled successfully". Push erfolgt.
