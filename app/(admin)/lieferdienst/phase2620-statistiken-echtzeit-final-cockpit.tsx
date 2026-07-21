@@ -224,8 +224,8 @@ export function LieferdienstPhase2620StatistikenEchtzeitFinalCockpit({ locationI
             <BarChart data={data.stunden} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
               <XAxis dataKey="stunde" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip
-                formatter={(v: number) => chart === 'umsatz' ? `${v} €` : `${v}`}
-                labelFormatter={(l: string) => `${l}:00 Uhr`}
+                formatter={(v) => chart === 'umsatz' ? `${v} €` : `${v}`}
+                labelFormatter={(l) => `${l}:00 Uhr`}
                 contentStyle={{ fontSize: 11 }}
               />
               <Bar dataKey={chart} radius={[3,3,0,0]}>

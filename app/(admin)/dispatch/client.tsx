@@ -860,6 +860,7 @@ import { DispatchPhase2908TourScoreLiveMatrix } from './phase2908-tour-score-liv
 import { DispatchPhase2910StoppzeitBoard } from './phase2910-stoppzeit-board';
 import { DispatchPhase2911TourenEffizienzBoard } from './phase2911-touren-effizienz-board';
 import { DispatchPhase2916HeimwegEffizienzBoard } from './phase2916-heimweg-effizienz-board';
+import { DispatchPhase2920TourScoreEchtzeitVisualisierungUltimate } from './phase2920-tour-score-echtzeit-visualisierung-ultimate';
 
 type Driver = {
   employee_id: string;
@@ -4162,6 +4163,8 @@ export function DispatchBoard({
           <DispatchPhase2911TourenEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2916: Heimweg-Effizienz-Board — Ø Leerfahrt-Zeit je Fahrer; aufsteigend nach Min; Balken 0–30 Ziel 10; KPI-Grid; Alert >20 Min "Heimweg zu lang!"; Trend invertiert; 30-Min-Polling */}
           <DispatchPhase2916HeimwegEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2920: Tour-Score Echtzeit-Visualisierung Ultimate — Score-Ring SVG je Fahrer; Sub-Scores; Expandierbar; Team-Ø; Alert <60; 20-Sek-Polling */}
+          <DispatchPhase2920TourScoreEchtzeitVisualisierungUltimate locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
           <DispatchPhase2853TourScoreVisualisierungUltimate batches={batches} drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}

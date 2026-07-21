@@ -755,6 +755,7 @@ import { FahrerPhase2909TourStoppSequenzNavigator } from './phase2909-tour-stopp
 import { FahrerPhase2911MeineStoppzeit } from './phase2911-meine-stoppzeit';
 import { FahrerPhase2912MeineTourenEffizienz } from './phase2912-meine-touren-effizienz';
 import { FahrerPhase2917MeinHeimweg } from './phase2917-mein-heimweg';
+import { FahrerPhase2920TourStoppUltraNavigator } from './phase2920-tour-stopp-ultra-navigator';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
 import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
@@ -6243,6 +6244,14 @@ export function FahrerApp({
           <FahrerPhase2912MeineTourenEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2917: Mein Heimweg — Ø Leerfahrt-Zeit Min 4xl; Balken 0–30 Ziel 10; Trend vs. gestern; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2917MeinHeimweg driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2920: Tour-Stopp Ultra-Navigator — Hero-Stopp farbkodiert ETA-Countdown; Maps/Waze/Anruf; Angekommen/Zugestellt; Sequenz-Dots; 1-Sek-Tick+15-Sek-Polling */}
+          {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2920TourStoppUltraNavigator
+              stops={(activeBatch.stops ?? []) as any}
+              onMarkDelivered={markDelivered}
+              onMarkArrived={markArrived}
+            />
+          )}
           {/* Phase 2909: Tour-Stopp Sequenz-Navigator — Nächster-Stopp-Hero + Maps/Waze/Anruf; Sequenzliste mit ETA; isOnline-Guard */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2909TourStoppSequenzNavigator
