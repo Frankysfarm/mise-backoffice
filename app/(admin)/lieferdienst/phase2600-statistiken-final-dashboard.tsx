@@ -59,13 +59,16 @@ export function LieferdienstPhase2600StatistikenFinalDashboard({ locationId }: {
       const { data: orders } = await q;
       if (!orders || !alive) return;
 
-      const completed = orders.filter(o => ['geliefert', 'abgeholt', 'abgeschlossen'].includes(o.status));
-      const cancelled = orders.filter(o => o.status === 'storniert');
+      type OrderRow = { id: string; status: string; gesamtbetrag: number | null; bestellt_am: string; liefer_minuten: number | null };
+      const typedOrders = orders as OrderRow[];
 
-      const revenue = completed.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
-      const deliveryTimes = completed.map(o => o.liefer_minuten).filter((v): v is number => v != null);
-      const avgDelivery = deliveryTimes.length > 0 ? deliveryTimes.reduce((s, v) => s + v, 0) / deliveryTimes.length : 0;
-      const onTime = completed.filter(o => (o.liefer_minuten ?? 99) <= 30).length;
+      const completed = typedOrders.filter((o: OrderRow) => ['geliefert', 'abgeholt', 'abgeschlossen'].includes(o.status));
+      const cancelled = typedOrders.filter((o: OrderRow) => o.status === 'storniert');
+
+      const revenue = completed.reduce((s: number, o: OrderRow) => s + (o.gesamtbetrag ?? 0), 0);
+      const deliveryTimes = completed.map((o: OrderRow) => o.liefer_minuten).filter((v): v is number => v != null);
+      const avgDelivery = deliveryTimes.length > 0 ? deliveryTimes.reduce((s: number, v: number) => s + v, 0) / deliveryTimes.length : 0;
+      const onTime = completed.filter((o: OrderRow) => (o.liefer_minuten ?? 99) <= 30).length;
       const onTimeRate = completed.length > 0 ? (onTime / completed.length) * 100 : 0;
       const cancelRate = orders.length > 0 ? (cancelled.length / orders.length) * 100 : 0;
 
@@ -218,7 +221,7 @@ export function LieferdienstPhase2600StatistikenFinalDashboard({ locationId }: {
             <BarChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <XAxis dataKey="label" tick={{ fontSize: 9, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
               <Tooltip
-                formatter={(v: number) => mode === 'revenue' ? fmtEur(v) : `${v} Bestellungen`}
+                formatter={(v: number | string) => mode === 'revenue' ? fmtEur(Number(v)) : `${v} Bestellungen`}
                 contentStyle={{ fontSize: 10, borderRadius: 8, border: '1px solid #e7e5e4' }}
               />
               <Bar dataKey="value" radius={[3, 3, 0, 0]} maxBarSize={24}>
