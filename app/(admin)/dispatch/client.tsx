@@ -852,6 +852,7 @@ import { DispatchPhase2872AuslastungsBoard } from './phase2872-auslastungs-board
 import { DispatchPhase2877TourScoreEchtzeitAnalyseBoard } from './phase2877-tour-score-echtzeit-analyse-board';
 import { DispatchPhase2882LiefergeschwindigkeitBoard } from './phase2882-liefergeschwindigkeit-board';
 import { DispatchPhase2887TourScoreVisualisierungLiveKommando } from './phase2887-tour-score-visualisierung-live-kommando';
+import { DispatchPhase2892BewertungsTrendBoard } from './phase2892-bewertungs-trend-board';
 
 type Driver = {
   employee_id: string;
@@ -4140,6 +4141,8 @@ export function DispatchBoard({
           <DispatchPhase2882LiefergeschwindigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2887: Tour-Score Visualisierung Live-Kommando — Score-Ring SVG + Sub-Scores + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + Alert Score <60; 20-Sek-Polling */}
           <DispatchPhase2887TourScoreVisualisierungLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2892: Bewertungs-Trend Board — Fahrerliste absteigend nach Ø-Bewertung; Balken 0–5 ★ Ziel 4.5 ★; KPI-Grid Team-Ø/Bester/Ziel; Alert <3.5 "Niedrige Bewertung!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2892BewertungsTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
           <DispatchPhase2853TourScoreVisualisierungUltimate batches={batches} drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}
@@ -11969,3 +11972,5 @@ export { DispatchPhase2877TourScoreEchtzeitAnalyseBoard } from './phase2877-tour
 export { DispatchPhase2882LiefergeschwindigkeitBoard } from './phase2882-liefergeschwindigkeit-board';
 // Phase 2887 — Tour-Score Visualisierung Live-Kommando (Score-Ring SVG je Fahrer + Sub-Scores Pünktlichkeit/Effizienz/Bewertung + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2887TourScoreVisualisierungLiveKommando } from './phase2887-tour-score-visualisierung-live-kommando';
+// Phase 2892 — Bewertungs-Trend Board (Fahrerliste absteigend nach Ø-Bewertung; Balken 0–5 ★ Ziel 4.5 ★; KPI-Grid Team-Ø/Bester/Ziel; Alert <3.5 "Niedrige Bewertung!"; Trend-Pfeile steigend=grün/fallend=rot; 30-Min-Polling)
+export { DispatchPhase2892BewertungsTrendBoard } from './phase2892-bewertungs-trend-board';
