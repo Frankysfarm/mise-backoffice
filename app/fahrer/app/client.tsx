@@ -9751,3 +9751,6 @@ export { FahrerPhase2932MeineAbschlussquote } from './phase2932-meine-abschlussq
 export { FahrerPhase2937MeineReaktionszeit } from './phase2937-meine-reaktionszeit';
 // Phase 2942 — Meine Bündelungs-Effizienz (Ø Stopps/Tour 4xl farbkodiert; Balken 0–5 Ziel ≥3; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2942MeineBuendelungsEffizienz } from './phase2942-meine-buendelungs-effizienz';
+
+// Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
+export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';

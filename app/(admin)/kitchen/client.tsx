@@ -10613,3 +10613,6 @@ export { KitchenPhase2934AbschlussquotenTicker } from './phase2934-abschlussquot
 export { KitchenPhase2939ReaktionszeitTicker } from './phase2939-reaktionszeit-ticker';
 // Phase 2944 — Bündelungs-Effizienz-Ticker (Team-Ø Stopps/Tour; Alert <2 "Schlechte Bündelung!"; absteigend; Ziel ≥3 Stopps/Tour; 30-Min-Polling)
 export { KitchenPhase2944BuendelungsEffizienzTicker } from './phase2944-buendelungs-effizienz-ticker';
+
+// Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
+export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
