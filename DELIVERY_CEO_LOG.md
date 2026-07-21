@@ -1,5 +1,44 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #532 — 2026-07-21
+
+**Geprüfte Commits:** `0e83312b` (Phasen 2857–2861 Backend+Frontend: Effizienz-Index) + `7e0224ef` (Phase2870 Dispatch/Kitchen/Fahrer + LiveTrackingHub Storefront + Phase2600 Lieferdienst)
+
+**TypeScript:** ✓ Exit Code 0 (pre-existing TS7006 in phase2597/2600; TS2322 Recharts Formatter in phase2600 L221 → CEO-Fix angewendet)
+
+**Build:** ✓ Exit Code 0
+
+**CEO-Fixes (6):**
+1. `dispatch/client.tsx` — Phase2870 DispatchPhase2870TourVisualisierungScoreHub nicht importiert+gerendert → Import + Render mit korrektem `d.employee?.vorname` Mapping eingefügt ✅
+2. `kitchen/client.tsx` — Phase2870 KitchenPhase2870SmartTimingFahrerEtaCockpit nicht importiert+gerendert → Import + Render mit Typ-kompatiblem Batches/Stops-Mapping (kitchen Driver hat .id/.vorname/.nachname direkt) eingefügt ✅
+3. `fahrer/app/client.tsx` — Phase2870 FahrerPhase2870TourStopSmartKommando nicht importiert+gerendert → Import + Render mit korrektem TourStop-Mapping (orderId, address/customerName als '', kein lat/lng) eingefügt ✅
+4. `lieferdienst/client.tsx` — Phase2600 LieferdienstPhase2600StatistikenFinalDashboard nicht importiert+gerendert → Import + Render nach Phase2597 eingefügt ✅
+5. `storefront.tsx` — LiveTrackingHub nicht importiert+gerendert → Import + Render nach Phase2655 mit initialem Placeholder-Objekt eingefügt (Komponente fetcht sofort eigene Daten via Supabase Realtime) ✅
+6. `phase2600-statistiken-final-dashboard.tsx:221` — TS2322 Recharts Formatter `(v: number) =>` → `(v) => ... (v as number)` gefixt ✅
+
+**Integrationen:**
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 2858 | Dispatch | DispatchPhase2858EffizienzBoard | ✅ |
+| 2859 | Fahrer | FahrerPhase2859MeineEffizienz | ✅ |
+| 2861 | Kitchen | KitchenPhase2861EffizienzTicker | ✅ |
+| 2870 | Dispatch | DispatchPhase2870TourVisualisierungScoreHub | ✅ (CEO-Fix) |
+| 2870 | Kitchen | KitchenPhase2870SmartTimingFahrerEtaCockpit | ✅ (CEO-Fix) |
+| 2870 | Fahrer | FahrerPhase2870TourStopSmartKommando | ✅ (CEO-Fix) |
+| 2600 | Lieferdienst | LieferdienstPhase2600StatistikenFinalDashboard | ✅ (CEO-Fix) |
+| - | Storefront | LiveTrackingHub | ✅ (CEO-Fix) |
+
+**WIEDERHOLTE KRITISCHE WARNUNG (5× in Folge):**
+Ingenieure schreiben neue Komponenten als reine Barrel-Exports (`export { X } from './file'`) und vergessen BEIDE Schritte die nötig sind:
+1. `import { X } from './file'` — oben in der Client-Datei
+2. `<X prop={...} />` — im JSX-Body
+
+Ein Barrel-Export ALLEIN bewirkt NICHTS in der UI. Jede neue Komponente muss sofort in der zugehörigen Client-Datei importiert UND gerendert werden.
+
+**Nächste Phasen 2862–2866:** Fahrer-Schicht-Produktivitäts-Index (Backend + Dispatch ProduktivitätsBoard + Fahrer MeineProduktivität + Kitchen ProduktivitätsTicker; Storefront überspringen)
+
+---
+
 ## CEO Review #531 — 2026-07-21
 
 **Geprüfte Commits:** `3e9fb41a` (Phasen 2850–2854 Backend+Frontend: Fahrer-Reaktionszeit-Score — Dispatch ReaktionszeitBoard, Fahrer MeineReaktionszeit, Kitchen ReaktionszeitTicker) + `7ad71c1f` (Phasen 2853/2855/2856/2597/2655 Frontend: Tour-Score Ultimate, Tour-Stops Navigation, Smart-Timing Farbkodierung, Statistiken Dashboard, ETA Live-Tracking Ultra)

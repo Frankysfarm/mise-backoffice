@@ -794,6 +794,7 @@ import { KitchenPhase2849PuenktlichkeitsTicker } from './phase2849-puenktlichkei
 import { KitchenPhase2854ReaktionszeitTicker } from './phase2854-reaktionszeit-ticker';
 import { KitchenPhase2856SmartTimingFarbkodierungLiveMaster } from './phase2856-smart-timing-farbkodierung-live-master';
 import { KitchenPhase2861EffizienzTicker } from './phase2861-effizienz-ticker';
+import { KitchenPhase2870SmartTimingFahrerEtaCockpit } from './phase2870-smart-timing-fahrer-eta-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3708,6 +3709,8 @@ export function KitchenBoard({
       <KitchenPhase2856SmartTimingFarbkodierungLiveMaster orders={filtered} />
       {/* Phase 2861: Effizienz-Ticker — Team-Ø Effizienz-Index; Alert <60 "Effizienz zu niedrig!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≥80 Pkt; 30-Min-Polling */}
       <KitchenPhase2861EffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2870: Smart-Timing Fahrer-ETA-Cockpit — farbkodierter Countdown grün/gelb/rot/kritisch je Bestellung mit Fahrer-ETA-Bridge + Δ-Anzeige; 1-Sek-Tick */}
+      <KitchenPhase2870SmartTimingFahrerEtaCockpit orders={filtered.map(o => ({ id: o.id, bestellnummer: o.bestellnummer ?? '', kunde_name: o.kunde_name ?? '', status: o.status }))} timings={timings} drivers={drivers.map(d => ({ id: d.id, vorname: d.vorname, nachname: d.nachname }))} batches={batches} stops={stops} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase2820KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}

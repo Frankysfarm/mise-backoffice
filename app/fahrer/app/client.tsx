@@ -744,6 +744,7 @@ import { FahrerPhase2842MeineAbschlussrate } from './phase2842-meine-abschlussra
 import { FahrerPhase2847MeinePuenktlichkeit } from './phase2847-meine-puenktlichkeit';
 import { FahrerPhase2852MeineReaktionszeit } from './phase2852-meine-reaktionszeit';
 import { FahrerPhase2859MeineEffizienz } from './phase2859-meine-effizienz';
+import { FahrerPhase2870TourStopSmartKommando } from './phase2870-tour-stop-smart-kommando';
 import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
@@ -6214,6 +6215,22 @@ export function FahrerApp({
           <FahrerPhase2852MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2859: Meine Effizienz — Index 4xl + Farbcode; 3 Sub-Score-Kacheln; Coaching-Tipp; Rang; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2859MeineEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2870: Tour-Stop Smart-Kommando — Hero-Stopp + One-Tap-Navigation + Kunden-Anruf + Lieferung-bestätigen + weitere Stopps; 1-Sek-Tick */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2870TourStopSmartKommando
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                sequence: s.reihenfolge ?? 0,
+                done: !!s.geliefert_am,
+                eta: s.eta_min ? new Date(Date.now() + s.eta_min * 60000).toISOString() : null,
+                address: s.order?.kunde_adresse ?? '',
+                phone: s.order?.kunde_telefon ?? null,
+                customerName: s.order?.kunde_name ?? '',
+                orderId: s.order_id ?? s.id,
+                orderNumber: s.order?.bestellnummer ?? undefined,
+              }))}
+            />
+          )}
           {/* Phase 2855: Tour-Stops Navigation Echtzeit-Hub — Hero-Stopp + One-Tap Google Maps/Waze + Kunden-Anruf + Angekommen/Zugestellt-Aktionen + ETA-Countdown + Stop-Dots */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2855TourStopsNavigationEchtzeitHub
