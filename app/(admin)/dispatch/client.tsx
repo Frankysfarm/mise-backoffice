@@ -838,6 +838,7 @@ import { DispatchPhase2630TourScoreMasterUltra } from './phase2630-tour-score-ma
 import { DispatchPhase2635TourScoreVisualisierungKompakt } from './phase2635-tour-score-visualisierung-kompakt';
 import { DispatchTourQualitaetsGauge } from './dispatch-tour-qualitaets-gauge';
 import { DispatchPhase2822SchichtBilanzBoard } from './phase2822-schicht-bilanz-board';
+import { DispatchPhase2826EinkommensTransparenzBoard } from './phase2826-einkommens-transparenz-board';
 
 type Driver = {
   employee_id: string;
@@ -4102,6 +4103,8 @@ export function DispatchBoard({
           <DispatchPhase2817KundenbewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2822: Schicht-Bilanz-Board — Fahrerliste nach Einnahmen absteigend; 5-KPI-Mini-Grid je Fahrer Touren/km/★/h/Δ€; Balken 0–200€ Ziel 100€; Alert Schicht >10h; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2822SchichtBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2826: Einkommens-Transparenz-Board — Fahrerliste nach Einkommen absteigend; Aufschlüsselung Basis/Bonus/Trinkgeld; Balken 0–150€ Ziel 80€; Alert <50% Tagesziel; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2826EinkommensTransparenzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11898,3 +11901,5 @@ export { DispatchPhase2813TourScoreVisualisierungKommando } from './phase2813-to
 export { DispatchPhase2817KundenbewertungBoard } from './phase2817-kundenbewertung-board';
 // Phase 2822 — Schicht-Bilanz-Board (Fahrerliste nach Einnahmen absteigend; 5-KPI-Mini-Grid je Fahrer; Balken 0–200€ Ziel 100€; Alert Schicht >10h; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2822SchichtBilanzBoard } from './phase2822-schicht-bilanz-board';
+// Phase 2826 — Einkommens-Transparenz-Board (Fahrerliste nach Einkommen absteigend; Aufschlüsselung Basis/Bonus/Trinkgeld; Balken 0–150€ Ziel 80€; Alert <50%; 30-Min-Polling)
+export { DispatchPhase2826EinkommensTransparenzBoard } from './phase2826-einkommens-transparenz-board';

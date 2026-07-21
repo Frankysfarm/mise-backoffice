@@ -785,6 +785,7 @@ import { KitchenPhase1000SmartTimingAmpelCockpit } from './phase1000-smart-timin
 
 import { KitchenPhase2780KuechenDispatchSyncCockpit } from './phase2780-kuechen-dispatch-sync-cockpit';
 import { KitchenPhase2825SchichtBilanzTicker } from './phase2825-schicht-bilanz-ticker';
+import { KitchenPhase2829EinkommensTicker } from './phase2829-einkommens-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3683,6 +3684,8 @@ export function KitchenBoard({
       <KitchenPhase2816SmartTimingLiveCountdownCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2825: Schicht-Bilanz-Ticker — Team-Ø-Einnahmen; Alert Schicht >10h; Fahrerliste kompakt aufsteigend nach Einnahmen; Trend-Pfeile; Ziel ≥100€/Fahrer; 30-Min-Polling */}
       <KitchenPhase2825SchichtBilanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2829: Einkommens-Ticker — Team-Ø €; Alert <50% Tagesziel; Fahrerliste kompakt absteigend; Ziel 80€; 30-Min-Polling */}
+      <KitchenPhase2829EinkommensTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase2820KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
@@ -10472,3 +10475,5 @@ export { KitchenPhase2816SmartTimingLiveCountdownCockpit } from './phase2816-sma
 export { KitchenPhase2820KundenbewertungTicker } from './phase2820-kundenbewertung-ticker';
 // Phase 2825 — Schicht-Bilanz-Ticker (Team-Ø Einnahmen €; Alert Schicht >10h "Lange Schicht!"; Fahrerliste kompakt aufsteigend nach Einnahmen; Ziel ≥100€/Fahrer; 30-Min-Polling)
 export { KitchenPhase2825SchichtBilanzTicker } from './phase2825-schicht-bilanz-ticker';
+// Phase 2829 — Einkommens-Ticker (Team-Ø €; Alert <50% Tagesziel; Fahrerliste kompakt absteigend; Ziel 80€; 30-Min-Polling)
+export { KitchenPhase2829EinkommensTicker } from './phase2829-einkommens-ticker';

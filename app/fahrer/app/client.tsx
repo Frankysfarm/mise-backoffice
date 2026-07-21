@@ -736,6 +736,7 @@ import { FahrerPhase2809MeineStornoRate } from './phase2809-meine-storno-rate';
 import { FahrerPhase2814SmartTourStoppNavigatorLive } from './phase2814-smart-tour-stopp-navigator-live';
 import { FahrerPhase2818MeineKundenbewertung } from './phase2818-meine-kundenbewertung';
 import { FahrerPhase2823MeineSchichtBilanz } from './phase2823-meine-schicht-bilanz';
+import { FahrerPhase2827MeinEinkommenHeute } from './phase2827-mein-einkommen-heute';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6191,6 +6192,8 @@ export function FahrerApp({
           <FahrerPhase2818MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2823: Meine Schicht-Bilanz — Einnahmen 4xl groß + Farbcode; Balken 0–200€ Ziel 100€; 6 KPI-Cards Touren/km/Bewertung/Schicht/Trend/Ziel; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2823MeineSchichtBilanz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2827: Mein Einkommen Heute — €-Wert 4xl + Farbcode; Balken 0–150€ Ziel 80€; Aufschlüsselung Basis/Bonus/Trinkgeld; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2827MeinEinkommenHeute driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9530,3 +9533,5 @@ export { FahrerPhase2814SmartTourStoppNavigatorLive } from './phase2814-smart-to
 export { FahrerPhase2818MeineKundenbewertung } from './phase2818-meine-kundenbewertung';
 // Phase 2823 — Meine Schicht-Bilanz (Einnahmen 4xl + Farbcode; Balken 0–200€ Ziel 100€; 6 KPI-Cards Touren/km/Bewertung/Schicht/Trend/Ziel; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2823MeineSchichtBilanz } from './phase2823-meine-schicht-bilanz';
+// Phase 2827 — Mein Einkommen Heute (€-Wert 4xl + Farbcode; Balken 0–150€ Ziel 80€; Aufschlüsselung Basis/Bonus/Trinkgeld; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2827MeinEinkommenHeute } from './phase2827-mein-einkommen-heute';

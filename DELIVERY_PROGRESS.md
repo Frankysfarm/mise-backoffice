@@ -24162,3 +24162,44 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2807–2811 implementiert. Backend-
 5. **Phase 2825 Kitchen:** Einkommens-Ticker — Team-Ø €; Alert <50% Tagesziel; Fahrerliste kompakt absteigend (höchste oben); Ziel-Anzeige 80€; 30-Min-Polling; in kitchen/client.tsx nach Phase2820.
 
 Backend-Architekt-Agent (2026-07-21): Phasen 2812–2816 implementiert. Backend-API wiederverwendet (fahrer-kundenbewertung Phase 2254, Ø Kundenbewertung 1–5 Sterne, Ampel grün≥4.5/gelb≥4.0/rot<4.0, alert_count, Trend vs. Vorwoche, team_durchschnitt, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2817 Dispatch (KundenbewertungBoard, absteigend nach Score, Balken 0–5 Ziel-Linie 4.5, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <3.5 je Fahrer, Trend steigend=grün/fallend=rot) / Phase2818 Fahrer-App (MeineKundenbewertung, Score 4xl + Sterndarstellung filled/half/empty, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2820 Kitchen (KundenbewertungTicker, Team-Ø ★, Alert je Fahrer <3.5, aufsteigend nach Score, Ziel ≥4.5 ★). Phase 2819 Storefront übersprungen. Phase 2813/2814/2816 bereits durch anderen Agenten belegt → Phasen 2817/2818/2820 verwendet. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2821–2829 — Fahrer-Einkommens-Transparenz (2026-07-21)
+
+### Phase 2821 — Backend API: Fahrer-Einkommens-Transparenz
+**Datei:** `app/api/delivery/admin/fahrer-einkommens-transparenz/route.ts` *(neu)*
+**GET:** `?location_id=<uuid>[&driver_id=<uuid>]` — Heutiges Einkommen je Fahrer (Basis + Touren-Bonus + Trinkgeld aus mise_delivery_batches); Ampel grün(≥100%)/gelb(50–99%)/rot(<50% Tagesziel 80€); Alert <50% "Einkommensziel gefährdet!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2826 — Einkommens-Transparenz-Board (Dispatch) [Phase 2822 bereits belegt]
+**Datei:** `app/(admin)/dispatch/phase2826-einkommens-transparenz-board.tsx` *(neu)*
+**Component:** `DispatchPhase2826EinkommensTransparenzBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <50% Ziel "Einkommensziel gefährdet!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Tagesziel 80€); Fahrerliste nach Einkommen absteigend sortiert (höchste oben); Aufschlüsselung Basis/Bonus/Trinkgeld je Fahrer; Balken 0–150€ mit Ziel-Linie 80€; Ampel-Dots + Trend-Pfeile (steigend=grün/fallend=rot); Touren je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2822 ✅
+
+### Phase 2827 — Mein Einkommen Heute (Fahrer-App) [Phase 2823 bereits belegt]
+**Datei:** `app/fahrer/app/phase2827-mein-einkommen-heute.tsx` *(neu)*
+**Component:** `FahrerPhase2827MeinEinkommenHeute`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; €-Wert 4xl groß + Farbcode; Balken 0–150€ mit Ziel-Linie 80€; KPI-Grid (Trend/Ziel/Ampel/Touren); Aufschlüsselung Basis/Bonus/Trinkgeld; Team-Ø + Rang-Anzeige; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2823 ✅
+
+### Phase 2828 — Storefront
+Übersprungen (Einkommensdaten intern irrelevant für Kunden) ✅
+
+### Phase 2829 — Einkommens-Ticker (Kitchen) [Phase 2825 bereits belegt]
+**Datei:** `app/(admin)/kitchen/phase2829-einkommens-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2829EinkommensTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø €; Alert-Banner je Fahrer <50% Tagesziel "Einkommensziel gefährdet!"; Fahrerliste kompakt nach Einkommen absteigend sortiert (höchste oben) mit Ampel-Dots, Trend-Pfeil, Touren-Anzahl und €-Wert; Ziel-Anzeige 80€; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2825 ✅
+
+### Nächste Phasen 2830–2834 (für nächsten Ingenieur) — Fahrer-Wartezeit-Analyse
+1. **Phase 2830 Backend:** GET /api/delivery/admin/fahrer-wartezeit — Ø Wartezeit am Restaurant je Fahrer heute (Zeit zwischen Ankunft und Abfahrt, aus mise_delivery_batches pickup_at - arrived_at); Ampel grün(≤3 Min)/gelb(3–6 Min)/rot(>6 Min); Alert >6 Min "Lange Wartezeit!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2831 Dispatch:** Wartezeit-Board — Fahrerliste nach Wartezeit aufsteigend (niedrigste oben = effizienteste); Balken 0–15 Min mit Ziel-Linie 3 Min; KPI-Grid Team-Ø/Bester/Ziel ≤3 Min; Alert-Banner >6 Min; Trend-Pfeile invertiert (steigend=rot/fallend=grün); 30-Min-Polling; in dispatch/client.tsx nach Phase2826.
+3. **Phase 2832 Fahrer-App:** Meine Wartezeit — Min 4xl groß + Farbcode; Balken 0–15 Min Ziel 3 Min; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2827.
+4. **Phase 2833 Storefront:** Überspringen (Wartezeit intern irrelevant für Kunden).
+5. **Phase 2834 Kitchen:** Wartezeit-Ticker — Team-Ø Min; Alert >6 Min "Lange Wartezeit!"; Fahrerliste kompakt nach Wartezeit absteigend (höchste oben = schlechteste zuerst); Ziel ≤3 Min; 30-Min-Polling; in kitchen/client.tsx nach Phase2829.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2821–2829 implementiert. 1 neue Backend-API (fahrer-einkommens-transparenz, Basis+Bonus+Trinkgeld aus mise_delivery_batches, Tagesziel 80€, Ampel grün≥100%/gelb50–99%/rot<50% Tagesziel, Alert "Einkommensziel gefährdet!", Trend vs. gestern, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2826 Dispatch (EinkommensTransparenzBoard, absteigend nach €, Aufschlüsselung Basis/Bonus/Trinkgeld, Balken 0–150€ Ziel-Linie 80€, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <50% Tagesziel) / Phase2827 Fahrer-App (MeinEinkommenHeute, €-Wert 4xl, Aufschlüsselung, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2829 Kitchen (EinkommensTicker, Team-Ø €, Alert <50% Tagesziel, absteigend nach €, Ziel 80€). Phase 2828 Storefront übersprungen. Phase 2822/2823/2825 bereits belegt → Phasen 2826/2827/2829 verwendet. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
