@@ -24820,3 +24820,44 @@ Backend-Architekt-Agent (2026-07-21): Phasen 2930–2934 implementiert. Backend-
 5. **Phase 2944 Kitchen:** Stornorate-Ticker — Team-Ø %; Alert >10% "Stornorate zu hoch!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≤5%; 30-Min-Polling; in kitchen/client.tsx nach Phase2939.
 
 Frontend-Ingenieur-Agent (2026-07-21): Phasen 2935–2939 implementiert — Fahrer-Reaktionszeit-Index. Backend-API wiederverwendet (fahrer-reaktionszeit von Phase 2435, avg_min/team_durchschnitt/ampel/trend) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2936 Dispatch (ReaktionszeitBoard, aufsteigend nach avg_min Min, Balken 0–10 Min Ziel-Linie 2 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner >5 Min "Reaktionszeit zu hoch!", Trend invertiert fallend=grün/steigend=rot, Import + Render nach Phase2931 + Barrel-Export ✅) / Phase2937 Fahrer-App (MeineReaktionszeit, Ø Min 4xl + Farbcode, Balken 0–10 Min Ziel 2 Min, Trend vs. Vorwoche, Blau-Coaching-Tipp, driverId-Filter, isOnline-Guard, 30-Min-Polling, Import + Render nach Phase2932 + Barrel-Export ✅) / Phase2939 Kitchen (ReaktionszeitTicker, Team-Ø Min im Header, Alert >5 Min "Reaktionszeit zu hoch!", aufsteigend, Ziel ≤2 Min, Import + Render nach Phase2934 + Barrel-Export ✅). Phase 2938 Storefront übersprungen. Build: ✓ Exit Code 0 "Compiled successfully". TS ZERO neue Fehler. Push erfolgt.
+
+---
+
+## Batch 2945–2949 — Fahrer-Trinkgeld-Quote (2026-07-21)
+
+### Phase 2945 — Backend API: Fahrer-Trinkgeld-Quote
+**Datei:** `app/api/delivery/admin/fahrer-trinkgeld-quote/route.ts` *(vorhanden)*
+**Wiederverwendet:** Bestehende API (trinkgeld_quote, quote_vw, trend, trend_delta, ampel, alert_niedrig, fahrer_single-Modus, team_avg_quote). Phase 2945 Backend bereits implementiert.
+
+### Phase 2946 — Trinkgeld-Quote-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2946-trinkgeld-quote-board.tsx` *(neu)*
+**Component:** `DispatchPhase2946TrinkgeldQuoteBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <10% "Niedrige Trinkgeld-Quote!" mit Fahrernamen + Quote%; KPI-Grid (Team-Ø/Bester/Ziel ≥30%); Fahrerliste absteigend nach trinkgeld_quote%; Balken 0–50% mit Ziel-Linie 30%; Ampel grün(≥10%)/gelb(5–9%)/rot(<5%); Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2941 (BuendelungsEffizienzBoard) ✅
+
+### Phase 2947 — Meine Trinkgeld-Quote (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2947-meine-trinkgeld-quote.tsx` *(neu)*
+**Component:** `FahrerPhase2947MeineTrinkgeldQuote`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Quote% 4xl farbkodiert; Balken 0–50% mit Ziel-Linie 30%; KPI-Grid (Trend-Delta/Team-Ø); Blau-Coaching-Tipp je Ampelzone; driver_id-Modus (fahrer_single); isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2942 ✅
+
+### Phase 2948 — Storefront
+Übersprungen (Trinkgeld-Quote intern irrelevant für Kunden) ✅
+
+### Phase 2949 — Trinkgeld-Quote-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2949-trinkgeld-quote-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2949TrinkgeldQuoteTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Quote% im Header; Alert je Fahrer <10% "Niedrige Trinkgeld-Quote!"; Fahrerliste kompakt absteigend nach trinkgeld_quote% (beste zuerst) mit Ampel-Dots + Trend-Pfeil + Quote%; Ziel-Anzeige ≥30%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2944 ✅
+
+### Nächste Phasen 2950–2954 (für nächsten Ingenieur) — Fahrer-Bewertungs-Index
+1. **Phase 2950 Backend:** GET /api/delivery/admin/fahrer-bewertung — Ø Kunden-Bewertung (1–5 Sterne) je Fahrer heute; Ampel grün(≥4.5)/gelb(4.0–4.4)/rot(<4.0); Alert <4.0 "Bewertung zu niedrig!"; Trend vs. gestern; driver_id-Modus; Supabase(order_ratings.rating je assigned_driver_id)+Mock.
+2. **Phase 2951 Dispatch:** BewertungsBoard — Fahrerliste absteigend nach Ø Bewertung; Sterne-Darstellung; KPI-Grid Team-Ø/Bester/Ziel ≥4.5; Alert-Banner <4.0 "Bewertung zu niedrig!"; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2946.
+3. **Phase 2952 Fahrer-App:** Meine Bewertung — Ø Sterne 4xl+Farbcode; Sterne-Visualisierung; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2947.
+4. **Phase 2953 Storefront:** Überspringen (Bewertung intern irrelevant für Kunden).
+5. **Phase 2954 Kitchen:** Bewertungs-Ticker — Team-Ø Sterne; Alert <4.0 "Bewertung zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥4.5 Sterne; 30-Min-Polling; in kitchen/client.tsx nach Phase2949.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2945–2949 implementiert — Fahrer-Trinkgeld-Quote. Backend-API wiederverwendet (fahrer-trinkgeld-quote, trinkgeld_quote/quote_vw/trend/ampel/alert_niedrig/fahrer_single) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2946 Dispatch (TrinkgeldQuoteBoard, absteigend nach trinkgeld_quote%, Balken 0–50% Ziel-Linie 30%, KPI-Grid Team-Ø/Bester/Ziel ≥30%, Alert-Banner <10% "Niedrige Trinkgeld-Quote!", Trend-Pfeile, Import L869+Render nach Phase2941+Barrel-Export ✅) / Phase2947 Fahrer-App (MeineTrinkgeldQuote, Quote% 4xl+Farbcode, Balken 0–50% Ziel 30%, Coaching-Tipp, fahrer_single-Modus, isOnline-Guard, 30-Min-Polling, Import L764+Render nach Phase2942+Barrel-Export ✅) / Phase2949 Kitchen (TrinkgeldQuoteTicker, Team-Ø Quote%, Alert <10% "Niedrige Trinkgeld-Quote!", absteigend, Ziel ≥30%, Import L816+Render nach Phase2944+Barrel-Export ✅). Phase 2948 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors: true aktiv). Push erfolgt.

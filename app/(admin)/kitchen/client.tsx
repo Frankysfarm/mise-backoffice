@@ -813,6 +813,7 @@ import { KitchenPhase2929PuenktlichkeitsTicker } from './phase2929-puenktlichkei
 import { KitchenPhase2934AbschlussquotenTicker } from './phase2934-abschlussquoten-ticker';
 import { KitchenPhase2939ReaktionszeitTicker } from './phase2939-reaktionszeit-ticker';
 import { KitchenPhase2944BuendelungsEffizienzTicker } from './phase2944-buendelungs-effizienz-ticker';
+import { KitchenPhase2949TrinkgeldQuoteTicker } from './phase2949-trinkgeld-quote-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3762,6 +3763,8 @@ export function KitchenBoard({
       <KitchenPhase2939ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2944: Bündelungs-Effizienz-Ticker — Team-Ø Stopps/Tour; Alert <2 "Schlechte Bündelung!"; absteigend; Ziel ≥3 Stopps/Tour; 30-Min-Polling */}
       <KitchenPhase2944BuendelungsEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2949: Trinkgeld-Quote-Ticker — Team-Ø Quote%; Alert <10% "Niedrige Trinkgeld-Quote!"; Fahrerliste kompakt absteigend; Ziel ≥30%; 30-Min-Polling */}
+      <KitchenPhase2949TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10616,6 +10619,8 @@ export { KitchenPhase2934AbschlussquotenTicker } from './phase2934-abschlussquot
 export { KitchenPhase2939ReaktionszeitTicker } from './phase2939-reaktionszeit-ticker';
 // Phase 2944 — Bündelungs-Effizienz-Ticker (Team-Ø Stopps/Tour; Alert <2 "Schlechte Bündelung!"; absteigend; Ziel ≥3 Stopps/Tour; 30-Min-Polling)
 export { KitchenPhase2944BuendelungsEffizienzTicker } from './phase2944-buendelungs-effizienz-ticker';
+// Phase 2949 — Trinkgeld-Quote-Ticker (Team-Ø Quote%; Alert <10% "Niedrige Trinkgeld-Quote!"; Fahrerliste kompakt absteigend; Ziel ≥30%; 30-Min-Polling)
+export { KitchenPhase2949TrinkgeldQuoteTicker } from './phase2949-trinkgeld-quote-ticker';
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';

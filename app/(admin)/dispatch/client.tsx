@@ -866,6 +866,7 @@ import { DispatchPhase2926PuenktlichkeitsBoard } from './phase2926-puenktlichkei
 import { DispatchPhase2931AbschlussquotenBoard } from './phase2931-abschlussquoten-board';
 import { DispatchPhase2936ReaktionszeitBoard } from './phase2936-reaktionszeit-board';
 import { DispatchPhase2941BuendelungsEffizienzBoard } from './phase2941-buendelungs-effizienz-board';
+import { DispatchPhase2946TrinkgeldQuoteBoard } from './phase2946-trinkgeld-quote-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4181,6 +4182,8 @@ export function DispatchBoard({
           <DispatchPhase2936ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2941: Bündelungs-Effizienz-Board — Ø Stopps je Tour je Fahrer; absteigend; Balken 0–5 Ziel-Linie 3; KPI-Grid Team-Ø/Bester/Ziel; Alert <2 "Schlechte Bündelung!"; 30-Min-Polling */}
           <DispatchPhase2941BuendelungsEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2946: Trinkgeld-Quote-Board — Fahrerliste absteigend nach Quote%; Balken 0–50% Ziel-Linie 30%; KPI-Grid Team-Ø/Bester/Ziel ≥30%; Alert <10% "Niedrige Trinkgeld-Quote!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2946TrinkgeldQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12039,6 +12042,8 @@ export { DispatchPhase2931AbschlussquotenBoard } from './phase2931-abschlussquot
 export { DispatchPhase2936ReaktionszeitBoard } from './phase2936-reaktionszeit-board';
 // Phase 2941 — Bündelungs-Effizienz-Board (Ø Stopps/Tour je Fahrer; absteigend; Balken 0–5 Ziel ≥3; KPI-Grid Team-Ø/Bester/Ziel; Alert <2 "Schlechte Bündelung!"; 30-Min-Polling)
 export { DispatchPhase2941BuendelungsEffizienzBoard } from './phase2941-buendelungs-effizienz-board';
+// Phase 2946 — Trinkgeld-Quote-Board (Fahrerliste absteigend nach Quote%; Balken 0–50% Ziel ≥30%; KPI-Grid Team-Ø/Bester/Ziel; Alert <10% "Niedrige Trinkgeld-Quote!"; 30-Min-Polling)
+export { DispatchPhase2946TrinkgeldQuoteBoard } from './phase2946-trinkgeld-quote-board';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
