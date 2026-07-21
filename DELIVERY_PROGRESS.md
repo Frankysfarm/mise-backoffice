@@ -24205,3 +24205,44 @@ Backend-Architekt-Agent (2026-07-21): Phasen 2812–2816 implementiert. Backend-
 5. **Phase 2834 Kitchen:** Wartezeit-Ticker — Team-Ø Min; Alert >6 Min "Lange Wartezeit!"; Fahrerliste kompakt nach Wartezeit absteigend (höchste oben = schlechteste zuerst); Ziel ≤3 Min; 30-Min-Polling; in kitchen/client.tsx nach Phase2829.
 
 Backend-Architekt-Agent (2026-07-21): Phasen 2821–2829 implementiert. 1 neue Backend-API (fahrer-einkommens-transparenz, Basis+Bonus+Trinkgeld aus mise_delivery_batches, Tagesziel 80€, Ampel grün≥100%/gelb50–99%/rot<50% Tagesziel, Alert "Einkommensziel gefährdet!", Trend vs. gestern, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2826 Dispatch (EinkommensTransparenzBoard, absteigend nach €, Aufschlüsselung Basis/Bonus/Trinkgeld, Balken 0–150€ Ziel-Linie 80€, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <50% Tagesziel) / Phase2827 Fahrer-App (MeinEinkommenHeute, €-Wert 4xl, Aufschlüsselung, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2829 Kitchen (EinkommensTicker, Team-Ø €, Alert <50% Tagesziel, absteigend nach €, Ziel 80€). Phase 2828 Storefront übersprungen. Phase 2822/2823/2825 bereits belegt → Phasen 2826/2827/2829 verwendet. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2830–2834 — Fahrer-Wartezeit-Analyse (2026-07-21)
+
+### Phase 2830 — Backend API: Fahrer-Wartezeit
+**Datei:** `app/api/delivery/admin/fahrer-wartezeit/route.ts` *(bereits vorhanden, Phase 2321)*
+**Wiederverwendet:** Ø Wartezeit je Fahrer heute (Zeit Ankunft → Abholung aus delivery_batches arrived_at/actual_pickup_at); Trend vs. Vorwoche; team_avg_wartezeit_min; Multi-Tenant; Supabase+Mock
+
+### Phase 2831 — Wartezeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2831-wartezeit-board.tsx` *(neu)*
+**Component:** `DispatchPhase2831WartezeitBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >6 Min "Lange Wartezeit!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≤3 Min); Fahrerliste aufsteigend sortiert (niedrigste oben = Effizienteste zuerst); Balken 0–15 Min mit Ziel-Linie 3 Min; Ampel-Dots + Trend-Pfeile invertiert (steigend=rot/fallend=grün); Touren-Anzahl; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2826 ✅
+
+### Phase 2832 — Meine Wartezeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2832-meine-wartezeit.tsx` *(neu)*
+**Component:** `FahrerPhase2832MeineWartezeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Min-Wert 4xl groß + Farbcode; Balken 0–15 Min mit Ziel-Linie 3 Min; KPI-Grid (Trend/Ziel/Ampel/Touren); Team-Ø + Rang-Anzeige (Effizienzrang); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2827 ✅
+
+### Phase 2833 — Storefront
+Übersprungen (Wartezeit intern irrelevant für Kunden) ✅
+
+### Phase 2834 — Wartezeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2834-wartezeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2834WartezeitTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Min; Alert-Banner je Fahrer >6 Min "Lange Wartezeit!"; Fahrerliste kompakt absteigend sortiert (höchste oben = Schlechteste zuerst) mit Ampel-Dots, Trend-Pfeil invertiert, Touren-Anzahl und Min-Wert; Ziel-Anzeige ≤3 Min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2829 ✅
+
+### Nächste Phasen 2835–2839 (für nächsten Ingenieur) — Fahrer-Kilometer-Analyse
+1. **Phase 2835 Backend:** GET /api/delivery/admin/fahrer-kilometer — Gefahrene km je Fahrer heute aus mise_delivery_batches (distance_km); Ampel grün(≥50 km)/gelb(20–49 km)/rot(<20 km); Alert <20 km "Wenig Kilometer!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2836 Dispatch:** Kilometer-Board — Fahrerliste nach km absteigend (höchste oben = aktivste Fahrer); Balken 0–150 km mit Ziel-Linie 50 km; KPI-Grid Team-Ø/Bester/Ziel ≥50 km; Alert-Banner <20 km; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2831.
+3. **Phase 2837 Fahrer-App:** Meine Kilometer — km-Wert 4xl groß + Farbcode; Balken 0–150 km Ziel 50 km; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2832.
+4. **Phase 2838 Storefront:** Überspringen (km-Daten intern irrelevant für Kunden).
+5. **Phase 2839 Kitchen:** Kilometer-Ticker — Team-Ø km; Alert <20 km; Fahrerliste kompakt absteigend (höchste oben); Ziel ≥50 km; 30-Min-Polling; in kitchen/client.tsx nach Phase2834.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2830–2834 implementiert. Backend-API wiederverwendet (fahrer-wartezeit Phase 2321, Ø Wartezeit arrived_at→actual_pickup_at, Trend vs. Vorwoche, team_avg_wartezeit_min, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2831 Dispatch (WartezeitBoard, aufsteigend nach Wartezeit, Balken 0–15 Min Ziel-Linie 3 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner >6 Min, Trend invertiert steigend=rot/fallend=grün) / Phase2832 Fahrer-App (MeineWartezeit, Min 4xl + Farbcode, Coaching-Tipp, Effizienzrang, isOnline-Guard, 30-Min-Polling) / Phase2834 Kitchen (WartezeitTicker, Team-Ø Min, Alert >6 Min, absteigend nach Min, Ziel ≤3 Min). Phase 2833 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.

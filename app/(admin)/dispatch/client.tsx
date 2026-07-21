@@ -840,6 +840,7 @@ import { DispatchTourQualitaetsGauge } from './dispatch-tour-qualitaets-gauge';
 import { DispatchPhase2822SchichtBilanzBoard } from './phase2822-schicht-bilanz-board';
 import { DispatchPhase2826EinkommensTransparenzBoard } from './phase2826-einkommens-transparenz-board';
 import { DispatchPhase2830TourScoreLiveVisualisierungMaster } from './phase2830-tour-score-live-visualisierung-master';
+import { DispatchPhase2831WartezeitBoard } from './phase2831-wartezeit-board';
 
 type Driver = {
   employee_id: string;
@@ -4106,6 +4107,8 @@ export function DispatchBoard({
           <DispatchPhase2822SchichtBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2826: Einkommens-Transparenz-Board — Fahrerliste nach Einkommen absteigend; Aufschlüsselung Basis/Bonus/Trinkgeld; Balken 0–150€ Ziel 80€; Alert <50% Tagesziel; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2826EinkommensTransparenzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2831: Wartezeit-Board — Fahrerliste aufsteigend (effizienteste oben); Balken 0–15 Min Ziel 3 Min; KPI-Grid Team-Ø/Bester/Ziel; Alert >6 Min "Lange Wartezeit!"; Trend invertiert; 30-Min-Polling */}
+          <DispatchPhase2831WartezeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}
           <DispatchPhase2830TourScoreLiveVisualisierungMaster locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
@@ -11908,3 +11911,5 @@ export { DispatchPhase2822SchichtBilanzBoard } from './phase2822-schicht-bilanz-
 export { DispatchPhase2826EinkommensTransparenzBoard } from './phase2826-einkommens-transparenz-board';
 // Phase 2830 — Tour-Score Live Visualisierung Master (Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling)
 export { DispatchPhase2830TourScoreLiveVisualisierungMaster } from './phase2830-tour-score-live-visualisierung-master';
+// Phase 2831 — Wartezeit-Board (Fahrerliste aufsteigend; Balken 0–15 Min Ziel 3 Min; KPI-Grid Team-Ø/Bester/Ziel; Alert >6 Min "Lange Wartezeit!"; Trend invertiert; 30-Min-Polling)
+export { DispatchPhase2831WartezeitBoard } from './phase2831-wartezeit-board';
