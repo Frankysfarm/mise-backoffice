@@ -802,6 +802,8 @@ import { KitchenPhase2890SmartTimingCountdownLiveKommando } from './phase2890-sm
 import { KitchenPhase2895BewertungsTrendTicker } from './phase2895-bewertungs-trend-ticker';
 import { KitchenPhase2900SmartTimingScoreCockpitUltimate } from './phase2900-smart-timing-score-cockpit-ultimate';
 import { KitchenPhase2901LieferQualitaetsTicker } from './phase2901-liefer-qualitaets-ticker';
+import { KitchenPhase2906KundenkontaktTicker } from './phase2906-kundenkontakt-ticker';
+import { KitchenPhase2907SmartTimingCountdownBoard } from './phase2907-smart-timing-countdown-board';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3730,6 +3732,10 @@ export function KitchenBoard({
       <KitchenPhase2895BewertungsTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2901: Liefer-Qualitäts-Ticker — Team-Ø Index; Alert <60 "Niedrige Lieferqualität!"; Fahrerliste kompakt absteigend; Sub-Scores Bewertung/Pünktlichkeit/Abschluss; Ziel ≥80 Pkt; 30-Min-Polling */}
       <KitchenPhase2901LieferQualitaetsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2906: Kundenkontakt-Ticker — Team-Ø Score; Alert <60 "Niedriger Kundenkontakt-Score!"; Fahrerliste kompakt absteigend; Sub-Scores Trinkgeld/Wiederbestellung/Beschwerden; Ziel ≥80 Pkt; 30-Min-Polling */}
+      <KitchenPhase2906KundenkontaktTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2907: Smart-Timing Countdown Board — Echtzeit-Countdown-Ring grün/gelb/rot je Bestellung; spät/warnung/on-track-Status; 1-Sek-Tick + 2-Min-Polling */}
+      <KitchenPhase2907SmartTimingCountdownBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase2820KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
@@ -10561,3 +10567,5 @@ export { KitchenPhase2895BewertungsTrendTicker } from './phase2895-bewertungs-tr
 export { KitchenPhase2900SmartTimingScoreCockpitUltimate } from './phase2900-smart-timing-score-cockpit-ultimate';
 // Phase 2901 — Liefer-Qualitäts-Ticker (Team-Ø Index; Alert <60; Fahrerliste absteigend; Sub-Scores; Ziel ≥80 Pkt; 30-Min-Polling)
 export { KitchenPhase2901LieferQualitaetsTicker } from './phase2901-liefer-qualitaets-ticker';
+export { KitchenPhase2906KundenkontaktTicker } from './phase2906-kundenkontakt-ticker';
+export { KitchenPhase2907SmartTimingCountdownBoard } from './phase2907-smart-timing-countdown-board';

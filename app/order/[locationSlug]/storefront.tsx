@@ -173,6 +173,7 @@ import { StorefrontPhase997DynamischeEtaLiveCockpit } from './phase997-dynamisch
 import { StorefrontPhase998DynamischeEtaLiveTrackingUltra } from './phase998-dynamische-eta-live-tracking-ultra';
 import { Phase999LiveTrackingEtaKommando } from './phase999-live-tracking-eta-kommando';
 import { Phase2660DynamischeEtaLiveTrackingFinal } from './phase2660-dynamische-eta-live-tracking-final';
+import { Phase2665EtaLiveTrackerPro } from './phase2665-eta-live-tracker-pro';
 import { Phase1000LiveBestellstatusTimelinePro } from './phase1000-live-bestellstatus-timeline-pro';
 import { StorefrontPhase1006KuechenAuslastungsAnzeige } from './phase1006-kuechen-auslastungs-anzeige';
 import { StorefrontPhase1011BestellabbruchPraevention } from './phase1011-bestellabbruch-praevention';
@@ -945,6 +946,18 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               orderId={orderSuccess.orderId}
               locationId={location.id}
               initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
+              bestellnummer={orderSuccess.orderId?.slice(-6)}
+              orderedAt={orderSuccess.orderedAt}
+            />
+          </div>
+        )}
+        {/* Phase 2665: ETA Live-Tracker Pro — 4-Step Tracker (Bestätigt/Küche/Unterwegs/Geliefert) + Progressbar + Countdown + Fahrer-Info + Live-Pulse; 30-Sek-Polling */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <Phase2665EtaLiveTrackerPro
+              orderId={orderSuccess.orderId}
+              locationId={location.id}
+              initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 35}
               bestellnummer={orderSuccess.orderId?.slice(-6)}
               orderedAt={orderSuccess.orderedAt}
             />

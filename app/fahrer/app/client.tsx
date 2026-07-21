@@ -750,6 +750,8 @@ import { FahrerPhase2883MeineLiefergeschwindigkeit } from './phase2883-meine-lie
 import { Phase2888TourStoppLiveNavigationsKommando } from './phase2888-tour-stopp-live-navigations-kommando';
 import { FahrerPhase2893MeineBewertungsTrend } from './phase2893-meine-bewertungs-trend';
 import { FahrerPhase2898MeineLieferQualitaet } from './phase2898-meine-liefer-qualitaet';
+import { FahrerPhase2904MeinKundenkontakt } from './phase2904-mein-kundenkontakt';
+import { FahrerPhase2909TourStoppSequenzNavigator } from './phase2909-tour-stopp-sequenz-navigator';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
 import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
@@ -6230,6 +6232,17 @@ export function FahrerApp({
           <FahrerPhase2893MeineBewertungsTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2898: Meine Liefer-Qualität — Composite-Index 4xl (Bewertung 40%+Pünktlichkeit 30%+Abschluss 30%); 3 Sub-Score-Kacheln; Balken 0–100 Ziel 80; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2898MeineLieferQualitaet driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2904: Mein Kundenkontakt — Score 4xl (Trinkgeld 35%+Wiederbestellung 40%+Beschwerden 25%); 3 Sub-Scores; Balken Ziel 80; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2904MeinKundenkontakt driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2909: Tour-Stopp Sequenz-Navigator — Nächster-Stopp-Hero + Maps/Waze/Anruf; Sequenzliste mit ETA; isOnline-Guard */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2909TourStoppSequenzNavigator
+              driverId={driver.id}
+              locationId={driver.location_id ?? null}
+              isOnline={isOnline}
+              batchId={activeBatch.id}
+            />
+          )}
           {/* Phase 2896: Tour-Stopp Navi Final — Nächster Stopp Hero-Karte + Google Maps + Waze + Anruf + Stopp-Fortschrittsbalken + Weitere-Stopps-Liste; isOnline-Guard */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2896TourStoppNaviFinal
@@ -9685,4 +9698,6 @@ export { Phase2888TourStoppLiveNavigationsKommando } from './phase2888-tour-stop
 export { FahrerPhase2893MeineBewertungsTrend } from './phase2893-meine-bewertungs-trend';
 // Phase 2898 — Meine Liefer-Qualität (Composite-Index 4xl; 3 Sub-Score-Kacheln; Balken 0–100 Ziel 80; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2898MeineLieferQualitaet } from './phase2898-meine-liefer-qualitaet';
+export { FahrerPhase2904MeinKundenkontakt } from './phase2904-mein-kundenkontakt';
+export { FahrerPhase2909TourStoppSequenzNavigator } from './phase2909-tour-stopp-sequenz-navigator';
 export { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
