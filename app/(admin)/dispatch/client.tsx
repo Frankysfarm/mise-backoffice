@@ -844,6 +844,7 @@ import { DispatchPhase2831WartezeitBoard } from './phase2831-wartezeit-board';
 import { DispatchPhase2836KilometerBoard } from './phase2836-kilometer-board';
 import { DispatchPhase2841AbschlussrateBoard } from './phase2841-abschlussrate-board';
 import { DispatchPhase2846PuenktlichkeitsBoard } from './phase2846-puenktlichkeits-board';
+import { DispatchPhase2851ReaktionszeitBoard } from './phase2851-reaktionszeit-board';
 
 type Driver = {
   employee_id: string;
@@ -4118,6 +4119,8 @@ export function DispatchBoard({
           <DispatchPhase2841AbschlussrateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2846: Pünktlichkeits-Board — Fahrerliste nach Rate absteigend; Balken 0–100% Ziel 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert <70% "Niedrige Pünktlichkeit!"; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2846PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2851: Reaktionszeit-Board — Fahrerliste aufsteigend nach Zeit (schnellste oben); Balken 0–10 Min Ziel 3 Min; KPI-Grid Team-Ø/Bester/Ziel; Alert >7 Min "Langsame Reaktion!"; Trend-Pfeile invertiert; 30-Min-Polling */}
+          <DispatchPhase2851ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}
           <DispatchPhase2830TourScoreLiveVisualisierungMaster locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
@@ -11928,3 +11931,5 @@ export { DispatchPhase2836KilometerBoard } from './phase2836-kilometer-board';
 export { DispatchPhase2841AbschlussrateBoard } from './phase2841-abschlussrate-board';
 // Phase 2846 — Pünktlichkeits-Board (Fahrerliste nach Rate absteigend; Balken 0–100% Ziel 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert <70% "Niedrige Pünktlichkeit!"; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2846PuenktlichkeitsBoard } from './phase2846-puenktlichkeits-board';
+// Phase 2851 — Reaktionszeit-Board (Fahrerliste aufsteigend nach Min; Balken 0–10 Min Ziel 3 Min; Alert >7 Min "Langsame Reaktion!"; Trend invertiert fallend=grün/steigend=rot; 30-Min-Polling)
+export { DispatchPhase2851ReaktionszeitBoard } from './phase2851-reaktionszeit-board';

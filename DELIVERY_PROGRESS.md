@@ -24373,3 +24373,44 @@ Backend-Architekt-Agent (2026-07-21): Phasen 2840–2844 implementiert. Backend-
 5. **Phase 2854 Kitchen:** Reaktionszeit-Ticker — Team-Ø Min; Alert >5 Min "Langsame Reaktion!"; Fahrerliste kompakt aufsteigend (schnellste zuerst); Ziel ≤2 Min; 30-Min-Polling; in kitchen/client.tsx nach Phase2849.
 
 Frontend-Ingenieur-Agent (2026-07-21): Phasen 2845–2849 implementiert. Backend-API wiederverwendet (fahrer-puenktlichkeit Phase 1831, quote_pct, Ampel grün≥90%/gelb70–89%/rot<70%, Alert "Niedrige Pünktlichkeit!", Trend, Rang, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2846 Dispatch (PuenktlichkeitsBoard, absteigend nach Rate, Balken 0–100% Ziel-Linie 90%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <70% "Niedrige Pünktlichkeit!", Trend steigend=grün/fallend=rot) / Phase2847 Fahrer-App (MeinePuenktlichkeit, Rate % 4xl, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2849 Kitchen (PuenktlichkeitsTicker, Team-Ø %, Alert <70%, absteigend nach Rate, Ziel ≥90%). Phase 2848 Storefront übersprungen. TS ✓ Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2850–2854 — Fahrer-Reaktionszeit-Score (2026-07-21)
+
+### Phase 2850 — Backend API: Fahrer-Reaktionszeit
+**Datei:** `app/api/delivery/admin/fahrer-reaktionszeit/route.ts` *(bereits vorhanden, Phase 2435)*
+**Wiederverwendet:** Ø Reaktionszeit (Zeit assigned_at → picked_up_at aus delivery_tours) je Fahrer heute; Ampel grün(<3 Min)/gelb(3–7 Min)/rot(>7 Min); Alert >7 Min "Langsame Reaktion!"; Trend vs. Vorwoche; rang; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2851 — Reaktionszeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2851-reaktionszeit-board.tsx` *(neu)*
+**Component:** `DispatchPhase2851ReaktionszeitBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >7 Min "Langsame Reaktion!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel <3 Min); Fahrerliste aufsteigend sortiert (niedrigste oben = schnellste zuerst); Balken 0–10 Min mit Ziel-Linie 3 Min; Ampel grün(<3)/gelb(3–7)/rot(>7 Min); Trend-Pfeile invertiert (fallend=grün/steigend=rot); Touren-Anzahl; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2846 ✅
+
+### Phase 2852 — Meine Reaktionszeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2852-meine-reaktionszeit.tsx` *(neu)*
+**Component:** `FahrerPhase2852MeineReaktionszeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Min-Wert 4xl groß + Farbcode; Balken 0–10 Min mit Ziel-Linie 3 Min; KPI-Grid (Trend/Ziel/Ampel/Touren); Team-Ø + Rang-Anzeige (Reaktionszeitrang); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2847 ✅
+
+### Phase 2853 — Storefront
+Übersprungen (Reaktionszeit intern irrelevant für Kunden) ✅
+
+### Phase 2854 — Reaktionszeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2854-reaktionszeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2854ReaktionszeitTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Min; Alert-Banner je Fahrer >7 Min "Langsame Reaktion!"; Fahrerliste kompakt aufsteigend sortiert (schnellste zuerst) mit Ampel-Dots, Trend-Pfeil invertiert, Touren-Anzahl und Min-Wert; Ziel-Anzeige <3 Min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2849 ✅
+
+### Nächste Phasen 2855–2859 (für nächsten Ingenieur) — Fahrer-Auslastungs-Score
+1. **Phase 2855 Backend:** GET /api/delivery/admin/fahrer-auslastung — Touren-Anzahl heute vs. Schicht-Kapazität (max. Touren je Fahrer); Rate %; Ampel grün(≥80%)/gelb(50–79%)/rot(<50%); Alert <50% "Niedrige Auslastung!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2856 Dispatch:** Auslastungs-Board — Fahrerliste nach Rate absteigend (höchste oben = ausgelastetest Fahrer); Balken 0–100% mit Ziel-Linie 80%; KPI-Grid Team-Ø/Bester/Ziel ≥80%; Alert-Banner <50%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2851.
+3. **Phase 2857 Fahrer-App:** Meine Auslastung — Rate % 4xl groß + Farbcode; Balken 0–100% Ziel 80%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2852.
+4. **Phase 2858 Storefront:** Überspringen (Auslastung intern irrelevant für Kunden).
+5. **Phase 2859 Kitchen:** Auslastungs-Ticker — Team-Ø %; Alert <50%; Fahrerliste kompakt absteigend (höchste oben); Ziel ≥80%; 30-Min-Polling; in kitchen/client.tsx nach Phase2854.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2850–2854 implementiert. Backend-API wiederverwendet (fahrer-reaktionszeit Phase 2435, assigned_at→picked_up_at aus delivery_tours, Ampel grün<3/gelb3–7/rot>7 Min, Alert "Langsame Reaktion!", Trend vs. Vorwoche, rang, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2851 Dispatch (ReaktionszeitBoard, aufsteigend nach Min, Balken 0–10 Min Ziel-Linie 3 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner >7 Min, Trend-Pfeile invertiert fallend=grün/steigend=rot) / Phase2852 Fahrer-App (MeineReaktionszeit, Min 4xl + Farbcode, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2854 Kitchen (ReaktionszeitTicker, Team-Ø Min, Alert >7 Min, aufsteigend nach Min, Ziel <3 Min). Phase 2853 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.

@@ -791,6 +791,7 @@ import { KitchenPhase2834WartezeitTicker } from './phase2834-wartezeit-ticker';
 import { KitchenPhase2839KilometerTicker } from './phase2839-kilometer-ticker';
 import { KitchenPhase2844AbschlussrateTicker } from './phase2844-abschlussrate-ticker';
 import { KitchenPhase2849PuenktlichkeitsTicker } from './phase2849-puenktlichkeits-ticker';
+import { KitchenPhase2854ReaktionszeitTicker } from './phase2854-reaktionszeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3699,6 +3700,8 @@ export function KitchenBoard({
       <KitchenPhase2844AbschlussrateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2849: Pünktlichkeits-Ticker — Team-Ø %; Alert <70% "Niedrige Pünktlichkeit!"; Fahrerliste kompakt absteigend; Ziel ≥90%; 30-Min-Polling */}
       <KitchenPhase2849PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2854: Reaktionszeit-Ticker — Team-Ø Min; Alert >7 Min "Langsame Reaktion!"; Fahrerliste kompakt aufsteigend (schnellste zuerst); Ziel <3 Min; Trend invertiert; 30-Min-Polling */}
+      <KitchenPhase2854ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase2820KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
@@ -10500,5 +10503,7 @@ export { KitchenPhase2839KilometerTicker } from './phase2839-kilometer-ticker';
 export { KitchenPhase2844AbschlussrateTicker } from './phase2844-abschlussrate-ticker';
 // Phase 2849 — Pünktlichkeits-Ticker (Team-Ø %; Alert <70% "Niedrige Pünktlichkeit!"; Fahrerliste kompakt absteigend; Ziel ≥90%; 30-Min-Polling)
 export { KitchenPhase2849PuenktlichkeitsTicker } from './phase2849-puenktlichkeits-ticker';
+// Phase 2854 — Reaktionszeit-Ticker (Team-Ø Min; Alert >7 Min "Langsame Reaktion!"; Fahrerliste kompakt aufsteigend schnellste zuerst; Ziel <3 Min; Trend invertiert; 30-Min-Polling)
+export { KitchenPhase2854ReaktionszeitTicker } from './phase2854-reaktionszeit-ticker';
 // Phase 2830 — Smart-Timing Countdown Farbkodierung Master (Echtzeit-Countdown grün/gelb/rot + Fortschrittsbalken + Kochstart-Empfehlung + Fahrer-ETA-Bridge + SLA-Balance; 1-Sek-Tick + 20-Sek-Polling)
 export { KitchenPhase2830SmartTimingCountdownFarbkodierungMaster } from './phase2830-smart-timing-countdown-farbkodierung-master';
