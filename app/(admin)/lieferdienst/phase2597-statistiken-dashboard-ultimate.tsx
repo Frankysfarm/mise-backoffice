@@ -76,21 +76,22 @@ function useStats(locationId: string | null | undefined) {
         const prevWeek = prevWeekRes.data ?? [];
         const drivers = driversRes.data ?? [];
 
-        const delivered = (rows: typeof today) => rows.filter(r => r.status === 'geliefert');
-        const umsatz = (rows: typeof today) => delivered(rows).reduce((s, r) => s + (r.gesamtpreis ?? 0), 0);
-        const avgZeit = (rows: typeof today) => {
-          const valid = delivered(rows).filter(r => r.erstellt_am && r.geliefert_am);
+        type OrderRow = { id: string; gesamtpreis: number | null; status: string | null; erstellt_am: string | null; geliefert_am: string | null };
+        const delivered = (rows: OrderRow[]) => rows.filter((r: OrderRow) => r.status === 'geliefert');
+        const umsatz = (rows: OrderRow[]) => delivered(rows).reduce((s: number, r: OrderRow) => s + (r.gesamtpreis ?? 0), 0);
+        const avgZeit = (rows: OrderRow[]) => {
+          const valid = delivered(rows).filter((r: OrderRow) => r.erstellt_am && r.geliefert_am);
           if (!valid.length) return 0;
-          const sum = valid.reduce((s, r) => {
+          const sum = valid.reduce((s: number, r: OrderRow) => {
             const diff = (new Date(r.geliefert_am!).getTime() - new Date(r.erstellt_am!).getTime()) / 60000;
             return s + Math.max(0, diff);
           }, 0);
           return Math.round(sum / valid.length);
         };
-        const storniertQ = (rows: typeof today) => {
+        const storniertQ = (rows: OrderRow[]) => {
           const total = rows.length;
           if (!total) return 0;
-          const storno = rows.filter(r => r.status === 'storniert').length;
+          const storno = rows.filter((r: OrderRow) => r.status === 'storniert').length;
           return Math.round((storno / total) * 100);
         };
 
@@ -101,7 +102,7 @@ function useStats(locationId: string | null | undefined) {
           lieferungenVorwoche: Math.round(delivered(prevWeek).length / 7),
           avgLieferzeitMin: avgZeit(week),
           avgLieferzeitVorwoche: avgZeit(prevWeek),
-          aktiveFahrer: drivers.filter(d => (d as { ist_online?: boolean }).ist_online).length,
+          aktiveFahrer: drivers.filter((d: { id: string; ist_online?: boolean | null }) => d.ist_online).length,
           storniertQuote: storniertQ(today),
         });
       } catch {

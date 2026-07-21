@@ -162,7 +162,7 @@ export function LieferdienstPhase2610StatistikLiveSynthesisCockpit({
           <BarChart data={data.stunden} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
             <XAxis dataKey="h" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
             <Tooltip
-              formatter={(v: number) => mode === 'umsatz' ? [`${v} €`, 'Umsatz'] : [v, 'Bestellungen']}
+              formatter={(v) => mode === 'umsatz' ? [`${v as number} €`, 'Umsatz'] : [v as number, 'Bestellungen']}
               contentStyle={{ fontSize: 10, padding: '2px 6px' }}
             />
             <Bar dataKey={mode} radius={[3, 3, 0, 0]}>

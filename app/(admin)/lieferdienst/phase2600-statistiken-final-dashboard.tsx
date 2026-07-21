@@ -221,7 +221,7 @@ export function LieferdienstPhase2600StatistikenFinalDashboard({ locationId }: {
             <BarChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <XAxis dataKey="label" tick={{ fontSize: 9, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
               <Tooltip
-                formatter={(v: number | string) => mode === 'revenue' ? fmtEur(Number(v)) : `${v} Bestellungen`}
+                formatter={(v) => mode === 'revenue' ? fmtEur(Number(v)) : `${v} Bestellungen`}
                 contentStyle={{ fontSize: 10, borderRadius: 8, border: '1px solid #e7e5e4' }}
               />
               <Bar dataKey="value" radius={[3, 3, 0, 0]} maxBarSize={24}>
