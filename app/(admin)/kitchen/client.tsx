@@ -800,6 +800,7 @@ import { KitchenPhase2876SmartTimingKochstartFarbkodierungsCockpit } from './pha
 import { KitchenPhase2885LiefergeschwindigkeitTicker } from './phase2885-liefergeschwindigkeit-ticker';
 import { KitchenPhase2890SmartTimingCountdownLiveKommando } from './phase2890-smart-timing-countdown-live-kommando';
 import { KitchenPhase2895BewertungsTrendTicker } from './phase2895-bewertungs-trend-ticker';
+import { KitchenPhase2900SmartTimingScoreCockpitUltimate } from './phase2900-smart-timing-score-cockpit-ultimate';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3748,6 +3749,12 @@ export function KitchenBoard({
       <KitchenPhase2645SmartTimingEchtzeitCockpitFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2830: Smart-Timing Countdown Farbkodierung Master — Echtzeit-Countdown grün/gelb/rot + Fortschrittsbalken + Kochstart-Empfehlung + Fahrer-ETA-Bridge + SLA-Balance; 1-Sek-Tick + 20-Sek-Polling */}
       <KitchenPhase2830SmartTimingCountdownFarbkodierungMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2900: Smart-Timing Score-Cockpit Ultimate — Countdown-Ring grün/gelb/rot je Bestellung + KPI-Strip Aktiv/Überfällig/Pünktlichkeit + Fahrer-ETA-Delta + Fortschrittsbalken; 1-Sek-Tick */}
+      <KitchenPhase2900SmartTimingScoreCockpitUltimate
+        orders={filtered.map(o => ({ id: o.id, bestellnummer: o.bestellnummer ?? '', kunde_name: o.kunde_name ?? '', status: o.status, created_at: (o as any).created_at ?? o.bestellt_am ?? '', geschaetzte_zubereitung_min: (o as any).geschaetzte_zubereitung_min ?? null }))}
+        timings={timings}
+        locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter}
+      />
     </div>
   );
 }
@@ -10548,3 +10555,4 @@ export { KitchenPhase2885LiefergeschwindigkeitTicker } from './phase2885-lieferg
 export { KitchenPhase2890SmartTimingCountdownLiveKommando } from './phase2890-smart-timing-countdown-live-kommando';
 // Phase 2895 — Bewertungs-Trend Ticker (Team-Ø ★; Alert <3.5 ★ "Niedrige Bewertung!"; Fahrerliste kompakt absteigend beste oben; Trend-Pfeile steigend=grün/fallend=rot; Ziel ≥4.5 ★; 30-Min-Polling)
 export { KitchenPhase2895BewertungsTrendTicker } from './phase2895-bewertungs-trend-ticker';
+export { KitchenPhase2900SmartTimingScoreCockpitUltimate } from './phase2900-smart-timing-score-cockpit-ultimate';

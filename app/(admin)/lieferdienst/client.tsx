@@ -446,6 +446,7 @@ import { LieferdienstPhase2597StatistikenDashboardUltimate } from './phase2597-s
 import { LieferdienstPhase2600StatistikenFinalDashboard } from './phase2600-statistiken-final-dashboard';
 import { LieferdienstPhase2605StatistikenEchtzeitSynthesisCockpit } from './phase2605-statistiken-echtzeit-synthesis-cockpit';
 import { LieferdienstPhase2610StatistikLiveSynthesisCockpit } from './phase2610-statistiken-live-synthesis-cockpit';
+import { LieferdienstPhase2615StatistikDashboardFinal } from './phase2615-statistiken-dashboard-final';
 import { SmartStatsCockpit } from './smart-stats-cockpit';
 import { LieferdienstEchtzeitStatistikHub } from './lieferdienst-echtzeit-statistik-hub';
 
@@ -2237,6 +2238,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2605StatistikenEchtzeitSynthesisCockpit />
                 {/* Phase 2610: Statistiken Live-Synthesis Cockpit — 10 KPI-Kacheln Ampel; Stunden-Chart 2-Modi Bestellungen/Umsatz; Zonen-Ranking; Fahrer-Top-3; Alert-Strip; 3-Min-Polling */}
                 <LieferdienstPhase2610StatistikLiveSynthesisCockpit locationId={locationId ?? null} />
+                {/* Phase 2615: Statistiken Dashboard Final — 6 KPI-Kacheln Ampel + Trend vs. Vortag; Stundenverlauf-Chart Bestellungen/Umsatz umschaltbar; SLA-Indikatoren; Alert-Strip; 5-Min-Polling */}
+                <LieferdienstPhase2615StatistikDashboardFinal locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4740,3 +4743,5 @@ export { LieferdienstPhase2600StatistikenFinalDashboard } from './phase2600-stat
 export { LieferdienstPhase2605StatistikenEchtzeitSynthesisCockpit } from './phase2605-statistiken-echtzeit-synthesis-cockpit';
 // Phase 2610 — Statistiken Live-Synthesis-Cockpit (10 KPI-Kacheln Ampel; Stunden-Chart 2-Modi Bestellungen/Umsatz; Zonen-Ranking; Fahrer-Top-3; Alert-Strip; 3-Min-Polling)
 export { LieferdienstPhase2610StatistikLiveSynthesisCockpit } from './phase2610-statistiken-live-synthesis-cockpit';
+// Phase 2615 — Statistiken Dashboard Final (6 KPI-Kacheln Ampel; Stundenverlauf-Chart 2-Modi; SLA-Indikatoren; Alert-Strip; 5-Min-Polling)
+export { LieferdienstPhase2615StatistikDashboardFinal } from './phase2615-statistiken-dashboard-final';

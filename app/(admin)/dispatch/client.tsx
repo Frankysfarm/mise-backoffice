@@ -853,6 +853,7 @@ import { DispatchPhase2877TourScoreEchtzeitAnalyseBoard } from './phase2877-tour
 import { DispatchPhase2882LiefergeschwindigkeitBoard } from './phase2882-liefergeschwindigkeit-board';
 import { DispatchPhase2887TourScoreVisualisierungLiveKommando } from './phase2887-tour-score-visualisierung-live-kommando';
 import { DispatchPhase2892BewertungsTrendBoard } from './phase2892-bewertungs-trend-board';
+import { DispatchPhase2895TourScoreEchtzeitKommando } from './phase2895-tour-score-echtzeit-kommando';
 
 type Driver = {
   employee_id: string;
@@ -4165,6 +4166,8 @@ export function DispatchBoard({
           <DispatchPhase2630TourScoreMasterUltra batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2635: Tour-Score Visualisierung Kompakt — Score-Ring je Fahrer + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + Alert Score <60; 25-Sek-Polling */}
           <DispatchPhase2635TourScoreVisualisierungKompakt locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2895: Tour-Score Echtzeit-Kommando — Score-Ring SVG je Fahrer 0–100 farbkodiert + farbkodierte Stop-Dots + Flotten-Ø + Alert Score <50; 25-Sek-Polling */}
+          <DispatchPhase2895TourScoreEchtzeitKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -11974,3 +11977,4 @@ export { DispatchPhase2882LiefergeschwindigkeitBoard } from './phase2882-lieferg
 export { DispatchPhase2887TourScoreVisualisierungLiveKommando } from './phase2887-tour-score-visualisierung-live-kommando';
 // Phase 2892 — Bewertungs-Trend Board (Fahrerliste absteigend nach Ø-Bewertung; Balken 0–5 ★ Ziel 4.5 ★; KPI-Grid Team-Ø/Bester/Ziel; Alert <3.5 "Niedrige Bewertung!"; Trend-Pfeile steigend=grün/fallend=rot; 30-Min-Polling)
 export { DispatchPhase2892BewertungsTrendBoard } from './phase2892-bewertungs-trend-board';
+export { DispatchPhase2895TourScoreEchtzeitKommando } from './phase2895-tour-score-echtzeit-kommando';
