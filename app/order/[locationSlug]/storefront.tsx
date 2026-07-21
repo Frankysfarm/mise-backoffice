@@ -454,6 +454,7 @@ import { StorefrontPhase2605EtaLiveTrackingFinal } from './phase2605-eta-live-tr
 import { StorefrontPhase2620DynamischeEtaLiveMaster } from './phase2620-dynamische-eta-live-master';
 import { StorefrontPhase2640DynamischeEtaLiveBoard } from './phase2640-dynamische-eta-live-board';
 import { Phase2645DynamischeEtaLiveTrackingKommando } from './phase2645-dynamische-eta-live-tracking-kommando';
+import { StorefrontPhase2650DynamischeEtaLiveTrackingMaster } from './phase2650-dynamische-eta-live-tracking-master';
 import { SmartEtaLiveTracker } from './smart-eta-live-tracker';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 import { StorefrontPhase1010DynamischeEtaLiveMaster } from './phase1010-dynamische-eta-live-master';
@@ -2020,6 +2021,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
       {activeOrderId && successType === 'lieferung' && (
         <div className="mx-4 mt-2">
           <Phase2645DynamischeEtaLiveTrackingKommando orderId={activeOrderId} />
+          {/* Phase 2650: Dynamische ETA Live-Tracking Master — ETA-Hero-Countdown + Phasen-Timeline + Fahrer-Info + Konfidenz-Indikator + Verzögerungs-Warnung; 1-Sek-Tick + 30-Sek-Polling */}
+          <div className="mt-2">
+            <StorefrontPhase2650DynamischeEtaLiveTrackingMaster orderId={activeOrderId} />
+          </div>
         </div>
       )}
       {/* SmartEtaLiveTracker: Dynamische ETA + Konfidenz-Ring; Live-Countdown Sek; Phasen-Timeline Bestätigt/Zubereitung/Fertig/Unterwegs/Geliefert; Fahrer-Distanz; 30-Sek-Polling */}
@@ -3824,3 +3829,5 @@ export { StorefrontPhase2375DynamischeEtaLiveTrackingBoard } from './phase2375-d
 export { StorefrontPhase2600DynamischeEtaLiveFinal } from './phase2600-dynamische-eta-live-final';
 // Phase 2620 — Dynamische ETA Live Master (ETA-Hero; Delay-Warnung; 5-Stufen-Timeline; Fahrer-Info + Näherungs-Pulse; 20-Sek-Polling)
 export { StorefrontPhase2620DynamischeEtaLiveMaster } from './phase2620-dynamische-eta-live-master';
+// Phase 2650 — Dynamische ETA Live-Tracking Master (ETA-Hero-Countdown + Phasen-Timeline + Fahrer-Info + Konfidenz-Indikator + Verzögerungs-Warnung; 1-Sek-Tick + 30-Sek-Polling)
+export { StorefrontPhase2650DynamischeEtaLiveTrackingMaster } from './phase2650-dynamische-eta-live-tracking-master';

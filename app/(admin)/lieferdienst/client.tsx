@@ -441,6 +441,7 @@ import { LieferdienstPhase2575StatistikenMasterCockpit } from './phase2575-stati
 import { LieferdienstPhase2580StatistikDashboardLive } from './phase2580-statistiken-dashboard-live';
 import { LieferdienstPhase2585StatistikLiveCockpitPro } from './phase2585-statistiken-live-cockpit-pro';
 import { LieferdienstPhase2590StatistikenEchtzeitKommando } from './phase2590-statistiken-echtzeit-kommando';
+import { LieferdienstPhase2595StatistikenLiveMasterCockpit } from './phase2595-statistiken-live-master-cockpit';
 import { SmartStatsCockpit } from './smart-stats-cockpit';
 import { LieferdienstEchtzeitStatistikHub } from './lieferdienst-echtzeit-statistik-hub';
 
@@ -2222,6 +2223,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2585StatistikLiveCockpitPro locationId={locationId ?? null} />
                 {/* Phase 2590: Statistiken Echtzeit-Kommando — KPI-Grid Bestellungen/Umsatz/Ø-Lieferzeit/SLA; Aktive-Fahrer; Top-Fahrer; Zonen-KPIs; 5-Min-Polling */}
                 <LieferdienstPhase2590StatistikenEchtzeitKommando locationId={locationId ?? null} />
+                {/* Phase 2595: Statistiken Live Master Cockpit — 8 KPIs Ampel + Trend; Stundenverlauf-Chart 2-Modi; Zonen-Ranking; Alert-Strip; 3-Min-Polling */}
+                <LieferdienstPhase2595StatistikenLiveMasterCockpit locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4714,3 +4717,5 @@ export { LieferdienstPhase2580StatistikDashboardLive } from './phase2580-statist
 export { LieferdienstPhase2585StatistikLiveCockpitPro } from './phase2585-statistiken-live-cockpit-pro';
 // Phase 2590 — Statistiken Echtzeit-Kommando (KPI-Grid Bestellungen/Umsatz/Ø-Lieferzeit/SLA; Aktive-Fahrer; Top-Fahrer; Zonen-KPIs; 5-Min-Polling)
 export { LieferdienstPhase2590StatistikenEchtzeitKommando } from './phase2590-statistiken-echtzeit-kommando';
+// Phase 2595 — Statistiken Live Master Cockpit (8 KPIs Ampel + Trend-Pfeile; Stundenverlauf-Chart 2-Modi Bestellungen/Umsatz umschaltbar; Zonen-Ranking; Alert-Strip; 3-Min-Polling)
+export { LieferdienstPhase2595StatistikenLiveMasterCockpit } from './phase2595-statistiken-live-master-cockpit';

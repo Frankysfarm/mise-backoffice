@@ -839,6 +839,7 @@ import { DispatchPhase2635TourScoreVisualisierungKompakt } from './phase2635-tou
 import { DispatchTourQualitaetsGauge } from './dispatch-tour-qualitaets-gauge';
 import { DispatchPhase2822SchichtBilanzBoard } from './phase2822-schicht-bilanz-board';
 import { DispatchPhase2826EinkommensTransparenzBoard } from './phase2826-einkommens-transparenz-board';
+import { DispatchPhase2830TourScoreLiveVisualisierungMaster } from './phase2830-tour-score-live-visualisierung-master';
 
 type Driver = {
   employee_id: string;
@@ -4105,6 +4106,8 @@ export function DispatchBoard({
           <DispatchPhase2822SchichtBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2826: Einkommens-Transparenz-Board — Fahrerliste nach Einkommen absteigend; Aufschlüsselung Basis/Bonus/Trinkgeld; Balken 0–150€ Ziel 80€; Alert <50% Tagesziel; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2826EinkommensTransparenzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}
+          <DispatchPhase2830TourScoreLiveVisualisierungMaster locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
           <DispatchPhase2640TourScoreTeamUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2645: Tour-Score Rangliste Live — Rangliste mit Platzierungs-Trend-Pfeil + Score-Ring + Stop-Dots + On-Time-Balken + Schicht-Trend; Team-Ø Alert <65; Top-Performer + Coaching-Tipp; 25-Sek-Polling */}
@@ -11903,3 +11906,5 @@ export { DispatchPhase2817KundenbewertungBoard } from './phase2817-kundenbewertu
 export { DispatchPhase2822SchichtBilanzBoard } from './phase2822-schicht-bilanz-board';
 // Phase 2826 — Einkommens-Transparenz-Board (Fahrerliste nach Einkommen absteigend; Aufschlüsselung Basis/Bonus/Trinkgeld; Balken 0–150€ Ziel 80€; Alert <50%; 30-Min-Polling)
 export { DispatchPhase2826EinkommensTransparenzBoard } from './phase2826-einkommens-transparenz-board';
+// Phase 2830 — Tour-Score Live Visualisierung Master (Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling)
+export { DispatchPhase2830TourScoreLiveVisualisierungMaster } from './phase2830-tour-score-live-visualisierung-master';

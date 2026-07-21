@@ -388,6 +388,7 @@ import { KitchenPhase2620SmartTimingCountdownMaster } from './phase2620-smart-ti
 import { KitchenPhase2625SmartTimingPrepFarbkodierungLive } from './phase2625-smart-timing-prep-farbkodierung-live';
 import { KitchenPhase2630SmartCountdownFarbkodierungUltraFinal } from './phase2630-smart-countdown-farbkodierung-ultra-final';
 import { KitchenPhase2635SmartKochzeitAmpelBoard } from './phase2635-smart-kochzeit-ampel-board';
+import { KitchenPhase2830SmartTimingCountdownFarbkodierungMaster } from './phase2830-smart-timing-countdown-farbkodierung-master';
 
 import { KitchenPrepStationBoard } from './prep-station-board';
 import { KitchenPreisSignalStreifen } from './preis-signal-streifen';
@@ -3706,6 +3707,8 @@ export function KitchenBoard({
       <KitchenPhase2640SmartKochzeitPrognoseCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2645: Smart-Timing Echtzeit-Cockpit Final — Sekundengenauer Countdown grün/gelb/rot je Bestellung + Fahrer-ETA-Bridge (Δ-Zeit) + On-Time-Rate-Gauge + Kochstart-Empfehlung + Überfällig-Alert; 1-Sek-Tick + 20-Sek-Polling */}
       <KitchenPhase2645SmartTimingEchtzeitCockpitFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2830: Smart-Timing Countdown Farbkodierung Master — Echtzeit-Countdown grün/gelb/rot + Fortschrittsbalken + Kochstart-Empfehlung + Fahrer-ETA-Bridge + SLA-Balance; 1-Sek-Tick + 20-Sek-Polling */}
+      <KitchenPhase2830SmartTimingCountdownFarbkodierungMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -10477,3 +10480,5 @@ export { KitchenPhase2820KundenbewertungTicker } from './phase2820-kundenbewertu
 export { KitchenPhase2825SchichtBilanzTicker } from './phase2825-schicht-bilanz-ticker';
 // Phase 2829 — Einkommens-Ticker (Team-Ø €; Alert <50% Tagesziel; Fahrerliste kompakt absteigend; Ziel 80€; 30-Min-Polling)
 export { KitchenPhase2829EinkommensTicker } from './phase2829-einkommens-ticker';
+// Phase 2830 — Smart-Timing Countdown Farbkodierung Master (Echtzeit-Countdown grün/gelb/rot + Fortschrittsbalken + Kochstart-Empfehlung + Fahrer-ETA-Bridge + SLA-Balance; 1-Sek-Tick + 20-Sek-Polling)
+export { KitchenPhase2830SmartTimingCountdownFarbkodierungMaster } from './phase2830-smart-timing-countdown-farbkodierung-master';
