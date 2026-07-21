@@ -850,6 +850,8 @@ import { DispatchPhase2858EffizienzBoard } from './phase2858-effizienz-board';
 import { DispatchPhase2870TourVisualisierungScoreHub } from './phase2870-tour-visualisierung-score-hub';
 import { DispatchPhase2872AuslastungsBoard } from './phase2872-auslastungs-board';
 import { DispatchPhase2877TourScoreEchtzeitAnalyseBoard } from './phase2877-tour-score-echtzeit-analyse-board';
+import { DispatchPhase2882LiefergeschwindigkeitBoard } from './phase2882-liefergeschwindigkeit-board';
+import { DispatchPhase2887TourScoreVisualisierungLiveKommando } from './phase2887-tour-score-visualisierung-live-kommando';
 
 type Driver = {
   employee_id: string;
@@ -4134,6 +4136,10 @@ export function DispatchBoard({
           <DispatchPhase2872AuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2877: Tour-Score Echtzeit-Analyse Board — Score-Arc SVG 0–100; Sub-Scores Pünktlichkeit/Abschlussrate/Wartezeit/Bewertung; Trend-Pfeile; Rang; Team-Bester */}
           <DispatchPhase2877TourScoreEchtzeitAnalyseBoard drivers={drivers.map(d => ({ id: d.employee_id, vorname: d.employee?.vorname ?? '', nachname: d.employee?.nachname ?? '' }))} batches={batches.map(b => ({ id: b.id, driver_id: b.fahrer_id ?? '', status: b.status, started_at: b.startzeit ?? null, total_eta_min: b.total_eta_min }))} stops={batches.flatMap(b => (b.stops ?? []).map((s: any) => ({ id: s.id, batch_id: b.id, reihenfolge: s.reihenfolge ?? 0, geliefert_am: s.geliefert_am ?? null, angekommen_am: s.angekommen_am ?? null })))} />
+          {/* Phase 2882: Liefergeschwindigkeit-Board — Fahrerliste aufsteigend nach Min; Balken 0–60 Min Ziel 25 Min; KPI-Grid Team-Ø/Bester/Ziel ≤25 Min; Alert >35 Min "Zu langsam!"; Trend invertiert; 30-Min-Polling */}
+          <DispatchPhase2882LiefergeschwindigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2887: Tour-Score Visualisierung Live-Kommando — Score-Ring SVG + Sub-Scores + farbkodierte Stop-Dots + Fortschrittsbalken + ETA + Alert Score <60; 20-Sek-Polling */}
+          <DispatchPhase2887TourScoreVisualisierungLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
           <DispatchPhase2853TourScoreVisualisierungUltimate batches={batches} drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}

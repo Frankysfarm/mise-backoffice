@@ -746,6 +746,8 @@ import { FahrerPhase2852MeineReaktionszeit } from './phase2852-meine-reaktionsze
 import { FahrerPhase2859MeineEffizienz } from './phase2859-meine-effizienz';
 import { FahrerPhase2870TourStopSmartKommando } from './phase2870-tour-stop-smart-kommando';
 import { FahrerPhase2873MeineAuslastung } from './phase2873-meine-auslastung';
+import { FahrerPhase2883MeineLiefergeschwindigkeit } from './phase2883-meine-liefergeschwindigkeit';
+import { Phase2888TourStoppLiveNavigationsKommando } from './phase2888-tour-stopp-live-navigations-kommando';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
 import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
@@ -6219,6 +6221,10 @@ export function FahrerApp({
           <FahrerPhase2859MeineEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2873: Meine Auslastung — rate_pct % 4xl + Farbcode; Balken 0–100% Ziel 60–85%; KPI-Grid Trend/Ziel/Ampel/Touren; Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2873MeineAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2883: Meine Liefergeschwindigkeit — avg_min 4xl + Farbcode; Balken 0–60 Min Ziel 25 Min; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2883MeineLiefergeschwindigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2888: Tour-Stopp Live-Navigations-Kommando — Tour-Fortschritt + Stop-Dots; Nächster Stopp prominent mit Navigation-Button; Alle Stopps Übersicht mit ETA + Telefon; 20-Sek-Polling */}
+          {activeBatch && <Phase2888TourStoppLiveNavigationsKommando driverId={driver.id} batchId={activeBatch.id} />}
           {/* Phase 2878: Nächster Stopp GPS Navigations-Kommando — Hero-Stop farbkodiert + ETA-Countdown + Google Maps + Anruf + Bestätigen + Weitere Stopps; mobile-first */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2878NaechsterStoppGpsNavigationsKommando

@@ -797,6 +797,8 @@ import { KitchenPhase2861EffizienzTicker } from './phase2861-effizienz-ticker';
 import { KitchenPhase2870SmartTimingFahrerEtaCockpit } from './phase2870-smart-timing-fahrer-eta-cockpit';
 import { KitchenPhase2875AuslastungsTicker } from './phase2875-auslastungs-ticker';
 import { KitchenPhase2876SmartTimingKochstartFarbkodierungsCockpit } from './phase2876-smart-timing-kochstart-farbkodierungs-cockpit';
+import { KitchenPhase2885LiefergeschwindigkeitTicker } from './phase2885-liefergeschwindigkeit-ticker';
+import { KitchenPhase2890SmartTimingCountdownLiveKommando } from './phase2890-smart-timing-countdown-live-kommando';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3717,6 +3719,10 @@ export function KitchenBoard({
       <KitchenPhase2875AuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2876: Smart-Timing Kochstart Farbkodierungs-Cockpit — grün/gelb/rot/kritisch je Bestellung; Kochstart-Empfehlung-Badge; Fortschrittsbalken; Wartezeit; 1-Sek-Tick */}
       <KitchenPhase2876SmartTimingKochstartFarbkodierungsCockpit orders={filtered.map(o => ({ id: o.id, bestellnummer: o.bestellnummer ?? '', kunde_name: o.kunde_name ?? '', status: o.status, created_at: (o as any).created_at ?? o.bestellt_am ?? '' }))} timings={timings} />
+      {/* Phase 2885: Liefergeschwindigkeit-Ticker — Team-Ø Min; Alert >35 Min "Zu langsam!"; Fahrerliste kompakt aufsteigend (schnellste oben); Ziel ≤25 Min; 30-Min-Polling */}
+      <KitchenPhase2885LiefergeschwindigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2890: Smart-Timing Countdown Live-Kommando — Echtzeit-Countdown grün/gelb/rot je Bestellung; Kochstart-Empfehlung; Fortschrittsbalken; 1-Sek-Tick + 20-Sek-Polling */}
+      <KitchenPhase2890SmartTimingCountdownLiveKommando locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase2820KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}

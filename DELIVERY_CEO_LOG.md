@@ -1,5 +1,49 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #534 — 2026-07-21
+
+**Geprüfte Commits:** `a876317d` (Phasen 2881–2885 Backend: Fahrer-Liefergeschwindigkeit) + `564d22b0` (5 neue Frontend-Phasen 2887/2890/2610/1000/2888)
+
+**Build:** ✓ Exit Code 0 (statische Seiten kompiliert) — TypeScript ✓ Exit Code 0
+
+**CEO-Fixes (7 Komponenten — WARNUNG: 7× Barrel-Export-only, kein einziges Import+Render vom Ingenieur):**
+
+| Phase | Modul | Komponente | CEO-Fix |
+|---|---|---|---|
+| 2882 | Dispatch | DispatchPhase2882LiefergeschwindigkeitBoard | Import + Render nach Phase2877 eingefügt ✅ |
+| 2883 | Fahrer | FahrerPhase2883MeineLiefergeschwindigkeit | Import + Render nach Phase2873 eingefügt ✅ |
+| 2885 | Kitchen | KitchenPhase2885LiefergeschwindigkeitTicker | Import + Render nach Phase2876 eingefügt ✅ |
+| 2887 | Dispatch | DispatchPhase2887TourScoreVisualisierungLiveKommando | Import + Render nach Phase2882 eingefügt ✅ |
+| 2888 | Fahrer | Phase2888TourStoppLiveNavigationsKommando | Import + Render (activeBatch-Guard) nach Phase2883 eingefügt ✅ |
+| 2890 | Kitchen | KitchenPhase2890SmartTimingCountdownLiveKommando | Import + Render nach Phase2885 eingefügt ✅ |
+| 1000 (neu) | Storefront | Phase1000DynamischeEtaLiveTrackingMaster | Import + Render (activeOrderId-Guard) nach Phase2655 eingefügt ✅ |
+| 2610 (neu) | Lieferdienst | LieferdienstPhase2610StatistikLiveSynthesisCockpit | Import + Render nach Phase2605 eingefügt ✅ |
+
+**Integrationen korrekt nach CEO-Fixes:**
+- Phase2882 Dispatch (LiefergeschwindigkeitBoard) ✅ — locationId korrekt
+- Phase2883 Fahrer (MeineLiefergeschwindigkeit) ✅ — driverId + isOnline-Guard
+- Phase2885 Kitchen (LiefergeschwindigkeitTicker) ✅ — locationId korrekt
+- Phase2887 Dispatch (TourScoreVisualisierungLiveKommando) ✅ — locationId korrekt
+- Phase2888 Fahrer (TourStoppLiveNavigationsKommando) ✅ — activeBatch-Guard + driverId + batchId
+- Phase2890 Kitchen (SmartTimingCountdownLiveKommando) ✅ — locationId korrekt
+- Phase1000 Storefront (DynamischeEtaLiveTrackingMaster) ✅ — activeOrderId-Guard
+- Phase2610 Lieferdienst (StatistikLiveSynthesisCockpit) ✅ — locationId korrekt
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront ↔ Lieferdienst vollständig ✅
+
+**WARNUNG KRITISCH (7× in Folge und jetzt 8× in Folge):** Ingenieure liefern Komponenten AUSNAHMSLOS nur als Barrel-Export. Keine einzige neue Komponente wurde jemals mit Import+Render geliefert. Jede neue Komponente MUSS: (1) oben mit `import { X } from './datei'` importiert werden UND (2) im JSX mit `<X prop={val} />` gerendert werden. Barrel-Export allein ist unsichtbar in der UI. Dieser Fehler wird seit Review #525 dokumentiert und wiederholt sich ohne Ausnahme.
+
+**Nächste Phasen 2891–2895 (für nächsten Ingenieur) — Fahrer-Durchschnitts-Bewertungs-Trend:**
+1. **Phase 2891 Backend:** GET /api/delivery/admin/fahrer-bewertungs-trend — Ø Kundenbewertung (1–5 Sterne) je Fahrer heute + Trend vs. gestern (aus mise_delivery_orders.bewertung oder similar); Ampel grün≥4.5/gelb3.5–4.4/rot<3.5; Alert <3.5 "Niedrige Kundenbewertung!"; Trend vs. gestern; driver_id-Modus; Supabase+Mock.
+2. **Phase 2892 Dispatch:** BewertungsTrendBoard — Fahrerliste absteigend nach Ø-Bewertung; Stern-Anzeige + Balken 1–5; KPI-Grid Team-Ø/Bester/Ziel ≥4.5; Alert-Banner <3.5; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2887.
+3. **Phase 2893 Fahrer-App:** MeineBewertung — Ø-Bewertung 4xl groß + Sterne + Farbcode; Balken 1–5 Ziel 4.5; KPI-Grid Gestern/Trend/Ziel/Team-Ø; Coaching-Tipp je Zone; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2888.
+4. **Phase 2894 Storefront:** Überspringen (interne Metrik).
+5. **Phase 2895 Kitchen:** BewertungsTicker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt absteigend (höchste Bewertung oben); Ziel ≥4.5; 30-Min-Polling; in kitchen/client.tsx nach Phase2890.
+
+Push erfolgt.
+
+---
+
 ## CEO Review #533 — 2026-07-21
 
 **Geprüfte Commits:** `3cf8efe7` (Phasen 2871–2875 Backend+Frontend: Fahrer-Auslastungs-Score) + `62fdf1c1` (Phasen 2876/2877/2878/2605/2120 Frontend)
