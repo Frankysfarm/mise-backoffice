@@ -24861,3 +24861,44 @@ Frontend-Ingenieur-Agent (2026-07-21): Phasen 2935–2939 implementiert — Fahr
 5. **Phase 2954 Kitchen:** Bewertungs-Ticker — Team-Ø Sterne; Alert <4.0 "Bewertung zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥4.5 Sterne; 30-Min-Polling; in kitchen/client.tsx nach Phase2949.
 
 Backend-Architekt-Agent (2026-07-21): Phasen 2945–2949 implementiert — Fahrer-Trinkgeld-Quote. Backend-API wiederverwendet (fahrer-trinkgeld-quote, trinkgeld_quote/quote_vw/trend/ampel/alert_niedrig/fahrer_single) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2946 Dispatch (TrinkgeldQuoteBoard, absteigend nach trinkgeld_quote%, Balken 0–50% Ziel-Linie 30%, KPI-Grid Team-Ø/Bester/Ziel ≥30%, Alert-Banner <10% "Niedrige Trinkgeld-Quote!", Trend-Pfeile, Import L869+Render nach Phase2941+Barrel-Export ✅) / Phase2947 Fahrer-App (MeineTrinkgeldQuote, Quote% 4xl+Farbcode, Balken 0–50% Ziel 30%, Coaching-Tipp, fahrer_single-Modus, isOnline-Guard, 30-Min-Polling, Import L764+Render nach Phase2942+Barrel-Export ✅) / Phase2949 Kitchen (TrinkgeldQuoteTicker, Team-Ø Quote%, Alert <10% "Niedrige Trinkgeld-Quote!", absteigend, Ziel ≥30%, Import L816+Render nach Phase2944+Barrel-Export ✅). Phase 2948 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors: true aktiv). Push erfolgt.
+
+---
+
+## Batch 2950–2954 — Fahrer-Bewertungs-Index (2026-07-21)
+
+### Phase 2950 — Backend API: Fahrer-Bewertung
+**Datei:** `app/api/delivery/admin/fahrer-bewertung/route.ts` *(bereits vorhanden)*
+**Wiederverwendet:** Bestehende API (avg_sterne, avg_sterne_vw, trend, trend_delta, ampel grün≥4.5/gelb≥3.5/<3.5, alert_niedrig, fahrer_single-Modus, team_avg_sterne). Phase 2950 Backend bereits implementiert.
+
+### Phase 2951 — Bewertungs-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2951-bewertungs-board.tsx` *(neu)*
+**Component:** `DispatchPhase2951BewertungsBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <4.0 "Bewertung zu niedrig!" mit Fahrernamen + Sterne; KPI-Grid (Team-Ø/Bester/Ziel ≥4.5 ★); Fahrerliste absteigend nach avg_sterne; Balken 0–5 ★ mit Ziel-Linie 4.5; Sterne-Darstellung pro Fahrer; Ampel grün(≥4.5)/gelb(4.0–4.4)/rot(<4.0); Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2946 (TrinkgeldQuoteBoard) ✅
+
+### Phase 2952 — Meine Bewertung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2952-meine-bewertung.tsx` *(neu)*
+**Component:** `FahrerPhase2952MeineBewertung`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Ø Sterne 4xl farbkodiert; Sterne-Visualisierung (5 Sterne-Icons); Balken 1–5 ★ mit Ziel-Linie 4.5; KPI-Grid (Trend-Delta/Team-Ø); Blau-Coaching-Tipp je Ampelzone; driver_id-Modus (fahrer_single); isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2947 ✅
+
+### Phase 2953 — Storefront
+Übersprungen (Bewertung intern irrelevant für Kunden) ✅
+
+### Phase 2954 — Bewertungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2954-bewertungs-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2954BewertungsTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Sterne im Header; Alert je Fahrer <4.0 "Bewertung zu niedrig!"; Fahrerliste kompakt absteigend nach avg_sterne (beste zuerst) mit Ampel-Dots + Trend-Pfeil + Sterne-Wert; Ziel-Anzeige ≥4.5 ★; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2949 ✅
+
+### Nächste Phasen 2955–2959 (für nächsten Ingenieur) — Fahrer-Liefertreue-Index
+1. **Phase 2955 Backend:** GET /api/delivery/admin/fahrer-liefertreue — Pünktlichkeitsrate (on-time/total × 100%) je Fahrer heute; Ampel grün(≥90%)/gelb(70–89%)/rot(<70%); Alert <70% "Liefertreue zu niedrig!"; Trend vs. gestern; driver_id-Modus; Supabase(batch_stops delivered_at vs. promised_at)+Mock.
+2. **Phase 2956 Dispatch:** LiefertreueBoard — Fahrerliste absteigend nach Pünktlichkeitsrate%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert-Banner <70% "Liefertreue zu niedrig!"; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2951.
+3. **Phase 2957 Fahrer-App:** Meine Liefertreue — Rate % 4xl+Farbcode; Balken 0–100% Ziel 90%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2952.
+4. **Phase 2958 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2959 Kitchen:** Liefertreue-Ticker — Team-Ø Rate%; Alert <70% "Liefertreue zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥90%; 30-Min-Polling; in kitchen/client.tsx nach Phase2954.
+
+Frontend-Ingenieur-Agent (2026-07-21): Phasen 2950–2954 implementiert — Fahrer-Bewertungs-Index. Backend-API wiederverwendet (fahrer-bewertung, avg_sterne/avg_sterne_vw/trend/ampel/alert_niedrig/fahrer_single) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2951 Dispatch (BewertungsBoard, absteigend nach avg_sterne, Balken 0–5 ★ Ziel-Linie 4.5, KPI-Grid Team-Ø/Bester/Ziel ≥4.5 ★, Alert-Banner <4.0 "Bewertung zu niedrig!", Sterne-Icons, Trend-Pfeile, Import+Render nach Phase2946+Barrel-Export ✅) / Phase2952 Fahrer-App (MeineBewertung, Ø ★ 4xl+Farbcode, 5 Sterne-Icons, Balken 1–5 ★ Ziel 4.5, Coaching-Tipp, fahrer_single-Modus, isOnline-Guard, 30-Min-Polling, Import+Render nach Phase2947+Barrel-Export ✅) / Phase2954 Kitchen (BewertungsTicker, Team-Ø ★, Alert <4.0 "Bewertung zu niedrig!", absteigend, Ziel ≥4.5 ★, Import+Render nach Phase2949+Barrel-Export ✅). Phase 2953 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors: true aktiv). Push erfolgt.

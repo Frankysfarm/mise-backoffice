@@ -867,6 +867,7 @@ import { DispatchPhase2931AbschlussquotenBoard } from './phase2931-abschlussquot
 import { DispatchPhase2936ReaktionszeitBoard } from './phase2936-reaktionszeit-board';
 import { DispatchPhase2941BuendelungsEffizienzBoard } from './phase2941-buendelungs-effizienz-board';
 import { DispatchPhase2946TrinkgeldQuoteBoard } from './phase2946-trinkgeld-quote-board';
+import { DispatchPhase2951BewertungsBoard } from './phase2951-bewertungs-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4184,6 +4185,8 @@ export function DispatchBoard({
           <DispatchPhase2941BuendelungsEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2946: Trinkgeld-Quote-Board — Fahrerliste absteigend nach Quote%; Balken 0–50% Ziel-Linie 30%; KPI-Grid Team-Ø/Bester/Ziel ≥30%; Alert <10% "Niedrige Trinkgeld-Quote!"; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2946TrinkgeldQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2951: Bewertungs-Board — Fahrerliste absteigend nach Ø Bewertung; Sterne-Darstellung; KPI-Grid Team-Ø/Bester/Ziel ≥4.5; Alert <4.0 "Bewertung zu niedrig!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2951BewertungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12044,6 +12047,8 @@ export { DispatchPhase2936ReaktionszeitBoard } from './phase2936-reaktionszeit-b
 export { DispatchPhase2941BuendelungsEffizienzBoard } from './phase2941-buendelungs-effizienz-board';
 // Phase 2946 — Trinkgeld-Quote-Board (Fahrerliste absteigend nach Quote%; Balken 0–50% Ziel ≥30%; KPI-Grid Team-Ø/Bester/Ziel; Alert <10% "Niedrige Trinkgeld-Quote!"; 30-Min-Polling)
 export { DispatchPhase2946TrinkgeldQuoteBoard } from './phase2946-trinkgeld-quote-board';
+// Phase 2951 — Bewertungs-Board (Fahrerliste absteigend nach Ø Sterne; Sterne-Darstellung; KPI-Grid Team-Ø/Bester/Ziel ≥4.5; Alert <4.0 "Bewertung zu niedrig!"; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2951BewertungsBoard } from './phase2951-bewertungs-board';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
