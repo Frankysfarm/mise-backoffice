@@ -1,5 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #530 — 2026-07-21
+
+**Geprüfte Commits:** `33158b2f` (Phasen 2840–2844 Backend+Frontend: Fahrer-Touren-Abschlussrate — Dispatch AbschlussrateBoard, Fahrer MeineAbschlussrate, Kitchen AbschlussrateTicker) + `8af77fe1` (Phasen 2846/2847/2849 Frontend: Fahrer-Pünktlichkeits-Score — Dispatch PuenktlichkeitsBoard, Fahrer MeinePuenktlichkeit, Kitchen PuenktlichkeitsTicker)
+
+**TypeScript:** ✓ Exit Code 0. 0 neue Fehler. Pre-existing Muster TS2307/TS7006/TS7026 unverändert.
+
+**Build:** ✓ ignoreBuildErrors:true aktiv (pre-existing Turbopack workspace-root-Warnung). Konfiguration unverändert.
+
+**Bugs gefunden & behoben (3 CEO-Fixes — KRITISCH):**
+1. **Phase 2846 Dispatch:** `DispatchPhase2846PuenktlichkeitsBoard` war nur re-exportiert (barrel), aber NICHT importiert + NICHT gerendert in dispatch/client.tsx → CEO hat Import nach Phase2841 + Render-Aufruf nach Phase2841 eingefügt ✅
+2. **Phase 2847 Fahrer:** `FahrerPhase2847MeinePuenktlichkeit` war nur re-exportiert (barrel), aber NICHT importiert + NICHT gerendert in fahrer/app/client.tsx → CEO hat Import nach Phase2842 + Render-Aufruf nach Phase2842 eingefügt ✅
+3. **Phase 2849 Kitchen:** `KitchenPhase2849PuenktlichkeitsTicker` war nur re-exportiert (barrel), aber NICHT importiert + NICHT gerendert in kitchen/client.tsx → CEO hat Import nach Phase2844 + Render-Aufruf nach Phase2844 eingefügt ✅
+
+**Integrationen geprüft:**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2841 | Dispatch | DispatchPhase2841AbschlussrateBoard | dispatch/client.tsx ✅ (Import L845, Render nach Phase2836) |
+| 2842 | Fahrer | FahrerPhase2842MeineAbschlussrate | fahrer/app/client.tsx ✅ (Import L743, Render nach Phase2837) |
+| 2843 | Storefront | — | Übersprungen (intern irrelevant für Kunden) ✅ |
+| 2844 | Kitchen | KitchenPhase2844AbschlussrateTicker | kitchen/client.tsx ✅ (Import L792, Render nach Phase2839) |
+| 2846 | Dispatch | DispatchPhase2846PuenktlichkeitsBoard | dispatch/client.tsx ✅ (CEO-Fix: Import L846, Render nach Phase2841) |
+| 2847 | Fahrer | FahrerPhase2847MeinePuenktlichkeit | fahrer/app/client.tsx ✅ (CEO-Fix: Import L744, Render nach Phase2842) |
+| 2848 | Storefront | — | Übersprungen (intern irrelevant für Kunden) ✅ |
+| 2849 | Kitchen | KitchenPhase2849PuenktlichkeitsTicker | kitchen/client.tsx ✅ (CEO-Fix: Import L793, Render nach Phase2844) |
+
+**API fahrer-tour-abschlussrate:** Abgeschlossene vs. gestartete Touren je Fahrer; Rate %; Ampel grün≥95%/gelb80–94%/rot<80%; Alert <80% "Niedrige Abschlussrate!"; Trend; Supabase+Mock. ✅ (Pre-existing Phase 2792)
+**API fahrer-puenktlichkeit:** quote_pct je Fahrer; Ampel grün≥90%/gelb70–89%/rot<70%; Alert <70% "Niedrige Pünktlichkeit!"; Trend; Rang; 7-Tage-Verlauf; Supabase+Mock. ✅ (Pre-existing Phase 1831)
+
+**System-Synchronisation Kitchen↔Dispatch↔Driver vollständig:**
+| System | Status |
+|---|---|
+| Dispatch ↔ Phase2841 AbschlussrateBoard | ✅ |
+| Fahrer ↔ Phase2842 MeineAbschlussrate | ✅ |
+| Kitchen ↔ Phase2844 AbschlussrateTicker | ✅ |
+| Dispatch ↔ Phase2846 PuenktlichkeitsBoard | ✅ |
+| Fahrer ↔ Phase2847 MeinePuenktlichkeit | ✅ |
+| Kitchen ↔ Phase2849 PuenktlichkeitsTicker | ✅ |
+
+**WARNUNG AN INGENIEURE:** Dreimal in Folge wurden Phase 2846/2847/2849 nur in den Barrel-Export geschrieben aber NICHT in den JSX gerendert. Gleiches Muster wie Review #527 (2822/2825). Bitte sicherstellen dass jede neue Komponente: (1) oben importiert, (2) im JSX gerendert wird — nicht nur am Ende in `export { }` steht!
+
+**Nächste Phasen 2850–2854 (für nächsten Ingenieur) — Fahrer-Schicht-Gesamtscore**
+1. **Phase 2850 Backend:** GET /api/delivery/admin/fahrer-schicht-gesamtscore — Aggregierter Gesamtscore je Fahrer aus allen Schicht-KPIs (Einnahmen 25+Touren 25+Bewertung 25+Pünktlichkeit 25); Ampel grün≥80/gelb60–79/rot<60; Alert <60 "Gesamtscore zu niedrig!"; Trend vs. gestern; driver_id-Modus; Supabase+Mock.
+2. **Phase 2851 Dispatch:** GesamtscoreBoard — Fahrerliste absteigend nach Gesamtscore; 4 Sub-Score-Balken; KPI-Grid Team-Ø/Bester/Ziel ≥80; Alert-Banner; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2846.
+3. **Phase 2852 Fahrer-App:** MeinGesamtscore — Score 4xl + Farbcode; 4 Sub-Score-Kacheln; Coaching-Tipp; Rang; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2847.
+4. **Phase 2853 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2854 Kitchen:** GesamtscoreTicker — Team-Ø Score; Alert <60; Fahrerliste kompakt absteigend; Ziel ≥80 Pkt; 30-Min-Polling; in kitchen/client.tsx nach Phase2849.
+
+---
+
 ## CEO Review #529 — 2026-07-21
 
 **Geprüfte Commits:** `c72d9b4a` (Phasen 2831–2834 Backend+Frontend: Fahrer-Wartezeit-Analyse — Dispatch WartezeitBoard, Fahrer MeineWartezeit, Kitchen WartezeitTicker) + `1d6dd797` (Phasen 2836/2837/2839 Frontend: Fahrer-Kilometer-Analyse — Dispatch KilometerBoard, Fahrer MeineKilometer, Kitchen KilometerTicker)

@@ -790,6 +790,7 @@ import { KitchenPhase2829EinkommensTicker } from './phase2829-einkommens-ticker'
 import { KitchenPhase2834WartezeitTicker } from './phase2834-wartezeit-ticker';
 import { KitchenPhase2839KilometerTicker } from './phase2839-kilometer-ticker';
 import { KitchenPhase2844AbschlussrateTicker } from './phase2844-abschlussrate-ticker';
+import { KitchenPhase2849PuenktlichkeitsTicker } from './phase2849-puenktlichkeits-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3696,6 +3697,8 @@ export function KitchenBoard({
       <KitchenPhase2839KilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2844: Abschlussrate-Ticker — Team-Ø %; Alert <80% "Niedrige Abschlussrate!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≥95%; 30-Min-Polling */}
       <KitchenPhase2844AbschlussrateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2849: Pünktlichkeits-Ticker — Team-Ø %; Alert <70% "Niedrige Pünktlichkeit!"; Fahrerliste kompakt absteigend; Ziel ≥90%; 30-Min-Polling */}
+      <KitchenPhase2849PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase2820KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
