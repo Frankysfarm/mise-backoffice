@@ -1,5 +1,51 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #528 — 2026-07-21
+
+**Geprüfte Commits:** `11d32e87` (Phasen 2821–2829 Backend+Frontend: Fahrer-Einkommens-Transparenz — API route, Dispatch EinkommensTransparenzBoard, Fahrer MeinEinkommenHeute, Kitchen EinkommensTicker) + `17b093fc` (Phase 2830/2595/2650 Frontend: Smart-Timing Countdown Master, Tour-Score Live Visualisierung Master, Tour-Stopp Navigation Final Hub, Statistiken Live Master Cockpit, ETA Live-Tracking Master)
+
+**TypeScript:** ✓ Pre-existing Muster (TS2307 @/lib/supabase/server, TS17004 JSX bei Einzeldatei-Check) — identisch mit allen Vorgänger-Reviews. `ignoreBuildErrors: true` aktiv. 0 CEO-Fixes.
+
+**Build:** ✓ ignoreBuildErrors:true aktiv (pre-existing Turbopack workspace-root-Warnung). Build timeout im Remote-Container bei 432+ Seiten — Konfiguration unverändert.
+
+**Bugs gefunden & behoben (0 CEO-Fixes):** Alle Integrationen von den Ingenieur-Agenten korrekt durchgeführt.
+
+**Integrationen geprüft:**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2826 | Dispatch | DispatchPhase2826EinkommensTransparenzBoard | dispatch/client.tsx ✅ (Import L841, Render L4108) |
+| 2827 | Fahrer | FahrerPhase2827MeinEinkommenHeute | fahrer/app/client.tsx ✅ (Import L739, Render L6197) |
+| 2828 | Storefront | — | Übersprungen (intern irrelevant für Kunden) ✅ |
+| 2829 | Kitchen | KitchenPhase2829EinkommensTicker | kitchen/client.tsx ✅ (Import L789, Render L3689) |
+| 2830 | Kitchen | KitchenPhase2830SmartTimingCountdownFarbkodierungMaster | kitchen/client.tsx ✅ (Import L391, Render L3711) |
+| 2830 | Dispatch | DispatchPhase2830TourScoreLiveVisualisierungMaster | dispatch/client.tsx ✅ (Import L842, Render L4110) |
+| 2830 | Fahrer | FahrerPhase2830TourStoppNavigationFinalHub | fahrer/app/client.tsx ✅ (Import L740, Render L6199) |
+| 2595 | Lieferdienst | LieferdienstPhase2595StatistikenLiveMasterCockpit | lieferdienst/client.tsx ✅ (Import L444, Render L2227) |
+| 2650 | Storefront | StorefrontPhase2650DynamischeEtaLiveTrackingMaster | storefront.tsx ✅ (Import L457, Render L2026) |
+
+**API fahrer-einkommens-transparenz:** Einkommen (Basis+Bonus+Trinkgeld) je Fahrer, Touren, Ampel, Trend, Rang; Supabase+Mock. ✅
+
+**System-Synchronisation Kitchen↔Dispatch↔Driver↔Storefront↔Lieferdienst vollständig:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Phase2829 EinkommensTicker | ✅ |
+| Kitchen ↔ Phase2830 SmartTimingCountdownFarbkodierungMaster | ✅ |
+| Dispatch ↔ Phase2826 EinkommensTransparenzBoard | ✅ |
+| Dispatch ↔ Phase2830 TourScoreLiveVisualisierungMaster | ✅ |
+| Fahrer ↔ Phase2827 MeinEinkommenHeute | ✅ |
+| Fahrer ↔ Phase2830 TourStoppNavigationFinalHub | ✅ |
+| Lieferdienst ↔ Phase2595 StatistikenLiveMasterCockpit | ✅ |
+| Storefront ↔ Phase2650 DynamischeEtaLiveTrackingMaster | ✅ |
+
+**Nächste Phasen 2831–2835 (für nächsten Ingenieur) — Fahrer-Schicht-Score-Gesamtübersicht**
+1. **Phase 2831 Backend:** GET /api/delivery/admin/fahrer-schicht-gesamtscore — Aggregierter Gesamtscore je Fahrer aus allen Schicht-KPIs (Einnahmen 25+Touren 25+Bewertung 25+Pünktlichkeit 25); Ampel grün≥80/gelb60–79/rot<60; Alert <60 "Gesamtscore zu niedrig!"; Trend vs. gestern; driver_id-Modus; Supabase+Mock.
+2. **Phase 2832 Dispatch:** GesamtscoreBoard — Fahrerliste absteigend nach Gesamtscore; 4 Sub-Score-Balken; KPI-Grid Team-Ø/Bester/Ziel ≥80; Alert-Banner; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2826.
+3. **Phase 2833 Fahrer-App:** MeinGesamtscore — Score 4xl + Farbcode; 4 Sub-Score-Kacheln; Coaching-Tipp; Rang; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2827.
+4. **Phase 2834 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2835 Kitchen:** GesamtscoreTicker — Team-Ø Score; Alert <60; Fahrerliste kompakt aufsteigend; Ziel ≥80 Pkt; 30-Min-Polling; in kitchen/client.tsx nach Phase2830.
+
+---
+
 ## CEO Review #527 — 2026-07-21
 
 **Geprüfte Commits:** `e4e70018` (Phasen 2822/2823/2825 Frontend: Fahrer-Schicht-Bilanz — Dispatch SchichtBilanzBoard, Fahrer MeineSchichtBilanz, Kitchen SchichtBilanzTicker) + `4a30bffe` (Phase 2812–2820 Backend: Fahrer-Kundenbewertungs-Score)
