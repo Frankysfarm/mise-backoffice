@@ -846,6 +846,7 @@ import { DispatchPhase2841AbschlussrateBoard } from './phase2841-abschlussrate-b
 import { DispatchPhase2846PuenktlichkeitsBoard } from './phase2846-puenktlichkeits-board';
 import { DispatchPhase2851ReaktionszeitBoard } from './phase2851-reaktionszeit-board';
 import { DispatchPhase2853TourScoreVisualisierungUltimate } from './phase2853-tour-score-visualisierung-ultimate';
+import { DispatchPhase2858EffizienzBoard } from './phase2858-effizienz-board';
 
 type Driver = {
   employee_id: string;
@@ -4122,6 +4123,8 @@ export function DispatchBoard({
           <DispatchPhase2846PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2851: Reaktionszeit-Board — Fahrerliste aufsteigend nach Zeit (schnellste oben); Balken 0–10 Min Ziel 3 Min; KPI-Grid Team-Ø/Bester/Ziel; Alert >7 Min "Langsame Reaktion!"; Trend-Pfeile invertiert; 30-Min-Polling */}
           <DispatchPhase2851ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2858: Effizienz-Board — Fahrerliste absteigend nach Effizienz-Index (0–100); 3 Sub-Score-Balken; KPI-Grid Team-Ø/Bester/Ziel ≥80; Alert <60 "Effizienz zu niedrig!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2858EffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
           <DispatchPhase2853TourScoreVisualisierungUltimate batches={batches} drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}
@@ -11936,5 +11939,7 @@ export { DispatchPhase2841AbschlussrateBoard } from './phase2841-abschlussrate-b
 export { DispatchPhase2846PuenktlichkeitsBoard } from './phase2846-puenktlichkeits-board';
 // Phase 2851 — Reaktionszeit-Board (Fahrerliste aufsteigend nach Min; Balken 0–10 Min Ziel 3 Min; Alert >7 Min "Langsame Reaktion!"; Trend invertiert fallend=grün/steigend=rot; 30-Min-Polling)
 export { DispatchPhase2851ReaktionszeitBoard } from './phase2851-reaktionszeit-board';
+// Phase 2858 — Effizienz-Board (Fahrerliste absteigend nach Effizienz-Index 0–100; 3 Sub-Score-Balken; KPI-Grid Team-Ø/Bester/Ziel ≥80; Alert <60 "Effizienz zu niedrig!"; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2858EffizienzBoard } from './phase2858-effizienz-board';
 // Phase 2853 — Tour-Score Visualisierung Ultimate (Echtzeit-Score 0–100 je aktiver Tour; Rangliste nach Live-Score; Stopp-Fortschritts-Dots; ETA-Verbrauch; Pünktlichkeit-Ampel; Tour-Visualisierung)
 export { DispatchPhase2853TourScoreVisualisierungUltimate } from './phase2853-tour-score-visualisierung-ultimate';

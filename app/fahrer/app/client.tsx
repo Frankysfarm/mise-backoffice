@@ -743,6 +743,7 @@ import { FahrerPhase2837MeineKilometer } from './phase2837-meine-kilometer';
 import { FahrerPhase2842MeineAbschlussrate } from './phase2842-meine-abschlussrate';
 import { FahrerPhase2847MeinePuenktlichkeit } from './phase2847-meine-puenktlichkeit';
 import { FahrerPhase2852MeineReaktionszeit } from './phase2852-meine-reaktionszeit';
+import { FahrerPhase2859MeineEffizienz } from './phase2859-meine-effizienz';
 import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
@@ -6211,6 +6212,8 @@ export function FahrerApp({
           <FahrerPhase2847MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2852: Meine Reaktionszeit — Min 4xl groß + Farbcode; Balken 0–10 Min Ziel 3 Min; KPI-Grid Trend/Ziel/Ampel/Touren; Team-Ø + Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2852MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2859: Meine Effizienz — Index 4xl + Farbcode; 3 Sub-Score-Kacheln; Coaching-Tipp; Rang; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2859MeineEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2855: Tour-Stops Navigation Echtzeit-Hub — Hero-Stopp + One-Tap Google Maps/Waze + Kunden-Anruf + Angekommen/Zugestellt-Aktionen + ETA-Countdown + Stop-Dots */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2855TourStopsNavigationEchtzeitHub
@@ -9588,5 +9591,7 @@ export { FahrerPhase2842MeineAbschlussrate } from './phase2842-meine-abschlussra
 export { FahrerPhase2847MeinePuenktlichkeit } from './phase2847-meine-puenktlichkeit';
 // Phase 2852 — Meine Reaktionszeit (Min 4xl + Farbcode; Balken 0–10 Min Ziel 3 Min; KPI-Grid; Team-Ø + Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2852MeineReaktionszeit } from './phase2852-meine-reaktionszeit';
+// Phase 2859 — Meine Effizienz (Effizienz-Index 4xl + Farbcode; 3 Sub-Score-Kacheln Touren/h+Pünktlichkeit+Bewertung; Coaching-Tipp; Rang; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2859MeineEffizienz } from './phase2859-meine-effizienz';
 // Phase 2855 — Tour-Stops Navigation Echtzeit-Hub (Nächster Stopp Hero + One-Tap Google Maps/Waze + Kunden-Anruf + Angekommen/Zugestellt-Buttons + ETA-Countdown + Stop-Dots + Weitere Stopps aufklappbar; 15-Sek-Polling + 1-Sek-ETA-Tick)
 export { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
