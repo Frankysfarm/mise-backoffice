@@ -24911,3 +24911,45 @@ Backend-Architekt-Agent (2026-07-21): Phasen 2945–2949 implementiert — Fahre
 5. **Phase 2959 Kitchen:** Liefertreue-Ticker — Team-Ø Rate%; Alert <70% "Liefertreue zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥90%; 30-Min-Polling; in kitchen/client.tsx nach Phase2954.
 
 Frontend-Ingenieur-Agent (2026-07-21): Phasen 2950–2954 implementiert — Fahrer-Bewertungs-Index. Backend-API wiederverwendet (fahrer-bewertung, avg_sterne/avg_sterne_vw/trend/ampel/alert_niedrig/fahrer_single) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2951 Dispatch (BewertungsBoard, absteigend nach avg_sterne, Balken 0–5 ★ Ziel-Linie 4.5, KPI-Grid Team-Ø/Bester/Ziel ≥4.5 ★, Alert-Banner <4.0 "Bewertung zu niedrig!", Sterne-Icons, Trend-Pfeile, Import+Render nach Phase2946+Barrel-Export ✅) / Phase2952 Fahrer-App (MeineBewertung, Ø ★ 4xl+Farbcode, 5 Sterne-Icons, Balken 1–5 ★ Ziel 4.5, Coaching-Tipp, fahrer_single-Modus, isOnline-Guard, 30-Min-Polling, Import+Render nach Phase2947+Barrel-Export ✅) / Phase2954 Kitchen (BewertungsTicker, Team-Ø ★, Alert <4.0 "Bewertung zu niedrig!", absteigend, Ziel ≥4.5 ★, Import+Render nach Phase2949+Barrel-Export ✅). Phase 2953 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors: true aktiv). Push erfolgt.
+
+---
+
+## Batch 2955–2959 — Fahrer-Liefertreue-Index (2026-07-21)
+
+### Phase 2955 — Backend API: Fahrer-Liefertreue
+**Datei:** `app/api/delivery/admin/fahrer-liefertreue/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-liefertreue?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Pünktlichkeitsrate = on-time/total × 100% je Fahrer heute; Ampel grün(≥90%)/gelb(70–89%)/rot(<70%); Alert <70%; Trend vs. gestern; Supabase(batch_stops delivered_at vs. promised_at+5 Min Puffer)+Mock.
+
+### Phase 2956 — Liefertreue-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2956-liefertreue-board.tsx` *(neu)*
+**Component:** `DispatchPhase2956LiefertreueBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <70% "Liefertreue zu niedrig!" mit Fahrernamen + Rate%; KPI-Grid (Team-Ø/Bester/Ziel ≥90%); Fahrerliste absteigend nach liefertreue_pct%; Balken 0–100% mit Ziel-Linie 90%; Ampel grün(≥90%)/gelb(70–89%)/rot(<70%); Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2951 ✅
+
+### Phase 2957 — Meine Liefertreue (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2957-meine-liefertreue.tsx` *(neu)*
+**Component:** `FahrerPhase2957MeineLiefertreue`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Rate% 4xl farbkodiert; Balken 0–100% mit Ziel-Linie 90%; KPI-Grid (Trend-Delta/Team-Ø); Blau-Coaching-Tipp je Ampelzone; driver_id-Modus; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2952 ✅
+
+### Phase 2958 — Storefront
+Übersprungen (Liefertreue intern irrelevant für Kunden) ✅
+
+### Phase 2959 — Liefertreue-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2959-liefertreue-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2959LiefertreueTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Rate% im Header; Alert je Fahrer <70% "Liefertreue zu niedrig!"; Fahrerliste kompakt absteigend nach liefertreue_pct% (beste oben) mit Ampel-Dots + Trend-Pfeil + Rate%; Ziel-Anzeige ≥90%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2954 ✅
+
+### Nächste Phasen 2960–2964 (für nächsten Ingenieur) — Fahrer-Kilometer-pro-Tour-Index
+1. **Phase 2960 Backend:** GET /api/delivery/admin/fahrer-km-pro-tour — Ø km je Tour heute je Fahrer; Ampel grün(≤8 km)/gelb(8–12 km)/rot(>12 km); Alert >12 km "Zu hohe km pro Tour!"; Trend vs. gestern; driver_id-Modus; Supabase(batch_stops distance_km)+Mock.
+2. **Phase 2961 Dispatch:** KmProTourBoard — Fahrerliste aufsteigend nach Ø km (niedrigste = effizienteste oben); Balken 0–20 km Ziel-Linie 8 km; KPI-Grid Team-Ø/Bester/Ziel ≤8 km; Alert-Banner >12 km "Zu hohe km pro Tour!"; Trend-Pfeile invertiert (fallend=grün/steigend=rot); 30-Min-Polling; in dispatch/client.tsx nach Phase2956.
+3. **Phase 2962 Fahrer-App:** Meine km pro Tour — Ø km 4xl+Farbcode; Balken 0–20 km Ziel 8 km; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2957.
+4. **Phase 2963 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2964 Kitchen:** km-pro-Tour-Ticker — Team-Ø km; Alert >12 km "Zu hohe km pro Tour!"; Fahrerliste kompakt aufsteigend (niedrigste zuerst); Ziel ≤8 km; 30-Min-Polling; in kitchen/client.tsx nach Phase2959.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2955–2959 implementiert — Fahrer-Liefertreue-Index. Neue Backend-API /api/delivery/admin/fahrer-liefertreue (Pünktlichkeitsrate on-time/total×100%, Ampel grün≥90%/gelb70-89%/rot<70%, Alert<70%, Trend vs. gestern, Supabase batch_stops+Mock) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2956 Dispatch (LiefertreueBoard, absteigend nach liefertreue_pct%, Balken 0–100% Ziel-Linie 90%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <70% "Liefertreue zu niedrig!", Trend-Pfeile, Import L871+Render nach Phase2951+Barrel-Export ✅) / Phase2957 Fahrer-App (MeineLiefertreue, Rate% 4xl+Farbcode, Balken 0–100% Ziel 90%, Trend vs. gestern, Blau-Coaching-Tipp, driverId-Filter, isOnline-Guard, 30-Min-Polling, Import L766+Render nach Phase2952+Barrel-Export ✅) / Phase2959 Kitchen (LiefertreueTicker, Team-Ø Rate% im Header, Alert <70% "Liefertreue zu niedrig!", absteigend, Ziel ≥90%, Import L818+Render nach Phase2954+Barrel-Export ✅). Phase 2958 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). ignoreBuildErrors: true aktiv. Push erfolgt.
