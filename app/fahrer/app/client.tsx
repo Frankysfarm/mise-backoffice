@@ -761,6 +761,7 @@ import { FahrerPhase2927MeinePuenktlichkeit } from './phase2927-meine-puenktlich
 import { FahrerPhase2932MeineAbschlussquote } from './phase2932-meine-abschlussquote';
 import { FahrerPhase2937MeineReaktionszeit } from './phase2937-meine-reaktionszeit';
 import { FahrerPhase2942MeineBuendelungsEffizienz } from './phase2942-meine-buendelungs-effizienz';
+import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
 import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
@@ -6259,6 +6260,8 @@ export function FahrerApp({
           <FahrerPhase2937MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2942: Meine Bündelungs-Effizienz — Ø Stopps/Tour 4xl; Balken 0–5 Ziel 3; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2942MeineBuendelungsEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2945: Tour-Stopp GPS-Navigator Ultimate — Hero-Stopp mit ETA-Countdown; Google Maps/Waze; Anruf; Fortschrittsring; Done-Counter; mobile-first; 15-Sek-Polling */}
+          <FahrerPhase2945TourStoppGpsNavigatorUltimate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2920: Tour-Stopp Ultra-Navigator — Hero-Stopp farbkodiert ETA-Countdown; Maps/Waze/Anruf; Angekommen/Zugestellt; Sequenz-Dots; 1-Sek-Tick+15-Sek-Polling */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2920TourStoppUltraNavigator

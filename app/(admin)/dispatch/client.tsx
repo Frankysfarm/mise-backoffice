@@ -866,6 +866,7 @@ import { DispatchPhase2926PuenktlichkeitsBoard } from './phase2926-puenktlichkei
 import { DispatchPhase2931AbschlussquotenBoard } from './phase2931-abschlussquoten-board';
 import { DispatchPhase2936ReaktionszeitBoard } from './phase2936-reaktionszeit-board';
 import { DispatchPhase2941BuendelungsEffizienzBoard } from './phase2941-buendelungs-effizienz-board';
+import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
   employee_id: string;
@@ -4180,6 +4181,8 @@ export function DispatchBoard({
           <DispatchPhase2936ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2941: Bündelungs-Effizienz-Board — Ø Stopps je Tour je Fahrer; absteigend; Balken 0–5 Ziel-Linie 3; KPI-Grid Team-Ø/Bester/Ziel; Alert <2 "Schlechte Bündelung!"; 30-Min-Polling */}
           <DispatchPhase2941BuendelungsEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
+          <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
           <DispatchPhase2853TourScoreVisualisierungUltimate batches={batches} drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}

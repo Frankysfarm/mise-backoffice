@@ -450,6 +450,7 @@ import { LieferdienstPhase2615StatistikDashboardFinal } from './phase2615-statis
 import { LieferdienstPhase2618StatistikenLiveDashboard } from './phase2618-statistiken-live-dashboard';
 import { LieferdienstPhase2619StatistikenKompaktKpi } from './phase2619-statistiken-kompakt-kpi';
 import { LieferdienstPhase2620StatistikenEchtzeitFinalCockpit } from './phase2620-statistiken-echtzeit-final-cockpit';
+import { LieferdienstPhase2625StatistikEchtzeitExecutive } from './phase2625-statistiken-echtzeit-executive';
 import { SmartStatsCockpit } from './smart-stats-cockpit';
 import { LieferdienstEchtzeitStatistikHub } from './lieferdienst-echtzeit-statistik-hub';
 
@@ -2249,6 +2250,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2619StatistikenKompaktKpi locationId={locationId ?? null} />
                 {/* Phase 2620: Statistiken Echtzeit Final Cockpit — 8 KPI-Kacheln Ampel+Trend; Stunden-BarChart umschaltbar; Zonen-Ranking; Top-5-Fahrer; Alert-Strip; 3-Min-Polling */}
                 <LieferdienstPhase2620StatistikenEchtzeitFinalCockpit locationId={locationId ?? null} />
+                {/* Phase 2625: Statistiken Echtzeit Executive — 10 KPIs Ampel, Stunden-Chart, Zonen-Top-5, Fahrer-Top-3, Alert-Strip; 3-Min-Polling */}
+                <LieferdienstPhase2625StatistikEchtzeitExecutive locationId={locationId ?? null} />
               </>
             </div>
           )}

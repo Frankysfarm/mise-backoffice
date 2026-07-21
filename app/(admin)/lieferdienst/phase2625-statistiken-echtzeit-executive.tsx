@@ -207,7 +207,8 @@ export function LieferdienstPhase2625StatistikEchtzeitExecutive({ locationId }: 
             <XAxis dataKey="hour" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
             <Tooltip
               contentStyle={{ fontSize: 11, borderRadius: 8 }}
-              formatter={(v: number) => mode === 'umsatz' ? [`${v} €`, 'Umsatz'] : [v, 'Bestellungen']}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              formatter={(v: any) => mode === 'umsatz' ? [`${Number(v)} €`, 'Umsatz'] : [Number(v), 'Bestellungen']}
             />
             <Bar dataKey={chartKey} radius={[3, 3, 0, 0]}>
               {chartData.map((d, i) => (

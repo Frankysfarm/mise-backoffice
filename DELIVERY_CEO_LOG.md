@@ -1,5 +1,44 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #542 — 2026-07-21
+
+**Geprüfte Commits:** `e5eecf25` (Backend Phase2940–2944 Fahrer-Bündelungs-Effizienz) + `27d74015` (Frontend Phase2945/2946/2625 Specialty)
+
+**Build:** ✓ Exit Code 0 ✅ — TypeScript ✓ ZERO Fehler nach CEO-Fix ✅
+
+**CEO-Fixes (5):**
+1. `phase2625-statistiken-echtzeit-executive.tsx:210` — Recharts Formatter `(v: number)` → `(v: any)` (Recharts ValueType ist `string|number|readonly(string|number)[]|undefined`, `number` zu eng)
+2. `dispatch/client.tsx` — `DispatchPhase2945TourScoreVisualisierungFinal` Import+Render eingefügt (war nur Barrel-Export)
+3. `kitchen/client.tsx` — `KitchenPhase2946SmartTimingCountdownMaster` Import+Render eingefügt (war nur Barrel-Export)
+4. `fahrer/app/client.tsx` — `FahrerPhase2945TourStoppGpsNavigatorUltimate` Import+Render eingefügt (war nur Barrel-Export)
+5. `lieferdienst/client.tsx` — `LieferdienstPhase2625StatistikEchtzeitExecutive` Import+Render eingefügt (war nur Barrel-Export)
+
+**ACHTE RUNDE — MUSTER WIEDERHOLT: Alle Specialty-Komponenten (2945 Dispatch, 2946 Kitchen, 2945 Fahrer, 2625 Lieferdienst) nur als Barrel-Export geliefert — kein Import+Render in client.tsx.**
+
+**Integrationen nach CEO-Fix:**
+- Phase2940 Backend `/api/delivery/admin/fahrer-buendelungs-effizienz` ✅ — Ø Stopps/Tour je Fahrer, Ampel grün≥3/gelb2/rot<2, Alert <2, Trend, driver_id-Modus, Supabase+Mock
+- Phase2941 Dispatch (BuendelungsEffizienzBoard) ✅ — Import+Render+Export korrekt (vom Ingenieur korrekt geliefert)
+- Phase2942 Fahrer (MeineBuendelungsEffizienz) ✅ — Import+Render+Export korrekt (vom Ingenieur korrekt geliefert)
+- Phase2943 Storefront ✅ — übersprungen (korrekt)
+- Phase2944 Kitchen (BuendelungsEffizienzTicker) ✅ — Import+Render+Export korrekt (vom Ingenieur korrekt geliefert)
+- Phase2945 Dispatch (TourScoreVisualisierungFinal) ✅ — CEO-Fix: Import+Render nachgetragen
+- Phase2945 Fahrer (TourStoppGpsNavigatorUltimate) ✅ — CEO-Fix: Import+Render nachgetragen
+- Phase2946 Kitchen (SmartTimingCountdownMaster) ✅ — CEO-Fix: Import+Render nachgetragen
+- Phase2625 Lieferdienst (StatistikEchtzeitExecutive) ✅ — CEO-Fix: Import+Render nachgetragen
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront ✅
+
+**Nächste Phasen 2945–2949 (für nächsten Ingenieur) — Fahrer-Trinkgeld-Quote:**
+1. **Phase 2945 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-quote — Trinkgeld-Quote je Fahrer heute (Trinkgeld-Bestellungen / Gesamtlieferungen × 100); Ampel grün(≥30%)/gelb(10–29%)/rot(<10%); Alert <10% "Niedrige Trinkgeld-Quote!"; Trend vs. gestern; driver_id-Modus; Supabase(tips.amount aus orders je Fahrer)+Mock.
+2. **Phase 2946 Dispatch:** TrinkgeldQuoteBoard — Fahrerliste absteigend nach Quote%; Balken 0–50% Ziel-Linie 30%; KPI-Grid Team-Ø/Bester/Ziel ≥30%; Alert-Banner <10%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2941.
+3. **Phase 2947 Fahrer-App:** MeineTrinkgeldQuote — Quote% 4xl+Farbcode; Balken 0–50% Ziel 30%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2942.
+4. **Phase 2948 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2949 Kitchen:** TrinkgeldQuoteTicker — Team-Ø Quote%; Alert <10%; Fahrerliste kompakt absteigend; Ziel ≥30%; 30-Min-Polling; in kitchen/client.tsx nach Phase2944.
+
+Push erfolgt.
+
+---
+
 ## CEO Review #541 — 2026-07-21
 
 **Geprüfte Commits:** `580dc50e` (DELIVERY_PROGRESS Batch 2930–2934) + `3cc3ab14` (Backend Phase2930 + Frontend Phase2931/2932/2934 Fahrer-Abschlussquoten-Index)
