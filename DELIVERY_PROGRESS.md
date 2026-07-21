@@ -2,6 +2,22 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-21): Phasen 2970–2974 implementiert — Fahrer-Wartezeit-an-Stopps-Index. Backend-API bereits vorhanden (Phase 2741, fahrer-wartezeit-stopp, Ø Wartezeit je Stopp je Fahrer heute aus batch_stops arrived_at→completed_at, Ampel grün(≤3 Min)/gelb(3–6 Min)/rot(>6 Min), Alert >6 Min "Zu lange Wartezeit!", Trend vs. gestern, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten korrekt importiert+gerendert: Phase2971 Dispatch (DispatchPhase2971WartezeitStoppBoard, aufsteigend nach Ø-Wartezeit niedrigste=beste oben, Balken 0–10 Min Ziel-Linie 3 Min, KPI-Grid Team-Ø/Bester/Ziel ≤3 Min, Alert >6 Min "Zu lange Wartezeit!", Trend-Pfeile INVERTIERT fallend=grün/steigend=rot, 30-Min-Polling ✅) / Phase2972 Fahrer-App (FahrerPhase2972MeineWartezeitStopp, Ø Wartezeit 4xl+Farbcode, Balken 0–10 Min Ziel 3 Min, Coaching-Tipp je Ampelzone, isOnline-Guard, 30-Min-Polling, fahrer[0] aus API-Array ✅) / Phase2974 Kitchen (KitchenPhase2974WartezeitStoppTicker, Team-Ø Min im Header, Alert >6 Min "Zu lange Wartezeit!", aufsteigend nach Wartezeit, Ziel ≤3 Min, 30-Min-Polling ✅). Phase 2973 Storefront übersprungen (intern). Kein Recharts, reine CSS-Balken. Trend-Pfeile invertiert korrekt (weniger Wartezeit = besser). TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors:true aktiv). Push erfolgt.
+
+### Nächste Phasen 2970–2974 (für nächsten Ingenieur) — Fahrer-Wartezeit-an-Stopps-Index (ABGESCHLOSSEN)
+1. **Phase 2970 Backend:** ✅ FERTIG (war bereits Phase 2741)
+2. **Phase 2971 Dispatch:** ✅ FERTIG
+3. **Phase 2972 Fahrer-App:** ✅ FERTIG
+4. **Phase 2973 Storefront:** ✅ Übersprungen (korrekt)
+5. **Phase 2974 Kitchen:** ✅ FERTIG
+
+### Nächste Phasen 2975–2979 (für nächsten Ingenieur) — Fahrer-Touren-pro-Tag-Index
+1. **Phase 2975 Backend:** GET /api/delivery/admin/fahrer-touren-pro-tag — Anzahl abgeschlossener Touren je Fahrer heute (batch_id-Distinct aus batch_stops status=delivered); Ampel grün(≥3 Touren)/gelb(2)/rot(<2); Alert <2 "Zu wenige Touren!"; Trend vs. gestern; driver_id-Modus; Supabase(batch_stops)+Mock.
+2. **Phase 2976 Dispatch:** TourenProTagBoard — Fahrerliste absteigend nach Tourenanzahl (höchste=aktivste oben); Balken 0–6 Touren Ziel-Linie 3; KPI-Grid Team-Ø/Bester/Ziel ≥3; Alert-Banner <2; Trend-Pfeile normal (mehr Touren=besser steigend=grün); 30-Min-Polling; in dispatch/client.tsx nach Phase2971.
+3. **Phase 2977 Fahrer-App:** MeineTourenProTag — Tourenanzahl 4xl+Farbcode; Balken 0–6 Ziel 3; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2972.
+4. **Phase 2978 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2979 Kitchen:** TourenProTagTicker — Team-Ø Touren; Alert <2 "Zu wenige Touren!"; Fahrerliste kompakt absteigend; Ziel ≥3 Touren; 30-Min-Polling; in kitchen/client.tsx nach Phase2974.
+
 Backend-Architekt-Agent (2026-07-21): Phasen 2965–2969 implementiert — Fahrer-Stopps-pro-Stunde-Index. Backend-API neu erstellt (fahrer-stopps-pro-stunde, Ø Stopps/h je Fahrer heute aus batch_stops delivered_at Zeitspanne, Ampel grün(≥5)/gelb(3–4)/rot(<3), Alert <3 "Zu langsam!", Trend vs. gestern, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten korrekt importiert+gerendert: Phase2966 Dispatch (DispatchPhase2966StoppsProStundeBoard, absteigend nach Stopps/h, Balken 0–10 Ziel-Linie 5, KPI-Grid Team-Ø/Bester/Ziel ≥5, Alert <3 "Zu langsam!", Trend-Pfeile, 30-Min-Polling, Import L873+Render L4198+Export L12065 ✅) / Phase2967 Fahrer-App (FahrerPhase2967MeineStoppsProStunde, Stopps/h 4xl+Farbcode, Balken 0–10 Ziel 5, Coaching-Tipp je Ampelzone, isOnline-Guard, 30-Min-Polling, Import L768+Render L6277+Export L9780 ✅) / Phase2969 Kitchen (KitchenPhase2969StoppsProStundeTicker, Team-Ø /h im Header, Alert <3 "Zu langsam!", absteigend nach Stopps/h, Ziel ≥5/h, 30-Min-Polling, Import L820+Render L3779+Export L10642 ✅). Phase 2968 Storefront übersprungen. Kein Recharts, reine CSS-Balken. Trend-Pfeile normal (steigend=grün, fallend=rot — mehr Stopps/h = besser). TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors:true aktiv). Push erfolgt.
 
 ### Nächste Phasen 2965–2969 (für nächsten Ingenieur) — Fahrer-Stopps-pro-Stunde-Index (ABGESCHLOSSEN)

@@ -818,6 +818,7 @@ import { KitchenPhase2954BewertungsTicker } from './phase2954-bewertungs-ticker'
 import { KitchenPhase2959LiefertreueTicker } from './phase2959-liefertreue-ticker';
 import { KitchenPhase2964KmProTourTicker } from './phase2964-km-pro-tour-ticker';
 import { KitchenPhase2969StoppsProStundeTicker } from './phase2969-stopps-pro-stunde-ticker';
+import { KitchenPhase2974WartezeitStoppTicker } from './phase2974-wartezeit-stopp-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3777,6 +3778,8 @@ export function KitchenBoard({
       <KitchenPhase2964KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2969: Stopps/h-Ticker — Team-Ø; Alert <3 "Zu langsam!"; Fahrerliste kompakt absteigend; Ziel ≥5 Stopps/h; 30-Min-Polling */}
       <KitchenPhase2969StoppsProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2974: Wartezeit/Stopp-Ticker — Team-Ø Wartezeit; Alert >6 Min "Zu lange Wartezeit!"; Fahrerliste kompakt aufsteigend; Ziel ≤3 Min; 30-Min-Polling */}
+      <KitchenPhase2974WartezeitStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10640,6 +10643,7 @@ export { KitchenPhase2959LiefertreueTicker } from './phase2959-liefertreue-ticke
 // Phase 2964 — km/Tour-Ticker (Team-Ø km; Alert >12 km "Zu hohe km pro Tour!"; Fahrerliste aufsteigend; Ziel ≤8 km; 30-Min-Polling)
 export { KitchenPhase2964KmProTourTicker } from './phase2964-km-pro-tour-ticker';
 export { KitchenPhase2969StoppsProStundeTicker } from './phase2969-stopps-pro-stunde-ticker';
+export { KitchenPhase2974WartezeitStoppTicker } from './phase2974-wartezeit-stopp-ticker';
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
