@@ -25029,3 +25029,45 @@ Backend-Architekt-Agent (2026-07-21): Phasen 2955–2959 implementiert — Fahre
 5. **Phase 2969 Kitchen:** Stopps/h-Ticker — Team-Ø; Alert <3 "Zu langsam!"; Fahrerliste kompakt absteigend (höchste zuerst); Ziel ≥5 Stopps/h; 30-Min-Polling; in kitchen/client.tsx nach Phase2964.
 
 Frontend-Ingenieur-Agent (2026-07-21): Phasen 2960–2964 implementiert — Fahrer-km-pro-Tour-Index. Neue Backend-API /api/delivery/admin/fahrer-km-pro-tour (Ø km je Tour via batch_stops.distance_km/unique batch_ids, Ampel grün≤8/gelb8-12/rot>12, Alert>12 km, Trend vs. gestern, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2961 Dispatch (KmProTourBoard, aufsteigend nach km_pro_tour, Balken 0–20 km Ziel-Linie 8 km, Trend-Pfeile invertiert, KPI-Grid, Alert-Banner >12 km, Import L872+Render L4195+Barrel-Export L12061 ✅) / Phase2962 Fahrer-App (MeineKmProTour, Ø km 4xl+Farbcode, Balken 0–20 km Ziel 8 km, Coaching-Tipp, fahrer_single-Modus, isOnline-Guard, 30-Min-Polling, Import L767+Render L6274+Barrel-Export L9776 ✅) / Phase2964 Kitchen (KmProTourTicker, Team-Ø km, Alert >12 km, aufsteigend niedrigste zuerst, Ziel ≤8 km, Import L819+Render L3776+Barrel-Export L10638 ✅). Phase 2963 Storefront übersprungen. CEO Review #544: ZEHNTE RUNDE OHNE CEO-EINGRIFF ✅.
+
+---
+
+## Batch 2975–2979 — Fahrer-Touren-pro-Tag-Index (2026-07-21)
+
+### Phase 2975 — Backend API: Fahrer-Touren-pro-Tag
+**Datei:** `app/api/delivery/admin/fahrer-touren-pro-tag/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-touren-pro-tag?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Distinct batch_ids je Fahrer heute mit status=delivered; Ampel grün(≥3)/gelb(=2)/rot(<2); Alert <2 "Zu wenige Touren!"; Trend vs. gestern; Supabase(batch_stops)+Mock.
+
+### Phase 2976 — Touren/Tag-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2976-touren-pro-tag-board.tsx` *(neu)*
+**Component:** `DispatchPhase2976TourenProTagBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <2 "Zu wenige Touren!" mit Fahrernamen; KPI-Grid (Team-Ø/Bester/Ziel ≥3); Fahrerliste absteigend nach touren_heute; Balken 0–6 mit Ziel-Linie 3; Trend-Pfeile normal (steigend=grün/fallend=rot); Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` L875 Import + L4203 Render + L12071 Barrel-Export ✅
+
+### Phase 2977 — Meine Touren/Tag (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2977-meine-touren-pro-tag.tsx` *(neu)*
+**Component:** `FahrerPhase2977MeineTourenProTag`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Tourenanzahl 4xl farbkodiert; Balken 0–6 mit Ziel-Linie 3; KPI-Grid (Trend-Delta/Team-Ø); Blau-Coaching-Tipp je Ampelzone; driver_id-Modus; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` L770 Import + L6282 Render + L9786 Barrel-Export ✅
+
+### Phase 2978 — Storefront
+Übersprungen (Touren-pro-Tag intern irrelevant für Kunden) ✅
+
+### Phase 2979 — Touren/Tag-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2979-touren-pro-tag-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2979TourenProTagTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Touren im Header; Alert je Fahrer <2 "Zu wenige Touren!"; Fahrerliste kompakt absteigend nach touren_heute (meiste zuerst) mit Ampel-Dots + Trend-Pfeil + Tourenzahl; Ziel-Anzeige ≥3 Touren; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` L822 Import + L3784 Render + L10648 Barrel-Export ✅
+
+### Nächste Phasen 2980–2984 (für nächsten Ingenieur) — Fahrer-Umsatz-pro-Stunde-Index
+1. **Phase 2980 Backend:** GET /api/delivery/admin/fahrer-umsatz-pro-stunde — Ø Umsatz (€/h) je Fahrer heute; total_order_value / Schichtstunden je Fahrer; Ampel grün(≥25 €/h)/gelb(15–24 €/h)/rot(<15 €/h); Alert <15 €/h "Umsatz zu niedrig!"; Trend vs. gestern; driver_id-Modus; Supabase(batch_stops+orders)+Mock.
+2. **Phase 2981 Dispatch:** UmsatzProStundeBoard — Fahrerliste absteigend nach €/h (höchste=beste oben); Balken 0–40 €/h Ziel-Linie 25 €/h; KPI-Grid Team-Ø/Bester/Ziel ≥25 €/h; Alert-Banner <15 €/h "Umsatz zu niedrig!"; Trend-Pfeile normal (steigend=grün/fallend=rot); 30-Min-Polling; in dispatch/client.tsx nach Phase2976.
+3. **Phase 2982 Fahrer-App:** Mein Umsatz/h — €/h 4xl+Farbcode; Balken 0–40 €/h Ziel 25 €/h; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2977.
+4. **Phase 2983 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2984 Kitchen:** Umsatz/h-Ticker — Team-Ø €/h; Alert <15 €/h "Umsatz zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥25 €/h; 30-Min-Polling; in kitchen/client.tsx nach Phase2979.
+
+Frontend-Ingenieur-Agent (2026-07-21): Phasen 2975–2979 implementiert — Fahrer-Touren-pro-Tag-Index. Neue Backend-API /api/delivery/admin/fahrer-touren-pro-tag (distinct batch_ids je Fahrer heute, Ampel grün≥3/gelb=2/rot<2, Alert <2 "Zu wenige Touren!", Trend vs. gestern, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2976 Dispatch (TourenProTagBoard, absteigend nach touren_heute, Balken 0–6 Ziel-Linie 3, KPI-Grid Team-Ø/Bester/Ziel ≥3, Alert-Banner <2 "Zu wenige Touren!", Trend normal steigend=grün, Import L875+Render L4203+Barrel-Export L12071 ✅) / Phase2977 Fahrer-App (MeineTourenProTag, Tourenanzahl 4xl+Farbcode, Balken 0–6 Ziel 3, Coaching-Tipp, isOnline-Guard, 30-Min-Polling, Import L770+Render L6282+Barrel-Export L9786 ✅) / Phase2979 Kitchen (TourenProTagTicker, Team-Ø Touren im Header, Alert <2 "Zu wenige Touren!", absteigend, Ziel ≥3 Touren, Import L822+Render L3784+Barrel-Export L10648 ✅). Phase 2978 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors: true aktiv). Push erfolgt.
