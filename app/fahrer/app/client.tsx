@@ -734,6 +734,7 @@ import { FahrerPhase2799MeineKilometerEffizienz } from './phase2799-meine-kilome
 import { FahrerPhase2804MeinePuenktlichkeit } from './phase2804-meine-puenktlichkeit';
 import { FahrerPhase2809MeineStornoRate } from './phase2809-meine-storno-rate';
 import { FahrerPhase2814SmartTourStoppNavigatorLive } from './phase2814-smart-tour-stopp-navigator-live';
+import { FahrerPhase2818MeineKundenbewertung } from './phase2818-meine-kundenbewertung';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6185,6 +6186,8 @@ export function FahrerApp({
           <FahrerPhase2809MeineStornoRate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2814: Smart Tour-Stopp Navigator Live — Nächster Stopp Fokus-Karte + Navigation CTA + Kunden-Kontakt + Stopp-Fortschrittspunkte; 1-Sek-Tick + 30-Sek-Polling */}
           <FahrerPhase2814SmartTourStoppNavigatorLive fahrerToken={driver.id} />
+          {/* Phase 2818: Meine Kundenbewertung — Score 4xl + Sterndarstellung + Farbcode; Balken 0–5 Ziel 4.5; KPI-Grid Trend/Ziel/Ampel/Bewertungen; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2818MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
           <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
@@ -9520,3 +9523,5 @@ export { FahrerPhase2804MeinePuenktlichkeit } from './phase2804-meine-puenktlich
 export { FahrerPhase2809MeineStornoRate } from './phase2809-meine-storno-rate';
 // Phase 2814 — Smart Tour-Stopp Navigator Live (Nächster Stopp Fokus-Karte + Navigation CTA + Kunden-Kontakt + Stopp-Fortschrittspunkte; 1-Sek-Tick + 30-Sek-Polling)
 export { FahrerPhase2814SmartTourStoppNavigatorLive } from './phase2814-smart-tour-stopp-navigator-live';
+// Phase 2818 — Meine Kundenbewertung (Score 4xl + Sterndarstellung + Farbcode; Balken 0–5 Ziel 4.5; KPI-Grid Trend/Ziel/Ampel/Bewertungen; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2818MeineKundenbewertung } from './phase2818-meine-kundenbewertung';

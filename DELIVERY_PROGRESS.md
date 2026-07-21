@@ -24110,3 +24110,44 @@ Backend-Architekt-Agent (2026-07-20): Phasen 2797–2801 implementiert. 1 neue B
 5. **Phase 2816 Kitchen:** Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling; in kitchen/client.tsx nach Phase2811.
 
 Backend-Architekt-Agent (2026-07-20): Phasen 2807–2811 implementiert. Backend-API wiederverwendet (fahrer-storno-rate Phase 2539, delivery_assignments cancelled/rejected, Ampel grün≤5%/gelb5–15%/rot>15%, Alert "Hohe Storno-Rate!", Trend vs. Vorwoche, fahrer_single-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2808 Dispatch (StornoRateBoard, aufsteigend nach Rate, Balken 0–30% Ziel-Linie 5%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner je Fahrer, Trend invertiert steigend=rot/fallend=grün) / Phase2809 Fahrer-App (MeineStornoRate, Rate % 4xl, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, fahrer_single-Support, 30-Min-Polling) / Phase2811 Kitchen (StornoRateTicker, Team-Ø %, Alert je Fahrer, absteigend nach Rate, Ziel ≤5%). Phase 2810 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2812–2816 — Fahrer-Kundenbewertungs-Score (2026-07-21)
+
+### Phase 2812 — Backend API: Fahrer-Kundenbewertungs-Score
+**Datei:** `app/api/delivery/admin/fahrer-kundenbewertung/route.ts` *(bereits vorhanden, Phase 2254)*
+**Wiederverwendet:** Ø Kundenbewertung (1–5 Sterne) je Fahrer heute; Ampel grün(≥4.5)/gelb(≥4.0)/rot(<4.0); alert_count via ampel=rot; Trend vs. Vorwoche; fahrer: FahrerKundenbewertung[]; team_durchschnitt; Multi-Tenant; Supabase+Mock
+
+### Phase 2817 — Kundenbewertungs-Board (Dispatch) [Phase 2813 bereits belegt]
+**Datei:** `app/(admin)/dispatch/phase2817-kundenbewertung-board.tsx` *(neu)*
+**Component:** `DispatchPhase2817KundenbewertungBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <3.5 "Niedrige Kundenbewertung!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≥4.5 ★); Fahrerliste nach Score absteigend sortiert (höchste oben); Balken 0–5 mit Ziel-Linie 4.5; Ampel-Dots + Trend-Pfeile (steigend=grün/fallend=rot); Bewertungen-Anzahl je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2813 ✅
+
+### Phase 2818 — Meine Kundenbewertung (Fahrer-App) [Phase 2814 bereits belegt]
+**Datei:** `app/fahrer/app/phase2818-meine-kundenbewertung.tsx` *(neu)*
+**Component:** `FahrerPhase2818MeineKundenbewertung`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Score 4xl groß + Farbcode + Sterndarstellung (★ filled/half/empty); Balken 0–5 mit Ziel-Linie 4.5; KPI-Grid (Trend/Ziel/Ampel/Bewertungen heute); Team-Ø + Rang-Anzeige; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2814 ✅
+
+### Phase 2819 — Storefront
+Übersprungen (Kundenbewertung intern irrelevant für Kunden) ✅
+
+### Phase 2820 — Kundenbewertungs-Ticker (Kitchen) [Phase 2816 bereits belegt]
+**Datei:** `app/(admin)/kitchen/phase2820-kundenbewertung-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2820KundenbewertungTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø ★; Alert-Banner je Fahrer <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend sortiert (niedrigste oben = schlechteste zuerst) mit Ampel-Dots, Trend-Pfeil, Bewertungsanzahl und ★-Wert; Ziel-Anzeige ≥4.5 ★; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2816 ✅
+
+### Nächste Phasen 2821–2825 (für nächsten Ingenieur) — Fahrer-Einkommens-Transparenz
+1. **Phase 2821 Backend:** GET /api/delivery/admin/fahrer-einkommens-transparenz — Heutiges Einkommen je Fahrer (Basisvergütung + Touren-Bonus + Trinkgeld aus mise_delivery_batches + tips); Ampel grün(≥Tagesziel)/gelb(50–99%)/rot(<50%); Alert <50% "Einkommensziel gefährdet!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2822 Dispatch:** Einkommens-Transparenz-Board — Fahrerliste nach Einkommen absteigend (höchste oben); Balken 0–150€ mit Ziel-Linie 80€; KPI-Grid Team-Ø/Bester/Tages-Ziel; Alert-Banner <50% Ziel; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2817.
+3. **Phase 2823 Fahrer-App:** Mein Einkommen Heute — €-Wert 4xl groß + Farbcode; Balken 0–150€ Ziel 80€; KPI-Grid Trend/Ziel/Ampel/Touren; Aufschlüsselung (Basis/Bonus/Trinkgeld); Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2818.
+4. **Phase 2824 Storefront:** Überspringen (Einkommensdaten intern irrelevant für Kunden).
+5. **Phase 2825 Kitchen:** Einkommens-Ticker — Team-Ø €; Alert <50% Tagesziel; Fahrerliste kompakt absteigend (höchste oben); Ziel-Anzeige 80€; 30-Min-Polling; in kitchen/client.tsx nach Phase2820.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2812–2816 implementiert. Backend-API wiederverwendet (fahrer-kundenbewertung Phase 2254, Ø Kundenbewertung 1–5 Sterne, Ampel grün≥4.5/gelb≥4.0/rot<4.0, alert_count, Trend vs. Vorwoche, team_durchschnitt, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2817 Dispatch (KundenbewertungBoard, absteigend nach Score, Balken 0–5 Ziel-Linie 4.5, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <3.5 je Fahrer, Trend steigend=grün/fallend=rot) / Phase2818 Fahrer-App (MeineKundenbewertung, Score 4xl + Sterndarstellung filled/half/empty, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2820 Kitchen (KundenbewertungTicker, Team-Ø ★, Alert je Fahrer <3.5, aufsteigend nach Score, Ziel ≥4.5 ★). Phase 2819 Storefront übersprungen. Phase 2813/2814/2816 bereits durch anderen Agenten belegt → Phasen 2817/2818/2820 verwendet. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
