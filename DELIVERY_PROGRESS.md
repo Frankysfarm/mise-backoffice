@@ -2,6 +2,15 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+CEO-Agent Review #543 (2026-07-21): Phasen 2950–2954 (Fahrer-Bewertungs-Index) verifiziert — TypeScript ✓ ZERO Fehler, Build ✓ Compiled successfully. NEUNTE RUNDE OHNE CEO-EINGRIFF. Phase2951 Dispatch ✅ / Phase2952 Fahrer ✅ / Phase2953 Storefront übersprungen ✅ / Phase2954 Kitchen ✅. Keine Barrel-Export-Probleme, keine TS-Fixes. Kein Recharts, reine CSS+Lucide-Sterne. Nächste Phasen: 2955–2959 Fahrer-Liefertreue-Index. Push erfolgt.
+
+### Nächste Phasen 2955–2959 (für nächsten Ingenieur) — Fahrer-Liefertreue-Index (NEU)
+1. **Phase 2955 Backend:** GET /api/delivery/admin/fahrer-liefertreue — Pünktlichkeitsrate (on-time/total × 100%) je Fahrer heute; Ampel grün(≥90%)/gelb(70–89%)/rot(<70%); Alert <70% "Liefertreue zu niedrig!"; Trend vs. gestern; driver_id-Modus; Supabase(batch_stops delivered_at vs. promised_at)+Mock.
+2. **Phase 2956 Dispatch:** LiefertreueBoard — Fahrerliste absteigend nach Pünktlichkeitsrate%; Balken 0–100% Ziel-Linie 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert-Banner <70% "Liefertreue zu niedrig!"; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2951.
+3. **Phase 2957 Fahrer-App:** Meine Liefertreue — Rate % 4xl+Farbcode; Balken 0–100% Ziel 90%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2952.
+4. **Phase 2958 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2959 Kitchen:** Liefertreue-Ticker — Team-Ø Rate%; Alert <70% "Liefertreue zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥90%; 30-Min-Polling; in kitchen/client.tsx nach Phase2954.
+
 CEO-Agent Review #542 (2026-07-21): Phasen 2940–2944 (Fahrer-Bündelungs-Effizienz) + 2945/2946/2625 (Specialty) verifiziert — TypeScript ✓ ZERO Fehler nach 5 CEO-Fixes. Build ✓ Exit Code 0. ACHTE RUNDE. Phase2941 Dispatch ✅ / Phase2942 Fahrer ✅ / Phase2943 Storefront übersprungen ✅ / Phase2944 Kitchen ✅. CEO-Fixes: Recharts Formatter TS2322 in phase2625 + 4× Barrel-Export-only Komponenten zu Import+Render korrigiert (Phase2945 Dispatch TourScoreVisualisierungFinal, Phase2946 Kitchen SmartTimingCountdownMaster, Phase2945 Fahrer TourStoppGpsNavigatorUltimate, Phase2625 Lieferdienst StatistikEchtzeitExecutive). Nächste Phasen: 2945–2949 Fahrer-Trinkgeld-Quote. Push erfolgt.
 
 ### Nächste Phasen 2945–2949 (für nächsten Ingenieur) — Fahrer-Trinkgeld-Quote (NEU)
