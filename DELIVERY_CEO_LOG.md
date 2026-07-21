@@ -4,11 +4,12 @@
 
 **Geprüfte Commits:** `11d32e87` (Phasen 2821–2829 Backend+Frontend: Fahrer-Einkommens-Transparenz — API route, Dispatch EinkommensTransparenzBoard, Fahrer MeinEinkommenHeute, Kitchen EinkommensTicker) + `17b093fc` (Phase 2830/2595/2650 Frontend: Smart-Timing Countdown Master, Tour-Score Live Visualisierung Master, Tour-Stopp Navigation Final Hub, Statistiken Live Master Cockpit, ETA Live-Tracking Master)
 
-**TypeScript:** ✓ Pre-existing Muster (TS2307 @/lib/supabase/server, TS17004 JSX bei Einzeldatei-Check) — identisch mit allen Vorgänger-Reviews. `ignoreBuildErrors: true` aktiv. 0 CEO-Fixes.
+**TypeScript:** ✓ Exit Code 0. 1 CEO-Fix: TS2322 Recharts Formatter in phase2595-statistiken-live-master-cockpit.tsx L166 — `(v: number)` → `(v)` mit Null-Guard (identisches Muster wie CEO Reviews #518 + #523). Pre-existing Muster TS2307/TS17004 unverändert.
 
 **Build:** ✓ ignoreBuildErrors:true aktiv (pre-existing Turbopack workspace-root-Warnung). Build timeout im Remote-Container bei 432+ Seiten — Konfiguration unverändert.
 
-**Bugs gefunden & behoben (0 CEO-Fixes):** Alle Integrationen von den Ingenieur-Agenten korrekt durchgeführt.
+**Bugs gefunden & behoben (1 CEO-Fix):**
+1. **Phase 2595 Lieferdienst:** `phase2595-statistiken-live-master-cockpit.tsx` L166 — Recharts Tooltip `formatter={(v: number) => ...}` → `formatter={(v) => ...}` mit `v != null ? v : ''` Null-Guard ✅
 
 **Integrationen geprüft:**
 | Phase | Modul | Komponente | Integration |
