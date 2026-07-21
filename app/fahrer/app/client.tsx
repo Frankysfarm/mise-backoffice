@@ -739,6 +739,7 @@ import { FahrerPhase2823MeineSchichtBilanz } from './phase2823-meine-schicht-bil
 import { FahrerPhase2827MeinEinkommenHeute } from './phase2827-mein-einkommen-heute';
 import { FahrerPhase2830TourStoppNavigationFinalHub } from './phase2830-tour-stopp-navigation-final-hub';
 import { FahrerPhase2832MeineWartezeit } from './phase2832-meine-wartezeit';
+import { FahrerPhase2837MeineKilometer } from './phase2837-meine-kilometer';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6198,6 +6199,8 @@ export function FahrerApp({
           <FahrerPhase2827MeinEinkommenHeute driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2832: Meine Wartezeit — Min 4xl groß + Farbcode; Balken 0–15 Min Ziel 3 Min; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2832MeineWartezeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2837: Meine Kilometer — km-Wert 4xl groß + Farbcode; Balken 0–150 km Ziel 50 km; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2837MeineKilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2830: Tour-Stopp Navigation Final Hub — Hero-Stopp + One-Tap Google Maps/Waze + Kunden-Anruf + ETA-Countdown + Nächste-Stopps-Vorschau + Fortschrittsbalken; 15-Sek-Polling + 1-Sek-Tick */}
           <FahrerPhase2830TourStoppNavigationFinalHub fahrerToken={driver.id} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
@@ -9545,3 +9548,5 @@ export { FahrerPhase2827MeinEinkommenHeute } from './phase2827-mein-einkommen-he
 export { FahrerPhase2830TourStoppNavigationFinalHub } from './phase2830-tour-stopp-navigation-final-hub';
 // Phase 2832 — Meine Wartezeit (Min 4xl groß + Farbcode; Balken 0–15 Min Ziel 3 Min; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2832MeineWartezeit } from './phase2832-meine-wartezeit';
+// Phase 2837 — Meine Kilometer (km-Wert 4xl groß + Farbcode; Balken 0–150 km Ziel 50 km; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2837MeineKilometer } from './phase2837-meine-kilometer';

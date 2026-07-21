@@ -24246,3 +24246,44 @@ Backend-Architekt-Agent (2026-07-21): Phasen 2821–2829 implementiert. 1 neue B
 5. **Phase 2839 Kitchen:** Kilometer-Ticker — Team-Ø km; Alert <20 km; Fahrerliste kompakt absteigend (höchste oben); Ziel ≥50 km; 30-Min-Polling; in kitchen/client.tsx nach Phase2834.
 
 Backend-Architekt-Agent (2026-07-21): Phasen 2830–2834 implementiert. Backend-API wiederverwendet (fahrer-wartezeit Phase 2321, Ø Wartezeit arrived_at→actual_pickup_at, Trend vs. Vorwoche, team_avg_wartezeit_min, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2831 Dispatch (WartezeitBoard, aufsteigend nach Wartezeit, Balken 0–15 Min Ziel-Linie 3 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner >6 Min, Trend invertiert steigend=rot/fallend=grün) / Phase2832 Fahrer-App (MeineWartezeit, Min 4xl + Farbcode, Coaching-Tipp, Effizienzrang, isOnline-Guard, 30-Min-Polling) / Phase2834 Kitchen (WartezeitTicker, Team-Ø Min, Alert >6 Min, absteigend nach Min, Ziel ≤3 Min). Phase 2833 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2835–2839 — Fahrer-Kilometer-Analyse (2026-07-21)
+
+### Phase 2835 — Backend API: Fahrer-Kilometer
+**Datei:** `app/api/delivery/admin/fahrer-kilometer/route.ts` *(bereits vorhanden)*
+**Wiederverwendet:** Gefahrene km je Fahrer heute aus delivery_tours (distance_km); Ø km/Tour + Gesamt-km; Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2836 — Kilometer-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2836-kilometer-board.tsx` *(neu)*
+**Component:** `DispatchPhase2836KilometerBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <20 km "Wenig Kilometer!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≥50 km); Fahrerliste absteigend sortiert (höchste oben = Aktivste zuerst); Balken 0–150 km mit Ziel-Linie 50 km; Ampel grün(≥50)/gelb(20–49)/rot(<20 km); Trend-Pfeile (steigend=grün/fallend=rot, mehr km=besser); Touren-Anzahl; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2831 ✅
+
+### Phase 2837 — Meine Kilometer (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2837-meine-kilometer.tsx` *(neu)*
+**Component:** `FahrerPhase2837MeineKilometer`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; km-Wert 4xl groß + Farbcode; Balken 0–150 km mit Ziel-Linie 50 km; KPI-Grid (Trend/Ziel/Ampel/Touren); Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2832 ✅
+
+### Phase 2838 — Storefront
+Übersprungen (km-Daten intern irrelevant für Kunden) ✅
+
+### Phase 2839 — Kilometer-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2839-kilometer-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2839KilometerTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø km; Alert-Banner je Fahrer <20 km "Wenig Kilometer!"; Fahrerliste kompakt absteigend sortiert (höchste oben = Aktivste zuerst) mit Ampel-Dots, Trend-Pfeil, Touren-Anzahl und km-Wert; Ziel-Anzeige ≥50 km; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2834 ✅
+
+### Nächste Phasen 2840–2844 (für nächsten Ingenieur) — Fahrer-Touren-Abschlussrate
+1. **Phase 2840 Backend:** GET /api/delivery/admin/fahrer-abschlussrate — Abgeschlossene vs. gestartete Touren je Fahrer heute; Rate in %; Alert <80% "Niedrige Abschlussrate!"; Ampel grün(≥95%)/gelb(80–94%)/rot(<80%); Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2841 Dispatch:** Abschlussrate-Board — Fahrerliste nach Rate absteigend (höchste oben = zuverlässigste Fahrer); Balken 0–100% mit Ziel-Linie 95%; KPI-Grid Team-Ø/Bester/Ziel ≥95%; Alert-Banner <80% "Niedrige Abschlussrate!"; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2836.
+3. **Phase 2842 Fahrer-App:** Meine Abschlussrate — Rate 4xl groß + Farbcode; Balken 0–100% Ziel 95%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2837.
+4. **Phase 2843 Storefront:** Überspringen (Abschlussrate intern irrelevant für Kunden).
+5. **Phase 2844 Kitchen:** Abschlussrate-Ticker — Team-Ø %; Alert <80%; Fahrerliste kompakt absteigend (höchste oben); Ziel ≥95%; 30-Min-Polling; in kitchen/client.tsx nach Phase2839.
+
+Frontend-Ingenieur-Agent (2026-07-21): Phasen 2835–2839 implementiert. Backend-API wiederverwendet (fahrer-kilometer, distance_km aus delivery_tours, Trend vs. Vorwoche, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2836 Dispatch (KilometerBoard, absteigend nach km, Balken 0–150 km Ziel-Linie 50 km, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <20 km "Wenig Kilometer!", Trend steigend=grün/fallend=rot) / Phase2837 Fahrer-App (MeineKilometer, km 4xl + Farbcode, Coaching-Tipp, isOnline-Guard, 30-Min-Polling) / Phase2839 Kitchen (KilometerTicker, Team-Ø km, Alert <20 km, absteigend nach km, Ziel ≥50 km). Phase 2838 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
