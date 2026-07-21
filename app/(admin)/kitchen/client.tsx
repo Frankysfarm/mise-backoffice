@@ -812,6 +812,7 @@ import { KitchenPhase2924RoutenOptimierungsTicker } from './phase2924-routen-opt
 import { KitchenPhase2929PuenktlichkeitsTicker } from './phase2929-puenktlichkeits-ticker';
 import { KitchenPhase2934AbschlussquotenTicker } from './phase2934-abschlussquoten-ticker';
 import { KitchenPhase2939ReaktionszeitTicker } from './phase2939-reaktionszeit-ticker';
+import { KitchenPhase2944BuendelungsEffizienzTicker } from './phase2944-buendelungs-effizienz-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3758,6 +3759,8 @@ export function KitchenBoard({
       <KitchenPhase2934AbschlussquotenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2939: Reaktionszeit-Ticker — Team-Ø Min; Alert >5 Min "Reaktionszeit zu hoch!"; Fahrerliste kompakt aufsteigend; Ziel ≤2 Min; 30-Min-Polling */}
       <KitchenPhase2939ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2944: Bündelungs-Effizienz-Ticker — Team-Ø Stopps/Tour; Alert <2 "Schlechte Bündelung!"; absteigend; Ziel ≥3 Stopps/Tour; 30-Min-Polling */}
+      <KitchenPhase2944BuendelungsEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
       <KitchenPhase2910SmartTimingFarbkodierungsBoardFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
@@ -10608,3 +10611,5 @@ export { KitchenPhase2929PuenktlichkeitsTicker } from './phase2929-puenktlichkei
 export { KitchenPhase2934AbschlussquotenTicker } from './phase2934-abschlussquoten-ticker';
 // Phase 2939 — Reaktionszeit-Ticker (Team-Ø Min; Alert >5 Min "Reaktionszeit zu hoch!"; Fahrerliste kompakt aufsteigend; Ziel ≤2 Min; 30-Min-Polling)
 export { KitchenPhase2939ReaktionszeitTicker } from './phase2939-reaktionszeit-ticker';
+// Phase 2944 — Bündelungs-Effizienz-Ticker (Team-Ø Stopps/Tour; Alert <2 "Schlechte Bündelung!"; absteigend; Ziel ≥3 Stopps/Tour; 30-Min-Polling)
+export { KitchenPhase2944BuendelungsEffizienzTicker } from './phase2944-buendelungs-effizienz-ticker';

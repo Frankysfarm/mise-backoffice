@@ -865,6 +865,7 @@ import { DispatchPhase2921RoutenOptimierungsBoard } from './phase2921-routen-opt
 import { DispatchPhase2926PuenktlichkeitsBoard } from './phase2926-puenktlichkeits-board';
 import { DispatchPhase2931AbschlussquotenBoard } from './phase2931-abschlussquoten-board';
 import { DispatchPhase2936ReaktionszeitBoard } from './phase2936-reaktionszeit-board';
+import { DispatchPhase2941BuendelungsEffizienzBoard } from './phase2941-buendelungs-effizienz-board';
 
 type Driver = {
   employee_id: string;
@@ -4177,6 +4178,8 @@ export function DispatchBoard({
           <DispatchPhase2931AbschlussquotenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2936: Reaktionszeit-Board — Ø Min je Fahrer; aufsteigend (schnellste oben); Balken 0–10 Min Ziel-Linie 2 Min; KPI-Grid Team-Ø/Bester/Ziel; Alert >5 Min "Reaktionszeit zu hoch!"; 30-Min-Polling */}
           <DispatchPhase2936ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2941: Bündelungs-Effizienz-Board — Ø Stopps je Tour je Fahrer; absteigend; Balken 0–5 Ziel-Linie 3; KPI-Grid Team-Ø/Bester/Ziel; Alert <2 "Schlechte Bündelung!"; 30-Min-Polling */}
+          <DispatchPhase2941BuendelungsEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
           <DispatchPhase2853TourScoreVisualisierungUltimate batches={batches} drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}
@@ -12031,3 +12034,5 @@ export { DispatchPhase2926PuenktlichkeitsBoard } from './phase2926-puenktlichkei
 export { DispatchPhase2931AbschlussquotenBoard } from './phase2931-abschlussquoten-board';
 // Phase 2936 — Reaktionszeit-Board (Ø Min je Fahrer; aufsteigend; Balken 0–10 Min Ziel ≤2 Min; KPI-Grid Team-Ø/Bester/Ziel; Alert >5 Min "Reaktionszeit zu hoch!"; 30-Min-Polling)
 export { DispatchPhase2936ReaktionszeitBoard } from './phase2936-reaktionszeit-board';
+// Phase 2941 — Bündelungs-Effizienz-Board (Ø Stopps/Tour je Fahrer; absteigend; Balken 0–5 Ziel ≥3; KPI-Grid Team-Ø/Bester/Ziel; Alert <2 "Schlechte Bündelung!"; 30-Min-Polling)
+export { DispatchPhase2941BuendelungsEffizienzBoard } from './phase2941-buendelungs-effizienz-board';
