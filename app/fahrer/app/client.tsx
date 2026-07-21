@@ -9641,3 +9641,5 @@ export { FahrerPhase2873MeineAuslastung } from './phase2873-meine-auslastung';
 
 // Phase 2878 — Nächster Stopp GPS Navigations-Kommando (Hero-Stop farbkodiert + ETA-Countdown + Google Maps Link + Anruf + Bestätigen + Weitere Stopps + Fortschrittsbalken; 1-Sek-Tick; mobile-first)
 export { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
+// Phase 2883 — Meine Liefergeschwindigkeit (Min 4xl + Farbcode; Balken 0–60 Min Ziel 25 Min; KPI-Grid Trend/Ziel/Ampel/Touren; Team-Ø + Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2883MeineLiefergeschwindigkeit } from './phase2883-meine-liefergeschwindigkeit';

@@ -10533,3 +10533,5 @@ export { KitchenPhase2875AuslastungsTicker } from './phase2875-auslastungs-ticke
 
 // Phase 2876 — Smart-Timing Kochstart Farbkodierungs-Cockpit (Countdown grün/gelb/rot/kritisch je Bestellung; Kochstart-Empfehlung-Badge; Fortschrittsbalken; Wartezeit; Legende; 1-Sek-Tick)
 export { KitchenPhase2876SmartTimingKochstartFarbkodierungsCockpit } from './phase2876-smart-timing-kochstart-farbkodierungs-cockpit';
+// Phase 2885 — Liefergeschwindigkeit-Ticker (Team-Ø Min; Alert >35 Min "Zu langsam!"; Fahrerliste kompakt aufsteigend schnellste zuerst; Ziel ≤25 Min; Trend invertiert; 30-Min-Polling)
+export { KitchenPhase2885LiefergeschwindigkeitTicker } from './phase2885-liefergeschwindigkeit-ticker';

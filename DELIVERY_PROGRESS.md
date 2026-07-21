@@ -24477,3 +24477,44 @@ Backend-Architekt-Agent (2026-07-21): Phasen 2850–2854 implementiert. Backend-
 5. **Phase 2880 Kitchen:** Liefergeschwindigkeit-Ticker — Team-Ø Min; Alert >35 Min "Zu langsam!"; Fahrerliste kompakt aufsteigend (schnellste zuerst); Ziel ≤25 Min; 30-Min-Polling; in kitchen/client.tsx nach Phase2875.
 
 Backend-Architekt-Agent (2026-07-21): Phasen 2871–2875 implementiert. Backend-API wiederverwendet (fahrer-auslastung, Fahrzeit/Schichtdauer rate_pct, Ampel grün(60–85%)/gelb(40–59%,86–90%)/rot(<40%,>90%), alert_typ 'under'|'over', Trend, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2872 Dispatch (AuslastungsBoard, absteigend nach rate_pct, Balken 0–100% zwei Ziel-Linien 60%+85%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner Niedrige Auslastung!/Überlastung!, Trend steigend=grün/fallend=rot) / Phase2873 Fahrer-App (MeineAuslastung, rate_pct % 4xl + Farbcode, zwei Ziel-Linien, Coaching-Tipp, isOnline-Guard, 30-Min-Polling) / Phase2875 Kitchen (AuslastungsTicker, Team-Ø %, Alert-Banner mit alert_typ, absteigend nach rate_pct, Ziel 60–85%). Phase 2874 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2881–2885 — Fahrer-Liefergeschwindigkeit-Score (2026-07-21)
+
+### Phase 2881 — Backend API: Fahrer-Liefergeschwindigkeit
+**Datei:** `app/api/delivery/admin/fahrer-liefergeschwindigkeit/route.ts` *(neu)*
+**Implementiert:** Ø Lieferzeit (confirmed_at → actual_delivery_at) je Fahrer heute in Min; Ampel grün(≤25 Min)/gelb(26–35 Min)/rot(>35 Min); Alert >35 Min; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2882 — Liefergeschwindigkeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2882-liefergeschwindigkeit-board.tsx` *(neu)*
+**Component:** `DispatchPhase2882LiefergeschwindigkeitBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner >35 Min "Zu langsam!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≤25 Min); Fahrerliste aufsteigend (schnellste oben); Balken 0–60 Min Ziel-Linie 25 Min; Trend-Pfeile invertiert fallend=grün/steigend=rot; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2877 ✅
+
+### Phase 2883 — Meine Liefergeschwindigkeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2883-meine-liefergeschwindigkeit.tsx` *(neu)*
+**Component:** `FahrerPhase2883MeineLiefergeschwindigkeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Min 4xl + Farbcode; Balken 0–60 Min Ziel 25 Min; KPI-Grid Trend/Ziel/Ampel/Touren; Team-Ø + Rang; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2878 ✅
+
+### Phase 2884 — Storefront
+Übersprungen (Liefergeschwindigkeit intern irrelevant für Kunden) ✅
+
+### Phase 2885 — Liefergeschwindigkeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2885-liefergeschwindigkeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2885LiefergeschwindigkeitTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø Min; Alert-Banner >35 Min "Zu langsam!"; Fahrerliste kompakt aufsteigend (schnellste zuerst) mit Ampel-Dots + Trend-Pfeil + Touren + Min; Ziel ≤25 Min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2876 ✅
+
+### Nächste Phasen 2886–2890 (für nächsten Ingenieur) — Fahrer-Stoppzeit-Optimierung
+1. **Phase 2886 Backend:** GET /api/delivery/admin/fahrer-stoppzeit-heute — Ø Stoppzeit (Zeit am Kunden) je Fahrer heute in Sek; Ampel grün(≤90s)/gelb(91–150s)/rot(>150s); Alert >150s "Stoppzeit zu lang!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2887 Dispatch:** Stoppzeit-Board — Fahrerliste aufsteigend nach Sek (kürzeste oben); Balken 0–240s Ziel-Linie 90s; KPI-Grid Team-Ø/Bester/Ziel ≤90s; Alert-Banner >150s; Trend invertiert fallend=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase2882.
+3. **Phase 2888 Fahrer-App:** Meine Stoppzeit — Sek 4xl + Farbcode; Balken 0–240s Ziel 90s; KPI-Grid Trend/Ziel/Ampel/Stopps; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2883.
+4. **Phase 2889 Storefront:** Überspringen (Stoppzeit intern).
+5. **Phase 2890 Kitchen:** Stoppzeit-Ticker — Team-Ø Sek; Alert >150s "Stoppzeit zu lang!"; Fahrerliste aufsteigend; Ziel ≤90s; 30-Min-Polling; in kitchen/client.tsx nach Phase2885.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2881–2885 implementiert. Backend-API neu erstellt (fahrer-liefergeschwindigkeit, confirmed_at→actual_delivery_at, Ampel grün≤25/gelb26–35/rot>35 Min, Alert "Zu langsam!", Trend vs. gestern, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2882 Dispatch (LiefergeschwindigkeitBoard, aufsteigend nach Min, Balken 0–60 Min Ziel-Linie 25 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner >35 Min, Trend-Pfeile invertiert) / Phase2883 Fahrer-App (MeineLiefergeschwindigkeit, Min 4xl + Farbcode, Coaching-Tipp, Rang, isOnline-Guard, 30-Min-Polling) / Phase2885 Kitchen (LiefergeschwindigkeitTicker, Team-Ø Min, Alert >35 Min, aufsteigend, Ziel ≤25 Min). Phase 2884 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.

@@ -11959,3 +11959,5 @@ export { DispatchPhase2872AuslastungsBoard } from './phase2872-auslastungs-board
 
 // Phase 2877 — Tour-Score Echtzeit-Analyse Board (Score-Arc SVG 0–100 je Fahrer; aufklappbare Sub-Scores Pünktlichkeit/Abschlussrate/Wartezeit/Bewertung; Trend-Pfeile; Rang; Team-Bester; 25-Sek-Polling)
 export { DispatchPhase2877TourScoreEchtzeitAnalyseBoard } from './phase2877-tour-score-echtzeit-analyse-board';
+// Phase 2882 — Liefergeschwindigkeit-Board (Fahrerliste aufsteigend nach Min; Balken 0–60 Min Ziel 25 Min; KPI-Grid Team-Ø/Bester/Ziel ≤25 Min; Alert >35 Min "Zu langsam!"; Trend-Pfeile fallend=grün/steigend=rot; 30-Min-Polling)
+export { DispatchPhase2882LiefergeschwindigkeitBoard } from './phase2882-liefergeschwindigkeit-board';
