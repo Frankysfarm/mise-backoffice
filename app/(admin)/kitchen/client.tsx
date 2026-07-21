@@ -830,6 +830,7 @@ import { KitchenPhase3014BewertungsTicker } from './phase3014-bewertungs-ticker'
 import { KitchenPhase3019PuenktlichkeitV2Ticker } from './phase3019-puenktlichkeit-v2-ticker';
 import { KitchenPhase3024ZuverlaessigkeitsTicker } from './phase3024-zuverlaessigkeits-ticker';
 import { KitchenPhase3029DurchschnittsLieferzeitTicker } from './phase3029-durchschnitts-lieferzeit-ticker';
+import { KitchenPhase3034FruehschichtAuslastungTicker } from './phase3034-fruehschicht-auslastung-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3813,6 +3814,8 @@ export function KitchenBoard({
       <KitchenPhase3024ZuverlaessigkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3029: Ø Lieferzeit-Ticker — Team-Ø Min im Header; Alert >35 Min "Zu lange Lieferzeit!"; aufsteigend kürzeste zuerst; Trend INVERTIERT fallend=grün; Ziel ≤25 Min; 30-Min-Polling */}
       <KitchenPhase3029DurchschnittsLieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3034: Frühschicht-Auslastung-Ticker — Team-Ø % im Header; Alert <60% "Geringe Auslastung!"; absteigend höchste zuerst; Trend normal steigend=grün; Ziel ≥80%; 30-Min-Polling */}
+      <KitchenPhase3034FruehschichtAuslastungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10688,6 +10691,7 @@ export { KitchenPhase3014BewertungsTicker } from './phase3014-bewertungs-ticker'
 export { KitchenPhase3019PuenktlichkeitV2Ticker } from './phase3019-puenktlichkeit-v2-ticker';
 export { KitchenPhase3024ZuverlaessigkeitsTicker } from './phase3024-zuverlaessigkeits-ticker';
 export { KitchenPhase3029DurchschnittsLieferzeitTicker } from './phase3029-durchschnitts-lieferzeit-ticker';
+export { KitchenPhase3034FruehschichtAuslastungTicker } from './phase3034-fruehschicht-auslastung-ticker';
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
