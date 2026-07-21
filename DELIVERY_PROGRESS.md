@@ -24650,3 +24650,44 @@ Backend-Architekt-Agent (2026-07-21): Phasen 2910–2913 implementiert. Backend-
 5. **Phase 2929 Kitchen:** Pünktlichkeits-Ticker — Team-Ø %; Alert <75% "Pünktlichkeit zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥90%; 30-Min-Polling; in kitchen/client.tsx nach Phase2924.
 
 Backend-Architekt-Agent (2026-07-21): Phasen 2920–2924 implementiert. Backend-API neu erstellt (fahrer-routen-optimierung, Score=ideal_km/actual_km×100, Ampel grün≥90/gelb75–89/rot<75, Alert "Ineffiziente Route!", Trend vs. gestern, driver_id-Modus, Supabase distance_km+ideal_distance_km+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2921 Dispatch (RoutenOptimierungsBoard, absteigend nach Score, Balken 0–100 Pkt Ziel-Linie 90, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <75 "Ineffiziente Route!", Trend steigend=grün/fallend=rot) / Phase2922 Fahrer-App (MeineRoutenOptimierung, Score 4xl + Farbcode, Coaching-Tipp, isOnline-Guard, 30-Min-Polling) / Phase2924 Kitchen (RoutenOptimierungsTicker, Team-Ø Score, Alert <75 "Ineffiziente Route!", absteigend, Ziel ≥90 Pkt). Phase 2923 Storefront übersprungen. Build: ✓ Exit Code 0 "Compiled successfully". Push erfolgt.
+
+---
+
+## Batch 2925–2929 — Fahrer-Pünktlichkeits-Index (2026-07-21)
+
+### Phase 2925 — Backend API: Fahrer-Pünktlichkeit
+**Datei:** `app/api/delivery/admin/fahrer-puenktlichkeit/route.ts` *(vorhanden seit Phase 1831)*
+**Wiederverwendet:** Bestehende API (quote_pct, team_durchschnitt, ampel, trend, trend_delta). Phase 2925 Backend bereits implementiert.
+
+### Phase 2926 — Pünktlichkeits-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2926-puenktlichkeits-board.tsx` *(neu)*
+**Component:** `DispatchPhase2926PuenktlichkeitsBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <75% "Pünktlichkeit zu niedrig!"; KPI-Grid (Team-Ø/Bester/Ziel ≥90%); Fahrerliste absteigend nach quote_pct; Balken 0–100% mit Ziel-Linie 90%; Ampel grün(≥90%)/gelb(75–89%)/rot(<75%); Trend-Pfeile; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2921 (RoutenOptimierungsBoard) ✅
+
+### Phase 2927 — Meine Pünktlichkeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2927-meine-puenktlichkeit.tsx` *(neu)*
+**Component:** `FahrerPhase2927MeinePuenktlichkeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Rate % 4xl farbkodiert; Balken 0–100% mit Ziel-Linie 90%; KPI-Grid (Trend-Delta/Team-Ø); Blau-Coaching-Tipp je Ampelzone; client-seitiges Filtern nach driverId; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2922 ✅
+
+### Phase 2928 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 2929 — Pünktlichkeits-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2929-puenktlichkeits-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2929PuenktlichkeitsTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø %; Alert-Anzeige je Fahrer <75%; Fahrerliste kompakt absteigend nach quote_pct (beste zuerst) mit Ampel-Dots + Trend-Pfeil + Rate %; Ziel-Anzeige ≥90%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2924 ✅
+
+### Nächste Phasen 2930–2934 (für nächsten Ingenieur) — Fahrer-Abschlussquoten-Index
+1. **Phase 2930 Backend:** GET /api/delivery/admin/fahrer-abschlussquote — Abschlussrate (erfolgreich abgelieferte Stopps / Gesamt-Stopps × 100) je Fahrer heute; Ampel grün(≥95%)/gelb(85–94%)/rot(<85%); Alert <85% "Abschlussquote zu niedrig!"; Trend vs. gestern; driver_id-Modus; Supabase(batch_stops status='delivered' vs. total)+Mock.
+2. **Phase 2931 Dispatch:** AbschlussquotenBoard — Fahrerliste absteigend nach Rate (beste oben); Balken 0–100% Ziel-Linie 95%; KPI-Grid Team-Ø/Bester/Ziel ≥95%; Alert-Banner <85%; Trend-Pfeile (steigend=grün); 30-Min-Polling; in dispatch/client.tsx nach Phase2926.
+3. **Phase 2932 Fahrer-App:** Meine Abschlussquote — Rate % 4xl + Farbcode; Balken 0–100% Ziel 95%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2927.
+4. **Phase 2933 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2934 Kitchen:** Abschlussquoten-Ticker — Team-Ø %; Alert <85% "Abschlussquote zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥95%; 30-Min-Polling; in kitchen/client.tsx nach Phase2929.
+
+Frontend-Ingenieur-Agent (2026-07-21): Phasen 2925–2929 implementiert — Fahrer-Pünktlichkeits-Index. Backend-API wiederverwendet (fahrer-puenktlichkeit von Phase 1831, quote_pct/team_durchschnitt/ampel/trend) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2926 Dispatch (PünktlichkeitsBoard, absteigend nach quote_pct %, Balken 0–100% Ziel-Linie 90%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <75% "Pünktlichkeit zu niedrig!", Trend steigend=grün/fallend=rot, Import L865 + Render L4173 + Export L12022 ✅) / Phase2927 Fahrer-App (MeinePünktlichkeit, Rate % 4xl + Farbcode, Balken 0–100% Ziel 90%, Trend vs. gestern, Blau-Coaching-Tipp, client-seitiges driverId-Filter, isOnline-Guard, Import L760 + Render L6252 + Export L9737 ✅) / Phase2929 Kitchen (PünktlichkeitsTicker, Team-Ø %, Alert <75% "Pünktlichkeit zu niedrig!", absteigend nach quote_pct, Ziel ≥90%, Import L812 + Render L3754 + Export L10600 ✅). Phase 2928 Storefront übersprungen. ALLE 3 Komponenten korrekt importiert+gerendert (kein Barrel-Export-Muster). Build: TS pre-existing TS2307/TS7026 unverändert; Turbopack root-Fehler pre-existing. Push erfolgt.
