@@ -810,6 +810,7 @@ import { KitchenPhase2919HeimwegEffizienzTicker } from './phase2919-heimweg-effi
 import { KitchenPhase2910SmartTimingFarbkodierungsBoardFinal } from './phase2910-smart-timing-farbkodierungs-board-final';
 import { KitchenPhase2924RoutenOptimierungsTicker } from './phase2924-routen-optimierungs-ticker';
 import { KitchenPhase2929PuenktlichkeitsTicker } from './phase2929-puenktlichkeits-ticker';
+import { KitchenPhase2934AbschlussquotenTicker } from './phase2934-abschlussquoten-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3752,6 +3753,8 @@ export function KitchenBoard({
       <KitchenPhase2924RoutenOptimierungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2929: Pünktlichkeits-Ticker — Team-Ø %; Alert <75% "Pünktlichkeit zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥90%; 30-Min-Polling */}
       <KitchenPhase2929PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2934: Abschlussquoten-Ticker — Team-Ø %; Alert <85% "Abschlussquote zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥95%; 30-Min-Polling */}
+      <KitchenPhase2934AbschlussquotenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
       <KitchenPhase2910SmartTimingFarbkodierungsBoardFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
@@ -10598,3 +10601,5 @@ export { KitchenPhase2919HeimwegEffizienzTicker } from './phase2919-heimweg-effi
 export { KitchenPhase2924RoutenOptimierungsTicker } from './phase2924-routen-optimierungs-ticker';
 // Phase 2929 — Pünktlichkeits-Ticker (Team-Ø %; Alert <75% "Pünktlichkeit zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥90%; 30-Min-Polling)
 export { KitchenPhase2929PuenktlichkeitsTicker } from './phase2929-puenktlichkeits-ticker';
+// Phase 2934 — Abschlussquoten-Ticker (Team-Ø %; Alert <85% "Abschlussquote zu niedrig!"; Fahrerliste kompakt absteigend; Ziel ≥95%; 30-Min-Polling)
+export { KitchenPhase2934AbschlussquotenTicker } from './phase2934-abschlussquoten-ticker';

@@ -863,6 +863,7 @@ import { DispatchPhase2916HeimwegEffizienzBoard } from './phase2916-heimweg-effi
 import { DispatchPhase2920TourScoreEchtzeitVisualisierungUltimate } from './phase2920-tour-score-echtzeit-visualisierung-ultimate';
 import { DispatchPhase2921RoutenOptimierungsBoard } from './phase2921-routen-optimierungs-board';
 import { DispatchPhase2926PuenktlichkeitsBoard } from './phase2926-puenktlichkeits-board';
+import { DispatchPhase2931AbschlussquotenBoard } from './phase2931-abschlussquoten-board';
 
 type Driver = {
   employee_id: string;
@@ -4171,6 +4172,8 @@ export function DispatchBoard({
           <DispatchPhase2921RoutenOptimierungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2926: Pünktlichkeits-Board — Rate % je Fahrer; absteigend; Balken 0–100% Ziel 90%; KPI-Grid Team-Ø/Bester/Ziel; Alert <75% "Pünktlichkeit zu niedrig!"; 30-Min-Polling */}
           <DispatchPhase2926PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2931: Abschlussquoten-Board — Quote % je Fahrer; absteigend; Balken 0–100% Ziel 95%; KPI-Grid Team-Ø/Bester/Ziel; Alert <85% "Abschlussquote zu niedrig!"; 30-Min-Polling */}
+          <DispatchPhase2931AbschlussquotenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
           <DispatchPhase2853TourScoreVisualisierungUltimate batches={batches} drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}
@@ -12021,3 +12024,5 @@ export { DispatchPhase2920TourScoreEchtzeitVisualisierungUltimate } from './phas
 export { DispatchPhase2921RoutenOptimierungsBoard } from './phase2921-routen-optimierungs-board';
 // Phase 2926 — Pünktlichkeits-Board (Rate % je Fahrer; absteigend; Balken 0–100% Ziel ≥90%; KPI-Grid Team-Ø/Bester/Ziel; Alert <75% "Pünktlichkeit zu niedrig!"; 30-Min-Polling)
 export { DispatchPhase2926PuenktlichkeitsBoard } from './phase2926-puenktlichkeits-board';
+// Phase 2931 — Abschlussquoten-Board (Quote % je Fahrer; absteigend; Balken 0–100% Ziel ≥95%; KPI-Grid Team-Ø/Bester/Ziel; Alert <85% "Abschlussquote zu niedrig!"; 30-Min-Polling)
+export { DispatchPhase2931AbschlussquotenBoard } from './phase2931-abschlussquoten-board';
