@@ -749,6 +749,7 @@ import { FahrerPhase2873MeineAuslastung } from './phase2873-meine-auslastung';
 import { FahrerPhase2883MeineLiefergeschwindigkeit } from './phase2883-meine-liefergeschwindigkeit';
 import { Phase2888TourStoppLiveNavigationsKommando } from './phase2888-tour-stopp-live-navigations-kommando';
 import { FahrerPhase2893MeineBewertungsTrend } from './phase2893-meine-bewertungs-trend';
+import { FahrerPhase2898MeineLieferQualitaet } from './phase2898-meine-liefer-qualitaet';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
 import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
@@ -6227,6 +6228,8 @@ export function FahrerApp({
           <FahrerPhase2883MeineLiefergeschwindigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2893: Meine Bewertungen — Ø ★ 4xl + Farbcode; Balken 0–5 ★ Ziel 4.5 ★; KPI-Grid Trend/Ziel/Ampel/Bewertungen; Team-Ø + Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2893MeineBewertungsTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2898: Meine Liefer-Qualität — Composite-Index 4xl (Bewertung 40%+Pünktlichkeit 30%+Abschluss 30%); 3 Sub-Score-Kacheln; Balken 0–100 Ziel 80; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2898MeineLieferQualitaet driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2896: Tour-Stopp Navi Final — Nächster Stopp Hero-Karte + Google Maps + Waze + Anruf + Stopp-Fortschrittsbalken + Weitere-Stopps-Liste; isOnline-Guard */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2896TourStoppNaviFinal
@@ -9680,4 +9683,6 @@ export { FahrerPhase2883MeineLiefergeschwindigkeit } from './phase2883-meine-lie
 export { Phase2888TourStoppLiveNavigationsKommando } from './phase2888-tour-stopp-live-navigations-kommando';
 // Phase 2893 — Meine Bewertungen (Ø ★ 4xl + Farbcode; Balken 0–5 ★ Ziel 4.5 ★; KPI-Grid Trend/Ziel/Ampel/Bewertungen; Team-Ø + Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2893MeineBewertungsTrend } from './phase2893-meine-bewertungs-trend';
+// Phase 2898 — Meine Liefer-Qualität (Composite-Index 4xl; 3 Sub-Score-Kacheln; Balken 0–100 Ziel 80; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2898MeineLieferQualitaet } from './phase2898-meine-liefer-qualitaet';
 export { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';

@@ -854,6 +854,7 @@ import { DispatchPhase2882LiefergeschwindigkeitBoard } from './phase2882-lieferg
 import { DispatchPhase2887TourScoreVisualisierungLiveKommando } from './phase2887-tour-score-visualisierung-live-kommando';
 import { DispatchPhase2892BewertungsTrendBoard } from './phase2892-bewertungs-trend-board';
 import { DispatchPhase2895TourScoreEchtzeitKommando } from './phase2895-tour-score-echtzeit-kommando';
+import { DispatchPhase2897LieferQualitaetsBoard } from './phase2897-liefer-qualitaets-board';
 
 type Driver = {
   employee_id: string;
@@ -4144,6 +4145,8 @@ export function DispatchBoard({
           <DispatchPhase2887TourScoreVisualisierungLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2892: Bewertungs-Trend Board — Fahrerliste absteigend nach Ø-Bewertung; Balken 0–5 ★ Ziel 4.5 ★; KPI-Grid Team-Ø/Bester/Ziel; Alert <3.5 "Niedrige Bewertung!"; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2892BewertungsTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2897: Liefer-Qualitäts-Index Board — Composite-Index (Bewertung 40%+Pünktlichkeit 30%+Abschluss 30%); Fahrerliste absteigend; Balken 0–100 Ziel 80; Alert <60 "Niedrige Lieferqualität!"; 30-Min-Polling */}
+          <DispatchPhase2897LieferQualitaetsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
           <DispatchPhase2853TourScoreVisualisierungUltimate batches={batches} drivers={drivers} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}
@@ -11978,3 +11981,5 @@ export { DispatchPhase2887TourScoreVisualisierungLiveKommando } from './phase288
 // Phase 2892 — Bewertungs-Trend Board (Fahrerliste absteigend nach Ø-Bewertung; Balken 0–5 ★ Ziel 4.5 ★; KPI-Grid Team-Ø/Bester/Ziel; Alert <3.5 "Niedrige Bewertung!"; Trend-Pfeile steigend=grün/fallend=rot; 30-Min-Polling)
 export { DispatchPhase2892BewertungsTrendBoard } from './phase2892-bewertungs-trend-board';
 export { DispatchPhase2895TourScoreEchtzeitKommando } from './phase2895-tour-score-echtzeit-kommando';
+// Phase 2897 — Liefer-Qualitäts-Index Board (Composite-Index Bewertung 40%+Pünktlichkeit 30%+Abschluss 30%; absteigend; Balken 0–100 Ziel 80; Alert <60; 30-Min-Polling)
+export { DispatchPhase2897LieferQualitaetsBoard } from './phase2897-liefer-qualitaets-board';

@@ -801,6 +801,7 @@ import { KitchenPhase2885LiefergeschwindigkeitTicker } from './phase2885-lieferg
 import { KitchenPhase2890SmartTimingCountdownLiveKommando } from './phase2890-smart-timing-countdown-live-kommando';
 import { KitchenPhase2895BewertungsTrendTicker } from './phase2895-bewertungs-trend-ticker';
 import { KitchenPhase2900SmartTimingScoreCockpitUltimate } from './phase2900-smart-timing-score-cockpit-ultimate';
+import { KitchenPhase2901LieferQualitaetsTicker } from './phase2901-liefer-qualitaets-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3727,6 +3728,8 @@ export function KitchenBoard({
       <KitchenPhase2890SmartTimingCountdownLiveKommando locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2895: Bewertungs-Trend Ticker — Team-Ø ★; Alert <3.5 "Niedrige Bewertung!"; Fahrerliste kompakt absteigend (beste oben); Trend-Pfeile; Ziel ≥4.5 ★; 30-Min-Polling */}
       <KitchenPhase2895BewertungsTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2901: Liefer-Qualitäts-Ticker — Team-Ø Index; Alert <60 "Niedrige Lieferqualität!"; Fahrerliste kompakt absteigend; Sub-Scores Bewertung/Pünktlichkeit/Abschluss; Ziel ≥80 Pkt; 30-Min-Polling */}
+      <KitchenPhase2901LieferQualitaetsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase2820KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
@@ -10556,3 +10559,5 @@ export { KitchenPhase2890SmartTimingCountdownLiveKommando } from './phase2890-sm
 // Phase 2895 — Bewertungs-Trend Ticker (Team-Ø ★; Alert <3.5 ★ "Niedrige Bewertung!"; Fahrerliste kompakt absteigend beste oben; Trend-Pfeile steigend=grün/fallend=rot; Ziel ≥4.5 ★; 30-Min-Polling)
 export { KitchenPhase2895BewertungsTrendTicker } from './phase2895-bewertungs-trend-ticker';
 export { KitchenPhase2900SmartTimingScoreCockpitUltimate } from './phase2900-smart-timing-score-cockpit-ultimate';
+// Phase 2901 — Liefer-Qualitäts-Ticker (Team-Ø Index; Alert <60; Fahrerliste absteigend; Sub-Scores; Ziel ≥80 Pkt; 30-Min-Polling)
+export { KitchenPhase2901LieferQualitaetsTicker } from './phase2901-liefer-qualitaets-ticker';
