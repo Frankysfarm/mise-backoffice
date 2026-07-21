@@ -789,6 +789,7 @@ import { KitchenPhase2825SchichtBilanzTicker } from './phase2825-schicht-bilanz-
 import { KitchenPhase2829EinkommensTicker } from './phase2829-einkommens-ticker';
 import { KitchenPhase2834WartezeitTicker } from './phase2834-wartezeit-ticker';
 import { KitchenPhase2839KilometerTicker } from './phase2839-kilometer-ticker';
+import { KitchenPhase2844AbschlussrateTicker } from './phase2844-abschlussrate-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3693,6 +3694,8 @@ export function KitchenBoard({
       <KitchenPhase2834WartezeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2839: Kilometer-Ticker — Team-Ø km; Alert <20 km "Wenig Kilometer!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≥50 km; 30-Min-Polling */}
       <KitchenPhase2839KilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2844: Abschlussrate-Ticker — Team-Ø %; Alert <80% "Niedrige Abschlussrate!"; Fahrerliste kompakt absteigend (höchste oben); Ziel ≥95%; 30-Min-Polling */}
+      <KitchenPhase2844AbschlussrateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase2820KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
@@ -10490,5 +10493,7 @@ export { KitchenPhase2829EinkommensTicker } from './phase2829-einkommens-ticker'
 export { KitchenPhase2834WartezeitTicker } from './phase2834-wartezeit-ticker';
 // Phase 2839 — Kilometer-Ticker (Team-Ø km; Alert <20 km "Wenig Kilometer!"; Fahrerliste kompakt absteigend; Ziel ≥50 km; 30-Min-Polling)
 export { KitchenPhase2839KilometerTicker } from './phase2839-kilometer-ticker';
+// Phase 2844 — Abschlussrate-Ticker (Team-Ø %; Alert <80% "Niedrige Abschlussrate!"; Fahrerliste kompakt absteigend; Ziel ≥95%; 30-Min-Polling)
+export { KitchenPhase2844AbschlussrateTicker } from './phase2844-abschlussrate-ticker';
 // Phase 2830 — Smart-Timing Countdown Farbkodierung Master (Echtzeit-Countdown grün/gelb/rot + Fortschrittsbalken + Kochstart-Empfehlung + Fahrer-ETA-Bridge + SLA-Balance; 1-Sek-Tick + 20-Sek-Polling)
 export { KitchenPhase2830SmartTimingCountdownFarbkodierungMaster } from './phase2830-smart-timing-countdown-farbkodierung-master';

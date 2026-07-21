@@ -842,6 +842,7 @@ import { DispatchPhase2826EinkommensTransparenzBoard } from './phase2826-einkomm
 import { DispatchPhase2830TourScoreLiveVisualisierungMaster } from './phase2830-tour-score-live-visualisierung-master';
 import { DispatchPhase2831WartezeitBoard } from './phase2831-wartezeit-board';
 import { DispatchPhase2836KilometerBoard } from './phase2836-kilometer-board';
+import { DispatchPhase2841AbschlussrateBoard } from './phase2841-abschlussrate-board';
 
 type Driver = {
   employee_id: string;
@@ -4112,6 +4113,8 @@ export function DispatchBoard({
           <DispatchPhase2831WartezeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2836: Kilometer-Board — Fahrerliste absteigend (aktivste oben); Balken 0–150 km Ziel 50 km; KPI-Grid Team-Ø/Bester/Ziel; Alert <20 km "Wenig Kilometer!"; Trend-Pfeile; 30-Min-Polling */}
           <DispatchPhase2836KilometerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2841: Abschlussrate-Board — Fahrerliste absteigend (zuverlässigste oben); Balken 0–100% Ziel 95%; KPI-Grid Team-Ø/Bester/Ziel; Alert <80% "Niedrige Abschlussrate!"; Trend-Pfeile; 30-Min-Polling */}
+          <DispatchPhase2841AbschlussrateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2830: Tour-Score Live Visualisierung Master — Score-Ring SVG je Fahrer 0–100 farbkodiert + Sub-Scores + Stop-Dots + Fortschrittsbalken + ETA + Trend + Flotten-Ø; 20-Sek-Polling */}
           <DispatchPhase2830TourScoreLiveVisualisierungMaster locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2640: Tour-Score Team-Übersicht — Score-Ring SVG je Fahrer 0–100 farbkodiert; Best/Worst-Fahrer-Highlight; farbkodierte Stop-Dots; Team-Ø Score + Alert <65; ETA je Fahrer; 25-Sek-Polling */}
@@ -11918,3 +11921,5 @@ export { DispatchPhase2830TourScoreLiveVisualisierungMaster } from './phase2830-
 export { DispatchPhase2831WartezeitBoard } from './phase2831-wartezeit-board';
 // Phase 2836 — Kilometer-Board (Fahrerliste absteigend; Balken 0–150 km Ziel 50 km; KPI-Grid Team-Ø/Bester/Ziel; Alert <20 km "Wenig Kilometer!"; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2836KilometerBoard } from './phase2836-kilometer-board';
+// Phase 2841 — Abschlussrate-Board (Fahrerliste absteigend; Balken 0–100% Ziel 95%; KPI-Grid Team-Ø/Bester/Ziel; Alert <80% "Niedrige Abschlussrate!"; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2841AbschlussrateBoard } from './phase2841-abschlussrate-board';
