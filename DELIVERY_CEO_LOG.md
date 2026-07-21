@@ -1,5 +1,39 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #546 — 2026-07-21
+
+**Geprüfte Commits:** `93d3a550` (Backend Phase2980–2984 Fahrer-Umsatz-pro-Stunde) + `23f13758` (Frontend Phase2985–2989 Fahrer-Liefergebiet-Auslastung)
+
+**Build:** ✓ Next.js Build exit code 0 ✅ — TypeScript: 1 CEO-Fix (fahrer-km-pro-tour route.ts TS2345)
+
+**CEO-Fixes (1):**
+1. `app/api/delivery/admin/fahrer-km-pro-tour/route.ts:88` — `stopsGestern` select fehlte `created_at` → `calcKm`-Parameter-Typ-Mismatch (TS2345). Behoben: `select('driver_id, distance_km, batch_id, created_at')`.
+
+**Integrationen korrekt — Commits 93d3a550 + 23f13758:**
+- Phase2980 Backend `/api/delivery/admin/fahrer-umsatz-pro-stunde` ✅ — vorhanden
+- Phase2981 Dispatch (DispatchPhase2981UmsatzProStundeBoard) ✅ — Import L876+Render L4208+Export L12080
+- Phase2982 Fahrer (FahrerPhase2982MeinUmsatzProStunde) ✅ — Import L771+Render L6287+Export L9795
+- Phase2983 Storefront ✅ — übersprungen (korrekt)
+- Phase2984 Kitchen (KitchenPhase2984UmsatzProStundeTicker) ✅ — Import L823+Render L3789+Export L10657
+- Phase2985 Backend `/api/delivery/admin/fahrer-liefergebiet-auslastung` ✅ — neu erstellt
+- Phase2986 Dispatch (DispatchPhase2986LiefergebietBoard) ✅ — Import L877+Render L4210+Export L12081
+- Phase2987 Fahrer (FahrerPhase2987MeinLiefergebiet) ✅ — Import L772+Render L6289+Export L9796
+- Phase2988 Storefront ✅ — übersprungen (korrekt)
+- Phase2989 Kitchen (KitchenPhase2989LiefergebietTicker) ✅ — Import L824+Render L3791+Export L10658
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Fahrer ↔ Storefront ✅
+
+**Nächste Phasen 2990–2994 (für nächsten Ingenieur) — Fahrer-Kraftstoff-Effizienz-Index:**
+1. **Phase 2990 Backend:** GET /api/delivery/admin/fahrer-kraftstoff-effizienz — Ø km pro Liter je Fahrer heute; Ampel grün(≥15 km/l)/gelb(10–14 km/l)/rot(<10 km/l); Alert <10 km/l "Hoher Verbrauch!"; Trend vs. gestern; driver_id-Modus; Supabase(batch_stops distance_km)+Mock.
+2. **Phase 2991 Dispatch:** KraftstoffBoard — absteigend nach km/l (höchste=effizienteste); Balken 0–20 km/l Ziel-Linie 15; KPI-Grid Team-Ø/Bester/Ziel ≥15; Alert-Banner <10; Trend-Pfeile normal (steigend=grün); 30-Min-Polling.
+3. **Phase 2992 Fahrer-App:** MeineKraftstoffEffizienz — km/l 4xl+Farbcode; Balken 0–20 km/l Ziel 15; Coaching-Tipp; isOnline-Guard; 30-Min-Polling.
+4. **Phase 2993 Storefront:** Überspringen (intern).
+5. **Phase 2994 Kitchen:** KraftstoffTicker — Team-Ø km/l; Alert <10 "Hoher Verbrauch!"; absteigend; Ziel ≥15 km/l; 30-Min-Polling.
+
+Push erfolgt.
+
+---
+
 ## CEO Review #544 — 2026-07-21
 
 **Geprüfte Commits:** `cb091718` (Docs Phase2955-2959 Fahrer-Liefertreue) + `3efa7257` (Backend+Frontend Phase2960–2964 Fahrer-km-pro-Tour-Index)

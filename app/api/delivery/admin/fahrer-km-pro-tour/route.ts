@@ -85,7 +85,7 @@ export async function GET(req: Request) {
 
     const { data: stopsGestern } = await supabase
       .from('batch_stops')
-      .select('driver_id, distance_km, batch_id')
+      .select('driver_id, distance_km, batch_id, created_at')
       .eq('location_id', locationId)
       .gte('created_at', yesterday)
       .lt('created_at', today)
