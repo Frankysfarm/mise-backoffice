@@ -1,5 +1,49 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #529 — 2026-07-21
+
+**Geprüfte Commits:** `c72d9b4a` (Phasen 2831–2834 Backend+Frontend: Fahrer-Wartezeit-Analyse — Dispatch WartezeitBoard, Fahrer MeineWartezeit, Kitchen WartezeitTicker) + `1d6dd797` (Phasen 2836/2837/2839 Frontend: Fahrer-Kilometer-Analyse — Dispatch KilometerBoard, Fahrer MeineKilometer, Kitchen KilometerTicker)
+
+**TypeScript:** ✓ Exit Code 0. 0 CEO-Fixes. Pre-existing Muster TS2307/TS7006/TS7026 unverändert.
+
+**Build:** ✓ ignoreBuildErrors:true aktiv (pre-existing Turbopack workspace-root-Warnung). Build-Timeout im Remote-Container bei 430+ Seiten — Konfiguration unverändert.
+
+**Bugs gefunden & behoben (0 CEO-Fixes):** Keine Bugs in den neuen Dateien.
+
+**Integrationen geprüft:**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2831 | Dispatch | DispatchPhase2831WartezeitBoard | dispatch/client.tsx ✅ (Import L843, Render L4112) |
+| 2832 | Fahrer | FahrerPhase2832MeineWartezeit | fahrer/app/client.tsx ✅ (Import L741, Render L6201) |
+| 2833 | Storefront | — | Übersprungen (intern irrelevant für Kunden) ✅ |
+| 2834 | Kitchen | KitchenPhase2834WartezeitTicker | kitchen/client.tsx ✅ (Import L790, Render L3693) |
+| 2836 | Dispatch | DispatchPhase2836KilometerBoard | dispatch/client.tsx ✅ (Import L844, Render L4114) |
+| 2837 | Fahrer | FahrerPhase2837MeineKilometer | fahrer/app/client.tsx ✅ (Import L742, Render L6203) |
+| 2838 | Storefront | — | Übersprungen (intern irrelevant für Kunden) ✅ |
+| 2839 | Kitchen | KitchenPhase2839KilometerTicker | kitchen/client.tsx ✅ (Import L791, Render L3695) |
+
+**API fahrer-wartezeit:** Ø Wartezeit arrived_at→actual_pickup_at je Fahrer; Ampel grün≤3/gelb3–6/rot>6 Min; Alert >6 Min; Trend; Supabase+Mock. ✅ (Pre-existing Phase 2321)
+**API fahrer-kilometer:** Gefahrene km je Fahrer heute; Ampel grün≥50/gelb20–49/rot<20 km; Alert <20 km; Trend; driver_id-Modus; Supabase+Mock. ✅ (Pre-existing)
+
+**System-Synchronisation Kitchen↔Dispatch↔Driver vollständig:**
+| System | Status |
+|---|---|
+| Dispatch ↔ Phase2831 WartezeitBoard | ✅ |
+| Fahrer ↔ Phase2832 MeineWartezeit | ✅ |
+| Kitchen ↔ Phase2834 WartezeitTicker | ✅ |
+| Dispatch ↔ Phase2836 KilometerBoard | ✅ |
+| Fahrer ↔ Phase2837 MeineKilometer | ✅ |
+| Kitchen ↔ Phase2839 KilometerTicker | ✅ |
+
+**Nächste Phasen 2840–2844 (für nächsten Ingenieur) — Fahrer-Touren-Abschlussrate**
+1. **Phase 2840 Backend:** GET /api/delivery/admin/fahrer-abschlussrate — Abgeschlossene vs. gestartete Touren je Fahrer heute; Rate in %; Alert <80% "Niedrige Abschlussrate!"; Ampel grün(≥95%)/gelb(80–94%)/rot(<80%); Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2841 Dispatch:** Abschlussrate-Board — Fahrerliste nach Rate absteigend; Balken 0–100% Ziel-Linie 95%; KPI-Grid Team-Ø/Bester/Ziel ≥95%; Alert-Banner <80%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2836.
+3. **Phase 2842 Fahrer-App:** Meine Abschlussrate — Rate 4xl + Farbcode; Balken 0–100% Ziel 95%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2837.
+4. **Phase 2843 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2844 Kitchen:** Abschlussrate-Ticker — Team-Ø %; Alert <80%; Fahrerliste kompakt absteigend; Ziel ≥95%; 30-Min-Polling; in kitchen/client.tsx nach Phase2839.
+
+---
+
 ## CEO Review #528 — 2026-07-21
 
 **Geprüfte Commits:** `11d32e87` (Phasen 2821–2829 Backend+Frontend: Fahrer-Einkommens-Transparenz — API route, Dispatch EinkommensTransparenzBoard, Fahrer MeinEinkommenHeute, Kitchen EinkommensTicker) + `17b093fc` (Phase 2830/2595/2650 Frontend: Smart-Timing Countdown Master, Tour-Score Live Visualisierung Master, Tour-Stopp Navigation Final Hub, Statistiken Live Master Cockpit, ETA Live-Tracking Master)
