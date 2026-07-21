@@ -746,6 +746,7 @@ import { FahrerPhase2852MeineReaktionszeit } from './phase2852-meine-reaktionsze
 import { FahrerPhase2859MeineEffizienz } from './phase2859-meine-effizienz';
 import { FahrerPhase2870TourStopSmartKommando } from './phase2870-tour-stop-smart-kommando';
 import { FahrerPhase2873MeineAuslastung } from './phase2873-meine-auslastung';
+import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
 import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
@@ -6218,6 +6219,24 @@ export function FahrerApp({
           <FahrerPhase2859MeineEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2873: Meine Auslastung — rate_pct % 4xl + Farbcode; Balken 0–100% Ziel 60–85%; KPI-Grid Trend/Ziel/Ampel/Touren; Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2873MeineAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2878: Nächster Stopp GPS Navigations-Kommando — Hero-Stop farbkodiert + ETA-Countdown + Google Maps + Anruf + Bestätigen + Weitere Stopps; mobile-first */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2878NaechsterStoppGpsNavigationsKommando
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? 0,
+                geliefert_am: s.geliefert_am ?? null,
+                angekommen_am: s.angekommen_am ?? null,
+                order_id: s.order_id ?? s.id,
+                adresse: s.order?.kunde_adresse ?? null,
+                kunde_name: s.order?.kunde_name ?? null,
+                kunde_telefon: s.order?.kunde_telefon ?? null,
+                eta_min: s.eta_min ?? null,
+              }))}
+              batchId={activeBatch.id}
+              isOnline={isOnline}
+            />
+          )}
           {/* Phase 2870: Tour-Stop Smart-Kommando — Hero-Stopp + One-Tap-Navigation + Kunden-Anruf + Lieferung-bestätigen + weitere Stopps; 1-Sek-Tick */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2870TourStopSmartKommando

@@ -796,6 +796,7 @@ import { KitchenPhase2856SmartTimingFarbkodierungLiveMaster } from './phase2856-
 import { KitchenPhase2861EffizienzTicker } from './phase2861-effizienz-ticker';
 import { KitchenPhase2870SmartTimingFahrerEtaCockpit } from './phase2870-smart-timing-fahrer-eta-cockpit';
 import { KitchenPhase2875AuslastungsTicker } from './phase2875-auslastungs-ticker';
+import { KitchenPhase2876SmartTimingKochstartFarbkodierungsCockpit } from './phase2876-smart-timing-kochstart-farbkodierungs-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3714,6 +3715,8 @@ export function KitchenBoard({
       <KitchenPhase2870SmartTimingFahrerEtaCockpit orders={filtered.map(o => ({ id: o.id, bestellnummer: o.bestellnummer ?? '', kunde_name: o.kunde_name ?? '', status: o.status }))} timings={timings} drivers={drivers.map(d => ({ id: d.id, vorname: d.vorname, nachname: d.nachname }))} batches={batches} stops={stops} />
       {/* Phase 2875: Auslastungs-Ticker — Team-Ø %; Alert <40% "Niedrige Auslastung!" / >90% "Überlastung!"; Fahrerliste kompakt absteigend; Ziel 60–85%; 30-Min-Polling */}
       <KitchenPhase2875AuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2876: Smart-Timing Kochstart Farbkodierungs-Cockpit — grün/gelb/rot/kritisch je Bestellung; Kochstart-Empfehlung-Badge; Fortschrittsbalken; Wartezeit; 1-Sek-Tick */}
+      <KitchenPhase2876SmartTimingKochstartFarbkodierungsCockpit orders={filtered.map(o => ({ id: o.id, bestellnummer: o.bestellnummer ?? '', kunde_name: o.kunde_name ?? '', status: o.status, created_at: (o as any).created_at ?? o.bestellt_am ?? '' }))} timings={timings} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase2820KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}

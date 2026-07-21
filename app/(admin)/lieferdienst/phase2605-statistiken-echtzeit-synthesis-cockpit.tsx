@@ -224,7 +224,7 @@ export function LieferdienstPhase2605StatistikenEchtzeitSynthesisCockpit({
               <Tooltip
                 contentStyle={{ fontSize: 10, borderRadius: 8, border: '1px solid #e7e5e4' }}
                 labelFormatter={l => `${l}:00 Uhr`}
-                formatter={(v: number) => chartMode === 'umsatz' ? [`${v} €`, 'Umsatz'] : [v, 'Bestellungen']}
+                formatter={(v) => chartMode === 'umsatz' ? [`${v as number} €`, 'Umsatz'] : [v as number, 'Bestellungen']}
               />
               <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>
                 {data.map(d => (

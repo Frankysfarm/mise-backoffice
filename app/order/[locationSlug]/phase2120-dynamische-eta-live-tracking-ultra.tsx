@@ -119,7 +119,7 @@ export function StorefrontPhase2120DynamischeEtaLiveTrackingUltra({
       .channel(`order-tracking-${orderId}`)
       .on('postgres_changes', {
         event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}`,
-      }, payload => {
+      }, (payload: any) => {
         const d = payload.new as any;
         if (d.status) setStatus(d.status);
         if (d.eta_earliest !== undefined) setEtaEarliest(d.eta_earliest);

@@ -456,6 +456,7 @@ import { StorefrontPhase2640DynamischeEtaLiveBoard } from './phase2640-dynamisch
 import { Phase2645DynamischeEtaLiveTrackingKommando } from './phase2645-dynamische-eta-live-tracking-kommando';
 import { StorefrontPhase2650DynamischeEtaLiveTrackingMaster } from './phase2650-dynamische-eta-live-tracking-master';
 import { StorefrontPhase2655DynamischeEtaLiveTrackingUltra } from './phase2655-dynamische-eta-live-tracking-ultra';
+import { StorefrontPhase2120DynamischeEtaLiveTrackingUltra } from './phase2120-dynamische-eta-live-tracking-ultra';
 import { SmartEtaLiveTracker } from './smart-eta-live-tracker';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 import { LiveTrackingHub } from './live-tracking-hub';
@@ -2034,6 +2035,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           {/* LiveTrackingHub: Echtzeit-ETA + Phasenzeitlinie + Fahrer-Sync via Supabase Realtime; 1-Sek-Tick + 20-Sek-Polling */}
           <div className="mt-2">
             <LiveTrackingHub orderId={activeOrderId} order={{ id: activeOrderId, status: 'neu', eta_earliest: null, eta_latest: null, driver_name: null, driver_lat: null, driver_lng: null, adresse: null, kunde_name: null }} />
+          </div>
+          {/* Phase 2120: Dynamische ETA Live-Tracking Ultra — Supabase Realtime; ETA-Countdown; Phasenzeitlinie; Bewertungswidget nach Lieferung */}
+          <div className="mt-2">
+            <StorefrontPhase2120DynamischeEtaLiveTrackingUltra orderId={activeOrderId} />
           </div>
         </div>
       )}

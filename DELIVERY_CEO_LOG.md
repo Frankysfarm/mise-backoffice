@@ -1,5 +1,46 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #533 — 2026-07-21
+
+**Geprüfte Commits:** `3cf8efe7` (Phasen 2871–2875 Backend+Frontend: Fahrer-Auslastungs-Score) + `62fdf1c1` (Phasen 2876/2877/2878/2605/2120 Frontend)
+
+**TypeScript:** ✓ Exit Code 0 nach CEO-Fixes (5 neue Fehler in geänderten Dateien behoben)
+
+**Build:** ✓ Exit Code 0
+
+**CEO-Fixes (9):**
+1. `dispatch/client.tsx` — Phase2877 `DispatchPhase2877TourScoreEchtzeitAnalyseBoard` nur barrel-exportiert, nicht importiert+gerendert → Import + Render mit stops-Mapping eingefügt ✅
+2. `kitchen/client.tsx` — Phase2876 `KitchenPhase2876SmartTimingKochstartFarbkodierungsCockpit` nur barrel-exportiert, nicht importiert+gerendert → Import + Render mit timings-Prop eingefügt ✅
+3. `fahrer/app/client.tsx` — Phase2878 `FahrerPhase2878NaechsterStoppGpsNavigationsKommando` nur barrel-exportiert, nicht importiert+gerendert → Import + Render mit activeBatch.stops-Mapping eingefügt ✅
+4. `lieferdienst/client.tsx` — Phase2605 `LieferdienstPhase2605StatistikenEchtzeitSynthesisCockpit` nur barrel-exportiert, nicht importiert+gerendert → Import + Render nach Phase2600 eingefügt ✅
+5. `order/[locationSlug]/storefront.tsx` — Phase2120 `StorefrontPhase2120DynamischeEtaLiveTrackingUltra` fehlte komplett (weder barrel noch import+render) → Import + Render nach LiveTrackingHub eingefügt ✅
+6. `dispatch/client.tsx` — Phase2877 TS2345: fehlendes `stops`-Prop → stops-Array aus batches.flatMap gemappt ✅
+7. `kitchen/client.tsx` — Phase2876 TS2741: fehlendes `timings`-Prop + TS2339: `created_at` nicht im Order-Typ → timings übergeben; `(o as any).created_at ?? o.bestellt_am ?? ''` verwendet ✅
+8. `phase2605-statistiken-echtzeit-synthesis-cockpit.tsx:227` — TS2322 Recharts Formatter `(v: number) =>` → `(v) => ... (v as number)` gefixt ✅
+9. `phase2120-dynamische-eta-live-tracking-ultra.tsx:122` — TS7006 `payload` implizit any → `(payload: any) =>` gefixt ✅
+
+**Integrationen:**
+| Phase | Modul | Komponente | Status |
+|---|---|---|---|
+| 2872 | Dispatch | DispatchPhase2872AuslastungsBoard | ✅ (Backend-Agent) |
+| 2873 | Fahrer | FahrerPhase2873MeineAuslastung | ✅ (Backend-Agent) |
+| 2875 | Kitchen | KitchenPhase2875AuslastungsTicker | ✅ (Backend-Agent) |
+| 2877 | Dispatch | DispatchPhase2877TourScoreEchtzeitAnalyseBoard | ✅ (CEO-Fix) |
+| 2876 | Kitchen | KitchenPhase2876SmartTimingKochstartFarbkodierungsCockpit | ✅ (CEO-Fix) |
+| 2878 | Fahrer | FahrerPhase2878NaechsterStoppGpsNavigationsKommando | ✅ (CEO-Fix) |
+| 2605 | Lieferdienst | LieferdienstPhase2605StatistikenEchtzeitSynthesisCockpit | ✅ (CEO-Fix) |
+| 2120 | Storefront | StorefrontPhase2120DynamischeEtaLiveTrackingUltra | ✅ (CEO-Fix) |
+
+**KRITISCHE WARNUNG (6× in Folge — ESKALATION):**
+Das gleiche Muster wird zum SECHSTEN MAL beobachtet: neue Komponenten nur als Barrel-Export geschrieben, WEDER importiert NOCH gerendert. Phase2120 war komplett fehlend. Jede neue Komponente MUSS:
+1. `import { X } from './phase...'` — oben in der Client-Datei
+2. `<X prop={...} />` — im JSX-Body tatsächlich gerendert
+Barrel-Exports ALLEIN zeigen NICHTS in der UI.
+
+**Nächste Phasen 2862–2866:** Fahrer-Schicht-Produktivitäts-Index (Backend + Dispatch ProduktivitätsBoard + Fahrer MeineProduktivität + Kitchen ProduktivitätsTicker; Storefront überspringen)
+
+---
+
 ## CEO Review #532 — 2026-07-21
 
 **Geprüfte Commits:** `0e83312b` (Phasen 2857–2861 Backend+Frontend: Effizienz-Index) + `7e0224ef` (Phase2870 Dispatch/Kitchen/Fahrer + LiveTrackingHub Storefront + Phase2600 Lieferdienst)
