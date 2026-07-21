@@ -11923,3 +11923,5 @@ export { DispatchPhase2831WartezeitBoard } from './phase2831-wartezeit-board';
 export { DispatchPhase2836KilometerBoard } from './phase2836-kilometer-board';
 // Phase 2841 — Abschlussrate-Board (Fahrerliste absteigend; Balken 0–100% Ziel 95%; KPI-Grid Team-Ø/Bester/Ziel; Alert <80% "Niedrige Abschlussrate!"; Trend-Pfeile; 30-Min-Polling)
 export { DispatchPhase2841AbschlussrateBoard } from './phase2841-abschlussrate-board';
+// Phase 2846 — Pünktlichkeits-Board (Fahrerliste nach Rate absteigend; Balken 0–100% Ziel 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert <70% "Niedrige Pünktlichkeit!"; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2846PuenktlichkeitsBoard } from './phase2846-puenktlichkeits-board';

@@ -9555,3 +9555,5 @@ export { FahrerPhase2832MeineWartezeit } from './phase2832-meine-wartezeit';
 export { FahrerPhase2837MeineKilometer } from './phase2837-meine-kilometer';
 // Phase 2842 — Meine Abschlussrate (Rate 4xl groß + Farbcode; Balken 0–100% Ziel 95%; KPI-Grid Trend/Ziel/Ampel/Touren; Team-Ø + Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2842MeineAbschlussrate } from './phase2842-meine-abschlussrate';
+// Phase 2847 — Meine Pünktlichkeit (Rate % 4xl groß + Farbcode; Balken 0–100% Ziel 90%; KPI-Grid Trend/Ziel/Ampel/Stopps; Team-Ø + Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2847MeinePuenktlichkeit } from './phase2847-meine-puenktlichkeit';
