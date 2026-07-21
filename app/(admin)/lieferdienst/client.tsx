@@ -448,6 +448,7 @@ import { LieferdienstPhase2605StatistikenEchtzeitSynthesisCockpit } from './phas
 import { LieferdienstPhase2610StatistikLiveSynthesisCockpit } from './phase2610-statistiken-live-synthesis-cockpit';
 import { LieferdienstPhase2615StatistikDashboardFinal } from './phase2615-statistiken-dashboard-final';
 import { LieferdienstPhase2618StatistikenLiveDashboard } from './phase2618-statistiken-live-dashboard';
+import { LieferdienstPhase2619StatistikenKompaktKpi } from './phase2619-statistiken-kompakt-kpi';
 import { SmartStatsCockpit } from './smart-stats-cockpit';
 import { LieferdienstEchtzeitStatistikHub } from './lieferdienst-echtzeit-statistik-hub';
 
@@ -2243,6 +2244,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2615StatistikDashboardFinal locationId={locationId ?? null} />
                 {/* Phase 2618: Statistiken Live-Dashboard — 6 KPI-Kacheln (Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit/Bewertung/Fahrer); Stundenverlauf-Chart 2-Modi; SLA-Indikator; 5-Min-Polling */}
                 <LieferdienstPhase2618StatistikenLiveDashboard locationId={locationId ?? null} />
+                {/* Phase 2619: Statistiken Kompakt KPI — 8 KPI-Kacheln Ampel+Trend (Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit/Bewertung/Fahrer/SLA/Storno); 5-Min-Polling */}
+                <LieferdienstPhase2619StatistikenKompaktKpi locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4749,3 +4752,5 @@ export { LieferdienstPhase2610StatistikLiveSynthesisCockpit } from './phase2610-
 // Phase 2615 — Statistiken Dashboard Final (6 KPI-Kacheln Ampel; Stundenverlauf-Chart 2-Modi; SLA-Indikatoren; Alert-Strip; 5-Min-Polling)
 export { LieferdienstPhase2615StatistikDashboardFinal } from './phase2615-statistiken-dashboard-final';
 export { LieferdienstPhase2618StatistikenLiveDashboard } from './phase2618-statistiken-live-dashboard';
+// Phase 2619 — Statistiken Kompakt KPI (8 KPI-Kacheln Ampel+Trend Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit/Bewertung/Fahrer/SLA/Storno; 5-Min-Polling)
+export { LieferdienstPhase2619StatistikenKompaktKpi } from './phase2619-statistiken-kompakt-kpi';

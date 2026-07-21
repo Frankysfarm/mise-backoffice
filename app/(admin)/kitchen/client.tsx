@@ -805,6 +805,7 @@ import { KitchenPhase2901LieferQualitaetsTicker } from './phase2901-liefer-quali
 import { KitchenPhase2906KundenkontaktTicker } from './phase2906-kundenkontakt-ticker';
 import { KitchenPhase2907SmartTimingCountdownBoard } from './phase2907-smart-timing-countdown-board';
 import { KitchenPhase2913StoppzeitTicker } from './phase2913-stoppzeit-ticker';
+import { KitchenPhase2914TourenEffizienzTicker } from './phase2914-touren-effizienz-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3739,6 +3740,8 @@ export function KitchenBoard({
       <KitchenPhase2907SmartTimingCountdownBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2913: Stoppzeit-Ticker — Team-Ø Min; Alert >10 Min "Stoppzeit zu lang!"; Fahrerliste kompakt aufsteigend (kürzeste oben); Ziel ≤5 Min; 30-Min-Polling */}
       <KitchenPhase2913StoppzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 2914: Touren-Effizienz-Ticker — Team-Ø Score 0–100; Alert <65 "Effizienz zu niedrig!"; Fahrerliste kompakt absteigend (beste oben); Pünktlichkeit+Abschluss; Ziel ≥80 Pkt; 30-Min-Polling */}
+      <KitchenPhase2914TourenEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase2820KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
@@ -10574,3 +10577,5 @@ export { KitchenPhase2906KundenkontaktTicker } from './phase2906-kundenkontakt-t
 export { KitchenPhase2907SmartTimingCountdownBoard } from './phase2907-smart-timing-countdown-board';
 // Phase 2913 — Stoppzeit-Ticker (Team-Ø Min; Alert >10 Min "Stoppzeit zu lang!"; Fahrerliste aufsteigend; Ziel ≤5 Min; 30-Min-Polling)
 export { KitchenPhase2913StoppzeitTicker } from './phase2913-stoppzeit-ticker';
+// Phase 2914 — Touren-Effizienz-Ticker (Team-Ø Score 0–100; Alert <65 "Effizienz zu niedrig!"; Fahrerliste absteigend; Pünktlichkeit+Abschluss; Ziel ≥80 Pkt; 30-Min-Polling)
+export { KitchenPhase2914TourenEffizienzTicker } from './phase2914-touren-effizienz-ticker';
