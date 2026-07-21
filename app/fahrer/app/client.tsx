@@ -764,6 +764,7 @@ import { FahrerPhase2942MeineBuendelungsEffizienz } from './phase2942-meine-buen
 import { FahrerPhase2947MeineTrinkgeldQuote } from './phase2947-meine-trinkgeld-quote';
 import { FahrerPhase2952MeineBewertung } from './phase2952-meine-bewertung';
 import { FahrerPhase2957MeineLiefertreue } from './phase2957-meine-liefertreue';
+import { FahrerPhase2962MeineKmProTour } from './phase2962-meine-km-pro-tour';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
@@ -6269,6 +6270,8 @@ export function FahrerApp({
           <FahrerPhase2952MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2957: Meine Liefertreue — Rate % 4xl+Farbcode; Balken 0–100% Ziel 90%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2957MeineLiefertreue driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2962: Meine km/Tour — Ø km 4xl+Farbcode; Balken 0–20 km Ziel 8 km; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2962MeineKmProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2945: Tour-Stopp GPS-Navigator Ultimate — Hero-Stopp mit ETA-Countdown; Google Maps/Waze; Anruf; Fortschrittsring; Done-Counter; mobile-first; 15-Sek-Polling */}
           <FahrerPhase2945TourStoppGpsNavigatorUltimate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2920: Tour-Stopp Ultra-Navigator — Hero-Stopp farbkodiert ETA-Countdown; Maps/Waze/Anruf; Angekommen/Zugestellt; Sequenz-Dots; 1-Sek-Tick+15-Sek-Polling */}
@@ -9769,6 +9772,8 @@ export { FahrerPhase2947MeineTrinkgeldQuote } from './phase2947-meine-trinkgeld-
 export { FahrerPhase2952MeineBewertung } from './phase2952-meine-bewertung';
 // Phase 2957 — Meine Liefertreue (Rate % 4xl+Farbcode; Balken 0–100% Ziel 90%; Trend vs. gestern; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2957MeineLiefertreue } from './phase2957-meine-liefertreue';
+// Phase 2962 — Meine km/Tour (Ø km 4xl+Farbcode; Balken 0–20 km Ziel 8 km; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase2962MeineKmProTour } from './phase2962-meine-km-pro-tour';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
