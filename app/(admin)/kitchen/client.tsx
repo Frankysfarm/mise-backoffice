@@ -10517,3 +10517,5 @@ export { KitchenPhase2861EffizienzTicker } from './phase2861-effizienz-ticker';
 export { KitchenPhase2830SmartTimingCountdownFarbkodierungMaster } from './phase2830-smart-timing-countdown-farbkodierung-master';
 // Phase 2856 — Smart-Timing Farbkodierung Live Master (Echtzeit-Farbkodierung aller aktiven Bestellungen; Ampel grün/gelb/rot/kritisch nach Prep-Fortschritt; Sekunden-genaue Countdowns; Überfälligkeits-Alert; 1-Sek-Tick)
 export { KitchenPhase2856SmartTimingFarbkodierungLiveMaster } from './phase2856-smart-timing-farbkodierung-live-master';
+// Phase 2870 — Smart-Timing Fahrer-ETA-Cockpit (Farbkodierter Countdown grün/gelb/rot/kritisch je Bestellung; Fahrer-ETA-Bridge Δ-Anzeige; Fortschrittsbalken; Überfälligkeits-Alert; 1-Sek-Tick)
+export { KitchenPhase2870SmartTimingFahrerEtaCockpit } from './phase2870-smart-timing-fahrer-eta-cockpit';

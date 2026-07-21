@@ -9595,3 +9595,5 @@ export { FahrerPhase2852MeineReaktionszeit } from './phase2852-meine-reaktionsze
 export { FahrerPhase2859MeineEffizienz } from './phase2859-meine-effizienz';
 // Phase 2855 — Tour-Stops Navigation Echtzeit-Hub (Nächster Stopp Hero + One-Tap Google Maps/Waze + Kunden-Anruf + Angekommen/Zugestellt-Buttons + ETA-Countdown + Stop-Dots + Weitere Stopps aufklappbar; 15-Sek-Polling + 1-Sek-ETA-Tick)
 export { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
+// Phase 2870 — Tour-Stop Smart-Kommando (Nächster-Stopp-Hero farbkodiert grün/gelb/rot + ETA-Countdown + Navigation-Button + Anruf-Button + Lieferung-bestätigen + Weitere-Stopps-Liste + Stop-Dot-Progress; mobile-first)
+export { FahrerPhase2870TourStopSmartKommando } from './phase2870-tour-stop-smart-kommando';

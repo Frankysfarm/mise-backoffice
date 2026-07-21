@@ -4724,3 +4724,5 @@ export { LieferdienstPhase2590StatistikenEchtzeitKommando } from './phase2590-st
 export { LieferdienstPhase2595StatistikenLiveMasterCockpit } from './phase2595-statistiken-live-master-cockpit';
 // Phase 2597 — Statistiken-Dashboard Ultimate (Umsatz/Lieferungen/Ø-Lieferzeit/Fahrer/Storno live; Vergleich Vorwoche + Trend-Pfeile + Ampel; 60-Sek-Polling)
 export { LieferdienstPhase2597StatistikenDashboardUltimate } from './phase2597-statistiken-dashboard-ultimate';
+// Phase 2600 — Statistiken Final Dashboard (8 KPI-Kacheln Ampel + Alerts; Stundenverlauf-Chart Bestellungen/Umsatz umschaltbar; liefer_minuten Auswertung; 5-Min-Polling)
+export { LieferdienstPhase2600StatistikenFinalDashboard } from './phase2600-statistiken-final-dashboard';

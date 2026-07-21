@@ -11943,3 +11943,5 @@ export { DispatchPhase2851ReaktionszeitBoard } from './phase2851-reaktionszeit-b
 export { DispatchPhase2858EffizienzBoard } from './phase2858-effizienz-board';
 // Phase 2853 — Tour-Score Visualisierung Ultimate (Echtzeit-Score 0–100 je aktiver Tour; Rangliste nach Live-Score; Stopp-Fortschritts-Dots; ETA-Verbrauch; Pünktlichkeit-Ampel; Tour-Visualisierung)
 export { DispatchPhase2853TourScoreVisualisierungUltimate } from './phase2853-tour-score-visualisierung-ultimate';
+// Phase 2870 — Tour-Visualisierung Score-Hub (Score-Ring SVG je Fahrer + farbkodierte Stop-Dots mit Nummern + Fortschrittsbalken + ETA-Badge + Alert Score <60; 25-Sek-Polling)
+export { DispatchPhase2870TourVisualisierungScoreHub } from './phase2870-tour-visualisierung-score-hub';
