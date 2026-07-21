@@ -24434,3 +24434,44 @@ Frontend-Ingenieur-Agent (2026-07-21): Phasen 2845–2849 implementiert. Backend
 5. **Phase 2859 Kitchen:** Auslastungs-Ticker — Team-Ø %; Alert <50%; Fahrerliste kompakt absteigend (höchste oben); Ziel ≥80%; 30-Min-Polling; in kitchen/client.tsx nach Phase2854.
 
 Backend-Architekt-Agent (2026-07-21): Phasen 2850–2854 implementiert. Backend-API wiederverwendet (fahrer-reaktionszeit Phase 2435, assigned_at→picked_up_at aus delivery_tours, Ampel grün<3/gelb3–7/rot>7 Min, Alert "Langsame Reaktion!", Trend vs. Vorwoche, rang, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2851 Dispatch (ReaktionszeitBoard, aufsteigend nach Min, Balken 0–10 Min Ziel-Linie 3 Min, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner >7 Min, Trend-Pfeile invertiert fallend=grün/steigend=rot) / Phase2852 Fahrer-App (MeineReaktionszeit, Min 4xl + Farbcode, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2854 Kitchen (ReaktionszeitTicker, Team-Ø Min, Alert >7 Min, aufsteigend nach Min, Ziel <3 Min). Phase 2853 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2871–2875 — Fahrer-Auslastungs-Score (2026-07-21)
+
+### Phase 2871 — Backend API: Fahrer-Auslastung
+**Datei:** `app/api/delivery/admin/fahrer-auslastung/route.ts` *(bereits vorhanden)*
+**Wiederverwendet:** Auslastungs-Rate je Fahrer (aktive Fahrzeit / Schichtdauer); Ampel grün(60–85%)/gelb(40–59% od. 86–90%)/rot(<40% od. >90%); Alert <40% "Niedrige Auslastung!" / >90% "Überlastung!"; alert_typ 'under'|'over'; Trend vs. Vorwoche; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2872 — Auslastungs-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2872-auslastungs-board.tsx` *(neu)*
+**Component:** `DispatchPhase2872AuslastungsBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <40% "Niedrige Auslastung!" / >90% "Überlastung!" mit Fahrernamen + Wert + Alert-Typ; KPI-Grid (Team-Ø/Bester/Ziel 60–85%); Fahrerliste absteigend sortiert (höchste oben = aktivste zuerst); Balken 0–100% mit zwei Ziel-Linien (60% und 85%); Ampel grün(60–85%)/gelb(40–59% od. 86–90%)/rot(<40% od. >90%); Trend-Pfeile (steigend=grün/fallend=rot); Touren-Anzahl; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2870 ✅
+
+### Phase 2873 — Meine Auslastung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2873-meine-auslastung.tsx` *(neu)*
+**Component:** `FahrerPhase2873MeineAuslastung`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; rate_pct % 4xl groß + Farbcode; Balken 0–100% mit zwei Ziel-Linien (60% / 85%); KPI-Grid (Trend/Ziel/Ampel/Touren); Team-Ø Auslastung; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2859 ✅
+
+### Phase 2874 — Storefront
+Übersprungen (Auslastung intern irrelevant für Kunden) ✅
+
+### Phase 2875 — Auslastungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2875-auslastungs-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2875AuslastungsTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø %; Alert-Banner je Fahrer <40% "Niedrige Auslastung!" / >90% "Überlastung!" mit alert_typ; Fahrerliste kompakt absteigend sortiert (höchste oben = aktivste zuerst) mit Ampel-Dots, Trend-Pfeil, Touren-Anzahl und rate_pct; Ziel-Anzeige 60–85%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2870 ✅
+
+### Nächste Phasen 2876–2880 (für nächsten Ingenieur) — Fahrer-Liefergeschwindigkeit-Score
+1. **Phase 2876 Backend:** GET /api/delivery/admin/fahrer-liefergeschwindigkeit — Ø Lieferzeit (confirmed_at → actual_delivery_at) je Fahrer heute in Min; Ampel grün(≤25 Min)/gelb(26–35 Min)/rot(>35 Min); Alert >35 Min "Zu langsam!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2877 Dispatch:** Liefergeschwindigkeit-Board — Fahrerliste aufsteigend nach Min (schnellste oben = beste); Balken 0–60 Min mit Ziel-Linie 25 Min; KPI-Grid Team-Ø/Bester/Ziel ≤25 Min; Alert-Banner >35 Min "Zu langsam!"; Trend-Pfeile (fallend=grün/steigend=rot); 30-Min-Polling; in dispatch/client.tsx nach Phase2872.
+3. **Phase 2878 Fahrer-App:** Meine Liefergeschwindigkeit — Min-Wert 4xl groß + Farbcode; Balken 0–60 Min Ziel 25 Min; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2873.
+4. **Phase 2879 Storefront:** Überspringen (interne Metrik).
+5. **Phase 2880 Kitchen:** Liefergeschwindigkeit-Ticker — Team-Ø Min; Alert >35 Min "Zu langsam!"; Fahrerliste kompakt aufsteigend (schnellste zuerst); Ziel ≤25 Min; 30-Min-Polling; in kitchen/client.tsx nach Phase2875.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2871–2875 implementiert. Backend-API wiederverwendet (fahrer-auslastung, Fahrzeit/Schichtdauer rate_pct, Ampel grün(60–85%)/gelb(40–59%,86–90%)/rot(<40%,>90%), alert_typ 'under'|'over', Trend, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2872 Dispatch (AuslastungsBoard, absteigend nach rate_pct, Balken 0–100% zwei Ziel-Linien 60%+85%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner Niedrige Auslastung!/Überlastung!, Trend steigend=grün/fallend=rot) / Phase2873 Fahrer-App (MeineAuslastung, rate_pct % 4xl + Farbcode, zwei Ziel-Linien, Coaching-Tipp, isOnline-Guard, 30-Min-Polling) / Phase2875 Kitchen (AuslastungsTicker, Team-Ø %, Alert-Banner mit alert_typ, absteigend nach rate_pct, Ziel 60–85%). Phase 2874 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.

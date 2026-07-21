@@ -795,6 +795,7 @@ import { KitchenPhase2854ReaktionszeitTicker } from './phase2854-reaktionszeit-t
 import { KitchenPhase2856SmartTimingFarbkodierungLiveMaster } from './phase2856-smart-timing-farbkodierung-live-master';
 import { KitchenPhase2861EffizienzTicker } from './phase2861-effizienz-ticker';
 import { KitchenPhase2870SmartTimingFahrerEtaCockpit } from './phase2870-smart-timing-fahrer-eta-cockpit';
+import { KitchenPhase2875AuslastungsTicker } from './phase2875-auslastungs-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -3711,6 +3712,8 @@ export function KitchenBoard({
       <KitchenPhase2861EffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2870: Smart-Timing Fahrer-ETA-Cockpit — farbkodierter Countdown grün/gelb/rot/kritisch je Bestellung mit Fahrer-ETA-Bridge + Δ-Anzeige; 1-Sek-Tick */}
       <KitchenPhase2870SmartTimingFahrerEtaCockpit orders={filtered.map(o => ({ id: o.id, bestellnummer: o.bestellnummer ?? '', kunde_name: o.kunde_name ?? '', status: o.status }))} timings={timings} drivers={drivers.map(d => ({ id: d.id, vorname: d.vorname, nachname: d.nachname }))} batches={batches} stops={stops} />
+      {/* Phase 2875: Auslastungs-Ticker — Team-Ø %; Alert <40% "Niedrige Auslastung!" / >90% "Überlastung!"; Fahrerliste kompakt absteigend; Ziel 60–85%; 30-Min-Polling */}
+      <KitchenPhase2875AuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2820: Kundenbewertungs-Ticker — Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend (niedrigste oben); Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase2820KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2605: Smart-Timing Batch-Countdown Ampel — Farbkodierte Bestellkacheln grün/gelb/rot + Countdown-Ring + On-Time-Quote + SLA-Alert; 1-Sek-Tick + 30-Sek-Polling */}
@@ -10522,3 +10525,5 @@ export { KitchenPhase2830SmartTimingCountdownFarbkodierungMaster } from './phase
 export { KitchenPhase2856SmartTimingFarbkodierungLiveMaster } from './phase2856-smart-timing-farbkodierung-live-master';
 // Phase 2870 — Smart-Timing Fahrer-ETA-Cockpit (Farbkodierter Countdown grün/gelb/rot/kritisch je Bestellung; Fahrer-ETA-Bridge Δ-Anzeige; Fortschrittsbalken; Überfälligkeits-Alert; 1-Sek-Tick)
 export { KitchenPhase2870SmartTimingFahrerEtaCockpit } from './phase2870-smart-timing-fahrer-eta-cockpit';
+// Phase 2875 — Auslastungs-Ticker (Team-Ø %; Alert <40% "Niedrige Auslastung!" / >90% "Überlastung!"; Fahrerliste kompakt absteigend; Ziel 60–85%; 30-Min-Polling)
+export { KitchenPhase2875AuslastungsTicker } from './phase2875-auslastungs-ticker';
