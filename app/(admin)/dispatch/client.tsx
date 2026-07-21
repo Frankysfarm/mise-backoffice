@@ -11953,3 +11953,6 @@ export { DispatchPhase2853TourScoreVisualisierungUltimate } from './phase2853-to
 export { DispatchPhase2870TourVisualisierungScoreHub } from './phase2870-tour-visualisierung-score-hub';
 // Phase 2872 — Auslastungs-Board (Fahrerliste absteigend nach rate_pct; Balken 0–100% Ziel 60–85%; KPI-Grid Team-Ø/Bester/Ziel; Alert <40% "Niedrige Auslastung!" / >90% "Überlastung!"; 30-Min-Polling)
 export { DispatchPhase2872AuslastungsBoard } from './phase2872-auslastungs-board';
+
+// Phase 2877 — Tour-Score Echtzeit-Analyse Board (Score-Arc SVG 0–100 je Fahrer; aufklappbare Sub-Scores Pünktlichkeit/Abschlussrate/Wartezeit/Bewertung; Trend-Pfeile; Rang; Team-Bester; 25-Sek-Polling)
+export { DispatchPhase2877TourScoreEchtzeitAnalyseBoard } from './phase2877-tour-score-echtzeit-analyse-board';

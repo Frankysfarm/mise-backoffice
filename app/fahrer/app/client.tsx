@@ -9619,3 +9619,6 @@ export { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-
 export { FahrerPhase2870TourStopSmartKommando } from './phase2870-tour-stop-smart-kommando';
 // Phase 2873 — Meine Auslastung (rate_pct % 4xl + Farbcode; Balken 0–100% Ziel 60–85%; KPI-Grid Trend/Ziel/Ampel/Touren; Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2873MeineAuslastung } from './phase2873-meine-auslastung';
+
+// Phase 2878 — Nächster Stopp GPS Navigations-Kommando (Hero-Stop farbkodiert + ETA-Countdown + Google Maps Link + Anruf + Bestätigen + Weitere Stopps + Fortschrittsbalken; 1-Sek-Tick; mobile-first)
+export { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';

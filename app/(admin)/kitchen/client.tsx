@@ -10527,3 +10527,6 @@ export { KitchenPhase2856SmartTimingFarbkodierungLiveMaster } from './phase2856-
 export { KitchenPhase2870SmartTimingFahrerEtaCockpit } from './phase2870-smart-timing-fahrer-eta-cockpit';
 // Phase 2875 — Auslastungs-Ticker (Team-Ø %; Alert <40% "Niedrige Auslastung!" / >90% "Überlastung!"; Fahrerliste kompakt absteigend; Ziel 60–85%; 30-Min-Polling)
 export { KitchenPhase2875AuslastungsTicker } from './phase2875-auslastungs-ticker';
+
+// Phase 2876 — Smart-Timing Kochstart Farbkodierungs-Cockpit (Countdown grün/gelb/rot/kritisch je Bestellung; Kochstart-Empfehlung-Badge; Fortschrittsbalken; Wartezeit; Legende; 1-Sek-Tick)
+export { KitchenPhase2876SmartTimingKochstartFarbkodierungsCockpit } from './phase2876-smart-timing-kochstart-farbkodierungs-cockpit';

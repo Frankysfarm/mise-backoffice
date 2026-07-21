@@ -4729,3 +4729,6 @@ export { LieferdienstPhase2595StatistikenLiveMasterCockpit } from './phase2595-s
 export { LieferdienstPhase2597StatistikenDashboardUltimate } from './phase2597-statistiken-dashboard-ultimate';
 // Phase 2600 — Statistiken Final Dashboard (8 KPI-Kacheln Ampel + Alerts; Stundenverlauf-Chart Bestellungen/Umsatz umschaltbar; liefer_minuten Auswertung; 5-Min-Polling)
 export { LieferdienstPhase2600StatistikenFinalDashboard } from './phase2600-statistiken-final-dashboard';
+
+// Phase 2605 — Statistiken Echtzeit-Synthesis Cockpit (8 KPI-Kacheln Ampel + Trend; Stundenverlauf-Chart Bestellungen/Umsatz umschaltbar; aktuelle Stunde hervorgehoben; Alert-Strip; 5-Min-Polling)
+export { LieferdienstPhase2605StatistikenEchtzeitSynthesisCockpit } from './phase2605-statistiken-echtzeit-synthesis-cockpit';
