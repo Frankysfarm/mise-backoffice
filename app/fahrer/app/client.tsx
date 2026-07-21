@@ -9643,3 +9643,5 @@ export { FahrerPhase2873MeineAuslastung } from './phase2873-meine-auslastung';
 export { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
 // Phase 2883 — Meine Liefergeschwindigkeit (Min 4xl + Farbcode; Balken 0–60 Min Ziel 25 Min; KPI-Grid Trend/Ziel/Ampel/Touren; Team-Ø + Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase2883MeineLiefergeschwindigkeit } from './phase2883-meine-liefergeschwindigkeit';
+// Phase 2888 — Tour-Stopp Live-Navigations-Kommando (Tour-Fortschritt + Stop-Dots; Nächster Stopp prominent mit Navigation-Button; Alle Stopps Übersicht mit ETA + Telefon; 20-Sek-Polling)
+export { Phase2888TourStoppLiveNavigationsKommando } from './phase2888-tour-stopp-live-navigations-kommando';

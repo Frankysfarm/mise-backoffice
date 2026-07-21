@@ -4735,3 +4735,5 @@ export { LieferdienstPhase2600StatistikenFinalDashboard } from './phase2600-stat
 
 // Phase 2605 — Statistiken Echtzeit-Synthesis Cockpit (8 KPI-Kacheln Ampel + Trend; Stundenverlauf-Chart Bestellungen/Umsatz umschaltbar; aktuelle Stunde hervorgehoben; Alert-Strip; 5-Min-Polling)
 export { LieferdienstPhase2605StatistikenEchtzeitSynthesisCockpit } from './phase2605-statistiken-echtzeit-synthesis-cockpit';
+// Phase 2610 — Statistiken Live-Synthesis-Cockpit (10 KPI-Kacheln Ampel; Stunden-Chart 2-Modi Bestellungen/Umsatz; Zonen-Ranking; Fahrer-Top-3; Alert-Strip; 3-Min-Polling)
+export { LieferdienstPhase2610StatistikLiveSynthesisCockpit } from './phase2610-statistiken-live-synthesis-cockpit';
