@@ -115,7 +115,8 @@ function TrendIcon({ t }: { t: string }) {
   return <Minus size={11} className="text-gray-400" />;
 }
 
-const ICON_MAP: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ICON_MAP: Record<string, React.ComponentType<any>> = {
   Package, Euro, Clock, Target, Star, Users, Truck, XCircle,
 };
 
