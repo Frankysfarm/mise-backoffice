@@ -17,8 +17,8 @@ interface ApiData {
   alert_count: number;
 }
 
-const ZIEL_MIN  = 3;
-const ALERT_MIN = 7;
+const ZIEL_MIN  = 2;
+const ALERT_MIN = 5;
 const MAX_BAR   = 10;
 
 function ampelCls(a: string) {
@@ -27,7 +27,6 @@ function ampelCls(a: string) {
   return                   { bg: 'bg-green-50 border-green-200', dot: 'bg-green-500', text: 'text-green-700', bar: 'bg-green-500' };
 }
 
-// Trend INVERTIERT: fallend (schneller) = grün, steigend (langsamer) = rot
 function TrendIcon({ trend }: { trend: string }) {
   if (trend === 'fallend')  return <TrendingDown size={12} className="text-green-600" />;
   if (trend === 'steigend') return <TrendingUp   size={12} className="text-red-500"   />;
@@ -36,12 +35,12 @@ function TrendIcon({ trend }: { trend: string }) {
 
 const MOCK: ApiData = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Max M.',   avg_min: 1.4, trend: 'fallend',  trend_delta: -0.4, ampel: 'gruen' },
-    { fahrer_id: 'f2', fahrer_name: 'Julia F.', avg_min: 2.9, trend: 'fallend',  trend_delta: -0.2, ampel: 'gruen' },
-    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  avg_min: 5.8, trend: 'steigend', trend_delta:  1.3, ampel: 'gelb'  },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   avg_min: 8.2, trend: 'steigend', trend_delta:  1.7, ampel: 'rot'   },
+    { fahrer_id: 'f1', fahrer_name: 'Max M.',   avg_min: 1.8, trend: 'fallend',  trend_delta: -0.4, ampel: 'gruen' },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  avg_min: 3.2, trend: 'fallend',  trend_delta: -0.3, ampel: 'gelb'  },
+    { fahrer_id: 'f3', fahrer_name: 'Tim B.',   avg_min: 4.5, trend: 'steigend', trend_delta:  0.8, ampel: 'gelb'  },
+    { fahrer_id: 'f4', fahrer_name: 'Julia F.', avg_min: 6.7, trend: 'steigend', trend_delta:  1.2, ampel: 'rot'   },
   ],
-  team_avg_min: 4.6,
+  team_avg_min: 4.1,
   alert_count: 1,
 };
 
@@ -63,15 +62,13 @@ export function DispatchPhase3001ReaktionszeitBoard({ locationId }: { locationId
 
   if (!data) return null;
 
-  // aufsteigend — kürzeste Reaktionszeit = schnellste oben
   const sorted   = [...data.fahrer].sort((a, b) => a.avg_min - b.avg_min);
   const alerts   = data.fahrer.filter(f => f.avg_min > ALERT_MIN);
   const hasAlert = alerts.length > 0;
   const best     = sorted[0]?.avg_min ?? 0;
-
-  const teamAmpelStr = data.team_avg_min < ZIEL_MIN ? 'gruen' : data.team_avg_min <= ALERT_MIN ? 'gelb' : 'rot';
-  const { text: teamText } = ampelCls(teamAmpelStr);
-  const zielPct = (ZIEL_MIN / MAX_BAR) * 100;
+  const teamAmpel = data.team_avg_min <= ZIEL_MIN ? 'gruen' : data.team_avg_min <= ALERT_MIN ? 'gelb' : 'rot';
+  const { text: teamText } = ampelCls(teamAmpel);
+  const zielPct  = (ZIEL_MIN / MAX_BAR) * 100;
 
   return (
     <div className={`rounded-xl border shadow-sm mb-4 overflow-hidden ${hasAlert ? 'border-red-300' : 'border-gray-200'} bg-white dark:bg-gray-900`}>
@@ -102,7 +99,7 @@ export function DispatchPhase3001ReaktionszeitBoard({ locationId }: { locationId
             {[
               { label: 'Team-Ø', value: `${data.team_avg_min.toFixed(1)} Min`, cls: teamText },
               { label: 'Bester', value: `${best.toFixed(1)} Min`,              cls: 'text-green-600' },
-              { label: 'Ziel',   value: `≤${ZIEL_MIN} Min`,                    cls: 'text-gray-600 dark:text-gray-400' },
+              { label: 'Ziel',   value: `≤2 Min`,                          cls: 'text-gray-600 dark:text-gray-400' },
             ].map(k => (
               <div key={k.label} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
                 <div className="text-xs text-gray-500 dark:text-gray-400">{k.label}</div>
@@ -137,10 +134,10 @@ export function DispatchPhase3001ReaktionszeitBoard({ locationId }: { locationId
           </div>
 
           <div className="flex gap-3 text-xs text-gray-500 dark:text-gray-400 pt-1">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500 inline-block" />&lt;{ZIEL_MIN} Min</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />{ZIEL_MIN}–{ALERT_MIN} Min</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" />&gt;{ALERT_MIN} Min</span>
-            <span className="text-gray-400">| Ziel ≤{ZIEL_MIN} Min</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500 inline-block" />&lt;3 Min</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />3-7 Min</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" />&gt;7 Min</span>
+            <span className="text-gray-400">| Ziel &lt;3 Min</span>
           </div>
         </div>
       )}

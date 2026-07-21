@@ -19,13 +19,12 @@ interface ApiData {
 const ZIEL_MIN  = 3;
 const ALERT_MIN = 7;
 
-function dotCls(ampel: string): string {
-  if (ampel === 'rot')  return 'bg-red-500';
-  if (ampel === 'gelb') return 'bg-amber-400';
+function dotCls(a: string): string {
+  if (a === 'rot')  return 'bg-red-500';
+  if (a === 'gelb') return 'bg-amber-400';
   return 'bg-green-500';
 }
 
-// Trend INVERTIERT: fallend (schneller) = grün, steigend (langsamer) = rot
 function TrendIcon({ trend }: { trend: string }) {
   if (trend === 'fallend')  return <TrendingDown size={10} className="text-green-600" />;
   if (trend === 'steigend') return <TrendingUp   size={10} className="text-red-500"   />;
@@ -34,12 +33,12 @@ function TrendIcon({ trend }: { trend: string }) {
 
 const MOCK: ApiData = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Max M.',   avg_min: 1.4, trend: 'fallend',  ampel: 'gruen' },
-    { fahrer_id: 'f2', fahrer_name: 'Julia F.', avg_min: 2.9, trend: 'fallend',  ampel: 'gruen' },
-    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  avg_min: 5.8, trend: 'steigend', ampel: 'gelb'  },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   avg_min: 8.2, trend: 'steigend', ampel: 'rot'   },
+    { fahrer_id: 'f1', fahrer_name: 'Max M.',   avg_min: 2.1, trend: 'fallend',  ampel: 'gruen' },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  avg_min: 3.5, trend: 'fallend',  ampel: 'gelb'  },
+    { fahrer_id: 'f3', fahrer_name: 'Tim B.',   avg_min: 5.2, trend: 'steigend', ampel: 'gelb'  },
+    { fahrer_id: 'f4', fahrer_name: 'Julia F.', avg_min: 8.4, trend: 'steigend', ampel: 'rot'   },
   ],
-  team_avg_min: 4.6,
+  team_avg_min: 4.8,
   alert_count: 1,
 };
 
@@ -61,13 +60,11 @@ export function KitchenPhase3004ReaktionszeitTicker({ locationId }: { locationId
 
   if (!data) return null;
 
-  // aufsteigend — kürzeste zuerst
   const sorted   = [...data.fahrer].sort((a, b) => a.avg_min - b.avg_min);
   const alerts   = data.fahrer.filter(f => f.avg_min > ALERT_MIN);
   const hasAlert = alerts.length > 0;
-
-  const teamAmpelStr = data.team_avg_min < ZIEL_MIN ? 'gruen' : data.team_avg_min <= ALERT_MIN ? 'gelb' : 'rot';
-  const teamText     = teamAmpelStr === 'rot' ? 'text-red-600' : teamAmpelStr === 'gelb' ? 'text-amber-600' : 'text-green-600';
+  const teamAmpel = data.team_avg_min < ZIEL_MIN ? 'gruen' : data.team_avg_min <= ALERT_MIN ? 'gelb' : 'rot';
+  const teamText  = teamAmpel === 'rot' ? 'text-red-600' : teamAmpel === 'gelb' ? 'text-amber-600' : 'text-green-600';
 
   return (
     <div className={`rounded-xl border shadow-sm mb-4 overflow-hidden ${hasAlert ? 'border-red-300' : 'border-gray-200'} bg-white dark:bg-gray-900`}>
@@ -116,7 +113,7 @@ export function KitchenPhase3004ReaktionszeitTicker({ locationId }: { locationId
             })}
           </div>
 
-          <div className="text-xs text-gray-400 pt-1">Ziel ≤{ZIEL_MIN} Min | 30-Min-Polling</div>
+          <div className="text-xs text-gray-400 pt-1">Ziel &lt;{ZIEL_MIN} Min | 30-Min-Polling</div>
         </div>
       )}
     </div>
