@@ -59,7 +59,7 @@ async function startNative(batchId: string | null) {
   try {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore — @capacitor/geolocation optional, nicht im package.json; graceful fallback auf Web
-    const { Geolocation } = await import('@capacitor/geolocation');
+    const { Geolocation } = await import(/* webpackIgnore: true */ "@capacitor/geolocation");
     await Geolocation.requestPermissions();
     _watchId = await Geolocation.watchPosition(
       { enableHighAccuracy: true, timeout: 10000 },
@@ -193,7 +193,7 @@ export function stopBgLocation() {
     if (_isNative) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      import('@capacitor/geolocation').then(({ Geolocation }: any) =>
+      import(/* webpackIgnore: true */ '@capacitor/geolocation').then(({ Geolocation }: any) =>
         Geolocation.clearWatch({ id: String(_watchId) }),
       ).catch(() => {});
     } else {
