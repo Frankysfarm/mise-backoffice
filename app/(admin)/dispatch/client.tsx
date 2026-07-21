@@ -11893,3 +11893,5 @@ export { DispatchPhase2808StornoRateBoard } from './phase2808-storno-rate-board'
 export { DispatchPhase2813TourScoreVisualisierungKommando } from './phase2813-tour-score-visualisierung-kommando';
 // Phase 2817 — Kundenbewertungs-Board (Fahrerliste absteigend; Balken 0–5 Ziel 4.5; KPI-Grid; Alert <3.5 "Niedrige Kundenbewertung!"; 30-Min-Polling)
 export { DispatchPhase2817KundenbewertungBoard } from './phase2817-kundenbewertung-board';
+// Phase 2822 — Schicht-Bilanz-Board (Fahrerliste nach Einnahmen absteigend; 5-KPI-Mini-Grid je Fahrer; Balken 0–200€ Ziel 100€; Alert Schicht >10h; Trend-Pfeile; 30-Min-Polling)
+export { DispatchPhase2822SchichtBilanzBoard } from './phase2822-schicht-bilanz-board';

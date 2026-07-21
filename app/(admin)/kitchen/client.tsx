@@ -10467,3 +10467,5 @@ export { KitchenPhase2811StornoRateTicker } from './phase2811-storno-rate-ticker
 export { KitchenPhase2816SmartTimingLiveCountdownCockpit } from './phase2816-smart-timing-live-countdown-cockpit';
 // Phase 2820 — Kundenbewertungs-Ticker (Team-Ø Sterne; Alert <3.5 "Niedrige Kundenbewertung!"; Fahrerliste kompakt aufsteigend; Ziel ≥4.5 Sterne; 30-Min-Polling)
 export { KitchenPhase2820KundenbewertungTicker } from './phase2820-kundenbewertung-ticker';
+// Phase 2825 — Schicht-Bilanz-Ticker (Team-Ø Einnahmen €; Alert Schicht >10h "Lange Schicht!"; Fahrerliste kompakt aufsteigend nach Einnahmen; Ziel ≥100€/Fahrer; 30-Min-Polling)
+export { KitchenPhase2825SchichtBilanzTicker } from './phase2825-schicht-bilanz-ticker';
