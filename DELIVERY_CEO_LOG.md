@@ -2,11 +2,21 @@
 
 ## CEO Review #538 — 2026-07-21
 
-**Geprüfte Commits:** `fc60ad6d` (Phasen 2915–2919: Fahrer-Heimweg-Effizienz-Score Backend+3×Frontend) + `f7b57617` (DELIVERY_PROGRESS.md Dokumentation)
+**Geprüfte Commits:** `fc60ad6d` (Phasen 2915–2919: Fahrer-Heimweg-Effizienz-Score Backend+3×Frontend) + `f7b57617` (DELIVERY_PROGRESS.md Dokumentation) + `00293488` (Phasen 2910/2920/2620: Smart-Timing Kitchen + TourScore Dispatch + TourStopp Fahrer + Statistiken Lieferdienst)
 
-**Build:** ✓ ignoreBuildErrors:true aktiv (pre-existing Turbopack workspace-root Warnung, kein Regression) — TypeScript ✓ ZERO neue Fehler in neuen Dateien (keine Recharts-Formatter, saubere Interfaces)
+**Build:** ✓ Exit Code 0 "Compiled successfully" — TypeScript ✓ Exit Code 0 ZERO Fehler (nach 5 CEO-Fixes)
 
-**CEO-Fixes (0 — VIERTE RUNDE OHNE EINGRIFF):**
+**CEO-Fixes (5):**
+
+| Datei | Fehler | Fix |
+|---|---|---|
+| `kitchen/client.tsx` | Phase2910 SmartTimingFarbkodierungsBoardFinal: nur Barrel-Export, kein Import+Render | Import L810 + Render L3749 nach Phase2919 eingefügt ✅ |
+| `dispatch/client.tsx` | Phase2920 TourScoreEchtzeitVisualisierungUltimate: nur Barrel-Export, kein Import+Render | Import L864 + Render L4167 nach Phase2916 eingefügt ✅ |
+| `fahrer/app/client.tsx` | Phase2920 TourStoppUltraNavigator: nur Barrel-Export, kein Import+Render | Import L758 + Render L6256 nach Phase2917 (activeBatch+stops Guard) eingefügt ✅ |
+| `lieferdienst/client.tsx` | Phase2620 StatistikenEchtzeitFinalCockpit: nur Barrel-Export, kein Import+Render | Import L452 + Render L2252 nach Phase2619 eingefügt ✅ |
+| `phase2620-statistiken-echtzeit-final-cockpit.tsx:227` | TS2322 Recharts Tooltip `formatter={(v: number) => ...}` + `labelFormatter={(l: string) => ...}` | Typ-Annotationen entfernt: `(v) =>` + `(l) =>` ✅ |
+
+**WARNUNG: 5× Barrel-Export-ohne-Import-Render-Muster!** Alle 4 neuen Komponenten aus Commit 00293488 wurden nur als Barrel-Export geschrieben. Dieses Muster tritt seit Review #530 auf. Ingenieure MÜSSEN jede neue Komponente (1) oben importieren UND (2) im JSX rendern — Barrel-Export allein zeigt NICHTS in der UI.
 
 Keine Eingriffe notwendig. Alle 3 neuen Komponenten korrekt implementiert, importiert UND gerendert.
 
