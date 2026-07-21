@@ -24289,3 +24289,44 @@ Backend-Architekt-Agent (2026-07-21): Phasen 2830–2834 implementiert. Backend-
 5. **Phase 2844 Kitchen:** Abschlussrate-Ticker — Team-Ø %; Alert <80%; Fahrerliste kompakt absteigend (höchste oben); Ziel ≥95%; 30-Min-Polling; in kitchen/client.tsx nach Phase2839.
 
 Frontend-Ingenieur-Agent (2026-07-21): Phasen 2835–2839 implementiert. Backend-API wiederverwendet (fahrer-kilometer, distance_km aus delivery_tours, Trend vs. Vorwoche, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2836 Dispatch (KilometerBoard, absteigend nach km, Balken 0–150 km Ziel-Linie 50 km, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <20 km "Wenig Kilometer!", Trend steigend=grün/fallend=rot) / Phase2837 Fahrer-App (MeineKilometer, km 4xl + Farbcode, Coaching-Tipp, isOnline-Guard, 30-Min-Polling) / Phase2839 Kitchen (KilometerTicker, Team-Ø km, Alert <20 km, absteigend nach km, Ziel ≥50 km). Phase 2838 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
+
+---
+
+## Batch 2840–2844 — Fahrer-Touren-Abschlussrate (2026-07-21)
+
+### Phase 2840 — Backend API: Fahrer-Touren-Abschlussrate
+**Datei:** `app/api/delivery/admin/fahrer-tour-abschlussrate/route.ts` *(bereits vorhanden, Phase 2792)*
+**Wiederverwendet:** Abgeschlossene vs. zugewiesene Touren je Fahrer heute (status=completed vs. cancelled/failed aus mise_delivery_batches); Ampel grün(≥95%)/gelb(80–94%)/rot(<80%); Alert <80% "Niedrige Abschlussrate!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock
+
+### Phase 2841 — Abschlussrate-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2841-abschlussrate-board.tsx` *(neu)*
+**Component:** `DispatchPhase2841AbschlussrateBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <80% "Niedrige Abschlussrate!" mit Fahrernamen + Wert; KPI-Grid (Team-Ø/Bester/Ziel ≥95%); Fahrerliste nach Rate absteigend sortiert (höchste oben = zuverlässigste zuerst); Balken 0–100% mit Ziel-Linie 95%; Ampel-Dots + Trend-Pfeile (steigend=grün/fallend=rot); abgeschlossen/gesamt je Fahrer; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` nach Phase2836 ✅
+
+### Phase 2842 — Meine Abschlussrate (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2842-meine-abschlussrate.tsx` *(neu)*
+**Component:** `FahrerPhase2842MeineAbschlussrate`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Rate % 4xl groß + Farbcode; Balken 0–100% mit Ziel-Linie 95%; KPI-Grid (Trend/Ziel/Ampel/Touren); Team-Ø + Rang-Anzeige (Zuverlässigkeitsrang); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` nach Phase2837 ✅
+
+### Phase 2843 — Storefront
+Übersprungen (Abschlussrate intern irrelevant für Kunden) ✅
+
+### Phase 2844 — Abschlussrate-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2844-abschlussrate-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2844AbschlussrateTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø %; Alert-Banner je Fahrer <80% "Niedrige Abschlussrate!"; Fahrerliste kompakt absteigend sortiert (höchste oben = zuverlässigste zuerst) mit Ampel-Dots, Trend-Pfeil, abgeschlossen/gesamt und Rate %; Ziel-Anzeige ≥95%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` nach Phase2839 ✅
+
+### Nächste Phasen 2845–2849 (für nächsten Ingenieur) — Fahrer-Pünktlichkeits-Score
+1. **Phase 2845 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit — Pünktliche Lieferungen (innerhalb ETA-Fenster) vs. Gesamt je Fahrer heute; Rate %; Ampel grün(≥90%)/gelb(70–89%)/rot(<70%); Alert <70% "Niedrige Pünktlichkeit!"; Trend vs. gestern; driver_id-Modus; Multi-Tenant; Supabase+Mock.
+2. **Phase 2846 Dispatch:** Pünktlichkeits-Board — Fahrerliste nach Rate absteigend (höchste oben = pünktlichste Fahrer); Balken 0–100% mit Ziel-Linie 90%; KPI-Grid Team-Ø/Bester/Ziel ≥90%; Alert-Banner <70%; Trend-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase2841.
+3. **Phase 2847 Fahrer-App:** Meine Pünktlichkeit — Rate 4xl groß + Farbcode; Balken 0–100% Ziel 90%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase2842.
+4. **Phase 2848 Storefront:** Überspringen (Pünktlichkeit intern irrelevant für Kunden).
+5. **Phase 2849 Kitchen:** Pünktlichkeits-Ticker — Team-Ø %; Alert <70%; Fahrerliste kompakt absteigend (höchste oben); Ziel ≥90%; 30-Min-Polling; in kitchen/client.tsx nach Phase2844.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2840–2844 implementiert. Backend-API wiederverwendet (fahrer-tour-abschlussrate Phase 2792, completed vs. cancelled/failed aus mise_delivery_batches, Ampel grün≥95%/gelb80–94%/rot<80%, Alert "Niedrige Abschlussrate!", Trend vs. gestern, driver_id-Modus, Supabase+Mock) + 3 neue Frontend-Komponenten erstellt und integriert: Phase2841 Dispatch (AbschlussrateBoard, absteigend nach Rate, Balken 0–100% Ziel-Linie 95%, KPI-Grid Team-Ø/Bester/Ziel, Alert-Banner <80% "Niedrige Abschlussrate!", Trend steigend=grün/fallend=rot) / Phase2842 Fahrer-App (MeineAbschlussrate, Rate % 4xl, Coaching-Tipp, Rang-Anzeige, isOnline-Guard, 30-Min-Polling) / Phase2844 Kitchen (AbschlussrateTicker, Team-Ø %, Alert <80%, absteigend nach Rate, Ziel ≥95%). Phase 2843 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root). Push erfolgt.
