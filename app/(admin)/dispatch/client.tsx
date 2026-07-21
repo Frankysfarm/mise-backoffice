@@ -12006,3 +12006,5 @@ export { DispatchPhase2910StoppzeitBoard } from './phase2910-stoppzeit-board';
 export { DispatchPhase2911TourenEffizienzBoard } from './phase2911-touren-effizienz-board';
 // Phase 2916 — Heimweg-Effizienz-Board (Ø Leerfahrt-Zeit je Fahrer; aufsteigend nach Min; Balken 0–30 Ziel 10; Alert >20 Min "Heimweg zu lang!"; Trend invertiert; 30-Min-Polling)
 export { DispatchPhase2916HeimwegEffizienzBoard } from './phase2916-heimweg-effizienz-board';
+// Phase 2920 — Tour-Score Echtzeit-Visualisierung Ultimate (Score-Ring SVG je Fahrer 0–100 + Sub-Scores Pünktlichkeit/Abschlussrate/Wartezeit/Bewertung + farbkodierte Balken + Team-Ø + Alert <60; 20-Sek-Polling)
+export { DispatchPhase2920TourScoreEchtzeitVisualisierungUltimate } from './phase2920-tour-score-echtzeit-visualisierung-ultimate';

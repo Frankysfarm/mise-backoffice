@@ -10577,6 +10577,8 @@ export { KitchenPhase2900SmartTimingScoreCockpitUltimate } from './phase2900-sma
 // Phase 2901 — Liefer-Qualitäts-Ticker (Team-Ø Index; Alert <60; Fahrerliste absteigend; Sub-Scores; Ziel ≥80 Pkt; 30-Min-Polling)
 export { KitchenPhase2901LieferQualitaetsTicker } from './phase2901-liefer-qualitaets-ticker';
 export { KitchenPhase2906KundenkontaktTicker } from './phase2906-kundenkontakt-ticker';
+// Phase 2910 — Smart-Timing Farbkodierungs-Board Final (Aktive Bestellungen nach Dringlichkeit; Countdown grün/gelb/rot/kritisch; Fortschrittsbalken; Kochstart-Empfehlung; On-Time-Rate; 1-Sek-Tick + 20-Sek-Polling)
+export { KitchenPhase2910SmartTimingFarbkodierungsBoardFinal } from './phase2910-smart-timing-farbkodierungs-board-final';
 export { KitchenPhase2907SmartTimingCountdownBoard } from './phase2907-smart-timing-countdown-board';
 // Phase 2913 — Stoppzeit-Ticker (Team-Ø Min; Alert >10 Min "Stoppzeit zu lang!"; Fahrerliste aufsteigend; Ziel ≤5 Min; 30-Min-Polling)
 export { KitchenPhase2913StoppzeitTicker } from './phase2913-stoppzeit-ticker';

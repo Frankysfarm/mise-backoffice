@@ -9715,3 +9715,5 @@ export { FahrerPhase2911MeineStoppzeit } from './phase2911-meine-stoppzeit';
 export { FahrerPhase2912MeineTourenEffizienz } from './phase2912-meine-touren-effizienz';
 export { FahrerPhase2917MeinHeimweg } from './phase2917-mein-heimweg';
 export { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
+// Phase 2920 — Tour-Stopp Ultra-Navigator (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Progress-Dots; mobile-first)
+export { FahrerPhase2920TourStoppUltraNavigator } from './phase2920-tour-stopp-ultra-navigator';

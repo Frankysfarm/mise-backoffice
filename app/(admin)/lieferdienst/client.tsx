@@ -4754,3 +4754,5 @@ export { LieferdienstPhase2615StatistikDashboardFinal } from './phase2615-statis
 export { LieferdienstPhase2618StatistikenLiveDashboard } from './phase2618-statistiken-live-dashboard';
 // Phase 2619 — Statistiken Kompakt KPI (8 KPI-Kacheln Ampel+Trend Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit/Bewertung/Fahrer/SLA/Storno; 5-Min-Polling)
 export { LieferdienstPhase2619StatistikenKompaktKpi } from './phase2619-statistiken-kompakt-kpi';
+// Phase 2620 — Statistiken Echtzeit Final Cockpit (8 KPI-Kacheln Ampel+Trend; Stunden-BarChart Bestellungen/Umsatz umschaltbar; Zonen-Ranking expandierbar; Top-5-Fahrer; Alert-Strip; 3-Min-Polling)
+export { LieferdienstPhase2620StatistikenEchtzeitFinalCockpit } from './phase2620-statistiken-echtzeit-final-cockpit';
