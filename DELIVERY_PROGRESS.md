@@ -25130,3 +25130,45 @@ Frontend-Ingenieur-Agent (2026-07-21): Phasen 2975–2979 implementiert — Fahr
 **Status: ELFTE RUNDE OHNE CEO-EINGRIFF ✅**
 
 Nächste Aufgabe: **Phasen 2980–2984 — Fahrer-Umsatz-pro-Stunde-Index**
+
+---
+
+## Batch 2990–2994 — Fahrer-Kraftstoff-Effizienz-Index (2026-07-21)
+
+### Phase 2990 — Backend API: Fahrer-Kraftstoff-Effizienz
+**Datei:** `app/api/delivery/admin/fahrer-kraftstoff-effizienz/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-kraftstoff-effizienz?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Ø km/l je Fahrer heute; Ampel grün(≥15)/gelb(10–14)/rot(<10); Alert <10 "Hoher Verbrauch!"; Trend vs. gestern; Supabase(driver_vehicle_stats km_per_liter → Fallback batch_stops distance_km → Mock); driver_id-Modus.
+
+### Phase 2991 — Kraftstoff-Effizienz-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase2991-kraftstoff-board.tsx` *(neu)*
+**Component:** `DispatchPhase2991KraftstoffBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <10 km/l "Hoher Verbrauch!" mit Fahrernamen + km/l; KPI-Grid (Team-Ø/Bester/Ziel ≥15 km/l); Fahrerliste absteigend nach km_pro_liter (effizienteste oben); Balken 0–20 km/l mit Ziel-Linie 15; Ampel grün(≥15)/gelb(10–14)/rot(<10); Trend-Pfeile normal steigend=grün; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` L878 Import + L4213 Render nach Phase2986 + L12085 Barrel-Export ✅
+
+### Phase 2992 — Meine Kraftstoff-Effizienz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase2992-meine-kraftstoff-effizienz.tsx` *(neu)*
+**Component:** `FahrerPhase2992MeineKraftstoffEffizienz`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Ø km/l 4xl farbkodiert; Balken 0–20 km/l mit Ziel-Linie 15; KPI-Grid (Trend-Delta/Team-Ø); Blau-Coaching-Tipp je Ampelzone; driver_id-Modus; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` L773 Import + L6292 Render nach Phase2987 + L9800 Barrel-Export ✅
+
+### Phase 2993 — Storefront
+Übersprungen (Kraftstoff-Effizienz intern irrelevant für Kunden) ✅
+
+### Phase 2994 — Kraftstoff-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase2994-kraftstoff-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase2994KraftstoffTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø km/l im Header; Alert je Fahrer <10 km/l "Hoher Verbrauch!"; Fahrerliste kompakt absteigend nach km_pro_liter (effizienteste zuerst) mit Ampel-Dots + Trend-Pfeil + km/l-Wert; Ziel-Anzeige ≥15 km/l; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` L825 Import + L3794 Render nach Phase2989 + L10662 Barrel-Export ✅
+
+### Nächste Phasen 2995–2999 (für nächsten Ingenieur) — Fahrer-CO2-Aussto-Index
+1. **Phase 2995 Backend:** GET /api/delivery/admin/fahrer-co2-ausstoss — Ø CO2-kg je Fahrer heute; CO2 = distance_km × 0.21 kg/km (Standard PKW/Transporter); Ampel grün(≤15 kg)/gelb(15–25 kg)/rot(>25 kg); Alert >25 kg "Hoher CO2-Aussto!"; Trend vs. gestern; driver_id-Modus; Supabase(batch_stops distance_km)+Mock.
+2. **Phase 2996 Dispatch:** CO2Board — Fahrerliste aufsteigend nach CO2-kg (niedrigste=umweltfreundlichste oben); Balken 0–40 kg Ziel-Linie 15 kg; KPI-Grid Team-Ø/Bester/Ziel ≤15 kg; Alert-Banner >25 kg "Hoher CO2-Aussto!"; Trend-Pfeile INVERTIERT (fallend=grün/steigend=rot); 30-Min-Polling; in dispatch/client.tsx nach Phase2991.
+3. **Phase 2997 Fahrer-App:** Mein CO2 — CO2-kg 4xl+Farbcode; Balken 0–40 kg Ziel 15 kg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase2992.
+4. **Phase 2998 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 2999 Kitchen:** CO2-Ticker — Team-Ø CO2-kg; Alert >25 kg "Hoher CO2-Aussto!"; Fahrerliste kompakt aufsteigend (niedrigste zuerst); Trend INVERTIERT; Ziel ≤15 kg; 30-Min-Polling; in kitchen/client.tsx nach Phase2994.
+
+Backend-Architekt-Agent (2026-07-21): Phasen 2990–2994 implementiert — Fahrer-Kraftstoff-Effizienz-Index. Neue Backend-API /api/delivery/admin/fahrer-kraftstoff-effizienz (Ø km/l je Fahrer, Supabase driver_vehicle_stats → Fallback batch_stops distance_km → Mock, Ampel grün≥15/gelb10-14/rot<10, Alert <10 "Hoher Verbrauch!", Trend vs. gestern) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase2991 Dispatch (KraftstoffBoard, absteigend nach km_pro_liter, Balken 0–20 km/l Ziel-Linie 15, KPI-Grid Team-Ø/Bester/Ziel ≥15, Alert-Banner <10 "Hoher Verbrauch!", Trend normal steigend=grün, Import L878+Render L4213+Barrel-Export L12085 ✅) / Phase2992 Fahrer-App (MeineKraftstoffEffizienz, Ø km/l 4xl+Farbcode, Balken 0–20 km/l Ziel 15, Coaching-Tipp, driverId-Filter, isOnline-Guard, 30-Min-Polling, Import L773+Render L6292+Barrel-Export L9800 ✅) / Phase2994 Kitchen (KraftstoffTicker, Team-Ø km/l im Header, Alert <10 "Hoher Verbrauch!", absteigend effizienteste zuerst, Ziel ≥15 km/l, Import L825+Render L3794+Barrel-Export L10662 ✅). Phase 2993 Storefront übersprungen. TS-Fehler pre-existing (gleiche Muster TS2307/TS7006/TS7026 wie alle anderen Phase-Dateien). Build-Fehler pre-existing (Turbopack workspace-root, ignoreBuildErrors: true aktiv, node_modules nicht im Remote-Container). Push erfolgt.

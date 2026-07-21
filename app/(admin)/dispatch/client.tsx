@@ -875,6 +875,7 @@ import { DispatchPhase2971WartezeitStoppBoard } from './phase2971-wartezeit-stop
 import { DispatchPhase2976TourenProTagBoard } from './phase2976-touren-pro-tag-board';
 import { DispatchPhase2981UmsatzProStundeBoard } from './phase2981-umsatz-pro-stunde-board';
 import { DispatchPhase2986LiefergebietBoard } from './phase2986-liefergebiet-board';
+import { DispatchPhase2991KraftstoffBoard } from './phase2991-kraftstoff-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4208,6 +4209,8 @@ export function DispatchBoard({
           <DispatchPhase2981UmsatzProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2986: Liefergebiet-Board — Fahrerliste absteigend nach Auslastung; Balken 0–100% Ziel-Linie 80%; Alert >90% "Gebiet überlastet!"; Trend invertiert fallend=grün; 30-Min-Polling */}
           <DispatchPhase2986LiefergebietBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 2991: Kraftstoff-Effizienz-Board — absteigend nach km/l; Balken 0–20 km/l Ziel-Linie 15; KPI-Grid Team-Ø/Bester/Ziel ≥15; Alert <10 "Hoher Verbrauch!"; Trend normal steigend=grün; 30-Min-Polling */}
+          <DispatchPhase2991KraftstoffBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12079,6 +12082,7 @@ export { DispatchPhase2971WartezeitStoppBoard } from './phase2971-wartezeit-stop
 export { DispatchPhase2976TourenProTagBoard } from './phase2976-touren-pro-tag-board';
 export { DispatchPhase2981UmsatzProStundeBoard } from './phase2981-umsatz-pro-stunde-board';
 export { DispatchPhase2986LiefergebietBoard } from './phase2986-liefergebiet-board';
+export { DispatchPhase2991KraftstoffBoard } from './phase2991-kraftstoff-board';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';

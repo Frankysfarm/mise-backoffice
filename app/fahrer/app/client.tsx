@@ -770,6 +770,7 @@ import { FahrerPhase2972MeineWartezeitStopp } from './phase2972-meine-wartezeit-
 import { FahrerPhase2977MeineTourenProTag } from './phase2977-meine-touren-pro-tag';
 import { FahrerPhase2982MeinUmsatzProStunde } from './phase2982-mein-umsatz-pro-stunde';
 import { FahrerPhase2987MeinLiefergebiet } from './phase2987-mein-liefergebiet';
+import { FahrerPhase2992MeineKraftstoffEffizienz } from './phase2992-meine-kraftstoff-effizienz';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
@@ -6287,6 +6288,8 @@ export function FahrerApp({
           <FahrerPhase2982MeinUmsatzProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2987: Mein Liefergebiet — Eigene Zone + Auslastung% 4xl+Farbcode; Balken 0–100% Ziel 80%; Coaching-Tipp; isOnline-Guard; Trend invertiert; 30-Min-Polling */}
           <FahrerPhase2987MeinLiefergebiet driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2992: Meine Kraftstoff-Effizienz — km/l 4xl+Farbcode; Balken 0–20 km/l Ziel 15; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase2992MeineKraftstoffEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2945: Tour-Stopp GPS-Navigator Ultimate — Hero-Stopp mit ETA-Countdown; Google Maps/Waze; Anruf; Fortschrittsring; Done-Counter; mobile-first; 15-Sek-Polling */}
           <FahrerPhase2945TourStoppGpsNavigatorUltimate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2920: Tour-Stopp Ultra-Navigator — Hero-Stopp farbkodiert ETA-Countdown; Maps/Waze/Anruf; Angekommen/Zugestellt; Sequenz-Dots; 1-Sek-Tick+15-Sek-Polling */}
@@ -9794,6 +9797,7 @@ export { FahrerPhase2972MeineWartezeitStopp } from './phase2972-meine-wartezeit-
 export { FahrerPhase2977MeineTourenProTag } from './phase2977-meine-touren-pro-tag';
 export { FahrerPhase2982MeinUmsatzProStunde } from './phase2982-mein-umsatz-pro-stunde';
 export { FahrerPhase2987MeinLiefergebiet } from './phase2987-mein-liefergebiet';
+export { FahrerPhase2992MeineKraftstoffEffizienz } from './phase2992-meine-kraftstoff-effizienz';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
