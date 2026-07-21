@@ -743,6 +743,7 @@ import { FahrerPhase2837MeineKilometer } from './phase2837-meine-kilometer';
 import { FahrerPhase2842MeineAbschlussrate } from './phase2842-meine-abschlussrate';
 import { FahrerPhase2847MeinePuenktlichkeit } from './phase2847-meine-puenktlichkeit';
 import { FahrerPhase2852MeineReaktionszeit } from './phase2852-meine-reaktionszeit';
+import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
 import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
@@ -6210,6 +6211,28 @@ export function FahrerApp({
           <FahrerPhase2847MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2852: Meine Reaktionszeit — Min 4xl groß + Farbcode; Balken 0–10 Min Ziel 3 Min; KPI-Grid Trend/Ziel/Ampel/Touren; Team-Ø + Rang; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2852MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 2855: Tour-Stops Navigation Echtzeit-Hub — Hero-Stopp + One-Tap Google Maps/Waze + Kunden-Anruf + Angekommen/Zugestellt-Aktionen + ETA-Countdown + Stop-Dots */}
+          {activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase2855TourStopsNavigationEchtzeitHub
+              stops={(activeBatch.stops ?? []).map((s: any) => ({
+                id: s.id,
+                reihenfolge: s.reihenfolge ?? s.sequence ?? 0,
+                geliefert_am: s.geliefert_am ?? s.completed_at ?? null,
+                angekommen_am: s.angekommen_am ?? null,
+                eta_min: s.eta_min ?? null,
+                order: s.order ? {
+                  id: s.order.id ?? s.order_id ?? s.id,
+                  bestellnummer: s.order.bestellnummer ?? null,
+                  kunde_adresse: s.order.kunde_adresse ?? null,
+                  kunde_lat: s.order.kunde_lat ?? null,
+                  kunde_lng: s.order.kunde_lng ?? null,
+                  kunde_telefon: s.order.kunde_telefon ?? null,
+                  kunde_name: s.order.kunde_name ?? null,
+                  kunde_lieferhinweis: s.order.kunde_lieferhinweis ?? null,
+                } : null,
+              }))}
+            />
+          )}
           {/* Phase 2830: Tour-Stopp Navigation Final Hub — Hero-Stopp + One-Tap Google Maps/Waze + Kunden-Anruf + ETA-Countdown + Nächste-Stopps-Vorschau + Fortschrittsbalken; 15-Sek-Polling + 1-Sek-Tick */}
           <FahrerPhase2830TourStoppNavigationFinalHub fahrerToken={driver.id} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}

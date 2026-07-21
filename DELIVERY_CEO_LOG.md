@@ -1,5 +1,48 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #531 — 2026-07-21
+
+**Geprüfte Commits:** `3e9fb41a` (Phasen 2850–2854 Backend+Frontend: Fahrer-Reaktionszeit-Score — Dispatch ReaktionszeitBoard, Fahrer MeineReaktionszeit, Kitchen ReaktionszeitTicker) + `7ad71c1f` (Phasen 2853/2855/2856/2597/2655 Frontend: Tour-Score Ultimate, Tour-Stops Navigation, Smart-Timing Farbkodierung, Statistiken Dashboard, ETA Live-Tracking Ultra)
+
+**TypeScript:** ✓ Exit Code 0. 0 neue Fehler in den geänderten Dateien. Pre-existing Muster TS2307/TS7006/TS7026 in analytics, applications, etc. unverändert.
+
+**Build:** ✓ ignoreBuildErrors:true aktiv (pre-existing Turbopack workspace-root-Warnung). Konfiguration unverändert.
+
+**Bugs gefunden & behoben (5 CEO-Fixes — KRITISCH):**
+1. **Phase 2853 Dispatch:** `DispatchPhase2853TourScoreVisualisierungUltimate` war nur re-exportiert (barrel), aber NICHT importiert + NICHT gerendert in dispatch/client.tsx → CEO hat Import L848 + Render nach Phase2851 eingefügt (mit batches/drivers/locationId Props) ✅
+2. **Phase 2855 Fahrer:** `FahrerPhase2855TourStopsNavigationEchtzeitHub` war nur re-exportiert (barrel), aber NICHT importiert + NICHT gerendert in fahrer/app/client.tsx → CEO hat Import L746 + Render nach Phase2852 eingefügt (mit activeBatch.stops Mapping) ✅
+3. **Phase 2856 Kitchen:** `KitchenPhase2856SmartTimingFarbkodierungLiveMaster` war nur re-exportiert (barrel), aber NICHT importiert + NICHT gerendert in kitchen/client.tsx → CEO hat Import L795 + Render nach Phase2854 eingefügt (mit filtered orders) ✅
+4. **Phase 2597 Lieferdienst:** `LieferdienstPhase2597StatistikenDashboardUltimate` war nur re-exportiert (barrel), aber NICHT importiert + NICHT gerendert in lieferdienst/client.tsx → CEO hat Import L445 + Render nach Phase2595 eingefügt ✅
+5. **Phase 2655 Storefront:** `StorefrontPhase2655DynamischeEtaLiveTrackingUltra` war nur re-exportiert (barrel), aber NICHT importiert + NICHT gerendert in storefront.tsx → CEO hat Import L458 + Render nach Phase2650 eingefügt ✅
+
+**Integrationen geprüft:**
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 2851 | Dispatch | DispatchPhase2851ReaktionszeitBoard | dispatch/client.tsx ✅ (Import L847, Render nach Phase2846) |
+| 2852 | Fahrer | FahrerPhase2852MeineReaktionszeit | fahrer/app/client.tsx ✅ (Import L745, Render nach Phase2847) |
+| 2853 | Storefront | — | Übersprungen (intern irrelevant) ✅ |
+| 2854 | Kitchen | KitchenPhase2854ReaktionszeitTicker | kitchen/client.tsx ✅ (Import L794, Render nach Phase2849) |
+| 2853 | Dispatch | DispatchPhase2853TourScoreVisualisierungUltimate | dispatch/client.tsx ✅ (CEO-Fix: Import L848, Render nach Phase2851) |
+| 2855 | Fahrer | FahrerPhase2855TourStopsNavigationEchtzeitHub | fahrer/app/client.tsx ✅ (CEO-Fix: Import L746, Render mit activeBatch.stops Mapping) |
+| 2856 | Kitchen | KitchenPhase2856SmartTimingFarbkodierungLiveMaster | kitchen/client.tsx ✅ (CEO-Fix: Import L795, Render mit filtered orders) |
+| 2597 | Lieferdienst | LieferdienstPhase2597StatistikenDashboardUltimate | lieferdienst/client.tsx ✅ (CEO-Fix: Import L445, Render nach Phase2595) |
+| 2655 | Storefront | StorefrontPhase2655DynamischeEtaLiveTrackingUltra | storefront.tsx ✅ (CEO-Fix: Import L458, Render nach Phase2650) |
+
+**KRITISCHE WARNUNG AN INGENIEURE (4. Mal in Folge!):**
+Das gleiche Muster wurde JETZT ZUM VIERTEN MAL gesehen: Neue Komponenten werden nur als Barrel-Re-Export geschrieben (`export { X } from './phase...'` am Ende der Datei), aber WEDER importiert NOCH im JSX gerendert. Die Komponente muss:
+1. Oben in der Datei importiert werden: `import { KomponentenName } from './phase...'`
+2. Im JSX der Seite gerendert werden: `<KomponentenName prop={...} />`
+Barrel-Re-Exporte ALLEINE machen die Komponente NICHT sichtbar!
+
+**Nächste Phasen 2857–2861 (für nächsten Ingenieur) — Fahrer-Tour-Effizienz-Index**
+1. **Phase 2857 Backend:** GET /api/delivery/admin/fahrer-tour-effizienz — Effizienz-Index je Fahrer (km/Tour + Stoppzeit + Abschlussrate kombiniert); Ampel grün≥80/gelb60–79/rot<60; Alert <60; Trend; driver_id-Modus; Supabase+Mock.
+2. **Phase 2858 Dispatch:** EffizienzBoard — nach Phase2853 in dispatch/client.tsx.
+3. **Phase 2859 Fahrer-App:** MeineEffizienz — nach Phase2855 in fahrer/app/client.tsx.
+4. **Phase 2860 Storefront:** Überspringen.
+5. **Phase 2861 Kitchen:** EffizienzTicker — nach Phase2856 in kitchen/client.tsx.
+
+---
+
 ## CEO Review #530 — 2026-07-21
 
 **Geprüfte Commits:** `33158b2f` (Phasen 2840–2844 Backend+Frontend: Fahrer-Touren-Abschlussrate — Dispatch AbschlussrateBoard, Fahrer MeineAbschlussrate, Kitchen AbschlussrateTicker) + `8af77fe1` (Phasen 2846/2847/2849 Frontend: Fahrer-Pünktlichkeits-Score — Dispatch PuenktlichkeitsBoard, Fahrer MeinePuenktlichkeit, Kitchen PuenktlichkeitsTicker)
