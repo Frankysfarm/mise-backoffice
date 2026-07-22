@@ -440,6 +440,7 @@ import { LieferdienstPhase2570StatistikenEchtzeitKompaktDashboard } from './phas
 import { LieferdienstPhase2575StatistikenMasterCockpit } from './phase2575-statistiken-master-cockpit';
 import { LieferdienstPhase1001StatistikenMasterDashboard } from './phase1001-statistiken-master-dashboard';
 import { LieferdienstPhase2640StatistikSchichtIntelligence } from './phase2640-statistiken-schicht-intelligence';
+import { LieferdienstPhase2645StatistikLiveCockpit } from './phase2645-statistiken-live-cockpit';
 import { LieferdienstPhase2580StatistikDashboardLive } from './phase2580-statistiken-dashboard-live';
 import { LieferdienstPhase2585StatistikLiveCockpitPro } from './phase2585-statistiken-live-cockpit-pro';
 import { LieferdienstPhase2590StatistikenEchtzeitKommando } from './phase2590-statistiken-echtzeit-kommando';
@@ -2234,6 +2235,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase1001StatistikenMasterDashboard locationId={locationId ?? null} />
                 {/* Phase 2640: Statistiken-Schicht-Intelligence — 6 KPI-Kacheln mit Vorwoche-Trend; Stunden-BarChart umschaltbar Bestellungen/Umsatz; Alert-Strip; 2-Min-Polling */}
                 <LieferdienstPhase2640StatistikSchichtIntelligence />
+                {/* Phase 2645: Statistiken Live-Cockpit — 8 KPI-Kacheln Ampel+Trend; Stunden-BarChart 2-Modi Bestellungen/Umsatz umschaltbar; Alert-Strip Rot-KPIs; 2-Min-Polling */}
+                <LieferdienstPhase2645StatistikLiveCockpit />
                 {/* Phase 2580: Statistiken Dashboard Live — 10 KPI-Kacheln Ampel + Trend; Stundenverlauf-Chart Bestellungen/Umsatz umschaltbar; Zonen-Ranking; Top-5-Fahrer-Tabelle; Alert-Strip; 3-Min-Polling */}
                 <LieferdienstPhase2580StatistikDashboardLive locationId={locationId ?? null} />
                 {/* Phase 2585: Statistiken Live Cockpit Pro — 10 KPIs Ampel + Trend; Stundenverlauf-Chart 2-Modi; Zonen-Top-5; Fahrer-Top-3; Alert-Strip; 3-Min-Polling */}
@@ -4785,3 +4788,5 @@ export { LieferdienstPhase2635LieferSlaEchtzeitCockpit } from './phase2635-liefe
 export { LieferdienstPhase1001StatistikenMasterDashboard } from './phase1001-statistiken-master-dashboard';
 // Phase 2640 — Statistiken-Schicht-Intelligence (6 KPI-Kacheln Ampel+Trend Vorwoche; Stunden-BarChart 2-Modi; Alert-Strip; 2-Min-Polling)
 export { LieferdienstPhase2640StatistikSchichtIntelligence } from './phase2640-statistiken-schicht-intelligence';
+// Phase 2645 — Statistiken Live-Cockpit (8 KPI-Kacheln Ampel+Trend; Stunden-BarChart 2-Modi Bestellungen/Umsatz umschaltbar; aktuelle Stunde hervorgehoben; Alert-Strip; 2-Min-Polling)
+export { LieferdienstPhase2645StatistikLiveCockpit } from './phase2645-statistiken-live-cockpit';

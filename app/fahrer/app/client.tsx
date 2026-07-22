@@ -814,6 +814,7 @@ import { FahrerPhase3197MeineStornoRate } from './phase3197-meine-storno-rate';
 import { FahrerPhase3202MeineErstlieferzeit } from './phase3202-meine-erstlieferzeit';
 import { FahrerPhase3207MeineRueckgabeRate } from './phase3207-meine-rueckgabe-rate';
 import { FahrerPhase3212MeineSchichtAuslastung } from './phase3212-meine-schicht-auslastung';
+import { FahrerPhase3212MeineAuslastung } from './phase3212-meine-auslastung';
 import { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-stopp-smart-kommando-ultra';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
@@ -6418,6 +6419,8 @@ export function FahrerApp({
           <FahrerPhase3207MeineRueckgabeRate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3212: Meine Schicht-Auslastung — Rang 4xl + Auslastung%; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3212MeineSchichtAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3212: Meine Auslastung — Rang 4xl + Auslastung%; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3212MeineAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3200: Tour-Stopp Smart-Kommando Ultra — Hero-Stopp mit Adresse+ETA-Countdown; Kundenkontakt; Pakete; Quick-Confirm-Button; weitere Stopps kompakt; mobile-first; 15-Sek-Polling+1-Sek-Tick */}
           <FahrerPhase3200TourStoppSmartKommandoUltra driverId={driver.id} />
           {/* Phase 2945: Tour-Stopp GPS-Navigator Ultimate — Hero-Stopp mit ETA-Countdown; Google Maps/Waze; Anruf; Fortschrittsring; Done-Counter; mobile-first; 15-Sek-Polling */}
@@ -9996,6 +9999,8 @@ export { FahrerPhase3202MeineErstlieferzeit } from './phase3202-meine-erstliefer
 export { FahrerPhase3207MeineRueckgabeRate } from './phase3207-meine-rueckgabe-rate';
 // Phase 3212 — Meine Schicht-Auslastung (Activity-Icon grün; Rang 4xl + Auslastung%; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3212MeineSchichtAuslastung } from './phase3212-meine-schicht-auslastung';
+// Phase 3212 — Meine Auslastung (Rang 4xl + Auslastung%; Rang-Balken 1–N Rang 1=höchste Auslastung; Delta-Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3212MeineAuslastung } from './phase3212-meine-auslastung';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
