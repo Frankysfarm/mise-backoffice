@@ -26458,3 +26458,45 @@ Frontend-Ingenieur-Agent (2026-07-22): Phasen 3265–3269 implementiert — Fahr
 5. **Phase 3279 Kitchen:** SchichtEffizienzTicker — Zap-Icon blau; Bester #1 Name+Effizienz im Header; Alert Bottom-25% "Niedrige Schicht-Effizienz!"; kompakt absteigend; Rang+Eff+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3274. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-22): Phasen 3271–3274 implementiert — Fahrer-Kundenbewertungs-Ranking. Phase 3270 Backend bereits vorhanden aus Phase 2254 (richtigere Implementation mit order_ratings + profiles). 3 neue Frontend-Komponenten erstellt: Phase3271 Dispatch (DispatchPhase3271KundenbewertungRankingBoard, Star-Icon gelb, absteigend Rang 1=höchste Bewertung oben, Balken 0–5★, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Kundenbewertung!", Import L934+Render L4381+Barrel L12353 ✅) / Phase3272 Fahrer-App (FahrerPhase3272MeineKundenbewertung, Star-Icon gelb, Rang 4xl+Bewertung★+Farbcode, Rang-Balken 1–N, Trend-Grid, Coaching-Tipp, isOnline-Guard, Import L828+Render L6455+Barrel L10059 ✅) / Phase3274 Kitchen (KitchenPhase3274KundenbewertungTicker, Star-Icon gelb, Bester #1 Name+★ im Header, Alert "Niedrige Kundenbewertung!", kompakt absteigend, Rang+★+Delta-Pfeile, Team-Ø+Ziel≥4.5★, Import L881+Render L3961+Barrel L10929 ✅). Phase 3273 Storefront übersprungen. Build: Turbopack workspace-root pre-existing (turbopack.root gesetzt, ignoreBuildErrors: true aktiv). TypeScript: keine neuen Fehler in Phase3271/3272/3274-Dateien vs. Vorläufer-Phasen. Push erfolgt.
+
+---
+
+## Batch 3275–3279 — Fahrer-Schicht-Effizienz-Index (2026-07-22)
+
+### Phase 3275 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-schicht-effizienz/route.ts` *(bereits vorhanden seit Phase 1816)*
+**Endpoint:** GET /api/delivery/admin/fahrer-schicht-effizienz?location_id=<uuid>
+**Hinweis:** Bestehende, reichhaltigere Implementation genutzt (Score 0–100 aus Touren/h + km/Stopp + Wartezeiten; Ampel gruen≥75/gelb≥50/rot<50; trend_delta; 7-Tage-Verlauf). Nicht doppelt implementiert.
+
+### Phase 3276 — Schicht-Effizienz-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3276-schicht-effizienz-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3276SchichtEffizienzRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Alert-Banner rot "Niedrige Schicht-Effizienz!"; KPI-Grid Bester/Team-Ø/Niedrigster; Fahrerliste absteigend nach Rang (1=höchste Effizienz oben); Zap-Icon blau; Score-Balken 0–100; Stopps/h + km/Stopp je Fahrer; Ampel-Legende; Delta-Pfeile pos=grün; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L935 + Render L4383 nach Phase3271 + Barrel-Export L12356 ✅
+
+### Phase 3277 — Meine Schicht-Effizienz (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3277-meine-schicht-effizienz.tsx` *(neu)*
+**Component:** `FahrerPhase3277MeineSchichtEffizienz`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Score 5xl + Rang 3xl farbkodiert; Rang-Balken 1–N; Stopps/h + km/Stopp Grid; Trend-Grid (Δ / Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L829 + Render L6458 nach Phase3272 + Barrel-Export L10062 ✅
+
+### Phase 3278 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3279 — Schicht-Effizienz-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3279-schicht-effizienz-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3279SchichtEffizienzTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Bester Fahrer (#1 Name + Score) im Header; Alert "Niedrige Schicht-Effizienz!"; Fahrerliste kompakt absteigend nach Rang; Zap-Icon blau; Rang+Score+Delta-Pfeile; Team-Ø + Ziel ≥75 Pkt.; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L882 + Render L3964 nach Phase3274 + Barrel-Export L10933 ✅
+
+### Nächste Phasen 3280–3284 (für nächsten Ingenieur) — Fahrer-Kilometerleistungs-Ranking
+1. **Phase 3280 Backend:** GET /api/delivery/admin/fahrer-kilometerleistung — Gesamt-km je Fahrer heute (aus delivery_batch_stops.distance_km; Rang 1=höchste km=bester); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Kilometerleistung!"; rank_delta positiv=verbessert; driver_id-Modus; Supabase(batch_stops distance_km+driver_id heute+gestern)+Mock. PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3281 Dispatch:** KilometerleistungRankingBoard — Route-Icon blau; absteigend Rang 1=höchste km; Balken 0–maxKm; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kilometerleistung!"; Delta-Pfeile pos=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3276. PFLICHT: Import + Render + Barrel.
+3. **Phase 3282 Fahrer-App:** MeineKilometerleistung — Route-Icon blau; Rang 4xl + km 4xl farbkodiert; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3277. PFLICHT: Import + Render + Barrel.
+4. **Phase 3283 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3284 Kitchen:** KilometerleistungTicker — Route-Icon blau; Bester #1 Name+km im Header; Alert Bottom-25% "Niedrige Kilometerleistung!"; kompakt absteigend; Rang+km+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3279. PFLICHT: Import + Render + Barrel.
+
+Frontend-Ingenieur-Agent (2026-07-22): Phasen 3276–3279 implementiert — Fahrer-Schicht-Effizienz-Index. Phase 3275 Backend bereits vorhanden aus Phase 1816 (reichhaltigere Implementation mit Score 0–100, Touren/h, km/Stopp, Wartezeiten, 7-Tage-Verlauf). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3276 Dispatch (DispatchPhase3276SchichtEffizienzRankingBoard, Zap-Icon blau, absteigend Rang 1=höchste Effizienz, Score-Balken 0–100, Stopps/h+km/Stopp je Row, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Schicht-Effizienz!", Import+Render+Barrel ✅) / Phase3277 Fahrer-App (FahrerPhase3277MeineSchichtEffizienz, Zap-Icon blau, Score 5xl+Rang 3xl farbkodiert, Stopps/h+km/Stopp-Grid, Rang-Balken 1–N, Trend-Grid, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3279 Kitchen (KitchenPhase3279SchichtEffizienzTicker, Zap-Icon blau, Bester #1 Name+Score im Header, Alert "Niedrige Schicht-Effizienz!", kompakt absteigend, Rang+Score+Delta-Pfeile, Team-Ø+Ziel≥75 Pkt., Import+Render+Barrel ✅). Phase 3278 Storefront übersprungen. Build: erfolgreich ✅. Push erfolgt.
