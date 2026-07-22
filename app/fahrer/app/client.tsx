@@ -798,6 +798,7 @@ import { FahrerPhase3112NaechsterStoppLiveKommando } from './phase3112-naechster
 import { FahrerPhase3117TourFortschrittsLiveCockpit } from './phase3117-tour-fortschritts-live-cockpit';
 import { FahrerPhase3122MeineAbschlussquote } from './phase3122-meine-abschlussquote';
 import { FahrerPhase3127MeineTourenDichte } from './phase3127-meine-touren-dichte';
+import { FahrerPhase3132MeineLieferzeit } from './phase3132-meine-lieferzeit';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
@@ -6371,6 +6372,8 @@ export function FahrerApp({
           <FahrerPhase3122MeineAbschlussquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3127: Meine Touren-Dichte — Rang 4xl + Touren-Anzahl; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3127MeineTourenDichte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3132: Meine Ø Lieferzeit — Rang 4xl + Ø Min; inverted Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3132MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2945: Tour-Stopp GPS-Navigator Ultimate — Hero-Stopp mit ETA-Countdown; Google Maps/Waze; Anruf; Fortschrittsring; Done-Counter; mobile-first; 15-Sek-Polling */}
           <FahrerPhase2945TourStoppGpsNavigatorUltimate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2920: Tour-Stopp Ultra-Navigator — Hero-Stopp farbkodiert ETA-Countdown; Maps/Waze/Anruf; Angekommen/Zugestellt; Sequenz-Dots; 1-Sek-Tick+15-Sek-Polling */}
@@ -9916,6 +9919,8 @@ export { FahrerPhase3117TourFortschrittsLiveCockpit } from './phase3117-tour-for
 export { FahrerPhase3122MeineAbschlussquote } from './phase3122-meine-abschlussquote';
 // Phase 3127 — Meine Touren-Dichte (Rang 4xl + Touren-Anzahl; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3127MeineTourenDichte } from './phase3127-meine-touren-dichte';
+// Phase 3132 — Meine Ø Lieferzeit (Rang 4xl + Ø Min; inverted Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3132MeineLieferzeit } from './phase3132-meine-lieferzeit';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
