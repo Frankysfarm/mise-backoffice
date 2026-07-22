@@ -439,6 +439,7 @@ import { LieferdienstPhase2565StatistikenHeuteFinal } from './phase2565-statisti
 import { LieferdienstPhase2570StatistikenEchtzeitKompaktDashboard } from './phase2570-statistiken-echtzeit-kompakt-dashboard';
 import { LieferdienstPhase2575StatistikenMasterCockpit } from './phase2575-statistiken-master-cockpit';
 import { LieferdienstPhase1001StatistikenMasterDashboard } from './phase1001-statistiken-master-dashboard';
+import { LieferdienstPhase2640StatistikSchichtIntelligence } from './phase2640-statistiken-schicht-intelligence';
 import { LieferdienstPhase2580StatistikDashboardLive } from './phase2580-statistiken-dashboard-live';
 import { LieferdienstPhase2585StatistikLiveCockpitPro } from './phase2585-statistiken-live-cockpit-pro';
 import { LieferdienstPhase2590StatistikenEchtzeitKommando } from './phase2590-statistiken-echtzeit-kommando';
@@ -2231,6 +2232,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2575StatistikenMasterCockpit locationId={locationId ?? null} />
                 {/* Phase 1001: Statistiken Master Dashboard — 8 KPI-Kacheln; Stunden-BarChart 3-Modi umschaltbar; Top-3-Fahrer; Δ-Trend vs. gestern; 5-Min-Polling */}
                 <LieferdienstPhase1001StatistikenMasterDashboard locationId={locationId ?? null} />
+                {/* Phase 2640: Statistiken-Schicht-Intelligence — 6 KPI-Kacheln mit Vorwoche-Trend; Stunden-BarChart umschaltbar Bestellungen/Umsatz; Alert-Strip; 2-Min-Polling */}
+                <LieferdienstPhase2640StatistikSchichtIntelligence />
                 {/* Phase 2580: Statistiken Dashboard Live — 10 KPI-Kacheln Ampel + Trend; Stundenverlauf-Chart Bestellungen/Umsatz umschaltbar; Zonen-Ranking; Top-5-Fahrer-Tabelle; Alert-Strip; 3-Min-Polling */}
                 <LieferdienstPhase2580StatistikDashboardLive locationId={locationId ?? null} />
                 {/* Phase 2585: Statistiken Live Cockpit Pro — 10 KPIs Ampel + Trend; Stundenverlauf-Chart 2-Modi; Zonen-Top-5; Fahrer-Top-3; Alert-Strip; 3-Min-Polling */}

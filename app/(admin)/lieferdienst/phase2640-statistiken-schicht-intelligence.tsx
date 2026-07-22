@@ -143,19 +143,20 @@ export function LieferdienstPhase2640StatistikSchichtIntelligence() {
       .select('*', { count: 'exact', head: true })
       .eq('status', 'aktiv');
 
-    function extractKpi(rows: typeof todayOrders, driverCount: number): KpiData {
+    type OrderRow = { gesamtbetrag: number | null; liefer_minuten: number | null; bewertung: number | null };
+    function extractKpi(rows: OrderRow[] | null, driverCount: number): KpiData {
       const arr = rows ?? [];
-      const umsatz = arr.reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
+      const umsatz = arr.reduce((s: number, o: OrderRow) => s + (o.gesamtbetrag ?? 0), 0);
       const bestellungen = arr.length;
-      const delivered = arr.filter(o => o.liefer_minuten != null);
+      const delivered = arr.filter((o: OrderRow) => o.liefer_minuten != null);
       const lieferzeit = delivered.length > 0
-        ? delivered.reduce((s, o) => s + o.liefer_minuten!, 0) / delivered.length
+        ? delivered.reduce((s: number, o: OrderRow) => s + o.liefer_minuten!, 0) / delivered.length
         : 0;
-      const onTime = delivered.filter(o => (o.liefer_minuten ?? 99) <= 30).length;
+      const onTime = delivered.filter((o: OrderRow) => (o.liefer_minuten ?? 99) <= 30).length;
       const puenktlichkeit = delivered.length > 0 ? (onTime / delivered.length) * 100 : 100;
-      const rated = arr.filter(o => o.bewertung != null);
+      const rated = arr.filter((o: OrderRow) => o.bewertung != null);
       const bewertung = rated.length > 0
-        ? rated.reduce((s, o) => s + o.bewertung!, 0) / rated.length
+        ? rated.reduce((s: number, o: OrderRow) => s + o.bewertung!, 0) / rated.length
         : 0;
       return { umsatz, bestellungen, lieferzeit, puenktlichkeit, fahrer: driverCount, bewertung };
     }
@@ -262,7 +263,7 @@ export function LieferdienstPhase2640StatistikSchichtIntelligence() {
             <BarChart data={hours} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <XAxis dataKey="stunde" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
               <Tooltip
-                formatter={(v: number) => mode === 'umsatz' ? [euro(v), 'Umsatz'] : [v, 'Bestellungen']}
+                formatter={(v) => { const n = typeof v === 'number' ? v : 0; return mode === 'umsatz' ? [euro(n), 'Umsatz'] : [n, 'Bestellungen']; }}
                 contentStyle={{ fontSize: 11, padding: '4px 8px' }}
               />
               <Bar dataKey={mode} radius={[3, 3, 0, 0]}>

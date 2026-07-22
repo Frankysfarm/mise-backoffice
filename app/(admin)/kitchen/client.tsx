@@ -864,6 +864,7 @@ import { KitchenPhase3184BewertungsTicker } from './phase3184-bewertungs-ticker'
 import { KitchenPhase3184TrinkgeldQuoteTicker } from './phase3184-trinkgeld-quote-ticker';
 import { KitchenPhase3194TourenAnzahlTicker } from './phase3194-touren-anzahl-ticker';
 import { KitchenPhase3199StornoTicker } from './phase3199-storno-ticker';
+import { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3914,6 +3915,8 @@ export function KitchenBoard({
       {/* Phase 3194: Touren-Anzahl-Ticker — Route-Icon lila; Bester #1 im Header; Alert Bottom-25% "Wenige Touren!"; kompakt absteigend; Rang+Touren+Delta; 30-Min-Polling */}
       <KitchenPhase3194TourenAnzahlTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3199StornoTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3200: Smart-Kochstart-Kommando — Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; On-Time-Rate; 1-Sek-Tick+20-Sek-Polling */}
+      <KitchenPhase3200SmartKochstartKommando />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}

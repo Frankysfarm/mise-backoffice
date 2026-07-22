@@ -153,7 +153,7 @@ export function LieferdienstPhase1001StatistikenMasterDashboard({ locationId }: 
                     contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: 8, fontSize: 11 }}
                     labelStyle={{ color: '#f9fafb', fontWeight: 700 }}
                     itemStyle={{ color: '#60a5fa' }}
-                    formatter={(v: number) => tab === 'umsatz' ? fmt(v) : tab === 'lieferzeit' ? `${v} Min` : `${v}`}
+                    formatter={(v) => { const n = typeof v === 'number' ? v : 0; return tab === 'umsatz' ? fmt(n) : tab === 'lieferzeit' ? `${n} Min` : `${n}`; }}
                   />
                   <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                     {chartData.map((c, i) => (

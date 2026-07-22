@@ -3236,7 +3236,7 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {order.isDelivery && (
         <StorefrontPhase1000DynamischeEtaLiveMaster
           orderId={order.orderId ?? undefined}
-          locationSlug={location.id}
+          locationSlug={locationId}
         />
       )}
       {/* Phase 1015: Live-Tracking Status Pro — Echtzeit-Status-Timeline + ETA-Countdown + Fahrer-Annäherungs-Indikator (animierter Punkt) + Fahrername; 20-Sek-Polling + 1-Sek-Tick */}

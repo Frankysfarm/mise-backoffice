@@ -917,6 +917,7 @@ import { DispatchPhase3181BewertungsRankingBoard } from './phase3181-bewertungs-
 import { DispatchPhase3181TrinkgeldQuoteRankingBoard } from './phase3181-trinkgeld-quote-ranking-board';
 import { DispatchPhase3191TourenAnzahlRankingBoard } from './phase3191-touren-anzahl-ranking-board';
 import { DispatchPhase3196StornoRankingBoard } from './phase3196-storno-ranking-board';
+import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4333,6 +4334,8 @@ export function DispatchBoard({
           {/* Phase 3191: Touren-Anzahl-Ranking — Route-Icon lila; absteigend Rang 1=meiste Touren; Balken; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Wenige Touren!"; Delta-Pfeile; 30-Min-Polling */}
           <DispatchPhase3191TourenAnzahlRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3196StornoRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3200: Tour-Score Command Center — Score-Ring SVG je aktive Tour; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling */}
+          <DispatchPhase3200TourScoreCommandCenter />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
