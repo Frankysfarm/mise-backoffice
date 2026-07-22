@@ -908,6 +908,7 @@ import { DispatchPhase3136LieferzeitPuenktlichkeitBoard } from './phase3136-lief
 import { DispatchPhase3141TourstartReaktionszeitBoard } from './phase3141-tourstart-reaktionszeit-board';
 import { DispatchPhase3146StoppVerweildauerBoard } from './phase3146-stopp-verweildauer-board';
 import { DispatchPhase3151LeerfahrtenRankingBoard } from './phase3151-leerfahrten-ranking-board';
+import { DispatchPhase3156TageskilometerRankingBoard } from './phase3156-tageskilometer-ranking-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4307,6 +4308,8 @@ export function DispatchBoard({
           <DispatchPhase3146StoppVerweildauerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3151: Leerfahrten-Ranking — Car-Icon rot; Balken Leerfahrten-Anzahl; KPI-Grid Bester/Team-Ø/Schlechtester; Alert Bottom-25% "Hohe Leerfahrten-Quote!"; Delta-Pfeile; 30-Min-Polling */}
           <DispatchPhase3151LeerfahrtenRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3156: Tageskilometer-Ranking — Navigation-Icon blau; Fahrerliste absteigend nach km; Balken 0–maxKm; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Wenige Tageskilometer!"; Delta-Pfeile; 30-Min-Polling */}
+          <DispatchPhase3156TageskilometerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12226,6 +12229,8 @@ export { DispatchPhase3141TourstartReaktionszeitBoard } from './phase3141-tourst
 export { DispatchPhase3146StoppVerweildauerBoard } from './phase3146-stopp-verweildauer-board';
 // Phase 3151 — Leerfahrten-Ranking-Board (Car-Icon rot; Balken Leerfahrten-Anzahl; KPI-Grid Bester/Team-Ø/Schlechtester; Alert Bottom-25% "Hohe Leerfahrten-Quote!"; Delta-Pfeile; 30-Min-Polling)
 export { DispatchPhase3151LeerfahrtenRankingBoard } from './phase3151-leerfahrten-ranking-board';
+// Phase 3156 — Tageskilometer-Ranking-Board (Navigation-Icon blau; Fahrerliste absteigend nach km; Balken 0–maxKm; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Wenige Tageskilometer!"; Delta-Pfeile; 30-Min-Polling)
+export { DispatchPhase3156TageskilometerRankingBoard } from './phase3156-tageskilometer-ranking-board';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
