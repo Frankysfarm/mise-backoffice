@@ -26416,3 +26416,45 @@ Backend-Architekt-Agent (2026-07-22): Phasen 3260–3264 implementiert — Fahre
 5. **Phase 3274 Kitchen:** KundenbewertungTicker — Star-Icon gelb; Bester #1 Name+Bewertung★ im Header; Alert Bottom-25% "Niedrige Kundenbewertung!"; kompakt absteigend; Rang+★+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3269. PFLICHT: Import + Render + Barrel.
 
 Frontend-Ingenieur-Agent (2026-07-22): Phasen 3265–3269 implementiert — Fahrer-Retourenquote-Ranking. Neue Backend-API /api/delivery/admin/fahrer-retourenquote (Retourenquote% = status='returned'/Gesamt-Stopps je Fahrer; INVERTIERT: Rang 1=niedrigste Retouren=bester; 2 parallele Supabase-Abfragen heute+gestern; Ampel Top/Mitte/Bottom-25%; Alert "Hohe Retourenquote!"; rank_delta; driver_id-Modus; Mock-Fallback Julia F. 2%/Max M. 5%/Sara K. 8.3%/Tim B. 15%) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3266 Dispatch (DispatchPhase3266RetourenquoteRankingBoard, XCircle-Icon rot, aufsteigend Rang 1=niedrigste Retouren, Balken 0–maxPct, KPI-Grid Bester/Team-Ø/Höchster, Alert-Banner "Hohe Retourenquote!", Delta-Pfeile pos=grün, Import+Render+Barrel ✅) / Phase3267 Fahrer-App (FahrerPhase3267MeineRetourenquote, XCircle-Icon rot, Rang 4xl+Retouren% 4xl+Farbcode, inverted Rang-Balken 1–N, Delta-Grid Rang-Δ/Team-Ø, Coaching-Tipp je Zone, isOnline-Guard, Import+Render+Barrel ✅) / Phase3269 Kitchen (KitchenPhase3269RetourenquoteTicker, XCircle-Icon rot, Bester #1 Name+Retouren% im Header, Alert "Hohe Retourenquote!", kompakt aufsteigend, Rang-Badge+%+Delta-Pfeile, Team-Ø+Ziel 0%, Import+Render+Barrel ✅). Phase 3268 Storefront übersprungen. Build: Turbopack workspace-root pre-existing issue (ignoreBuildErrors: true aktiv). TypeScript: keine Fehler in neuen Dateien. Push erfolgt.
+
+---
+
+## Batch 3271–3274 — Fahrer-Kundenbewertungs-Ranking (2026-07-22)
+
+### Phase 3270 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-kundenbewertung/route.ts` *(bereits vorhanden seit Phase 2254)*
+**Endpoint:** GET /api/delivery/admin/fahrer-kundenbewertung?location_id=<uuid>
+**Hinweis:** Bestehende, reichhaltigere Implementation genutzt (order_ratings + profiles Tabellen; trend_delta = Änderung im Ø-Score; ampel gruen≥4.5/gelb≥4.0/rot<4.0). Nicht doppelt implementiert.
+
+### Phase 3271 — Kundenbewertungs-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3271-kundenbewertung-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3271KundenbewertungRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Alert-Banner rot "Niedrige Kundenbewertung!"; KPI-Grid Bester/Team-Ø/Niedrigster; Fahrerliste absteigend nach Rang (1=höchste Bewertung oben); Star-Icon gelb; Balken 0–5 ★; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L934 + Render L4381 nach Phase3266 + Barrel-Export L12353 ✅
+
+### Phase 3272 — Meine Kundenbewertung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3272-meine-kundenbewertung.tsx` *(neu)*
+**Component:** `FahrerPhase3272MeineKundenbewertung`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Rang 4xl + Bewertung ★ 4xl farbkodiert; Rang-Balken 1–N (Rang 1=höchste=voll); Trend-Grid (Trend-Δ / Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L828 + Render L6455 nach Phase3267 + Barrel-Export L10059 ✅
+
+### Phase 3273 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3274 — Kundenbewertungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3274-kundenbewertung-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3274KundenbewertungTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Bester Fahrer (#1 Name + ★) im Header; Alert "Niedrige Kundenbewertung!"; Fahrerliste kompakt absteigend nach Rang; Star-Icon gelb; Rang+★+Delta-Pfeile; Team-Ø + Ziel ≥4.5 ★; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L881 + Render L3961 nach Phase3269 + Barrel-Export L10929 ✅
+
+### Nächste Phasen 3275–3279 (für nächsten Ingenieur) — Fahrer-Schicht-Effizienz-Index
+1. **Phase 3275 Backend:** GET /api/delivery/admin/fahrer-schicht-effizienz — Schicht-Effizienz-Index je Fahrer heute (Stopps pro Stunde / km pro Stopp; Rang 1=höchste Effizienz=bester); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Schicht-Effizienz!"; rank_delta positiv=verbessert; driver_id-Modus; Supabase(delivery_batch_stops stops+km+zeit)+Mock. PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3276 Dispatch:** SchichtEffizienzRankingBoard — Zap-Icon blau; absteigend Rang 1=höchste Effizienz; Stopps/h + km/Stopp; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Schicht-Effizienz!"; Delta-Pfeile pos=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3271. PFLICHT: Import + Render + Barrel.
+3. **Phase 3277 Fahrer-App:** MeineSchichtEffizienz — Zap-Icon blau; Rang 4xl + Effizienz; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3272. PFLICHT: Import + Render + Barrel.
+4. **Phase 3278 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3279 Kitchen:** SchichtEffizienzTicker — Zap-Icon blau; Bester #1 Name+Effizienz im Header; Alert Bottom-25% "Niedrige Schicht-Effizienz!"; kompakt absteigend; Rang+Eff+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3274. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-22): Phasen 3271–3274 implementiert — Fahrer-Kundenbewertungs-Ranking. Phase 3270 Backend bereits vorhanden aus Phase 2254 (richtigere Implementation mit order_ratings + profiles). 3 neue Frontend-Komponenten erstellt: Phase3271 Dispatch (DispatchPhase3271KundenbewertungRankingBoard, Star-Icon gelb, absteigend Rang 1=höchste Bewertung oben, Balken 0–5★, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Kundenbewertung!", Import L934+Render L4381+Barrel L12353 ✅) / Phase3272 Fahrer-App (FahrerPhase3272MeineKundenbewertung, Star-Icon gelb, Rang 4xl+Bewertung★+Farbcode, Rang-Balken 1–N, Trend-Grid, Coaching-Tipp, isOnline-Guard, Import L828+Render L6455+Barrel L10059 ✅) / Phase3274 Kitchen (KitchenPhase3274KundenbewertungTicker, Star-Icon gelb, Bester #1 Name+★ im Header, Alert "Niedrige Kundenbewertung!", kompakt absteigend, Rang+★+Delta-Pfeile, Team-Ø+Ziel≥4.5★, Import L881+Render L3961+Barrel L10929 ✅). Phase 3273 Storefront übersprungen. Build: Turbopack workspace-root pre-existing (turbopack.root gesetzt, ignoreBuildErrors: true aktiv). TypeScript: keine neuen Fehler in Phase3271/3272/3274-Dateien vs. Vorläufer-Phasen. Push erfolgt.
