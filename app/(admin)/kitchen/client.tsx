@@ -872,6 +872,7 @@ import { KitchenPhase3219PuenktlichkeitsTicker } from './phase3219-puenktlichkei
 import { KitchenPhase3224KundenzufriedenheitTicker } from './phase3224-kundenzufriedenheit-ticker';
 import { KitchenPhase3229LieferdauerEffizienzTicker } from './phase3229-lieferdauer-effizienz-ticker';
 import { KitchenPhase3234ErstkontaktRankingTicker } from './phase3234-erstkontakt-ranking-ticker';
+import { KitchenPhase3239StoppBewertungTicker } from './phase3239-stopp-bewertung-ticker';
 import { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
@@ -3939,6 +3940,8 @@ export function KitchenBoard({
       <KitchenPhase3229LieferdauerEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3234: Erstkontakt-Ranking-Ticker — Clock-Icon orange; Bester #1 Name+Zeit im Header; Alert Bottom-25% "Langer Erstkontakt!"; kompakt aufsteigend; Rang+Sek+Delta neg=grün; 30-Min-Polling */}
       <KitchenPhase3234ErstkontaktRankingTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3239: Stopp-Bewertungs-Ticker — Star-Icon blau; Bester #1 Name+Score im Header; Alert Bottom-25% "Niedrige Stopp-Bewertung!"; kompakt absteigend; Rang+Score+Delta pos=grün; 30-Min-Polling */}
+      <KitchenPhase3239StoppBewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3200: Smart-Kochstart-Kommando — Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; On-Time-Rate; 1-Sek-Tick+20-Sek-Polling */}
       <KitchenPhase3200SmartKochstartKommando />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
@@ -10892,5 +10895,7 @@ export { KitchenPhase3224KundenzufriedenheitTicker } from './phase3224-kundenzuf
 export { KitchenPhase3229LieferdauerEffizienzTicker } from './phase3229-lieferdauer-effizienz-ticker';
 // Phase 3234 — Erstkontakt-Ranking-Ticker (Clock-Icon orange; Bester #1 Name+Zeit im Header; Alert "Langer Erstkontakt!"; kompakt aufsteigend; Rang+Sek+Delta neg=grün; 30-Min-Polling)
 export { KitchenPhase3234ErstkontaktRankingTicker } from './phase3234-erstkontakt-ranking-ticker';
+// Phase 3239 — Stopp-Bewertungs-Ticker (Star-Icon blau; Bester #1 Name+Score im Header; Alert "Niedrige Stopp-Bewertung!"; kompakt absteigend; Rang+Score+Delta pos=grün; 30-Min-Polling)
+export { KitchenPhase3239StoppBewertungTicker } from './phase3239-stopp-bewertung-ticker';
 // Phase 3200 — Smart-Kochstart-Kommando (Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; 1-Sek-Tick + 20-Sek-Polling)
 export { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
