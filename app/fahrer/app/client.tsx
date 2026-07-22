@@ -794,6 +794,8 @@ import { FahrerPhase3092MeinLiefergebietRanking } from './phase3092-mein-lieferg
 import { FahrerPhase3097MeineStoppEffizienz } from './phase3097-meine-stopp-effizienz';
 import { FahrerPhase3102MeineReaktionszeit } from './phase3102-meine-reaktionszeit';
 import { FahrerPhase3107MeinePuenktlichkeit } from './phase3107-meine-puenktlichkeit';
+import { FahrerPhase3112NaechsterStoppLiveKommando } from './phase3112-naechster-stopp-live-kommando';
+import { FahrerPhase3117TourFortschrittsLiveCockpit } from './phase3117-tour-fortschritts-live-cockpit';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
@@ -6359,6 +6361,10 @@ export function FahrerApp({
           <FahrerPhase3102MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3107: Meine Pünktlichkeit — Rang 4xl + Rate%; Rang-Balken 1–N; Δ vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3107MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3112: Nächster-Stopp-Live-Kommando — Hero-Stopp grün; ETA; Google Maps + Waze; Anruf; Fortschrittsbalken; weitere Stopps aufklappbar; mobile-first; 15-Sek-Polling */}
+          <FahrerPhase3112NaechsterStoppLiveKommando />
+          {/* Phase 3117: Tour-Fortschritts-Live-Cockpit — Progress-Ring Stopps%; Score-Ring farbkodiert; ETA nächster+gesamt; km gefahren; Prognose-Fertig; 20-Sek-Polling */}
+          <FahrerPhase3117TourFortschrittsLiveCockpit />
           {/* Phase 2945: Tour-Stopp GPS-Navigator Ultimate — Hero-Stopp mit ETA-Countdown; Google Maps/Waze; Anruf; Fortschrittsring; Done-Counter; mobile-first; 15-Sek-Polling */}
           <FahrerPhase2945TourStoppGpsNavigatorUltimate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2920: Tour-Stopp Ultra-Navigator — Hero-Stopp farbkodiert ETA-Countdown; Maps/Waze/Anruf; Angekommen/Zugestellt; Sequenz-Dots; 1-Sek-Tick+15-Sek-Polling */}

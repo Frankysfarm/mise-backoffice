@@ -899,6 +899,8 @@ import { DispatchPhase3091LiefergebietRankingBoard } from './phase3091-liefergeb
 import { DispatchPhase3096StoppEffizienzRankingBoard } from './phase3096-stopp-effizienz-ranking-board';
 import { DispatchPhase3101ReaktionszeitRankingBoard } from './phase3101-reaktionszeit-ranking-board';
 import { DispatchPhase3106PuenktlichkeitsRankingBoard } from './phase3106-puenktlichkeits-ranking-board';
+import { DispatchPhase3111FahrerTourenEinsatzMatrix } from './phase3111-fahrer-touren-einsatz-matrix';
+import { DispatchPhase3116TourScoreOptimierungsCockpit } from './phase3116-tour-score-optimierungs-cockpit';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4280,6 +4282,10 @@ export function DispatchBoard({
           <DispatchPhase3101ReaktionszeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3106: Pünktlichkeits-Ranking-Board — aufsteigend nach Rang (1=höchste Rate); Rang-Badge + Rate%; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Niedrigste Pünktlichkeitsrate!"; Delta-Pfeile; Clock-Icon grün; 30-Min-Polling */}
           <DispatchPhase3106PuenktlichkeitsRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3111: Fahrer-Touren-Einsatz-Matrix — Tabelle Stopps/h + km/Tour + Score je Fahrer; Trend-Pfeile; Team-Ø KPI-Grid; Alert schwache Leistung; 20-Sek-Polling */}
+          <DispatchPhase3111FahrerTourenEinsatzMatrix />
+          {/* Phase 3116: Tour-Score-Optimierungs-Cockpit — Tipps je Fahrer aktueller vs. erreichbarer Score; Priorität hoch/mittel/niedrig; Team-Potenzial%; Alert Score <65; 30-Sek-Polling */}
+          <DispatchPhase3116TourScoreOptimierungsCockpit />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}

@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
-);
+export const dynamic = 'force-dynamic';
 
 interface TourRow { driver_id: string; assigned_at: string; departed_at: string; }
 
@@ -49,6 +46,11 @@ export async function GET(req: NextRequest) {
   const driver_id   = searchParams.get('driver_id');
 
   if (!location_id) return NextResponse.json(MOCK_DATA);
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
+  );
 
   try {
     const today     = todayRange();
