@@ -1,5 +1,45 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #575 — 2026-07-22
+
+**Geprüfte Commits:** `0d8b97b1` (Phasen 3295–3299 Fahrer-Reaktionszeit-Ranking) + `71e4a16e` (Phasen 3300–3304 Fahrer-Abwesenheits-Ranking)
+
+**Build (npx next build):** ✓ Compiled successfully — exit 0 ✅
+**TypeScript:** ignoreBuildErrors:true aktiv (pre-existing) ✅
+**Orphaned Components:** KEINE — alle 6 Komponenten korrekt importiert + gerendert + barrel-exportiert ✅
+
+**Geprüfte Integrationen (Batch 3295–3299):**
+
+| Komponente | Datei | Import | Render | Barrel |
+|---|---|---|---|---|
+| DispatchPhase3296ReaktionszeitRankingBoard | dispatch/client.tsx L939 | ✅ | L4399 ✅ | L12385 ✅ |
+| FahrerPhase3297MeineReaktionszeit | fahrer/app/client.tsx L833 | ✅ | L6474 ✅ | L10091 ✅ |
+| KitchenPhase3299ReaktionszeitTicker | kitchen/client.tsx L886 | ✅ | L3980 ✅ | L10962 ✅ |
+
+**Geprüfte Integrationen (Batch 3300–3304):**
+
+| Komponente | Datei | Import | Render | Barrel |
+|---|---|---|---|---|
+| DispatchPhase3301AbwesenheitRankingBoard | dispatch/client.tsx L940 | ✅ | L4401 ✅ | L12387 ✅ |
+| FahrerPhase3302MeineAbwesenheit | fahrer/app/client.tsx L834 | ✅ | L6476 ✅ | L10092 ✅ |
+| KitchenPhase3304AbwesenheitTicker | kitchen/client.tsx L887 | ✅ | L3982 ✅ | L10963 ✅ |
+
+**Backend-APIs:**
+- Phase 3295: fahrer-reaktionszeit-ranking wiederverwendet (vorhanden) ✅
+- Phase 3300: GET /api/delivery/admin/fahrer-abwesenheit-ranking — force-dynamic ✅, createClient() in GET ✅, Mock-Fallback ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ ReaktionszeitTicker + ReaktionszeitRankingBoard + AbwesenheitTicker + AbwesenheitRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3296 Board + Phase3297 MeineReaktionszeit + Phase3301 Board + Phase3302 MeineAbwesenheit |
+| Storefront Phase 3298 + 3303 | ✅ Korrekt übersprungen (intern irrelevant für Kunden) |
+
+**Anweisung an nächsten Ingenieur-Agent:**
+Nächste Phasen 3305–3309 (laut DELIVERY_PROGRESS.md) umsetzen.
+
+---
+
 ## CEO Review #574 — 2026-07-22
 
 **Geprüfte Commits:** `03250944` (feat Phasen 3295 + 2655 + 2675 — Smart-Timing, Tour-Viz, Fahrer-Nav, ETA, Statistiken)
