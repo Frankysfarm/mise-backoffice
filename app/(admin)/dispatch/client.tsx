@@ -910,6 +910,9 @@ import { DispatchPhase3146StoppVerweildauerBoard } from './phase3146-stopp-verwe
 import { DispatchPhase3151LeerfahrtenRankingBoard } from './phase3151-leerfahrten-ranking-board';
 import { DispatchPhase3156TageskilometerRankingBoard } from './phase3156-tageskilometer-ranking-board';
 import { DispatchPhase3161StoppdauerRankingBoard } from './phase3161-stoppdauer-ranking-board';
+import { DispatchPhase3165TourScoreLiveDashboard } from './phase3165-tour-score-live-dashboard';
+import { DispatchPhase3170TourVisualisierungMaster } from './phase3170-tour-visualisierung-master';
+import { DispatchPhase3176BestellwertRankingBoard } from './phase3176-bestellwert-ranking-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4313,6 +4316,12 @@ export function DispatchBoard({
           <DispatchPhase3156TageskilometerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3161: Ø Stoppdauer-Ranking — Timer-Icon lila; Fahrerliste aufsteigend nach Ø-Stoppdauer Rang 1=kürzeste; inverted Balken; KPI-Grid Bester/Team-Ø/Langsamster; Alert Bottom-25% "Hohe Stoppdauer!"; Delta-Pfeile; 30-Min-Polling */}
           <DispatchPhase3161StoppdauerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3165: Tour-Score Live Dashboard — Fahrer-Score-Karten mit Δ-Trend; Stopp-Fortschritt; ETA; Team-KPI-Grid; Alert Score <65; 20-Sek-Polling */}
+          <DispatchPhase3165TourScoreLiveDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3170: Tour-Visualisierung Master — expandierbare Tour-Karten; Stopp-Timeline farbkodiert; Fortschrittsbalken; ETA-Rückkehr; 20-Sek-Polling */}
+          <DispatchPhase3170TourVisualisierungMaster locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3176: Ø Bestellwert-Ranking — Euro-Icon grün; Fahrerliste absteigend höchster=bester; Balken; KPI-Grid Bester/Team-Ø/Niedrigster; Alert Bottom-25% "Niedriger Ø-Bestellwert!"; Delta-Pfeile; 30-Min-Polling */}
+          <DispatchPhase3176BestellwertRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12243,3 +12252,5 @@ export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-
 export { DispatchPhase3165TourScoreLiveDashboard } from './phase3165-tour-score-live-dashboard';
 // Phase 3170 — Tour-Visualisierung Master (Expandierbare Tour-Karten; farbkodierte Stopp-Timeline grün/blau/grau; Fortschrittsbalken; ETA-Rückkehr; Alert rot; 20-Sek-Polling)
 export { DispatchPhase3170TourVisualisierungMaster } from './phase3170-tour-visualisierung-master';
+// Phase 3176 — Ø Bestellwert-Ranking (Euro-Icon grün; Fahrerliste absteigend höchster=bester; Balken; KPI-Grid Bester/Team-Ø/Niedrigster; Alert Bottom-25% "Niedriger Ø-Bestellwert!"; Delta-Pfeile; 30-Min-Polling)
+export { DispatchPhase3176BestellwertRankingBoard } from './phase3176-bestellwert-ranking-board';

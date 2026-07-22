@@ -464,6 +464,7 @@ import { SmartEtaLiveTracker } from './smart-eta-live-tracker';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 import { LiveTrackingHub } from './live-tracking-hub';
 import { StorefrontPhase1010DynamischeEtaLiveMaster } from './phase1010-dynamische-eta-live-master';
+import { StorefrontPhase1000DynamischeEtaLiveMaster } from './phase1000-dynamische-eta-live-master';
 import { StorefrontPhase1015LiveTrackingStatusPro } from './phase1015-live-tracking-status-pro';
 
 type Props = {
@@ -3231,6 +3232,13 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           className="mx-4 mb-3"
         />
       )}
+      {/* Phase 1000: Dynamische ETA Live Master — Phasen-Timeline Bestellung→Geliefert; Fahrer-Info; Fortschrittsbalken; ETA-Verlässlichkeit; 20-Sek-Polling */}
+      {order.isDelivery && (
+        <StorefrontPhase1000DynamischeEtaLiveMaster
+          orderId={order.orderId ?? undefined}
+          locationSlug={location.id}
+        />
+      )}
       {/* Phase 1015: Live-Tracking Status Pro — Echtzeit-Status-Timeline + ETA-Countdown + Fahrer-Annäherungs-Indikator (animierter Punkt) + Fahrername; 20-Sek-Polling + 1-Sek-Tick */}
       {order.isDelivery && order.orderId && (
         <StorefrontPhase1015LiveTrackingStatusPro
@@ -3879,3 +3887,5 @@ export { StorefrontPhase2620DynamischeEtaLiveMaster } from './phase2620-dynamisc
 export { StorefrontPhase2650DynamischeEtaLiveTrackingMaster } from './phase2650-dynamische-eta-live-tracking-master';
 // Phase 2655 — Dynamische ETA Live-Tracking Ultra (ETA-Countdown + 5-Phasen-Fortschritt Bestellt→Geliefert + Fahrer-Info + compact-Modus; 1-Sek-Tick; mobile-first)
 export { StorefrontPhase2655DynamischeEtaLiveTrackingUltra } from './phase2655-dynamische-eta-live-tracking-ultra';
+// Phase 1000 — Dynamische ETA Live Master (Phasen-Timeline Bestellung→Geliefert; Fahrer-Info; Fortschrittsbalken; ETA-Verlässlichkeit; 20-Sek-Polling)
+export { StorefrontPhase1000DynamischeEtaLiveMaster } from './phase1000-dynamische-eta-live-master';

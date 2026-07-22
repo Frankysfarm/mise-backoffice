@@ -857,6 +857,9 @@ import { KitchenPhase3149StoppVerweildauerTicker } from './phase3149-stopp-verwe
 import { KitchenPhase3154LeerfahrtenTicker } from './phase3154-leerfahrten-ticker';
 import { KitchenPhase3159TageskilometerTicker } from './phase3159-tageskilometer-ticker';
 import { KitchenPhase3164StoppdauerTicker } from './phase3164-stoppdauer-ticker';
+import { KitchenPhase3169SmartTimingMasterDashboard } from './phase3169-smart-timing-master-dashboard';
+import { KitchenPhase3174EchtzeitFarbkodierungUltra } from './phase3174-echtzeit-farbkodierung-ultra';
+import { KitchenPhase3179BestellwertTicker } from './phase3179-bestellwert-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3894,6 +3897,12 @@ export function KitchenBoard({
       <KitchenPhase3159TageskilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3164: Ø Stoppdauer-Ticker — Timer-Icon lila; Bester #1 im Header; Alert Bottom-25% "Hohe Stoppdauer!"; kompakt aufsteigend; Rang+Sekunden+Delta; 30-Min-Polling */}
       <KitchenPhase3164StoppdauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3169: Smart-Timing Master Dashboard — Echtzeit-Countdown je Bestellung; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; On-Time-Rate-Gauge; 1-Sek-Tick+20-Sek-Polling */}
+      <KitchenPhase3169SmartTimingMasterDashboard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3174: Echtzeit-Farbkodierung Ultra — Stations-Auslastung farbkodiert; Balken; Gesamt-Auslastung; Ø Wartezeit; Alert Überlastung; 20-Sek-Polling */}
+      <KitchenPhase3174EchtzeitFarbkodierungUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3179: Bestellwert-Ticker — Euro-Icon grün; Bester #1 im Header; Alert Bottom-25% "Niedriger Ø-Bestellwert!"; kompakt absteigend; Rang+€+Delta; 30-Min-Polling */}
+      <KitchenPhase3179BestellwertTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10820,3 +10829,5 @@ export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-ti
 export { KitchenPhase3169SmartTimingMasterDashboard } from './phase3169-smart-timing-master-dashboard';
 // Phase 3174 — Echtzeit-Farbkodierung Ultra (Stations-Auslastung farbkodiert grün/gelb/rot; Balken; Gesamt-Auslastung; Ø Wartezeit; Alert Überlastung; 20-Sek-Polling)
 export { KitchenPhase3174EchtzeitFarbkodierungUltra } from './phase3174-echtzeit-farbkodierung-ultra';
+// Phase 3179 — Bestellwert-Ticker (Euro-Icon grün; Bester #1 im Header; Alert Bottom-25% "Niedriger Ø-Bestellwert!"; kompakt absteigend; Rang+€+Delta; 30-Min-Polling)
+export { KitchenPhase3179BestellwertTicker } from './phase3179-bestellwert-ticker';
