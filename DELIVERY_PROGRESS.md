@@ -26501,4 +26501,58 @@ Backend-Architekt-Agent (2026-07-22): Phasen 3271–3274 implementiert — Fahre
 4. **Phase 3283 Storefront:** Überspringen (intern irrelevant für Kunden).
 5. **Phase 3284 Kitchen:** KilometerleistungTicker — Route-Icon blau; Bester #1 Name+km im Header; Alert Bottom-25% "Niedrige Kilometerleistung!"; kompakt absteigend; Rang+km+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3279. PFLICHT: Import + Render + Barrel.
 
+---
+
+## Batch 3280–3284 — Fahrer-Kilometerleistungs-Ranking (2026-07-22)
+
+### Phase 3280 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-kilometerleistung/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-kilometerleistung?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Gesamt-km je Fahrer heute (delivery_batch_stops.distance_km); Rang 1=höchste km=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Kilometerleistung!"; rank_delta positiv=verbessert; driver_id-Modus; Supabase+Mock; Multi-Tenant via location_id.
+**Interface:** `FahrerKilometerleistung { fahrer_id, name, km_heute, km_gestern, rank_delta, ampel, rang }` + `FahrerKilometerleistungAntwort { location_id, fahrer, team_durchschnitt_km, generiert_am }` ✅
+
+### Phase 3281 — Kilometerleistungs-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3281-kilometerleistung-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3281KilometerleistungRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Route-Icon blau; absteigend Rang 1=höchste km; Balken 0–maxKm; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kilometerleistung!"; Delta-Pfeile pos=grün; RankBadge Gold/Silber/Bronze; Ampel-Farbkodierung; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import + Render nach Phase3276 + Barrel-Export ✅
+
+### Phase 3282 — Meine Kilometerleistung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3282-meine-kilometerleistung.tsx` *(neu)*
+**Component:** `FahrerPhase3282MeineKilometerleistung`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; km 5xl + Rang 4xl farbkodiert; Rang-Balken 1–N; Delta vs. Vortag (km); Team-Ø; Alert "Niedrige Kilometerleistung!"; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import + Render nach Phase3277 + Barrel-Export ✅
+
+### Phase 3283 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3284 — Kilometerleistungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3284-kilometerleistung-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3284KilometerleistungTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Bester Fahrer #1 Name+km im Header; Alert Bottom-25% "Niedrige Kilometerleistung!"; kompakt absteigend nach Rang; Route-Icon blau; Rang+km+Delta-Pfeile; Team-Ø; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import + Render nach Phase3279 + Barrel-Export ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — exit 0** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Kilometerleistungs-Ticker + Kilometerleistungs-Board synchron |
+| Dispatch ↔ Driver | ✅ Phase3281 Board + Phase3282 MeineKilometerleistung |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3285–3289 (für nächsten Ingenieur) — Fahrer-Storno-Quote-Ranking
+1. **Phase 3285 Backend:** GET /api/delivery/admin/fahrer-storno-quote — Stornierungsrate je Fahrer heute (stornierte Bestellungen / Gesamtbestellungen); Rang 1=niedrigste Quote=bester; Ampel grün(Top-25% = niedrigste Storno)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Hohe Storno-Quote!"; rank_delta negativ=verbessert (weniger Stornos); Supabase(customer_orders status+driver_id heute+gestern)+Mock.
+2. **Phase 3286 Dispatch:** StornoQuoteRankingBoard — aufsteigend Rang 1=niedrigste Quote; Balken 0–maxQuote%; KPI-Grid Bester/Team-Ø/Höchste-Quote; Alert "Hohe Storno-Quote!"; Delta-Pfeile neg=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3281.
+3. **Phase 3287 Fahrer-App:** MeineStornoQuote — Quote% 5xl+Rang 4xl farbkodiert; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3282.
+4. **Phase 3288 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3289 Kitchen:** StornoQuoteTicker — Bester #1 Name+Quote% im Header; Alert "Hohe Storno-Quote!"; kompakt aufsteigend; Rang+Quote%+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3284.
+
 Frontend-Ingenieur-Agent (2026-07-22): Phasen 3276–3279 implementiert — Fahrer-Schicht-Effizienz-Index. Phase 3275 Backend bereits vorhanden aus Phase 1816 (reichhaltigere Implementation mit Score 0–100, Touren/h, km/Stopp, Wartezeiten, 7-Tage-Verlauf). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3276 Dispatch (DispatchPhase3276SchichtEffizienzRankingBoard, Zap-Icon blau, absteigend Rang 1=höchste Effizienz, Score-Balken 0–100, Stopps/h+km/Stopp je Row, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Schicht-Effizienz!", Import+Render+Barrel ✅) / Phase3277 Fahrer-App (FahrerPhase3277MeineSchichtEffizienz, Zap-Icon blau, Score 5xl+Rang 3xl farbkodiert, Stopps/h+km/Stopp-Grid, Rang-Balken 1–N, Trend-Grid, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3279 Kitchen (KitchenPhase3279SchichtEffizienzTicker, Zap-Icon blau, Bester #1 Name+Score im Header, Alert "Niedrige Schicht-Effizienz!", kompakt absteigend, Rang+Score+Delta-Pfeile, Team-Ø+Ziel≥75 Pkt., Import+Render+Barrel ✅). Phase 3278 Storefront übersprungen. Build: erfolgreich ✅. Push erfolgt.

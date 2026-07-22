@@ -933,6 +933,7 @@ import { DispatchPhase3261AblieferungsquoteRankingBoard } from './phase3261-abli
 import { DispatchPhase3266RetourenquoteRankingBoard } from './phase3266-retourenquote-ranking-board';
 import { DispatchPhase3271KundenbewertungRankingBoard } from './phase3271-kundenbewertung-ranking-board';
 import { DispatchPhase3276SchichtEffizienzRankingBoard } from './phase3276-schicht-effizienz-ranking-board';
+import { DispatchPhase3281KilometerleistungRankingBoard } from './phase3281-kilometerleistung-ranking-board';
 import { DispatchPhase3256TourScoreVisualisierungKommando } from './phase3256-tour-score-visualisierung-kommando';
 import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
@@ -4383,6 +4384,8 @@ export function DispatchBoard({
           <DispatchPhase3271KundenbewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3276: Schicht-Effizienz-Ranking-Board — Zap-Icon blau; absteigend Rang 1=höchste Effizienz; Stopps/h + km/Stopp; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Schicht-Effizienz!"; Delta-Pfeile pos=grün; 30-Min-Polling */}
           <DispatchPhase3276SchichtEffizienzRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3281: Kilometerleistungs-Ranking-Board — Route-Icon blau; absteigend Rang 1=höchste km; Balken 0–maxKm; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kilometerleistung!"; Delta-Pfeile pos=grün; 30-Min-Polling */}
+          <DispatchPhase3281KilometerleistungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3256: Tour-Score + Visualisierung Kommando-Zentrale — SVG Score-Ring; farbkodierte Stopp-Timelines; Sub-Scores; expandierbare Touren; 30-Sek-Polling */}
           <DispatchPhase3256TourScoreVisualisierungKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3200: Tour-Score Command Center — Score-Ring SVG je aktive Tour; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling */}
@@ -12358,6 +12361,7 @@ export { DispatchPhase3266RetourenquoteRankingBoard } from './phase3266-retouren
 export { DispatchPhase3271KundenbewertungRankingBoard } from './phase3271-kundenbewertung-ranking-board';
 // Phase 3276 — Schicht-Effizienz-Ranking-Board (Zap-Icon blau; absteigend Rang 1=höchste Effizienz; Stopps/h + km/Stopp; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Schicht-Effizienz!"; Delta-Pfeile pos=grün; 30-Min-Polling)
 export { DispatchPhase3276SchichtEffizienzRankingBoard } from './phase3276-schicht-effizienz-ranking-board';
+export { DispatchPhase3281KilometerleistungRankingBoard } from './phase3281-kilometerleistung-ranking-board';
 // Phase 3200 — Tour-Score Command Center (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling)
 export { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 
