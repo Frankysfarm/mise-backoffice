@@ -931,6 +931,7 @@ import { DispatchPhase3246StoppdauerRankingBoard } from './phase3246-stoppdauer-
 import { DispatchPhase3251TrinkgeldRankingBoard } from './phase3251-trinkgeld-ranking-board';
 import { DispatchPhase3261AblieferungsquoteRankingBoard } from './phase3261-ablieferungsquote-ranking-board';
 import { DispatchPhase3266RetourenquoteRankingBoard } from './phase3266-retourenquote-ranking-board';
+import { DispatchPhase3271KundenbewertungRankingBoard } from './phase3271-kundenbewertung-ranking-board';
 import { DispatchPhase3256TourScoreVisualisierungKommando } from './phase3256-tour-score-visualisierung-kommando';
 import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
@@ -4377,6 +4378,8 @@ export function DispatchBoard({
           <DispatchPhase3261AblieferungsquoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3266: Retourenquote-Ranking-Board — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Retouren%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Retourenquote!"; Delta-Pfeile pos=grün; 30-Min-Polling */}
           <DispatchPhase3266RetourenquoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3271: Kundenbewertungs-Ranking-Board — Star-Icon gelb; absteigend Rang 1=höchste Bewertung oben; Balken 0–5 ★; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenbewertung!"; 30-Min-Polling */}
+          <DispatchPhase3271KundenbewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3256: Tour-Score + Visualisierung Kommando-Zentrale — SVG Score-Ring; farbkodierte Stopp-Timelines; Sub-Scores; expandierbare Touren; 30-Sek-Polling */}
           <DispatchPhase3256TourScoreVisualisierungKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3200: Tour-Score Command Center — Score-Ring SVG je aktive Tour; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling */}
@@ -12348,6 +12351,8 @@ export { DispatchPhase3251TrinkgeldRankingBoard } from './phase3251-trinkgeld-ra
 export { DispatchPhase3261AblieferungsquoteRankingBoard } from './phase3261-ablieferungsquote-ranking-board';
 // Phase 3266 — Retourenquote-Ranking-Board (XCircle-Icon rot; aufsteigend Rang 1=niedrigste Retouren%; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Retourenquote!"; Delta-Pfeile pos=grün; 30-Min-Polling)
 export { DispatchPhase3266RetourenquoteRankingBoard } from './phase3266-retourenquote-ranking-board';
+// Phase 3271 — Kundenbewertungs-Ranking-Board (Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5 ★; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenbewertung!"; 30-Min-Polling)
+export { DispatchPhase3271KundenbewertungRankingBoard } from './phase3271-kundenbewertung-ranking-board';
 // Phase 3200 — Tour-Score Command Center (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling)
 export { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 
