@@ -811,6 +811,7 @@ import { FahrerPhase3182MeinBewertungsScore } from './phase3182-mein-bewertungs-
 import { FahrerPhase3182MeineTrinkgeldQuote } from './phase3182-meine-trinkgeld-quote';
 import { FahrerPhase3192MeineTourenAnzahl } from './phase3192-meine-touren-anzahl';
 import { FahrerPhase3197MeineStornoRate } from './phase3197-meine-storno-rate';
+import { FahrerPhase3202MeineErstlieferzeit } from './phase3202-meine-erstlieferzeit';
 import { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-stopp-smart-kommando-ultra';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
@@ -6410,6 +6411,7 @@ export function FahrerApp({
           {/* Phase 3192: Meine Touren-Anzahl — Rang 4xl + Touren-Zahl 4xl; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3192MeineTourenAnzahl driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3197MeineStornoRate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3202MeineErstlieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3200: Tour-Stopp Smart-Kommando Ultra — Hero-Stopp mit Adresse+ETA-Countdown; Kundenkontakt; Pakete; Quick-Confirm-Button; weitere Stopps kompakt; mobile-first; 15-Sek-Polling+1-Sek-Tick */}
           <FahrerPhase3200TourStoppSmartKommandoUltra driverId={driver.id} />
           {/* Phase 2945: Tour-Stopp GPS-Navigator Ultimate — Hero-Stopp mit ETA-Countdown; Google Maps/Waze; Anruf; Fortschrittsring; Done-Counter; mobile-first; 15-Sek-Polling */}
@@ -9982,6 +9984,8 @@ export { FahrerPhase3182MeineTrinkgeldQuote } from './phase3182-meine-trinkgeld-
 // Phase 3192 — Meine Touren-Anzahl (Rang 4xl + Touren-Zahl 4xl; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3192MeineTourenAnzahl } from './phase3192-meine-touren-anzahl';
 export { FahrerPhase3197MeineStornoRate } from './phase3197-meine-storno-rate';
+// Phase 3202 — Meine Erstlieferzeit (Rang 4xl + Min 4xl farbkodiert; inverted Rang-Balken 1–N; Δ-Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3202MeineErstlieferzeit } from './phase3202-meine-erstlieferzeit';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
