@@ -25894,3 +25894,45 @@ Alle 7 Komponenten des letzten Frontend-Commits waren nur barrel-exportiert, nic
 3. **Phase 3082 Fahrer-App:** MeinLiefergebietRanking — Rang 4xl + Zonen-Anzahl; Rang-Balken 1–N; Delta vs. Vortag; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3087.
 4. **Phase 3083 Storefront:** Überspringen (intern irrelevant für Kunden).
 5. **Phase 3084 Kitchen:** LiefergebietRankingTicker — Bester Rang im Header; Alert Bottom-25%; Fahrerliste kompakt aufsteigend; Rang-Badge + Zonen-Anzahl; Delta-Pfeile; 30-Min-Polling; in kitchen/client.tsx nach Phase3089.
+
+---
+
+## Batch 3150–3154 — Fahrer-Leerfahrten-Ranking (2026-07-22)
+
+### Phase 3150 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-leerfahrten-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-leerfahrten-ranking?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Leerfahrten je Fahrer heute (delivery_tours ohne batch_stops = Touren ohne Lieferungen); Rang 1=wenigste Leerfahrten (bester); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Hohe Leerfahrten-Quote!"; rank_delta vs. Vortag (negativ=verbessert); driver_id-Modus; 4 parallele Supabase-Abfragen(delivery_tours + batch_stops heute+gestern)+Mock.
+
+### Phase 3151 — Leerfahrten-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3151-leerfahrten-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3151LeerfahrtenRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Alert-Banner Bottom-25% "Hohe Leerfahrten-Quote!"; KPI-Grid Bester/Team-Ø/Schlechtester; Fahrerliste aufsteigend nach Rang (1=wenigste oben); Car-Icon rot; Balken Leerfahrten-Anzahl; Ampel grün/gelb/rot; Rang-Delta-Pfeile (neg=grün); Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L910+Render L4309 nach Phase3146+Barrel-Export L12228 ✅
+
+### Phase 3152 — Meine Leerfahrten (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3152-meine-leerfahrten.tsx` *(neu)*
+**Component:** `FahrerPhase3152MeineLeerfahrten`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Rang 4xl+Anzahl 4xl farbkodiert; inverted Rang-Balken 1–N; Delta-Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L805+Render L6388 nach Phase3147+Barrel-Export L9943 ✅
+
+### Phase 3153 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3154 — Leerfahrten-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3154-leerfahrten-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3154LeerfahrtenTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Bester Fahrer (#1 Name + Leerfahrten-Anzahl) im Header; Alert Bottom-25% "Hohe Leerfahrten-Quote!"; Fahrerliste kompakt aufsteigend nach Rang (1=wenigste oben); Car-Icon rot; Rang-Badge + Anzahl + Delta-Pfeile; Team-Ø + Ziel 0; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L857+Render L3890 nach Phase3149+Barrel-Export L10805 ✅
+
+### Nächste Phasen 3155–3159 (für nächsten Ingenieur) — Fahrer-Tageskilometer-Ranking-Index
+1. **Phase 3155 Backend:** GET /api/delivery/admin/fahrer-tageskilometer-ranking — Gesamtkilometer je Fahrer heute; km = haversine(delivery_batch_stops lat/lng-Paare) oder delivery_tours distance_km; Rang 1=meiste km; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenige Tageskilometer!"; rank_delta vs. Vortag; driver_id-Modus; Supabase+Mock.
+2. **Phase 3156 Dispatch:** TageskilometerRankingBoard — Fahrerliste absteigend nach km (höchste=beste oben); Car-Icon blau; Balken 0–maxKm; KPI-Grid Bester/Team-Ø/Letzter; Alert-Banner Bottom-25%; Rang-Delta-Pfeile; 30-Min-Polling; in dispatch/client.tsx nach Phase3151.
+3. **Phase 3157 Fahrer-App:** MeineTageskilometer — Rang 4xl + km; inverted Rang-Balken 1–N; Delta vs. Vortag; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3152.
+4. **Phase 3158 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3159 Kitchen:** TageskilometerTicker — Bester #1 Name + km im Header; Alert Bottom-25% "Wenige Tageskilometer!"; Fahrerliste kompakt absteigend; Rang+km+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3154.
+
+Backend-Architekt-Agent (2026-07-22): Phasen 3150–3154 implementiert — Fahrer-Leerfahrten-Ranking. Neue Backend-API /api/delivery/admin/fahrer-leerfahrten-ranking (Leerfahrten = delivery_tours ohne batch_stops pro Fahrer; 4 parallele Supabase-Abfragen delivery_tours+batch_stops heute+gestern; Ampel Top/Mitte/Bottom-25%; Alert Bottom-25% "Hohe Leerfahrten-Quote!"; rank_delta negativ=verbessert; driver_id-Modus; Mock-Fallback) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3151 Dispatch (DispatchPhase3151LeerfahrtenRankingBoard, Car-Icon rot, aufsteigend nach Rang 1=wenigste oben, Balken Leerfahrten-Anzahl, KPI-Grid Bester/Team-Ø/Schlechtester, Alert-Banner Bottom-25%, Rang-Delta-Pfeile neg=grün, Ampel-Legende, Import L910+Render L4309+Barrel L12228 ✅) / Phase3152 Fahrer-App (FahrerPhase3152MeineLeerfahrten, Rang 4xl+Anzahl 4xl+Farbcode, inverted Rang-Balken 1–N, Delta-Grid Rang-Δ/Team-Ø, Coaching-Tipp je Ampelzone, isOnline-Guard, Import L805+Render L6388+Barrel L9943 ✅) / Phase3154 Kitchen (KitchenPhase3154LeerfahrtenTicker, Bester #1 Name+Anzahl im Header, Alert "Hohe Leerfahrten-Quote!", aufsteigend nach Rang 1=wenigste oben, Car-Icon rot, Rang-Badge+Anzahl+Delta-Pfeile, Team-Ø+Ziel 0, Import L857+Render L3890+Barrel L10805 ✅). Phase 3153 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root, node_modules nicht im Remote-Container, ignoreBuildErrors: true aktiv). Push erfolgt.

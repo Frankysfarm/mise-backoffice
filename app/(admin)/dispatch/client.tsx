@@ -907,6 +907,7 @@ import { DispatchPhase3131LieferzeitRankingBoard } from './phase3131-lieferzeit-
 import { DispatchPhase3136LieferzeitPuenktlichkeitBoard } from './phase3136-lieferzeit-puenktlichkeit-board';
 import { DispatchPhase3141TourstartReaktionszeitBoard } from './phase3141-tourstart-reaktionszeit-board';
 import { DispatchPhase3146StoppVerweildauerBoard } from './phase3146-stopp-verweildauer-board';
+import { DispatchPhase3151LeerfahrtenRankingBoard } from './phase3151-leerfahrten-ranking-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4304,6 +4305,8 @@ export function DispatchBoard({
           <DispatchPhase3141TourstartReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3146: Stopp-Verweildauer-Ranking — Clock-Icon orange; inverted Balken kürzere Zeit=länger; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert Bottom-25% "Längste Stopp-Verweildauer!"; Delta-Pfeile; 30-Min-Polling */}
           <DispatchPhase3146StoppVerweildauerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3151: Leerfahrten-Ranking — Car-Icon rot; Balken Leerfahrten-Anzahl; KPI-Grid Bester/Team-Ø/Schlechtester; Alert Bottom-25% "Hohe Leerfahrten-Quote!"; Delta-Pfeile; 30-Min-Polling */}
+          <DispatchPhase3151LeerfahrtenRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12221,6 +12224,8 @@ export { DispatchPhase3136LieferzeitPuenktlichkeitBoard } from './phase3136-lief
 export { DispatchPhase3141TourstartReaktionszeitBoard } from './phase3141-tourstart-reaktionszeit-board';
 // Phase 3146 — Stopp-Verweildauer-Ranking-Board (Clock-Icon orange; inverted Balken kürzere Zeit=länger; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert Bottom-25% "Längste Stopp-Verweildauer!"; Delta-Pfeile; 30-Min-Polling)
 export { DispatchPhase3146StoppVerweildauerBoard } from './phase3146-stopp-verweildauer-board';
+// Phase 3151 — Leerfahrten-Ranking-Board (Car-Icon rot; Balken Leerfahrten-Anzahl; KPI-Grid Bester/Team-Ø/Schlechtester; Alert Bottom-25% "Hohe Leerfahrten-Quote!"; Delta-Pfeile; 30-Min-Polling)
+export { DispatchPhase3151LeerfahrtenRankingBoard } from './phase3151-leerfahrten-ranking-board';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
