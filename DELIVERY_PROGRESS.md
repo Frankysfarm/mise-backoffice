@@ -25457,3 +25457,45 @@ Frontend-Ingenieur-Agent (2026-07-21): Phasen 3011–3014 implementiert — Fahr
 5. **Phase 3049 Kitchen:** Wochenend-Auslastung-Ticker — Team-Ø % im Header; Alert <60%; Fahrerliste kompakt absteigend; Ziel ≥80%; 30-Min-Polling.
 
 Frontend-Ingenieur-Agent (2026-07-22): Phasen 3040–3044 implementiert — Fahrer-Nachtschicht-Auslastungs-Index. Backend-API neu erstellt (fahrer-nachtschicht-auslastung 22:00–06:00, Midnight-Crossing, Supabase batch_stops + Mock, Ampel grün≥80/gelb60-79/rot<60) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3041 Dispatch (DispatchPhase3041NachtschichtAuslastungBoard, indigo Ampel für ≥80%, absteigend nach auslastung_pct, Balken+Ziel-Linie 80%, KPI-Grid, Alert-Banner, Import+Render+Barrel-Export ✅) / Phase3042 Fahrer-App (FahrerPhase3042MeineNachtschichtAuslastung, 4xl+Farbcode, Balken+Ziel 80%, Coaching-Tipp, isOnline-Guard, 30-Min-Polling, Import+Render+Barrel-Export ✅) / Phase3044 Kitchen (KitchenPhase3044NachtschichtAuslastungTicker, Team-Ø im Header, Alert <60%, absteigend höchste zuerst, 22–06 Uhr, Import+Render+Barrel-Export ✅). Phase 3043 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root, node_modules nicht im Remote-Container). Push erfolgt.
+
+---
+
+## Batch 3050–3054 — Fahrer-Wochenauslastungs-Index (2026-07-22)
+
+### Phase 3050 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-wochenauslastung/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-wochenauslastung?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Gesamtauslastung% je Fahrer diese Woche (Mo–So); aktive Lieferminuten / (7×1440 Min)×100; Ampel grün(≥75%)/gelb(50–74%)/rot(<50%); Alert <50% "Geringe Wochenauslastung!"; Trend vs. Vorwoche; Wochentage Mo–So je Fahrer (tage_pct[7]); getMonday()-Helper; driver_id-Modus; Supabase(batch_stops)+Mock; beide Wochen parallel mit Promise.all.
+
+### Phase 3051 — Wochenauslastung-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3051-wochenauslastung-board.tsx` *(neu)*
+**Component:** `DispatchPhase3051WochenauslastungBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner <50% "Geringe Wochenauslastung!"; KPI-Grid Team-Ø/Bester/Ziel ≥75%; Fahrerliste absteigend nach auslastung_pct; Balken 0–100% Ziel-Linie 75%; Ampel grün(≥75%)/gelb(50–74%)/rot(<50%); Trend-Pfeile normal steigend=grün; Calendar-Icon blau; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` L890 Import + L4249 Render nach Phase3046 + L12133 Barrel-Export ✅
+
+### Phase 3052 — Meine Wochenauslastung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3052-meine-wochenauslastung.tsx` *(neu)*
+**Component:** `FahrerPhase3052MeineWochenauslastung`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Auslastung% 4xl farbkodiert; Balken 0–100% Ziel-Linie 75%; Wochentage-Grid Mo/Di/Mi/Do/Fr/Sa/So je mit Tages-%; KPI-Grid Team-Ø/Vorwoche; Coaching-Tipp je Zone; isOnline-Guard; 30-Min-Polling; Calendar-Icon blau
+**Integration:** `fahrer/app/client.tsx` L785 Import + L6328 Render nach Phase3047 + L9848 Barrel-Export ✅
+
+### Phase 3053 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3054 — Wochenauslastung-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3054-wochenauslastung-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3054WochenauslastungTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø % Woche im Header; Alert je Fahrer <50% "Geringe Wochenauslastung!"; Fahrerliste kompakt absteigend nach auslastung_pct (höchste zuerst); Trend-Pfeile normal steigend=grün; Ziel ≥75% · Mo–So; 30-Min-Polling; Calendar-Icon blau
+**Integration:** `kitchen/client.tsx` L837 Import + L3830 Render nach Phase3049 + L10710 Barrel-Export ✅
+
+### Nächste Phasen 3055–3059 (für nächsten Ingenieur) — Fahrer-Monatsauslastungs-Index
+1. **Phase 3055 Backend:** GET /api/delivery/admin/fahrer-monatsauslastung — Gesamtauslastung% je Fahrer diesen Monat (1.–letzter Tag); aktive Lieferminuten / (Monatstage×1440 Min)×100; Ampel grün(≥70%)/gelb(50–69%)/rot(<50%); Alert <50% "Geringe Monatsauslastung!"; Trend vs. Vormonat; driver_id-Modus; Supabase(batch_stops)+Mock.
+2. **Phase 3056 Dispatch:** MonatsauslastungBoard — Fahrerliste absteigend nach auslastung_pct; Balken 0–100% Ziel-Linie 70%; KPI-Grid Team-Ø/Bester/Ziel ≥70%; Alert-Banner <50%; Trend normal steigend=grün; Calendar-Icon; 30-Min-Polling; in dispatch/client.tsx nach Phase3051.
+3. **Phase 3057 Fahrer-App:** MeineMonatsauslastung — Auslastung% 4xl+Farbcode; Balken 0–100% Ziel 70%; Monatswochen-Grid (KW1–KW5 je %-Wert); Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3052.
+4. **Phase 3058 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3059 Kitchen:** MonatsauslastungTicker — Team-Ø % Monat im Header; Alert <50%; absteigend; Ziel ≥70%; Trend normal steigend=grün; 30-Min-Polling; in kitchen/client.tsx nach Phase3054.
+
+Backend-Architekt-Agent (2026-07-22): Phasen 3050–3054 implementiert — Fahrer-Wochenauslastungs-Index. Neue Backend-API /api/delivery/admin/fahrer-wochenauslastung (Gesamtauslastung% = aktive Liefermin / 10080 Min × 100 je Fahrer Mo–So; getMonday()-Helper; Wochentage-Array tage_pct[7]; beide Wochen parallel Promise.all; Ampel grün≥75%/gelb50-74%/rot<50%; Alert <50% "Geringe Wochenauslastung!"; Trend vs. Vorwoche; driver_id-Modus; Supabase batch_stops+Mock) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3051 Dispatch (DispatchPhase3051WochenauslastungBoard, Calendar-Icon blau, absteigend nach auslastung_pct höchste=aktivste oben, Balken 0–100% Ziel-Linie 75%, KPI-Grid Team-Ø/Bester/Ziel ≥75%, Alert <50% "Geringe Wochenauslastung!", Trend normal steigend=grün, Import L890+Render L4249+Barrel L12133 ✅) / Phase3052 Fahrer-App (FahrerPhase3052MeineWochenauslastung, Auslastung% 4xl+Farbcode, Balken 0–100% Ziel 75%, Wochentage-Grid Mo/Di/Mi/Do/Fr/Sa/So mit Tages-%, KPI-Grid Team-Ø/Vorwoche, Coaching-Tipp, isOnline-Guard, Import L785+Render L6328+Barrel L9848 ✅) / Phase3054 Kitchen (KitchenPhase3054WochenauslastungTicker, Team-Ø % Woche im Header, Alert <50% "Geringe Wochenauslastung!", absteigend höchste zuerst, Trend normal steigend=grün, Ziel ≥75% · Mo–So, Import L837+Render L3830+Barrel L10710 ✅). Phase 3053 Storefront übersprungen. Build: exit code 0 ✅. Push erfolgt.
