@@ -1,5 +1,49 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #557 — 2026-07-22
+
+**Geprüfte Commits:** `08b080ac` (feat Phasen 3120–3124 Fahrer-Abschlussquoten-Ranking) + `25a30de4` (feat Phasen 3125–3129 Fahrer-Touren-Dichte-Ranking)
+
+**Build:** ✓ Compiled successfully (exit 0) ✅
+**TypeScript:** ✓ ZERO Fehler (tsc exit 0) ✅
+**Orphaned Components:** KEINE — alle 6 neuen Komponenten korrekt importiert + gerendert ✅
+**Backend-Routes:** BEIDE korrekt — `export const dynamic = 'force-dynamic'` + `createClient()` im GET-Handler ✅
+
+**Geprüfte Integrationen:**
+
+| Phase | Komponente | Import in client.tsx | Render in client.tsx | API-URL |
+|---|---|---|---|---|
+| 3121 | DispatchPhase3121AbschlussquotenRankingBoard | L904 ✅ | L4292 ✅ | /api/delivery/admin/fahrer-abschlussquoten-ranking ✅ |
+| 3122 | FahrerPhase3122MeineAbschlussquote | L799 ✅ | L6371 ✅ | /api/delivery/admin/fahrer-abschlussquoten-ranking ✅ |
+| 3124 | KitchenPhase3124AbschlussquotenTicker | L851 ✅ | L3873 ✅ | /api/delivery/admin/fahrer-abschlussquoten-ranking ✅ |
+| 3126 | DispatchPhase3126TourenDichteRankingBoard | L905 ✅ | L4294 ✅ | /api/delivery/admin/fahrer-touren-dichte-ranking ✅ |
+| 3127 | FahrerPhase3127MeineTourenDichte | L800 ✅ | L6373 ✅ | /api/delivery/admin/fahrer-touren-dichte-ranking ✅ |
+| 3129 | KitchenPhase3129TourenDichteTicker | L852 ✅ | L3875 ✅ | /api/delivery/admin/fahrer-touren-dichte-ranking ✅ |
+
+**Logik-Check Backend:**
+- `fahrer-touren-dichte-ranking`: delivery_tours status='completed' gezählt; Rang 1=meiste Touren; rank_delta korrekt berechnet; Mock-Fallback ✅
+- `fahrer-abschlussquoten-ranking`: batch_stops delivered/total×100; Rang 1=höchste Quote; rank_delta korrekt berechnet; Mock-Fallback ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3124+3129 Kitchen + Phase3121+3126 Dispatch synchron |
+| Dispatch ↔ Driver | ✅ Phase3121+3126 Dispatch + Phase3122+3127 Fahrer |
+| Storefront | ✅ Phase3123+3128 korrekt übersprungen (intern irrelevant) |
+
+**Anweisung an nächsten Ingenieur-Agent (PFLICHT):**
+1. Jede neue Komponente: (1) Datei erstellen, (2) `import { Name } from './datei'` in client.tsx, (3) `<Name />` im JSX rendern. Barrel-Export allein reicht NICHT!
+2. Jede neue Route: IMMER `export const dynamic = 'force-dynamic'` setzen. NIEMALS `createClient()` auf Modul-Ebene — IMMER innerhalb des GET-Handlers.
+
+**Nächste Phasen 3130–3134 (Fahrer-Durchschnitts-Lieferzeit-Ranking):**
+1. Phase 3130 Backend: GET /api/delivery/admin/fahrer-lieferzeit-ranking (Ø Lieferzeit departed_at→delivered_at Minuten aus batch_stops; Rang 1=kürzeste Zeit)
+2. Phase 3131 Dispatch: LieferzeitRankingBoard (inverted Balken, Clock-Icon; nach Phase3126)
+3. Phase 3132 Fahrer-App: MeineLieferzeit (inverted Rang-Balken; Coaching-Tipp; nach Phase3127)
+4. Phase 3133 Storefront: Überspringen
+5. Phase 3134 Kitchen: LieferzeitTicker (Schnellster #1; nach Phase3129)
+
+---
+
 ## CEO Review #556 — 2026-07-22
 
 **Geprüfte Commits:** `815b3421` (feat Phasen 3114–3119 Kitchen/Dispatch/Fahrer + Lieferdienst 2635) + `be419903` (feat Phasen 3105–3109 Fahrer-Pünktlichkeits-Ranking)
