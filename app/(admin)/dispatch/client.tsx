@@ -918,6 +918,7 @@ import { DispatchPhase3181TrinkgeldQuoteRankingBoard } from './phase3181-trinkge
 import { DispatchPhase3191TourenAnzahlRankingBoard } from './phase3191-touren-anzahl-ranking-board';
 import { DispatchPhase3196StornoRankingBoard } from './phase3196-storno-ranking-board';
 import { DispatchPhase3201ErstlieferzeitRankingBoard } from './phase3201-erstlieferzeit-ranking-board';
+import { DispatchPhase3206RueckgabeRankingBoard } from './phase3206-rueckgabe-ranking-board';
 import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
@@ -4337,6 +4338,8 @@ export function DispatchBoard({
           <DispatchPhase3196StornoRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3201: Erstlieferzeit-Ranking — Clock-Icon blau; aufsteigend Rang 1=kürzeste Zeit; Balken 0–maxMin; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Lange Erstlieferzeit!"; Delta-Pfeile neg=grün; 30-Min-Polling */}
           <DispatchPhase3201ErstlieferzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3206: Rückgabequote-Ranking — RotateCcw-Icon orange; aufsteigend Rang 1=niedrigste Quote; Balken 0–maxPct%; KPI-Grid Bester/Team-Ø/Letzter; Alert "Hohe Rückgabequote!"; Delta-Pfeile neg=grün; 30-Min-Polling */}
+          <DispatchPhase3206RueckgabeRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3200: Tour-Score Command Center — Score-Ring SVG je aktive Tour; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling */}
           <DispatchPhase3200TourScoreCommandCenter />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
@@ -12280,5 +12283,7 @@ export { DispatchPhase3191TourenAnzahlRankingBoard } from './phase3191-touren-an
 export { DispatchPhase3196StornoRankingBoard } from './phase3196-storno-ranking-board';
 // Phase 3201 — Erstlieferzeit-Ranking-Board (Clock-Icon blau; aufsteigend Rang 1=kürzeste Erstlieferzeit; Balken 0–maxMin; KPI-Grid Bester/Team-Ø/Letzter; Alert "Lange Erstlieferzeit!"; Delta-Pfeile neg=grün; 30-Min-Polling)
 export { DispatchPhase3201ErstlieferzeitRankingBoard } from './phase3201-erstlieferzeit-ranking-board';
+// Phase 3206 — Rückgabequote-Ranking-Board (RotateCcw-Icon orange; aufsteigend Rang 1=niedrigste Quote; Balken 0–maxPct%; KPI-Grid Bester/Team-Ø/Letzter; Alert "Hohe Rückgabequote!"; Delta-Pfeile neg=grün; 30-Min-Polling)
+export { DispatchPhase3206RueckgabeRankingBoard } from './phase3206-rueckgabe-ranking-board';
 // Phase 3200 — Tour-Score Command Center (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling)
 export { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
