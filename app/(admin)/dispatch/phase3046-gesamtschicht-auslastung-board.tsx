@@ -1,0 +1,160 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { ChevronDown, ChevronUp, AlertTriangle, TrendingUp, TrendingDown, Minus, Sun } from 'lucide-react';
+
+interface FahrerEntry {
+  fahrer_id: string;
+  fahrer_name: string;
+  auslastung_pct: number;
+  frueh_pct: number;
+  spaet_pct: number;
+  nacht_pct: number;
+  trend: string;
+  trend_delta: number;
+  ampel: string;
+  alert_gering: boolean;
+}
+
+interface ApiData {
+  fahrer: FahrerEntry[];
+  team_avg_pct: number;
+  alert_count: number;
+}
+
+const ZIEL_PCT  = 75;
+const ALERT_PCT = 50;
+
+function ampelCls(a: string) {
+  if (a === 'rot')  return { bg: 'bg-red-50 border-red-200',     dot: 'bg-red-500',   text: 'text-red-700',   bar: 'bg-red-500'   };
+  if (a === 'gelb') return { bg: 'bg-amber-50 border-amber-200', dot: 'bg-amber-400', text: 'text-amber-700', bar: 'bg-amber-400' };
+  return                   { bg: 'bg-green-50 border-green-200', dot: 'bg-green-500', text: 'text-green-700', bar: 'bg-green-500' };
+}
+
+function TrendIcon({ trend }: { trend: string }) {
+  if (trend === 'steigend') return <TrendingUp   size={12} className="text-green-600" />;
+  if (trend === 'fallend')  return <TrendingDown size={12} className="text-red-500"   />;
+  return                           <Minus        size={12} className="text-gray-400"  />;
+}
+
+const MOCK: ApiData = {
+  fahrer: [
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', auslastung_pct: 90.3, frueh_pct: 92.0, spaet_pct: 88.0, nacht_pct: 90.9, trend: 'steigend', trend_delta:  4.2, ampel: 'gruen', alert_gering: false },
+    { fahrer_id: 'f2', fahrer_name: 'Max M.',   auslastung_pct: 82.1, frueh_pct: 88.0, spaet_pct: 79.0, nacht_pct: 79.3, trend: 'stabil',   trend_delta:  0.3, ampel: 'gruen', alert_gering: false },
+    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  auslastung_pct: 71.5, frueh_pct: 74.0, spaet_pct: 73.0, nacht_pct: 67.5, trend: 'fallend',  trend_delta: -3.1, ampel: 'gelb',  alert_gering: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   auslastung_pct: 55.2, frueh_pct: 60.0, spaet_pct: 58.0, nacht_pct: 47.6, trend: 'fallend',  trend_delta: -6.5, ampel: 'gelb',  alert_gering: false },
+  ],
+  team_avg_pct: 74.8,
+  alert_count: 0,
+};
+
+export function DispatchPhase3046GesamtschichtAuslastungBoard({ locationId }: { locationId: string | null }) {
+  const [open, setOpen] = useState(true);
+  const [data, setData] = useState<ApiData | null>(null);
+
+  useEffect(() => {
+    if (!locationId) { setData(MOCK); return; }
+    const load = () =>
+      fetch(`/api/delivery/admin/fahrer-gesamtschicht-auslastung?location_id=${locationId}`)
+        .then(r => r.json())
+        .then((d: ApiData) => setData(d))
+        .catch(() => setData(MOCK));
+    load();
+    const t = setInterval(load, 30 * 60 * 1000);
+    return () => clearInterval(t);
+  }, [locationId]);
+
+  if (!data) return null;
+
+  const sorted   = [...data.fahrer].sort((a, b) => b.auslastung_pct - a.auslastung_pct);
+  const alerts   = data.fahrer.filter(f => f.alert_gering);
+  const hasAlert = alerts.length > 0;
+  const best     = sorted[0]?.auslastung_pct ?? 0;
+  const teamAmpel = data.team_avg_pct >= ZIEL_PCT ? 'gruen' : data.team_avg_pct >= ALERT_PCT ? 'gelb' : 'rot';
+  const { text: teamText } = ampelCls(teamAmpel);
+
+  return (
+    <div className={`rounded-xl border shadow-sm mb-4 overflow-hidden ${hasAlert ? 'border-red-300' : 'border-gray-200'} bg-white dark:bg-gray-900`}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <Sun size={16} className="text-orange-400" />
+          <span className="font-semibold text-sm text-gray-800 dark:text-gray-100">Tages-Gesamtauslastung (3 Schichten)</span>
+          {hasAlert && <span className="ml-2 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">{alerts.length} Alert</span>}
+        </div>
+        {open ? <ChevronUp size={16} className="text-gray-500" /> : <ChevronDown size={16} className="text-gray-500" />}
+      </button>
+
+      {open && (
+        <div className="px-4 py-3 space-y-3">
+          {alerts.map(f => (
+            <div key={f.fahrer_id} className="flex items-center gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 text-sm">
+              <AlertTriangle size={14} className="text-red-500 shrink-0" />
+              <span className="text-red-700 dark:text-red-300 font-medium">
+                {f.fahrer_name}: Geringe Gesamtauslastung! ({f.auslastung_pct.toFixed(1)} %)
+              </span>
+            </div>
+          ))}
+
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: 'Team-Ø', value: `${data.team_avg_pct.toFixed(1)} %`, cls: teamText },
+              { label: 'Bester', value: `${best.toFixed(1)} %`,              cls: 'text-green-600' },
+              { label: 'Ziel',   value: `≥${ZIEL_PCT} %`,                    cls: 'text-gray-600 dark:text-gray-400' },
+            ].map(k => (
+              <div key={k.label} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-2 text-center">
+                <div className="text-xs text-gray-500 dark:text-gray-400">{k.label}</div>
+                <div className={`text-sm font-bold ${k.cls}`}>{k.value}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-2">
+            {sorted.map(f => {
+              const { bg, dot, text, bar } = ampelCls(f.ampel);
+              const pct = Math.min(100, f.auslastung_pct);
+              return (
+                <div key={f.fahrer_id} className={`rounded-lg border p-2 ${bg} dark:bg-transparent dark:border-gray-700`}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className={`inline-block w-2 h-2 rounded-full ${dot}`} />
+                      <span className="text-xs font-medium text-gray-800 dark:text-gray-200">{f.fahrer_name}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <TrendIcon trend={f.trend} />
+                      <span className={`text-xs font-bold ${text}`}>{f.auslastung_pct.toFixed(1)} %</span>
+                    </div>
+                  </div>
+                  <div className="relative h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-visible">
+                    <div className={`absolute top-0 left-0 h-2 rounded-full ${bar}`} style={{ width: `${pct}%` }} />
+                    <div className="absolute top-[-2px] h-4 w-0.5 bg-gray-600 dark:bg-gray-300 opacity-60" style={{ left: `${ZIEL_PCT}%` }} />
+                  </div>
+                  <div className="grid grid-cols-3 gap-1 mt-1.5">
+                    {[
+                      { label: 'F', value: f.frueh_pct, title: 'Früh 06–14' },
+                      { label: 'S', value: f.spaet_pct, title: 'Spät 14–22' },
+                      { label: 'N', value: f.nacht_pct, title: 'Nacht 22–06' },
+                    ].map(s => (
+                      <div key={s.label} title={s.title} className="text-center">
+                        <span className="text-[10px] text-gray-400">{s.label}: </span>
+                        <span className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">{s.value.toFixed(0)} %</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex gap-3 text-xs text-gray-500 dark:text-gray-400 pt-1">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500 inline-block" />≥75 %</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400 inline-block" />50–74 %</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" />&lt;50 %</span>
+            <span className="text-gray-400">| Ziel ≥{ZIEL_PCT} %</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
