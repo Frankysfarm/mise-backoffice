@@ -836,6 +836,7 @@ import { KitchenPhase3044NachtschichtAuslastungTicker } from './phase3044-nachts
 import { KitchenPhase3049GesamtschichtAuslastungTicker } from './phase3049-gesamtschicht-auslastung-ticker';
 import { KitchenPhase3054WochenauslastungTicker } from './phase3054-wochenauslastung-ticker';
 import { KitchenPhase3059MonatsauslastungTicker } from './phase3059-monatsauslastung-ticker';
+import { KitchenPhase3064QuartalauslastungTicker } from './phase3064-quartalauslastung-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3831,6 +3832,8 @@ export function KitchenBoard({
       <KitchenPhase3054WochenauslastungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3059: Monatsauslastung-Ticker — Team-Ø % Monat im Header; Alert <50% "Geringe Monatsauslastung!"; absteigend höchste zuerst; Trend normal steigend=grün; Ziel ≥70%; KW1–KW4; 30-Min-Polling */}
       <KitchenPhase3059MonatsauslastungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3064: Quartalauslastung-Ticker — Team-Ø % Quartal im Header; Alert <45% "Geringe Quartalauslastung!"; absteigend höchste zuerst; Ziel ≥65%; Trend normal steigend=grün; Q-Label; 30-Min-Polling */}
+      <KitchenPhase3064QuartalauslastungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10712,6 +10715,7 @@ export { KitchenPhase3044NachtschichtAuslastungTicker } from './phase3044-nachts
 export { KitchenPhase3049GesamtschichtAuslastungTicker } from './phase3049-gesamtschicht-auslastung-ticker';
 export { KitchenPhase3054WochenauslastungTicker } from './phase3054-wochenauslastung-ticker';
 export { KitchenPhase3059MonatsauslastungTicker } from './phase3059-monatsauslastung-ticker';
+export { KitchenPhase3064QuartalauslastungTicker } from './phase3064-quartalauslastung-ticker';
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
