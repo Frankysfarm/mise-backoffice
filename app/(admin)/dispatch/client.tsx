@@ -898,6 +898,7 @@ import { DispatchPhase3086TourVisualisierungLive } from './phase3086-tour-visual
 import { DispatchPhase3091LiefergebietRankingBoard } from './phase3091-liefergebiet-ranking-board';
 import { DispatchPhase3096StoppEffizienzRankingBoard } from './phase3096-stopp-effizienz-ranking-board';
 import { DispatchPhase3101ReaktionszeitRankingBoard } from './phase3101-reaktionszeit-ranking-board';
+import { DispatchPhase3106PuenktlichkeitsRankingBoard } from './phase3106-puenktlichkeits-ranking-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4277,6 +4278,8 @@ export function DispatchBoard({
           <DispatchPhase3096StoppEffizienzRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3101: Reaktionszeit-Ranking-Board — aufsteigend nach Rang (1=kürzeste Reaktionszeit); Rang-Badge + Ø Sek; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert Bottom-25% "Längste Reaktionszeit!"; Delta-Pfeile; Zap-Icon blau; 30-Min-Polling */}
           <DispatchPhase3101ReaktionszeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3106: Pünktlichkeits-Ranking-Board — aufsteigend nach Rang (1=höchste Rate); Rang-Badge + Rate%; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Niedrigste Pünktlichkeitsrate!"; Delta-Pfeile; Clock-Icon grün; 30-Min-Polling */}
+          <DispatchPhase3106PuenktlichkeitsRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12176,6 +12179,8 @@ export { DispatchPhase3091LiefergebietRankingBoard } from './phase3091-liefergeb
 export { DispatchPhase3096StoppEffizienzRankingBoard } from './phase3096-stopp-effizienz-ranking-board';
 // Phase 3101 — Reaktionszeit-Ranking-Board (Fahrerliste aufsteigend Rang 1=kürzeste Reaktionszeit; Rang-Badge+Ø Sek; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert Bottom-25% "Längste Reaktionszeit!"; Delta-Pfeile; Zap-Icon blau; 30-Min-Polling)
 export { DispatchPhase3101ReaktionszeitRankingBoard } from './phase3101-reaktionszeit-ranking-board';
+// Phase 3106 — Pünktlichkeits-Ranking-Board (Fahrerliste aufsteigend Rang 1=höchste Rate; Rang-Badge+Rate%; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Niedrigste Pünktlichkeitsrate!"; Delta-Pfeile; Clock-Icon grün; 30-Min-Polling)
+export { DispatchPhase3106PuenktlichkeitsRankingBoard } from './phase3106-puenktlichkeits-ranking-board';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
