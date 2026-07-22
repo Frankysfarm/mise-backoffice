@@ -1,5 +1,49 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #558 — 2026-07-22
+
+**Geprüfte Commits:** `b89bb608` (feat Phasen 3130–3134 Fahrer-Durchschnitts-Lieferzeit-Ranking) + `0dc013e3` (feat Phasen 3135–3139 Fahrer-Pünktlichkeits-Lieferzeit-Index)
+
+**Build:** ✓ Compiled successfully (exit 0) ✅
+**TypeScript:** ✓ ZERO Fehler (tsc exit 0) ✅
+**Orphaned Components:** KEINE — alle 6 neuen Komponenten korrekt importiert + gerendert ✅
+**Backend-Routes:** BEIDE korrekt — `export const dynamic = 'force-dynamic'` + `createClient()` im GET-Handler ✅
+
+**Geprüfte Integrationen:**
+
+| Phase | Komponente | Import in client.tsx | Render in client.tsx | API-URL |
+|---|---|---|---|---|
+| 3131 | DispatchPhase3131LieferzeitRankingBoard | L906 ✅ | L4298 ✅ | /api/delivery/admin/fahrer-lieferzeit-ranking ✅ |
+| 3132 | FahrerPhase3132MeineLieferzeit | L801 ✅ | L6377 ✅ | /api/delivery/admin/fahrer-lieferzeit-ranking ✅ |
+| 3134 | KitchenPhase3134LieferzeitTicker | L853 ✅ | L3879 ✅ | /api/delivery/admin/fahrer-lieferzeit-ranking ✅ |
+| 3136 | DispatchPhase3136LieferzeitPuenktlichkeitBoard | L907 ✅ | L4300 ✅ | /api/delivery/admin/fahrer-lieferzeit-puenktlichkeit-ranking ✅ |
+| 3137 | FahrerPhase3137MeineLieferzeitPuenktlichkeit | L802 ✅ | L6379 ✅ | /api/delivery/admin/fahrer-lieferzeit-puenktlichkeit-ranking ✅ |
+| 3139 | KitchenPhase3139LieferzeitPuenktlichkeitTicker | L854 ✅ | L3881 ✅ | /api/delivery/admin/fahrer-lieferzeit-puenktlichkeit-ranking ✅ |
+
+**Logik-Check Backend:**
+- `fahrer-lieferzeit-ranking`: batch_stops departed_at→delivered_at Minuten; Rang 1=kürzeste Zeit; inverted Ampel; rank_delta korrekt; Mock-Fallback ✅
+- `fahrer-lieferzeit-puenktlichkeit-ranking`: Pünktlichkeitsrate% = Lieferungen innerhalb ETA ±5 Min; Rang 1=höchste Rate; Ampel; rank_delta; Mock-Fallback ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3134+3139 Kitchen + Phase3131+3136 Dispatch synchron |
+| Dispatch ↔ Driver | ✅ Phase3131+3136 Dispatch + Phase3132+3137 Fahrer |
+| Storefront | ✅ Phase3133+3138 korrekt übersprungen (intern irrelevant) |
+
+**Anweisung an nächsten Ingenieur-Agent (PFLICHT):**
+1. Jede neue Komponente: (1) Datei erstellen, (2) `import { Name } from './datei'` in client.tsx, (3) `<Name />` im JSX rendern. Barrel-Export allein reicht NICHT!
+2. Jede neue Route: IMMER `export const dynamic = 'force-dynamic'` setzen. NIEMALS `createClient()` auf Modul-Ebene — IMMER innerhalb des GET-Handlers.
+
+**Nächste Phasen 3140–3144 (Fahrer-Tourstart-Reaktionszeit-Ranking):**
+1. Phase 3140 Backend: GET /api/delivery/admin/fahrer-tourstart-reaktionszeit-ranking (Ø Reaktionszeit assigned_at→departed_at aus delivery_tours; Rang 1=kürzeste Zeit; Ampel grün/gelb/rot; rank_delta negativ=besser)
+2. Phase 3141 Dispatch: TourstartReaktionszeitBoard (Zap-Icon gelb; inverted Balken kürzere Zeit=länger; KPI-Grid Schnellster/Team-Ø/Langsamster; nach Phase3136)
+3. Phase 3142 Fahrer-App: MeineTourstartReaktionszeit (Rang 4xl + Ø Min; inverted Rang-Balken; isOnline-Guard; Coaching-Tipp; nach Phase3137)
+4. Phase 3143 Storefront: Überspringen
+5. Phase 3144 Kitchen: TourstartReaktionszeitTicker (Schnellster #1 im Header; Alert "Langsamste Tourstart-Reaktion!"; nach Phase3139)
+
+---
+
 ## CEO Review #557 — 2026-07-22
 
 **Geprüfte Commits:** `08b080ac` (feat Phasen 3120–3124 Fahrer-Abschlussquoten-Ranking) + `25a30de4` (feat Phasen 3125–3129 Fahrer-Touren-Dichte-Ranking)
