@@ -831,6 +831,7 @@ import { FahrerPhase3282MeineKilometerleistung } from './phase3282-meine-kilomet
 import { FahrerPhase3287MeineStornoQuote } from './phase3287-meine-storno-quote';
 import { FahrerPhase3292MeinePuenktlichkeit } from './phase3292-meine-puenktlichkeit';
 import { FahrerPhase3297MeineReaktionszeit } from './phase3297-meine-reaktionszeit';
+import { FahrerPhase3302MeineAbwesenheit } from './phase3302-meine-abwesenheit';
 import { FahrerPhase3295TourStoppSmartNavigatorPro } from './phase3295-tour-stopp-smart-navigator-pro';
 import { FahrerPhase3257TourStoppNavigationsUltraKommando } from './phase3257-tour-stopp-navigations-ultra-kommando';
 import { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-stopp-smart-kommando-ultra';
@@ -6471,6 +6472,8 @@ export function FahrerApp({
           <FahrerPhase3292MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3297: Meine Reaktionszeit — Timer-Icon orange; Zeit 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3297MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3302: Meine Abwesenheit — CalendarX-Icon rot; Tage 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3302MeineAbwesenheit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3295TourStoppSmartNavigatorPro fahrerId={driver.id} />
           {/* Phase 3257: Tour-Stopp Navigations-Ultra-Kommando — Hero-Stopp; Google-Maps-Link; Anruf-Button; Kommentar-Warnung; Fortschrittsring; mobile-first; 15-Sek-Polling */}
@@ -10086,6 +10089,7 @@ export { FahrerPhase3287MeineStornoQuote } from './phase3287-meine-storno-quote'
 export { FahrerPhase3292MeinePuenktlichkeit } from './phase3292-meine-puenktlichkeit';
 // Phase 3297 — Meine Reaktionszeit (Timer-Icon orange; Zeit 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3297MeineReaktionszeit } from './phase3297-meine-reaktionszeit';
+export { FahrerPhase3302MeineAbwesenheit } from './phase3302-meine-abwesenheit';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
