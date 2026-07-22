@@ -783,6 +783,7 @@ import { FahrerPhase3037MeineSpaetschichtAuslastung } from './phase3037-meine-sp
 import { FahrerPhase3042MeineNachtschichtAuslastung } from './phase3042-meine-nachtschicht-auslastung';
 import { FahrerPhase3047MeineGesamtschichtAuslastung } from './phase3047-meine-gesamtschicht-auslastung';
 import { FahrerPhase3052MeineWochenauslastung } from './phase3052-meine-wochenauslastung';
+import { FahrerPhase3057MeineMonatsauslastung } from './phase3057-meine-monatsauslastung';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
@@ -6326,6 +6327,8 @@ export function FahrerApp({
           <FahrerPhase3047MeineGesamtschichtAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3052: Meine Wochenauslastung — Auslastung% 4xl+Farbcode; Balken 0–100% Ziel 75%; Wochentage Mo–So mit Tages-%; Coaching-Tipp je Zone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3052MeineWochenauslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3057: Meine Monatsauslastung — Auslastung% 4xl+Farbcode; Balken 0–100% Ziel 70%; KW1–KW4-Grid mit Wochen-%; Team-Ø+Vormonat; Coaching-Tipp je Zone; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3057MeineMonatsauslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2945: Tour-Stopp GPS-Navigator Ultimate — Hero-Stopp mit ETA-Countdown; Google Maps/Waze; Anruf; Fortschrittsring; Done-Counter; mobile-first; 15-Sek-Polling */}
           <FahrerPhase2945TourStoppGpsNavigatorUltimate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2920: Tour-Stopp Ultra-Navigator — Hero-Stopp farbkodiert ETA-Countdown; Maps/Waze/Anruf; Angekommen/Zugestellt; Sequenz-Dots; 1-Sek-Tick+15-Sek-Polling */}
@@ -9846,6 +9849,7 @@ export { FahrerPhase3037MeineSpaetschichtAuslastung } from './phase3037-meine-sp
 export { FahrerPhase3042MeineNachtschichtAuslastung } from './phase3042-meine-nachtschicht-auslastung';
 export { FahrerPhase3047MeineGesamtschichtAuslastung } from './phase3047-meine-gesamtschicht-auslastung';
 export { FahrerPhase3052MeineWochenauslastung } from './phase3052-meine-wochenauslastung';
+export { FahrerPhase3057MeineMonatsauslastung } from './phase3057-meine-monatsauslastung';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';

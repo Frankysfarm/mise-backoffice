@@ -888,6 +888,7 @@ import { DispatchPhase3036SpaetschichtAuslastungBoard } from './phase3036-spaets
 import { DispatchPhase3041NachtschichtAuslastungBoard } from './phase3041-nachtschicht-auslastung-board';
 import { DispatchPhase3046GesamtschichtAuslastungBoard } from './phase3046-gesamtschicht-auslastung-board';
 import { DispatchPhase3051WochenauslastungBoard } from './phase3051-wochenauslastung-board';
+import { DispatchPhase3056MonatsauslastungBoard } from './phase3056-monatsauslastung-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4247,6 +4248,8 @@ export function DispatchBoard({
           <DispatchPhase3046GesamtschichtAuslastungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3051: Wochenauslastung-Board — absteigend nach auslastung_pct; Balken 0–100% Ziel-Linie 75%; KPI-Grid Team-Ø/Bester/Ziel ≥75%; Alert <50% "Geringe Wochenauslastung!"; Mo–So; 30-Min-Polling */}
           <DispatchPhase3051WochenauslastungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3056: Monatsauslastung-Board — absteigend nach auslastung_pct; Balken 0–100% Ziel-Linie 70%; KPI-Grid Team-Ø/Bester/Ziel ≥70%; Alert <50% "Geringe Monatsauslastung!"; KW1–KW4; 30-Min-Polling */}
+          <DispatchPhase3056MonatsauslastungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12131,6 +12134,7 @@ export { DispatchPhase3036SpaetschichtAuslastungBoard } from './phase3036-spaets
 export { DispatchPhase3041NachtschichtAuslastungBoard } from './phase3041-nachtschicht-auslastung-board';
 export { DispatchPhase3046GesamtschichtAuslastungBoard } from './phase3046-gesamtschicht-auslastung-board';
 export { DispatchPhase3051WochenauslastungBoard } from './phase3051-wochenauslastung-board';
+export { DispatchPhase3056MonatsauslastungBoard } from './phase3056-monatsauslastung-board';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
