@@ -879,6 +879,7 @@ import { KitchenPhase3254TrinkgeldTicker } from './phase3254-trinkgeld-ticker';
 import { KitchenPhase3264AblieferungsquoteTicker } from './phase3264-ablieferungsquote-ticker';
 import { KitchenPhase3269RetourenquoteTicker } from './phase3269-retourenquote-ticker';
 import { KitchenPhase3274KundenbewertungTicker } from './phase3274-kundenbewertung-ticker';
+import { KitchenPhase3279SchichtEffizienzTicker } from './phase3279-schicht-effizienz-ticker';
 import { KitchenPhase3259SmartKochstartCountdownUltra } from './phase3259-smart-kochstart-countdown-ultra';
 import { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
@@ -3961,6 +3962,8 @@ export function KitchenBoard({
       <KitchenPhase3269RetourenquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3274: Kundenbewertungs-Ticker — Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Kundenbewertung!"; kompakt absteigend; Rang+★+Delta; 30-Min-Polling */}
       <KitchenPhase3274KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3279: Schicht-Effizienz-Ticker — Zap-Icon blau; Bester #1 Name+Score im Header; Alert Bottom-25% "Niedrige Schicht-Effizienz!"; kompakt absteigend; Rang+Score+Delta; 30-Min-Polling */}
+      <KitchenPhase3279SchichtEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3259: Smart-Kochstart Countdown Ultra — Echtzeit-Farbkodierung grün/gelb/rot/kritisch; Fahrer-ETA-Bridge; Kochstart-Empfehlung; 1-Sek-Tick */}
       <KitchenPhase3259SmartKochstartCountdownUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3200: Smart-Kochstart-Kommando — Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; On-Time-Rate; 1-Sek-Tick+20-Sek-Polling */}
@@ -10930,6 +10933,8 @@ export { KitchenPhase3264AblieferungsquoteTicker } from './phase3264-ablieferung
 export { KitchenPhase3269RetourenquoteTicker } from './phase3269-retourenquote-ticker';
 // Phase 3274 — Kundenbewertungs-Ticker (Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Kundenbewertung!"; kompakt absteigend; Rang+★+Delta; 30-Min-Polling)
 export { KitchenPhase3274KundenbewertungTicker } from './phase3274-kundenbewertung-ticker';
+// Phase 3279 — Schicht-Effizienz-Ticker (Zap-Icon blau; Bester #1 Name+Score im Header; Alert "Niedrige Schicht-Effizienz!"; kompakt absteigend; Rang+Score+Delta; 30-Min-Polling)
+export { KitchenPhase3279SchichtEffizienzTicker } from './phase3279-schicht-effizienz-ticker';
 // Phase 3200 — Smart-Kochstart-Kommando (Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; 1-Sek-Tick + 20-Sek-Polling)
 export { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
 
