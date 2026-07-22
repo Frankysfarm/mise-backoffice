@@ -9982,3 +9982,5 @@ export { FahrerPhase3197MeineStornoRate } from './phase3197-meine-storno-rate';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
+// Phase 3200 — Tour-Stopp Smart-Kommando Ultra (Hero-Stopp Adresse+ETA-Countdown 1-Sek-Tick + Kunden-Kontakt + Pakete + Confirm-Button; Weitere-Stopps kompakt; mobile-first; 15-Sek-Polling)
+export { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-stopp-smart-kommando-ultra';

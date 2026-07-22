@@ -4780,3 +4780,5 @@ export { LieferdienstPhase2630StatistikenLiveKomplett } from './phase2630-statis
 export { LieferdienstPhase2635LieferSlaEchtzeitCockpit } from './phase2635-liefer-sla-echtzeit-cockpit';
 // Phase 1001 — Statistiken Master Dashboard (8 KPI-Kacheln Ampel+Δ-Trend; Stunden-BarChart Umsatz/Bestellungen/Lieferzeit umschaltbar; Top-3-Fahrer; Pünktlichkeit+Lieferzeit-Gauge; 1-Min-Polling)
 export { LieferdienstPhase1001StatistikenMasterDashboard } from './phase1001-statistiken-master-dashboard';
+// Phase 2640 — Statistiken-Schicht-Intelligence (6 KPI-Kacheln Ampel+Trend Vorwoche; Stunden-BarChart 2-Modi; Alert-Strip; 2-Min-Polling)
+export { LieferdienstPhase2640StatistikSchichtIntelligence } from './phase2640-statistiken-schicht-intelligence';

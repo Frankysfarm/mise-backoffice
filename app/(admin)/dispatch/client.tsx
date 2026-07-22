@@ -12272,3 +12272,5 @@ export { DispatchPhase3181TrinkgeldQuoteRankingBoard } from './phase3181-trinkge
 // Phase 3191 — Touren-Anzahl-Ranking (Route-Icon lila; absteigend Rang 1=meiste Touren; Balken; KPI-Grid Bester/Team-Ø/Letzter; Alert "Wenige Touren!"; Delta-Pfeile; 30-Min-Polling)
 export { DispatchPhase3191TourenAnzahlRankingBoard } from './phase3191-touren-anzahl-ranking-board';
 export { DispatchPhase3196StornoRankingBoard } from './phase3196-storno-ranking-board';
+// Phase 3200 — Tour-Score Command Center (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling)
+export { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';

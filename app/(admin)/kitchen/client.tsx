@@ -10849,3 +10849,5 @@ export { KitchenPhase3184TrinkgeldQuoteTicker } from './phase3184-trinkgeld-quot
 // Phase 3194 — Touren-Anzahl-Ticker (Route-Icon lila; Bester #1 im Header; Alert Bottom-25% "Wenige Touren!"; kompakt absteigend; Rang+Touren+Delta; 30-Min-Polling)
 export { KitchenPhase3194TourenAnzahlTicker } from './phase3194-touren-anzahl-ticker';
 export { KitchenPhase3199StornoTicker } from './phase3199-storno-ticker';
+// Phase 3200 — Smart-Kochstart-Kommando (Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; 1-Sek-Tick + 20-Sek-Polling)
+export { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
