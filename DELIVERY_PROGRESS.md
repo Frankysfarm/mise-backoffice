@@ -2,6 +2,48 @@
 
 ## STATUS: MARKT-REIF
 
+---
+
+## Batch 3245–3249 — Fahrer-Stoppdauer-Ranking (2026-07-22)
+
+### Phase 3245 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-stoppdauer-ranking/route.ts` *(bereits vorhanden)*
+**Endpoint:** GET /api/delivery/admin/fahrer-stoppdauer-ranking?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Ø-Stoppdauer je Fahrer heute (Zeit zwischen arrived_at und departed_at in delivery_batch_stops); Rang 1=niedrigste Ø-Stoppdauer=bester=schnellster; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Hohe Stoppdauer!"; rank_delta negativ=verbessert; driver_id-Modus; Supabase+Mock.
+
+### Phase 3246 — Stoppdauer-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3246-stoppdauer-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3246StoppdauerRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Alert-Banner Bottom-25% "Hohe Stoppdauer!"; KPI-Grid Bester/Team-Ø/Letzter; Fahrerliste aufsteigend nach Rang (1=kürzeste Stoppdauer oben); Timer-Icon blau; Balken 0–maxSec; Ampel grün/gelb/rot; Delta-Pfeile neg=grün; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L930 + Render L4370 nach Phase3241 + Barrel-Export L12333 ✅
+
+### Phase 3247 — Meine Stoppdauer (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3247-meine-stoppdauer.tsx` *(neu)*
+**Component:** `FahrerPhase3247MeineStoppdauer`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Rang 4xl + Ø-Sekunden 4xl farbkodiert; Inverted Rang-Balken 1–N (Rang 1=kürzeste=volle Breite); Delta-Grid Rang-Δ neg=grün / Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L824 + Render L6445 nach Phase3242 + Barrel-Export L10039 ✅
+
+### Phase 3248 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3249 — Stoppdauer-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3249-stoppdauer-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3249StoppdauerTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Bester Fahrer (#1 Name + Ø-Stoppdauer) im Header; Alert Bottom-25% "Hohe Stoppdauer!"; Fahrerliste kompakt aufsteigend nach Rang (1=kürzeste oben); Timer-Icon blau; Rang-Badge + Sekunden + Delta-Pfeile neg=grün; Team-Ø + Ziel <90s; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L877 + Render L3952 nach Phase3244 + Barrel-Export L10910 ✅
+
+### Nächste Phasen 3250–3254 (für nächsten Ingenieur) — Fahrer-Stopps-pro-Stunde-Ranking
+1. **Phase 3250 Backend:** GET /api/delivery/admin/fahrer-stopps-pro-stunde — Stopps/h je Fahrer heute (Anzahl abgeschlossener batch_stops / aktive Schichtzeit in Stunden; Rang 1=höchste Stopps/h=bester); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Stopps/h!"; rank_delta positiv=verbessert; driver_id-Modus; Supabase(delivery_batch_stops+delivery_tours heute+gestern)+Mock. PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3251 Dispatch:** StoppsProStundeRankingBoard — Gauge-Icon orange; absteigend Rang 1=höchste Rate oben; Balken 0–maxRate; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Stopps/h!"; Delta-Pfeile pos=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3246. PFLICHT: Import + Render + Barrel.
+3. **Phase 3252 Fahrer-App:** MeineStoppsProStunde — Rang 4xl + Stopps/h 4xl farbkodiert; Rang-Balken 1–N pos=besser; Delta-Grid Rang-Δ pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3247. PFLICHT: Import + Render + Barrel.
+4. **Phase 3253 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3254 Kitchen:** StoppsProStundeTicker — Gauge-Icon orange; Bester #1 Name+Stopps/h im Header; Alert Bottom-25% "Niedrige Stopps/h!"; kompakt absteigend; Rang+Rate+Delta pos=grün; 30-Min-Polling; in kitchen/client.tsx nach Phase3249. PFLICHT: Import + Render + Barrel.
+
+Frontend-Ingenieur-Agent (2026-07-22): Phasen 3245–3249 implementiert — Fahrer-Stoppdauer-Ranking. Backend-API /api/delivery/admin/fahrer-stoppdauer-ranking bereits vorhanden + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3246 Dispatch (DispatchPhase3246StoppdauerRankingBoard, Timer-Icon blau, aufsteigend nach Rang 1=kürzeste Stoppdauer oben, Balken 0–maxSec, KPI-Grid Bester/Team-Ø/Letzter, Alert-Banner "Hohe Stoppdauer!", Delta-Pfeile neg=grün, Ampel-Legende, Import L930+Render L4370+Barrel L12333 ✅) / Phase3247 Fahrer-App (FahrerPhase3247MeineStoppdauer, Timer-Icon blau, Rang 4xl+Ø-Sekunden 4xl+Farbcode, Inverted Rang-Balken 1–N Rang 1=kürzeste=voll, Delta-Grid Rang-Δ neg=grün/Team-Ø, Coaching-Tipp je Zone, isOnline-Guard, Import L824+Render L6445+Barrel L10039 ✅) / Phase3249 Kitchen (KitchenPhase3249StoppdauerTicker, Timer-Icon blau, Bester #1 Name+Ø-Stoppdauer im Header, Alert "Hohe Stoppdauer!", aufsteigend Rang 1=kürzeste oben, Rang-Badge+Sekunden+Delta neg=grün, Team-Ø+Ziel <90s, Import L877+Render L3952+Barrel L10910 ✅). Phase 3248 Storefront übersprungen. Build exit code 0 ✅. Push erfolgt.
+
 Backend-Architekt-Agent (2026-07-22): Phasen 3240–3244 implementiert — Fahrer-Reaktionszeit-Ranking. Backend-API /api/delivery/admin/fahrer-reaktionszeit-ranking bereits vorhanden (Zeit von assigned_at bis departed_at je Tour; 2 parallele Supabase-Abfragen heute+gestern; Rang 1=kürzeste Reaktionszeit=bester; Ampel Top/Mitte/Bottom-25%; Alert Bottom-25% "Lange Reaktionszeit!"; rank_delta negativ=verbessert avg_sek-yestAvg; driver_id-Modus; Mock Max M. 45s/Julia F. 62s/Sara K. 90s/Tim B. 148s; export const dynamic='force-dynamic') + 3 Frontend-Komponenten vollständig integriert: Phase3241 Dispatch (DispatchPhase3241ReaktionszeitRankingBoard, Zap-Icon gelb, aufsteigend Rang 1=kürzeste Zeit oben, Balken 0–maxSek, KPI-Grid Bester/Team-Ø/Letzter, Alert-Banner "Lange Reaktionszeit!", Delta-Pfeile neg=grün, Ampel-Legende, Import+Render nach Phase3236+Barrel ✅) / Phase3242 Fahrer-App (FahrerPhase3242MeineReaktionszeit, Rang 4xl+Zeit 4xl farbkodiert, Rang-Balken 1–N pos=besser, Δ-Grid Rang-Δ/Team-Ø neg=grün, Coaching-Tipp je Ampelzone, isOnline-Guard, Import+Render nach Phase3237+Barrel ✅) / Phase3243 Storefront übersprungen ✅ / Phase3244 Kitchen (KitchenPhase3244ReaktionszeitTicker, Zap-Icon gelb, Bester #1 Name+Zeit im Header, Alert "Lange Reaktionszeit!", kompakt aufsteigend, Rang+Sek+Delta neg=grün, Team-Ø+Ziel <60s, Import+Render nach Phase3239+Barrel ✅). TypeScript: ZERO neue Fehler (tsc exit 0). Build: ignoreBuildErrors:true aktiv (pre-existing Turbopack/node_modules). Push erfolgt.
 
 ### Batch 3240–3244 — Fahrer-Reaktionszeit-Ranking (ABGESCHLOSSEN 2026-07-22)
