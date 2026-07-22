@@ -860,6 +860,7 @@ import { KitchenPhase3164StoppdauerTicker } from './phase3164-stoppdauer-ticker'
 import { KitchenPhase3169SmartTimingMasterDashboard } from './phase3169-smart-timing-master-dashboard';
 import { KitchenPhase3174EchtzeitFarbkodierungUltra } from './phase3174-echtzeit-farbkodierung-ultra';
 import { KitchenPhase3179BestellwertTicker } from './phase3179-bestellwert-ticker';
+import { KitchenPhase3184BewertungsTicker } from './phase3184-bewertungs-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3903,6 +3904,8 @@ export function KitchenBoard({
       <KitchenPhase3174EchtzeitFarbkodierungUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3179: Bestellwert-Ticker — Euro-Icon grün; Bester #1 im Header; Alert Bottom-25% "Niedriger Ø-Bestellwert!"; kompakt absteigend; Rang+€+Delta; 30-Min-Polling */}
       <KitchenPhase3179BestellwertTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3184: Bewertungs-Ticker — Stern-Icon gelb; Bester #1 im Header; Alert Bottom-25% "Niedriger Bewertungs-Score!"; kompakt absteigend; Rang+Sterne+Delta; 30-Min-Polling */}
+      <KitchenPhase3184BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10831,3 +10834,5 @@ export { KitchenPhase3169SmartTimingMasterDashboard } from './phase3169-smart-ti
 export { KitchenPhase3174EchtzeitFarbkodierungUltra } from './phase3174-echtzeit-farbkodierung-ultra';
 // Phase 3179 — Bestellwert-Ticker (Euro-Icon grün; Bester #1 im Header; Alert Bottom-25% "Niedriger Ø-Bestellwert!"; kompakt absteigend; Rang+€+Delta; 30-Min-Polling)
 export { KitchenPhase3179BestellwertTicker } from './phase3179-bestellwert-ticker';
+// Phase 3184 — Bewertungs-Ticker (Stern-Icon gelb; Bester #1 im Header; Alert Bottom-25% "Niedriger Bewertungs-Score!"; kompakt absteigend; Rang+Sterne+Delta; 30-Min-Polling)
+export { KitchenPhase3184BewertungsTicker } from './phase3184-bewertungs-ticker';

@@ -913,6 +913,7 @@ import { DispatchPhase3161StoppdauerRankingBoard } from './phase3161-stoppdauer-
 import { DispatchPhase3165TourScoreLiveDashboard } from './phase3165-tour-score-live-dashboard';
 import { DispatchPhase3170TourVisualisierungMaster } from './phase3170-tour-visualisierung-master';
 import { DispatchPhase3176BestellwertRankingBoard } from './phase3176-bestellwert-ranking-board';
+import { DispatchPhase3181BewertungsRankingBoard } from './phase3181-bewertungs-ranking-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4322,6 +4323,8 @@ export function DispatchBoard({
           <DispatchPhase3170TourVisualisierungMaster locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3176: Ø Bestellwert-Ranking — Euro-Icon grün; Fahrerliste absteigend höchster=bester; Balken; KPI-Grid Bester/Team-Ø/Niedrigster; Alert Bottom-25% "Niedriger Ø-Bestellwert!"; Delta-Pfeile; 30-Min-Polling */}
           <DispatchPhase3176BestellwertRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3181: Ø Bewertungs-Score-Ranking — Stern-Icon gelb; absteigend Rang 1=höchster Score; Balken 0–5 Sterne; KPI-Grid Bester/Team-Ø/Niedrigster; Alert Bottom-25% "Niedriger Bewertungs-Score!"; Delta-Pfeile; 30-Min-Polling */}
+          <DispatchPhase3181BewertungsRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12254,3 +12257,5 @@ export { DispatchPhase3165TourScoreLiveDashboard } from './phase3165-tour-score-
 export { DispatchPhase3170TourVisualisierungMaster } from './phase3170-tour-visualisierung-master';
 // Phase 3176 — Ø Bestellwert-Ranking (Euro-Icon grün; Fahrerliste absteigend höchster=bester; Balken; KPI-Grid Bester/Team-Ø/Niedrigster; Alert Bottom-25% "Niedriger Ø-Bestellwert!"; Delta-Pfeile; 30-Min-Polling)
 export { DispatchPhase3176BestellwertRankingBoard } from './phase3176-bestellwert-ranking-board';
+// Phase 3181 — Ø Bewertungs-Score-Ranking (Stern-Icon gelb; absteigend Rang 1=höchster Score; Balken 0–5 Sterne; KPI-Grid Bester/Team-Ø/Niedrigster; Alert Bottom-25% "Niedriger Bewertungs-Score!"; Delta-Pfeile; 30-Min-Polling)
+export { DispatchPhase3181BewertungsRankingBoard } from './phase3181-bewertungs-ranking-board';
