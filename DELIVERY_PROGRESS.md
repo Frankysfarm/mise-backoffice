@@ -25598,3 +25598,45 @@ Backend-Architekt-Agent (2026-07-22): Phasen 3050–3054 implementiert — Fahre
 5. **Phase 3079 Kitchen:** AuslastungsRankingTicker — Bester Rang im Header; Alert Bottom-25%; Fahrerliste kompakt aufsteigend nach Rang; Rang-Badge + Auslastung%; Delta-Pfeile; 30-Min-Polling; in kitchen/client.tsx nach Phase3074.
 
 Frontend-Ingenieur-Agent (2026-07-22): Phasen 3070–3074 implementiert — Fahrer-Mehrjahres-Trend-Index. Neue Backend-API /api/delivery/admin/fahrer-mehrjahres-trend (3 Jahre Vorvorjahr/Vorjahr/Aktuell; 3 parallele Supabase-Abfragen batch_stops; Ampel grün≥2%delta/gelb±2%/rot<-2%; Alert "Negativer Mehrjahrestrend!"; jahre_pct[3]; driver_id-Modus; Mock) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3071 Dispatch (DispatchPhase3071MehrjahresTrendBoard, absteigend nach Trend-Score steigende zuerst, Sparkline-Balken 3 Jahre aktuell=blau, KPI-Grid Team-Ø 3 Jahre, Alert-Banner fallend, TrendingUp-Icon grün, Import+Render nach Phase3066+Barrel ✅) / Phase3072 Fahrer-App (FahrerPhase3072MeinMehrjahresTrend, Aktuell% 4xl+Farbcode, Sparkline-Balken 3 Jahre visuell aktuell=blau, Vorjahr+Vorvorjahr Grid, Team-Ø, Coaching-Tipp je Zone, isOnline-Guard, Import+Render nach Phase3067+Barrel ✅) / Phase3074 Kitchen (KitchenPhase3074MehrjahresTrendTicker, Team-Ø Aktuell% im Header, Alert "Negativer Mehrjahrestrend!", absteigend nach Trend-Score, Mini-Balken+Delta, Ziel steigender Trend, Import+Render nach Phase3069+Barrel ✅). Phase 3073 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root, node_modules nicht im Remote-Container). Push erfolgt. Nächste Phasen: 3075+.
+
+---
+
+## Batch 3075–3079 — Fahrer-Auslastungs-Ranking-Index (2026-07-22)
+
+### Phase 3075 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-auslastungs-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-auslastungs-ranking?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Ranking (1.–N.) je Fahrer nach Gesamtauslastung% heute (aktive Lieferminuten / 1440 Min × 100); Platz 1 = höchste Auslastung; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrigstes Auslastungs-Ranking!"; rank_delta vs. Vortag (negativ = verbessert); driver_id-Modus; 2 parallele Supabase(batch_stops)+Mock.
+
+### Phase 3076 — Auslastungs-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3076-auslastungs-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3076AuslastungsRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible (rot je Alert); Alert-Banner Bottom-25% "Niedrigstes Auslastungs-Ranking!"; KPI-Grid Bester/Team-Ø/Letzter; Fahrerliste aufsteigend nach Rang (1 oben); Rang-Badge (gold für #1); Balken 0–100% Auslastung%; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Rang-Delta-Pfeile (neg=grün/pos=rot); Trophy-Icon gold; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L895 + Render L4263 nach Phase3071 + Barrel-Export L12152 ✅
+
+### Phase 3077 — Mein Auslastungs-Ranking (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3077-mein-auslastungs-ranking.tsx` *(neu)*
+**Component:** `FahrerPhase3077MeinAuslastungsRanking`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Rang 4xl farbkodiert + Auslastung% 4xl; Rang-Balken 1–N (Breite = Position im Feld); Delta-Grid (Rang-Delta vs. Vortag / Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; driver_id-Modus; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L790 + Render L6342 nach Phase3072 + Barrel-Export L9866 ✅
+
+### Phase 3078 — Storefront
+Übersprungen (Ranking intern irrelevant für Kunden) ✅
+
+### Phase 3079 — Auslastungs-Ranking-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3079-auslastungs-ranking-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3079AuslastungsRankingTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Bester Fahrer (#1 Name + Auslastung%) im Header; Alert Bottom-25% "Niedrigstes Auslastungs-Ranking!"; Fahrerliste kompakt aufsteigend nach Rang (1 oben); Rang-Badge + Auslastung% + Rang-Delta-Pfeile; Team-Ø + Ziel-Anzeige; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L842 + Render L3844 nach Phase3074 + Barrel-Export L10729 ✅
+
+### Nächste Phasen 3080–3084 (für nächsten Ingenieur) — Fahrer-Liefergebiet-Ranking-Index
+1. **Phase 3080 Backend:** GET /api/delivery/admin/fahrer-liefergebiet-ranking — Ranking (1.–N.) je Fahrer nach Anzahl bedienter Zonen heute; Platz 1 = meiste Zonen; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenigste Zonen bedient!"; rank_delta vs. Vortag; driver_id-Modus; Supabase(batch_stops zone_id)+Mock.
+2. **Phase 3081 Dispatch:** LiefergebietRankingBoard — Fahrerliste aufsteigend nach Rang (1 oben); Rang-Badge + Anzahl Zonen; KPI-Grid Bester/Team-Ø/Letzter; Alert-Banner Bottom-25%; Rang-Delta-Pfeile; MapPin-Icon; 30-Min-Polling; in dispatch/client.tsx nach Phase3076.
+3. **Phase 3082 Fahrer-App:** MeinLiefergebietRanking — Rang 4xl + Zonen-Anzahl; Rang-Balken 1–N; Delta vs. Vortag; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3077.
+4. **Phase 3083 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3084 Kitchen:** LiefergebietRankingTicker — Bester Rang im Header; Alert Bottom-25%; Fahrerliste kompakt aufsteigend; Rang-Badge + Zonen-Anzahl; Delta-Pfeile; 30-Min-Polling; in kitchen/client.tsx nach Phase3079.
+
+Backend-Architekt-Agent (2026-07-22): Phasen 3075–3079 implementiert — Fahrer-Auslastungs-Ranking-Index. Neue Backend-API /api/delivery/admin/fahrer-auslastungs-ranking (Ranking 1–N nach Gesamtauslastung% heute, 2 parallele Supabase-Abfragen batch_stops heute+gestern, Ampel Top/Mitte/Bottom-25%, Alert Bottom-25% "Niedrigstes Auslastungs-Ranking!", rank_delta negativ=verbessert, driver_id-Modus, Mock-Fallback) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3076 Dispatch (DispatchPhase3076AuslastungsRankingBoard, Trophy-Icon gold, aufsteigend nach Rang 1 oben, Rang-Badge gold/#1/silber, Balken 0–100%, KPI-Grid Bester/Team-Ø/Letzter, Alert-Banner Bottom-25%, Rang-Delta-Pfeile neg=grün/pos=rot, Ampel-Legende, Import L895+Render L4263+Barrel L12152 ✅) / Phase3077 Fahrer-App (FahrerPhase3077MeinAuslastungsRanking, Rang 4xl+Auslastung% 4xl+Farbcode, Rang-Balken 1–N, Delta-Grid Rang-Delta/Team-Ø, Coaching-Tipp je Ampelzone, isOnline-Guard, driver_id-Modus, Import L790+Render L6342+Barrel L9866 ✅) / Phase3079 Kitchen (KitchenPhase3079AuslastungsRankingTicker, Bester #1 Name+Auslastung% im Header, Alert Bottom-25% "Niedrigstes Auslastungs-Ranking!", aufsteigend nach Rang, Rang-Badge+Auslastung%+Delta-Pfeile, Team-Ø+Ziel, Import L842+Render L3844+Barrel L10729 ✅). Phase 3078 Storefront übersprungen. Build exit code 0 ✅ (ignoreBuildErrors: true aktiv, Turbopack workspace-root pre-existing). Push erfolgt.
