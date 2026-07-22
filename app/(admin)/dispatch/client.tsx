@@ -12181,6 +12181,10 @@ export { DispatchPhase3096StoppEffizienzRankingBoard } from './phase3096-stopp-e
 export { DispatchPhase3101ReaktionszeitRankingBoard } from './phase3101-reaktionszeit-ranking-board';
 // Phase 3106 — Pünktlichkeits-Ranking-Board (Fahrerliste aufsteigend Rang 1=höchste Rate; Rang-Badge+Rate%; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Niedrigste Pünktlichkeitsrate!"; Delta-Pfeile; Clock-Icon grün; 30-Min-Polling)
 export { DispatchPhase3106PuenktlichkeitsRankingBoard } from './phase3106-puenktlichkeits-ranking-board';
+// Phase 3111 — Fahrer Touren-Einsatz-Matrix (Tabelle Stopps/h + km/Tour + Score je Fahrer; Trend-Pfeile; Team-Ø KPI-Grid; Alert schwache Leistung; 20-Sek-Polling)
+export { DispatchPhase3111FahrerTourenEinsatzMatrix } from './phase3111-fahrer-touren-einsatz-matrix';
+// Phase 3116 — Tour-Score Optimierungs-Cockpit (Optimierungstipps je Fahrer; aktueller vs. erreichbarer Score; Priorität hoch/mittel/niedrig; Team-Potenzial%; Alert Score <65; 30-Sek-Polling)
+export { DispatchPhase3116TourScoreOptimierungsCockpit } from './phase3116-tour-score-optimierungs-cockpit';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';

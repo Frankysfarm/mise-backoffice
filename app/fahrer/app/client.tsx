@@ -9896,6 +9896,10 @@ export { FahrerPhase3097MeineStoppEffizienz } from './phase3097-meine-stopp-effi
 export { FahrerPhase3102MeineReaktionszeit } from './phase3102-meine-reaktionszeit';
 // Phase 3107 — Meine Pünktlichkeit (Rang 4xl+Farbcode; Rate% 4xl; Rang-Balken 1–N; Δ vs. Vortag; Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3107MeinePuenktlichkeit } from './phase3107-meine-puenktlichkeit';
+// Phase 3112 — Nächster Stopp Live-Kommando (Hero-Stopp grün; ETA; Google Maps + Waze; Anruf; Stopp-Fortschrittsbalken; weitere Stopps aufklappbar; mobile-first; 15-Sek-Polling)
+export { FahrerPhase3112NaechsterStoppLiveKommando } from './phase3112-naechster-stopp-live-kommando';
+// Phase 3117 — Tour-Fortschritts-Live-Cockpit (Progress-Ring Stopps%; Score-Ring farbkodiert; ETA nächster+gesamt; km gefahren; Prognose-Fertig-Uhrzeit; 20-Sek-Polling)
+export { FahrerPhase3117TourFortschrittsLiveCockpit } from './phase3117-tour-fortschritts-live-cockpit';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';

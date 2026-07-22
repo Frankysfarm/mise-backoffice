@@ -4770,3 +4770,5 @@ export { LieferdienstPhase2620StatistikenEchtzeitFinalCockpit } from './phase262
 export { LieferdienstPhase2625StatistikEchtzeitExecutive } from './phase2625-statistiken-echtzeit-executive';
 // Phase 2630 — Statistiken Live Komplett (10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling)
 export { LieferdienstPhase2630StatistikenLiveKomplett } from './phase2630-statistiken-live-komplett';
+// Phase 2635 — Liefer-SLA Echtzeit-Cockpit (5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling)
+export { LieferdienstPhase2635LieferSlaEchtzeitCockpit } from './phase2635-liefer-sla-echtzeit-cockpit';

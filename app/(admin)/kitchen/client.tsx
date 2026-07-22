@@ -10758,6 +10758,10 @@ export { KitchenPhase3099StoppEffizienzTicker } from './phase3099-stopp-effizien
 export { KitchenPhase3104ReaktionszeitTicker } from './phase3104-reaktionszeit-ticker';
 // Phase 3109 — Pünktlichkeits-Ticker (Bester #1 Name+Rate% im Header; Alert Bottom-25% "Niedrigste Pünktlichkeitsrate!"; Fahrerliste kompakt aufsteigend Rang; Rang-Badge+Rate%; Delta-Pfeile; Clock-Icon grün; 30-Min-Polling)
 export { KitchenPhase3109PuenktlichkeitsTicker } from './phase3109-puenktlichkeits-ticker';
+// Phase 3114 — Bestellungs-Rückstand-Board (Überfällige Bestellungen farbkodiert gelb/rot/kritisch; Ø Verzögerung; On-Track-Zähler; Alert ≥3 überfällig; 15-Sek-Polling)
+export { KitchenPhase3114BestellungsRueckstandBoard } from './phase3114-bestellungs-rueckstand-board';
+// Phase 3119 — Smart Kochprozess-Optimierer (Ø Kochzeit je Kategorie vs. Ziel; Fortschrittsbalken Effizienz; KI-Tipps je Abweichung; Gesamt-Effizienz%; 30-Sek-Polling)
+export { KitchenPhase3119SmartKochprozessOptimierer } from './phase3119-smart-kochprozess-optimierer';
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
