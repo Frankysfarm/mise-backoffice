@@ -2,6 +2,24 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Frontend-Ingenieur-Agent (2026-07-22): Phasen 3095–3099 implementiert — Fahrer-Stopp-Effizienz-Ranking. Neue Backend-API /api/delivery/admin/fahrer-stopp-effizienz-ranking (Stopps pro aktiver Stunde je Fahrer heute aus batch_stops; aktive_stunden = (last_stop - first_stop)/3600; Ampel grün/gelb/rot Top-25%/Mitte-50%/Bottom-25%; Alert "Niedrigste Stopp-Effizienz!"; rank_delta vs. Vortag; driver_id-Modus; Supabase+Mock) + 3 neue Frontend-Komponenten: Phase3096 Dispatch (DispatchPhase3096StoppEffizienzRankingBoard, Zap-Icon, Rang-Badge+Stopps/h, KPI-Grid Bester/Team-Ø/Letzter, Alert Bottom-25%, Stopps+Stunden je Fahrer, Delta-Pfeile, Import+Render+Barrel in dispatch/client.tsx nach Phase3091 ✅) / Phase3097 Fahrer-App (FahrerPhase3097MeineStoppEffizienz, Rang 4xl+Farbcode, Stopps/h 4xl, Rang-Balken 1–N, Stopps-heute+aktive-Zeit Grid, Delta vs. Vortag, Team-Ø, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel in fahrer/app/client.tsx nach Phase3092 ✅) / Phase3099 Kitchen (KitchenPhase3099StoppEffizienzTicker, Bester #1 Name+Stopps/h im Header, Alert Bottom-25% "Niedrigste Stopp-Effizienz!", Fahrerliste kompakt aufsteigend, Rang-Badge+Stopps/h, Delta-Pfeile, Zap-Icon, Import+Render+Barrel in kitchen/client.tsx nach Phase3094 ✅). Phase 3098 Storefront übersprungen (intern irrelevant für Kunden). Build: pre-existing Turbopack workspace-root (ignoreBuildErrors:true aktiv). Push erfolgt.
+
+### Phasen 3095–3099 — Fahrer-Stopp-Effizienz-Ranking (ABGESCHLOSSEN 2026-07-22)
+1. **Phase 3095 Backend:** ✅ FERTIG — GET /api/delivery/admin/fahrer-stopp-effizienz-ranking (Stopps/h = total_stops / aktive_stunden; aktive_stunden aus first/last batch_stop; Ampel Top/Mitte/Bottom-25%; Alert "Niedrigste Stopp-Effizienz!"; rank_delta vs. Vortag; driver_id-Modus; Supabase+Mock)
+2. **Phase 3096 Dispatch:** ✅ FERTIG — DispatchPhase3096StoppEffizienzRankingBoard (aufsteigend Rang 1=höchste Stopps/h; Zap-Icon gelb; Rang-Badge; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25%; Stopps+Stunden Details; Delta-Pfeile; 30-Min-Polling; nach Phase3091)
+3. **Phase 3097 Fahrer-App:** ✅ FERTIG — FahrerPhase3097MeineStoppEffizienz (Rang 4xl; Stopps/h 4xl; Rang-Balken 1–N; Stopps-heute+aktive-Zeit; Delta vs. Vortag; Team-Ø; Coaching-Tipp; isOnline-Guard; nach Phase3092)
+4. **Phase 3098 Storefront:** ✅ Übersprungen (intern irrelevant für Kunden)
+5. **Phase 3099 Kitchen:** ✅ FERTIG — KitchenPhase3099StoppEffizienzTicker (Bester #1 Name+Stopps/h im Header; Alert Bottom-25% "Niedrigste Stopp-Effizienz!"; kompakt aufsteigend; Rang-Badge+Stopps/h; Delta-Pfeile; Zap-Icon; 30-Min-Polling; nach Phase3094)
+
+### Nächste Phasen 3100–3104 (für nächsten Ingenieur) — Fahrer-Reaktionszeit-Ranking
+1. **Phase 3100 Backend:** GET /api/delivery/admin/fahrer-reaktionszeit-ranking — Ranking (1.–N.) je Fahrer nach Ø Reaktionszeit (Sekunden, assigned_at → departed_at) heute; Rang 1 = kürzeste Reaktionszeit (beste); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Längste Reaktionszeit!"; rank_delta vs. Vortag; driver_id-Modus; Supabase(delivery_tours)+Mock.
+2. **Phase 3101 Dispatch:** ReaktionszeitRankingBoard — Fahrerliste aufsteigend nach Rang (1 oben); Rang-Badge + Ø Sek; KPI-Grid Bester/Team-Ø/Letzter; Alert-Banner Bottom-25%; Rang-Delta-Pfeile; Zap-Icon blau; 30-Min-Polling; in dispatch/client.tsx nach Phase3096.
+3. **Phase 3102 Fahrer-App:** MeineReaktionszeit — Rang 4xl + Ø Sek; Rang-Balken 1–N; Delta vs. Vortag; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3097.
+4. **Phase 3103 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3104 Kitchen:** ReaktionszeitTicker — Bester Rang #1 im Header (kürzeste Zeit); Alert Bottom-25%; Fahrerliste kompakt aufsteigend; Rang-Badge + Ø Sek; Delta-Pfeile; 30-Min-Polling; in kitchen/client.tsx nach Phase3099.
+
+---
+
 Backend-Architekt-Agent (2026-07-22): Phasen 3080–3094 implementiert — Fahrer-Liefergebiet-Ranking-Index. Neue Backend-API /api/delivery/admin/fahrer-liefergebiet-ranking (Ranking 1–N je Fahrer nach Anzahl bedienter Zonen heute via zone_id-Deduplication; 2 parallele Supabase-Abfragen batch_stops heute+gestern; Ampel Top-25%=grün/Mitte-50%=gelb/Bottom-25%=rot; Alert Bottom-25% "Wenigste Zonen bedient!"; rank_delta; driver_id-Modus; Mock-Fallback) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3091 Dispatch (DispatchPhase3091LiefergebietRankingBoard, Rang 1=meiste Zonen oben, Rang-Badge gold/#1/silber, Zonen-Anzahl+MapPin-Icon, KPI-Grid Bester/Team-Ø/Letzter, Alert-Banner Bottom-25%, Rang-Delta-Pfeile neg=grün, Import L898+Render L4273+Barrel L12168 ✅) / Phase3092 Fahrer-App (FahrerPhase3092MeinLiefergebietRanking, Rang 4xl+Farbcode, Zonen-Anzahl 4xl, Rang-Balken 1–N, Delta-Grid Rang-Delta/Team-Ø, Coaching-Tipp je Ampelzone, isOnline-Guard, Import L793+Render L6352+Barrel L9883 ✅) / Phase3094 Kitchen (KitchenPhase3094LiefergebietRankingTicker, Bester #1 Name+Zonen im Header, Alert Bottom-25% "Wenigste Zonen bedient!", kompakt aufsteigend, Rang-Badge+Zonen+Delta-Pfeile, Import L845+Render L3854+Barrel L10745 ✅). Phase 3093 Storefront übersprungen. tsc exit code 0 ✅. Push erfolgt.
 
 ### Phasen 3080–3094 — Fahrer-Liefergebiet-Ranking-Index (ABGESCHLOSSEN 2026-07-22)
@@ -11,12 +29,7 @@ Backend-Architekt-Agent (2026-07-22): Phasen 3080–3094 implementiert — Fahre
 4. **Phase 3093 Storefront:** ✅ Übersprungen (intern irrelevant)
 5. **Phase 3094 Kitchen:** ✅ FERTIG — KitchenPhase3094LiefergebietRankingTicker (Bester #1 im Header; Alert; kompakt aufsteigend; 30-Min-Polling; nach Phase3089)
 
-### Nächste Phasen 3095–3099 (für nächsten Ingenieur) — Fahrer-Stopp-Effizienz-Ranking
-1. **Phase 3095 Backend:** GET /api/delivery/admin/fahrer-stopp-effizienz-ranking — Ranking (1.–N.) je Fahrer nach Stopps pro aktiver Stunde heute; Rang 1 = höchste Stopp-Effizienz; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrigste Stopp-Effizienz!"; rank_delta vs. Vortag; driver_id-Modus; Supabase(batch_stops)+Mock.
-2. **Phase 3096 Dispatch:** StoppEffizienzRankingBoard — Fahrerliste aufsteigend nach Rang (1 oben); Rang-Badge + Stopps/h; KPI-Grid Bester/Team-Ø/Letzter; Alert-Banner Bottom-25%; Rang-Delta-Pfeile; Zap-Icon; 30-Min-Polling; in dispatch/client.tsx nach Phase3091.
-3. **Phase 3097 Fahrer-App:** MeineStoppEffizienz — Rang 4xl + Stopps/h; Rang-Balken 1–N; Delta vs. Vortag; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3092.
-4. **Phase 3098 Storefront:** Überspringen (intern irrelevant für Kunden).
-5. **Phase 3099 Kitchen:** StoppEffizienzTicker — Bester Rang #1 im Header; Alert Bottom-25%; Fahrerliste kompakt aufsteigend; Rang-Badge + Stopps/h; Delta-Pfeile; 30-Min-Polling; in kitchen/client.tsx nach Phase3094.
+### Phasen 3095–3099 — Fahrer-Stopp-Effizienz-Ranking (ABGESCHLOSSEN 2026-07-22 — siehe oben)
 
 ---
 
