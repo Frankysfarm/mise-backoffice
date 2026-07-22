@@ -902,6 +902,7 @@ import { DispatchPhase3106PuenktlichkeitsRankingBoard } from './phase3106-puenkt
 import { DispatchPhase3111FahrerTourenEinsatzMatrix } from './phase3111-fahrer-touren-einsatz-matrix';
 import { DispatchPhase3116TourScoreOptimierungsCockpit } from './phase3116-tour-score-optimierungs-cockpit';
 import { DispatchPhase3121AbschlussquotenRankingBoard } from './phase3121-abschlussquoten-ranking-board';
+import { DispatchPhase3126TourenDichteRankingBoard } from './phase3126-touren-dichte-ranking-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4289,6 +4290,8 @@ export function DispatchBoard({
           <DispatchPhase3116TourScoreOptimierungsCockpit />
           {/* Phase 3121: Abschlussquoten-Ranking-Board — Fahrerliste aufsteigend nach Rang; Rang-Badge + Quote%; KPI-Grid Bester/Team-Ø/Letzter; Alert-Banner Bottom-25%; Delta-Pfeile; CheckCircle-Icon grün; 30-Min-Polling */}
           <DispatchPhase3121AbschlussquotenRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3126: Touren-Dichte-Ranking-Board — Fahrerliste aufsteigend nach Rang; Rang-Badge + Touren-Anzahl; KPI-Grid Bester/Team-Ø/Letzter; Alert-Banner Bottom-25%; Delta-Pfeile; Route-Icon grün; 30-Min-Polling */}
+          <DispatchPhase3126TourenDichteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12196,6 +12199,8 @@ export { DispatchPhase3111FahrerTourenEinsatzMatrix } from './phase3111-fahrer-t
 export { DispatchPhase3116TourScoreOptimierungsCockpit } from './phase3116-tour-score-optimierungs-cockpit';
 // Phase 3121 — Abschlussquoten-Ranking-Board (Fahrerliste aufsteigend Rang 1=höchste Quote; Rang-Badge + Quote%; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Niedrigste Abschlussquote!"; Delta-Pfeile; CheckCircle-Icon grün; 30-Min-Polling)
 export { DispatchPhase3121AbschlussquotenRankingBoard } from './phase3121-abschlussquoten-ranking-board';
+// Phase 3126 — Touren-Dichte-Ranking-Board (Fahrerliste aufsteigend Rang 1=meiste Touren; Rang-Badge + Touren-Anzahl; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Wenigste Touren heute!"; Delta-Pfeile; Route-Icon grün; 30-Min-Polling)
+export { DispatchPhase3126TourenDichteRankingBoard } from './phase3126-touren-dichte-ranking-board';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
