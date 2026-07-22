@@ -935,6 +935,7 @@ import { DispatchPhase3271KundenbewertungRankingBoard } from './phase3271-kunden
 import { DispatchPhase3276SchichtEffizienzRankingBoard } from './phase3276-schicht-effizienz-ranking-board';
 import { DispatchPhase3281KilometerleistungRankingBoard } from './phase3281-kilometerleistung-ranking-board';
 import { DispatchPhase3286StornoQuoteRankingBoard } from './phase3286-storno-quote-ranking-board';
+import { DispatchPhase3291PuenktlichkeitRankingBoard } from './phase3291-puenktlichkeit-ranking-board';
 import { DispatchPhase3256TourScoreVisualisierungKommando } from './phase3256-tour-score-visualisierung-kommando';
 import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
@@ -4389,6 +4390,8 @@ export function DispatchBoard({
           <DispatchPhase3281KilometerleistungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3286: Storno-Quote-Ranking-Board — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote; Balken 0–maxQuote%; KPI-Grid Bester/Team-Ø/Höchste-Quote; Alert "Hohe Storno-Quote!"; Delta-Pfeile neg=grün; 30-Min-Polling */}
           <DispatchPhase3286StornoQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3291: Pünktlichkeits-Ranking-Board — Clock-Icon grün; absteigend Rang 1=höchste Rate%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3291PuenktlichkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3256: Tour-Score + Visualisierung Kommando-Zentrale — SVG Score-Ring; farbkodierte Stopp-Timelines; Sub-Scores; expandierbare Touren; 30-Sek-Polling */}
           <DispatchPhase3256TourScoreVisualisierungKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3200: Tour-Score Command Center — Score-Ring SVG je aktive Tour; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling */}
@@ -12367,6 +12370,8 @@ export { DispatchPhase3276SchichtEffizienzRankingBoard } from './phase3276-schic
 export { DispatchPhase3281KilometerleistungRankingBoard } from './phase3281-kilometerleistung-ranking-board';
 // Phase 3286 — Storno-Quote-Ranking-Board (XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote; Balken 0–maxQuote%; KPI-Grid Bester/Team-Ø/Höchste-Quote; Alert "Hohe Storno-Quote!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3286StornoQuoteRankingBoard } from './phase3286-storno-quote-ranking-board';
+// Phase 3291 — Pünktlichkeits-Ranking-Board (Clock-Icon grün; absteigend Rang 1=höchste Rate%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3291PuenktlichkeitRankingBoard } from './phase3291-puenktlichkeit-ranking-board';
 // Phase 3200 — Tour-Score Command Center (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling)
 export { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 

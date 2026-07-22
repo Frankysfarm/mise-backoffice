@@ -829,6 +829,7 @@ import { FahrerPhase3272MeineKundenbewertung } from './phase3272-meine-kundenbew
 import { FahrerPhase3277MeineSchichtEffizienz } from './phase3277-meine-schicht-effizienz';
 import { FahrerPhase3282MeineKilometerleistung } from './phase3282-meine-kilometerleistung';
 import { FahrerPhase3287MeineStornoQuote } from './phase3287-meine-storno-quote';
+import { FahrerPhase3292MeinePuenktlichkeit } from './phase3292-meine-puenktlichkeit';
 import { FahrerPhase3257TourStoppNavigationsUltraKommando } from './phase3257-tour-stopp-navigations-ultra-kommando';
 import { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-stopp-smart-kommando-ultra';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
@@ -6464,6 +6465,8 @@ export function FahrerApp({
           <FahrerPhase3282MeineKilometerleistung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3287: Meine Storno-Quote — XCircle-Icon rot; Quote% 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Trend/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3287MeineStornoQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3292: Meine Pünktlichkeit — Clock-Icon grün; Rate% 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Rang-Δ/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3292MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3257: Tour-Stopp Navigations-Ultra-Kommando — Hero-Stopp; Google-Maps-Link; Anruf-Button; Kommentar-Warnung; Fortschrittsring; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3257TourStoppNavigationsUltraKommando fahrerId={driver.id} />
           {/* Phase 3200: Tour-Stopp Smart-Kommando Ultra — Hero-Stopp mit Adresse+ETA-Countdown; Kundenkontakt; Pakete; Quick-Confirm-Button; weitere Stopps kompakt; mobile-first; 15-Sek-Polling+1-Sek-Tick */}
@@ -10073,6 +10076,8 @@ export { FahrerPhase3277MeineSchichtEffizienz } from './phase3277-meine-schicht-
 export { FahrerPhase3282MeineKilometerleistung } from './phase3282-meine-kilometerleistung';
 // Phase 3287 — Meine Storno-Quote (XCircle-Icon rot; Quote% 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Trend/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3287MeineStornoQuote } from './phase3287-meine-storno-quote';
+// Phase 3292 — Meine Pünktlichkeit (Clock-Icon grün; Rate% 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Rang-Δ/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3292MeinePuenktlichkeit } from './phase3292-meine-puenktlichkeit';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
