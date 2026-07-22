@@ -893,6 +893,8 @@ import { DispatchPhase3061QuartalauslastungBoard } from './phase3061-quartalausl
 import { DispatchPhase3066JahresauslastungBoard } from './phase3066-jahresauslastung-board';
 import { DispatchPhase3071MehrjahresTrendBoard } from './phase3071-mehrjahres-trend-board';
 import { DispatchPhase3076AuslastungsRankingBoard } from './phase3076-auslastungs-ranking-board';
+import { DispatchPhase3081TourScoreRankingLive } from './phase3081-tour-score-ranking-live';
+import { DispatchPhase3086TourVisualisierungLive } from './phase3086-tour-visualisierung-live';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4262,6 +4264,10 @@ export function DispatchBoard({
           <DispatchPhase3071MehrjahresTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3076: Auslastungs-Ranking-Board — aufsteigend nach Rang (1=beste Auslastung); Rang-Badge; Auslastung%; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Niedrigstes Auslastungs-Ranking!"; Rang-Delta-Pfeile; Trophy-Icon gold; 30-Min-Polling */}
           <DispatchPhase3076AuslastungsRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3081: Tour-Score Ranking Live — Score-Ring SVG je Fahrer 0–100; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Trend-Pfeile; Alert <60; 20-Sek-Polling */}
+          <DispatchPhase3081TourScoreRankingLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3086: Tour-Visualisierung Live — Touren je Fahrer; farbkodierte Stop-Dots; Fortschrittsbalken; ETA; Score-Arc; expandierbare Stopp-Liste; 25-Sek-Polling */}
+          <DispatchPhase3086TourVisualisierungLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
