@@ -823,6 +823,7 @@ import { FahrerPhase3237MeineStoppBewertung } from './phase3237-meine-stopp-bewe
 import { FahrerPhase3242MeineReaktionszeit } from './phase3242-meine-reaktionszeit';
 import { FahrerPhase3247MeineStoppdauer } from './phase3247-meine-stoppdauer';
 import { FahrerPhase3252MeinTrinkgeld } from './phase3252-mein-trinkgeld';
+import { FahrerPhase3257TourStoppNavigationsUltraKommando } from './phase3257-tour-stopp-navigations-ultra-kommando';
 import { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-stopp-smart-kommando-ultra';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
@@ -6445,6 +6446,8 @@ export function FahrerApp({
           <FahrerPhase3247MeineStoppdauer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3252: Mein Trinkgeld — Coins-Icon gelb; Rang 4xl + Ø-Trinkgeld€ 4xl farbkodiert; Rang-Balken 1–N; Δ-Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3252MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3257: Tour-Stopp Navigations-Ultra-Kommando — Hero-Stopp; Google-Maps-Link; Anruf-Button; Kommentar-Warnung; Fortschrittsring; mobile-first; 15-Sek-Polling */}
+          <FahrerPhase3257TourStoppNavigationsUltraKommando fahrerId={driver.id} />
           {/* Phase 3200: Tour-Stopp Smart-Kommando Ultra — Hero-Stopp mit Adresse+ETA-Countdown; Kundenkontakt; Pakete; Quick-Confirm-Button; weitere Stopps kompakt; mobile-first; 15-Sek-Polling+1-Sek-Tick */}
           <FahrerPhase3200TourStoppSmartKommandoUltra driverId={driver.id} />
           {/* Phase 2945: Tour-Stopp GPS-Navigator Ultimate — Hero-Stopp mit ETA-Countdown; Google Maps/Waze; Anruf; Fortschrittsring; Done-Counter; mobile-first; 15-Sek-Polling */}

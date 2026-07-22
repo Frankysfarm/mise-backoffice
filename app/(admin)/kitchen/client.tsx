@@ -876,6 +876,7 @@ import { KitchenPhase3239StoppBewertungTicker } from './phase3239-stopp-bewertun
 import { KitchenPhase3244ReaktionszeitTicker } from './phase3244-reaktionszeit-ticker';
 import { KitchenPhase3249StoppdauerTicker } from './phase3249-stoppdauer-ticker';
 import { KitchenPhase3254TrinkgeldTicker } from './phase3254-trinkgeld-ticker';
+import { KitchenPhase3259SmartKochstartCountdownUltra } from './phase3259-smart-kochstart-countdown-ultra';
 import { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
@@ -3951,6 +3952,8 @@ export function KitchenBoard({
       <KitchenPhase3249StoppdauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3254: Trinkgeld-Ticker — Coins-Icon gelb; Bester #1 Name+Trinkgeld€ im Header; Alert Bottom-25% "Niedriges Trinkgeld!"; kompakt absteigend; Rang+€+Delta; 30-Min-Polling */}
       <KitchenPhase3254TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3259: Smart-Kochstart Countdown Ultra — Echtzeit-Farbkodierung grün/gelb/rot/kritisch; Fahrer-ETA-Bridge; Kochstart-Empfehlung; 1-Sek-Tick */}
+      <KitchenPhase3259SmartKochstartCountdownUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3200: Smart-Kochstart-Kommando — Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; On-Time-Rate; 1-Sek-Tick+20-Sek-Polling */}
       <KitchenPhase3200SmartKochstartKommando />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}

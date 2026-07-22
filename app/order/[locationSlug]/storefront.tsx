@@ -174,6 +174,7 @@ import { StorefrontPhase998DynamischeEtaLiveTrackingUltra } from './phase998-dyn
 import { Phase999LiveTrackingEtaKommando } from './phase999-live-tracking-eta-kommando';
 import { Phase2660DynamischeEtaLiveTrackingFinal } from './phase2660-dynamische-eta-live-tracking-final';
 import { Phase2665EtaLiveTrackerPro } from './phase2665-eta-live-tracker-pro';
+import { StorefrontPhase2670DynamischeEtaLiveTrackingUltraPro } from './phase2670-dynamische-eta-live-tracking-ultra-pro';
 import { Phase1000LiveBestellstatusTimelinePro } from './phase1000-live-bestellstatus-timeline-pro';
 import { StorefrontPhase1006KuechenAuslastungsAnzeige } from './phase1006-kuechen-auslastungs-anzeige';
 import { StorefrontPhase1011BestellabbruchPraevention } from './phase1011-bestellabbruch-praevention';
@@ -961,6 +962,15 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
               initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 35}
               bestellnummer={orderSuccess.orderId?.slice(-6)}
               orderedAt={orderSuccess.orderedAt}
+            />
+          </div>
+        )}
+        {/* Phase 2670: Dynamische ETA Live-Tracking Ultra Pro — 5-Schritt Status-Timeline; Konfidenz-Anzeige; Fahrer-Annäherung; Verzögerungs-Alert; 30-Sek-Polling */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <StorefrontPhase2670DynamischeEtaLiveTrackingUltraPro
+              orderId={orderSuccess.orderId}
+              locationSlug={location.id}
             />
           </div>
         )}
