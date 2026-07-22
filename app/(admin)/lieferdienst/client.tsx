@@ -4790,3 +4790,6 @@ export { LieferdienstPhase1001StatistikenMasterDashboard } from './phase1001-sta
 export { LieferdienstPhase2640StatistikSchichtIntelligence } from './phase2640-statistiken-schicht-intelligence';
 // Phase 2645 — Statistiken Live-Cockpit (8 KPI-Kacheln Ampel+Trend; Stunden-BarChart 2-Modi Bestellungen/Umsatz umschaltbar; aktuelle Stunde hervorgehoben; Alert-Strip; 2-Min-Polling)
 export { LieferdienstPhase2645StatistikLiveCockpit } from './phase2645-statistiken-live-cockpit';
+
+// Phase 2650 — Statistiken Echtzeit Ultimate Cockpit (10 KPI-Kacheln Ampel+Trend+Ziel; Stundenverlauf-BarChart 2-Modi Bestellungen/Umsatz umschaltbar; Zonen-Ranking Balken+Lieferzeit; Alert-Strip; 2-Min-Polling)
+export { LieferdienstPhase2650StatistikEchtzeitUltimateCockpit } from './phase2650-statistiken-echtzeit-ultimate-cockpit';

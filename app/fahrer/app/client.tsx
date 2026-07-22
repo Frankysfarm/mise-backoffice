@@ -10046,3 +10046,6 @@ export { FahrerPhase3252MeinTrinkgeld } from './phase3252-mein-trinkgeld';
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
 // Phase 3200 — Tour-Stopp Smart-Kommando Ultra (Hero-Stopp Adresse+ETA-Countdown 1-Sek-Tick + Kunden-Kontakt + Pakete + Confirm-Button; Weitere-Stopps kompakt; mobile-first; 15-Sek-Polling)
 export { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-stopp-smart-kommando-ultra';
+
+// Phase 3257 — Tour-Stopp Navigations-Ultra-Kommando (Hero-Stopp Adresse+Kunde+ETA-Countdown 1-Sek-Tick; Google-Maps-Link; Anruf-Button; Kommentar-Warnung; Weitere-Stopps aufklappbar; Fortschrittsring; Rückkehr-ETA; mobile-first; 15-Sek-Polling)
+export { FahrerPhase3257TourStoppNavigationsUltraKommando } from './phase3257-tour-stopp-navigations-ultra-kommando';

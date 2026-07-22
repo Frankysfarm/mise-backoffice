@@ -12337,3 +12337,6 @@ export { DispatchPhase3246StoppdauerRankingBoard } from './phase3246-stoppdauer-
 export { DispatchPhase3251TrinkgeldRankingBoard } from './phase3251-trinkgeld-ranking-board';
 // Phase 3200 — Tour-Score Command Center (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling)
 export { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
+
+// Phase 3256 — Tour-Score + Visualisierung Kommando-Zentrale (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Timeline grün/blau/grau; Sub-Scores Pünktlichkeit/Abschluss/Speed; Fortschrittsbalken; ETA-Rückkehr; Alert Score <65; 20-Sek-Polling)
+export { DispatchPhase3256TourScoreVisualisierungKommando } from './phase3256-tour-score-visualisierung-kommando';

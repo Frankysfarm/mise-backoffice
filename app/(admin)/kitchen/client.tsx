@@ -10914,3 +10914,6 @@ export { KitchenPhase3249StoppdauerTicker } from './phase3249-stoppdauer-ticker'
 export { KitchenPhase3254TrinkgeldTicker } from './phase3254-trinkgeld-ticker';
 // Phase 3200 — Smart-Kochstart-Kommando (Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; 1-Sek-Tick + 20-Sek-Polling)
 export { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
+
+// Phase 3259 — Smart-Kochstart Countdown Ultra (Echtzeit-Countdown grün/gelb/rot/kritisch je Bestellung; Kochstart-Empfehlung-Badge; Fahrer-ETA-Bridge; Fortschrittsbalken; Farbkodierungs-Legende; 1-Sek-Tick + 15-Sek-Polling)
+export { KitchenPhase3259SmartKochstartCountdownUltra } from './phase3259-smart-kochstart-countdown-ultra';
