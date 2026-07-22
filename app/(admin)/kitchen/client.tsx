@@ -848,6 +848,7 @@ import { KitchenPhase3104ReaktionszeitTicker } from './phase3104-reaktionszeit-t
 import { KitchenPhase3109PuenktlichkeitsTicker } from './phase3109-puenktlichkeits-ticker';
 import { KitchenPhase3114BestellungsRueckstandBoard } from './phase3114-bestellungs-rueckstand-board';
 import { KitchenPhase3119SmartKochprozessOptimierer } from './phase3119-smart-kochprozess-optimierer';
+import { KitchenPhase3124AbschlussquotenTicker } from './phase3124-abschlussquoten-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3867,6 +3868,8 @@ export function KitchenBoard({
       <KitchenPhase3114BestellungsRueckstandBoard />
       {/* Phase 3119: Smart-Kochprozess-Optimierer — Ø Kochzeit je Kategorie vs. Ziel; Effizienz-Balken; KI-Tipps je Abweichung; Gesamt-Effizienz%; 30-Sek-Polling */}
       <KitchenPhase3119SmartKochprozessOptimierer />
+      {/* Phase 3124: Abschlussquoten-Ticker — Bester #1 im Header; Alert Bottom-25%; Fahrerliste kompakt aufsteigend; Rang-Badge + Quote%; Delta-Pfeile; 30-Min-Polling */}
+      <KitchenPhase3124AbschlussquotenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10768,6 +10771,8 @@ export { KitchenPhase3109PuenktlichkeitsTicker } from './phase3109-puenktlichkei
 export { KitchenPhase3114BestellungsRueckstandBoard } from './phase3114-bestellungs-rueckstand-board';
 // Phase 3119 — Smart Kochprozess-Optimierer (Ø Kochzeit je Kategorie vs. Ziel; Fortschrittsbalken Effizienz; KI-Tipps je Abweichung; Gesamt-Effizienz%; 30-Sek-Polling)
 export { KitchenPhase3119SmartKochprozessOptimierer } from './phase3119-smart-kochprozess-optimierer';
+// Phase 3124 — Abschlussquoten-Ticker (Bester #1 Name+Quote% im Header; Alert Bottom-25% "Niedrigste Abschlussquote!"; kompakt aufsteigend; Rang-Badge+Quote%; Delta-Pfeile; 30-Min-Polling)
+export { KitchenPhase3124AbschlussquotenTicker } from './phase3124-abschlussquoten-ticker';
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
