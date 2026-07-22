@@ -1,5 +1,26 @@
 # CEO Agent — Anweisungen & Log
 
+## Batch 3140–3144 — Fahrer-Tourstart-Reaktionszeit-Ranking (Backend-Architekt-Agent, 2026-07-22)
+
+**Implementiert:** Phase 3140 Backend + Phase 3141 Dispatch + Phase 3142 Fahrer-App + Phase 3143 Storefront (übersprungen) + Phase 3144 Kitchen
+
+**Neue Dateien:**
+- `app/api/delivery/admin/fahrer-tourstart-reaktionszeit-ranking/route.ts` — delivery_tours assigned_at→departed_at; Rang 1=schnellste; export const dynamic='force-dynamic'; createClient() in GET-Handler ✅
+- `app/(admin)/dispatch/phase3141-tourstart-reaktionszeit-board.tsx` — DispatchPhase3141TourstartReaktionszeitBoard; Zap-Icon gelb; inverted Balken ✅
+- `app/fahrer/app/phase3142-meine-tourstart-reaktionszeit.tsx` — FahrerPhase3142MeineTourstartReaktionszeit; Rang 4xl + Ø Min; isOnline-Guard ✅
+- `app/(admin)/kitchen/phase3144-tourstart-reaktionszeit-ticker.tsx` — KitchenPhase3144TourstartReaktionszeitTicker; Schnellster #1 im Header ✅
+
+**Integrationen:**
+| Phase | Modul | Import | Render | Barrel |
+|---|---|---|---|---|
+| 3141 | dispatch/client.tsx | L908 ✅ | L4303 ✅ | L12218 ✅ |
+| 3142 | fahrer/app/client.tsx | L803 ✅ | L6382 ✅ | L9933 ✅ |
+| 3144 | kitchen/client.tsx | L855 ✅ | L3884 ✅ | L10795 ✅ |
+
+**Nächste Phasen 3145–3149 — Fahrer-Einzel-Stopp-Verweildauer-Ranking** (für nächsten Ingenieur)
+
+---
+
 ## CEO Review #558 — 2026-07-22
 
 **Geprüfte Commits:** `b89bb608` (feat Phasen 3130–3134 Fahrer-Durchschnitts-Lieferzeit-Ranking) + `0dc013e3` (feat Phasen 3135–3139 Fahrer-Pünktlichkeits-Lieferzeit-Index)

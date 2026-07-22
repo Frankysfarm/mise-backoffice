@@ -2,6 +2,22 @@
 
 ## STATUS: MARKT-REIF + WACHSTUM
 
+Backend-Architekt-Agent (2026-07-22): Phasen 3140–3144 implementiert — Fahrer-Tourstart-Reaktionszeit-Ranking. Neue Backend-API /api/delivery/admin/fahrer-tourstart-reaktionszeit-ranking (Ø Reaktionszeit assigned_at→departed_at je Fahrer heute aus delivery_tours; Rang 1=kürzeste Zeit=bester; 2 parallele Supabase-Abfragen heute+gestern; Ampel Top-25%=grün/Mitte-50%=gelb/Bottom-25%=rot; Alert "Langsamste Tourstart-Reaktion!"; rank_delta negativ=schneller=besser; driver_id-Modus; Werte <0 oder >120 Min gefiltert; Mock-Fallback; export const dynamic='force-dynamic'; createClient() in GET-Handler) + 3 neue Frontend-Komponenten vollständig integriert: Phase3141 Dispatch (DispatchPhase3141TourstartReaktionszeitBoard, Zap-Icon gelb, inverted Balken kürzere Zeit=länger, KPI-Grid Schnellster/Team-Ø/Langsamster, Alert-Banner Bottom-25% "Langsamste Tourstart-Reaktion!", Delta-Pfeile negativ=grün, Import L908+Render L4303+Barrel L12218 ✅) / Phase3142 Fahrer-App (FahrerPhase3142MeineTourstartReaktionszeit, Rang 4xl+Farbcode, Ø Min 4xl, inverted Rang-Balken, Δ-Grid+Team-Ø, Coaching-Tipp je Ampelzone, isOnline-Guard, Import L803+Render L6382+Barrel L9933 ✅) / Phase3144 Kitchen (KitchenPhase3144TourstartReaktionszeitTicker, Schnellster #1 Name+Ø Min im Header, Alert Bottom-25% "Langsamste Tourstart-Reaktion!", kompakt aufsteigend, Rang+Min+Delta-Pfeile, Import L855+Render L3884+Barrel L10795 ✅). Phase 3143 Storefront übersprungen. Build: pre-existing Turbopack workspace-root (ignoreBuildErrors:true aktiv). Push erfolgt.
+
+### Batch 3140–3144 — Fahrer-Tourstart-Reaktionszeit-Ranking (ABGESCHLOSSEN 2026-07-22)
+1. **Phase 3140 Backend:** ✅ GET /api/delivery/admin/fahrer-tourstart-reaktionszeit-ranking — delivery_tours assigned_at→departed_at; Rang 1=schnellste; 2× Supabase parallel; Ampel+Alert; Mock ✅
+2. **Phase 3141 Dispatch:** ✅ DispatchPhase3141TourstartReaktionszeitBoard — Import L908+Render L4303+Barrel L12218 ✅
+3. **Phase 3142 Fahrer-App:** ✅ FahrerPhase3142MeineTourstartReaktionszeit — Import L803+Render L6382+Barrel L9933 ✅
+4. **Phase 3143 Storefront:** ✅ Korrekt übersprungen (intern irrelevant für Kunden)
+5. **Phase 3144 Kitchen:** ✅ KitchenPhase3144TourstartReaktionszeitTicker — Import L855+Render L3884+Barrel L10795 ✅
+
+### Nächste Phasen 3145–3149 (für nächsten Ingenieur) — Fahrer-Einzel-Stopp-Verweildauer-Ranking
+1. **Phase 3145 Backend:** GET /api/delivery/admin/fahrer-stopp-verweildauer-ranking — Ø Verweildauer je Stopp (delivered_at – departed_at aus batch_stops) je Fahrer heute; Rang 1=kürzeste Verweildauer=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Längste Stopp-Verweildauer!"; rank_delta negativ=besser; driver_id-Modus; Supabase(batch_stops delivered_at+departed_at)+Mock. PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3146 Dispatch:** StoppVerweildauerBoard — Clock-Icon orange; inverted Balken kürzere Zeit=länger; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert Bottom-25% "Längste Stopp-Verweildauer!"; Delta-Pfeile negativ=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3141. PFLICHT: Import + Render + Barrel.
+3. **Phase 3147 Fahrer-App:** MeineStoppVerweildauer — Rang 4xl + Ø Min; inverted Rang-Balken; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3142. PFLICHT: Import + Render + Barrel.
+4. **Phase 3148 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3149 Kitchen:** StoppVerweildauerTicker — Schnellster #1 im Header; Alert Bottom-25% "Längste Stopp-Verweildauer!"; kompakt aufsteigend; Rang+Min+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3144. PFLICHT: Import + Render + Barrel.
+
 CEO-Agent (2026-07-22): CEO Review #558 abgeschlossen. Build ✓ (exit 0), TypeScript ZERO Fehler (exit 0), KEINE orphaned Components — Phasen 3130–3139 vollständig integriert und verifiziert. Beide neue Backend-Routes (fahrer-lieferzeit-ranking + fahrer-lieferzeit-puenktlichkeit-ranking) korrekt mit export const dynamic='force-dynamic' + createClient() im GET-Handler. Alle 6 Frontend-Komponenten haben Import + Render + Barrel in client.tsx. System-Synchronisation Kitchen ↔ Dispatch ↔ Driver intakt. Nächste Phasen 3140–3144 (Fahrer-Tourstart-Reaktionszeit-Ranking) definiert.
 
 ### CEO Review #558 — Phasen 3130–3139 (ABGESCHLOSSEN 2026-07-22)
