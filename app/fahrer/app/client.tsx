@@ -828,6 +828,7 @@ import { FahrerPhase3267MeineRetourenquote } from './phase3267-meine-retourenquo
 import { FahrerPhase3272MeineKundenbewertung } from './phase3272-meine-kundenbewertung';
 import { FahrerPhase3277MeineSchichtEffizienz } from './phase3277-meine-schicht-effizienz';
 import { FahrerPhase3282MeineKilometerleistung } from './phase3282-meine-kilometerleistung';
+import { FahrerPhase3287MeineStornoQuote } from './phase3287-meine-storno-quote';
 import { FahrerPhase3257TourStoppNavigationsUltraKommando } from './phase3257-tour-stopp-navigations-ultra-kommando';
 import { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-stopp-smart-kommando-ultra';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
@@ -6461,6 +6462,8 @@ export function FahrerApp({
           <FahrerPhase3277MeineSchichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3282: Meine Kilometerleistung — Route-Icon blau; km 5xl+Rang 4xl farbkodiert; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3282MeineKilometerleistung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3287: Meine Storno-Quote — XCircle-Icon rot; Quote% 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Trend/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3287MeineStornoQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3257: Tour-Stopp Navigations-Ultra-Kommando — Hero-Stopp; Google-Maps-Link; Anruf-Button; Kommentar-Warnung; Fortschrittsring; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3257TourStoppNavigationsUltraKommando fahrerId={driver.id} />
           {/* Phase 3200: Tour-Stopp Smart-Kommando Ultra — Hero-Stopp mit Adresse+ETA-Countdown; Kundenkontakt; Pakete; Quick-Confirm-Button; weitere Stopps kompakt; mobile-first; 15-Sek-Polling+1-Sek-Tick */}
@@ -10068,6 +10071,8 @@ export { FahrerPhase3272MeineKundenbewertung } from './phase3272-meine-kundenbew
 // Phase 3277 — Meine Schicht-Effizienz (Zap-Icon blau; Rang 4xl + Score; Stopps/h + km/Stopp; Rang-Balken 1–N; Trend-Grid; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3277MeineSchichtEffizienz } from './phase3277-meine-schicht-effizienz';
 export { FahrerPhase3282MeineKilometerleistung } from './phase3282-meine-kilometerleistung';
+// Phase 3287 — Meine Storno-Quote (XCircle-Icon rot; Quote% 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Trend/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3287MeineStornoQuote } from './phase3287-meine-storno-quote';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';

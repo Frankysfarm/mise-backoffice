@@ -26548,11 +26548,38 @@ Backend-Architekt-Agent (2026-07-22): Phasen 3271–3274 implementiert — Fahre
 | Cron ↔ Backend | ✅ |
 | Admin ↔ Lieferdienst | ✅ |
 
-### Nächste Phasen 3285–3289 (für nächsten Ingenieur) — Fahrer-Storno-Quote-Ranking
-1. **Phase 3285 Backend:** GET /api/delivery/admin/fahrer-storno-quote — Stornierungsrate je Fahrer heute (stornierte Bestellungen / Gesamtbestellungen); Rang 1=niedrigste Quote=bester; Ampel grün(Top-25% = niedrigste Storno)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Hohe Storno-Quote!"; rank_delta negativ=verbessert (weniger Stornos); Supabase(customer_orders status+driver_id heute+gestern)+Mock.
-2. **Phase 3286 Dispatch:** StornoQuoteRankingBoard — aufsteigend Rang 1=niedrigste Quote; Balken 0–maxQuote%; KPI-Grid Bester/Team-Ø/Höchste-Quote; Alert "Hohe Storno-Quote!"; Delta-Pfeile neg=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3281.
-3. **Phase 3287 Fahrer-App:** MeineStornoQuote — Quote% 5xl+Rang 4xl farbkodiert; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3282.
-4. **Phase 3288 Storefront:** Überspringen (intern irrelevant für Kunden).
-5. **Phase 3289 Kitchen:** StornoQuoteTicker — Bester #1 Name+Quote% im Header; Alert "Hohe Storno-Quote!"; kompakt aufsteigend; Rang+Quote%+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3284.
+## Batch 3285–3289 — Fahrer-Storno-Quote-Ranking (2026-07-22)
+
+### Phase 3285 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-storno-quote/route.ts` *(bereits vorhanden seit Phase 2440)*
+**Hinweis:** Bestehende Implementation genutzt (quote_pct, fahrer_name, ampel grün<5%/gelb5–10%/rot>10%, trend_delta, rang). Nicht doppelt implementiert.
+
+### Phase 3286 — Storno-Quote-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3286-storno-quote-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3286StornoQuoteRankingBoard`
+**UI:** Collapsible; Alert rot "Hohe Storno-Quote!"; KPI-Grid Bester/Team-Ø/Höchste-Quote; aufsteigend Rang 1=niedrigste Quote; XCircle-Icon rot; Balken 0–maxQuote%; Delta neg=grün; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L937 + Render L4392 nach Phase3281 + Barrel-Export ✅
+
+### Phase 3287 — Meine Storno-Quote (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3287-meine-storno-quote.tsx` *(neu)*
+**Component:** `FahrerPhase3287MeineStornoQuote`
+**UI:** Collapsible; Quote% 5xl + Rang 3xl farbkodiert; Rang-Balken 1–N; Trend/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L831 + Render L6467 nach Phase3282 + Barrel-Export ✅
+
+### Phase 3288 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3289 — Storno-Quote-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3289-storno-quote-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3289StornoQuoteTicker`
+**UI:** Collapsible; Bester #1 Name+Quote% im Header; Alert "Hohe Storno-Quote!"; kompakt aufsteigend; XCircle-Icon rot; Rang+Quote%+Delta neg=grün; Team-Ø; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L884 + Render L3972 nach Phase3284 + Barrel-Export ✅
+
+### Nächste Phasen 3290–3294 (für nächsten Ingenieur) — Fahrer-Pünktlichkeits-Ranking
+1. **Phase 3290 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit — Pünktlichkeitsrate je Fahrer heute (% Lieferungen in Zeitfenster/ETA); Rang 1=höchste Rate=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Pünktlichkeit!"; rank_delta pos=verbessert; Supabase+Mock. PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3291 Dispatch:** PuenktlichkeitRankingBoard — Clock-Icon grün; absteigend Rang 1=höchste Rate%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3286. PFLICHT: Import + Render + Barrel.
+3. **Phase 3292 Fahrer-App:** MeinePuenktlichkeit — Clock-Icon grün; Rate% 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Rang-Δ/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3287. PFLICHT: Import + Render + Barrel.
+4. **Phase 3293 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3294 Kitchen:** PuenktlichkeitTicker — Clock-Icon grün; Bester #1 Name+Rate% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+Rate%+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3289. PFLICHT: Import + Render + Barrel.
 
 Frontend-Ingenieur-Agent (2026-07-22): Phasen 3276–3279 implementiert — Fahrer-Schicht-Effizienz-Index. Phase 3275 Backend bereits vorhanden aus Phase 1816 (reichhaltigere Implementation mit Score 0–100, Touren/h, km/Stopp, Wartezeiten, 7-Tage-Verlauf). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3276 Dispatch (DispatchPhase3276SchichtEffizienzRankingBoard, Zap-Icon blau, absteigend Rang 1=höchste Effizienz, Score-Balken 0–100, Stopps/h+km/Stopp je Row, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Schicht-Effizienz!", Import+Render+Barrel ✅) / Phase3277 Fahrer-App (FahrerPhase3277MeineSchichtEffizienz, Zap-Icon blau, Score 5xl+Rang 3xl farbkodiert, Stopps/h+km/Stopp-Grid, Rang-Balken 1–N, Trend-Grid, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3279 Kitchen (KitchenPhase3279SchichtEffizienzTicker, Zap-Icon blau, Bester #1 Name+Score im Header, Alert "Niedrige Schicht-Effizienz!", kompakt absteigend, Rang+Score+Delta-Pfeile, Team-Ø+Ziel≥75 Pkt., Import+Render+Barrel ✅). Phase 3278 Storefront übersprungen. Build: erfolgreich ✅. Push erfolgt.
