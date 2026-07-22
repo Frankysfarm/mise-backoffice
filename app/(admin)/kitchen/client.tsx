@@ -10728,6 +10728,10 @@ export { KitchenPhase3064QuartalauslastungTicker } from './phase3064-quartalausl
 export { KitchenPhase3069JahresauslastungTicker } from './phase3069-jahresauslastung-ticker';
 export { KitchenPhase3074MehrjahresTrendTicker } from './phase3074-mehrjahres-trend-ticker';
 export { KitchenPhase3079AuslastungsRankingTicker } from './phase3079-auslastungs-ranking-ticker';
+// Phase 3084 — Smart-Timing Countdown Ultra (Sekundengenauer Countdown je Bestellung; Farbkodierung grün/gelb/rot/kritisch; On-Time-Rate; Kochstart-Empfehlung; 1-Sek-Tick + 15-Sek-Polling)
+export { KitchenPhase3084SmartTimingCountdownUltra } from './phase3084-smart-timing-countdown-ultra';
+// Phase 3089 — Echtzeit Farbkodierungs-Board (Stations-Auslastung farbkodiert grün/gelb/rot; Balken; Gesamt-Auslastung; Ø Wartezeit; Alert Überlastung; 20-Sek-Polling)
+export { KitchenPhase3089EchtzeitFarbkodierungsBoard } from './phase3089-echtzeit-farbkodierungs-board';
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';

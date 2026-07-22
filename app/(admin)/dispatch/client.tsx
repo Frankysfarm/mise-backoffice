@@ -12151,6 +12151,10 @@ export { DispatchPhase3061QuartalauslastungBoard } from './phase3061-quartalausl
 export { DispatchPhase3066JahresauslastungBoard } from './phase3066-jahresauslastung-board';
 export { DispatchPhase3071MehrjahresTrendBoard } from './phase3071-mehrjahres-trend-board';
 export { DispatchPhase3076AuslastungsRankingBoard } from './phase3076-auslastungs-ranking-board';
+// Phase 3081 — Tour-Score Ranking Live (Score-Ring SVG 0–100 je Fahrer; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Trend-Pfeile; Team-Ø; Alert Score <60; 20-Sek-Polling)
+export { DispatchPhase3081TourScoreRankingLive } from './phase3081-tour-score-ranking-live';
+// Phase 3086 — Tour-Visualisierung Live (Touren je Fahrer; farbkodierte Stop-Dots; Fortschrittsbalken; ETA; Score-Arc; expandierbare Stopp-Liste mit Adressen; 25-Sek-Polling)
+export { DispatchPhase3086TourVisualisierungLive } from './phase3086-tour-visualisierung-live';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';

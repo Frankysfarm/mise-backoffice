@@ -9866,6 +9866,10 @@ export { FahrerPhase3062MeineQuartalauslastung } from './phase3062-meine-quartal
 export { FahrerPhase3067MeineJahresauslastung } from './phase3067-meine-jahresauslastung';
 export { FahrerPhase3072MeinMehrjahresTrend } from './phase3072-mein-mehrjahres-trend';
 export { FahrerPhase3077MeinAuslastungsRanking } from './phase3077-mein-auslastungs-ranking';
+// Phase 3082 — Tour-Stopp Navigator Pro (Hero-Stopp farbkodiert; ETA; Google Maps + Waze Navigation; Anruf; Angekommen/Zugestellt; Weitere-Stopps aufklappbar; mobile-first; 15-Sek-Polling)
+export { FahrerPhase3082TourStoppNavigatorPro } from './phase3082-tour-stopp-navigator-pro';
+// Phase 3087 — Tour Navi-Cockpit (Score-Ring; ETA nächster + gesamt; Ø/Stopp; Prognose-Fertig; Google Maps + Waze; mobile-first; 20-Sek-Polling)
+export { FahrerPhase3087TourNaviCockpit } from './phase3087-tour-navi-cockpit';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';

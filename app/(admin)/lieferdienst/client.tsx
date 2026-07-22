@@ -4765,3 +4765,5 @@ export { LieferdienstPhase2620StatistikenEchtzeitFinalCockpit } from './phase262
 
 // Phase 2625 — Statistiken Echtzeit Executive (10 KPI-Kacheln Ampel+Trend; Stundenverlauf-Chart Bestellungen/Umsatz umschaltbar; Zonen-Ranking Top-5; Fahrer-Top-3; Alert-Strip; 3-Min-Polling)
 export { LieferdienstPhase2625StatistikEchtzeitExecutive } from './phase2625-statistiken-echtzeit-executive';
+// Phase 2630 — Statistiken Live Komplett (10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling)
+export { LieferdienstPhase2630StatistikenLiveKomplett } from './phase2630-statistiken-live-komplett';
