@@ -6403,13 +6403,10 @@ export function FahrerApp({
           <FahrerPhase3177MeinBestellwert driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3182: Mein Bewertungs-Score — Rang 4xl + Sterne-Wert 4xl; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3182MeinBewertungsScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
-<<<<<<< HEAD
           {/* Phase 3182b: Meine Trinkgeld-Quote — Rang 4xl + %-Quote + €-Gesamt; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3182MeineTrinkgeldQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
-=======
           {/* Phase 3192: Meine Touren-Anzahl — Rang 4xl + Touren-Zahl 4xl; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3192MeineTourenAnzahl driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
->>>>>>> 36838eb1 (review(delivery): CEO Review #562 — Phasen 3190–3194 Touren-Anzahl-Ranking + Duplikat 3185–3189 verhindert)
           {/* Phase 2945: Tour-Stopp GPS-Navigator Ultimate — Hero-Stopp mit ETA-Countdown; Google Maps/Waze; Anruf; Fortschrittsring; Done-Counter; mobile-first; 15-Sek-Polling */}
           <FahrerPhase2945TourStoppGpsNavigatorUltimate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2920: Tour-Stopp Ultra-Navigator — Hero-Stopp farbkodiert ETA-Countdown; Maps/Waze/Anruf; Angekommen/Zugestellt; Sequenz-Dots; 1-Sek-Tick+15-Sek-Polling */}
@@ -9975,13 +9972,10 @@ export { FahrerPhase3167TourStoppNavigationsMaster } from './phase3167-tour-stop
 export { FahrerPhase3177MeinBestellwert } from './phase3177-mein-bestellwert';
 // Phase 3182 — Mein Bewertungs-Score (Rang 4xl + Sterne-Wert 4xl; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3182MeinBewertungsScore } from './phase3182-mein-bewertungs-score';
-<<<<<<< HEAD
 // Phase 3182b — Meine Trinkgeld-Quote (Rang 4xl + %-Quote + €-Gesamt; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3182MeineTrinkgeldQuote } from './phase3182-meine-trinkgeld-quote';
-=======
 // Phase 3192 — Meine Touren-Anzahl (Rang 4xl + Touren-Zahl 4xl; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3192MeineTourenAnzahl } from './phase3192-meine-touren-anzahl';
->>>>>>> 36838eb1 (review(delivery): CEO Review #562 — Phasen 3190–3194 Touren-Anzahl-Ranking + Duplikat 3185–3189 verhindert)
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
