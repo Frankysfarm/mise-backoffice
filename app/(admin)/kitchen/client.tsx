@@ -856,6 +856,7 @@ import { KitchenPhase3144TourstartReaktionszeitTicker } from './phase3144-tourst
 import { KitchenPhase3149StoppVerweildauerTicker } from './phase3149-stopp-verweildauer-ticker';
 import { KitchenPhase3154LeerfahrtenTicker } from './phase3154-leerfahrten-ticker';
 import { KitchenPhase3159TageskilometerTicker } from './phase3159-tageskilometer-ticker';
+import { KitchenPhase3164StoppdauerTicker } from './phase3164-stoppdauer-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3891,6 +3892,8 @@ export function KitchenBoard({
       <KitchenPhase3154LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3159: Tageskilometer-Ticker — Navigation-Icon blau; Bester #1 im Header; Alert Bottom-25% "Wenige Tageskilometer!"; kompakt absteigend; Rang+km+Delta; 30-Min-Polling */}
       <KitchenPhase3159TageskilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3164: Ø Stoppdauer-Ticker — Timer-Icon lila; Bester #1 im Header; Alert Bottom-25% "Hohe Stoppdauer!"; kompakt aufsteigend; Rang+Sekunden+Delta; 30-Min-Polling */}
+      <KitchenPhase3164StoppdauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10808,6 +10811,8 @@ export { KitchenPhase3149StoppVerweildauerTicker } from './phase3149-stopp-verwe
 export { KitchenPhase3154LeerfahrtenTicker } from './phase3154-leerfahrten-ticker';
 // Phase 3159 — Tageskilometer-Ticker (Navigation-Icon blau; Bester #1 im Header; Alert Bottom-25% "Wenige Tageskilometer!"; kompakt absteigend; Rang+km+Delta; 30-Min-Polling)
 export { KitchenPhase3159TageskilometerTicker } from './phase3159-tageskilometer-ticker';
+// Phase 3164 — Ø Stoppdauer-Ticker (Timer-Icon lila; Bester #1 im Header; Alert Bottom-25% "Hohe Stoppdauer!"; kompakt aufsteigend; Rang+Sekunden+Delta; 30-Min-Polling)
+export { KitchenPhase3164StoppdauerTicker } from './phase3164-stoppdauer-ticker';
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
