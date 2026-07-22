@@ -843,6 +843,7 @@ import { KitchenPhase3079AuslastungsRankingTicker } from './phase3079-auslastung
 import { KitchenPhase3084SmartTimingCountdownUltra } from './phase3084-smart-timing-countdown-ultra';
 import { KitchenPhase3089EchtzeitFarbkodierungsBoard } from './phase3089-echtzeit-farbkodierungs-board';
 import { KitchenPhase3094LiefergebietRankingTicker } from './phase3094-liefergebiet-ranking-ticker';
+import { KitchenPhase3099StoppEffizienzTicker } from './phase3099-stopp-effizienz-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3852,6 +3853,8 @@ export function KitchenBoard({
       <KitchenPhase3089EchtzeitFarbkodierungsBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3094: Liefergebiet-Ranking-Ticker — Bester Rang #1 im Header; Alert Bottom-25% "Wenigste Zonen bedient!"; Fahrerliste kompakt aufsteigend; Rang-Badge + Zonen-Anzahl; Delta-Pfeile; 30-Min-Polling */}
       <KitchenPhase3094LiefergebietRankingTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3099: Stopp-Effizienz-Ticker — Bester #1 im Header; Alert Bottom-25% "Niedrigste Stopp-Effizienz!"; Fahrerliste kompakt aufsteigend; Rang-Badge + Stopps/h; Delta-Pfeile; Zap-Icon; 30-Min-Polling */}
+      <KitchenPhase3099StoppEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10743,6 +10746,8 @@ export { KitchenPhase3084SmartTimingCountdownUltra } from './phase3084-smart-tim
 export { KitchenPhase3089EchtzeitFarbkodierungsBoard } from './phase3089-echtzeit-farbkodierungs-board';
 // Phase 3094 — Liefergebiet-Ranking-Ticker (Bester #1 Name+Zonen im Header; Alert Bottom-25% "Wenigste Zonen bedient!"; Fahrerliste kompakt aufsteigend Rang; Rang-Badge+Zonen-Anzahl; Delta-Pfeile; 30-Min-Polling)
 export { KitchenPhase3094LiefergebietRankingTicker } from './phase3094-liefergebiet-ranking-ticker';
+// Phase 3099 — Stopp-Effizienz-Ticker (Bester #1 Name+Stopps/h im Header; Alert Bottom-25% "Niedrigste Stopp-Effizienz!"; Fahrerliste kompakt aufsteigend Rang; Rang-Badge+Stopps/h; Delta-Pfeile; Zap-Icon; 30-Min-Polling)
+export { KitchenPhase3099StoppEffizienzTicker } from './phase3099-stopp-effizienz-ticker';
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
