@@ -927,6 +927,7 @@ import { DispatchPhase3226LieferdauerEffizienzRankingBoard } from './phase3226-l
 import { DispatchPhase3231ErstkontaktRankingBoard } from './phase3231-erstkontakt-ranking-board';
 import { DispatchPhase3236StoppBewertungRankingBoard } from './phase3236-stopp-bewertung-ranking-board';
 import { DispatchPhase3241ReaktionszeitRankingBoard } from './phase3241-reaktionszeit-ranking-board';
+import { DispatchPhase3246StoppdauerRankingBoard } from './phase3246-stoppdauer-ranking-board';
 import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
@@ -4364,6 +4365,8 @@ export function DispatchBoard({
           <DispatchPhase3236StoppBewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3241: Reaktionszeit-Ranking-Board — Zap-Icon gelb; aufsteigend Rang 1=kürzeste Zeit; Balken 0–maxSek; KPI-Grid Bester/Team-Ø/Letzter; Alert "Lange Reaktionszeit!"; Delta-Pfeile neg=grün; 30-Min-Polling */}
           <DispatchPhase3241ReaktionszeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3246: Stoppdauer-Ranking-Board — Timer-Icon blau; aufsteigend Rang 1=kürzeste Stoppdauer; Balken 0–maxSec; KPI-Grid Bester/Team-Ø/Letzter; Alert "Hohe Stoppdauer!"; Delta-Pfeile neg=grün; 30-Min-Polling */}
+          <DispatchPhase3246StoppdauerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3200: Tour-Score Command Center — Score-Ring SVG je aktive Tour; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling */}
           <DispatchPhase3200TourScoreCommandCenter />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
@@ -12325,5 +12328,7 @@ export { DispatchPhase3231ErstkontaktRankingBoard } from './phase3231-erstkontak
 export { DispatchPhase3236StoppBewertungRankingBoard } from './phase3236-stopp-bewertung-ranking-board';
 // Phase 3241 — Reaktionszeit-Ranking-Board (Zap-Icon gelb; aufsteigend Rang 1=kürzeste Zeit; Balken 0–maxSek; KPI-Grid Bester/Team-Ø/Letzter; Alert "Lange Reaktionszeit!"; Delta-Pfeile neg=grün; 30-Min-Polling)
 export { DispatchPhase3241ReaktionszeitRankingBoard } from './phase3241-reaktionszeit-ranking-board';
+// Phase 3246 — Stoppdauer-Ranking-Board (Timer-Icon blau; aufsteigend Rang 1=kürzeste Stoppdauer; Balken 0–maxSec; KPI-Grid Bester/Team-Ø/Letzter; Alert "Hohe Stoppdauer!"; Delta-Pfeile neg=grün; 30-Min-Polling)
+export { DispatchPhase3246StoppdauerRankingBoard } from './phase3246-stoppdauer-ranking-board';
 // Phase 3200 — Tour-Score Command Center (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling)
 export { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';

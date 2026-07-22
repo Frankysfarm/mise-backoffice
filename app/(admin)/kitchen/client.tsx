@@ -874,6 +874,7 @@ import { KitchenPhase3229LieferdauerEffizienzTicker } from './phase3229-lieferda
 import { KitchenPhase3234ErstkontaktRankingTicker } from './phase3234-erstkontakt-ranking-ticker';
 import { KitchenPhase3239StoppBewertungTicker } from './phase3239-stopp-bewertung-ticker';
 import { KitchenPhase3244ReaktionszeitTicker } from './phase3244-reaktionszeit-ticker';
+import { KitchenPhase3249StoppdauerTicker } from './phase3249-stoppdauer-ticker';
 import { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
@@ -3945,6 +3946,8 @@ export function KitchenBoard({
       <KitchenPhase3239StoppBewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3244: Reaktionszeit-Ticker — Zap-Icon gelb; Bester #1 Name+Zeit im Header; Alert Bottom-25% "Lange Reaktionszeit!"; kompakt aufsteigend; Rang+Sek+Delta neg=grün; 30-Min-Polling */}
       <KitchenPhase3244ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3249: Stoppdauer-Ticker — Timer-Icon blau; Bester #1 Name+Ø-Stoppdauer im Header; Alert Bottom-25% "Hohe Stoppdauer!"; kompakt aufsteigend; Rang+Sekunden+Delta neg=grün; 30-Min-Polling */}
+      <KitchenPhase3249StoppdauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3200: Smart-Kochstart-Kommando — Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; On-Time-Rate; 1-Sek-Tick+20-Sek-Polling */}
       <KitchenPhase3200SmartKochstartKommando />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
@@ -10902,5 +10905,7 @@ export { KitchenPhase3234ErstkontaktRankingTicker } from './phase3234-erstkontak
 export { KitchenPhase3239StoppBewertungTicker } from './phase3239-stopp-bewertung-ticker';
 // Phase 3244 — Reaktionszeit-Ticker (Zap-Icon gelb; Bester #1 Name+Zeit im Header; Alert "Lange Reaktionszeit!"; kompakt aufsteigend; Rang+Sek+Delta neg=grün; 30-Min-Polling)
 export { KitchenPhase3244ReaktionszeitTicker } from './phase3244-reaktionszeit-ticker';
+// Phase 3249 — Stoppdauer-Ticker (Timer-Icon blau; Bester #1 Name+Ø-Stoppdauer im Header; Alert "Hohe Stoppdauer!"; kompakt aufsteigend; Rang+Sekunden+Delta neg=grün; 30-Min-Polling)
+export { KitchenPhase3249StoppdauerTicker } from './phase3249-stoppdauer-ticker';
 // Phase 3200 — Smart-Kochstart-Kommando (Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; 1-Sek-Tick + 20-Sek-Polling)
 export { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
