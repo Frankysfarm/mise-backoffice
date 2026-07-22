@@ -26676,3 +26676,57 @@ Bereit für nächsten Ingenieur-Agent — Spezifikation in DELIVERY_CEO_LOG.md e
 5. **Phase 3299 Kitchen:** ReaktionszeitTicker — Timer-Icon orange; Bester #1 Name+Zeit im Header; Alert >10min "Hohe Reaktionszeit!"; kompakt aufsteigend; Rang+Zeit+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3294. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-22): Phasen 3290–3294 implementiert — Fahrer-Pünktlichkeits-Ranking. Phase 3290 Backend bereits vorhanden aus Phase 1831 (reichhaltigere Implementation mit quote_pct, grade, verlauf_7_tage, trend). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3291 Dispatch (DispatchPhase3291PuenktlichkeitRankingBoard, Clock-Icon grün, absteigend Rang 1=höchste Rate%, Balken 0–100%, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Pünktlichkeit!" Bottom-25%, Delta pos=grün, Import+Render+Barrel ✅) / Phase3292 Fahrer-App (FahrerPhase3292MeinePuenktlichkeit, Clock-Icon grün, Rate% 5xl+Rang 3xl farbkodiert, Rang-Balken 1–N, Trend-Grid, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3294 Kitchen (KitchenPhase3294PuenktlichkeitTicker, Clock-Icon grün, Bester #1 Name+Rate% im Header, Alert "Niedrige Pünktlichkeit!" Bottom-25%, kompakt absteigend, Rang+Rate%+Delta-Pfeile, Import+Render+Barrel ✅). Phase 3293 Storefront übersprungen. Build-Fehler pre-existing (Turbopack-Workspace-Root-Problem in /tmp-Umgebung, identisch auf clean main). Push erfolgt.
+
+---
+
+## Batch 3295–3299 — Fahrer-Reaktionszeit-Ranking (2026-07-22)
+
+### Phase 3295 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-reaktionszeit-ranking/route.ts` *(bereits vorhanden)*
+**Hinweis:** Bestehende Implementation genutzt (avg_sek, rang, rank_delta, ampel gruen/gelb/rot, alert_bottom, team_avg_sek, bester_name). Nicht doppelt implementiert.
+
+### Phase 3296 — Reaktionszeit-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3296-reaktionszeit-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3296ReaktionszeitRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Timer-Icon orange; aufsteigend Rang 1=niedrigste Zeit; Balken 0–maxMin; KPI-Grid Bester/Team-Ø/Höchste; Alert "Hohe Reaktionszeit!" (ampel=rot/alert_bottom); Delta neg=grün; RankBadge Gold/Silber/Bronze; Ampel-Farbkodierung; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L939 + Render L4398 nach Phase3291 + Barrel-Export L12382 ✅
+
+### Phase 3297 — Meine Reaktionszeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3297-meine-reaktionszeit.tsx` *(neu)*
+**Component:** `FahrerPhase3297MeineReaktionszeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Timer-Icon orange; Zeit 5xl + Rang 3xl farbkodiert; Rang-Balken 1–N; Grid Rank-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L833 + Render L6473 nach Phase3292 + Barrel-Export L10088 ✅
+
+### Phase 3298 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3299 — Reaktionszeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3299-reaktionszeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3299ReaktionszeitTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Timer-Icon orange; Bester Fahrer #1 Name+Zeit im Header; Alert "Hohe Reaktionszeit!" (ampel=rot/alert_bottom); Fahrerliste kompakt aufsteigend nach Rang; Rang+Zeit+Delta-Pfeile; Team-Ø+Ziel≤5 min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L886 + Render L3979 nach Phase3294 + Barrel-Export L10959 ✅
+
+### Build-Ergebnis
+**✓ Turbopack-Fehler ist pre-existing (gleicher Fehler auf clean main) — ignoreBuildErrors:true aktiv — TypeScript: keine neuen Fehler in phase329x-Dateien** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Reaktionszeit-Ticker + Reaktionszeit-Board synchron |
+| Dispatch ↔ Driver | ✅ Phase3296 Board + Phase3297 MeineReaktionszeit |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3300–3304 (für nächsten Ingenieur) — Fahrer-Abwesenheits-Ranking
+1. **Phase 3300 Backend:** GET /api/delivery/admin/fahrer-abwesenheit — Anzahl Abwesenheitstage je Fahrer (letzten 30 Tage); Rang 1=wenigste Tage=bester; Ampel grün(0–1 Tage)/gelb(2–3 Tage)/rot(≥4 Tage); Alert ≥4 Tage "Hohe Abwesenheit!"; rank_delta neg=verbessert; Supabase+Mock. PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3301 Dispatch:** AbwesenheitRankingBoard — CalendarX-Icon rot; aufsteigend Rang 1=wenigste Tage; Balken 0–maxTage; KPI-Grid Zuverlässigster/Team-Ø/Höchste; Alert "Hohe Abwesenheit!"; Delta neg=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3296. PFLICHT: Import + Render + Barrel.
+3. **Phase 3302 Fahrer-App:** MeineAbwesenheit — CalendarX-Icon rot; Tage 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3297. PFLICHT: Import + Render + Barrel.
+4. **Phase 3303 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3304 Kitchen:** AbwesenheitTicker — CalendarX-Icon rot; Zuverlässigster #1 Name+Tage im Header; Alert ≥4 Tage "Hohe Abwesenheit!"; kompakt aufsteigend; Rang+Tage+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3299. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-22): Phasen 3295–3299 implementiert — Fahrer-Reaktionszeit-Ranking. Phase 3295 Backend bereits vorhanden (fahrer-reaktionszeit-ranking Route mit avg_sek, rang, rank_delta, ampel, alert_bottom). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3296 Dispatch (DispatchPhase3296ReaktionszeitRankingBoard, Timer-Icon orange, aufsteigend Rang 1=niedrigste Zeit, Balken 0–maxMin, KPI-Grid Bester/Team-Ø/Höchste, Alert "Hohe Reaktionszeit!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3297 Fahrer-App (FahrerPhase3297MeineReaktionszeit, Timer-Icon orange, Zeit 5xl+Rang 3xl farbkodiert, Rang-Balken 1–N, Trend-Grid, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3299 Kitchen (KitchenPhase3299ReaktionszeitTicker, Timer-Icon orange, Bester #1 Name+Zeit im Header, Alert "Hohe Reaktionszeit!", kompakt aufsteigend, Rang+Zeit+Delta, Import+Render+Barrel ✅). Phase 3298 Storefront übersprungen. Build-Fehler pre-existing (Turbopack-Workspace-Root-Problem in /tmp-Umgebung, identisch auf clean main). Push erfolgt.
