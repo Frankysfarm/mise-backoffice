@@ -25540,3 +25540,45 @@ Frontend-Ingenieur-Agent (2026-07-22): Phasen 3040–3044 implementiert — Fahr
 5. **Phase 3059 Kitchen:** MonatsauslastungTicker — Team-Ø % Monat im Header; Alert <50%; absteigend; Ziel ≥70%; Trend normal steigend=grün; 30-Min-Polling; in kitchen/client.tsx nach Phase3054.
 
 Backend-Architekt-Agent (2026-07-22): Phasen 3050–3054 implementiert — Fahrer-Wochenauslastungs-Index. Neue Backend-API /api/delivery/admin/fahrer-wochenauslastung (Gesamtauslastung% = aktive Liefermin / 10080 Min × 100 je Fahrer Mo–So; getMonday()-Helper; Wochentage-Array tage_pct[7]; beide Wochen parallel Promise.all; Ampel grün≥75%/gelb50-74%/rot<50%; Alert <50% "Geringe Wochenauslastung!"; Trend vs. Vorwoche; driver_id-Modus; Supabase batch_stops+Mock) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3051 Dispatch (DispatchPhase3051WochenauslastungBoard, Calendar-Icon blau, absteigend nach auslastung_pct höchste=aktivste oben, Balken 0–100% Ziel-Linie 75%, KPI-Grid Team-Ø/Bester/Ziel ≥75%, Alert <50% "Geringe Wochenauslastung!", Trend normal steigend=grün, Import L890+Render L4249+Barrel L12133 ✅) / Phase3052 Fahrer-App (FahrerPhase3052MeineWochenauslastung, Auslastung% 4xl+Farbcode, Balken 0–100% Ziel 75%, Wochentage-Grid Mo/Di/Mi/Do/Fr/Sa/So mit Tages-%, KPI-Grid Team-Ø/Vorwoche, Coaching-Tipp, isOnline-Guard, Import L785+Render L6328+Barrel L9848 ✅) / Phase3054 Kitchen (KitchenPhase3054WochenauslastungTicker, Team-Ø % Woche im Header, Alert <50% "Geringe Wochenauslastung!", absteigend höchste zuerst, Trend normal steigend=grün, Ziel ≥75% · Mo–So, Import L837+Render L3830+Barrel L10710 ✅). Phase 3053 Storefront übersprungen. Build: exit code 0 ✅. Push erfolgt.
+
+---
+
+## Batch 3070–3074 — Fahrer-Mehrjahres-Trend-Index (2026-07-22)
+
+### Phase 3070 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-mehrjahres-trend/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-mehrjahres-trend?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Auslastungs%-Trend je Fahrer über 3 Jahre (Vorvorjahr/Vorjahr/Aktuell); aktive Lieferminuten / (Jahrestage×1440 Min)×100; Ampel grün(steigend≥2%)/gelb(stabil±2%)/rot(fallend<-2%); Alert fallend "Negativer Mehrjahrestrend!"; jahre_pct[3]; driver_id-Modus; 3 parallele Supabase-Abfragen(batch_stops)+Mock.
+
+### Phase 3071 — Mehrjahres-Trend-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3071-mehrjahres-trend-board.tsx` *(neu)*
+**Component:** `DispatchPhase3071MehrjahresTrendBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Alert-Banner "Negativer Mehrjahrestrend!"; KPI-Grid Team-Ø Aktuell/Vorjahr/Vorvorjahr; Fahrerliste absteigend nach Trend-Score; Sparkline-Balken 3 Jahre je Fahrer (aktuelles Jahr blau); Ampel grün(steigend)/gelb(stabil)/rot(fallend); TrendingUp-Icon grün; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import+Render nach Phase3066+Barrel-Export ✅
+
+### Phase 3072 — Mein Mehrjahres-Trend (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3072-mein-mehrjahres-trend.tsx` *(neu)*
+**Component:** `FahrerPhase3072MeinMehrjahresTrend`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Aktuell% 4xl farbkodiert; Trend-Delta vs. Vorvorjahr; Sparkline-Balken 3 Jahre (visuell, aktuell=blau); Vorjahr+Vorvorjahr Vergleich Grid; Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import+Render nach Phase3067+Barrel-Export ✅
+
+### Phase 3073 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3074 — Mehrjahres-Trend-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3074-mehrjahres-trend-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3074MehrjahresTrendTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Team-Ø Aktuell% im Header; Alert je Fahrer mit negativem Trend "Negativer Mehrjahrestrend!"; Fahrerliste kompakt absteigend nach Trend-Score; Ampel-Dots + TrendIcon + Delta-Wert; Mini-Balken; Ziel-Hinweis "steigender Trend"; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import+Render nach Phase3069+Barrel-Export ✅
+
+### Nächste Phasen 3075–3079 (für nächsten Ingenieur) — Fahrer-Auslastungs-Ranking-Index
+1. **Phase 3075 Backend:** GET /api/delivery/admin/fahrer-auslastungs-ranking — Ranking (1.–N.) je Fahrer nach Gesamtauslastung% heute; Platz 1 = höchste Auslastung; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrigstes Auslastungs-Ranking!"; rank_delta vs. Vortag; driver_id-Modus; Supabase batch_stops+Mock.
+2. **Phase 3076 Dispatch:** AuslastungsRankingBoard — Fahrerliste nach Rang aufsteigend (Rang 1 oben); Rang-Badge + Auslastung%; KPI-Grid Bester/Team-Ø/Letzter; Alert-Banner Bottom-25%; Rang-Delta-Pfeile; Trophy-Icon gold; 30-Min-Polling; in dispatch/client.tsx nach Phase3071.
+3. **Phase 3077 Fahrer-App:** MeinAuslastungsRanking — Mein Rang 4xl + Auslastung%; Rang-Balken 1–N; Delta vs. Vortag; Team-Vergleich; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3072.
+4. **Phase 3078 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3079 Kitchen:** AuslastungsRankingTicker — Bester Rang im Header; Alert Bottom-25%; Fahrerliste kompakt aufsteigend nach Rang; Rang-Badge + Auslastung%; Delta-Pfeile; 30-Min-Polling; in kitchen/client.tsx nach Phase3074.
+
+Frontend-Ingenieur-Agent (2026-07-22): Phasen 3070–3074 implementiert — Fahrer-Mehrjahres-Trend-Index. Neue Backend-API /api/delivery/admin/fahrer-mehrjahres-trend (3 Jahre Vorvorjahr/Vorjahr/Aktuell; 3 parallele Supabase-Abfragen batch_stops; Ampel grün≥2%delta/gelb±2%/rot<-2%; Alert "Negativer Mehrjahrestrend!"; jahre_pct[3]; driver_id-Modus; Mock) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3071 Dispatch (DispatchPhase3071MehrjahresTrendBoard, absteigend nach Trend-Score steigende zuerst, Sparkline-Balken 3 Jahre aktuell=blau, KPI-Grid Team-Ø 3 Jahre, Alert-Banner fallend, TrendingUp-Icon grün, Import+Render nach Phase3066+Barrel ✅) / Phase3072 Fahrer-App (FahrerPhase3072MeinMehrjahresTrend, Aktuell% 4xl+Farbcode, Sparkline-Balken 3 Jahre visuell aktuell=blau, Vorjahr+Vorvorjahr Grid, Team-Ø, Coaching-Tipp je Zone, isOnline-Guard, Import+Render nach Phase3067+Barrel ✅) / Phase3074 Kitchen (KitchenPhase3074MehrjahresTrendTicker, Team-Ø Aktuell% im Header, Alert "Negativer Mehrjahrestrend!", absteigend nach Trend-Score, Mini-Balken+Delta, Ziel steigender Trend, Import+Render nach Phase3069+Barrel ✅). Phase 3073 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root, node_modules nicht im Remote-Container). Push erfolgt. Nächste Phasen: 3075+.
