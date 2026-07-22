@@ -26330,3 +26330,45 @@ Backend-Architekt-Agent (2026-07-22): Phasen 3210–3214 implementiert — Fahre
 5. **Phase 3259 Kitchen:** AblieferungsquoteTicker — CheckCircle-Icon grün; Bester #1 Name+Quote% im Header; Alert Bottom-25% "Niedrige Ablieferungsquote!"; kompakt absteigend; Rang+%+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3254. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-22): Phasen 3250–3254 implementiert — Fahrer-Trinkgeld-Ranking. Neue Backend-API /api/delivery/admin/fahrer-trinkgeld-ranking (Ø tip_amount aus delivery_batch_stops je Fahrer; 2 parallele Supabase-Abfragen heute+gestern; Rang 1=höchstes Trinkgeld=bester; Ampel Top/Mitte/Bottom-25%; Alert Bottom-25% "Niedriges Trinkgeld!"; rank_delta; driver_id-Modus; Mock-Fallback Julia F. 3.20€/Max M. 2.50€/Sara K. 1.80€/Tim B. 0.90€) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3251 Dispatch (DispatchPhase3251TrinkgeldRankingBoard, Coins-Icon gelb, absteigend Rang 1=höchstes Trinkgeld oben, Balken 0–maxTip€, KPI-Grid Bester/Team-Ø/Niedrigster, Alert-Banner "Niedriges Trinkgeld!", Delta-Pfeile pos=grün, Ampel-Legende, Import L931+Render L4372+Barrel L12337 ✅) / Phase3252 Fahrer-App (FahrerPhase3252MeinTrinkgeld, Coins-Icon gelb, Rang 4xl+Trinkgeld€ 4xl+Farbcode, Rang-Balken 1–N Rang 1=höchstes=voll, Delta-Grid Rang-Δ/Team-Ø, Coaching-Tipp je Ampelzone, isOnline-Guard, Import L825+Render L6447+Barrel L10043 ✅) / Phase3254 Kitchen (KitchenPhase3254TrinkgeldTicker, Coins-Icon gelb, Bester #1 Name+Trinkgeld€ im Header, Alert "Niedriges Trinkgeld!", kompakt absteigend, Rang-Badge+€+Delta-Pfeile, Team-Ø, Import L878+Render L3953+Barrel L10914 ✅). Phase 3253 Storefront übersprungen. Build exit code 0 ✅ (pre-existing Turbopack workspace-root, ignoreBuildErrors: true aktiv). Push erfolgt.
+
+---
+
+## Batch 3260–3264 — Fahrer-Ablieferungsquote-Ranking (2026-07-22)
+
+### Phase 3260 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-ablieferungsquote/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-ablieferungsquote?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Ablieferungsquote% je Fahrer heute (batch_stops status='delivered' / Gesamt-Stopps je Fahrer); Rang 1=höchste Quote=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Ablieferungsquote!"; rank_delta positiv=verbessert (yestRang-rang); driver_id-Modus; 2 parallele Supabase-Abfragen (batch_stops heute+gestern)+Mock.
+
+### Phase 3261 — Ablieferungsquote-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3261-ablieferungsquote-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3261AblieferungsquoteRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Alert-Banner Bottom-25% "Niedrige Ablieferungsquote!"; KPI-Grid Bester/Team-Ø/Niedrigster; Fahrerliste absteigend nach Rang (1=höchste Quote oben); CheckCircle-Icon grün; Balken 0–100%; Ampel grün/gelb/rot; Delta-Pfeile pos=grün; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L932 + Render L4374 nach Phase3251 + Barrel-Export L12341 ✅
+
+### Phase 3262 — Meine Ablieferungsquote (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3262-meine-ablieferungsquote.tsx` *(neu)*
+**Component:** `FahrerPhase3262MeineAblieferungsquote`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Rang 4xl + Quote% 4xl farbkodiert; Rang-Balken 1–N; Delta-Grid (Rang-Δ / Team-Ø); Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L826 + Render L6450 nach Phase3252 + Barrel-Export L10047 ✅
+
+### Phase 3263 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3264 — Ablieferungsquote-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3264-ablieferungsquote-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3264AblieferungsquoteTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Bester Fahrer (#1 Name + Quote%) im Header; Alert Bottom-25% "Niedrige Ablieferungsquote!"; Fahrerliste kompakt absteigend nach Rang; CheckCircle-Icon grün; Rang-Badge + Quote% + Delta-Pfeile; Team-Ø + Ziel 100%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L879 + Render L3955 nach Phase3254 + Barrel-Export L10918 ✅
+
+### Nächste Phasen 3265–3269 (für nächsten Ingenieur) — Fahrer-Retourenquote-Ranking
+1. **Phase 3265 Backend:** GET /api/delivery/admin/fahrer-retourenquote — Retourenquote% je Fahrer heute (batch_stops status='returned' / Gesamt-Stopps je Fahrer; Rang 1=niedrigste Retouren=bester); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Hohe Retourenquote!"; rank_delta positiv=verbessert; driver_id-Modus; Supabase(batch_stops status+driver_id)+Mock. PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3266 Dispatch:** RetourenquoteRankingBoard — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Retouren%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Retourenquote!"; Delta-Pfeile pos=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3261. PFLICHT: Import + Render + Barrel.
+3. **Phase 3267 Fahrer-App:** MeineRetourenquote — XCircle-Icon rot; Rang 4xl + Retouren%; inverted Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3262. PFLICHT: Import + Render + Barrel.
+4. **Phase 3268 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3269 Kitchen:** RetourenquoteTicker — XCircle-Icon rot; Bester #1 Name+Retouren% im Header; Alert Bottom-25% "Hohe Retourenquote!"; kompakt aufsteigend; Rang+%+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3264. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-22): Phasen 3260–3264 implementiert — Fahrer-Ablieferungsquote-Ranking. Hinweis: Phase-Nummern 3255–3259 waren bereits durch andere Komponenten (TourScore, TourStopp-Navigation, SmartKochstart) belegt; daher Batch auf 3260–3264 verschoben. Neue Backend-API /api/delivery/admin/fahrer-ablieferungsquote (Ablieferungsquote% = status='delivered'/Gesamt-Stopps je Fahrer; 2 parallele Supabase-Abfragen batch_stops heute+gestern; Rang 1=höchste Quote=bester; Ampel Top/Mitte/Bottom-25%; Alert Bottom-25% "Niedrige Ablieferungsquote!"; rank_delta yestRang-rang positiv=verbessert; driver_id-Modus; Mock-Fallback Julia F. 98%/Max M. 95%/Sara K. 87.5%/Tim B. 75%) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3261 Dispatch (DispatchPhase3261AblieferungsquoteRankingBoard, CheckCircle-Icon grün, absteigend Rang 1=höchste Quote oben, Balken 0–100%, KPI-Grid Bester/Team-Ø/Niedrigster, Alert-Banner "Niedrige Ablieferungsquote!", Delta-Pfeile pos=grün, Ampel-Legende, Import L932+Render L4374+Barrel L12341 ✅) / Phase3262 Fahrer-App (FahrerPhase3262MeineAblieferungsquote, CheckCircle-Icon grün, Rang 4xl+Quote% 4xl+Farbcode, Rang-Balken 1–N, Delta-Grid Rang-Δ/Team-Ø, Coaching-Tipp je Ampelzone, isOnline-Guard, Import L826+Render L6450+Barrel L10047 ✅) / Phase3264 Kitchen (KitchenPhase3264AblieferungsquoteTicker, CheckCircle-Icon grün, Bester #1 Name+Quote% im Header, Alert "Niedrige Ablieferungsquote!", kompakt absteigend, Rang-Badge+%+Delta-Pfeile, Team-Ø+Ziel 100%, Import L879+Render L3955+Barrel L10918 ✅). Phase 3263 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root, node_modules nicht im Remote-Container, ignoreBuildErrors: true aktiv). Push erfolgt.

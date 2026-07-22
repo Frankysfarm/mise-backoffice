@@ -929,6 +929,7 @@ import { DispatchPhase3236StoppBewertungRankingBoard } from './phase3236-stopp-b
 import { DispatchPhase3241ReaktionszeitRankingBoard } from './phase3241-reaktionszeit-ranking-board';
 import { DispatchPhase3246StoppdauerRankingBoard } from './phase3246-stoppdauer-ranking-board';
 import { DispatchPhase3251TrinkgeldRankingBoard } from './phase3251-trinkgeld-ranking-board';
+import { DispatchPhase3261AblieferungsquoteRankingBoard } from './phase3261-ablieferungsquote-ranking-board';
 import { DispatchPhase3256TourScoreVisualisierungKommando } from './phase3256-tour-score-visualisierung-kommando';
 import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
@@ -4371,6 +4372,8 @@ export function DispatchBoard({
           <DispatchPhase3246StoppdauerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3251: Trinkgeld-Ranking-Board — Coins-Icon gelb; absteigend Rang 1=höchstes Trinkgeld; Balken 0–maxTip€; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedriges Trinkgeld!"; Delta-Pfeile pos=grün; 30-Min-Polling */}
           <DispatchPhase3251TrinkgeldRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3261: Ablieferungsquote-Ranking-Board — CheckCircle-Icon grün; absteigend Rang 1=höchste Quote%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Ablieferungsquote!"; Delta-Pfeile pos=grün; 30-Min-Polling */}
+          <DispatchPhase3261AblieferungsquoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3256: Tour-Score + Visualisierung Kommando-Zentrale — SVG Score-Ring; farbkodierte Stopp-Timelines; Sub-Scores; expandierbare Touren; 30-Sek-Polling */}
           <DispatchPhase3256TourScoreVisualisierungKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3200: Tour-Score Command Center — Score-Ring SVG je aktive Tour; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling */}
@@ -12338,6 +12341,8 @@ export { DispatchPhase3241ReaktionszeitRankingBoard } from './phase3241-reaktion
 export { DispatchPhase3246StoppdauerRankingBoard } from './phase3246-stoppdauer-ranking-board';
 // Phase 3251 — Trinkgeld-Ranking-Board (Coins-Icon gelb; absteigend Rang 1=höchstes Trinkgeld; Balken 0–maxTip€; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedriges Trinkgeld!"; Delta-Pfeile pos=grün; 30-Min-Polling)
 export { DispatchPhase3251TrinkgeldRankingBoard } from './phase3251-trinkgeld-ranking-board';
+// Phase 3261 — Ablieferungsquote-Ranking-Board (CheckCircle-Icon grün; absteigend Rang 1=höchste Quote%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Ablieferungsquote!"; Delta-Pfeile pos=grün; 30-Min-Polling)
+export { DispatchPhase3261AblieferungsquoteRankingBoard } from './phase3261-ablieferungsquote-ranking-board';
 // Phase 3200 — Tour-Score Command Center (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling)
 export { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 

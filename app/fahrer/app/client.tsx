@@ -823,6 +823,7 @@ import { FahrerPhase3237MeineStoppBewertung } from './phase3237-meine-stopp-bewe
 import { FahrerPhase3242MeineReaktionszeit } from './phase3242-meine-reaktionszeit';
 import { FahrerPhase3247MeineStoppdauer } from './phase3247-meine-stoppdauer';
 import { FahrerPhase3252MeinTrinkgeld } from './phase3252-mein-trinkgeld';
+import { FahrerPhase3262MeineAblieferungsquote } from './phase3262-meine-ablieferungsquote';
 import { FahrerPhase3257TourStoppNavigationsUltraKommando } from './phase3257-tour-stopp-navigations-ultra-kommando';
 import { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-stopp-smart-kommando-ultra';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
@@ -6446,6 +6447,8 @@ export function FahrerApp({
           <FahrerPhase3247MeineStoppdauer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3252: Mein Trinkgeld — Coins-Icon gelb; Rang 4xl + Ø-Trinkgeld€ 4xl farbkodiert; Rang-Balken 1–N; Δ-Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3252MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3262: Meine Ablieferungsquote — CheckCircle-Icon grün; Rang 4xl + Quote% 4xl farbkodiert; Rang-Balken 1–N; Δ-Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3262MeineAblieferungsquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3257: Tour-Stopp Navigations-Ultra-Kommando — Hero-Stopp; Google-Maps-Link; Anruf-Button; Kommentar-Warnung; Fortschrittsring; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3257TourStoppNavigationsUltraKommando fahrerId={driver.id} />
           {/* Phase 3200: Tour-Stopp Smart-Kommando Ultra — Hero-Stopp mit Adresse+ETA-Countdown; Kundenkontakt; Pakete; Quick-Confirm-Button; weitere Stopps kompakt; mobile-first; 15-Sek-Polling+1-Sek-Tick */}
@@ -10044,6 +10047,8 @@ export { FahrerPhase3242MeineReaktionszeit } from './phase3242-meine-reaktionsze
 export { FahrerPhase3247MeineStoppdauer } from './phase3247-meine-stoppdauer';
 // Phase 3252 — Mein Trinkgeld (Coins-Icon gelb; Rang 4xl + Ø-Trinkgeld€ 4xl farbkodiert; Rang-Balken 1–N; Δ-Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3252MeinTrinkgeld } from './phase3252-mein-trinkgeld';
+// Phase 3262 — Meine Ablieferungsquote (CheckCircle-Icon grün; Rang 4xl + Quote% 4xl farbkodiert; Rang-Balken 1–N; Δ-Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3262MeineAblieferungsquote } from './phase3262-meine-ablieferungsquote';
 
 // Phase 2945 — Tour-Stopp GPS-Navigator Ultimate (Hero-Stopp farbkodiert grün/gelb/rot + ETA-Countdown 1-Sek-Tick + Google Maps + Waze + Anruf + Angekommen/Zugestellt + Weitere-Stopps aufklappbar + Fortschrittsring; mobile-first; 15-Sek-Polling)
 export { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
