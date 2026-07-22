@@ -936,6 +936,7 @@ import { DispatchPhase3276SchichtEffizienzRankingBoard } from './phase3276-schic
 import { DispatchPhase3281KilometerleistungRankingBoard } from './phase3281-kilometerleistung-ranking-board';
 import { DispatchPhase3286StornoQuoteRankingBoard } from './phase3286-storno-quote-ranking-board';
 import { DispatchPhase3291PuenktlichkeitRankingBoard } from './phase3291-puenktlichkeit-ranking-board';
+import { DispatchPhase3295TourVisualisierungLiveBoard } from './phase3295-tour-visualisierung-live-board';
 import { DispatchPhase3256TourScoreVisualisierungKommando } from './phase3256-tour-score-visualisierung-kommando';
 import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
@@ -4392,6 +4393,8 @@ export function DispatchBoard({
           <DispatchPhase3286StornoQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3291: Pünktlichkeits-Ranking-Board — Clock-Icon grün; absteigend Rang 1=höchste Rate%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3291PuenktlichkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3295: Tour-Visualisierung Live-Board — Score-Ring SVG je Fahrer; interaktive SVG Stopp-Timeline farbkodiert grün/blau/grau; expandierbare Stopp-Liste mit Adressen/ETA/Status; Problem-Alert; 20-Sek-Polling */}
+          <DispatchPhase3295TourVisualisierungLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3256: Tour-Score + Visualisierung Kommando-Zentrale — SVG Score-Ring; farbkodierte Stopp-Timelines; Sub-Scores; expandierbare Touren; 30-Sek-Polling */}
           <DispatchPhase3256TourScoreVisualisierungKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3200: Tour-Score Command Center — Score-Ring SVG je aktive Tour; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling */}
