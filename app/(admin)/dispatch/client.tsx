@@ -915,6 +915,7 @@ import { DispatchPhase3170TourVisualisierungMaster } from './phase3170-tour-visu
 import { DispatchPhase3176BestellwertRankingBoard } from './phase3176-bestellwert-ranking-board';
 import { DispatchPhase3181BewertungsRankingBoard } from './phase3181-bewertungs-ranking-board';
 import { DispatchPhase3181TrinkgeldQuoteRankingBoard } from './phase3181-trinkgeld-quote-ranking-board';
+import { DispatchPhase3191TourenAnzahlRankingBoard } from './phase3191-touren-anzahl-ranking-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4326,8 +4327,13 @@ export function DispatchBoard({
           <DispatchPhase3176BestellwertRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3181: Ø Bewertungs-Score-Ranking — Stern-Icon gelb; absteigend Rang 1=höchster Score; Balken 0–5 Sterne; KPI-Grid Bester/Team-Ø/Niedrigster; Alert Bottom-25% "Niedriger Bewertungs-Score!"; Delta-Pfeile; 30-Min-Polling */}
           <DispatchPhase3181BewertungsRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+<<<<<<< HEAD
           {/* Phase 3181b: Trinkgeld-Quote Ranking — Star-Icon gelb; Fahrerliste absteigend höchste Quote=bester; Balken; KPI-Grid Bester/Team-Ø/Niedrigster; Alert Bottom-25% "Niedrige Trinkgeld-Quote!"; Delta-Pfeile; 30-Min-Polling */}
           <DispatchPhase3181TrinkgeldQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+=======
+          {/* Phase 3191: Touren-Anzahl-Ranking — Route-Icon lila; absteigend Rang 1=meiste Touren; Balken; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Wenige Touren!"; Delta-Pfeile; 30-Min-Polling */}
+          <DispatchPhase3191TourenAnzahlRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+>>>>>>> 36838eb1 (review(delivery): CEO Review #562 — Phasen 3190–3194 Touren-Anzahl-Ranking + Duplikat 3185–3189 verhindert)
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12262,5 +12268,10 @@ export { DispatchPhase3170TourVisualisierungMaster } from './phase3170-tour-visu
 export { DispatchPhase3176BestellwertRankingBoard } from './phase3176-bestellwert-ranking-board';
 // Phase 3181 — Ø Bewertungs-Score-Ranking (Stern-Icon gelb; absteigend Rang 1=höchster Score; Balken 0–5 Sterne; KPI-Grid Bester/Team-Ø/Niedrigster; Alert Bottom-25% "Niedriger Bewertungs-Score!"; Delta-Pfeile; 30-Min-Polling)
 export { DispatchPhase3181BewertungsRankingBoard } from './phase3181-bewertungs-ranking-board';
+<<<<<<< HEAD
 // Phase 3181b — Trinkgeld-Quote Ranking (Star-Icon gelb; Fahrerliste absteigend höchste Quote=bester; Balken; KPI-Grid Bester/Team-Ø/Niedrigster; Alert Bottom-25% "Niedrige Trinkgeld-Quote!"; Delta-Pfeile; 30-Min-Polling)
 export { DispatchPhase3181TrinkgeldQuoteRankingBoard } from './phase3181-trinkgeld-quote-ranking-board';
+=======
+// Phase 3191 — Touren-Anzahl-Ranking (Route-Icon lila; absteigend Rang 1=meiste Touren; Balken; KPI-Grid Bester/Team-Ø/Letzter; Alert "Wenige Touren!"; Delta-Pfeile; 30-Min-Polling)
+export { DispatchPhase3191TourenAnzahlRankingBoard } from './phase3191-touren-anzahl-ranking-board';
+>>>>>>> 36838eb1 (review(delivery): CEO Review #562 — Phasen 3190–3194 Touren-Anzahl-Ranking + Duplikat 3185–3189 verhindert)

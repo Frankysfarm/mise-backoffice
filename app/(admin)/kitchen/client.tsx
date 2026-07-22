@@ -862,6 +862,7 @@ import { KitchenPhase3174EchtzeitFarbkodierungUltra } from './phase3174-echtzeit
 import { KitchenPhase3179BestellwertTicker } from './phase3179-bestellwert-ticker';
 import { KitchenPhase3184BewertungsTicker } from './phase3184-bewertungs-ticker';
 import { KitchenPhase3184TrinkgeldQuoteTicker } from './phase3184-trinkgeld-quote-ticker';
+import { KitchenPhase3194TourenAnzahlTicker } from './phase3194-touren-anzahl-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3907,8 +3908,13 @@ export function KitchenBoard({
       <KitchenPhase3179BestellwertTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3184: Bewertungs-Ticker — Stern-Icon gelb; Bester #1 im Header; Alert Bottom-25% "Niedriger Bewertungs-Score!"; kompakt absteigend; Rang+Sterne+Delta; 30-Min-Polling */}
       <KitchenPhase3184BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+<<<<<<< HEAD
       {/* Phase 3184b: Trinkgeld-Quote-Ticker — Star-Icon gelb; Bester #1 im Header; Alert Bottom-25% "Niedrige Trinkgeld-Quote!"; kompakt absteigend; Rang+%+Delta; 30-Min-Polling */}
       <KitchenPhase3184TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+=======
+      {/* Phase 3194: Touren-Anzahl-Ticker — Route-Icon lila; Bester #1 im Header; Alert Bottom-25% "Wenige Touren!"; kompakt absteigend; Rang+Touren+Delta; 30-Min-Polling */}
+      <KitchenPhase3194TourenAnzahlTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+>>>>>>> 36838eb1 (review(delivery): CEO Review #562 — Phasen 3190–3194 Touren-Anzahl-Ranking + Duplikat 3185–3189 verhindert)
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10839,5 +10845,10 @@ export { KitchenPhase3174EchtzeitFarbkodierungUltra } from './phase3174-echtzeit
 export { KitchenPhase3179BestellwertTicker } from './phase3179-bestellwert-ticker';
 // Phase 3184 — Bewertungs-Ticker (Stern-Icon gelb; Bester #1 im Header; Alert Bottom-25% "Niedriger Bewertungs-Score!"; kompakt absteigend; Rang+Sterne+Delta; 30-Min-Polling)
 export { KitchenPhase3184BewertungsTicker } from './phase3184-bewertungs-ticker';
+<<<<<<< HEAD
 // Phase 3184b — Trinkgeld-Quote-Ticker (Star-Icon gelb; Bester #1 im Header; Alert Bottom-25% "Niedrige Trinkgeld-Quote!"; kompakt absteigend; Rang+%+Delta; 30-Min-Polling)
 export { KitchenPhase3184TrinkgeldQuoteTicker } from './phase3184-trinkgeld-quote-ticker';
+=======
+// Phase 3194 — Touren-Anzahl-Ticker (Route-Icon lila; Bester #1 im Header; Alert Bottom-25% "Wenige Touren!"; kompakt absteigend; Rang+Touren+Delta; 30-Min-Polling)
+export { KitchenPhase3194TourenAnzahlTicker } from './phase3194-touren-anzahl-ticker';
+>>>>>>> 36838eb1 (review(delivery): CEO Review #562 — Phasen 3190–3194 Touren-Anzahl-Ranking + Duplikat 3185–3189 verhindert)
