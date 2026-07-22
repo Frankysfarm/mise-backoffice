@@ -26113,3 +26113,45 @@ Backend-Architekt-Agent (2026-07-22): Phasen 3150–3154 implementiert — Fahre
 5. **Phase 3164 Kitchen:** StoppdauerTicker — Bester #1 Name + Ø-Stoppdauer im Header; Alert Bottom-25% "Hohe Stoppdauer!"; Fahrerliste kompakt aufsteigend; Rang+Sekunden+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3159.
 
 Frontend-Ingenieur-Agent (2026-07-22): Phasen 3155–3159 implementiert — Fahrer-Tageskilometer-Ranking. Neue Backend-API /api/delivery/admin/fahrer-tageskilometer-ranking (km aus delivery_tours.distance_km; 2 parallele Supabase-Abfragen heute+gestern; Ampel Top/Mitte/Bottom-25%; Alert "Wenige Tageskilometer!"; rank_delta negativ=verbessert; driver_id-Modus; Mock-Fallback) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3156 Dispatch (DispatchPhase3156TageskilometerRankingBoard, Navigation-Icon blau, absteigend nach km Rang 1=meiste oben, Balken 0–maxKm, KPI-Grid Bester/Team-Ø/Letzter, Alert-Banner Bottom-25% "Wenige Tageskilometer!", Rang-Delta-Pfeile neg=grün, Ampel-Legende, Import L911+Render L4312+Barrel L12233 ✅) / Phase3157 Fahrer-App (FahrerPhase3157MeineTageskilometer, Rang 4xl+km 4xl+Farbcode, Rang-Balken 1–N Rang 1=meiste km=voll, Delta-Grid Rang-Δ/Team-Ø, Coaching-Tipp je Ampelzone, isOnline-Guard, Import L806+Render L6391+Barrel L9948 ✅) / Phase3159 Kitchen (KitchenPhase3159TageskilometerTicker, Bester #1 Name+km im Header, Alert "Wenige Tageskilometer!", absteigend nach km, Navigation-Icon blau, Rang-Badge+km+Delta-Pfeile, Team-Ø, Import L858+Render L3893+Barrel L10810 ✅). Phase 3158 Storefront übersprungen. Build exit code 0 ✅. Push erfolgt.
+
+---
+
+## Batch 3210–3214 — Fahrer-Schicht-Auslastungs-Ranking (2026-07-22)
+
+### Phase 3210 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-schicht-auslastung/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-schicht-auslastung?location_id=<uuid>[&driver_id=<uuid>]
+**Logik:** Auslastung% je Fahrer heute (aktive Lieferzeit / Gesamtschichtzeit × 100; aktive Lieferzeit = Σ returned_at-departed_at je Tour; Schichtzeit = letzter-erster Zeitstempel; Rang 1=höchste Auslastung=bester); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Auslastung!"; rank_delta positiv=verbessert (yestRank-rang); driver_id-Modus; 2 parallele Supabase-Abfragen(delivery_tours heute+gestern)+Mock.
+
+### Phase 3211 — Schicht-Auslastungs-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3211-schicht-auslastung-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3211SchichtAuslastungRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Alert-Banner Bottom-25% "Niedrige Auslastung!"; KPI-Grid Bester/Team-Ø/Niedrigster; Fahrerliste absteigend nach Rang (1=höchste Auslastung oben); Activity-Icon grün; Balken 0–100%; Ampel grün/gelb/rot; Delta-Pfeile pos=grün; Ampel-Legende; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import + Render nach Phase3206 + Barrel-Export ✅
+
+### Phase 3212 — Meine Schicht-Auslastung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3212-meine-schicht-auslastung.tsx` *(neu)*
+**Component:** `FahrerPhase3212MeineSchichtAuslastung`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Rang 4xl + Auslastung% 4xl farbkodiert; Rang-Balken 1–N; Delta-Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import + Render nach Phase3207 + Barrel-Export ✅
+
+### Phase 3213 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3214 — Schicht-Auslastungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3214-schicht-auslastung-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3214SchichtAuslastungTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Bester Fahrer (#1 Name + Auslastung%) im Header; Alert Bottom-25% "Niedrige Auslastung!"; Fahrerliste kompakt absteigend nach Rang (1=höchste oben); Activity-Icon grün; Rang-Badge + Auslastung% + Delta-Pfeile; Team-Ø + Ziel; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import + Render nach Phase3209 + Barrel-Export ✅
+
+### Nächste Phasen 3215–3219 (für nächsten Ingenieur) — Fahrer-Pünktlichkeits-Score-Ranking
+1. **Phase 3215 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit-score — Pünktlichkeit% je Fahrer heute (Lieferungen on-time / Gesamt-Lieferungen; on-time = actual_delivered_at <= estimated_delivered_at; Rang 1=höchste Pünktlichkeit=bester); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Pünktlichkeit!"; rank_delta positiv=verbessert; driver_id-Modus; Supabase(batch_stops actual_delivered_at+estimated_delivered_at)+Mock. PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3216 Dispatch:** PuenktlichkeitsScoreRankingBoard — Clock-Icon blau; absteigend Rang 1=höchste Pünktlichkeit%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta-Pfeile pos=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3211. PFLICHT: Import + Render + Barrel.
+3. **Phase 3217 Fahrer-App:** MeinePuenktlichkeit — Rang 4xl + Pünktlichkeit%; Rang-Balken 1–N; Delta vs. Vortag; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3212. PFLICHT: Import + Render + Barrel.
+4. **Phase 3218 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3219 Kitchen:** PuenktlichkeitsTicker — Clock-Icon blau; Bester #1 Name+Pünktlichkeit% im Header; Alert Bottom-25% "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta; 30-Min-Polling; in kitchen/client.tsx nach Phase3214. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-22): Phasen 3210–3214 implementiert — Fahrer-Schicht-Auslastungs-Ranking. Neue Backend-API /api/delivery/admin/fahrer-schicht-auslastung (aktive Lieferzeit/Gesamtschichtzeit×100; calcUtilization-Helper; 2 parallele Supabase-Abfragen delivery_tours heute+gestern; Ampel Top/Mitte/Bottom-25%; Alert Bottom-25% "Niedrige Auslastung!"; rank_delta yestRank-rang positiv=verbessert; driver_id-Modus; Mock-Fallback) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3211 Dispatch (DispatchPhase3211SchichtAuslastungRankingBoard, Activity-Icon grün, absteigend nach Rang 1=höchste Auslastung oben, Balken 0–100%, KPI-Grid Bester/Team-Ø/Niedrigster, Alert-Banner Bottom-25%, Delta-Pfeile pos=grün, Ampel-Legende, Import+Render nach Phase3206+Barrel ✅) / Phase3212 Fahrer-App (FahrerPhase3212MeineSchichtAuslastung, Activity-Icon grün, Rang 4xl+Auslastung% 4xl+Farbcode, Rang-Balken 1–N, Delta-Grid Rang-Δ/Team-Ø, Coaching-Tipp je Zone, isOnline-Guard, Import+Render nach Phase3207+Barrel ✅) / Phase3214 Kitchen (KitchenPhase3214SchichtAuslastungTicker, Activity-Icon grün, Bester #1 Name+Auslastung% im Header, Alert "Niedrige Auslastung!", absteigend Rang 1=höchste oben, Rang-Badge+%+Delta-Pfeile, Team-Ø, Import+Render nach Phase3209+Barrel ✅). Phase 3213 Storefront übersprungen. Build exit code 0 ✅. Push erfolgt.
