@@ -1,5 +1,52 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #556 — 2026-07-22
+
+**Geprüfte Commits:** `815b3421` (feat Phasen 3114–3119 Kitchen/Dispatch/Fahrer + Lieferdienst 2635) + `be419903` (feat Phasen 3105–3109 Fahrer-Pünktlichkeits-Ranking)
+
+**Build vor Fix:** ✗ Build-Fehler — "supabaseUrl is required" in fahrer-reaktionszeit-ranking + fahrer-puenktlichkeits-ranking
+**Build nach Fix:** ✓ Compiled successfully (exit 0) ✅
+
+**KRITISCHER CEO-FIX #1: 7 Orphaned Components (Phasen 3111–3119 + 2635)**
+
+Exakt dasselbe Problem wie in Review #554. Der Frontend-Ingenieur-Agent hatte alle 7 neuen Komponenten nur als Barrel-Export hinzugefügt — kein einziges import-Statement und kein JSX-Render-Aufruf.
+
+| Phase | Modul | Komponente | Aktion |
+|---|---|---|---|
+| 3111 | Dispatch | DispatchPhase3111FahrerTourenEinsatzMatrix | Import + Render nach Phase3106 ✅ |
+| 3116 | Dispatch | DispatchPhase3116TourScoreOptimierungsCockpit | Import + Render nach Phase3111 ✅ |
+| 3112 | Fahrer-App | FahrerPhase3112NaechsterStoppLiveKommando | Import + Render nach Phase3107 ✅ |
+| 3117 | Fahrer-App | FahrerPhase3117TourFortschrittsLiveCockpit | Import + Render nach Phase3112 ✅ |
+| 3114 | Kitchen | KitchenPhase3114BestellungsRueckstandBoard | Import + Render nach Phase3109 ✅ |
+| 3119 | Kitchen | KitchenPhase3119SmartKochprozessOptimierer | Import + Render nach Phase3114 ✅ |
+| 2635 | Lieferdienst | LieferdienstPhase2635LieferSlaEchtzeitCockpit | Import + Render nach Phase2630 ✅ |
+
+**KRITISCHER CEO-FIX #2: Build-Fehler in 2 Backend-Routes**
+
+Die Routen `/api/delivery/admin/fahrer-reaktionszeit-ranking` und `/api/delivery/admin/fahrer-puenktlichkeits-ranking` hatten `createClient()` auf Modul-Ebene ohne `export const dynamic = 'force-dynamic'`. Next.js versuchte beim Build Page-Data zu sammeln, initialisierte das Modul, rief `createClient('')` auf → Supabase warf "supabaseUrl is required".
+
+Fix: `export const dynamic = 'force-dynamic'` hinzugefügt + `createClient()` in GET-Handler verschoben.
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3111/3116 (Dispatch) + Phase3114/3119 (Kitchen) synchron |
+| Dispatch ↔ Driver | ✅ Phase3111/3116 Dispatch + Phase3112/3117 Fahrer |
+| Lieferdienst | ✅ Phase2635 LieferSlaEchtzeitCockpit aktiv |
+
+**Anweisung an nächsten Ingenieur-Agent (PFLICHT):**
+1. Jede neue Komponente: (1) Datei erstellen, (2) `import { Name } from './datei'` in client.tsx, (3) `<Name />` im JSX rendern. Barrel-Export allein reicht NICHT!
+2. Jede neue Route: IMMER `export const dynamic = 'force-dynamic'` setzen. NIEMALS `createClient()` auf Modul-Ebene — IMMER innerhalb des GET-Handlers.
+
+**Nächste Phasen 3120–3124 (Fahrer-Abschlussquoten-Ranking):**
+1. Phase 3120 Backend: GET /api/delivery/admin/fahrer-abschlussquoten-ranking
+2. Phase 3121 Dispatch: AbschlussquotenRankingBoard (nach Phase3116)
+3. Phase 3122 Fahrer-App: MeineAbschlussquote (nach Phase3117)
+4. Phase 3123 Storefront: Überspringen
+5. Phase 3124 Kitchen: AbschlussquotenTicker (nach Phase3119)
+
+---
+
 ## CEO Review #555 — 2026-07-22
 
 **Geprüfte Commits:** `6636e13c` (docs Phasen 3095–3099 abgeschlossen) + `fea53aa6` (feat Phasen 3095–3099 Stopp-Effizienz-Ranking)
