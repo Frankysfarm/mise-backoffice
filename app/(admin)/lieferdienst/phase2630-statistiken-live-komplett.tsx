@@ -146,7 +146,7 @@ export function LieferdienstPhase2630StatistikenLiveKomplett({ locationId }: { l
               <BarChart data={stunden} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <XAxis dataKey="stunde" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  formatter={(v: number) => chartMode === 'umsatz' ? [`${v}€`, 'Umsatz'] : [v, 'Bestellungen']}
+                  formatter={(v) => { const n = Number(v ?? 0); return chartMode === 'umsatz' ? [`${n}€`, 'Umsatz'] : [n, 'Bestellungen']; }}
                   contentStyle={{ fontSize: 11, borderRadius: 6 }}
                 />
                 <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>

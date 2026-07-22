@@ -55,8 +55,8 @@ function RankBadge({ rang }: { rang: number }) {
 }
 
 function DeltaIcon({ delta }: { delta: number }) {
-  if (delta < 0) return <TrendingUp  size={11} className="text-green-500" title={`+${Math.abs(delta)} Ränge verbessert`} />;
-  if (delta > 0) return <TrendingDown size={11} className="text-red-400"  title={`${delta} Ränge gefallen`} />;
+  if (delta < 0) return <TrendingUp  size={11} className="text-green-500" aria-label={`+${Math.abs(delta)} Ränge verbessert`} />;
+  if (delta > 0) return <TrendingDown size={11} className="text-red-400"  aria-label={`${delta} Ränge gefallen`} />;
   return               <Minus        size={11} className="text-gray-400" />;
 }
 
