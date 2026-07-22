@@ -12239,3 +12239,7 @@ export { DispatchPhase3161StoppdauerRankingBoard } from './phase3161-stoppdauer-
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
+// Phase 3165 — Tour-Score Live Dashboard (Fahrer-Score-Karten grün/gelb/rot; Δ-Trend; Stopp-Fortschritt; ETA; Team-KPI-Grid; Alert Score <65; 30-Sek-Polling)
+export { DispatchPhase3165TourScoreLiveDashboard } from './phase3165-tour-score-live-dashboard';
+// Phase 3170 — Tour-Visualisierung Master (Expandierbare Tour-Karten; farbkodierte Stopp-Timeline grün/blau/grau; Fortschrittsbalken; ETA-Rückkehr; Alert rot; 20-Sek-Polling)
+export { DispatchPhase3170TourVisualisierungMaster } from './phase3170-tour-visualisierung-master';

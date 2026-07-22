@@ -10816,3 +10816,7 @@ export { KitchenPhase3164StoppdauerTicker } from './phase3164-stoppdauer-ticker'
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
+// Phase 3169 — Smart-Timing Master Dashboard (Sekundengenauer Countdown je Bestellung; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; On-Time-Rate-Gauge; KPI-Grid; Fortschrittsbalken; 1-Sek-Tick + 20-Sek-Polling)
+export { KitchenPhase3169SmartTimingMasterDashboard } from './phase3169-smart-timing-master-dashboard';
+// Phase 3174 — Echtzeit-Farbkodierung Ultra (Stations-Auslastung farbkodiert grün/gelb/rot; Balken; Gesamt-Auslastung; Ø Wartezeit; Alert Überlastung; 20-Sek-Polling)
+export { KitchenPhase3174EchtzeitFarbkodierungUltra } from './phase3174-echtzeit-farbkodierung-ultra';
