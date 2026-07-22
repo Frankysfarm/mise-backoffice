@@ -25400,3 +25400,44 @@ Backend-Architekt-Agent (2026-07-21): Phasen 3000–3004 implementiert — Fahre
 5. **Phase 3019 Kitchen:** Pünktlichkeits-Ticker v2 — Team-Ø % im Header; Alert <70% "Unpünktlich!"; Fahrerliste kompakt absteigend; Trend normal steigend=grün; Ziel ≥90%; in kitchen/client.tsx nach Phase3014.
 
 Frontend-Ingenieur-Agent (2026-07-21): Phasen 3011–3014 implementiert — Fahrer-Kundenbewertungs-Index. Backend-API bereits vorhanden aus Phase 2254 (/api/delivery/admin/fahrer-kundenbewertung, Ø Sterne je Fahrer heute+Vorwoche, Ampel grün≥4.5/gelb≥4.0/rot<4.0, Supabase(order_ratings)+Mock) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3011 Dispatch (DispatchPhase3011BewertungsBoard, absteigend nach bewertung_avg höchste=beste oben, Balken 0–5 ★ Ziel-Linie 4.5, KPI-Grid Team-Ø/Bester/Ziel ≥4.5, Alert-Banner <4.0 "Schlechte Bewertungen!", Trend normal steigend=grün, Import+Render+Barrel-Export ✅) / Phase3012 Fahrer-App (FahrerPhase3012MeineBewertung, Ø Sterne 4xl+Farbcode+★, Balken 0–5 ★ Ziel 4.5, Coaching-Tipp je Ampelzone, driverId client-side filter, isOnline-Guard, 30-Min-Polling, Import+Render+Barrel-Export ✅) / Phase3014 Kitchen (KitchenPhase3014BewertungsTicker, Team-Ø ★ im Header, Alert <4.0 "Schlechte Bewertungen!", absteigend höchste zuerst, Trend normal steigend=grün, Ziel ≥4.5 ★, Import+Render+Barrel-Export ✅). Phase 3013 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root, node_modules nicht im Remote-Container). Push erfolgt.
+
+---
+
+## Batch 3040–3044 — Fahrer-Nachtschicht-Auslastungs-Index (2026-07-22)
+
+### Phase 3040 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-nachtschicht-auslastung/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-nachtschicht-auslastung?location_id=<uuid>&driver_id=<uuid>
+**Logik:** Auslastung (%) je Fahrer in der Nachtschicht (22:00–06:00) heute vs. Vorwoche; aktive Minuten / 480 × 100; Ampel grün(≥80)/gelb(60–79)/rot(<60); Alert <60% "Geringe Nacht-Auslastung!"; Supabase(batch_stops)+Mock; Midnight-Crossing handled.
+
+### Phase 3041 — Nachtschicht-Auslastung-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3041-nachtschicht-auslastung-board.tsx` *(neu)*
+**Component:** `DispatchPhase3041NachtschichtAuslastungBoard`
+**UI:** Collapsible (rot je Alert); Alert-Banner <60% "Geringe Nacht-Auslastung!"; KPI-Grid Team-Ø/Bester/Ziel ≥80%; Fahrerliste absteigend nach auslastung_pct; Balken 0–100% Ziel-Linie 80%; Ampel indigo(≥80)/gelb(60–79)/rot(<60); Trend-Pfeile normal steigend=grün; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L888+Render L4241+Barrel-Export L12123 ✅
+
+### Phase 3042 — Meine Nachtschicht-Auslastung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3042-meine-nachtschicht-auslastung.tsx` *(neu)*
+**Component:** `FahrerPhase3042MeineNachtschichtAuslastung`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Auslastung% 4xl farbkodiert; Balken 0–100% Ziel-Linie 80%; KPI-Grid Team-Ø/Trend; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L783+Render L6320+Barrel-Export L9838 ✅
+
+### Phase 3043 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3044 — Nachtschicht-Auslastung-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3044-nachtschicht-auslastung-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3044NachtschichtAuslastungTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible (rot je Alert); Team-Ø % im Header; Alert je Fahrer <60% "Geringe Nacht-Auslastung!"; Fahrerliste kompakt absteigend nach auslastung_pct mit Ampel-Dots + Trend-Pfeil; Ziel-Anzeige ≥80% · 22–06 Uhr; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L835+Render L3823+Barrel-Export L10701 ✅
+
+### Nächste Phasen 3045–3049 (für nächsten Ingenieur) — Fahrer-Wochenend-Auslastungs-Index
+1. **Phase 3045 Backend:** GET /api/delivery/admin/fahrer-wochenend-auslastung — Auslastung (%) je Fahrer an Samstag+Sonntag dieser Woche vs. Vorwoche; aktive Minuten / (2×Schichtminuten) × 100; Ampel grün(≥80)/gelb(60–79)/rot(<60); Alert <60% "Geringe Wochenend-Auslastung!"; Supabase(batch_stops)+Mock.
+2. **Phase 3046 Dispatch:** WochenendAuslastungBoard — Fahrerliste absteigend nach auslastung_pct; Balken 0–100% Ziel-Linie 80%; KPI-Grid Team-Ø/Bester/Ziel ≥80%; Alert-Banner <60%; Trend normal steigend=grün; 30-Min-Polling.
+3. **Phase 3047 Fahrer-App:** Meine Wochenend-Auslastung — Auslastung% 4xl+Farbcode; Balken 0–100% Ziel 80%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling.
+4. **Phase 3048 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3049 Kitchen:** Wochenend-Auslastung-Ticker — Team-Ø % im Header; Alert <60%; Fahrerliste kompakt absteigend; Ziel ≥80%; 30-Min-Polling.
+
+Frontend-Ingenieur-Agent (2026-07-22): Phasen 3040–3044 implementiert — Fahrer-Nachtschicht-Auslastungs-Index. Backend-API neu erstellt (fahrer-nachtschicht-auslastung 22:00–06:00, Midnight-Crossing, Supabase batch_stops + Mock, Ampel grün≥80/gelb60-79/rot<60) + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3041 Dispatch (DispatchPhase3041NachtschichtAuslastungBoard, indigo Ampel für ≥80%, absteigend nach auslastung_pct, Balken+Ziel-Linie 80%, KPI-Grid, Alert-Banner, Import+Render+Barrel-Export ✅) / Phase3042 Fahrer-App (FahrerPhase3042MeineNachtschichtAuslastung, 4xl+Farbcode, Balken+Ziel 80%, Coaching-Tipp, isOnline-Guard, 30-Min-Polling, Import+Render+Barrel-Export ✅) / Phase3044 Kitchen (KitchenPhase3044NachtschichtAuslastungTicker, Team-Ø im Header, Alert <60%, absteigend höchste zuerst, 22–06 Uhr, Import+Render+Barrel-Export ✅). Phase 3043 Storefront übersprungen. Build-Fehler pre-existing (Turbopack workspace-root, node_modules nicht im Remote-Container). Push erfolgt.
