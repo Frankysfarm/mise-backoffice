@@ -895,6 +895,7 @@ import { DispatchPhase3071MehrjahresTrendBoard } from './phase3071-mehrjahres-tr
 import { DispatchPhase3076AuslastungsRankingBoard } from './phase3076-auslastungs-ranking-board';
 import { DispatchPhase3081TourScoreRankingLive } from './phase3081-tour-score-ranking-live';
 import { DispatchPhase3086TourVisualisierungLive } from './phase3086-tour-visualisierung-live';
+import { DispatchPhase3091LiefergebietRankingBoard } from './phase3091-liefergebiet-ranking-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4268,6 +4269,8 @@ export function DispatchBoard({
           <DispatchPhase3081TourScoreRankingLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3086: Tour-Visualisierung Live — Touren je Fahrer; farbkodierte Stop-Dots; Fortschrittsbalken; ETA; Score-Arc; expandierbare Stopp-Liste; 25-Sek-Polling */}
           <DispatchPhase3086TourVisualisierungLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3091: Liefergebiet-Ranking-Board — aufsteigend nach Rang (1=meiste Zonen); Rang-Badge + Zonen-Anzahl; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Wenigste Zonen bedient!"; Rang-Delta-Pfeile; MapPin-Icon; 30-Min-Polling */}
+          <DispatchPhase3091LiefergebietRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12161,6 +12164,8 @@ export { DispatchPhase3076AuslastungsRankingBoard } from './phase3076-auslastung
 export { DispatchPhase3081TourScoreRankingLive } from './phase3081-tour-score-ranking-live';
 // Phase 3086 — Tour-Visualisierung Live (Touren je Fahrer; farbkodierte Stop-Dots; Fortschrittsbalken; ETA; Score-Arc; expandierbare Stopp-Liste mit Adressen; 25-Sek-Polling)
 export { DispatchPhase3086TourVisualisierungLive } from './phase3086-tour-visualisierung-live';
+// Phase 3091 — Liefergebiet-Ranking-Board (Fahrerliste aufsteigend Rang 1=meiste Zonen; Rang-Badge+Zonen-Anzahl; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Wenigste Zonen bedient!"; Rang-Delta-Pfeile; MapPin-Icon; 30-Min-Polling)
+export { DispatchPhase3091LiefergebietRankingBoard } from './phase3091-liefergebiet-ranking-board';
 
 // Phase 2945 — Tour-Score Visualisierung Final (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stop-Dots; Sub-Scores Pünktlichkeit/Abschlussrate/Bewertung; Flotten-Ø + Alert Score <60; 20-Sek-Polling)
 export { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
