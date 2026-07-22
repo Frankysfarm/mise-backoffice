@@ -916,6 +916,7 @@ import { DispatchPhase3176BestellwertRankingBoard } from './phase3176-bestellwer
 import { DispatchPhase3181BewertungsRankingBoard } from './phase3181-bewertungs-ranking-board';
 import { DispatchPhase3181TrinkgeldQuoteRankingBoard } from './phase3181-trinkgeld-quote-ranking-board';
 import { DispatchPhase3191TourenAnzahlRankingBoard } from './phase3191-touren-anzahl-ranking-board';
+import { DispatchPhase3196StornoRankingBoard } from './phase3196-storno-ranking-board';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
 type Driver = {
@@ -4331,6 +4332,7 @@ export function DispatchBoard({
           <DispatchPhase3181TrinkgeldQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3191: Touren-Anzahl-Ranking — Route-Icon lila; absteigend Rang 1=meiste Touren; Balken; KPI-Grid Bester/Team-Ø/Letzter; Alert Bottom-25% "Wenige Touren!"; Delta-Pfeile; 30-Min-Polling */}
           <DispatchPhase3191TourenAnzahlRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3196StornoRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
           <DispatchPhase2945TourScoreVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 2853: Tour-Score Visualisierung Ultimate — Score 0–100 je aktiver Tour aus Pünktlichkeit+Stopp-Fortschritt; Fahrer-Rangliste; Stopp-Dots-Visualisierung; Team-Ø; expandierbar */}
@@ -12269,3 +12271,4 @@ export { DispatchPhase3181BewertungsRankingBoard } from './phase3181-bewertungs-
 export { DispatchPhase3181TrinkgeldQuoteRankingBoard } from './phase3181-trinkgeld-quote-ranking-board';
 // Phase 3191 — Touren-Anzahl-Ranking (Route-Icon lila; absteigend Rang 1=meiste Touren; Balken; KPI-Grid Bester/Team-Ø/Letzter; Alert "Wenige Touren!"; Delta-Pfeile; 30-Min-Polling)
 export { DispatchPhase3191TourenAnzahlRankingBoard } from './phase3191-touren-anzahl-ranking-board';
+export { DispatchPhase3196StornoRankingBoard } from './phase3196-storno-ranking-board';
