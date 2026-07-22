@@ -10086,3 +10086,6 @@ export { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-sto
 
 // Phase 3257 — Tour-Stopp Navigations-Ultra-Kommando (Hero-Stopp Adresse+Kunde+ETA-Countdown 1-Sek-Tick; Google-Maps-Link; Anruf-Button; Kommentar-Warnung; Weitere-Stopps aufklappbar; Fortschrittsring; Rückkehr-ETA; mobile-first; 15-Sek-Polling)
 export { FahrerPhase3257TourStoppNavigationsUltraKommando } from './phase3257-tour-stopp-navigations-ultra-kommando';
+
+// Phase 3295 — Tour-Stopp Smart-Navigator Pro (Hero-Stopp ETA-Countdown 1-Sek + Adresse + Kunde; Google-Maps + Waze Buttons; Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps aufklappbar; Schicht-Score; mobile-first; 15-Sek-Polling)
+export { FahrerPhase3295TourStoppSmartNavigatorPro } from './phase3295-tour-stopp-smart-navigator-pro';

@@ -10954,3 +10954,6 @@ export { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochst
 
 // Phase 3259 — Smart-Kochstart Countdown Ultra (Echtzeit-Countdown grün/gelb/rot/kritisch je Bestellung; Kochstart-Empfehlung-Badge; Fahrer-ETA-Bridge; Fortschrittsbalken; Farbkodierungs-Legende; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase3259SmartKochstartCountdownUltra } from './phase3259-smart-kochstart-countdown-ultra';
+
+// Phase 3295 — Smart-Timing Echtzeit-Cockpit (Gesamt On-Time% + Ø Prep-Zeit vs Ziel; 4 Stations-Balken je mit Trend-Pfeil und Ampel; Empfehlungs-Badge; Hochlast-Alert; 30-Sek-Polling)
+export { KitchenPhase3295SmartTimingEchtzeitCockpit } from './phase3295-smart-timing-echtzeit-cockpit';

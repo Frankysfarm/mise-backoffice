@@ -12377,3 +12377,6 @@ export { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-
 
 // Phase 3256 — Tour-Score + Visualisierung Kommando-Zentrale (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Timeline grün/blau/grau; Sub-Scores Pünktlichkeit/Abschluss/Speed; Fortschrittsbalken; ETA-Rückkehr; Alert Score <65; 20-Sek-Polling)
 export { DispatchPhase3256TourScoreVisualisierungKommando } from './phase3256-tour-score-visualisierung-kommando';
+
+// Phase 3295 — Tour-Visualisierung Live-Board (Score-Ring je Fahrer; interaktive Stopp-Timeline SVG farbkodiert; expandierbare Stopp-Liste Adressen/ETA/Status; Problem-Alert; Ø Score-Anzeige; 20-Sek-Polling)
+export { DispatchPhase3295TourVisualisierungLiveBoard } from './phase3295-tour-visualisierung-live-board';
