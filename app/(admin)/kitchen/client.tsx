@@ -851,6 +851,7 @@ import { KitchenPhase3119SmartKochprozessOptimierer } from './phase3119-smart-ko
 import { KitchenPhase3124AbschlussquotenTicker } from './phase3124-abschlussquoten-ticker';
 import { KitchenPhase3129TourenDichteTicker } from './phase3129-touren-dichte-ticker';
 import { KitchenPhase3134LieferzeitTicker } from './phase3134-lieferzeit-ticker';
+import { KitchenPhase3139LieferzeitPuenktlichkeitTicker } from './phase3139-lieferzeit-puenktlichkeit-ticker';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
 /* ------------------------------ Types ------------------------------ */
@@ -3876,6 +3877,8 @@ export function KitchenBoard({
       <KitchenPhase3129TourenDichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3134: Ø Lieferzeit-Ticker — Schnellster #1 im Header; Alert Bottom-25% "Längste Lieferzeit!"; Fahrerliste kompakt aufsteigend; Rang-Badge + Ø Min; Delta-Pfeile; 30-Min-Polling */}
       <KitchenPhase3134LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3139: Pünktlichkeit-Ticker — CheckSquare-Icon grün; Bester #1 im Header; Alert Bottom-25% "Niedrigste Lieferzeit-Pünktlichkeit!"; Fahrerliste kompakt aufsteigend; Rang-Badge + Pct%; Delta-Pfeile; 30-Min-Polling */}
+      <KitchenPhase3139LieferzeitPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase2946SmartTimingCountdownMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2910: Smart-Timing Farbkodierungs-Board Final — aktive Bestellungen nach Dringlichkeit; Countdown; Kochstart-Empfehlung; 1-Sek-Tick+20-Sek-Polling */}
@@ -10783,6 +10786,8 @@ export { KitchenPhase3124AbschlussquotenTicker } from './phase3124-abschlussquot
 export { KitchenPhase3129TourenDichteTicker } from './phase3129-touren-dichte-ticker';
 // Phase 3134 — Ø Lieferzeit-Ticker (Schnellster #1 Name+Ø Min im Header; Alert Bottom-25% "Längste Lieferzeit!"; kompakt aufsteigend; Rang-Badge+Ø Min; Delta-Pfeile; 30-Min-Polling)
 export { KitchenPhase3134LieferzeitTicker } from './phase3134-lieferzeit-ticker';
+// Phase 3139 — Lieferzeit-Pünktlichkeit-Ticker (CheckSquare-Icon grün; Bester #1 im Header; Alert Bottom-25% "Niedrigste Lieferzeit-Pünktlichkeit!"; kompakt aufsteigend; Rang-Badge+Pct%; Delta-Pfeile; 30-Min-Polling)
+export { KitchenPhase3139LieferzeitPuenktlichkeitTicker } from './phase3139-lieferzeit-puenktlichkeit-ticker';
 
 // Phase 2946 — Smart-Timing Countdown Master (Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; On-Time-Rate; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
