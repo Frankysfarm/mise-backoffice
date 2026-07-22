@@ -866,6 +866,7 @@ import { KitchenPhase3194TourenAnzahlTicker } from './phase3194-touren-anzahl-ti
 import { KitchenPhase3199StornoTicker } from './phase3199-storno-ticker';
 import { KitchenPhase3204ErstlieferzeitTicker } from './phase3204-erstlieferzeit-ticker';
 import { KitchenPhase3209RueckgabeRateTicker } from './phase3209-rueckgabe-rate-ticker';
+import { KitchenPhase3214SchichtAuslastungTicker } from './phase3214-schicht-auslastung-ticker';
 import { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 
@@ -3921,6 +3922,8 @@ export function KitchenBoard({
       <KitchenPhase3204ErstlieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3209: Rückgabequote-Ticker — RotateCcw-Icon orange; Bester #1 Name+Quote% im Header; Alert Bottom-25% "Hohe Rückgabequote!"; kompakt aufsteigend; Rang+%+Delta; 30-Min-Polling */}
       <KitchenPhase3209RueckgabeRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3214: Schicht-Auslastungs-Ticker — Activity-Icon grün; Bester #1 Name+Auslastung% im Header; Alert Bottom-25% "Niedrige Auslastung!"; kompakt absteigend; Rang+%+Delta; 30-Min-Polling */}
+      <KitchenPhase3214SchichtAuslastungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3200: Smart-Kochstart-Kommando — Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; On-Time-Rate; 1-Sek-Tick+20-Sek-Polling */}
       <KitchenPhase3200SmartKochstartKommando />
       {/* Phase 2946: Smart-Timing Countdown Master — Sekundengenauer Countdown aller aktiven Bestellungen; Farbkodierung grün/gelb/rot/kritisch; Kochstart-Empfehlung; Überfälligkeits-Alert; 1-Sek-Tick+15-Sek-Polling */}
@@ -10862,5 +10865,7 @@ export { KitchenPhase3199StornoTicker } from './phase3199-storno-ticker';
 export { KitchenPhase3204ErstlieferzeitTicker } from './phase3204-erstlieferzeit-ticker';
 // Phase 3209 — Rückgabequote-Ticker (RotateCcw-Icon orange; Bester #1 im Header; Alert "Hohe Rückgabequote!"; kompakt aufsteigend; Rang+%+Delta; 30-Min-Polling)
 export { KitchenPhase3209RueckgabeRateTicker } from './phase3209-rueckgabe-rate-ticker';
+// Phase 3214 — Schicht-Auslastungs-Ticker (Activity-Icon grün; Bester #1 Name+Auslastung% im Header; Alert "Niedrige Auslastung!"; kompakt absteigend; Rang+%+Delta; 30-Min-Polling)
+export { KitchenPhase3214SchichtAuslastungTicker } from './phase3214-schicht-auslastung-ticker';
 // Phase 3200 — Smart-Kochstart-Kommando (Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; 1-Sek-Tick + 20-Sek-Polling)
 export { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
