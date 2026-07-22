@@ -922,6 +922,7 @@ import { DispatchPhase3206RueckgabeRankingBoard } from './phase3206-rueckgabe-ra
 import { DispatchPhase3211SchichtAuslastungRankingBoard } from './phase3211-schicht-auslastung-ranking-board';
 import { DispatchPhase3211AuslastungsRankingBoard } from './phase3211-auslastungs-ranking-board';
 import { DispatchPhase3216PuenktlichkeitsScoreRankingBoard } from './phase3216-puenktlichkeits-score-ranking-board';
+import { DispatchPhase3221KundenzufriedenheitRankingBoard } from './phase3221-kundenzufriedenheit-ranking-board';
 import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 
@@ -4349,6 +4350,8 @@ export function DispatchBoard({
           <DispatchPhase3211AuslastungsRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3216: Pünktlichkeits-Score-Ranking-Board — Clock-Icon blau; absteigend Rang 1=höchste Pünktlichkeit%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta-Pfeile pos=grün; 30-Min-Polling */}
           <DispatchPhase3216PuenktlichkeitsScoreRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3221: Kundenzufriedenheit-Ranking-Board — Star-Icon gelb; absteigend Rang 1=höchster Score; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenzufriedenheit!"; Delta-Pfeile pos=grün; 30-Min-Polling */}
+          <DispatchPhase3221KundenzufriedenheitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3200: Tour-Score Command Center — Score-Ring SVG je aktive Tour; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling */}
           <DispatchPhase3200TourScoreCommandCenter />
           {/* Phase 2945: Tour-Score Visualisierung Final — Score-Ring SVG je Fahrer 0–100; Stop-Dots; Sub-Scores Pünktlichkeit/Abschluss/Bewertung; Flotten-Ø; Alert <60; 20-Sek-Polling */}
@@ -12300,5 +12303,7 @@ export { DispatchPhase3211SchichtAuslastungRankingBoard } from './phase3211-schi
 export { DispatchPhase3211AuslastungsRankingBoard } from './phase3211-auslastungs-ranking-board';
 // Phase 3216 — Pünktlichkeits-Score-Ranking-Board (Clock-Icon blau; absteigend Rang 1=höchste Pünktlichkeit%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta-Pfeile pos=grün; 30-Min-Polling)
 export { DispatchPhase3216PuenktlichkeitsScoreRankingBoard } from './phase3216-puenktlichkeits-score-ranking-board';
+// Phase 3221 — Kundenzufriedenheit-Ranking-Board (Star-Icon gelb; absteigend Rang 1=höchster Score; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenzufriedenheit!"; Delta-Pfeile pos=grün; 30-Min-Polling)
+export { DispatchPhase3221KundenzufriedenheitRankingBoard } from './phase3221-kundenzufriedenheit-ranking-board';
 // Phase 3200 — Tour-Score Command Center (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling)
 export { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
