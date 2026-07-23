@@ -918,6 +918,7 @@ import { KitchenPhase3410TourAbbruchRateTicker } from './phase3410-tour-abbruch-
 import { KitchenPhase3415BewertungsTicker } from './phase3415-bewertungs-ticker';
 import { KitchenPhase3420PaketeProStundeTicker } from './phase3420-pakete-pro-stunde-ticker';
 import { KitchenPhase3425AktivitaetsScoreTicker } from './phase3425-aktivitaets-score-ticker';
+import { KitchenPhase3430SchichtstartTicker } from './phase3430-schichtstart-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4100,6 +4101,8 @@ export function KitchenBoard({
       <KitchenPhase3420PaketeProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3425: Aktivitäts-Score-Ticker — Activity-Icon grün; Aktivster #1 Name+Score im Header; Alert "Niedrige Aktivität!"; kompakt absteigend; Rang+Score+Delta pos=grün; Team-Ø+Ziel ≥70; 30-Min-Polling */}
       <KitchenPhase3425AktivitaetsScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3430: Schicht-Start-Pünktlichkeit-Ticker — Timer-Icon violett; Pünktlichster #1 Name+% im Header; Alert "Niedrige Schicht-Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling */}
+      <KitchenPhase3430SchichtstartTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11119,3 +11122,5 @@ export { KitchenPhase3415BewertungsTicker } from './phase3415-bewertungs-ticker'
 export { KitchenPhase3420PaketeProStundeTicker } from './phase3420-pakete-pro-stunde-ticker';
 // Phase 3425 — Aktivitäts-Score-Ticker (Activity-Icon grün; Aktivster #1 Name+Score im Header; Alert "Niedrige Aktivität!"; kompakt absteigend; Rang+Score+Delta pos=grün; Team-Ø+Ziel ≥70; 30-Min-Polling)
 export { KitchenPhase3425AktivitaetsScoreTicker } from './phase3425-aktivitaets-score-ticker';
+// Phase 3430 — Schicht-Start-Pünktlichkeit-Ticker (Timer-Icon violett; Pünktlichster #1 Name+% im Header; Alert "Niedrige Schicht-Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling)
+export { KitchenPhase3430SchichtstartTicker } from './phase3430-schichtstart-ticker';
