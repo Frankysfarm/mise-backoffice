@@ -867,6 +867,7 @@ import { FahrerPhase3336MeineKundenbewertung } from './phase3336-meine-kundenbew
 import { FahrerPhase3341MeinUmsatzProTour } from './phase3341-mein-umsatz-pro-tour';
 import { FahrerPhase3346TourStoppNavigationMaster } from './phase3346-tour-stopp-navigation-master';
 import { FahrerPhase3351MeineLieferdichte } from './phase3351-meine-lieferdichte';
+import { FahrerPhase3356TourStopsNavigationFinalHub } from './phase3356-tour-stops-navigation-final-hub';
 
 type Driver = {
   id: string;
@@ -6502,6 +6503,8 @@ export function FahrerApp({
           <FahrerPhase3346TourStoppNavigationMaster driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3351: Meine Lieferdichte — Stopps/km heute; Rang + Farbkodierung; inverted Rang-Balken; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3351MeineLieferdichte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3356: Tour-Stopp Navigation Final Hub — Google Maps + Waze; Anruf; Barzahlung-Alert; Zugestellt-CTA; alle Stopps Timeline; isOnline-Guard; 15-Sek-Polling */}
+          <FahrerPhase3356TourStopsNavigationFinalHub driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}

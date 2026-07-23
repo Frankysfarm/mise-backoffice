@@ -953,6 +953,7 @@ import { DispatchPhase3335KundenbewertungRankingBoard } from './phase3335-kunden
 import { DispatchPhase3340UmsatzProTourRankingBoard } from './phase3340-umsatz-pro-tour-ranking-board';
 import { DispatchPhase3345TourScoreFinalMasterCockpit } from './phase3345-tour-score-final-master-cockpit';
 import { DispatchPhase3350LieferdichteRankingBoard } from './phase3350-lieferdichte-ranking-board';
+import { DispatchPhase3355TourScoreVisualisierungKommandoHub } from './phase3355-tour-score-visualisierung-kommando-hub';
 
 type Driver = {
   employee_id: string;
@@ -4463,6 +4464,8 @@ export function DispatchBoard({
           <DispatchPhase3345TourScoreFinalMasterCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3350: Lieferdichte Ranking Board — Stopps/km je Fahrer heute; Rang 1=höchste Dichte; Ampel grün/gelb/rot; Alert "Niedrige Lieferdichte!"; 30-Min-Polling */}
           <DispatchPhase3350LieferdichteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3355: Tour-Score & Visualisierung Kommando-Hub — SVG Score-Ring je Tour; farbkodierte Stopp-Timeline; Sub-Scores; expandierbare Stopp-Liste; Alert Score <65; 20-Sek-Polling */}
+          <DispatchPhase3355TourScoreVisualisierungKommandoHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>

@@ -900,6 +900,7 @@ import { KitchenPhase3338KundenbewertungTicker } from './phase3338-kundenbewertu
 import { KitchenPhase3343UmsatzProTourTicker } from './phase3343-umsatz-pro-tour-ticker';
 import { KitchenPhase3348SmartTimingCountdownMasterPro } from './phase3348-smart-timing-countdown-master-pro';
 import { KitchenPhase3353LieferdichteTicker } from './phase3353-lieferdichte-ticker';
+import { KitchenPhase3358SmartTimingCountdownFarbkodierungPro } from './phase3358-smart-timing-countdown-farbkodierung-pro';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4050,6 +4051,8 @@ export function KitchenBoard({
       <KitchenPhase3348SmartTimingCountdownMasterPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3353: Lieferdichte Ticker — Stopps/km je Fahrer heute; Rang 1=höchste Dichte; kompakt absteigend; Alert "Niedrige Lieferdichte!"; 30-Min-Polling */}
       <KitchenPhase3353LieferdichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3358: Smart-Timing Countdown & Farbkodierung Pro — Sekundengenauer Countdown; 4-stufige Farbkodierung; On-Time-Rate-Gauge; Kochstart-Empfehlung; 1-Sek-Tick + 15-Sek-Polling */}
+      <KitchenPhase3358SmartTimingCountdownFarbkodierungPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
