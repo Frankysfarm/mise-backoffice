@@ -465,6 +465,7 @@ import { LieferdienstPhase2665StatistikenFinalMasterHub } from './phase2665-stat
 import { LieferdienstPhase2670StatistikenMasterLivePro } from './phase2670-statistiken-master-live-pro';
 import { LieferdienstPhase2675StatistikFahrerPerformanceDashboard } from './phase2675-statistiken-fahrer-performance-dashboard';
 import { LieferdienstPhase2680StatistikZonenPerformance } from './phase2680-statistiken-zonen-performance';
+import { LieferdienstPhase2685LeerfahrtenStatistik } from './phase2685-leerfahrten-statistik';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2284,6 +2285,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2675StatistikFahrerPerformanceDashboard locationId={locationId ?? null} />
                 {/* Phase 2680: Statistiken Zonen-Performance — 4-KPI-Grid Bestellungen/Umsatz/Lieferzeit/SLA; Zonen-Karten mit SLA-Balken; Alert Niedrige SLA-Rate; 3-Min-Polling */}
                 <LieferdienstPhase2680StatistikZonenPerformance locationId={locationId ?? null} />
+                {/* Phase 2685: Leerfahrten-Statistik — Gesamt-LF + Team-Ø + Bester; Fahrerliste aufsteigend; Alert "Hohe Leerfahrten!"; Route-Icon orange; 30-Min-Polling */}
+                <LieferdienstPhase2685LeerfahrtenStatistik locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
                 <LieferdienstPhase2630StatistikenLiveKomplett locationId={locationId ?? null} />
                 {/* Phase 2635: Liefer-SLA-Echtzeit-Cockpit — 5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling */}
@@ -4832,3 +4835,6 @@ export { LieferdienstPhase2675StatistikFahrerPerformanceDashboard } from './phas
 
 // Phase 2680 — Statistiken Zonen-Performance (4-KPI-Grid Bestellungen/Umsatz/Ø-Lieferzeit/SLA; Zonen-Karten mit SLA-Fortschrittsbalken; Ampel grün/gelb/rot; Alert Niedrige SLA-Rate; Gesamt-SLA-Kachel; 3-Min-Polling)
 export { LieferdienstPhase2680StatistikZonenPerformance } from './phase2680-statistiken-zonen-performance';
+
+// Phase 2685 — Leerfahrten-Statistik (Gesamt-LF Heute + Team-Ø + Bester; Fahrerliste aufsteigend; Ampel-Dot grün/gelb/rot; Alert "Hohe Leerfahrten!"; Route-Icon orange; Ziel 0 LF/Fahrer; 30-Min-Polling)
+export { LieferdienstPhase2685LeerfahrtenStatistik } from './phase2685-leerfahrten-statistik';

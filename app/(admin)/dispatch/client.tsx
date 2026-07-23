@@ -957,6 +957,7 @@ import { DispatchPhase3355TourScoreVisualisierungKommandoHub } from './phase3355
 import { DispatchPhase3360TrinkgeldQuoteRankingBoard } from './phase3360-trinkgeld-quote-ranking-board';
 import { DispatchPhase3360KmProStoppRankingBoard } from './phase3360-km-pro-stopp-ranking-board';
 import { DispatchPhase3365KmProTourRankingBoard } from './phase3365-km-pro-tour-ranking-board';
+import { DispatchPhase3369LeerfahrtenRankingBoard } from './phase3369-leerfahrten-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4475,6 +4476,8 @@ export function DispatchBoard({
           <DispatchPhase3360TrinkgeldQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3360: km/Stopp Ranking-Board — Fahrer-Rangliste nach Streckeneffizienz; RankBadge; Ampel-Farbkodierung; Delta-Trend; Balkendiagramm; Alert Hohe km/Stopp; 30-Min-Polling */}
           <DispatchPhase3360KmProStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3369: Leerfahrten Ranking-Board — Fahrerliste aufsteigend nach LF-Anzahl; Rang 1=wenigste LF; RankBadge; Ampel orange; KPI-Grid Bester/Team-Ø/Höchste; Alert "Hohe Leerfahrten-Anzahl!"; 30-Min-Polling */}
+          <DispatchPhase3369LeerfahrtenRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12478,3 +12481,5 @@ export { DispatchPhase3360TrinkgeldQuoteRankingBoard } from './phase3360-trinkge
 
 // Phase 3360 — km/Stopp Ranking-Board (Fahrer-Rangliste aufsteigend nach km/Stopp; RankBadge Gold/Silber/Bronze; Ampel grün/gelb/rot; Delta-Trend TrendingUp/Down; Balkendiagramm proportional maxKm; KPI-Grid Bester/Team-Ø/Höchster; Alert Hohe km/Stopp; 30-Min-Polling)
 export { DispatchPhase3360KmProStoppRankingBoard } from './phase3360-km-pro-stopp-ranking-board';
+// Phase 3369 — Leerfahrten Ranking-Board (Fahrerliste aufsteigend nach LF-Anzahl; Rang 1=wenigste LF=bester; RankBadge; Ampel orange; KPI-Grid Bester/Team-Ø/Höchste; Alert "Hohe Leerfahrten-Anzahl!"; Balken proportional; 30-Min-Polling)
+export { DispatchPhase3369LeerfahrtenRankingBoard } from './phase3369-leerfahrten-ranking-board';

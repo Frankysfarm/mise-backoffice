@@ -904,6 +904,7 @@ import { KitchenPhase3358SmartTimingCountdownFarbkodierungPro } from './phase335
 import { KitchenPhase3363TrinkgeldQuoteTicker } from './phase3363-trinkgeld-quote-ticker';
 import { KitchenPhase3363KmProStoppTicker } from './phase3363-km-pro-stopp-ticker';
 import { KitchenPhase3368KmProTourRankingTicker } from './phase3368-km-pro-tour-ranking-ticker';
+import { KitchenPhase3364LeerfahrtenTicker } from './phase3364-leerfahrten-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4062,6 +4063,8 @@ export function KitchenBoard({
       <KitchenPhase3363TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3363: km/Stopp Ticker — Kompakte Fahrer-Rangliste nach Streckeneffizienz; Kopfzeile mit #1; Alert-Badge; Delta-Trend; 30-Min-Polling */}
       <KitchenPhase3363KmProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3364: Leerfahrten-Ticker — Fahrerliste aufsteigend nach Leerfahrten-Anzahl; Alert-Badge; Route-Icon orange; Team-Ø; 30-Min-Polling */}
+      <KitchenPhase3364LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11055,3 +11058,6 @@ export { KitchenPhase3363KmProStoppTicker } from './phase3363-km-pro-stopp-ticke
 
 // Phase 3368 — km pro Tour Ranking Ticker (Route-Icon blau; Effizientester #1 Name+km im Header; Alert "Hohe km pro Tour!"; kompakt aufsteigend Rang 1=kürzeste Strecke; Rang+km+Delta neg=grün; Team-Ø; letzte 30 Tage; 30-Min-Polling)
 export { KitchenPhase3368KmProTourRankingTicker } from './phase3368-km-pro-tour-ranking-ticker';
+
+// Phase 3364 — Leerfahrten-Ticker (Fahrerliste aufsteigend nach Leerfahrten-Anzahl; Rang 1=wenigste=bester; Route-Icon orange; Alert "Hohe Leerfahrten-Anzahl!"; Footer Team-Ø; Ziel: 0; 30-Min-Polling)
+export { KitchenPhase3364LeerfahrtenTicker } from './phase3364-leerfahrten-ticker';
