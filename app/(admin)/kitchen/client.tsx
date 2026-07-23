@@ -934,6 +934,7 @@ import { KitchenPhase3490StoppAbstandTicker } from './phase3490-stopp-abstand-ti
 import { KitchenPhase3495RetourQuoteTicker } from './phase3495-retour-quote-ticker';
 import { KitchenPhase3500TourDauerTicker } from './phase3500-tour-dauer-ticker';
 import { KitchenPhase3505ErstelieferungZeitTicker } from './phase3505-erstelieferung-zeit-ticker';
+import { KitchenPhase3510PaketeProTourTicker } from './phase3510-pakete-pro-tour-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4148,6 +4149,8 @@ export function KitchenBoard({
       <KitchenPhase3500TourDauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3505: Erste-Lieferung-Zeit-Ticker — Zap-Icon gelb; Schnellster #1 Name+min im Header; Alert "Langsame Erste Lieferung!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤10min; 30-Min-Polling */}
       <KitchenPhase3505ErstelieferungZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3510: Pakete/Tour-Ticker — Package-Icon lila; Bester #1 Name+Pakete im Header; Alert "Niedrige Pakete/Tour!"; kompakt absteigend; Rang+Pakete+Delta pos=grün; Team-Ø+Ziel ≥6/Tour; 30-Min-Polling */}
+      <KitchenPhase3510PaketeProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11199,3 +11202,5 @@ export { KitchenPhase3495RetourQuoteTicker } from './phase3495-retour-quote-tick
 export { KitchenPhase3500TourDauerTicker } from './phase3500-tour-dauer-ticker';
 // Phase 3505 — Erste-Lieferung-Zeit-Ticker (Zap-Icon gelb; Schnellster #1 Name+min im Header; Alert "Langsame Erste Lieferung!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤10min; 30-Min-Polling)
 export { KitchenPhase3505ErstelieferungZeitTicker } from './phase3505-erstelieferung-zeit-ticker';
+// Phase 3510 — Pakete/Tour-Ticker (Package-Icon lila; Bester #1 Name+Pakete im Header; Alert "Niedrige Pakete/Tour!"; kompakt absteigend; Rang+Pakete+Delta pos=grün; Team-Ø+Ziel ≥6/Tour; 30-Min-Polling)
+export { KitchenPhase3510PaketeProTourTicker } from './phase3510-pakete-pro-tour-ticker';

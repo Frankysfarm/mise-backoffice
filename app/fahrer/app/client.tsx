@@ -900,6 +900,7 @@ import { FahrerPhase3487MeinStoppAbstand } from './phase3487-mein-stopp-abstand'
 import { FahrerPhase3493MeineRetourQuote } from './phase3493-meine-retour-quote';
 import { FahrerPhase3498MeineTourDauer } from './phase3498-meine-tour-dauer';
 import { FahrerPhase3503MeineErstelieferungZeit } from './phase3503-meine-erstelieferung-zeit';
+import { FahrerPhase3508MeinePaketeProTour } from './phase3508-meine-pakete-pro-tour';
 
 type Driver = {
   id: string;
@@ -6597,6 +6598,8 @@ export function FahrerApp({
           <FahrerPhase3498MeineTourDauer driverId={driver.id} isOnline={isOnline} />
           {/* Phase 3503: Meine Erste-Lieferung-Zeit — Zap-Icon gelb; min-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3503MeineErstelieferungZeit driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 3508: Meine Pakete/Tour — Package-Icon lila; Pakete-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3508MeinePaketeProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10327,3 +10330,5 @@ export { FahrerPhase3493MeineRetourQuote } from './phase3493-meine-retour-quote'
 export { FahrerPhase3498MeineTourDauer } from './phase3498-meine-tour-dauer';
 // Phase 3503 — Meine Erste-Lieferung-Zeit (Zap-Icon gelb; min-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3503MeineErstelieferungZeit } from './phase3503-meine-erstelieferung-zeit';
+// Phase 3508 — Meine Pakete/Tour (Package-Icon lila; Pakete-Wert 5xl+Rang 3xl; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3508MeinePaketeProTour } from './phase3508-meine-pakete-pro-tour';

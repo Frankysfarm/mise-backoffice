@@ -987,6 +987,7 @@ import { DispatchPhase3486StoppAbstandEffizienzRankingBoard } from './phase3486-
 import { DispatchPhase3492RetourQuoteRankingBoard } from './phase3492-retour-quote-ranking-board';
 import { DispatchPhase3497TourDauerRankingBoard } from './phase3497-tour-dauer-ranking-board';
 import { DispatchPhase3502ErstelieferungZeitRankingBoard } from './phase3502-erstelieferung-zeit-ranking-board';
+import { DispatchPhase3507PaketeProTourRankingBoard } from './phase3507-pakete-pro-tour-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4561,6 +4562,8 @@ export function DispatchBoard({
           <DispatchPhase3497TourDauerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3502: Erste-Lieferung-Zeit-Ranking — Zap-Icon gelb; aufsteigend Rang 1=schnellste erste Lieferung; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Langsame Erste Lieferung!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3502ErstelieferungZeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3507: Pakete/Tour Ranking — Package-Icon lila; absteigend Rang 1=höchste Anzahl; Balken 0–maxPakete; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pakete/Tour!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3507PaketeProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12621,3 +12624,5 @@ export { DispatchPhase3492RetourQuoteRankingBoard } from './phase3492-retour-quo
 export { DispatchPhase3497TourDauerRankingBoard } from './phase3497-tour-dauer-ranking-board';
 // Phase 3502 — Erste-Lieferung-Zeit-Ranking (Zap-Icon gelb; aufsteigend Rang 1=schnellste erste Lieferung; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Langsame Erste Lieferung!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3502ErstelieferungZeitRankingBoard } from './phase3502-erstelieferung-zeit-ranking-board';
+// Phase 3507 — Pakete/Tour Ranking-Board (Package-Icon lila; absteigend Rang 1=höchste Anzahl; Balken 0–maxPakete; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pakete/Tour!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3507PaketeProTourRankingBoard } from './phase3507-pakete-pro-tour-ranking-board';
