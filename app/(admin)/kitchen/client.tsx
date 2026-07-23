@@ -898,6 +898,7 @@ import { KitchenPhase3329SmartTimingFinalHub } from './phase3329-smart-timing-fi
 import { KitchenPhase3333LieferzeitPraezisionTicker } from './phase3333-lieferzeit-praezision-ticker';
 import { KitchenPhase3338KundenbewertungTicker } from './phase3338-kundenbewertung-ticker';
 import { KitchenPhase3343UmsatzProTourTicker } from './phase3343-umsatz-pro-tour-ticker';
+import { KitchenPhase3348SmartTimingCountdownMasterPro } from './phase3348-smart-timing-countdown-master-pro';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4044,6 +4045,8 @@ export function KitchenBoard({
       <KitchenPhase3338KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3343: Umsatz pro Tour Ticker — Euro-Icon grün; Bester #1 Name+€ im Header; Alert "Niedriger Umsatz pro Tour!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Ø; 30-Min-Polling */}
       <KitchenPhase3343UmsatzProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3348: Smart-Timing Countdown Master Pro — sekundengenauer Countdown 4-Stufen Farbkodierung; On-Time-Rate-Gauge; Kochstart-Empfehlung-Badge; KPI-Grid Aktiv/Fertig/Ø-Prep; 1-Sek-Tick + 15-Sek-Polling */}
+      <KitchenPhase3348SmartTimingCountdownMasterPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
