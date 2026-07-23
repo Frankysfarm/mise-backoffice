@@ -963,6 +963,7 @@ import { DispatchPhase3372RueckgabeQuoteRankingBoard } from './phase3372-rueckga
 import { DispatchPhase3377UebergabeZeitRankingBoard } from './phase3377-uebergabe-zeit-ranking-board';
 import { DispatchPhase3382StoppsProStundeRankingBoard } from './phase3382-stopps-pro-stunde-ranking-board';
 import { DispatchPhase3387UmsatzProSchichtRankingBoard } from './phase3387-umsatz-pro-schicht-ranking-board';
+import { DispatchPhase3392BestellwertProTourRankingBoard } from './phase3392-bestellwert-pro-tour-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4491,6 +4492,7 @@ export function DispatchBoard({
           <DispatchPhase3377UebergabeZeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3382StoppsProStundeRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3387UmsatzProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3392BestellwertProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12505,3 +12507,4 @@ export { DispatchPhase3372RueckgabeQuoteRankingBoard } from './phase3372-rueckga
 export { DispatchPhase3377UebergabeZeitRankingBoard } from './phase3377-uebergabe-zeit-ranking-board';
 export { DispatchPhase3382StoppsProStundeRankingBoard } from './phase3382-stopps-pro-stunde-ranking-board';
 export { DispatchPhase3387UmsatzProSchichtRankingBoard } from './phase3387-umsatz-pro-schicht-ranking-board';
+export { DispatchPhase3392BestellwertProTourRankingBoard } from './phase3392-bestellwert-pro-tour-ranking-board';
