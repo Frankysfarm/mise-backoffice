@@ -12408,3 +12408,7 @@ export { DispatchPhase3256TourScoreVisualisierungKommando } from './phase3256-to
 
 // Phase 3295 — Tour-Visualisierung Live-Board (Score-Ring je Fahrer; interaktive Stopp-Timeline SVG farbkodiert; expandierbare Stopp-Liste Adressen/ETA/Status; Problem-Alert; Ø Score-Anzeige; 20-Sek-Polling)
 export { DispatchPhase3295TourVisualisierungLiveBoard } from './phase3295-tour-visualisierung-live-board';
+
+// Phase 3320 — Tour-Score + Visualisierung Live (Score-Ring je Fahrer; Stopp-Dot-Timeline farbkodiert abgeschlossen/unterwegs/ausstehend/Problem; expandierbare Stopp-Liste Adressen/ETA; Bewertung; Alert Score <65; 20-Sek-Polling)
+export { DispatchPhase3320TourScoreVisualisierungLive } from './phase3320-tour-score-visualisierung-live';
+export { DispatchPhase3295TourVisualisierungLiveBoard } from './phase3295-tour-visualisierung-live-board';

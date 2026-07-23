@@ -10984,3 +10984,7 @@ export { KitchenPhase3259SmartKochstartCountdownUltra } from './phase3259-smart-
 
 // Phase 3295 — Smart-Timing Echtzeit-Cockpit (Gesamt On-Time% + Ø Prep-Zeit vs Ziel; 4 Stations-Balken je mit Trend-Pfeil und Ampel; Empfehlungs-Badge; Hochlast-Alert; 30-Sek-Polling)
 export { KitchenPhase3295SmartTimingEchtzeitCockpit } from './phase3295-smart-timing-echtzeit-cockpit';
+
+// Phase 3320 — Smart-Countdown Farbkodierung Master (Sekundengenauer Countdown je Bestellung; Farbkodierung grün/gelb/orange/rot; Fortschrittsbalken; Fahrer-ETA-Bridge; Hochlast-Alert; Empfehlung; 1-Sek-Tick + 15-Sek-Polling)
+export { KitchenPhase3320SmartCountdownFarbkodierungMaster } from './phase3320-smart-countdown-farbkodierung-master';
+export { KitchenPhase3295SmartTimingEchtzeitCockpit } from './phase3295-smart-timing-echtzeit-cockpit';

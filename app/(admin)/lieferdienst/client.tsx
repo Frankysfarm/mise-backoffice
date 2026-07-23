@@ -4802,3 +4802,7 @@ export { LieferdienstPhase2650StatistikEchtzeitUltimateCockpit } from './phase26
 
 // Phase 2655 — Statistiken Tagesvergleich Dashboard (8 KPI-Kacheln Ampel+Trend Heute vs Gestern+Δ%; Stundenverlauf-BarChart 2-Modi umschaltbar Heute(lila)/Gestern(grau)/Jetzt(blau); Alert-Strip; 1-Min-Polling)
 export { LieferdienstPhase2655StatistikTagesvergleichDashboard } from './phase2655-statistiken-tagesvergleich-dashboard';
+
+// Phase 2660 — Statistiken Intelligence Dashboard (8 KPI-Kacheln Ampel+Trend+Ziel; Stunden-BarChart 2-Modi Bestellungen/Umsatz umschaltbar Jetzt-Stunde blau hervorgehoben; Alert-Strip; 2-Min-Polling)
+export { LieferdienstPhase2660StatistikIntelligenceDashboard } from './phase2660-statistiken-intelligence-dashboard';
+export { LieferdienstPhase2655StatistikTagesvergleichDashboard } from './phase2655-statistiken-tagesvergleich-dashboard';
