@@ -23,8 +23,8 @@ interface UmsatzRankingResponse {
 }
 
 const MOCK: FahrerUmsatz[] = [
-  { fahrer_id: 'm1', fahrer_name: 'Julia F.', rang: 1, umsatz_pro_schicht: 285, rank_delta: 0, ampel: 'gruen', alert_bottom: false },
-  { fahrer_id: 'm2', fahrer_name: 'Sara K.',  rang: 2, umsatz_pro_schicht: 241, rank_delta: 1, ampel: 'gruen', alert_bottom: false },
+  { fahrer_id: 'm1', fahrer_name: 'Julia F.', rang: 1, umsatz_pro_schicht: 285, rank_delta: 1, ampel: 'gruen', alert_bottom: false },
+  { fahrer_id: 'm2', fahrer_name: 'Sara K.',  rang: 2, umsatz_pro_schicht: 241, rank_delta: 0, ampel: 'gruen', alert_bottom: false },
   { fahrer_id: 'm3', fahrer_name: 'Max M.',   rang: 3, umsatz_pro_schicht: 198, rank_delta: -1, ampel: 'gelb', alert_bottom: false },
   { fahrer_id: 'm4', fahrer_name: 'Tim B.',   rang: 4, umsatz_pro_schicht: 143, rank_delta: 0, ampel: 'rot', alert_bottom: true },
 ];
@@ -55,53 +55,54 @@ export async function GET(req: NextRequest) {
 
     const [curRes, prevRes] = await Promise.all([
       supabase
-        .from('delivery_tours')
-        .select('driver_id, order_total_euro, drivers(full_name)')
+        .from('driver_shifts')
+        .select('driver_id, revenue, drivers(full_name)')
         .eq('location_id', location_id ?? '')
-        .gte('created_at', `${thirtyDaysAgo}T00:00:00`)
-        .lte('created_at', `${today}T23:59:59`),
+        .gte('started_at', `${thirtyDaysAgo}T00:00:00`)
+        .lte('started_at', `${today}T23:59:59`)
+        .gt('revenue', 0),
       supabase
-        .from('delivery_tours')
-        .select('driver_id, order_total_euro')
+        .from('driver_shifts')
+        .select('driver_id, revenue')
         .eq('location_id', location_id ?? '')
-        .gte('created_at', `${thirtyDaysAgo}T00:00:00`)
-        .lte('created_at', `${yesterday}T23:59:59`),
+        .gte('started_at', `${thirtyDaysAgo}T00:00:00`)
+        .lte('started_at', `${yesterday}T23:59:59`)
+        .gt('revenue', 0),
     ]);
 
     if (curRes.error || !curRes.data || curRes.data.length === 0) {
       return buildMockResponse(driver_id);
     }
 
-    const curData = curRes.data as Array<{ driver_id: string; order_total_euro: number; drivers: { full_name: string } | null }>;
-    const prevData = (prevRes.data ?? []) as Array<{ driver_id: string; order_total_euro: number }>;
+    const curData = curRes.data as Array<{ driver_id: string; revenue: number; drivers: { full_name: string } | null }>;
+    const prevData = (prevRes.data ?? []) as Array<{ driver_id: string; revenue: number }>;
 
-    // Group by driver: count tours as proxy for shifts, sum revenue
-    const grouped: Record<string, { name: string; total_euro: number; schichten: number }> = {};
+    const grouped: Record<string, { name: string; total_revenue: number; shift_count: number }> = {};
     for (const row of curData) {
       if (!grouped[row.driver_id]) {
         grouped[row.driver_id] = {
           name: (row.drivers as { full_name: string } | null)?.full_name ?? row.driver_id,
-          total_euro: 0,
-          schichten: 0,
+          total_revenue: 0,
+          shift_count: 0,
         };
       }
-      grouped[row.driver_id].total_euro += row.order_total_euro ?? 0;
-      grouped[row.driver_id].schichten += 1;
+      grouped[row.driver_id].total_revenue += row.revenue ?? 0;
+      grouped[row.driver_id].shift_count += 1;
     }
 
     const prevGrouped: Record<string, number> = {};
     for (const row of prevData) {
       if (!prevGrouped[row.driver_id]) prevGrouped[row.driver_id] = 0;
-      prevGrouped[row.driver_id] += row.order_total_euro ?? 0;
+      prevGrouped[row.driver_id] += row.revenue ?? 0;
     }
 
     const sorted = Object.entries(grouped)
       .map(([id, d]) => ({
         fahrer_id: id,
         fahrer_name: d.name,
-        upsPerShift: d.schichten > 0 ? Math.round(d.total_euro / d.schichten) : 0,
+        avg: d.shift_count > 0 ? Math.round(d.total_revenue / d.shift_count) : 0,
       }))
-      .sort((a, b) => b.upsPerShift - a.upsPerShift);
+      .sort((a, b) => b.avg - a.avg);
 
     const n = sorted.length;
     const top25idx = Math.ceil(n * 0.25);
@@ -118,7 +119,7 @@ export async function GET(req: NextRequest) {
         fahrer_id: f.fahrer_id,
         fahrer_name: f.fahrer_name,
         rang,
-        umsatz_pro_schicht: f.upsPerShift,
+        umsatz_pro_schicht: f.avg,
         rank_delta: prevRang - rang,
         ampel: rang <= top25idx ? 'gruen' : rang <= bot25idx ? 'gelb' : 'rot',
         alert_bottom: rang > bot25idx,

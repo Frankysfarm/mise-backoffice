@@ -56,7 +56,7 @@ export function DispatchPhase3387UmsatzProSchichtRankingBoard({ locationId }: { 
 
   if (!data) return null;
 
-  const maxEuro = Math.max(...data.fahrer.map(f => f.umsatz_pro_schicht), 1);
+  const maxUmsatz = Math.max(...data.fahrer.map(f => f.umsatz_pro_schicht), 1);
 
   return (
     <div className="border rounded-lg bg-white dark:bg-gray-900 shadow-sm mb-3">
@@ -110,7 +110,7 @@ export function DispatchPhase3387UmsatzProSchichtRankingBoard({ locationId }: { 
                 <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-full h-2 relative">
                   <div
                     className={`h-2 rounded-full ${AMPEL_BG[f.ampel]}`}
-                    style={{ width: `${(f.umsatz_pro_schicht / maxEuro) * 100}%` }}
+                    style={{ width: `${(f.umsatz_pro_schicht / maxUmsatz) * 100}%` }}
                   />
                 </div>
                 <span className={`text-xs font-mono w-14 text-right flex-shrink-0 ${AMPEL_COLOR[f.ampel]}`}>

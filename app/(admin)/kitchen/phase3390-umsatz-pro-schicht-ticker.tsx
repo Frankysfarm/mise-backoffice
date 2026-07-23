@@ -93,7 +93,7 @@ export function KitchenPhase3390UmsatzProSchichtTicker({ locationId }: { locatio
           ))}
 
           <div className="flex justify-between text-[10px] text-gray-400 pt-0.5 border-t">
-            <span>Team-Ø: {data.team_avg}€</span>
+            <span>Team-Ø: {data.team_avg}€/Schicht</span>
             <span>Ziel: ≥200€/Schicht</span>
           </div>
         </div>

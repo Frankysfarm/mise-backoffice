@@ -24,10 +24,16 @@ const AMPEL_COLOR: Record<string, string> = {
   rot: 'text-red-500',
 };
 
+const AMPEL_BAR: Record<string, string> = {
+  gruen: 'bg-emerald-500',
+  gelb: 'bg-yellow-400',
+  rot: 'bg-red-500',
+};
+
 const COACHING: Record<string, string> = {
-  gruen: 'Hervorragender Umsatz! Weiter so.',
-  gelb: 'Gut — versuche mehr Lieferungen pro Schicht zu erreichen.',
-  rot: 'Route optimieren und Schichtverfügbarkeit steigern.',
+  gruen: 'Hervorragender Umsatz! Du bist unter den Besten.',
+  gelb: 'Gut — versuche mehr Bestellungen pro Schicht zu fahren.',
+  rot: 'Umsatz optimieren: mehr aktive Stunden und Touren anstreben.',
 };
 
 export function FahrerPhase3388MeinUmsatzProSchicht({
@@ -83,7 +89,7 @@ export function FahrerPhase3388MeinUmsatzProSchicht({
               <div className={`text-5xl font-black ${AMPEL_COLOR[me.ampel]}`}>
                 {me.umsatz_pro_schicht}€
               </div>
-              <div className="text-[10px] text-gray-500 mt-0.5">pro Schicht</div>
+              <div className="text-[10px] text-gray-500 mt-0.5">Ø pro Schicht</div>
             </div>
             <div className="text-center">
               <div className={`text-3xl font-bold ${AMPEL_COLOR[me.ampel]}`}>
@@ -95,7 +101,7 @@ export function FahrerPhase3388MeinUmsatzProSchicht({
 
           <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2.5">
             <div
-              className={`h-2.5 rounded-full ${me.ampel === 'gruen' ? 'bg-emerald-500' : me.ampel === 'gelb' ? 'bg-yellow-400' : 'bg-red-500'}`}
+              className={`h-2.5 rounded-full ${AMPEL_BAR[me.ampel]}`}
               style={{ width: `${Math.max(5, ((data.gesamt - me.rang + 1) / data.gesamt) * 100)}%` }}
             />
           </div>
