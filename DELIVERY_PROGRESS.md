@@ -27958,3 +27958,59 @@ Backend-Architekt-Agent (2026-07-23): Phasen 3406–3410 implementiert — Fahre
 5. **Phase 3455 Kitchen:** WochenendAnteilTicker — Calendar-Icon orange; Bester #1 Name+% im Header; Alert "Wenig Wochenend-Schichten!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥35%; 30-Min-Polling; nach Phase3450. PFLICHT: Import + Render + Barrel.
 
 Frontend-Ingenieur-Agent (2026-07-23): Phasen 3446–3450 implementiert — Fahrer-Nacht-Schicht-Anteil-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3446 Backend (fahrer-nacht-schicht-anteil, Nacht-Anteil % = departed_at zwischen 22:00–06:00 / alle Touren * 100, absteigend Rang 1=höchster Anteil=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), alert_bottom Bottom-25%, Mock Julia F.42%/Sara K.31%/Max M.18%/Tim B.8%, force-dynamic, createClient() ✅) / Phase3447 Dispatch (DispatchPhase3447NachtSchichtAnteilRankingBoard, Moon-Icon indigo, absteigend Rang 1=höchster Anteil, Balken 0–100%, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Wenig Nacht-Schichten!", Delta pos=grün, Import+Render+Barrel ✅) / Phase3448 Fahrer-App (FahrerPhase3448MeinNachtSchichtAnteil, Moon-Icon indigo, %-Wert 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3450 Kitchen (KitchenPhase3450NachtSchichtAnteilTicker, Moon-Icon indigo, Bester #1 Name+% im Header, Alert "Wenig Nacht-Schichten!", Ziel ≥25%, Import+Render+Barrel ✅). Phase 3449 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
+
+---
+
+## Batch 3561–3565 — Fahrer-Pausen-Dauer-Ranking (ABGESCHLOSSEN 2026-07-23)
+
+### Phase 3561 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-pausen-dauer/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-pausen-dauer?location_id=...&driver_id=...
+**Response:** fahrer[]{fahrer_id, fahrer_name, rang, pausen_dauer_min, rank_delta, ampel gruen/gelb/rot, alert_top}, team_avg, kuerzester_name, laengster_name, alert_count, gesamt
+**Logik:** Ø Pausendauer (min) je Fahrer letzte 30 Tage aus shift_breaks; aufsteigend Rang 1=kürzeste Pause=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); alert_top=rot Top-25%; rank_delta neg=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.15min/Sara K.22min/Max M.31min/Tim B.48min; force-dynamic; createClient() await ✅
+
+### Phase 3562 — Pausen-Dauer-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3562-pausen-dauer-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3562PausenDauerRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Coffee-Icon braun; aufsteigend Rang 1=kürzeste Pause; Balken 0–maxMin; KPI-Grid Kürzester/Team-Ø/Längster; Alert "Lange Pause!" (alert_top); Delta neg=grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L1002 + Render nach Phase3557 + Barrel-Export ✅
+
+### Phase 3563 — Meine Pausen-Dauer (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3563-meine-pausen-dauer.tsx` *(neu)*
+**Component:** `FahrerPhase3563MeinePausenDauer`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Coffee-Icon braun; min-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L915 + Render nach Phase3558 + Barrel-Export ✅
+
+### Phase 3564 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3565 — Pausen-Dauer-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3565-pausen-dauer-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3565PausenDauerTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Coffee-Icon braun; Kürzester #1 Name+min im Header; Alert "Lange Pause!" (alert_top); Fahrerliste kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <30min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L949 + Render nach Phase3560 + Barrel-Export ✅
+
+### Build-Ergebnis
+**✓ exit 0 — keine neuen TypeScript-Fehler — ignoreBuildErrors:true aktiv** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ PausenDauerTicker + PausenDauerRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3562 Board + Phase3563 MeinePausenDauer |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3566–3570 (für nächsten Agenten) — Fahrer-Schicht-Auslastungs-Ranking
+1. **Phase 3566 Backend:** GET /api/delivery/admin/fahrer-schicht-auslastung — Schicht-Auslastung (%) je Fahrer letzte 30 Tage (aktive Tour-Zeit / Schicht-Dauer * 100); Rang 1=höchste Auslastung=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Auslastung!"; rank_delta pos=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.82%/Sara K.71%/Max M.58%/Tim B.44%; force-dynamic; createClient() await.
+2. **Phase 3567 Dispatch:** SchichtAuslastungRankingBoard — Gauge-Icon blau; absteigend Rang 1=höchste Auslastung; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Auslastung!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3562. PFLICHT: Import + Render + Barrel.
+3. **Phase 3568 Fahrer:** MeineSchichtAuslastung — Gauge-Icon blau; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3563. PFLICHT: Import + Render + Barrel.
+4. **Phase 3569 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3570 Kitchen:** SchichtAuslastungTicker — Gauge-Icon blau; Bester #1 Name+% im Header; Alert "Niedrige Auslastung!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥70%; 30-Min-Polling; nach Phase3565. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-23): Phasen 3561–3565 implementiert — Fahrer-Pausen-Dauer-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3561 Backend (fahrer-pausen-dauer, Ø Pausendauer min aus shift_breaks, aufsteigend Rang 1=kürzeste Pause=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), alert_top Top-25%, rank_delta neg=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.15min/Sara K.22min/Max M.31min/Tim B.48min, force-dynamic, createClient() ✅) / Phase3562 Dispatch (DispatchPhase3562PausenDauerRankingBoard, Coffee-Icon braun, aufsteigend Rang 1=kürzeste Pause, Balken 0–maxMin, KPI-Grid Kürzester/Team-Ø/Längster, Alert "Lange Pause!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3563 Fahrer-App (FahrerPhase3563MeinePausenDauer, Coffee-Icon braun, min 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3565 Kitchen (KitchenPhase3565PausenDauerTicker, Coffee-Icon braun, Kürzester #1 Name+min im Header, Alert "Lange Pause!", Ziel <30min, Import+Render+Barrel ✅). Phase 3564 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.

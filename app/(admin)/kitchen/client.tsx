@@ -946,6 +946,7 @@ import { KitchenPhase3545SchichtStartzeitTicker } from './phase3545-schicht-star
 import { KitchenPhase3550SchichtEndzeitTicker } from './phase3550-schicht-endzeit-ticker';
 import { KitchenPhase3555SmartTimingCountdownMasterUltra } from './phase3555-smart-timing-countdown-master-ultra';
 import { KitchenPhase3560SchichtDauerTicker } from './phase3560-schicht-dauer-ticker';
+import { KitchenPhase3565PausenDauerTicker } from './phase3565-pausen-dauer-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4184,6 +4185,8 @@ export function KitchenBoard({
       <KitchenPhase3555SmartTimingCountdownMasterUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3560: Schicht-Dauer-Ticker — Timer-Icon lila; Kürzester #1 Name+min im Header; Alert "Lange Schicht-Dauer!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø; 30-Min-Polling */}
       <KitchenPhase3560SchichtDauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3565: Pausen-Dauer-Ticker — Coffee-Icon braun; Kürzester #1 Name+min im Header; Alert "Lange Pause!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <30min; 30-Min-Polling */}
+      <KitchenPhase3565PausenDauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11259,3 +11262,5 @@ export { KitchenPhase3550SchichtEndzeitTicker } from './phase3550-schicht-endzei
 export { KitchenPhase3555SmartTimingCountdownMasterUltra } from './phase3555-smart-timing-countdown-master-ultra';
 // Phase 3560 — Schicht-Dauer-Ticker (Timer-Icon lila; Kürzester #1 Name+min im Header; Alert "Lange Schicht-Dauer!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø; 30-Min-Polling)
 export { KitchenPhase3560SchichtDauerTicker } from './phase3560-schicht-dauer-ticker';
+// Phase 3565 — Pausen-Dauer-Ticker (Coffee-Icon braun; Kürzester #1 Name+min im Header; Alert "Lange Pause!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <30min; 30-Min-Polling)
+export { KitchenPhase3565PausenDauerTicker } from './phase3565-pausen-dauer-ticker';

@@ -912,6 +912,7 @@ import { FahrerPhase3543MeineSchichtStartzeit } from './phase3543-meine-schicht-
 import { FahrerPhase3548MeineSchichtEndzeit } from './phase3548-meine-schicht-endzeit';
 import { FahrerPhase3553TourStopsNavigatorMaster } from './phase3553-tour-stops-navigator-master';
 import { FahrerPhase3558MeineSchichtDauer } from './phase3558-meine-schicht-dauer';
+import { FahrerPhase3563MeinePausenDauer } from './phase3563-meine-pausen-dauer';
 
 type Driver = {
   id: string;
@@ -6631,6 +6632,8 @@ export function FahrerApp({
           <FahrerPhase3548MeineSchichtEndzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3558: Meine Schicht-Dauer — Timer-Icon lila; min-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3558MeineSchichtDauer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3563: Meine Pausen-Dauer — Coffee-Icon braun; min 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3563MeinePausenDauer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10393,3 +10396,5 @@ export { FahrerPhase3548MeineSchichtEndzeit } from './phase3548-meine-schicht-en
 export { FahrerPhase3553TourStopsNavigatorMaster } from './phase3553-tour-stops-navigator-master';
 // Phase 3558 — Meine Schicht-Dauer (Timer-Icon lila; min-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3558MeineSchichtDauer } from './phase3558-meine-schicht-dauer';
+// Phase 3563 — Meine Pausen-Dauer (Coffee-Icon braun; min 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3563MeinePausenDauer } from './phase3563-meine-pausen-dauer';
