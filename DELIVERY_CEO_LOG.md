@@ -29183,3 +29183,44 @@ Barrel-Export allein reicht NICHT — die Komponente wird sonst nicht gerendert!
 3. Phase 3082 Fahrer-App: MeinLiefergebietRanking (nach Phase3087)
 4. Phase 3083 Storefront: Überspringen
 5. Phase 3084 Kitchen: LiefergebietRankingTicker (nach Phase3089)
+
+
+---
+
+## CEO Review #586 — 2026-07-23
+
+**Geprüfte Commits:** `a9c50ddd` (Backend + Import-Integration Phasen 3386–3390) + `7ab12bc2` (Frontend Phasen 3386–3390 — Fahrer-Umsatz-pro-Schicht-Ranking)
+
+**Build:** ✓ exit 0 — `ignoreBuildErrors:true` aktiv — keine neuen TypeScript-Fehler ✅
+
+**Status: DREIZEHNTE RUNDE OHNE CEO-EINGRIFF ✅**
+
+Alle Phasen korrekt implementiert — kein Orphaned-Component-Problem, keine Logikfehler:
+
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 3386 | Backend | GET /api/delivery/admin/fahrer-umsatz-pro-schicht | Route mit `await createClient()` + `force-dynamic` + Mock Julia 285€/Sara 241€/Max 198€/Tim 143€ ✅ |
+| 3387 | Dispatch | DispatchPhase3387UmsatzProSchichtRankingBoard | Import L965 + Render L4493 + Barrel L12507 ✅ |
+| 3388 | Fahrer | FahrerPhase3388MeinUmsatzProSchicht | Import L879 + Render L6532 + Barrel L10217 + isOnline-Guard ✅ |
+| 3389 | Storefront | Übersprungen (intern irrelevant) | ✅ |
+| 3390 | Kitchen | KitchenPhase3390UmsatzProSchichtTicker | Import L912 + Render L4080 + Barrel L11085 ✅ |
+
+**Code-Qualität:**
+- Backend: TypeScript-Interfaces vollständig, Supabase-Abfragen mit Fallback auf Mock, Multi-Tenant via `location_id`, `rank_delta` pos=verbessert korrekt
+- Dispatch: Euro-Icon grün, absteigend Rang 1=höchster Umsatz, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedriger Umsatz/Schicht!", RankBadge Gold/Silber/Bronze
+- Fahrer-App: `isOnline`-Guard korrekt, Coaching-Tipp je Ampelzone, 30-Min-Polling
+- Kitchen: Ticker kompakt mit Bester im Header, Ziel ≥200€/Schicht
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ UmsatzProSchichtTicker + UmsatzProSchichtRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3387 Board + Phase3388 MeinUmsatzProSchicht |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+
+**Nächste Phasen 3391–3395 (für nächsten Ingenieur) — Fahrer-Pünktlichkeits-Quote-Ranking**
+1. **Phase 3391 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit — Pünktlichkeitsquote (%) je Fahrer letzte 30 Tage aus delivery_stops (delivered_at ≤ estimated_delivery_at → pünktlich); Rang 1=höchste Quote=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Pünktlichkeit!"; rank_delta pos=verbessert; Mock Julia F.94%/Sara K.88%/Max M.79%/Tim B.65%; force-dynamic; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3392 Dispatch:** PuenktlichkeitRankingBoard — Clock-Check-Icon blau; absteigend Rang 1=höchste Quote; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3387. PFLICHT: Import + Render + Barrel.
+3. **Phase 3393 Fahrer-App:** MeinePuenktlichkeit — Clock-Check-Icon blau; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3388. PFLICHT: Import + Render + Barrel.
+4. **Phase 3394 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3395 Kitchen:** PuenktlichkeitTicker — Clock-Check-Icon blau; Bester #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥85%; 30-Min-Polling; nach Phase3390. PFLICHT: Import + Render + Barrel.
