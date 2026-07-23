@@ -7,6 +7,7 @@ import { BissPhase1414DynamischeEtaLiveBanner } from './phase1414-dynamische-eta
 import { BissPhase1851EtaLiveTrackingHub } from './phase1851-eta-live-tracking-hub';
 import { Phase2100LiveEtaTrackingFinal } from '../../order/[locationSlug]/phase2100-live-eta-tracking-final';
 import { BissPhase2200DynamischeEtaLiveFinalHub } from './phase2200-dynamische-eta-live-final-hub';
+import { BissPhase2310LiveEtaTrackingHub } from './phase2310-live-eta-tracking-hub';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Location = { id: string; name: string; adresse: string | null; stadt: string | null; plz: string | null; telefon: string | null };
@@ -406,6 +407,11 @@ export function BissStorefront({ location, tenant, categories, items }: {
         locationId={location.id}
         deliveryTimeMin={tenant.deliveryTimeMin}
         initialEta={eta}
+      />
+      {/* Phase 2310: Live ETA + Tracking Hub — Load-Indikator Entspannt/Normal/Viel los; aktive Fahrer; Animate-Pulse; 60-Sek-Polling */}
+      <BissPhase2310LiveEtaTrackingHub
+        locationId={location.id}
+        deliveryTimeMin={tenant.deliveryTimeMin}
       />
 
       {/* Category nav */}

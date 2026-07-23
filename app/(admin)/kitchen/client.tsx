@@ -912,6 +912,7 @@ import { KitchenPhase3385StoppsProStundeTicker } from './phase3385-stopps-pro-st
 import { KitchenPhase3390UmsatzProSchichtTicker } from './phase3390-umsatz-pro-schicht-ticker';
 import { KitchenPhase3395BestellwertProTourTicker } from './phase3395-bestellwert-pro-tour-ticker';
 import { KitchenPhase3400LieferzeitTicker } from './phase3400-lieferzeit-ticker';
+import { KitchenPhase3400SmartTimingCountdownMasterUltra } from './phase3400-smart-timing-countdown-master-ultra';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4082,6 +4083,8 @@ export function KitchenBoard({
       <KitchenPhase3390UmsatzProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3395BestellwertProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3400LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3400: Smart-Timing Countdown Master Ultra — Sekundengenauer Countdown grün/gelb/orange/rot; On-Time-Rate; Kochstart-Empfehlung; Überfällig-Alert; 1-Sek-Tick+15-Sek-Polling */}
+      <KitchenPhase3400SmartTimingCountdownMasterUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11089,3 +11092,6 @@ export { KitchenPhase3385StoppsProStundeTicker } from './phase3385-stopps-pro-st
 export { KitchenPhase3390UmsatzProSchichtTicker } from './phase3390-umsatz-pro-schicht-ticker';
 export { KitchenPhase3395BestellwertProTourTicker } from './phase3395-bestellwert-pro-tour-ticker';
 export { KitchenPhase3400LieferzeitTicker } from './phase3400-lieferzeit-ticker';
+
+// Phase 3400 — Smart-Timing Countdown Master Ultra (Sekundengenauer Countdown grün/gelb/orange/rot je Bestellung; On-Time-Rate-Gauge; Kochstart-Empfehlung-Badge; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling)
+export { KitchenPhase3400SmartTimingCountdownMasterUltra } from './phase3400-smart-timing-countdown-master-ultra';

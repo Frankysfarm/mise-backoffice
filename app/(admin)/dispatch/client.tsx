@@ -965,6 +965,7 @@ import { DispatchPhase3382StoppsProStundeRankingBoard } from './phase3382-stopps
 import { DispatchPhase3387UmsatzProSchichtRankingBoard } from './phase3387-umsatz-pro-schicht-ranking-board';
 import { DispatchPhase3392BestellwertProTourRankingBoard } from './phase3392-bestellwert-pro-tour-ranking-board';
 import { DispatchPhase3397LieferzeitRankingBoard } from './phase3397-lieferzeit-ranking-board';
+import { DispatchPhase3400TourScoreFinalCockpitUltra } from './phase3400-tour-score-final-cockpit-ultra';
 
 type Driver = {
   employee_id: string;
@@ -4495,6 +4496,8 @@ export function DispatchBoard({
           <DispatchPhase3387UmsatzProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3392BestellwertProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3397LieferzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3400: Tour-Score Final Cockpit Ultra — Score-Ring SVG 0–100 je Fahrer; farbkodiert grün/gelb/rot; Stopp-Dots-Timeline; Sub-Scores; Flotten-Ø; Alert Score <65; 20-Sek-Polling */}
+          <DispatchPhase3400TourScoreFinalCockpitUltra locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12511,3 +12514,6 @@ export { DispatchPhase3382StoppsProStundeRankingBoard } from './phase3382-stopps
 export { DispatchPhase3387UmsatzProSchichtRankingBoard } from './phase3387-umsatz-pro-schicht-ranking-board';
 export { DispatchPhase3392BestellwertProTourRankingBoard } from './phase3392-bestellwert-pro-tour-ranking-board';
 export { DispatchPhase3397LieferzeitRankingBoard } from './phase3397-lieferzeit-ranking-board';
+
+// Phase 3400 — Tour-Score + Visualisierung Final Ultra Cockpit (Score-Ring SVG 0–100 je Fahrer; grün/gelb/rot; Stopp-Dot-Timeline; Sub-Scores Pünktlichkeit/Abschluss/Speed; Flotten-Ø; Alert Score <65; 20-Sek-Polling)
+export { DispatchPhase3400TourScoreFinalCockpitUltra } from './phase3400-tour-score-final-cockpit-ultra';

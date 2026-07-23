@@ -466,6 +466,8 @@ import { LieferdienstPhase2670StatistikenMasterLivePro } from './phase2670-stati
 import { LieferdienstPhase2675StatistikFahrerPerformanceDashboard } from './phase2675-statistiken-fahrer-performance-dashboard';
 import { LieferdienstPhase2680StatistikZonenPerformance } from './phase2680-statistiken-zonen-performance';
 import { LieferdienstPhase2685LeerfahrtenStatistik } from './phase2685-leerfahrten-statistik';
+import { LieferdienstPhase2690StatistikenWochenvergleichCockpit } from './phase2690-statistiken-wochenvergleich-cockpit';
+import { LieferdienstPhase2695FahrerSchichtBilanzCockpit } from './phase2695-fahrer-schicht-bilanz-cockpit';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2287,6 +2289,10 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2680StatistikZonenPerformance locationId={locationId ?? null} />
                 {/* Phase 2685: Leerfahrten-Statistik — Gesamt-LF + Team-Ø + Bester; Fahrerliste aufsteigend; Alert "Hohe Leerfahrten!"; Route-Icon orange; 30-Min-Polling */}
                 <LieferdienstPhase2685LeerfahrtenStatistik locationId={locationId ?? null} />
+                {/* Phase 2690: Statistiken Wochen-Vergleich — 8 KPI-Kacheln Heute vs. Letzte Woche; Δ% + TrendingUp/Down; grün=verbessert; 5-Min-Polling */}
+                <LieferdienstPhase2690StatistikenWochenvergleichCockpit locationId={locationId ?? null} />
+                {/* Phase 2695: Fahrer Schicht-Bilanz — KPI-Grid Touren/Stopps/Umsatz/Bewertung; Fahrer-Kacheln Score-Balken; Alert Bottom-25%; 2-Min-Polling */}
+                <LieferdienstPhase2695FahrerSchichtBilanzCockpit locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
                 <LieferdienstPhase2630StatistikenLiveKomplett locationId={locationId ?? null} />
                 {/* Phase 2635: Liefer-SLA-Echtzeit-Cockpit — 5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling */}
@@ -4838,3 +4844,9 @@ export { LieferdienstPhase2680StatistikZonenPerformance } from './phase2680-stat
 
 // Phase 2685 — Leerfahrten-Statistik (Gesamt-LF Heute + Team-Ø + Bester; Fahrerliste aufsteigend; Ampel-Dot grün/gelb/rot; Alert "Hohe Leerfahrten!"; Route-Icon orange; Ziel 0 LF/Fahrer; 30-Min-Polling)
 export { LieferdienstPhase2685LeerfahrtenStatistik } from './phase2685-leerfahrten-statistik';
+
+// Phase 2690 — Statistiken Wochen-Vergleich Cockpit (8 KPI-Kacheln Ampel+Δ% Diese vs. Letzte Woche; TrendingUp/Down je KPI; grün wenn verbessert/rot wenn schlechter; inverted für Lieferzeit+Storno; 5-Min-Polling)
+export { LieferdienstPhase2690StatistikenWochenvergleichCockpit } from './phase2690-statistiken-wochenvergleich-cockpit';
+
+// Phase 2695 — Fahrer Schicht-Bilanz Cockpit (KPI-Grid Touren/Stopps/Ø-Lieferzeit/Umsatz/Bewertung/Pünktlichkeit; Fahrer-Kacheln Score-Balken+Stopps+Umsatz; Sort absteigend Score; Alert Bottom-25%; 2-Min-Polling)
+export { LieferdienstPhase2695FahrerSchichtBilanzCockpit } from './phase2695-fahrer-schicht-bilanz-cockpit';
