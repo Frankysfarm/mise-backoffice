@@ -915,6 +915,7 @@ import { FahrerPhase3558MeineSchichtDauer } from './phase3558-meine-schicht-daue
 import { FahrerPhase3563MeinePausenDauer } from './phase3563-meine-pausen-dauer';
 import { FahrerPhase3568TourStoppNavigationCockpit } from './phase3568-tour-stopp-navigation-cockpit';
 import { FahrerPhase3573MeineTourenProSchicht } from './phase3573-meine-touren-pro-schicht';
+import { FahrerPhase3578MeineSchichtAuslastung } from './phase3578-meine-schicht-auslastung';
 
 type Driver = {
   id: string;
@@ -6638,6 +6639,8 @@ export function FahrerApp({
           <FahrerPhase3563MeinePausenDauer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3573: Meine Touren/Schicht — Route-Icon blau; absteigend; Rang/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3573MeineTourenProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3578: Meine Schicht-Auslastung — BarChart2-Icon blau; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3578MeineSchichtAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10414,3 +10417,5 @@ export { FahrerPhase3563MeinePausenDauer } from './phase3563-meine-pausen-dauer'
 export { FahrerPhase3568TourStoppNavigationCockpit } from './phase3568-tour-stopp-navigation-cockpit';
 // Phase 3573 — Meine Touren/Schicht (Route-Icon blau; absteigend; Rang 5xl+Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3573MeineTourenProSchicht } from './phase3573-meine-touren-pro-schicht';
+// Phase 3578 — Meine Schicht-Auslastung (BarChart2-Icon blau; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3578MeineSchichtAuslastung } from './phase3578-meine-schicht-auslastung';

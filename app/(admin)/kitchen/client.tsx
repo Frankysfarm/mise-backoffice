@@ -949,6 +949,7 @@ import { KitchenPhase3560SchichtDauerTicker } from './phase3560-schicht-dauer-ti
 import { KitchenPhase3565PausenDauerTicker } from './phase3565-pausen-dauer-ticker';
 import { KitchenPhase3570SmartTimingKochstartScoreCockpit } from './phase3570-smart-timing-kochstart-score-cockpit';
 import { KitchenPhase3575TourenProSchichtTicker } from './phase3575-touren-pro-schicht-ticker';
+import { KitchenPhase3580SchichtAuslastungTicker } from './phase3580-schicht-auslastung-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4193,6 +4194,8 @@ export function KitchenBoard({
       <KitchenPhase3570SmartTimingKochstartScoreCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3575: Touren/Schicht-Ticker — Route-Icon blau; Bester #1 Name+Touren im Header; Alert "Wenig Touren/Schicht!"; kompakt absteigend; Rang+Touren+Delta pos=grün; Team-Ø+Ziel ≥6 T/Schicht; 30-Min-Polling */}
       <KitchenPhase3575TourenProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3580: Schicht-Auslastung-Ticker — BarChart2-Icon blau; Bester #1 Name+% im Header; Alert "Niedrige Auslastung!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥70%; 30-Min-Polling */}
+      <KitchenPhase3580SchichtAuslastungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11274,3 +11277,5 @@ export { KitchenPhase3565PausenDauerTicker } from './phase3565-pausen-dauer-tick
 export { KitchenPhase3570SmartTimingKochstartScoreCockpit } from './phase3570-smart-timing-kochstart-score-cockpit';
 // Phase 3575 — Touren/Schicht-Ticker (Route-Icon blau; Bester #1 Name+Touren im Header; Alert "Wenig Touren/Schicht!"; kompakt absteigend; Rang+Touren+Delta pos=grün; Team-Ø+Ziel ≥6 T/Schicht; 30-Min-Polling)
 export { KitchenPhase3575TourenProSchichtTicker } from './phase3575-touren-pro-schicht-ticker';
+// Phase 3580 — Schicht-Auslastung-Ticker (BarChart2-Icon blau; Bester #1 Name+% im Header; Alert "Niedrige Auslastung!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥70%; 30-Min-Polling)
+export { KitchenPhase3580SchichtAuslastungTicker } from './phase3580-schicht-auslastung-ticker';

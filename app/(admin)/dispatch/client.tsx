@@ -1002,6 +1002,7 @@ import { DispatchPhase3557SchichtDauerRankingBoard } from './phase3557-schicht-d
 import { DispatchPhase3562PausenDauerRankingBoard } from './phase3562-pausen-dauer-ranking-board';
 import { DispatchPhase3567TourScoreVisualisierungUltra } from './phase3567-tour-score-visualisierung-ultra';
 import { DispatchPhase3572TourenProSchichtRankingBoard } from './phase3572-touren-pro-schicht-ranking-board';
+import { DispatchPhase3577SchichtAuslastungRankingBoard } from './phase3577-schicht-auslastung-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4606,6 +4607,8 @@ export function DispatchBoard({
           <DispatchPhase3567TourScoreVisualisierungUltra locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3572: Touren/Schicht Ranking — Route-Icon blau; absteigend Rang 1=meiste Touren; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Wenig Touren/Schicht!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3572TourenProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3577: Schicht-Auslastung Ranking — BarChart2-Icon blau; absteigend Rang 1=höchste Auslastung; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Auslastung!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3577SchichtAuslastungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12696,3 +12699,5 @@ export { DispatchPhase3562PausenDauerRankingBoard } from './phase3562-pausen-dau
 export { DispatchPhase3567TourScoreVisualisierungUltra } from './phase3567-tour-score-visualisierung-ultra';
 // Phase 3572 — Touren/Schicht Ranking-Board (Route-Icon blau; absteigend Rang 1=meiste Touren; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Wenig Touren/Schicht!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3572TourenProSchichtRankingBoard } from './phase3572-touren-pro-schicht-ranking-board';
+// Phase 3577 — Schicht-Auslastung Ranking-Board (BarChart2-Icon blau; absteigend Rang 1=höchste Auslastung; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Auslastung!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3577SchichtAuslastungRankingBoard } from './phase3577-schicht-auslastung-ranking-board';
