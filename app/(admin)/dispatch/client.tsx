@@ -979,6 +979,7 @@ import { DispatchPhase3447NachtSchichtAnteilRankingBoard } from './phase3447-nac
 import { DispatchPhase3452WochenenAnteilRankingBoard } from './phase3452-wochenend-anteil-ranking-board';
 import { DispatchPhase3457FeierabendPuenktlichkeitRankingBoard } from './phase3457-feierabend-puenktlichkeit-ranking-board';
 import { DispatchPhase3462UeberstundenTageRankingBoard } from './phase3462-ueberstunden-tage-ranking-board';
+import { DispatchPhase3467TourenAuslastungRankingBoard } from './phase3467-touren-auslastung-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4537,6 +4538,8 @@ export function DispatchBoard({
           <DispatchPhase3457FeierabendPuenktlichkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3462: Überstunden-Tage Ranking — Clock-Icon orange; aufsteigend Rang 1=niedrigste Anzahl; Balken 0–maxTage; KPI-Grid Bester/Team-Ø/Höchster; Alert "Viele Überstunden!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3462UeberstundenTageRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3467: Touren-Auslastung Ranking — TrendingUp-Icon blau; absteigend Rang 1=höchster Score; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Auslastung!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3467TourenAuslastungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12581,3 +12584,5 @@ export { DispatchPhase3452WochenenAnteilRankingBoard } from './phase3452-wochene
 export { DispatchPhase3457FeierabendPuenktlichkeitRankingBoard } from './phase3457-feierabend-puenktlichkeit-ranking-board';
 // Phase 3462 — Überstunden-Tage Ranking-Board (Clock-Icon orange; aufsteigend Rang 1=wenigste Tage; Balken 0–maxTage; KPI-Grid Bester/Team-Ø/Höchster; Alert "Viele Überstunden!"; Delta neg=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3462UeberstundenTageRankingBoard } from './phase3462-ueberstunden-tage-ranking-board';
+// Phase 3467 — Touren-Auslastung Ranking-Board (TrendingUp-Icon blau; absteigend Rang 1=höchster Score; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Auslastung!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3467TourenAuslastungRankingBoard } from './phase3467-touren-auslastung-ranking-board';
