@@ -879,6 +879,7 @@ import { FahrerPhase3383MeineStoppsProStundeRanking } from './phase3383-meine-st
 import { FahrerPhase3388MeinUmsatzProSchicht } from './phase3388-mein-umsatz-pro-schicht';
 import { FahrerPhase3393MeinBestellwertProTour } from './phase3393-mein-bestellwert-pro-tour';
 import { FahrerPhase3398MeineLieferzeit } from './phase3398-meine-lieferzeit';
+import { FahrerPhase3403MeineErsteStoppZeit } from './phase3403-meine-erste-stopp-zeit';
 
 type Driver = {
   id: string;
@@ -6534,6 +6535,8 @@ export function FahrerApp({
           <FahrerPhase3388MeinUmsatzProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3393MeinBestellwertProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3398MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3403: Meine Erste-Stopp-Zeit — TimerReset-Icon gelb; min 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3403MeineErsteStoppZeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10221,3 +10224,5 @@ export { FahrerPhase3383MeineStoppsProStundeRanking } from './phase3383-meine-st
 export { FahrerPhase3388MeinUmsatzProSchicht } from './phase3388-mein-umsatz-pro-schicht';
 export { FahrerPhase3393MeinBestellwertProTour } from './phase3393-mein-bestellwert-pro-tour';
 export { FahrerPhase3398MeineLieferzeit } from './phase3398-meine-lieferzeit';
+// Phase 3403 — Meine Erste-Stopp-Zeit (TimerReset-Icon gelb; min 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3403MeineErsteStoppZeit } from './phase3403-meine-erste-stopp-zeit';

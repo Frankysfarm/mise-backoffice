@@ -913,6 +913,7 @@ import { KitchenPhase3390UmsatzProSchichtTicker } from './phase3390-umsatz-pro-s
 import { KitchenPhase3395BestellwertProTourTicker } from './phase3395-bestellwert-pro-tour-ticker';
 import { KitchenPhase3400LieferzeitTicker } from './phase3400-lieferzeit-ticker';
 import { KitchenPhase3400SmartTimingCountdownMasterUltra } from './phase3400-smart-timing-countdown-master-ultra';
+import { KitchenPhase3405ErsteStoppZeitTicker } from './phase3405-erste-stopp-zeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4085,6 +4086,8 @@ export function KitchenBoard({
       <KitchenPhase3400LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3400: Smart-Timing Countdown Master Ultra — Sekundengenauer Countdown grün/gelb/orange/rot; On-Time-Rate; Kochstart-Empfehlung; Überfällig-Alert; 1-Sek-Tick+15-Sek-Polling */}
       <KitchenPhase3400SmartTimingCountdownMasterUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3405: Erste-Stopp-Zeit Ticker — TimerReset-Icon gelb; Schnellster #1 im Header; Alert "Langer Anlauf!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <10min; 30-Min-Polling */}
+      <KitchenPhase3405ErsteStoppZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11095,3 +11098,5 @@ export { KitchenPhase3400LieferzeitTicker } from './phase3400-lieferzeit-ticker'
 
 // Phase 3400 — Smart-Timing Countdown Master Ultra (Sekundengenauer Countdown grün/gelb/orange/rot je Bestellung; On-Time-Rate-Gauge; Kochstart-Empfehlung-Badge; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase3400SmartTimingCountdownMasterUltra } from './phase3400-smart-timing-countdown-master-ultra';
+// Phase 3405 — Erste-Stopp-Zeit Ticker (TimerReset-Icon gelb; Schnellster #1 Name+min im Header; Alert "Langer Anlauf!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <10min; 30-Min-Polling)
+export { KitchenPhase3405ErsteStoppZeitTicker } from './phase3405-erste-stopp-zeit-ticker';
