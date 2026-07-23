@@ -4131,7 +4131,7 @@ export function KitchenBoard({
       <KitchenPhase3470TourenAuslastungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3475: km/Tour-Ticker — Route-Icon lila; Effizientester #1 Name+km im Header; Alert "Hohe km/Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤8km/Tour; 30-Min-Polling */}
       <KitchenPhase3475KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
-      {/* Phase 3480: ETA-Genauigkeit-Ticker — Target-Icon grün; Pünktlichster #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling */}
+      {/* Phase 3480: Lieferzeit-Genauigkeit-Ticker — Target-Icon grün; Pünktlichster #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling */}
       <KitchenPhase3480LieferzeitGenauigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
@@ -11172,5 +11172,5 @@ export { KitchenPhase3465UeberstundenTageTicker } from './phase3465-ueberstunden
 export { KitchenPhase3470TourenAuslastungTicker } from './phase3470-touren-auslastung-ticker';
 // Phase 3475 — km/Tour-Ticker (Route-Icon lila; Effizientester #1 Name+km im Header; Alert "Hohe km/Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤8km/Tour; 30-Min-Polling)
 export { KitchenPhase3475KmProTourTicker } from './phase3475-km-pro-tour-ticker';
-// Phase 3480 — ETA-Genauigkeit-Ticker (Target-Icon grün; Pünktlichster #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling)
+// Phase 3480 — Lieferzeit-Genauigkeit-Ticker (Target-Icon grün; Pünktlichster #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling)
 export { KitchenPhase3480LieferzeitGenauigkeitTicker } from './phase3480-lieferzeit-genauigkeit-ticker';

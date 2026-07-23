@@ -12594,5 +12594,5 @@ export { DispatchPhase3462UeberstundenTageRankingBoard } from './phase3462-ueber
 export { DispatchPhase3467TourenAuslastungRankingBoard } from './phase3467-touren-auslastung-ranking-board';
 // Phase 3472 — km/Tour Ranking-Board (Route-Icon lila; aufsteigend Rang 1=niedrigste km; Balken 0–maxKm; KPI-Grid Effizientester/Team-Ø/Höchster; Alert "Hohe km/Tour!"; Delta neg=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3472KmProTourRankingBoard } from './phase3472-km-pro-tour-ranking-board';
-// Phase 3477 — Lieferzeit-Genauigkeit Ranking-Board (Target-Icon grün; absteigend Rang 1=höchste Rate; Balken 0–100%; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; 30-Min-Polling)
+// Phase 3477 — Lieferzeit-Genauigkeit Ranking-Board (Target-Icon grün; absteigend Rang 1=höchste Rate; Balken 0–100%; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3477LieferzeitGenauigkeitRankingBoard } from './phase3477-lieferzeit-genauigkeit-ranking-board';

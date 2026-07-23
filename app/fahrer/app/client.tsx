@@ -10300,5 +10300,5 @@ export { FahrerPhase3463MeineUeberstundenTage } from './phase3463-meine-ueberstu
 export { FahrerPhase3468MeineTourenAuslastung } from './phase3468-meine-touren-auslastung';
 // Phase 3473 — Meine km/Tour (Route-Icon lila; km-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3473MeineKmProTour } from './phase3473-meine-km-pro-tour';
-// Phase 3478 — Meine Lieferzeit-Genauigkeit (Target-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+// Phase 3478 — Meine Lieferzeit-Genauigkeit (Target-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3478MeineLieferzeitGenauigkeit } from './phase3478-meine-lieferzeit-genauigkeit';

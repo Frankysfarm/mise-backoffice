@@ -2,6 +2,24 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-23): Phasen 3476–3480 implementiert — Fahrer-Lieferzeit-Genauigkeit-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3476 Backend (fahrer-lieferzeit-genauigkeit, Lieferzeit-Genauigkeit % = delivered_at ≤ promised_eta / alle Stops * 100 aus delivery_stops letzte 30 Tage, absteigend Rang 1=höchste Rate=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), alert_bottom Bottom-25% "Niedrige Pünktlichkeit!", rank_delta pos=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.91%/Sara K.83%/Max M.71%/Tim B.58%, force-dynamic, createClient() ✅) / Phase3477 Dispatch (DispatchPhase3477LieferzeitGenauigkeitRankingBoard, Target-Icon grün, absteigend Rang 1=höchste Rate, Balken 0–100%, KPI-Grid Pünktlichster/Team-Ø/Niedrigster, Alert "Niedrige Pünktlichkeit!", Delta pos=grün, Import+Render+Barrel ✅) / Phase3478 Fahrer-App (FahrerPhase3478MeineLieferzeitGenauigkeit, Target-Icon grün, %-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3480 Kitchen (KitchenPhase3480LieferzeitGenauigkeitTicker, Target-Icon grün, Pünktlichster #1 Name+% im Header, Alert "Niedrige Pünktlichkeit!", kompakt absteigend, Rang+%+Delta pos=grün, Team-Ø+Ziel ≥90%, Import+Render+Barrel ✅). Phase 3479 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
+
+### ✅ Phasen 3476–3480 ABGESCHLOSSEN — Fahrer-Lieferzeit-Genauigkeit-Ranking
+- Phase 3476 Backend: `fahrer-lieferzeit-genauigkeit/route.ts` — `await createClient()` aus `@/lib/supabase/server`, delivered_at ≤ promised_eta aus delivery_stops, absteigend Rang 1=höchste Rate=bester, Mock Julia F.91%/Sara K.83%/Max M.71%/Tim B.58% ✅
+- Phase 3477 Dispatch: `DispatchPhase3477LieferzeitGenauigkeitRankingBoard` — Target-Icon grün, absteigend, KPI-Grid Pünktlichster/Team-Ø/Niedrigster, Alert "Niedrige Pünktlichkeit!", Delta pos=grün ✅
+- Phase 3478 Fahrer: `FahrerPhase3478MeineLieferzeitGenauigkeit` — %-Wert 5xl, Rang, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3479 Storefront: übersprungen ✅
+- Phase 3480 Kitchen: `KitchenPhase3480LieferzeitGenauigkeitTicker` — Pünktlichster #1 im Header, Alert, Ziel ≥90% ✅
+
+### Nächste Phasen 3481–3485 (für nächsten Agenten) — Fahrer-Retour-Quote-Ranking
+1. **Phase 3481 Backend:** GET /api/delivery/admin/fahrer-retour-quote — Retour-Quote (%) je Fahrer letzte 30 Tage (delivery_stops: status=returned / alle Stops * 100; Rang 1=niedrigste Quote=bester); Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe Retour-Quote!"; rank_delta neg=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.2%/Sara K.5%/Max M.9%/Tim B.15%; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3482 Dispatch:** RetourQuoteRankingBoard — RotateCcw-Icon orange; aufsteigend Rang 1=niedrigste Quote; Balken 0–maxPct%; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Retour-Quote!"; Delta neg=grün; 30-Min-Polling; nach Phase3477. PFLICHT: Import + Render + Barrel.
+3. **Phase 3483 Fahrer-App:** MeineRetourQuote — RotateCcw-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3478. PFLICHT: Import + Render + Barrel.
+4. **Phase 3484 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3485 Kitchen:** RetourQuoteTicker — RotateCcw-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Retour-Quote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel ≤5%; 30-Min-Polling; nach Phase3480. PFLICHT: Import + Render + Barrel.
+
+
+
 Frontend-Ingenieur-Agent (2026-07-23): Phasen 3471–3475 implementiert — Fahrer-Kilometer-pro-Tour-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3471 Backend (fahrer-km-pro-tour, Ø km/Tour = total_distance_km/tour_count letzte 30 Tage, aufsteigend Rang 1=niedrigste km=bester, Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), alert_top Top-25% "Hohe km/Tour!", Mock Julia F.6.2km/Sara K.8.1km/Max M.11.4km/Tim B.16.8km, force-dynamic, createClient() ✅) / Phase3472 Dispatch (DispatchPhase3472KmProTourRankingBoard, Route-Icon lila, aufsteigend Rang 1=niedrigste km, Balken 0–maxKm, KPI-Grid Effizientester/Team-Ø/Höchster, Alert "Hohe km/Tour!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3473 Fahrer-App (FahrerPhase3473MeineKmProTour, Route-Icon lila, km-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3475 Kitchen (KitchenPhase3475KmProTourTicker, Route-Icon lila, Effizientester #1 Name+km im Header, Alert "Hohe km/Tour!", kompakt aufsteigend, Rang+km+Delta neg=grün, Team-Ø+Ziel ≤8km/Tour, Import+Render+Barrel ✅). Phase 3474 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
 
 ### ✅ Phasen 3471–3475 ABGESCHLOSSEN — Fahrer-Kilometer-pro-Tour-Ranking
