@@ -949,6 +949,7 @@ import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 import { DispatchPhase3326ScoreTourVisHub } from './phase3326-score-tour-vis-hub';
 import { DispatchPhase3330LieferzeitPraezisionRankingBoard } from './phase3330-lieferzeit-praezision-ranking-board';
+import { DispatchPhase3335KundenbewertungRankingBoard } from './phase3335-kundenbewertung-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4451,6 +4452,8 @@ export function DispatchBoard({
           {/* Phase 3326: Score-Tour-Visualisierungs-Hub — Score-Ring SVG je aktiver Tour + farbkodierte Stop-Dots + Flotten-Ø + Alert Score <65; 25-Sek-Polling */}
           <DispatchPhase3326ScoreTourVisHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3330LieferzeitPraezisionRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3335: Kundenbewertungs-Ranking — Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenbewertung!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3335KundenbewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12430,3 +12433,6 @@ export { DispatchPhase3326ScoreTourVisHub } from './phase3326-score-tour-vis-hub
 
 // Phase 3330 — ETA-Präzision-Ranking (Target-Icon lila; aufsteigend Rang 1=niedrigste Abweichung; Balken 0–maxMin; KPI-Grid Bester/Team-Ø/Letzter; Alert "Hohe ETA-Abweichung!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3330LieferzeitPraezisionRankingBoard } from './phase3330-lieferzeit-praezision-ranking-board';
+
+// Phase 3335 — Kundenbewertungs-Ranking (Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenbewertung!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3335KundenbewertungRankingBoard } from './phase3335-kundenbewertung-ranking-board';

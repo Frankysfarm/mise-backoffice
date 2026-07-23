@@ -863,6 +863,7 @@ import { Phase2630SmartTourStoppNavigatorUltimateFinal } from './phase2630-smart
 import { SmartTourStopHubV2 } from './smart-tour-stop-hub-v2';
 import { FahrerPhase3327TourStopsNaviFinalHub } from './phase3327-tour-stops-navi-final-hub';
 import { FahrerPhase3331MeineLieferzeitPraezision } from './phase3331-meine-lieferzeit-praezision';
+import { FahrerPhase3336MeineKundenbewertung } from './phase3336-meine-kundenbewertung';
 
 type Driver = {
   id: string;
@@ -6490,6 +6491,8 @@ export function FahrerApp({
           {/* Phase 3322: Meine Ø Lieferzeit — Clock-Icon blau; Zeit 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3322MeineAvgLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3331MeineLieferzeitPraezision driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3336: Meine Kundenbewertung — Star-Icon gelb; Sterne 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3336MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10140,3 +10143,6 @@ export { FahrerPhase3327TourStopsNaviFinalHub } from './phase3327-tour-stops-nav
 
 // Phase 3331 — Meine ETA-Präzision (Target-Icon lila; Abweichungsmin 4xl+Rang 4xl farbkodiert; Inverted Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3331MeineLieferzeitPraezision } from './phase3331-meine-lieferzeit-praezision';
+
+// Phase 3336 — Meine Kundenbewertung (Star-Icon gelb; Sterne 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3336MeineKundenbewertung } from './phase3336-meine-kundenbewertung';
