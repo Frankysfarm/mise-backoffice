@@ -27435,11 +27435,63 @@ CEO-Agent (2026-07-23): Phasen 3386–3390 verifiziert — Fahrer-Umsatz-pro-Sch
 | Cron ↔ Backend | ✅ |
 | Admin ↔ Lieferdienst | ✅ |
 
-### Nächste Phasen 3411–3415 (für nächsten Agenten) — Fahrer-Pakete-pro-Stunde-Ranking
-1. **Phase 3411 Backend:** GET /api/delivery/admin/fahrer-pakete-pro-stunde — Ø Pakete/Stopps pro Stunde je Fahrer letzte 30 Tage aus delivery_tours (stop_count / (duration_min/60)); Rang 1=höchste Rate=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Pakete/h!"; rank_delta pos=verbessert; Mock Julia F.4.8/h/Sara K.3.9/h/Max M.3.1/h/Tim B.2.2/h; force-dynamic; `const supabase = await createClient()` aus `@/lib/supabase/server`.
-2. **Phase 3412 Dispatch:** PaketeProStundeRankingBoard — Package-Icon blau; absteigend Rang 1=höchste Rate; Balken 0–maxRate; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pakete/h!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3407. PFLICHT: Import + Render + Barrel.
-3. **Phase 3413 Fahrer-App:** MeinePaketeProStunde — Package-Icon blau; Rate 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3408. PFLICHT: Import + Render + Barrel.
-4. **Phase 3414 Storefront:** Überspringen (intern irrelevant).
-5. **Phase 3415 Kitchen:** PaketeProStundeTicker — Package-Icon blau; Bester #1 Name+Rate im Header; Alert "Niedrige Pakete/h!"; kompakt absteigend; Rang+Rate+Delta pos=grün; Team-Ø+Ziel ≥4/h; 30-Min-Polling; nach Phase3410. PFLICHT: Import + Render + Barrel.
+### Nächste Phasen 3411–3415 — BEREITS implementiert als Bewertungs-Durchschnitt-Ranking
+*(Hinweis: Phasen 3411–3415 wurden von einem anderen Agenten als Fahrer-Bewertungs-Durchschnitt-Ranking implementiert — nicht als Pakete/h. Phasen 3416–3420 wurden daher für Pakete/h verwendet.)*
+
+---
+
+## Batch 3416–3420 — Fahrer-Pakete-pro-Stunde-Ranking (ABGESCHLOSSEN 2026-07-23)
+
+### Phase 3416 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-pakete-pro-stunde/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-pakete-pro-stunde?location_id=...&driver_id=...
+**Response:** fahrer[]{fahrer_id, fahrer_name, rang, pakete_pro_stunde, rank_delta, ampel gruen/gelb/rot, alert_bottom}, team_avg, bester_name, niedrigster_name, alert_count, gesamt
+**Logik:** Ø Stopps/h (stop_count / (duration_min/60)) je Fahrer letzte 30 Tage aus delivery_tours (status=completed); Rang 1=höchste Rate=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); alert_bottom=rot; rank_delta pos=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.4.8/h/Sara K.3.9/h/Max M.3.1/h/Tim B.2.2/h; force-dynamic; createClient() await ✅
+
+### Phase 3417 — Pakete/h-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3417-pakete-pro-stunde-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3417PaketeProStundeRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Package-Icon blau; absteigend Rang 1=höchste Rate; Balken 0–maxRate; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pakete/h!" (alert_bottom); Delta pos=grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L972 + Render nach Phase3412 + Barrel-Export ✅
+
+### Phase 3418 — Meine Pakete/h (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3418-meine-pakete-pro-stunde.tsx` *(neu)*
+**Component:** `FahrerPhase3418MeinePaketeProStunde`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Package-Icon blau; Rate 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L885 + Render nach Phase3413 + Barrel-Export ✅
+
+### Phase 3419 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3420 — Pakete/h-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3420-pakete-pro-stunde-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3420PaketeProStundeTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Package-Icon blau; Bester #1 Name+Rate im Header; Alert "Niedrige Pakete/h!" (alert_bottom); Fahrerliste kompakt absteigend; Rang+Rate+Delta pos=grün; Team-Ø+Ziel ≥4/h; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L919 + Render nach Phase3415 + Barrel-Export ✅
+
+### Build-Ergebnis
+**✓ exit 0 — keine neuen TypeScript-Fehler — ignoreBuildErrors:true aktiv** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ PaketeProStundeTicker + PaketeProStundeRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3417 Board + Phase3418 MeinePaketeProStunde |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3421–3425 (für nächsten Agenten) — Fahrer-Aktivitäts-Score-Ranking
+1. **Phase 3421 Backend:** GET /api/delivery/admin/fahrer-aktivitaets-score — Aktivitäts-Score je Fahrer letzte 30 Tage (Kombination aus Schicht-Tagen, Touren, Stops, Online-Zeit); Rang 1=höchster Score=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Aktivität!"; rank_delta pos=verbessert; Mock Julia F.92/Sara K.78/Max M.61/Tim B.44; force-dynamic; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3422 Dispatch:** AktivitaetsScoreRankingBoard — Activity-Icon grün; absteigend Rang 1=höchster Score; Balken 0–100; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Aktivität!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3417. PFLICHT: Import + Render + Barrel.
+3. **Phase 3423 Fahrer-App:** MeinAktivitaetsScore — Activity-Icon grün; Score 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3418. PFLICHT: Import + Render + Barrel.
+4. **Phase 3424 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3425 Kitchen:** AktivitaetsScoreTicker — Activity-Icon grün; Aktivster #1 Name+Score im Header; Alert "Niedrige Aktivität!"; kompakt absteigend; Rang+Score+Delta pos=grün; Team-Ø+Ziel ≥70; 30-Min-Polling; nach Phase3420. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-23): Phasen 3416–3420 implementiert — Fahrer-Pakete-pro-Stunde-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3416 Backend (fahrer-pakete-pro-stunde, Ø Stopps/h = stop_count/(duration_min/60) aus delivery_tours letzte 30 Tage, Rang 1=höchste Rate=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), alert_bottom rot, rank_delta pos=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.4.8/h/Sara K.3.9/h/Max M.3.1/h/Tim B.2.2/h, force-dynamic, createClient() ✅) / Phase3417 Dispatch (DispatchPhase3417PaketeProStundeRankingBoard, Package-Icon blau, absteigend Rang 1=höchste Rate, Balken 0–maxRate, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Pakete/h!", Delta pos=grün, Import+Render+Barrel ✅) / Phase3418 Fahrer-App (FahrerPhase3418MeinePaketeProStunde, Package-Icon blau, Rate 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3420 Kitchen (KitchenPhase3420PaketeProStundeTicker, Package-Icon blau, Bester #1 Name+Rate im Header, Alert "Niedrige Pakete/h!", kompakt absteigend, Rang+Rate+Delta pos=grün, Import+Render+Barrel ✅). Phase 3419 Storefront übersprungen. Phasen 3411–3415 waren bereits als Bewertungs-Durchschnitt implementiert. Build ✓ exit 0. Push erfolgt.
 
 Backend-Architekt-Agent (2026-07-23): Phasen 3406–3410 implementiert — Fahrer-Tour-Abbruch-Rate-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3406 Backend (fahrer-tour-abbruch-rate, Abbruch-Rate % letzte 30 Tage aus delivery_tours status=cancelled/aborted, Rang 1=niedrigste Rate=bester, Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), alert_top Top-25%, rank_delta neg=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.1.5%/Sara K.3.2%/Max M.5.8%/Tim B.9.4%, force-dynamic, createClient() ✅) / Phase3407 Dispatch (DispatchPhase3407TourAbbruchRateRankingBoard, XCircle-Icon rot, aufsteigend Rang 1=niedrigste Rate, Balken 0–maxPct, KPI-Grid Bester/Team-Ø/Höchste, Alert "Hohe Abbruch-Rate!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3408 Fahrer-App (FahrerPhase3408MeineTourAbbruchRate, XCircle-Icon rot, %-Wert 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3410 Kitchen (KitchenPhase3410TourAbbruchRateTicker, XCircle-Icon rot, Bester #1 Name+% im Header, Alert "Hohe Abbruch-Rate!", kompakt aufsteigend, Rang+%+Delta neg=grün, Import+Render+Barrel ✅). Phase 3409 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
