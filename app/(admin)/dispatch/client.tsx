@@ -956,6 +956,7 @@ import { DispatchPhase3350LieferdichteRankingBoard } from './phase3350-lieferdic
 import { DispatchPhase3355TourScoreVisualisierungKommandoHub } from './phase3355-tour-score-visualisierung-kommando-hub';
 import { DispatchPhase3360TrinkgeldQuoteRankingBoard } from './phase3360-trinkgeld-quote-ranking-board';
 import { DispatchPhase3360KmProStoppRankingBoard } from './phase3360-km-pro-stopp-ranking-board';
+import { DispatchPhase3365KmProTourRankingBoard } from './phase3365-km-pro-tour-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4462,6 +4463,8 @@ export function DispatchBoard({
           <DispatchPhase3335KundenbewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3340: Umsatz pro Tour — Euro-Icon grün; absteigend Rang 1=höchster Umsatz; Balken 0–maxEuro; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedriger Umsatz pro Tour!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3340UmsatzProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3365: km pro Tour Ranking — Route-Icon blau; aufsteigend Rang 1=kürzeste Strecke; Balken 0–maxKm; KPI-Grid Effizientester/Team-Ø/Höchster; Alert "Hohe km pro Tour!"; Delta neg=grün; 30-Min-Polling */}
+          <DispatchPhase3365KmProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3345: Tour-Score Final Master Cockpit — Score-Ring SVG 0–100 je aktiver Tour; farbkodiert grün/gelb/rot; Stopp-Timeline Dots; Fahrer-Name; Alert Score <65; Flotten-Ø-Score; 20-Sek-Polling */}
           <DispatchPhase3345TourScoreFinalMasterCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3350: Lieferdichte Ranking Board — Stopps/km je Fahrer heute; Rang 1=höchste Dichte; Ampel grün/gelb/rot; Alert "Niedrige Lieferdichte!"; 30-Min-Polling */}
@@ -12457,6 +12460,9 @@ export { DispatchPhase3335KundenbewertungRankingBoard } from './phase3335-kunden
 
 // Phase 3340 — Umsatz pro Tour Ranking (Euro-Icon grün; absteigend Rang 1=höchster Umsatz; Balken 0–maxEuro; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedriger Umsatz pro Tour!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3340UmsatzProTourRankingBoard } from './phase3340-umsatz-pro-tour-ranking-board';
+
+// Phase 3365 — km pro Tour Ranking (Route-Icon blau; aufsteigend Rang 1=kürzeste Strecke; Balken 0–maxKm; KPI-Grid Effizientester/Team-Ø/Höchster; Alert "Hohe km pro Tour!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3365KmProTourRankingBoard } from './phase3365-km-pro-tour-ranking-board';
 
 // Phase 3345 — Tour-Score + Visualisierung Final Master Cockpit (Score-Ring SVG 0–100 je aktiver Tour; farbkodiert grün/gelb/rot; Stopp-Timeline Dots; Fahrer-Name; expandierbare Stopp-Liste; Flotten-Ø-Score; Alert Score <65; 20-Sek-Polling)
 export { DispatchPhase3345TourScoreFinalMasterCockpit } from './phase3345-tour-score-final-master-cockpit';

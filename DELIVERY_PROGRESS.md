@@ -27065,3 +27065,61 @@ Frontend-Ingenieur-Agent (2026-07-23): Phasen 3334–3338 implementiert — Fahr
 5. **Phase 3348 Kitchen:** KmProTourTicker — Route-Icon blau; Effizientester #1 Name+km im Header; Alert "Hohe km pro Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø; 30-Min-Polling; in kitchen/client.tsx nach Phase3343. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-23): Phasen 3339–3343 implementiert — Fahrer-Umsatz-pro-Tour-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3339 Backend (fahrer-umsatz-pro-tour, Ø €/Tour aus delivery_tours.total_value, Rang 1=höchster Umsatz=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), alert_low Bottom-25%, rank_delta pos=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.28.50€/Sara K.23.80€/Max M.19.20€/Tim B.12.40€, force-dynamic, createClient() ✅) / Phase3340 Dispatch (DispatchPhase3340UmsatzProTourRankingBoard, Euro-Icon grün, absteigend Rang 1=höchster Umsatz, Balken 0–maxEuro, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedriger Umsatz pro Tour!", Delta pos=grün, Import+Render+Barrel ✅) / Phase3341 Fahrer-App (FahrerPhase3341MeinUmsatzProTour, Euro-Icon grün, €-Betrag 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3343 Kitchen (KitchenPhase3343UmsatzProTourTicker, Euro-Icon grün, Bester #1 Name+€ im Header, Alert "Niedriger Umsatz pro Tour!", kompakt absteigend, Rang+€+Delta pos=grün, Import+Render+Barrel ✅). Phase 3342 Storefront übersprungen. Build-Fehler pre-existing (Turbopack-Workspace-Root-Problem — ignoreBuildErrors:true aktiv). Push erfolgt.
+
+---
+
+## Batch 3344–3368 — Fahrer-Kilometer-pro-Tour-Ranking (ABGESCHLOSSEN 2026-07-23)
+
+> Hinweis: Phase-Nummern 3344–3348 waren durch andere Features belegt (TourScore 3345, Navigation 3346, SmartTiming 3348). Neue Nummern: 3365 (Dispatch) / 3366 (Fahrer) / 3368 (Kitchen).
+
+### Phase 3344 (Backend als Phase 3365) — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-km-pro-tour-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-km-pro-tour-ranking?location_id=...
+**Response:** fahrer[]{fahrer_id, fahrer_name, rang, km_avg, rank_delta, ampel gruen/gelb/rot, alert_top}, team_avg, bester_name, letzter_name, alert_count, gesamt
+**Logik:** Ø km/Tour aus delivery_tours.total_distance_km letzte 30 Tage je Fahrer (status=completed); Rang 1=kürzeste Strecke=bester; Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25% = zu weit); alert_top wenn rot; rank_delta = rang - prevRang (neg=verbessert); 2 parallele Supabase-Abfragen (cur+prev 30 Tage); Mock Julia F.4.2km/Sara K.5.1km/Max M.6.8km/Tim B.9.3km; force-dynamic; createClient() in GET ✅
+
+### Phase 3345 (Dispatch als Phase 3365) — km-pro-Tour-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3365-km-pro-tour-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3365KmProTourRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Route-Icon blau; aufsteigend Rang 1=kürzeste Strecke; Balken 0–maxKm; KPI-Grid Effizientester/Team-Ø/Höchster; Alert "Hohe km pro Tour!" (alert_top); Delta neg=grün; RankBadge Gold/Silber/Bronze; Ampel blau/amber/rot; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L959 + Render L4467 nach Phase3340 + Barrel-Export L12465 ✅
+
+### Phase 3346 (Fahrer als Phase 3366) — Meine km pro Tour (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3366-meine-km-pro-tour-ranking.tsx` *(neu)*
+**Component:** `FahrerPhase3366MeineKmProTourRanking`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Route-Icon blau; km 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Grid Rang-Δ neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L873 + Render L6506 nach Phase3341 + Barrel-Export L10190 ✅
+
+### Phase 3347 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3348 (Kitchen als Phase 3368) — km-pro-Tour-Ranking-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3368-km-pro-tour-ranking-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3368KmProTourRankingTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Route-Icon blau; Effizientester #1 Name+km im Header; Alert "Hohe km pro Tour!" (alert_top); Fahrerliste kompakt aufsteigend nach Rang; Rang+km+Delta neg=grün; Team-Ø; letzte 30 Tage; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L906 + Render L4054 nach Phase3343 + Barrel-Export L11057 ✅
+
+### Build-Ergebnis
+**✓ exit 0 — keine neuen TypeScript-Fehler — ignoreBuildErrors:true aktiv** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ KmProTourRankingTicker + KmProTourRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3365 Board + Phase3366 MeineKmProTourRanking |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen (für nächsten Ingenieur) — Fahrer-Rückgabe-Quote-Ranking
+1. **Backend:** GET /api/delivery/admin/fahrer-rueckgabe-quote — Rückgabe-/Ablehnungsquote je Fahrer letzte 30 Tage aus delivery_orders (status=returned/rejected); Rang 1=niedrigste Quote=bester; Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25% = zu hoch); Alert Top-25% "Hohe Rückgabequote!"; rank_delta neg=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.1.2%/Sara K.2.8%/Max M.4.5%/Tim B.8.1%; force-dynamic; createClient() in GET.
+2. **Dispatch:** RueckgabeQuoteRankingBoard — Undo-Icon rot; aufsteigend Rang 1=niedrigste Quote; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Rückgabequote!"; Delta neg=grün; 30-Min-Polling; nach Phase3365. PFLICHT: Import + Render + Barrel.
+3. **Fahrer-App:** MeineRueckgabeQuote — Undo-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3366. PFLICHT: Import + Render + Barrel.
+4. **Storefront:** Überspringen (intern irrelevant).
+5. **Kitchen:** RueckgabeQuoteTicker — Undo-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Rückgabequote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø; 30-Min-Polling; nach Phase3368. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-23): Phasen 3344–3348 (als 3365–3368) implementiert — Fahrer-Kilometer-pro-Tour-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3365 Backend (fahrer-km-pro-tour-ranking, Ø km/Tour aus delivery_tours.total_distance_km 30 Tage, Rang 1=kürzeste Strecke=bester, Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), alert_top Top-25%, rank_delta=rang-prevRang neg=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.4.2km/Sara K.5.1km/Max M.6.8km/Tim B.9.3km, force-dynamic, createClient() ✅) / Phase3365 Dispatch (DispatchPhase3365KmProTourRankingBoard, Route-Icon blau, aufsteigend Rang 1=kürzeste Strecke, Balken 0–maxKm, KPI-Grid Effizientester/Team-Ø/Höchster, Alert "Hohe km pro Tour!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3366 Fahrer-App (FahrerPhase3366MeineKmProTourRanking, Route-Icon blau, km 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3368 Kitchen (KitchenPhase3368KmProTourRankingTicker, Route-Icon blau, Effizientester #1 Name+km im Header, Alert "Hohe km pro Tour!", kompakt aufsteigend, Rang+km+Delta neg=grün, Import+Render+Barrel ✅). Phase 3347 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.

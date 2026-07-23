@@ -903,6 +903,7 @@ import { KitchenPhase3353LieferdichteTicker } from './phase3353-lieferdichte-tic
 import { KitchenPhase3358SmartTimingCountdownFarbkodierungPro } from './phase3358-smart-timing-countdown-farbkodierung-pro';
 import { KitchenPhase3363TrinkgeldQuoteTicker } from './phase3363-trinkgeld-quote-ticker';
 import { KitchenPhase3363KmProStoppTicker } from './phase3363-km-pro-stopp-ticker';
+import { KitchenPhase3368KmProTourRankingTicker } from './phase3368-km-pro-tour-ranking-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4049,6 +4050,8 @@ export function KitchenBoard({
       <KitchenPhase3338KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3343: Umsatz pro Tour Ticker — Euro-Icon grün; Bester #1 Name+€ im Header; Alert "Niedriger Umsatz pro Tour!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Ø; 30-Min-Polling */}
       <KitchenPhase3343UmsatzProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3368: km pro Tour Ranking Ticker — Route-Icon blau; Effizientester #1 Name+km im Header; Alert "Hohe km pro Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø; 30-Min-Polling */}
+      <KitchenPhase3368KmProTourRankingTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3348: Smart-Timing Countdown Master Pro — sekundengenauer Countdown 4-Stufen Farbkodierung; On-Time-Rate-Gauge; Kochstart-Empfehlung-Badge; KPI-Grid Aktiv/Fertig/Ø-Prep; 1-Sek-Tick + 15-Sek-Polling */}
       <KitchenPhase3348SmartTimingCountdownMasterPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3353: Lieferdichte Ticker — Stopps/km je Fahrer heute; Rang 1=höchste Dichte; kompakt absteigend; Alert "Niedrige Lieferdichte!"; 30-Min-Polling */}
@@ -11049,3 +11052,6 @@ export { KitchenPhase3363TrinkgeldQuoteTicker } from './phase3363-trinkgeld-quot
 
 // Phase 3363 — km/Stopp Ticker (Kompakte Fahrer-Rangliste aufsteigend nach km/Stopp; Kopfzeile #1-Name-km; Alert-Badge für alert_top-Fahrer; farbiger Dot grün/gelb/rot; Delta-Trend TrendingUp/Down; Footer Team-Ø; Ziel <2.0 km; 30-Min-Polling)
 export { KitchenPhase3363KmProStoppTicker } from './phase3363-km-pro-stopp-ticker';
+
+// Phase 3368 — km pro Tour Ranking Ticker (Route-Icon blau; Effizientester #1 Name+km im Header; Alert "Hohe km pro Tour!"; kompakt aufsteigend Rang 1=kürzeste Strecke; Rang+km+Delta neg=grün; Team-Ø; letzte 30 Tage; 30-Min-Polling)
+export { KitchenPhase3368KmProTourRankingTicker } from './phase3368-km-pro-tour-ranking-ticker';

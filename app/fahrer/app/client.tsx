@@ -870,6 +870,7 @@ import { FahrerPhase3351MeineLieferdichte } from './phase3351-meine-lieferdichte
 import { FahrerPhase3356TourStopsNavigationFinalHub } from './phase3356-tour-stops-navigation-final-hub';
 import { FahrerPhase3361MeineTrinkgeldQuote } from './phase3361-meine-trinkgeld-quote';
 import { FahrerPhase3361MeineKmProStopp } from './phase3361-meine-km-pro-stopp';
+import { FahrerPhase3366MeineKmProTourRanking } from './phase3366-meine-km-pro-tour-ranking';
 
 type Driver = {
   id: string;
@@ -6501,6 +6502,8 @@ export function FahrerApp({
           <FahrerPhase3336MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3341: Mein Umsatz pro Tour — Euro-Icon grün; €-Betrag 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3341MeinUmsatzProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3366: Meine km pro Tour Ranking — Route-Icon blau; km 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3366MeineKmProTourRanking driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3346: Tour-Stopp Navigation Master — Google-Maps-Link+Anruf-CTA; Barzahlung-Alert; Sonderwunsch; Stopp-Timeline; Score-Badge; isOnline-Guard; 20-Sek-Polling */}
           <FahrerPhase3346TourStoppNavigationMaster driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3351: Meine Lieferdichte — Stopps/km heute; Rang + Farbkodierung; inverted Rang-Balken; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
@@ -10182,3 +10185,6 @@ export { FahrerPhase3361MeineTrinkgeldQuote } from './phase3361-meine-trinkgeld-
 
 // Phase 3361 — Meine km/Stopp (Persönlicher Effizienz-Score text-5xl; Rang farbkodiert; Inverted-Rang-Balken; Rang-Δ-Grid; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3361MeineKmProStopp } from './phase3361-meine-km-pro-stopp';
+
+// Phase 3366 — Meine km pro Tour Ranking (Route-Icon blau; km 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3366MeineKmProTourRanking } from './phase3366-meine-km-pro-tour-ranking';
