@@ -931,6 +931,7 @@ import { KitchenPhase3475KmProTourTicker } from './phase3475-km-pro-tour-ticker'
 import { KitchenPhase3480LieferzeitGenauigkeitTicker } from './phase3480-lieferzeit-genauigkeit-ticker';
 import { KitchenPhase3485SmartTimingCountdownFarbkodierungUltra } from './phase3485-smart-timing-countdown-farbkodierung-ultra';
 import { KitchenPhase3490StoppAbstandTicker } from './phase3490-stopp-abstand-ticker';
+import { KitchenPhase3495RetourQuoteTicker } from './phase3495-retour-quote-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4139,6 +4140,8 @@ export function KitchenBoard({
       <KitchenPhase3485SmartTimingCountdownFarbkodierungUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3490: Stopp-Abstand-Ticker — MapPin-Icon grün; Effizientester #1 Name+km im Header; Alert "Hohe Stopp-Abstände!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤2km; 30-Min-Polling */}
       <KitchenPhase3490StoppAbstandTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3495: Retour-Quote-Ticker — RotateCcw-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Retour-Quote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel ≤5%; 30-Min-Polling */}
+      <KitchenPhase3495RetourQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11184,3 +11187,5 @@ export { KitchenPhase3480LieferzeitGenauigkeitTicker } from './phase3480-lieferz
 export { KitchenPhase3485SmartTimingCountdownFarbkodierungUltra } from './phase3485-smart-timing-countdown-farbkodierung-ultra';
 // Phase 3490 — Stopp-Abstand-Ticker (MapPin-Icon grün; Effizientester #1 Name+km im Header; Alert "Hohe Stopp-Abstände!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤2km; 30-Min-Polling)
 export { KitchenPhase3490StoppAbstandTicker } from './phase3490-stopp-abstand-ticker';
+// Phase 3495 — Retour-Quote-Ticker (RotateCcw-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Retour-Quote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel ≤5%; 30-Min-Polling)
+export { KitchenPhase3495RetourQuoteTicker } from './phase3495-retour-quote-ticker';

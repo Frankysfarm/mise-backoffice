@@ -984,6 +984,7 @@ import { DispatchPhase3472KmProTourRankingBoard } from './phase3472-km-pro-tour-
 import { DispatchPhase3477LieferzeitGenauigkeitRankingBoard } from './phase3477-lieferzeit-genauigkeit-ranking-board';
 import { DispatchPhase3482TourScoreVisualisierungMasterPro } from './phase3482-tour-score-visualisierung-master-pro';
 import { DispatchPhase3486StoppAbstandEffizienzRankingBoard } from './phase3486-stopp-abstand-effizienz-ranking-board';
+import { DispatchPhase3492RetourQuoteRankingBoard } from './phase3492-retour-quote-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4552,6 +4553,8 @@ export function DispatchBoard({
           <DispatchPhase3482TourScoreVisualisierungMasterPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3486: Stopp-Abstand-Effizienz-Ranking — MapPin-Icon grün; aufsteigend Rang 1=niedrigster Abstand; Balken 0–maxKm; KPI-Grid Effizientester/Team-Ø/Höchster; Alert "Hohe Stopp-Abstände!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3486StoppAbstandEffizienzRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3492: Retour-Quote-Ranking — RotateCcw-Icon orange; aufsteigend Rang 1=niedrigste Quote; Balken 0–maxPct%; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Retour-Quote!"; Delta neg=grün; 30-Min-Polling */}
+          <DispatchPhase3492RetourQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12606,3 +12609,5 @@ export { DispatchPhase3477LieferzeitGenauigkeitRankingBoard } from './phase3477-
 export { DispatchPhase3482TourScoreVisualisierungMasterPro } from './phase3482-tour-score-visualisierung-master-pro';
 // Phase 3486 — Stopp-Abstand-Effizienz-Ranking (MapPin-Icon grün; aufsteigend Rang 1=niedrigster Abstand; Balken 0–maxKm; KPI-Grid Effizientester/Team-Ø/Höchster; Alert "Hohe Stopp-Abstände!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3486StoppAbstandEffizienzRankingBoard } from './phase3486-stopp-abstand-effizienz-ranking-board';
+// Phase 3492 — Retour-Quote-Ranking (RotateCcw-Icon orange; aufsteigend Rang 1=niedrigste Quote; Balken 0–maxPct%; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Retour-Quote!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3492RetourQuoteRankingBoard } from './phase3492-retour-quote-ranking-board';

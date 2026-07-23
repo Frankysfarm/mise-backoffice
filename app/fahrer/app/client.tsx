@@ -897,6 +897,7 @@ import { FahrerPhase3473MeineKmProTour } from './phase3473-meine-km-pro-tour';
 import { FahrerPhase3478MeineLieferzeitGenauigkeit } from './phase3478-meine-lieferzeit-genauigkeit';
 import { FahrerPhase3483TourStoppNavigatorMasterPro } from './phase3483-tour-stopp-navigator-master-pro';
 import { FahrerPhase3487MeinStoppAbstand } from './phase3487-mein-stopp-abstand';
+import { FahrerPhase3493MeineRetourQuote } from './phase3493-meine-retour-quote';
 
 type Driver = {
   id: string;
@@ -6588,6 +6589,8 @@ export function FahrerApp({
           <FahrerPhase3483TourStoppNavigatorMasterPro driverId={driver.id} isOnline={isOnline} />
           {/* Phase 3487: Mein Stopp-Abstand — MapPin-Icon grün; km-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3487MeinStoppAbstand driverId={driver.id} isOnline={isOnline} />
+          {/* Phase 3493: Meine Retour-Quote — RotateCcw-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3493MeineRetourQuote driverId={driver.id} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10312,3 +10315,5 @@ export { FahrerPhase3478MeineLieferzeitGenauigkeit } from './phase3478-meine-lie
 export { FahrerPhase3483TourStoppNavigatorMasterPro } from './phase3483-tour-stopp-navigator-master-pro';
 // Phase 3487 — Mein Stopp-Abstand (MapPin-Icon grün; km-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3487MeinStoppAbstand } from './phase3487-mein-stopp-abstand';
+// Phase 3493 — Meine Retour-Quote (RotateCcw-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3493MeineRetourQuote } from './phase3493-meine-retour-quote';
