@@ -951,6 +951,7 @@ import { KitchenPhase3570SmartTimingKochstartScoreCockpit } from './phase3570-sm
 import { KitchenPhase3575TourenProSchichtTicker } from './phase3575-touren-pro-schicht-ticker';
 import { KitchenPhase3580SchichtAuslastungTicker } from './phase3580-schicht-auslastung-ticker';
 import { KitchenPhase3585SmartTimingCountdownFarbkodierungLive } from './phase3585-smart-timing-countdown-farbkodierung-live';
+import { KitchenPhase3589StreckeProTourTicker } from './phase3589-strecke-pro-tour-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4199,6 +4200,8 @@ export function KitchenBoard({
       <KitchenPhase3580SchichtAuslastungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3585: Smart-Timing Countdown Farbkodierung Live — sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate; Überfällig-Alert; Kochstart-Empfehlung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase3585SmartTimingCountdownFarbkodierungLive locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3589: Strecke/Tour Ticker — Map-Icon grün; Effizientester #1 im Header; Alert "Hohe Strecke/Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤8km/Tour; 30-Min-Polling */}
+      <KitchenPhase3589StreckeProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11284,3 +11287,5 @@ export { KitchenPhase3575TourenProSchichtTicker } from './phase3575-touren-pro-s
 export { KitchenPhase3580SchichtAuslastungTicker } from './phase3580-schicht-auslastung-ticker';
 // Phase 3585 — Smart-Timing Countdown Farbkodierung Live (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate; Überfällig-Alert; Kochstart-Empfehlung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3585SmartTimingCountdownFarbkodierungLive } from './phase3585-smart-timing-countdown-farbkodierung-live';
+// Phase 3589 — Strecke/Tour Ticker (Map-Icon grün; Effizientester #1 im Header; Alert "Hohe Strecke/Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤8km/Tour; 30-Min-Polling)
+export { KitchenPhase3589StreckeProTourTicker } from './phase3589-strecke-pro-tour-ticker';

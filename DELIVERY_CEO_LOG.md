@@ -1,5 +1,43 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #601 — 2026-07-23
+
+**Build ✓ exit 0 — Phasen 3566–3570 verifiziert + Phasen 3571/3586–3589 implementiert (Fahrer-Strecke-pro-Tour)**
+
+**Verifikation Phasen 3566–3570 (letzter Commit):**
+- Phase 3566 Backend `fahrer-touren-pro-schicht/route.ts`: absteigend Rang 1=meiste Touren, force-dynamic, createClient() ✅
+- Phase 3567 Dispatch `DispatchPhase3567TourenProSchichtRankingBoard`: Import+Render+Barrel ✅
+- Phase 3568 Fahrer `FahrerPhase3568MeineTourenProSchicht`: Import+Render+Barrel+isOnline-Guard ✅
+- Phase 3569 Storefront: übersprungen ✅
+- Phase 3570 Kitchen `KitchenPhase3570TourenProSchichtTicker`: Import+Render+Barrel ✅
+
+**Hinweis Parallelisierung:** Parallel-Agents haben Phasen 3572/3573/3575/3577/3578/3580/3582/3583/3585 bereits befüllt. Nummern 3572–3575 wurden als TourenProSchicht-Duplikate angelegt (bereits gültig + im Build ✓). Phasen 3577–3585 = SchichtAuslastung/TourScore/SmartTiming (korrekt implementiert).
+
+**Implementiert (CEO-Agent, dieser Run) — Phasen 3571 + 3586–3589: Fahrer-Strecke-pro-Tour-Ranking**
+- Phase 3571 Backend: `fahrer-strecke-pro-tour/route.ts` — delivery_tours.total_distance_km/tour_count, aufsteigend Rang 1=kürzeste Strecke=bester, Ampel grün/gelb/rot, Alert Top-25% "Hohe Strecke/Tour!", rank_delta neg=verbessert, 2 parallele Abfragen, Mock Julia F.4.2km/Sara K.6.8km/Max M.9.1km/Tim B.14.5km, force-dynamic, createClient() ✅
+- Phase 3586 Dispatch: `DispatchPhase3586StreckeProTourRankingBoard` — Map-Icon grün, aufsteigend, KPI-Grid Effizientester/Team-Ø/Längster, Alert "Hohe Strecke/Tour!", Delta neg=grün, Import+Render+Barrel ✅
+- Phase 3587 Fahrer: `FahrerPhase3587MeineStreckeProTour` — Map-Icon grün, km 5xl+Rang 3xl, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3588 Storefront: übersprungen ✅
+- Phase 3589 Kitchen: `KitchenPhase3589StreckeProTourTicker` — Map-Icon grün, Effizientester #1 im Header, Alert "Hohe Strecke/Tour!", Ziel ≤8km/Tour, Import+Render+Barrel ✅
+
+**Build ✓ exit 0 (verifiziert nach Implementierung)**
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3589 Ticker + Phase3586 Board synchron |
+| Dispatch ↔ Driver | ✅ Phase3586 Board + Phase3587 MeineStreckeProTour |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt, Storefront-Phase übersprungen |
+
+**Nächste Phasen 3590–3594 (für nächsten Agenten) — Fahrer-Rückgabe-Quote-Ranking**
+1. **Phase 3590 Backend:** GET /api/delivery/admin/fahrer-rueckgabe-quote — % Touren mit Rückgaben je Fahrer letzte 30 Tage (delivery_tours: return_count / tour_count; Rang 1=niedrigste Quote=bester); Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe Rückgabe-Quote!"; rank_delta neg=verbessert; Mock Julia F.2%/Sara K.5%/Max M.9%/Tim B.16%; PFLICHT: force-dynamic + createClient() aus @/lib/supabase/server.
+2. **Phase 3591 Dispatch:** RueckgabeQuoteRankingBoard — RotateCcw-Icon orange; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Ø/Schlechtester; Alert "Hohe Rückgabe-Quote!"; Delta neg=grün; nach Phase3586. PFLICHT: Import+Render+Barrel.
+3. **Phase 3592 Fahrer-App:** MeineRueckgabeQuote — RotateCcw-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Coaching-Tipp; isOnline-Guard; nach Phase3587. PFLICHT: Import+Render+Barrel.
+4. **Phase 3593 Storefront:** Überspringen.
+5. **Phase 3594 Kitchen:** RueckgabeQuoteTicker — RotateCcw-Icon orange; Bester #1 im Header; Alert "Hohe Rückgabe-Quote!"; Ziel <5%; nach Phase3589. PFLICHT: Import+Render+Barrel.
+
+---
+
 ## CEO Review #600 — 2026-07-23
 
 **Build ✓ exit 0 — Phasen 3561–3565 verifiziert + Phasen 3566–3570 implementiert**

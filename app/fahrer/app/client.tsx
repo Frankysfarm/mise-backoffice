@@ -917,6 +917,7 @@ import { FahrerPhase3568TourStoppNavigationCockpit } from './phase3568-tour-stop
 import { FahrerPhase3573MeineTourenProSchicht } from './phase3573-meine-touren-pro-schicht';
 import { FahrerPhase3578MeineSchichtAuslastung } from './phase3578-meine-schicht-auslastung';
 import { FahrerPhase3583TourStopsSmartNaviHub } from './phase3583-tour-stops-smart-navi-hub';
+import { FahrerPhase3587MeineStreckeProTour } from './phase3587-meine-strecke-pro-tour';
 
 type Driver = {
   id: string;
@@ -6642,6 +6643,8 @@ export function FahrerApp({
           <FahrerPhase3573MeineTourenProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3578: Meine Schicht-Auslastung — BarChart2-Icon blau; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3578MeineSchichtAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3587: Meine Strecke pro Tour — Map-Icon grün; km 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3587MeineStreckeProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3583: Tour-Stops Smart Navi Hub — Hero-Stopp mit Google-Maps+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3583TourStopsSmartNaviHub
@@ -10430,3 +10433,5 @@ export { FahrerPhase3573MeineTourenProSchicht } from './phase3573-meine-touren-p
 export { FahrerPhase3578MeineSchichtAuslastung } from './phase3578-meine-schicht-auslastung';
 // Phase 3583 — Tour-Stops Smart Navi Hub (Navigation-Icon blau; Hero-Stopp mit Google-Maps+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots+Navi; Fortschrittsbalken; Zahlungsart; mobile-first; kein Polling)
 export { FahrerPhase3583TourStopsSmartNaviHub } from './phase3583-tour-stops-smart-navi-hub';
+// Phase 3587 — Meine Strecke pro Tour (Map-Icon grün; km 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3587MeineStreckeProTour } from './phase3587-meine-strecke-pro-tour';
