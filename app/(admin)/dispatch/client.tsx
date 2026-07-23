@@ -981,6 +981,7 @@ import { DispatchPhase3457FeierabendPuenktlichkeitRankingBoard } from './phase34
 import { DispatchPhase3462UeberstundenTageRankingBoard } from './phase3462-ueberstunden-tage-ranking-board';
 import { DispatchPhase3467TourenAuslastungRankingBoard } from './phase3467-touren-auslastung-ranking-board';
 import { DispatchPhase3472KmProTourRankingBoard } from './phase3472-km-pro-tour-ranking-board';
+import { DispatchPhase3477LieferzeitGenauigkeitRankingBoard } from './phase3477-lieferzeit-genauigkeit-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4543,6 +4544,8 @@ export function DispatchBoard({
           <DispatchPhase3467TourenAuslastungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3472: km/Tour Ranking — Route-Icon lila; aufsteigend Rang 1=niedrigste km; Balken 0–maxKm; KPI-Grid Effizientester/Team-Ø/Höchster; Alert "Hohe km/Tour!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3472KmProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3477: Lieferzeit-Genauigkeit Ranking — Target-Icon grün; absteigend Rang 1=höchste Rate; Balken 0–100%; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3477LieferzeitGenauigkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12591,3 +12594,5 @@ export { DispatchPhase3462UeberstundenTageRankingBoard } from './phase3462-ueber
 export { DispatchPhase3467TourenAuslastungRankingBoard } from './phase3467-touren-auslastung-ranking-board';
 // Phase 3472 — km/Tour Ranking-Board (Route-Icon lila; aufsteigend Rang 1=niedrigste km; Balken 0–maxKm; KPI-Grid Effizientester/Team-Ø/Höchster; Alert "Hohe km/Tour!"; Delta neg=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3472KmProTourRankingBoard } from './phase3472-km-pro-tour-ranking-board';
+// Phase 3477 — Lieferzeit-Genauigkeit Ranking-Board (Target-Icon grün; absteigend Rang 1=höchste Rate; Balken 0–100%; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3477LieferzeitGenauigkeitRankingBoard } from './phase3477-lieferzeit-genauigkeit-ranking-board';
