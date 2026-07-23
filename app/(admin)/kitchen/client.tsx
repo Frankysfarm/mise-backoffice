@@ -916,6 +916,7 @@ import { KitchenPhase3400SmartTimingCountdownMasterUltra } from './phase3400-sma
 import { KitchenPhase3405ErsteStoppZeitTicker } from './phase3405-erste-stopp-zeit-ticker';
 import { KitchenPhase3410TourAbbruchRateTicker } from './phase3410-tour-abbruch-rate-ticker';
 import { KitchenPhase3415BewertungsTicker } from './phase3415-bewertungs-ticker';
+import { KitchenPhase3420PaketeProStundeTicker } from './phase3420-pakete-pro-stunde-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4094,6 +4095,8 @@ export function KitchenBoard({
       <KitchenPhase3410TourAbbruchRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3415: Bewertungs-Ticker — Star-Icon gelb; Bester #1 Name+Sterne im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+Sterne+Delta pos=grün; Team-Ø+Ziel ≥4.5 Sterne; 30-Min-Polling */}
       <KitchenPhase3415BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3420: Pakete/h-Ticker — Package-Icon blau; Bester #1 Name+Rate im Header; Alert "Niedrige Pakete/h!"; kompakt absteigend; Rang+Rate+Delta pos=grün; Team-Ø+Ziel ≥4/h; 30-Min-Polling */}
+      <KitchenPhase3420PaketeProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11110,3 +11113,4 @@ export { KitchenPhase3405ErsteStoppZeitTicker } from './phase3405-erste-stopp-ze
 export { KitchenPhase3410TourAbbruchRateTicker } from './phase3410-tour-abbruch-rate-ticker';
 // Phase 3415 — Bewertungs-Ticker (Star-Icon gelb; Bester #1 Name+Sterne im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+Sterne+Delta pos=grün; Team-Ø+Ziel ≥4.5 Sterne; 30-Min-Polling)
 export { KitchenPhase3415BewertungsTicker } from './phase3415-bewertungs-ticker';
+export { KitchenPhase3420PaketeProStundeTicker } from './phase3420-pakete-pro-stunde-ticker';
