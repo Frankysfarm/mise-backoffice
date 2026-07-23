@@ -950,6 +950,7 @@ import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-
 import { DispatchPhase3326ScoreTourVisHub } from './phase3326-score-tour-vis-hub';
 import { DispatchPhase3330LieferzeitPraezisionRankingBoard } from './phase3330-lieferzeit-praezision-ranking-board';
 import { DispatchPhase3335KundenbewertungRankingBoard } from './phase3335-kundenbewertung-ranking-board';
+import { DispatchPhase3340UmsatzProTourRankingBoard } from './phase3340-umsatz-pro-tour-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4454,6 +4455,8 @@ export function DispatchBoard({
           <DispatchPhase3330LieferzeitPraezisionRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3335: Kundenbewertungs-Ranking — Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenbewertung!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3335KundenbewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3340: Umsatz pro Tour — Euro-Icon grün; absteigend Rang 1=höchster Umsatz; Balken 0–maxEuro; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedriger Umsatz pro Tour!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3340UmsatzProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12436,3 +12439,6 @@ export { DispatchPhase3330LieferzeitPraezisionRankingBoard } from './phase3330-l
 
 // Phase 3335 — Kundenbewertungs-Ranking (Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenbewertung!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3335KundenbewertungRankingBoard } from './phase3335-kundenbewertung-ranking-board';
+
+// Phase 3340 — Umsatz pro Tour Ranking (Euro-Icon grün; absteigend Rang 1=höchster Umsatz; Balken 0–maxEuro; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedriger Umsatz pro Tour!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3340UmsatzProTourRankingBoard } from './phase3340-umsatz-pro-tour-ranking-board';

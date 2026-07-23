@@ -897,6 +897,7 @@ import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-ti
 import { KitchenPhase3329SmartTimingFinalHub } from './phase3329-smart-timing-final-hub';
 import { KitchenPhase3333LieferzeitPraezisionTicker } from './phase3333-lieferzeit-praezision-ticker';
 import { KitchenPhase3338KundenbewertungTicker } from './phase3338-kundenbewertung-ticker';
+import { KitchenPhase3343UmsatzProTourTicker } from './phase3343-umsatz-pro-tour-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4041,6 +4042,8 @@ export function KitchenBoard({
       <KitchenPhase3333LieferzeitPraezisionTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3338: Kundenbewertungs-Ticker — Star-Icon gelb; Bester #1 Name+Sterne im Header; Alert <3.5 "Niedrige Kundenbewertung!"; kompakt absteigend; Rang+Sterne+Delta pos=grün; Team-Ø; 30-Min-Polling */}
       <KitchenPhase3338KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3343: Umsatz pro Tour Ticker — Euro-Icon grün; Bester #1 Name+€ im Header; Alert "Niedriger Umsatz pro Tour!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Ø; 30-Min-Polling */}
+      <KitchenPhase3343UmsatzProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11013,3 +11016,6 @@ export { KitchenPhase3333LieferzeitPraezisionTicker } from './phase3333-lieferze
 
 // Phase 3338 — Kundenbewertungs-Ticker (Star-Icon gelb; Bester #1 Name+Sterne im Header; Alert <3.5 "Niedrige Kundenbewertung!"; kompakt absteigend; Rang-Badge+Sterne+Delta pos=grün; Team-Ø+Ziel ≥4.5; 30-Min-Polling)
 export { KitchenPhase3338KundenbewertungTicker } from './phase3338-kundenbewertung-ticker';
+
+// Phase 3343 — Umsatz pro Tour Ticker (Euro-Icon grün; Bester #1 Name+€ im Header; Alert "Niedriger Umsatz pro Tour!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Ø; 30-Min-Polling)
+export { KitchenPhase3343UmsatzProTourTicker } from './phase3343-umsatz-pro-tour-ticker';
