@@ -3,17 +3,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronDown, ChevronUp, XCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
-interface FahrerEntry {
+interface FahrerAbbruchRate {
   fahrer_id: string;
   rang: number;
-  abbruch_pct: number;
+  abbruch_rate_pct: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
   alert_top: boolean;
 }
 
 interface ApiResponse {
-  fahrer: FahrerEntry[];
+  fahrer: FahrerAbbruchRate[];
   team_avg: number;
   gesamt: number;
 }
@@ -31,9 +31,9 @@ const AMPEL_BAR: Record<string, string> = {
 };
 
 const COACHING: Record<string, string> = {
-  gruen: 'Sehr niedrige Abbruch-Rate! Du schließt deine Touren zuverlässig ab.',
-  gelb: 'Gut — versuche Touren konsequent abzuschließen und Abbrüche zu vermeiden.',
-  rot: 'Zu viele Touren abgebrochen: Ursachen klären und mit Dispatcher abstimmen.',
+  gruen: 'Sehr gut! Du hast eine niedrige Abbruchrate — weiter so.',
+  gelb: 'Gut — versuche Touren vollständig abzuschließen, um deine Rate zu senken.',
+  rot: 'Fokus: Schließe mehr Touren ab. Sprich mit dem Dispatch-Team bei Problemen.',
 };
 
 export function FahrerPhase3408MeineTourAbbruchRate({
@@ -87,9 +87,9 @@ export function FahrerPhase3408MeineTourAbbruchRate({
           <div className="flex justify-around items-center py-2">
             <div className="text-center">
               <div className={`text-5xl font-black ${AMPEL_COLOR[me.ampel]}`}>
-                {me.abbruch_pct}%
+                {me.abbruch_rate_pct}
               </div>
-              <div className="text-[10px] text-gray-500 mt-0.5">Abbruch-Rate</div>
+              <div className="text-[10px] text-gray-500 mt-0.5">% Ø</div>
             </div>
             <div className="text-center">
               <div className={`text-3xl font-bold ${AMPEL_COLOR[me.ampel]}`}>
@@ -116,7 +116,7 @@ export function FahrerPhase3408MeineTourAbbruchRate({
             </div>
             <div className="bg-gray-50 dark:bg-gray-800 rounded p-2 text-center">
               <div className="text-[10px] text-gray-500 uppercase">Team-Ø</div>
-              <div className="text-sm font-semibold">{data.team_avg}%</div>
+              <div className="text-sm font-semibold">{data.team_avg} %</div>
             </div>
           </div>
 

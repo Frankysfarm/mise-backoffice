@@ -4502,7 +4502,7 @@ export function DispatchBoard({
           <DispatchPhase3400TourScoreFinalCockpitUltra locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3402: Erste-Stopp-Zeit Ranking — TimerReset-Icon gelb; aufsteigend Rang 1=kürzeste Zeit; Balken 0–maxMin; KPI-Grid; Alert "Langer Anlauf!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3402ErsteStoppZeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
-          {/* Phase 3407: Tour-Abbruch-Rate Ranking — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Rate; Balken 0–maxPct; KPI-Grid; Alert "Hohe Abbruch-Rate!"; Delta neg=grün; 30-Min-Polling */}
+          {/* Phase 3407: Tour-Abbruch-Rate Ranking — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Rate=bester; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Abbruch-Rate!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3407TourAbbruchRateRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
@@ -12525,5 +12525,5 @@ export { DispatchPhase3397LieferzeitRankingBoard } from './phase3397-lieferzeit-
 export { DispatchPhase3400TourScoreFinalCockpitUltra } from './phase3400-tour-score-final-cockpit-ultra';
 // Phase 3402 — Erste-Stopp-Zeit Ranking-Board (TimerReset-Icon gelb; aufsteigend Rang 1=kürzeste Zeit=bester; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Langer Anlauf!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3402ErsteStoppZeitRankingBoard } from './phase3402-erste-stopp-zeit-ranking-board';
-// Phase 3407 — Tour-Abbruch-Rate Ranking-Board (XCircle-Icon rot; aufsteigend Rang 1=niedrigste Rate=bester; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchste; Alert "Hohe Abbruch-Rate!"; Delta neg=grün; 30-Min-Polling)
+// Phase 3407 — Tour-Abbruch-Rate Ranking-Board (XCircle-Icon rot; aufsteigend Rang 1=niedrigste Rate=bester; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Abbruch-Rate!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3407TourAbbruchRateRankingBoard } from './phase3407-tour-abbruch-rate-ranking-board';

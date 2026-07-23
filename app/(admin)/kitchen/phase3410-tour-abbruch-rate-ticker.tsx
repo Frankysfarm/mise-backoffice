@@ -7,7 +7,7 @@ interface FahrerAbbruchRate {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
-  abbruch_pct: number;
+  abbruch_rate_pct: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
   alert_top: boolean;
@@ -78,7 +78,7 @@ export function KitchenPhase3410TourAbbruchRateTicker({ locationId }: { location
               <span className="w-4 text-center font-bold text-gray-500">#{f.rang}</span>
               <span className="flex-1 truncate">{f.fahrer_name}</span>
               <span className={`font-mono font-semibold ${AMPEL_COLOR[f.ampel]}`}>
-                {f.abbruch_pct}%
+                {f.abbruch_rate_pct} %
               </span>
               <span className="w-4">
                 {f.rank_delta < 0 ? (
@@ -93,8 +93,8 @@ export function KitchenPhase3410TourAbbruchRateTicker({ locationId }: { location
           ))}
 
           <div className="flex justify-between text-[10px] text-gray-400 pt-0.5 border-t">
-            <span>Team-Ø: {data.team_avg}%</span>
-            <span>Ziel: &lt;5%</span>
+            <span>Team-Ø: {data.team_avg} %</span>
+            <span>Ziel: &lt;5 %</span>
           </div>
         </div>
       )}

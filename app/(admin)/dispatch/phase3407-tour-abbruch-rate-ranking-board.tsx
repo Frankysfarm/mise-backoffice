@@ -7,7 +7,7 @@ interface FahrerAbbruchRate {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
-  abbruch_pct: number;
+  abbruch_rate_pct: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
   alert_top: boolean;
@@ -56,7 +56,7 @@ export function DispatchPhase3407TourAbbruchRateRankingBoard({ locationId }: { l
 
   if (!data) return null;
 
-  const maxPct = Math.max(...data.fahrer.map(f => f.abbruch_pct), 1);
+  const maxPct = Math.max(...data.fahrer.map(f => f.abbruch_rate_pct), 1);
 
   return (
     <div className="border rounded-lg bg-white dark:bg-gray-900 shadow-sm mb-3">
@@ -92,10 +92,10 @@ export function DispatchPhase3407TourAbbruchRateRankingBoard({ locationId }: { l
             </div>
             <div className="text-center">
               <div className="text-[10px] text-gray-500 uppercase">Team-Ø</div>
-              <div className="text-xs font-semibold">{data.team_avg}%</div>
+              <div className="text-xs font-semibold">{data.team_avg} %</div>
             </div>
             <div className="text-center">
-              <div className="text-[10px] text-gray-500 uppercase">Höchste</div>
+              <div className="text-[10px] text-gray-500 uppercase">Höchster</div>
               <div className="text-xs font-semibold text-red-600 truncate">{data.hoechster_name}</div>
             </div>
           </div>
@@ -110,11 +110,11 @@ export function DispatchPhase3407TourAbbruchRateRankingBoard({ locationId }: { l
                 <div className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-full h-2 relative">
                   <div
                     className={`h-2 rounded-full ${AMPEL_BG[f.ampel]}`}
-                    style={{ width: `${(f.abbruch_pct / maxPct) * 100}%` }}
+                    style={{ width: `${(f.abbruch_rate_pct / maxPct) * 100}%` }}
                   />
                 </div>
                 <span className={`text-xs font-mono w-12 text-right flex-shrink-0 ${AMPEL_COLOR[f.ampel]}`}>
-                  {f.abbruch_pct}%
+                  {f.abbruch_rate_pct} %
                 </span>
                 <span className="flex-shrink-0 w-5">
                   {f.rank_delta < 0 ? (
@@ -131,7 +131,7 @@ export function DispatchPhase3407TourAbbruchRateRankingBoard({ locationId }: { l
 
           <div className="flex justify-between text-[10px] text-gray-400 pt-1">
             <span>Ø letzte 30 Tage</span>
-            <span>Ziel: &lt;5%</span>
+            <span>Ziel: &lt;5 %</span>
           </div>
         </div>
       )}
