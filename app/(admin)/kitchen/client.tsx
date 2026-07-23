@@ -888,6 +888,7 @@ import { KitchenPhase3304AbwesenheitTicker } from './phase3304-abwesenheit-ticke
 import { KitchenPhase3309SchichtAnnahmeRateTicker } from './phase3309-schicht-annahme-rate-ticker';
 import { KitchenPhase3314SchichtPuenktlichkeitTicker } from './phase3314-schicht-puenktlichkeit-ticker';
 import { KitchenPhase3319TourenProSchichtTicker } from './phase3319-touren-pro-schicht-ticker';
+import { KitchenPhase3324AvgLieferzeitTicker } from './phase3324-avg-lieferzeit-ticker';
 import { KitchenPhase3320SmartCountdownFarbkodierungMaster } from './phase3320-smart-countdown-farbkodierung-master';
 import { KitchenPhase3295SmartTimingEchtzeitCockpit } from './phase3295-smart-timing-echtzeit-cockpit';
 import { KitchenPhase3259SmartKochstartCountdownUltra } from './phase3259-smart-kochstart-countdown-ultra';
@@ -3990,6 +3991,8 @@ export function KitchenBoard({
       <KitchenPhase3314SchichtPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3319: Touren/Schicht-Ticker — TrendingUp-Icon orange; Bester #1 Name+Rate im Header; Alert "Niedrige Touren-Rate!"; kompakt absteigend; Rang+Rate+Delta pos=grün; Team-Ø; 30-Min-Polling */}
       <KitchenPhase3319TourenProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3324: Ø Lieferzeit-Ticker — Clock-Icon blau; Schnellster #1 Name+Zeit im Header; Alert "Hohe Lieferzeit!"; kompakt aufsteigend; Rang+Zeit+Delta neg=grün; Team-Ø+Ziel≤20min; 30-Min-Polling */}
+      <KitchenPhase3324AvgLieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3320: Smart-Countdown Farbkodierung Master — sekundengenauer Countdown je Bestellung; grün/gelb/orange/rot nach Dringlichkeit; Fahrer-ETA-Bridge; Hochlast-Alert; 1-Sek-Tick */}
       <KitchenPhase3320SmartCountdownFarbkodierungMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3295: Smart-Timing Echtzeit-Cockpit — Gesamt On-Time%+Ø Prep-Zeit; 4 Stations-Balken mit Trend-Pfeil+Ampel grün/gelb/rot; Hochlast-Alert; Empfehlungs-Badge; 30-Sek-Polling */}
@@ -10990,3 +10993,6 @@ export { KitchenPhase3295SmartTimingEchtzeitCockpit } from './phase3295-smart-ti
 
 // Phase 3320 — Smart-Countdown Farbkodierung Master (Sekundengenauer Countdown je Bestellung; Farbkodierung grün/gelb/orange/rot; Fortschrittsbalken; Fahrer-ETA-Bridge; Hochlast-Alert; Empfehlung; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase3320SmartCountdownFarbkodierungMaster } from './phase3320-smart-countdown-farbkodierung-master';
+
+// Phase 3324 — Ø Lieferzeit-Ticker (Clock-Icon blau; Schnellster #1 Name+Zeit im Header; Alert "Hohe Lieferzeit!"; kompakt aufsteigend; Rang+Zeit+Delta neg=grün; Team-Ø+Ziel≤20min; 30-Min-Polling)
+export { KitchenPhase3324AvgLieferzeitTicker } from './phase3324-avg-lieferzeit-ticker';
