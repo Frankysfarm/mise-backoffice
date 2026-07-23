@@ -4820,3 +4820,6 @@ export { LieferdienstPhase2665StatistikenFinalMasterHub } from './phase2665-stat
 
 // Phase 2670 — Statistiken Master Live Pro (10 KPI-Kacheln Ampel+Trend+Ziel; Stundenverlauf-BarChart 2-Modi Bestellungen/Umsatz umschaltbar; Zonen-Top-5; Fahrer-Top-3; Alert-Strip; 2-Min-Polling)
 export { LieferdienstPhase2670StatistikenMasterLivePro } from './phase2670-statistiken-master-live-pro';
+
+// Phase 2675 — Statistiken Fahrer-Performance-Dashboard (Fahrer-Rangliste Score+KPI-Grid; Top-3 Badges; Schicht-Stunden-BarChart; Alert Score <65; 2-Min-Polling)
+export { LieferdienstPhase2675StatistikFahrerPerformanceDashboard } from './phase2675-statistiken-fahrer-performance-dashboard';

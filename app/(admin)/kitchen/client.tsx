@@ -11031,3 +11031,6 @@ export { KitchenPhase3348SmartTimingCountdownMasterPro } from './phase3348-smart
 
 // Phase 3353 — Lieferdichte Ticker (Stopps/km je Fahrer heute; Rang 1=höchste Dichte=bester; kompakt absteigend; Bester #1 im Header; Alert Bottom-25% "Niedrige Lieferdichte!"; 30-Min-Polling)
 export { KitchenPhase3353LieferdichteTicker } from './phase3353-lieferdichte-ticker';
+
+// Phase 3358 — Smart-Timing Countdown & Farbkodierung Pro (Sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate-Gauge; Kochstart-Empfehlung; Überfällig-Strip; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
+export { KitchenPhase3358SmartTimingCountdownFarbkodierungPro } from './phase3358-smart-timing-countdown-farbkodierung-pro';

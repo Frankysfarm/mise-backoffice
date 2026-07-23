@@ -12454,3 +12454,6 @@ export { DispatchPhase3345TourScoreFinalMasterCockpit } from './phase3345-tour-s
 
 // Phase 3350 — Lieferdichte Ranking Board (Stopps/km je Fahrer heute; Rang 1=höchste Dichte=bester; Ampel grün/gelb/rot; Alert Bottom-25% "Niedrige Lieferdichte!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3350LieferdichteRankingBoard } from './phase3350-lieferdichte-ranking-board';
+
+// Phase 3355 — Tour-Score & Visualisierung Kommando-Hub (Score-Ring SVG 0–100 je aktiver Tour; farbkodierte Stopp-Timeline; Sub-Scores Pünktlichkeit/Abschluss/Speed; Flotten-Ø-Score; expandierbare Stopp-Liste; Alert Score <65; 20-Sek-Polling)
+export { DispatchPhase3355TourScoreVisualisierungKommandoHub } from './phase3355-tour-score-visualisierung-kommando-hub';
