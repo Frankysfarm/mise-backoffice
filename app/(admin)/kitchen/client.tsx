@@ -935,6 +935,7 @@ import { KitchenPhase3495RetourQuoteTicker } from './phase3495-retour-quote-tick
 import { KitchenPhase3500TourDauerTicker } from './phase3500-tour-dauer-ticker';
 import { KitchenPhase3505ErstelieferungZeitTicker } from './phase3505-erstelieferung-zeit-ticker';
 import { KitchenPhase3510PaketeProTourTicker } from './phase3510-pakete-pro-tour-ticker';
+import { KitchenPhase3515SmartTimingCountdownAmpelMaster } from './phase3515-smart-timing-countdown-ampel-master';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4151,6 +4152,8 @@ export function KitchenBoard({
       <KitchenPhase3505ErstelieferungZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3510: Pakete/Tour-Ticker — Package-Icon lila; Bester #1 Name+Pakete im Header; Alert "Niedrige Pakete/Tour!"; kompakt absteigend; Rang+Pakete+Delta pos=grün; Team-Ø+Ziel ≥6/Tour; 30-Min-Polling */}
       <KitchenPhase3510PaketeProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3515: Smart-Timing Countdown Ampel Master — sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate-KPI; Kochstart-Empfehlung; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
+      <KitchenPhase3515SmartTimingCountdownAmpelMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11204,3 +11207,5 @@ export { KitchenPhase3500TourDauerTicker } from './phase3500-tour-dauer-ticker';
 export { KitchenPhase3505ErstelieferungZeitTicker } from './phase3505-erstelieferung-zeit-ticker';
 // Phase 3510 — Pakete/Tour-Ticker (Package-Icon lila; Bester #1 Name+Pakete im Header; Alert "Niedrige Pakete/Tour!"; kompakt absteigend; Rang+Pakete+Delta pos=grün; Team-Ø+Ziel ≥6/Tour; 30-Min-Polling)
 export { KitchenPhase3510PaketeProTourTicker } from './phase3510-pakete-pro-tour-ticker';
+// Phase 3515 — Smart-Timing Countdown Ampel Master (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate-KPI; Kochstart-Empfehlung-Badge; Überfällig-Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase3515SmartTimingCountdownAmpelMaster } from './phase3515-smart-timing-countdown-ampel-master';

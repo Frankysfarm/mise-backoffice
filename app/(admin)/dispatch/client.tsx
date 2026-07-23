@@ -988,6 +988,7 @@ import { DispatchPhase3492RetourQuoteRankingBoard } from './phase3492-retour-quo
 import { DispatchPhase3497TourDauerRankingBoard } from './phase3497-tour-dauer-ranking-board';
 import { DispatchPhase3502ErstelieferungZeitRankingBoard } from './phase3502-erstelieferung-zeit-ranking-board';
 import { DispatchPhase3507PaketeProTourRankingBoard } from './phase3507-pakete-pro-tour-ranking-board';
+import { DispatchPhase3512TourScoreVisualisierungPro } from './phase3512-tour-score-visualisierung-pro';
 
 type Driver = {
   employee_id: string;
@@ -4564,6 +4565,8 @@ export function DispatchBoard({
           <DispatchPhase3502ErstelieferungZeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3507: Pakete/Tour Ranking — Package-Icon lila; absteigend Rang 1=höchste Anzahl; Balken 0–maxPakete; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pakete/Tour!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3507PaketeProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3512: Tour-Score Visualisierung Pro — Score-Balken 0–100; RankBadge 🥇🥈🥉; KPI-Grid Bester/Team-Ø/Letzter; Alert "Niedriger Tour-Score!"; Score-Legende; Trend-Pfeile; Mock-Fallback; 30-Min-Polling */}
+          <DispatchPhase3512TourScoreVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12626,3 +12629,5 @@ export { DispatchPhase3497TourDauerRankingBoard } from './phase3497-tour-dauer-r
 export { DispatchPhase3502ErstelieferungZeitRankingBoard } from './phase3502-erstelieferung-zeit-ranking-board';
 // Phase 3507 — Pakete/Tour Ranking-Board (Package-Icon lila; absteigend Rang 1=höchste Anzahl; Balken 0–maxPakete; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pakete/Tour!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3507PaketeProTourRankingBoard } from './phase3507-pakete-pro-tour-ranking-board';
+// Phase 3512 — Tour-Score Visualisierung Pro (Trophy-Icon amber; Score-Balken 0–100; RankBadge 🥇🥈🥉; KPI-Grid Bester/Team-Ø/Letzter; Alert "Niedriger Tour-Score!"; Score-Legende; Trend-Pfeile; Mock-Fallback; 30-Min-Polling)
+export { DispatchPhase3512TourScoreVisualisierungPro } from './phase3512-tour-score-visualisierung-pro';
