@@ -968,6 +968,7 @@ import { DispatchPhase3397LieferzeitRankingBoard } from './phase3397-lieferzeit-
 import { DispatchPhase3400TourScoreFinalCockpitUltra } from './phase3400-tour-score-final-cockpit-ultra';
 import { DispatchPhase3402ErsteStoppZeitRankingBoard } from './phase3402-erste-stopp-zeit-ranking-board';
 import { DispatchPhase3407TourAbbruchRateRankingBoard } from './phase3407-tour-abbruch-rate-ranking-board';
+import { DispatchPhase3412BewertungsDurchschnittRankingBoard } from './phase3412-bewertungs-durchschnitt-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4504,6 +4505,8 @@ export function DispatchBoard({
           <DispatchPhase3402ErsteStoppZeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3407: Tour-Abbruch-Rate Ranking — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Rate=bester; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Abbruch-Rate!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3407TourAbbruchRateRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3412: Bewertungs-Durchschnitt Ranking — Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Bewertung!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3412BewertungsDurchschnittRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12527,3 +12530,5 @@ export { DispatchPhase3400TourScoreFinalCockpitUltra } from './phase3400-tour-sc
 export { DispatchPhase3402ErsteStoppZeitRankingBoard } from './phase3402-erste-stopp-zeit-ranking-board';
 // Phase 3407 — Tour-Abbruch-Rate Ranking-Board (XCircle-Icon rot; aufsteigend Rang 1=niedrigste Rate=bester; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Abbruch-Rate!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3407TourAbbruchRateRankingBoard } from './phase3407-tour-abbruch-rate-ranking-board';
+// Phase 3412 — Bewertungs-Durchschnitt Ranking-Board (Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Bewertung!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3412BewertungsDurchschnittRankingBoard } from './phase3412-bewertungs-durchschnitt-ranking-board';

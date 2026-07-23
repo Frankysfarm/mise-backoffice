@@ -915,6 +915,7 @@ import { KitchenPhase3400LieferzeitTicker } from './phase3400-lieferzeit-ticker'
 import { KitchenPhase3400SmartTimingCountdownMasterUltra } from './phase3400-smart-timing-countdown-master-ultra';
 import { KitchenPhase3405ErsteStoppZeitTicker } from './phase3405-erste-stopp-zeit-ticker';
 import { KitchenPhase3410TourAbbruchRateTicker } from './phase3410-tour-abbruch-rate-ticker';
+import { KitchenPhase3415BewertungsTicker } from './phase3415-bewertungs-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4091,6 +4092,8 @@ export function KitchenBoard({
       <KitchenPhase3405ErsteStoppZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3410: Tour-Abbruch-Rate Ticker — XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Abbruch-Rate!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel <5%; 30-Min-Polling */}
       <KitchenPhase3410TourAbbruchRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3415: Bewertungs-Ticker — Star-Icon gelb; Bester #1 Name+Sterne im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+Sterne+Delta pos=grün; Team-Ø+Ziel ≥4.5 Sterne; 30-Min-Polling */}
+      <KitchenPhase3415BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11105,3 +11108,5 @@ export { KitchenPhase3400SmartTimingCountdownMasterUltra } from './phase3400-sma
 export { KitchenPhase3405ErsteStoppZeitTicker } from './phase3405-erste-stopp-zeit-ticker';
 // Phase 3410 — Tour-Abbruch-Rate Ticker (XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Abbruch-Rate!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel <5%; 30-Min-Polling)
 export { KitchenPhase3410TourAbbruchRateTicker } from './phase3410-tour-abbruch-rate-ticker';
+// Phase 3415 — Bewertungs-Ticker (Star-Icon gelb; Bester #1 Name+Sterne im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+Sterne+Delta pos=grün; Team-Ø+Ziel ≥4.5 Sterne; 30-Min-Polling)
+export { KitchenPhase3415BewertungsTicker } from './phase3415-bewertungs-ticker';

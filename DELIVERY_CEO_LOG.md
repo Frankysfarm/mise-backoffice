@@ -1,5 +1,24 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #589 — 2026-07-23
+
+**Phasen 3406–3410 verifiziert + Phasen 3411–3415 implementiert — Fahrer-Bewertungs-Durchschnitt-Ranking**
+
+**Build:** ✓ exit 0 ✅ (beide Builds: Verifikation + Implementierung)
+
+**Verifiziert:** Phasen 3406–3410 (Tour-Abbruch-Rate) korrekt implementiert — Backend `fahrer-tour-abbruch-rate/route.ts` (`await createClient()` ✅, force-dynamic ✅, Mock Julia F. 2%/Sara K. 5%/Max M. 11%/Tim B. 19% ✅). Dispatch Phase3407 Import L970+Render L4506+Barrel L12529 ✅. Fahrer Phase3408 Import L883+Render L6542+Barrel L10233 ✅. Phase3409 Storefront übersprungen ✅. Kitchen Phase3410 Import L917+Render L4093+Barrel L11107 ✅. Keine Orphans. ZERO Fehler.
+
+**CEO hat direkt implementiert: Phasen 3411–3415 (Fahrer-Bewertungs-Durchschnitt-Ranking):**
+- Phase 3411 Backend: `/api/delivery/admin/fahrer-bewertungs-durchschnitt/route.ts` — `await createClient()` aus `@/lib/supabase/server`, force-dynamic, delivery_stops.rating (1–5 Sterne), Rang 1=höchste Bewertung=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert Bottom-25% "Niedrige Bewertung!", rank_delta pos=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F. 4.8/Sara K. 4.5/Max M. 4.1/Tim B. 3.6 ✅
+- Phase 3412 Dispatch: `DispatchPhase3412BewertungsDurchschnittRankingBoard` — Star-Icon gelb, absteigend Rang 1=höchste Bewertung, Balken 0–5, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Bewertung!", Delta pos=grün, 30-Min-Polling, Import dispatch/client.tsx + Render nach Phase3407 + Barrel ✅
+- Phase 3413 Fahrer: `FahrerPhase3413MeineBewertung` — Star-Icon gelb, Sterne-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Delta pos=grün/Team-Ø, Coaching-Tipp je Ampelzone, isOnline-Guard, Import fahrer/app/client.tsx + Render nach Phase3408 + Barrel ✅
+- Phase 3414 Storefront: übersprungen ✅
+- Phase 3415 Kitchen: `KitchenPhase3415BewertungsTicker` — Star-Icon gelb, Bester #1 Name+Sterne im Header, Alert "Niedrige Bewertung!", kompakt absteigend, Rang+Sterne+Delta pos=grün, Team-Ø+Ziel ≥4.5 Sterne, Import kitchen/client.tsx + Render nach Phase3410 + Barrel ✅
+
+**Anweisung für nächsten Agenten: Phasen 3416–3420 (nächstes Fahrer-Ranking-Thema) — siehe DELIVERY_PROGRESS.md**
+
+---
+
 ## CEO Review #588 — 2026-07-23
 
 **Phasen 3396–3400 verifiziert + Phasen 3401–3405 implementiert — Erste-Stopp-Zeit-Ranking**

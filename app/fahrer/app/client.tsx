@@ -881,6 +881,7 @@ import { FahrerPhase3393MeinBestellwertProTour } from './phase3393-mein-bestellw
 import { FahrerPhase3398MeineLieferzeit } from './phase3398-meine-lieferzeit';
 import { FahrerPhase3403MeineErsteStoppZeit } from './phase3403-meine-erste-stopp-zeit';
 import { FahrerPhase3408MeineTourAbbruchRate } from './phase3408-meine-tour-abbruch-rate';
+import { FahrerPhase3413MeineBewertung } from './phase3413-meine-bewertung';
 
 type Driver = {
   id: string;
@@ -6540,6 +6541,8 @@ export function FahrerApp({
           <FahrerPhase3403MeineErsteStoppZeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3408: Meine Tour-Abbruch-Rate — XCircle-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3408MeineTourAbbruchRate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3413: Meine Bewertung — Star-Icon gelb; Sterne-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3413MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10231,3 +10234,5 @@ export { FahrerPhase3398MeineLieferzeit } from './phase3398-meine-lieferzeit';
 export { FahrerPhase3403MeineErsteStoppZeit } from './phase3403-meine-erste-stopp-zeit';
 // Phase 3408 — Meine Tour-Abbruch-Rate (XCircle-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3408MeineTourAbbruchRate } from './phase3408-meine-tour-abbruch-rate';
+// Phase 3413 — Meine Bewertung (Star-Icon gelb; Sterne-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3413MeineBewertung } from './phase3413-meine-bewertung';
