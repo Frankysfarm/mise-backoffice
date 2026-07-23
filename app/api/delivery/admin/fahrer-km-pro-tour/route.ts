@@ -1,139 +1,158 @@
-// Phase 2960 — Fahrer-Km-pro-Tour
-// GET /api/delivery/admin/fahrer-km-pro-tour?location_id=<uuid>[&driver_id=<uuid>]
-// Ø km je Tour heute je Fahrer; Ampel grün(≤8)/gelb(8–12)/rot(>12). Alert >12 km.
-import { NextResponse } from 'next/server';
-import { createServiceClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-const ZIEL_KM = 8;
-const ALERT_KM = 12;
-const MAX_KM = 20;
-
-function ampel(km: number): 'gruen' | 'gelb' | 'rot' {
-  if (km <= ZIEL_KM) return 'gruen';
-  if (km <= ALERT_KM) return 'gelb';
-  return 'rot';
+interface FahrerKmProTour {
+  fahrer_id: string;
+  fahrer_name: string;
+  rang: number;
+  km_pro_tour: number;
+  rank_delta: number;
+  ampel: 'gruen' | 'gelb' | 'rot';
+  alert_top: boolean;
 }
 
-function mockData(locationId: string, driverId?: string) {
-  const drivers = [
-    { id: 'd1', name: 'Max M.',   km: 6.2,  km_gestern: 7.0,  touren: 8  },
-    { id: 'd2', name: 'Sara K.',  km: 13.5, km_gestern: 11.0, touren: 6  },
-    { id: 'd3', name: 'Tim B.',   km: 9.1,  km_gestern: 9.8,  touren: 7  },
-    { id: 'd4', name: 'Julia F.', km: 7.4,  km_gestern: 8.1,  touren: 9  },
-  ];
-
-  const fahrer = drivers
-    .map(d => ({
-      fahrer_id: d.id,
-      fahrer_name: d.name,
-      km_pro_tour: d.km,
-      km_pro_tour_gestern: d.km_gestern,
-      touren_heute: d.touren,
-      trend: d.km < d.km_gestern ? 'fallend' : d.km > d.km_gestern ? 'steigend' : 'stabil',
-      trend_delta: Math.round((d.km - d.km_gestern) * 10) / 10,
-      ampel: ampel(d.km),
-      alert: d.km > ALERT_KM,
-    }))
-    .sort((a, b) => a.km_pro_tour - b.km_pro_tour);
-
-  const team_avg = fahrer.reduce((s, f) => s + f.km_pro_tour, 0) / (fahrer.length || 1);
-  const team_avg_gestern = drivers.reduce((s, d) => s + d.km_gestern, 0) / (drivers.length || 1);
-  const alert_count = fahrer.filter(f => f.alert).length;
-
-  if (driverId) {
-    const f = fahrer.find(d => d.fahrer_id === driverId) ?? fahrer[0];
-    return { fahrer_single: f, team_avg_km_pro_tour: Math.round(team_avg * 10) / 10 };
-  }
-
-  return {
-    fahrer,
-    team_avg_km_pro_tour: Math.round(team_avg * 10) / 10,
-    team_avg_km_pro_tour_gestern: Math.round(team_avg_gestern * 10) / 10,
-    alert_count,
-    generiert_am: new Date().toISOString(),
-  };
+interface KmProTourResponse {
+  fahrer: FahrerKmProTour[];
+  team_avg: number;
+  effizientester_name: string;
+  hoechster_name: string;
+  alert_count: number;
+  gesamt: number;
 }
 
-export async function GET(req: Request) {
+const MOCK: FahrerKmProTour[] = [
+  { fahrer_id: 'u1', fahrer_name: 'Julia F.', rang: 1, km_pro_tour:  6.2, rank_delta:  0, ampel: 'gruen', alert_top: false },
+  { fahrer_id: 'u2', fahrer_name: 'Sara K.',  rang: 2, km_pro_tour:  8.1, rank_delta:  1, ampel: 'gruen', alert_top: false },
+  { fahrer_id: 'u3', fahrer_name: 'Max M.',   rang: 3, km_pro_tour: 11.4, rank_delta: -1, ampel: 'gelb',  alert_top: false },
+  { fahrer_id: 'u4', fahrer_name: 'Tim B.',   rang: 4, km_pro_tour: 16.8, rank_delta:  0, ampel: 'rot',   alert_top: true  },
+];
+
+function buildMockResponse(driver_id: string | null): NextResponse {
+  const data = driver_id ? MOCK.filter(f => f.fahrer_id === driver_id) : MOCK;
+  const team_avg = Math.round(
+    (MOCK.reduce((s, f) => s + f.km_pro_tour, 0) / MOCK.length) * 10
+  ) / 10;
+  return NextResponse.json({
+    fahrer: data,
+    team_avg,
+    effizientester_name: MOCK[0].fahrer_name,
+    hoechster_name: MOCK[MOCK.length - 1].fahrer_name,
+    alert_count: MOCK.filter(f => f.alert_top).length,
+    gesamt: MOCK.length,
+  } satisfies KmProTourResponse);
+}
+
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const locationId = searchParams.get('location_id');
-  const driverId = searchParams.get('driver_id') ?? undefined;
+  const location_id = searchParams.get('location_id');
+  const driver_id = searchParams.get('driver_id');
 
-  if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
+  if (!location_id) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
 
   try {
-    const supabase = createServiceClient();
-    const today = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
+    const supabase = await createClient();
+    const today = new Date().toISOString().split('T')[0];
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
 
-    const { data: drivers } = await supabase
-      .from('drivers')
-      .select('id, name')
-      .eq('location_id', locationId)
-      .eq('is_active', true);
+    const [curRes, prevRes] = await Promise.all([
+      supabase
+        .from('delivery_tours')
+        .select('driver_id, total_distance_km, drivers(full_name)')
+        .eq('location_id', location_id)
+        .eq('status', 'completed')
+        .gte('created_at', thirtyDaysAgo + 'T00:00:00')
+        .lte('created_at', today + 'T23:59:59'),
+      supabase
+        .from('delivery_tours')
+        .select('driver_id, total_distance_km')
+        .eq('location_id', location_id)
+        .eq('status', 'completed')
+        .gte('created_at', thirtyDaysAgo + 'T00:00:00')
+        .lte('created_at', yesterday + 'T23:59:59'),
+    ]);
 
-    if (!drivers?.length) return NextResponse.json(mockData(locationId, driverId));
-
-    const { data: stopsHeute } = await supabase
-      .from('batch_stops')
-      .select('driver_id, distance_km, batch_id, created_at')
-      .eq('location_id', locationId)
-      .gte('created_at', today)
-      .in('status', ['delivered', 'completed']);
-
-    const { data: stopsGestern } = await supabase
-      .from('batch_stops')
-      .select('driver_id, distance_km, batch_id, created_at')
-      .eq('location_id', locationId)
-      .gte('created_at', yesterday)
-      .lt('created_at', today)
-      .in('status', ['delivered', 'completed']);
-
-    if (!stopsHeute) return NextResponse.json(mockData(locationId, driverId));
-
-    const calcKm = (rows: typeof stopsHeute, dId: string) => {
-      const mine = (rows ?? []).filter(s => s.driver_id === dId);
-      if (!mine.length) return { km: 0, touren: 0 };
-      const totalKm = mine.reduce((s, s2) => s + (s2.distance_km ?? 0), 0);
-      const uniqueTours = new Set(mine.map(s => s.batch_id)).size || 1;
-      return { km: Math.round((totalKm / uniqueTours) * 10) / 10, touren: uniqueTours };
-    };
-
-    const fahrer = drivers.map(d => {
-      const heute = calcKm(stopsHeute, d.id);
-      const gestern = calcKm(stopsGestern ?? [], d.id);
-      return {
-        fahrer_id: d.id,
-        fahrer_name: d.name,
-        km_pro_tour: heute.km,
-        km_pro_tour_gestern: gestern.km,
-        touren_heute: heute.touren,
-        trend: heute.km < gestern.km ? 'fallend' : heute.km > gestern.km ? 'steigend' : 'stabil',
-        trend_delta: Math.round((heute.km - gestern.km) * 10) / 10,
-        ampel: ampel(heute.km),
-        alert: heute.km > ALERT_KM,
-      };
-    }).sort((a, b) => a.km_pro_tour - b.km_pro_tour);
-
-    const team_avg = fahrer.reduce((s, f) => s + f.km_pro_tour, 0) / (fahrer.length || 1);
-    const team_avg_gestern = fahrer.reduce((s, f) => s + f.km_pro_tour_gestern, 0) / (fahrer.length || 1);
-    const alert_count = fahrer.filter(f => f.alert).length;
-
-    if (driverId) {
-      const f = fahrer.find(d => d.fahrer_id === driverId) ?? fahrer[0];
-      return NextResponse.json({ fahrer_single: f, team_avg_km_pro_tour: Math.round(team_avg * 10) / 10 });
+    if (curRes.error || !curRes.data || curRes.data.length === 0) {
+      return buildMockResponse(driver_id);
     }
 
-    return NextResponse.json({
-      fahrer,
-      team_avg_km_pro_tour: Math.round(team_avg * 10) / 10,
-      team_avg_km_pro_tour_gestern: Math.round(team_avg_gestern * 10) / 10,
-      alert_count,
-      generiert_am: new Date().toISOString(),
+    type TourRow = {
+      driver_id: string;
+      total_distance_km: number | null;
+      drivers?: { full_name: string } | null;
+    };
+
+    const curData = curRes.data as TourRow[];
+    const prevData = (prevRes.data ?? []) as TourRow[];
+
+    const driverIds = [...new Set(curData.map(r => r.driver_id))];
+    if (!driverIds.length) return buildMockResponse(driver_id);
+
+    function calcKmProTour(tours: TourRow[], dId: string): number {
+      const dt = tours.filter(t => t.driver_id === dId);
+      if (!dt.length) return 0;
+      const totalKm = dt.reduce((s, t) => s + (t.total_distance_km ?? 0), 0);
+      return Math.round((totalKm / dt.length) * 10) / 10;
+    }
+
+    const grouped: Record<string, { name: string; km: number }> = {};
+    for (const dId of driverIds) {
+      const nameRow = curData.find(t => t.driver_id === dId);
+      const name = nameRow?.drivers?.full_name ?? dId;
+      grouped[dId] = { name, km: calcKmProTour(curData, dId) };
+    }
+
+    // ascending: lowest km = best (rank 1)
+    const sorted = Object.entries(grouped)
+      .map(([id, d]) => ({ fahrer_id: id, fahrer_name: d.name, km_pro_tour: d.km }))
+      .sort((a, b) => a.km_pro_tour - b.km_pro_tour);
+
+    const n = sorted.length;
+    if (n === 0) return buildMockResponse(driver_id);
+
+    const prevGrouped: Record<string, number> = {};
+    for (const dId of driverIds) {
+      prevGrouped[dId] = calcKmProTour(prevData, dId);
+    }
+    const prevSorted = Object.entries(prevGrouped)
+      .sort((a, b) => a[1] - b[1])
+      .map(([id]) => id);
+
+    const top25idx = Math.ceil(n * 0.25);
+    const bot25idx = Math.floor(n * 0.75);
+
+    const fahrer: FahrerKmProTour[] = sorted.map((f, i) => {
+      const rang = i + 1;
+      const prevRangIdx = prevSorted.indexOf(f.fahrer_id);
+      const prevRang = prevRangIdx >= 0 ? prevRangIdx + 1 : rang;
+      const rank_delta = rang - prevRang;
+      return {
+        fahrer_id: f.fahrer_id,
+        fahrer_name: f.fahrer_name,
+        rang,
+        km_pro_tour: f.km_pro_tour,
+        rank_delta,
+        ampel: rang <= top25idx ? 'gruen' : rang <= bot25idx ? 'gelb' : 'rot',
+        alert_top: rang > bot25idx,
+      };
     });
+
+    const team_avg = Math.round(
+      (fahrer.reduce((s, f) => s + f.km_pro_tour, 0) / fahrer.length) * 10
+    ) / 10;
+    const result = driver_id ? fahrer.filter(f => f.fahrer_id === driver_id) : fahrer;
+
+    return NextResponse.json({
+      fahrer: result,
+      team_avg,
+      effizientester_name: fahrer[0]?.fahrer_name ?? '',
+      hoechster_name: fahrer[fahrer.length - 1]?.fahrer_name ?? '',
+      alert_count: fahrer.filter(f => f.alert_top).length,
+      gesamt: fahrer.length,
+    } satisfies KmProTourResponse);
   } catch {
-    return NextResponse.json(mockData(locationId, driverId));
+    return buildMockResponse(driver_id);
   }
 }

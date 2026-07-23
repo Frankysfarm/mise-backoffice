@@ -927,6 +927,7 @@ import { KitchenPhase3455WochenendAnteilTicker } from './phase3455-wochenend-ant
 import { KitchenPhase3460FeierabendPuenktlichkeitTicker } from './phase3460-feierabend-puenktlichkeit-ticker';
 import { KitchenPhase3465UeberstundenTageTicker } from './phase3465-ueberstunden-tage-ticker';
 import { KitchenPhase3470TourenAuslastungTicker } from './phase3470-touren-auslastung-ticker';
+import { KitchenPhase3475KmProTourTicker } from './phase3475-km-pro-tour-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4127,6 +4128,8 @@ export function KitchenBoard({
       <KitchenPhase3465UeberstundenTageTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3470: Touren-Auslastung-Ticker — TrendingUp-Icon blau; Bester #1 Name+% im Header; Alert "Niedrige Auslastung!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥85%; 30-Min-Polling */}
       <KitchenPhase3470TourenAuslastungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3475: km/Tour-Ticker — Route-Icon lila; Effizientester #1 Name+km im Header; Alert "Hohe km/Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤8km/Tour; 30-Min-Polling */}
+      <KitchenPhase3475KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11164,3 +11167,5 @@ export { KitchenPhase3460FeierabendPuenktlichkeitTicker } from './phase3460-feie
 export { KitchenPhase3465UeberstundenTageTicker } from './phase3465-ueberstunden-tage-ticker';
 // Phase 3470 — Touren-Auslastung-Ticker (TrendingUp-Icon blau; Bester #1 Name+% im Header; Alert "Niedrige Auslastung!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥85%; 30-Min-Polling)
 export { KitchenPhase3470TourenAuslastungTicker } from './phase3470-touren-auslastung-ticker';
+// Phase 3475 — km/Tour-Ticker (Route-Icon lila; Effizientester #1 Name+km im Header; Alert "Hohe km/Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤8km/Tour; 30-Min-Polling)
+export { KitchenPhase3475KmProTourTicker } from './phase3475-km-pro-tour-ticker';

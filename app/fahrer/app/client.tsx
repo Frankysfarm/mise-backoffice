@@ -893,6 +893,7 @@ import { FahrerPhase3453MeinWochenenAnteil } from './phase3453-mein-wochenend-an
 import { FahrerPhase3458MeineFeierabendPuenktlichkeit } from './phase3458-meine-feierabend-puenktlichkeit';
 import { FahrerPhase3463MeineUeberstundenTage } from './phase3463-meine-ueberstunden-tage';
 import { FahrerPhase3468MeineTourenAuslastung } from './phase3468-meine-touren-auslastung';
+import { FahrerPhase3473MeineKmProTour } from './phase3473-meine-km-pro-tour';
 
 type Driver = {
   id: string;
@@ -6576,6 +6577,8 @@ export function FahrerApp({
           <FahrerPhase3463MeineUeberstundenTage driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3468: Meine Touren-Auslastung — TrendingUp-Icon blau; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3468MeineTourenAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3473: Meine km/Tour — Route-Icon lila; km-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3473MeineKmProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10292,3 +10295,5 @@ export { FahrerPhase3458MeineFeierabendPuenktlichkeit } from './phase3458-meine-
 export { FahrerPhase3463MeineUeberstundenTage } from './phase3463-meine-ueberstunden-tage';
 // Phase 3468 — Meine Touren-Auslastung (TrendingUp-Icon blau; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3468MeineTourenAuslastung } from './phase3468-meine-touren-auslastung';
+// Phase 3473 — Meine km/Tour (Route-Icon lila; km-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3473MeineKmProTour } from './phase3473-meine-km-pro-tour';
