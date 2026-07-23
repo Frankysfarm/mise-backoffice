@@ -972,6 +972,7 @@ import { DispatchPhase3412BewertungsDurchschnittRankingBoard } from './phase3412
 import { DispatchPhase3417PaketeProStundeRankingBoard } from './phase3417-pakete-pro-stunde-ranking-board';
 import { DispatchPhase3422AktivitaetsScoreRankingBoard } from './phase3422-aktivitaets-score-ranking-board';
 import { DispatchPhase3427SchichtstartRankingBoard } from './phase3427-schichtstart-ranking-board';
+import { DispatchPhase3432StoppVollstaendigkeitRankingBoard } from './phase3432-stopp-vollstaendigkeit-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4516,6 +4517,8 @@ export function DispatchBoard({
           <DispatchPhase3422AktivitaetsScoreRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3427: Schicht-Start-Pünktlichkeit Ranking — Timer-Icon violett; absteigend Rang 1=höchste Rate; Balken 0–100%; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Niedrige Schicht-Pünktlichkeit!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3427SchichtstartRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3432: Stopp-Vollständigkeit Ranking — CheckCircle-Icon grün; absteigend Rang 1=höchste Rate; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Vollständigkeit!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3432StoppVollstaendigkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12546,3 +12549,5 @@ export { DispatchPhase3417PaketeProStundeRankingBoard } from './phase3417-pakete
 export { DispatchPhase3422AktivitaetsScoreRankingBoard } from './phase3422-aktivitaets-score-ranking-board';
 // Phase 3427 — Schicht-Start-Pünktlichkeit Ranking-Board (Timer-Icon violett; absteigend Rang 1=höchste Rate; Balken 0–100%; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Niedrige Schicht-Pünktlichkeit!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3427SchichtstartRankingBoard } from './phase3427-schichtstart-ranking-board';
+// Phase 3432 — Stopp-Vollständigkeit Ranking-Board (CheckCircle-Icon grün; absteigend Rang 1=höchste Rate; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Vollständigkeit!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3432StoppVollstaendigkeitRankingBoard } from './phase3432-stopp-vollstaendigkeit-ranking-board';

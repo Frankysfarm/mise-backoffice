@@ -885,6 +885,7 @@ import { FahrerPhase3413MeineBewertung } from './phase3413-meine-bewertung';
 import { FahrerPhase3418MeinePaketeProStunde } from './phase3418-meine-pakete-pro-stunde';
 import { FahrerPhase3423MeinAktivitaetsScore } from './phase3423-mein-aktivitaets-score';
 import { FahrerPhase3428MeineSchichtstartPuenktlichkeit } from './phase3428-meine-schichtstart-puenktlichkeit';
+import { FahrerPhase3433MeineStoppVollstaendigkeit } from './phase3433-meine-stopp-vollstaendigkeit';
 
 type Driver = {
   id: string;
@@ -6552,6 +6553,8 @@ export function FahrerApp({
           <FahrerPhase3423MeinAktivitaetsScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3428: Meine Schicht-Start-Pünktlichkeit — Timer-Icon violett; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3428MeineSchichtstartPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3433: Meine Stopp-Vollständigkeit — CheckCircle-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3433MeineStoppVollstaendigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10250,3 +10253,6 @@ export { FahrerPhase3418MeinePaketeProStunde } from './phase3418-meine-pakete-pr
 export { FahrerPhase3423MeinAktivitaetsScore } from './phase3423-mein-aktivitaets-score';
 // Phase 3428 — Meine Schicht-Start-Pünktlichkeit (Timer-Icon violett; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3428MeineSchichtstartPuenktlichkeit } from './phase3428-meine-schichtstart-puenktlichkeit';
+
+// Phase 3433 — Meine Stopp-Vollständigkeit (CheckCircle-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3433MeineStoppVollstaendigkeit } from './phase3433-meine-stopp-vollstaendigkeit';

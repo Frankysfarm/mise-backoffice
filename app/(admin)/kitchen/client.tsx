@@ -919,6 +919,7 @@ import { KitchenPhase3415BewertungsTicker } from './phase3415-bewertungs-ticker'
 import { KitchenPhase3420PaketeProStundeTicker } from './phase3420-pakete-pro-stunde-ticker';
 import { KitchenPhase3425AktivitaetsScoreTicker } from './phase3425-aktivitaets-score-ticker';
 import { KitchenPhase3430SchichtstartTicker } from './phase3430-schichtstart-ticker';
+import { KitchenPhase3435StoppVollstaendigkeitTicker } from './phase3435-stopp-vollstaendigkeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4103,6 +4104,8 @@ export function KitchenBoard({
       <KitchenPhase3425AktivitaetsScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3430: Schicht-Start-Pünktlichkeit-Ticker — Timer-Icon violett; Pünktlichster #1 Name+% im Header; Alert "Niedrige Schicht-Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling */}
       <KitchenPhase3430SchichtstartTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3435: Stopp-Vollständigkeit-Ticker — CheckCircle-Icon grün; Bester #1 Name+% im Header; Alert "Niedrige Vollständigkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥95%; 30-Min-Polling */}
+      <KitchenPhase3435StoppVollstaendigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11124,3 +11127,5 @@ export { KitchenPhase3420PaketeProStundeTicker } from './phase3420-pakete-pro-st
 export { KitchenPhase3425AktivitaetsScoreTicker } from './phase3425-aktivitaets-score-ticker';
 // Phase 3430 — Schicht-Start-Pünktlichkeit-Ticker (Timer-Icon violett; Pünktlichster #1 Name+% im Header; Alert "Niedrige Schicht-Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling)
 export { KitchenPhase3430SchichtstartTicker } from './phase3430-schichtstart-ticker';
+// Phase 3435 — Stopp-Vollständigkeit-Ticker (CheckCircle-Icon grün; Bester #1 Name+% im Header; Alert "Niedrige Vollständigkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥95%; 30-Min-Polling)
+export { KitchenPhase3435StoppVollstaendigkeitTicker } from './phase3435-stopp-vollstaendigkeit-ticker';
