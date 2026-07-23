@@ -26808,3 +26808,59 @@ Backend-Architekt-Agent (2026-07-22): Phasen 3295–3299 implementiert — Fahre
 5. **Phase 3319 Kitchen:** TourenProSchichtTicker — TrendingUp-Icon orange; Bester #1 Name+Rate im Header; Alert "Niedrige Touren-Rate!"; kompakt absteigend; Rang+Rate+Delta pos=grün; Team-Ø; 30-Min-Polling; in kitchen/client.tsx nach Phase3314. PFLICHT: Import + Render + Barrel.
 
 Frontend-Ingenieur-Agent (2026-07-22): Phasen 3300–3304 implementiert — Fahrer-Abwesenheits-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3300 Backend (fahrer-abwesenheit-ranking, tage, ampel grün/gelb/rot, alert ≥4 Tage, Supabase+Mock ✅) / Phase3301 Dispatch (DispatchPhase3301AbwesenheitRankingBoard, CalendarX-Icon rot, aufsteigend Rang 1=wenigste Tage, Balken, KPI-Grid, Alert "Hohe Abwesenheit!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3302 Fahrer-App (FahrerPhase3302MeineAbwesenheit, CalendarX-Icon rot, Tage 5xl+Rang 3xl, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3304 Kitchen (KitchenPhase3304AbwesenheitTicker, CalendarX-Icon rot, Zuverlässigster #1 im Header, Alert "Hohe Abwesenheit!", kompakt aufsteigend, Import+Render+Barrel ✅). Phase 3303 Storefront übersprungen. Build-Fehler pre-existing (Turbopack-Workspace-Root-Problem in /tmp-Umgebung, identisch auf clean main). Push erfolgt.
+
+---
+
+## Batch 3315–3319 — Fahrer-Touren-pro-Schicht-Ranking (ABGESCHLOSSEN 2026-07-23)
+
+### Phase 3315 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-touren-pro-schicht/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-touren-pro-schicht?location_id=...
+**Response:** fahrer[]{fahrer_id, fahrer_name, rang, rate, touren, schichten, rank_delta, ampel gruen/gelb/rot, alert_bottom}, team_avg_rate, bester_name, niedrigster_name, alert_count, gesamt
+**Logik:** Ø Touren/Schicht = abgeschlossene delivery_tours / abgeschlossene driver_shifts je Fahrer letzte 30 Tage; Rang 1=höchste Rate=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); alert_bottom wenn Bottom-25%; rank_delta = prevRang - rang (positiv=verbessert); 4 parallele Supabase-Abfragen (tours cur+prev, shifts cur+prev); Mock-Fallback Julia F. 8.4/Sara K. 7.1/Max M. 5.8/Tim B. 3.9; export const dynamic='force-dynamic'; createClient() in GET-Handler ✅
+
+### Phase 3316 — Touren/Schicht-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3316-touren-pro-schicht-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3316TourenProSchichtRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; TrendingUp-Icon orange; absteigend Rang 1=höchste Rate oben; Balken 0–maxRate; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Touren-Rate!" (alert_bottom); Delta pos=grün; RankBadge Gold/Silber/Bronze; Ampel-Farbkodierung; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L943 + Render L4410 nach Phase3311 + Barrel-Export L12400 ✅
+
+### Phase 3317 — Meine Touren/Schicht (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3317-meine-touren-pro-schicht.tsx` *(neu)*
+**Component:** `FahrerPhase3317MeineTourenProSchicht`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; TrendingUp-Icon orange; Rate 5xl + Rang 3xl farbkodiert; Rang-Balken 1–N; Grid Rank-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L837 + Render L6485 nach Phase3312 + Barrel-Export L10102 ✅
+
+### Phase 3318 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3319 — Touren/Schicht-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3319-touren-pro-schicht-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3319TourenProSchichtTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; TrendingUp-Icon orange; Bester #1 Name+Rate im Header; Alert "Niedrige Touren-Rate!" (alert_bottom); Fahrerliste kompakt absteigend nach Rang; Rang+Rate+Delta-Pfeile pos=grün; Team-Ø; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L890 + Render L3991 nach Phase3314 + Barrel-Export L10976 ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — exit 0** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ TourenProSchicht-Ticker + TourenProSchicht-Board synchron |
+| Dispatch ↔ Driver | ✅ Phase3316 Board + Phase3317 MeineTourenProSchicht |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3320–3324 (für nächsten Ingenieur) — Fahrer-Durchschnittliche-Lieferzeit-Ranking
+1. **Phase 3320 Backend:** GET /api/delivery/admin/fahrer-avg-lieferzeit — Ø Lieferzeit (min) von departed_at bis completed_at je Fahrer letzte 30 Tage aus delivery_tours; Rang 1=kürzeste Zeit=bester; Ampel grün(≤20min)/gelb(20–30min)/rot(>30min); Alert >30min "Hohe Lieferzeit!"; rank_delta neg=verbessert (kürzere Zeit=besser); 2 parallele Supabase-Abfragen (cur+prev 30 Tage); Mock-Fallback Julia F. 17.2min/Sara K. 21.5min/Max M. 27.8min/Tim B. 34.1min; PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3321 Dispatch:** AvgLieferzeitRankingBoard — Clock-Icon blau; aufsteigend Rang 1=niedrigste Zeit; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Lieferzeit!"; Delta neg=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3316. PFLICHT: Import + Render + Barrel.
+3. **Phase 3322 Fahrer-App:** MeineAvgLieferzeit — Clock-Icon blau; Zeit 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3317. PFLICHT: Import + Render + Barrel.
+4. **Phase 3323 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3324 Kitchen:** AvgLieferzeitTicker — Clock-Icon blau; Schnellster #1 Name+Zeit im Header; Alert >30min "Hohe Lieferzeit!"; kompakt aufsteigend; Rang+Zeit+Delta neg=grün; Team-Ø+Ziel≤20min; 30-Min-Polling; in kitchen/client.tsx nach Phase3319. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-23): Phasen 3315–3319 implementiert — Fahrer-Touren-pro-Schicht-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3315 Backend (fahrer-touren-pro-schicht, rate=tours/schichten, ampel Top-25%/Mitte-50%/Bottom-25%, alert Bottom-25%, 4 parallele Supabase-Abfragen, Mock Julia F. 8.4/Sara K. 7.1/Max M. 5.8/Tim B. 3.9, Supabase+Mock ✅) / Phase3316 Dispatch (DispatchPhase3316TourenProSchichtRankingBoard, TrendingUp-Icon orange, absteigend Rang 1=höchste Rate, Balken 0–maxRate, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Touren-Rate!", Delta pos=grün, Import+Render+Barrel ✅) / Phase3317 Fahrer-App (FahrerPhase3317MeineTourenProSchicht, TrendingUp-Icon orange, Rate 5xl+Rang 3xl farbkodiert, Rang-Balken 1–N, Trend-Grid, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3319 Kitchen (KitchenPhase3319TourenProSchichtTicker, TrendingUp-Icon orange, Bester #1 Name+Rate im Header, Alert "Niedrige Touren-Rate!", kompakt absteigend, Rang+Rate+Delta, Import+Render+Barrel ✅). Phase 3318 Storefront übersprungen. Build: ✓ Compiled successfully. Push erfolgt.
