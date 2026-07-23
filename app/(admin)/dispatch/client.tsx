@@ -994,6 +994,7 @@ import { DispatchPhase3517KmProStoppRankingBoard } from './phase3517-km-pro-stop
 import { DispatchPhase3522WartezeitStoppRankingBoard } from './phase3522-wartezeit-stopp-ranking-board';
 import { DispatchPhase3527LieferungenProKmRankingBoard } from './phase3527-lieferungen-pro-km-ranking-board';
 import { DispatchPhase3532LieferzeitProStoppRankingBoard } from './phase3532-lieferzeit-pro-stopp-ranking-board';
+import { DispatchPhase3537TourzeitRankingBoard } from './phase3537-tourzeit-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4582,6 +4583,8 @@ export function DispatchBoard({
           <DispatchPhase3527LieferungenProKmRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3532: Lieferzeit/Stopp Ranking — Clock-Icon orange; aufsteigend Rang 1=kürzeste Zeit; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Lieferzeit/Stopp!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3532LieferzeitProStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3537: Ø Tourzeit Ranking — Timer-Icon blau; aufsteigend Rang 1=kürzeste Tourzeit=bester; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Lange Tourzeit!"; Delta neg=grün */}
+          <DispatchPhase3537TourzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12656,3 +12659,5 @@ export { DispatchPhase3522WartezeitStoppRankingBoard } from './phase3522-warteze
 export { DispatchPhase3527LieferungenProKmRankingBoard } from './phase3527-lieferungen-pro-km-ranking-board';
 // Phase 3532 — Lieferzeit/Stopp Ranking-Board (Clock-Icon orange; aufsteigend Rang 1=kürzeste Zeit; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Lieferzeit/Stopp!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3532LieferzeitProStoppRankingBoard } from './phase3532-lieferzeit-pro-stopp-ranking-board';
+// Phase 3537 — Ø Tourzeit Ranking-Board (Timer-Icon blau; aufsteigend Rang 1=kürzeste Tourzeit; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Lange Tourzeit!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3537TourzeitRankingBoard } from './phase3537-tourzeit-ranking-board';

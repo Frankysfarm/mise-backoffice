@@ -941,6 +941,7 @@ import { KitchenPhase3520KmProStoppTicker } from './phase3520-km-pro-stopp-ticke
 import { KitchenPhase3525WartezeitStoppTicker } from './phase3525-wartezeit-stopp-ticker';
 import { KitchenPhase3530LieferungenProKmTicker } from './phase3530-lieferungen-pro-km-ticker';
 import { KitchenPhase3535LieferzeitProStoppTicker } from './phase3535-lieferzeit-pro-stopp-ticker';
+import { KitchenPhase3540TourzeitTicker } from './phase3540-tourzeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4169,6 +4170,8 @@ export function KitchenBoard({
       <KitchenPhase3530LieferungenProKmTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3535: Lieferzeit/Stopp-Ticker — Clock-Icon orange; Schnellster #1 Name+min im Header; Alert "Hohe Lieferzeit/Stopp!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤6min/Stopp; 30-Min-Polling */}
       <KitchenPhase3535LieferzeitProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3540: Ø Tourzeit-Ticker — Timer-Icon blau; Schnellster #1 Name+min im Header; Alert "Lange Tourzeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤60min/Tour; 30-Min-Polling */}
+      <KitchenPhase3540TourzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11234,3 +11237,5 @@ export { KitchenPhase3525WartezeitStoppTicker } from './phase3525-wartezeit-stop
 export { KitchenPhase3530LieferungenProKmTicker } from './phase3530-lieferungen-pro-km-ticker';
 // Phase 3535 — Lieferzeit/Stopp-Ticker (Clock-Icon orange; Schnellster im Header; Alert "Hohe Lieferzeit/Stopp!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤6min/Stopp; 30-Min-Polling)
 export { KitchenPhase3535LieferzeitProStoppTicker } from './phase3535-lieferzeit-pro-stopp-ticker';
+// Phase 3540 — Ø Tourzeit-Ticker (Timer-Icon blau; Schnellster #1 Name+min im Header; Alert "Lange Tourzeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤60min/Tour; 30-Min-Polling)
+export { KitchenPhase3540TourzeitTicker } from './phase3540-tourzeit-ticker';
