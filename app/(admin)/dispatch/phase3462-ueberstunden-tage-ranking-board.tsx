@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronDown, ChevronUp, Clock, TrendingUp, TrendingDown, Minus, AlertTriangle } from 'lucide-react';
 
-interface FahrerUeberstunden {
+interface FahrerUeberstundenTage {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
@@ -14,7 +14,7 @@ interface FahrerUeberstunden {
 }
 
 interface ApiResponse {
-  fahrer: FahrerUeberstunden[];
+  fahrer: FahrerUeberstundenTage[];
   team_avg: number;
   bester_name: string;
   hoechster_name: string;
@@ -130,7 +130,7 @@ export function DispatchPhase3462UeberstundenTageRankingBoard({ locationId }: { 
           </div>
 
           <div className="flex justify-between text-[10px] text-gray-400 pt-1">
-            <span>Tage mit Überstunden (letzte 30 Tage)</span>
+            <span>Rang 1 = wenigste Überstunden · Ø letzte 30 Tage</span>
             <span>Ziel: ≤3 Tage</span>
           </div>
         </div>

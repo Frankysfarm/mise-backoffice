@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-interface FahrerUeberstunden {
+interface FahrerUeberstundenTage {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
@@ -13,8 +13,8 @@ interface FahrerUeberstunden {
   alert_top: boolean;
 }
 
-interface UeberstundenResponse {
-  fahrer: FahrerUeberstunden[];
+interface UeberstundenTageResponse {
+  fahrer: FahrerUeberstundenTage[];
   team_avg: number;
   bester_name: string;
   hoechster_name: string;
@@ -22,11 +22,11 @@ interface UeberstundenResponse {
   gesamt: number;
 }
 
-const MOCK: FahrerUeberstunden[] = [
-  { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, ueberstunden_tage:  2, rank_delta:  0, ampel: 'gruen', alert_top: false },
-  { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, ueberstunden_tage:  5, rank_delta:  1, ampel: 'gelb',  alert_top: false },
-  { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, ueberstunden_tage:  9, rank_delta: -1, ampel: 'gelb',  alert_top: false },
-  { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, ueberstunden_tage: 14, rank_delta:  0, ampel: 'rot',   alert_top: true  },
+const MOCK: FahrerUeberstundenTage[] = [
+  { fahrer_id: 'u1', fahrer_name: 'Julia F.', rang: 1, ueberstunden_tage:  2, rank_delta:  0, ampel: 'gruen', alert_top: false },
+  { fahrer_id: 'u2', fahrer_name: 'Sara K.',  rang: 2, ueberstunden_tage:  5, rank_delta:  1, ampel: 'gruen', alert_top: false },
+  { fahrer_id: 'u3', fahrer_name: 'Max M.',   rang: 3, ueberstunden_tage:  9, rank_delta: -1, ampel: 'gelb',  alert_top: false },
+  { fahrer_id: 'u4', fahrer_name: 'Tim B.',   rang: 4, ueberstunden_tage: 14, rank_delta:  0, ampel: 'rot',   alert_top: true  },
 ];
 
 function buildMockResponse(driver_id: string | null): NextResponse {
@@ -39,7 +39,7 @@ function buildMockResponse(driver_id: string | null): NextResponse {
     hoechster_name: MOCK[MOCK.length - 1].fahrer_name,
     alert_count: MOCK.filter(f => f.alert_top).length,
     gesamt: MOCK.length,
-  } satisfies UeberstundenResponse);
+  } satisfies UeberstundenTageResponse);
 }
 
 export async function GET(req: NextRequest) {
@@ -86,15 +86,23 @@ export async function GET(req: NextRequest) {
     const curData = curRes.data as TourRow[];
     const prevData = (prevRes.data ?? []) as TourRow[];
 
-    function isUeberstunde(completed_at: string | null, scheduled_end: string | null): boolean {
-      if (!completed_at || !scheduled_end) return false;
-      return (new Date(completed_at).getTime() - new Date(scheduled_end).getTime()) / 60000 > 15;
+    function isUeberstunde(row: TourRow): boolean {
+      if (!row.completed_at || !row.scheduled_end) return false;
+      const diff = new Date(row.completed_at).getTime() - new Date(row.scheduled_end).getTime();
+      return diff > 15 * 60 * 1000;
     }
 
-    function calcTage(tours: TourRow[], dId: string): number {
-      const overTours = tours.filter(t => t.driver_id === dId && isUeberstunde(t.completed_at, t.scheduled_end));
-      const days = new Set(overTours.map(t => t.completed_at?.split('T')[0] ?? '').filter(Boolean));
-      return days.size;
+    function getDateStr(ts: string | null): string {
+      if (!ts) return '';
+      return new Date(ts).toISOString().split('T')[0];
+    }
+
+    function calcUeberstundenTage(tours: TourRow[], dId: string): number {
+      const driverTours = tours.filter(t => t.driver_id === dId);
+      const ueberTage = new Set(
+        driverTours.filter(t => isUeberstunde(t)).map(t => getDateStr(t.completed_at))
+      );
+      return ueberTage.size;
     }
 
     const driverIds = [...new Set(curData.map(r => r.driver_id))];
@@ -104,10 +112,10 @@ export async function GET(req: NextRequest) {
     for (const dId of driverIds) {
       const nameRow = curData.find(t => t.driver_id === dId);
       const name = nameRow?.drivers?.full_name ?? dId;
-      grouped[dId] = { name, tage: calcTage(curData, dId) };
+      grouped[dId] = { name, tage: calcUeberstundenTage(curData, dId) };
     }
 
-    // ascending: lowest tage = best (rank 1)
+    // ascending: fewest overtime days = best (rank 1)
     const sorted = Object.entries(grouped)
       .map(([id, d]) => ({ fahrer_id: id, fahrer_name: d.name, ueberstunden_tage: d.tage }))
       .sort((a, b) => a.ueberstunden_tage - b.ueberstunden_tage);
@@ -117,16 +125,16 @@ export async function GET(req: NextRequest) {
 
     const prevGrouped: Record<string, number> = {};
     for (const dId of driverIds) {
-      prevGrouped[dId] = calcTage(prevData, dId);
+      prevGrouped[dId] = calcUeberstundenTage(prevData, dId);
     }
     const prevSorted = Object.entries(prevGrouped)
       .sort((a, b) => a[1] - b[1])
       .map(([id]) => id);
 
-    const top25idx = Math.ceil(n * 0.25);
-    const bot25idx = Math.floor(n * 0.75);
+    const top25idx = Math.ceil(n * 0.25);  // best (lowest days)
+    const bot25idx = Math.floor(n * 0.75); // worst (most days)
 
-    const fahrer: FahrerUeberstunden[] = sorted.map((f, i) => {
+    const fahrer: FahrerUeberstundenTage[] = sorted.map((f, i) => {
       const rang = i + 1;
       const prevRangIdx = prevSorted.indexOf(f.fahrer_id);
       const prevRang = prevRangIdx >= 0 ? prevRangIdx + 1 : rang;
@@ -152,7 +160,7 @@ export async function GET(req: NextRequest) {
       hoechster_name: fahrer[fahrer.length - 1]?.fahrer_name ?? '',
       alert_count: fahrer.filter(f => f.alert_top).length,
       gesamt: fahrer.length,
-    } satisfies UeberstundenResponse);
+    } satisfies UeberstundenTageResponse);
   } catch {
     return buildMockResponse(driver_id);
   }

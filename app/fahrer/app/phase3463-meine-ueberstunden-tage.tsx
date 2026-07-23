@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronDown, ChevronUp, Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
-interface FahrerUeberstunden {
+interface FahrerUeberstundenTage {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
@@ -14,7 +14,7 @@ interface FahrerUeberstunden {
 }
 
 interface ApiResponse {
-  fahrer: FahrerUeberstunden[];
+  fahrer: FahrerUeberstundenTage[];
   team_avg: number;
   gesamt: number;
 }
@@ -26,9 +26,9 @@ const AMPEL_COLOR: Record<string, string> = {
 };
 
 const COACHING_TIP: Record<string, string> = {
-  gruen: 'Sehr gut! Du hältst deine Überstunden minimal — das zeigt effiziente Tour-Planung und Work-Life-Balance.',
-  gelb: 'Gut — versuche Tour-Ende besser zu planen, um Überstunden-Tage weiter zu reduzieren.',
-  rot: 'Tipp: Sprich mit dem Dispatcher über realistischere Tour-Zeitfenster, um Überstunden zu vermeiden.',
+  gruen: 'Super! Du hältst deine Arbeitszeiten gut ein — das ist gesund und professionell. Weiter so!',
+  gelb: 'Gut — versuche pünktlich Feierabend zu machen. Plane Schichten realistischer ein.',
+  rot: 'Tipp: Sprich mit dem Dispatcher — zu viele Überstunden-Tage können Erschöpfung verursachen.',
 };
 
 export function FahrerPhase3463MeineUeberstundenTage({
@@ -41,7 +41,7 @@ export function FahrerPhase3463MeineUeberstundenTage({
   isOnline: boolean;
 }) {
   const [open, setOpen] = useState(true);
-  const [data, setData] = useState<FahrerUeberstunden | null>(null);
+  const [data, setData] = useState<FahrerUeberstundenTage | null>(null);
   const [teamAvg, setTeamAvg] = useState<number>(0);
   const [gesamt, setGesamt] = useState<number>(1);
 
@@ -68,6 +68,7 @@ export function FahrerPhase3463MeineUeberstundenTage({
 
   if (!isOnline || !data) return null;
 
+  // For ascending ranking (lowest = best = rank 1), bar width = inverted position
   const barWidth = gesamt > 1 ? ((gesamt - data.rang) / (gesamt - 1)) * 100 : 100;
 
   return (
@@ -90,7 +91,7 @@ export function FahrerPhase3463MeineUeberstundenTage({
               <div className={`text-5xl font-bold font-mono ${AMPEL_COLOR[data.ampel]}`}>
                 {data.ueberstunden_tage}
               </div>
-              <div className="text-xs text-gray-500 mt-0.5">Tage</div>
+              <div className="text-xs text-gray-500 mt-0.5">Überstunden-Tage</div>
             </div>
             <div className="text-center">
               <div className={`text-3xl font-bold ${AMPEL_COLOR[data.ampel]}`}>
@@ -102,8 +103,8 @@ export function FahrerPhase3463MeineUeberstundenTage({
 
           <div className="space-y-1">
             <div className="flex justify-between text-[10px] text-gray-400">
-              <span>Meiste Tage</span>
-              <span>Wenigste Tage</span>
+              <span>Meiste Überstunden</span>
+              <span>Wenigste (Bester)</span>
             </div>
             <div className="bg-gray-100 dark:bg-gray-800 rounded-full h-2.5">
               <div

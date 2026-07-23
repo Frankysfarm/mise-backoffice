@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronDown, ChevronUp, Clock, TrendingUp, TrendingDown, Minus, AlertTriangle } from 'lucide-react';
 
-interface FahrerUeberstunden {
+interface FahrerUeberstundenTage {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
@@ -14,7 +14,7 @@ interface FahrerUeberstunden {
 }
 
 interface ApiResponse {
-  fahrer: FahrerUeberstunden[];
+  fahrer: FahrerUeberstundenTage[];
   team_avg: number;
   bester_name: string;
   alert_count: number;
