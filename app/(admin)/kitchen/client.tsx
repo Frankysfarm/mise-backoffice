@@ -909,6 +909,7 @@ import { KitchenPhase3368LeerfahrtenRankingTicker } from './phase3368-leerfahrte
 import { KitchenPhase3375RueckgabeQuoteTicker } from './phase3375-rueckgabe-quote-ticker';
 import { KitchenPhase3380UebergabeZeitTicker } from './phase3380-uebergabe-zeit-ticker';
 import { KitchenPhase3385StoppsProStundeTicker } from './phase3385-stopps-pro-stunde-ticker';
+import { KitchenPhase3390UmsatzProSchichtTicker } from './phase3390-umsatz-pro-schicht-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4076,6 +4077,7 @@ export function KitchenBoard({
       {/* Phase 3380: Übergabe-Zeit-Ticker — Clock-Icon lila; Schnellster #1 Name+Zeit im Header; Alert "Lange Übergabezeit!"; kompakt aufsteigend; Rang+Zeit+Delta neg=grün; Team-Ø; 30-Min-Polling */}
       <KitchenPhase3380UebergabeZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3385StoppsProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3390UmsatzProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11080,3 +11082,4 @@ export { KitchenPhase3375RueckgabeQuoteTicker } from './phase3375-rueckgabe-quot
 // Phase 3380 — Übergabe-Zeit-Ticker (Clock-Icon lila; Schnellster #1 Name+Zeit im Header; Alert "Lange Übergabezeit!"; kompakt aufsteigend Rang 1=kürzeste Zeit; Rang+Zeit+Delta neg=grün; Team-Ø; letzte 30 Tage; 30-Min-Polling)
 export { KitchenPhase3380UebergabeZeitTicker } from './phase3380-uebergabe-zeit-ticker';
 export { KitchenPhase3385StoppsProStundeTicker } from './phase3385-stopps-pro-stunde-ticker';
+export { KitchenPhase3390UmsatzProSchichtTicker } from './phase3390-umsatz-pro-schicht-ticker';
