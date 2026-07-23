@@ -952,6 +952,7 @@ import { DispatchPhase3330LieferzeitPraezisionRankingBoard } from './phase3330-l
 import { DispatchPhase3335KundenbewertungRankingBoard } from './phase3335-kundenbewertung-ranking-board';
 import { DispatchPhase3340UmsatzProTourRankingBoard } from './phase3340-umsatz-pro-tour-ranking-board';
 import { DispatchPhase3345TourScoreFinalMasterCockpit } from './phase3345-tour-score-final-master-cockpit';
+import { DispatchPhase3350LieferdichteRankingBoard } from './phase3350-lieferdichte-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4460,6 +4461,8 @@ export function DispatchBoard({
           <DispatchPhase3340UmsatzProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3345: Tour-Score Final Master Cockpit — Score-Ring SVG 0–100 je aktiver Tour; farbkodiert grün/gelb/rot; Stopp-Timeline Dots; Fahrer-Name; Alert Score <65; Flotten-Ø-Score; 20-Sek-Polling */}
           <DispatchPhase3345TourScoreFinalMasterCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3350: Lieferdichte Ranking Board — Stopps/km je Fahrer heute; Rang 1=höchste Dichte; Ampel grün/gelb/rot; Alert "Niedrige Lieferdichte!"; 30-Min-Polling */}
+          <DispatchPhase3350LieferdichteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12448,3 +12451,6 @@ export { DispatchPhase3340UmsatzProTourRankingBoard } from './phase3340-umsatz-p
 
 // Phase 3345 — Tour-Score + Visualisierung Final Master Cockpit (Score-Ring SVG 0–100 je aktiver Tour; farbkodiert grün/gelb/rot; Stopp-Timeline Dots; Fahrer-Name; expandierbare Stopp-Liste; Flotten-Ø-Score; Alert Score <65; 20-Sek-Polling)
 export { DispatchPhase3345TourScoreFinalMasterCockpit } from './phase3345-tour-score-final-master-cockpit';
+
+// Phase 3350 — Lieferdichte Ranking Board (Stopps/km je Fahrer heute; Rang 1=höchste Dichte=bester; Ampel grün/gelb/rot; Alert Bottom-25% "Niedrige Lieferdichte!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3350LieferdichteRankingBoard } from './phase3350-lieferdichte-ranking-board';

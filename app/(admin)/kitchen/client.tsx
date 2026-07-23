@@ -899,6 +899,7 @@ import { KitchenPhase3333LieferzeitPraezisionTicker } from './phase3333-lieferze
 import { KitchenPhase3338KundenbewertungTicker } from './phase3338-kundenbewertung-ticker';
 import { KitchenPhase3343UmsatzProTourTicker } from './phase3343-umsatz-pro-tour-ticker';
 import { KitchenPhase3348SmartTimingCountdownMasterPro } from './phase3348-smart-timing-countdown-master-pro';
+import { KitchenPhase3353LieferdichteTicker } from './phase3353-lieferdichte-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4047,6 +4048,8 @@ export function KitchenBoard({
       <KitchenPhase3343UmsatzProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3348: Smart-Timing Countdown Master Pro — sekundengenauer Countdown 4-Stufen Farbkodierung; On-Time-Rate-Gauge; Kochstart-Empfehlung-Badge; KPI-Grid Aktiv/Fertig/Ø-Prep; 1-Sek-Tick + 15-Sek-Polling */}
       <KitchenPhase3348SmartTimingCountdownMasterPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3353: Lieferdichte Ticker — Stopps/km je Fahrer heute; Rang 1=höchste Dichte; kompakt absteigend; Alert "Niedrige Lieferdichte!"; 30-Min-Polling */}
+      <KitchenPhase3353LieferdichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11025,3 +11028,6 @@ export { KitchenPhase3343UmsatzProTourTicker } from './phase3343-umsatz-pro-tour
 
 // Phase 3348 — Smart-Timing Countdown Master Pro (Sekundengenauer Countdown 4-Stufen Farbkodierung rot/orange/amber/grün; On-Time-Rate-Gauge; Kochstart-Empfehlung-Badge; KPI-Grid Aktiv/Fertig/Ø-Prep; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase3348SmartTimingCountdownMasterPro } from './phase3348-smart-timing-countdown-master-pro';
+
+// Phase 3353 — Lieferdichte Ticker (Stopps/km je Fahrer heute; Rang 1=höchste Dichte=bester; kompakt absteigend; Bester #1 im Header; Alert Bottom-25% "Niedrige Lieferdichte!"; 30-Min-Polling)
+export { KitchenPhase3353LieferdichteTicker } from './phase3353-lieferdichte-ticker';

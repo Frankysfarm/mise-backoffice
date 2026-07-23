@@ -866,6 +866,7 @@ import { FahrerPhase3331MeineLieferzeitPraezision } from './phase3331-meine-lief
 import { FahrerPhase3336MeineKundenbewertung } from './phase3336-meine-kundenbewertung';
 import { FahrerPhase3341MeinUmsatzProTour } from './phase3341-mein-umsatz-pro-tour';
 import { FahrerPhase3346TourStoppNavigationMaster } from './phase3346-tour-stopp-navigation-master';
+import { FahrerPhase3351MeineLieferdichte } from './phase3351-meine-lieferdichte';
 
 type Driver = {
   id: string;
@@ -6499,6 +6500,8 @@ export function FahrerApp({
           <FahrerPhase3341MeinUmsatzProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3346: Tour-Stopp Navigation Master — Google-Maps-Link+Anruf-CTA; Barzahlung-Alert; Sonderwunsch; Stopp-Timeline; Score-Badge; isOnline-Guard; 20-Sek-Polling */}
           <FahrerPhase3346TourStoppNavigationMaster driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3351: Meine Lieferdichte — Stopps/km heute; Rang + Farbkodierung; inverted Rang-Balken; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3351MeineLieferdichte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10158,3 +10161,6 @@ export { FahrerPhase3341MeinUmsatzProTour } from './phase3341-mein-umsatz-pro-to
 
 // Phase 3346 — Tour-Stopp Navigation Master (Nächster-Stopp-Hero Google-Maps-Link; Anruf-Button; Barzahlung-Alert; 1-Tap Zugestellt-CTA; alle Stopps Timeline; isOnline-Guard; 15-Sek-Polling)
 export { FahrerPhase3346TourStoppNavigationMaster } from './phase3346-tour-stopp-navigation-master';
+
+// Phase 3351 — Meine Lieferdichte (Stopps/km heute; Rang 4xl + Rate 4xl farbkodiert; inverted Rang-Balken 1–N; Delta-Grid pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3351MeineLieferdichte } from './phase3351-meine-lieferdichte';
