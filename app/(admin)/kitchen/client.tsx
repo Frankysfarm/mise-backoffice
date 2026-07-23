@@ -921,6 +921,7 @@ import { KitchenPhase3425AktivitaetsScoreTicker } from './phase3425-aktivitaets-
 import { KitchenPhase3430SchichtstartTicker } from './phase3430-schichtstart-ticker';
 import { KitchenPhase3435StoppVollstaendigkeitTicker } from './phase3435-stopp-vollstaendigkeit-ticker';
 import { KitchenPhase3440ReaktionszeitTicker } from './phase3440-reaktionszeit-ticker';
+import { KitchenPhase3445MultiStoppEffizienzTicker } from './phase3445-multi-stopp-effizienz-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4109,6 +4110,8 @@ export function KitchenBoard({
       <KitchenPhase3435StoppVollstaendigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3440: Reaktionszeit-Ticker — Zap-Icon gelb; Schnellster #1 Name+min im Header; Alert "Hohe Reaktionszeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <5min; 30-Min-Polling */}
       <KitchenPhase3440ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3445: Multi-Stopp-Effizienz-Ticker — BarChart2-Icon blau; Bester #1 Name+Stopps im Header; Alert "Wenig Stopps/Tour!"; kompakt absteigend; Rang+Stopps+Delta pos=grün; Team-Ø+Ziel ≥7 Stopps/Tour; 30-Min-Polling */}
+      <KitchenPhase3445MultiStoppEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11134,3 +11137,5 @@ export { KitchenPhase3430SchichtstartTicker } from './phase3430-schichtstart-tic
 export { KitchenPhase3435StoppVollstaendigkeitTicker } from './phase3435-stopp-vollstaendigkeit-ticker';
 // Phase 3440 — Reaktionszeit-auf-Zuweisung-Ticker (Zap-Icon gelb; Schnellster #1 Name+min im Header; Alert "Hohe Reaktionszeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <5min; 30-Min-Polling)
 export { KitchenPhase3440ReaktionszeitTicker } from './phase3440-reaktionszeit-ticker';
+// Phase 3445 — Multi-Stopp-Effizienz-Ticker (BarChart2-Icon blau; Bester #1 Name+Stopps im Header; Alert "Wenig Stopps/Tour!"; kompakt absteigend; Rang+Stopps+Delta pos=grün; Team-Ø+Ziel ≥7 Stopps/Tour; 30-Min-Polling)
+export { KitchenPhase3445MultiStoppEffizienzTicker } from './phase3445-multi-stopp-effizienz-ticker';

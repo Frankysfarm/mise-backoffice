@@ -887,6 +887,7 @@ import { FahrerPhase3423MeinAktivitaetsScore } from './phase3423-mein-aktivitaet
 import { FahrerPhase3428MeineSchichtstartPuenktlichkeit } from './phase3428-meine-schichtstart-puenktlichkeit';
 import { FahrerPhase3433MeineStoppVollstaendigkeit } from './phase3433-meine-stopp-vollstaendigkeit';
 import { FahrerPhase3438MeineReaktionszeit } from './phase3438-meine-reaktionszeit';
+import { FahrerPhase3443MeineMultiStoppEffizienz } from './phase3443-meine-multi-stopp-effizienz';
 
 type Driver = {
   id: string;
@@ -6558,6 +6559,8 @@ export function FahrerApp({
           <FahrerPhase3433MeineStoppVollstaendigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3438: Meine Reaktionszeit — Zap-Icon gelb; min 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3438MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3443: Meine Multi-Stopp-Effizienz — BarChart2-Icon blau; Stopps/Tour 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3443MeineMultiStoppEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10262,3 +10265,5 @@ export { FahrerPhase3433MeineStoppVollstaendigkeit } from './phase3433-meine-sto
 
 // Phase 3438 — Meine Reaktionszeit auf Zuweisung (Zap-Icon gelb; min 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3438MeineReaktionszeit } from './phase3438-meine-reaktionszeit';
+// Phase 3443 — Meine Multi-Stopp-Effizienz (BarChart2-Icon blau; Stopps/Tour 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3443MeineMultiStoppEffizienz } from './phase3443-meine-multi-stopp-effizienz';

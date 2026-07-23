@@ -974,6 +974,7 @@ import { DispatchPhase3422AktivitaetsScoreRankingBoard } from './phase3422-aktiv
 import { DispatchPhase3427SchichtstartRankingBoard } from './phase3427-schichtstart-ranking-board';
 import { DispatchPhase3432StoppVollstaendigkeitRankingBoard } from './phase3432-stopp-vollstaendigkeit-ranking-board';
 import { DispatchPhase3437ReaktionszeitZuweisungRankingBoard } from './phase3437-reaktionszeit-zuweisung-ranking-board';
+import { DispatchPhase3442MultiStoppEffizienzRankingBoard } from './phase3442-multi-stopp-effizienz-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4522,6 +4523,8 @@ export function DispatchBoard({
           <DispatchPhase3432StoppVollstaendigkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3437: Reaktionszeit auf Zuweisung Ranking — Zap-Icon gelb; aufsteigend Rang 1=kürzeste Zeit; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Reaktionszeit!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3437ReaktionszeitZuweisungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3442: Multi-Stopp-Effizienz Ranking — BarChart2-Icon blau; absteigend Rang 1=meiste Stopps; Balken 0–maxStopps; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Wenig Stopps/Tour!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3442MultiStoppEffizienzRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12556,3 +12559,5 @@ export { DispatchPhase3427SchichtstartRankingBoard } from './phase3427-schichtst
 export { DispatchPhase3432StoppVollstaendigkeitRankingBoard } from './phase3432-stopp-vollstaendigkeit-ranking-board';
 // Phase 3437 — Reaktionszeit-auf-Zuweisung Ranking-Board (Zap-Icon gelb; aufsteigend Rang 1=kürzeste Zeit; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Reaktionszeit!"; Delta neg=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3437ReaktionszeitZuweisungRankingBoard } from './phase3437-reaktionszeit-zuweisung-ranking-board';
+// Phase 3442 — Multi-Stopp-Effizienz Ranking-Board (BarChart2-Icon blau; absteigend Rang 1=meiste Stopps; Balken 0–maxStopps; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Wenig Stopps/Tour!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3442MultiStoppEffizienzRankingBoard } from './phase3442-multi-stopp-effizienz-ranking-board';
