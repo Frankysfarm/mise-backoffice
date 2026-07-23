@@ -961,6 +961,7 @@ import { DispatchPhase3369LeerfahrtenRankingBoard } from './phase3369-leerfahrte
 import { DispatchPhase3365LeerfahrtenRankingBoard } from './phase3365-leerfahrten-ranking-board';
 import { DispatchPhase3372RueckgabeQuoteRankingBoard } from './phase3372-rueckgabe-quote-ranking-board';
 import { DispatchPhase3377UebergabeZeitRankingBoard } from './phase3377-uebergabe-zeit-ranking-board';
+import { DispatchPhase3382StoppsProStundeRankingBoard } from './phase3382-stopps-pro-stunde-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4487,6 +4488,7 @@ export function DispatchBoard({
           <DispatchPhase3372RueckgabeQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3377: Übergabe-Zeit Ranking-Board — Clock-Icon lila; aufsteigend Rang 1=kürzeste Zeit=bester; Balken 0–maxSek; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Lange Übergabezeit!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3377UebergabeZeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3382StoppsProStundeRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12499,3 +12501,4 @@ export { DispatchPhase3365LeerfahrtenRankingBoard } from './phase3365-leerfahrte
 export { DispatchPhase3372RueckgabeQuoteRankingBoard } from './phase3372-rueckgabe-quote-ranking-board';
 // Phase 3377 — Übergabe-Zeit Ranking-Board (Clock-Icon lila; aufsteigend Rang 1=kürzeste Zeit=bester; Balken 0–maxSek; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Lange Übergabezeit!"; Delta neg=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3377UebergabeZeitRankingBoard } from './phase3377-uebergabe-zeit-ranking-board';
+export { DispatchPhase3382StoppsProStundeRankingBoard } from './phase3382-stopps-pro-stunde-ranking-board';

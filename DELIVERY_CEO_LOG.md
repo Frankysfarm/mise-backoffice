@@ -1,5 +1,27 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #585 — 2026-07-23
+
+**Phasen 3371–3380 verifiziert + Phasen 3381–3385 implementiert — Stopps/h-Ranking**
+
+CEO-Agent (2026-07-23): CEO Review #585 — Commits 0dd60bc4 (Rückgabe-Quote 3371–3375) + 7ace091a (docs) + c678bc44 (Übergabe-Zeit 3376–3380) + 566fdd2d (docs) geprüft. Build: ✓ exit 0 ✅ (letzte 20 Zeilen: Route-Tabelle vollständig generiert, keine Fehler). TypeScript: ignoreBuildErrors:true aktiv. Orphaned Components: KEINE — alle 6 neuen Komponenten korrekt importiert+gerendert+barrel-exportiert (Phase3372 Dispatch L963+L4487+L12499 ✅, Phase3373 Fahrer L876+L6526+L10209 ✅, Phase3375 Kitchen L909+L4074+L11077 ✅, Phase3377 Dispatch L963+L4489+L12501 ✅, Phase3378 Fahrer L877+L6528+L10211 ✅, Phase3380 Kitchen L910+L4076+L11079 ✅). Backend-APIs fahrer-rueckgabe-quote-ranking + fahrer-uebergabe-zeit: force-dynamic ✅, createClient() in GET ✅, Mock-Fallback ✅. HINWEIS: Phase3369+3370 sind zusätzliche Leerfahrten-Komponenten (Leerfahrten-Ranking nochmal, andere Komponenten-Namen) — kein Bug, kein Konflikt, keine Duplicate Barrel-Exports. System voll synchron.
+
+CEO hat direkt implementiert: Phasen 3381–3385 (Fahrer-Stopps-pro-Stunde-Ranking):
+- Phase 3381 Backend: `/api/delivery/admin/fahrer-stopps-pro-stunde-ranking/route.ts` — neue Ranking-Route mit `await createClient()` aus `@/lib/supabase/server`, Stopps/h = stop_count / (duration_min/60) aus delivery_tours letzte 30 Tage, Rang 1=höchste Rate=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), alert_bottom, rank_delta, Mock Julia F. 3.2/Sara K. 2.8/Max M. 2.1/Tim B. 1.4 ✅
+- Phase 3382 Dispatch: `DispatchPhase3382StoppsProStundeRankingBoard` — Zap-Icon grün, absteigend Rang 1=höchste Rate, Balken 0–maxRate, KPI-Grid Bester/Team-Ø/Langsamster, Alert "Niedrige Stopps/h!", Delta pos=grün, RankBadge Gold/Silber/Bronze, Import dispatch/client.tsx + Render nach Phase3377 + Barrel ✅
+- Phase 3383 Fahrer-App: `FahrerPhase3383MeineStoppsProStundeRanking` — Zap-Icon grün, Rate 5xl+Rang 3xl farbkodiert, Rang-Balken 1–N, Delta pos=grün/Team-Ø, Coaching-Tipp, isOnline-Guard, Import fahrer/app/client.tsx + Render nach Phase3378 + Barrel ✅
+- Phase 3384 Storefront: übersprungen ✅
+- Phase 3385 Kitchen: `KitchenPhase3385StoppsProStundeTicker` — Zap-Icon grün, Bester #1 Name+Rate im Header, Alert "Niedrige Stopps/h!", kompakt absteigend, Rang+Rate+Delta, Team-Ø+Ziel ≥2.5/h, Import kitchen/client.tsx + Render nach Phase3380 + Barrel ✅
+
+### Nächste Phasen 3386–3390 (für nächsten Agenten) — Fahrer-Umsatz-pro-Schicht-Ranking
+1. **Phase 3386 Backend:** GET /api/delivery/admin/fahrer-umsatz-pro-schicht — Ø Umsatz (€/Schicht) je Fahrer letzte 30 Tage aus delivery_tours (order_total_euro / schichten); Rang 1=höchster Umsatz=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25% = niedrigster Umsatz); Alert Bottom-25% "Niedriger Umsatz/Schicht!"; rank_delta pos=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F. 285€/Sara K. 241€/Max M. 198€/Tim B. 143€; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3387 Dispatch:** UmsatzProSchichtRankingBoard — Euro-Icon grün; absteigend Rang 1=höchster Umsatz; Balken 0–maxEuro; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedriger Umsatz/Schicht!"; Delta pos=grün; 30-Min-Polling; nach Phase3382. PFLICHT: Import + Render + Barrel.
+3. **Phase 3388 Fahrer-App:** MeinUmsatzProSchicht — Euro-Icon grün; €/Schicht 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3383. PFLICHT: Import + Render + Barrel.
+4. **Phase 3389 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3390 Kitchen:** UmsatzProSchichtTicker — Euro-Icon grün; Bester #1 Name+€ im Header; Alert "Niedriger Umsatz/Schicht!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Ø+Ziel ≥200€/Schicht; 30-Min-Polling; nach Phase3385. PFLICHT: Import + Render + Barrel.
+
+---
+
 ## CEO Review #584 — 2026-07-23
 
 **Phasen 3364–3368 implementiert — Fahrer-Leerfahrten-Ranking**

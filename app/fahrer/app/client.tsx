@@ -875,6 +875,7 @@ import { FahrerPhase3370MeineLeerfahrten } from './phase3370-meine-leerfahrten';
 import { FahrerPhase3366MeineLeerfahrtenRanking } from './phase3366-meine-leerfahrten-ranking';
 import { FahrerPhase3373MeineRueckgabeQuote } from './phase3373-meine-rueckgabe-quote';
 import { FahrerPhase3378MeineUebergabeZeit } from './phase3378-meine-uebergabe-zeit';
+import { FahrerPhase3383MeineStoppsProStundeRanking } from './phase3383-meine-stopps-pro-stunde-ranking';
 
 type Driver = {
   id: string;
@@ -6526,6 +6527,7 @@ export function FahrerApp({
           <FahrerPhase3373MeineRueckgabeQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3378: Meine Übergabe-Zeit — Ø Übergabezeit 5xl+Rang 3xl; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3378MeineUebergabeZeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3383MeineStoppsProStundeRanking driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10209,3 +10211,4 @@ export { FahrerPhase3370MeineLeerfahrten } from './phase3370-meine-leerfahrten';
 export { FahrerPhase3373MeineRueckgabeQuote } from './phase3373-meine-rueckgabe-quote';
 // Phase 3378 — Meine Übergabe-Zeit (Clock-Icon lila; Ø Übergabezeit 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3378MeineUebergabeZeit } from './phase3378-meine-uebergabe-zeit';
+export { FahrerPhase3383MeineStoppsProStundeRanking } from './phase3383-meine-stopps-pro-stunde-ranking';
