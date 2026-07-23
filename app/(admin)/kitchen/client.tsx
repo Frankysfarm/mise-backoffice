@@ -4186,7 +4186,6 @@ export function KitchenBoard({
       <KitchenPhase3555SmartTimingCountdownMasterUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3560: Schicht-Dauer-Ticker — Timer-Icon lila; Kürzester #1 Name+min im Header; Alert "Lange Schicht-Dauer!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø; 30-Min-Polling */}
       <KitchenPhase3560SchichtDauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
-<<<<<<< HEAD
       {/* Phase 3565: Pausen-Dauer-Ticker — Coffee-Icon braun; Kürzester #1 Name+min im Header; Alert "Lange Pause!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <30min; 30-Min-Polling */}
       <KitchenPhase3565PausenDauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3570: Smart-Timing Kochstart-Score Cockpit — Kochstart-Score 0–100; On-Time-Rate; Bestellungs-Countdowns grün/gelb/rot; Fortschrittsbalken; Kochstart-Empfehlung; Pending-Liste; 15-Sek-Polling */}
