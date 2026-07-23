@@ -982,6 +982,7 @@ import { DispatchPhase3462UeberstundenTageRankingBoard } from './phase3462-ueber
 import { DispatchPhase3467TourenAuslastungRankingBoard } from './phase3467-touren-auslastung-ranking-board';
 import { DispatchPhase3472KmProTourRankingBoard } from './phase3472-km-pro-tour-ranking-board';
 import { DispatchPhase3477LieferzeitGenauigkeitRankingBoard } from './phase3477-lieferzeit-genauigkeit-ranking-board';
+import { DispatchPhase3482TourScoreVisualisierungMasterPro } from './phase3482-tour-score-visualisierung-master-pro';
 
 type Driver = {
   employee_id: string;
@@ -4546,6 +4547,8 @@ export function DispatchBoard({
           <DispatchPhase3472KmProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3477: Lieferzeit-Genauigkeit Ranking — Target-Icon grün; absteigend Rang 1=höchste Rate; Balken 0–100%; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3477LieferzeitGenauigkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3482: Tour-Score & Visualisierung Master Pro — Score-Ring SVG 0–100 je Fahrer; grün/gelb/rot; Stopp-Dot-Timeline; Sub-Scores Pünktlichkeit/Abschluss/Speed; Flotten-Ø; expandierbare Stopp-Liste+ETA; Alert Score <65; 20-Sek-Polling */}
+          <DispatchPhase3482TourScoreVisualisierungMasterPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12596,3 +12599,5 @@ export { DispatchPhase3467TourenAuslastungRankingBoard } from './phase3467-toure
 export { DispatchPhase3472KmProTourRankingBoard } from './phase3472-km-pro-tour-ranking-board';
 // Phase 3477 — Lieferzeit-Genauigkeit Ranking-Board (Target-Icon grün; absteigend Rang 1=höchste Rate; Balken 0–100%; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3477LieferzeitGenauigkeitRankingBoard } from './phase3477-lieferzeit-genauigkeit-ranking-board';
+// Phase 3482 — Tour-Score & Visualisierung Master Pro (Score-Ring SVG 0–100 je Fahrer; grün/gelb/rot; Stopp-Dot-Timeline farbkodiert; Sub-Scores Pünktlichkeit/Abschluss/Speed; Flotten-Ø; expandierbare Stopp-Liste+ETA; Alert Score <65; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase3482TourScoreVisualisierungMasterPro } from './phase3482-tour-score-visualisierung-master-pro';

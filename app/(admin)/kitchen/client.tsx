@@ -929,6 +929,7 @@ import { KitchenPhase3465UeberstundenTageTicker } from './phase3465-ueberstunden
 import { KitchenPhase3470TourenAuslastungTicker } from './phase3470-touren-auslastung-ticker';
 import { KitchenPhase3475KmProTourTicker } from './phase3475-km-pro-tour-ticker';
 import { KitchenPhase3480LieferzeitGenauigkeitTicker } from './phase3480-lieferzeit-genauigkeit-ticker';
+import { KitchenPhase3485SmartTimingCountdownFarbkodierungUltra } from './phase3485-smart-timing-countdown-farbkodierung-ultra';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4133,6 +4134,8 @@ export function KitchenBoard({
       <KitchenPhase3475KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3480: Lieferzeit-Genauigkeit-Ticker — Target-Icon grün; Pünktlichster #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling */}
       <KitchenPhase3480LieferzeitGenauigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3485: Smart-Timing Countdown Farbkodierung Ultra — sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate-Gauge; Kochstart-Empfehlung; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling */}
+      <KitchenPhase3485SmartTimingCountdownFarbkodierungUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11174,3 +11177,5 @@ export { KitchenPhase3470TourenAuslastungTicker } from './phase3470-touren-ausla
 export { KitchenPhase3475KmProTourTicker } from './phase3475-km-pro-tour-ticker';
 // Phase 3480 — Lieferzeit-Genauigkeit-Ticker (Target-Icon grün; Pünktlichster #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling)
 export { KitchenPhase3480LieferzeitGenauigkeitTicker } from './phase3480-lieferzeit-genauigkeit-ticker';
+// Phase 3485 — Smart-Timing Countdown Farbkodierung Ultra (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate-Gauge; KPI-Grid Aktiv/Fertig/On-Time; Kochstart-Empfehlung; Überfällig-Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase3485SmartTimingCountdownFarbkodierungUltra } from './phase3485-smart-timing-countdown-farbkodierung-ultra';

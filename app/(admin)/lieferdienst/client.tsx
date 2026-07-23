@@ -468,6 +468,7 @@ import { LieferdienstPhase2680StatistikZonenPerformance } from './phase2680-stat
 import { LieferdienstPhase2685LeerfahrtenStatistik } from './phase2685-leerfahrten-statistik';
 import { LieferdienstPhase2690StatistikenWochenvergleichCockpit } from './phase2690-statistiken-wochenvergleich-cockpit';
 import { LieferdienstPhase2695FahrerSchichtBilanzCockpit } from './phase2695-fahrer-schicht-bilanz-cockpit';
+import { LieferdienstPhase2700StatistikenIntelligenceDashboard } from './phase2700-statistiken-intelligence-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2293,6 +2294,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2690StatistikenWochenvergleichCockpit locationId={locationId ?? null} />
                 {/* Phase 2695: Fahrer Schicht-Bilanz — KPI-Grid Touren/Stopps/Umsatz/Bewertung; Fahrer-Kacheln Score-Balken; Alert Bottom-25%; 2-Min-Polling */}
                 <LieferdienstPhase2695FahrerSchichtBilanzCockpit locationId={locationId ?? null} />
+                {/* Phase 2700: Statistiken Intelligence Dashboard — 10-KPI-Grid Ampel+Δ%; Gesamt-Score-Ring; Insight-Tipp; Alert-Strip rot-KPIs; Mock-Fallback; 1-Min-Polling */}
+                <LieferdienstPhase2700StatistikenIntelligenceDashboard locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
                 <LieferdienstPhase2630StatistikenLiveKomplett locationId={locationId ?? null} />
                 {/* Phase 2635: Liefer-SLA-Echtzeit-Cockpit — 5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling */}
@@ -4850,3 +4853,5 @@ export { LieferdienstPhase2690StatistikenWochenvergleichCockpit } from './phase2
 
 // Phase 2695 — Fahrer Schicht-Bilanz Cockpit (KPI-Grid Touren/Stopps/Ø-Lieferzeit/Umsatz/Bewertung/Pünktlichkeit; Fahrer-Kacheln Score-Balken+Stopps+Umsatz; Sort absteigend Score; Alert Bottom-25%; 2-Min-Polling)
 export { LieferdienstPhase2695FahrerSchichtBilanzCockpit } from './phase2695-fahrer-schicht-bilanz-cockpit';
+// Phase 2700 — Statistiken Intelligence Dashboard (10-KPI-Grid Ampel+Δ% Trend; Gesamt-Score-Ring 0–100; Top-Insight-Tipp; Alert-Strip rot-KPIs; invertierte Metrik grün wenn sinkt; Mock-Fallback; 1-Min-Polling)
+export { LieferdienstPhase2700StatistikenIntelligenceDashboard } from './phase2700-statistiken-intelligence-dashboard';
