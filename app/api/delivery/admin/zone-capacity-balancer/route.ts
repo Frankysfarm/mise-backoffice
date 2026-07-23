@@ -48,7 +48,7 @@ async function getLocationId(
 
 export async function GET(req: NextRequest) {
   try {
-    const sb = createClient();
+    const sb = await createClient();
     const locationId = await getLocationId(
       await sb,
       req.nextUrl.searchParams.get('location_id'),
@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const sb = createClient();
+    const sb = await createClient();
     const locationId = await getLocationId(await sb, req.nextUrl.searchParams.get('location_id'));
     if (!locationId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 

@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
   if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
 
   try {
-    const sb = createClient();
+    const sb = await createClient();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 

@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
   if (!location_id) return NextResponse.json(MOCK_DATA);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const today     = todayRange();
     const yesterday = yesterdayRange();
 

@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
   if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
 
   try {
-    const sb = createClient();
+    const sb = await createClient();
     const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
     const { data: orders, error } = await (sb as any)

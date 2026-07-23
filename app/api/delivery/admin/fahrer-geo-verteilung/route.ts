@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
   if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
 
   try {
-    const sb = createClient();
+    const sb = await createClient();
 
     const { data: drivers, error } = await (sb as any)
       .from('mise_drivers')

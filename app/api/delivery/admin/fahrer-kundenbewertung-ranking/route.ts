@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
   if (!locationId) return NextResponse.json(MOCK_DATA);
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const now = new Date();
     const cur30 = new Date(now); cur30.setDate(cur30.getDate() - 30);
     const prev30 = new Date(now); prev30.setDate(prev30.getDate() - 60);
