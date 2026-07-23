@@ -835,6 +835,7 @@ import { FahrerPhase3302MeineAbwesenheit } from './phase3302-meine-abwesenheit';
 import { FahrerPhase3307MeineSchichtAnnahmeRate } from './phase3307-meine-schicht-annahme-rate';
 import { FahrerPhase3312MeineSchichtPuenktlichkeit } from './phase3312-meine-schicht-puenktlichkeit';
 import { FahrerPhase3317MeineTourenProSchicht } from './phase3317-meine-touren-pro-schicht';
+import { FahrerPhase3320TourStoppNavigationHubUltimate } from './phase3320-tour-stopp-navigation-hub-ultimate';
 import { FahrerPhase3295TourStoppSmartNavigatorPro } from './phase3295-tour-stopp-smart-navigator-pro';
 import { FahrerPhase3257TourStoppNavigationsUltraKommando } from './phase3257-tour-stopp-navigations-ultra-kommando';
 import { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-stopp-smart-kommando-ultra';
@@ -6483,6 +6484,8 @@ export function FahrerApp({
           <FahrerPhase3312MeineSchichtPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3317: Meine Touren/Schicht — TrendingUp-Icon orange; Rate 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3317MeineTourenProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
+          <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3295TourStoppSmartNavigatorPro fahrerId={driver.id} />
           {/* Phase 3257: Tour-Stopp Navigations-Ultra-Kommando — Hero-Stopp; Google-Maps-Link; Anruf-Button; Kommentar-Warnung; Fortschrittsring; mobile-first; 15-Sek-Polling */}

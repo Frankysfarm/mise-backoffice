@@ -456,6 +456,7 @@ import { LieferdienstPhase2620StatistikenEchtzeitFinalCockpit } from './phase262
 import { LieferdienstPhase2625StatistikEchtzeitExecutive } from './phase2625-statistiken-echtzeit-executive';
 import { LieferdienstPhase2650StatistikEchtzeitUltimateCockpit } from './phase2650-statistiken-echtzeit-ultimate-cockpit';
 import { LieferdienstPhase2655StatistikTagesvergleichDashboard } from './phase2655-statistiken-tagesvergleich-dashboard';
+import { LieferdienstPhase2660StatistikIntelligenceDashboard } from './phase2660-statistiken-intelligence-dashboard';
 import { LieferdienstPhase2630StatistikenLiveKomplett } from './phase2630-statistiken-live-komplett';
 import { LieferdienstPhase2635LieferSlaEchtzeitCockpit } from './phase2635-liefer-sla-echtzeit-cockpit';
 import { SmartStatsCockpit } from './smart-stats-cockpit';
@@ -2269,6 +2270,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2650StatistikEchtzeitUltimateCockpit locationId={locationId ?? null} />
                 {/* Phase 2655: Statistiken Tagesvergleich Dashboard — 8 KPI-Kacheln Ampel+Trend Heute vs Gestern+Δ%; BarChart Stundenverlauf 2-Modi umschaltbar Heute(lila)/Gestern(grau)/Jetzt(blau); Alert-Strip; 1-Min-Polling */}
                 <LieferdienstPhase2655StatistikTagesvergleichDashboard locationId={locationId ?? null} />
+                {/* Phase 2660: Statistiken Intelligence Dashboard — 8 KPI-Kacheln Ampel+Trend+Ziel; Stunden-BarChart 2-Modi Bestellungen/Umsatz; Jetzt-Stunde blau hervorgehoben; Alert-Strip; 2-Min-Polling */}
+                <LieferdienstPhase2660StatistikIntelligenceDashboard locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
                 <LieferdienstPhase2630StatistikenLiveKomplett locationId={locationId ?? null} />
                 {/* Phase 2635: Liefer-SLA-Echtzeit-Cockpit — 5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling */}
@@ -4805,4 +4808,3 @@ export { LieferdienstPhase2655StatistikTagesvergleichDashboard } from './phase26
 
 // Phase 2660 — Statistiken Intelligence Dashboard (8 KPI-Kacheln Ampel+Trend+Ziel; Stunden-BarChart 2-Modi Bestellungen/Umsatz umschaltbar Jetzt-Stunde blau hervorgehoben; Alert-Strip; 2-Min-Polling)
 export { LieferdienstPhase2660StatistikIntelligenceDashboard } from './phase2660-statistiken-intelligence-dashboard';
-export { LieferdienstPhase2655StatistikTagesvergleichDashboard } from './phase2655-statistiken-tagesvergleich-dashboard';

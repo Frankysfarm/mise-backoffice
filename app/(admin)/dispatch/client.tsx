@@ -941,6 +941,7 @@ import { DispatchPhase3301AbwesenheitRankingBoard } from './phase3301-abwesenhei
 import { DispatchPhase3306SchichtAnnahmeRateRankingBoard } from './phase3306-schicht-annahme-rate-ranking-board';
 import { DispatchPhase3311SchichtPuenktlichkeitRankingBoard } from './phase3311-schicht-puenktlichkeit-ranking-board';
 import { DispatchPhase3316TourenProSchichtRankingBoard } from './phase3316-touren-pro-schicht-ranking-board';
+import { DispatchPhase3320TourScoreVisualisierungLive } from './phase3320-tour-score-visualisierung-live';
 import { DispatchPhase3295TourVisualisierungLiveBoard } from './phase3295-tour-visualisierung-live-board';
 import { DispatchPhase3256TourScoreVisualisierungKommando } from './phase3256-tour-score-visualisierung-kommando';
 import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
@@ -4408,6 +4409,8 @@ export function DispatchBoard({
           <DispatchPhase3311SchichtPuenktlichkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3316: Touren/Schicht-Ranking-Board — TrendingUp-Icon orange; absteigend Rang 1=höchste Rate; Balken 0–maxRate; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Touren-Rate!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3316TourenProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3320: Tour-Score + Visualisierung Live — Score-Ring je Fahrer; Stopp-Dot-Timeline farbkodiert; expandierbare Stopp-Liste; Alert Score <65; 20-Sek-Polling */}
+          <DispatchPhase3320TourScoreVisualisierungLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3295: Tour-Visualisierung Live-Board — Score-Ring SVG je Fahrer; interaktive SVG Stopp-Timeline farbkodiert grün/blau/grau; expandierbare Stopp-Liste mit Adressen/ETA/Status; Problem-Alert; 20-Sek-Polling */}
           <DispatchPhase3295TourVisualisierungLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3256: Tour-Score + Visualisierung Kommando-Zentrale — SVG Score-Ring; farbkodierte Stopp-Timelines; Sub-Scores; expandierbare Touren; 30-Sek-Polling */}
@@ -12411,4 +12414,3 @@ export { DispatchPhase3295TourVisualisierungLiveBoard } from './phase3295-tour-v
 
 // Phase 3320 — Tour-Score + Visualisierung Live (Score-Ring je Fahrer; Stopp-Dot-Timeline farbkodiert abgeschlossen/unterwegs/ausstehend/Problem; expandierbare Stopp-Liste Adressen/ETA; Bewertung; Alert Score <65; 20-Sek-Polling)
 export { DispatchPhase3320TourScoreVisualisierungLive } from './phase3320-tour-score-visualisierung-live';
-export { DispatchPhase3295TourVisualisierungLiveBoard } from './phase3295-tour-visualisierung-live-board';
