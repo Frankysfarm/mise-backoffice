@@ -938,6 +938,7 @@ import { KitchenPhase3510PaketeProTourTicker } from './phase3510-pakete-pro-tour
 import { KitchenPhase3515SmartTimingCountdownAmpelMaster } from './phase3515-smart-timing-countdown-ampel-master';
 import { KitchenPhase3515StoppsProSchichtTicker } from './phase3515-stopps-pro-schicht-ticker';
 import { KitchenPhase3520KmProStoppTicker } from './phase3520-km-pro-stopp-ticker';
+import { KitchenPhase3525WartezeitStoppTicker } from './phase3525-wartezeit-stopp-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4160,6 +4161,8 @@ export function KitchenBoard({
       <KitchenPhase3515StoppsProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3520: km/Stopp-Ticker — Route-Icon grün; Effizientester #1 Name+km im Header; Alert "Hohe km/Stopp!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤1.5km/Stopp; 30-Min-Polling */}
       <KitchenPhase3520KmProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3525: Wartezeit/Stopp-Ticker — Clock-Icon gelb; Schnellster #1 Name+min im Header; Alert "Hohe Wartezeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤3min/Stopp; 30-Min-Polling */}
+      <KitchenPhase3525WartezeitStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11219,3 +11222,5 @@ export { KitchenPhase3515SmartTimingCountdownAmpelMaster } from './phase3515-sma
 export { KitchenPhase3515StoppsProSchichtTicker } from './phase3515-stopps-pro-schicht-ticker';
 // Phase 3520 — km/Stopp-Ticker (Route-Icon grün; Effizientester #1 Name+km im Header; Alert "Hohe km/Stopp!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤1.5km/Stopp; 30-Min-Polling)
 export { KitchenPhase3520KmProStoppTicker } from './phase3520-km-pro-stopp-ticker';
+// Phase 3525 — Wartezeit/Stopp-Ticker (Clock-Icon gelb; Schnellster #1 Name+min im Header; Alert "Hohe Wartezeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤3min/Stopp; 30-Min-Polling)
+export { KitchenPhase3525WartezeitStoppTicker } from './phase3525-wartezeit-stopp-ticker';
