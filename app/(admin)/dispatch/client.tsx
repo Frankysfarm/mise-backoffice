@@ -955,6 +955,7 @@ import { DispatchPhase3345TourScoreFinalMasterCockpit } from './phase3345-tour-s
 import { DispatchPhase3350LieferdichteRankingBoard } from './phase3350-lieferdichte-ranking-board';
 import { DispatchPhase3355TourScoreVisualisierungKommandoHub } from './phase3355-tour-score-visualisierung-kommando-hub';
 import { DispatchPhase3360TrinkgeldQuoteRankingBoard } from './phase3360-trinkgeld-quote-ranking-board';
+import { DispatchPhase3360KmProStoppRankingBoard } from './phase3360-km-pro-stopp-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4469,6 +4470,8 @@ export function DispatchBoard({
           <DispatchPhase3355TourScoreVisualisierungKommandoHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3360: Trinkgeld-Quote Ranking Board — Ø Trinkgeld €/Stopp je Fahrer heute; Rang 1=höchste Quote=bester; Ampel grün/gelb/rot; Alert "Niedrige Trinkgeld-Quote!"; 30-Min-Polling */}
           <DispatchPhase3360TrinkgeldQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3360: km/Stopp Ranking-Board — Fahrer-Rangliste nach Streckeneffizienz; RankBadge; Ampel-Farbkodierung; Delta-Trend; Balkendiagramm; Alert Hohe km/Stopp; 30-Min-Polling */}
+          <DispatchPhase3360KmProStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12466,3 +12469,6 @@ export { DispatchPhase3355TourScoreVisualisierungKommandoHub } from './phase3355
 
 // Phase 3360 — Trinkgeld-Quote Ranking Board (Ø Trinkgeld €/Stopp je Fahrer heute; Rang 1=höchste Quote=bester; Ampel grün/gelb/rot; Alert Bottom-25% "Niedrige Trinkgeld-Quote!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3360TrinkgeldQuoteRankingBoard } from './phase3360-trinkgeld-quote-ranking-board';
+
+// Phase 3360 — km/Stopp Ranking-Board (Fahrer-Rangliste aufsteigend nach km/Stopp; RankBadge Gold/Silber/Bronze; Ampel grün/gelb/rot; Delta-Trend TrendingUp/Down; Balkendiagramm proportional maxKm; KPI-Grid Bester/Team-Ø/Höchster; Alert Hohe km/Stopp; 30-Min-Polling)
+export { DispatchPhase3360KmProStoppRankingBoard } from './phase3360-km-pro-stopp-ranking-board';

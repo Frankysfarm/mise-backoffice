@@ -464,6 +464,7 @@ import { LieferdienstEchtzeitStatistikHub } from './lieferdienst-echtzeit-statis
 import { LieferdienstPhase2665StatistikenFinalMasterHub } from './phase2665-statistiken-final-master-hub';
 import { LieferdienstPhase2670StatistikenMasterLivePro } from './phase2670-statistiken-master-live-pro';
 import { LieferdienstPhase2675StatistikFahrerPerformanceDashboard } from './phase2675-statistiken-fahrer-performance-dashboard';
+import { LieferdienstPhase2680StatistikZonenPerformance } from './phase2680-statistiken-zonen-performance';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2281,6 +2282,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2670StatistikenMasterLivePro locationId={locationId ?? null} />
                 {/* Phase 2675: Statistiken Fahrer-Performance-Dashboard — Fahrer-Rangliste Score+KPI-Grid; Top-3 Badges; Stunden-BarChart; Alert Score <65; 2-Min-Polling */}
                 <LieferdienstPhase2675StatistikFahrerPerformanceDashboard locationId={locationId ?? null} />
+                {/* Phase 2680: Statistiken Zonen-Performance — 4-KPI-Grid Bestellungen/Umsatz/Lieferzeit/SLA; Zonen-Karten mit SLA-Balken; Alert Niedrige SLA-Rate; 3-Min-Polling */}
+                <LieferdienstPhase2680StatistikZonenPerformance locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
                 <LieferdienstPhase2630StatistikenLiveKomplett locationId={locationId ?? null} />
                 {/* Phase 2635: Liefer-SLA-Echtzeit-Cockpit — 5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling */}
@@ -4826,3 +4829,6 @@ export { LieferdienstPhase2670StatistikenMasterLivePro } from './phase2670-stati
 
 // Phase 2675 — Statistiken Fahrer-Performance-Dashboard (Fahrer-Rangliste Score+KPI-Grid; Top-3 Badges; Schicht-Stunden-BarChart; Alert Score <65; 2-Min-Polling)
 export { LieferdienstPhase2675StatistikFahrerPerformanceDashboard } from './phase2675-statistiken-fahrer-performance-dashboard';
+
+// Phase 2680 — Statistiken Zonen-Performance (4-KPI-Grid Bestellungen/Umsatz/Ø-Lieferzeit/SLA; Zonen-Karten mit SLA-Fortschrittsbalken; Ampel grün/gelb/rot; Alert Niedrige SLA-Rate; Gesamt-SLA-Kachel; 3-Min-Polling)
+export { LieferdienstPhase2680StatistikZonenPerformance } from './phase2680-statistiken-zonen-performance';

@@ -902,6 +902,7 @@ import { KitchenPhase3348SmartTimingCountdownMasterPro } from './phase3348-smart
 import { KitchenPhase3353LieferdichteTicker } from './phase3353-lieferdichte-ticker';
 import { KitchenPhase3358SmartTimingCountdownFarbkodierungPro } from './phase3358-smart-timing-countdown-farbkodierung-pro';
 import { KitchenPhase3363TrinkgeldQuoteTicker } from './phase3363-trinkgeld-quote-ticker';
+import { KitchenPhase3363KmProStoppTicker } from './phase3363-km-pro-stopp-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4056,6 +4057,8 @@ export function KitchenBoard({
       <KitchenPhase3358SmartTimingCountdownFarbkodierungPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3363: Trinkgeld-Quote Ticker — Ø Trinkgeld €/Stopp je Fahrer heute; Rang 1=höchste Quote=bester; kompakt absteigend; Alert "Niedrige Trinkgeld-Quote!"; 30-Min-Polling */}
       <KitchenPhase3363TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3363: km/Stopp Ticker — Kompakte Fahrer-Rangliste nach Streckeneffizienz; Kopfzeile mit #1; Alert-Badge; Delta-Trend; 30-Min-Polling */}
+      <KitchenPhase3363KmProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11043,3 +11046,6 @@ export { KitchenPhase3358SmartTimingCountdownFarbkodierungPro } from './phase335
 
 // Phase 3363 — Trinkgeld-Quote Ticker (Ø Trinkgeld €/Stopp je Fahrer heute; Rang 1=höchste Quote=bester; kompakt absteigend; Bester #1 im Header; Alert Bottom-25% "Niedrige Trinkgeld-Quote!"; Ziel >1.00 €/Stopp; 30-Min-Polling)
 export { KitchenPhase3363TrinkgeldQuoteTicker } from './phase3363-trinkgeld-quote-ticker';
+
+// Phase 3363 — km/Stopp Ticker (Kompakte Fahrer-Rangliste aufsteigend nach km/Stopp; Kopfzeile #1-Name-km; Alert-Badge für alert_top-Fahrer; farbiger Dot grün/gelb/rot; Delta-Trend TrendingUp/Down; Footer Team-Ø; Ziel <2.0 km; 30-Min-Polling)
+export { KitchenPhase3363KmProStoppTicker } from './phase3363-km-pro-stopp-ticker';

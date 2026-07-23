@@ -869,6 +869,7 @@ import { FahrerPhase3346TourStoppNavigationMaster } from './phase3346-tour-stopp
 import { FahrerPhase3351MeineLieferdichte } from './phase3351-meine-lieferdichte';
 import { FahrerPhase3356TourStopsNavigationFinalHub } from './phase3356-tour-stops-navigation-final-hub';
 import { FahrerPhase3361MeineTrinkgeldQuote } from './phase3361-meine-trinkgeld-quote';
+import { FahrerPhase3361MeineKmProStopp } from './phase3361-meine-km-pro-stopp';
 
 type Driver = {
   id: string;
@@ -6508,6 +6509,8 @@ export function FahrerApp({
           <FahrerPhase3356TourStopsNavigationFinalHub driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3361: Meine Trinkgeld-Quote — Ø Trinkgeld €/Stopp heute; Rang + Farbkodierung; Rang-Balken; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3361MeineTrinkgeldQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3361: Meine km/Stopp — Persönlicher Effizienz-Score; Rang-Anzeige; Inverted-Rang-Balken; Delta-Grid; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3361MeineKmProStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10176,3 +10179,6 @@ export { FahrerPhase3356TourStopsNavigationFinalHub } from './phase3356-tour-sto
 
 // Phase 3361 — Meine Trinkgeld-Quote (Ø Trinkgeld €/Stopp heute; Rang 4xl + Quote 5xl farbkodiert; Rang-Balken 1–N pos=besser; Delta-Grid Rang-Δ pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3361MeineTrinkgeldQuote } from './phase3361-meine-trinkgeld-quote';
+
+// Phase 3361 — Meine km/Stopp (Persönlicher Effizienz-Score text-5xl; Rang farbkodiert; Inverted-Rang-Balken; Rang-Δ-Grid; Team-Ø; Coaching-Tipp je Ampel; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3361MeineKmProStopp } from './phase3361-meine-km-pro-stopp';
