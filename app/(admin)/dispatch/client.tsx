@@ -1000,6 +1000,7 @@ import { DispatchPhase3547SchichtEndzeitRankingBoard } from './phase3547-schicht
 import { DispatchPhase3552TourScoreVisualisierungLive } from './phase3552-tour-score-visualisierung-live';
 import { DispatchPhase3557SchichtDauerRankingBoard } from './phase3557-schicht-dauer-ranking-board';
 import { DispatchPhase3562PausenDauerRankingBoard } from './phase3562-pausen-dauer-ranking-board';
+import { DispatchPhase3567TourScoreVisualisierungUltra } from './phase3567-tour-score-visualisierung-ultra';
 
 type Driver = {
   employee_id: string;
@@ -4600,6 +4601,8 @@ export function DispatchBoard({
           <DispatchPhase3557SchichtDauerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3562: Pausen-Dauer Ranking — Coffee-Icon braun; aufsteigend Rang 1=kürzeste Pause; KPI-Grid Kürzester/Team-Ø/Längster; Alert "Lange Pause!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3562PausenDauerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3567: Tour-Score Visualisierung Ultra — Score-Balken 0–100 je Fahrer; Farbkodierung grün/gelb/rot; Stopp-Dot-Timeline; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung expandierbar; Top-Performer; Alert Score <70; 20-Sek-Polling */}
+          <DispatchPhase3567TourScoreVisualisierungUltra locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12686,3 +12689,5 @@ export { DispatchPhase3552TourScoreVisualisierungLive } from './phase3552-tour-s
 export { DispatchPhase3557SchichtDauerRankingBoard } from './phase3557-schicht-dauer-ranking-board';
 // Phase 3562 — Pausen-Dauer Ranking-Board (Coffee-Icon braun; aufsteigend Rang 1=kürzeste Pause; KPI-Grid Kürzester/Team-Ø/Längster; Alert "Lange Pause!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3562PausenDauerRankingBoard } from './phase3562-pausen-dauer-ranking-board';
+// Phase 3567 — Tour-Score Visualisierung Ultra (Score-Balken 0–100 je Fahrer; Farbkodierung grün/gelb/rot; Stopp-Dot-Timeline mit Pulsen; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; Top-Performer-Badge; Alert Score<70; 20-Sek-Polling)
+export { DispatchPhase3567TourScoreVisualisierungUltra } from './phase3567-tour-score-visualisierung-ultra';

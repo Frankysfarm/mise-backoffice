@@ -913,6 +913,7 @@ import { FahrerPhase3548MeineSchichtEndzeit } from './phase3548-meine-schicht-en
 import { FahrerPhase3553TourStopsNavigatorMaster } from './phase3553-tour-stops-navigator-master';
 import { FahrerPhase3558MeineSchichtDauer } from './phase3558-meine-schicht-dauer';
 import { FahrerPhase3563MeinePausenDauer } from './phase3563-meine-pausen-dauer';
+import { FahrerPhase3568TourStoppNavigationCockpit } from './phase3568-tour-stopp-navigation-cockpit';
 
 type Driver = {
   id: string;
@@ -6642,6 +6643,14 @@ export function FahrerApp({
               driverLng={driverPos?.lng ?? null}
             />
           )}
+          {/* Phase 3568: Tour-Stopp Navigation Cockpit — Hero-Stopp mit Google-Maps+Anruf; alle Stopps expandierbar+Stopp-Dots; Fortschrittsbalken; Zahlungsart; Kunden-Notiz; mobile-first */}
+          {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase3568TourStoppNavigationCockpit
+              stops={(activeBatch.stops ?? []) as any}
+              driverLat={driverPos?.lat ?? null}
+              driverLng={driverPos?.lng ?? null}
+            />
+          )}
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10398,3 +10407,5 @@ export { FahrerPhase3553TourStopsNavigatorMaster } from './phase3553-tour-stops-
 export { FahrerPhase3558MeineSchichtDauer } from './phase3558-meine-schicht-dauer';
 // Phase 3563 — Meine Pausen-Dauer (Coffee-Icon braun; min 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3563MeinePausenDauer } from './phase3563-meine-pausen-dauer';
+// Phase 3568 — Tour-Stopp Navigation Cockpit (Hero-Stopp mit Google-Maps+Anruf+Zahlungsart+Notiz; alle Stopps expandierbar+Stopp-Dots+Navi; Fortschrittsbalken; mobile-first; kein Polling)
+export { FahrerPhase3568TourStoppNavigationCockpit } from './phase3568-tour-stopp-navigation-cockpit';
