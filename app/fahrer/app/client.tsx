@@ -905,6 +905,7 @@ import { FahrerPhase3513MeineStoppsProSchicht } from './phase3513-meine-stopps-p
 import { FahrerPhase3513MeinTourScoreLive } from './phase3513-mein-tour-score-live';
 import { FahrerPhase3518MeineKmProStopp } from './phase3518-meine-km-pro-stopp';
 import { FahrerPhase3523MeineWartezeitStopp } from './phase3523-meine-wartezeit-stopp';
+import { FahrerPhase3528MeineLieferungenProKm } from './phase3528-meine-lieferungen-pro-km';
 
 type Driver = {
   id: string;
@@ -6612,6 +6613,8 @@ export function FahrerApp({
           <FahrerPhase3518MeineKmProStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3523: Meine Wartezeit/Stopp — Clock-Icon gelb; min-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3523MeineWartezeitStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3528: Meine Lieferungen/km — Zap-Icon grün; Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3528MeineLieferungenProKm driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10352,3 +10355,5 @@ export { FahrerPhase3513MeineStoppsProSchicht } from './phase3513-meine-stopps-p
 export { FahrerPhase3518MeineKmProStopp } from './phase3518-meine-km-pro-stopp';
 // Phase 3523 — Meine Wartezeit/Stopp (Clock-Icon gelb; min-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3523MeineWartezeitStopp } from './phase3523-meine-wartezeit-stopp';
+// Phase 3528 — Meine Lieferungen/km (Zap-Icon grün; Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3528MeineLieferungenProKm } from './phase3528-meine-lieferungen-pro-km';

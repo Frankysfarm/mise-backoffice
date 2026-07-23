@@ -992,6 +992,7 @@ import { DispatchPhase3512TourScoreVisualisierungPro } from './phase3512-tour-sc
 import { DispatchPhase3512StoppsProSchichtRankingBoard } from './phase3512-stopps-pro-schicht-ranking-board';
 import { DispatchPhase3517KmProStoppRankingBoard } from './phase3517-km-pro-stopp-ranking-board';
 import { DispatchPhase3522WartezeitStoppRankingBoard } from './phase3522-wartezeit-stopp-ranking-board';
+import { DispatchPhase3527LieferungenProKmRankingBoard } from './phase3527-lieferungen-pro-km-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4576,6 +4577,8 @@ export function DispatchBoard({
           <DispatchPhase3517KmProStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3522: Wartezeit/Stopp Ranking — Clock-Icon gelb; aufsteigend Rang 1=kürzeste Wartezeit; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Wartezeit!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3522WartezeitStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3527: Lieferungen/km Ranking — Zap-Icon grün; absteigend Rang 1=höchster Wert=bester; KPI-Grid Bester/Team-Ø/Letzter; Alert "Niedrige Lieferungsdichte!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3527LieferungenProKmRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12646,3 +12649,5 @@ export { DispatchPhase3512StoppsProSchichtRankingBoard } from './phase3512-stopp
 export { DispatchPhase3517KmProStoppRankingBoard } from './phase3517-km-pro-stopp-ranking-board';
 // Phase 3522 — Wartezeit/Stopp Ranking-Board (Clock-Icon gelb; aufsteigend Rang 1=kürzeste Wartezeit; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Wartezeit!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3522WartezeitStoppRankingBoard } from './phase3522-wartezeit-stopp-ranking-board';
+// Phase 3527 — Lieferungen/km Ranking-Board (Zap-Icon grün; absteigend Rang 1=höchster Wert; KPI-Grid; Alert "Niedrige Lieferungsdichte!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3527LieferungenProKmRankingBoard } from './phase3527-lieferungen-pro-km-ranking-board';

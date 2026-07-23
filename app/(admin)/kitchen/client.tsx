@@ -939,6 +939,7 @@ import { KitchenPhase3515SmartTimingCountdownAmpelMaster } from './phase3515-sma
 import { KitchenPhase3515StoppsProSchichtTicker } from './phase3515-stopps-pro-schicht-ticker';
 import { KitchenPhase3520KmProStoppTicker } from './phase3520-km-pro-stopp-ticker';
 import { KitchenPhase3525WartezeitStoppTicker } from './phase3525-wartezeit-stopp-ticker';
+import { KitchenPhase3530LieferungenProKmTicker } from './phase3530-lieferungen-pro-km-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4163,6 +4164,8 @@ export function KitchenBoard({
       <KitchenPhase3520KmProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3525: Wartezeit/Stopp-Ticker — Clock-Icon gelb; Schnellster #1 Name+min im Header; Alert "Hohe Wartezeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤3min/Stopp; 30-Min-Polling */}
       <KitchenPhase3525WartezeitStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3530: Lieferungen/km-Ticker — Zap-Icon grün; Bester #1 Name+Wert im Header; Alert "Niedrige Lieferungsdichte!"; kompakt absteigend; Rang+Wert+Delta pos=grün; Team-Ø+Ziel ≥0.8/km; 30-Min-Polling */}
+      <KitchenPhase3530LieferungenProKmTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11224,3 +11227,5 @@ export { KitchenPhase3515StoppsProSchichtTicker } from './phase3515-stopps-pro-s
 export { KitchenPhase3520KmProStoppTicker } from './phase3520-km-pro-stopp-ticker';
 // Phase 3525 — Wartezeit/Stopp-Ticker (Clock-Icon gelb; Schnellster #1 Name+min im Header; Alert "Hohe Wartezeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤3min/Stopp; 30-Min-Polling)
 export { KitchenPhase3525WartezeitStoppTicker } from './phase3525-wartezeit-stopp-ticker';
+// Phase 3530 — Lieferungen/km-Ticker (Zap-Icon grün; Bester im Header; Alert "Niedrige Lieferungsdichte!"; kompakt absteigend; Rang+Wert+Delta pos=grün; Team-Ø+Ziel ≥0.8/km; 30-Min-Polling)
+export { KitchenPhase3530LieferungenProKmTicker } from './phase3530-lieferungen-pro-km-ticker';
