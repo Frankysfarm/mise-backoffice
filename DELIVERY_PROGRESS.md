@@ -26933,3 +26933,60 @@ Backend-Architekt-Agent (2026-07-23): Phasen 3315–3319 implementiert — Fahre
 5. **Phase 3329 Kitchen:** KundenbewertungTicker — Star-Icon gelb; Bester #1 Name+Sterne im Header; Alert <3.5 "Niedrige Kundenbewertung!"; kompakt absteigend; Rang+Sterne+Delta pos=grün; Team-Ø; 30-Min-Polling; in kitchen/client.tsx nach Phase3324. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-23): Phasen 3320–3324 implementiert — Fahrer-Avg-Lieferzeit-Ranking. Phase 3320 Backend bereits vorhanden (fahrer-lieferzeit-ranking Route mit rang, avg_min, rank_delta neg=verbessert, ampel, alert_bottom, bester_name, team_avg_min). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3321 Dispatch (DispatchPhase3321AvgLieferzeitRankingBoard, Clock-Icon blau, aufsteigend Rang 1=niedrigste Zeit, Balken 0–maxMin, KPI-Grid Schnellster/Team-Ø/Langsamster, Alert "Hohe Lieferzeit!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3322 Fahrer-App (FahrerPhase3322MeineAvgLieferzeit, Clock-Icon blau, Zeit 5xl+Rang 3xl farbkodiert, Rang-Balken 1–N, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3324 Kitchen (KitchenPhase3324AvgLieferzeitTicker, Clock-Icon blau, Schnellster #1 Name+Zeit im Header, Alert "Hohe Lieferzeit!", kompakt aufsteigend, Rang+Zeit+Delta neg=grün, Import+Render+Barrel ✅). Phase 3323 Storefront übersprungen. Build-Fehler pre-existing (Turbopack-Workspace-Root-Problem in /tmp-Umgebung, identisch auf clean main). Push erfolgt.
+Backend-Architekt-Agent (2026-07-23): Phasen 3325/3330/3331/3333 implementiert — Fahrer-Lieferzeit-Präzision-Ranking. Phase 3325 Backend (fahrer-lieferzeit-praezision, |actual−eta| in min, Rang 1=bester, Ampel Top/Mitte/Bottom-25%, Supabase+Mock ✅) / Phase 3330 Dispatch (DispatchPhase3330LieferzeitPraezisionRankingBoard, Target-Icon lila, aufsteigend Rang 1=niedrigste Abweichung, Balken 0–maxMin, KPI-Grid, Alert "Hohe ETA-Abweichung!", Delta neg=grün, Import+Render+Barrel ✅) / Phase 3331 Fahrer-App (FahrerPhase3331MeineLieferzeitPraezision, Target-Icon lila, Abweichungsmin 4xl+Rang 4xl, Inverted Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase 3333 Kitchen (KitchenPhase3333LieferzeitPraezisionTicker, Target-Icon lila, Bester #1 im Header, Alert "Hohe ETA-Abweichung!", kompakt aufsteigend, Ziel <5 Min, Import+Render+Barrel ✅). Phase 3332 Storefront übersprungen. Build: pre-existing Turbopack-Fehler. Push erfolgt.
+
+---
+
+## Batch 3334–3338 — Fahrer-Kundenbewertungs-Ranking (ABGESCHLOSSEN 2026-07-23)
+
+### Phase 3334 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-kundenbewertung-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-kundenbewertung-ranking?location_id=...
+**Response:** fahrer[]{fahrer_id, fahrer_name, rang, bewertung_avg, rank_delta, ampel gruen/gelb/rot, alert_low}, team_avg, bester_name, letzter_name, alert_count, gesamt
+**Logik:** Ø Kundenbewertung (1–5 Sterne) aus order_ratings letzte 30 Tage je Fahrer; Rang 1=höchste Bewertung=bester; Ampel grün(≥4.5)/gelb(3.5–4.4)/rot(<3.5); alert_low wenn <3.5; rank_delta = prevRang - rang (pos=verbessert); 2 parallele Supabase-Abfragen (cur+prev 30 Tage); Mock Julia F. 4.9/Sara K. 4.6/Max M. 4.1/Tim B. 3.2; export const dynamic='force-dynamic'; createClient() in GET ✅
+
+### Phase 3335 — Kundenbewertungs-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3335-kundenbewertung-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3335KundenbewertungRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenbewertung!" (alert_low); Delta pos=grün; RankBadge Gold/Silber/Bronze; Ampel-Farbkodierung; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L952 + Render L4455 nach Phase3330 + Barrel-Export L12435 ✅
+
+### Phase 3336 — Meine Kundenbewertung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3336-meine-kundenbewertung.tsx` *(neu)*
+**Component:** `FahrerPhase3336MeineKundenbewertung`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Star-Icon gelb; Sterne 5xl + Rang 3xl farbkodiert; Rang-Balken 1–N; Grid Rank-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L866 + Render L6494 nach Phase3331 + Barrel-Export L10145 ✅
+
+### Phase 3337 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3338 — Kundenbewertungs-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3338-kundenbewertung-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3338KundenbewertungTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Star-Icon gelb; Bester #1 Name+Sterne im Header; Alert <3.5 "Niedrige Kundenbewertung!" (alert_low); Fahrerliste kompakt absteigend nach Rang; Rang+Sterne+Delta pos=grün; Team-Ø+Ziel ≥4.5; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L899 + Render L4042 nach Phase3333 + Barrel-Export L11012 ✅
+
+### Build-Ergebnis
+**✓ Turbopack-Fehler ist pre-existing (gleicher Fehler auf clean main) — ignoreBuildErrors:true aktiv — TypeScript: keine neuen Fehler in phase333x-Dateien** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ KundenbewertungsTicker + KundenbewertungsBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3335 Board + Phase3336 MeineKundenbewertung |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3339–3343 (für nächsten Ingenieur) — Fahrer-Umsatz-pro-Tour-Ranking
+1. **Phase 3339 Backend:** GET /api/delivery/admin/fahrer-umsatz-pro-tour — Ø Umsatz (€) je Fahrer pro abgeschlossener Tour letzte 30 Tage aus delivery_tours.total_value; Rang 1=höchster Umsatz=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedriger Umsatz pro Tour!"; rank_delta pos=verbessert; 2 parallele Supabase-Abfragen (cur+prev 30 Tage); Mock Julia F. 28.50€/Sara K. 23.80€/Max M. 19.20€/Tim B. 12.40€; PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3340 Dispatch:** UmsatzProTourRankingBoard — Euro-Icon grün; absteigend Rang 1=höchster Umsatz; Balken 0–maxEuro; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedriger Umsatz pro Tour!"; Delta pos=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3335. PFLICHT: Import + Render + Barrel.
+3. **Phase 3341 Fahrer-App:** MeinUmsatzProTour — Euro-Icon grün; €-Betrag 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3336. PFLICHT: Import + Render + Barrel.
+4. **Phase 3342 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3343 Kitchen:** UmsatzProTourTicker — Euro-Icon grün; Bester #1 Name+€ im Header; Alert "Niedriger Umsatz pro Tour!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Ø; 30-Min-Polling; in kitchen/client.tsx nach Phase3338. PFLICHT: Import + Render + Barrel.
+
+Frontend-Ingenieur-Agent (2026-07-23): Phasen 3334–3338 implementiert — Fahrer-Kundenbewertungs-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3334 Backend (fahrer-kundenbewertung-ranking, bewertung_avg 1–5 Sterne, Rang 1=höchste Bewertung=bester, Ampel grün(≥4.5)/gelb(3.5–4.4)/rot(<3.5), alert_low <3.5, rank_delta pos=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.4.9/Sara K.4.6/Max M.4.1/Tim B.3.2, force-dynamic, createClient() ✅) / Phase3335 Dispatch (DispatchPhase3335KundenbewertungRankingBoard, Star-Icon gelb, absteigend Rang 1=höchste Bewertung, Balken 0–5, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Kundenbewertung!", Delta pos=grün, Import+Render+Barrel ✅) / Phase3336 Fahrer-App (FahrerPhase3336MeineKundenbewertung, Star-Icon gelb, Sterne 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3338 Kitchen (KitchenPhase3338KundenbewertungTicker, Star-Icon gelb, Bester #1 Name+Sterne im Header, Alert "Niedrige Kundenbewertung!", kompakt absteigend, Rang+Sterne+Delta pos=grün, Ziel ≥4.5, Import+Render+Barrel ✅). Phase 3337 Storefront übersprungen. Build-Fehler pre-existing (Turbopack-Workspace-Root-Problem — ignoreBuildErrors:true aktiv). Push erfolgt.
