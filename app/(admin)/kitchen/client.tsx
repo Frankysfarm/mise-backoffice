@@ -914,6 +914,7 @@ import { KitchenPhase3395BestellwertProTourTicker } from './phase3395-bestellwer
 import { KitchenPhase3400LieferzeitTicker } from './phase3400-lieferzeit-ticker';
 import { KitchenPhase3400SmartTimingCountdownMasterUltra } from './phase3400-smart-timing-countdown-master-ultra';
 import { KitchenPhase3405ErsteStoppZeitTicker } from './phase3405-erste-stopp-zeit-ticker';
+import { KitchenPhase3410TourAbbruchRateTicker } from './phase3410-tour-abbruch-rate-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4088,6 +4089,8 @@ export function KitchenBoard({
       <KitchenPhase3400SmartTimingCountdownMasterUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3405: Erste-Stopp-Zeit Ticker — TimerReset-Icon gelb; Schnellster #1 im Header; Alert "Langer Anlauf!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <10min; 30-Min-Polling */}
       <KitchenPhase3405ErsteStoppZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3410: Tour-Abbruch-Rate Ticker — XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Abbruch-Rate!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel <5%; 30-Min-Polling */}
+      <KitchenPhase3410TourAbbruchRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11100,3 +11103,5 @@ export { KitchenPhase3400LieferzeitTicker } from './phase3400-lieferzeit-ticker'
 export { KitchenPhase3400SmartTimingCountdownMasterUltra } from './phase3400-smart-timing-countdown-master-ultra';
 // Phase 3405 — Erste-Stopp-Zeit Ticker (TimerReset-Icon gelb; Schnellster #1 Name+min im Header; Alert "Langer Anlauf!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <10min; 30-Min-Polling)
 export { KitchenPhase3405ErsteStoppZeitTicker } from './phase3405-erste-stopp-zeit-ticker';
+// Phase 3410 — Tour-Abbruch-Rate Ticker (XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Abbruch-Rate!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel <5%; 30-Min-Polling)
+export { KitchenPhase3410TourAbbruchRateTicker } from './phase3410-tour-abbruch-rate-ticker';
