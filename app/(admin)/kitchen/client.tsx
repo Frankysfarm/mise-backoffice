@@ -923,6 +923,7 @@ import { KitchenPhase3435StoppVollstaendigkeitTicker } from './phase3435-stopp-v
 import { KitchenPhase3440ReaktionszeitTicker } from './phase3440-reaktionszeit-ticker';
 import { KitchenPhase3445MultiStoppEffizienzTicker } from './phase3445-multi-stopp-effizienz-ticker';
 import { KitchenPhase3450NachtSchichtAnteilTicker } from './phase3450-nacht-schicht-anteil-ticker';
+import { KitchenPhase3455WochenendAnteilTicker } from './phase3455-wochenend-anteil-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4115,6 +4116,8 @@ export function KitchenBoard({
       <KitchenPhase3445MultiStoppEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3450: Nacht-Schicht-Anteil-Ticker — Moon-Icon indigo; Bester #1 Name+% im Header; Alert "Wenig Nacht-Schichten!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥25%; 30-Min-Polling */}
       <KitchenPhase3450NachtSchichtAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3455: Wochenend-Anteil-Ticker — Calendar-Icon orange; Bester #1 Name+% im Header; Alert "Wenig Wochenend-Schichten!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥35%; 30-Min-Polling */}
+      <KitchenPhase3455WochenendAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11144,3 +11147,5 @@ export { KitchenPhase3440ReaktionszeitTicker } from './phase3440-reaktionszeit-t
 export { KitchenPhase3445MultiStoppEffizienzTicker } from './phase3445-multi-stopp-effizienz-ticker';
 // Phase 3450 — Nacht-Schicht-Anteil-Ticker (Moon-Icon indigo; Bester #1 Name+% im Header; Alert "Wenig Nacht-Schichten!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥25%; 30-Min-Polling)
 export { KitchenPhase3450NachtSchichtAnteilTicker } from './phase3450-nacht-schicht-anteil-ticker';
+// Phase 3455 — Wochenend-Anteil-Ticker (Calendar-Icon orange; Bester #1 Name+% im Header; Alert "Wenig Wochenend-Schichten!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥35%; 30-Min-Polling)
+export { KitchenPhase3455WochenendAnteilTicker } from './phase3455-wochenend-anteil-ticker';

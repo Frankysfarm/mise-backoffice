@@ -889,6 +889,7 @@ import { FahrerPhase3433MeineStoppVollstaendigkeit } from './phase3433-meine-sto
 import { FahrerPhase3438MeineReaktionszeit } from './phase3438-meine-reaktionszeit';
 import { FahrerPhase3443MeineMultiStoppEffizienz } from './phase3443-meine-multi-stopp-effizienz';
 import { FahrerPhase3448MeinNachtSchichtAnteil } from './phase3448-mein-nacht-schicht-anteil';
+import { FahrerPhase3453MeinWochenenAnteil } from './phase3453-mein-wochenend-anteil';
 
 type Driver = {
   id: string;
@@ -6564,6 +6565,8 @@ export function FahrerApp({
           <FahrerPhase3443MeineMultiStoppEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3448: Mein Nacht-Schicht-Anteil — Moon-Icon indigo; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3448MeinNachtSchichtAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3453: Mein Wochenend-Schicht-Anteil — Calendar-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3453MeinWochenenAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10272,3 +10275,5 @@ export { FahrerPhase3438MeineReaktionszeit } from './phase3438-meine-reaktionsze
 export { FahrerPhase3443MeineMultiStoppEffizienz } from './phase3443-meine-multi-stopp-effizienz';
 // Phase 3448 — Mein Nacht-Schicht-Anteil (Moon-Icon indigo; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3448MeinNachtSchichtAnteil } from './phase3448-mein-nacht-schicht-anteil';
+// Phase 3453 — Mein Wochenend-Schicht-Anteil (Calendar-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3453MeinWochenenAnteil } from './phase3453-mein-wochenend-anteil';
