@@ -472,6 +472,7 @@ import { LieferdienstPhase2700StatistikenIntelligenceDashboard } from './phase27
 import { LieferdienstPhase2705StatistikenProfiDashboard } from './phase2705-statistiken-profi-dashboard';
 import { LieferdienstPhase2710StatistikDashboardFinal } from './phase2710-statistik-dashboard-final';
 import { LieferdienstPhase2715StatistikenMasterLiveCockpit } from './phase2715-statistiken-master-live-cockpit';
+import { LieferdienstPhase2720StatistikenDashboardUltra } from './phase2720-statistiken-dashboard-ultra';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2305,6 +2306,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2710StatistikDashboardFinal locationId={locationId ?? null} />
                 {/* Phase 2715: Statistiken Master Live-Cockpit — 8-KPI-Grid Ampel+Δ%+Ziel; Gesamt-Score; Insight-Tipp; Alert-Strip rot-KPIs; Schicht-Summary; 60-Sek-Polling */}
                 <LieferdienstPhase2715StatistikenMasterLiveCockpit locationId={locationId ?? null} />
+                {/* Phase 2720: Statistiken Dashboard Ultra — 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Balken; Insight-Tipp; Alert-Strip amber-KPIs; Schicht-Dauer; Mock-Fallback; 60-Sek-Polling */}
+                <LieferdienstPhase2720StatistikenDashboardUltra locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
                 <LieferdienstPhase2630StatistikenLiveKomplett locationId={locationId ?? null} />
                 {/* Phase 2635: Liefer-SLA-Echtzeit-Cockpit — 5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling */}
@@ -4870,3 +4873,5 @@ export { LieferdienstPhase2705StatistikenProfiDashboard } from './phase2705-stat
 export { LieferdienstPhase2710StatistikDashboardFinal } from './phase2710-statistik-dashboard-final';
 // Phase 2715 — Statistiken Master Live-Cockpit (BarChart3-Icon lila; 8-KPI-Grid Ampel+Δ%+Ziel farbkodiert; Gesamt-Score 0–100; Insight-Tipp; Alert-Strip rot-KPIs; Schicht-Umsatz+Lieferungen Footer; 60-Sek-Polling)
 export { LieferdienstPhase2715StatistikenMasterLiveCockpit } from './phase2715-statistiken-master-live-cockpit';
+// Phase 2720 — Statistiken Dashboard Ultra (BarChart2-Icon blau; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Balken; Insight-Tipp; Alert-Strip amber; Schicht-Dauer; Mock-Fallback; 60-Sek-Polling)
+export { LieferdienstPhase2720StatistikenDashboardUltra } from './phase2720-statistiken-dashboard-ultra';

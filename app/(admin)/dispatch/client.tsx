@@ -1003,6 +1003,7 @@ import { DispatchPhase3562PausenDauerRankingBoard } from './phase3562-pausen-dau
 import { DispatchPhase3567TourScoreVisualisierungUltra } from './phase3567-tour-score-visualisierung-ultra';
 import { DispatchPhase3572TourenProSchichtRankingBoard } from './phase3572-touren-pro-schicht-ranking-board';
 import { DispatchPhase3577SchichtAuslastungRankingBoard } from './phase3577-schicht-auslastung-ranking-board';
+import { DispatchPhase3582TourScoreAnzeigeDashboard } from './phase3582-tour-score-anzeige-dashboard';
 
 type Driver = {
   employee_id: string;
@@ -4609,6 +4610,8 @@ export function DispatchBoard({
           <DispatchPhase3572TourenProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3577: Schicht-Auslastung Ranking — BarChart2-Icon blau; absteigend Rang 1=höchste Auslastung; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Auslastung!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3577SchichtAuslastungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3582: Tour-Score Anzeige Dashboard — Score-Balken 0–100 je Fahrer; Sub-Scores Pünktlichkeit/Abschluss/Speed expandierbar; Farbkodierung grün/gelb/rot; Flotten-Ø; Alert Score <75; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase3582TourScoreAnzeigeDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12701,3 +12704,5 @@ export { DispatchPhase3567TourScoreVisualisierungUltra } from './phase3567-tour-
 export { DispatchPhase3572TourenProSchichtRankingBoard } from './phase3572-touren-pro-schicht-ranking-board';
 // Phase 3577 — Schicht-Auslastung Ranking-Board (BarChart2-Icon blau; absteigend Rang 1=höchste Auslastung; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Auslastung!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3577SchichtAuslastungRankingBoard } from './phase3577-schicht-auslastung-ranking-board';
+// Phase 3582 — Tour-Score Anzeige Dashboard (Trophy-Icon amber; Score-Balken 0–100 je Fahrer; Sub-Scores Pünktlichkeit/Abschluss/Speed expandierbar; Farbkodierung grün/gelb/rot; Flotten-Ø; Alert Score <75; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase3582TourScoreAnzeigeDashboard } from './phase3582-tour-score-anzeige-dashboard';

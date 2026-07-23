@@ -466,6 +466,7 @@ import { StorefrontPhase2685DynamischeEtaLiveFinalPro } from './phase2685-dynami
 import { StorefrontPhase2690DynamischeEtaLiveTrackingPro } from './phase2690-dynamische-eta-live-tracking-pro';
 import { StorefrontPhase2695EtaLiveCockpitMaster } from './phase2695-eta-live-cockpit-master';
 import { StorefrontPhase2700DynamischeEtaLiveTrackingFinal } from './phase2700-dynamische-eta-live-tracking-final';
+import { StorefrontPhase2705DynamischeEtaLiveHub } from './phase2705-dynamische-eta-live-hub';
 import { StorefrontPhase2120DynamischeEtaLiveTrackingUltra } from './phase2120-dynamische-eta-live-tracking-ultra';
 import { SmartEtaLiveTracker } from './smart-eta-live-tracker';
 import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
@@ -2104,6 +2105,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           {/* Phase 2700: Dynamische ETA Live-Tracking Final — ETA-Countdown 1-Sek-Tick; Konfidenz-Indikator; 5-Phasen-Timeline Bestellt→Geliefert; Fahrer-Info Distanz+Name; Delay-Warnung; 15-Sek-Polling */}
           <div className="mt-2">
             <StorefrontPhase2700DynamischeEtaLiveTrackingFinal orderId={activeOrderId ?? ''} locationSlug={location?.id} />
+          </div>
+          {/* Phase 2705: Dynamische ETA Live-Hub — ETA-Hero-Countdown 1-Sek-Tick+Farbkodierung; Konfidenz-Balken; 5-Phasen-Timeline mit Dot-Verbindung; Fahrer-Profil Distanz; Delay-Warnung; 15-Sek-Polling */}
+          <div className="mt-2">
+            <StorefrontPhase2705DynamischeEtaLiveHub orderId={activeOrderId ?? ''} locationSlug={location?.id} />
           </div>
           {/* Phase 1000: Dynamische ETA Live-Tracking Master — Phasen-Timeline + Fahrer-Position + ETA-Countdown; 30-Sek-Polling */}
           <div className="mt-2">
@@ -3946,3 +3951,5 @@ export { StorefrontPhase2690DynamischeEtaLiveTrackingPro } from './phase2690-dyn
 export { StorefrontPhase2695EtaLiveCockpitMaster } from './phase2695-eta-live-cockpit-master';
 // Phase 2700 — Dynamische ETA Live-Tracking Final (ETA-Countdown 1-Sek-Tick; Konfidenz-Indikator; 5-Phasen-Timeline Bestellt→Geliefert; Fahrer-Name+Distanz; Delay-Warnung; Geliefert-State; 15-Sek-Polling)
 export { StorefrontPhase2700DynamischeEtaLiveTrackingFinal } from './phase2700-dynamische-eta-live-tracking-final';
+// Phase 2705 — Dynamische ETA Live-Hub (ETA-Hero-Countdown 1-Sek-Tick+Farbkodierung; Konfidenz-Balken; 5-Phasen-Timeline Dot-Verbindung; Fahrer-Profil Distanz; Delay-Warnung; 15-Sek-Polling)
+export { StorefrontPhase2705DynamischeEtaLiveHub } from './phase2705-dynamische-eta-live-hub';

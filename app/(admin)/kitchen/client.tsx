@@ -950,6 +950,7 @@ import { KitchenPhase3565PausenDauerTicker } from './phase3565-pausen-dauer-tick
 import { KitchenPhase3570SmartTimingKochstartScoreCockpit } from './phase3570-smart-timing-kochstart-score-cockpit';
 import { KitchenPhase3575TourenProSchichtTicker } from './phase3575-touren-pro-schicht-ticker';
 import { KitchenPhase3580SchichtAuslastungTicker } from './phase3580-schicht-auslastung-ticker';
+import { KitchenPhase3585SmartTimingCountdownFarbkodierungLive } from './phase3585-smart-timing-countdown-farbkodierung-live';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4196,6 +4197,8 @@ export function KitchenBoard({
       <KitchenPhase3575TourenProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3580: Schicht-Auslastung-Ticker — BarChart2-Icon blau; Bester #1 Name+% im Header; Alert "Niedrige Auslastung!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥70%; 30-Min-Polling */}
       <KitchenPhase3580SchichtAuslastungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3585: Smart-Timing Countdown Farbkodierung Live — sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate; Überfällig-Alert; Kochstart-Empfehlung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
+      <KitchenPhase3585SmartTimingCountdownFarbkodierungLive locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11279,3 +11282,5 @@ export { KitchenPhase3570SmartTimingKochstartScoreCockpit } from './phase3570-sm
 export { KitchenPhase3575TourenProSchichtTicker } from './phase3575-touren-pro-schicht-ticker';
 // Phase 3580 — Schicht-Auslastung-Ticker (BarChart2-Icon blau; Bester #1 Name+% im Header; Alert "Niedrige Auslastung!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥70%; 30-Min-Polling)
 export { KitchenPhase3580SchichtAuslastungTicker } from './phase3580-schicht-auslastung-ticker';
+// Phase 3585 — Smart-Timing Countdown Farbkodierung Live (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate; Überfällig-Alert; Kochstart-Empfehlung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase3585SmartTimingCountdownFarbkodierungLive } from './phase3585-smart-timing-countdown-farbkodierung-live';
