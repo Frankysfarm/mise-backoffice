@@ -461,6 +461,7 @@ import { LieferdienstPhase2630StatistikenLiveKomplett } from './phase2630-statis
 import { LieferdienstPhase2635LieferSlaEchtzeitCockpit } from './phase2635-liefer-sla-echtzeit-cockpit';
 import { SmartStatsCockpit } from './smart-stats-cockpit';
 import { LieferdienstEchtzeitStatistikHub } from './lieferdienst-echtzeit-statistik-hub';
+import { LieferdienstPhase2665StatistikenFinalMasterHub } from './phase2665-statistiken-final-master-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2272,6 +2273,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2655StatistikTagesvergleichDashboard locationId={locationId ?? null} />
                 {/* Phase 2660: Statistiken Intelligence Dashboard — 8 KPI-Kacheln Ampel+Trend+Ziel; Stunden-BarChart 2-Modi Bestellungen/Umsatz; Jetzt-Stunde blau hervorgehoben; Alert-Strip; 2-Min-Polling */}
                 <LieferdienstPhase2660StatistikIntelligenceDashboard locationId={locationId ?? null} />
+                {/* Phase 2665: Statistiken Final Master Hub — 6-KPI-Grid Ampel+Trend vs. Gestern; Stundenverlauf-BarChart (letzte 12h, Jetzt-Stunde matcha); Alert-Strip Rot-KPIs; 1-Min-Polling */}
+                <LieferdienstPhase2665StatistikenFinalMasterHub locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
                 <LieferdienstPhase2630StatistikenLiveKomplett locationId={locationId ?? null} />
                 {/* Phase 2635: Liefer-SLA-Echtzeit-Cockpit — 5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling */}

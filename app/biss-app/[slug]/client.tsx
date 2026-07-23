@@ -6,6 +6,7 @@ import { cn, euro } from '@/lib/utils';
 import { BissPhase1414DynamischeEtaLiveBanner } from './phase1414-dynamische-eta-live-banner';
 import { BissPhase1851EtaLiveTrackingHub } from './phase1851-eta-live-tracking-hub';
 import { Phase2100LiveEtaTrackingFinal } from '../../order/[locationSlug]/phase2100-live-eta-tracking-final';
+import { BissPhase2200DynamischeEtaLiveFinalHub } from './phase2200-dynamische-eta-live-final-hub';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Location = { id: string; name: string; adresse: string | null; stadt: string | null; plz: string | null; telefon: string | null };
@@ -312,6 +313,10 @@ function OrderSuccess({ orderId, bestellnummer, onClose }: { orderId: string; be
         {/* Phase 2100: Live-ETA-Tracking-Final — Phasen-Timeline, MM:SS-Countdown, Fahrer-Nähe-Indikator */}
         <div className="mt-3 mb-2 text-left">
           <Phase2100LiveEtaTrackingFinal orderId={orderId} />
+        </div>
+        {/* Phase 2200: Dynamische ETA Live Final Hub — Phasen-Timeline + MM:SS-Countdown + ETA-Zeitfenster + Fahrer-Info + Realtime-Subscription; 15-Sek-Polling */}
+        <div className="mt-3 mb-2 text-left">
+          <BissPhase2200DynamischeEtaLiveFinalHub orderId={orderId} />
         </div>
 
         <button onClick={onClose} className="mt-2 px-6 py-3 bg-matcha-600 text-white rounded-xl font-semibold hover:bg-matcha-700 transition-colors">

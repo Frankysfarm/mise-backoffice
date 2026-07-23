@@ -861,6 +861,7 @@ import { FahrerPhase2510TourStoppNavigationsHub } from './phase2510-tour-stopp-n
 import { FahrerPhase2520TourStoppNavigatorFinal } from './phase2520-tour-stopp-navigator-final';
 import { Phase2630SmartTourStoppNavigatorUltimateFinal } from './phase2630-smart-tour-stopp-navigator-ultimate-final';
 import { SmartTourStopHubV2 } from './smart-tour-stop-hub-v2';
+import { FahrerPhase3327TourStopsNaviFinalHub } from './phase3327-tour-stops-navi-final-hub';
 
 type Driver = {
   id: string;
@@ -6536,6 +6537,12 @@ export function FahrerApp({
                 bestellnummer: s.order?.bestellnummer ?? null,
               }))}
             />
+          )}
+          {/* Phase 3327: Tour-Stops-Navi-Final-Hub — Nächster-Stopp-Hero mit Google-Maps + Anruf + Barzahlung-Alert + 1-Tap Zugestellt-CTA; alle Stopps gelistet; 15-Sek-Polling */}
+          {activeBatch && (
+            <div className="px-4">
+              <FahrerPhase3327TourStopsNaviFinalHub batchId={activeBatch.id} driverId={driver.id} />
+            </div>
           )}
           {/* Phase 2888: Tour-Stopp Live-Navigations-Kommando — Tour-Fortschritt + Stop-Dots; Nächster Stopp prominent mit Navigation-Button; Alle Stopps Übersicht mit ETA + Telefon; 20-Sek-Polling */}
           {activeBatch && <Phase2888TourStoppLiveNavigationsKommando driverId={driver.id} batchId={activeBatch.id} />}

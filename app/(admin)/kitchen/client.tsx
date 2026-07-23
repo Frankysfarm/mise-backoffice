@@ -894,6 +894,7 @@ import { KitchenPhase3295SmartTimingEchtzeitCockpit } from './phase3295-smart-ti
 import { KitchenPhase3259SmartKochstartCountdownUltra } from './phase3259-smart-kochstart-countdown-ultra';
 import { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
+import { KitchenPhase3329SmartTimingFinalHub } from './phase3329-smart-timing-final-hub';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4033,6 +4034,8 @@ export function KitchenBoard({
         timings={timings}
         locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter}
       />
+      {/* Phase 3329: Smart-Timing Final Hub — Echtzeit-Countdown + 4-stufige Farbkodierung + On-Time-Rate + Überfällig-Alert; 1-Sek-Tick + 20-Sek-Polling */}
+      <KitchenPhase3329SmartTimingFinalHub locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
