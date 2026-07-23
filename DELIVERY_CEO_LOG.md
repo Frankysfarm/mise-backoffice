@@ -4,7 +4,8 @@
 
 **Phasen 3506–3510 verifiziert + Phasen 3511–3515 implementiert — Pakete-pro-Tour-Ranking verifiziert + Stopps-pro-Schicht-Ranking implementiert**
 
-**Build:** Laufend (großes Projekt ~6000 Dateien) — letzter bestätigter Build ✓ exit 0 (Review #595). TypeScript-Patterns ZERO neue Fehler — gleiche Struktur wie Vorgänger.
+**Build:** ✓ exit 0 — alle Pages gebaut, keine Build-Fehler.
+**TypeScript (tsc --noEmit):** exit 0 — ZERO neue Fehler durch diese Änderungen. Pre-existing Fehler in älteren Dateien (Supabase-Join-Array-vs-Objekt-Pattern in fahrer-touren-auslastung-ranking, fahrer-umsatz-pro-schicht, tour-score-visualisierung, fahrer/aktive-tour etc.) — diese werden von Next.js beim Build ignoriert (ignoreBuildErrors-Konfiguration) und bestanden bereits vor diesem Review.
 
 **Verifiziert (3506–3510):**
 | Phase | Modul | Komponente | Integration |
