@@ -989,6 +989,7 @@ import { DispatchPhase3497TourDauerRankingBoard } from './phase3497-tour-dauer-r
 import { DispatchPhase3502ErstelieferungZeitRankingBoard } from './phase3502-erstelieferung-zeit-ranking-board';
 import { DispatchPhase3507PaketeProTourRankingBoard } from './phase3507-pakete-pro-tour-ranking-board';
 import { DispatchPhase3512TourScoreVisualisierungPro } from './phase3512-tour-score-visualisierung-pro';
+import { DispatchPhase3512StoppsProSchichtRankingBoard } from './phase3512-stopps-pro-schicht-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4567,6 +4568,8 @@ export function DispatchBoard({
           <DispatchPhase3507PaketeProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3512: Tour-Score Visualisierung Pro — Score-Balken 0–100; RankBadge 🥇🥈🥉; KPI-Grid Bester/Team-Ø/Letzter; Alert "Niedriger Tour-Score!"; Score-Legende; Trend-Pfeile; Mock-Fallback; 30-Min-Polling */}
           <DispatchPhase3512TourScoreVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3512b: Stopps/Schicht Ranking — ListChecks-Icon teal; absteigend Rang 1=höchste Anzahl; Balken 0–maxStopps; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Stopps/Schicht!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3512StoppsProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12631,3 +12634,5 @@ export { DispatchPhase3502ErstelieferungZeitRankingBoard } from './phase3502-ers
 export { DispatchPhase3507PaketeProTourRankingBoard } from './phase3507-pakete-pro-tour-ranking-board';
 // Phase 3512 — Tour-Score Visualisierung Pro (Trophy-Icon amber; Score-Balken 0–100; RankBadge 🥇🥈🥉; KPI-Grid Bester/Team-Ø/Letzter; Alert "Niedriger Tour-Score!"; Score-Legende; Trend-Pfeile; Mock-Fallback; 30-Min-Polling)
 export { DispatchPhase3512TourScoreVisualisierungPro } from './phase3512-tour-score-visualisierung-pro';
+// Phase 3512b — Stopps/Schicht Ranking-Board (ListChecks-Icon teal; absteigend Rang 1=höchste Anzahl; Balken 0–maxStopps; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Stopps/Schicht!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3512StoppsProSchichtRankingBoard } from './phase3512-stopps-pro-schicht-ranking-board';

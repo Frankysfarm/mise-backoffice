@@ -936,6 +936,7 @@ import { KitchenPhase3500TourDauerTicker } from './phase3500-tour-dauer-ticker';
 import { KitchenPhase3505ErstelieferungZeitTicker } from './phase3505-erstelieferung-zeit-ticker';
 import { KitchenPhase3510PaketeProTourTicker } from './phase3510-pakete-pro-tour-ticker';
 import { KitchenPhase3515SmartTimingCountdownAmpelMaster } from './phase3515-smart-timing-countdown-ampel-master';
+import { KitchenPhase3515StoppsProSchichtTicker } from './phase3515-stopps-pro-schicht-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4154,6 +4155,8 @@ export function KitchenBoard({
       <KitchenPhase3510PaketeProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3515: Smart-Timing Countdown Ampel Master — sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate-KPI; Kochstart-Empfehlung; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase3515SmartTimingCountdownAmpelMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3515b: Stopps/Schicht-Ticker — ListChecks-Icon teal; Bester #1 Name+Stopps im Header; Alert "Niedrige Stopps/Schicht!"; kompakt absteigend; Rang+Stopps+Delta pos=grün; Team-Ø+Ziel ≥15/Schicht; 30-Min-Polling */}
+      <KitchenPhase3515StoppsProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11209,3 +11212,5 @@ export { KitchenPhase3505ErstelieferungZeitTicker } from './phase3505-ersteliefe
 export { KitchenPhase3510PaketeProTourTicker } from './phase3510-pakete-pro-tour-ticker';
 // Phase 3515 — Smart-Timing Countdown Ampel Master (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate-KPI; Kochstart-Empfehlung-Badge; Überfällig-Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3515SmartTimingCountdownAmpelMaster } from './phase3515-smart-timing-countdown-ampel-master';
+// Phase 3515b — Stopps/Schicht-Ticker (ListChecks-Icon teal; Bester #1 Name+Stopps im Header; Alert "Niedrige Stopps/Schicht!"; kompakt absteigend; Rang+Stopps+Delta pos=grün; Team-Ø+Ziel ≥15/Schicht; 30-Min-Polling)
+export { KitchenPhase3515StoppsProSchichtTicker } from './phase3515-stopps-pro-schicht-ticker';
