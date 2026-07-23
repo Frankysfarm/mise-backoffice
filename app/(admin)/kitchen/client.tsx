@@ -924,6 +924,7 @@ import { KitchenPhase3440ReaktionszeitTicker } from './phase3440-reaktionszeit-t
 import { KitchenPhase3445MultiStoppEffizienzTicker } from './phase3445-multi-stopp-effizienz-ticker';
 import { KitchenPhase3450NachtSchichtAnteilTicker } from './phase3450-nacht-schicht-anteil-ticker';
 import { KitchenPhase3455WochenendAnteilTicker } from './phase3455-wochenend-anteil-ticker';
+import { KitchenPhase3460FeierabendPuenktlichkeitTicker } from './phase3460-feierabend-puenktlichkeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4118,6 +4119,8 @@ export function KitchenBoard({
       <KitchenPhase3450NachtSchichtAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3455: Wochenend-Anteil-Ticker — Calendar-Icon orange; Bester #1 Name+% im Header; Alert "Wenig Wochenend-Schichten!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥35%; 30-Min-Polling */}
       <KitchenPhase3455WochenendAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3460: Feierabend-Pünktlichkeit-Ticker — LogOut-Icon teal; Pünktlichster #1 Name+% im Header; Alert "Überstunden-Risiko!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥80%; 30-Min-Polling */}
+      <KitchenPhase3460FeierabendPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11149,3 +11152,5 @@ export { KitchenPhase3445MultiStoppEffizienzTicker } from './phase3445-multi-sto
 export { KitchenPhase3450NachtSchichtAnteilTicker } from './phase3450-nacht-schicht-anteil-ticker';
 // Phase 3455 — Wochenend-Anteil-Ticker (Calendar-Icon orange; Bester #1 Name+% im Header; Alert "Wenig Wochenend-Schichten!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥35%; 30-Min-Polling)
 export { KitchenPhase3455WochenendAnteilTicker } from './phase3455-wochenend-anteil-ticker';
+// Phase 3460 — Feierabend-Pünktlichkeit-Ticker (LogOut-Icon teal; Pünktlichster #1 Name+% im Header; Alert "Überstunden-Risiko!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥80%; 30-Min-Polling)
+export { KitchenPhase3460FeierabendPuenktlichkeitTicker } from './phase3460-feierabend-puenktlichkeit-ticker';
