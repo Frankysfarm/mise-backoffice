@@ -948,6 +948,7 @@ import { KitchenPhase3555SmartTimingCountdownMasterUltra } from './phase3555-sma
 import { KitchenPhase3560SchichtDauerTicker } from './phase3560-schicht-dauer-ticker';
 import { KitchenPhase3565PausenDauerTicker } from './phase3565-pausen-dauer-ticker';
 import { KitchenPhase3570SmartTimingKochstartScoreCockpit } from './phase3570-smart-timing-kochstart-score-cockpit';
+import { KitchenPhase3575TourenProSchichtTicker } from './phase3575-touren-pro-schicht-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4190,6 +4191,8 @@ export function KitchenBoard({
       <KitchenPhase3565PausenDauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3570: Smart-Timing Kochstart-Score Cockpit — Kochstart-Score 0–100; On-Time-Rate; Bestellungs-Countdowns grün/gelb/rot; Fortschrittsbalken; Kochstart-Empfehlung; Pending-Liste; 15-Sek-Polling */}
       <KitchenPhase3570SmartTimingKochstartScoreCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3575: Touren/Schicht-Ticker — Route-Icon blau; Bester #1 Name+Touren im Header; Alert "Wenig Touren/Schicht!"; kompakt absteigend; Rang+Touren+Delta pos=grün; Team-Ø+Ziel ≥6 T/Schicht; 30-Min-Polling */}
+      <KitchenPhase3575TourenProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11269,3 +11272,5 @@ export { KitchenPhase3560SchichtDauerTicker } from './phase3560-schicht-dauer-ti
 export { KitchenPhase3565PausenDauerTicker } from './phase3565-pausen-dauer-ticker';
 // Phase 3570 — Smart-Timing Kochstart-Score Cockpit (Kochstart-Score 0–100; On-Time-Rate; Countdown-Kacheln grün/gelb/rot je Bestellung; Fortschrittsbalken; Kochstart-Empfehlung-Tipp; Pending-Liste; 15-Sek-Polling)
 export { KitchenPhase3570SmartTimingKochstartScoreCockpit } from './phase3570-smart-timing-kochstart-score-cockpit';
+// Phase 3575 — Touren/Schicht-Ticker (Route-Icon blau; Bester #1 Name+Touren im Header; Alert "Wenig Touren/Schicht!"; kompakt absteigend; Rang+Touren+Delta pos=grün; Team-Ø+Ziel ≥6 T/Schicht; 30-Min-Polling)
+export { KitchenPhase3575TourenProSchichtTicker } from './phase3575-touren-pro-schicht-ticker';
