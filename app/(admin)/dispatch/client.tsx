@@ -990,6 +990,7 @@ import { DispatchPhase3502ErstelieferungZeitRankingBoard } from './phase3502-ers
 import { DispatchPhase3507PaketeProTourRankingBoard } from './phase3507-pakete-pro-tour-ranking-board';
 import { DispatchPhase3512TourScoreVisualisierungPro } from './phase3512-tour-score-visualisierung-pro';
 import { DispatchPhase3512StoppsProSchichtRankingBoard } from './phase3512-stopps-pro-schicht-ranking-board';
+import { DispatchPhase3517KmProStoppRankingBoard } from './phase3517-km-pro-stopp-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4570,6 +4571,8 @@ export function DispatchBoard({
           <DispatchPhase3512TourScoreVisualisierungPro locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3512b: Stopps/Schicht Ranking — ListChecks-Icon teal; absteigend Rang 1=höchste Anzahl; Balken 0–maxStopps; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Stopps/Schicht!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3512StoppsProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3517: km/Stopp Ranking — Route-Icon grün; aufsteigend Rang 1=niedrigster Wert; Balken 0–maxKm; KPI-Grid Effizientester/Team-Ø/Höchster; Alert "Hohe km/Stopp!"; Delta neg=grün; 30-Min-Polling */}
+          <DispatchPhase3517KmProStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12636,3 +12639,5 @@ export { DispatchPhase3507PaketeProTourRankingBoard } from './phase3507-pakete-p
 export { DispatchPhase3512TourScoreVisualisierungPro } from './phase3512-tour-score-visualisierung-pro';
 // Phase 3512b — Stopps/Schicht Ranking-Board (ListChecks-Icon teal; absteigend Rang 1=höchste Anzahl; Balken 0–maxStopps; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Stopps/Schicht!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3512StoppsProSchichtRankingBoard } from './phase3512-stopps-pro-schicht-ranking-board';
+// Phase 3517 — km/Stopp Ranking-Board (Route-Icon grün; aufsteigend Rang 1=niedrigster Wert; Balken 0–maxKm; KPI-Grid Effizientester/Team-Ø/Höchster; Alert "Hohe km/Stopp!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3517KmProStoppRankingBoard } from './phase3517-km-pro-stopp-ranking-board';

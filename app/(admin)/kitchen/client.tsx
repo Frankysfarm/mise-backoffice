@@ -937,6 +937,7 @@ import { KitchenPhase3505ErstelieferungZeitTicker } from './phase3505-ersteliefe
 import { KitchenPhase3510PaketeProTourTicker } from './phase3510-pakete-pro-tour-ticker';
 import { KitchenPhase3515SmartTimingCountdownAmpelMaster } from './phase3515-smart-timing-countdown-ampel-master';
 import { KitchenPhase3515StoppsProSchichtTicker } from './phase3515-stopps-pro-schicht-ticker';
+import { KitchenPhase3520KmProStoppTicker } from './phase3520-km-pro-stopp-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4157,6 +4158,8 @@ export function KitchenBoard({
       <KitchenPhase3515SmartTimingCountdownAmpelMaster locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3515b: Stopps/Schicht-Ticker — ListChecks-Icon teal; Bester #1 Name+Stopps im Header; Alert "Niedrige Stopps/Schicht!"; kompakt absteigend; Rang+Stopps+Delta pos=grün; Team-Ø+Ziel ≥15/Schicht; 30-Min-Polling */}
       <KitchenPhase3515StoppsProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3520: km/Stopp-Ticker — Route-Icon grün; Effizientester #1 Name+km im Header; Alert "Hohe km/Stopp!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤1.5km/Stopp; 30-Min-Polling */}
+      <KitchenPhase3520KmProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11214,3 +11217,5 @@ export { KitchenPhase3510PaketeProTourTicker } from './phase3510-pakete-pro-tour
 export { KitchenPhase3515SmartTimingCountdownAmpelMaster } from './phase3515-smart-timing-countdown-ampel-master';
 // Phase 3515b — Stopps/Schicht-Ticker (ListChecks-Icon teal; Bester #1 Name+Stopps im Header; Alert "Niedrige Stopps/Schicht!"; kompakt absteigend; Rang+Stopps+Delta pos=grün; Team-Ø+Ziel ≥15/Schicht; 30-Min-Polling)
 export { KitchenPhase3515StoppsProSchichtTicker } from './phase3515-stopps-pro-schicht-ticker';
+// Phase 3520 — km/Stopp-Ticker (Route-Icon grün; Effizientester #1 Name+km im Header; Alert "Hohe km/Stopp!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤1.5km/Stopp; 30-Min-Polling)
+export { KitchenPhase3520KmProStoppTicker } from './phase3520-km-pro-stopp-ticker';
