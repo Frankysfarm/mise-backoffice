@@ -911,6 +911,7 @@ import { KitchenPhase3380UebergabeZeitTicker } from './phase3380-uebergabe-zeit-
 import { KitchenPhase3385StoppsProStundeTicker } from './phase3385-stopps-pro-stunde-ticker';
 import { KitchenPhase3390UmsatzProSchichtTicker } from './phase3390-umsatz-pro-schicht-ticker';
 import { KitchenPhase3395BestellwertProTourTicker } from './phase3395-bestellwert-pro-tour-ticker';
+import { KitchenPhase3400LieferzeitTicker } from './phase3400-lieferzeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4080,6 +4081,7 @@ export function KitchenBoard({
       <KitchenPhase3385StoppsProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3390UmsatzProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3395BestellwertProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3400LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11086,3 +11088,4 @@ export { KitchenPhase3380UebergabeZeitTicker } from './phase3380-uebergabe-zeit-
 export { KitchenPhase3385StoppsProStundeTicker } from './phase3385-stopps-pro-stunde-ticker';
 export { KitchenPhase3390UmsatzProSchichtTicker } from './phase3390-umsatz-pro-schicht-ticker';
 export { KitchenPhase3395BestellwertProTourTicker } from './phase3395-bestellwert-pro-tour-ticker';
+export { KitchenPhase3400LieferzeitTicker } from './phase3400-lieferzeit-ticker';
