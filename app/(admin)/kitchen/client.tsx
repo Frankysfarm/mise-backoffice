@@ -940,6 +940,7 @@ import { KitchenPhase3515StoppsProSchichtTicker } from './phase3515-stopps-pro-s
 import { KitchenPhase3520KmProStoppTicker } from './phase3520-km-pro-stopp-ticker';
 import { KitchenPhase3525WartezeitStoppTicker } from './phase3525-wartezeit-stopp-ticker';
 import { KitchenPhase3530LieferungenProKmTicker } from './phase3530-lieferungen-pro-km-ticker';
+import { KitchenPhase3535LieferzeitProStoppTicker } from './phase3535-lieferzeit-pro-stopp-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4166,6 +4167,8 @@ export function KitchenBoard({
       <KitchenPhase3525WartezeitStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3530: Lieferungen/km-Ticker — Zap-Icon grün; Bester #1 Name+Wert im Header; Alert "Niedrige Lieferungsdichte!"; kompakt absteigend; Rang+Wert+Delta pos=grün; Team-Ø+Ziel ≥0.8/km; 30-Min-Polling */}
       <KitchenPhase3530LieferungenProKmTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3535: Lieferzeit/Stopp-Ticker — Clock-Icon orange; Schnellster #1 Name+min im Header; Alert "Hohe Lieferzeit/Stopp!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤6min/Stopp; 30-Min-Polling */}
+      <KitchenPhase3535LieferzeitProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11229,3 +11232,5 @@ export { KitchenPhase3520KmProStoppTicker } from './phase3520-km-pro-stopp-ticke
 export { KitchenPhase3525WartezeitStoppTicker } from './phase3525-wartezeit-stopp-ticker';
 // Phase 3530 — Lieferungen/km-Ticker (Zap-Icon grün; Bester im Header; Alert "Niedrige Lieferungsdichte!"; kompakt absteigend; Rang+Wert+Delta pos=grün; Team-Ø+Ziel ≥0.8/km; 30-Min-Polling)
 export { KitchenPhase3530LieferungenProKmTicker } from './phase3530-lieferungen-pro-km-ticker';
+// Phase 3535 — Lieferzeit/Stopp-Ticker (Clock-Icon orange; Schnellster im Header; Alert "Hohe Lieferzeit/Stopp!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤6min/Stopp; 30-Min-Polling)
+export { KitchenPhase3535LieferzeitProStoppTicker } from './phase3535-lieferzeit-pro-stopp-ticker';
