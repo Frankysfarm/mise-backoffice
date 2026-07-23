@@ -920,6 +920,7 @@ import { KitchenPhase3420PaketeProStundeTicker } from './phase3420-pakete-pro-st
 import { KitchenPhase3425AktivitaetsScoreTicker } from './phase3425-aktivitaets-score-ticker';
 import { KitchenPhase3430SchichtstartTicker } from './phase3430-schichtstart-ticker';
 import { KitchenPhase3435StoppVollstaendigkeitTicker } from './phase3435-stopp-vollstaendigkeit-ticker';
+import { KitchenPhase3440ReaktionszeitTicker } from './phase3440-reaktionszeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4106,6 +4107,8 @@ export function KitchenBoard({
       <KitchenPhase3430SchichtstartTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3435: Stopp-Vollständigkeit-Ticker — CheckCircle-Icon grün; Bester #1 Name+% im Header; Alert "Niedrige Vollständigkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥95%; 30-Min-Polling */}
       <KitchenPhase3435StoppVollstaendigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3440: Reaktionszeit-Ticker — Zap-Icon gelb; Schnellster #1 Name+min im Header; Alert "Hohe Reaktionszeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <5min; 30-Min-Polling */}
+      <KitchenPhase3440ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11129,3 +11132,5 @@ export { KitchenPhase3425AktivitaetsScoreTicker } from './phase3425-aktivitaets-
 export { KitchenPhase3430SchichtstartTicker } from './phase3430-schichtstart-ticker';
 // Phase 3435 — Stopp-Vollständigkeit-Ticker (CheckCircle-Icon grün; Bester #1 Name+% im Header; Alert "Niedrige Vollständigkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥95%; 30-Min-Polling)
 export { KitchenPhase3435StoppVollstaendigkeitTicker } from './phase3435-stopp-vollstaendigkeit-ticker';
+// Phase 3440 — Reaktionszeit-auf-Zuweisung-Ticker (Zap-Icon gelb; Schnellster #1 Name+min im Header; Alert "Hohe Reaktionszeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <5min; 30-Min-Polling)
+export { KitchenPhase3440ReaktionszeitTicker } from './phase3440-reaktionszeit-ticker';
