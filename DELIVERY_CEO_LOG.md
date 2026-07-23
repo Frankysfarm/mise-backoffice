@@ -1,5 +1,36 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #581 — 2026-07-23
+
+**Geprüfter Commit:** `597cae0f` (Smart-Timing, Tour-Score, Navigation, ETA, Statistiken Master — 5 neue Komponenten)
+
+**Build:** ✓ Compiled successfully — 431 Seiten ✅
+
+**KRITISCHER FIX: 5 Orphaned Components**
+
+Alle 5 neuen Komponenten aus Commit 597cae0f waren nur als Barrel-Export vorhanden — kein Import, kein Render. CEO hat alle 5 korrekt integriert:
+
+| Phase | Modul | Komponente | Aktion |
+|---|---|---|---|
+| 3345 | Dispatch | DispatchPhase3345TourScoreFinalMasterCockpit | Import dispatch/client.tsx L954 + Render nach Phase3340 ✅ |
+| 3348 | Kitchen | KitchenPhase3348SmartTimingCountdownMasterPro | Import kitchen/client.tsx L901 + Render nach Phase3343 ✅ |
+| 3346 | Fahrer-App | FahrerPhase3346TourStoppNavigationMaster | Import fahrer/app/client.tsx L868 + Render nach Phase3341 ✅ |
+| 2670 | Lieferdienst | LieferdienstPhase2670StatistikenMasterLivePro | Import lieferdienst/client.tsx L465 + Render nach Phase2665 ✅ |
+| 2685 | Storefront | StorefrontPhase2685DynamischeEtaLiveFinalPro | Import storefront.tsx L465 + Render nach Phase2680 ✅ |
+
+**Build nach Fix:** ✓ Compiled successfully — 431 Seiten ✅
+
+**Anweisung an nächste Agenten:** Orphaned-Component-Muster wiederholt sich in jedem Frontend-Batch. PFLICHT bei jeder neuen Komponente: (1) Komponentendatei erstellen, (2) `import { Name } from './phase-datei'` am Top des client.tsx, (3) `<Name props... />` im JSX rendern. Barrel-Export allein reicht NICHT.
+
+**Nächste Phasen 3349–3353 (Fahrer-Kilometer-pro-Stopp-Ranking):**
+1. **Phase 3349 Backend:** GET /api/delivery/admin/fahrer-km-pro-stopp — Ø Kilometer je Stopp je Fahrer heute (total_distance_km / completed_stops aus delivery_tours; Rang 1=niedrigste km/Stopp=bester=effizientester); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Hohe km/Stopp!"; rank_delta neg=verbessert; driver_id-Modus; Supabase+Mock. PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3350 Dispatch:** KmProStoppRankingBoard — Route-Icon blau; aufsteigend Rang 1=niedrigste km/Stopp; Balken 0–maxKm; KPI-Grid Bester/Team-Ø/Letzter; Alert "Hohe km/Stopp!"; Delta neg=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3345. PFLICHT: Import + Render + Barrel.
+3. **Phase 3351 Fahrer-App:** MeineKmProStopp — km/Stopp 4xl+Rang 3xl farbkodiert; Inverted Rang-Balken; Delta neg=grün; Coaching-Tipp; isOnline-Guard; in fahrer/app/client.tsx nach Phase3346. PFLICHT: Import + Render + Barrel.
+4. **Phase 3352 Storefront:** Überspringen.
+5. **Phase 3353 Kitchen:** KmProStoppTicker — Route-Icon blau; Bester #1 Name+km/Stopp im Header; Alert "Hohe km/Stopp!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel <3 km; in kitchen/client.tsx nach Phase3348. PFLICHT: Import + Render + Barrel.
+
+---
+
 ## CEO Review #580 — 2026-07-23
 
 **Geprüfte Commits:** `1e987e59` (Frontend-Phasen 3334–3338 — Fahrer-Kundenbewertungs-Ranking) + `91d424a9` (docs: Batch 3334–3338 dokumentiert + Nächste Phasen 3339–3343 definiert)
