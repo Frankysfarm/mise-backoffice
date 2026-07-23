@@ -909,6 +909,7 @@ import { FahrerPhase3528MeineLieferungenProKm } from './phase3528-meine-lieferun
 import { FahrerPhase3533MeineLieferzeitProStopp } from './phase3533-meine-lieferzeit-pro-stopp';
 import { FahrerPhase3538MeineTourzeit } from './phase3538-meine-tourzeit';
 import { FahrerPhase3543MeineSchichtStartzeit } from './phase3543-meine-schicht-startzeit';
+import { FahrerPhase3548MeineSchichtEndzeit } from './phase3548-meine-schicht-endzeit';
 
 type Driver = {
   id: string;
@@ -6624,6 +6625,8 @@ export function FahrerApp({
           <FahrerPhase3538MeineTourzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3543: Meine Schicht-Startzeit — Clock-Icon grün; Uhrzeit 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3543MeineSchichtStartzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3548: Meine Schicht-Endzeit — Clock-Icon orange; Uhrzeit 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3548MeineSchichtEndzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10372,3 +10375,5 @@ export { FahrerPhase3533MeineLieferzeitProStopp } from './phase3533-meine-liefer
 export { FahrerPhase3538MeineTourzeit } from './phase3538-meine-tourzeit';
 // Phase 3543 — Meine Schicht-Startzeit (Clock-Icon grün; Uhrzeit 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3543MeineSchichtStartzeit } from './phase3543-meine-schicht-startzeit';
+// Phase 3548 — Meine Schicht-Endzeit (Clock-Icon orange; Uhrzeit 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3548MeineSchichtEndzeit } from './phase3548-meine-schicht-endzeit';

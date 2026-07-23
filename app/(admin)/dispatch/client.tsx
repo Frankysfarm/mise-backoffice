@@ -996,6 +996,7 @@ import { DispatchPhase3527LieferungenProKmRankingBoard } from './phase3527-liefe
 import { DispatchPhase3532LieferzeitProStoppRankingBoard } from './phase3532-lieferzeit-pro-stopp-ranking-board';
 import { DispatchPhase3537TourzeitRankingBoard } from './phase3537-tourzeit-ranking-board';
 import { DispatchPhase3542SchichtStartzeitRankingBoard } from './phase3542-schicht-startzeit-ranking-board';
+import { DispatchPhase3547SchichtEndzeitRankingBoard } from './phase3547-schicht-endzeit-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4588,6 +4589,8 @@ export function DispatchBoard({
           <DispatchPhase3537TourzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3542: Schicht-Startzeit Ranking — Clock-Icon grün; aufsteigend Rang 1=früheste Startzeit; KPI-Grid Frühester/Team-Ø/Spätester; Alert "Späte Schicht-Startzeit!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3542SchichtStartzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3547: Schicht-Endzeit Ranking — Clock-Icon orange; aufsteigend Rang 1=früheste Endzeit; KPI-Grid Frühester/Team-Ø/Spätester; Alert "Lange Schicht!"; Delta neg=grün; 30-Min-Polling */}
+          <DispatchPhase3547SchichtEndzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12666,3 +12669,5 @@ export { DispatchPhase3532LieferzeitProStoppRankingBoard } from './phase3532-lie
 export { DispatchPhase3537TourzeitRankingBoard } from './phase3537-tourzeit-ranking-board';
 // Phase 3542 — Schicht-Startzeit Ranking-Board (Clock-Icon grün; aufsteigend Rang 1=früheste Startzeit; KPI-Grid Frühester/Team-Ø/Spätester; Alert "Späte Schicht-Startzeit!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3542SchichtStartzeitRankingBoard } from './phase3542-schicht-startzeit-ranking-board';
+// Phase 3547 — Schicht-Endzeit Ranking-Board (Clock-Icon orange; aufsteigend Rang 1=früheste Endzeit; KPI-Grid Frühester/Team-Ø/Spätester; Alert "Lange Schicht!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3547SchichtEndzeitRankingBoard } from './phase3547-schicht-endzeit-ranking-board';

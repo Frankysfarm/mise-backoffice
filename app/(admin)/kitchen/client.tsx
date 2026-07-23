@@ -943,6 +943,7 @@ import { KitchenPhase3530LieferungenProKmTicker } from './phase3530-lieferungen-
 import { KitchenPhase3535LieferzeitProStoppTicker } from './phase3535-lieferzeit-pro-stopp-ticker';
 import { KitchenPhase3540TourzeitTicker } from './phase3540-tourzeit-ticker';
 import { KitchenPhase3545SchichtStartzeitTicker } from './phase3545-schicht-startzeit-ticker';
+import { KitchenPhase3550SchichtEndzeitTicker } from './phase3550-schicht-endzeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4175,6 +4176,8 @@ export function KitchenBoard({
       <KitchenPhase3540TourzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3545: Schicht-Startzeit-Ticker — Clock-Icon grün; Frühester #1 Name+Uhrzeit im Header; Alert "Späte Schicht-Startzeit!"; kompakt aufsteigend; Rang+Uhrzeit+Delta neg=grün; Team-Ø; 30-Min-Polling */}
       <KitchenPhase3545SchichtStartzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3550: Schicht-Endzeit-Ticker — Clock-Icon orange; Frühester #1 Name+Uhrzeit im Header; Alert "Lange Schicht!"; kompakt aufsteigend; Rang+Uhrzeit+Delta neg=grün; Team-Ø; 30-Min-Polling */}
+      <KitchenPhase3550SchichtEndzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11244,3 +11247,5 @@ export { KitchenPhase3535LieferzeitProStoppTicker } from './phase3535-lieferzeit
 export { KitchenPhase3540TourzeitTicker } from './phase3540-tourzeit-ticker';
 // Phase 3545 — Schicht-Startzeit-Ticker (Clock-Icon grün; Frühester im Header; Alert "Späte Schicht-Startzeit!"; kompakt aufsteigend; Rang+Uhrzeit+Delta neg=grün; Team-Ø; 30-Min-Polling)
 export { KitchenPhase3545SchichtStartzeitTicker } from './phase3545-schicht-startzeit-ticker';
+// Phase 3550 — Schicht-Endzeit-Ticker (Clock-Icon orange; Frühester im Header; Alert "Lange Schicht!"; kompakt aufsteigend; Rang+Uhrzeit+Delta neg=grün; Team-Ø; 30-Min-Polling)
+export { KitchenPhase3550SchichtEndzeitTicker } from './phase3550-schicht-endzeit-ticker';
