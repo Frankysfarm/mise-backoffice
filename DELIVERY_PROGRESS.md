@@ -26992,3 +26992,59 @@ Backend-Architekt-Agent (2026-07-23): Phasen 3325/3330/3331/3333 implementiert �
 5. **Phase 3343 Kitchen:** UmsatzProTourTicker — Euro-Icon grün; Bester #1 Name+€ im Header; Alert "Niedriger Umsatz pro Tour!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Ø; 30-Min-Polling; in kitchen/client.tsx nach Phase3338. PFLICHT: Import + Render + Barrel.
 
 Frontend-Ingenieur-Agent (2026-07-23): Phasen 3334–3338 implementiert — Fahrer-Kundenbewertungs-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3334 Backend (fahrer-kundenbewertung-ranking, bewertung_avg 1–5 Sterne, Rang 1=höchste Bewertung=bester, Ampel grün(≥4.5)/gelb(3.5–4.4)/rot(<3.5), alert_low <3.5, rank_delta pos=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.4.9/Sara K.4.6/Max M.4.1/Tim B.3.2, force-dynamic, createClient() ✅) / Phase3335 Dispatch (DispatchPhase3335KundenbewertungRankingBoard, Star-Icon gelb, absteigend Rang 1=höchste Bewertung, Balken 0–5, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Kundenbewertung!", Delta pos=grün, Import+Render+Barrel ✅) / Phase3336 Fahrer-App (FahrerPhase3336MeineKundenbewertung, Star-Icon gelb, Sterne 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3338 Kitchen (KitchenPhase3338KundenbewertungTicker, Star-Icon gelb, Bester #1 Name+Sterne im Header, Alert "Niedrige Kundenbewertung!", kompakt absteigend, Rang+Sterne+Delta pos=grün, Ziel ≥4.5, Import+Render+Barrel ✅). Phase 3337 Storefront übersprungen. Build-Fehler pre-existing (Turbopack-Workspace-Root-Problem — ignoreBuildErrors:true aktiv). Push erfolgt.
+
+---
+
+## Batch 3339–3343 — Fahrer-Umsatz-pro-Tour-Ranking (ABGESCHLOSSEN 2026-07-23)
+
+### Phase 3339 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-umsatz-pro-tour/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-umsatz-pro-tour?location_id=...
+**Response:** fahrer[]{fahrer_id, fahrer_name, rang, umsatz_avg, rank_delta, ampel gruen/gelb/rot, alert_low}, team_avg, bester_name, letzter_name, alert_count, gesamt
+**Logik:** Ø Umsatz (€) aus delivery_tours.total_value letzte 30 Tage je Fahrer (status=completed); Rang 1=höchster Umsatz=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); alert_low wenn Bottom-25%; rank_delta = prevRang - rang (pos=verbessert); 2 parallele Supabase-Abfragen (cur+prev 30 Tage); Mock Julia F. 28.50€/Sara K. 23.80€/Max M. 19.20€/Tim B. 12.40€; export const dynamic='force-dynamic'; createClient() in GET ✅
+
+### Phase 3340 — Umsatz-pro-Tour-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3340-umsatz-pro-tour-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3340UmsatzProTourRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Euro-Icon grün; absteigend Rang 1=höchster Umsatz; Balken 0–maxEuro; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedriger Umsatz pro Tour!" (alert_low); Delta pos=grün; RankBadge Gold/Silber/Bronze; Ampel-Farbkodierung; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L953 + Render nach Phase3335 + Barrel-Export ✅
+
+### Phase 3341 — Mein Umsatz pro Tour (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3341-mein-umsatz-pro-tour.tsx` *(neu)*
+**Component:** `FahrerPhase3341MeinUmsatzProTour`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Euro-Icon grün; €-Betrag 5xl + Rang 3xl farbkodiert; Rang-Balken 1–N; Grid Rank-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L867 + Render nach Phase3336 + Barrel-Export ✅
+
+### Phase 3342 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3343 — Umsatz-pro-Tour-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3343-umsatz-pro-tour-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3343UmsatzProTourTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Euro-Icon grün; Bester #1 Name+€ im Header; Alert "Niedriger Umsatz pro Tour!" (alert_low); Fahrerliste kompakt absteigend nach Rang; Rang+€+Delta pos=grün; Team-Ø; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L900 + Render nach Phase3338 + Barrel-Export ✅
+
+### Build-Ergebnis
+**✓ Turbopack-Fehler ist pre-existing (gleicher Fehler auf clean main) — ignoreBuildErrors:true aktiv — TypeScript: keine neuen Fehler in phase334x-Dateien** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ UmsatzProTourTicker + UmsatzProTourBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3340 Board + Phase3341 MeinUmsatzProTour |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3344–3348 (für nächsten Ingenieur) — Fahrer-Kilometer-pro-Tour-Ranking
+1. **Phase 3344 Backend:** GET /api/delivery/admin/fahrer-km-pro-tour — Ø km je Fahrer pro abgeschlossener Tour letzte 30 Tage aus delivery_tours.total_distance_km; Rang 1=kürzeste Strecke=bester (Effizienz); Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25% = zu weit); Alert Top-25% "Hohe km pro Tour!"; rank_delta neg=verbessert (kürzere Strecke); 2 parallele Supabase-Abfragen (cur+prev 30 Tage); Mock Julia F. 4.2km/Sara K. 5.1km/Max M. 6.8km/Tim B. 9.3km; PFLICHT: export const dynamic='force-dynamic'; createClient() in GET-Handler.
+2. **Phase 3345 Dispatch:** KmProTourRankingBoard — Route-Icon blau; aufsteigend Rang 1=kürzeste Strecke; Balken 0–maxKm; KPI-Grid Effizientester/Team-Ø/Höchster; Alert "Hohe km pro Tour!"; Delta neg=grün; 30-Min-Polling; in dispatch/client.tsx nach Phase3340. PFLICHT: Import + Render + Barrel.
+3. **Phase 3346 Fahrer-App:** MeineKmProTour — Route-Icon blau; km 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; in fahrer/app/client.tsx nach Phase3341. PFLICHT: Import + Render + Barrel.
+4. **Phase 3347 Storefront:** Überspringen (intern irrelevant für Kunden).
+5. **Phase 3348 Kitchen:** KmProTourTicker — Route-Icon blau; Effizientester #1 Name+km im Header; Alert "Hohe km pro Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø; 30-Min-Polling; in kitchen/client.tsx nach Phase3343. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-23): Phasen 3339–3343 implementiert — Fahrer-Umsatz-pro-Tour-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3339 Backend (fahrer-umsatz-pro-tour, Ø €/Tour aus delivery_tours.total_value, Rang 1=höchster Umsatz=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), alert_low Bottom-25%, rank_delta pos=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.28.50€/Sara K.23.80€/Max M.19.20€/Tim B.12.40€, force-dynamic, createClient() ✅) / Phase3340 Dispatch (DispatchPhase3340UmsatzProTourRankingBoard, Euro-Icon grün, absteigend Rang 1=höchster Umsatz, Balken 0–maxEuro, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedriger Umsatz pro Tour!", Delta pos=grün, Import+Render+Barrel ✅) / Phase3341 Fahrer-App (FahrerPhase3341MeinUmsatzProTour, Euro-Icon grün, €-Betrag 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3343 Kitchen (KitchenPhase3343UmsatzProTourTicker, Euro-Icon grün, Bester #1 Name+€ im Header, Alert "Niedriger Umsatz pro Tour!", kompakt absteigend, Rang+€+Delta pos=grün, Import+Render+Barrel ✅). Phase 3342 Storefront übersprungen. Build-Fehler pre-existing (Turbopack-Workspace-Root-Problem — ignoreBuildErrors:true aktiv). Push erfolgt.
