@@ -872,6 +872,7 @@ import { FahrerPhase3361MeineTrinkgeldQuote } from './phase3361-meine-trinkgeld-
 import { FahrerPhase3361MeineKmProStopp } from './phase3361-meine-km-pro-stopp';
 import { FahrerPhase3366MeineKmProTourRanking } from './phase3366-meine-km-pro-tour-ranking';
 import { FahrerPhase3370MeineLeerfahrten } from './phase3370-meine-leerfahrten';
+import { FahrerPhase3366MeineLeerfahrtenRanking } from './phase3366-meine-leerfahrten-ranking';
 
 type Driver = {
   id: string;
@@ -6505,6 +6506,8 @@ export function FahrerApp({
           <FahrerPhase3341MeinUmsatzProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3366: Meine km pro Tour Ranking — Route-Icon blau; km 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3366MeineKmProTourRanking driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3366: Meine Leerfahrten-Quote Ranking — Car-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3366MeineLeerfahrtenRanking driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3346: Tour-Stopp Navigation Master — Google-Maps-Link+Anruf-CTA; Barzahlung-Alert; Sonderwunsch; Stopp-Timeline; Score-Badge; isOnline-Guard; 20-Sek-Polling */}
           <FahrerPhase3346TourStoppNavigationMaster driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3351: Meine Lieferdichte — Stopps/km heute; Rang + Farbkodierung; inverted Rang-Balken; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
@@ -10191,5 +10194,8 @@ export { FahrerPhase3361MeineKmProStopp } from './phase3361-meine-km-pro-stopp';
 
 // Phase 3366 — Meine km pro Tour Ranking (Route-Icon blau; km 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3366MeineKmProTourRanking } from './phase3366-meine-km-pro-tour-ranking';
+// Phase 3366 — Meine Leerfahrten-Quote Ranking (Car-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3366MeineLeerfahrtenRanking } from './phase3366-meine-leerfahrten-ranking';
+
 // Phase 3370 — Meine Leerfahrten (Persönliche Leerfahrten-Anzahl heute; Rang 1=wenigste=bester; farbkodiert orange grün/gelb/rot; Rang-Balken; Rang-Δ-Grid; Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3370MeineLeerfahrten } from './phase3370-meine-leerfahrten';

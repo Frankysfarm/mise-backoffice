@@ -905,6 +905,7 @@ import { KitchenPhase3363TrinkgeldQuoteTicker } from './phase3363-trinkgeld-quot
 import { KitchenPhase3363KmProStoppTicker } from './phase3363-km-pro-stopp-ticker';
 import { KitchenPhase3368KmProTourRankingTicker } from './phase3368-km-pro-tour-ranking-ticker';
 import { KitchenPhase3364LeerfahrtenTicker } from './phase3364-leerfahrten-ticker';
+import { KitchenPhase3368LeerfahrtenRankingTicker } from './phase3368-leerfahrten-ranking-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4053,6 +4054,8 @@ export function KitchenBoard({
       <KitchenPhase3343UmsatzProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3368: km pro Tour Ranking Ticker — Route-Icon blau; Effizientester #1 Name+km im Header; Alert "Hohe km pro Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø; 30-Min-Polling */}
       <KitchenPhase3368KmProTourRankingTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3368: Leerfahrten-Quote Ticker — Car-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Leerfahrten-Quote!"; kompakt aufsteigend Rang 1=niedrigste; Rang+%+Delta neg=grün; Team-Ø+Ziel <10%; 30-Min-Polling */}
+      <KitchenPhase3368LeerfahrtenRankingTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3348: Smart-Timing Countdown Master Pro — sekundengenauer Countdown 4-Stufen Farbkodierung; On-Time-Rate-Gauge; Kochstart-Empfehlung-Badge; KPI-Grid Aktiv/Fertig/Ø-Prep; 1-Sek-Tick + 15-Sek-Polling */}
       <KitchenPhase3348SmartTimingCountdownMasterPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3353: Lieferdichte Ticker — Stopps/km je Fahrer heute; Rang 1=höchste Dichte; kompakt absteigend; Alert "Niedrige Lieferdichte!"; 30-Min-Polling */}
@@ -11061,3 +11064,6 @@ export { KitchenPhase3368KmProTourRankingTicker } from './phase3368-km-pro-tour-
 
 // Phase 3364 — Leerfahrten-Ticker (Fahrerliste aufsteigend nach Leerfahrten-Anzahl; Rang 1=wenigste=bester; Route-Icon orange; Alert "Hohe Leerfahrten-Anzahl!"; Footer Team-Ø; Ziel: 0; 30-Min-Polling)
 export { KitchenPhase3364LeerfahrtenTicker } from './phase3364-leerfahrten-ticker';
+
+// Phase 3368 — Leerfahrten-Quote Ticker (Car-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Leerfahrten-Quote!"; kompakt aufsteigend Rang 1=niedrigste; Rang+%+Delta neg=grün; Team-Ø+Ziel <10%; 30-Min-Polling)
+export { KitchenPhase3368LeerfahrtenRankingTicker } from './phase3368-leerfahrten-ranking-ticker';

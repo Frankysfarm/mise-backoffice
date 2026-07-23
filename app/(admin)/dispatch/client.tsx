@@ -958,6 +958,7 @@ import { DispatchPhase3360TrinkgeldQuoteRankingBoard } from './phase3360-trinkge
 import { DispatchPhase3360KmProStoppRankingBoard } from './phase3360-km-pro-stopp-ranking-board';
 import { DispatchPhase3365KmProTourRankingBoard } from './phase3365-km-pro-tour-ranking-board';
 import { DispatchPhase3369LeerfahrtenRankingBoard } from './phase3369-leerfahrten-ranking-board';
+import { DispatchPhase3365LeerfahrtenRankingBoard } from './phase3365-leerfahrten-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4478,6 +4479,8 @@ export function DispatchBoard({
           <DispatchPhase3360KmProStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3369: Leerfahrten Ranking-Board — Fahrerliste aufsteigend nach LF-Anzahl; Rang 1=wenigste LF; RankBadge; Ampel orange; KPI-Grid Bester/Team-Ø/Höchste; Alert "Hohe Leerfahrten-Anzahl!"; 30-Min-Polling */}
           <DispatchPhase3369LeerfahrtenRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3365: Leerfahrten-Quote Ranking — Car-Icon orange; aufsteigend Rang 1=niedrigste Quote=bester; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Leerfahrten-Quote!"; Delta neg=grün; 30-Min-Polling */}
+          <DispatchPhase3365LeerfahrtenRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12483,3 +12486,6 @@ export { DispatchPhase3360TrinkgeldQuoteRankingBoard } from './phase3360-trinkge
 export { DispatchPhase3360KmProStoppRankingBoard } from './phase3360-km-pro-stopp-ranking-board';
 // Phase 3369 — Leerfahrten Ranking-Board (Fahrerliste aufsteigend nach LF-Anzahl; Rang 1=wenigste LF=bester; RankBadge; Ampel orange; KPI-Grid Bester/Team-Ø/Höchste; Alert "Hohe Leerfahrten-Anzahl!"; Balken proportional; 30-Min-Polling)
 export { DispatchPhase3369LeerfahrtenRankingBoard } from './phase3369-leerfahrten-ranking-board';
+
+// Phase 3365 — Leerfahrten-Quote Ranking Board (Car-Icon orange; aufsteigend Rang 1=niedrigste Quote=bester; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Leerfahrten-Quote!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3365LeerfahrtenRankingBoard } from './phase3365-leerfahrten-ranking-board';

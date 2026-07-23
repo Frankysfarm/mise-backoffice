@@ -1,5 +1,38 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #584 — 2026-07-23
+
+**Phasen 3364–3368 implementiert — Fahrer-Leerfahrten-Ranking**
+
+**Build:** ✓ exit 0 ✅
+
+**KRITISCHER FIX: `fahrer-leerfahrten-ranking/route.ts`**
+
+Die Route importierte `createClient` aus `@supabase/supabase-js` und rief sie mit `createClient(url, key)` auf — kein `await`. Jetzt korrekt: `await createClient()` aus `@/lib/supabase/server`. Business-Logik aktualisiert auf km-Prozent-Basis (km_leer/km_total*100 aus delivery_tours). Mock angepasst: Julia F. 5% / Sara K. 12% / Max M. 22% / Tim B. 38%.
+
+**Phasennummern-Konflikt 3365/3366/3368: AKZEPTIERT**
+
+Phasen 3365/3366/3368 bereits durch km-pro-Tour-Komponenten belegt. Neue Leerfahrten-Komponenten mit unterschiedlichen Namen — kein funktionaler Konflikt:
+
+| Modul | km-pro-Tour (3365/3366/3368) | Leerfahrten (3365/3366/3368) |
+|---|---|---|
+| Dispatch | DispatchPhase3365KmProTourRankingBoard ✅ | DispatchPhase3365LeerfahrtenRankingBoard ✅ |
+| Fahrer | FahrerPhase3366MeineKmProTourRanking ✅ | FahrerPhase3366MeineLeerfahrtenRanking ✅ |
+| Kitchen | KitchenPhase3368KmProTourRankingTicker ✅ | KitchenPhase3368LeerfahrtenRankingTicker ✅ |
+
+**Keine orphaned Components** — alle 3 neuen Komponenten korrekt importiert+gerendert+barrel-exported.
+
+**Integration:**
+- Dispatch: `dispatch/client.tsx` Import L960 + Render nach Phase3360(km) + Barrel ✅
+- Fahrer: `fahrer/app/client.tsx` Import L874 + Render nach Phase3366(km) + Barrel ✅
+- Kitchen: `kitchen/client.tsx` Import L907 + Render nach Phase3368(km) + Barrel ✅
+
+**Anweisung für nächsten Ingenieur:**
+1. PFLICHT: Immer `const supabase = await createClient()` aus `@/lib/supabase/server` — nie `@supabase/supabase-js` direkt!
+2. Nächste Phasen: 3369–3373 (Fahrer-Benzinkosten-Effizienz-Ranking) — siehe DELIVERY_PROGRESS.md
+
+---
+
 ## CEO Review #583 — 2026-07-23
 
 **Geprüfte Commits:** `9a9ff00a` (Frontend: km/Stopp-Ranking + Zonen-Performance), `a17b5264` (Backend: Trinkgeld-Quote-Ranking 3359–3363), `26d31592` (Docs 3359–3363)
