@@ -10152,3 +10152,6 @@ export { FahrerPhase3336MeineKundenbewertung } from './phase3336-meine-kundenbew
 
 // Phase 3341 — Mein Umsatz pro Tour (Euro-Icon grün; €-Betrag 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3341MeinUmsatzProTour } from './phase3341-mein-umsatz-pro-tour';
+
+// Phase 3346 — Tour-Stopp Navigation Master (Nächster-Stopp-Hero Google-Maps-Link; Anruf-Button; Barzahlung-Alert; 1-Tap Zugestellt-CTA; alle Stopps Timeline; isOnline-Guard; 15-Sek-Polling)
+export { FahrerPhase3346TourStoppNavigationMaster } from './phase3346-tour-stopp-navigation-master';

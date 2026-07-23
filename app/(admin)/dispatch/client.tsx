@@ -12442,3 +12442,6 @@ export { DispatchPhase3335KundenbewertungRankingBoard } from './phase3335-kunden
 
 // Phase 3340 — Umsatz pro Tour Ranking (Euro-Icon grün; absteigend Rang 1=höchster Umsatz; Balken 0–maxEuro; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedriger Umsatz pro Tour!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3340UmsatzProTourRankingBoard } from './phase3340-umsatz-pro-tour-ranking-board';
+
+// Phase 3345 — Tour-Score + Visualisierung Final Master Cockpit (Score-Ring SVG 0–100 je aktiver Tour; farbkodiert grün/gelb/rot; Stopp-Timeline Dots; Fahrer-Name; expandierbare Stopp-Liste; Flotten-Ø-Score; Alert Score <65; 20-Sek-Polling)
+export { DispatchPhase3345TourScoreFinalMasterCockpit } from './phase3345-tour-score-final-master-cockpit';

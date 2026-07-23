@@ -11019,3 +11019,6 @@ export { KitchenPhase3338KundenbewertungTicker } from './phase3338-kundenbewertu
 
 // Phase 3343 — Umsatz pro Tour Ticker (Euro-Icon grün; Bester #1 Name+€ im Header; Alert "Niedriger Umsatz pro Tour!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Ø; 30-Min-Polling)
 export { KitchenPhase3343UmsatzProTourTicker } from './phase3343-umsatz-pro-tour-ticker';
+
+// Phase 3348 — Smart-Timing Countdown Master Pro (Sekundengenauer Countdown 4-Stufen Farbkodierung rot/orange/amber/grün; On-Time-Rate-Gauge; Kochstart-Empfehlung-Badge; KPI-Grid Aktiv/Fertig/Ø-Prep; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
+export { KitchenPhase3348SmartTimingCountdownMasterPro } from './phase3348-smart-timing-countdown-master-pro';

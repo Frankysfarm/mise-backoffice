@@ -4814,3 +4814,6 @@ export { LieferdienstPhase2660StatistikIntelligenceDashboard } from './phase2660
 
 // Phase 2665 — Statistiken Final Master Hub (6-KPI-Grid Ampel+Trend vs. Gestern; Stundenverlauf-BarChart letzte 12h; 1-Min-Polling)
 export { LieferdienstPhase2665StatistikenFinalMasterHub } from './phase2665-statistiken-final-master-hub';
+
+// Phase 2670 — Statistiken Master Live Pro (10 KPI-Kacheln Ampel+Trend+Ziel; Stundenverlauf-BarChart 2-Modi Bestellungen/Umsatz umschaltbar; Zonen-Top-5; Fahrer-Top-3; Alert-Strip; 2-Min-Polling)
+export { LieferdienstPhase2670StatistikenMasterLivePro } from './phase2670-statistiken-master-live-pro';

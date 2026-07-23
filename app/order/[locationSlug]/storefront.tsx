@@ -3916,3 +3916,6 @@ export { StorefrontPhase2655DynamischeEtaLiveTrackingUltra } from './phase2655-d
 // Phase 2680 — Dynamische ETA Live-Tracking Master (ETA-Hero-Kachel mit Konfidenz-Indikator; 5-Phasen-Timeline Bestellt→Geliefert mit Fortschrittsbalken; Fahrer-Info Bewertung+Distanz; 1-Sek-Tick + 15-Sek-Polling)
 export { Phase2680DynamischeEtaLiveTrackingMaster } from './phase2680-dynamische-eta-live-tracking-master';
 export { StorefrontPhase1000DynamischeEtaLiveMaster } from './phase1000-dynamische-eta-live-master';
+
+// Phase 2685 — Dynamische ETA Live-Tracking Final Pro (ETA-Hero mit Konfidenz-Indikator; 5-Phasen-Timeline Bestellt→Geliefert; Fortschrittsbalken; Fahrer-Info Bewertung+Distanz; Delay-Warnung; 1-Sek-Tick + 15-Sek-Polling)
+export { StorefrontPhase2685DynamischeEtaLiveFinalPro } from './phase2685-dynamische-eta-live-final-pro';
