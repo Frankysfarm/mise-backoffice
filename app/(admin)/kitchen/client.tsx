@@ -906,6 +906,7 @@ import { KitchenPhase3363KmProStoppTicker } from './phase3363-km-pro-stopp-ticke
 import { KitchenPhase3368KmProTourRankingTicker } from './phase3368-km-pro-tour-ranking-ticker';
 import { KitchenPhase3364LeerfahrtenTicker } from './phase3364-leerfahrten-ticker';
 import { KitchenPhase3368LeerfahrtenRankingTicker } from './phase3368-leerfahrten-ranking-ticker';
+import { KitchenPhase3375RueckgabeQuoteTicker } from './phase3375-rueckgabe-quote-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4068,6 +4069,8 @@ export function KitchenBoard({
       <KitchenPhase3363KmProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3364: Leerfahrten-Ticker — Fahrerliste aufsteigend nach Leerfahrten-Anzahl; Alert-Badge; Route-Icon orange; Team-Ø; 30-Min-Polling */}
       <KitchenPhase3364LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3375: Rückgabe-Quote-Ticker — Undo-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Rückgabequote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø; 30-Min-Polling */}
+      <KitchenPhase3375RueckgabeQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11067,3 +11070,5 @@ export { KitchenPhase3364LeerfahrtenTicker } from './phase3364-leerfahrten-ticke
 
 // Phase 3368 — Leerfahrten-Quote Ticker (Car-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Leerfahrten-Quote!"; kompakt aufsteigend Rang 1=niedrigste; Rang+%+Delta neg=grün; Team-Ø+Ziel <10%; 30-Min-Polling)
 export { KitchenPhase3368LeerfahrtenRankingTicker } from './phase3368-leerfahrten-ranking-ticker';
+// Phase 3375 — Rückgabe-Quote-Ticker (Undo-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Rückgabequote!"; kompakt aufsteigend Rang 1=niedrigste Quote; Rang+%+Delta neg=grün; Team-Ø; letzte 30 Tage; 30-Min-Polling)
+export { KitchenPhase3375RueckgabeQuoteTicker } from './phase3375-rueckgabe-quote-ticker';

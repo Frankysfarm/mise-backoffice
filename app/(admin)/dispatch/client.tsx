@@ -959,6 +959,7 @@ import { DispatchPhase3360KmProStoppRankingBoard } from './phase3360-km-pro-stop
 import { DispatchPhase3365KmProTourRankingBoard } from './phase3365-km-pro-tour-ranking-board';
 import { DispatchPhase3369LeerfahrtenRankingBoard } from './phase3369-leerfahrten-ranking-board';
 import { DispatchPhase3365LeerfahrtenRankingBoard } from './phase3365-leerfahrten-ranking-board';
+import { DispatchPhase3372RueckgabeQuoteRankingBoard } from './phase3372-rueckgabe-quote-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4481,6 +4482,8 @@ export function DispatchBoard({
           <DispatchPhase3369LeerfahrtenRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3365: Leerfahrten-Quote Ranking — Car-Icon orange; aufsteigend Rang 1=niedrigste Quote=bester; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Leerfahrten-Quote!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3365LeerfahrtenRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3372: Rückgabe-Quote Ranking-Board — Fahrerliste aufsteigend Rang 1=niedrigste Quote=bester; Undo-Icon rot; KPI-Grid Bester/Team-Ø/Höchste; Alert "Hohe Rückgabequote!"; Delta neg=grün; 30-Min-Polling */}
+          <DispatchPhase3372RueckgabeQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12489,3 +12492,5 @@ export { DispatchPhase3369LeerfahrtenRankingBoard } from './phase3369-leerfahrte
 
 // Phase 3365 — Leerfahrten-Quote Ranking Board (Car-Icon orange; aufsteigend Rang 1=niedrigste Quote=bester; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchster; Alert "Hohe Leerfahrten-Quote!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3365LeerfahrtenRankingBoard } from './phase3365-leerfahrten-ranking-board';
+// Phase 3372 — Rückgabe-Quote Ranking-Board (Undo-Icon rot; aufsteigend Rang 1=niedrigste Quote=bester; Balken 0–maxPct; KPI-Grid Bester/Team-Ø/Höchste; Alert "Hohe Rückgabequote!"; Delta neg=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3372RueckgabeQuoteRankingBoard } from './phase3372-rueckgabe-quote-ranking-board';
