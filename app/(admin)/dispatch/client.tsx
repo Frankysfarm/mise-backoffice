@@ -997,6 +997,7 @@ import { DispatchPhase3532LieferzeitProStoppRankingBoard } from './phase3532-lie
 import { DispatchPhase3537TourzeitRankingBoard } from './phase3537-tourzeit-ranking-board';
 import { DispatchPhase3542SchichtStartzeitRankingBoard } from './phase3542-schicht-startzeit-ranking-board';
 import { DispatchPhase3547SchichtEndzeitRankingBoard } from './phase3547-schicht-endzeit-ranking-board';
+import { DispatchPhase3552TourScoreVisualisierungLive } from './phase3552-tour-score-visualisierung-live';
 
 type Driver = {
   employee_id: string;
@@ -4591,6 +4592,8 @@ export function DispatchBoard({
           <DispatchPhase3542SchichtStartzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3547: Schicht-Endzeit Ranking — Clock-Icon orange; aufsteigend Rang 1=früheste Endzeit; KPI-Grid Frühester/Team-Ø/Spätester; Alert "Lange Schicht!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3547SchichtEndzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3552: Tour-Score Visualisierung Live — Fahrer-Score-Rangliste mit Balken; Score-Farbkodierung; KPI je Fahrer Touren/Lieferzeit/Pünktlichkeit/Bewertung; Top-Performer-Badge; 60-Sek-Polling */}
+          <DispatchPhase3552TourScoreVisualisierungLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12671,3 +12674,5 @@ export { DispatchPhase3537TourzeitRankingBoard } from './phase3537-tourzeit-rank
 export { DispatchPhase3542SchichtStartzeitRankingBoard } from './phase3542-schicht-startzeit-ranking-board';
 // Phase 3547 — Schicht-Endzeit Ranking-Board (Clock-Icon orange; aufsteigend Rang 1=früheste Endzeit; KPI-Grid Frühester/Team-Ø/Spätester; Alert "Lange Schicht!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3547SchichtEndzeitRankingBoard } from './phase3547-schicht-endzeit-ranking-board';
+// Phase 3552 — Tour-Score Visualisierung Live (Fahrer-Score-Rangliste mit Balken; Score-Farbkodierung grün/gelb/rot; KPI je Fahrer Touren/Lieferzeit/Pünktlichkeit/Bewertung; Top-Performer-Badge; 60-Sek-Polling)
+export { DispatchPhase3552TourScoreVisualisierungLive } from './phase3552-tour-score-visualisierung-live';

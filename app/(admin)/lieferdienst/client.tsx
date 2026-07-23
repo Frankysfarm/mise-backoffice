@@ -470,6 +470,7 @@ import { LieferdienstPhase2690StatistikenWochenvergleichCockpit } from './phase2
 import { LieferdienstPhase2695FahrerSchichtBilanzCockpit } from './phase2695-fahrer-schicht-bilanz-cockpit';
 import { LieferdienstPhase2700StatistikenIntelligenceDashboard } from './phase2700-statistiken-intelligence-dashboard';
 import { LieferdienstPhase2705StatistikenProfiDashboard } from './phase2705-statistiken-profi-dashboard';
+import { LieferdienstPhase2710StatistikDashboardFinal } from './phase2710-statistik-dashboard-final';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2299,6 +2300,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2700StatistikenIntelligenceDashboard locationId={locationId ?? null} />
                 {/* Phase 2705: Statistiken Profi Dashboard — 6 KPI-Kacheln mit Ampel+Δ%+Ziel; Gesamt-Score-Ring; Schicht-Insight; Alert-Strip; Schicht-Vergleich Heute vs. Vorwoche Balken; Mock-Fallback; 1-Min-Polling */}
                 <LieferdienstPhase2705StatistikenProfiDashboard locationId={locationId ?? null} />
+                {/* Phase 2710: Statistik-Dashboard Final — 8-KPI-Grid Ampel+Δ%+Ziel; Score-Ring; Insight-Tipp; Alert-Strip rot-KPIs; kompaktes Grid 2-spaltig; Mock-Fallback; 60-Sek-Polling */}
+                <LieferdienstPhase2710StatistikDashboardFinal locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
                 <LieferdienstPhase2630StatistikenLiveKomplett locationId={locationId ?? null} />
                 {/* Phase 2635: Liefer-SLA-Echtzeit-Cockpit — 5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling */}
@@ -4860,3 +4863,5 @@ export { LieferdienstPhase2695FahrerSchichtBilanzCockpit } from './phase2695-fah
 export { LieferdienstPhase2700StatistikenIntelligenceDashboard } from './phase2700-statistiken-intelligence-dashboard';
 // Phase 2705 — Statistiken Profi Dashboard (Activity-Icon indigo; 6-KPI-Kacheln Ampel+Δ%+Ziel; Gesamt-Score-Ring; Schicht-Insight-Tipp; Alert-Strip kritische KPIs; Schicht-Vergleich Heute vs. Vorwoche Balken; Mock-Fallback; 1-Min-Polling)
 export { LieferdienstPhase2705StatistikenProfiDashboard } from './phase2705-statistiken-profi-dashboard';
+// Phase 2710 — Statistik-Dashboard Final (BarChart2-Icon; 8-KPI-Grid Ampel+Δ%+Ziel; Score-Ring 0–100; Insight-Tipp; Alert-Strip rot-KPIs; 2-spaltig kompakt; Mock-Fallback; 60-Sek-Polling)
+export { LieferdienstPhase2710StatistikDashboardFinal } from './phase2710-statistik-dashboard-final';

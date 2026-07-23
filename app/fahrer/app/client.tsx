@@ -910,6 +910,7 @@ import { FahrerPhase3533MeineLieferzeitProStopp } from './phase3533-meine-liefer
 import { FahrerPhase3538MeineTourzeit } from './phase3538-meine-tourzeit';
 import { FahrerPhase3543MeineSchichtStartzeit } from './phase3543-meine-schicht-startzeit';
 import { FahrerPhase3548MeineSchichtEndzeit } from './phase3548-meine-schicht-endzeit';
+import { FahrerPhase3553TourStopsNavigatorMaster } from './phase3553-tour-stops-navigator-master';
 
 type Driver = {
   id: string;
@@ -6627,6 +6628,14 @@ export function FahrerApp({
           <FahrerPhase3543MeineSchichtStartzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3548: Meine Schicht-Endzeit — Clock-Icon orange; Uhrzeit 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3548MeineSchichtEndzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
+          {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase3553TourStopsNavigatorMaster
+              stops={(activeBatch.stops ?? []) as any}
+              driverLat={driverPos?.lat ?? null}
+              driverLng={driverPos?.lng ?? null}
+            />
+          )}
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10377,3 +10386,5 @@ export { FahrerPhase3538MeineTourzeit } from './phase3538-meine-tourzeit';
 export { FahrerPhase3543MeineSchichtStartzeit } from './phase3543-meine-schicht-startzeit';
 // Phase 3548 — Meine Schicht-Endzeit (Clock-Icon orange; Uhrzeit 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3548MeineSchichtEndzeit } from './phase3548-meine-schicht-endzeit';
+// Phase 3553 — Tour-Stops Navigator Master (Hero-Stopp-Karte blau mit Navi-Link+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; Kunden-Notiz; Bezahlen-Alert; mobile-first)
+export { FahrerPhase3553TourStopsNavigatorMaster } from './phase3553-tour-stops-navigator-master';
