@@ -917,6 +917,7 @@ import { KitchenPhase3405ErsteStoppZeitTicker } from './phase3405-erste-stopp-ze
 import { KitchenPhase3410TourAbbruchRateTicker } from './phase3410-tour-abbruch-rate-ticker';
 import { KitchenPhase3415BewertungsTicker } from './phase3415-bewertungs-ticker';
 import { KitchenPhase3420PaketeProStundeTicker } from './phase3420-pakete-pro-stunde-ticker';
+import { KitchenPhase3425AktivitaetsScoreTicker } from './phase3425-aktivitaets-score-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4097,6 +4098,8 @@ export function KitchenBoard({
       <KitchenPhase3415BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3420: Pakete/h-Ticker — Package-Icon blau; Bester #1 Name+Rate im Header; Alert "Niedrige Pakete/h!"; kompakt absteigend; Rang+Rate+Delta pos=grün; Team-Ø+Ziel ≥4/h; 30-Min-Polling */}
       <KitchenPhase3420PaketeProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3425: Aktivitäts-Score-Ticker — Activity-Icon grün; Aktivster #1 Name+Score im Header; Alert "Niedrige Aktivität!"; kompakt absteigend; Rang+Score+Delta pos=grün; Team-Ø+Ziel ≥70; 30-Min-Polling */}
+      <KitchenPhase3425AktivitaetsScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11114,3 +11117,5 @@ export { KitchenPhase3410TourAbbruchRateTicker } from './phase3410-tour-abbruch-
 // Phase 3415 — Bewertungs-Ticker (Star-Icon gelb; Bester #1 Name+Sterne im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+Sterne+Delta pos=grün; Team-Ø+Ziel ≥4.5 Sterne; 30-Min-Polling)
 export { KitchenPhase3415BewertungsTicker } from './phase3415-bewertungs-ticker';
 export { KitchenPhase3420PaketeProStundeTicker } from './phase3420-pakete-pro-stunde-ticker';
+// Phase 3425 — Aktivitäts-Score-Ticker (Activity-Icon grün; Aktivster #1 Name+Score im Header; Alert "Niedrige Aktivität!"; kompakt absteigend; Rang+Score+Delta pos=grün; Team-Ø+Ziel ≥70; 30-Min-Polling)
+export { KitchenPhase3425AktivitaetsScoreTicker } from './phase3425-aktivitaets-score-ticker';

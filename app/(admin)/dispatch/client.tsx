@@ -970,6 +970,7 @@ import { DispatchPhase3402ErsteStoppZeitRankingBoard } from './phase3402-erste-s
 import { DispatchPhase3407TourAbbruchRateRankingBoard } from './phase3407-tour-abbruch-rate-ranking-board';
 import { DispatchPhase3412BewertungsDurchschnittRankingBoard } from './phase3412-bewertungs-durchschnitt-ranking-board';
 import { DispatchPhase3417PaketeProStundeRankingBoard } from './phase3417-pakete-pro-stunde-ranking-board';
+import { DispatchPhase3422AktivitaetsScoreRankingBoard } from './phase3422-aktivitaets-score-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4510,6 +4511,8 @@ export function DispatchBoard({
           <DispatchPhase3412BewertungsDurchschnittRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3417: Pakete/h Ranking — Package-Icon blau; absteigend Rang 1=höchste Rate; Balken 0–maxRate; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pakete/h!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3417PaketeProStundeRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3422: Aktivitäts-Score Ranking — Activity-Icon grün; absteigend Rang 1=höchster Score; Balken 0–100; KPI-Grid Aktivster/Team-Ø/Niedrigster; Alert "Niedrige Aktivität!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3422AktivitaetsScoreRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12536,3 +12539,5 @@ export { DispatchPhase3407TourAbbruchRateRankingBoard } from './phase3407-tour-a
 // Phase 3412 — Bewertungs-Durchschnitt Ranking-Board (Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Bewertung!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3412BewertungsDurchschnittRankingBoard } from './phase3412-bewertungs-durchschnitt-ranking-board';
 export { DispatchPhase3417PaketeProStundeRankingBoard } from './phase3417-pakete-pro-stunde-ranking-board';
+// Phase 3422 — Aktivitäts-Score Ranking-Board (Activity-Icon grün; absteigend Rang 1=höchster Score; Balken 0–100; KPI-Grid Aktivster/Team-Ø/Niedrigster; Alert "Niedrige Aktivität!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3422AktivitaetsScoreRankingBoard } from './phase3422-aktivitaets-score-ranking-board';
