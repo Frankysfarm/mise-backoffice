@@ -939,6 +939,7 @@ import { DispatchPhase3291PuenktlichkeitRankingBoard } from './phase3291-puenktl
 import { DispatchPhase3296ReaktionszeitRankingBoard } from './phase3296-reaktionszeit-ranking-board';
 import { DispatchPhase3301AbwesenheitRankingBoard } from './phase3301-abwesenheit-ranking-board';
 import { DispatchPhase3306SchichtAnnahmeRateRankingBoard } from './phase3306-schicht-annahme-rate-ranking-board';
+import { DispatchPhase3311SchichtPuenktlichkeitRankingBoard } from './phase3311-schicht-puenktlichkeit-ranking-board';
 import { DispatchPhase3295TourVisualisierungLiveBoard } from './phase3295-tour-visualisierung-live-board';
 import { DispatchPhase3256TourScoreVisualisierungKommando } from './phase3256-tour-score-visualisierung-kommando';
 import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
@@ -4402,6 +4403,8 @@ export function DispatchBoard({
           <DispatchPhase3301AbwesenheitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3306: Schicht-Annahme-Rate-Ranking-Board — CheckSquare-Icon blau; absteigend Rang 1=höchste Rate%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Annahme-Rate!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3306SchichtAnnahmeRateRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3311: Schicht-Pünktlichkeit-Ranking-Board — Clock-Icon grün; absteigend Rang 1=höchste Pünktlichkeit%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Unpünktlich!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3311SchichtPuenktlichkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3295: Tour-Visualisierung Live-Board — Score-Ring SVG je Fahrer; interaktive SVG Stopp-Timeline farbkodiert grün/blau/grau; expandierbare Stopp-Liste mit Adressen/ETA/Status; Problem-Alert; 20-Sek-Polling */}
           <DispatchPhase3295TourVisualisierungLiveBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3256: Tour-Score + Visualisierung Kommando-Zentrale — SVG Score-Ring; farbkodierte Stopp-Timelines; Sub-Scores; expandierbare Touren; 30-Sek-Polling */}
@@ -12390,6 +12393,8 @@ export { DispatchPhase3296ReaktionszeitRankingBoard } from './phase3296-reaktion
 export { DispatchPhase3301AbwesenheitRankingBoard } from './phase3301-abwesenheit-ranking-board';
 // Phase 3306 — Schicht-Annahme-Rate-Ranking-Board (CheckSquare-Icon blau; absteigend Rang 1=höchste Rate%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Annahme-Rate!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3306SchichtAnnahmeRateRankingBoard } from './phase3306-schicht-annahme-rate-ranking-board';
+// Phase 3311 — Schicht-Pünktlichkeit-Ranking-Board (Clock-Icon grün; absteigend Rang 1=höchste Pünktlichkeit%; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Unpünktlich!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3311SchichtPuenktlichkeitRankingBoard } from './phase3311-schicht-puenktlichkeit-ranking-board';
 // Phase 3200 — Tour-Score Command Center (Score-Ring SVG 0–100 je Fahrer; farbkodierte Stopp-Dots; Sub-Scores Pünktlichkeit/Abschluss/Speed; ETA; Alert Score <65; 25-Sek-Polling)
 export { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 
