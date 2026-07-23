@@ -975,6 +975,7 @@ import { DispatchPhase3427SchichtstartRankingBoard } from './phase3427-schichtst
 import { DispatchPhase3432StoppVollstaendigkeitRankingBoard } from './phase3432-stopp-vollstaendigkeit-ranking-board';
 import { DispatchPhase3437ReaktionszeitZuweisungRankingBoard } from './phase3437-reaktionszeit-zuweisung-ranking-board';
 import { DispatchPhase3442MultiStoppEffizienzRankingBoard } from './phase3442-multi-stopp-effizienz-ranking-board';
+import { DispatchPhase3447NachtSchichtAnteilRankingBoard } from './phase3447-nacht-schicht-anteil-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4525,6 +4526,8 @@ export function DispatchBoard({
           <DispatchPhase3437ReaktionszeitZuweisungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3442: Multi-Stopp-Effizienz Ranking — BarChart2-Icon blau; absteigend Rang 1=meiste Stopps; Balken 0–maxStopps; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Wenig Stopps/Tour!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3442MultiStoppEffizienzRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3447: Nacht-Schicht-Anteil Ranking — Moon-Icon indigo; absteigend Rang 1=höchster Anteil; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Wenig Nacht-Schichten!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3447NachtSchichtAnteilRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12561,3 +12564,5 @@ export { DispatchPhase3432StoppVollstaendigkeitRankingBoard } from './phase3432-
 export { DispatchPhase3437ReaktionszeitZuweisungRankingBoard } from './phase3437-reaktionszeit-zuweisung-ranking-board';
 // Phase 3442 — Multi-Stopp-Effizienz Ranking-Board (BarChart2-Icon blau; absteigend Rang 1=meiste Stopps; Balken 0–maxStopps; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Wenig Stopps/Tour!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3442MultiStoppEffizienzRankingBoard } from './phase3442-multi-stopp-effizienz-ranking-board';
+// Phase 3447 — Nacht-Schicht-Anteil Ranking-Board (Moon-Icon indigo; absteigend Rang 1=höchster Anteil; Balken 0–100%; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Wenig Nacht-Schichten!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3447NachtSchichtAnteilRankingBoard } from './phase3447-nacht-schicht-anteil-ranking-board';

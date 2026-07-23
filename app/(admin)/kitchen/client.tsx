@@ -922,6 +922,7 @@ import { KitchenPhase3430SchichtstartTicker } from './phase3430-schichtstart-tic
 import { KitchenPhase3435StoppVollstaendigkeitTicker } from './phase3435-stopp-vollstaendigkeit-ticker';
 import { KitchenPhase3440ReaktionszeitTicker } from './phase3440-reaktionszeit-ticker';
 import { KitchenPhase3445MultiStoppEffizienzTicker } from './phase3445-multi-stopp-effizienz-ticker';
+import { KitchenPhase3450NachtSchichtAnteilTicker } from './phase3450-nacht-schicht-anteil-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4112,6 +4113,8 @@ export function KitchenBoard({
       <KitchenPhase3440ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3445: Multi-Stopp-Effizienz-Ticker — BarChart2-Icon blau; Bester #1 Name+Stopps im Header; Alert "Wenig Stopps/Tour!"; kompakt absteigend; Rang+Stopps+Delta pos=grün; Team-Ø+Ziel ≥7 Stopps/Tour; 30-Min-Polling */}
       <KitchenPhase3445MultiStoppEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3450: Nacht-Schicht-Anteil-Ticker — Moon-Icon indigo; Bester #1 Name+% im Header; Alert "Wenig Nacht-Schichten!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥25%; 30-Min-Polling */}
+      <KitchenPhase3450NachtSchichtAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11139,3 +11142,5 @@ export { KitchenPhase3435StoppVollstaendigkeitTicker } from './phase3435-stopp-v
 export { KitchenPhase3440ReaktionszeitTicker } from './phase3440-reaktionszeit-ticker';
 // Phase 3445 — Multi-Stopp-Effizienz-Ticker (BarChart2-Icon blau; Bester #1 Name+Stopps im Header; Alert "Wenig Stopps/Tour!"; kompakt absteigend; Rang+Stopps+Delta pos=grün; Team-Ø+Ziel ≥7 Stopps/Tour; 30-Min-Polling)
 export { KitchenPhase3445MultiStoppEffizienzTicker } from './phase3445-multi-stopp-effizienz-ticker';
+// Phase 3450 — Nacht-Schicht-Anteil-Ticker (Moon-Icon indigo; Bester #1 Name+% im Header; Alert "Wenig Nacht-Schichten!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥25%; 30-Min-Polling)
+export { KitchenPhase3450NachtSchichtAnteilTicker } from './phase3450-nacht-schicht-anteil-ticker';
