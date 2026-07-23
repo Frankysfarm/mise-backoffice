@@ -948,6 +948,7 @@ import { DispatchPhase3256TourScoreVisualisierungKommando } from './phase3256-to
 import { DispatchPhase3200TourScoreCommandCenter } from './phase3200-tour-score-command-center';
 import { DispatchPhase2945TourScoreVisualisierungFinal } from './phase2945-tour-score-visualisierung-final';
 import { DispatchPhase3326ScoreTourVisHub } from './phase3326-score-tour-vis-hub';
+import { DispatchPhase3330LieferzeitPraezisionRankingBoard } from './phase3330-lieferzeit-praezision-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4449,6 +4450,7 @@ export function DispatchBoard({
           <DispatchPhase2895TourScoreEchtzeitKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3326: Score-Tour-Visualisierungs-Hub — Score-Ring SVG je aktiver Tour + farbkodierte Stop-Dots + Flotten-Ø + Alert Score <65; 25-Sek-Polling */}
           <DispatchPhase3326ScoreTourVisHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3330LieferzeitPraezisionRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12425,3 +12427,6 @@ export { DispatchPhase3320TourScoreVisualisierungLive } from './phase3320-tour-s
 
 // Phase 3326 — Score & Tour-Visualisierungs-Hub (SVG Score-Ring je aktiver Tour; farbkodierte Stopp-Dots; Flotten-Ø; Alert Score <65; 25-Sek-Polling)
 export { DispatchPhase3326ScoreTourVisHub } from './phase3326-score-tour-vis-hub';
+
+// Phase 3330 — ETA-Präzision-Ranking (Target-Icon lila; aufsteigend Rang 1=niedrigste Abweichung; Balken 0–maxMin; KPI-Grid Bester/Team-Ø/Letzter; Alert "Hohe ETA-Abweichung!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3330LieferzeitPraezisionRankingBoard } from './phase3330-lieferzeit-praezision-ranking-board';

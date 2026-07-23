@@ -895,6 +895,7 @@ import { KitchenPhase3259SmartKochstartCountdownUltra } from './phase3259-smart-
 import { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
 import { KitchenPhase2946SmartTimingCountdownMaster } from './phase2946-smart-timing-countdown-master';
 import { KitchenPhase3329SmartTimingFinalHub } from './phase3329-smart-timing-final-hub';
+import { KitchenPhase3333LieferzeitPraezisionTicker } from './phase3333-lieferzeit-praezision-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4036,6 +4037,7 @@ export function KitchenBoard({
       />
       {/* Phase 3329: Smart-Timing Final Hub — Echtzeit-Countdown + 4-stufige Farbkodierung + On-Time-Rate + Überfällig-Alert; 1-Sek-Tick + 20-Sek-Polling */}
       <KitchenPhase3329SmartTimingFinalHub locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3333LieferzeitPraezisionTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11002,3 +11004,6 @@ export { KitchenPhase3324AvgLieferzeitTicker } from './phase3324-avg-lieferzeit-
 
 // Phase 3329 — Smart-Timing Final Hub (4-stufige Farbkodierung rot/orange/amber/grün; 1-Sek-Countdown-Tick; On-Time-Rate; Überfällig-Alert-Strip; Progress-Bars; 20-Sek-Polling)
 export { KitchenPhase3329SmartTimingFinalHub } from './phase3329-smart-timing-final-hub';
+
+// Phase 3333 — ETA-Präzision-Ticker (Target-Icon lila; Bester #1 Name+Abweichung im Header; Alert "Hohe ETA-Abweichung!"; kompakt aufsteigend; Rang-Badge+Min+Delta neg=grün; Team-Ø+Ziel <5 Min; 30-Min-Polling)
+export { KitchenPhase3333LieferzeitPraezisionTicker } from './phase3333-lieferzeit-praezision-ticker';
