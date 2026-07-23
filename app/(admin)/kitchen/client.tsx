@@ -945,6 +945,7 @@ import { KitchenPhase3540TourzeitTicker } from './phase3540-tourzeit-ticker';
 import { KitchenPhase3545SchichtStartzeitTicker } from './phase3545-schicht-startzeit-ticker';
 import { KitchenPhase3550SchichtEndzeitTicker } from './phase3550-schicht-endzeit-ticker';
 import { KitchenPhase3555SmartTimingCountdownMasterUltra } from './phase3555-smart-timing-countdown-master-ultra';
+import { KitchenPhase3560SchichtDauerTicker } from './phase3560-schicht-dauer-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4181,6 +4182,8 @@ export function KitchenBoard({
       <KitchenPhase3550SchichtEndzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3555: Smart-Timing Countdown Master Ultra — Live Prep-Countdown grün/gelb/rot je Bestellung; Fortschrittsbalken; On-Time-Rate; Ø Prepzeit; Pending-Liste; 15-Sek-Polling */}
       <KitchenPhase3555SmartTimingCountdownMasterUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3560: Schicht-Dauer-Ticker — Timer-Icon lila; Kürzester #1 Name+min im Header; Alert "Lange Schicht-Dauer!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø; 30-Min-Polling */}
+      <KitchenPhase3560SchichtDauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11254,3 +11257,5 @@ export { KitchenPhase3545SchichtStartzeitTicker } from './phase3545-schicht-star
 export { KitchenPhase3550SchichtEndzeitTicker } from './phase3550-schicht-endzeit-ticker';
 // Phase 3555 — Smart-Timing Countdown Master Ultra (Live Prep-Countdown grün/gelb/rot je Bestellung; Fortschrittsbalken; On-Time-Rate; Ø Prepzeit; Pending-Liste; 15-Sek-Polling)
 export { KitchenPhase3555SmartTimingCountdownMasterUltra } from './phase3555-smart-timing-countdown-master-ultra';
+// Phase 3560 — Schicht-Dauer-Ticker (Timer-Icon lila; Kürzester #1 Name+min im Header; Alert "Lange Schicht-Dauer!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø; 30-Min-Polling)
+export { KitchenPhase3560SchichtDauerTicker } from './phase3560-schicht-dauer-ticker';
