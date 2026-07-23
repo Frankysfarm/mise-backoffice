@@ -925,6 +925,7 @@ import { KitchenPhase3445MultiStoppEffizienzTicker } from './phase3445-multi-sto
 import { KitchenPhase3450NachtSchichtAnteilTicker } from './phase3450-nacht-schicht-anteil-ticker';
 import { KitchenPhase3455WochenendAnteilTicker } from './phase3455-wochenend-anteil-ticker';
 import { KitchenPhase3460FeierabendPuenktlichkeitTicker } from './phase3460-feierabend-puenktlichkeit-ticker';
+import { KitchenPhase3465UeberstundenTageTicker } from './phase3465-ueberstunden-tage-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4121,6 +4122,8 @@ export function KitchenBoard({
       <KitchenPhase3455WochenendAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3460: Feierabend-Pünktlichkeit-Ticker — LogOut-Icon teal; Pünktlichster #1 Name+% im Header; Alert "Überstunden-Risiko!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥80%; 30-Min-Polling */}
       <KitchenPhase3460FeierabendPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3465: Überstunden-Tage-Ticker — Clock-Icon orange; Bester #1 Name+Tage im Header; Alert "Viele Überstunden!"; kompakt aufsteigend; Rang+Tage+Delta neg=grün; Team-Ø+Ziel ≤3 Tage; 30-Min-Polling */}
+      <KitchenPhase3465UeberstundenTageTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11154,3 +11157,5 @@ export { KitchenPhase3450NachtSchichtAnteilTicker } from './phase3450-nacht-schi
 export { KitchenPhase3455WochenendAnteilTicker } from './phase3455-wochenend-anteil-ticker';
 // Phase 3460 — Feierabend-Pünktlichkeit-Ticker (LogOut-Icon teal; Pünktlichster #1 Name+% im Header; Alert "Überstunden-Risiko!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥80%; 30-Min-Polling)
 export { KitchenPhase3460FeierabendPuenktlichkeitTicker } from './phase3460-feierabend-puenktlichkeit-ticker';
+// Phase 3465 — Überstunden-Tage-Ticker (Clock-Icon orange; Bester #1 Name+Tage im Header; Alert "Viele Überstunden!"; kompakt aufsteigend; Rang+Tage+Delta neg=grün; Team-Ø+Ziel ≤3 Tage; 30-Min-Polling)
+export { KitchenPhase3465UeberstundenTageTicker } from './phase3465-ueberstunden-tage-ticker';
