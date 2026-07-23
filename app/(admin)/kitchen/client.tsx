@@ -932,6 +932,7 @@ import { KitchenPhase3480LieferzeitGenauigkeitTicker } from './phase3480-lieferz
 import { KitchenPhase3485SmartTimingCountdownFarbkodierungUltra } from './phase3485-smart-timing-countdown-farbkodierung-ultra';
 import { KitchenPhase3490StoppAbstandTicker } from './phase3490-stopp-abstand-ticker';
 import { KitchenPhase3495RetourQuoteTicker } from './phase3495-retour-quote-ticker';
+import { KitchenPhase3500TourDauerTicker } from './phase3500-tour-dauer-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4142,6 +4143,8 @@ export function KitchenBoard({
       <KitchenPhase3490StoppAbstandTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3495: Retour-Quote-Ticker — RotateCcw-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Retour-Quote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel ≤5%; 30-Min-Polling */}
       <KitchenPhase3495RetourQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3500: Tour-Dauer-Ticker — Timer-Icon blau; Schnellster #1 Name+min im Header; Alert "Lange Tour-Dauer!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤50min; 30-Min-Polling */}
+      <KitchenPhase3500TourDauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11189,3 +11192,5 @@ export { KitchenPhase3485SmartTimingCountdownFarbkodierungUltra } from './phase3
 export { KitchenPhase3490StoppAbstandTicker } from './phase3490-stopp-abstand-ticker';
 // Phase 3495 — Retour-Quote-Ticker (RotateCcw-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Retour-Quote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel ≤5%; 30-Min-Polling)
 export { KitchenPhase3495RetourQuoteTicker } from './phase3495-retour-quote-ticker';
+// Phase 3500 — Tour-Dauer-Ticker (Timer-Icon blau; Schnellster #1 Name+min im Header; Alert "Lange Tour-Dauer!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤50min; 30-Min-Polling)
+export { KitchenPhase3500TourDauerTicker } from './phase3500-tour-dauer-ticker';
