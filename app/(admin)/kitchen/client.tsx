@@ -885,6 +885,7 @@ import { KitchenPhase3289StornoQuoteTicker } from './phase3289-storno-quote-tick
 import { KitchenPhase3294PuenktlichkeitTicker } from './phase3294-puenktlichkeit-ticker';
 import { KitchenPhase3299ReaktionszeitTicker } from './phase3299-reaktionszeit-ticker';
 import { KitchenPhase3304AbwesenheitTicker } from './phase3304-abwesenheit-ticker';
+import { KitchenPhase3309SchichtAnnahmeRateTicker } from './phase3309-schicht-annahme-rate-ticker';
 import { KitchenPhase3295SmartTimingEchtzeitCockpit } from './phase3295-smart-timing-echtzeit-cockpit';
 import { KitchenPhase3259SmartKochstartCountdownUltra } from './phase3259-smart-kochstart-countdown-ultra';
 import { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
@@ -3980,6 +3981,8 @@ export function KitchenBoard({
       <KitchenPhase3299ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3304: Abwesenheits-Ticker — CalendarX-Icon rot; Zuverlässigster #1 Name+Tage im Header; Alert ≥4 Tage "Hohe Abwesenheit!"; kompakt aufsteigend; Rang+Tage+Delta; 30-Min-Polling */}
       <KitchenPhase3304AbwesenheitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3309: Schicht-Annahme-Rate-Ticker — CheckSquare-Icon blau; Bester #1 Name+Rate% im Header; Alert <70% "Niedrige Annahme-Rate!"; kompakt absteigend; Rang+Rate%+Delta; 30-Min-Polling */}
+      <KitchenPhase3309SchichtAnnahmeRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3295: Smart-Timing Echtzeit-Cockpit — Gesamt On-Time%+Ø Prep-Zeit; 4 Stations-Balken mit Trend-Pfeil+Ampel grün/gelb/rot; Hochlast-Alert; Empfehlungs-Badge; 30-Sek-Polling */}
       <KitchenPhase3295SmartTimingEchtzeitCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3259: Smart-Kochstart Countdown Ultra — Echtzeit-Farbkodierung grün/gelb/rot/kritisch; Fahrer-ETA-Bridge; Kochstart-Empfehlung; 1-Sek-Tick */}
@@ -10961,6 +10964,8 @@ export { KitchenPhase3294PuenktlichkeitTicker } from './phase3294-puenktlichkeit
 // Phase 3299 — Reaktionszeit-Ticker (Timer-Icon orange; Bester #1 Name+Zeit im Header; Alert >10min "Hohe Reaktionszeit!"; kompakt aufsteigend; Rang+Zeit+Delta; 30-Min-Polling)
 export { KitchenPhase3299ReaktionszeitTicker } from './phase3299-reaktionszeit-ticker';
 export { KitchenPhase3304AbwesenheitTicker } from './phase3304-abwesenheit-ticker';
+// Phase 3309 — Schicht-Annahme-Rate-Ticker (CheckSquare-Icon blau; Bester #1 Name+Rate% im Header; Alert <70% "Niedrige Annahme-Rate!"; kompakt absteigend; Rang+Rate%+Delta; 30-Min-Polling)
+export { KitchenPhase3309SchichtAnnahmeRateTicker } from './phase3309-schicht-annahme-rate-ticker';
 // Phase 3200 — Smart-Kochstart-Kommando (Countdown bis Fahrer eintrifft; optimaler Kochstart-Zeitpunkt; Farbkodierung grün/gelb/rot/kritisch; 1-Sek-Tick + 20-Sek-Polling)
 export { KitchenPhase3200SmartKochstartKommando } from './phase3200-smart-kochstart-kommando';
 
