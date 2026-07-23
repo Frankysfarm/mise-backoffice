@@ -868,6 +868,7 @@ import { FahrerPhase3341MeinUmsatzProTour } from './phase3341-mein-umsatz-pro-to
 import { FahrerPhase3346TourStoppNavigationMaster } from './phase3346-tour-stopp-navigation-master';
 import { FahrerPhase3351MeineLieferdichte } from './phase3351-meine-lieferdichte';
 import { FahrerPhase3356TourStopsNavigationFinalHub } from './phase3356-tour-stops-navigation-final-hub';
+import { FahrerPhase3361MeineTrinkgeldQuote } from './phase3361-meine-trinkgeld-quote';
 
 type Driver = {
   id: string;
@@ -6505,6 +6506,8 @@ export function FahrerApp({
           <FahrerPhase3351MeineLieferdichte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3356: Tour-Stopp Navigation Final Hub — Google Maps + Waze; Anruf; Barzahlung-Alert; Zugestellt-CTA; alle Stopps Timeline; isOnline-Guard; 15-Sek-Polling */}
           <FahrerPhase3356TourStopsNavigationFinalHub driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3361: Meine Trinkgeld-Quote — Ø Trinkgeld €/Stopp heute; Rang + Farbkodierung; Rang-Balken; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3361MeineTrinkgeldQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3320: Tour-Stopp Navigation Hub Ultimate — aktiver-Stopp-Banner mit ETA+Sonderwunsch-Alert; alle Stopps expandierbar mit Google-Maps-Link+Anruf; Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3320TourStoppNavigationHubUltimate />
           {/* Phase 3295: Tour-Stopp Smart-Navigator Pro — Hero-Stopp ETA-Countdown 1-Sek-Tick+Waze+Google-Maps+Anruf; Kommentar-Alert; Pakete+Distanz; Zugestellt-CTA; nächste Stopps; Schicht-Score; mobile-first; 15-Sek-Polling */}
@@ -10170,3 +10173,6 @@ export { FahrerPhase3351MeineLieferdichte } from './phase3351-meine-lieferdichte
 
 // Phase 3356 — Tour-Stopp Navigation Final Hub (Nächster-Stopp-Hero farbkodiert + ETA-Countdown 1-Sek-Tick; Google Maps + Waze Links; Anruf-Button; Barzahlung-Alert; 1-Tap Zugestellt-CTA; alle Stopps Timeline; isOnline-Guard; 15-Sek-Polling)
 export { FahrerPhase3356TourStopsNavigationFinalHub } from './phase3356-tour-stops-navigation-final-hub';
+
+// Phase 3361 — Meine Trinkgeld-Quote (Ø Trinkgeld €/Stopp heute; Rang 4xl + Quote 5xl farbkodiert; Rang-Balken 1–N pos=besser; Delta-Grid Rang-Δ pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3361MeineTrinkgeldQuote } from './phase3361-meine-trinkgeld-quote';

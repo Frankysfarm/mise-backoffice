@@ -954,6 +954,7 @@ import { DispatchPhase3340UmsatzProTourRankingBoard } from './phase3340-umsatz-p
 import { DispatchPhase3345TourScoreFinalMasterCockpit } from './phase3345-tour-score-final-master-cockpit';
 import { DispatchPhase3350LieferdichteRankingBoard } from './phase3350-lieferdichte-ranking-board';
 import { DispatchPhase3355TourScoreVisualisierungKommandoHub } from './phase3355-tour-score-visualisierung-kommando-hub';
+import { DispatchPhase3360TrinkgeldQuoteRankingBoard } from './phase3360-trinkgeld-quote-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4466,6 +4467,8 @@ export function DispatchBoard({
           <DispatchPhase3350LieferdichteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3355: Tour-Score & Visualisierung Kommando-Hub — SVG Score-Ring je Tour; farbkodierte Stopp-Timeline; Sub-Scores; expandierbare Stopp-Liste; Alert Score <65; 20-Sek-Polling */}
           <DispatchPhase3355TourScoreVisualisierungKommandoHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3360: Trinkgeld-Quote Ranking Board — Ø Trinkgeld €/Stopp je Fahrer heute; Rang 1=höchste Quote=bester; Ampel grün/gelb/rot; Alert "Niedrige Trinkgeld-Quote!"; 30-Min-Polling */}
+          <DispatchPhase3360TrinkgeldQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12460,3 +12463,6 @@ export { DispatchPhase3350LieferdichteRankingBoard } from './phase3350-lieferdic
 
 // Phase 3355 — Tour-Score & Visualisierung Kommando-Hub (Score-Ring SVG 0–100 je aktiver Tour; farbkodierte Stopp-Timeline; Sub-Scores Pünktlichkeit/Abschluss/Speed; Flotten-Ø-Score; expandierbare Stopp-Liste; Alert Score <65; 20-Sek-Polling)
 export { DispatchPhase3355TourScoreVisualisierungKommandoHub } from './phase3355-tour-score-visualisierung-kommando-hub';
+
+// Phase 3360 — Trinkgeld-Quote Ranking Board (Ø Trinkgeld €/Stopp je Fahrer heute; Rang 1=höchste Quote=bester; Ampel grün/gelb/rot; Alert Bottom-25% "Niedrige Trinkgeld-Quote!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3360TrinkgeldQuoteRankingBoard } from './phase3360-trinkgeld-quote-ranking-board';

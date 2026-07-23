@@ -901,6 +901,7 @@ import { KitchenPhase3343UmsatzProTourTicker } from './phase3343-umsatz-pro-tour
 import { KitchenPhase3348SmartTimingCountdownMasterPro } from './phase3348-smart-timing-countdown-master-pro';
 import { KitchenPhase3353LieferdichteTicker } from './phase3353-lieferdichte-ticker';
 import { KitchenPhase3358SmartTimingCountdownFarbkodierungPro } from './phase3358-smart-timing-countdown-farbkodierung-pro';
+import { KitchenPhase3363TrinkgeldQuoteTicker } from './phase3363-trinkgeld-quote-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4053,6 +4054,8 @@ export function KitchenBoard({
       <KitchenPhase3353LieferdichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3358: Smart-Timing Countdown & Farbkodierung Pro — Sekundengenauer Countdown; 4-stufige Farbkodierung; On-Time-Rate-Gauge; Kochstart-Empfehlung; 1-Sek-Tick + 15-Sek-Polling */}
       <KitchenPhase3358SmartTimingCountdownFarbkodierungPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3363: Trinkgeld-Quote Ticker — Ø Trinkgeld €/Stopp je Fahrer heute; Rang 1=höchste Quote=bester; kompakt absteigend; Alert "Niedrige Trinkgeld-Quote!"; 30-Min-Polling */}
+      <KitchenPhase3363TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11037,3 +11040,6 @@ export { KitchenPhase3353LieferdichteTicker } from './phase3353-lieferdichte-tic
 
 // Phase 3358 — Smart-Timing Countdown & Farbkodierung Pro (Sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate-Gauge; Kochstart-Empfehlung; Überfällig-Strip; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling)
 export { KitchenPhase3358SmartTimingCountdownFarbkodierungPro } from './phase3358-smart-timing-countdown-farbkodierung-pro';
+
+// Phase 3363 — Trinkgeld-Quote Ticker (Ø Trinkgeld €/Stopp je Fahrer heute; Rang 1=höchste Quote=bester; kompakt absteigend; Bester #1 im Header; Alert Bottom-25% "Niedrige Trinkgeld-Quote!"; Ziel >1.00 €/Stopp; 30-Min-Polling)
+export { KitchenPhase3363TrinkgeldQuoteTicker } from './phase3363-trinkgeld-quote-ticker';
