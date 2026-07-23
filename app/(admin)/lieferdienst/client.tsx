@@ -4811,3 +4811,6 @@ export { LieferdienstPhase2655StatistikTagesvergleichDashboard } from './phase26
 
 // Phase 2660 — Statistiken Intelligence Dashboard (8 KPI-Kacheln Ampel+Trend+Ziel; Stunden-BarChart 2-Modi Bestellungen/Umsatz umschaltbar Jetzt-Stunde blau hervorgehoben; Alert-Strip; 2-Min-Polling)
 export { LieferdienstPhase2660StatistikIntelligenceDashboard } from './phase2660-statistiken-intelligence-dashboard';
+
+// Phase 2665 — Statistiken Final Master Hub (6-KPI-Grid Ampel+Trend vs. Gestern; Stundenverlauf-BarChart letzte 12h; 1-Min-Polling)
+export { LieferdienstPhase2665StatistikenFinalMasterHub } from './phase2665-statistiken-final-master-hub';

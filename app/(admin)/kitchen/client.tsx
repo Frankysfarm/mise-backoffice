@@ -10999,3 +10999,6 @@ export { KitchenPhase3320SmartCountdownFarbkodierungMaster } from './phase3320-s
 
 // Phase 3324 — Ø Lieferzeit-Ticker (Clock-Icon blau; Schnellster #1 Name+Zeit im Header; Alert "Hohe Lieferzeit!"; kompakt aufsteigend; Rang+Zeit+Delta neg=grün; Team-Ø+Ziel≤20min; 30-Min-Polling)
 export { KitchenPhase3324AvgLieferzeitTicker } from './phase3324-avg-lieferzeit-ticker';
+
+// Phase 3329 — Smart-Timing Final Hub (4-stufige Farbkodierung rot/orange/amber/grün; 1-Sek-Countdown-Tick; On-Time-Rate; Überfällig-Alert-Strip; Progress-Bars; 20-Sek-Polling)
+export { KitchenPhase3329SmartTimingFinalHub } from './phase3329-smart-timing-final-hub';

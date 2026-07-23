@@ -12422,3 +12422,6 @@ export { DispatchPhase3295TourVisualisierungLiveBoard } from './phase3295-tour-v
 
 // Phase 3320 — Tour-Score + Visualisierung Live (Score-Ring je Fahrer; Stopp-Dot-Timeline farbkodiert abgeschlossen/unterwegs/ausstehend/Problem; expandierbare Stopp-Liste Adressen/ETA; Bewertung; Alert Score <65; 20-Sek-Polling)
 export { DispatchPhase3320TourScoreVisualisierungLive } from './phase3320-tour-score-visualisierung-live';
+
+// Phase 3326 — Score & Tour-Visualisierungs-Hub (SVG Score-Ring je aktiver Tour; farbkodierte Stopp-Dots; Flotten-Ø; Alert Score <65; 25-Sek-Polling)
+export { DispatchPhase3326ScoreTourVisHub } from './phase3326-score-tour-vis-hub';

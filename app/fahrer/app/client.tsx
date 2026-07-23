@@ -10132,3 +10132,6 @@ export { FahrerPhase3320TourStoppNavigationHubUltimate } from './phase3320-tour-
 
 // Phase 3322 — Meine Ø Lieferzeit (Clock-Icon blau; Zeit 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3322MeineAvgLieferzeit } from './phase3322-meine-avg-lieferzeit';
+
+// Phase 3327 — Tour-Stops Navi Final Hub (Nächster-Stopp-Hero mit Google-Maps; Anruf-Button; Barzahlung-Alert; 1-Tap Zugestellt-CTA; alle Stopps gelistet; 15-Sek-Polling)
+export { FahrerPhase3327TourStopsNaviFinalHub } from './phase3327-tour-stops-navi-final-hub';
