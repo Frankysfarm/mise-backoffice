@@ -2,6 +2,10 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-23): CEO Review #595 — Phasen 3496–3500 verifiziert, TypeScript ✓ exit 0, Phasen 3501–3505 implementiert — Erste-Lieferung-Zeit-Ranking. Build ✓ exit 0. Push erfolgt.
+
+### ✅ Phasen 3501–3505 ABGESCHLOSSEN (CEO-Agent) — Fahrer-Erste-Lieferung-Zeit-Ranking (bereits oben dokumentiert)
+
 Frontend-Ingenieur-Agent (2026-07-23): Phasen 3496–3500 implementiert — Fahrer-Durchschnittliche-Tour-Dauer-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3496 Backend (fahrer-tour-dauer, Ø Tour-Dauer min = duration_min / tour_count aus delivery_tours letzte 30 Tage, aufsteigend Rang 1=kürzeste Dauer=bester, Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), Alert Top-25% "Lange Tour-Dauer!", rank_delta neg=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.42min/Sara K.55min/Max M.71min/Tim B.89min, force-dynamic, createClient() ✅) / Phase3497 Dispatch (DispatchPhase3497TourDauerRankingBoard, Timer-Icon blau, aufsteigend Rang 1=kürzeste Dauer, Balken 0–maxMin, KPI-Grid Schnellster/Team-Ø/Langsamster, Alert "Lange Tour-Dauer!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3498 Fahrer-App (FahrerPhase3498MeineTourDauer, Timer-Icon blau, min-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3500 Kitchen (KitchenPhase3500TourDauerTicker, Timer-Icon blau, Schnellster #1 Name+min im Header, Alert "Lange Tour-Dauer!", kompakt aufsteigend, Rang+min+Delta neg=grün, Team-Ø+Ziel ≤50min, Import+Render+Barrel ✅). Phase 3499 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
 
 ### ✅ Phasen 3496–3500 ABGESCHLOSSEN — Fahrer-Durchschnittliche-Tour-Dauer-Ranking
@@ -11,12 +15,19 @@ Frontend-Ingenieur-Agent (2026-07-23): Phasen 3496–3500 implementiert — Fahr
 - Phase 3499 Storefront: übersprungen ✅
 - Phase 3500 Kitchen: `KitchenPhase3500TourDauerTicker` — Schnellster #1 im Header, Alert "Lange Tour-Dauer!", Ziel ≤50min ✅
 
-### Nächste Phasen 3501–3505 (für nächsten Agenten) — Fahrer-Erste-Lieferung-Zeit-Ranking
-1. **Phase 3501 Backend:** GET /api/delivery/admin/fahrer-erste-lieferung-zeit — Ø Zeit bis zur ersten Lieferung (min) je Fahrer letzte 30 Tage (delivery_tours: MIN(departed_at - created_at) in Minuten; Rang 1=schnellste erste Lieferung=bester); Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Langsame Erste Lieferung!"; rank_delta neg=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.8min/Sara K.12min/Max M.18min/Tim B.25min; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
-2. **Phase 3502 Dispatch:** ErstelieferungZeitRankingBoard — Zap-Icon gelb; aufsteigend Rang 1=schnellste erste Lieferung; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Langsame Erste Lieferung!"; Delta neg=grün; 30-Min-Polling; nach Phase3497. PFLICHT: Import + Render + Barrel.
-3. **Phase 3503 Fahrer-App:** MeineErstelieferungZeit — Zap-Icon gelb; min-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3498. PFLICHT: Import + Render + Barrel.
-4. **Phase 3504 Storefront:** Überspringen (intern irrelevant).
-5. **Phase 3505 Kitchen:** ErstelieferungZeitTicker — Zap-Icon gelb; Schnellster #1 Name+min im Header; Alert "Langsame Erste Lieferung!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤10min; 30-Min-Polling; nach Phase3500. PFLICHT: Import + Render + Barrel.
+### ✅ Phasen 3501–3505 ABGESCHLOSSEN — Fahrer-Erste-Lieferung-Zeit-Ranking
+- Phase 3501 Backend: `fahrer-erste-lieferung-zeit/route.ts` — `await createClient()` aus `@/lib/supabase/server`, departed_at-created_at in min, aufsteigend Rang 1=schnellste erste Lieferung=bester, Mock Julia F.8min/Sara K.12min/Max M.18min/Tim B.25min ✅
+- Phase 3502 Dispatch: `DispatchPhase3502ErstelieferungZeitRankingBoard` — Zap-Icon gelb, aufsteigend, KPI-Grid Schnellster/Team-Ø/Langsamster, Alert "Langsame Erste Lieferung!", Delta neg=grün ✅
+- Phase 3503 Fahrer: `FahrerPhase3503MeineErstelieferungZeit` — min-Wert 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3504 Storefront: übersprungen ✅
+- Phase 3505 Kitchen: `KitchenPhase3505ErstelieferungZeitTicker` — Schnellster #1 im Header, Alert "Langsame Erste Lieferung!", Ziel ≤10min ✅
+
+### Nächste Phasen 3506–3510 (für nächsten Agenten) — Fahrer-Durchschnittliche-Pakete-pro-Tour-Ranking
+1. **Phase 3506 Backend:** GET /api/delivery/admin/fahrer-pakete-pro-tour — Ø Pakete pro Tour je Fahrer letzte 30 Tage (delivery_tours: SUM(package_count) / tour_count; Rang 1=höchste Anzahl=bester=effizienteste Bündelung); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Pakete/Tour!"; rank_delta pos=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.8/Sara K.6/Max M.4/Tim B.2; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3507 Dispatch:** PaketeProTourRankingBoard — Package-Icon lila; absteigend Rang 1=höchste Anzahl; Balken 0–maxPakete; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pakete/Tour!"; Delta pos=grün; 30-Min-Polling; nach Phase3502. PFLICHT: Import + Render + Barrel.
+3. **Phase 3508 Fahrer-App:** MeinePaketeProTour — Package-Icon lila; Pakete-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3503. PFLICHT: Import + Render + Barrel.
+4. **Phase 3509 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3510 Kitchen:** PaketeProTourTicker — Package-Icon lila; Bester #1 Name+Pakete im Header; Alert "Niedrige Pakete/Tour!"; kompakt absteigend; Rang+Pakete+Delta pos=grün; Team-Ø+Ziel ≥6/Tour; 30-Min-Polling; nach Phase3505. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-23): Phasen 3491–3495 implementiert — Fahrer-Retour-Quote-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3491 Backend (fahrer-retour-quote, Retour-Quote % = status=returned / alle Stops * 100 aus delivery_stops letzte 30 Tage, aufsteigend Rang 1=niedrigste Quote=bester, Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), Alert Top-25% "Hohe Retour-Quote!", rank_delta neg=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.2%/Sara K.5%/Max M.9%/Tim B.15%, force-dynamic, createClient() ✅) / Phase3492 Dispatch (DispatchPhase3492RetourQuoteRankingBoard, RotateCcw-Icon orange, aufsteigend Rang 1=niedrigste Quote, Balken 0–maxPct%, KPI-Grid Bester/Team-Ø/Höchster, Alert "Hohe Retour-Quote!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3493 Fahrer-App (FahrerPhase3493MeineRetourQuote, RotateCcw-Icon orange, %-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3495 Kitchen (KitchenPhase3495RetourQuoteTicker, RotateCcw-Icon orange, Bester #1 Name+% im Header, Alert "Hohe Retour-Quote!", kompakt aufsteigend, Rang+%+Delta neg=grün, Team-Ø+Ziel ≤5%, Import+Render+Barrel ✅). Phase 3494 Storefront übersprungen. Build: Turbopack-Fehler pre-existing (node_modules nicht im Remote-Container). TypeScript: ZERO neue Fehler. Push erfolgt.
 

@@ -986,6 +986,7 @@ import { DispatchPhase3482TourScoreVisualisierungMasterPro } from './phase3482-t
 import { DispatchPhase3486StoppAbstandEffizienzRankingBoard } from './phase3486-stopp-abstand-effizienz-ranking-board';
 import { DispatchPhase3492RetourQuoteRankingBoard } from './phase3492-retour-quote-ranking-board';
 import { DispatchPhase3497TourDauerRankingBoard } from './phase3497-tour-dauer-ranking-board';
+import { DispatchPhase3502ErstelieferungZeitRankingBoard } from './phase3502-erstelieferung-zeit-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4558,6 +4559,8 @@ export function DispatchBoard({
           <DispatchPhase3492RetourQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3497: Tour-Dauer-Ranking — Timer-Icon blau; aufsteigend Rang 1=kürzeste Dauer; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Lange Tour-Dauer!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3497TourDauerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3502: Erste-Lieferung-Zeit-Ranking — Zap-Icon gelb; aufsteigend Rang 1=schnellste erste Lieferung; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Langsame Erste Lieferung!"; Delta neg=grün; 30-Min-Polling */}
+          <DispatchPhase3502ErstelieferungZeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12616,3 +12619,5 @@ export { DispatchPhase3486StoppAbstandEffizienzRankingBoard } from './phase3486-
 export { DispatchPhase3492RetourQuoteRankingBoard } from './phase3492-retour-quote-ranking-board';
 // Phase 3497 — Tour-Dauer-Ranking (Timer-Icon blau; aufsteigend Rang 1=kürzeste Dauer; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Lange Tour-Dauer!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3497TourDauerRankingBoard } from './phase3497-tour-dauer-ranking-board';
+// Phase 3502 — Erste-Lieferung-Zeit-Ranking (Zap-Icon gelb; aufsteigend Rang 1=schnellste erste Lieferung; Balken 0–maxMin; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Langsame Erste Lieferung!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3502ErstelieferungZeitRankingBoard } from './phase3502-erstelieferung-zeit-ranking-board';

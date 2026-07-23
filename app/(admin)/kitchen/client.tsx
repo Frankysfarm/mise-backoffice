@@ -933,6 +933,7 @@ import { KitchenPhase3485SmartTimingCountdownFarbkodierungUltra } from './phase3
 import { KitchenPhase3490StoppAbstandTicker } from './phase3490-stopp-abstand-ticker';
 import { KitchenPhase3495RetourQuoteTicker } from './phase3495-retour-quote-ticker';
 import { KitchenPhase3500TourDauerTicker } from './phase3500-tour-dauer-ticker';
+import { KitchenPhase3505ErstelieferungZeitTicker } from './phase3505-erstelieferung-zeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4145,6 +4146,8 @@ export function KitchenBoard({
       <KitchenPhase3495RetourQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3500: Tour-Dauer-Ticker — Timer-Icon blau; Schnellster #1 Name+min im Header; Alert "Lange Tour-Dauer!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤50min; 30-Min-Polling */}
       <KitchenPhase3500TourDauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3505: Erste-Lieferung-Zeit-Ticker — Zap-Icon gelb; Schnellster #1 Name+min im Header; Alert "Langsame Erste Lieferung!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤10min; 30-Min-Polling */}
+      <KitchenPhase3505ErstelieferungZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11194,3 +11197,5 @@ export { KitchenPhase3490StoppAbstandTicker } from './phase3490-stopp-abstand-ti
 export { KitchenPhase3495RetourQuoteTicker } from './phase3495-retour-quote-ticker';
 // Phase 3500 — Tour-Dauer-Ticker (Timer-Icon blau; Schnellster #1 Name+min im Header; Alert "Lange Tour-Dauer!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤50min; 30-Min-Polling)
 export { KitchenPhase3500TourDauerTicker } from './phase3500-tour-dauer-ticker';
+// Phase 3505 — Erste-Lieferung-Zeit-Ticker (Zap-Icon gelb; Schnellster #1 Name+min im Header; Alert "Langsame Erste Lieferung!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤10min; 30-Min-Polling)
+export { KitchenPhase3505ErstelieferungZeitTicker } from './phase3505-erstelieferung-zeit-ticker';
