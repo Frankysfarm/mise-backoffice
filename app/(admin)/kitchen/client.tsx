@@ -930,6 +930,7 @@ import { KitchenPhase3470TourenAuslastungTicker } from './phase3470-touren-ausla
 import { KitchenPhase3475KmProTourTicker } from './phase3475-km-pro-tour-ticker';
 import { KitchenPhase3480LieferzeitGenauigkeitTicker } from './phase3480-lieferzeit-genauigkeit-ticker';
 import { KitchenPhase3485SmartTimingCountdownFarbkodierungUltra } from './phase3485-smart-timing-countdown-farbkodierung-ultra';
+import { KitchenPhase3490StoppAbstandTicker } from './phase3490-stopp-abstand-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4136,6 +4137,8 @@ export function KitchenBoard({
       <KitchenPhase3480LieferzeitGenauigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3485: Smart-Timing Countdown Farbkodierung Ultra — sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate-Gauge; Kochstart-Empfehlung; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling */}
       <KitchenPhase3485SmartTimingCountdownFarbkodierungUltra locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3490: Stopp-Abstand-Ticker — MapPin-Icon grün; Effizientester #1 Name+km im Header; Alert "Hohe Stopp-Abstände!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤2km; 30-Min-Polling */}
+      <KitchenPhase3490StoppAbstandTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11179,3 +11182,5 @@ export { KitchenPhase3475KmProTourTicker } from './phase3475-km-pro-tour-ticker'
 export { KitchenPhase3480LieferzeitGenauigkeitTicker } from './phase3480-lieferzeit-genauigkeit-ticker';
 // Phase 3485 — Smart-Timing Countdown Farbkodierung Ultra (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; On-Time-Rate-Gauge; KPI-Grid Aktiv/Fertig/On-Time; Kochstart-Empfehlung; Überfällig-Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3485SmartTimingCountdownFarbkodierungUltra } from './phase3485-smart-timing-countdown-farbkodierung-ultra';
+// Phase 3490 — Stopp-Abstand-Ticker (MapPin-Icon grün; Effizientester #1 Name+km im Header; Alert "Hohe Stopp-Abstände!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤2km; 30-Min-Polling)
+export { KitchenPhase3490StoppAbstandTicker } from './phase3490-stopp-abstand-ticker';
