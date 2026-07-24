@@ -4882,3 +4882,5 @@ export { LieferdienstPhase2720StatistikenDashboardUltra } from './phase2720-stat
 export { LieferdienstPhase1000StatistikenLiveHubFinal } from './phase1000-statistiken-live-hub-final';
 // Phase 2725 — Statistiken Command Center Ultimate (Activity-Icon indigo; 10-KPI-Grid 2-spaltig Ampel+Δ%+Ziel invertiert; Gesamt-Score-Balken farbkodiert; Insight-Tipp; Alert-Strip amber; Stundenverlauf-BarChart 2-Modi Jetzt-Stunde blau; Mock-Fallback; 60-Sek-Polling)
 export { LieferdienstPhase2725StatistikenCommandCenterUltimate } from './phase2725-statistiken-command-center-ultimate';
+// Phase 2730 — Statistiken Live Intelligence Hub (BarChart2-Icon indigo; 10-KPI-Kacheln 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Ring; Insight-Tipp; Alert-Strip amber; Stundenverlauf-BarChart 2-Modi Jetzt-Stunde blau; Recharts; Mock-Fallback; 60-Sek-Polling)
+export { LieferdienstPhase2730StatistikLiveIntelligenceHub } from './phase2730-statistiken-live-intelligence-hub';

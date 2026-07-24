@@ -12773,3 +12773,5 @@ export { DispatchPhase3644KundenbewertungAvgRankingBoard } from './phase3644-kun
 export { DispatchPhase3649PuenktlichkeitRankingBoard } from './phase3649-puenktlichkeit-ranking-board';
 // Phase 3629 — Tour-Score Live Visualisierung Final (Trophy-Icon amber; Score-Balken 0–100 je Fahrer; Sub-Scores Pünktlichkeit/Lieferzeit/Bewertung expandierbar; Farbkodierung grün/gelb/rot; Flotten-Ø; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-tour-score-live-visualisierung-final';
+// Phase 3654 — Tour-Score Command Center (Trophy-Icon amber; Flotten-KPI-Grid Ø/Top/Alerts; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert unterwegs/geliefert/ausstehend; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung expandierbar; ETA je Stopp; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase3654TourScoreCommandCenter } from './phase3654-tour-score-command-center';

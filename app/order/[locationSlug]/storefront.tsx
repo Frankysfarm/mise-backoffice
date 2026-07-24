@@ -3953,3 +3953,5 @@ export { StorefrontPhase2695EtaLiveCockpitMaster } from './phase2695-eta-live-co
 export { StorefrontPhase2700DynamischeEtaLiveTrackingFinal } from './phase2700-dynamische-eta-live-tracking-final';
 // Phase 2705 — Dynamische ETA Live-Hub (ETA-Hero-Countdown 1-Sek-Tick+Farbkodierung; Konfidenz-Balken; 5-Phasen-Timeline Dot-Verbindung; Fahrer-Profil Distanz; Delay-Warnung; 15-Sek-Polling)
 export { StorefrontPhase2705DynamischeEtaLiveHub } from './phase2705-dynamische-eta-live-hub';
+// Phase 2710 — Dynamische ETA Live-Cockpit Pro (ETA-Countdown 1-Sek-Tick; Konfidenz-Balken; 5-Phasen-Timeline mit aktiven Dots+Verbindungslinien; Fahrer-Profil Name+Bewertung+Distanz; Delay-Warnung; Geliefert-State; 15-Sek-Polling; Mock-Fallback)
+export { StorefrontPhase2710DynamischeEtaLiveCockpitPro } from './phase2710-dynamische-eta-live-cockpit-pro';
