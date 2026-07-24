@@ -1028,6 +1028,7 @@ import { DispatchPhase3683BewertungRankingBoard } from './phase3683-bewertung-ra
 import { DispatchPhase3688TrinkgeldRankingBoard } from './phase3688-trinkgeld-ranking-board';
 import { DispatchPhase3689TrinkgeldQuoteRankingBoard } from './phase3689-trinkgeld-quote-ranking-board';
 import { DispatchPhase3694BestellungenProStoppRankingBoard } from './phase3694-bestellungen-pro-stopp-ranking-board';
+import { DispatchPhase3699RetourenquoteRankingBoard } from './phase3699-retourenquote-ranking-board';
 import { DispatchPhase3654TourScoreCommandCenter } from './phase3654-tour-score-command-center';
 import { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-tour-score-live-visualisierung-final';
 
@@ -4670,6 +4671,7 @@ export function DispatchBoard({
           <DispatchPhase3688TrinkgeldRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3689TrinkgeldQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3694BestellungenProStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3699RetourenquoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3654: Tour-Score Command Center — Flotten-KPI-Grid; Stopp-Dot-Timeline; Sub-KPIs expandierbar; ETA je Stopp; 30-Sek-Polling */}
           <DispatchPhase3654TourScoreCommandCenter locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3629: Tour-Score Live Visualisierung Final — Fahrer-Score-Rangliste 0–100; Stopp-Fortschritt; Sub-Scores expandierbar; Farbkodierung grün/gelb/rot; Flotten-Ø; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -12816,3 +12818,5 @@ export { DispatchPhase3688TrinkgeldRankingBoard } from './phase3688-trinkgeld-ra
 // Phase 3689 — Trinkgeld-Quote Ranking-Board (Gift-Icon lila; absteigend Rang 1=höchste Quote; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Trinkgeld-Quote!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3689TrinkgeldQuoteRankingBoard } from './phase3689-trinkgeld-quote-ranking-board';
 export { DispatchPhase3694BestellungenProStoppRankingBoard } from './phase3694-bestellungen-pro-stopp-ranking-board';
+// Phase 3699 — Retourenquote Ranking-Board (RotateCcw-Icon rot; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Ø/Höchste; Alert "Hohe Retourenquote!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3699RetourenquoteRankingBoard } from './phase3699-retourenquote-ranking-board';
