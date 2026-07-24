@@ -20,12 +20,21 @@ Frontend-Ingenieur-Agent (2026-07-24): Phasen 3738–3742 implementiert. Build �
 - Phase 3741 Storefront: übersprungen ✅
 - Phase 3742 Kitchen: `KitchenPhase3742KmProTourTicker` — Effizientester #1 Name+km im Header, kompakt aufsteigend, Ziel ≤5km/Tour, Import+Render+Barrel ✅
 
-### Nächste Phasen 3743–3747 — Fahrer-Pünktlichkeits-Ranking (Lieferzeit-Einhaltung)
-1. **Phase 3743 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit-ranking-v2 — Pünktlichkeitsrate je Fahrer letzte 30 Tage (delivery_tours: promised_at vs completed_at); Rang 1=höchste Rate=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Pünktlichkeit!"; rank_delta pos=verbessert; Mock Julia F.94%/Sara K.88%/Max M.76%/Tim B.62%; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
-2. **Phase 3744 Dispatch:** PuenktlichkeitRankingBoard — Clock-Icon grün; absteigend Rang 1=höchste Rate; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3739. PFLICHT: Import + Render + Barrel.
-3. **Phase 3745 Fahrer-App:** MeinePuenktlichkeit — Clock-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken ≥90%; Team-Ø-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3740. PFLICHT: Import + Render + Barrel.
-4. **Phase 3746 Storefront:** Überspringen.
-5. **Phase 3747 Kitchen:** PuenktlichkeitTicker — Pünktlichster #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling; nach Phase3742. PFLICHT: Import + Render + Barrel.
+### ✅ Phasen 3743–3747 ABGESCHLOSSEN — Fahrer-Pünktlichkeits-Ranking v2
+Frontend-Ingenieur-Agent (2026-07-24): Phasen 3743–3747 implementiert. Build ✓ exit 0. Push erfolgt (commit 13951fc5).
+- Phase 3743 Backend: `/api/delivery/admin/fahrer-puenktlichkeit-ranking-v2/route.ts` — force-dynamic, await createClient(), delivery_tours promised_at vs completed_at letzte 30 Tage, absteigend Rang 1=höchste Rate=bester, Ampel grün/gelb/rot, Alert Bottom-25% "Niedrige Pünktlichkeit!", Mock Julia 94%/Sara 88%/Max 76%/Tim 62% ✅
+- Phase 3744 Dispatch: `DispatchPhase3744PuenktlichkeitRankingBoard` — Clock-Icon grün, absteigend, KPI-Grid Pünktlichster/Team-Ø/Niedrigster, Alert "Niedrige Pünktlichkeit!", Delta pos=grün, RankBadge, Import+Render+Barrel ✅
+- Phase 3745 Fahrer: `FahrerPhase3745MeinePuenktlichkeit` — %-Wert 5xl, Rang 3xl farbkodiert, Rang-Balken, Ziel-Balken ≥90%, Team-Ø-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3746 Storefront: übersprungen ✅
+- Phase 3747 Kitchen: `KitchenPhase3747PuenktlichkeitTicker` — Pünktlichster #1 Name+% im Header, Alert "Niedrige Pünktlichkeit!", kompakt absteigend, Rang+%+Delta pos=grün, Team-Ø+Ziel ≥90%, Import+Render+Barrel ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Nächste Phasen 3748–3752 — Fahrer-Reaktionszeit-Ranking (Zeit von Zuweisung bis Abholung)
+1. **Phase 3748 Backend:** GET /api/delivery/admin/fahrer-reaktionszeit-ranking — Ø Minuten von Tour-Zuweisung bis Abholung beim Restaurant je Fahrer letzte 30 Tage (delivery_tours: assigned_at vs picked_up_at); Rang 1=niedrigste Zeit=bester; Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe Reaktionszeit!"; rank_delta neg=verbessert; Mock Julia F.4min/Sara K.6min/Max M.9min/Tim B.14min; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3749 Dispatch:** ReaktionszeitRankingBoard — Zap-Icon gelb; aufsteigend Rang 1=niedrigste Zeit; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Reaktionszeit!"; Delta neg=grün; RankBadge; 30-Min-Polling; nach Phase3744. PFLICHT: Import + Render + Barrel.
+3. **Phase 3750 Fahrer-App:** MeineReaktionszeit — Zap-Icon gelb; min-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken ≤5min; Team-Ø-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3745. PFLICHT: Import + Render + Barrel.
+4. **Phase 3751 Storefront:** Überspringen.
+5. **Phase 3752 Kitchen:** ReaktionszeitTicker — Schnellster #1 Name+min im Header; Alert "Hohe Reaktionszeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤5min; 30-Min-Polling; nach Phase3747. PFLICHT: Import + Render + Barrel.
 
 ---
 
