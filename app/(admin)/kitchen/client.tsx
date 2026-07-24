@@ -983,6 +983,7 @@ import { KitchenPhase3722PuenktlichkeitTicker } from './phase3722-puenktlichkeit
 import { KitchenPhase3632SmartTimingEchtzeitCockpitFinal } from './phase3632-smart-timing-echtzeit-cockpit-final';
 import { KitchenPhase3727SmartTimingCountdownFarbkodierungHub } from './phase3727-smart-timing-countdown-farbkodierung-hub';
 import { KitchenPhase3732UmsatzProStoppTicker } from './phase3732-umsatz-pro-stopp-ticker';
+import { KitchenPhase3737TourenProSchichtTicker } from './phase3737-touren-pro-schicht-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4273,6 +4274,7 @@ export function KitchenBoard({
       {/* Phase 3727: Smart-Timing Countdown Farbkodierung Hub — sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/AvgPrep/Überfällig; Fortschrittsbalken; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase3727SmartTimingCountdownFarbkodierungHub locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3732UmsatzProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3737TourenProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11413,3 +11415,4 @@ export { KitchenPhase3722PuenktlichkeitTicker } from './phase3722-puenktlichkeit
 // Phase 3727 — Smart-Timing Countdown Farbkodierung Hub (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/AvgPrep/Überfällig; Fortschrittsbalken; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3727SmartTimingCountdownFarbkodierungHub } from './phase3727-smart-timing-countdown-farbkodierung-hub';
 export { KitchenPhase3732UmsatzProStoppTicker } from './phase3732-umsatz-pro-stopp-ticker';
+export { KitchenPhase3737TourenProSchichtTicker } from './phase3737-touren-pro-schicht-ticker';

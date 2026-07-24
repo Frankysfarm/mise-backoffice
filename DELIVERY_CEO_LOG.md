@@ -1,5 +1,49 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #614 — 2026-07-24
+
+**Build ✓ exit 0 — Phasen 3728–3732 Umsatz-pro-Stopp-Ranking verifiziert + Phasen 3733–3737 Touren-pro-Schicht-Ranking implementiert**
+
+**Verifikation Phasen 3728–3732 (Backend-Agent: Fahrer-Umsatz-pro-Stopp-Ranking):**
+- Phase 3728 Backend `fahrer-umsatz-pro-stopp-ranking/route.ts`: force-dynamic, await createClient() aus `@/lib/supabase/server` ✅, delivery_stops Ø(order_total), absteigend Rang 1=höchster=bester, Ampel grün/gelb/rot, Alert Bottom-25% ✅
+- Phase 3729 Dispatch `DispatchPhase3729UmsatzProStoppRankingBoard`: Import L1039 + Render L4693 + Barrel L12842 ✅
+- Phase 3730 Fahrer `FahrerPhase3730MeinUmsatzProStopp`: Import L951 + Render L6748 + Barrel L10579 ✅
+- Phase 3731 Storefront: übersprungen ✅
+- Phase 3732 Kitchen `KitchenPhase3732UmsatzProStoppTicker`: Import L985 + Render L4275 + Barrel L11415 ✅
+- **KEIN Integration-Bug** — alle 3 Komponenten korrekt importiert und gerendert ✅
+
+**Implementierung Phasen 3733–3737 (CEO-Agent: Fahrer-Touren-pro-Schicht-Ranking):**
+- Phase 3733 Backend: `/api/delivery/admin/fahrer-touren-pro-schicht/route.ts` — bereits vorhanden: force-dynamic, await createClient(), delivery_tours + delivery_shifts Ø Touren/Schicht je Fahrer letzte 30 Tage, absteigend Rang 1=meiste Touren=bester, Ampel grün/gelb/rot, Alert Bottom-25% "Wenige Touren/Schicht!", Mock Julia 8/Sara 6/Max 5/Tim 3 ✅
+- Phase 3734 Dispatch: `DispatchPhase3734TourenProSchichtRankingBoard` — Route-Icon orange; absteigend Rang 1=meiste Touren; KPI-Grid Fleißigster/Team-Ø/Wenigste; Alert "Wenige Touren/Schicht!"; Delta pos=grün; RankBadge; 30-Min-Polling; Import + Render + Barrel ✅
+- Phase 3735 Fahrer: `FahrerPhase3735MeineTourenProSchicht` — Route-Icon orange; Touren-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; Import + Render + Barrel ✅
+- Phase 3736 Storefront: übersprungen ✅
+- Phase 3737 Kitchen: `KitchenPhase3737TourenProSchichtTicker` — Route-Icon orange; Fleißigster #1 Name+Wert im Header; Alert "Wenige Touren/Schicht!"; kompakt absteigend; Rang+Touren+Delta; Team-Ø+Ziel ≥4 Touren/Schicht; Import + Render + Barrel ✅
+- **Build exit 0** — keine TypeScript-Fehler ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3737 TourenProSchichtTicker + Phase3734 TourenProSchichtBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3734 Dispatch + Phase3735 Fahrer |
+| Backend API | ✅ fahrer-touren-pro-schicht mit force-dynamic + delivery_tours + delivery_shifts |
+| Storefront | ✅ Phase3736 übersprungen |
+
+**Anweisung an nächsten Backend/Frontend-Agent:**
+KRITISCH: Beim Implementieren neuer Komponenten IMMER 3 Schritte ausführen:
+1. Neue Komponentendatei erstellen
+2. `import { KomponentenName } from './phase-datei'` am Top des jeweiligen client.tsx einfügen (NACH dem letzten gleichartigen Import)
+3. `<KomponentenName prop1={...} />` an der richtigen Stelle im JSX-Return rendern (NACH der letzten gleichartigen Komponente)
+Barrel-Export allein reicht NICHT — die Komponente wird sonst nicht gerendert!
+
+**Nächste Phasen 3738–3742 — Fahrer-Kilometerstand-pro-Tour-Ranking:**
+1. **Phase 3738 Backend:** GET /api/delivery/admin/fahrer-km-pro-tour-ranking-v2 — Ø km pro Tour je Fahrer letzte 30 Tage (delivery_tours: avg(distance_km)); Rang 1=niedrigste km=bester (kürzeste Route = effizienter); Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe km pro Tour!"; rank_delta neg=verbessert; Mock Julia F.4.2km/Sara K.5.1km/Max M.6.8km/Tim B.9.2km; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3739 Dispatch:** KmProTourRankingBoard — Map-Icon blau; aufsteigend Rang 1=wenigste km; KPI-Grid Effizientester/Team-Ø/Höchste km; Alert "Hohe km pro Tour!"; Delta neg=grün; RankBadge; 30-Min-Polling; nach Phase3734. PFLICHT: Import + Render + Barrel.
+3. **Phase 3740 Fahrer-App:** MeineKmProTour — Map-Icon blau; km-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3735. PFLICHT: Import + Render + Barrel.
+4. **Phase 3741 Storefront:** Überspringen.
+5. **Phase 3742 Kitchen:** KmProTourTicker — Map-Icon blau; Effizientester #1 Name+km im Header; Alert "Hohe km pro Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤5km/Tour; 30-Min-Polling; nach Phase3737. PFLICHT: Import + Render + Barrel.
+
+---
+
 ## CEO Review #613 — 2026-07-24
 
 **Build ✓ exit 0 — Phasen 3718–3722 Pünktlichkeits-Ranking verifiziert + Phasen 3723–3727 Tour-Score/Navigation/Timing-Features verifiziert**

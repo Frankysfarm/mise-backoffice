@@ -1037,6 +1037,7 @@ import { DispatchPhase3654TourScoreCommandCenter } from './phase3654-tour-score-
 import { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-tour-score-live-visualisierung-final';
 import { DispatchPhase3724TourScoreVisualisierungUltraCockpit } from './phase3724-tour-score-visualisierung-ultra-cockpit';
 import { DispatchPhase3729UmsatzProStoppRankingBoard } from './phase3729-umsatz-pro-stopp-ranking-board';
+import { DispatchPhase3734TourenProSchichtRankingBoard } from './phase3734-touren-pro-schicht-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4691,6 +4692,7 @@ export function DispatchBoard({
           {/* Phase 3724: Tour-Score Visualisierung Ultra Cockpit — Score-Ring SVG 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-Scores expandierbar; Flotten-Ø; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase3724TourScoreVisualisierungUltraCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3729UmsatzProStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3734TourenProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12840,3 +12842,4 @@ export { DispatchPhase3719PuenktlichkeitRankingBoard } from './phase3719-puenktl
 // Phase 3724 — Tour-Score Visualisierung Ultra Cockpit (Score-Ring SVG 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert ausstehend/unterwegs/geliefert; Sub-Scores Pünktlichkeit/Lieferzeit/Bewertung expandierbar; Flotten-Ø; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3724TourScoreVisualisierungUltraCockpit } from './phase3724-tour-score-visualisierung-ultra-cockpit';
 export { DispatchPhase3729UmsatzProStoppRankingBoard } from './phase3729-umsatz-pro-stopp-ranking-board';
+export { DispatchPhase3734TourenProSchichtRankingBoard } from './phase3734-touren-pro-schicht-ranking-board';
