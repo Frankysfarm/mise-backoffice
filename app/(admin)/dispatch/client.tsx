@@ -1038,6 +1038,7 @@ import { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-t
 import { DispatchPhase3724TourScoreVisualisierungUltraCockpit } from './phase3724-tour-score-visualisierung-ultra-cockpit';
 import { DispatchPhase3729UmsatzProStoppRankingBoard } from './phase3729-umsatz-pro-stopp-ranking-board';
 import { DispatchPhase3734TourenProSchichtRankingBoard } from './phase3734-touren-pro-schicht-ranking-board';
+import { DispatchPhase3739KmProTourRankingBoard } from './phase3739-km-pro-tour-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4693,6 +4694,7 @@ export function DispatchBoard({
           <DispatchPhase3724TourScoreVisualisierungUltraCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3729UmsatzProStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3734TourenProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3739KmProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12843,3 +12845,4 @@ export { DispatchPhase3719PuenktlichkeitRankingBoard } from './phase3719-puenktl
 export { DispatchPhase3724TourScoreVisualisierungUltraCockpit } from './phase3724-tour-score-visualisierung-ultra-cockpit';
 export { DispatchPhase3729UmsatzProStoppRankingBoard } from './phase3729-umsatz-pro-stopp-ranking-board';
 export { DispatchPhase3734TourenProSchichtRankingBoard } from './phase3734-touren-pro-schicht-ranking-board';
+export { DispatchPhase3739KmProTourRankingBoard } from './phase3739-km-pro-tour-ranking-board';

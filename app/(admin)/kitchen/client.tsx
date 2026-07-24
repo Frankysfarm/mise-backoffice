@@ -984,6 +984,7 @@ import { KitchenPhase3632SmartTimingEchtzeitCockpitFinal } from './phase3632-sma
 import { KitchenPhase3727SmartTimingCountdownFarbkodierungHub } from './phase3727-smart-timing-countdown-farbkodierung-hub';
 import { KitchenPhase3732UmsatzProStoppTicker } from './phase3732-umsatz-pro-stopp-ticker';
 import { KitchenPhase3737TourenProSchichtTicker } from './phase3737-touren-pro-schicht-ticker';
+import { KitchenPhase3742KmProTourTicker } from './phase3742-km-pro-tour-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4275,6 +4276,7 @@ export function KitchenBoard({
       <KitchenPhase3727SmartTimingCountdownFarbkodierungHub locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3732UmsatzProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3737TourenProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3742KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11416,3 +11418,4 @@ export { KitchenPhase3722PuenktlichkeitTicker } from './phase3722-puenktlichkeit
 export { KitchenPhase3727SmartTimingCountdownFarbkodierungHub } from './phase3727-smart-timing-countdown-farbkodierung-hub';
 export { KitchenPhase3732UmsatzProStoppTicker } from './phase3732-umsatz-pro-stopp-ticker';
 export { KitchenPhase3737TourenProSchichtTicker } from './phase3737-touren-pro-schicht-ticker';
+export { KitchenPhase3742KmProTourTicker } from './phase3742-km-pro-tour-ticker';
