@@ -982,6 +982,7 @@ import { KitchenPhase3717KundenzufriedenheitTicker } from './phase3717-kundenzuf
 import { KitchenPhase3722PuenktlichkeitTicker } from './phase3722-puenktlichkeit-ticker';
 import { KitchenPhase3632SmartTimingEchtzeitCockpitFinal } from './phase3632-smart-timing-echtzeit-cockpit-final';
 import { KitchenPhase3727SmartTimingCountdownFarbkodierungHub } from './phase3727-smart-timing-countdown-farbkodierung-hub';
+import { KitchenPhase3732UmsatzProStoppTicker } from './phase3732-umsatz-pro-stopp-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4271,6 +4272,7 @@ export function KitchenBoard({
       <KitchenPhase3632SmartTimingEchtzeitCockpitFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3727: Smart-Timing Countdown Farbkodierung Hub — sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/AvgPrep/Überfällig; Fortschrittsbalken; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase3727SmartTimingCountdownFarbkodierungHub locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3732UmsatzProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11410,3 +11412,4 @@ export { KitchenPhase3717KundenzufriedenheitTicker } from './phase3717-kundenzuf
 export { KitchenPhase3722PuenktlichkeitTicker } from './phase3722-puenktlichkeit-ticker';
 // Phase 3727 — Smart-Timing Countdown Farbkodierung Hub (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/AvgPrep/Überfällig; Fortschrittsbalken; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3727SmartTimingCountdownFarbkodierungHub } from './phase3727-smart-timing-countdown-farbkodierung-hub';
+export { KitchenPhase3732UmsatzProStoppTicker } from './phase3732-umsatz-pro-stopp-ticker';
