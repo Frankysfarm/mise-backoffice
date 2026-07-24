@@ -28162,3 +28162,47 @@ Backend-Architekt-Agent (2026-07-23): Phasen 3566–3570 implementiert (Dateien:
 5. **Phase 3597 Kitchen:** KundenbewertungTicker — Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+★+Delta pos=grün; Team-Ø+Ziel ≥4.5★; 30-Min-Polling; nach Phase3592. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-24): Phasen 3581–3585 implementiert (Dateien: 3581/3590/3591/3592) — Fahrer-Leerlauf-Zeit-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3581 Backend (fahrer-leerlauf-zeit, Leerlauf=Schicht-Dauer-aktive-Tour-Zeit letzte 30 Tage, Rang 1=kürzeste Leerlauf=bester, Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), alert_top Top-25%, rank_delta neg=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.25min/Sara K.42min/Max M.67min/Tim B.98min, force-dynamic, createClient() ✅) / Phase3590 Dispatch (DispatchPhase3590LeerlaufZeitRankingBoard, Clock-Icon gelb, aufsteigend Rang 1=kürzeste Leerlauf, Balken 0–maxMin, KPI-Grid Kürzester/Team-Ø/Längster, Alert "Hohe Leerlauf-Zeit!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3591 Fahrer-App (FahrerPhase3591MeineLeerlaufZeit, Clock-Icon gelb, min 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3592 Kitchen (KitchenPhase3592LeerlaufZeitTicker, Clock-Icon gelb, Kürzester #1 Name+min im Header, Alert "Hohe Leerlauf-Zeit!", Ziel <45min, Import+Render+Barrel ✅). Phase 3584 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
+
+---
+
+## Batch 3593–3597 (Dateien: 3593[existing]/3594/3595/3597) — Fahrer-Kundenbewertungs-Ranking (ABGESCHLOSSEN 2026-07-24)
+
+### Phase 3593 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-kundenbewertung/route.ts` *(bereits existierte als Phase 2254)*
+Vollständige Implementierung vorhanden: order_ratings je Fahrer heute+Vorwoche, Rang 1=höchste Bewertung=bester, Ampel grün(≥4.5)/gelb(≥4.0)/rot(<4.0), trend steigend/fallend/stabil, Mock Max M.4.8/Lisa F.4.6/Sara K.4.2/Tim B.3.8; force-dynamic; createClient() ✅
+
+### Phase 3594 — Kundenbewertung-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3594-kundenbewertung-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3594KundenbewertungRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Bewertung!" (rot); Trend-Icon steigend/fallend/stabil; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import nach L1008 + Render nach Phase3590 + Barrel-Export ✅
+
+### Phase 3595 — Meine Kundenbewertung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3595-meine-kundenbewertung.tsx` *(neu)*
+**Component:** `FahrerPhase3595MeineKundenbewertung`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Star-Icon gelb; ★-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Trend-Icon/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import nach L921 + Render nach Phase3591 + Barrel-Export ✅
+
+### Phase 3596 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3597 — Kundenbewertung-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3597-kundenbewertung-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3597KundenbewertungTicker`
+**Props:** `locationId: string | null`
+**UI:** Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Bewertung!" (alert_count>0); kompakt absteigend; Rang+★+Trend-Icon; Team-Ø+Ziel ≥4.5★; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import nach L955 + Render nach Phase3592 + Barrel-Export ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — exit 0** ✅
+
+### Nächste Phasen 3598–3602 (für nächsten Agenten) — Fahrer-Lieferzeit-Zuverlässigkeits-Ranking
+1. **Phase 3598 Backend:** GET /api/delivery/admin/fahrer-lieferzeit-zuverlaessigkeit — Anteil pünktlicher Lieferungen (≤versprochene ETA) je Fahrer letzte 30 Tage; Rang 1=höchste Zuverlässigkeit=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Zuverlässigkeit!"; rank_delta pos=verbessert; Mock Julia F.94%/Sara K.87%/Max M.79%/Tim B.61%.
+2. **Phase 3599 Dispatch:** ZuverlaessigkeitRankingBoard — CheckCircle-Icon grün; absteigend Rang 1=höchste %; Balken 0–100%; KPI-Grid Zuverlässigster/Team-Ø/Unzuverlässigster; Alert "Niedrige Zuverlässigkeit!"; Delta pos=grün; 30-Min-Polling; nach Phase3594.
+3. **Phase 3600 Fahrer:** MeineZuverlaessigkeit — CheckCircle-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3595.
+4. **Phase 3601 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3602 Kitchen:** ZuverlaessigkeitTicker — CheckCircle-Icon grün; Zuverlässigster #1 im Header; Alert "Niedrige Zuverlässigkeit!"; kompakt absteigend; Rang+%+Delta; Team-Ø+Ziel ≥90%; 30-Min-Polling; nach Phase3597.
+
+Frontend-Ingenieur-Agent (2026-07-24): Phasen 3593–3597 implementiert — Fahrer-Kundenbewertungs-Ranking. Backend-Route bereits als Phase 2254 vorhanden (order_ratings, Ampel grün/gelb/rot, trend). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3594 Dispatch (DispatchPhase3594KundenbewertungRankingBoard, Star-Icon gelb, absteigend, KPI-Grid Bester/Team-Ø/Niedrigster, Alert rot, Trend-Icon, Import+Render+Barrel ✅) / Phase3595 Fahrer-App (FahrerPhase3595MeineKundenbewertung, Star-Icon gelb, ★ 5xl+Rang 3xl, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3597 Kitchen (KitchenPhase3597KundenbewertungTicker, Star-Icon gelb, Bester #1 im Header, Alert, Ziel ≥4.5★, Import+Render+Barrel ✅). Phase 3596 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
