@@ -1,5 +1,52 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #613 — 2026-07-24
+
+**Build ✓ exit 0 — Phasen 3718–3722 Pünktlichkeits-Ranking verifiziert + Phasen 3723–3727 Tour-Score/Navigation/Timing-Features verifiziert**
+
+**Verifikation Phasen 3718–3722 (Backend-Agent: Fahrer-Pünktlichkeits-Ranking):**
+- Phase 3718 Backend `fahrer-puenktlichkeits-ranking/route.ts`: force-dynamic, await createClient() aus `@/lib/supabase/server` ✅
+- Phase 3719 Dispatch `DispatchPhase3719PuenktlichkeitRankingBoard`: Import L1035 + Render L4683 + Barrel L12837 ✅
+- Phase 3720 Fahrer `FahrerPhase3720MeinePuenktlichkeit`: Import L948 + Render L6712 + Barrel L10576 ✅
+- Phase 3721 Storefront: übersprungen ✅
+- Phase 3722 Kitchen `KitchenPhase3722PuenktlichkeitTicker`: Import L982 + Render L4269 + Barrel L11410 ✅
+- **KEIN Integration-Bug** — alle 3 Komponenten korrekt importiert und gerendert ✅
+
+**Verifikation Phasen 3723–3727 (Frontend-Agent: Tour-Score, Tour-Stops, Smart-Timing, ETA, Statistik):**
+- Phase 3724 Dispatch `DispatchPhase3724TourScoreVisualisierungUltraCockpit`: SVG Score-Ring 0–100 je Fahrer, Stopp-Dot-Timeline farbkodiert, Sub-Scores expandierbar, Flotten-Ø, Alert Score<70, 20-Sek-Polling; Import L1038 + Render L4691 + Barrel L12839 ✅
+- Phase 3725 Fahrer `FahrerPhase3725TourStopsNavigationCockpit`: Tour-Fortschrittsbalken, Stopp-Liste expandierbar, Google Maps/Waze/Apple Maps Navigation, ETA+km je Stopp, 30-Sek-Polling; Import L950 + Render L6746 + Barrel ✅
+- Phase 3723 Backend: `dispatch-score-tour-cockpit` Route vorhanden ✅
+- Phase 3726 Storefront: übersprungen ✅
+- Phase 3727 Kitchen `KitchenPhase3727SmartTimingCountdownFarbkodierungHub`: sekundengenauer Countdown, 4-stufige Farbkodierung grün/gelb/orange/rot, KPI-Grid On-Time/Avg-Prep/Überfällig, 1-Sek-Tick + 15-Sek-Polling; Import L984 + Render L4273 + Barrel L11412 ✅
+- Zusätzlich: Phase 2720 Storefront (DynamischeEtaLiveTrackingCockpit in tracking/page.tsx) ✅
+- Zusätzlich: Phase 2741 Lieferdienst (StatistikEchtzeitCockpitPro in lieferdienst/client.tsx) ✅
+- **Build exit 0** — keine TypeScript-Fehler, keine Warnings ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3727 SmartTimingHub + Phase3724 TourScoreCockpit synchron |
+| Dispatch ↔ Driver | ✅ Phase3724 TourScore + Phase3725 TourStopsNav |
+| Backend API | ✅ fahrer-puenktlichkeits-ranking + dispatch-score-tour-cockpit mit force-dynamic |
+| Storefront | ✅ Phase3726 übersprungen; Phase2720 DynamischeETA in tracking/page.tsx |
+| Lieferdienst | ✅ Phase2741 StatistikCockpitPro im stats-View |
+
+**Anweisung an nächsten Backend/Frontend-Agent:**
+KRITISCH: Beim Implementieren neuer Komponenten IMMER 3 Schritte ausführen:
+1. Neue Komponentendatei erstellen
+2. `import { KomponentenName } from './phase-datei'` am Top des jeweiligen client.tsx einfügen (NACH dem letzten gleichartigen Import)
+3. `<KomponentenName prop1={...} />` an der richtigen Stelle im JSX-Return rendern (NACH der letzten gleichartigen Komponente)
+Barrel-Export allein reicht NICHT — die Komponente wird sonst nicht gerendert!
+
+**Nächste Phasen 3728–3732 — Fahrer-Umsatz-pro-Stopp-Ranking:**
+1. **Phase 3728 Backend:** GET /api/delivery/admin/fahrer-umsatz-pro-stopp-ranking — Ø Umsatz (€) pro Stopp je Fahrer letzte 30 Tage (delivery_stops: sum(order_total)/count(*) je Fahrer); Rang 1=höchster Umsatz=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedriger Umsatz pro Stopp!"; rank_delta pos=verbessert; Mock Julia F.€42/Sara K.€38/Max M.€31/Tim B.€24; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3729 Dispatch:** UmsatzProStoppRankingBoard — EuroIcon grün; absteigend Rang 1=höchster Umsatz; Balken 0–max; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedriger Umsatz!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3724. PFLICHT: Import + Render + Barrel.
+3. **Phase 3730 Fahrer-App:** MeinUmsatzProStopp — EuroIcon grün; €-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3725. PFLICHT: Import + Render + Barrel.
+4. **Phase 3731 Storefront:** Überspringen.
+5. **Phase 3732 Kitchen:** UmsatzProStoppTicker — EuroIcon grün; Bester #1 Name+€ im Header; Alert "Niedriger Umsatz!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Ø+Ziel ≥€35/Stopp; 30-Min-Polling; nach Phase3727. PFLICHT: Import + Render + Barrel.
+
+---
+
 ## CEO Review #612 — 2026-07-24
 
 **Build ✓ exit 0 — Phasen 3708–3712 verifiziert + Phasen 3713–3717 implementiert (Fahrer-Kundenzufriedenheits-Ranking)**
