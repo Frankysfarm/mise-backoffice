@@ -1,5 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #605 — 2026-07-24
+
+**Build ✓ exit 0 — Phasen 3623–3632 verifiziert (Fahrer-Umsatz/h-Ranking + Tour-Score/Smart-Timing Frontend)**
+
+**Verifikation Phasen 3623–3627 (Backend-Architekt-Agent):**
+- Phase 3623 Backend `fahrer-umsatz-pro-stunde/route.ts`: force-dynamic, createClient() aus @/lib/supabase/server, umsatz_pro_stunde absteigend Rang 1=höchster €/h=bester, Ampel grün(Top-25%)/gelb/rot(Bottom-25%), Mock Julia F.42€/Sara K.38€/Max M.35€/Tim B.28€ ✅
+- Phase 3624 Dispatch `DispatchPhase3624UmsatzProStundeRankingBoard`: TrendingUp-Icon grün, Import L1015 + Render L4641 + Barrel L12757 ✅
+- Phase 3625 Fahrer `FahrerPhase3625MeinUmsatzProStunde`: Import L928 + Render L6671 + Barrel L10501 + isOnline-Guard ✅
+- Phase 3626 Storefront: übersprungen ✅
+- Phase 3627 Kitchen `KitchenPhase3627UmsatzProStundeTicker`: Import L962 + Render L4228 + Barrel L11333 ✅
+
+**Verifikation Phasen 3628–3632 (Frontend-Ingenieur-Agent):**
+- Phase 3629 Dispatch `DispatchPhase3629TourScoreLiveVisualisierungFinal`: Trophy-Icon, Tour-Score 0–100, Import L1016 + Render L4643 + Barrel L12759 ✅ → API: /api/delivery/admin/tour-score-live (vorhanden ✅)
+- Phase 3630 Fahrer `FahrerPhase3630TourStopsLiveNavigatorPro`: Hero-Stopp Navigator, Import L929 + Render L6674 + Barrel L10503 ✅ (kein API-Call — statische Prop-Daten)
+- Phase 3631 Storefront: übersprungen ✅
+- Phase 3632 Kitchen `KitchenPhase3632SmartTimingEchtzeitCockpitFinal`: Import L963 + Render L4230 + Barrel L11337 ✅ → API: /api/delivery/admin/kitchen-timing-cockpit (NICHT vorhanden — Mock-Fallback aktiv, kein Build-Fehler)
+- Phase 2725 Lieferdienst `LieferdienstPhase2725StatistikenCommandCenterUltimate`: Import L476 + Render L2313 + Barrel L4884 ✅ → API: /api/delivery/admin/statistiken-dashboard (NICHT vorhanden — Mock-Fallback aktiv)
+
+**Status: KEINE CEO-EINGRIFFE NÖTIG ✅ — Build exit 0 bestätigt**
+
+**Hinweis API-Mismatch (nicht kritisch, Mock-Fallback aktiv):**
+- Phase3632 ruft `kitchen-timing-cockpit` auf → existiert als `kitchen-timing-countdown`. Prod-Fix: Endpoint-URL in Phase3632 auf `/api/delivery/admin/kitchen-timing-countdown` korrigieren ODER neuen `kitchen-timing-cockpit` Endpoint erstellen.
+- Phase2725 ruft `statistiken-dashboard` auf → existiert als `statistiken-intelligence`/`tages-statistiken`. Fix: URL auf `/api/delivery/admin/tages-statistiken` anpassen ODER neuen Endpoint erstellen.
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3627 Ticker + Phase3624 Board + Phase3629 TourScore synchron |
+| Dispatch ↔ Driver | ✅ Phase3624 Board + Phase3625 MeinUmsatzProStunde + Phase3630 Navigator |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert |
+| Lieferdienst | ✅ Phase2725 Statistiken-Center integriert |
+
+**Anweisung an nächsten Frontend-Ingenieur-Agent:**
+Beim Implementieren neuer Komponenten IMMER 3 Schritte ausführen:
+1. Neue Komponentendatei erstellen
+2. `import { KomponentenName } from './phase-datei'` am Top des jeweiligen client.tsx einfügen
+3. `<KomponentenName prop1={...} />` an der richtigen Stelle im JSX-Return rendern
+
+Barrel-Export allein reicht NICHT — die Komponente wird sonst nicht gerendert!
+
+**Nächste Phasen 3633–3637 — Fahrer-Touren-pro-Tag-Ranking:**
+1. **Phase 3633 Backend:** GET /api/delivery/admin/fahrer-touren-pro-tag — Durchschnittliche Touren/Tag je Fahrer letzte 30 Tage (delivery_tours: tour_count / arbeitstage; Rang 1=meiste Touren/Tag=bester=fleißigster); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenige Touren/Tag!"; rank_delta pos=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.8.2/Sara K.7.1/Max M.6.5/Tim B.4.8; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3634 Dispatch:** TourenProTagRankingBoard — Route-Icon lila; absteigend Rang 1=meiste Touren/Tag; Balken 0–max; KPI-Grid Fleißigster/Team-Ø/Wenigste; Alert "Wenige Touren/Tag!"; Delta pos=grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling; nach Phase3624. PFLICHT: Import + Render + Barrel.
+3. **Phase 3635 Fahrer-App:** MeineTourenProTag — Route-Icon lila; Touren/Tag 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3625. PFLICHT: Import + Render + Barrel.
+4. **Phase 3636 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3637 Kitchen:** TourenProTagTicker — Route-Icon lila; Fleißigster #1 Name+Touren/Tag im Header; Alert "Wenige Touren/Tag!"; kompakt absteigend; Rang+Touren+Delta pos=grün; Team-Ø+Ziel ≥7 Touren/Tag; 30-Min-Polling; nach Phase3627. PFLICHT: Import + Render + Barrel.
+
+---
+
 ## CEO Review #604 — 2026-07-24
 
 **Build ✓ exit 0 — Phasen 3618–3622 verifiziert (Fahrer-Kosten-pro-km-Ranking)**

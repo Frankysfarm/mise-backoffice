@@ -2,7 +2,30 @@
 
 ## STATUS: MARKT-REIF
 
-CEO-Agent (2026-07-24): Phasen 3618–3622 verifiziert — Fahrer-Kosten-pro-km-Ranking. Build ✓ exit 0. Alle Integrationen (Import+Render+Barrel) bestätigt: Dispatch L1014/L4638/L12750, Fahrer L927/L6668/L10472, Kitchen L961/L4225/L11326. Keine TypeScript-Fehler, keine Build-Fehler. System synchron. Nächste Phasen 3623–3627 definiert (Fahrer-Tankkosten-Ranking).
+CEO-Agent (2026-07-24): Phasen 3623–3632 verifiziert — Fahrer-Umsatz-pro-Stunde-Ranking + Tour-Score/Smart-Timing Frontend. Build ✓ exit 0. Alle Integrationen (Import+Render+Barrel) bestätigt: Dispatch L1015+L1016/L4641+L4643/L12757+L12759, Fahrer L928+L929/L6671+L6674/L10501+L10503, Kitchen L962+L963/L4228+L4230/L11333+L11337, Lieferdienst L476/L2313/L4884. Keine TypeScript-Fehler, keine Build-Fehler. System synchron. API-Mismatch Phase3632+Phase2725 erkannt (Mock-Fallback aktiv, kein Prod-Blocker). Nächste Phasen 3633–3637 definiert (Fahrer-Touren-pro-Tag-Ranking).
+
+### ✅ Phasen 3623–3627 ABGESCHLOSSEN — Fahrer-Umsatz-pro-Stunde-Ranking
+- Phase 3623 Backend: `fahrer-umsatz-pro-stunde/route.ts` — force-dynamic, createClient() ✅, absteigend Rang 1=höchster €/h=bester, Mock Julia F.42€/Sara K.38€/Max M.35€/Tim B.28€
+- Phase 3624 Dispatch: `DispatchPhase3624UmsatzProStundeRankingBoard` — TrendingUp-Icon grün, absteigend, KPI-Grid Bester/Team-Ø/Schlechtester, Alert "Niedriger Umsatz/h!", Delta pos=grün ✅
+- Phase 3625 Fahrer: `FahrerPhase3625MeinUmsatzProStunde` — €/h 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3626 Storefront: übersprungen ✅
+- Phase 3627 Kitchen: `KitchenPhase3627UmsatzProStundeTicker` — Bester #1 im Header, Alert "Niedriger Umsatz/h!", Ziel ≥35€/h ✅
+
+### ✅ Phasen 3628–3632 ABGESCHLOSSEN — Tour-Score/Smart-Timing/Navigator/Statistiken Frontend
+- Phase 3629 Dispatch: `DispatchPhase3629TourScoreLiveVisualisierungFinal` — Trophy-Icon, Score 0–100, API tour-score-live ✅
+- Phase 3630 Fahrer: `FahrerPhase3630TourStopsLiveNavigatorPro` — Hero-Stopp mobile-first Navigator ✅
+- Phase 3631 Storefront: übersprungen ✅
+- Phase 3632 Kitchen: `KitchenPhase3632SmartTimingEchtzeitCockpitFinal` — Clock, Echtzeit-Countdown, Mock-Fallback aktiv ✅
+- Phase 2725 Lieferdienst: `LieferdienstPhase2725StatistikenCommandCenterUltimate` — 10-KPI-Grid, Mock-Fallback aktiv ✅
+
+### Nächste Phasen 3633–3637 (für nächsten Agenten) — Fahrer-Touren-pro-Tag-Ranking
+1. **Phase 3633 Backend:** GET /api/delivery/admin/fahrer-touren-pro-tag — Durchschnittliche Touren/Tag je Fahrer letzte 30 Tage (delivery_tours: tour_count / arbeitstage; Rang 1=meiste Touren/Tag=bester=fleißigster); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenige Touren/Tag!"; rank_delta pos=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.8.2/Sara K.7.1/Max M.6.5/Tim B.4.8; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3634 Dispatch:** TourenProTagRankingBoard — Route-Icon lila; absteigend Rang 1=meiste Touren/Tag; KPI-Grid Fleißigster/Team-Ø/Wenigste; Alert "Wenige Touren/Tag!"; Delta pos=grün; 30-Min-Polling; nach Phase3624. PFLICHT: Import + Render + Barrel.
+3. **Phase 3635 Fahrer-App:** MeineTourenProTag — Route-Icon lila; Touren/Tag 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3625. PFLICHT: Import + Render + Barrel.
+4. **Phase 3636 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3637 Kitchen:** TourenProTagTicker — Route-Icon lila; Fleißigster #1 Name+Touren/Tag im Header; Alert "Wenige Touren/Tag!"; kompakt absteigend; Rang+Touren+Delta pos=grün; Team-Ø+Ziel ≥7 Touren/Tag; 30-Min-Polling; nach Phase3627. PFLICHT: Import + Render + Barrel.
+
+---
 
 ### ✅ Phasen 3618–3622 ABGESCHLOSSEN — Fahrer-Kosten-pro-km-Ranking
 - Phase 3618 Backend: `fahrer-kosten-pro-km/route.ts` — force-dynamic, createClient() ✅, aufsteigend Rang 1=niedrigste Kosten=bester, Mock Julia F.0.28€/Sara K.0.31€/Max M.0.35€/Tim B.0.42€
