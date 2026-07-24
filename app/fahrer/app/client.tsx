@@ -922,6 +922,7 @@ import { FahrerPhase3591MeineLeerlaufZeit } from './phase3591-meine-leerlauf-zei
 import { FahrerPhase3595MeineKundenbewertung } from './phase3595-meine-kundenbewertung';
 import { FahrerPhase3600MeineZuverlaessigkeit } from './phase3600-meine-zuverlaessigkeit';
 import { FahrerPhase3605MeineStornoQuote } from './phase3605-meine-storno-quote';
+import { FahrerPhase3610MeineWartezeit } from './phase3610-meine-wartezeit';
 
 type Driver = {
   id: string;
@@ -6657,6 +6658,8 @@ export function FahrerApp({
           <FahrerPhase3600MeineZuverlaessigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3605: Meine Storno-Quote — XCircle-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3605MeineStornoQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3610: Meine Wartezeit — Clock-Icon lila; min 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3610MeineWartezeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3583: Tour-Stops Smart Navi Hub — Hero-Stopp mit Google-Maps+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3583TourStopsSmartNaviHub
@@ -10455,5 +10458,7 @@ export { FahrerPhase3595MeineKundenbewertung } from './phase3595-meine-kundenbew
 export { FahrerPhase3600MeineZuverlaessigkeit } from './phase3600-meine-zuverlaessigkeit';
 // Phase 3605 — Meine Storno-Quote (XCircle-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3605MeineStornoQuote } from './phase3605-meine-storno-quote';
+// Phase 3610 — Meine Wartezeit (Clock-Icon lila; min 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3610MeineWartezeit } from './phase3610-meine-wartezeit';
 // Phase 1001 — Tour-Stopp Navigation Hub (vollständige Stopp-Liste mit ETA-Ring; Direktnavigation Google Maps/Waze; Aktueller-Stopp-Fokus; Stopp-Bestätigung; 5-Min-Polling; Mock-Fallback)
 export { FahrerPhase1001TourStoppNavigationHub } from './phase1001-tour-stopp-navigation-hub';

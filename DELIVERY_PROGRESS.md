@@ -2,6 +2,22 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-24): Phasen 3608–3612 implementiert — Fahrer-Wartezeit-Ranking. Backend-Route `fahrer-wartezeit/route.ts` bereits aus Phase 2321 vorhanden (avg_wartezeit_min, team_avg_wartezeit_min, ampel, trend_delta, alert, Multi-Tenant, force-dynamic, createClient() ✅) + 3 neue Frontend-Komponenten: Phase3609 Dispatch (`DispatchPhase3609WartezeitRankingBoard`, Clock-Icon lila, aufsteigend Rang 1=kürzeste Wartezeit, KPI-Grid Schnellster/Team-Ø/Langsamster, Alert "Lange Wartezeit!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3610 Fahrer-App (`FahrerPhase3610MeineWartezeit`, Clock-Icon lila, min 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3612 Kitchen (`KitchenPhase3612WartezeitTicker`, Clock-Icon lila, Schnellster #1 Name+min im Header, Alert "Lange Wartezeit!", Ziel ≤5min, Import+Render+Barrel ✅). Phase 3611 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
+
+### ✅ Phasen 3608–3612 ABGESCHLOSSEN — Fahrer-Wartezeit-Ranking
+- Phase 3608 Backend: `fahrer-wartezeit/route.ts` — bereits vorhanden (Phase 2321), avg_wartezeit_min aufsteigend Rang 1=kürzeste Wartezeit=bester, ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), trend_delta neg=verbessert, Mock-Daten vorhanden ✅
+- Phase 3609 Dispatch: `DispatchPhase3609WartezeitRankingBoard` — Clock-Icon lila, aufsteigend, KPI-Grid Schnellster/Team-Ø/Langsamster, Alert "Lange Wartezeit!", Delta neg=grün ✅
+- Phase 3610 Fahrer: `FahrerPhase3610MeineWartezeit` — min 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3611 Storefront: übersprungen ✅
+- Phase 3612 Kitchen: `KitchenPhase3612WartezeitTicker` — Schnellster #1 im Header, Alert "Lange Wartezeit!", Ziel ≤5min ✅
+
+### Nächste Phasen 3613–3617 (für nächsten Agenten) — Fahrer-Kilometerstand-Ranking
+1. **Phase 3613 Backend:** GET /api/delivery/admin/fahrer-kilometerstand — Gesamte Kilometer je Fahrer letzte 30 Tage (delivery_tours: total_distance_km summiert; Rang 1=kürzeste Gesamtstrecke=effizienter); Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hoher Kilometerstand!"; rank_delta neg=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.45km/Sara K.78km/Max M.112km/Tim B.167km; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3614 Dispatch:** KilometerstandRankingBoard — Gauge-Icon orange; aufsteigend Rang 1=kürzeste Strecke; KPI-Grid Effizientester/Team-Ø/Kilometerkönig; Alert "Hoher Kilometerstand!"; Delta neg=grün; 30-Min-Polling; nach Phase3609. PFLICHT: Import + Render + Barrel.
+3. **Phase 3615 Fahrer-App:** MeinKilometerstand — Gauge-Icon orange; km-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3610. PFLICHT: Import + Render + Barrel.
+4. **Phase 3616 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3617 Kitchen:** KilometerstandTicker — Gauge-Icon orange; Effizientester #1 Name+km im Header; Alert "Hoher Kilometerstand!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤100km/Monat; 30-Min-Polling; nach Phase3612. PFLICHT: Import + Render + Barrel.
+
 Backend-Architekt-Agent (2026-07-24): Phasen 3603–3607 implementiert — Fahrer-Storno-Quote-Ranking. Backend-Route `fahrer-storno-quote/route.ts` bereits aus Phase 2440 vorhanden (quote_pct, team_durchschnitt, ampel, trend_delta, rang, Multi-Tenant, force-dynamic, createClient() ✅) + 3 neue Frontend-Komponenten: Phase3604 Dispatch (`DispatchPhase3604StornoQuoteRankingBoard`, XCircle-Icon rot, aufsteigend Rang 1=niedrigste Quote, KPI-Grid Bester/Team-Ø/Schlechtester, Alert "Hohe Storno-Quote!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3605 Fahrer-App (`FahrerPhase3605MeineStornoQuote`, XCircle-Icon rot, % 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3607 Kitchen (`KitchenPhase3607StornoQuoteTicker`, XCircle-Icon rot, Bester #1 Name+% im Header, Alert "Hohe Storno-Quote!", Ziel <5%, Import+Render+Barrel ✅). Phase 3606 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
 
 ### ✅ Phasen 3603–3607 ABGESCHLOSSEN — Fahrer-Storno-Quote-Ranking

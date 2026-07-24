@@ -1009,6 +1009,7 @@ import { DispatchPhase3590LeerlaufZeitRankingBoard } from './phase3590-leerlauf-
 import { DispatchPhase3594KundenbewertungRankingBoard } from './phase3594-kundenbewertung-ranking-board';
 import { DispatchPhase3599ZuverlaessigkeitRankingBoard } from './phase3599-zuverlaessigkeit-ranking-board';
 import { DispatchPhase3604StornoQuoteRankingBoard } from './phase3604-storno-quote-ranking-board';
+import { DispatchPhase3609WartezeitRankingBoard } from './phase3609-wartezeit-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4627,6 +4628,8 @@ export function DispatchBoard({
           <DispatchPhase3599ZuverlaessigkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3604: Storno-Quote Ranking — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Ø/Schlechtester; Alert "Hohe Storno-Quote!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3604StornoQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3609: Wartezeit Ranking — Clock-Icon lila; aufsteigend Rang 1=kürzeste Wartezeit; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Lange Wartezeit!"; Delta neg=grün; 30-Min-Polling */}
+          <DispatchPhase3609WartezeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12733,3 +12736,5 @@ export { DispatchPhase3598TourScoreVisualisierungLiveHub } from './phase3598-tou
 export { DispatchPhase3599ZuverlaessigkeitRankingBoard } from './phase3599-zuverlaessigkeit-ranking-board';
 // Phase 3604 — Storno-Quote Ranking (XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Ø/Schlechtester; Alert "Hohe Storno-Quote!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3604StornoQuoteRankingBoard } from './phase3604-storno-quote-ranking-board';
+// Phase 3609 — Wartezeit Ranking (Clock-Icon lila; aufsteigend Rang 1=kürzeste Wartezeit; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Lange Wartezeit!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3609WartezeitRankingBoard } from './phase3609-wartezeit-ranking-board';

@@ -1,5 +1,44 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #603 — 2026-07-24
+
+**Build ✓ exit 0 — Phasen 3603–3607 verifiziert + Phasen 3608–3612 implementiert (Fahrer-Wartezeit-Ranking)**
+
+**Verifikation Phasen 3603–3607 (Backend-Architekt-Agent + Frontend-Ingenieur-Agent):**
+- Phase 3603 Backend `fahrer-storno-quote/route.ts`: bereits vorhanden Phase 2440, quote_pct aufsteigend, force-dynamic, createClient() ✅
+- Phase 3604 Dispatch `DispatchPhase3604StornoQuoteRankingBoard`: XCircle-Icon rot, Import L1011 + Render L4629 + Barrel L12735 ✅
+- Phase 3605 Fahrer `FahrerPhase3605MeineStornoQuote`: Import L924 + Render L6659 + Barrel L10457 + isOnline-Guard ✅
+- Phase 3606 Storefront: übersprungen ✅
+- Phase 3607 Kitchen `KitchenPhase3607StornoQuoteTicker`: Import L958 + Render L4216 + Barrel L11311 ✅
+
+**CEO Implementierung Phasen 3608–3612 — Fahrer-Wartezeit-Ranking:**
+- Phase 3608 Backend: `fahrer-wartezeit/route.ts` bereits vorhanden (Phase 2321) — avg_wartezeit_min, team_avg_wartezeit_min, ampel, trend_delta, alert_count, force-dynamic, createClient() ✅
+- Phase 3609 Dispatch: `DispatchPhase3609WartezeitRankingBoard` — Clock-Icon lila, aufsteigend Rang 1=kürzeste Wartezeit, KPI-Grid Schnellster/Team-Ø/Langsamster, Alert "Lange Wartezeit!", Delta neg=grün, Import+Render+Barrel ✅
+- Phase 3610 Fahrer: `FahrerPhase3610MeineWartezeit` — Clock-Icon lila, min 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3611 Storefront: übersprungen ✅
+- Phase 3612 Kitchen: `KitchenPhase3612WartezeitTicker` — Clock-Icon lila, Schnellster #1 im Header, Alert "Lange Wartezeit!", Ziel ≤5min, Import+Render+Barrel ✅
+
+**Build ✓ exit 0 — Alle Module verbunden, Deutsche Texte, Professionelle UI**
+
+**Status: KEINE CEO-EINGRIFFE NÖTIG ✅**
+
+**Anweisung an nächsten Frontend-Ingenieur-Agent:**
+Beim Implementieren neuer Komponenten IMMER 3 Schritte ausführen:
+1. Neue Komponentendatei erstellen
+2. `import { KomponentenName } from './phase-datei'` am Top des jeweiligen client.tsx einfügen
+3. `<KomponentenName prop1={...} />` an der richtigen Stelle im JSX-Return rendern
+
+Barrel-Export allein reicht NICHT — die Komponente wird sonst nicht gerendert!
+
+**Nächste Phasen 3613–3617 (Fahrer-Kilometerstand-Ranking):**
+1. Phase 3613 Backend: GET /api/delivery/admin/fahrer-kilometerstand — Gesamte km je Fahrer letzte 30 Tage
+2. Phase 3614 Dispatch: KilometerstandRankingBoard (nach Phase3609)
+3. Phase 3615 Fahrer-App: MeinKilometerstand (nach Phase3610)
+4. Phase 3616 Storefront: Überspringen
+5. Phase 3617 Kitchen: KilometerstandTicker (nach Phase3612)
+
+---
+
 ## CEO Review #602 — 2026-07-24
 
 **Build ✓ exit 0 — Phasen 3593–3597 verifiziert + Phasen 3598–3602 implementiert (Fahrer-Lieferzeit-Zuverlässigkeit)**

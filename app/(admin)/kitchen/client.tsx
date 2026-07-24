@@ -956,6 +956,7 @@ import { KitchenPhase3592LeerlaufZeitTicker } from './phase3592-leerlauf-zeit-ti
 import { KitchenPhase3597KundenbewertungTicker } from './phase3597-kundenbewertung-ticker';
 import { KitchenPhase3602ZuverlaessigkeitTicker } from './phase3602-zuverlaessigkeit-ticker';
 import { KitchenPhase3607StornoQuoteTicker } from './phase3607-storno-quote-ticker';
+import { KitchenPhase3612WartezeitTicker } from './phase3612-wartezeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4214,6 +4215,8 @@ export function KitchenBoard({
       <KitchenPhase3602ZuverlaessigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3607: Storno-Quote Ticker — XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Storno-Quote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel <5%; 30-Min-Polling */}
       <KitchenPhase3607StornoQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3612: Wartezeit Ticker — Clock-Icon lila; Schnellster #1 Name+min im Header; Alert "Lange Wartezeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤5min; 30-Min-Polling */}
+      <KitchenPhase3612WartezeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11309,5 +11312,7 @@ export { KitchenPhase3597KundenbewertungTicker } from './phase3597-kundenbewertu
 export { KitchenPhase3602ZuverlaessigkeitTicker } from './phase3602-zuverlaessigkeit-ticker';
 // Phase 3607 — Storno-Quote Ticker (XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Storno-Quote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel <5%; 30-Min-Polling)
 export { KitchenPhase3607StornoQuoteTicker } from './phase3607-storno-quote-ticker';
-// Phase 3612 — Smart-Timing Countdown Supremo (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score 0–100; On-Time-Rate; Überfällig-Alert; Fahrer-Sync-Hinweis; 15-Sek-Polling + 1-Sek-Tick; Mock-Fallback)
+// Phase 3612 (Wartezeit) — Wartezeit Ticker (Clock-Icon lila; Schnellster #1 Name+min im Header; Alert "Lange Wartezeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤5min; 30-Min-Polling)
+export { KitchenPhase3612WartezeitTicker } from './phase3612-wartezeit-ticker';
+// Phase 3612 (orig) — Smart-Timing Countdown Supremo (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score 0–100; On-Time-Rate; Überfällig-Alert; Fahrer-Sync-Hinweis; 15-Sek-Polling + 1-Sek-Tick; Mock-Fallback)
 export { KitchenPhase3612SmartTimingCountdownSupremo } from './phase3612-smart-timing-countdown-supremo';
