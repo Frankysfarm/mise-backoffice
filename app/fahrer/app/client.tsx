@@ -925,6 +925,7 @@ import { FahrerPhase3605MeineStornoQuote } from './phase3605-meine-storno-quote'
 import { FahrerPhase3610MeineWartezeit } from './phase3610-meine-wartezeit';
 import { FahrerPhase3615MeinKilometerstand } from './phase3615-mein-kilometerstand';
 import { FahrerPhase3620MeineKostenProKm } from './phase3620-meine-kosten-pro-km';
+import { FahrerPhase3625MeinUmsatzProStunde } from './phase3625-mein-umsatz-pro-stunde';
 
 type Driver = {
   id: string;
@@ -6666,6 +6667,7 @@ export function FahrerApp({
           <FahrerPhase3615MeinKilometerstand driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3620: Meine Kosten/km — Euro-Icon grün; €/km 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3620MeineKostenProKm driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3625MeinUmsatzProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3583: Tour-Stops Smart Navi Hub — Hero-Stopp mit Google-Maps+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3583TourStopsSmartNaviHub
@@ -10470,5 +10472,7 @@ export { FahrerPhase3610MeineWartezeit } from './phase3610-meine-wartezeit';
 export { FahrerPhase3615MeinKilometerstand } from './phase3615-mein-kilometerstand';
 // Phase 3620 — Meine Kosten/km (Euro-Icon grün; €/km 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3620MeineKostenProKm } from './phase3620-meine-kosten-pro-km';
+// Phase 3625 — Mein Umsatz/h (TrendingUp-Icon grün; €/h 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3625MeinUmsatzProStunde } from './phase3625-mein-umsatz-pro-stunde';
 // Phase 1001 — Tour-Stopp Navigation Hub (vollständige Stopp-Liste mit ETA-Ring; Direktnavigation Google Maps/Waze; Aktueller-Stopp-Fokus; Stopp-Bestätigung; 5-Min-Polling; Mock-Fallback)
 export { FahrerPhase1001TourStoppNavigationHub } from './phase1001-tour-stopp-navigation-hub';

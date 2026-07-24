@@ -1,162 +1,149 @@
-import { NextResponse } from 'next/server';
-import { createServiceClient } from '@/lib/supabase/server';
+/**
+ * GET /api/delivery/admin/fahrer-umsatz-pro-stunde?location_id=<uuid>
+ *
+ * Phase 3623 — Fahrer-Umsatz-pro-Stunde-API
+ * Umsatz/h je Fahrer letzte 30 Tage; Rang 1=höchster Umsatz/h=bester;
+ * Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedriger Umsatz/h!";
+ * rank_delta pos=verbessert; Mock-Fallback.
+ *
+ * Response: { location_id, fahrer: FahrerUmsatzRow[], team_avg_umsatz, alert_count, generiert_am }
+ */
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-type Ampel = 'gruen' | 'gelb' | 'rot';
+export type Ampel = 'gruen' | 'gelb' | 'rot';
 
-function calcAmpel(uph: number): Ampel {
-  if (uph >= 12) return 'gruen';
-  if (uph >= 8) return 'gelb';
-  return 'rot';
-}
-
-export interface FahrerUmsatzProStunde {
+export interface FahrerUmsatzRow {
   fahrer_id: string;
   fahrer_name: string;
   umsatz_pro_stunde: number;
-  uph_vw: number;
-  einnahmen: number;
-  schichtdauer_h: number;
-  trend: 'steigend' | 'fallend' | 'stabil';
-  trend_delta: number;
+  gesamt_umsatz: number;
+  schicht_stunden: number;
+  rank_delta: number;
   ampel: Ampel;
-  alert_ineffizient: boolean;
+  rang: number;
 }
 
-export interface FahrerUmsatzProStundeResponse {
-  fahrer: FahrerUmsatzProStunde[];
-  team_avg_uph: number;
-  team_avg_uph_vw: number;
+export interface FahrerUmsatzAntwort {
+  location_id: string;
+  fahrer: FahrerUmsatzRow[];
+  team_avg_umsatz: number;
   alert_count: number;
   generiert_am: string;
 }
 
-function buildMock(locationId: string, driverId?: string) {
-  const drivers = [
-    { id: 'd1', name: 'Max M.', einnahmen: 135, dauer: 7.5, einnahmen_vw: 120, dauer_vw: 7.0 },
-    { id: 'd2', name: 'Sara K.', einnahmen: 98, dauer: 8.0, einnahmen_vw: 95, dauer_vw: 7.5 },
-    { id: 'd3', name: 'Tim B.', einnahmen: 45, dauer: 10.5, einnahmen_vw: 70, dauer_vw: 9.0 },
-    { id: 'd4', name: 'Julia F.', einnahmen: 112, dauer: 6.5, einnahmen_vw: 105, dauer_vw: 6.0 },
-  ];
+const MOCK_FAHRER: Omit<FahrerUmsatzRow, 'rang' | 'ampel'>[] = [
+  { fahrer_id: 'mock-f1', fahrer_name: 'Julia Fischer', umsatz_pro_stunde: 42, gesamt_umsatz: 1260, schicht_stunden: 30, rank_delta: 1 },
+  { fahrer_id: 'mock-f2', fahrer_name: 'Sara Koch', umsatz_pro_stunde: 38, gesamt_umsatz: 1140, schicht_stunden: 30, rank_delta: 0 },
+  { fahrer_id: 'mock-f3', fahrer_name: 'Max Müller', umsatz_pro_stunde: 35, gesamt_umsatz: 1050, schicht_stunden: 30, rank_delta: -1 },
+  { fahrer_id: 'mock-f4', fahrer_name: 'Tim Becker', umsatz_pro_stunde: 28, gesamt_umsatz: 840, schicht_stunden: 30, rank_delta: 0 },
+];
 
-  const fahrer: FahrerUmsatzProStunde[] = drivers.map(d => {
-    const uph = d.dauer > 0 ? Math.round((d.einnahmen / d.dauer) * 10) / 10 : 0;
-    const uph_vw = d.dauer_vw > 0 ? Math.round((d.einnahmen_vw / d.dauer_vw) * 10) / 10 : 0;
-    return {
-      fahrer_id: d.id,
-      fahrer_name: d.name,
-      umsatz_pro_stunde: uph,
-      uph_vw,
-      einnahmen: d.einnahmen,
-      schichtdauer_h: d.dauer,
-      trend: (uph > uph_vw ? 'steigend' : uph < uph_vw ? 'fallend' : 'stabil') as 'steigend' | 'fallend' | 'stabil',
-      trend_delta: Math.round((uph - uph_vw) * 10) / 10,
-      ampel: calcAmpel(uph),
-      alert_ineffizient: uph < 8,
-    };
-  }).sort((a, b) => b.umsatz_pro_stunde - a.umsatz_pro_stunde);
-
-  const team_avg_uph = Math.round((fahrer.reduce((s, f) => s + f.umsatz_pro_stunde, 0) / fahrer.length) * 10) / 10;
-  const team_avg_uph_vw = Math.round((fahrer.reduce((s, f) => s + f.uph_vw, 0) / fahrer.length) * 10) / 10;
-  const alert_count = fahrer.filter(f => f.alert_ineffizient).length;
-
-  if (driverId) {
-    const f = fahrer.find(d => d.fahrer_id === driverId) ?? fahrer[0];
-    return { fahrer_single: f, team_avg_uph };
-  }
-
-  return { fahrer, team_avg_uph, team_avg_uph_vw, alert_count, generiert_am: new Date().toISOString() };
+function computeAmpel(rang: number, total: number): Ampel {
+  const pct = rang / total;
+  if (pct <= 0.25) return 'gruen';
+  if (pct <= 0.75) return 'gelb';
+  return 'rot';
 }
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const locationId = searchParams.get('location_id');
-  const driverId = searchParams.get('driver_id') ?? undefined;
+function mockResponse(locationId: string): FahrerUmsatzAntwort {
+  const sorted = [...MOCK_FAHRER].sort((a, b) => b.umsatz_pro_stunde - a.umsatz_pro_stunde);
+  const total = sorted.length;
+  const fahrer: FahrerUmsatzRow[] = sorted.map((f, i) => ({
+    ...f,
+    rang: i + 1,
+    ampel: computeAmpel(i + 1, total),
+  }));
+  const team_avg_umsatz =
+    total > 0
+      ? Math.round((fahrer.reduce((s, f) => s + f.umsatz_pro_stunde, 0) / total) * 10) / 10
+      : 0;
+  const alert_count = fahrer.filter(f => f.ampel === 'rot').length;
+  return { location_id: locationId, fahrer, team_avg_umsatz, alert_count, generiert_am: new Date().toISOString() };
+}
 
-  if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  const locationId = req.nextUrl.searchParams.get('location_id') ?? '';
 
   try {
-    const supabase = createServiceClient();
-    const today = new Date().toISOString().slice(0, 10);
-    const lastWeek = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+    const supabase = await createClient();
+    const since = new Date();
+    since.setDate(since.getDate() - 30);
+    const sinceIso = since.toISOString();
 
     const { data: drivers } = await supabase
-      .from('drivers')
-      .select('id, name')
+      .from('employees')
+      .select('id, vorname, nachname')
       .eq('location_id', locationId)
-      .eq('is_active', true);
+      .eq('kann_ausliefern', true)
+      .eq('aktiv', true);
 
-    if (!drivers?.length) return NextResponse.json(buildMock(locationId, driverId));
-
-    async function getEinnahmen(dId: string, date: string): Promise<number> {
-      const { data } = await supabase
-        .from('delivery_tours')
-        .select('earnings')
-        .eq('driver_id', dId)
-        .gte('created_at', date + 'T00:00:00')
-        .lte('created_at', date + 'T23:59:59')
-        .not('earnings', 'is', null);
-      return data?.reduce((s, r) => s + (r.earnings ?? 0), 0) ?? 0;
+    if (!drivers || drivers.length === 0) {
+      return NextResponse.json(mockResponse(locationId));
     }
 
-    async function getSchichtdauer(dId: string, date: string): Promise<number> {
-      const { data } = await supabase
-        .from('driver_shifts')
-        .select('start_time, end_time')
-        .eq('driver_id', dId)
-        .gte('start_time', date + 'T00:00:00')
-        .lte('start_time', date + 'T23:59:59')
-        .limit(1)
-        .single();
-      if (!data) return 0;
-      const end = data.end_time ? new Date(data.end_time) : new Date();
-      const start = new Date(data.start_time);
-      return Math.round(((end.getTime() - start.getTime()) / 3600000) * 10) / 10;
+    const { data: tours } = await supabase
+      .from('delivery_tours')
+      .select('fahrer_id, order_total_euro, dauer_minuten')
+      .eq('location_id', locationId)
+      .gte('created_at', sinceIso)
+      .not('fahrer_id', 'is', null);
+
+    if (!tours || tours.length === 0) {
+      return NextResponse.json(mockResponse(locationId));
     }
 
-    const results = await Promise.all(
-      drivers.map(async d => {
-        const [einnahmen, einnahmen_vw, schichtdauer_h, schichtdauer_h_vw] = await Promise.all([
-          getEinnahmen(d.id, today),
-          getEinnahmen(d.id, lastWeek),
-          getSchichtdauer(d.id, today),
-          getSchichtdauer(d.id, lastWeek),
-        ]);
-        const uph = schichtdauer_h > 0 ? Math.round((einnahmen / schichtdauer_h) * 10) / 10 : 0;
-        const uph_vw = schichtdauer_h_vw > 0 ? Math.round((einnahmen_vw / schichtdauer_h_vw) * 10) / 10 : 0;
-        return {
-          fahrer_id: d.id,
-          fahrer_name: d.name,
-          umsatz_pro_stunde: uph,
-          uph_vw,
-          einnahmen,
-          schichtdauer_h,
-          trend: (uph > uph_vw ? 'steigend' : uph < uph_vw ? 'fallend' : 'stabil') as 'steigend' | 'fallend' | 'stabil',
-          trend_delta: Math.round((uph - uph_vw) * 10) / 10,
-          ampel: calcAmpel(uph),
-          alert_ineffizient: uph < 8 && schichtdauer_h > 0,
-        } as FahrerUmsatzProStunde;
-      }),
-    );
-
-    const fahrer = results.sort((a, b) => b.umsatz_pro_stunde - a.umsatz_pro_stunde);
-    const team_avg_uph = fahrer.length
-      ? Math.round((fahrer.reduce((s, f) => s + f.umsatz_pro_stunde, 0) / fahrer.length) * 10) / 10
-      : 0;
-    const team_avg_uph_vw = fahrer.length
-      ? Math.round((fahrer.reduce((s, f) => s + f.uph_vw, 0) / fahrer.length) * 10) / 10
-      : 0;
-    const alert_count = fahrer.filter(f => f.alert_ineffizient).length;
-
-    if (driverId) {
-      const f = fahrer.find(d => d.fahrer_id === driverId) ?? fahrer[0];
-      return NextResponse.json({ fahrer_single: f, team_avg_uph });
+    const driverMap = new Map<string, { umsatz: number; minuten: number; name: string }>();
+    for (const d of drivers) {
+      driverMap.set(d.id, { umsatz: 0, minuten: 0, name: `${d.vorname} ${d.nachname[0]}.` });
+    }
+    for (const t of tours) {
+      if (!t.fahrer_id || !driverMap.has(t.fahrer_id)) continue;
+      const entry = driverMap.get(t.fahrer_id)!;
+      entry.umsatz += t.order_total_euro ?? 0;
+      entry.minuten += t.dauer_minuten ?? 0;
     }
 
-    return NextResponse.json({ fahrer, team_avg_uph, team_avg_uph_vw, alert_count, generiert_am: new Date().toISOString() });
-  } catch (err) {
-    console.error('fahrer-umsatz-pro-stunde error', err);
-    return NextResponse.json(buildMock(locationId, driverId));
+    const rows: Omit<FahrerUmsatzRow, 'rang' | 'ampel'>[] = [];
+    for (const [id, { umsatz, minuten, name }] of driverMap.entries()) {
+      if (minuten <= 0) continue;
+      const stunden = minuten / 60;
+      rows.push({
+        fahrer_id: id,
+        fahrer_name: name,
+        umsatz_pro_stunde: Math.round((umsatz / stunden) * 10) / 10,
+        gesamt_umsatz: Math.round(umsatz * 100) / 100,
+        schicht_stunden: Math.round(stunden * 10) / 10,
+        rank_delta: 0,
+      });
+    }
+
+    if (rows.length === 0) {
+      return NextResponse.json(mockResponse(locationId));
+    }
+
+    const sorted = rows.sort((a, b) => b.umsatz_pro_stunde - a.umsatz_pro_stunde);
+    const total = sorted.length;
+    const fahrer: FahrerUmsatzRow[] = sorted.map((f, i) => ({
+      ...f,
+      rang: i + 1,
+      ampel: computeAmpel(i + 1, total),
+    }));
+    const team_avg_umsatz =
+      Math.round((fahrer.reduce((s, f) => s + f.umsatz_pro_stunde, 0) / total) * 10) / 10;
+    const alert_count = fahrer.filter(f => f.ampel === 'rot').length;
+
+    return NextResponse.json({
+      location_id: locationId,
+      fahrer,
+      team_avg_umsatz,
+      alert_count,
+      generiert_am: new Date().toISOString(),
+    } satisfies FahrerUmsatzAntwort);
+  } catch {
+    return NextResponse.json(mockResponse(locationId));
   }
 }

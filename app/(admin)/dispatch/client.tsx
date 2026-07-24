@@ -1012,6 +1012,7 @@ import { DispatchPhase3604StornoQuoteRankingBoard } from './phase3604-storno-quo
 import { DispatchPhase3609WartezeitRankingBoard } from './phase3609-wartezeit-ranking-board';
 import { DispatchPhase3614KilometerstandRankingBoard } from './phase3614-kilometerstand-ranking-board';
 import { DispatchPhase3619KostenProKmRankingBoard } from './phase3619-kosten-pro-km-ranking-board';
+import { DispatchPhase3624UmsatzProStundeRankingBoard } from './phase3624-umsatz-pro-stunde-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4636,6 +4637,7 @@ export function DispatchBoard({
           <DispatchPhase3614KilometerstandRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3619: Kosten/km Ranking — Euro-Icon grün; aufsteigend Rang 1=niedrigste Kosten; KPI-Grid Günstigster/Team-Ø/Teuerster; Alert "Hohe Kosten/km!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3619KostenProKmRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3624UmsatzProStundeRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12748,3 +12750,5 @@ export { DispatchPhase3609WartezeitRankingBoard } from './phase3609-wartezeit-ra
 export { DispatchPhase3614KilometerstandRankingBoard } from './phase3614-kilometerstand-ranking-board';
 // Phase 3619 — Kosten/km Ranking (Euro-Icon grün; aufsteigend Rang 1=niedrigste Kosten; KPI-Grid Günstigster/Team-Ø/Teuerster; Alert "Hohe Kosten/km!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3619KostenProKmRankingBoard } from './phase3619-kosten-pro-km-ranking-board';
+// Phase 3624 — Umsatz/h Ranking (TrendingUp-Icon grün; absteigend Rang 1=höchster €/h; KPI-Grid Bester/Team-Ø/Schlechtester; Alert "Niedriger Umsatz/h!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3624UmsatzProStundeRankingBoard } from './phase3624-umsatz-pro-stunde-ranking-board';
