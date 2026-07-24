@@ -964,6 +964,7 @@ import { KitchenPhase3637TourenProTagTicker } from './phase3637-touren-pro-tag-t
 import { KitchenPhase3642LieferstreckeProTourTicker } from './phase3642-lieferstrecke-pro-tour-ticker';
 import { KitchenPhase3647KundenbewertungAvgTicker } from './phase3647-kundenbewertung-avg-ticker';
 import { KitchenPhase3652PuenktlichkeitTicker } from './phase3652-puenktlichkeit-ticker';
+import { KitchenPhase3657UmsatzProTourTicker } from './phase3657-umsatz-pro-tour-ticker';
 import { KitchenPhase3632SmartTimingEchtzeitCockpitFinal } from './phase3632-smart-timing-echtzeit-cockpit-final';
 
 /* ------------------------------ Types ------------------------------ */
@@ -4234,6 +4235,7 @@ export function KitchenBoard({
       <KitchenPhase3642LieferstreckeProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3647KundenbewertungAvgTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3652PuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3657UmsatzProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3632: Smart-Timing Echtzeit Cockpit Final — Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score; On-Time-Rate; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase3632SmartTimingEchtzeitCockpitFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
@@ -11347,6 +11349,8 @@ export { KitchenPhase3642LieferstreckeProTourTicker } from './phase3642-lieferst
 export { KitchenPhase3647KundenbewertungAvgTicker } from './phase3647-kundenbewertung-avg-ticker';
 // Phase 3652 — Pünktlichkeit Ticker (Clock-Icon blau; Pünktlichster #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling)
 export { KitchenPhase3652PuenktlichkeitTicker } from './phase3652-puenktlichkeit-ticker';
+// Phase 3657 — Umsatz/Tour Ticker (TrendingUp-Icon grün; Bester #1 Name+€/Tour im Header; Alert "Niedriger Umsatz/Tour!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Ø+Ziel ≥30€/Tour; 30-Min-Polling)
+export { KitchenPhase3657UmsatzProTourTicker } from './phase3657-umsatz-pro-tour-ticker';
 // Phase 3612 (orig) — Smart-Timing Countdown Supremo (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score 0–100; On-Time-Rate; Überfällig-Alert; Fahrer-Sync-Hinweis; 15-Sek-Polling + 1-Sek-Tick; Mock-Fallback)
 export { KitchenPhase3612SmartTimingCountdownSupremo } from './phase3612-smart-timing-countdown-supremo';
 // Phase 3632 — Smart-Timing Echtzeit Cockpit Final (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score; On-Time-Rate; Überfällig-Alert-Strip; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)

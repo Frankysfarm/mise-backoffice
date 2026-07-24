@@ -1017,6 +1017,7 @@ import { DispatchPhase3634TourenProTagRankingBoard } from './phase3634-touren-pr
 import { DispatchPhase3639LieferstreckeProTourRankingBoard } from './phase3639-lieferstrecke-pro-tour-ranking-board';
 import { DispatchPhase3644KundenbewertungAvgRankingBoard } from './phase3644-kundenbewertung-avg-ranking-board';
 import { DispatchPhase3649PuenktlichkeitRankingBoard } from './phase3649-puenktlichkeit-ranking-board';
+import { DispatchPhase3658UmsatzProTourRankingBoard } from './phase3658-umsatz-pro-tour-ranking-board';
 import { DispatchPhase3654TourScoreCommandCenter } from './phase3654-tour-score-command-center';
 import { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-tour-score-live-visualisierung-final';
 
@@ -4648,6 +4649,7 @@ export function DispatchBoard({
           <DispatchPhase3639LieferstreckeProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3644KundenbewertungAvgRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3649PuenktlichkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3658UmsatzProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3654: Tour-Score Command Center — Flotten-KPI-Grid; Stopp-Dot-Timeline; Sub-KPIs expandierbar; ETA je Stopp; 30-Sek-Polling */}
           <DispatchPhase3654TourScoreCommandCenter locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3629: Tour-Score Live Visualisierung Final — Fahrer-Score-Rangliste 0–100; Stopp-Fortschritt; Sub-Scores expandierbar; Farbkodierung grün/gelb/rot; Flotten-Ø; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -12774,6 +12776,8 @@ export { DispatchPhase3639LieferstreckeProTourRankingBoard } from './phase3639-l
 export { DispatchPhase3644KundenbewertungAvgRankingBoard } from './phase3644-kundenbewertung-avg-ranking-board';
 // Phase 3649 — Pünktlichkeit Ranking (Clock-Icon blau; absteigend Rang 1=höchste Quote; KPI-Grid Pünktlichster/Team-Ø/Unpünktlichster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3649PuenktlichkeitRankingBoard } from './phase3649-puenktlichkeit-ranking-board';
+// Phase 3658 — Umsatz/Tour Ranking (TrendingUp-Icon grün; absteigend Rang 1=höchster €/Tour; KPI-Grid Bester/Team-Ø/Schlechtester; Alert "Niedriger Umsatz/Tour!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3658UmsatzProTourRankingBoard } from './phase3658-umsatz-pro-tour-ranking-board';
 // Phase 3629 — Tour-Score Live Visualisierung Final (Trophy-Icon amber; Score-Balken 0–100 je Fahrer; Sub-Scores Pünktlichkeit/Lieferzeit/Bewertung expandierbar; Farbkodierung grün/gelb/rot; Flotten-Ø; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-tour-score-live-visualisierung-final';
 // Phase 3654 — Tour-Score Command Center (Trophy-Icon amber; Flotten-KPI-Grid Ø/Top/Alerts; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert unterwegs/geliefert/ausstehend; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung expandierbar; ETA je Stopp; Alert Score<70; 20-Sek-Polling; Mock-Fallback)

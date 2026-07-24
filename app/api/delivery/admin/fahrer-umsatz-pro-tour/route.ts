@@ -24,12 +24,12 @@ interface ApiResponse {
 
 const MOCK_DATA: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, umsatz_avg: 28.50, rank_delta:  0, ampel: 'gruen', alert_low: false },
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, umsatz_avg: 23.80, rank_delta:  1, ampel: 'gelb',  alert_low: false },
-    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, umsatz_avg: 19.20, rank_delta: -1, ampel: 'gelb',  alert_low: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, umsatz_avg: 12.40, rank_delta:  0, ampel: 'rot',   alert_low: true  },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, umsatz_avg: 38.00, rank_delta:  0, ampel: 'gruen', alert_low: false },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, umsatz_avg: 32.00, rank_delta:  1, ampel: 'gruen', alert_low: false },
+    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, umsatz_avg: 27.00, rank_delta: -1, ampel: 'gelb',  alert_low: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, umsatz_avg: 21.00, rank_delta:  0, ampel: 'rot',   alert_low: true  },
   ],
-  team_avg: 20.98,
+  team_avg: 29.50,
   bester_name: 'Julia F.',
   letzter_name: 'Tim B.',
   alert_count: 1,
