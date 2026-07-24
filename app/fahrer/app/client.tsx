@@ -926,6 +926,7 @@ import { FahrerPhase3610MeineWartezeit } from './phase3610-meine-wartezeit';
 import { FahrerPhase3615MeinKilometerstand } from './phase3615-mein-kilometerstand';
 import { FahrerPhase3620MeineKostenProKm } from './phase3620-meine-kosten-pro-km';
 import { FahrerPhase3625MeinUmsatzProStunde } from './phase3625-mein-umsatz-pro-stunde';
+import { FahrerPhase3635MeineTourenProTag } from './phase3635-meine-touren-pro-tag';
 import { FahrerPhase3630TourStopsLiveNavigatorPro } from './phase3630-tour-stops-live-navigator-pro';
 
 type Driver = {
@@ -6669,6 +6670,7 @@ export function FahrerApp({
           {/* Phase 3620: Meine Kosten/km — Euro-Icon grün; €/km 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3620MeineKostenProKm driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3625MeinUmsatzProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3635MeineTourenProTag driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3630: Tour-Stops Live Navigator Pro — Hero-Stopp blau; Navi+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; ETA-Badge; mobile-first; kein Polling */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3630TourStopsLiveNavigatorPro
@@ -10499,6 +10501,8 @@ export { FahrerPhase3615MeinKilometerstand } from './phase3615-mein-kilometersta
 export { FahrerPhase3620MeineKostenProKm } from './phase3620-meine-kosten-pro-km';
 // Phase 3625 — Mein Umsatz/h (TrendingUp-Icon grün; €/h 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3625MeinUmsatzProStunde } from './phase3625-mein-umsatz-pro-stunde';
+// Phase 3635 — Meine Touren/Tag (Route-Icon lila; Touren/Tag 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3635MeineTourenProTag } from './phase3635-meine-touren-pro-tag';
 // Phase 3630 — Tour-Stops Live Navigator Pro (Hero-Stopp blau Navi+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots+Navi; Fortschrittsbalken; Zahlungsart; ETA-Badge; mobile-first; kein Polling; direkt aus activeBatch)
 export { FahrerPhase3630TourStopsLiveNavigatorPro } from './phase3630-tour-stops-live-navigator-pro';
 // Phase 1001 — Tour-Stopp Navigation Hub (vollständige Stopp-Liste mit ETA-Ring; Direktnavigation Google Maps/Waze; Aktueller-Stopp-Fokus; Stopp-Bestätigung; 5-Min-Polling; Mock-Fallback)

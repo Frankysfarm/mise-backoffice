@@ -28500,3 +28500,55 @@ Backend-Architekt-Agent (2026-07-24): Phasen 3598–3612 nachträglich dokumenti
 5. **Phase 3632 Kitchen:** TourenProTagTicker — Route-Icon lila; Fleißigster #1 Name+Touren im Header; Alert "Wenige Touren/Tag!"; kompakt absteigend; Rang+Touren+Delta pos=grün; Team-Ø+Ziel ≥7 Touren/Tag; 30-Min-Polling; nach Phase3627. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-24): Phasen 3623–3627 implementiert — Fahrer-Umsatz-pro-Stunde-Ranking. Bestehende Route ersetzt (alte nutzte createServiceClient + abweichende Response-Shape), auf einheitliches Ranking-Muster umgestellt (employees-Tabelle, delivery_tours, Rang-basierte Ampel, satisfies-Type). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3624 Dispatch (DispatchPhase3624UmsatzProStundeRankingBoard, TrendingUp-Icon grün, absteigend, KPI-Grid Bester/Team-Ø/Schlechtester, Alert "Niedriger Umsatz/h!", RankBadge, Import+Render+Barrel ✅) / Phase3625 Fahrer-App (FahrerPhase3625MeinUmsatzProStunde, TrendingUp-Icon grün, €/h 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3627 Kitchen (KitchenPhase3627UmsatzProStundeTicker, TrendingUp-Icon grün, Bester #1 im Header, Alert "Niedriger Umsatz/h!", Ziel ≥35€/h, Import+Render+Barrel ✅). Phase 3626 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
+
+---
+
+## Batch 3633–3637 — Fahrer-Touren-pro-Tag-Ranking (ABGESCHLOSSEN 2026-07-24)
+
+### Phase 3633 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-touren-pro-tag/route.ts` *(ersetzt bestehende Route — alte verwendete createServiceClient + andere Response-Shape)*
+**Endpoint:** GET /api/delivery/admin/fahrer-touren-pro-tag?location_id=...
+**Logik:** Ø Touren/Tag je Fahrer letzte 30 Tage aus delivery_tours (tour_count / arbeitstage); Rang 1=meiste Touren/Tag=bester=fleißigster; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenige Touren/Tag!"; rank_delta pos=verbessert; Mock Julia F.8.2/Sara K.7.1/Max M.6.5/Tim B.4.8; force-dynamic; createClient() ✅
+
+### Phase 3634 — Touren/Tag Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3634-touren-pro-tag-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3634TourenProTagRankingBoard`
+**UI:** Route-Icon lila; absteigend Rang 1=meiste Touren/Tag; Balken 0–max; KPI-Grid Fleißigster/Team-Ø/Wenigste; Alert "Wenige Touren/Tag!"; Delta pos=grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L1016 + Render nach Phase3624 + Barrel-Export ✅
+
+### Phase 3635 — Meine Touren/Tag (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3635-meine-touren-pro-tag.tsx` *(neu)*
+**Component:** `FahrerPhase3635MeineTourenProTag`
+**UI:** Route-Icon lila; Touren/Tag 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L929 + Render nach Phase3625 + Barrel-Export ✅
+
+### Phase 3636 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3637 — Touren/Tag Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3637-touren-pro-tag-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3637TourenProTagTicker`
+**UI:** Route-Icon lila; Fleißigster #1 Name+Touren/Tag im Header; Alert "Wenige Touren/Tag!"; kompakt absteigend; Rang+Touren+Delta pos=grün; Team-Ø+Ziel ≥7 Touren/Tag; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L963 + Render nach Phase3627 + Barrel-Export ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ TourenProTagTicker + TourenProTagRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3634 Board + Phase3635 MeineTourenProTag |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3638–3642 — Fahrer-Lieferstrecke-pro-Tour-Ranking
+1. **Phase 3638 Backend:** GET /api/delivery/admin/fahrer-lieferstrecke-pro-tour — Durchschnittliche km/Tour je Fahrer letzte 30 Tage aus delivery_tours (gesamt_km / tour_count); Rang 1=kürzeste Strecke/Tour=effizienter; Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe Strecke/Tour!"; rank_delta neg=verbessert; Mock Julia F.4.2km/Sara K.5.1km/Max M.6.8km/Tim B.9.3km; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()`.
+2. **Phase 3639 Dispatch:** LieferstreckeProTourRankingBoard — MapPin-Icon cyan; aufsteigend Rang 1=kürzeste km/Tour; Balken 0–max; KPI-Grid Effizientester/Team-Ø/Höchste; Alert "Hohe Strecke/Tour!"; Delta neg=grün; RankBadge; 30-Min-Polling; nach Phase3634. PFLICHT: Import + Render + Barrel.
+3. **Phase 3640 Fahrer-App:** MeineLieferstreckeProTour — MapPin-Icon cyan; km/Tour 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3635. PFLICHT: Import + Render + Barrel.
+4. **Phase 3641 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3642 Kitchen:** LieferstreckeProTourTicker — Effizientester #1 Name+km/Tour im Header; Alert "Hohe Strecke/Tour!"; kompakt aufsteigend; Rang+km/Tour+Delta neg=grün; Team-Ø+Ziel ≤6km/Tour; 30-Min-Polling; nach Phase3637. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-24): Phasen 3633–3637 implementiert — Fahrer-Touren-pro-Tag-Ranking. Phase 3633 Backend: bestehende Route ersetzt (alte nutzte createServiceClient + anderem Response-Shape) — neue Route mit createClient(), 30-Tage-Ø aus delivery_tours, rank_delta, Ampel Top/Mid/Bottom-25%, Mock Julia 8.2/Sara 7.1/Max 6.5/Tim 4.8. Phase 3629/3630/3632 waren bereits durch anderen Agenten (Tour-Score/TourStops/SmartTiming) belegt → TourenProTag als Phase 3634/3635/3637 implementiert (nächste freie Nummern laut CEO Review #605). 3 neue Frontend-Komponenten erstellt: Phase3634 Dispatch (DispatchPhase3634TourenProTagRankingBoard, Route-Icon lila, absteigend, KPI-Grid Fleißigster/Team-Ø/Wenigste, Alert, RankBadge, Import+Render+Barrel ✅) / Phase3635 Fahrer-App (FahrerPhase3635MeineTourenProTag, Route-Icon lila, Touren/Tag 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3637 Kitchen (KitchenPhase3637TourenProTagTicker, Route-Icon lila, Fleißigster #1 im Header, Ziel ≥7 Touren/Tag, Import+Render+Barrel ✅). Phase 3636 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
