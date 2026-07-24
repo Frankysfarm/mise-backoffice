@@ -12727,6 +12727,8 @@ export { DispatchPhase3586StreckeProTourRankingBoard } from './phase3586-strecke
 export { DispatchPhase3590LeerlaufZeitRankingBoard } from './phase3590-leerlauf-zeit-ranking-board';
 // Phase 3594 — Kundenbewertung Ranking (Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Bewertung!"; Trend-Icon; 30-Min-Polling)
 export { DispatchPhase3594KundenbewertungRankingBoard } from './phase3594-kundenbewertung-ranking-board';
+// Phase 3598 — Tour-Score Visualisierung Live Hub (Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-Scores Pünktlichkeit/Abschluss/Speed; Flotten-Ø; expandierbare Stopp-Liste+ETA; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase3598TourScoreVisualisierungLiveHub } from './phase3598-tour-score-visualisierung-live-hub';
 // Phase 3599 — Lieferzeit-Zuverlässigkeit Ranking (CheckCircle-Icon grün; absteigend; KPI-Grid Zuverlässigster/Team-Ø/Unzuverlässigster; Alert "Niedrige Zuverlässigkeit!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3599ZuverlaessigkeitRankingBoard } from './phase3599-zuverlaessigkeit-ranking-board';
 // Phase 3604 — Storno-Quote Ranking (XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Ø/Schlechtester; Alert "Hohe Storno-Quote!"; Delta neg=grün; 30-Min-Polling)

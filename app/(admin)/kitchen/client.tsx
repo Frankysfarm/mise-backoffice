@@ -11309,3 +11309,5 @@ export { KitchenPhase3597KundenbewertungTicker } from './phase3597-kundenbewertu
 export { KitchenPhase3602ZuverlaessigkeitTicker } from './phase3602-zuverlaessigkeit-ticker';
 // Phase 3607 — Storno-Quote Ticker (XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Storno-Quote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel <5%; 30-Min-Polling)
 export { KitchenPhase3607StornoQuoteTicker } from './phase3607-storno-quote-ticker';
+// Phase 3612 — Smart-Timing Countdown Supremo (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score 0–100; On-Time-Rate; Überfällig-Alert; Fahrer-Sync-Hinweis; 15-Sek-Polling + 1-Sek-Tick; Mock-Fallback)
+export { KitchenPhase3612SmartTimingCountdownSupremo } from './phase3612-smart-timing-countdown-supremo';

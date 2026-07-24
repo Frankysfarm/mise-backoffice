@@ -4875,3 +4875,5 @@ export { LieferdienstPhase2710StatistikDashboardFinal } from './phase2710-statis
 export { LieferdienstPhase2715StatistikenMasterLiveCockpit } from './phase2715-statistiken-master-live-cockpit';
 // Phase 2720 — Statistiken Dashboard Ultra (BarChart2-Icon blau; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Balken; Insight-Tipp; Alert-Strip amber; Schicht-Dauer; Mock-Fallback; 60-Sek-Polling)
 export { LieferdienstPhase2720StatistikenDashboardUltra } from './phase2720-statistiken-dashboard-ultra';
+// Statistiken Live Hub Final — 8 KPI-Kacheln (Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit/Bewertung/Fahrer/SLA/Storno); Ampel-Farbkodierung; Trend-Pfeile vs. Vortag; Stundenverlauf-BarChart 2-Modi; Alert-Strip; Zonen-Top-3; 3-Min-Polling
+export { LieferdienstPhase1000StatistikenLiveHubFinal } from './phase1000-statistiken-live-hub-final';

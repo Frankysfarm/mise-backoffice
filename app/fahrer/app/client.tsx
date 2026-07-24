@@ -10455,3 +10455,5 @@ export { FahrerPhase3595MeineKundenbewertung } from './phase3595-meine-kundenbew
 export { FahrerPhase3600MeineZuverlaessigkeit } from './phase3600-meine-zuverlaessigkeit';
 // Phase 3605 — Meine Storno-Quote (XCircle-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3605MeineStornoQuote } from './phase3605-meine-storno-quote';
+// Phase 1001 — Tour-Stopp Navigation Hub (vollständige Stopp-Liste mit ETA-Ring; Direktnavigation Google Maps/Waze; Aktueller-Stopp-Fokus; Stopp-Bestätigung; 5-Min-Polling; Mock-Fallback)
+export { FahrerPhase1001TourStoppNavigationHub } from './phase1001-tour-stopp-navigation-hub';
