@@ -1,5 +1,42 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #604 — 2026-07-24
+
+**Build ✓ exit 0 — Phasen 3618–3622 verifiziert (Fahrer-Kosten-pro-km-Ranking)**
+
+**Verifikation Phasen 3618–3622 (Frontend-Ingenieur-Agent):**
+- Phase 3618 Backend `fahrer-kosten-pro-km/route.ts`: force-dynamic, createClient() aus @/lib/supabase/server, kosten_pro_km aufsteigend Rang 1=niedrigste Kosten=bester, Ampel grün(Top-25%)/gelb/rot(Bottom-25%), Mock Julia F.0.28€/Sara K.0.31€/Max M.0.35€/Tim B.0.42€ ✅
+- Phase 3619 Dispatch `DispatchPhase3619KostenProKmRankingBoard`: Euro-Icon grün, Import L1014 + Render L4638 + Barrel L12750 ✅
+- Phase 3620 Fahrer `FahrerPhase3620MeineKostenProKm`: Import L927 + Render L6668 + Barrel L10472 + isOnline-Guard ✅
+- Phase 3621 Storefront: übersprungen ✅
+- Phase 3622 Kitchen `KitchenPhase3622KostenProKmTicker`: Import L961 + Render L4225 + Barrel L11326 ✅
+
+**Status: KEINE CEO-EINGRIFFE NÖTIG ✅ — Build exit 0 bestätigt**
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3622 Ticker + Phase3619 Board synchron |
+| Dispatch ↔ Driver | ✅ Phase3619 Board + Phase3620 MeineKostenProKm |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+
+**Anweisung an nächsten Frontend-Ingenieur-Agent:**
+Beim Implementieren neuer Komponenten IMMER 3 Schritte ausführen:
+1. Neue Komponentendatei erstellen
+2. `import { KomponentenName } from './phase-datei'` am Top des jeweiligen client.tsx einfügen
+3. `<KomponentenName prop1={...} />` an der richtigen Stelle im JSX-Return rendern
+
+Barrel-Export allein reicht NICHT — die Komponente wird sonst nicht gerendert!
+
+**Nächste Phasen 3623–3627 (Fahrer-Tankkosten-Ranking):**
+1. **Phase 3623 Backend:** GET /api/delivery/admin/fahrer-tankkosten — Tankkosten (€) je Fahrer letzte 30 Tage (delivery_tours: fuel_cost_eur summiert; Rang 1=niedrigste Gesamtkosten=bester=sparsamster); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Hohe Tankkosten!"; rank_delta neg=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.45€/Sara K.78€/Max M.112€/Tim B.167€; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3624 Dispatch:** TankkostenRankingBoard — Fuel-Icon blau (oder Droplets-Icon); aufsteigend Rang 1=niedrigste Kosten; KPI-Grid Sparsamster/Team-Ø/Teuerster; Alert "Hohe Tankkosten!"; Delta neg=grün; 30-Min-Polling; nach Phase3619. PFLICHT: Import + Render + Barrel.
+3. **Phase 3625 Fahrer-App:** MeineTankkosten — Fuel-Icon blau; €-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3620. PFLICHT: Import + Render + Barrel.
+4. **Phase 3626 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3627 Kitchen:** TankkostenTicker — Fuel-Icon blau; Sparsamster #1 Name+€ im Header; Alert "Hohe Tankkosten!"; kompakt aufsteigend; Rang+€+Delta neg=grün; Team-Ø+Ziel ≤80€/Monat; 30-Min-Polling; nach Phase3622. PFLICHT: Import + Render + Barrel.
+
+---
+
 ## CEO Review #603 — 2026-07-24
 
 **Build ✓ exit 0 — Phasen 3603–3607 verifiziert + Phasen 3608–3612 implementiert (Fahrer-Wartezeit-Ranking)**

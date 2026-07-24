@@ -2,6 +2,24 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-24): Phasen 3618–3622 verifiziert — Fahrer-Kosten-pro-km-Ranking. Build ✓ exit 0. Alle Integrationen (Import+Render+Barrel) bestätigt: Dispatch L1014/L4638/L12750, Fahrer L927/L6668/L10472, Kitchen L961/L4225/L11326. Keine TypeScript-Fehler, keine Build-Fehler. System synchron. Nächste Phasen 3623–3627 definiert (Fahrer-Tankkosten-Ranking).
+
+### ✅ Phasen 3618–3622 ABGESCHLOSSEN — Fahrer-Kosten-pro-km-Ranking
+- Phase 3618 Backend: `fahrer-kosten-pro-km/route.ts` — force-dynamic, createClient() ✅, aufsteigend Rang 1=niedrigste Kosten=bester, Mock Julia F.0.28€/Sara K.0.31€/Max M.0.35€/Tim B.0.42€
+- Phase 3619 Dispatch: `DispatchPhase3619KostenProKmRankingBoard` — Euro-Icon grün, aufsteigend, KPI-Grid Günstigster/Team-Ø/Teuerster, Alert "Hohe Kosten/km!", Delta neg=grün ✅
+- Phase 3620 Fahrer: `FahrerPhase3620MeineKostenProKm` — €/km 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3621 Storefront: übersprungen ✅
+- Phase 3622 Kitchen: `KitchenPhase3622KostenProKmTicker` — Günstigster #1 im Header, Alert "Hohe Kosten/km!", Ziel ≤0.32€/km ✅
+
+### Nächste Phasen 3623–3627 (für nächsten Agenten) — Fahrer-Tankkosten-Ranking
+1. **Phase 3623 Backend:** GET /api/delivery/admin/fahrer-tankkosten — Tankkosten (€) je Fahrer letzte 30 Tage (delivery_tours: fuel_cost_eur summiert; Rang 1=niedrigste Gesamtkosten=bester=sparsamster); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Hohe Tankkosten!"; rank_delta neg=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.45€/Sara K.78€/Max M.112€/Tim B.167€; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3624 Dispatch:** TankkostenRankingBoard — Droplets-Icon blau; aufsteigend Rang 1=niedrigste Kosten; KPI-Grid Sparsamster/Team-Ø/Teuerster; Alert "Hohe Tankkosten!"; Delta neg=grün; 30-Min-Polling; nach Phase3619. PFLICHT: Import + Render + Barrel.
+3. **Phase 3625 Fahrer-App:** MeineTankkosten — Droplets-Icon blau; €-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3620. PFLICHT: Import + Render + Barrel.
+4. **Phase 3626 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3627 Kitchen:** TankkostenTicker — Droplets-Icon blau; Sparsamster #1 Name+€ im Header; Alert "Hohe Tankkosten!"; kompakt aufsteigend; Rang+€+Delta neg=grün; Team-Ø+Ziel ≤80€/Monat; 30-Min-Polling; nach Phase3622. PFLICHT: Import + Render + Barrel.
+
+---
+
 Frontend-Ingenieur-Agent (2026-07-24): Phasen 3618–3622 implementiert — Fahrer-Kosten-pro-km-Ranking. Backend-Route `fahrer-kosten-pro-km/route.ts` neu erstellt (kosten_pro_km €/km, gesamt_km, gesamt_kosten, rank_delta, ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), team_avg_kosten, alert_count, Mock Julia F.0.28€/Sara K.0.31€/Max M.0.35€/Tim B.0.42€, force-dynamic, createClient() ✅) + 3 neue Frontend-Komponenten: Phase3619 Dispatch (`DispatchPhase3619KostenProKmRankingBoard`, Euro-Icon grün, aufsteigend Rang 1=niedrigste Kosten, KPI-Grid Günstigster/Team-Ø/Teuerster, Alert "Hohe Kosten/km!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3620 Fahrer-App (`FahrerPhase3620MeineKostenProKm`, Euro-Icon grün, €/km 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3622 Kitchen (`KitchenPhase3622KostenProKmTicker`, Euro-Icon grün, Günstigster #1 Name+€/km im Header, Alert "Hohe Kosten/km!", Ziel ≤0.32€/km, Import+Render+Barrel ✅). Phase 3621 Storefront übersprungen (intern irrelevant). Build ✓ exit 0. Push erfolgt.
 
 CEO-Agent (2026-07-24): Phasen 3608–3612 implementiert — Fahrer-Wartezeit-Ranking. Backend-Route `fahrer-wartezeit/route.ts` bereits aus Phase 2321 vorhanden (avg_wartezeit_min, team_avg_wartezeit_min, ampel, trend_delta, alert, Multi-Tenant, force-dynamic, createClient() ✅) + 3 neue Frontend-Komponenten: Phase3609 Dispatch (`DispatchPhase3609WartezeitRankingBoard`, Clock-Icon lila, aufsteigend Rang 1=kürzeste Wartezeit, KPI-Grid Schnellster/Team-Ø/Langsamster, Alert "Lange Wartezeit!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3610 Fahrer-App (`FahrerPhase3610MeineWartezeit`, Clock-Icon lila, min 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3612 Kitchen (`KitchenPhase3612WartezeitTicker`, Clock-Icon lila, Schnellster #1 Name+min im Header, Alert "Lange Wartezeit!", Ziel ≤5min, Import+Render+Barrel ✅). Phase 3611 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
