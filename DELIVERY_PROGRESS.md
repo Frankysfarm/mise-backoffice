@@ -2,6 +2,25 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-24): CEO Review #609 — Phasen 3673–3677 implementiert (Fahrer-Liefergebiet-Abdeckungs-Ranking). Build ✓ exit 0 (beide Male). Phase 3673 Backend: `fahrer-abdeckung/route.ts` — force-dynamic, await createClient(), delivery_tours distinct zone_id je Fahrer letzte 30 Tage, absteigend Rang 1=meiste Zonen=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert Bottom-25% "Geringe Abdeckung!", rank_delta pos=verbessert, Mock Julia F.4 Zonen/Sara K.3 Zonen/Max M.3 Zonen/Tim B.1 Zone, team_avg 2.75 ✅. Phase 3674 Dispatch: `DispatchPhase3674AbdeckungRankingBoard` — MapPin-Icon blau, absteigend Rang 1=meiste Zonen, KPI-Grid Bester/Team-Ø/Geringste, Alert "Geringe Abdeckung!", Delta pos=grün, RankBadge, Import+Render+Barrel ✅. Phase 3675 Fahrer: `FahrerPhase3675MeineAbdeckung` — MapPin-Icon blau, Zonen-Anzahl 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3676 Storefront: übersprungen. Phase 3677 Kitchen: `KitchenPhase3677AbdeckungTicker` — MapPin-Icon blau, Bester #1 Name+Zonen im Header, Alert "Geringe Abdeckung!", Team-Ø+Ziel ≥3 Zonen, Import+Render+Barrel ✅. Push erfolgt.
+
+### ✅ Phasen 3673–3677 ABGESCHLOSSEN — Fahrer-Liefergebiet-Abdeckungs-Ranking
+- Phase 3673 Backend: `fahrer-abdeckung/route.ts` — force-dynamic, await createClient() ✅, delivery_tours distinct zone_id je Fahrer, absteigend Rang 1=meiste Zonen=bester, Mock Julia F.4/Sara K.3/Max M.3/Tim B.1, team_avg 2.75 ✅
+- Phase 3674 Dispatch: `DispatchPhase3674AbdeckungRankingBoard` — MapPin-Icon blau, absteigend, KPI-Grid Bester/Team-Ø/Geringste, Alert "Geringe Abdeckung!", Delta pos=grün, RankBadge, Import+Render+Barrel ✅
+- Phase 3675 Fahrer: `FahrerPhase3675MeineAbdeckung` — Zonen 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3676 Storefront: übersprungen ✅
+- Phase 3677 Kitchen: `KitchenPhase3677AbdeckungTicker` — Bester #1 im Header, Alert "Geringe Abdeckung!", Ziel ≥3 Zonen, Import+Render+Barrel ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Nächste Phasen 3678–3682 (für nächsten Agenten) — Fahrer-Kundenbewertungs-Ranking
+1. **Phase 3678 Backend:** GET /api/delivery/admin/fahrer-bewertung — Ø Kundenbewertung je Fahrer letzte 30 Tage (delivery_orders: avg(rating) je Fahrer; Rang 1=höchste Bewertung=bester); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Bewertung!"; rank_delta pos=verbessert; Mock Julia F.4.9/Sara K.4.7/Max M.4.3/Tim B.3.8; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3679 Dispatch:** BewertungRankingBoard — Star-Icon gelb; absteigend Rang 1=höchste Bewertung; KPI-Grid Bester/Team-Ø/Schlechtester; Alert "Niedrige Bewertung!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3674. PFLICHT: Import + Render + Barrel.
+3. **Phase 3680 Fahrer-App:** MeineBewertung — Star-Icon gelb; Bewertung 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3675. PFLICHT: Import + Render + Barrel.
+4. **Phase 3681 Storefront:** Überspringen.
+5. **Phase 3682 Kitchen:** BewertungTicker — Star-Icon gelb; Bester #1 Name+Bewertung im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+Bewertung+Delta pos=grün; Team-Ø+Ziel ≥4.5; 30-Min-Polling; nach Phase3677. PFLICHT: Import + Render + Barrel.
+
+---
+
 Backend-Architekt-Agent (2026-07-24): Phasen 3668–3672 implementiert — Fahrer-Bestellungen-pro-Tag-Ranking. Phase 3668 Backend: `fahrer-bestellungen-pro-tag/route.ts` — force-dynamic, await createClient(), delivery_orders count je Fahrer / 22 Arbeitstage letzte 30 Tage, absteigend Rang 1=meiste Bestellungen/Tag=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert Bottom-25% "Wenige Bestellungen/Tag!", rank_delta pos=verbessert, Mock Julia F.12.5/Sara K.10.3/Max M.8.7/Tim B.5.2, team_avg 9.18 ✅. Phase 3669 Dispatch: `DispatchPhase3669BestellungenProTagRankingBoard` — Route-Icon lila, absteigend Rang 1=meiste Bestellungen/Tag, KPI-Grid Fleißigster/Team-Ø/Wenigste, Alert "Wenige Bestellungen/Tag!", Delta pos=grün, RankBadge, Import+Render+Barrel ✅. Phase 3670 Fahrer: `FahrerPhase3670MeineBestellungenProTag` — Route-Icon lila, Bestellungen/Tag 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3671 Storefront: übersprungen. Phase 3672 Kitchen: `KitchenPhase3672BestellungenProTagTicker` — Route-Icon lila, Fleißigster #1 Name+Bestellungen/Tag im Header, Alert "Wenige Bestellungen/Tag!", Team-Ø+Ziel ≥10/Tag, Import+Render+Barrel ✅. Build ✓ exit 0. Push erfolgt.
 
 ### ✅ Phasen 3668–3672 ABGESCHLOSSEN — Fahrer-Bestellungen-pro-Tag-Ranking
