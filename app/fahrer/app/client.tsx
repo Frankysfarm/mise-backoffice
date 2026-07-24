@@ -10523,3 +10523,5 @@ export { FahrerPhase3655MeinUmsatzProTour } from './phase3655-mein-umsatz-pro-to
 export { FahrerPhase3630TourStopsLiveNavigatorPro } from './phase3630-tour-stops-live-navigator-pro';
 // Phase 1001 — Tour-Stopp Navigation Hub (vollständige Stopp-Liste mit ETA-Ring; Direktnavigation Google Maps/Waze; Aktueller-Stopp-Fokus; Stopp-Bestätigung; 5-Min-Polling; Mock-Fallback)
 export { FahrerPhase1001TourStoppNavigationHub } from './phase1001-tour-stopp-navigation-hub';
+// Phase 3655 — Tour-Stops Navigation Ultimate (Hero-Stopp blau mit Google-Maps+Anruf+Sonderwunsch-Alert+Notiz; Zahlungsart-Badge; alle Stopps expandierbar mit Status-Dot+ETA+Navi+Anruf; Fortschrittsbalken Tour-Dauer; mobile-first; Mock-Fallback)
+export { FahrerPhase3655TourStopsNavigationUltimate } from './phase3655-tour-stops-navigation-ultimate';

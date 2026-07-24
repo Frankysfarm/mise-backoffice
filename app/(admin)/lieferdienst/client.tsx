@@ -4887,3 +4887,5 @@ export { LieferdienstPhase1000StatistikenLiveHubFinal } from './phase1000-statis
 export { LieferdienstPhase2725StatistikenCommandCenterUltimate } from './phase2725-statistiken-command-center-ultimate';
 // Phase 2730 — Statistiken Live Intelligence Hub (BarChart2-Icon indigo; 10-KPI-Kacheln 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Ring; Insight-Tipp; Alert-Strip amber; Stundenverlauf-BarChart 2-Modi Jetzt-Stunde blau; Recharts; Mock-Fallback; 60-Sek-Polling)
 export { LieferdienstPhase2730StatistikLiveIntelligenceHub } from './phase2730-statistiken-live-intelligence-hub';
+// Phase 2735 — Statistiken Echtzeit Dashboard Ultimate (10 KPI-Kacheln Ampel+Δ%+Trend; Gesamt-Score-Ring; Insight-Tipp; Alert-Strip rot-KPIs; Stundenverlauf-BarChart 2-Modi Jetzt-Stunde blau; Zonen-Ranking; Fahrer-Top-3; 1-Min-Polling; Mock-Fallback)
+export { LieferdienstPhase2735StatistikEchtzeitDashboardUltimate } from './phase2735-statistiken-echtzeit-dashboard-ultimate';

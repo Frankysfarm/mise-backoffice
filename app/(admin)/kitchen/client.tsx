@@ -11355,3 +11355,5 @@ export { KitchenPhase3657UmsatzProTourTicker } from './phase3657-umsatz-pro-tour
 export { KitchenPhase3612SmartTimingCountdownSupremo } from './phase3612-smart-timing-countdown-supremo';
 // Phase 3632 — Smart-Timing Echtzeit Cockpit Final (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score; On-Time-Rate; Überfällig-Alert-Strip; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3632SmartTimingEchtzeitCockpitFinal } from './phase3632-smart-timing-echtzeit-cockpit-final';
+// Phase 3657 — Smart-Timing Countdown & Farbkodierung Final (sekundengenauer Countdown grün/gelb/orange/rot je Bestellung; Kochstart-Score; On-Time-Rate; Überfällig-Alert; Fortschrittsbalken; Fahrer-ETA-Bridge; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase3657SmartTimingCountdownFarbkodierungFinal } from './phase3657-smart-timing-countdown-farbkodierung-final';

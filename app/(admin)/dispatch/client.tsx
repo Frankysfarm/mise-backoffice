@@ -12782,3 +12782,5 @@ export { DispatchPhase3658UmsatzProTourRankingBoard } from './phase3658-umsatz-p
 export { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-tour-score-live-visualisierung-final';
 // Phase 3654 — Tour-Score Command Center (Trophy-Icon amber; Flotten-KPI-Grid Ø/Top/Alerts; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert unterwegs/geliefert/ausstehend; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung expandierbar; ETA je Stopp; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3654TourScoreCommandCenter } from './phase3654-tour-score-command-center';
+// Phase 3659 — Tour-Score Visualisierung Final Ultra (Score-Ring SVG 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-Scores Pünktlichkeit/Abschluss/Speed expandierbar; Flotten-Ø; Alert Score<70; Stopp-Liste mit ETA; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase3659TourScoreVisualisierungFinalUltra } from './phase3659-tour-score-visualisierung-final-ultra';
