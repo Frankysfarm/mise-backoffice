@@ -931,6 +931,8 @@ import { FahrerPhase3640MeineLieferstreckeProTour } from './phase3640-meine-lief
 import { FahrerPhase3645MeineKundenbewertung } from './phase3645-meine-kundenbewertung';
 import { FahrerPhase3650MeinePuenktlichkeit } from './phase3650-meine-puenktlichkeit';
 import { FahrerPhase3655MeinUmsatzProTour } from './phase3655-mein-umsatz-pro-tour';
+import { FahrerPhase3655TourStopsNavigationUltimate } from './phase3655-tour-stops-navigation-ultimate';
+import { FahrerPhase3665MeinBestellwert } from './phase3665-mein-bestellwert';
 import { FahrerPhase3630TourStopsLiveNavigatorPro } from './phase3630-tour-stops-live-navigator-pro';
 
 type Driver = {
@@ -6679,6 +6681,8 @@ export function FahrerApp({
           <FahrerPhase3645MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3650MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3655MeinUmsatzProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3655TourStopsNavigationUltimate driverId={driver.id} activeBatch={activeBatch ?? null} />
+          <FahrerPhase3665MeinBestellwert driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3630: Tour-Stops Live Navigator Pro — Hero-Stopp blau; Navi+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; ETA-Badge; mobile-first; kein Polling */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3630TourStopsLiveNavigatorPro
@@ -10525,3 +10529,4 @@ export { FahrerPhase3630TourStopsLiveNavigatorPro } from './phase3630-tour-stops
 export { FahrerPhase1001TourStoppNavigationHub } from './phase1001-tour-stopp-navigation-hub';
 // Phase 3655 — Tour-Stops Navigation Ultimate (Hero-Stopp blau mit Google-Maps+Anruf+Sonderwunsch-Alert+Notiz; Zahlungsart-Badge; alle Stopps expandierbar mit Status-Dot+ETA+Navi+Anruf; Fortschrittsbalken Tour-Dauer; mobile-first; Mock-Fallback)
 export { FahrerPhase3655TourStopsNavigationUltimate } from './phase3655-tour-stops-navigation-ultimate';
+export { FahrerPhase3665MeinBestellwert } from './phase3665-mein-bestellwert';

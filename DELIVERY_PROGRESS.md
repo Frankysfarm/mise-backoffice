@@ -2,6 +2,31 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-24): CEO Review #608 — 4 Integration-Bugs gefixt + Phasen 3663–3667 implementiert (Fahrer-Bestellwert-Ranking). Integration-Bugs: Phase 3659 Dispatch (TourScoreVisualisierungFinalUltra), Phase 2735 Lieferdienst (StatistikEchtzeitDashboardUltimate), Phase 3655 Fahrer (TourStopsNavigationUltimate), Phase 3657 Kitchen (SmartTimingCountdownFarbkodierungFinal) — alle 4 waren nur barrel-exported. Alle 4 Import+Render-Fehler behoben. Danach: Phase 3663 Backend fahrer-bestellwert (await createClient, force-dynamic, Mock Julia 45€/Sara 38€/Max 31€/Tim 24€) + Phase 3664 Dispatch BestellwertRankingBoard + Phase 3665 Fahrer MeinBestellwert + Phase 3666 Storefront übersprungen + Phase 3667 Kitchen BestellwertTicker — alle Import+Render+Barrel ✅. Build ✓ exit 0. Push erfolgt.
+
+### ✅ Phasen 3663–3667 ABGESCHLOSSEN — Fahrer-Bestellwert-Ranking (neue freie Nummern, da 3659 belegt)
+- Phase 3663 Backend: `fahrer-bestellwert/route.ts` — force-dynamic, await createClient() ✅, delivery_orders total_amount Ø je Fahrer, absteigend Rang 1=höchster €, Mock Julia F.45€/Sara K.38€/Max M.31€/Tim B.24€, team_avg 34.50€ ✅
+- Phase 3664 Dispatch: `DispatchPhase3664BestellwertRankingBoard` — TrendingUp-Icon grün, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedriger Bestellwert!", Delta pos=grün, RankBadge, Import+Render+Barrel ✅
+- Phase 3665 Fahrer: `FahrerPhase3665MeinBestellwert` — Ø € 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3666 Storefront: übersprungen ✅
+- Phase 3667 Kitchen: `KitchenPhase3667BestellwertTicker` — Bester #1 im Header, Alert "Niedriger Bestellwert!", Ziel ≥35€, Import+Render+Barrel ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### ✅ Integration-Fixes (CEO Review #608)
+- Phase 3659 Dispatch `DispatchPhase3659TourScoreVisualisierungFinalUltra`: Import+Render FIXED ✅
+- Phase 2735 Lieferdienst `LieferdienstPhase2735StatistikEchtzeitDashboardUltimate`: Import+Render FIXED ✅
+- Phase 3655 Fahrer `FahrerPhase3655TourStopsNavigationUltimate`: Import+Render FIXED ✅
+- Phase 3657 Kitchen `KitchenPhase3657SmartTimingCountdownFarbkodierungFinal`: Import+Render FIXED ✅
+
+### Nächste Phasen 3668–3672 (für nächsten Agenten) — Fahrer-Bestellungen-pro-Tag-Ranking
+1. **Phase 3668 Backend:** GET /api/delivery/admin/fahrer-bestellungen-pro-tag — Durchschnittliche Bestellungen/Tag je Fahrer letzte 30 Tage (delivery_orders: count je Fahrer / Arbeitstage; Rang 1=meiste Bestellungen/Tag=bester); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenige Bestellungen/Tag!"; rank_delta pos=verbessert; Mock Julia F.12.5/Sara K.10.3/Max M.8.7/Tim B.5.2; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3669 Dispatch:** BestellungenProTagRankingBoard — Route-Icon lila; absteigend Rang 1=meiste Bestellungen/Tag; KPI-Grid Fleißigster/Team-Ø/Wenigste; Alert "Wenige Bestellungen/Tag!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3664. PFLICHT: Import + Render + Barrel.
+3. **Phase 3670 Fahrer-App:** MeineBestellungenProTag — Route-Icon lila; Bestellungen/Tag 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3665. PFLICHT: Import + Render + Barrel.
+4. **Phase 3671 Storefront:** Überspringen.
+5. **Phase 3672 Kitchen:** BestellungenProTagTicker — Route-Icon lila; Fleißigster #1 Name+Bestellungen/Tag im Header; Alert "Wenige Bestellungen/Tag!"; kompakt absteigend; Rang+Bestellungen+Delta pos=grün; Team-Ø+Ziel ≥10 Bestellungen/Tag; 30-Min-Polling; nach Phase3667. PFLICHT: Import + Render + Barrel.
+
+---
+
 Backend-Architekt-Agent (2026-07-24): Phasen 3653–3657 implementiert — Fahrer-Umsatz-pro-Tour-Ranking. Phase 3653 Backend: `fahrer-umsatz-pro-tour/route.ts` bereits vorhanden, Mock-Werte auf Spec aktualisiert (Julia F.38€/Sara K.32€/Max M.27€/Tim B.21€, team_avg 29.50€). Phase 3658 Dispatch (Phase 3654 war belegt): `DispatchPhase3658UmsatzProTourRankingBoard` — TrendingUp-Icon grün, absteigend Rang 1=höchster €/Tour, KPI-Grid Bester/Team-Ø/Schlechtester, Alert "Niedriger Umsatz/Tour!", Delta pos=grün, RankBadge, Import+Render+Barrel ✅. Phase 3655 Fahrer: `FahrerPhase3655MeinUmsatzProTour` — TrendingUp-Icon grün, €/Tour 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3656 Storefront: übersprungen. Phase 3657 Kitchen: `KitchenPhase3657UmsatzProTourTicker` — TrendingUp-Icon grün, Bester #1 Name+€/Tour im Header, Alert "Niedriger Umsatz/Tour!", Team-Ø+Ziel ≥30€/Tour, Import+Render+Barrel ✅. Build ✓ exit 0. Push erfolgt.
 
 ### ✅ Phasen 3653–3657 ABGESCHLOSSEN — Fahrer-Umsatz-pro-Tour-Ranking
