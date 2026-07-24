@@ -28425,3 +28425,55 @@ Vollständige Implementierung vorhanden: gesamt_km, touren_heute, avg_km_tour, t
 5. **Phase 3627 Kitchen:** UmsatzProStundeTicker — TrendingUp-Icon grün; Bester #1 Name+€/h im Header; Alert "Niedriger Umsatz/h!"; kompakt absteigend; Rang+€/h+Delta pos=grün; Team-Ø+Ziel ≥35€/h; 30-Min-Polling; nach Phase3622. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-24): Phasen 3598–3612 nachträglich dokumentiert (bereits durch CEO Review #602/#603 implementiert und integriert). Phasen 3613–3617 neu implementiert — Fahrer-Kilometerstand-Ranking. Backend-Route bereits als Phase 2259 vorhanden (gesamt_km, trend, ampel grün/gelb/rot, Mock-Daten). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3614 Dispatch (DispatchPhase3614KilometerstandRankingBoard, Navigation-Icon blau, absteigend, KPI-Grid Meistgefahren/Team-Ø/Wenigsten, Alert "Hohe Kilometerleistung!", RankBadge, Import+Render+Barrel ✅) / Phase3615 Fahrer-App (FahrerPhase3615MeinKilometerstand, Navigation-Icon blau, km 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3617 Kitchen (KitchenPhase3617KilometerstandTicker, Navigation-Icon blau, Meistgefahrener #1 im Header, Alert "Hohe Kilometerleistung!", Ziel ≤120km/Tag, Import+Render+Barrel ✅). Phase 3616 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
+
+---
+
+## Batch 3623–3627 — Fahrer-Umsatz-pro-Stunde-Ranking (ABGESCHLOSSEN 2026-07-24)
+
+### Phase 3623 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-umsatz-pro-stunde/route.ts` *(ersetzt bestehende Route — alte verwendete createServiceClient + andere Response-Shape)*
+**Endpoint:** GET /api/delivery/admin/fahrer-umsatz-pro-stunde?location_id=...
+**Logik:** Umsatz/h je Fahrer letzte 30 Tage aus delivery_tours (order_total_euro/dauer_minuten); Rang 1=höchster €/h=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedriger Umsatz/h!"; rank_delta pos=verbessert; Mock Julia F.42€/Sara K.38€/Max M.35€/Tim B.28€; force-dynamic; createClient() ✅
+
+### Phase 3624 — Umsatz/h Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3624-umsatz-pro-stunde-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3624UmsatzProStundeRankingBoard`
+**UI:** TrendingUp-Icon grün; absteigend Rang 1=höchster €/h; Balken 0–max; KPI-Grid Bester/Team-Ø/Schlechtester; Alert "Niedriger Umsatz/h!"; Delta pos=grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L1015 + Render nach Phase3619 + Barrel-Export ✅
+
+### Phase 3625 — Mein Umsatz/h (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3625-mein-umsatz-pro-stunde.tsx` *(neu)*
+**Component:** `FahrerPhase3625MeinUmsatzProStunde`
+**UI:** TrendingUp-Icon grün; €/h 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L928 + Render nach Phase3620 + Barrel-Export ✅
+
+### Phase 3626 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3627 — Umsatz/h Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3627-umsatz-pro-stunde-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3627UmsatzProStundeTicker`
+**UI:** TrendingUp-Icon grün; Bester #1 Name+€/h im Header; Alert "Niedriger Umsatz/h!"; kompakt absteigend; Rang+€/h+Delta pos=grün; Team-Ø+Ziel ≥35€/h; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L962 + Render nach Phase3622 + Barrel-Export ✅
+
+### Build-Ergebnis
+**✓ exit 0** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ UmsatzProStundeTicker + UmsatzProStundeRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3624 Board + Phase3625 MeinUmsatzProStunde |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3628–3632 — Fahrer-Touren-pro-Tag-Ranking
+1. **Phase 3628 Backend:** GET /api/delivery/admin/fahrer-touren-pro-tag — Durchschnittliche Touren/Tag je Fahrer letzte 30 Tage aus delivery_tours; Rang 1=meiste Touren/Tag=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenige Touren/Tag!"; rank_delta pos=verbessert; Mock Julia F.8.2/Sara K.7.1/Max M.6.5/Tim B.4.8; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()`.
+2. **Phase 3629 Dispatch:** TourenProTagRankingBoard — Route-Icon lila; absteigend Rang 1=meiste Touren/Tag; Balken 0–max; KPI-Grid Fleißigster/Team-Ø/Wenigste; Alert "Wenige Touren/Tag!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3624. PFLICHT: Import + Render + Barrel.
+3. **Phase 3630 Fahrer:** MeineTourenProTag — Route-Icon lila; Touren/Tag 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3625. PFLICHT: Import + Render + Barrel.
+4. **Phase 3631 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3632 Kitchen:** TourenProTagTicker — Route-Icon lila; Fleißigster #1 Name+Touren im Header; Alert "Wenige Touren/Tag!"; kompakt absteigend; Rang+Touren+Delta pos=grün; Team-Ø+Ziel ≥7 Touren/Tag; 30-Min-Polling; nach Phase3627. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-24): Phasen 3623–3627 implementiert — Fahrer-Umsatz-pro-Stunde-Ranking. Bestehende Route ersetzt (alte nutzte createServiceClient + abweichende Response-Shape), auf einheitliches Ranking-Muster umgestellt (employees-Tabelle, delivery_tours, Rang-basierte Ampel, satisfies-Type). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3624 Dispatch (DispatchPhase3624UmsatzProStundeRankingBoard, TrendingUp-Icon grün, absteigend, KPI-Grid Bester/Team-Ø/Schlechtester, Alert "Niedriger Umsatz/h!", RankBadge, Import+Render+Barrel ✅) / Phase3625 Fahrer-App (FahrerPhase3625MeinUmsatzProStunde, TrendingUp-Icon grün, €/h 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3627 Kitchen (KitchenPhase3627UmsatzProStundeTicker, TrendingUp-Icon grün, Bester #1 im Header, Alert "Niedriger Umsatz/h!", Ziel ≥35€/h, Import+Render+Barrel ✅). Phase 3626 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
