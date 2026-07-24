@@ -11401,5 +11401,4 @@ export { KitchenPhase3697BestellungenProStoppTicker } from './phase3697-bestellu
 export { KitchenPhase3702RetourenquoteTicker } from './phase3702-retourenquote-ticker';
 export { KitchenPhase3707LieferzeitTicker } from './phase3707-lieferzeit-ticker';
 export { KitchenPhase3712StornoquoteTicker } from './phase3712-stornoquote-ticker';
-// Phase 3717 — Kundenzufriedenheit Ticker (Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Kundenzufriedenheit!"; kompakt absteigend; Rang+★+Delta pos=grün; Team-Ø+Ziel ≥4.5★; 30-Min-Polling)
 export { KitchenPhase3717KundenzufriedenheitTicker } from './phase3717-kundenzufriedenheit-ticker';

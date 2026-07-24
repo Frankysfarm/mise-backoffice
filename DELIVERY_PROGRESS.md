@@ -2,6 +2,25 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-24): CEO Review #612 — Phasen 3708–3712 Stornoquote-Ranking verifiziert + Phasen 3713–3717 Kundenzufriedenheits-Ranking implementiert. Build ✓ exit 0. Phase 3713 Backend: `/api/delivery/admin/fahrer-kundenzufriedenheit-ranking/route.ts` — NEU: force-dynamic, await createClient(), delivery_orders avg(customer_rating) je Fahrer letzte 30 Tage, absteigend Rang 1=höchste Bewertung=bester, Mock Julia 4.8★/Sara 4.5★/Max 3.9★/Tim 3.2★. Phase 3714 Dispatch: `DispatchPhase3714KundenzufriedenheitRankingBoard` — Star-Icon gelb, absteigend, KPI-Grid Bester/Team-Ø/Niedrigster, Alert, RankBadge, Import+Render+Barrel ✅. Phase 3715 Fahrer: `FahrerPhase3715MeineKundenzufriedenheit` — ★ 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3716 Storefront: übersprungen. Phase 3717 Kitchen: `KitchenPhase3717KundenzufriedenheitTicker` — Bester #1 im Header, Alert, Ziel ≥4.5★, Import+Render+Barrel ✅. Push erfolgt.
+
+### ✅ Phasen 3713–3717 ABGESCHLOSSEN — Fahrer-Kundenzufriedenheits-Ranking
+- Phase 3713 Backend: `/api/delivery/admin/fahrer-kundenzufriedenheit-ranking/route.ts` — NEU: force-dynamic, await createClient() ✅, delivery_orders avg(customer_rating), absteigend Rang 1=höchste=bester, Ampel grün/gelb/rot, Alert Bottom-25% "Niedrige Kundenzufriedenheit!", Mock Julia 4.8★/Sara 4.5★/Max 3.9★/Tim 3.2★ ✅
+- Phase 3714 Dispatch: `DispatchPhase3714KundenzufriedenheitRankingBoard` — Star-Icon gelb/fill, absteigend, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Kundenzufriedenheit!", Delta pos=grün, RankBadge ✅
+- Phase 3715 Fahrer: `FahrerPhase3715MeineKundenzufriedenheit` — ★-Wert 5xl, Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3716 Storefront: übersprungen ✅
+- Phase 3717 Kitchen: `KitchenPhase3717KundenzufriedenheitTicker` — Bester #1 Name+★ im Header, Alert, kompakt absteigend, Ziel ≥4.5★ ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Nächste Phasen 3718–3722 — Fahrer-Laufleistungs-Ranking
+1. **Phase 3718 Backend:** GET /api/delivery/admin/fahrer-laufleistung-ranking — Ø Kilometer pro Tour je Fahrer letzte 30 Tage; Rang 1=höchste Laufleistung=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Laufleistung!"; rank_delta pos=verbessert; Mock Julia F.42km/Sara K.38km/Max M.31km/Tim B.24km; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3719 Dispatch:** LaufleistungRankingBoard — Route-Icon blau; absteigend Rang 1=höchste Laufleistung; KPI-Grid Fleißigster/Team-Ø/Wenigste; Alert "Niedrige Laufleistung!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3714. PFLICHT: Import + Render + Barrel.
+3. **Phase 3720 Fahrer-App:** MeineLaufleistung — Route-Icon blau; km-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3715. PFLICHT: Import + Render + Barrel.
+4. **Phase 3721 Storefront:** Überspringen.
+5. **Phase 3722 Kitchen:** LaufleistungTicker — Route-Icon blau; Fleißigster #1 Name+km im Header; Alert "Niedrige Laufleistung!"; kompakt absteigend; Rang+km+Delta pos=grün; Team-Ø+Ziel ≥35km/Tour; 30-Min-Polling; nach Phase3717. PFLICHT: Import + Render + Barrel.
+
+---
+
 CEO-Agent (2026-07-24): Phasen 3703–3707 — Fahrer-Ø-Lieferzeit-Ranking implementiert. Backend Phase 3703 von `createServiceClient()` auf `await createClient()` migriert + API-Shape für Ranking-Pattern normalisiert. Phase 3704 Dispatch: `DispatchPhase3704LieferzeitRankingBoard` — Clock-Icon orange, aufsteigend, KPI-Grid Schnellster/Team-Ø/Langsamster, Alert, RankBadge, Import+Render+Barrel ✅. Phase 3705 Fahrer: `FahrerPhase3705MeineLieferzeit` — min 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3706 Storefront: übersprungen. Phase 3707 Kitchen: `KitchenPhase3707LieferzeitTicker` — Schnellster #1 im Header, Alert, Ziel ≤25min, Import+Render+Barrel ✅. Build ✓ exit 0. Push erfolgt.
 
 ### ✅ Phasen 3703–3707 ABGESCHLOSSEN — Fahrer-Ø-Lieferzeit-Ranking

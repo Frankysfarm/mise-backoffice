@@ -10567,5 +10567,4 @@ export { FahrerPhase3695MeineBestellungenProStopp } from './phase3695-meine-best
 export { FahrerPhase3700MeineRetourenquote } from './phase3700-meine-retourenquote';
 export { FahrerPhase3705MeineLieferzeit } from './phase3705-meine-lieferzeit';
 export { FahrerPhase3710MeineStornoquote } from './phase3710-meine-stornoquote';
-// Phase 3715 — Meine Kundenzufriedenheit (Star-Icon gelb; ★-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3715MeineKundenzufriedenheit } from './phase3715-meine-kundenzufriedenheit';

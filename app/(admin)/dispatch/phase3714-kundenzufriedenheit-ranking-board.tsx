@@ -7,10 +7,10 @@ interface FahrerRow {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
-  avg_bewertung: number;
+  avg_sterne: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
-  alert_bottom: boolean;
+  alert_niedrig: boolean;
 }
 
 interface ApiResponse {
@@ -42,7 +42,7 @@ export function DispatchPhase3714KundenzufriedenheitRankingBoard({ locationId }:
   const load = useCallback(async () => {
     if (!locationId) { setLoading(false); return; }
     try {
-      const res = await fetch(`/api/delivery/admin/fahrer-kundenzufriedenheit?location_id=${locationId}`);
+      const res = await fetch(`/api/delivery/admin/fahrer-kundenzufriedenheit-ranking?location_id=${locationId}`);
       if (res.ok) setData(await res.json());
     } finally {
       setLoading(false);
@@ -58,14 +58,15 @@ export function DispatchPhase3714KundenzufriedenheitRankingBoard({ locationId }:
   if (loading) return <div className="animate-pulse h-48 bg-gray-100 rounded-xl" />;
   if (!data || !locationId) return null;
 
-  const sorted = [...data.fahrer].sort((a, b) => b.avg_bewertung - a.avg_bewertung);
+  const sorted = [...data.fahrer].sort((a, b) => b.avg_sterne - a.avg_sterne);
+  const maxVal = 5;
   const bester = sorted[0];
-  const niedrigster = sorted[sorted.length - 1];
+  const schlechtester = sorted[sorted.length - 1];
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
       <div className="flex items-center gap-2">
-        <Star className="w-5 h-5 text-yellow-500" />
+        <Star className="w-5 h-5 text-yellow-500 fill-yellow-400" />
         <h3 className="font-semibold text-gray-900">Kundenzufriedenheit — Ranking</h3>
       </div>
 
@@ -78,18 +79,18 @@ export function DispatchPhase3714KundenzufriedenheitRankingBoard({ locationId }:
 
       <div className="grid grid-cols-3 gap-2 text-center text-xs">
         <div className="bg-emerald-50 rounded-lg p-2">
-          <div className="font-bold text-emerald-700">{bester?.avg_bewertung.toFixed(1)}★</div>
+          <div className="font-bold text-emerald-700">{bester?.avg_sterne}★</div>
           <div className="text-gray-500">Bester</div>
           <div className="text-gray-700 truncate">{bester?.fahrer_name ?? '–'}</div>
         </div>
         <div className="bg-gray-50 rounded-lg p-2">
-          <div className="font-bold text-gray-700">{data.team_avg.toFixed(1)}★</div>
+          <div className="font-bold text-gray-700">{data.team_avg}★</div>
           <div className="text-gray-500">Team-Ø</div>
         </div>
         <div className="bg-red-50 rounded-lg p-2">
-          <div className="font-bold text-red-700">{niedrigster?.avg_bewertung.toFixed(1)}★</div>
+          <div className="font-bold text-red-700">{schlechtester?.avg_sterne}★</div>
           <div className="text-gray-500">Niedrigster</div>
-          <div className="text-gray-700 truncate">{niedrigster?.fahrer_name ?? '–'}</div>
+          <div className="text-gray-700 truncate">{schlechtester?.fahrer_name ?? '–'}</div>
         </div>
       </div>
 
@@ -101,10 +102,10 @@ export function DispatchPhase3714KundenzufriedenheitRankingBoard({ locationId }:
             <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className={`h-2 rounded-full ${f.ampel === 'gruen' ? 'bg-emerald-500' : f.ampel === 'gelb' ? 'bg-yellow-500' : 'bg-red-500'}`}
-                style={{ width: `${Math.max((f.avg_bewertung / 5) * 100, 4)}%` }}
+                style={{ width: `${Math.max((f.avg_sterne / maxVal) * 100, 4)}%` }}
               />
             </div>
-            <span className={`text-xs font-bold w-12 text-right ${AMPEL_COLOR[f.ampel]}`}>{f.avg_bewertung.toFixed(1)}★</span>
+            <span className={`text-xs font-bold w-10 text-right ${AMPEL_COLOR[f.ampel]}`}>{f.avg_sterne}★</span>
             {f.rank_delta > 0 ? (
               <TrendingUp className="w-3 h-3 text-emerald-600" />
             ) : f.rank_delta < 0 ? (
@@ -112,12 +113,12 @@ export function DispatchPhase3714KundenzufriedenheitRankingBoard({ locationId }:
             ) : (
               <Minus className="w-3 h-3 text-gray-400" />
             )}
-            {f.alert_bottom && <AlertTriangle className="w-3 h-3 text-red-500" />}
+            {f.alert_niedrig && <AlertTriangle className="w-3 h-3 text-red-500" />}
           </div>
         ))}
       </div>
 
-      <div className="text-xs text-gray-400 text-center">Ziel ≥4.5★ Kundenzufriedenheit · Letzte 30 Tage</div>
+      <div className="text-xs text-gray-400 text-center">Ziel ≥4.5★ Kundenbewertung · Letzte 30 Tage</div>
     </div>
   );
 }

@@ -12828,5 +12828,4 @@ export { DispatchPhase3694BestellungenProStoppRankingBoard } from './phase3694-b
 export { DispatchPhase3699RetourenquoteRankingBoard } from './phase3699-retourenquote-ranking-board';
 export { DispatchPhase3704LieferzeitRankingBoard } from './phase3704-lieferzeit-ranking-board';
 export { DispatchPhase3709StornoquoteRankingBoard } from './phase3709-stornoquote-ranking-board';
-// Phase 3714 — Kundenzufriedenheit Ranking-Board (Star-Icon gelb; absteigend Rang 1=höchste Bewertung; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenzufriedenheit!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3714KundenzufriedenheitRankingBoard } from './phase3714-kundenzufriedenheit-ranking-board';
