@@ -1010,6 +1010,7 @@ import { DispatchPhase3594KundenbewertungRankingBoard } from './phase3594-kunden
 import { DispatchPhase3599ZuverlaessigkeitRankingBoard } from './phase3599-zuverlaessigkeit-ranking-board';
 import { DispatchPhase3604StornoQuoteRankingBoard } from './phase3604-storno-quote-ranking-board';
 import { DispatchPhase3609WartezeitRankingBoard } from './phase3609-wartezeit-ranking-board';
+import { DispatchPhase3614KilometerstandRankingBoard } from './phase3614-kilometerstand-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4630,6 +4631,8 @@ export function DispatchBoard({
           <DispatchPhase3604StornoQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3609: Wartezeit Ranking — Clock-Icon lila; aufsteigend Rang 1=kürzeste Wartezeit; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Lange Wartezeit!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3609WartezeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3614: Kilometerstand Ranking — Navigation-Icon blau; absteigend Rang 1=höchste km; KPI-Grid Meistgefahren/Team-Ø/Wenigsten; Alert "Hohe Kilometerleistung!"; 30-Min-Polling */}
+          <DispatchPhase3614KilometerstandRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12738,3 +12741,5 @@ export { DispatchPhase3599ZuverlaessigkeitRankingBoard } from './phase3599-zuver
 export { DispatchPhase3604StornoQuoteRankingBoard } from './phase3604-storno-quote-ranking-board';
 // Phase 3609 — Wartezeit Ranking (Clock-Icon lila; aufsteigend Rang 1=kürzeste Wartezeit; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Lange Wartezeit!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3609WartezeitRankingBoard } from './phase3609-wartezeit-ranking-board';
+// Phase 3614 — Kilometerstand Ranking (Navigation-Icon blau; absteigend Rang 1=höchste km; KPI-Grid Meistgefahren/Team-Ø/Wenigsten; Alert "Hohe Kilometerleistung!"; 30-Min-Polling)
+export { DispatchPhase3614KilometerstandRankingBoard } from './phase3614-kilometerstand-ranking-board';

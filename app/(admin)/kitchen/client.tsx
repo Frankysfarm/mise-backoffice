@@ -957,6 +957,7 @@ import { KitchenPhase3597KundenbewertungTicker } from './phase3597-kundenbewertu
 import { KitchenPhase3602ZuverlaessigkeitTicker } from './phase3602-zuverlaessigkeit-ticker';
 import { KitchenPhase3607StornoQuoteTicker } from './phase3607-storno-quote-ticker';
 import { KitchenPhase3612WartezeitTicker } from './phase3612-wartezeit-ticker';
+import { KitchenPhase3617KilometerstandTicker } from './phase3617-kilometerstand-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4217,6 +4218,8 @@ export function KitchenBoard({
       <KitchenPhase3607StornoQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3612: Wartezeit Ticker — Clock-Icon lila; Schnellster #1 Name+min im Header; Alert "Lange Wartezeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤5min; 30-Min-Polling */}
       <KitchenPhase3612WartezeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3617: Kilometerstand Ticker — Navigation-Icon blau; Meistgefahrener #1 Name+km im Header; Alert "Hohe Kilometerleistung!"; kompakt absteigend; Rang+km+Trend; Team-Ø+Ziel ≤120km/Tag; 30-Min-Polling */}
+      <KitchenPhase3617KilometerstandTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11314,5 +11317,7 @@ export { KitchenPhase3602ZuverlaessigkeitTicker } from './phase3602-zuverlaessig
 export { KitchenPhase3607StornoQuoteTicker } from './phase3607-storno-quote-ticker';
 // Phase 3612 (Wartezeit) — Wartezeit Ticker (Clock-Icon lila; Schnellster #1 Name+min im Header; Alert "Lange Wartezeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤5min; 30-Min-Polling)
 export { KitchenPhase3612WartezeitTicker } from './phase3612-wartezeit-ticker';
+// Phase 3617 — Kilometerstand Ticker (Navigation-Icon blau; Meistgefahrener #1 Name+km im Header; Alert "Hohe Kilometerleistung!"; kompakt absteigend; Rang+km+Trend; Team-Ø+Ziel ≤120km/Tag; 30-Min-Polling)
+export { KitchenPhase3617KilometerstandTicker } from './phase3617-kilometerstand-ticker';
 // Phase 3612 (orig) — Smart-Timing Countdown Supremo (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score 0–100; On-Time-Rate; Überfällig-Alert; Fahrer-Sync-Hinweis; 15-Sek-Polling + 1-Sek-Tick; Mock-Fallback)
 export { KitchenPhase3612SmartTimingCountdownSupremo } from './phase3612-smart-timing-countdown-supremo';

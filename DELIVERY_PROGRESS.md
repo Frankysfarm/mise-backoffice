@@ -28254,3 +28254,147 @@ Vollständige Implementierung vorhanden: order_ratings je Fahrer heute+Vorwoche,
 5. **Phase 3602 Kitchen:** ZuverlaessigkeitTicker — CheckCircle-Icon grün; Zuverlässigster #1 im Header; Alert "Niedrige Zuverlässigkeit!"; kompakt absteigend; Rang+%+Delta; Team-Ø+Ziel ≥90%; 30-Min-Polling; nach Phase3597.
 
 Frontend-Ingenieur-Agent (2026-07-24): Phasen 3593–3597 implementiert — Fahrer-Kundenbewertungs-Ranking. Backend-Route bereits als Phase 2254 vorhanden (order_ratings, Ampel grün/gelb/rot, trend). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3594 Dispatch (DispatchPhase3594KundenbewertungRankingBoard, Star-Icon gelb, absteigend, KPI-Grid Bester/Team-Ø/Niedrigster, Alert rot, Trend-Icon, Import+Render+Barrel ✅) / Phase3595 Fahrer-App (FahrerPhase3595MeineKundenbewertung, Star-Icon gelb, ★ 5xl+Rang 3xl, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3597 Kitchen (KitchenPhase3597KundenbewertungTicker, Star-Icon gelb, Bester #1 im Header, Alert, Ziel ≥4.5★, Import+Render+Barrel ✅). Phase 3596 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
+
+---
+
+## Batch 3598–3602 — Fahrer-Lieferzeit-Zuverlässigkeits-Ranking (ABGESCHLOSSEN 2026-07-24 — CEO Review #602)
+
+*(Hinweis: Bereits durch CEO Review #602 implementiert; hier nachträglich dokumentiert.)*
+
+### Phase 3598 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-lieferzeit-zuverlaessigkeit/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-lieferzeit-zuverlaessigkeit?location_id=...
+**Logik:** Anteil pünktlicher Lieferungen (≤versprochene ETA) je Fahrer letzte 30 Tage; Rang 1=höchste Zuverlässigkeit=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Zuverlässigkeit!"; rank_delta pos=verbessert; Mock Julia F.94%/Sara K.87%/Max M.79%/Tim B.61%; force-dynamic; createClient() ✅
+
+### Phase 3599 — Zuverlässigkeit-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3599-zuverlaessigkeit-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3599ZuverlaessigkeitRankingBoard`
+**Integration:** `dispatch/client.tsx` Import L1010 + Render nach Phase3594 + Barrel-Export ✅
+
+### Phase 3600 — Meine Zuverlässigkeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3600-meine-zuverlaessigkeit.tsx` *(neu)*
+**Component:** `FahrerPhase3600MeineZuverlaessigkeit`
+**Integration:** `fahrer/app/client.tsx` Import L923 + Render nach Phase3595 + Barrel-Export ✅
+
+### Phase 3601 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3602 — Zuverlässigkeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3602-zuverlaessigkeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3602ZuverlaessigkeitTicker`
+**Integration:** `kitchen/client.tsx` Import L957 + Render nach Phase3597 + Barrel-Export ✅
+
+---
+
+## Batch 3603–3607 — Fahrer-Storno-Quote-Ranking (ABGESCHLOSSEN 2026-07-24 — CEO Review #603)
+
+*(Hinweis: Bereits durch CEO Review #603 implementiert; hier nachträglich dokumentiert.)*
+
+### Phase 3603 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-storno-quote/route.ts` *(bereits existierte als Phase 2440)*
+Vollständige Implementierung vorhanden; force-dynamic; createClient() ✅
+
+### Phase 3604 — Storno-Quote-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3604-storno-quote-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3604StornoQuoteRankingBoard`
+**Integration:** `dispatch/client.tsx` Import L1011 + Render L4629 + Barrel L12735 ✅
+
+### Phase 3605 — Meine Storno-Quote (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3605-meine-storno-quote.tsx` *(neu)*
+**Component:** `FahrerPhase3605MeineStornoQuote`
+**Integration:** `fahrer/app/client.tsx` Import L924 + Render L6659 + Barrel L10457 ✅
+
+### Phase 3606 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3607 — Storno-Quote-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3607-storno-quote-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3607StornoQuoteTicker`
+**Integration:** `kitchen/client.tsx` Import L958 + Render L4216 + Barrel L11311 ✅
+
+---
+
+## Batch 3608–3612 — Fahrer-Wartezeit-Ranking (ABGESCHLOSSEN 2026-07-24 — CEO Review #603)
+
+*(Hinweis: Bereits durch CEO Review #603 implementiert; hier nachträglich dokumentiert.)*
+
+### Phase 3608 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-wartezeit/route.ts` *(bereits existierte als Phase 2321)*
+Vollständige Implementierung vorhanden; avg_wartezeit_min, team_avg_wartezeit_min, ampel, trend_delta, alert_count; force-dynamic; createClient() ✅
+
+### Phase 3609 — Wartezeit-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3609-wartezeit-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3609WartezeitRankingBoard`
+**UI:** Clock-Icon lila; aufsteigend Rang 1=kürzeste Wartezeit; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Lange Wartezeit!"; Delta neg=grün; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L1012 + Render nach Phase3604 + Barrel-Export ✅
+
+### Phase 3610 — Meine Wartezeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3610-meine-wartezeit.tsx` *(neu)*
+**Component:** `FahrerPhase3610MeineWartezeit`
+**Integration:** `fahrer/app/client.tsx` Import L925 + Render nach Phase3605 + Barrel-Export ✅
+
+### Phase 3611 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3612 — Wartezeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3612-wartezeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3612WartezeitTicker`
+**UI:** Clock-Icon lila; Schnellster #1 Name+min im Header; Alert "Lange Wartezeit!"; Ziel ≤5 min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L959 + Render nach Phase3607 + Barrel-Export ✅
+
+### Build-Ergebnis (CEO Review #603)
+**✓ exit 0** ✅
+
+---
+
+## Batch 3613–3617 — Fahrer-Kilometerstand-Ranking (ABGESCHLOSSEN 2026-07-24)
+
+### Phase 3613 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-kilometerstand/route.ts` *(bereits existierte als Phase 2259)*
+Vollständige Implementierung vorhanden: gesamt_km, touren_heute, avg_km_tour, trend, trend_delta, ampel grün(<80km)/gelb(80–120km)/rot(>120km), kosten_schaetzung, rang; Mock Max M.67.4km/Sara K.95.2km/Tim B.134.8km/Lisa F.52.1km/Jonas W.113.7km; force-dynamic; createClient() ✅
+
+### Phase 3614 — Kilometerstand-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3614-kilometerstand-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3614KilometerstandRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Navigation-Icon blau; absteigend Rang 1=höchste km; Balken 0–maxKm; KPI-Grid Meistgefahren/Team-Ø/Wenigsten; Alert "Hohe Kilometerleistung!" (alert_count>0); RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L1013 + Render nach Phase3609 + Barrel-Export ✅
+
+### Phase 3615 — Mein Kilometerstand (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3615-mein-kilometerstand.tsx` *(neu)*
+**Component:** `FahrerPhase3615MeinKilometerstand`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Navigation-Icon blau; km 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L926 + Render nach Phase3610 + Barrel-Export ✅
+
+### Phase 3616 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3617 — Kilometerstand-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3617-kilometerstand-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3617KilometerstandTicker`
+**Props:** `locationId: string | null`
+**UI:** Navigation-Icon blau; Meistgefahrener #1 Name+km im Header; Alert "Hohe Kilometerleistung!"; Fahrerliste kompakt absteigend; Rang+km+Trend; Team-Ø+Ziel ≤120km/Tag; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L960 + Render nach Phase3612 + Barrel-Export ✅
+
+### Build-Ergebnis
+**✓ exit 0** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ KilometerstandTicker + KilometerstandRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3614 Board + Phase3615 MeinKilometerstand |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3618–3622 (für nächsten Agenten) — Fahrer-Kosten-pro-km-Ranking
+1. **Phase 3618 Backend:** GET /api/delivery/admin/fahrer-kosten-pro-km — Kosten pro km (€/km) je Fahrer letzte 30 Tage (delivery_tours, distanz_km + fahrer_kosten); Rang 1=niedrigste Kosten=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Hohe Kosten/km!"; rank_delta neg=verbessert; Mock Julia F.0.28€/Sara K.0.31€/Max M.0.35€/Tim B.0.42€; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3619 Dispatch:** KostenProKmRankingBoard — Euro-Icon grün; aufsteigend Rang 1=niedrigste Kosten; Balken 0–maxCost; KPI-Grid Günstigster/Team-Ø/Teuerster; Alert "Hohe Kosten/km!"; Delta neg=grün; RankBadge; 30-Min-Polling; nach Phase3614. PFLICHT: Import + Render + Barrel.
+3. **Phase 3620 Fahrer:** MeineKostenProKm — Euro-Icon grün; €/km 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3615. PFLICHT: Import + Render + Barrel.
+4. **Phase 3621 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3622 Kitchen:** KostenProKmTicker — Euro-Icon grün; Günstigster #1 Name+€/km im Header; Alert "Hohe Kosten/km!"; kompakt aufsteigend; Rang+€/km+Delta neg=grün; Team-Ø+Ziel ≤0.32€/km; 30-Min-Polling; nach Phase3617. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-24): Phasen 3598–3612 nachträglich dokumentiert (bereits durch CEO Review #602/#603 implementiert und integriert). Phasen 3613–3617 neu implementiert — Fahrer-Kilometerstand-Ranking. Backend-Route bereits als Phase 2259 vorhanden (gesamt_km, trend, ampel grün/gelb/rot, Mock-Daten). 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3614 Dispatch (DispatchPhase3614KilometerstandRankingBoard, Navigation-Icon blau, absteigend, KPI-Grid Meistgefahren/Team-Ø/Wenigsten, Alert "Hohe Kilometerleistung!", RankBadge, Import+Render+Barrel ✅) / Phase3615 Fahrer-App (FahrerPhase3615MeinKilometerstand, Navigation-Icon blau, km 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3617 Kitchen (KitchenPhase3617KilometerstandTicker, Navigation-Icon blau, Meistgefahrener #1 im Header, Alert "Hohe Kilometerleistung!", Ziel ≤120km/Tag, Import+Render+Barrel ✅). Phase 3616 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
