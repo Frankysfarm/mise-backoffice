@@ -934,6 +934,7 @@ import { FahrerPhase3655MeinUmsatzProTour } from './phase3655-mein-umsatz-pro-to
 import { FahrerPhase3655TourStopsNavigationUltimate } from './phase3655-tour-stops-navigation-ultimate';
 import { FahrerPhase3665MeinBestellwert } from './phase3665-mein-bestellwert';
 import { FahrerPhase3670MeineBestellungenProTag } from './phase3670-meine-bestellungen-pro-tag';
+import { FahrerPhase3671MeineAbholzeit } from './phase3671-meine-abholzeit';
 import { FahrerPhase3630TourStopsLiveNavigatorPro } from './phase3630-tour-stops-live-navigator-pro';
 
 type Driver = {
@@ -6685,6 +6686,7 @@ export function FahrerApp({
           <FahrerPhase3655TourStopsNavigationUltimate driverId={driver.id} activeBatch={activeBatch ?? null} />
           <FahrerPhase3665MeinBestellwert driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3670MeineBestellungenProTag driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3671MeineAbholzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3630: Tour-Stops Live Navigator Pro — Hero-Stopp blau; Navi+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; ETA-Badge; mobile-first; kein Polling */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3630TourStopsLiveNavigatorPro
@@ -10533,3 +10535,5 @@ export { FahrerPhase1001TourStoppNavigationHub } from './phase1001-tour-stopp-na
 export { FahrerPhase3655TourStopsNavigationUltimate } from './phase3655-tour-stops-navigation-ultimate';
 export { FahrerPhase3665MeinBestellwert } from './phase3665-mein-bestellwert';
 export { FahrerPhase3670MeineBestellungenProTag } from './phase3670-meine-bestellungen-pro-tag';
+// Phase 3671 — Meine Abholzeit (Package-Icon blau; meine Ø-Abholzeit + Rang; Coaching-Text; Delta Rang; Team-Ø + Ziel ≤3min; Ampel-Hintergrund; 30-Min-Polling)
+export { FahrerPhase3671MeineAbholzeit } from './phase3671-meine-abholzeit';
