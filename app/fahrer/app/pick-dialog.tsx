@@ -19,12 +19,14 @@ export function PickDialog({
   batchId,
   onClose,
   onComplete,
+  onAtomicPickup,
 }: {
   orderBestellnummer: string;
   items: Item[];
   batchId: string;
   onClose: () => void;
   onComplete: () => void;
+  onAtomicPickup?: () => Promise<boolean>;
 }) {
   const supabase = createClient();
   const [pending, setPending] = useState<string | null>(null);
@@ -49,6 +51,17 @@ export function PickDialog({
 
   async function complete() {
     setPending('complete');
+    if (onAtomicPickup) {
+      try {
+        const handled = await onAtomicPickup();
+        setPending(null);
+        if (handled) onComplete();
+      } catch (error) {
+        setPending(null);
+        alert(error instanceof Error ? error.message : 'Atomic pickup failed');
+      }
+      return;
+    }
     const { data, error } = await supabase.rpc('confirm_pickup_complete', { p_batch_id: batchId });
     setPending(null);
     if (error || !(data as any)?.ok) {

@@ -23,6 +23,17 @@
 import 'server-only';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { directions, geocode, haversineKm, type RouteResult } from './google-maps';
+import { randomUUID } from 'node:crypto';
+import {
+  atomicOfferEnabled,
+  createAtomicSingleOrderOffer,
+  selectedDispatchWriter,
+  type DispatchWriter,
+} from './delivery/atomic-offer';
+import {
+  decideIntelligentDispatch,
+  type IntelligentDispatchDriver,
+} from './delivery/intelligent-dispatch';
 
 interface DriverRow {
   id: string;
@@ -31,6 +42,10 @@ interface DriverRow {
   last_lat: number | null;
   last_lng: number | null;
   state: string;
+}
+
+function intelligent15kmEnabled(useAtomicWriter: boolean): boolean {
+  return process.env.P0_INTELLIGENT_15KM_ENABLED === 'true' && useAtomicWriter;
 }
 
 interface OrderRow {
@@ -43,6 +58,7 @@ interface OrderRow {
   kunde_plz: string | null;
   kunde_stadt: string | null;
   created_at?: string | null;
+  dispatch_version?: number | null;
 }
 
 interface LocationRow {
@@ -103,7 +119,7 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
   const c = sb();
   const { data: orders } = await c
     .from('customer_orders')
-    .select('id, bestellnummer, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, created_at')
+    .select('id, bestellnummer, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, created_at, dispatch_version')
     .eq('typ', 'lieferung')
     .is('mise_driver_id', null)
     .is('mise_batch_id', null)
@@ -141,6 +157,22 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     .maybeSingle();
   if (!locRaw) return 'held';
   const loc = locRaw as LocationRow;
+  let selectedWriter: DispatchWriter | null;
+  try {
+    selectedWriter = await selectedDispatchWriter(c, loc.tenant_id);
+  } catch {
+    await logDecision('hold', null, [o.id], 'DISPATCH_WRITER_GATE_READ_FAILED');
+    return 'held';
+  }
+  if (selectedWriter === 'legacy_db' || selectedWriter === 'frank_db') {
+    // This process is not the elected writer for the tenant.
+    return 'held';
+  }
+  const useAtomicWriter = selectedWriter === 'atomic_v1' && atomicOfferEnabled();
+  if (selectedWriter === 'atomic_v1' && !useAtomicWriter) {
+    await logDecision('hold', null, [o.id], 'ATOMIC_WRITER_KILL_SWITCH_CLOSED');
+    return 'held';
+  }
   const preset = await tenantStrategy(loc.tenant_id);
 
   // 2) Customer-Adresse geocoden falls nötig
@@ -188,7 +220,7 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   }
 
   // 4) Bundling: gibt's einen Driver mit pending_acceptance Bundle das passt?
-  for (const d of nearby) {
+  for (const d of useAtomicWriter ? [] : nearby) {
     const { data: openBatch } = await c
       .from('mise_delivery_batches')
       .select('id, state')
@@ -221,10 +253,96 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   }
 
   // 5) Neuer Bundle für nearest-Driver (nach last position oder zufällig)
-  const best = pickBest(nearby, loc);
-  const batch = await createBundle(best.id, o, loc);
+  let best: DriverRow;
+  if (intelligent15kmEnabled(useAtomicWriter)) {
+    const driverIds = nearby.map((driver) => driver.id);
+    const [{ data: details, error: detailsError }, { data: recent, error: recentError },
+      { data: tenantConfig, error: tenantError }, { data: deadlineRow, error: deadlineError }] =
+      await Promise.all([
+        c.from('mise_drivers')
+          .select('id,vehicle,state,last_lat,last_lng,last_position_at,current_capacity,max_capacity')
+          .in('id', driverIds),
+        c.from('mise_frank_decisions')
+          .select('driver_id,created_at')
+          .in('driver_id', driverIds)
+          .eq('type', 'assign')
+          .gte('created_at', new Date(Date.now() - 60 * 60_000).toISOString()),
+        c.from('tenants')
+          .select('lieferradius_km,dispatch_config')
+          .eq('id', loc.tenant_id)
+          .maybeSingle(),
+        c.from('customer_orders')
+          .select('eta_latest')
+          .eq('id', o.id)
+          .maybeSingle(),
+      ]);
+    if (detailsError || recentError || tenantError || deadlineError) {
+      await logDecision('hold', null, [o.id], 'INTELLIGENT_INPUT_LOAD_FAILED', {
+        reason_code: 'INTELLIGENT_INPUT_LOAD_FAILED',
+      });
+      return 'held';
+    }
+
+    const recentRows = (recent ?? []) as Array<{
+      driver_id: string | null;
+      created_at: string;
+    }>;
+    const candidates: IntelligentDispatchDriver[] = (details ?? []).map((row: any) => {
+      const assignments = recentRows.filter((entry) => entry.driver_id === row.id);
+      const assignmentTimes = assignments.map((entry) => entry.created_at).sort();
+      return {
+        id: row.id,
+        vehicle: row.vehicle,
+        state: row.state,
+        position: { lat: row.last_lat, lng: row.last_lng },
+        lastPositionAt: row.last_position_at,
+        activeStops: Number(row.current_capacity ?? 0),
+        maxCapacity: Number(row.max_capacity ?? (row.vehicle === 'car' ? 4 : 2)),
+        assignmentsLastHour: assignments.length,
+        lastAssignedAt: assignmentTimes[assignmentTimes.length - 1] ?? null,
+      };
+    });
+    const dispatchConfig = (tenantConfig?.dispatch_config ?? {}) as Record<string, unknown>;
+    const configuredMax = Number(
+      dispatchConfig.max_delivery_km ??
+      tenantConfig?.lieferradius_km ??
+      process.env.P0_MAX_DELIVERY_KM ??
+      8,
+    );
+    const decision = decideIntelligentDispatch(
+      {
+        id: o.id,
+        pickup: { lat: loc.lat, lng: loc.lng },
+        dropoff: { lat: o.kunde_lat, lng: o.kunde_lng },
+        deadlineAt: deadlineRow?.eta_latest ?? null,
+      },
+      candidates,
+      { maxDeliveryKm: configuredMax },
+      new Date(),
+    );
+    await logDecision(
+      decision.winnerDriverId ? 'reroute' : 'hold',
+      decision.winnerDriverId,
+      [o.id],
+      decision.winnerDriverId
+        ? 'INTELLIGENT_CANDIDATE_SELECTED'
+        : 'NO_INTELLIGENT_CANDIDATE',
+      decision as unknown as Record<string, unknown>,
+    );
+    if (!decision.winnerDriverId) return 'held';
+    const selected = nearby.find((driver) => driver.id === decision.winnerDriverId);
+    if (!selected) return 'held';
+    best = selected;
+  } else {
+    best = pickBest(nearby, loc);
+  }
+  const created = await createBundle(best.id, o, loc, useAtomicWriter);
+  if (!created) return 'held';
   // Route erst nach Pickup
-  await logDecision('assign', best.id, [o.id], `Direkt zugewiesen — kein passender Bundle offen.`);
+  // Atomic-v1 schreibt Audit + Push-Outbox bereits in derselben Transaktion.
+  if (!created.atomic) {
+    await logDecision('assign', best.id, [o.id], `Direkt zugewiesen — kein passender Bundle offen.`);
+  }
   return 'assigned';
 }
 
@@ -311,8 +429,49 @@ function pickBest(drivers: DriverRow[], pickupLoc: LocationRow): DriverRow {
     .sort((a, b) => a.km - b.km)[0].d;
 }
 
-async function createBundle(driverId: string, o: OrderRow, loc: LocationRow): Promise<string> {
+async function createBundle(
+  driverId: string,
+  o: OrderRow,
+  loc: LocationRow,
+  useAtomicWriter: boolean,
+): Promise<{ batchId: string; atomic: boolean } | null> {
   const c = sb();
+  if (useAtomicWriter) {
+    if (
+      o.kunde_lat == null || o.kunde_lng == null ||
+      loc.lat == null || loc.lng == null
+    ) return null;
+    const decisionId = randomUUID();
+    const result = await createAtomicSingleOrderOffer(c, {
+      tenantId: loc.tenant_id,
+      orderId: o.id,
+      driverId,
+      expectedOrderVersion: Number(o.dispatch_version ?? 0),
+      decisionId,
+      idempotencyKey: decisionId,
+      offerTtlSeconds: Math.max(
+        10,
+        Math.min(120, Number(process.env.P0_ATOMIC_OFFER_TTL_SECONDS ?? 20)),
+      ),
+      pickup: {
+        lat: loc.lat,
+        lng: loc.lng,
+        address: [loc.adresse, loc.plz, loc.stadt].filter(Boolean).join(', ') || loc.name,
+      },
+      dropoff: {
+        lat: o.kunde_lat,
+        lng: o.kunde_lng,
+        address: o.kunde_adresse ?? '',
+      },
+      push: {
+        title: `Neue Tour: ${loc.name}`,
+        body: 'Eine neue Lieferung wartet auf deine Annahme.',
+      },
+    });
+    if (!result.ok || !result.batch_id) return null;
+    return { batchId: result.batch_id, atomic: true };
+  }
+
   const { data: batch, error } = await c
     .from('mise_delivery_batches')
     .insert({ driver_id: driverId, state: 'pending_acceptance' })
@@ -346,7 +505,7 @@ async function createBundle(driverId: string, o: OrderRow, loc: LocationRow): Pr
     .update({ mise_batch_id: batch.id, mise_driver_id: driverId })
     .eq('id', o.id);
 
-  return batch.id;
+  return { batchId: batch.id, atomic: false };
 }
 
 async function addOrderToBundle(
@@ -509,6 +668,7 @@ async function logDecision(
   driverId: string | null,
   orderIds: string[],
   reasonText: string,
+  reasonData?: Record<string, unknown>,
 ): Promise<void> {
   const c = sb();
   await c.from('mise_frank_decisions').insert({
@@ -516,5 +676,6 @@ async function logDecision(
     driver_id: driverId,
     order_ids: orderIds,
     reason_text: reasonText,
+    ...(reasonData ? { reason_data: reasonData } : {}),
   });
 }

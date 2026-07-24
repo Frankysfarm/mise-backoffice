@@ -13,6 +13,16 @@ import { PickDialog } from './pick-dialog';
 import { DeliveryView } from './delivery-view';
 import { AlarmRinger } from './alarm-ringer';
 import { PushRegister } from './push-register';
+import { NativeOfferBridge } from './native-offer-bridge';
+import {
+  CANONICAL_OFFER_STORAGE_KEY,
+  applySuccessfulClientTransition,
+  integrateCanonicalOffer,
+  parseCanonicalOffer,
+  prepareClientTransition,
+  type CanonicalClientOffer,
+  type ClientOfferAction,
+} from './atomic-offer-client-state';
 import { UpdateBanner } from './update-banner';
 import { PermissionsGate } from './permissions-gate';
 import { SchichtEffizienzMeter } from './schicht-effizienz';
@@ -1041,8 +1051,76 @@ export function FahrerApp({
   const [lastCompletedBatchId, setLastCompletedBatchId] = useState<string | null>(initialActiveBatch?.id ?? null);
   const prevBatchIdRef = React.useRef<string | null>(initialActiveBatch?.id ?? null);
   const [pending, startTransition] = useTransition();
+  const atomicOfferRef = useRef<CanonicalClientOffer | null>(null);
+  const [atomicOffer, setAtomicOffer] = useState<CanonicalClientOffer | null>(null);
 
   const isOnline = status?.ist_online ?? false;
+
+  function persistAtomicOffer(offer: CanonicalClientOffer | null) {
+    atomicOfferRef.current = offer;
+    setAtomicOffer(offer);
+    if (offer) {
+      localStorage.setItem(CANONICAL_OFFER_STORAGE_KEY, JSON.stringify(offer));
+    } else {
+      localStorage.removeItem(CANONICAL_OFFER_STORAGE_KEY);
+    }
+  }
+
+  useEffect(() => {
+    try {
+      persistAtomicOffer(parseCanonicalOffer(
+        JSON.parse(localStorage.getItem(CANONICAL_OFFER_STORAGE_KEY) ?? 'null'),
+      ));
+    } catch {
+      persistAtomicOffer(null);
+    }
+    const onIntegrated = (event: Event) => {
+      const detail = (event as CustomEvent<Record<string, unknown>>).detail ?? {};
+      const current = atomicOfferRef.current;
+      const integrated = integrateCanonicalOffer(current, {
+        offerId: typeof detail.offer_id === 'string' ? detail.offer_id : '',
+        assignmentVersion: typeof detail.assignment_version === 'number'
+          ? detail.assignment_version
+          : Number.NaN,
+        batchId: typeof detail.batch_id === 'string' ? detail.batch_id : undefined,
+      });
+      if (integrated) persistAtomicOffer(integrated);
+    };
+    window.addEventListener('mise-driver-offer-integrated', onIntegrated);
+    return () => window.removeEventListener('mise-driver-offer-integrated', onIntegrated);
+  }, []);
+
+  async function runAtomicAction(
+    action: ClientOfferAction,
+    url = '/api/driver/v1/offers/transition',
+    extra: Record<string, unknown> = {},
+  ): Promise<boolean | null> {
+    const current = atomicOfferRef.current;
+    if (!current) return null;
+    const prepared = prepareClientTransition(current, action, () => crypto.randomUUID());
+    // Persist before I/O: a timeout/reload retries with the identical key.
+    persistAtomicOffer(prepared.offer);
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) throw new Error('ATOMIC_DRIVER_SESSION_MISSING');
+    const response = await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ action, ...extra, ...prepared.payload }),
+    });
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result?.ok) {
+      throw new Error(result?.reason_code ?? `ATOMIC_${action.toUpperCase()}_FAILED`);
+    }
+    persistAtomicOffer(
+      applySuccessfulClientTransition(prepared.offer, action, result),
+    );
+    return true;
+  }
 
   // Live-Tick: sorgt dafür, dass ETA-Countdowns in Stopp-Liste jede Sekunde neu berechnet werden
   const [, setLiveTick] = useState(0);
@@ -1411,6 +1489,16 @@ export function FahrerApp({
     const batch = openBatches.find((b) => b.batch_id === batchId);
     const isMise = batch?.source_system === 'mise';
     startTransition(async () => {
+      const atomic = atomicOfferRef.current;
+      if (atomic && atomic.batchId === batchId) {
+        try {
+          await runAtomicAction('accept', '/api/driver/v1/orders/accept');
+          window.location.reload();
+        } catch (error) {
+          alert(error instanceof Error ? error.message : 'Atomic accept failed');
+        }
+        return;
+      }
       const { data } = isMise
         ? await supabase.rpc('claim_mise_delivery_batch', { p_batch_id: batchId, p_employee_id: driver.id })
         : await supabase.rpc('claim_delivery_batch', { p_batch_id: batchId });
@@ -1429,6 +1517,19 @@ export function FahrerApp({
 
   async function markDelivered(stopId: string) {
     startTransition(async () => {
+      const stop = activeBatch?.stops.find((s) => s.id === stopId);
+      if (atomicOfferRef.current && stop) {
+        try {
+          await runAtomicAction(
+            'complete',
+            `/api/driver/v1/orders/${stop.order_id}/delivered`,
+          );
+          router.refresh();
+        } catch (error) {
+          alert(error instanceof Error ? error.message : 'Atomic complete failed');
+        }
+        return;
+      }
       const now = new Date().toISOString();
 
       // Legacy-Stop updaten
@@ -1441,7 +1542,6 @@ export function FahrerApp({
         .update({ completed_at: now })
         .eq('id', stopId);
 
-      const stop = activeBatch?.stops.find((s) => s.id === stopId);
       if (stop) {
         await supabase.from('customer_orders')
           .update({ status: 'geliefert', geliefert_am: now })
@@ -6699,7 +6799,7 @@ export function FahrerApp({
           <FahrerPhase3645MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3650MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3655MeinUmsatzProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
-          <FahrerPhase3655TourStopsNavigationUltimate driverId={driver.id} activeBatch={activeBatch ?? null} />
+          <FahrerPhase3655TourStopsNavigationUltimate driverId={driver.id} activeBatch={activeBatch as any} />
           <FahrerPhase3665MeinBestellwert driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3670MeineBestellungenProTag driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3671MeineAbholzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
@@ -7521,6 +7621,7 @@ export function FahrerApp({
 
       {/* Alarm-Ringer: klingelt wenn Tour in Open-Liste (zum Annehmen) ODER zugewiesen (zum Picken) */}
       <PushRegister />
+      <NativeOfferBridge />
       <AlarmRinger
         openBatchIds={openBatches.map((b) => b.batch_id)}
         assignedBatchId={activeBatch?.status === 'zugewiesen' && !pickOpen ? activeBatch.id : null}
@@ -7533,6 +7634,14 @@ export function FahrerApp({
           batchId={activeBatch.id}
           onClose={() => setPickOpen(false)}
           onComplete={() => { setPickOpen(false); router.refresh(); }}
+          onAtomicPickup={atomicOffer ? async () => {
+            await runAtomicAction(
+              'picked_up',
+              `/api/driver/v1/orders/${activeBatch.stops[0]?.order_id}/picked-up`,
+            );
+            await runAtomicAction('in_progress');
+            return true;
+          } : undefined}
         />
       )}
 
