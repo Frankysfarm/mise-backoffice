@@ -952,6 +952,7 @@ import { KitchenPhase3575TourenProSchichtTicker } from './phase3575-touren-pro-s
 import { KitchenPhase3580SchichtAuslastungTicker } from './phase3580-schicht-auslastung-ticker';
 import { KitchenPhase3585SmartTimingCountdownFarbkodierungLive } from './phase3585-smart-timing-countdown-farbkodierung-live';
 import { KitchenPhase3589StreckeProTourTicker } from './phase3589-strecke-pro-tour-ticker';
+import { KitchenPhase3592LeerlaufZeitTicker } from './phase3592-leerlauf-zeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4202,6 +4203,8 @@ export function KitchenBoard({
       <KitchenPhase3585SmartTimingCountdownFarbkodierungLive locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3589: Strecke/Tour Ticker — Map-Icon grün; Effizientester #1 im Header; Alert "Hohe Strecke/Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤8km/Tour; 30-Min-Polling */}
       <KitchenPhase3589StreckeProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3592: Leerlauf-Zeit Ticker — Clock-Icon gelb; Kürzester #1 im Header; Alert "Hohe Leerlauf-Zeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <45min; 30-Min-Polling */}
+      <KitchenPhase3592LeerlaufZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11289,3 +11292,5 @@ export { KitchenPhase3580SchichtAuslastungTicker } from './phase3580-schicht-aus
 export { KitchenPhase3585SmartTimingCountdownFarbkodierungLive } from './phase3585-smart-timing-countdown-farbkodierung-live';
 // Phase 3589 — Strecke/Tour Ticker (Map-Icon grün; Effizientester #1 im Header; Alert "Hohe Strecke/Tour!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Ø+Ziel ≤8km/Tour; 30-Min-Polling)
 export { KitchenPhase3589StreckeProTourTicker } from './phase3589-strecke-pro-tour-ticker';
+// Phase 3592 — Leerlauf-Zeit Ticker (Clock-Icon gelb; Kürzester #1 im Header; Alert "Hohe Leerlauf-Zeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <45min; 30-Min-Polling)
+export { KitchenPhase3592LeerlaufZeitTicker } from './phase3592-leerlauf-zeit-ticker';

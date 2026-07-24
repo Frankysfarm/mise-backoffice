@@ -28104,3 +28104,61 @@ Backend-Architekt-Agent (2026-07-23): Phasen 3561–3565 implementiert — Fahre
 5. **Phase 3585 Kitchen:** LeerlaufZeitTicker — Clock-Icon gelb; Kürzester #1 Name+min im Header; Alert "Hohe Leerlauf-Zeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <45min; 30-Min-Polling; nach Phase3580. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-23): Phasen 3566–3570 implementiert (Dateien: 3577/3578/3580) — Fahrer-Schicht-Auslastungs-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3566 Backend (fahrer-schicht-auslastungs-ranking, Schicht-Auslastung % = aktive Tour-Zeit/Schicht-Dauer*100 letzte 30 Tage, Rang 1=höchste Auslastung=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), alert_bottom Bottom-25%, 4 parallele Supabase-Abfragen, Mock Julia F.82%/Sara K.71%/Max M.58%/Tim B.44%, force-dynamic, createClient() ✅) / Phase3577 Dispatch (DispatchPhase3577SchichtAuslastungRankingBoard, BarChart2-Icon blau, absteigend Rang 1=höchste Auslastung, Balken 0–100%, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Auslastung!", Delta pos=grün, Import+Render+Barrel ✅) / Phase3578 Fahrer-App (FahrerPhase3578MeineSchichtAuslastung, BarChart2-Icon blau, %-Wert 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3580 Kitchen (KitchenPhase3580SchichtAuslastungTicker, BarChart2-Icon blau, Bester #1 Name+% im Header, Alert "Niedrige Auslastung!", Ziel ≥70%, Import+Render+Barrel ✅). Phase 3569 Storefront übersprungen. Push erfolgt.
+
+---
+
+## Batch 3581–3585 (Dateien: 3581/3590/3591/3592) — Fahrer-Leerlauf-Zeit-Ranking (ABGESCHLOSSEN 2026-07-24)
+
+*(Hinweis: Phase-Nummern 3582/3583/3585 bereits durch andere Komponenten belegt. Leerlauf-Zeit wurde als Phase3590/3591/3592 implementiert.)*
+
+### Phase 3581 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-leerlauf-zeit/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-leerlauf-zeit?location_id=...
+**Response:** fahrer[]{fahrer_id, fahrer_name, rang, leerlauf_min, rank_delta, ampel gruen/gelb/rot, alert_top}, team_avg, kuerzester_name, laengster_name, alert_count, gesamt
+**Logik:** Leerlauf-Zeit (min) = Schicht-Dauer - aktive Tour-Zeit je Fahrer letzte 30 Tage (driver_shifts); Rang 1=kürzeste Leerlauf=bester; Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); alert_top=Top-25% "Hohe Leerlauf-Zeit!"; rank_delta neg=verbessert; 2 parallele Supabase-Abfragen (aktuell+prev); Mock Julia F.25min/Sara K.42min/Max M.67min/Tim B.98min; force-dynamic; createClient() await ✅
+
+### Phase 3582/3590 — Leerlauf-Zeit-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3590-leerlauf-zeit-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3590LeerlaufZeitRankingBoard`
+**Props:** `locationId: string | null`
+**UI:** Collapsible; Clock-Icon gelb; aufsteigend Rang 1=kürzeste Leerlauf; Balken 0–maxMin; KPI-Grid Kürzester/Team-Ø/Längster; Alert "Hohe Leerlauf-Zeit!" (alert_top); Delta neg=grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import nach L1007 + Render nach Phase3586 + Barrel-Export ✅
+
+### Phase 3583/3591 — Meine Leerlauf-Zeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3591-meine-leerlauf-zeit.tsx` *(neu)*
+**Component:** `FahrerPhase3591MeineLeerlaufZeit`
+**Props:** `driverId: string | null, locationId: string | null, isOnline: boolean`
+**UI:** Collapsible; Clock-Icon gelb; min 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Grid Rang-Δ/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import nach L920 + Render nach Phase3587 + Barrel-Export ✅
+
+### Phase 3584 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3585/3592 — Leerlauf-Zeit-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3592-leerlauf-zeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3592LeerlaufZeitTicker`
+**Props:** `locationId?: string | null`
+**UI:** Collapsible; Clock-Icon gelb; Kürzester #1 Name+min im Header; Alert "Hohe Leerlauf-Zeit!" (alert_top); Fahrerliste kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <45min; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import nach L954 + Render nach Phase3589 + Barrel-Export ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully — ✓ Generating static pages (431/431) — exit 0** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ LeerlaufZeitTicker + LeerlaufZeitRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3590 Board + Phase3591 MeineLeerlaufZeit |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3593–3597 (für nächsten Agenten) — Fahrer-Kundenbewertungs-Ranking
+1. **Phase 3593 Backend:** GET /api/delivery/admin/fahrer-kundenbewertung — Ø Kundenbewertung (1–5 Sterne) je Fahrer letzte 30 Tage (delivery_ratings); Rang 1=höchste Bewertung=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Bewertung!"; rank_delta pos=verbessert; 2 parallele Supabase-Abfragen; Mock Julia F.4.8/Sara K.4.5/Max M.3.9/Tim B.3.2; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3594 Dispatch:** KundenbewertungRankingBoard — Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Bewertung!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3590. PFLICHT: Import + Render + Barrel.
+3. **Phase 3595 Fahrer:** MeineKundenbewertung — Star-Icon gelb; ★-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3591. PFLICHT: Import + Render + Barrel.
+4. **Phase 3596 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3597 Kitchen:** KundenbewertungTicker — Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+★+Delta pos=grün; Team-Ø+Ziel ≥4.5★; 30-Min-Polling; nach Phase3592. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-24): Phasen 3581–3585 implementiert (Dateien: 3581/3590/3591/3592) — Fahrer-Leerlauf-Zeit-Ranking. 1 neue Backend-Route + 3 neue Frontend-Komponenten erstellt und korrekt importiert+gerendert: Phase3581 Backend (fahrer-leerlauf-zeit, Leerlauf=Schicht-Dauer-aktive-Tour-Zeit letzte 30 Tage, Rang 1=kürzeste Leerlauf=bester, Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), alert_top Top-25%, rank_delta neg=verbessert, 2 parallele Supabase-Abfragen, Mock Julia F.25min/Sara K.42min/Max M.67min/Tim B.98min, force-dynamic, createClient() ✅) / Phase3590 Dispatch (DispatchPhase3590LeerlaufZeitRankingBoard, Clock-Icon gelb, aufsteigend Rang 1=kürzeste Leerlauf, Balken 0–maxMin, KPI-Grid Kürzester/Team-Ø/Längster, Alert "Hohe Leerlauf-Zeit!", Delta neg=grün, Import+Render+Barrel ✅) / Phase3591 Fahrer-App (FahrerPhase3591MeineLeerlaufZeit, Clock-Icon gelb, min 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3592 Kitchen (KitchenPhase3592LeerlaufZeitTicker, Clock-Icon gelb, Kürzester #1 Name+min im Header, Alert "Hohe Leerlauf-Zeit!", Ziel <45min, Import+Render+Barrel ✅). Phase 3584 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.

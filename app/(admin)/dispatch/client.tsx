@@ -1005,6 +1005,7 @@ import { DispatchPhase3572TourenProSchichtRankingBoard } from './phase3572-toure
 import { DispatchPhase3577SchichtAuslastungRankingBoard } from './phase3577-schicht-auslastung-ranking-board';
 import { DispatchPhase3582TourScoreAnzeigeDashboard } from './phase3582-tour-score-anzeige-dashboard';
 import { DispatchPhase3586StreckeProTourRankingBoard } from './phase3586-strecke-pro-tour-ranking-board';
+import { DispatchPhase3590LeerlaufZeitRankingBoard } from './phase3590-leerlauf-zeit-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4615,6 +4616,8 @@ export function DispatchBoard({
           <DispatchPhase3582TourScoreAnzeigeDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3586: Strecke/Tour Ranking — Map-Icon grün; aufsteigend Rang 1=kürzeste Strecke; KPI-Grid Effizientester/Team-Ø/Längster; Alert "Hohe Strecke/Tour!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3586StreckeProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3590: Leerlauf-Zeit Ranking — Clock-Icon gelb; aufsteigend Rang 1=kürzeste Leerlauf; KPI-Grid Kürzester/Team-Ø/Längster; Alert "Hohe Leerlauf-Zeit!"; Delta neg=grün; 30-Min-Polling */}
+          <DispatchPhase3590LeerlaufZeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12711,3 +12714,5 @@ export { DispatchPhase3577SchichtAuslastungRankingBoard } from './phase3577-schi
 export { DispatchPhase3582TourScoreAnzeigeDashboard } from './phase3582-tour-score-anzeige-dashboard';
 // Phase 3586 — Strecke/Tour Ranking (Map-Icon grün; aufsteigend Rang 1=kürzeste Strecke; KPI-Grid Effizientester/Team-Ø/Längster; Alert "Hohe Strecke/Tour!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3586StreckeProTourRankingBoard } from './phase3586-strecke-pro-tour-ranking-board';
+// Phase 3590 — Leerlauf-Zeit Ranking (Clock-Icon gelb; aufsteigend Rang 1=kürzeste Leerlauf; KPI-Grid Kürzester/Team-Ø/Längster; Alert "Hohe Leerlauf-Zeit!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3590LeerlaufZeitRankingBoard } from './phase3590-leerlauf-zeit-ranking-board';
