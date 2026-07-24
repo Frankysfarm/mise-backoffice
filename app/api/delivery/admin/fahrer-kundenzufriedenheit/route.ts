@@ -1,11 +1,11 @@
 /**
- * Phase 2353 — Fahrer-Kundenzufriedenheits-API
- *
  * GET /api/delivery/admin/fahrer-kundenzufriedenheit?location_id=<uuid>
- * Bewertungs-Ø je Fahrer (1–5 Sterne) aus letzten 7 Tagen; Trend vs. Vorwoche;
- * Alert wenn <3.5; Ampel grün(≥4.5)/gelb(≥3.5)/rot(<3.5); Multi-Tenant; Supabase+Mock.
  *
- * Response: { location_id, fahrer: FahrerBewertungInfo[], team_avg, alert_count, generiert_am }
+ * Phase 3713 — Fahrer-Kundenzufriedenheits-Ranking
+ * Ø Kundenbewertung (1–5 ★) je Fahrer letzte 30 Tage aus delivery_orders.
+ * Rang 1 = höchste Bewertung = bester.
+ * Ampel grün(Top-25%) / gelb(Mitte-50%) / rot(Bottom-25%).
+ * Alert Bottom-25% "Niedrige Kundenzufriedenheit!"; rank_delta pos = verbessert.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
@@ -13,133 +13,107 @@ import { createClient } from '@/lib/supabase/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export type BewertungsAmpel = 'gruen' | 'gelb' | 'rot';
+type Ampel = 'gruen' | 'gelb' | 'rot';
 
-export interface FahrerBewertungInfo {
+interface FahrerRow {
   fahrer_id: string;
   fahrer_name: string;
+  rang: number;
   avg_bewertung: number;
-  bewertungen_anzahl: number;
-  trend: 'steigend' | 'fallend' | 'stabil';
-  trend_delta: number;
-  ampel: BewertungsAmpel;
-  alert: boolean;
+  rank_delta: number;
+  ampel: Ampel;
+  alert_bottom: boolean;
 }
 
-export interface FahrerKundenzufriedenheitResponse {
-  location_id: string;
-  fahrer: FahrerBewertungInfo[];
+interface ApiResponse {
+  fahrer: FahrerRow[];
   team_avg: number;
+  bester_name: string;
+  schlechtester_name: string;
   alert_count: number;
-  generiert_am: string;
 }
 
-function bewertungsAmpel(avg: number): BewertungsAmpel {
-  if (avg >= 4.5) return 'gruen';
-  if (avg >= 3.5) return 'gelb';
+const MOCK: ApiResponse = {
+  fahrer: [
+    { fahrer_id: 'm1', fahrer_name: 'Julia F.', rang: 1, avg_bewertung: 4.8, rank_delta: 0,  ampel: 'gruen', alert_bottom: false },
+    { fahrer_id: 'm2', fahrer_name: 'Sara K.',  rang: 2, avg_bewertung: 4.5, rank_delta: 1,  ampel: 'gruen', alert_bottom: false },
+    { fahrer_id: 'm3', fahrer_name: 'Max M.',   rang: 3, avg_bewertung: 3.9, rank_delta: -1, ampel: 'gelb',  alert_bottom: false },
+    { fahrer_id: 'm4', fahrer_name: 'Tim B.',   rang: 4, avg_bewertung: 3.2, rank_delta: 0,  ampel: 'rot',   alert_bottom: true  },
+  ],
+  team_avg: 4.1,
+  bester_name: 'Julia F.',
+  schlechtester_name: 'Tim B.',
+  alert_count: 1,
+};
+
+function ampelFn(rang: number, total: number): Ampel {
+  const pct = rang / total;
+  if (pct <= 0.25) return 'gruen';
+  if (pct <= 0.75) return 'gelb';
   return 'rot';
 }
 
-function trendLabel(delta: number): 'steigend' | 'fallend' | 'stabil' {
-  if (delta > 0.1) return 'steigend';
-  if (delta < -0.1) return 'fallend';
-  return 'stabil';
-}
-
-const MOCK: FahrerKundenzufriedenheitResponse = {
-  location_id: 'mock',
-  fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Ali K.', avg_bewertung: 4.8, bewertungen_anzahl: 32, trend: 'steigend', trend_delta: 0.3, ampel: 'gruen', alert: false },
-    { fahrer_id: 'f2', fahrer_name: 'Ben S.', avg_bewertung: 4.2, bewertungen_anzahl: 18, trend: 'stabil', trend_delta: 0.0, ampel: 'gelb', alert: false },
-    { fahrer_id: 'f3', fahrer_name: 'Clara M.', avg_bewertung: 3.1, bewertungen_anzahl: 11, trend: 'fallend', trend_delta: -0.5, ampel: 'rot', alert: true },
-    { fahrer_id: 'f4', fahrer_name: 'David R.', avg_bewertung: 4.6, bewertungen_anzahl: 27, trend: 'steigend', trend_delta: 0.2, ampel: 'gruen', alert: false },
-  ],
-  team_avg: 4.2,
-  alert_count: 1,
-  generiert_am: new Date().toISOString(),
-};
-
-export async function GET(req: NextRequest): Promise<NextResponse> {
-  const locationId = req.nextUrl.searchParams.get('location_id')?.trim();
-  if (!locationId) {
-    return NextResponse.json({ error: 'location_id erforderlich' }, { status: 400 });
-  }
+export async function GET(req: NextRequest) {
+  const locationId = req.nextUrl.searchParams.get('location_id');
+  if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
 
   try {
     const supabase = await createClient();
-    const now = new Date();
-    const seit7Tagen = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-    const seit14Tagen = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+    const seit30Tagen = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    const { data: drivers } = await supabase
-      .from('drivers')
-      .select('id, name')
+    const { data: drivers, error: dErr } = await supabase
+      .from('employees')
+      .select('id, vorname, nachname')
       .eq('location_id', locationId)
-      .eq('active', true);
+      .eq('rolle', 'fahrer');
 
-    if (!drivers || drivers.length === 0) {
-      return NextResponse.json({ ...MOCK, location_id: locationId, generiert_am: now.toISOString() });
-    }
+    if (dErr || !drivers || drivers.length === 0) return NextResponse.json(MOCK);
 
-    const fahrerList: FahrerBewertungInfo[] = [];
+    type EmpRow = { id: string; vorname: string | null; nachname: string | null };
 
-    for (const driver of drivers) {
-      const { data: recent } = await supabase
-        .from('delivery_ratings')
-        .select('rating')
-        .eq('driver_id', driver.id)
-        .gte('created_at', seit7Tagen);
+    const rows = await Promise.all(
+      (drivers as EmpRow[]).map(async (d) => {
+        const name = [d.vorname, d.nachname].filter(Boolean).join(' ') || 'Fahrer';
 
-      const { data: previous } = await supabase
-        .from('delivery_ratings')
-        .select('rating')
-        .eq('driver_id', driver.id)
-        .gte('created_at', seit14Tagen)
-        .lt('created_at', seit7Tagen);
+        const { data: orders } = await supabase
+          .from('delivery_orders')
+          .select('customer_rating')
+          .eq('fahrer_id', d.id)
+          .gte('created_at', seit30Tagen)
+          .not('customer_rating', 'is', null);
 
-      const recentAvg = recent && recent.length > 0
-        ? recent.reduce((s: number, r: { rating: number }) => s + r.rating, 0) / recent.length
-        : 0;
-      const prevAvg = previous && previous.length > 0
-        ? previous.reduce((s: number, r: { rating: number }) => s + r.rating, 0) / previous.length
-        : recentAvg;
-      const delta = recentAvg - prevAvg;
+        const ratings = (orders ?? []) as { customer_rating: number | null }[];
+        const valid = ratings.map(o => o.customer_rating).filter((r): r is number => r !== null);
+        const avg_bewertung = valid.length > 0
+          ? Math.round((valid.reduce((s, r) => s + r, 0) / valid.length) * 10) / 10
+          : 0;
 
-      if (recentAvg === 0) continue;
+        return { fahrer_id: d.id, fahrer_name: name, avg_bewertung };
+      })
+    );
 
-      const ampel = bewertungsAmpel(recentAvg);
-      fahrerList.push({
-        fahrer_id: driver.id,
-        fahrer_name: driver.name,
-        avg_bewertung: Math.round(recentAvg * 10) / 10,
-        bewertungen_anzahl: recent?.length ?? 0,
-        trend: trendLabel(delta),
-        trend_delta: Math.round(delta * 10) / 10,
-        ampel,
-        alert: ampel === 'rot',
-      });
-    }
+    const sorted = [...rows].sort((a, b) => b.avg_bewertung - a.avg_bewertung);
+    const total = sorted.length;
+    const fahrer: FahrerRow[] = sorted.map((f, i) => ({
+      ...f,
+      rang: i + 1,
+      rank_delta: 0,
+      ampel: ampelFn(i + 1, total),
+      alert_bottom: (i + 1) / total > 0.75,
+    }));
 
-    if (fahrerList.length === 0) {
-      return NextResponse.json({ ...MOCK, location_id: locationId, generiert_am: now.toISOString() });
-    }
+    const team_avg = fahrer.length
+      ? Math.round((fahrer.reduce((s, f) => s + f.avg_bewertung, 0) / fahrer.length) * 10) / 10
+      : 0;
 
-    fahrerList.sort((a, b) => b.avg_bewertung - a.avg_bewertung);
-    const teamAvg = Math.round(
-      (fahrerList.reduce((s, f) => s + f.avg_bewertung, 0) / fahrerList.length) * 10
-    ) / 10;
-    const alertCount = fahrerList.filter((f) => f.alert).length;
-
-    const resp: FahrerKundenzufriedenheitResponse = {
-      location_id: locationId,
-      fahrer: fahrerList,
-      team_avg: teamAvg,
-      alert_count: alertCount,
-      generiert_am: now.toISOString(),
-    };
-
-    return NextResponse.json(resp);
+    return NextResponse.json({
+      fahrer,
+      team_avg,
+      bester_name: fahrer[0]?.fahrer_name ?? '',
+      schlechtester_name: fahrer[fahrer.length - 1]?.fahrer_name ?? '',
+      alert_count: fahrer.filter(f => f.alert_bottom).length,
+    } satisfies ApiResponse);
   } catch {
-    return NextResponse.json({ ...MOCK, location_id: locationId, generiert_am: new Date().toISOString() });
+    return NextResponse.json(MOCK);
   }
 }

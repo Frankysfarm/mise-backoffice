@@ -1031,6 +1031,7 @@ import { DispatchPhase3694BestellungenProStoppRankingBoard } from './phase3694-b
 import { DispatchPhase3699RetourenquoteRankingBoard } from './phase3699-retourenquote-ranking-board';
 import { DispatchPhase3704LieferzeitRankingBoard } from './phase3704-lieferzeit-ranking-board';
 import { DispatchPhase3709StornoquoteRankingBoard } from './phase3709-stornoquote-ranking-board';
+import { DispatchPhase3714KundenzufriedenheitRankingBoard } from './phase3714-kundenzufriedenheit-ranking-board';
 import { DispatchPhase3654TourScoreCommandCenter } from './phase3654-tour-score-command-center';
 import { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-tour-score-live-visualisierung-final';
 
@@ -4676,6 +4677,7 @@ export function DispatchBoard({
           <DispatchPhase3699RetourenquoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3704LieferzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3709StornoquoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3714KundenzufriedenheitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3654: Tour-Score Command Center — Flotten-KPI-Grid; Stopp-Dot-Timeline; Sub-KPIs expandierbar; ETA je Stopp; 30-Sek-Polling */}
           <DispatchPhase3654TourScoreCommandCenter locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3629: Tour-Score Live Visualisierung Final — Fahrer-Score-Rangliste 0–100; Stopp-Fortschritt; Sub-Scores expandierbar; Farbkodierung grün/gelb/rot; Flotten-Ø; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -12826,3 +12828,5 @@ export { DispatchPhase3694BestellungenProStoppRankingBoard } from './phase3694-b
 export { DispatchPhase3699RetourenquoteRankingBoard } from './phase3699-retourenquote-ranking-board';
 export { DispatchPhase3704LieferzeitRankingBoard } from './phase3704-lieferzeit-ranking-board';
 export { DispatchPhase3709StornoquoteRankingBoard } from './phase3709-stornoquote-ranking-board';
+// Phase 3714 — Kundenzufriedenheit Ranking-Board (Star-Icon gelb; absteigend Rang 1=höchste Bewertung; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenzufriedenheit!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3714KundenzufriedenheitRankingBoard } from './phase3714-kundenzufriedenheit-ranking-board';

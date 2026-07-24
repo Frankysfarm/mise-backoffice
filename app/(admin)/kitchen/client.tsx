@@ -978,6 +978,7 @@ import { KitchenPhase3697BestellungenProStoppTicker } from './phase3697-bestellu
 import { KitchenPhase3702RetourenquoteTicker } from './phase3702-retourenquote-ticker';
 import { KitchenPhase3707LieferzeitTicker } from './phase3707-lieferzeit-ticker';
 import { KitchenPhase3712StornoquoteTicker } from './phase3712-stornoquote-ticker';
+import { KitchenPhase3717KundenzufriedenheitTicker } from './phase3717-kundenzufriedenheit-ticker';
 import { KitchenPhase3632SmartTimingEchtzeitCockpitFinal } from './phase3632-smart-timing-echtzeit-cockpit-final';
 
 /* ------------------------------ Types ------------------------------ */
@@ -4262,6 +4263,7 @@ export function KitchenBoard({
       <KitchenPhase3702RetourenquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3707LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3712StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3717KundenzufriedenheitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3632: Smart-Timing Echtzeit Cockpit Final — Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score; On-Time-Rate; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase3632SmartTimingEchtzeitCockpitFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
@@ -11399,3 +11401,5 @@ export { KitchenPhase3697BestellungenProStoppTicker } from './phase3697-bestellu
 export { KitchenPhase3702RetourenquoteTicker } from './phase3702-retourenquote-ticker';
 export { KitchenPhase3707LieferzeitTicker } from './phase3707-lieferzeit-ticker';
 export { KitchenPhase3712StornoquoteTicker } from './phase3712-stornoquote-ticker';
+// Phase 3717 — Kundenzufriedenheit Ticker (Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Kundenzufriedenheit!"; kompakt absteigend; Rang+★+Delta pos=grün; Team-Ø+Ziel ≥4.5★; 30-Min-Polling)
+export { KitchenPhase3717KundenzufriedenheitTicker } from './phase3717-kundenzufriedenheit-ticker';
