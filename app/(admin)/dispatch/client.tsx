@@ -1006,6 +1006,7 @@ import { DispatchPhase3577SchichtAuslastungRankingBoard } from './phase3577-schi
 import { DispatchPhase3582TourScoreAnzeigeDashboard } from './phase3582-tour-score-anzeige-dashboard';
 import { DispatchPhase3586StreckeProTourRankingBoard } from './phase3586-strecke-pro-tour-ranking-board';
 import { DispatchPhase3590LeerlaufZeitRankingBoard } from './phase3590-leerlauf-zeit-ranking-board';
+import { DispatchPhase3594KundenbewertungRankingBoard } from './phase3594-kundenbewertung-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4618,6 +4619,8 @@ export function DispatchBoard({
           <DispatchPhase3586StreckeProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3590: Leerlauf-Zeit Ranking — Clock-Icon gelb; aufsteigend Rang 1=kürzeste Leerlauf; KPI-Grid Kürzester/Team-Ø/Längster; Alert "Hohe Leerlauf-Zeit!"; Delta neg=grün; 30-Min-Polling */}
           <DispatchPhase3590LeerlaufZeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3594: Kundenbewertung Ranking — Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Bewertung!"; Trend-Icon; 30-Min-Polling */}
+          <DispatchPhase3594KundenbewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12716,3 +12719,5 @@ export { DispatchPhase3582TourScoreAnzeigeDashboard } from './phase3582-tour-sco
 export { DispatchPhase3586StreckeProTourRankingBoard } from './phase3586-strecke-pro-tour-ranking-board';
 // Phase 3590 — Leerlauf-Zeit Ranking (Clock-Icon gelb; aufsteigend Rang 1=kürzeste Leerlauf; KPI-Grid Kürzester/Team-Ø/Längster; Alert "Hohe Leerlauf-Zeit!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3590LeerlaufZeitRankingBoard } from './phase3590-leerlauf-zeit-ranking-board';
+// Phase 3594 — Kundenbewertung Ranking (Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Bewertung!"; Trend-Icon; 30-Min-Polling)
+export { DispatchPhase3594KundenbewertungRankingBoard } from './phase3594-kundenbewertung-ranking-board';

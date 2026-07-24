@@ -919,6 +919,7 @@ import { FahrerPhase3578MeineSchichtAuslastung } from './phase3578-meine-schicht
 import { FahrerPhase3583TourStopsSmartNaviHub } from './phase3583-tour-stops-smart-navi-hub';
 import { FahrerPhase3587MeineStreckeProTour } from './phase3587-meine-strecke-pro-tour';
 import { FahrerPhase3591MeineLeerlaufZeit } from './phase3591-meine-leerlauf-zeit';
+import { FahrerPhase3595MeineKundenbewertung } from './phase3595-meine-kundenbewertung';
 
 type Driver = {
   id: string;
@@ -6648,6 +6649,8 @@ export function FahrerApp({
           <FahrerPhase3587MeineStreckeProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3591: Meine Leerlauf-Zeit — Clock-Icon gelb; min 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3591MeineLeerlaufZeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3595: Meine Kundenbewertung — Star-Icon gelb; ★-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Trend-Icon/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3595MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3583: Tour-Stops Smart Navi Hub — Hero-Stopp mit Google-Maps+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3583TourStopsSmartNaviHub
@@ -10440,3 +10443,5 @@ export { FahrerPhase3583TourStopsSmartNaviHub } from './phase3583-tour-stops-sma
 export { FahrerPhase3587MeineStreckeProTour } from './phase3587-meine-strecke-pro-tour';
 // Phase 3591 — Meine Leerlauf-Zeit (Clock-Icon gelb; min 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3591MeineLeerlaufZeit } from './phase3591-meine-leerlauf-zeit';
+// Phase 3595 — Meine Kundenbewertung (Star-Icon gelb; ★-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Trend-Icon/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3595MeineKundenbewertung } from './phase3595-meine-kundenbewertung';

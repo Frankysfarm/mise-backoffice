@@ -953,6 +953,7 @@ import { KitchenPhase3580SchichtAuslastungTicker } from './phase3580-schicht-aus
 import { KitchenPhase3585SmartTimingCountdownFarbkodierungLive } from './phase3585-smart-timing-countdown-farbkodierung-live';
 import { KitchenPhase3589StreckeProTourTicker } from './phase3589-strecke-pro-tour-ticker';
 import { KitchenPhase3592LeerlaufZeitTicker } from './phase3592-leerlauf-zeit-ticker';
+import { KitchenPhase3597KundenbewertungTicker } from './phase3597-kundenbewertung-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4205,6 +4206,8 @@ export function KitchenBoard({
       <KitchenPhase3589StreckeProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3592: Leerlauf-Zeit Ticker — Clock-Icon gelb; Kürzester #1 im Header; Alert "Hohe Leerlauf-Zeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <45min; 30-Min-Polling */}
       <KitchenPhase3592LeerlaufZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3597: Kundenbewertung Ticker — Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+★+Trend-Icon; Team-Ø+Ziel ≥4.5★; 30-Min-Polling */}
+      <KitchenPhase3597KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11294,3 +11297,5 @@ export { KitchenPhase3585SmartTimingCountdownFarbkodierungLive } from './phase35
 export { KitchenPhase3589StreckeProTourTicker } from './phase3589-strecke-pro-tour-ticker';
 // Phase 3592 — Leerlauf-Zeit Ticker (Clock-Icon gelb; Kürzester #1 im Header; Alert "Hohe Leerlauf-Zeit!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel <45min; 30-Min-Polling)
 export { KitchenPhase3592LeerlaufZeitTicker } from './phase3592-leerlauf-zeit-ticker';
+// Phase 3597 — Kundenbewertung Ticker (Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+★+Trend-Icon; Team-Ø+Ziel ≥4.5★; 30-Min-Polling)
+export { KitchenPhase3597KundenbewertungTicker } from './phase3597-kundenbewertung-ticker';
