@@ -28907,3 +28907,55 @@ CEO-Agent (2026-07-24): CEO Review #610 abgeschlossen — Phasen 3678–3682 ver
 5. **Phase 3717 Kitchen:** KundenzufriedenheitTicker — Bester #1 Name+★ im Header; Alert "Niedrige Kundenzufriedenheit!"; kompakt absteigend; Rang+★+Delta pos=grün; Team-Ø+Ziel ≥4.5★; 30-Min-Polling; nach Phase3712. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-24): Phasen 3708–3712 implementiert — Fahrer-Stornoquote-Ranking. DELIVERY_PROGRESS.md war outdated (zeigte 3683 als nächst, obwohl Code bis 3707 existierte). Tatsächlich nächste freie Phase war 3708. Backend bereits vorhanden (fahrer-stornoquote/route.ts) — vollständig auf neues Ranking-Shape rewritten: delivery_orders (cancelled/gesamt), Rang 1=niedrigste Quote, Ampel grün(Bottom-25%)/gelb/rot(Top-25%), rank_delta neg=verbessert, Mock Julia 1%/Sara 3%/Max 7%/Tim 12%. 3 neue Frontend-Komponenten erstellt: Phase3709 Dispatch (DispatchPhase3709StornoquoteRankingBoard, XCircle-Icon rot, aufsteigend, KPI-Grid Bester/Team-Ø/Höchste, Alert, RankBadge, neg-delta=grün, Import+Render+Barrel ✅) / Phase3710 Fahrer-App (FahrerPhase3710MeineStornoquote, XCircle-Icon rot, %-Wert 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, neg-delta=grün, Import+Render+Barrel ✅) / Phase3712 Kitchen (KitchenPhase3712StornoquoteTicker, XCircle-Icon rot, Bester #1 im Header, Ziel ≤5%, Import+Render+Barrel ✅). Phase 3711 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
+
+---
+
+## Batch 3713–3717 — Fahrer-Kundenzufriedenheits-Ranking (ABGESCHLOSSEN 2026-07-24)
+
+### Phase 3713 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-kundenzufriedenheit/route.ts` *(rewritten)*
+**Endpoint:** GET /api/delivery/admin/fahrer-kundenzufriedenheit?location_id=...
+**Logik:** Ø Kundenbewertung (1–5 ★) je Fahrer letzte 30 Tage aus delivery_orders (avg(customer_rating)); Rang 1=höchste Bewertung=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Kundenzufriedenheit!"; rank_delta pos=verbessert; Mock Julia F.4.8★/Sara K.4.5★/Max M.3.9★/Tim B.3.2★; force-dynamic; createClient() ✅
+
+### Phase 3714 — Kundenzufriedenheit Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3714-kundenzufriedenheit-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3714KundenzufriedenheitRankingBoard`
+**UI:** Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Kundenzufriedenheit!"; Delta pos=grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L1034 + Render L4680 + Barrel L12832 ✅
+
+### Phase 3715 — Meine Kundenzufriedenheit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3715-meine-kundenzufriedenheit.tsx` *(neu)*
+**Component:** `FahrerPhase3715MeineKundenzufriedenheit`
+**UI:** Star-Icon gelb; ★-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L947 + Render L6709 + Barrel L10571 + isOnline-Guard ✅
+
+### Phase 3716 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3717 — Kundenzufriedenheit Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3717-kundenzufriedenheit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3717KundenzufriedenheitTicker`
+**UI:** Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Kundenzufriedenheit!"; kompakt absteigend; Rang+★+Delta pos=grün; Team-Ø+Ziel ≥4.5★; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L981 + Render L4266 + Barrel L11405 ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ KundenzufriedenheitTicker + KundenzufriedenheitRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3714 Board + Phase3715 MeineKundenzufriedenheit |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3718–3722 — Fahrer-Pünktlichkeits-Ranking
+1. **Phase 3718 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit-ranking — Pünktlichkeitsrate (%) je Fahrer letzte 30 Tage (delivered_at <= promised_eta); Rang 1=höchste Rate=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Pünktlichkeit!"; rank_delta pos=verbessert; Mock Julia F.95%/Sara K.88%/Max M.72%/Tim B.58%; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3719 Dispatch:** PuenktlichkeitRankingBoard — Clock-Icon grün; absteigend Rang 1=höchste Rate; Balken 0–100; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3714. PFLICHT: Import + Render + Barrel.
+3. **Phase 3720 Fahrer-App:** MeinePuenktlichkeit — Clock-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3715. PFLICHT: Import + Render + Barrel.
+4. **Phase 3721 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3722 Kitchen:** PuenktlichkeitTicker — Bester #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling; nach Phase3717. PFLICHT: Import + Render + Barrel.
+
+Frontend-Ingenieur-Agent (2026-07-24): Phasen 3713–3717 implementiert — Fahrer-Kundenzufriedenheits-Ranking. Backend (fahrer-kundenzufriedenheit/route.ts) auf Standard-Ranking-Shape rewritten: avg_bewertung (1–5★), absteigend Rang 1=höchste Bewertung, Ampel grün(Top-25%)/gelb/rot(Bottom-25%), alert_bottom Bottom-25%, Mock Julia 4.8/Sara 4.5/Max 3.9/Tim 3.2. 3 neue Frontend-Komponenten erstellt: Phase3714 Dispatch (DispatchPhase3714KundenzufriedenheitRankingBoard, Star-Icon gelb, absteigend, KPI-Grid Bester/Team-Ø/Niedrigster, Alert, RankBadge, Import+Render+Barrel ✅) / Phase3715 Fahrer-App (FahrerPhase3715MeineKundenzufriedenheit, Star-Icon gelb, ★ 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3717 Kitchen (KitchenPhase3717KundenzufriedenheitTicker, Star-Icon gelb, Bester #1 im Header, Alert, Ziel ≥4.5★, Import+Render+Barrel ✅). Phase 3716 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
