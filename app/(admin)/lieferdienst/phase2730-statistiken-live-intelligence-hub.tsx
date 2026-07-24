@@ -175,7 +175,7 @@ export function LieferdienstPhase2730StatistikLiveIntelligenceHub({ locationId }
               <BarChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  formatter={(v: number) => chartModus === 'umsatz' ? [`${v} €`, 'Umsatz'] : [v, 'Bestellungen']}
+                  formatter={(v: unknown) => chartModus === 'umsatz' ? [`${v} €`, 'Umsatz'] : [v as number, 'Bestellungen']}
                   contentStyle={{ fontSize: 11 }}
                 />
                 <Bar dataKey="val" radius={[3, 3, 0, 0]}>

@@ -474,6 +474,7 @@ import { LieferdienstPhase2710StatistikDashboardFinal } from './phase2710-statis
 import { LieferdienstPhase2715StatistikenMasterLiveCockpit } from './phase2715-statistiken-master-live-cockpit';
 import { LieferdienstPhase2720StatistikenDashboardUltra } from './phase2720-statistiken-dashboard-ultra';
 import { LieferdienstPhase2725StatistikenCommandCenterUltimate } from './phase2725-statistiken-command-center-ultimate';
+import { LieferdienstPhase2730StatistikLiveIntelligenceHub } from './phase2730-statistiken-live-intelligence-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2311,6 +2312,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2720StatistikenDashboardUltra locationId={locationId ?? null} />
                 {/* Phase 2725: Statistiken Command Center Ultimate — 10 KPI-Kacheln Ampel+Δ%+Ziel; Gesamt-Score; Stundenverlauf-BarChart 2-Modi; Insight-Tipp; Alert-Strip; Zonen-Top-5; Mock-Fallback; 60-Sek-Polling */}
                 <LieferdienstPhase2725StatistikenCommandCenterUltimate locationId={locationId ?? null} />
+                {/* Phase 2730: Statistiken Live Intelligence Hub — 10 KPI-Kacheln; Gesamt-Score-Ring; Stundenverlauf-BarChart; Insight-Tipp; Mock-Fallback; 60-Sek-Polling */}
+                <LieferdienstPhase2730StatistikLiveIntelligenceHub locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
                 <LieferdienstPhase2630StatistikenLiveKomplett locationId={locationId ?? null} />
                 {/* Phase 2635: Liefer-SLA-Echtzeit-Cockpit — 5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling */}
