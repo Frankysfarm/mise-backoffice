@@ -2,6 +2,32 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-24): Phasen 3688–3692 — Fahrer-Trinkgeld-Quote-Ranking implementiert. Phasen 3683/3684/3686 (Bewertung) bereits durch anderen Agenten vorhanden — nächste freie Phasen waren 3688–3692. Backend `/api/delivery/admin/fahrer-trinkgeld-quote-ranking` aktualisiert (Trinkgeld/Bestellwert in %, Mock Julia F.12%/Sara K.9%/Max M.6%/Tim B.3%, force-dynamic, createClient(), ampel grün/gelb/rot, alert_bottom Bottom-25%, rank_delta). Phase 3689 Dispatch: `DispatchPhase3689TrinkgeldQuoteRankingBoard` — Gift-Icon lila, absteigend Rang 1=höchste Quote, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Trinkgeld-Quote!", Delta pos=grün, RankBadge, Import+Render+Barrel ✅. Phase 3690 Fahrer: `FahrerPhase3690MeineTrinkgeldQuote` — Gift-Icon lila, % 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3691 Storefront: übersprungen. Phase 3692 Kitchen: `KitchenPhase3692TrinkgeldQuoteTicker` — Gift-Icon lila, Bester #1 Name+% im Header, Alert "Niedrige Trinkgeld-Quote!", kompakt absteigend, Team-Ø+Ziel ≥8%, Import+Render+Barrel ✅. Build ✓ exit 0. Push erfolgt.
+
+### ✅ Phasen 3688–3692 ABGESCHLOSSEN — Fahrer-Trinkgeld-Quote-Ranking
+- Phase 3688 Backend: `/api/delivery/admin/fahrer-trinkgeld-quote-ranking` aktualisiert (% statt €/Stopp, Mock Julia 12%/Sara 9%/Max 6%/Tim 3%) ✅
+- Phase 3689 Dispatch: `DispatchPhase3689TrinkgeldQuoteRankingBoard` — Gift-Icon lila, KPI-Grid Bester/Team-Ø/Niedrigster, Alert, RankBadge ✅
+- Phase 3690 Fahrer: `FahrerPhase3690MeineTrinkgeldQuote` — % 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3691 Storefront: übersprungen ✅
+- Phase 3692 Kitchen: `KitchenPhase3692TrinkgeldQuoteTicker` — Bester #1 im Header, Ziel ≥8% ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ TrinkgeldQuoteTicker + TrinkgeldQuoteRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3689 Board + Phase3690 MeineTrinkgeldQuote |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3693–3697 — Fahrer-Bestellungen-pro-Stopp-Ranking
+1. **Phase 3693 Backend:** GET /api/delivery/admin/fahrer-bestellungen-pro-stopp — Ø Bestellungen/Stopp je Fahrer letzte 30 Tage aus delivery_tours+delivery_stops; Rang 1=meiste Bestellungen/Stopp=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenige Bestellungen/Stopp!"; rank_delta pos=verbessert; Mock Julia F.1.8/Sara K.1.5/Max M.1.2/Tim B.1.0; PFLICHT: force-dynamic; createClient().
+2. **Phase 3694 Dispatch:** BestellungenProStoppRankingBoard — Package-Icon orange; absteigend Rang 1=meiste Bestellungen/Stopp; Balken 0–max; KPI-Grid Bester/Team-Ø/Wenigste; Alert "Wenige Bestellungen/Stopp!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3689. PFLICHT: Import + Render + Barrel.
+3. **Phase 3695 Fahrer:** MeineBestellungenProStopp — Package-Icon orange; Bestellungen/Stopp 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3690. PFLICHT: Import + Render + Barrel.
+4. **Phase 3696 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3697 Kitchen:** BestellungenProStoppTicker — Package-Icon orange; Bester #1 Name+Bestellungen/Stopp im Header; Alert "Wenige Bestellungen/Stopp!"; kompakt absteigend; Rang+Bestellungen/Stopp+Delta pos=grün; Team-Ø+Ziel ≥1.5 Bestellungen/Stopp; 30-Min-Polling; nach Phase3692. PFLICHT: Import + Render + Barrel.
+
 Frontend-Ingenieur-Agent (2026-07-24): Phasen 3683/3684/3686 — Fahrer-Kundenbewertungs-Ranking implementiert (Konflikt-Resolution: Phasen 3678–3682 wurden parallel durch Backend-Architekt für Wartezeit-pro-Stopp verwendet, daher freie Nummern genutzt). Backend `/api/delivery/admin/fahrer-bewertung` bereits vorhanden (avg_sterne, trend, ampel, alert_niedrig, team_avg_sterne). Phase 3683 Dispatch: `DispatchPhase3683BewertungRankingBoard` — Star-Icon gelb, absteigend Rang 1=höchste Bewertung, KPI-Grid Bester/Team-Ø/Schlechtester, Alert "Niedrige Bewertung!", Trend-Delta, RankBadge, Import+Render+Barrel ✅. Phase 3684 Fahrer: `FahrerPhase3684MeineBewertung` — Star-Icon gelb, Bewertung 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3685 Storefront: übersprungen. Phase 3686 Kitchen: `KitchenPhase3686BewertungTicker` — Star-Icon gelb, Bester #1 Name+Bewertung im Header, Alert "Niedrige Bewertung!", Team-Ø+Ziel ≥4.5, Import+Render+Barrel ✅. Build ✓ exit 0. Push erfolgt.
 
 ### ✅ Phasen 3683/3684/3686 ABGESCHLOSSEN — Fahrer-Kundenbewertungs-Ranking
