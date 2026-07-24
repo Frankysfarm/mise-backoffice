@@ -938,6 +938,7 @@ import { FahrerPhase3671MeineAbholzeit } from './phase3671-meine-abholzeit';
 import { FahrerPhase3675MeineAbdeckung } from './phase3675-meine-abdeckung';
 import { FahrerPhase3680MeineWartezeitProStopp } from './phase3680-meine-wartezeit-pro-stopp';
 import { FahrerPhase3684MeineBewertung } from './phase3684-meine-bewertung';
+import { FahrerPhase3689MeinTrinkgeld } from './phase3689-mein-trinkgeld';
 import { FahrerPhase3690MeineTrinkgeldQuote } from './phase3690-meine-trinkgeld-quote';
 import { FahrerPhase3630TourStopsLiveNavigatorPro } from './phase3630-tour-stops-live-navigator-pro';
 
@@ -6694,6 +6695,7 @@ export function FahrerApp({
           <FahrerPhase3675MeineAbdeckung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3680MeineWartezeitProStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3684MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3689MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3690MeineTrinkgeldQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3630: Tour-Stops Live Navigator Pro — Hero-Stopp blau; Navi+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; ETA-Badge; mobile-first; kein Polling */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
@@ -10548,4 +10550,5 @@ export { FahrerPhase3671MeineAbholzeit } from './phase3671-meine-abholzeit';
 export { FahrerPhase3675MeineAbdeckung } from './phase3675-meine-abdeckung';
 export { FahrerPhase3680MeineWartezeitProStopp } from './phase3680-meine-wartezeit-pro-stopp';
 export { FahrerPhase3684MeineBewertung } from './phase3684-meine-bewertung';
+export { FahrerPhase3689MeinTrinkgeld } from './phase3689-mein-trinkgeld';
 export { FahrerPhase3690MeineTrinkgeldQuote } from './phase3690-meine-trinkgeld-quote';

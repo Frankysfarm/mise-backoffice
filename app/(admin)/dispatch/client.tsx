@@ -1025,6 +1025,7 @@ import { DispatchPhase3670AbholzeitRankingBoard } from './phase3670-abholzeit-ra
 import { DispatchPhase3674AbdeckungRankingBoard } from './phase3674-abdeckung-ranking-board';
 import { DispatchPhase3679WartezeitProStoppRankingBoard } from './phase3679-wartezeit-pro-stopp-ranking-board';
 import { DispatchPhase3683BewertungRankingBoard } from './phase3683-bewertung-ranking-board';
+import { DispatchPhase3688TrinkgeldRankingBoard } from './phase3688-trinkgeld-ranking-board';
 import { DispatchPhase3689TrinkgeldQuoteRankingBoard } from './phase3689-trinkgeld-quote-ranking-board';
 import { DispatchPhase3654TourScoreCommandCenter } from './phase3654-tour-score-command-center';
 import { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-tour-score-live-visualisierung-final';
@@ -4665,6 +4666,7 @@ export function DispatchBoard({
           <DispatchPhase3674AbdeckungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3679WartezeitProStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3683BewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3688TrinkgeldRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3689TrinkgeldQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3654: Tour-Score Command Center — Flotten-KPI-Grid; Stopp-Dot-Timeline; Sub-KPIs expandierbar; ETA je Stopp; 30-Sek-Polling */}
           <DispatchPhase3654TourScoreCommandCenter locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
@@ -12808,5 +12810,6 @@ export { DispatchPhase3674AbdeckungRankingBoard } from './phase3674-abdeckung-ra
 // Phase 3679 — Wartezeit/Stopp Ranking-Board (Clock-Icon orange; aufsteigend Rang 1=kürzeste Wartezeit; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Wartezeit/Stopp!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3679WartezeitProStoppRankingBoard } from './phase3679-wartezeit-pro-stopp-ranking-board';
 export { DispatchPhase3683BewertungRankingBoard } from './phase3683-bewertung-ranking-board';
+export { DispatchPhase3688TrinkgeldRankingBoard } from './phase3688-trinkgeld-ranking-board';
 // Phase 3689 — Trinkgeld-Quote Ranking-Board (Gift-Icon lila; absteigend Rang 1=höchste Quote; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Trinkgeld-Quote!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3689TrinkgeldQuoteRankingBoard } from './phase3689-trinkgeld-quote-ranking-board';
