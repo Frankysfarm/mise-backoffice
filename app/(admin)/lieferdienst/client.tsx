@@ -473,6 +473,7 @@ import { LieferdienstPhase2705StatistikenProfiDashboard } from './phase2705-stat
 import { LieferdienstPhase2710StatistikDashboardFinal } from './phase2710-statistik-dashboard-final';
 import { LieferdienstPhase2715StatistikenMasterLiveCockpit } from './phase2715-statistiken-master-live-cockpit';
 import { LieferdienstPhase2720StatistikenDashboardUltra } from './phase2720-statistiken-dashboard-ultra';
+import { LieferdienstPhase2725StatistikenCommandCenterUltimate } from './phase2725-statistiken-command-center-ultimate';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2308,6 +2309,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2715StatistikenMasterLiveCockpit locationId={locationId ?? null} />
                 {/* Phase 2720: Statistiken Dashboard Ultra — 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Balken; Insight-Tipp; Alert-Strip amber-KPIs; Schicht-Dauer; Mock-Fallback; 60-Sek-Polling */}
                 <LieferdienstPhase2720StatistikenDashboardUltra locationId={locationId ?? null} />
+                {/* Phase 2725: Statistiken Command Center Ultimate — 10 KPI-Kacheln Ampel+Δ%+Ziel; Gesamt-Score; Stundenverlauf-BarChart 2-Modi; Insight-Tipp; Alert-Strip; Zonen-Top-5; Mock-Fallback; 60-Sek-Polling */}
+                <LieferdienstPhase2725StatistikenCommandCenterUltimate locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
                 <LieferdienstPhase2630StatistikenLiveKomplett locationId={locationId ?? null} />
                 {/* Phase 2635: Liefer-SLA-Echtzeit-Cockpit — 5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling */}
@@ -4877,3 +4880,5 @@ export { LieferdienstPhase2715StatistikenMasterLiveCockpit } from './phase2715-s
 export { LieferdienstPhase2720StatistikenDashboardUltra } from './phase2720-statistiken-dashboard-ultra';
 // Statistiken Live Hub Final — 8 KPI-Kacheln (Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit/Bewertung/Fahrer/SLA/Storno); Ampel-Farbkodierung; Trend-Pfeile vs. Vortag; Stundenverlauf-BarChart 2-Modi; Alert-Strip; Zonen-Top-3; 3-Min-Polling
 export { LieferdienstPhase1000StatistikenLiveHubFinal } from './phase1000-statistiken-live-hub-final';
+// Phase 2725 — Statistiken Command Center Ultimate (Activity-Icon indigo; 10-KPI-Grid 2-spaltig Ampel+Δ%+Ziel invertiert; Gesamt-Score-Balken farbkodiert; Insight-Tipp; Alert-Strip amber; Stundenverlauf-BarChart 2-Modi Jetzt-Stunde blau; Mock-Fallback; 60-Sek-Polling)
+export { LieferdienstPhase2725StatistikenCommandCenterUltimate } from './phase2725-statistiken-command-center-ultimate';

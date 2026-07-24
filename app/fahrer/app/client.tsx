@@ -926,6 +926,7 @@ import { FahrerPhase3610MeineWartezeit } from './phase3610-meine-wartezeit';
 import { FahrerPhase3615MeinKilometerstand } from './phase3615-mein-kilometerstand';
 import { FahrerPhase3620MeineKostenProKm } from './phase3620-meine-kosten-pro-km';
 import { FahrerPhase3625MeinUmsatzProStunde } from './phase3625-mein-umsatz-pro-stunde';
+import { FahrerPhase3630TourStopsLiveNavigatorPro } from './phase3630-tour-stops-live-navigator-pro';
 
 type Driver = {
   id: string;
@@ -6668,6 +6669,30 @@ export function FahrerApp({
           {/* Phase 3620: Meine Kosten/km — Euro-Icon grün; €/km 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3620MeineKostenProKm driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3625MeinUmsatzProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3630: Tour-Stops Live Navigator Pro — Hero-Stopp blau; Navi+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; ETA-Badge; mobile-first; kein Polling */}
+          {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
+            <FahrerPhase3630TourStopsLiveNavigatorPro
+              stops={(activeBatch.stops ?? []).map((s, i) => ({
+                id: s.id,
+                sequence: s.reihenfolge ?? i + 1,
+                bestellnummer: s.order?.bestellnummer ?? `#${i + 1}`,
+                kunde_name: s.order?.kunde_name ?? '',
+                adresse: s.order?.kunde_adresse ?? '',
+                plz: s.order?.kunde_plz ?? null,
+                lat: s.order?.kunde_lat ?? null,
+                lng: s.order?.kunde_lng ?? null,
+                telefon: s.order?.kunde_telefon ?? null,
+                eta_earliest: null,
+                eta_latest: null,
+                bezahlt: false,
+                zahlungsart: 'bar',
+                betrag: s.order?.gesamtbetrag ?? 0,
+                notiz: s.order?.kunde_lieferhinweis ?? s.order?.kunde_notiz ?? null,
+                abgeschlossen: !!s.geliefert_am,
+              }))}
+              aktiverStoppIdx={(activeBatch.stops ?? []).findIndex(s => !s.geliefert_am)}
+            />
+          )}
           {/* Phase 3583: Tour-Stops Smart Navi Hub — Hero-Stopp mit Google-Maps+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3583TourStopsSmartNaviHub
@@ -10474,5 +10499,7 @@ export { FahrerPhase3615MeinKilometerstand } from './phase3615-mein-kilometersta
 export { FahrerPhase3620MeineKostenProKm } from './phase3620-meine-kosten-pro-km';
 // Phase 3625 — Mein Umsatz/h (TrendingUp-Icon grün; €/h 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3625MeinUmsatzProStunde } from './phase3625-mein-umsatz-pro-stunde';
+// Phase 3630 — Tour-Stops Live Navigator Pro (Hero-Stopp blau Navi+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots+Navi; Fortschrittsbalken; Zahlungsart; ETA-Badge; mobile-first; kein Polling; direkt aus activeBatch)
+export { FahrerPhase3630TourStopsLiveNavigatorPro } from './phase3630-tour-stops-live-navigator-pro';
 // Phase 1001 — Tour-Stopp Navigation Hub (vollständige Stopp-Liste mit ETA-Ring; Direktnavigation Google Maps/Waze; Aktueller-Stopp-Fokus; Stopp-Bestätigung; 5-Min-Polling; Mock-Fallback)
 export { FahrerPhase1001TourStoppNavigationHub } from './phase1001-tour-stopp-navigation-hub';
