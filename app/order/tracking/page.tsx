@@ -1,5 +1,6 @@
 import { SmartDeliveryLiveEta } from '@/app/order/[locationSlug]/smart-delivery-live-eta';
 import { SmartLiveTrackingExtended } from '@/app/order/[locationSlug]/smart-live-tracking-extended';
+import { Phase2720DynamischeEtaLiveTrackingCockpit } from '@/app/order/[locationSlug]/phase2720-dynamische-eta-live-tracking-cockpit';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -28,6 +29,9 @@ export default function TrackingPage({
 
         {/* Extended Live Tracking (Hauptansicht) */}
         <SmartLiveTrackingExtended orderId={orderId} />
+
+        {/* Phase 2720: Dynamische ETA Live-Tracking Cockpit — ETA-Ring; Phasen-Timeline 5 Stufen; Fortschrittsbalken; Fahrer-Info; Lieferung-geliefert-Konfirmation; 20-Sek-Polling; Mock-Fallback */}
+        <Phase2720DynamischeEtaLiveTrackingCockpit orderId={orderId} />
 
         {/* ETA-Karte (kompakt, als Ergänzung) */}
         <SmartDeliveryLiveEta orderId={orderId} />

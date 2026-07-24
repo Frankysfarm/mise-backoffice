@@ -981,6 +981,7 @@ import { KitchenPhase3712StornoquoteTicker } from './phase3712-stornoquote-ticke
 import { KitchenPhase3717KundenzufriedenheitTicker } from './phase3717-kundenzufriedenheit-ticker';
 import { KitchenPhase3722PuenktlichkeitTicker } from './phase3722-puenktlichkeit-ticker';
 import { KitchenPhase3632SmartTimingEchtzeitCockpitFinal } from './phase3632-smart-timing-echtzeit-cockpit-final';
+import { KitchenPhase3727SmartTimingCountdownFarbkodierungHub } from './phase3727-smart-timing-countdown-farbkodierung-hub';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4268,6 +4269,8 @@ export function KitchenBoard({
       <KitchenPhase3722PuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3632: Smart-Timing Echtzeit Cockpit Final — Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score; On-Time-Rate; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase3632SmartTimingEchtzeitCockpitFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3727: Smart-Timing Countdown Farbkodierung Hub — sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/AvgPrep/Überfällig; Fortschrittsbalken; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
+      <KitchenPhase3727SmartTimingCountdownFarbkodierungHub locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11405,3 +11408,5 @@ export { KitchenPhase3707LieferzeitTicker } from './phase3707-lieferzeit-ticker'
 export { KitchenPhase3712StornoquoteTicker } from './phase3712-stornoquote-ticker';
 export { KitchenPhase3717KundenzufriedenheitTicker } from './phase3717-kundenzufriedenheit-ticker';
 export { KitchenPhase3722PuenktlichkeitTicker } from './phase3722-puenktlichkeit-ticker';
+// Phase 3727 — Smart-Timing Countdown Farbkodierung Hub (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/AvgPrep/Überfällig; Fortschrittsbalken; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase3727SmartTimingCountdownFarbkodierungHub } from './phase3727-smart-timing-countdown-farbkodierung-hub';

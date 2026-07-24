@@ -947,6 +947,7 @@ import { FahrerPhase3710MeineStornoquote } from './phase3710-meine-stornoquote';
 import { FahrerPhase3715MeineKundenzufriedenheit } from './phase3715-meine-kundenzufriedenheit';
 import { FahrerPhase3720MeinePuenktlichkeit } from './phase3720-meine-puenktlichkeit';
 import { FahrerPhase3630TourStopsLiveNavigatorPro } from './phase3630-tour-stops-live-navigator-pro';
+import { FahrerPhase3725TourStopsNavigationCockpit } from './phase3725-tour-stops-navigation-cockpit';
 
 type Driver = {
   id: string;
@@ -6741,6 +6742,8 @@ export function FahrerApp({
               driverLng={driverPos?.lng ?? null}
             />
           )}
+          {/* Phase 3725: Tour-Stops Navigation Cockpit — Tour-Fortschrittsbalken; Stopp-Liste expandierbar; Navigation (Google Maps/Waze/Apple Maps); Anruf; Notiz-Warnung; Zahlungsart; ETA+km je Stopp; mobile-first; 30-Sek-Polling; Mock-Fallback */}
+          <FahrerPhase3725TourStopsNavigationCockpit fahrerSchichtId={(driver as any).aktive_schicht_id ?? null} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
