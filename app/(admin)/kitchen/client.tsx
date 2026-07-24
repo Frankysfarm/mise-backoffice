@@ -955,6 +955,7 @@ import { KitchenPhase3589StreckeProTourTicker } from './phase3589-strecke-pro-to
 import { KitchenPhase3592LeerlaufZeitTicker } from './phase3592-leerlauf-zeit-ticker';
 import { KitchenPhase3597KundenbewertungTicker } from './phase3597-kundenbewertung-ticker';
 import { KitchenPhase3602ZuverlaessigkeitTicker } from './phase3602-zuverlaessigkeit-ticker';
+import { KitchenPhase3607StornoQuoteTicker } from './phase3607-storno-quote-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4211,6 +4212,8 @@ export function KitchenBoard({
       <KitchenPhase3597KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3602: Zuverlässigkeit Ticker — CheckCircle-Icon grün; Zuverlässigster #1 im Header; Alert "Niedrige Zuverlässigkeit!"; kompakt absteigend; Rang+%+Delta; Team-Ø+Ziel ≥90%; 30-Min-Polling */}
       <KitchenPhase3602ZuverlaessigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3607: Storno-Quote Ticker — XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Storno-Quote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel <5%; 30-Min-Polling */}
+      <KitchenPhase3607StornoQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11304,3 +11307,5 @@ export { KitchenPhase3592LeerlaufZeitTicker } from './phase3592-leerlauf-zeit-ti
 export { KitchenPhase3597KundenbewertungTicker } from './phase3597-kundenbewertung-ticker';
 // Phase 3602 — Zuverlässigkeit Ticker (CheckCircle-Icon grün; Zuverlässigster #1 im Header; Alert "Niedrige Zuverlässigkeit!"; kompakt absteigend; Rang+%+Delta; Team-Ø+Ziel ≥90%; 30-Min-Polling)
 export { KitchenPhase3602ZuverlaessigkeitTicker } from './phase3602-zuverlaessigkeit-ticker';
+// Phase 3607 — Storno-Quote Ticker (XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Storno-Quote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel <5%; 30-Min-Polling)
+export { KitchenPhase3607StornoQuoteTicker } from './phase3607-storno-quote-ticker';

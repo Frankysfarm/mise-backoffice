@@ -1008,6 +1008,7 @@ import { DispatchPhase3586StreckeProTourRankingBoard } from './phase3586-strecke
 import { DispatchPhase3590LeerlaufZeitRankingBoard } from './phase3590-leerlauf-zeit-ranking-board';
 import { DispatchPhase3594KundenbewertungRankingBoard } from './phase3594-kundenbewertung-ranking-board';
 import { DispatchPhase3599ZuverlaessigkeitRankingBoard } from './phase3599-zuverlaessigkeit-ranking-board';
+import { DispatchPhase3604StornoQuoteRankingBoard } from './phase3604-storno-quote-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4624,6 +4625,8 @@ export function DispatchBoard({
           <DispatchPhase3594KundenbewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3599: Lieferzeit-Zuverlässigkeit Ranking — CheckCircle-Icon grün; absteigend Rang 1=höchste %; KPI-Grid Zuverlässigster/Team-Ø/Unzuverlässigster; Alert "Niedrige Zuverlässigkeit!"; Delta pos=grün; 30-Min-Polling */}
           <DispatchPhase3599ZuverlaessigkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3604: Storno-Quote Ranking — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Ø/Schlechtester; Alert "Hohe Storno-Quote!"; Delta neg=grün; 30-Min-Polling */}
+          <DispatchPhase3604StornoQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12726,3 +12729,5 @@ export { DispatchPhase3590LeerlaufZeitRankingBoard } from './phase3590-leerlauf-
 export { DispatchPhase3594KundenbewertungRankingBoard } from './phase3594-kundenbewertung-ranking-board';
 // Phase 3599 — Lieferzeit-Zuverlässigkeit Ranking (CheckCircle-Icon grün; absteigend; KPI-Grid Zuverlässigster/Team-Ø/Unzuverlässigster; Alert "Niedrige Zuverlässigkeit!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3599ZuverlaessigkeitRankingBoard } from './phase3599-zuverlaessigkeit-ranking-board';
+// Phase 3604 — Storno-Quote Ranking (XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Ø/Schlechtester; Alert "Hohe Storno-Quote!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3604StornoQuoteRankingBoard } from './phase3604-storno-quote-ranking-board';

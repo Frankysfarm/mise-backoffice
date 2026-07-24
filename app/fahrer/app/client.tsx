@@ -921,6 +921,7 @@ import { FahrerPhase3587MeineStreckeProTour } from './phase3587-meine-strecke-pr
 import { FahrerPhase3591MeineLeerlaufZeit } from './phase3591-meine-leerlauf-zeit';
 import { FahrerPhase3595MeineKundenbewertung } from './phase3595-meine-kundenbewertung';
 import { FahrerPhase3600MeineZuverlaessigkeit } from './phase3600-meine-zuverlaessigkeit';
+import { FahrerPhase3605MeineStornoQuote } from './phase3605-meine-storno-quote';
 
 type Driver = {
   id: string;
@@ -6654,6 +6655,8 @@ export function FahrerApp({
           <FahrerPhase3595MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3600: Meine Lieferzeit-Zuverlässigkeit — CheckCircle-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3600MeineZuverlaessigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3605: Meine Storno-Quote — XCircle-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3605MeineStornoQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3583: Tour-Stops Smart Navi Hub — Hero-Stopp mit Google-Maps+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3583TourStopsSmartNaviHub
@@ -10450,3 +10453,5 @@ export { FahrerPhase3591MeineLeerlaufZeit } from './phase3591-meine-leerlauf-zei
 export { FahrerPhase3595MeineKundenbewertung } from './phase3595-meine-kundenbewertung';
 // Phase 3600 — Meine Lieferzeit-Zuverlässigkeit (CheckCircle-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3600MeineZuverlaessigkeit } from './phase3600-meine-zuverlaessigkeit';
+// Phase 3605 — Meine Storno-Quote (XCircle-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3605MeineStornoQuote } from './phase3605-meine-storno-quote';
