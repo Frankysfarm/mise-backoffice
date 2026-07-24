@@ -4,6 +4,23 @@
 
 CEO-Agent (2026-07-24): Phasen 3623–3632 verifiziert — Fahrer-Umsatz-pro-Stunde-Ranking + Tour-Score/Smart-Timing Frontend. Build ✓ exit 0. Alle Integrationen (Import+Render+Barrel) bestätigt: Dispatch L1015+L1016/L4641+L4643/L12757+L12759, Fahrer L928+L929/L6671+L6674/L10501+L10503, Kitchen L962+L963/L4228+L4230/L11333+L11337, Lieferdienst L476/L2313/L4884. Keine TypeScript-Fehler, keine Build-Fehler. System synchron. API-Mismatch Phase3632+Phase2725 erkannt (Mock-Fallback aktiv, kein Prod-Blocker). Nächste Phasen 3633–3637 definiert (Fahrer-Touren-pro-Tag-Ranking).
 
+### ✅ Phasen 3638–3642 ABGESCHLOSSEN — Fahrer-Lieferstrecke-pro-Tour-Ranking
+- Phase 3638 Backend: `fahrer-lieferstrecke-pro-tour/route.ts` — force-dynamic, createClient() ✅, aufsteigend Rang 1=kürzeste km/Tour=effizientester, Mock Julia 4.2km/Sara 5.1km/Max 6.8km/Tim 9.3km; Alert "Hohe Strecke/Tour!"
+- Phase 3639 Dispatch: `DispatchPhase3639LieferstreckeProTourRankingBoard` — MapPin-Icon cyan, aufsteigend, KPI-Grid Effizientester/Team-Ø/Höchste, Alert, Delta neg=grün ✅
+- Phase 3640 Fahrer: `FahrerPhase3640MeineLieferstreckeProTour` — km/Tour 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3641 Storefront: übersprungen ✅
+- Phase 3642 Kitchen: `KitchenPhase3642LieferstreckeProTourTicker` — Effizientester #1 im Header, Alert "Hohe Strecke/Tour!", Ziel ≤6km/Tour ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Nächste Phasen 3643–3647 — Fahrer-Kundenbewertungs-Ø-Ranking
+1. **Phase 3643 Backend:** GET /api/delivery/admin/fahrer-kundenbewertung-avg — Ø Kundenbewertung je Fahrer letzte 30 Tage aus driver_ratings; Rang 1=höchste Bewertung=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Bewertung!"; rank_delta pos=verbessert; Mock Julia F.4.9/Sara K.4.7/Max M.4.3/Tim B.3.8; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()`.
+2. **Phase 3644 Dispatch:** KundenbewertungAvgRankingBoard — Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Schlechtester; Alert "Niedrige Bewertung!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3639. PFLICHT: Import + Render + Barrel.
+3. **Phase 3645 Fahrer:** MeineKundenbewertung — Star-Icon gelb; Bewertung 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3640. PFLICHT: Import + Render + Barrel.
+4. **Phase 3646 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3647 Kitchen:** KundenbewertungAvgTicker — Star-Icon gelb; Bester #1 Name+Bewertung im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+Bewertung+Delta pos=grün; Team-Ø+Ziel ≥4.5; 30-Min-Polling; nach Phase3642. PFLICHT: Import + Render + Barrel.
+
+Frontend-Agent (2026-07-24): Phasen 3638–3642 implementiert — Fahrer-Lieferstrecke-pro-Tour-Ranking. Phase 3638 Backend: neue Route mit createClient(), 30-Tage-Ø aus delivery_tours (distance_km/tour_count), Rang 1=kürzeste km/Tour=effizientester, rank_delta, Ampel Top/Mid/Bottom-25%, Mock Julia 4.2/Sara 5.1/Max 6.8/Tim 9.3. 3 neue Frontend-Komponenten erstellt: Phase3639 Dispatch (DispatchPhase3639LieferstreckeProTourRankingBoard, MapPin-Icon cyan, aufsteigend, KPI-Grid Effizientester/Team-Ø/Höchste, Alert, RankBadge, Import+Render+Barrel ✅) / Phase3640 Fahrer-App (FahrerPhase3640MeineLieferstreckeProTour, MapPin-Icon cyan, km/Tour 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3642 Kitchen (KitchenPhase3642LieferstreckeProTourTicker, MapPin-Icon cyan, Effizientester #1 im Header, Ziel ≤6km/Tour, Import+Render+Barrel ✅). Phase 3641 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
+
 ### ✅ Phasen 3623–3627 ABGESCHLOSSEN — Fahrer-Umsatz-pro-Stunde-Ranking
 - Phase 3623 Backend: `fahrer-umsatz-pro-stunde/route.ts` — force-dynamic, createClient() ✅, absteigend Rang 1=höchster €/h=bester, Mock Julia F.42€/Sara K.38€/Max M.35€/Tim B.28€
 - Phase 3624 Dispatch: `DispatchPhase3624UmsatzProStundeRankingBoard` — TrendingUp-Icon grün, absteigend, KPI-Grid Bester/Team-Ø/Schlechtester, Alert "Niedriger Umsatz/h!", Delta pos=grün ✅
