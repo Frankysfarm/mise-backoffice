@@ -977,6 +977,7 @@ import { KitchenPhase3692TrinkgeldQuoteTicker } from './phase3692-trinkgeld-quot
 import { KitchenPhase3697BestellungenProStoppTicker } from './phase3697-bestellungen-pro-stopp-ticker';
 import { KitchenPhase3702RetourenquoteTicker } from './phase3702-retourenquote-ticker';
 import { KitchenPhase3707LieferzeitTicker } from './phase3707-lieferzeit-ticker';
+import { KitchenPhase3712StornoquoteTicker } from './phase3712-stornoquote-ticker';
 import { KitchenPhase3632SmartTimingEchtzeitCockpitFinal } from './phase3632-smart-timing-echtzeit-cockpit-final';
 
 /* ------------------------------ Types ------------------------------ */
@@ -4260,6 +4261,7 @@ export function KitchenBoard({
       <KitchenPhase3697BestellungenProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3702RetourenquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3707LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3712StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3632: Smart-Timing Echtzeit Cockpit Final — Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score; On-Time-Rate; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase3632SmartTimingEchtzeitCockpitFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
@@ -11396,3 +11398,4 @@ export { KitchenPhase3697BestellungenProStoppTicker } from './phase3697-bestellu
 // Phase 3702 — Retourenquote Ticker (RotateCcw-Icon rot; Bester #1 Name+% (niedrigste Quote) im Header; Alert "Hohe Retourenquote!"; kompakt aufsteigend; Rang+%+Delta; Team-Ø+Ziel ≤2%; 30-Min-Polling)
 export { KitchenPhase3702RetourenquoteTicker } from './phase3702-retourenquote-ticker';
 export { KitchenPhase3707LieferzeitTicker } from './phase3707-lieferzeit-ticker';
+export { KitchenPhase3712StornoquoteTicker } from './phase3712-stornoquote-ticker';
