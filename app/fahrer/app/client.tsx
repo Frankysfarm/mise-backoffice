@@ -920,6 +920,7 @@ import { FahrerPhase3583TourStopsSmartNaviHub } from './phase3583-tour-stops-sma
 import { FahrerPhase3587MeineStreckeProTour } from './phase3587-meine-strecke-pro-tour';
 import { FahrerPhase3591MeineLeerlaufZeit } from './phase3591-meine-leerlauf-zeit';
 import { FahrerPhase3595MeineKundenbewertung } from './phase3595-meine-kundenbewertung';
+import { FahrerPhase3600MeineZuverlaessigkeit } from './phase3600-meine-zuverlaessigkeit';
 
 type Driver = {
   id: string;
@@ -6651,6 +6652,8 @@ export function FahrerApp({
           <FahrerPhase3591MeineLeerlaufZeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3595: Meine Kundenbewertung — Star-Icon gelb; ★-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Trend-Icon/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase3595MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3600: Meine Lieferzeit-Zuverlässigkeit — CheckCircle-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
+          <FahrerPhase3600MeineZuverlaessigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3583: Tour-Stops Smart Navi Hub — Hero-Stopp mit Google-Maps+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3583TourStopsSmartNaviHub
@@ -10445,3 +10448,5 @@ export { FahrerPhase3587MeineStreckeProTour } from './phase3587-meine-strecke-pr
 export { FahrerPhase3591MeineLeerlaufZeit } from './phase3591-meine-leerlauf-zeit';
 // Phase 3595 — Meine Kundenbewertung (Star-Icon gelb; ★-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Trend-Icon/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3595MeineKundenbewertung } from './phase3595-meine-kundenbewertung';
+// Phase 3600 — Meine Lieferzeit-Zuverlässigkeit (CheckCircle-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3600MeineZuverlaessigkeit } from './phase3600-meine-zuverlaessigkeit';

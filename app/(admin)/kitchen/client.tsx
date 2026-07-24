@@ -954,6 +954,7 @@ import { KitchenPhase3585SmartTimingCountdownFarbkodierungLive } from './phase35
 import { KitchenPhase3589StreckeProTourTicker } from './phase3589-strecke-pro-tour-ticker';
 import { KitchenPhase3592LeerlaufZeitTicker } from './phase3592-leerlauf-zeit-ticker';
 import { KitchenPhase3597KundenbewertungTicker } from './phase3597-kundenbewertung-ticker';
+import { KitchenPhase3602ZuverlaessigkeitTicker } from './phase3602-zuverlaessigkeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4208,6 +4209,8 @@ export function KitchenBoard({
       <KitchenPhase3592LeerlaufZeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3597: Kundenbewertung Ticker — Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+★+Trend-Icon; Team-Ø+Ziel ≥4.5★; 30-Min-Polling */}
       <KitchenPhase3597KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 3602: Zuverlässigkeit Ticker — CheckCircle-Icon grün; Zuverlässigster #1 im Header; Alert "Niedrige Zuverlässigkeit!"; kompakt absteigend; Rang+%+Delta; Team-Ø+Ziel ≥90%; 30-Min-Polling */}
+      <KitchenPhase3602ZuverlaessigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11299,3 +11302,5 @@ export { KitchenPhase3589StreckeProTourTicker } from './phase3589-strecke-pro-to
 export { KitchenPhase3592LeerlaufZeitTicker } from './phase3592-leerlauf-zeit-ticker';
 // Phase 3597 — Kundenbewertung Ticker (Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Bewertung!"; kompakt absteigend; Rang+★+Trend-Icon; Team-Ø+Ziel ≥4.5★; 30-Min-Polling)
 export { KitchenPhase3597KundenbewertungTicker } from './phase3597-kundenbewertung-ticker';
+// Phase 3602 — Zuverlässigkeit Ticker (CheckCircle-Icon grün; Zuverlässigster #1 im Header; Alert "Niedrige Zuverlässigkeit!"; kompakt absteigend; Rang+%+Delta; Team-Ø+Ziel ≥90%; 30-Min-Polling)
+export { KitchenPhase3602ZuverlaessigkeitTicker } from './phase3602-zuverlaessigkeit-ticker';

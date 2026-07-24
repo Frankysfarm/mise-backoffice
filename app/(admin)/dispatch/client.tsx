@@ -1007,6 +1007,7 @@ import { DispatchPhase3582TourScoreAnzeigeDashboard } from './phase3582-tour-sco
 import { DispatchPhase3586StreckeProTourRankingBoard } from './phase3586-strecke-pro-tour-ranking-board';
 import { DispatchPhase3590LeerlaufZeitRankingBoard } from './phase3590-leerlauf-zeit-ranking-board';
 import { DispatchPhase3594KundenbewertungRankingBoard } from './phase3594-kundenbewertung-ranking-board';
+import { DispatchPhase3599ZuverlaessigkeitRankingBoard } from './phase3599-zuverlaessigkeit-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4621,6 +4622,8 @@ export function DispatchBoard({
           <DispatchPhase3590LeerlaufZeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3594: Kundenbewertung Ranking — Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Bewertung!"; Trend-Icon; 30-Min-Polling */}
           <DispatchPhase3594KundenbewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3599: Lieferzeit-Zuverlässigkeit Ranking — CheckCircle-Icon grün; absteigend Rang 1=höchste %; KPI-Grid Zuverlässigster/Team-Ø/Unzuverlässigster; Alert "Niedrige Zuverlässigkeit!"; Delta pos=grün; 30-Min-Polling */}
+          <DispatchPhase3599ZuverlaessigkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12721,3 +12724,5 @@ export { DispatchPhase3586StreckeProTourRankingBoard } from './phase3586-strecke
 export { DispatchPhase3590LeerlaufZeitRankingBoard } from './phase3590-leerlauf-zeit-ranking-board';
 // Phase 3594 — Kundenbewertung Ranking (Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Bewertung!"; Trend-Icon; 30-Min-Polling)
 export { DispatchPhase3594KundenbewertungRankingBoard } from './phase3594-kundenbewertung-ranking-board';
+// Phase 3599 — Lieferzeit-Zuverlässigkeit Ranking (CheckCircle-Icon grün; absteigend; KPI-Grid Zuverlässigster/Team-Ø/Unzuverlässigster; Alert "Niedrige Zuverlässigkeit!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3599ZuverlaessigkeitRankingBoard } from './phase3599-zuverlaessigkeit-ranking-board';
