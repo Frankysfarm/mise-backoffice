@@ -2,6 +2,26 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-24): Phasen 3688/3689/3691 + Merge 3689-3692 — Fahrer-Trinkgeld-Ranking implementiert (Konflikt-Resolution: Backend-Architekt hatte bereits Phasen 3689/3690/3692 für Trinkgeld-Quote-Ranking hinzugefügt). Beide Implementierungen behalten (komplementär: €/Stopp vs. % vom Bestellwert). Phase 3688 Dispatch: `DispatchPhase3688TrinkgeldRankingBoard` — Banknote-Icon grün, fahrer-trinkgeld-ranking API (€/Stopp), Import+Render+Barrel ✅. Phase 3689 Fahrer: `FahrerPhase3689MeinTrinkgeld` — €-Wert 5xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3691 Kitchen: `KitchenPhase3691TrinkgeldTicker` — Banknote-Icon grün, Bester #1 im Header, Ziel ≥2.50€, Import+Render+Barrel ✅. Merge-Konflikte mit 3689/3690/3692 (Trinkgeld-Quote %) aufgelöst — beide Varianten aktiv. Build ✓ exit 0. Push erfolgt.
+
+### ✅ Phasen 3688/3689/3690/3691/3692 ABGESCHLOSSEN — Fahrer-Trinkgeld-Ranking (beides: €/Stopp + % Bestellwert)
+- Phase 3688 Dispatch: `DispatchPhase3688TrinkgeldRankingBoard` (€/Stopp, fahrer-trinkgeld-ranking API) ✅
+- Phase 3689 Dispatch: `DispatchPhase3689TrinkgeldQuoteRankingBoard` (%, fahrer-trinkgeld-quote-ranking API) ✅
+- Phase 3689 Fahrer: `FahrerPhase3689MeinTrinkgeld` (€/Stopp) ✅
+- Phase 3690 Fahrer: `FahrerPhase3690MeineTrinkgeldQuote` (%) ✅
+- Phase 3691 Kitchen: `KitchenPhase3691TrinkgeldTicker` (€/Stopp) ✅
+- Phase 3692 Kitchen: `KitchenPhase3692TrinkgeldQuoteTicker` (%) ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Nächste Phasen 3693–3697 — Fahrer-Stornoquote-Ranking
+1. **Phase 3693 Backend:** GET /api/delivery/admin/fahrer-storno-ranking — Stornoquote je Fahrer letzte 30 Tage (stornierte / gesamt Bestellungen in %); Rang 1=niedrigste Quote=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Hohe Stornoquote!"; rank_delta neg=verbessert; Mock Julia F.1%/Sara K.3%/Max M.7%/Tim B.12%; PFLICHT: force-dynamic; createClient().
+2. **Phase 3694 Dispatch:** StornoQuoteRankingBoard — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Ø/Höchste; Alert "Hohe Stornoquote!"; Delta neg=grün; RankBadge; 30-Min-Polling; nach Phase3689. PFLICHT: Import + Render + Barrel.
+3. **Phase 3695 Fahrer-App:** MeineStornoQuote — XCircle-Icon rot; % 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta neg=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3690. PFLICHT: Import + Render + Barrel.
+4. **Phase 3696 Storefront:** Überspringen.
+5. **Phase 3697 Kitchen:** StornoQuoteTicker — XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Stornoquote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel ≤5%; 30-Min-Polling; nach Phase3692. PFLICHT: Import + Render + Barrel.
+
+---
+
 Backend-Architekt-Agent (2026-07-24): Phasen 3688–3692 — Fahrer-Trinkgeld-Quote-Ranking implementiert. Phasen 3683/3684/3686 (Bewertung) bereits durch anderen Agenten vorhanden — nächste freie Phasen waren 3688–3692. Backend `/api/delivery/admin/fahrer-trinkgeld-quote-ranking` aktualisiert (Trinkgeld/Bestellwert in %, Mock Julia F.12%/Sara K.9%/Max M.6%/Tim B.3%, force-dynamic, createClient(), ampel grün/gelb/rot, alert_bottom Bottom-25%, rank_delta). Phase 3689 Dispatch: `DispatchPhase3689TrinkgeldQuoteRankingBoard` — Gift-Icon lila, absteigend Rang 1=höchste Quote, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Trinkgeld-Quote!", Delta pos=grün, RankBadge, Import+Render+Barrel ✅. Phase 3690 Fahrer: `FahrerPhase3690MeineTrinkgeldQuote` — Gift-Icon lila, % 5xl+Rang 3xl farbkodiert, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3691 Storefront: übersprungen. Phase 3692 Kitchen: `KitchenPhase3692TrinkgeldQuoteTicker` — Gift-Icon lila, Bester #1 Name+% im Header, Alert "Niedrige Trinkgeld-Quote!", kompakt absteigend, Team-Ø+Ziel ≥8%, Import+Render+Barrel ✅. Build ✓ exit 0. Push erfolgt.
 
 ### ✅ Phasen 3688–3692 ABGESCHLOSSEN — Fahrer-Trinkgeld-Quote-Ranking
