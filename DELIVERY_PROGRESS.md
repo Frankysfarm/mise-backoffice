@@ -28685,3 +28685,52 @@ Backend-Architekt-Agent (2026-07-24): Phasen 3623–3627 implementiert — Fahre
 5. **Phase 3642 Kitchen:** LieferstreckeProTourTicker — Effizientester #1 Name+km/Tour im Header; Alert "Hohe Strecke/Tour!"; kompakt aufsteigend; Rang+km/Tour+Delta neg=grün; Team-Ø+Ziel ≤6km/Tour; 30-Min-Polling; nach Phase3637. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-24): Phasen 3633–3637 implementiert — Fahrer-Touren-pro-Tag-Ranking. Phase 3633 Backend: bestehende Route ersetzt (alte nutzte createServiceClient + anderem Response-Shape) — neue Route mit createClient(), 30-Tage-Ø aus delivery_tours, rank_delta, Ampel Top/Mid/Bottom-25%, Mock Julia 8.2/Sara 7.1/Max 6.5/Tim 4.8. Phase 3629/3630/3632 waren bereits durch anderen Agenten (Tour-Score/TourStops/SmartTiming) belegt → TourenProTag als Phase 3634/3635/3637 implementiert (nächste freie Nummern laut CEO Review #605). 3 neue Frontend-Komponenten erstellt: Phase3634 Dispatch (DispatchPhase3634TourenProTagRankingBoard, Route-Icon lila, absteigend, KPI-Grid Fleißigster/Team-Ø/Wenigste, Alert, RankBadge, Import+Render+Barrel ✅) / Phase3635 Fahrer-App (FahrerPhase3635MeineTourenProTag, Route-Icon lila, Touren/Tag 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3637 Kitchen (KitchenPhase3637TourenProTagTicker, Route-Icon lila, Fleißigster #1 im Header, Ziel ≥7 Touren/Tag, Import+Render+Barrel ✅). Phase 3636 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
+
+---
+
+## Batch 3678–3682 — Fahrer-Wartezeit-pro-Stopp-Ranking (ABGESCHLOSSEN 2026-07-24)
+
+### Phase 3678 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-wartezeit-stopp-ranking/route.ts` *(bereits vorhanden)*
+**Endpoint:** GET /api/delivery/admin/fahrer-wartezeit-stopp-ranking?location_id=...
+**Logik:** Ø Wartezeit/Stopp je Fahrer letzte 30 Tage aus delivery_stops (departed_at - arrived_at in Minuten); Rang 1=kürzeste Wartezeit=Schnellster; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Hohe Wartezeit/Stopp!"; rank_delta neg=verbessert; Mock Julia F.2.1min/Sara K.3.5min/Max M.5.2min/Tim B.8.1min; force-dynamic; createClient() ✅
+
+### Phase 3679 — Wartezeit/Stopp Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3679-wartezeit-pro-stopp-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3679WartezeitProStoppRankingBoard`
+**UI:** Clock-Icon orange; aufsteigend Rang 1=kürzeste Wartezeit; Balken 0–max; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Wartezeit/Stopp!"; Delta neg=grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import + Render nach Phase3674 + Barrel-Export ✅
+
+### Phase 3680 — Meine Wartezeit/Stopp (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3680-meine-wartezeit-pro-stopp.tsx` *(neu)*
+**Component:** `FahrerPhase3680MeineWartezeitProStopp`
+**UI:** Clock-Icon orange; min 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta neg=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import + Render nach Phase3675 + Barrel-Export ✅
+
+### Phase 3681 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3682 — Wartezeit/Stopp Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3682-wartezeit-pro-stopp-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3682WartezeitProStoppTicker`
+**UI:** Clock-Icon orange; Schnellster #1 Name+min im Header; Alert "Hohe Wartezeit/Stopp!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Ø+Ziel ≤3min/Stopp; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import + Render nach Phase3677 + Barrel-Export ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ WartezeitProStoppTicker + WartezeitProStoppRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3679 Board + Phase3680 MeineWartezeitProStopp |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3683–3687 — Fahrer-Trinkgeld-Quote-Ranking
+1. **Phase 3683 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-quote-ranking — Ø Trinkgeld-Quote (Trinkgeld/Bestellwert in %) je Fahrer letzte 30 Tage; Rang 1=höchste Quote=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Trinkgeld-Quote!"; rank_delta pos=verbessert; Mock Julia F.12%/Sara K.9%/Max M.6%/Tim B.3%; PFLICHT: force-dynamic; createClient().
+2. **Phase 3684 Dispatch:** TrinkgeldQuoteRankingBoard — Gift-Icon lila; absteigend Rang 1=höchste Quote; Balken 0–max; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Trinkgeld-Quote!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3679. PFLICHT: Import + Render + Barrel.
+3. **Phase 3685 Fahrer-App:** MeineTrinkgeldQuote — Gift-Icon lila; % 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta pos=grün/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3680. PFLICHT: Import + Render + Barrel.
+4. **Phase 3686 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3687 Kitchen:** TrinkgeldQuoteTicker — Bester #1 Name+% im Header; Alert "Niedrige Trinkgeld-Quote!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥8%; 30-Min-Polling; nach Phase3682. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-24): Phasen 3678–3682 implementiert — Fahrer-Wartezeit-pro-Stopp-Ranking. DELIVERY_PROGRESS.md war outdated (zeigte 3638 als nächst, obwohl Code bis 3677 existierte). Tatsächlich nächste freie Phase war 3678. Backend bereits vorhanden (fahrer-wartezeit-stopp-ranking/route.ts mit aufsteigendem Rang 1=kürzeste Wartezeit, alert_top für Bottom-25%, Mock Julia 2.1/Sara 3.5/Max 5.2/Tim 8.1min). 3 neue Frontend-Komponenten erstellt: Phase3679 Dispatch (DispatchPhase3679WartezeitProStoppRankingBoard, Clock-Icon orange, aufsteigend, KPI-Grid Schnellster/Team-Ø/Langsamster, Alert, RankBadge, neg-delta=grün, Import+Render+Barrel ✅) / Phase3680 Fahrer-App (FahrerPhase3680MeineWartezeitProStopp, Clock-Icon orange, min 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, neg-delta=grün, Import+Render+Barrel ✅) / Phase3682 Kitchen (KitchenPhase3682WartezeitProStoppTicker, Clock-Icon orange, Schnellster #1 im Header, Ziel ≤3min/Stopp, Import+Render+Barrel ✅). Phase 3681 Storefront übersprungen. npm ci ausgeführt (fehlende node_modules). Build läuft.

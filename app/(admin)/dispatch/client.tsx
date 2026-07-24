@@ -1023,6 +1023,7 @@ import { DispatchPhase3664BestellwertRankingBoard } from './phase3664-bestellwer
 import { DispatchPhase3669BestellungenProTagRankingBoard } from './phase3669-bestellungen-pro-tag-ranking-board';
 import { DispatchPhase3670AbholzeitRankingBoard } from './phase3670-abholzeit-ranking-board';
 import { DispatchPhase3674AbdeckungRankingBoard } from './phase3674-abdeckung-ranking-board';
+import { DispatchPhase3679WartezeitProStoppRankingBoard } from './phase3679-wartezeit-pro-stopp-ranking-board';
 import { DispatchPhase3654TourScoreCommandCenter } from './phase3654-tour-score-command-center';
 import { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-tour-score-live-visualisierung-final';
 
@@ -4660,6 +4661,7 @@ export function DispatchBoard({
           <DispatchPhase3669BestellungenProTagRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3670AbholzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3674AbdeckungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3679WartezeitProStoppRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3654: Tour-Score Command Center — Flotten-KPI-Grid; Stopp-Dot-Timeline; Sub-KPIs expandierbar; ETA je Stopp; 30-Sek-Polling */}
           <DispatchPhase3654TourScoreCommandCenter locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3629: Tour-Score Live Visualisierung Final — Fahrer-Score-Rangliste 0–100; Stopp-Fortschritt; Sub-Scores expandierbar; Farbkodierung grün/gelb/rot; Flotten-Ø; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -12799,3 +12801,5 @@ export { DispatchPhase3669BestellungenProTagRankingBoard } from './phase3669-bes
 // Phase 3670 — Abholzeit/Stopp Ranking-Board (Package-Icon blau; aufsteigend Rang 1=kürzeste Abholzeit; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Abholzeit!"; Delta neg=grün; Balken; 30-Min-Polling)
 export { DispatchPhase3670AbholzeitRankingBoard } from './phase3670-abholzeit-ranking-board';
 export { DispatchPhase3674AbdeckungRankingBoard } from './phase3674-abdeckung-ranking-board';
+// Phase 3679 — Wartezeit/Stopp Ranking-Board (Clock-Icon orange; aufsteigend Rang 1=kürzeste Wartezeit; KPI-Grid Schnellster/Team-Ø/Langsamster; Alert "Hohe Wartezeit/Stopp!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3679WartezeitProStoppRankingBoard } from './phase3679-wartezeit-pro-stopp-ranking-board';
