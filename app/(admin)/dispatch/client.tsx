@@ -1014,6 +1014,7 @@ import { DispatchPhase3614KilometerstandRankingBoard } from './phase3614-kilomet
 import { DispatchPhase3619KostenProKmRankingBoard } from './phase3619-kosten-pro-km-ranking-board';
 import { DispatchPhase3624UmsatzProStundeRankingBoard } from './phase3624-umsatz-pro-stunde-ranking-board';
 import { DispatchPhase3634TourenProTagRankingBoard } from './phase3634-touren-pro-tag-ranking-board';
+import { DispatchPhase3639LieferstreckeProTourRankingBoard } from './phase3639-lieferstrecke-pro-tour-ranking-board';
 import { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-tour-score-live-visualisierung-final';
 
 type Driver = {
@@ -4641,6 +4642,7 @@ export function DispatchBoard({
           <DispatchPhase3619KostenProKmRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3624UmsatzProStundeRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3634TourenProTagRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3639LieferstreckeProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3629: Tour-Score Live Visualisierung Final — Fahrer-Score-Rangliste 0–100; Stopp-Fortschritt; Sub-Scores expandierbar; Farbkodierung grün/gelb/rot; Flotten-Ø; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase3629TourScoreLiveVisualisierungFinal locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
@@ -12759,5 +12761,7 @@ export { DispatchPhase3619KostenProKmRankingBoard } from './phase3619-kosten-pro
 export { DispatchPhase3624UmsatzProStundeRankingBoard } from './phase3624-umsatz-pro-stunde-ranking-board';
 // Phase 3634 — Touren/Tag Ranking (Route-Icon lila; absteigend Rang 1=meiste Touren/Tag; KPI-Grid Fleißigster/Team-Ø/Wenigste; Alert "Wenige Touren/Tag!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3634TourenProTagRankingBoard } from './phase3634-touren-pro-tag-ranking-board';
+// Phase 3639 — Strecke/Tour Ranking (MapPin-Icon cyan; aufsteigend Rang 1=kürzeste km/Tour; KPI-Grid Effizientester/Team-Ø/Höchste; Alert "Hohe Strecke/Tour!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3639LieferstreckeProTourRankingBoard } from './phase3639-lieferstrecke-pro-tour-ranking-board';
 // Phase 3629 — Tour-Score Live Visualisierung Final (Trophy-Icon amber; Score-Balken 0–100 je Fahrer; Sub-Scores Pünktlichkeit/Lieferzeit/Bewertung expandierbar; Farbkodierung grün/gelb/rot; Flotten-Ø; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3629TourScoreLiveVisualisierungFinal } from './phase3629-tour-score-live-visualisierung-final';
