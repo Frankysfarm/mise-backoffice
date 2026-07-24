@@ -1011,6 +1011,7 @@ import { DispatchPhase3599ZuverlaessigkeitRankingBoard } from './phase3599-zuver
 import { DispatchPhase3604StornoQuoteRankingBoard } from './phase3604-storno-quote-ranking-board';
 import { DispatchPhase3609WartezeitRankingBoard } from './phase3609-wartezeit-ranking-board';
 import { DispatchPhase3614KilometerstandRankingBoard } from './phase3614-kilometerstand-ranking-board';
+import { DispatchPhase3619KostenProKmRankingBoard } from './phase3619-kosten-pro-km-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4633,6 +4634,8 @@ export function DispatchBoard({
           <DispatchPhase3609WartezeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 3614: Kilometerstand Ranking — Navigation-Icon blau; absteigend Rang 1=höchste km; KPI-Grid Meistgefahren/Team-Ø/Wenigsten; Alert "Hohe Kilometerleistung!"; 30-Min-Polling */}
           <DispatchPhase3614KilometerstandRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 3619: Kosten/km Ranking — Euro-Icon grün; aufsteigend Rang 1=niedrigste Kosten; KPI-Grid Günstigster/Team-Ø/Teuerster; Alert "Hohe Kosten/km!"; Delta neg=grün; 30-Min-Polling */}
+          <DispatchPhase3619KostenProKmRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Zone-Bündel-Alert: Zeigt Bündelungsmöglichkeiten für fertige Bestellungen */}
           <ZoneQuickBundleAlert orders={orders} />
         </div>
@@ -12743,3 +12746,5 @@ export { DispatchPhase3604StornoQuoteRankingBoard } from './phase3604-storno-quo
 export { DispatchPhase3609WartezeitRankingBoard } from './phase3609-wartezeit-ranking-board';
 // Phase 3614 — Kilometerstand Ranking (Navigation-Icon blau; absteigend Rang 1=höchste km; KPI-Grid Meistgefahren/Team-Ø/Wenigsten; Alert "Hohe Kilometerleistung!"; 30-Min-Polling)
 export { DispatchPhase3614KilometerstandRankingBoard } from './phase3614-kilometerstand-ranking-board';
+// Phase 3619 — Kosten/km Ranking (Euro-Icon grün; aufsteigend Rang 1=niedrigste Kosten; KPI-Grid Günstigster/Team-Ø/Teuerster; Alert "Hohe Kosten/km!"; Delta neg=grün; 30-Min-Polling)
+export { DispatchPhase3619KostenProKmRankingBoard } from './phase3619-kosten-pro-km-ranking-board';
