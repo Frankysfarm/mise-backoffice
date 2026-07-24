@@ -28978,3 +28978,55 @@ Backend-Architekt-Agent (2026-07-24): Phasen 3708–3712 implementiert — Fahre
 5. **Phase 3722 Kitchen:** PuenktlichkeitTicker — Bester #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling; nach Phase3717. PFLICHT: Import + Render + Barrel.
 
 Frontend-Ingenieur-Agent (2026-07-24): Phasen 3713–3717 implementiert — Fahrer-Kundenzufriedenheits-Ranking. Backend (fahrer-kundenzufriedenheit/route.ts) auf Standard-Ranking-Shape rewritten: avg_bewertung (1–5★), absteigend Rang 1=höchste Bewertung, Ampel grün(Top-25%)/gelb/rot(Bottom-25%), alert_bottom Bottom-25%, Mock Julia 4.8/Sara 4.5/Max 3.9/Tim 3.2. 3 neue Frontend-Komponenten erstellt: Phase3714 Dispatch (DispatchPhase3714KundenzufriedenheitRankingBoard, Star-Icon gelb, absteigend, KPI-Grid Bester/Team-Ø/Niedrigster, Alert, RankBadge, Import+Render+Barrel ✅) / Phase3715 Fahrer-App (FahrerPhase3715MeineKundenzufriedenheit, Star-Icon gelb, ★ 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3717 Kitchen (KitchenPhase3717KundenzufriedenheitTicker, Star-Icon gelb, Bester #1 im Header, Alert, Ziel ≥4.5★, Import+Render+Barrel ✅). Phase 3716 Storefront übersprungen. Build ✓ Compiled successfully. Push erfolgt.
+
+---
+
+## Batch 3718–3722 — Fahrer-Pünktlichkeits-Ranking (ABGESCHLOSSEN 2026-07-24)
+
+### Phase 3718 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-puenktlichkeits-ranking/route.ts` *(rewritten)*
+**Endpoint:** GET /api/delivery/admin/fahrer-puenktlichkeits-ranking?location_id=...
+**Logik:** Pünktlichkeitsrate (%) je Fahrer letzte 30 Tage aus delivery_stops (delivered_at vs estimated_at ±5min); Rang 1=höchste Rate=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Pünktlichkeit!"; rank_delta pos=verbessert; Mock Julia F.95%/Sara K.88%/Max M.72%/Tim B.58%; force-dynamic; createClient() aus @/lib/supabase/server ✅
+
+### Phase 3719 — Pünktlichkeit Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3719-puenktlichkeit-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3719PuenktlichkeitRankingBoard`
+**UI:** Clock-Icon grün; absteigend Rang 1=höchste Rate; Balken 0–100; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Pünktlichkeit!"; Delta pos=grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L1035 + Render nach Phase3714 + Barrel-Export ✅
+
+### Phase 3720 — Meine Pünktlichkeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3720-meine-puenktlichkeit.tsx` *(neu)*
+**Component:** `FahrerPhase3720MeinePuenktlichkeit`
+**UI:** Clock-Icon grün; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L948 + Render nach Phase3715 + Barrel-Export ✅
+
+### Phase 3721 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3722 — Pünktlichkeit Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3722-puenktlichkeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3722PuenktlichkeitTicker`
+**UI:** Clock-Icon grün; Bester #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥90%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L982 + Render nach Phase3717 + Barrel-Export ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully** ✅ (exit 0)
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ PuenktlichkeitTicker + PuenktlichkeitRankingBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3719 Board + Phase3720 MeinePuenktlichkeit |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3723–3727 — Fahrer-Erstzustellungsquote-Ranking
+1. **Phase 3723 Backend:** GET /api/delivery/admin/fahrer-erstzustellung-ranking — Erstzustellungsquote (%) je Fahrer letzte 30 Tage (Stops mit status='delivered' beim ersten Versuch / gesamt); Rang 1=höchste Quote=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Erstzustellung!"; rank_delta pos=verbessert; Mock Julia F.97%/Sara K.91%/Max M.82%/Tim B.68%; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3724 Dispatch:** ErstzustellungRankingBoard — Package-Icon blau; absteigend Rang 1=höchste Quote; Balken 0–100; KPI-Grid Bester/Team-Ø/Niedrigster; Alert "Niedrige Erstzustellung!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3719. PFLICHT: Import + Render + Barrel.
+3. **Phase 3725 Fahrer-App:** MeineErstzustellung — Package-Icon blau; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3720. PFLICHT: Import + Render + Barrel.
+4. **Phase 3726 Storefront:** Überspringen (intern irrelevant).
+5. **Phase 3727 Kitchen:** ErstzustellungTicker — Bester #1 Name+% im Header; Alert "Niedrige Erstzustellung!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥95%; 30-Min-Polling; nach Phase3722. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-24): Phasen 3718–3722 implementiert — Fahrer-Pünktlichkeits-Ranking. Bestehende Route fahrer-puenktlichkeits-ranking/route.ts komplett auf korrektes Pattern rewritten: createClient() aus @/lib/supabase/server (statt direktem @supabase/supabase-js), force-dynamic, delivery_stops (delivered_at vs estimated_at ±5min Toleranz), absteigend Rang 1=höchste Rate, Ampel grün(Top-25%)/gelb/rot(Bottom-25%), alert_niedrig Bottom-25%, Mock Julia 95%/Sara 88%/Max 72%/Tim 58%. 3 neue Frontend-Komponenten erstellt: Phase3719 Dispatch (DispatchPhase3719PuenktlichkeitRankingBoard, Clock-Icon grün, absteigend, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Niedrige Pünktlichkeit!", RankBadge, pos-delta=grün, Import+Render+Barrel ✅) / Phase3720 Fahrer-App (FahrerPhase3720MeinePuenktlichkeit, Clock-Icon grün, % 5xl+Rang 3xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3722 Kitchen (KitchenPhase3722PuenktlichkeitTicker, Clock-Icon grün, Bester #1 im Header, Alert, Ziel ≥90%, Import+Render+Barrel ✅). Phase 3721 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
