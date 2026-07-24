@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-24): Phasen 3703–3707 — Fahrer-Ø-Lieferzeit-Ranking implementiert. Backend Phase 3703 von `createServiceClient()` auf `await createClient()` migriert + API-Shape für Ranking-Pattern normalisiert. Phase 3704 Dispatch: `DispatchPhase3704LieferzeitRankingBoard` — Clock-Icon orange, aufsteigend, KPI-Grid Schnellster/Team-Ø/Langsamster, Alert, RankBadge, Import+Render+Barrel ✅. Phase 3705 Fahrer: `FahrerPhase3705MeineLieferzeit` — min 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3706 Storefront: übersprungen. Phase 3707 Kitchen: `KitchenPhase3707LieferzeitTicker` — Schnellster #1 im Header, Alert, Ziel ≤25min, Import+Render+Barrel ✅. Build ✓ exit 0. Push erfolgt.
+
+### ✅ Phasen 3703–3707 ABGESCHLOSSEN — Fahrer-Ø-Lieferzeit-Ranking
+- Phase 3703 Backend: `/api/delivery/admin/fahrer-durchschnitts-lieferzeit` — rewritten: await createClient(), delivery_stops Ø-Minuten, aufsteigend Rang 1=schnellster, Ampel, Mock Julia 18min/Sara 22min/Max 28min/Tim 36min ✅
+- Phase 3704 Dispatch: `DispatchPhase3704LieferzeitRankingBoard` — Clock-Icon orange, KPI-Grid, Alert "Hohe Lieferzeit!", RankBadge ✅
+- Phase 3705 Fahrer: `FahrerPhase3705MeineLieferzeit` — min 5xl, Rang 3xl, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3706 Storefront: übersprungen ✅
+- Phase 3707 Kitchen: `KitchenPhase3707LieferzeitTicker` — Schnellster #1 im Header, Alert, Ziel ≤25min ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Nächste Phasen 3708–3712 — Fahrer-Stornoquote-Ranking
+1. **Phase 3708 Backend:** GET /api/delivery/admin/fahrer-stornoquote — Stornoquote je Fahrer letzte 30 Tage (delivery_orders: count(status='cancelled')/count(*) in %); Rang 1=niedrigste Quote=bester; Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe Stornoquote!"; rank_delta neg=verbessert; Mock Julia F.1%/Sara K.3%/Max M.7%/Tim B.12%; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3709 Dispatch:** StornoquoteRankingBoard — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Ø/Höchste; Alert "Hohe Stornoquote!"; Delta neg=grün; RankBadge; 30-Min-Polling; nach Phase3704. PFLICHT: Import + Render + Barrel.
+3. **Phase 3710 Fahrer-App:** MeineStornoquote — XCircle-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Delta/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3705. PFLICHT: Import + Render + Barrel.
+4. **Phase 3711 Storefront:** Überspringen.
+5. **Phase 3712 Kitchen:** StornoquoteTicker — XCircle-Icon rot; Bester #1 Name+% (niedrigste Quote) im Header; Alert "Hohe Stornoquote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Ø+Ziel ≤5%; 30-Min-Polling; nach Phase3707. PFLICHT: Import + Render + Barrel.
+
 Frontend-Ingenieur-Agent (2026-07-24): Phasen 3688/3689/3691 + Merge 3689-3692 — Fahrer-Trinkgeld-Ranking implementiert (Konflikt-Resolution: Backend-Architekt hatte bereits Phasen 3689/3690/3692 für Trinkgeld-Quote-Ranking hinzugefügt). Beide Implementierungen behalten (komplementär: €/Stopp vs. % vom Bestellwert). Phase 3688 Dispatch: `DispatchPhase3688TrinkgeldRankingBoard` — Banknote-Icon grün, fahrer-trinkgeld-ranking API (€/Stopp), Import+Render+Barrel ✅. Phase 3689 Fahrer: `FahrerPhase3689MeinTrinkgeld` — €-Wert 5xl, Rang-Balken, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3691 Kitchen: `KitchenPhase3691TrinkgeldTicker` — Banknote-Icon grün, Bester #1 im Header, Ziel ≥2.50€, Import+Render+Barrel ✅. Merge-Konflikte mit 3689/3690/3692 (Trinkgeld-Quote %) aufgelöst — beide Varianten aktiv. Build ✓ exit 0. Push erfolgt.
 
 ### ✅ Phasen 3688/3689/3690/3691/3692 ABGESCHLOSSEN — Fahrer-Trinkgeld-Ranking (beides: €/Stopp + % Bestellwert)
