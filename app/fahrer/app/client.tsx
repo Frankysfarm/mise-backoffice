@@ -940,6 +940,7 @@ import { FahrerPhase3680MeineWartezeitProStopp } from './phase3680-meine-warteze
 import { FahrerPhase3684MeineBewertung } from './phase3684-meine-bewertung';
 import { FahrerPhase3689MeinTrinkgeld } from './phase3689-mein-trinkgeld';
 import { FahrerPhase3690MeineTrinkgeldQuote } from './phase3690-meine-trinkgeld-quote';
+import { FahrerPhase3695MeineBestellungenProStopp } from './phase3695-meine-bestellungen-pro-stopp';
 import { FahrerPhase3630TourStopsLiveNavigatorPro } from './phase3630-tour-stops-live-navigator-pro';
 
 type Driver = {
@@ -6697,6 +6698,7 @@ export function FahrerApp({
           <FahrerPhase3684MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3689MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3690MeineTrinkgeldQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3695MeineBestellungenProStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3630: Tour-Stops Live Navigator Pro — Hero-Stopp blau; Navi+Anruf+Sonderwunsch-Alert; alle Stopps expandierbar+Status-Dots; Fortschrittsbalken; Zahlungsart; ETA-Badge; mobile-first; kein Polling */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3630TourStopsLiveNavigatorPro
@@ -10552,3 +10554,4 @@ export { FahrerPhase3680MeineWartezeitProStopp } from './phase3680-meine-warteze
 export { FahrerPhase3684MeineBewertung } from './phase3684-meine-bewertung';
 export { FahrerPhase3689MeinTrinkgeld } from './phase3689-mein-trinkgeld';
 export { FahrerPhase3690MeineTrinkgeldQuote } from './phase3690-meine-trinkgeld-quote';
+export { FahrerPhase3695MeineBestellungenProStopp } from './phase3695-meine-bestellungen-pro-stopp';

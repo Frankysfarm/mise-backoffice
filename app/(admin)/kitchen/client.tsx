@@ -974,6 +974,7 @@ import { KitchenPhase3682WartezeitProStoppTicker } from './phase3682-wartezeit-p
 import { KitchenPhase3686BewertungTicker } from './phase3686-bewertung-ticker';
 import { KitchenPhase3691TrinkgeldTicker } from './phase3691-trinkgeld-ticker';
 import { KitchenPhase3692TrinkgeldQuoteTicker } from './phase3692-trinkgeld-quote-ticker';
+import { KitchenPhase3697BestellungenProStoppTicker } from './phase3697-bestellungen-pro-stopp-ticker';
 import { KitchenPhase3632SmartTimingEchtzeitCockpitFinal } from './phase3632-smart-timing-echtzeit-cockpit-final';
 
 /* ------------------------------ Types ------------------------------ */
@@ -4254,6 +4255,7 @@ export function KitchenBoard({
       <KitchenPhase3686BewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3691TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3692TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3697BestellungenProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 3632: Smart-Timing Echtzeit Cockpit Final — Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Kochstart-Score; On-Time-Rate; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase3632SmartTimingEchtzeitCockpitFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
@@ -11386,3 +11388,4 @@ export { KitchenPhase3686BewertungTicker } from './phase3686-bewertung-ticker';
 export { KitchenPhase3691TrinkgeldTicker } from './phase3691-trinkgeld-ticker';
 // Phase 3692 — Trinkgeld-Quote Ticker (Gift-Icon lila; Bester #1 Name+% im Header; Alert "Niedrige Trinkgeld-Quote!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥8%; 30-Min-Polling)
 export { KitchenPhase3692TrinkgeldQuoteTicker } from './phase3692-trinkgeld-quote-ticker';
+export { KitchenPhase3697BestellungenProStoppTicker } from './phase3697-bestellungen-pro-stopp-ticker';
