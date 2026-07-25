@@ -112,6 +112,11 @@ export async function POST(req: NextRequest) {
         payout_eur: typeof data.payout_eur === 'number' ? data.payout_eur : null,
         reason_text: row.body,
         decision_id: typeof data.decision_id === 'string' ? data.decision_id : undefined,
+        offer_id: typeof data.offer_id === 'string' ? data.offer_id : undefined,
+        assignment_version:
+          typeof data.assignment_version === 'number'
+            ? data.assignment_version
+            : undefined,
       });
       if (r.ok) {
         await c

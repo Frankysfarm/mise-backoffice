@@ -55,7 +55,7 @@ export function UpdateBanner() {
           <RefreshCw size={14} /> Starten
         </button>
       </div>
-      <style jsx>{`
+      <style>{`
         @keyframes slide-down { from { transform: translateY(-100%); } to { transform: translateY(0); } }
         .animate-slide-down { animation: slide-down 0.4s cubic-bezier(.17,.67,.3,1.01); }
       `}</style>

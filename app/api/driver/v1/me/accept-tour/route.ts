@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { executeAtomicDriverTransition } from '@/lib/delivery/atomic-lifecycle';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -10,7 +11,7 @@ export const dynamic = 'force-dynamic';
  * Tour des Fahrers auf assigned. Bearer ODER Cookie.
  */
 export async function POST(req: NextRequest) {
-  let body: { batch_id?: string } = {};
+  let body: { batch_id?: string; offer_id?: unknown; assignment_version?: unknown; transition_key?: unknown } = {};
   try { body = await req.json(); } catch { /* noop */ }
 
   let uid: string | null = null;
@@ -23,6 +24,22 @@ export async function POST(req: NextRequest) {
   const svc = createServiceClient();
   const { data: drv } = await svc.from('mise_drivers').select('id').eq('auth_user_id', uid).maybeSingle();
   if (!drv) return NextResponse.json({ error: 'kein Fahrer' }, { status: 404 });
+
+  try {
+    const atomic = await executeAtomicDriverTransition(
+      svc, drv.id, body, 'accept',
+      { batchId: typeof body.batch_id === 'string' ? body.batch_id : undefined },
+    );
+    if (atomic.handled) {
+      return NextResponse.json(atomic.result, { status: atomic.status });
+    }
+  } catch (error) {
+    return NextResponse.json({
+      ok: false,
+      reason_code: 'ATOMIC_TRANSITION_FAILED',
+      error: error instanceof Error ? error.message : String(error),
+    }, { status: 500 });
+  }
 
   let query = svc.from('mise_delivery_batches').select('id').eq('driver_id', drv.id).eq('state', 'pending_acceptance');
   if (typeof body.batch_id === 'string' && body.batch_id.length > 10) {

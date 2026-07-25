@@ -16,6 +16,8 @@ interface VoipPayload {
   distance_km?: number | null;
   payout_eur?: number | null;
   decision_id?: string;
+  offer_id?: string;
+  assignment_version?: number;
 }
 
 export interface VoipSendResult {

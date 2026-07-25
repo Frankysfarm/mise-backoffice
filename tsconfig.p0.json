@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "files": [
+    "lib/delivery/atomic-offer.ts",
+    "lib/delivery/atomic-lifecycle-contract.ts",
+    "lib/delivery/atomic-lifecycle.ts",
+    "lib/frank.ts",
+    "lib/apns-voip.ts",
+    "app/api/driver/v1/internal/push-flush/route.ts",
+    "app/api/driver/v1/offers/ack/route.ts",
+    "app/api/driver/v1/offers/transition/route.ts",
+    "app/api/driver/v1/internal/atomic-offer-expiry/route.ts",
+    "app/api/driver/v1/orders/accept/route.ts",
+    "app/api/driver/v1/orders/[id]/picked-up/route.ts",
+    "app/api/driver/v1/orders/[id]/delivered/route.ts",
+    "app/api/driver/v1/me/accept-tour/route.ts",
+    "app/fahrer/app/native-offer-bridge.tsx",
+    "app/fahrer/app/atomic-offer-client-state.ts",
+    "app/fahrer/app/pick-dialog.tsx",
+    "app/fahrer/app/client.tsx"
+  ],
+  "include": []
+}
