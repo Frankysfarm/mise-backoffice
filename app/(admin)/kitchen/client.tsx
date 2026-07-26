@@ -1028,6 +1028,7 @@ import { KitchenPhase3932TourenAuslastungTicker } from './phase3932-touren-ausla
 import { KitchenPhase3937RoutenScoreTicker } from './phase3937-routen-score-ticker';
 import { KitchenPhase3942PuenktlichkeitTrendTicker } from './phase3942-puenktlichkeit-trend-ticker';
 import { KitchenPhase3947TrinkgeldBetragTicker } from './phase3947-trinkgeld-betrag-ticker';
+import { KitchenPhase3952StoppsProStundeTicker } from './phase3952-stopps-pro-stunde-ticker';
 import { KitchenPhase3932SmartTimingCountdownFarbkodierungFinal } from './phase3932-smart-timing-countdown-farbkodierung-final';
 import { KitchenPhase3952LeerfahrtenTicker } from './phase3952-leerfahrten-ticker';
 
@@ -4365,6 +4366,7 @@ export function KitchenBoard({
       <KitchenPhase3937RoutenScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3942PuenktlichkeitTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3947TrinkgeldBetragTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3952StoppsProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3932SmartTimingCountdownFarbkodierungFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3952LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
@@ -11595,6 +11597,8 @@ export { KitchenPhase3937RoutenScoreTicker } from './phase3937-routen-score-tick
 export { KitchenPhase3942PuenktlichkeitTrendTicker } from './phase3942-puenktlichkeit-trend-ticker';
 // Phase 3947 — Trinkgeld-Betrag Ticker (Euro-Icon gruen; Bester #1 Name+€ im Header; Alert "Niedriges Trinkgeld!"; kompakt absteigend; Rang+€+Delta pos=gruen; Team-Avg+Ziel >=2€; 30-Min-Polling)
 export { KitchenPhase3947TrinkgeldBetragTicker } from './phase3947-trinkgeld-betrag-ticker';
+// Phase 3952 — Stopps/Stunde Ticker (Zap-Icon blau; Bester #1 Name+/h im Header; Alert "Niedrige Produktivität!"; kompakt absteigend; Rang+/h+Delta pos=gruen; Team-Avg+Ziel >=4/h; 30-Min-Polling)
+export { KitchenPhase3952StoppsProStundeTicker } from './phase3952-stopps-pro-stunde-ticker';
 // Phase 3932 — Smart-Timing Countdown Farbkodierung Final (Timer indigo; 5-KPI-Grid On-Time/AvgPrep/Kochstart/Überfällig/Sync; Score-Balken; Countdown-Kacheln 4-stufig grün/gelb/orange/rot; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3932SmartTimingCountdownFarbkodierungFinal } from './phase3932-smart-timing-countdown-farbkodierung-final';
 // Phase 3952 — Leerfahrten Ticker (Car-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Leerfahrtenquote!"; kompakt aufsteigend; Rang+%+Delta rank_delta<0=gruen; Team-Avg+Ziel <=15%; 30-Min-Polling)

@@ -1082,6 +1082,7 @@ import { DispatchPhase3929TourenAuslastungBoard } from './phase3929-touren-ausla
 import { DispatchPhase3934RoutenScoreBoard } from './phase3934-routen-score-board';
 import { DispatchPhase3939PuenktlichkeitTrendBoard } from './phase3939-puenktlichkeit-trend-board';
 import { DispatchPhase3944TrinkgeldBetragBoard } from './phase3944-trinkgeld-betrag-board';
+import { DispatchPhase3949StoppsProStundeBoard } from './phase3949-stopps-pro-stunde-board';
 import { DispatchPhase3929TourScoreVisualisierungLiveKommando } from './phase3929-tour-score-visualisierung-live-kommando';
 import { DispatchPhase3949LeerfahrtenBoard } from './phase3949-leerfahrten-board';
 
@@ -4783,6 +4784,7 @@ export function DispatchBoard({
           <DispatchPhase3934RoutenScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3939PuenktlichkeitTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3944TrinkgeldBetragBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3949StoppsProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3929TourScoreVisualisierungLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3949LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -13022,6 +13024,8 @@ export { DispatchPhase3934RoutenScoreBoard } from './phase3934-routen-score-boar
 export { DispatchPhase3939PuenktlichkeitTrendBoard } from './phase3939-puenktlichkeit-trend-board';
 // Phase 3944 — Trinkgeld-Betrag Board (Euro-Icon gruen; absteigend Rang 1=hoechster Betrag=bester; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriges Trinkgeld!"; Delta pos=gruen; 30-Min-Polling)
 export { DispatchPhase3944TrinkgeldBetragBoard } from './phase3944-trinkgeld-betrag-board';
+// Phase 3949 — Stopps-pro-Stunde Board (Zap-Icon blau; absteigend Rang 1=meiste Stopps/h=bester; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedrige Produktivität!"; Delta pos=gruen; RankBadge; 30-Min-Polling)
+export { DispatchPhase3949StoppsProStundeBoard } from './phase3949-stopps-pro-stunde-board';
 // Phase 3929 — Tour-Score Visualisierung Live Kommando (Trophy amber; Flotten-KPI-Grid Avg/Top/Aktiv/Alerts; Score-Balken je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3929TourScoreVisualisierungLiveKommando } from './phase3929-tour-score-visualisierung-live-kommando';
 // Phase 3949 — Leerfahrten Board (Car-Icon orange; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Bester/Team-Avg/Hoechster; Alert "Hohe Leerfahrtenquote!"; rank_delta<0=gruen; 30-Min-Polling)

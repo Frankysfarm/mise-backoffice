@@ -1004,6 +1004,7 @@ import { FahrerPhase3930MeineTourenAuslastung } from './phase3930-meine-touren-a
 import { FahrerPhase3935MeinRoutenScore } from './phase3935-mein-routen-score';
 import { FahrerPhase3940MeinePuenktlichkeitTrend } from './phase3940-meine-puenktlichkeit-trend';
 import { FahrerPhase3945MeinTrinkgeldBetrag } from './phase3945-mein-trinkgeld-betrag';
+import { FahrerPhase3950MeineStoppsProStunde } from './phase3950-meine-stopps-pro-stunde';
 import { FahrerPhase3930TourStoppNavigationFinal } from './phase3930-tour-stopp-navigation-final';
 import { FahrerPhase3950MeineLeerfahrten } from './phase3950-meine-leerfahrten';
 
@@ -6938,6 +6939,7 @@ export function FahrerApp({
           <FahrerPhase3935MeinRoutenScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3940MeinePuenktlichkeitTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3945MeinTrinkgeldBetrag driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3950MeineStoppsProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3930: Tour-Stopp Navigation Final — Hero-Aktiv-Stopp mit ETA+Maps+Waze+Anruf; Sonderwunsch-Alert; Fortschrittsbalken; alle Stopps expandierbar; Score-Badge; 10-Sek-Polling */}
           <FahrerPhase3930TourStoppNavigationFinal driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3950MeineLeerfahrten driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
@@ -10869,6 +10871,8 @@ export { FahrerPhase3935MeinRoutenScore } from './phase3935-mein-routen-score';
 export { FahrerPhase3940MeinePuenktlichkeitTrend } from './phase3940-meine-puenktlichkeit-trend';
 // Phase 3945 — Mein Trinkgeld-Betrag (Euro-Icon gruen; €-Wert 5xl+Rang 3xl farbkodiert; Ziel >=2€; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3945MeinTrinkgeldBetrag } from './phase3945-mein-trinkgeld-betrag';
+// Phase 3950 — Meine Stopps/Stunde (Zap-Icon blau; Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel >=4/h; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3950MeineStoppsProStunde } from './phase3950-meine-stopps-pro-stunde';
 // Phase 3930 — Tour-Stopp Navigation Final (Navigation blau; Hero-Aktiv-Stopp mit ETA+Maps+Waze+Anruf; Sonderwunsch-Alert amber; Fortschrittsbalken; alle Stopps expandierbar mit Stopp-Dots; Score-Badge; isOnline-Guard; 10-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3930TourStoppNavigationFinal } from './phase3930-tour-stopp-navigation-final';
 // Phase 3950 — Meine Leerfahrten (Car-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Ziel <=15%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
