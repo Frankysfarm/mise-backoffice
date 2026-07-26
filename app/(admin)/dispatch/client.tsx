@@ -1044,6 +1044,7 @@ import { DispatchPhase3749ReaktionszeitRankingBoard } from './phase3749-reaktion
 import { DispatchPhase3754SchichtstundenRankingBoard } from './phase3754-schichtstunden-ranking-board';
 import { DispatchPhase3759ErstabholungPuenktlichkeitBoard } from './phase3759-erstabholung-puenktlichkeit-board';
 import { DispatchPhase3764LeerfahrtenquoteRankingBoard } from './phase3764-leerfahrtenquote-ranking-board';
+import { DispatchPhase3769KundenbewertungRankingBoard } from './phase3769-kundenbewertung-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4705,6 +4706,7 @@ export function DispatchBoard({
           <DispatchPhase3754SchichtstundenRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3759ErstabholungPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3764LeerfahrtenquoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3769KundenbewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12864,3 +12866,6 @@ export { DispatchPhase3754SchichtstundenRankingBoard } from './phase3754-schicht
 export { DispatchPhase3759ErstabholungPuenktlichkeitBoard } from './phase3759-erstabholung-puenktlichkeit-board';
 // Phase 3764 — Leerfahrtenquote-Ranking Board (AlertOctagon-Icon orange; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Avg/Höchste; Alert "Hohe Leerfahrtenquote!"; Delta neg=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3764LeerfahrtenquoteRankingBoard } from './phase3764-leerfahrtenquote-ranking-board';
+
+// Phase 3769 — Kundenbewertung-Ranking Board (Star-Icon gelb; absteigend Rang 1=höchste Bewertung; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedrige Kundenbewertung!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3769KundenbewertungRankingBoard } from './phase3769-kundenbewertung-ranking-board';

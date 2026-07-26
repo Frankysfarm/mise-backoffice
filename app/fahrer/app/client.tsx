@@ -966,6 +966,7 @@ import { FahrerPhase3750MeineReaktionszeit } from './phase3750-meine-reaktionsze
 import { FahrerPhase3755MeineSchichtstunden } from './phase3755-meine-schichtstunden';
 import { FahrerPhase3760MeineErstabholungPuenktlichkeit } from './phase3760-meine-erstabholung-puenktlichkeit';
 import { FahrerPhase3765MeineLeerfahrtenquote } from './phase3765-meine-leerfahrtenquote';
+import { FahrerPhase3770MeineKundenbewertung } from './phase3770-meine-kundenbewertung';
 
 type Driver = {
   id: string;
@@ -6860,6 +6861,7 @@ export function FahrerApp({
           <FahrerPhase3755MeineSchichtstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3760MeineErstabholungPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3765MeineLeerfahrtenquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3770MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10710,3 +10712,6 @@ export { FahrerPhase3755MeineSchichtstunden } from './phase3755-meine-schichtstu
 export { FahrerPhase3760MeineErstabholungPuenktlichkeit } from './phase3760-meine-erstabholung-puenktlichkeit';
 // Phase 3765 — Meine Leerfahrtenquote (AlertOctagon-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel <=5%; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3765MeineLeerfahrtenquote } from './phase3765-meine-leerfahrtenquote';
+
+// Phase 3770 — Meine Kundenbewertung (Star-Icon gelb; Sterne-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken >=4.5; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3770MeineKundenbewertung } from './phase3770-meine-kundenbewertung';
