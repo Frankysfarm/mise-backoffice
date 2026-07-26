@@ -993,6 +993,7 @@ import { KitchenPhase3767LeerfahrtenquoteTicker } from './phase3767-leerfahrtenq
 import { KitchenPhase3772KundenbewertungTicker } from './phase3772-kundenbewertung-ticker';
 import { KitchenPhase3777UmsatzProKmTicker } from './phase3777-umsatz-pro-km-ticker';
 import { KitchenPhase3782LieferzeitGenauigkeitTicker } from './phase3782-lieferzeit-genauigkeit-ticker';
+import { KitchenPhase3787SmartTimingEchtzeitPro } from './phase3787-smart-timing-echtzeit-pro';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4293,6 +4294,7 @@ export function KitchenBoard({
       <KitchenPhase3772KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3777UmsatzProKmTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3782LieferzeitGenauigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3787SmartTimingEchtzeitPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11451,3 +11453,6 @@ export { KitchenPhase3772KundenbewertungTicker } from './phase3772-kundenbewertu
 export { KitchenPhase3777UmsatzProKmTicker } from './phase3777-umsatz-pro-km-ticker';
 // Phase 3782 — Lieferzeit-Genauigkeit Ticker (Clock-Icon violett; Bester #1 Name+% im Header; Alert "Späte Lieferungen!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Avg+Ziel >=90%; 30-Min-Polling)
 export { KitchenPhase3782LieferzeitGenauigkeitTicker } from './phase3782-lieferzeit-genauigkeit-ticker';
+
+// Phase 3782 — Smart-Timing Echtzeit Pro (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/AvgPrep/Kochstart-Score; Fortschrittsbalken; Kochstart-Empfehlung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase3787SmartTimingEchtzeitPro } from './phase3787-smart-timing-echtzeit-pro';

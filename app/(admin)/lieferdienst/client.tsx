@@ -478,6 +478,7 @@ import { LieferdienstPhase2730StatistikLiveIntelligenceHub } from './phase2730-s
 import { LieferdienstPhase2735StatistikEchtzeitDashboardUltimate } from './phase2735-statistiken-echtzeit-dashboard-ultimate';
 import { LieferdienstPhase2736StatistikLiveMaster } from './phase2736-statistiken-live-master';
 import { LieferdienstPhase2741StatistikEchtzeitCockpitPro } from './phase2741-statistik-echtzeit-cockpit-pro';
+import { LieferdienstPhase2746StatistikLiveCommandPro } from './phase2746-statistiken-live-command-pro';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2320,6 +2321,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2735StatistikEchtzeitDashboardUltimate locationId={locationId ?? null} />
                 {/* Phase 2741: Statistik Echtzeit-Cockpit Pro — 10 KPI-Kacheln Ampel+Δ%+Ziel; Gesamt-Score-Balken; Insight-Tipp; Alert-Strip Rot-KPIs; Stundenverlauf-BarChart 2-Modi Jetzt-Stunde lila; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase2741StatistikEchtzeitCockpitPro locationId={locationId ?? null} />
+                {/* Phase 2746: Statistiken Live Command Pro — 8 KPI-Kacheln Ampel+Δ%+Ziel+Prognose; Gesamt-Score-Ring; Insight-Tipp; Zonen-Ranking; Alert-Strip; 60-Sek-Polling */}
+                <LieferdienstPhase2746StatistikLiveCommandPro locationId={locationId ?? null} />
                 {/* Phase 2736: Statistiken Live-Master — 10 KPI-Kacheln Ampel+Δ%+Trend; Gesamt-Score; Stundenverlauf-BarChart 2-Modi; Insight-Tipp; 60-Sek-Polling */}
                 <LieferdienstPhase2736StatistikLiveMaster locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
@@ -4901,3 +4904,6 @@ export { LieferdienstPhase2735StatistikEchtzeitDashboardUltimate } from './phase
 export { LieferdienstPhase2736StatistikLiveMaster } from './phase2736-statistiken-live-master';
 // Phase 2741 — Statistik Echtzeit-Cockpit Pro (BarChart2-Icon indigo; 10-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Balken farbkodiert; Insight-Tipp; Alert-Strip rot-KPIs; Stundenverlauf-BarChart 2-Modi Jetzt-Stunde indigo; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase2741StatistikEchtzeitCockpitPro } from './phase2741-statistik-echtzeit-cockpit-pro';
+
+// Phase 2746 — Statistiken Live Command Pro (BarChart2-Icon indigo; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel+Prognose; Gesamt-Score-Ring; Insight-Tipp; Alert-Strip rot-KPIs; Zonen-Ranking SLA-Balken; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase2746StatistikLiveCommandPro } from './phase2746-statistiken-live-command-pro';

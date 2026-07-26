@@ -1047,6 +1047,7 @@ import { DispatchPhase3764LeerfahrtenquoteRankingBoard } from './phase3764-leerf
 import { DispatchPhase3769KundenbewertungRankingBoard } from './phase3769-kundenbewertung-ranking-board';
 import { DispatchPhase3774UmsatzProKmRankingBoard } from './phase3774-umsatz-pro-km-ranking-board';
 import { DispatchPhase3779LieferzeitGenauigkeitBoard } from './phase3779-lieferzeit-genauigkeit-board';
+import { DispatchPhase3784TourScoreVisualisierungSupreme } from './phase3784-tour-score-visualisierung-supreme';
 
 type Driver = {
   employee_id: string;
@@ -4711,6 +4712,7 @@ export function DispatchBoard({
           <DispatchPhase3769KundenbewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3774UmsatzProKmRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3779LieferzeitGenauigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3784TourScoreVisualisierungSupreme locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12878,3 +12880,6 @@ export { DispatchPhase3769KundenbewertungRankingBoard } from './phase3769-kunden
 export { DispatchPhase3774UmsatzProKmRankingBoard } from './phase3774-umsatz-pro-km-ranking-board';
 // Phase 3779 — Lieferzeit-Genauigkeit Board (Clock-Icon violett; absteigend Rang 1=höchste Rate; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Späte Lieferungen!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3779LieferzeitGenauigkeitBoard } from './phase3779-lieferzeit-genauigkeit-board';
+
+// Phase 3779 — Tour-Score & Visualisierung Supreme (Trophy amber; Flotten-KPI-Grid Avg/Top/Aktiv; Score-Balken je Fahrer 0–100; Stopp-Dot-Timeline farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase3784TourScoreVisualisierungSupreme } from './phase3784-tour-score-visualisierung-supreme';
