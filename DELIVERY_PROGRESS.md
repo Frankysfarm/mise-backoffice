@@ -32,12 +32,22 @@ Frontend-Ingenieur-Agent (2026-07-26): Phasen 3853–3857 implementiert — Fahr
 - Phase 3857 Kitchen: `KitchenPhase3857TourenProTagTicker` — Activity-Icon gruen, Bester #1 Name+Touren im Header, Alert "Wenige Touren!", kompakt absteigend, Team-Avg+Ziel >=7/Tag ✅
 - Build ✓ exit 0. Push erfolgt.
 
-### Naechste Phasen 3858–3862 — Fahrer-Stopps-pro-Tour-Ranking
-1. **Phase 3858 Backend:** GET /api/delivery/admin/fahrer-stopps-pro-tour — Durchschnittliche Anzahl Stopps je Tour je Fahrer letzte 30 Tage (delivery_tours: avg(stops_count)); Rang 1=meiste Stopps=bester (absteigend); Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenige Stopps!"; rank_delta pos=verbessert; Mock Julia F.12.5/Sara K.10.8/Max M.9.2/Tim B.6.5 Stopps/Tour; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
-2. **Phase 3859 Dispatch:** StoppsProTourBoard — MapPin-Icon indigo; absteigend Rang 1=meiste Stopps; KPI-Grid Bester/Team-Avg/Wenigste; Alert "Wenige Stopps!"; Delta pos=gruen; RankBadge; 30-Min-Polling; nach Phase3854. PFLICHT: Import + Render + Barrel.
-3. **Phase 3860 Fahrer-App:** MeineStoppsProTour — MapPin-Icon indigo; Stopps/Tour-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken >=10 Stopps/Tour; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3855. PFLICHT: Import + Render + Barrel.
-4. **Phase 3861 Storefront:** Ueberspringen.
-5. **Phase 3862 Kitchen:** StoppsProTourTicker — MapPin-Icon indigo; Bester #1 Name+Stopps im Header; Alert "Wenige Stopps!"; kompakt absteigend; Rang+Stopps+Delta pos=gruen; Team-Avg+Ziel >=10; 30-Min-Polling; nach Phase3857. PFLICHT: Import + Render + Barrel.
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3858–3862 implementiert — Fahrer-Stopps-pro-Tour-Ranking. Phase 3858 Backend: `/api/delivery/admin/fahrer-stopps-pro-tour/route.ts` neu erstellt — force-dynamic, await createClient(), delivery_tours avg(stops_count) je Fahrer letzte 30 Tage, absteigend Rang 1=meiste Stopps=bester, Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert "Wenige Stopps!", Mock Julia 12.5/Sara 10.8/Max 9.2/Tim 6.5. Phase 3859 Dispatch: `DispatchPhase3859StoppsProTourBoard` — MapPin-Icon indigo, absteigend, KPI-Grid Meiste/Team-Avg/Wenigste, Alert "Wenige Stopps!", Delta pos=gruen, Import+Render+Barrel ✅. Phase 3860 Fahrer: `FahrerPhase3860MeineStoppsProTour` — MapPin-Icon indigo, Stopps/Tour 5xl+Rang 3xl farbkodiert, Fortschrittsbalken, Ziel >=10/Tour, Team-Avg, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3861 Storefront: uebersprungen. Phase 3862 Kitchen: `KitchenPhase3862StoppsProTourTicker` — MapPin-Icon indigo, Bester #1 Name+Stopps im Header, Alert "Wenige Stopps!", kompakt absteigend, Rang+Stopps+Delta pos=gruen, Team-Avg+Ziel >=10/Tour, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3858–3862 ABGESCHLOSSEN — Fahrer-Stopps-pro-Tour-Ranking
+- Phase 3858 Backend: `/api/delivery/admin/fahrer-stopps-pro-tour/route.ts` (neu) — force-dynamic, await createClient(), delivery_tours avg(stops_count), absteigend Rang 1=meiste Stopps=bester, Ampel gruen/gelb/rot, Alert Bottom-25% "Wenige Stopps!", Mock Julia 12.5/Sara 10.8/Max 9.2/Tim 6.5 ✅
+- Phase 3859 Dispatch: `DispatchPhase3859StoppsProTourBoard` — MapPin-Icon indigo, absteigend Rang 1=meiste Stopps, KPI-Grid Meiste/Team-Avg/Wenigste, Alert "Wenige Stopps!", Delta pos=gruen ✅
+- Phase 3860 Fahrer: `FahrerPhase3860MeineStoppsProTour` — MapPin-Icon indigo, Stopps/Tour 5xl+Rang 3xl farbkodiert, Fortschrittsbalken, Ziel >=10/Tour, Team-Avg, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3861 Storefront: uebersprungen ✅
+- Phase 3862 Kitchen: `KitchenPhase3862StoppsProTourTicker` — MapPin-Icon indigo, Bester #1 Name+Stopps im Header, Alert "Wenige Stopps!", kompakt absteigend, Team-Avg+Ziel >=10/Tour ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3863–3867 — Fahrer-Wartezeit-pro-Stopp-Ranking
+1. **Phase 3863 Backend:** GET /api/delivery/admin/fahrer-wartezeit-pro-stopp — Durchschnittliche Wartezeit in Minuten je Stopp je Fahrer letzte 30 Tage (delivery_stops: avg(wait_minutes)); Rang 1=kuerzeste Wartezeit=bester (aufsteigend); Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Lange Wartezeiten!"; rank_delta neg=verbessert; Mock Julia F.3.2/Sara K.5.1/Max M.7.8/Tim B.12.4 min/Stopp; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3864 Dispatch:** WartezeitProStoppBoard — Clock-Icon rot; aufsteigend Rang 1=kuerzeste Wartezeit; KPI-Grid Bester/Team-Avg/Laengste; Alert "Lange Wartezeiten!"; Delta neg=gruen; RankBadge; 30-Min-Polling; nach Phase3859. PFLICHT: Import + Render + Barrel.
+3. **Phase 3865 Fahrer-App:** MeineWartezeitProStopp — Clock-Icon rot; min/Stopp 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken <=5min/Stopp; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3860. PFLICHT: Import + Render + Barrel.
+4. **Phase 3866 Storefront:** Ueberspringen.
+5. **Phase 3867 Kitchen:** WartezeitProStoppTicker — Clock-Icon rot; Bester #1 Name+min im Header; Alert "Lange Wartezeiten!"; kompakt aufsteigend; Rang+min+Delta neg=gruen; Team-Avg+Ziel <=5min; 30-Min-Polling; nach Phase3862. PFLICHT: Import + Render + Barrel.
 
 ---
 
