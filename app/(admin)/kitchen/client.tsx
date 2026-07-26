@@ -1006,6 +1006,7 @@ import { KitchenPhase3832PuenktlichkeitsQuoteTicker } from './phase3832-puenktli
 import { KitchenPhase3837KundenbewertungsTicker } from './phase3837-kundenbewertungs-ticker';
 import { KitchenPhase3842ReklamationsQuoteTicker } from './phase3842-reklamations-quote-ticker';
 import { KitchenPhase3847LieferzeitTicker } from './phase3847-lieferzeit-ticker';
+import { KitchenPhase3852SchichtEffizienzTicker } from './phase3852-schicht-effizienz-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4319,6 +4320,7 @@ export function KitchenBoard({
       <KitchenPhase3837KundenbewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3842ReklamationsQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3847LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3852SchichtEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11504,3 +11506,5 @@ export { KitchenPhase3837KundenbewertungsTicker } from './phase3837-kundenbewert
 export { KitchenPhase3842ReklamationsQuoteTicker } from './phase3842-reklamations-quote-ticker';
 // Phase 3847 — Lieferzeit Ticker (Timer-Icon blau; Bester #1 Name+min im Header; Alert "Lange Lieferzeiten!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Avg+Ziel ≤25min; 30-Min-Polling)
 export { KitchenPhase3847LieferzeitTicker } from './phase3847-lieferzeit-ticker';
+// Phase 3852 — Schicht-Effizienz Ticker (BarChart3-Icon violett; Bester #1 Name+Score im Header; Alert "Niedriger Effizienz-Score!"; kompakt absteigend; Rang+Score+Delta pos=grün; Team-Avg+Ziel ≥70; 30-Min-Polling)
+export { KitchenPhase3852SchichtEffizienzTicker } from './phase3852-schicht-effizienz-ticker';

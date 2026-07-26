@@ -1060,6 +1060,7 @@ import { DispatchPhase3829PuenktlichkeitsQuoteBoard } from './phase3829-puenktli
 import { DispatchPhase3834KundenbewertungsDurchschnittBoard } from './phase3834-kundenbewertungs-durchschnitt-board';
 import { DispatchPhase3839ReklamationsQuoteBoard } from './phase3839-reklamations-quote-board';
 import { DispatchPhase3844LieferzeitDurchschnittBoard } from './phase3844-lieferzeit-durchschnitt-board';
+import { DispatchPhase3849SchichtEffizienzScoreBoard } from './phase3849-schicht-effizienz-score-board';
 
 type Driver = {
   employee_id: string;
@@ -4737,6 +4738,7 @@ export function DispatchBoard({
           <DispatchPhase3834KundenbewertungsDurchschnittBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3839ReklamationsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3844LieferzeitDurchschnittBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3849SchichtEffizienzScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12931,3 +12933,5 @@ export { DispatchPhase3834KundenbewertungsDurchschnittBoard } from './phase3834-
 export { DispatchPhase3839ReklamationsQuoteBoard } from './phase3839-reklamations-quote-board';
 // Phase 3844 — Lieferzeit-Durchschnitt Board (Timer-Icon blau; aufsteigend Rang 1=kürzeste Lieferzeit=bester; KPI-Grid Bester/Team-Avg/Längste; Alert "Lange Lieferzeiten!"; Delta neg=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3844LieferzeitDurchschnittBoard } from './phase3844-lieferzeit-durchschnitt-board';
+// Phase 3849 — Schicht-Effizienz-Score Board (BarChart3-Icon violett; absteigend Rang 1=höchster Score=bester; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriger Effizienz-Score!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3849SchichtEffizienzScoreBoard } from './phase3849-schicht-effizienz-score-board';
