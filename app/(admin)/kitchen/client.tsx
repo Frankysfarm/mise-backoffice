@@ -1013,6 +1013,7 @@ import { KitchenPhase3867WartezeitProStoppTicker } from './phase3867-wartezeit-p
 import { KitchenPhase3867KmProStoppTicker } from './phase3867-km-pro-stopp-ticker';
 import { KitchenPhase3872AblehnungsquoteTicker } from './phase3872-ablehnungsquote-ticker';
 import { KitchenPhase3877KundenbewertungTicker } from './phase3877-kundenbewertung-ticker';
+import { KitchenPhase3882PuenktlichkeitTicker } from './phase3882-puenktlichkeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4333,6 +4334,7 @@ export function KitchenBoard({
       <KitchenPhase3867KmProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3872AblehnungsquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3877KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3882PuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11531,5 +11533,7 @@ export { KitchenPhase3867KmProStoppTicker } from './phase3867-km-pro-stopp-ticke
 export { KitchenPhase3872AblehnungsquoteTicker } from './phase3872-ablehnungsquote-ticker';
 // Phase 3877 — Kundenbewertung Ticker (Star-Icon gold; Bester #1 Name+★ im Header; Alert "Niedrige Bewertungen!"; kompakt absteigend; Rang+★+Delta pos=grün; Team-Avg+Ziel ≥4.5★; 30-Min-Polling)
 export { KitchenPhase3877KundenbewertungTicker } from './phase3877-kundenbewertung-ticker';
+// Phase 3882 — Pünktlichkeit Ticker (CheckCircle-Icon grün; Bester #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Avg+Ziel ≥85%; 30-Min-Polling)
+export { KitchenPhase3882PuenktlichkeitTicker } from './phase3882-puenktlichkeit-ticker';
 // Phase 3852 — Smart-Timing Live Countdown Hub (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/Aktiv/Überfällig/AvgPrep; Kochstart-Score; Fortschrittsbalken; Koch-Empfehlung; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3852SmartTimingLiveCountdownHub } from './phase3852-smart-timing-live-countdown-hub';
