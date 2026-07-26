@@ -58,29 +58,29 @@ export function KitchenPhase3812KilometerstandTicker({ locationId }: { locationI
   }, [load]);
 
   const best = data.fahrer[0];
-  const maxKm = best?.gesamt_km ?? 1;
+  const maxKm = Math.max(...data.fahrer.map(f => f.gesamt_km), 1);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-2">
       {/* Header mit Meister #1 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Route className="w-4 h-4 text-green-600" />
+          <Route className="w-4 h-4 text-emerald-600" />
           <span className="text-sm font-semibold text-gray-900">Kilometerstand</span>
-          {loading && <span className="w-2.5 h-2.5 border-2 border-green-400 border-t-transparent rounded-full animate-spin" />}
+          {loading && <span className="w-2.5 h-2.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />}
         </div>
         {best && (
           <div className="flex items-center gap-1 text-xs">
             <span className="text-gray-500">🥇</span>
             <span className="font-bold text-gray-800">{best.fahrer_name}</span>
-            <span className="font-black text-green-700">{best.gesamt_km} km</span>
+            <span className="font-black text-emerald-700">{best.gesamt_km} km</span>
           </div>
         )}
       </div>
 
       {/* Alert */}
       {data.alert_count > 0 && (
-        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-red-50 border border-red-200 rounded-lg text-[11px] text-red-700">
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-orange-50 border border-orange-200 rounded-lg text-[11px] text-orange-800">
           <AlertTriangle className="w-3 h-3 shrink-0" />
           <span>Wenig gefahren!</span>
         </div>
@@ -89,9 +89,9 @@ export function KitchenPhase3812KilometerstandTicker({ locationId }: { locationI
       {/* Kompakt-Liste (absteigend: meiste km = Rang 1 = bester) */}
       <div className="space-y-1.5">
         {data.fahrer.map(f => {
-          const barPct = Math.round((f.gesamt_km / maxKm) * 100);
-          const tColor = f.ampel === 'gruen' ? 'text-green-700' : f.ampel === 'gelb' ? 'text-yellow-600' : 'text-gray-500';
-          const barColor = f.ampel === 'gruen' ? 'bg-green-500' : f.ampel === 'gelb' ? 'bg-yellow-400' : 'bg-gray-400';
+          const barPct = (f.gesamt_km / maxKm) * 100;
+          const tColor = f.ampel === 'gruen' ? 'text-emerald-700' : f.ampel === 'gelb' ? 'text-yellow-600' : 'text-red-500';
+          const barColor = f.ampel === 'gruen' ? 'bg-emerald-500' : f.ampel === 'gelb' ? 'bg-yellow-400' : 'bg-red-400';
           return (
             <div key={f.fahrer_id} className="space-y-0.5">
               <div className="flex items-center gap-1.5 text-xs">
