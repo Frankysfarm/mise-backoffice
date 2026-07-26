@@ -4913,3 +4913,6 @@ export { LieferdienstPhase2746StatistikLiveCommandPro } from './phase2746-statis
 
 // Phase 2751 — Statistiken Live Intelligence Dashboard (BarChart3-Icon indigo; 2-KPI-Cards Bestellungen/Umsatz mit Ziel-Fortschrittsbalken+Delta%; 4-Qualitäts-KPIs Lieferzeit/Pünktlichkeit/Bewertung/Storno; Mini-Stundenverlauf-BarChart; Zonen-Tabelle SLA-Balken farbkodiert; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase2751StatistikenLiveIntelligenceDashboard } from './phase2751-statistiken-live-intelligence-dashboard';
+
+// Phase 2725 — Statistiken Echtzeit Vollbild-Cockpit (8 KPI-Kacheln Ampel+Trend vs. Vortag; Stundenverlauf-BarChart Bestellungen/Umsatz umschaltbar; Zonen-Ranking Top-3; Alert-Strip kritische KPIs; 1-Min-Polling)
+export { LieferdienstPhase2725StatistikEchtzeitVollbildCockpit } from './phase2725-statistiken-echtzeit-vollbild-cockpit';

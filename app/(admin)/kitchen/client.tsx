@@ -11482,3 +11482,6 @@ export { KitchenPhase3812KilometerstandTicker } from './phase3812-kilometerstand
 export { KitchenPhase3817GeschwindigkeitTicker } from './phase3817-geschwindigkeit-ticker';
 // Phase 3822 — Touren/Schicht Ticker (Package-Icon orange; Bester #1 Name+T/S im Header; Alert "Wenige Touren!"; kompakt absteigend; Rang+T/S+Delta; Team-Avg+Ziel ≥6.0; 30-Min-Polling)
 export { KitchenPhase3822TourenProSchichtTicker } from './phase3822-touren-pro-schicht-ticker';
+
+// Phase 3827 — Smart-Timing Kochstart-Fahrer-Bridge Cockpit (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Fahrer-ETA-Sync-Balken; Kochstart-Score 0–100; On-Time-Rate; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase3827SmartTimingKochstartFahrerBridge } from './phase3827-smart-timing-kochstart-fahrer-bridge';

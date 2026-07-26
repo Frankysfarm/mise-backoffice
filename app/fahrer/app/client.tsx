@@ -10755,3 +10755,6 @@ export { FahrerPhase3810MeinKilometerstand } from './phase3810-mein-kilometersta
 export { FahrerPhase3815MeineGeschwindigkeit } from './phase3815-meine-geschwindigkeit';
 // Phase 3820 — Meine Touren/Schicht (Package-Icon orange; T/S-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel ≥6.0; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3820MeineTourenProSchicht } from './phase3820-meine-touren-pro-schicht';
+
+// Phase 1101 — Tour-Stopp Ultra-Navigation Hub (Aktiver Stopp Hero-Card mit ETA+Google-Maps+Waze+Telefon; Fortschrittsbalken Geliefert/Gesamt; Stopp-Liste mit Status-Dots; Hinweis-Banner; 10-Sek-Polling; Mock-Fallback)
+export { FahrerPhase1101TourStoppUltraNavigationHub } from './phase1101-tour-stopp-ultra-navigation-hub';
