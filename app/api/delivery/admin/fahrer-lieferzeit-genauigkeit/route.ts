@@ -3,156 +3,143 @@ import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-interface FahrerLieferzeitGenauigkeit {
+interface FahrerRow {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
   genauigkeit_pct: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
-  alert_bottom: boolean;
+  alert_spaet: boolean;
 }
 
-interface LieferzeitGenauigkeitResponse {
-  fahrer: FahrerLieferzeitGenauigkeit[];
-  team_avg: number;
-  puenktlichster_name: string;
+interface ApiResponse {
+  fahrer: FahrerRow[];
+  team_avg_pct: number;
+  bester_name: string;
   niedrigster_name: string;
   alert_count: number;
   gesamt: number;
+  ziel_pct: number;
 }
 
-const MOCK: FahrerLieferzeitGenauigkeit[] = [
-  { fahrer_id: 'u1', fahrer_name: 'Julia F.', rang: 1, genauigkeit_pct: 91, rank_delta:  0, ampel: 'gruen', alert_bottom: false },
-  { fahrer_id: 'u2', fahrer_name: 'Sara K.',  rang: 2, genauigkeit_pct: 83, rank_delta:  1, ampel: 'gruen', alert_bottom: false },
-  { fahrer_id: 'u3', fahrer_name: 'Max M.',   rang: 3, genauigkeit_pct: 71, rank_delta: -1, ampel: 'gelb',  alert_bottom: false },
-  { fahrer_id: 'u4', fahrer_name: 'Tim B.',   rang: 4, genauigkeit_pct: 58, rank_delta:  0, ampel: 'rot',   alert_bottom: true  },
-];
+const MOCK_DATA: ApiResponse = {
+  fahrer: [
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, genauigkeit_pct: 95, rank_delta:  1, ampel: 'gruen', alert_spaet: false },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, genauigkeit_pct: 87, rank_delta:  0, ampel: 'gruen', alert_spaet: false },
+    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, genauigkeit_pct: 74, rank_delta: -1, ampel: 'gelb',  alert_spaet: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, genauigkeit_pct: 58, rank_delta:  0, ampel: 'rot',   alert_spaet: true  },
+  ],
+  team_avg_pct: 79,
+  bester_name: 'Julia F.',
+  niedrigster_name: 'Tim B.',
+  alert_count: 1,
+  gesamt: 4,
+  ziel_pct: 90,
+};
 
-function buildMockResponse(driver_id: string | null): NextResponse {
-  const data = driver_id ? MOCK.filter(f => f.fahrer_id === driver_id) : MOCK;
-  const team_avg = Math.round(MOCK.reduce((s, f) => s + f.genauigkeit_pct, 0) / MOCK.length);
-  return NextResponse.json({
-    fahrer: data,
-    team_avg,
-    puenktlichster_name: MOCK[0].fahrer_name,
-    niedrigster_name: MOCK[MOCK.length - 1].fahrer_name,
-    alert_count: MOCK.filter(f => f.alert_bottom).length,
-    gesamt: MOCK.length,
-  } satisfies LieferzeitGenauigkeitResponse);
+function ampelVon(rang: number, gesamt: number): 'gruen' | 'gelb' | 'rot' {
+  const pct = rang / gesamt;
+  if (pct <= 0.25) return 'gruen';
+  if (pct <= 0.75) return 'gelb';
+  return 'rot';
 }
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const location_id = searchParams.get('location_id');
-  const driver_id = searchParams.get('driver_id');
-
-  if (!location_id) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
+  const locationId = req.nextUrl.searchParams.get('location_id');
+  if (!locationId) return NextResponse.json(MOCK_DATA);
 
   try {
     const supabase = await createClient();
-    const today = new Date().toISOString().split('T')[0];
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const now = new Date();
+    const cur30 = new Date(now); cur30.setDate(cur30.getDate() - 30);
+    const prev30 = new Date(now); prev30.setDate(prev30.getDate() - 60);
 
     const [curRes, prevRes] = await Promise.all([
       supabase
-        .from('delivery_stops')
-        .select('driver_id, delivered_at, eta, drivers(full_name)')
-        .eq('location_id', location_id)
-        .in('status', ['delivered', 'zugestellt', 'completed', 'success'])
-        .gte('created_at', `${thirtyDaysAgo}T00:00:00`)
-        .lte('created_at', `${today}T23:59:59`),
+        .from('delivery_tours')
+        .select('driver_id, driver_name, delivered_at, promised_delivery_at')
+        .eq('location_id', locationId)
+        .gte('created_at', cur30.toISOString())
+        .not('delivered_at', 'is', null)
+        .not('promised_delivery_at', 'is', null),
       supabase
-        .from('delivery_stops')
-        .select('driver_id, delivered_at, eta')
-        .eq('location_id', location_id)
-        .in('status', ['delivered', 'zugestellt', 'completed', 'success'])
-        .gte('created_at', `${thirtyDaysAgo}T00:00:00`)
-        .lte('created_at', `${yesterday}T23:59:59`),
+        .from('delivery_tours')
+        .select('driver_id, delivered_at, promised_delivery_at')
+        .eq('location_id', locationId)
+        .gte('created_at', prev30.toISOString())
+        .lt('created_at', cur30.toISOString())
+        .not('delivered_at', 'is', null)
+        .not('promised_delivery_at', 'is', null),
     ]);
 
-    if (curRes.error || !curRes.data || curRes.data.length === 0) {
-      return buildMockResponse(driver_id);
+    const curData = curRes.data ?? [];
+    const prevData = prevRes.data ?? [];
+    if (!curData.length) return NextResponse.json(MOCK_DATA);
+
+    const groupCur = new Map<string, { name: string; onTime: number; total: number }>();
+    for (const t of curData) {
+      const onTime = t.delivered_at <= t.promised_delivery_at ? 1 : 0;
+      const prev = groupCur.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, onTime: 0, total: 0 };
+      groupCur.set(t.driver_id, { name: prev.name, onTime: prev.onTime + onTime, total: prev.total + 1 });
+    }
+    if (!groupCur.size) return NextResponse.json(MOCK_DATA);
+
+    const groupPrev = new Map<string, { onTime: number; total: number }>();
+    for (const t of prevData) {
+      const onTime = t.delivered_at <= t.promised_delivery_at ? 1 : 0;
+      const prev = groupPrev.get(t.driver_id) ?? { onTime: 0, total: 0 };
+      groupPrev.set(t.driver_id, { onTime: prev.onTime + onTime, total: prev.total + 1 });
     }
 
-    type StopRow = {
-      driver_id: string;
-      delivered_at: string | null;
-      eta: string | null;
-      drivers?: { full_name: string } | null;
-    };
+    const unsorted = Array.from(groupCur.entries()).map(([id, v]) => ({
+      fahrer_id: id,
+      fahrer_name: v.name || id.slice(0, 8),
+      pct: v.total > 0 ? Math.round((v.onTime / v.total) * 100) : 0,
+    }));
 
-    const curData = curRes.data as StopRow[];
-    const prevData = (prevRes.data ?? []) as StopRow[];
+    // descending: Rang 1 = höchste Rate = bester
+    const sorted = [...unsorted].sort((a, b) => b.pct - a.pct);
+    const total = sorted.length;
 
-    const driverIds = [...new Set(curData.map(r => r.driver_id))];
-    if (!driverIds.length) return buildMockResponse(driver_id);
+    const prevPcts = new Map(
+      Array.from(groupPrev.entries()).map(([id, v]) => [
+        id,
+        v.total > 0 ? Math.round((v.onTime / v.total) * 100) : 0,
+      ])
+    );
+    const prevSorted = [...unsorted]
+      .map(f => ({ ...f, pct: prevPcts.get(f.fahrer_id) ?? f.pct }))
+      .sort((a, b) => b.pct - a.pct);
+    const prevRanks = new Map(prevSorted.map((f, i) => [f.fahrer_id, i + 1]));
 
-    function calcGenauigkeit(stops: StopRow[], dId: string): number {
-      const mine = stops.filter(s => s.driver_id === dId);
-      if (!mine.length) return 0;
-      const punctual = mine.filter(s => {
-        if (!s.delivered_at || !s.eta) return false;
-        return new Date(s.delivered_at) <= new Date(s.eta);
-      });
-      return Math.round((punctual.length / mine.length) * 100);
-    }
-
-    const grouped: Record<string, { name: string; pct: number }> = {};
-    for (const dId of driverIds) {
-      const nameRow = curData.find(s => s.driver_id === dId);
-      const name = nameRow?.drivers?.full_name ?? dId;
-      grouped[dId] = { name, pct: calcGenauigkeit(curData, dId) };
-    }
-
-    // descending: highest accuracy = best (rank 1)
-    const sorted = Object.entries(grouped)
-      .map(([id, d]) => ({ fahrer_id: id, fahrer_name: d.name, genauigkeit_pct: d.pct }))
-      .sort((a, b) => b.genauigkeit_pct - a.genauigkeit_pct);
-
-    const n = sorted.length;
-    if (n === 0) return buildMockResponse(driver_id);
-
-    const prevGrouped: Record<string, number> = {};
-    for (const dId of driverIds) {
-      prevGrouped[dId] = calcGenauigkeit(prevData, dId);
-    }
-    const prevSorted = Object.entries(prevGrouped)
-      .sort((a, b) => b[1] - a[1])
-      .map(([id]) => id);
-
-    const top25idx = Math.ceil(n * 0.25);
-    const bot25idx = Math.floor(n * 0.75);
-
-    const fahrer: FahrerLieferzeitGenauigkeit[] = sorted.map((f, i) => {
+    const fahrer: FahrerRow[] = sorted.map((f, i) => {
       const rang = i + 1;
-      const prevRangIdx = prevSorted.indexOf(f.fahrer_id);
-      const prevRang = prevRangIdx >= 0 ? prevRangIdx + 1 : rang;
-      const rank_delta = rang - prevRang;
+      const prevRang = prevRanks.get(f.fahrer_id) ?? rang;
+      const ampel = ampelVon(rang, total);
       return {
         fahrer_id: f.fahrer_id,
         fahrer_name: f.fahrer_name,
         rang,
-        genauigkeit_pct: f.genauigkeit_pct,
-        rank_delta,
-        ampel: rang <= top25idx ? 'gruen' : rang <= bot25idx ? 'gelb' : 'rot',
-        alert_bottom: rang > bot25idx,
+        genauigkeit_pct: f.pct,
+        rank_delta: prevRang - rang,
+        ampel,
+        alert_spaet: ampel === 'rot',
       };
     });
 
-    const team_avg = Math.round(fahrer.reduce((s, f) => s + f.genauigkeit_pct, 0) / fahrer.length);
-    const result = driver_id ? fahrer.filter(f => f.fahrer_id === driver_id) : fahrer;
+    const team_avg_pct = Math.round(fahrer.reduce((s, f) => s + f.genauigkeit_pct, 0) / total);
 
     return NextResponse.json({
-      fahrer: result,
-      team_avg,
-      puenktlichster_name: fahrer[0]?.fahrer_name ?? '',
-      niedrigster_name: fahrer[fahrer.length - 1]?.fahrer_name ?? '',
-      alert_count: fahrer.filter(f => f.alert_bottom).length,
-      gesamt: fahrer.length,
-    } satisfies LieferzeitGenauigkeitResponse);
+      fahrer,
+      team_avg_pct,
+      bester_name: fahrer[0]?.fahrer_name ?? '',
+      niedrigster_name: fahrer[total - 1]?.fahrer_name ?? '',
+      alert_count: fahrer.filter(f => f.alert_spaet).length,
+      gesamt: total,
+      ziel_pct: 90,
+    } satisfies ApiResponse);
   } catch {
-    return buildMockResponse(driver_id);
+    return NextResponse.json(MOCK_DATA);
   }
 }

@@ -992,6 +992,7 @@ import { KitchenPhase3762ErstabholungPuenktlichkeitTicker } from './phase3762-er
 import { KitchenPhase3767LeerfahrtenquoteTicker } from './phase3767-leerfahrtenquote-ticker';
 import { KitchenPhase3772KundenbewertungTicker } from './phase3772-kundenbewertung-ticker';
 import { KitchenPhase3777UmsatzProKmTicker } from './phase3777-umsatz-pro-km-ticker';
+import { KitchenPhase3782LieferzeitGenauigkeitTicker } from './phase3782-lieferzeit-genauigkeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4291,6 +4292,7 @@ export function KitchenBoard({
       <KitchenPhase3767LeerfahrtenquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3772KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3777UmsatzProKmTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3782LieferzeitGenauigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11447,3 +11449,5 @@ export { KitchenPhase3772KundenbewertungTicker } from './phase3772-kundenbewertu
 
 // Phase 3777 — Umsatz/km Ticker (TrendingUp-Icon grün; Bester #1 Name+€/km im Header; Alert "Niedriger Umsatz/km!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Avg+Ziel >=€2.50; 30-Min-Polling)
 export { KitchenPhase3777UmsatzProKmTicker } from './phase3777-umsatz-pro-km-ticker';
+// Phase 3782 — Lieferzeit-Genauigkeit Ticker (Clock-Icon violett; Bester #1 Name+% im Header; Alert "Späte Lieferungen!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Avg+Ziel >=90%; 30-Min-Polling)
+export { KitchenPhase3782LieferzeitGenauigkeitTicker } from './phase3782-lieferzeit-genauigkeit-ticker';

@@ -968,6 +968,7 @@ import { FahrerPhase3760MeineErstabholungPuenktlichkeit } from './phase3760-mein
 import { FahrerPhase3765MeineLeerfahrtenquote } from './phase3765-meine-leerfahrtenquote';
 import { FahrerPhase3770MeineKundenbewertung } from './phase3770-meine-kundenbewertung';
 import { FahrerPhase3775MeinUmsatzProKm } from './phase3775-mein-umsatz-pro-km';
+import { FahrerPhase3780MeineLieferzeitGenauigkeit } from './phase3780-meine-lieferzeit-genauigkeit';
 
 type Driver = {
   id: string;
@@ -6864,6 +6865,7 @@ export function FahrerApp({
           <FahrerPhase3765MeineLeerfahrtenquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3770MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3775MeinUmsatzProKm driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3780MeineLieferzeitGenauigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10720,3 +10722,5 @@ export { FahrerPhase3770MeineKundenbewertung } from './phase3770-meine-kundenbew
 
 // Phase 3775 — Mein Umsatz/km (TrendingUp-Icon grün; €/km-Wert 5xl+Rang farbkodiert; Rang-Balken; Ziel-Balken >=€2.50; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3775MeinUmsatzProKm } from './phase3775-mein-umsatz-pro-km';
+// Phase 3780 — Meine Lieferzeit-Genauigkeit (Clock-Icon violett; %-Wert 5xl+Rang farbkodiert; Rang-Balken; Ziel-Balken >=90%; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3780MeineLieferzeitGenauigkeit } from './phase3780-meine-lieferzeit-genauigkeit';

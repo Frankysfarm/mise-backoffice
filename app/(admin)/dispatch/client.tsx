@@ -1046,6 +1046,7 @@ import { DispatchPhase3759ErstabholungPuenktlichkeitBoard } from './phase3759-er
 import { DispatchPhase3764LeerfahrtenquoteRankingBoard } from './phase3764-leerfahrtenquote-ranking-board';
 import { DispatchPhase3769KundenbewertungRankingBoard } from './phase3769-kundenbewertung-ranking-board';
 import { DispatchPhase3774UmsatzProKmRankingBoard } from './phase3774-umsatz-pro-km-ranking-board';
+import { DispatchPhase3779LieferzeitGenauigkeitBoard } from './phase3779-lieferzeit-genauigkeit-board';
 
 type Driver = {
   employee_id: string;
@@ -4709,6 +4710,7 @@ export function DispatchBoard({
           <DispatchPhase3764LeerfahrtenquoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3769KundenbewertungRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3774UmsatzProKmRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3779LieferzeitGenauigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12874,3 +12876,5 @@ export { DispatchPhase3769KundenbewertungRankingBoard } from './phase3769-kunden
 
 // Phase 3774 — Umsatz/km-Ranking Board (TrendingUp-Icon grün; absteigend Rang 1=höchster Wert; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriger Umsatz/km!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3774UmsatzProKmRankingBoard } from './phase3774-umsatz-pro-km-ranking-board';
+// Phase 3779 — Lieferzeit-Genauigkeit Board (Clock-Icon violett; absteigend Rang 1=höchste Rate; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Späte Lieferungen!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3779LieferzeitGenauigkeitBoard } from './phase3779-lieferzeit-genauigkeit-board';

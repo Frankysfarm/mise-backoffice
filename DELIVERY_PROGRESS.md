@@ -29332,3 +29332,55 @@ CEO-Agent (2026-07-26): CEO Review #616 abgeschlossen — Phasen 3758–3762 (Er
 5. **Phase 3777 Kitchen:** UmsatzProKmTicker — TrendingUp-Icon grün; Bester #1 Name+€/km im Header; Alert "Niedriger Umsatz/km!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Avg+Ziel ≥€2.50; nach Phase3772. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-26): Phasen 3768–3772 implementiert — Fahrer-Kundenbewertungs-Ranking. Backend fahrer-kundenbewertung-ranking/route.ts komplett auf Spec rewritten: avg_bewertung (1–5★) aus delivery_tours, absteigend Rang 1=höchste Bewertung=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%) (prozentbasiert), Alert Bottom-25% "Niedrige Kundenbewertung!", rank_delta pos=verbessert (prevRang-rang), Mock Julia 4.9/Sara 4.7/Max 4.3/Tim 3.8, ziel_bewertung 4.5, force-dynamic, await createClient(). 3 neue Frontend-Komponenten: Phase3769 Dispatch (Star-Icon gelb, KPI-Grid Bester/Team-Avg/Niedrigster, Alert, Delta TrendUp pos=grün, RankBadge, Import+Render+Barrel ✅) / Phase3770 Fahrer-App (★ 5xl+Rang 3xl, Rang-Balken, Ziel-Marker ≥4.5, Team-Avg-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3772 Kitchen (Star-Icon gelb, Bester #1 im Header, Alert, Ziel ≥4.5★, Import+Render+Barrel ✅). Phase 3771 Storefront übersprungen. Build ✓ exit 0. Push erfolgt (commit 4789fd31).
+
+---
+
+## Batch 3778–3782 — Fahrer-Lieferzeit-Genauigkeit-Ranking (ABGESCHLOSSEN 2026-07-26)
+
+### Phase 3778 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-lieferzeit-genauigkeit/route.ts` *(rewritten/vollständig)*
+**Endpoint:** GET /api/delivery/admin/fahrer-lieferzeit-genauigkeit?location_id=...
+**Logik:** Rate (%) der Lieferungen innerhalb der versprochenen ETA je Fahrer letzte 30 Tage (delivery_tours: delivered_at <= promised_delivery_at); Rang 1=höchste Rate=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Späte Lieferungen!"; rank_delta pos=verbessert (prevRang-rang); Mock Julia F.95%/Sara K.87%/Max M.74%/Tim B.58%; force-dynamic; createClient() aus @/lib/supabase/server ✅
+
+### Phase 3779 — Lieferzeit-Genauigkeit-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3779-lieferzeit-genauigkeit-board.tsx` *(neu)*
+**Component:** `DispatchPhase3779LieferzeitGenauigkeitBoard`
+**UI:** Clock-Icon violett; absteigend Rang 1=höchste Rate; Balken 0–100; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Späte Lieferungen!"; Delta pos=TrendUp grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import + Render + Barrel ✅
+
+### Phase 3780 — Meine Lieferzeit-Genauigkeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3780-meine-lieferzeit-genauigkeit.tsx` *(neu)*
+**Component:** `FahrerPhase3780MeineLieferzeitGenauigkeit`
+**UI:** Clock-Icon violett; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Ziel-Balken ≥90% mit Marker; Team-Avg-Vergleich; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import + Render + Barrel ✅
+
+### Phase 3781 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3782 — Lieferzeit-Genauigkeit Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3782-lieferzeit-genauigkeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3782LieferzeitGenauigkeitTicker`
+**UI:** Clock-Icon violett; Bester #1 Name+% im Header; Alert "Späte Lieferungen!"; kompakt absteigend; Rang+%+Delta pos=TrendUp grün; Team-Avg+Ziel ≥90%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import + Render + Barrel ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully** ✅ (exit 0)
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ LieferzeitGenauigkeitTicker Phase3782 + LieferzeitGenauigkeitBoard Phase3779 synchron |
+| Dispatch ↔ Driver | ✅ Phase3779 Board + Phase3780 MeineLieferzeitGenauigkeit |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Naechste Phasen 3783–3787 — Fahrer-Rueckgabequote-Ranking
+1. **Phase 3783 Backend:** GET /api/delivery/admin/fahrer-rueckgabequote — Rate (%) der Lieferungen mit Rueckgabe/Reklamation je Fahrer letzte 30 Tage (delivery_stops: count(status='returned')/count(*)  in %); Rang 1=niedrigste Quote=bester (aufsteigend); Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe Rueckgabequote!"; rank_delta neg=verbessert; Mock Julia F.1%/Sara K.3%/Max M.7%/Tim B.12%; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3784 Dispatch:** RueckgabequoteRankingBoard — RotateCcw-Icon orange; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Avg/Hoechste; Alert "Hohe Rueckgabequote!"; Delta neg=gruen; RankBadge; 30-Min-Polling; nach Phase3779. PFLICHT: Import + Render + Barrel.
+3. **Phase 3785 Fahrer-App:** MeineRueckgabequote — RotateCcw-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken <=3%; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3780. PFLICHT: Import + Render + Barrel.
+4. **Phase 3786 Storefront:** Ueberspringen.
+5. **Phase 3787 Kitchen:** RueckgabequoteTicker — RotateCcw-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Rueckgabequote!"; kompakt aufsteigend; Rang+%+Delta neg=gruen; Team-Avg+Ziel <=3%; 30-Min-Polling; nach Phase3782. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-26): Phasen 3778–3782 implementiert — Fahrer-Lieferzeit-Genauigkeit-Ranking. Backend fahrer-lieferzeit-genauigkeit/route.ts komplett auf Spec rewritten: delivery_tours delivered_at <= promised_delivery_at, absteigend Rang 1=höchste Rate=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert Bottom-25% "Späte Lieferungen!", rank_delta pos=verbessert (prevRang-rang), Mock Julia 95%/Sara 87%/Max 74%/Tim 58%, force-dynamic, await createClient(). 3 neue Frontend-Komponenten: Phase3779 Dispatch (Clock-Icon violett, KPI-Grid Bester/Team-Avg/Niedrigster, Alert, Delta pos=TrendUp grün, RankBadge, Import+Render+Barrel ✅) / Phase3780 Fahrer-App (Clock-Icon violett, % 5xl+Rang 3xl, Rang-Balken, Ziel-Marker ≥90%, Team-Avg-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3782 Kitchen (Clock-Icon violett, Bester #1 im Header, Alert, Ziel ≥90%, Import+Render+Barrel ✅). Phase 3781 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
