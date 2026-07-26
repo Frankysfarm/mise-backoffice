@@ -55,7 +55,6 @@ export function DispatchPhase3859StoppsProTourBoard({ locationId }: { locationId
   const sorted = [...data.fahrer].sort((a, b) => b.stopps_pro_tour - a.stopps_pro_tour);
   const best = sorted[0];
   const worst = sorted[sorted.length - 1];
-  const maxVal = best?.stopps_pro_tour || 1;
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
@@ -66,7 +65,7 @@ export function DispatchPhase3859StoppsProTourBoard({ locationId }: { locationId
           <h3 className="text-sm font-bold text-gray-900">Stopps pro Tour</h3>
           {loading && <span className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />}
         </div>
-        <span className="text-xs text-gray-400">Ziel ≥10/Tour</span>
+        <span className="text-xs text-gray-400">Ziel ≥10 Stopps</span>
       </div>
 
       {/* KPI-Grid */}
@@ -76,9 +75,9 @@ export function DispatchPhase3859StoppsProTourBoard({ locationId }: { locationId
           <div className="text-lg font-black text-emerald-700">{best?.stopps_pro_tour ?? '—'}</div>
           <div className="text-[10px] text-gray-600 truncate">{best?.fahrer_name ?? '—'}</div>
         </div>
-        <div className="bg-blue-50 rounded-lg p-2 text-center">
+        <div className="bg-indigo-50 rounded-lg p-2 text-center">
           <div className="text-[10px] text-gray-500 mb-0.5">Team-Ø</div>
-          <div className="text-lg font-black text-blue-700">{data.team_avg_stopps}</div>
+          <div className="text-lg font-black text-indigo-700">{data.team_avg_stopps}</div>
           <div className="text-[10px] text-gray-600">Stopps</div>
         </div>
         <div className="bg-red-50 rounded-lg p-2 text-center">
@@ -101,10 +100,12 @@ export function DispatchPhase3859StoppsProTourBoard({ locationId }: { locationId
         {sorted.map(f => {
           const tColor = f.ampel === 'gruen' ? 'text-emerald-700' : f.ampel === 'gelb' ? 'text-yellow-600' : 'text-red-500';
           const barColor = f.ampel === 'gruen' ? 'bg-emerald-500' : f.ampel === 'gelb' ? 'bg-yellow-400' : 'bg-red-400';
+          const maxVal = sorted[0]?.stopps_pro_tour || 1;
+          const badge = f.rang === 1 ? '🥇' : f.rang === 2 ? '🥈' : f.rang === 3 ? '🥉' : null;
           return (
             <div key={f.fahrer_id} className="space-y-0.5">
               <div className="flex items-center gap-1.5 text-xs">
-                <span className="w-4 text-gray-400 font-mono text-[10px]">#{f.rang}</span>
+                <span className="w-4 text-gray-400 font-mono text-[10px]">{badge ?? `#${f.rang}`}</span>
                 <span className="flex-1 text-gray-800 font-medium truncate">{f.fahrer_name}</span>
                 <span className={`font-bold ${tColor}`}>{f.stopps_pro_tour}</span>
                 {f.rank_delta > 0
@@ -124,7 +125,7 @@ export function DispatchPhase3859StoppsProTourBoard({ locationId }: { locationId
 
       {/* Footer */}
       <div className="text-[10px] text-gray-400 border-t border-gray-100 pt-1.5 text-right">
-        Letzte 30 Tage · abgeschlossene Touren
+        Letzte 30 Tage · Ø Stopps je Tour
       </div>
     </div>
   );

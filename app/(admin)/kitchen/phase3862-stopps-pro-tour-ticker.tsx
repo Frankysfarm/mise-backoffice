@@ -69,7 +69,7 @@ export function KitchenPhase3862StoppsProTourTicker({ locationId }: { locationId
           <div className="flex items-center gap-1 text-xs">
             <span className="text-gray-500">🥇</span>
             <span className="font-bold text-gray-800">{best.fahrer_name}</span>
-            <span className="font-black text-emerald-700">{best.stopps_pro_tour}</span>
+            <span className="font-black text-indigo-700">{best.stopps_pro_tour}</span>
           </div>
         )}
       </div>
@@ -82,7 +82,7 @@ export function KitchenPhase3862StoppsProTourTicker({ locationId }: { locationId
         </div>
       )}
 
-      {/* Kompakt-Liste */}
+      {/* Kompakt-Liste (absteigend: meiste Stopps = Rang 1 = bester) */}
       <div className="space-y-1.5">
         {sorted.map(f => {
           const tColor = f.ampel === 'gruen' ? 'text-emerald-700' : f.ampel === 'gelb' ? 'text-yellow-600' : 'text-red-500';
@@ -110,7 +110,7 @@ export function KitchenPhase3862StoppsProTourTicker({ locationId }: { locationId
 
       {/* Footer */}
       <div className="flex items-center justify-between text-[10px] text-gray-400 border-t border-gray-100 pt-1.5">
-        <span>Team-Ø {data.team_avg_stopps}/Tour</span>
+        <span>Team-Ø {data.team_avg_stopps} Stopps</span>
         <span>Ziel ≥10/Tour</span>
       </div>
     </div>

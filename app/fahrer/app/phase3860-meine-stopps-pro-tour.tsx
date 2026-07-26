@@ -74,7 +74,7 @@ export function FahrerPhase3860MeineStoppsProTour({
     return (
       <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-2 text-sm text-gray-400">
         <Wifi className="w-4 h-4" />
-        <span>Offline — Stopp-Statistik nicht verfügbar</span>
+        <span>Offline — Stopps-Statistik nicht verfügbar</span>
       </div>
     );
   }
@@ -84,10 +84,10 @@ export function FahrerPhase3860MeineStoppsProTour({
   const istGut = fahrer.stopps_pro_tour >= ziel;
 
   const coaching = fahrer.stopps_pro_tour < 7
-    ? 'Du hast wenige Stopps pro Tour. Frage deinen Dispatcher nach dichteren Routenplänen.'
+    ? 'Du fährst wenige Stopps pro Tour. Frage deinen Disponenten nach optimierten Mehrstopp-Touren.'
     : fahrer.stopps_pro_tour < ziel
-      ? 'Gutes Tempo! Dichtere Routenplanung könnte dir weitere Stopps pro Tour bringen.'
-      : 'Sehr effiziente Routenauslastung! Du bist ein Vorbild für das Team.';
+      ? 'Gutes Tempo! Mehr gebündelte Stopps pro Tour steigern deine Effizienz.'
+      : 'Exzellente Leistung! Du meisterst mehrstöppige Touren sehr effizient.';
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
@@ -98,7 +98,7 @@ export function FahrerPhase3860MeineStoppsProTour({
           <span className="text-sm font-semibold text-gray-900">Meine Stopps/Tour</span>
           {loading && <span className="w-2.5 h-2.5 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />}
         </div>
-        <span className="text-xs text-gray-400">Ziel ≥{ziel}/Tour</span>
+        <span className="text-xs text-gray-400">Ziel ≥{ziel} Stopps</span>
       </div>
 
       {/* Wert + Rang */}
@@ -139,7 +139,7 @@ export function FahrerPhase3860MeineStoppsProTour({
 
       {/* Team-Avg */}
       <div className="text-[11px] text-gray-500 text-center">
-        Team-Ø: <span className="font-semibold text-gray-700">{teamAvg} Stopps/Tour</span>
+        Team-Ø: <span className="font-semibold text-indigo-700">{teamAvg} Stopps/Tour</span>
       </div>
 
       {/* Coaching-Tipp */}

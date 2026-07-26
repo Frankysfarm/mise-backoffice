@@ -2,6 +2,25 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-26): Phasen 3858–3862 implementiert — Fahrer-Stopps-pro-Tour-Ranking. Phase 3858 Backend: `/api/delivery/admin/fahrer-stopps-pro-tour/route.ts` (neu) — force-dynamic, await createClient(), delivery_tours avg(stops_count) je Fahrer letzte 30 Tage, absteigend Rang 1=meiste Stopps=bester, Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert Bottom-25% "Wenige Stopps!", Mock Julia F.12.5/Sara K.10.8/Max M.9.2/Tim B.6.5. Phase 3859 Dispatch: `DispatchPhase3859StoppsProTourBoard` — MapPin-Icon indigo, absteigend, KPI-Grid Meiste/Team-Avg/Wenigste, Alert "Wenige Stopps!", Delta pos=gruen, RankBadge, Import+Render+Barrel ✅. Phase 3860 Fahrer: `FahrerPhase3860MeineStoppsProTour` — MapPin-Icon indigo, Stopps/Tour-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Ziel-Balken >=10 Stopps/Tour, Team-Avg-Vergleich indigo, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3861 Storefront: uebersprungen. Phase 3862 Kitchen: `KitchenPhase3862StoppsProTourTicker` — MapPin-Icon indigo, Bester #1 Name+Stopps im Header, Alert "Wenige Stopps!", kompakt absteigend, Rang+Stopps+Delta pos=gruen, Team-Avg+Ziel >=10, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3858–3862 ABGESCHLOSSEN — Fahrer-Stopps-pro-Tour-Ranking
+- Phase 3858 Backend: `/api/delivery/admin/fahrer-stopps-pro-tour/route.ts` — force-dynamic, await createClient(), delivery_tours avg(stops_count), absteigend Rang 1=meiste Stopps=bester, Ampel gruen/gelb/rot, Alert Bottom-25% "Wenige Stopps!", Mock Julia F.12.5/Sara K.10.8/Max M.9.2/Tim B.6.5 ✅
+- Phase 3859 Dispatch: `DispatchPhase3859StoppsProTourBoard` — MapPin-Icon indigo, absteigend Rang 1=meiste Stopps, KPI-Grid Meiste/Team-Avg/Wenigste, Alert "Wenige Stopps!", Delta pos=gruen, RankBadge Gold/Silber/Bronze ✅
+- Phase 3860 Fahrer: `FahrerPhase3860MeineStoppsProTour` — MapPin-Icon indigo, Stopps/Tour-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Ziel-Balken >=10 Stopps/Tour, Team-Avg-Vergleich indigo, Coaching-Tipp je Ampelzone, isOnline-Guard ✅
+- Phase 3861 Storefront: uebersprungen ✅
+- Phase 3862 Kitchen: `KitchenPhase3862StoppsProTourTicker` — MapPin-Icon indigo, Bester #1 Name+Stopps im Header, Alert "Wenige Stopps!", kompakt absteigend, Rang+Stopps+Delta pos=gruen, Team-Avg+Ziel >=10 ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3863–3867 — Fahrer-km-pro-Stopp-Ranking
+1. **Phase 3863 Backend:** GET /api/delivery/admin/fahrer-km-pro-stopp — Durchschnittliche km je Stopp je Fahrer letzte 30 Tage (delivery_tours: avg(distance_km/stops_count)); Rang 1=wenigste km/Stopp=bester (aufsteigend); Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe km/Stopp!"; rank_delta neg=verbessert; Mock Julia F.0.8km/Sara K.1.1km/Max M.1.6km/Tim B.2.4km; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3864 Dispatch:** KmProStoppBoard — Route-Icon gruen; aufsteigend Rang 1=wenigste km/Stopp; KPI-Grid Bester/Team-Avg/Hoechste; Alert "Hohe km/Stopp!"; Delta neg=gruen; RankBadge; 30-Min-Polling; nach Phase3859. PFLICHT: Import + Render + Barrel.
+3. **Phase 3865 Fahrer-App:** MeineKmProStopp — Route-Icon gruen; km-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken <=1.5km/Stopp; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3860. PFLICHT: Import + Render + Barrel.
+4. **Phase 3866 Storefront:** Ueberspringen.
+5. **Phase 3867 Kitchen:** KmProStoppTicker — Route-Icon gruen; Bester #1 Name+km im Header; Alert "Hohe km/Stopp!"; kompakt aufsteigend; Rang+km+Delta neg=gruen; Team-Avg+Ziel <=1.5km; 30-Min-Polling; nach Phase3862. PFLICHT: Import + Render + Barrel.
+
+---
+
 Frontend-Ingenieur-Agent + Backend-Architekt-Agent (2026-07-26): Phasen 3843–3847 implementiert — Fahrer-Durchschnittliche-Lieferzeit-Ranking. Phase 3843 Backend: `/api/delivery/admin/fahrer-lieferzeit-durchschnitt/route.ts` (neu) — force-dynamic, await createClient(), delivery_tours avg(duration_minutes) je Fahrer letzte 30 Tage, aufsteigend Rang 1=kuerzeste Lieferzeit=bester, Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), Alert Top-25% "Lange Lieferzeiten!", Mock Julia F.18min/Sara K.22min/Max M.28min/Tim B.36min, ziel_min=25. Phase 3844 Dispatch: `DispatchPhase3844LieferzeitDurchschnittBoard` — Timer-Icon blau, aufsteigend, KPI-Grid Bester/Team-Avg/Laengste, Alert "Lange Lieferzeiten!", Delta neg=gruen, RankBadge, Import+Render+Barrel ✅. Phase 3845 Fahrer: `FahrerPhase3845MeineLieferzeit` — Timer-Icon blau, min-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Ziel-Balken <=25min, Team-Avg-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3846 Storefront: uebersprungen. Phase 3847 Kitchen: `KitchenPhase3847LieferzeitTicker` — Timer-Icon blau, Bester #1 Name+min im Header, Alert "Lange Lieferzeiten!", kompakt aufsteigend, Rang+min+Delta neg=gruen, Team-Avg+Ziel <=25min, Import+Render+Barrel ✅. Build pnpm exit 0. Push erfolgt.
 
 ### ✅ Phasen 3843–3847 ABGESCHLOSSEN — Fahrer-Durchschnittliche-Lieferzeit-Ranking
