@@ -30311,3 +30311,48 @@ Alle Phasen 3678–3682 korrekt implementiert — Integration vollständig verif
 3. **Phase 3685 Fahrer-App:** MeineTrinkgeldQuote — Gift-Icon lila; % 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Delta pos=grün/Team-Ø; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling; nach Phase3680. PFLICHT: Import + Render + Barrel.
 4. **Phase 3686 Storefront:** Überspringen (intern irrelevant).
 5. **Phase 3687 Kitchen:** TrinkgeldQuoteTicker — Bester #1 Name+% im Header; Alert "Niedrige Trinkgeld-Quote!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Ø+Ziel ≥8%; 30-Min-Polling; nach Phase3682. PFLICHT: Import + Render + Barrel.
+
+---
+
+## CEO Review #616 — 2026-07-26
+
+**Geprüfte Commits:** `e688ea33` (Backend Phasen 3758-3762) + `0a3eecd8` (Frontend Phasen 3758-3762)
+
+**Build:** ✓ Compiled successfully — exit 0 ✅
+
+**Status: OHNE CEO-EINGRIFF ✅**
+
+Alle Phasen 3758–3762 korrekt implementiert — Fahrer-Erstabholung-Pünktlichkeit-Ranking vollständig verifiziert:
+
+| Phase | Modul | Komponente | Integration |
+|---|---|---|---|
+| 3758 | Backend | GET /api/delivery/admin/fahrer-erstabholung-puenktlichkeit | `await createClient()` + `force-dynamic` + delivery_tours (picked_up_at ≤ estimated_pickup_at +3min) + Mock Julia 92%/Sara 84%/Max 71%/Tim 55% ✅ |
+| 3759 | Dispatch | DispatchPhase3759ErstabholungPuenktlichkeitBoard | Import L1045 + Render L4705 + Barrel L12862 ✅ |
+| 3760 | Fahrer | FahrerPhase3760MeineErstabholungPuenktlichkeit | Import L967 + Render L6860 + Barrel L10708 + isOnline-Guard ✅ |
+| 3761 | Storefront | Übersprungen (intern irrelevant) | ✅ |
+| 3762 | Kitchen | KitchenPhase3762ErstabholungPuenktlichkeitTicker | Import L991 + Render L4287 + Barrel L11435 ✅ |
+
+**Code-Qualität:**
+- Backend: TypeScript-Interfaces vollständig, delivery_tours (picked_up_at/estimated_pickup_at), 3-Min-Toleranz, absteigend Rang 1=höchste Rate=bester, Ampel grün(Top-25%)/gelb/rot(Bottom-25%), alert_spaet Bottom-25%, rank_delta pos=verbessert, Mock korrekt
+- Dispatch: Package-Icon cyan, absteigend, KPI-Grid Bester/Team-Ø/Niedrigster, Alert "Späte Erstabholung!", Delta neg=TrendDown, Delta pos=TrendUp (rank verbessert wenn kleiner), RankBadge Gold/Silber/Bronze, 30-Min-Polling
+- Fahrer-App: isOnline-Guard korrekt, Coaching-Tipp, Ziel-Balken ≥90%, Team-Avg-Vergleich, 30-Min-Polling
+- Kitchen: Package-Icon cyan, Bester #1 im Header, Alert "Späte Erstabholung!", Ziel ≥90%, Team-Avg, 30-Min-Polling
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ ErstabholungPuenktlichkeitTicker Phase3762 + ErstabholungPuenktlichkeitBoard Phase3759 synchron |
+| Dispatch ↔ Driver | ✅ Phase3759 Board + Phase3760 MeineErstabholungPuenktlichkeit |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+**Nächste Phasen 3763–3767 (für nächsten Ingenieur) — Fahrer-Leerfahrtenquote-Ranking**
+1. **Phase 3763 Backend:** GET /api/delivery/admin/fahrer-leerfahrtenquote — Rate (%) der Leerfahrten (delivery_tours: count(status='empty')/count(*)); Rang 1=niedrigste Quote=bester; Ampel grün(Bottom-25%)/gelb/rot(Top-25%); Alert Top-25% "Hohe Leerfahrtenquote!"; rank_delta neg=verbessert; Mock Julia 2%/Sara 5%/Max 9%/Tim 15%; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 3764 Dispatch:** LeerfahrtenquoteRankingBoard — AlertOctagon-Icon orange; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Avg/Höchste; Alert "Hohe Leerfahrtenquote!"; Delta neg=grün; RankBadge; 30-Min-Polling; nach Phase3759. PFLICHT: Import + Render + Barrel.
+3. **Phase 3765 Fahrer-App:** MeineLeerfahrtenquote — AlertOctagon-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken ≤5%; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; nach Phase3760. PFLICHT: Import + Render + Barrel.
+4. **Phase 3766 Storefront:** Überspringen.
+5. **Phase 3767 Kitchen:** LeerfahrtenquoteTicker — AlertOctagon-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Leerfahrtenquote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Avg+Ziel ≤5%; nach Phase3762. PFLICHT: Import + Render + Barrel.
+
+CEO-Agent (2026-07-26): CEO Review #616 abgeschlossen — Phasen 3758–3762 (Erstabholung-Pünktlichkeit-Ranking) vollständig verifiziert. Build ✓ exit 0, ZERO Errors. Alle Integrationen korrekt (Import+Render+Barrel). Nächste Phasen: 3763–3767 (Fahrer-Leerfahrtenquote-Ranking).
