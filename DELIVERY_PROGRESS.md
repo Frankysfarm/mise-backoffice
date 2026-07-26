@@ -2,6 +2,25 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-26): Phasen 3808–3812 implementiert — Fahrer-Kilometerstand-Ranking. Phase 3808 Backend: `/api/delivery/admin/fahrer-kilometerstand-ranking/route.ts` (neu) — `await createClient()` aus `@/lib/supabase/server`, force-dynamic, delivery_tours SUM(distance_km) letzte 30 Tage, absteigend Rang 1=meiste km=bester, Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert Bottom-25% "Wenig gefahren!", Mock Julia 1240km/Sara 1080km/Max 890km/Tim 620km. Phase 3809 Dispatch: `DispatchPhase3809KilometerstandRankingBoard` — Route-Icon gruen, absteigend, KPI-Grid Meiste/Team-Avg/Wenigste, Alert "Wenig gefahren!", Delta pos=gruen, RankBadge, Import+Render+Barrel ✅. Phase 3810 Fahrer: `FahrerPhase3810MeinKilometerstand` — km-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Ziel-Balken >=800km, Team-Avg-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3811 Storefront: uebersprungen. Phase 3812 Kitchen: `KitchenPhase3812KilometerstandTicker` — Route-Icon gruen, Meister #1 Name+km im Header, Alert "Wenig gefahren!", kompakt absteigend, Rang+km+Delta pos=gruen, Team-Avg+Ziel >=800km, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3808–3812 ABGESCHLOSSEN — Fahrer-Kilometerstand-Ranking
+- Phase 3808 Backend: `/api/delivery/admin/fahrer-kilometerstand-ranking/route.ts` — force-dynamic, await createClient(), delivery_tours SUM(distance_km) letzte 30 Tage, absteigend Rang 1=meiste km=bester, Ampel gruen/gelb/rot, Alert Bottom-25% "Wenig gefahren!", Mock Julia F.1240km/Sara K.1080km/Max M.890km/Tim B.620km ✅
+- Phase 3809 Dispatch: `DispatchPhase3809KilometerstandRankingBoard` — Route-Icon gruen, absteigend Rang 1=meiste km, KPI-Grid Meiste/Team-Avg/Wenigste, Alert "Wenig gefahren!", Delta pos=gruen, RankBadge Gold/Silber/Bronze ✅
+- Phase 3810 Fahrer: `FahrerPhase3810MeinKilometerstand` — Route-Icon gruen, km-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Ziel-Balken >=800km, Team-Avg-Vergleich gruen, Coaching-Tipp je Ampelzone, isOnline-Guard ✅
+- Phase 3811 Storefront: uebersprungen ✅
+- Phase 3812 Kitchen: `KitchenPhase3812KilometerstandTicker` — Route-Icon gruen, Meister #1 Name+km im Header, Alert "Wenig gefahren!", kompakt absteigend, Rang+km+Delta pos=gruen, Team-Avg+Ziel >=800km ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3813–3817 — Fahrer-Durchschnittsgeschwindigkeit-Ranking
+1. **Phase 3813 Backend:** GET /api/delivery/admin/fahrer-geschwindigkeit-ranking — Ø km/h je Fahrer letzte 30 Tage (delivery_tours: avg(distance_km / duration_minutes * 60)); Rang 1=hoechste Geschwindigkeit=bester; Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Langsam unterwegs!"; rank_delta pos=verbessert; Mock Julia F.28km/h/Sara K.25km/h/Max M.21km/h/Tim B.16km/h; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3814 Dispatch:** GeschwindigkeitRankingBoard — Gauge-Icon blau; absteigend Rang 1=hoechste km/h; KPI-Grid Schnellster/Team-Avg/Langsamster; Alert "Langsam unterwegs!"; Delta pos=gruen; RankBadge; 30-Min-Polling; nach Phase3809. PFLICHT: Import + Render + Barrel.
+3. **Phase 3815 Fahrer-App:** MeineGeschwindigkeit — Gauge-Icon blau; km/h-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken >=25km/h; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3810. PFLICHT: Import + Render + Barrel.
+4. **Phase 3816 Storefront:** Ueberspringen.
+5. **Phase 3817 Kitchen:** GeschwindigkeitTicker — Gauge-Icon blau; Schnellster #1 Name+km/h im Header; Alert "Langsam unterwegs!"; kompakt absteigend; Rang+km/h+Delta pos=gruen; Team-Avg+Ziel >=25km/h; 30-Min-Polling; nach Phase3812. PFLICHT: Import + Render + Barrel.
+
+---
+
 Backend-Architekt-Agent (2026-07-26): Phasen 3788–3792 implementiert — Fahrer-Stornoquote-Ranking. Phase 3788 Backend: `/api/delivery/admin/fahrer-stornoquote-ranking/route.ts` (neu) — `await createClient()` aus `@/lib/supabase/server`, force-dynamic, delivery_tours status cancelled/cancelled_empty, aufsteigend Rang 1=niedrigste Quote=bester, Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), Alert Top-25% "Hohe Stornoquote!", Mock Julia 1.2%/Sara 2.8%/Max 4.5%/Tim 7.3%. Phase 3789 Dispatch: `DispatchPhase3789StornoquoteRankingBoard` — XCircle-Icon rot, aufsteigend, KPI-Grid Bester/Team-Avg/Hoechste, Alert "Hohe Stornoquote!", Delta neg=gruen, RankBadge, Import+Render+Barrel ✅. Phase 3790 Fahrer: `FahrerPhase3790MeineStornoquote` — %-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Ziel-Balken <=3%, Team-Avg-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3791 Storefront: uebersprungen. Phase 3792 Kitchen: `KitchenPhase3792StornoquoteTicker` — XCircle-Icon rot, Bester #1 Name+% im Header, Alert "Hohe Stornoquote!", kompakt aufsteigend, Rang+%+Delta neg=gruen, Team-Avg+Ziel <=3%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt (commit acb18cc3).
 
 ### ✅ Phasen 3788–3792 ABGESCHLOSSEN — Fahrer-Stornoquote-Ranking

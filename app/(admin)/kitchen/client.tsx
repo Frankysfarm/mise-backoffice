@@ -998,6 +998,7 @@ import { KitchenPhase3792StornoquoteTicker } from './phase3792-stornoquote-ticke
 import { KitchenPhase3797TrinkgeldQuoteTicker } from './phase3797-trinkgeld-quote-ticker';
 import { KitchenPhase3802ReaktionszeitTicker } from './phase3802-reaktionszeit-ticker';
 import { KitchenPhase3807SmartTimingCountdownFarbkodierungCockpit } from './phase3807-smart-timing-countdown-farbkodierung-cockpit';
+import { KitchenPhase3812KilometerstandTicker } from './phase3812-kilometerstand-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4303,6 +4304,7 @@ export function KitchenBoard({
       <KitchenPhase3797TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3802ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3807SmartTimingCountdownFarbkodierungCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3812KilometerstandTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11470,3 +11472,5 @@ export { KitchenPhase3797TrinkgeldQuoteTicker } from './phase3797-trinkgeld-quot
 export { KitchenPhase3802ReaktionszeitTicker } from './phase3802-reaktionszeit-ticker';
 // Phase 3807 — Smart-Timing Countdown & Farbkodierung Cockpit (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/Aktiv/Überfällig; Kochstart-Score; Fortschrittsbalken; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3807SmartTimingCountdownFarbkodierungCockpit } from './phase3807-smart-timing-countdown-farbkodierung-cockpit';
+// Phase 3812 — Kilometerstand Ticker (Route-Icon grün; Meister #1 Name+km im Header; Alert "Wenig gefahren!"; kompakt absteigend; Rang+km+Delta; Team-Avg+Ziel ≥800km; 30-Min-Polling)
+export { KitchenPhase3812KilometerstandTicker } from './phase3812-kilometerstand-ticker';

@@ -974,6 +974,7 @@ import { FahrerPhase3790MeineStornoquote } from './phase3790-meine-stornoquote';
 import { FahrerPhase3795MeinTrinkgeld } from './phase3795-mein-trinkgeld';
 import { FahrerPhase3800MeineReaktionszeit } from './phase3800-meine-reaktionszeit';
 import { FahrerPhase3805TourStoppNavigationSmartHub } from './phase3805-tour-stopp-navigation-smart-hub';
+import { FahrerPhase3810MeinKilometerstand } from './phase3810-mein-kilometerstand';
 
 type Driver = {
   id: string;
@@ -6876,6 +6877,7 @@ export function FahrerApp({
           <FahrerPhase3795MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3800MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3805TourStoppNavigationSmartHub fahrerToken={driver.id} />
+          <FahrerPhase3810MeinKilometerstand driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10743,3 +10745,5 @@ export { FahrerPhase3795MeinTrinkgeld } from './phase3795-mein-trinkgeld';
 export { FahrerPhase3800MeineReaktionszeit } from './phase3800-meine-reaktionszeit';
 // Phase 3805 — Tour-Stopp Navigation Smart Hub (Nächster-Stopp Hero-Card indigo mit ETA + 3 Navi-App-Links; Fortschrittsbalken; Alle-Stopps-Liste mit Status-Dots und Inline-Navigation; Hinweis-Banner für Sonderkommentare; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3805TourStoppNavigationSmartHub } from './phase3805-tour-stopp-navigation-smart-hub';
+// Phase 3810 — Mein Kilometerstand (Route-Icon grün; km-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel ≥800km; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3810MeinKilometerstand } from './phase3810-mein-kilometerstand';
