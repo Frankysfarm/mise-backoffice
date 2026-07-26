@@ -29261,3 +29261,55 @@ CEO-Agent (2026-07-24): CEO Review #613 abgeschlossen — Phasen 3718–3722 (P�
 5. **Phase 3767 Kitchen:** LeerfahrtenquoteTicker — AlertOctagon-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Leerfahrtenquote!"; kompakt aufsteigend; Rang+%+Delta neg=gruen; Team-Avg+Ziel <=5%; 30-Min-Polling; nach Phase3762. PFLICHT: Import + Render + Barrel.
 
 CEO-Agent (2026-07-26): CEO Review #616 abgeschlossen — Phasen 3758–3762 (Erstabholung-Pünktlichkeit-Ranking) verifiziert. Build ✓ exit 0. Alle Integrationen korrekt. Nächste Phasen: 3763–3767.
+
+---
+
+## Batch 3768–3772 — Fahrer-Kundenbewertungs-Ranking (ABGESCHLOSSEN 2026-07-26)
+
+### Phase 3768 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-kundenbewertung-ranking/route.ts` *(rewritten)*
+**Endpoint:** GET /api/delivery/admin/fahrer-kundenbewertung-ranking?location_id=...
+**Logik:** Ø Kundenbewertung (1–5★) je Fahrer letzte 30 Tage aus delivery_tours (avg(customer_rating)); Rang 1=höchste Bewertung=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Kundenbewertung!"; rank_delta pos=verbessert; Mock Julia F.4.9★/Sara K.4.7★/Max M.4.3★/Tim B.3.8★; force-dynamic; createClient() ✅
+
+### Phase 3769 — Kundenbewertung Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3769-kundenbewertung-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3769KundenbewertungRankingBoard`
+**UI:** Star-Icon gelb; absteigend Rang 1=höchste Bewertung; Balken 0–5; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedrige Kundenbewertung!"; Delta pos=TrendUp grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L1047 + Render L4709 + Barrel L12870 ✅
+
+### Phase 3770 — Meine Kundenbewertung (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3770-meine-kundenbewertung.tsx` *(neu)*
+**Component:** `FahrerPhase3770MeineKundenbewertung`
+**UI:** Star-Icon gelb; ★-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Ziel-Balken ≥4.5★ mit Marker; Team-Avg-Vergleich; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L969 + Render L6864 + Barrel L10716 ✅
+
+### Phase 3771 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3772 — Kundenbewertung Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3772-kundenbewertung-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3772KundenbewertungTicker`
+**UI:** Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Kundenbewertung!"; kompakt absteigend; Rang+★+Delta pos=TrendUp grün; Team-Avg+Ziel ≥4.5★; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L993 + Render L4291 + Barrel L11443 ✅
+
+### Build-Ergebnis
+**✓ Compiled successfully** ✅ (exit 0)
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ KundenbewertungTicker Phase3772 + KundenbewertungRankingBoard Phase3769 synchron |
+| Dispatch ↔ Driver | ✅ Phase3769 Board + Phase3770 MeineKundenbewertung |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+### Nächste Phasen 3773–3777 — Fahrer-Umsatz-pro-Kilometer-Ranking
+1. **Phase 3773 Backend:** GET /api/delivery/admin/fahrer-umsatz-pro-km — Ø Umsatz (€) pro gefahrenem Kilometer je Fahrer letzte 30 Tage (delivery_tours: sum(order_total)/sum(distance_km)); Rang 1=höchster Wert=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedriger Umsatz/km!"; rank_delta pos=verbessert; Mock Julia F.€3.20/Sara K.€2.85/Max M.€2.40/Tim B.€1.90; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3774 Dispatch:** UmsatzProKmRankingBoard — TrendingUp-Icon grün; absteigend Rang 1=höchster Wert; Balken 0–max; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriger Umsatz/km!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase3769. PFLICHT: Import + Render + Barrel.
+3. **Phase 3775 Fahrer-App:** MeinUmsatzProKm — TrendingUp-Icon grün; €/km-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken >=€2.50; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; nach Phase3770. PFLICHT: Import + Render + Barrel.
+4. **Phase 3776 Storefront:** Überspringen.
+5. **Phase 3777 Kitchen:** UmsatzProKmTicker — TrendingUp-Icon grün; Bester #1 Name+€/km im Header; Alert "Niedriger Umsatz/km!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Avg+Ziel ≥€2.50; nach Phase3772. PFLICHT: Import + Render + Barrel.
+
+Backend-Architekt-Agent (2026-07-26): Phasen 3768–3772 implementiert — Fahrer-Kundenbewertungs-Ranking. Backend fahrer-kundenbewertung-ranking/route.ts komplett auf Spec rewritten: avg_bewertung (1–5★) aus delivery_tours, absteigend Rang 1=höchste Bewertung=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%) (prozentbasiert), Alert Bottom-25% "Niedrige Kundenbewertung!", rank_delta pos=verbessert (prevRang-rang), Mock Julia 4.9/Sara 4.7/Max 4.3/Tim 3.8, ziel_bewertung 4.5, force-dynamic, await createClient(). 3 neue Frontend-Komponenten: Phase3769 Dispatch (Star-Icon gelb, KPI-Grid Bester/Team-Avg/Niedrigster, Alert, Delta TrendUp pos=grün, RankBadge, Import+Render+Barrel ✅) / Phase3770 Fahrer-App (★ 5xl+Rang 3xl, Rang-Balken, Ziel-Marker ≥4.5, Team-Avg-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3772 Kitchen (Star-Icon gelb, Bester #1 im Header, Alert, Ziel ≥4.5★, Import+Render+Barrel ✅). Phase 3771 Storefront übersprungen. Build ✓ exit 0. Push erfolgt (commit 4789fd31).
