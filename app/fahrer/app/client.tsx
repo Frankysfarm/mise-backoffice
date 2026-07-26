@@ -985,6 +985,7 @@ import { FahrerPhase3845MeineLieferzeit } from './phase3845-meine-lieferzeit';
 import { FahrerPhase3850MeinSchichtEffizienzScore } from './phase3850-mein-schicht-effizienz-score';
 import { FahrerPhase3855MeineTourenProTag } from './phase3855-meine-touren-pro-tag';
 import { FahrerPhase3860MeineStoppsProTour } from './phase3860-meine-stopps-pro-tour';
+import { FahrerPhase3865MeineWartezeitProStopp } from './phase3865-meine-wartezeit-pro-stopp';
 
 type Driver = {
   id: string;
@@ -6898,6 +6899,7 @@ export function FahrerApp({
           <FahrerPhase3850MeinSchichtEffizienzScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3855MeineTourenProTag driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3860MeineStoppsProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3865MeineWartezeitProStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10789,5 +10791,7 @@ export { FahrerPhase3850MeinSchichtEffizienzScore } from './phase3850-mein-schic
 export { FahrerPhase3855MeineTourenProTag } from './phase3855-meine-touren-pro-tag';
 // Phase 3860 — Meine Stopps pro Tour (MapPin-Icon indigo; Stopps/Tour 5xl+Rang 3xl farbkodiert; Fortschrittsbalken; Ziel >=10/Tour; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3860MeineStoppsProTour } from './phase3860-meine-stopps-pro-tour';
+// Phase 3865 — Meine Wartezeit/Stopp (Clock-Icon rot; avg_wartezeit_min 5xl+Rang 3xl farbkodiert; Fortschrittsbalken; Ziel ≤5min; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3865MeineWartezeitProStopp } from './phase3865-meine-wartezeit-pro-stopp';
 // Phase 3850 — Tour-Stopp Live Navigation (Aktiver-Stopp Hero-Card ETA+Google-Maps+Waze+Telefon; Fortschrittsbalken Geliefert/Gesamt; Alle-Stopps-Liste mit Status-Dots; Notiz-Hinweis-Banner; Inline-Navi-Links je Stopp; 10-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3850TourStoppLiveNavigation } from './phase3850-tour-stopp-live-navigation';
