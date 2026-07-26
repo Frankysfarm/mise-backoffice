@@ -11478,7 +11478,7 @@ export { KitchenPhase3802ReaktionszeitTicker } from './phase3802-reaktionszeit-t
 export { KitchenPhase3807SmartTimingCountdownFarbkodierungCockpit } from './phase3807-smart-timing-countdown-farbkodierung-cockpit';
 // Phase 3812 — Kilometerstand Ticker (Route-Icon grün; Meister #1 Name+km im Header; Alert "Wenig gefahren!"; kompakt absteigend; Rang+km+Delta; Team-Avg+Ziel ≥800km; 30-Min-Polling)
 export { KitchenPhase3812KilometerstandTicker } from './phase3812-kilometerstand-ticker';
-// Phase 3817 — Geschwindigkeit Ticker (Gauge-Icon blau; Schnellster #1 Name+km/h im Header; Alert "Langsam unterwegs!"; kompakt absteigend; Rang+km/h+Delta; Team-Avg+Ziel ≥25km/h; 30-Min-Polling)
+// Phase 3817 — Geschwindigkeit Ticker (Gauge-Icon blau; Schnellster #1 Name+km/h im Header; Alert "Langsam unterwegs!"; kompakt absteigend; Rang+km/h+Delta pos=grün; Team-Avg+Ziel ≥25km/h; 30-Min-Polling)
 export { KitchenPhase3817GeschwindigkeitTicker } from './phase3817-geschwindigkeit-ticker';
 // Phase 3822 — Touren/Schicht Ticker (Package-Icon orange; Bester #1 Name+T/S im Header; Alert "Wenige Touren!"; kompakt absteigend; Rang+T/S+Delta; Team-Avg+Ziel ≥6.0; 30-Min-Polling)
 export { KitchenPhase3822TourenProSchichtTicker } from './phase3822-touren-pro-schicht-ticker';

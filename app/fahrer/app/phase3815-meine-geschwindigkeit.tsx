@@ -19,16 +19,16 @@ const MOCK: MeineGeschwindigkeitData = {
   rang: 3,
   gesamt: 4,
   rank_delta: -1,
-  team_avg_kmh: 22.5,
+  team_avg_kmh: 22,
   ziel_kmh: 25,
   ampel: 'gelb',
-  coaching_tipp: 'Deine Geschwindigkeit liegt unter dem Ziel — optimiere deine Routen!',
+  coaching_tipp: 'Noch 4 km/h unter dem Ziel. Plane deine Route effizient, um schneller zu werden!',
 };
 
 function ampelClasses(ampel: MeineGeschwindigkeitData['ampel']) {
-  if (ampel === 'gruen') return { value: 'text-blue-700', badge: 'bg-blue-100 text-blue-800', bar: 'bg-blue-500' };
-  if (ampel === 'gelb')  return { value: 'text-yellow-600', badge: 'bg-yellow-100 text-yellow-700', bar: 'bg-yellow-400' };
-  return                        { value: 'text-gray-500',  badge: 'bg-gray-100 text-gray-700',    bar: 'bg-gray-400' };
+  if (ampel === 'gruen') return { value: 'text-emerald-700', badge: 'bg-emerald-100 text-emerald-800', bar: 'bg-emerald-500' };
+  if (ampel === 'gelb')  return { value: 'text-yellow-600',  badge: 'bg-yellow-100 text-yellow-700',   bar: 'bg-yellow-400'  };
+  return                        { value: 'text-red-500',     badge: 'bg-red-100 text-red-700',         bar: 'bg-red-400'     };
 }
 
 export function FahrerPhase3815MeineGeschwindigkeit({
@@ -51,6 +51,7 @@ export function FahrerPhase3815MeineGeschwindigkeit({
       const me = json.fahrer?.find((f: { fahrer_id: string }) => f.fahrer_id === driverId);
       if (!me) return;
       const ziel = json.ziel_kmh ?? 25;
+      const diff = Math.max(0, ziel - me.avg_kmh);
       setData({
         avg_kmh: me.avg_kmh,
         rang: me.rang,
@@ -60,10 +61,10 @@ export function FahrerPhase3815MeineGeschwindigkeit({
         ziel_kmh: ziel,
         ampel: me.ampel,
         coaching_tipp: me.ampel === 'rot'
-          ? 'Deine Durchschnittsgeschwindigkeit ist sehr niedrig. Wähle kürzere Routen und optimiere deine Fahrtzeiten!'
+          ? 'Du bist sehr langsam unterwegs. Plane Routen ohne Umwege und fahre direkter!'
           : me.ampel === 'gelb'
-          ? `Noch ${Math.max(0, ziel - me.avg_kmh).toFixed(1)} km/h bis zum Ziel — optimiere deine Routen!`
-          : 'Ausgezeichnet! Du gehörst zu den schnellsten Fahrern — weiter so!',
+          ? `Noch ${diff} km/h unter dem Ziel. Effizientere Routen helfen dir, schneller zu werden!`
+          : 'Klasse Tempo! Du gehörst zu den schnellsten Fahrern — weiter so!',
       });
     } catch {
       // Mock-Fallback
@@ -79,23 +80,24 @@ export function FahrerPhase3815MeineGeschwindigkeit({
   if (!isOnline) return null;
 
   const c = ampelClasses(data.ampel);
-  const maxKmh = Math.max(data.avg_kmh, data.team_avg_kmh, data.ziel_kmh);
-  const barPct = Math.round((data.avg_kmh / maxKmh) * 100);
-  const zielBarPct = Math.round((data.ziel_kmh / maxKmh) * 100);
-  const teamBarPct = Math.round((data.team_avg_kmh / maxKmh) * 100);
+  const maxVal = Math.max(data.avg_kmh, data.ziel_kmh, data.team_avg_kmh, 1);
+  const barPct = (data.avg_kmh / maxVal) * 100;
+  const zielBarPct = (data.ziel_kmh / maxVal) * 100;
+  const teamBarPct = (data.team_avg_kmh / maxVal) * 100;
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Gauge className="w-5 h-5 text-blue-600" />
+        <Gauge className="w-5 h-5 text-blue-500" />
         <span className="font-semibold text-gray-900 text-sm">Meine Geschwindigkeit</span>
       </div>
 
       {/* Haupt-Wert */}
       <div className="text-center space-y-1">
         <div className={`text-5xl font-black ${c.value}`}>{data.avg_kmh}</div>
-        <div className="text-sm text-gray-500 font-medium">km/h Ø (letzte 30 Tage)</div>
+        <div className="text-sm font-semibold text-gray-500">km/h</div>
+        <div className="text-xs text-gray-400">Ø Geschwindigkeit (letzte 30 Tage)</div>
         <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${c.badge}`}>
           Rang #{data.rang} von {data.gesamt}
           {data.rank_delta !== 0 && (
@@ -106,7 +108,7 @@ export function FahrerPhase3815MeineGeschwindigkeit({
         </div>
       </div>
 
-      {/* Balken-Chart */}
+      {/* Ziel-Balken */}
       <div className="space-y-1.5">
         <div className="flex justify-between text-[11px] text-gray-500">
           <span>Ich ({data.avg_kmh} km/h)</span>
