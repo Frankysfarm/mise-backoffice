@@ -1043,6 +1043,7 @@ import { DispatchPhase3744PuenktlichkeitRankingBoard } from './phase3744-puenktl
 import { DispatchPhase3749ReaktionszeitRankingBoard } from './phase3749-reaktionszeit-ranking-board';
 import { DispatchPhase3754SchichtstundenRankingBoard } from './phase3754-schichtstunden-ranking-board';
 import { DispatchPhase3759ErstabholungPuenktlichkeitBoard } from './phase3759-erstabholung-puenktlichkeit-board';
+import { DispatchPhase3764LeerfahrtenquoteRankingBoard } from './phase3764-leerfahrtenquote-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4703,6 +4704,7 @@ export function DispatchBoard({
           <DispatchPhase3749ReaktionszeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3754SchichtstundenRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3759ErstabholungPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3764LeerfahrtenquoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12860,3 +12862,5 @@ export { DispatchPhase3749ReaktionszeitRankingBoard } from './phase3749-reaktion
 export { DispatchPhase3754SchichtstundenRankingBoard } from './phase3754-schichtstunden-ranking-board';
 // Phase 3759 — Erstabholung-Pünktlichkeit Board (Package-Icon cyan; absteigend Rang 1=höchste Rate; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Späte Erstabholung!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3759ErstabholungPuenktlichkeitBoard } from './phase3759-erstabholung-puenktlichkeit-board';
+// Phase 3764 — Leerfahrtenquote-Ranking Board (AlertOctagon-Icon orange; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Avg/Höchste; Alert "Hohe Leerfahrtenquote!"; Delta neg=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3764LeerfahrtenquoteRankingBoard } from './phase3764-leerfahrtenquote-ranking-board';

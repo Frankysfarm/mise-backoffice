@@ -989,6 +989,7 @@ import { KitchenPhase3747PuenktlichkeitTicker } from './phase3747-puenktlichkeit
 import { KitchenPhase3752ReaktionszeitTicker } from './phase3752-reaktionszeit-ticker';
 import { KitchenPhase3757SchichtstundenTicker } from './phase3757-schichtstunden-ticker';
 import { KitchenPhase3762ErstabholungPuenktlichkeitTicker } from './phase3762-erstabholung-puenktlichkeit-ticker';
+import { KitchenPhase3767LeerfahrtenquoteTicker } from './phase3767-leerfahrtenquote-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4285,6 +4286,7 @@ export function KitchenBoard({
       <KitchenPhase3752ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3757SchichtstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3762ErstabholungPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3767LeerfahrtenquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11433,3 +11435,5 @@ export { KitchenPhase3752ReaktionszeitTicker } from './phase3752-reaktionszeit-t
 export { KitchenPhase3757SchichtstundenTicker } from './phase3757-schichtstunden-ticker';
 // Phase 3762 — Erstabholung-Pünktlichkeit Ticker (Package-Icon cyan; Bester #1 Name+% im Header; Alert "Späte Erstabholung!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Avg+Ziel >=90%; 30-Min-Polling)
 export { KitchenPhase3762ErstabholungPuenktlichkeitTicker } from './phase3762-erstabholung-puenktlichkeit-ticker';
+// Phase 3767 — Leerfahrtenquote Ticker (AlertOctagon-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Leerfahrtenquote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Avg+Ziel <=5%; 30-Min-Polling)
+export { KitchenPhase3767LeerfahrtenquoteTicker } from './phase3767-leerfahrtenquote-ticker';
