@@ -13035,3 +13035,5 @@ export { DispatchPhase3949LeerfahrtenBoard } from './phase3949-leerfahrten-board
 export { DispatchPhase3954KundenbewertungBoard } from './phase3954-kundenbewertung-board';
 // Phase 3849 — Tour-Score Visualisierung Live Komplett (Trophy amber; Flotten-Avg; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert ausstehend/unterwegs/geliefert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; ETA je Stopp; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3849TourScoreVisualisierungLiveKomplett } from './phase3849-tour-score-visualisierung-live-komplett';
+// Phase 3954 — Tour-Score Visualisierung Ultimate (Trophy amber; 4-Flotten-KPIs Avg/Top/Fahrer/Alerts; Score-Ring+Delta je Fahrer; Stopp-Dot-Timeline farbkodiert; aufklappbarer Stopp-Detail inkl. Sub-KPIs+Navi-Links; Alert Score<70 Rot-Highlight; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase3954TourScoreVisualisierungUltimate } from './phase3954-tour-score-visualisierung-ultimate';

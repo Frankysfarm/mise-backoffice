@@ -4924,3 +4924,5 @@ export { LieferdienstPhase2725StatistikEchtzeitVollbildCockpit } from './phase27
 export { LieferdienstPhase2756StatistikenKomplettDashboard } from './phase2756-statistiken-komplett-dashboard';
 // Phase 2760 — Statistiken Live-Cockpit Final (BarChart2 indigo; Alert-Strip Amberwarnungen; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Stundenverlauf-BarChart 2-Modi Bestellungen/Umsatz; Zonen-SLA-Balken farbkodiert; Top-3-Fahrer-Scores; 1-Min-Polling; Mock-Fallback)
 export { LieferdienstPhase2760StatistikLiveCockpitFinal } from './phase2760-statistiken-live-cockpit-final';
+// Phase 2765 — Statistiken Live Dashboard v2 (BarChart2 indigo; Alert-Strip kritische KPIs rot; Score-Ring+Insight; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel+Trend; Stundenverlauf-BarChart 2-Modi Bestellungen/Umsatz Jetzt-Stunde indigo; Zonen-SLA-Balken farbkodiert; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase2765StatistikenLiveDashboardV2 } from './phase2765-statistiken-live-dashboard-v2';

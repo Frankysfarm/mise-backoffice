@@ -11608,3 +11608,5 @@ export { KitchenPhase3952LeerfahrtenTicker } from './phase3952-leerfahrten-ticke
 export { KitchenPhase3957KundenbewertungTicker } from './phase3957-kundenbewertung-ticker';
 // Phase 3852 — Smart-Timing Live Countdown Hub (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/Aktiv/Überfällig/AvgPrep; Kochstart-Score; Fortschrittsbalken; Koch-Empfehlung; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3852SmartTimingLiveCountdownHub } from './phase3852-smart-timing-live-countdown-hub';
+// Phase 3957 — Smart-Timing Kochzeit Ultra Cockpit (Timer violett; 6-KPI-Grid Pünktlich/Prep/Kochstart/Überfällig/Sync/Ziel; Kochstart-Score-Balken; Countdown-Kacheln 4-stufig grün/gelb/orange/rot; Komplexitäts-Alert Flamme; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase3957SmartTimingKochzeitUltraCockpit } from './phase3957-smart-timing-kochzeit-ultra-cockpit';

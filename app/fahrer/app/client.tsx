@@ -10882,3 +10882,5 @@ export { FahrerPhase3950MeineLeerfahrten } from './phase3950-meine-leerfahrten';
 export { FahrerPhase3955MeineKundenbewertung } from './phase3955-meine-kundenbewertung';
 // Phase 3850 — Tour-Stopp Live Navigation (Aktiver-Stopp Hero-Card ETA+Google-Maps+Waze+Telefon; Fortschrittsbalken Geliefert/Gesamt; Alle-Stopps-Liste mit Status-Dots; Notiz-Hinweis-Banner; Inline-Navi-Links je Stopp; 10-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3850TourStoppLiveNavigation } from './phase3850-tour-stopp-live-navigation';
+// Phase 3955 — Smart Tour Navigation Hub Ultra (Navigation blau; Hero-Aktiv-Stopp mit ETA+Maps+Waze+Telefon; Sonderwunsch-Alert amber; Gradient-Header mit Fortschrittsbalken; Alle-Stopps expandierbar mit Navi-Links je Stopp; Score-Badge; isOnline-Guard; 10-Sek-Polling; Mock-Fallback)
+export { FahrerPhase3955SmartTourNavigationHubUltra } from './phase3955-smart-tour-navigation-hub-ultra';
