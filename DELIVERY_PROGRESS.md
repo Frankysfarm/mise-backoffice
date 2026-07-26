@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3928–3932 implementiert — Fahrer-Touren-Auslastung-Ranking. Phase 3928 Backend: bestehendes `/api/delivery/admin/fahrer-touren-auslastung-ranking/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), Touren-Auslastungsquote letzte 30 Tage je Fahrer, absteigend Rang 1=hoechste Auslastung=bester, Ampel gruen(Top-25%)/gelb/rot(Bottom-25%), Alert "Geringe Auslastung!", Mock Julia 95%/Sara 82%/Max 67%/Tim 48%, ziel=80%. Phase 3929 Dispatch: `DispatchPhase3929TourenAuslastungBoard` — Activity-Icon grau, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Geringe Auslastung!", Delta neg=gruen, Import+Render+Barrel ✅. Phase 3930 Fahrer: `FahrerPhase3930MeineTourenAuslastung` — Activity-Icon grau, %-Wert 5xl+Rang 3xl farbkodiert, Ziel >=80%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3931 Storefront: uebersprungen. Phase 3932 Kitchen: `KitchenPhase3932TourenAuslastungTicker` — Activity-Icon grau, Bester #1 Name+% im Header, Alert "Geringe Auslastung!", kompakt absteigend, Rang+%+Delta neg=gruen, Team-Avg+Ziel >=80%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3928–3932 ABGESCHLOSSEN — Fahrer-Touren-Auslastung-Ranking
+- Phase 3928 Backend: `/api/delivery/admin/fahrer-touren-auslastung-ranking/route.ts` (bereits vorhanden) — force-dynamic, await createClient(), auslastung_pct je Fahrer letzte 30 Tage, absteigend Rang 1=hoechste Auslastung=bester, Ampel gruen/gelb/rot, Alert "Geringe Auslastung!", Mock Julia 95%/Sara 82%/Max 67%/Tim 48% ✅
+- Phase 3929 Dispatch: `DispatchPhase3929TourenAuslastungBoard` — Activity-Icon grau, absteigend Rang 1=hoechste Auslastung, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Geringe Auslastung!", Delta neg=gruen ✅
+- Phase 3930 Fahrer: `FahrerPhase3930MeineTourenAuslastung` — Activity-Icon grau, %-Wert 5xl+Rang 3xl farbkodiert, Ziel >=80%, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3931 Storefront: uebersprungen ✅
+- Phase 3932 Kitchen: `KitchenPhase3932TourenAuslastungTicker` — Activity-Icon grau, Bester #1 Name+% im Header, Alert "Geringe Auslastung!", kompakt absteigend, Team-Avg+Ziel >=80% ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3933–3937 — Fahrer-Routen-Score-Ranking
+1. **Phase 3933 Backend:** GET /api/delivery/admin/fahrer-routen-score — Routen-Effizienz-Score je Fahrer (0-100); absteigend Rang 1=hoechster Score=bester; Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Schlechter Routen-Score!"; Route bereits vorhanden.
+2. **Phase 3934 Dispatch:** RoutenScoreBoard — BarChart2-Icon grau; absteigend Rang 1=hoechster Score; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Schlechter Routen-Score!"; Delta neg=gruen; 30-Min-Polling; nach Phase3929. PFLICHT: Import + Render + Barrel.
+3. **Phase 3935 Fahrer-App:** MeinRoutenScore — BarChart2-Icon grau; Score 5xl+Rang 3xl farbkodiert; Ziel >=80; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3930. PFLICHT: Import + Render + Barrel.
+4. **Phase 3936 Storefront:** Ueberspringen.
+5. **Phase 3937 Kitchen:** RoutenScoreTicker — BarChart2-Icon grau; Bester #1 Name+Score im Header; Alert "Schlechter Routen-Score!"; kompakt absteigend; Rang+Score+Delta neg=gruen; Team-Avg+Ziel >=80; 30-Min-Polling; nach Phase3932. PFLICHT: Import + Render + Barrel.
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3923–3927 implementiert — Fahrer-Lieferungen-pro-km-Ranking. Phase 3923 Backend: bestehendes `/api/delivery/admin/fahrer-lieferungen-pro-km/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), Lieferungen pro km letzte 30 Tage je Fahrer, absteigend Rang 1=hoechste Effizienz=bester, Ampel gruen(Top-25%)/gelb/rot(Bottom-25%), Alert "Geringe Liefereffizienz!", Mock Julia 1.25/Sara 0.83/Max 0.53/Tim 0.37 Lief./km, ziel=3. Phase 3924 Dispatch: `DispatchPhase3924LieferungenProKmBoard` — Package-Icon grau, absteigend, KPI-Grid Effizientester/Team-Avg/Niedrigster, Alert "Geringe Liefereffizienz!", Delta pos=gruen, Import+Render+Barrel ✅. Phase 3925 Fahrer: `FahrerPhase3925MeineLieferungenProKm` — Package-Icon grau, Wert 5xl+Rang 3xl farbkodiert, Ziel >=3, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3926 Storefront: uebersprungen. Phase 3927 Kitchen: `KitchenPhase3927LieferungenProKmTicker` — Package-Icon grau, Effizientester #1 Name+Wert im Header, Alert "Geringe Liefereffizienz!", kompakt absteigend, Rang+Wert+Delta pos=gruen, Team-Avg+Ziel >=3, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3923–3927 ABGESCHLOSSEN — Fahrer-Lieferungen-pro-km-Ranking
