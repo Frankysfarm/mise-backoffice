@@ -2,6 +2,18 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3953–3957 implementiert — Fahrer-Kundenbewertung-Ranking. Phase 3953 Backend: bestehendes `/api/delivery/admin/fahrer-kundenbewertung-ranking/route.ts` (bereits vorhanden) — force-dynamic, await createClient(), avg_bewertung je Fahrer letzte 30 Tage, absteigend Rang 1=hoechste Bewertung=bester, Ampel gruen/gelb/rot, rank_delta, alert_niedrig, Alert "Niedrige Kundenbewertung!", Mock Julia 4.9/Sara 4.7/Max 4.3/Tim 3.8, ziel=4.5. Phase 3954 Dispatch: `DispatchPhase3954KundenbewertungBoard` — Star-Icon gelb, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedrige Kundenbewertung!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3955 Fahrer: `FahrerPhase3955MeineKundenbewertung` — Star-Icon gelb, Wert 5xl+Rang 3xl farbkodiert, Ziel >=4.5, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3956 Storefront: uebersprungen. Phase 3957 Kitchen: `KitchenPhase3957KundenbewertungTicker` — Star-Icon gelb, Bester #1 Name+Wert im Header, Alert "Niedrige Kundenbewertung!", kompakt absteigend, Rang+Wert+Delta rank_delta<0=gruen, Team-Avg+Ziel >=4.5, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3953–3957 ABGESCHLOSSEN — Fahrer-Kundenbewertung-Ranking
+- Phase 3953 Backend: `/api/delivery/admin/fahrer-kundenbewertung-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_bewertung je Fahrer letzte 30 Tage, absteigend Rang 1=hoechste Bewertung=bester, Ampel gruen/gelb/rot, rank_delta, alert_niedrig, Mock Julia 4.9/Sara 4.7/Max 4.3/Tim 3.8 ✅
+- Phase 3954 Dispatch: `DispatchPhase3954KundenbewertungBoard` — Star-Icon gelb, absteigend Rang 1=hoechste Bewertung, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedrige Kundenbewertung!", rank_delta<0=gruen ✅
+- Phase 3955 Fahrer: `FahrerPhase3955MeineKundenbewertung` — Star-Icon gelb, Wert 5xl+Rang 3xl farbkodiert, Ziel >=4.5, Coaching-Tipp (3 Stufen), isOnline-Guard ✅
+- Phase 3956 Storefront: uebersprungen ✅
+- Phase 3957 Kitchen: `KitchenPhase3957KundenbewertungTicker` — Star-Icon gelb, Bester #1 Name+Wert im Header, Alert "Niedrige Kundenbewertung!", kompakt absteigend, Team-Avg+Ziel >=4.5 ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3958–3962 — Naechstes Ranking-Thema (TBD)
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3948–3952 implementiert — Fahrer-Leerfahrten-Ranking. Phase 3948 Backend: bestehendes `/api/delivery/admin/fahrer-leerfahrten-ranking/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), leerfahrten_pct je Fahrer heute, aufsteigend Rang 1=niedrigste Quote=bester, Ampel gruen/gelb/rot, rank_delta, alert_bottom, Alert "Hohe Leerfahrtenquote!", Mock Julia 5%/Sara 12%/Max 22%/Tim 38%. Phase 3949 Dispatch: `DispatchPhase3949LeerfahrtenBoard` — Car-Icon orange, aufsteigend, KPI-Grid Bester/Team-Avg/Hoechster, Alert "Hohe Leerfahrtenquote!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3950 Fahrer: `FahrerPhase3950MeineLeerfahrten` — Car-Icon orange, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=15%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3951 Storefront: uebersprungen. Phase 3952 Kitchen: `KitchenPhase3952LeerfahrtenTicker` — Car-Icon orange, Bester #1 Name+% im Header, Alert "Hohe Leerfahrtenquote!", kompakt aufsteigend, Rang+%+Delta rank_delta<0=gruen, Team-Avg+Ziel <=15%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3948–3952 ABGESCHLOSSEN — Fahrer-Leerfahrten-Ranking
