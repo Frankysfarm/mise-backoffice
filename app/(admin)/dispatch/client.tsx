@@ -1077,6 +1077,7 @@ import { DispatchPhase3904WartezeitTuerBoard } from './phase3904-wartezeit-tuer-
 import { DispatchPhase3909KmProTourBoard } from './phase3909-km-pro-tour-board';
 import { DispatchPhase3914RaktionszeitBoard } from './phase3914-reaktionszeit-board';
 import { DispatchPhase3919StornoRateBoard } from './phase3919-storno-rate-board';
+import { DispatchPhase3924LieferungenProKmBoard } from './phase3924-lieferungen-pro-km-board';
 
 type Driver = {
   employee_id: string;
@@ -4771,6 +4772,7 @@ export function DispatchBoard({
           <DispatchPhase3909KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3914RaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3919StornoRateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3924LieferungenProKmBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12998,5 +13000,7 @@ export { DispatchPhase3909KmProTourBoard } from './phase3909-km-pro-tour-board';
 export { DispatchPhase3914RaktionszeitBoard } from './phase3914-reaktionszeit-board';
 // Phase 3919 — Storno-Rate Board (XCircle-Icon rot; aufsteigend Rang 1=niedrigste Storno-Rate=bester; KPI-Grid Bester/Team-Avg/Höchster; Alert "Hohe Storno-Rate!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3919StornoRateBoard } from './phase3919-storno-rate-board';
+// Phase 3924 — Lief./km Board (Package-Icon grau; absteigend Rang 1=höchste Effizienz=bester; KPI-Grid Effizientester/Team-Avg/Niedrigster; Alert "Geringe Liefereffizienz!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3924LieferungenProKmBoard } from './phase3924-lieferungen-pro-km-board';
 // Phase 3849 — Tour-Score Visualisierung Live Komplett (Trophy amber; Flotten-Avg; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert ausstehend/unterwegs/geliefert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; ETA je Stopp; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3849TourScoreVisualisierungLiveKomplett } from './phase3849-tour-score-visualisierung-live-komplett';

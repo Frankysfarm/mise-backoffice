@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3923–3927 implementiert — Fahrer-Lieferungen-pro-km-Ranking. Phase 3923 Backend: bestehendes `/api/delivery/admin/fahrer-lieferungen-pro-km/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), Lieferungen pro km letzte 30 Tage je Fahrer, absteigend Rang 1=hoechste Effizienz=bester, Ampel gruen(Top-25%)/gelb/rot(Bottom-25%), Alert "Geringe Liefereffizienz!", Mock Julia 1.25/Sara 0.83/Max 0.53/Tim 0.37 Lief./km, ziel=3. Phase 3924 Dispatch: `DispatchPhase3924LieferungenProKmBoard` — Package-Icon grau, absteigend, KPI-Grid Effizientester/Team-Avg/Niedrigster, Alert "Geringe Liefereffizienz!", Delta pos=gruen, Import+Render+Barrel ✅. Phase 3925 Fahrer: `FahrerPhase3925MeineLieferungenProKm` — Package-Icon grau, Wert 5xl+Rang 3xl farbkodiert, Ziel >=3, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3926 Storefront: uebersprungen. Phase 3927 Kitchen: `KitchenPhase3927LieferungenProKmTicker` — Package-Icon grau, Effizientester #1 Name+Wert im Header, Alert "Geringe Liefereffizienz!", kompakt absteigend, Rang+Wert+Delta pos=gruen, Team-Avg+Ziel >=3, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3923–3927 ABGESCHLOSSEN — Fahrer-Lieferungen-pro-km-Ranking
+- Phase 3923 Backend: `/api/delivery/admin/fahrer-lieferungen-pro-km/route.ts` (bereits vorhanden) — force-dynamic, await createClient(), lieferungen_pro_km je Fahrer letzte 30 Tage, absteigend Rang 1=hoechste Effizienz=bester, Ampel gruen/gelb/rot, Alert "Geringe Liefereffizienz!", Mock Julia 1.25/Sara 0.83/Max 0.53/Tim 0.37 ✅
+- Phase 3924 Dispatch: `DispatchPhase3924LieferungenProKmBoard` — Package-Icon grau, absteigend Rang 1=hoechste Effizienz, KPI-Grid Effizientester/Team-Avg/Niedrigster, Alert "Geringe Liefereffizienz!", Delta pos=gruen ✅
+- Phase 3925 Fahrer: `FahrerPhase3925MeineLieferungenProKm` — Package-Icon grau, Wert 5xl+Rang 3xl farbkodiert, Ziel >=3 Lief./km, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3926 Storefront: uebersprungen ✅
+- Phase 3927 Kitchen: `KitchenPhase3927LieferungenProKmTicker` — Package-Icon grau, Effizientester #1 Name+Wert im Header, Alert "Geringe Liefereffizienz!", kompakt absteigend, Team-Avg+Ziel >=3 ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3928–3932 — Fahrer-Touren-Auslastung-Ranking
+1. **Phase 3928 Backend:** GET /api/delivery/admin/fahrer-touren-auslastung-ranking — Touren-Auslastungsquote (aktive Touren / max Kapazitaet) je Fahrer; absteigend Rang 1=hoechste Auslastung=bester; Ampel gruen(Top-25%)/gelb/rot(Bottom-25%); Alert Bottom-25% "Geringe Auslastung!"; Route bereits vorhanden.
+2. **Phase 3929 Dispatch:** TourenAuslastungBoard — Activity-Icon grau; absteigend Rang 1=hoechste Auslastung; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Geringe Auslastung!"; Delta pos=gruen; 30-Min-Polling; nach Phase3924. PFLICHT: Import + Render + Barrel.
+3. **Phase 3930 Fahrer-App:** MeineTourenAuslastung — Activity-Icon grau; %-Wert 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3925. PFLICHT: Import + Render + Barrel.
+4. **Phase 3931 Storefront:** Ueberspringen.
+5. **Phase 3932 Kitchen:** TourenAuslastungTicker — Activity-Icon grau; Bester #1 Name+% im Header; Alert "Geringe Auslastung!"; kompakt absteigend; Rang+%+Delta pos=gruen; Team-Avg; 30-Min-Polling; nach Phase3927. PFLICHT: Import + Render + Barrel.
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3918–3922 implementiert — Fahrer-Storno-Rate-Ranking. Phase 3918 Backend: bestehendes `/api/delivery/admin/fahrer-storno-rate/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), Storno-Rate heute (stornierte/angebotene Touren) je Fahrer, aufsteigend Rang 1=niedrigste Rate=bester, Ampel gruen(<=5%)/gelb(5-15%)/rot(>15%), Alert "Hohe Storno-Rate!", Mock Tom 2.1%/Max 3.2%/Lena 8.7%/Sarah 18.5%/Jana 21.4%. Phase 3919 Dispatch: `DispatchPhase3919StornoRateBoard` — XCircle-Icon rot, aufsteigend, KPI-Grid Bester/Team-Avg/Hoechster, Alert "Hohe Storno-Rate!", Delta neg=gruen, Import+Render+Barrel ✅. Phase 3920 Fahrer: `FahrerPhase3920MeineStornoRate` — XCircle-Icon rot, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=5%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3921 Storefront: uebersprungen. Phase 3922 Kitchen: `KitchenPhase3922StornoRateTicker` — XCircle-Icon rot, Bester #1 Name+% im Header, Alert "Hohe Storno-Rate!", kompakt aufsteigend, Rang+%+Delta neg=gruen, Team-Avg+Ziel <=5%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3918–3922 ABGESCHLOSSEN — Fahrer-Storno-Rate-Ranking
