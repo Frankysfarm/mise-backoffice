@@ -12,6 +12,16 @@ Frontend-Ingenieur-Agent (2026-07-26): Phasen 3953–3957 implementiert — Fahr
 - Phase 3957 Kitchen: `KitchenPhase3957KundenbewertungTicker` — Star-Icon amber, Bester #1 Name+Sterne im Header, Alert "Schlechte Bewertungen!", kompakt absteigend, Team-Avg+Ziel >=4.5 ✅
 - Build ✓ exit 0. Push erfolgt.
 
+Backend-Architekt-Agent (2026-07-26): Phasen 3953–3957 implementiert — Fahrer-Bewertungs-Score-Ranking. Phase 3953 Backend: NEU `/api/delivery/admin/fahrer-bewertungs-score-ranking/route.ts` — force-dynamic, await createClient(), avg(customer_rating) je Fahrer letzte 30 Tage, absteigend Rang 1=hoechste Bewertung=bester, Ampel gruen(Top-25%)/gelb/rot(Bottom-25%), Alert Bottom-25% "Schlechte Bewertungen!", Mock Max 4.9/Julia 4.5/Sara 3.8/Tim 2.9, ziel=4.0. Phase 3954 Dispatch: `DispatchPhase3954BewertungsScoreBoard` — Star-Icon amber, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Schlechte Bewertungen!", Delta pos=gruen, Import+Render+Barrel ✅. Phase 3955 Fahrer: `FahrerPhase3955MeinBewertungsScore` — Star-Icon amber, Sterne 5xl+Rang 3xl farbkodiert, Ziel >=4.0, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3956 Storefront: uebersprungen. Phase 3957 Kitchen: `KitchenPhase3957BewertungsScoreTicker` — Star-Icon amber, Bester #1 Name+Sterne im Header, Alert "Schlechte Bewertungen!", kompakt absteigend, Team-Avg+Ziel >=4.0, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3953–3957 ABGESCHLOSSEN — Fahrer-Bewertungs-Score-Ranking (Backend-Architekt)
+- Phase 3953 Backend: `/api/delivery/admin/fahrer-bewertungs-score-ranking/route.ts` (NEU) — avg(customer_rating) letzte 30 Tage, absteigend Rang 1=hoechste Bewertung=bester, Ampel prozentbasiert, Alert "Schlechte Bewertungen!", Mock Max 4.9/Julia 4.5/Sara 3.8/Tim 2.9 ✅
+- Phase 3954 Dispatch: `DispatchPhase3954BewertungsScoreBoard` — Star amber, absteigend, KPI-Grid, Alert, Delta pos=gruen ✅
+- Phase 3955 Fahrer: `FahrerPhase3955MeinBewertungsScore` — Star amber, 5xl+Rang 3xl, Rang-Balken, Ziel >=4.0, Coaching, isOnline-Guard ✅
+- Phase 3956 Storefront: uebersprungen ✅
+- Phase 3957 Kitchen: `KitchenPhase3957BewertungsScoreTicker` — Star amber, Bester #1, Alert, Ziel >=4.0 ✅
+- Build exit 0. Push erfolgt.
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3958–3962 implementiert — Fahrer-Durchschnitts-Lieferzeit-Ranking. Phase 3958 Backend: bestehendes `/api/delivery/admin/fahrer-durchschnitts-lieferzeit-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_min je Fahrer letzte 30 Tage, aufsteigend Rang 1=niedrigste Zeit=bester, Ampel gruen/gelb/rot, rank_delta, alert_top, Alert "Hohe Lieferzeit!", Mock Julia 18/Sara 22/Max 28/Tim 36 min, ziel=25 min. Phase 3959 Dispatch: `DispatchPhase3959LieferzeitBoard` — Truck-Icon slate, aufsteigend, KPI-Grid Schnellster/Team-Avg/Langsamster, Alert "Hohe Lieferzeit!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3960 Fahrer: `FahrerPhase3960MeineLieferzeit` — Truck-Icon slate, min-Wert 5xl+Rang 3xl farbkodiert, Ziel <=25 min, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3961 Storefront: uebersprungen. Phase 3962 Kitchen: `KitchenPhase3962LieferzeitTicker` — Truck-Icon slate, Schnellster #1 Name+min im Header, Alert "Hohe Lieferzeit!", kompakt aufsteigend, Rang+min+Delta rank_delta<0=gruen, Team-Avg+Ziel <=25 min, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3958–3962 ABGESCHLOSSEN — Fahrer-Durchschnitts-Lieferzeit-Ranking
@@ -23,8 +33,6 @@ Frontend-Ingenieur-Agent (2026-07-26): Phasen 3958–3962 implementiert — Fahr
 - Build ✓ exit 0. Push erfolgt.
 
 ### Naechste Phasen 3963–3967 — Naechstes Ranking-Thema (TBD)
-
-### Naechste Phasen 3958–3962 — Naechstes Ranking-Thema (TBD)
 
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3948–3952 implementiert — Fahrer-Leerfahrten-Ranking. Phase 3948 Backend: bestehendes `/api/delivery/admin/fahrer-leerfahrten-ranking/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), leerfahrten_pct je Fahrer heute, aufsteigend Rang 1=niedrigste Quote=bester, Ampel gruen/gelb/rot, rank_delta, alert_bottom, Alert "Hohe Leerfahrtenquote!", Mock Julia 5%/Sara 12%/Max 22%/Tim 38%. Phase 3949 Dispatch: `DispatchPhase3949LeerfahrtenBoard` — Car-Icon orange, aufsteigend, KPI-Grid Bester/Team-Avg/Hoechster, Alert "Hohe Leerfahrtenquote!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3950 Fahrer: `FahrerPhase3950MeineLeerfahrten` — Car-Icon orange, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=15%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3951 Storefront: uebersprungen. Phase 3952 Kitchen: `KitchenPhase3952LeerfahrtenTicker` — Car-Icon orange, Bester #1 Name+% im Header, Alert "Hohe Leerfahrtenquote!", kompakt aufsteigend, Rang+%+Delta rank_delta<0=gruen, Team-Avg+Ziel <=15%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
