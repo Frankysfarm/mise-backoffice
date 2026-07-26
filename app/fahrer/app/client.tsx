@@ -10785,3 +10785,5 @@ export { FahrerPhase3845MeineLieferzeit } from './phase3845-meine-lieferzeit';
 export { FahrerPhase3850MeinSchichtEffizienzScore } from './phase3850-mein-schicht-effizienz-score';
 // Phase 3855 — Meine Touren pro Tag (Activity-Icon grün; Touren/Tag 5xl+Rang 3xl farbkodiert; Fortschrittsbalken; Ziel >=7 Touren/Tag; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3855MeineTourenProTag } from './phase3855-meine-touren-pro-tag';
+// Phase 3850 — Tour-Stopp Live Navigation (Aktiver-Stopp Hero-Card ETA+Google-Maps+Waze+Telefon; Fortschrittsbalken Geliefert/Gesamt; Alle-Stopps-Liste mit Status-Dots; Notiz-Hinweis-Banner; Inline-Navi-Links je Stopp; 10-Sek-Polling; Mock-Fallback)
+export { FahrerPhase3850TourStoppLiveNavigation } from './phase3850-tour-stopp-live-navigation';

@@ -4916,3 +4916,6 @@ export { LieferdienstPhase2751StatistikenLiveIntelligenceDashboard } from './pha
 
 // Phase 2725 — Statistiken Echtzeit Vollbild-Cockpit (8 KPI-Kacheln Ampel+Trend vs. Vortag; Stundenverlauf-BarChart Bestellungen/Umsatz umschaltbar; Zonen-Ranking Top-3; Alert-Strip kritische KPIs; 1-Min-Polling)
 export { LieferdienstPhase2725StatistikEchtzeitVollbildCockpit } from './phase2725-statistiken-echtzeit-vollbild-cockpit';
+
+// Phase 2756 — Statistiken Komplett Dashboard (BarChart2-Icon indigo; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Badge; Stundenverlauf-BarChart 2-Modi Bestellungen/Umsatz Jetzt-Stunde lila; Zonen-SLA-Balken farbkodiert; Alert-Strip kritische KPIs; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase2756StatistikenKomplettDashboard } from './phase2756-statistiken-komplett-dashboard';
