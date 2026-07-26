@@ -1,5 +1,51 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #628 — 2026-07-26
+
+**Build ✓ exit 0 — Phasen 3908–3922 (Km-pro-Tour + Reaktionszeit + Storno-Rate-Ranking) verifiziert**
+
+**Verifikation Phasen 3908–3912 (Fahrer-Km-pro-Tour-Ranking):**
+- Phase 3908 Backend `/api/delivery/admin/fahrer-km-pro-tour/route.ts`: force-dynamic ✅, await createClient() ✅, avg km/Tour letzte 30 Tage, aufsteigend Rang 1=niedrigste km=bester, Mock Julia 6.2km/Sara 8.1km/Max 11.4km/Tim 16.8km ✅
+- Phase 3909 Dispatch `DispatchPhase3909KmProTourBoard`: Route-Icon grau, aufsteigend Rang 1=effizienteste Route, KPI-Grid Effizientester/Team-Avg/Hoechster, Alert "Hohe Km-Zahlen!", Delta neg=gruen, Import+Render+Barrel ✅
+- Phase 3910 Fahrer `FahrerPhase3910MeineKmProTour`: Route-Icon grau, km-Wert 5xl+Rang 3xl farbkodiert, Ziel <=8km/Tour, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3911 Storefront: uebersprungen ✅
+- Phase 3912 Kitchen `KitchenPhase3912KmProTourTicker`: Route-Icon grau, Effizientester #1 Name+km im Header, kompakt aufsteigend, Import+Render+Barrel ✅
+
+**Verifikation Phasen 3913–3917 (Fahrer-Reaktionszeit-Ranking):**
+- Phase 3913 Backend `/api/delivery/admin/fahrer-reaktionszeit-statistik/route.ts`: force-dynamic ✅, await createClient() ✅, aufsteigend Rang 1=kuerzeste Reaktionszeit=bester, Ampel schnell=gruen/normal=gelb/langsam=rot, Alert "Lange Reaktionszeiten!" ✅
+- Phase 3914 Dispatch `DispatchPhase3914RaktionszeitBoard`: Timer-Icon grau, aufsteigend Rang 1=kuerzeste Reaktionszeit, KPI-Grid Schnellste/Team-Avg/Langsamste, Delta besser=gruen, Import+Render+Barrel ✅
+- Phase 3915 Fahrer `FahrerPhase3915MeineReaktionszeit`: Timer-Icon grau, min-Wert 5xl+Rang 3xl farbkodiert, Ziel <=5min, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3916 Storefront: uebersprungen ✅
+- Phase 3917 Kitchen `KitchenPhase3917RaktionszeitTicker`: Timer-Icon grau, Schnellste #1 Name im Header, kompakt aufsteigend, Import+Render+Barrel ✅
+
+**Verifikation Phasen 3918–3922 (Fahrer-Storno-Rate-Ranking):**
+- Phase 3918 Backend `/api/delivery/admin/fahrer-storno-rate/route.ts`: force-dynamic ✅, await createClient() ✅, aufsteigend Rang 1=niedrigste Rate=bester, Ampel gruen/gelb/rot, Alert "Hohe Storno-Rate!" ✅
+- Phase 3919 Dispatch `DispatchPhase3919StornoRateBoard`: XCircle-Icon rot, aufsteigend Rang 1=niedrigste Rate, KPI-Grid Bester/Team-Avg/Hoechster, Delta neg=gruen, Import+Render+Barrel ✅
+- Phase 3920 Fahrer `FahrerPhase3920MeineStornoRate`: XCircle-Icon rot, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=5%, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3921 Storefront: uebersprungen ✅
+- Phase 3922 Kitchen `KitchenPhase3922StornoRateTicker`: XCircle-Icon rot, Bester #1 Name+% im Header, kompakt aufsteigend, Import+Render+Barrel ✅
+- **Build exit 0** ✅ (Compiled successfully — alle Routen fehlerfrei)
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3912/3917/3922 Ticker (Kitchen) + Phase3909/3914/3919 Board (Dispatch) synchron |
+| Dispatch ↔ Driver | ✅ Phase3909/3910 Km-Tour + Phase3914/3915 Reaktionszeit + Phase3919/3920 Storno-Rate |
+| Backend API | ✅ fahrer-km-pro-tour + fahrer-reaktionszeit-statistik + fahrer-storno-rate — alle force-dynamic + await createClient() |
+| Storefront | ✅ Phasen 3911/3916/3921 uebersprungen |
+
+**Anweisung an naechsten Agent:**
+Naechste Phasen 3923–3927 — Fahrer-Pausen-Compliance-Ranking:
+1. **Phase 3923 Backend:** GET /api/delivery/admin/fahrer-pausen-compliance — bereits vorhanden, pruefen ob force-dynamic + await createClient(); Pausen-Einhaltungsquote in % je Fahrer letzte 30 Tage (Pflichtpausen eingehalten / gesamt); absteigend Rang 1=hoechste Compliance=bester; Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Pausen-Compliance!"; Mock Julia F.98%/Sara K.92%/Max M.78%/Tim B.61%; ziel_pct=85; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3924 Dispatch:** PausenComplianceBoard — Coffee-Icon braun; absteigend Rang 1=hoechste Compliance; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedrige Pausen-Compliance!"; Delta pos=gruen; RankBadge; 30-Min-Polling; nach Phase3919. PFLICHT: Import + Render + Barrel.
+3. **Phase 3925 Fahrer-App:** MeinePausenCompliance — Coffee-Icon braun; %-Wert 5xl+Rang 3xl farbkodiert; Ziel >=85%; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3920. PFLICHT: Import + Render + Barrel.
+4. **Phase 3926 Storefront:** Ueberspringen.
+5. **Phase 3927 Kitchen:** PausenComplianceTicker — Coffee-Icon braun; Bester #1 Name+% im Header; Alert "Niedrige Pausen-Compliance!"; kompakt absteigend; Rang+%+Delta pos=gruen; Team-Avg+Ziel >=85%; 30-Min-Polling; nach Phase3922. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: IMMER alle 3 Schritte: Import am Dateikopf + Render im JSX + Barrel-Export. Barrel allein reicht NICHT!
+
+---
+
 ## CEO Review #627 — 2026-07-26
 
 **Build ✓ exit 0 — Phasen 3893–3907 (Leerfahrtenquote + Lieferzeit + Wartezeit-Tür-Ranking) verifiziert**
