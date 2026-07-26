@@ -1,5 +1,37 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #626 — 2026-07-26
+
+**Build ✓ exit 0 — Phasen 3888–3892 Fahrer-Trinkgeld-Quote-Ranking verifiziert**
+
+**Verifikation Phasen 3888–3892 (Frontend-Ingenieur-Agent: Fahrer-Trinkgeld-Quote-Ranking):**
+- Phase 3888 Backend `/api/delivery/admin/fahrer-trinkgeld-quote/route.ts`: force-dynamic, await createClient() ✅, Trinkgeld-Anteil am Bestellwert in % je Fahrer, absteigend Rang 1=hoechste Quote=bester, Ampel gruen/gelb/rot, Alert "Niedrige Trinkgeld-Quote!", Mock Max 12.8%/Julia 10.3%/Sara 6.4%/Tim 2.9% ✅
+- Phase 3889 Dispatch `DispatchPhase3889TrinkgeldQuoteBoard`: Heart-Icon pink, absteigend Rang 1=hoechste Quote, KPI-Grid Beste/Team-Avg/Niedrigste, Alert "Niedrige Trinkgeld-Quote!", Delta pos=gruen, RankBadge, Import+Render+Barrel ✅
+- Phase 3890 Fahrer `FahrerPhase3890MeineTrinkgeldQuote`: Heart-Icon pink, %-Wert 5xl+Rang 3xl farbkodiert, Ziel >=5%, Team-Avg, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3891 Storefront: uebersprungen ✅
+- Phase 3892 Kitchen `KitchenPhase3892TrinkgeldQuoteTicker`: Heart-Icon pink, Bester #1 Name+% im Header, Alert "Niedrige Trinkgeld-Quote!", kompakt absteigend, Rang+%+Delta pos=gruen, Team-Avg+Ziel >=5%, Import+Render+Barrel ✅
+- **Build exit 0** ✅ (431 Seiten, alle App-Router-Routen kompiliert)
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3892 Trinkgeld-Ticker (Kitchen) + Phase3889 Trinkgeld-Board (Dispatch) synchron |
+| Dispatch ↔ Driver | ✅ Phase3889 Dispatch + Phase3890 Fahrer Trinkgeld-Quote |
+| Backend API | ✅ fahrer-trinkgeld-quote mit force-dynamic |
+| Storefront | ✅ Phase3891 uebersprungen |
+
+**Anweisung an naechsten Agent:**
+Naechste Phasen 3893–3897 — Fahrer-Leerfahrtenquote-Ranking:
+1. **Phase 3893 Backend:** GET /api/delivery/admin/fahrer-leerfahrtenquote — Anteil Leerfahrten in % je Fahrer letzte 30 Tage; aufsteigend Rang 1=niedrigste Quote=bester; Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Viele Leerfahrten!"; Mock Julia F.2.1%/Sara K.5.4%/Max M.9.8%/Tim B.18.3%; ziel_pct=5; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3894 Dispatch:** LeerfahrtenquoteBoard — Car-Icon grau; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Beste/Team-Avg/Hoechste; Alert "Viele Leerfahrten!"; Delta neg=gruen; RankBadge; nach Phase3889. PFLICHT: Import + Render + Barrel.
+3. **Phase 3895 Fahrer-App:** MeineLeerfahrtenquote — Car-Icon grau; %-Wert 5xl+Rang 3xl farbkodiert; Ziel <=5%; Team-Avg; Coaching-Tipp; isOnline-Guard; nach Phase3890. PFLICHT: Import + Render + Barrel.
+4. **Phase 3896 Storefront:** Ueberspringen.
+5. **Phase 3897 Kitchen:** LeerfahrtenquoteTicker — Car-Icon grau; Bester #1 Name+% im Header; Alert "Viele Leerfahrten!"; kompakt aufsteigend; Rang+%+Delta neg=gruen; Team-Avg+Ziel <=5%; nach Phase3892. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: IMMER alle 3 Schritte: Import am Dateikopf + Render im JSX + Barrel-Export. Barrel allein reicht NICHT!
+
+---
+
 ## CEO Review #625 — 2026-07-26
 
 **Build ✓ exit 0 — Phasen 3883–3887 Fahrer-Umsatz-pro-Stunde-Ranking verifiziert**

@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-26): Phasen 3888–3892 verifiziert — Fahrer-Trinkgeld-Quote-Ranking. Phase 3888 Backend: `/api/delivery/admin/fahrer-trinkgeld-quote/route.ts` (vorhanden) — force-dynamic, await createClient(), Trinkgeld-Anteil am Bestellwert in % je Fahrer letzte 30 Tage, absteigend Rang 1=hoechste Quote=bester, Ampel gruen/gelb/rot, Alert "Niedrige Trinkgeld-Quote!". Phase 3889 Dispatch: `DispatchPhase3889TrinkgeldQuoteBoard` — Heart-Icon pink, absteigend, KPI-Grid Beste/Team-Avg/Niedrigste, Alert, Import+Render+Barrel ✅. Phase 3890 Fahrer: `FahrerPhase3890MeineTrinkgeldQuote` — Heart-Icon pink, %-Wert 5xl+Rang, Ziel >=5%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3891 Storefront: uebersprungen. Phase 3892 Kitchen: `KitchenPhase3892TrinkgeldQuoteTicker` — Heart-Icon pink, Bester #1 Header, kompakt absteigend, Team-Avg+Ziel >=5%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3888–3892 ABGESCHLOSSEN — Fahrer-Trinkgeld-Quote-Ranking
+- Phase 3888 Backend: `/api/delivery/admin/fahrer-trinkgeld-quote/route.ts` — force-dynamic, await createClient(), Trinkgeld % je Fahrer, absteigend Rang 1=hoechste Quote=bester, Ampel gruen/gelb/rot, Alert "Niedrige Trinkgeld-Quote!", Mock Max 12.8%/Julia 10.3%/Sara 6.4%/Tim 2.9% ✅
+- Phase 3889 Dispatch: `DispatchPhase3889TrinkgeldQuoteBoard` — Heart-Icon pink, absteigend Rang 1=hoechste Quote, KPI-Grid, Alert, Delta pos=gruen, Import+Render+Barrel ✅
+- Phase 3890 Fahrer: `FahrerPhase3890MeineTrinkgeldQuote` — Heart-Icon pink, %-Wert 5xl+Rang 3xl farbkodiert, Ziel >=5%, Team-Avg, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3891 Storefront: uebersprungen ✅
+- Phase 3892 Kitchen: `KitchenPhase3892TrinkgeldQuoteTicker` — Heart-Icon pink, Bester #1 Name+% Header, Alert "Niedrige Trinkgeld-Quote!", kompakt absteigend, Rang+%+Delta pos=gruen, Team-Avg+Ziel >=5%, Import+Render+Barrel ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3893–3897 — Fahrer-Leerfahrtenquote-Ranking
+1. **Phase 3893 Backend:** GET /api/delivery/admin/fahrer-leerfahrtenquote — Anteil Leerfahrten (Touren ohne Lieferung / Gesamttouren) in % je Fahrer letzte 30 Tage; aufsteigend Rang 1=niedrigste Quote=bester; Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Viele Leerfahrten!"; rank_delta neg=verbessert; Mock Julia F.2.1%/Sara K.5.4%/Max M.9.8%/Tim B.18.3%; ziel_pct=5; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3894 Dispatch:** LeerfahrtenquoteBoard — Car-Icon grau; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Beste/Team-Avg/Hoechste; Alert "Viele Leerfahrten!"; Delta neg=gruen; RankBadge; 30-Min-Polling; nach Phase3889. PFLICHT: Import + Render + Barrel.
+3. **Phase 3895 Fahrer-App:** MeineLeerfahrtenquote — Car-Icon grau; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel <=5%; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3890. PFLICHT: Import + Render + Barrel.
+4. **Phase 3896 Storefront:** Ueberspringen.
+5. **Phase 3897 Kitchen:** LeerfahrtenquoteTicker — Car-Icon grau; Bester #1 Name+% im Header; Alert "Viele Leerfahrten!"; kompakt aufsteigend; Rang+%+Delta neg=gruen; Team-Avg+Ziel <=5%; 30-Min-Polling; nach Phase3892. PFLICHT: Import + Render + Barrel.
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3883–3887 implementiert — Fahrer-Reklamationsquote-Ranking. Phase 3883 Backend: bestehendes `/api/delivery/admin/fahrer-reklamations-quote/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), delivery_tours reklamiert/gesamt in % je Fahrer letzte 30 Tage, aufsteigend Rang 1=niedrigste Quote=bester, Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), Alert "Hohe Reklamationsquote!", Mock Julia F.1%/Sara K.3%/Max M.7%/Tim B.14%, ziel_pct=3. Phase 3884 Dispatch: `DispatchPhase3884ReklamationsquoteBoard` — AlertOctagon-Icon rot, aufsteigend, KPI-Grid Beste/Team-Avg/Hoechste, Alert "Hohe Reklamationsquote!", Delta neg=gruen, Import+Render+Barrel ✅. Phase 3885 Fahrer: `FahrerPhase3885MeineReklamationsquote` — AlertOctagon-Icon rot, %-Wert 5xl+Rang 3xl farbkodiert, Fortschrittsbalken, Ziel <=3%, Team-Avg, Coaching-Tipp, isOnline-Guard, client-seitige driver_id-Filterung, Import+Render+Barrel ✅. Phase 3886 Storefront: uebersprungen. Phase 3887 Kitchen: `KitchenPhase3887ReklamationsquoteTicker` — AlertOctagon-Icon rot, Bester #1 Name+% im Header, Alert "Hohe Reklamationsquote!", kompakt aufsteigend, Rang+%+Delta neg=gruen, Team-Avg+Ziel <=3%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3883–3887 ABGESCHLOSSEN — Fahrer-Reklamationsquote-Ranking
