@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3918–3922 implementiert — Fahrer-Storno-Rate-Ranking. Phase 3918 Backend: bestehendes `/api/delivery/admin/fahrer-storno-rate/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), Storno-Rate heute (stornierte/angebotene Touren) je Fahrer, aufsteigend Rang 1=niedrigste Rate=bester, Ampel gruen(<=5%)/gelb(5-15%)/rot(>15%), Alert "Hohe Storno-Rate!", Mock Tom 2.1%/Max 3.2%/Lena 8.7%/Sarah 18.5%/Jana 21.4%. Phase 3919 Dispatch: `DispatchPhase3919StornoRateBoard` — XCircle-Icon rot, aufsteigend, KPI-Grid Bester/Team-Avg/Hoechster, Alert "Hohe Storno-Rate!", Delta neg=gruen, Import+Render+Barrel ✅. Phase 3920 Fahrer: `FahrerPhase3920MeineStornoRate` — XCircle-Icon rot, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=5%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3921 Storefront: uebersprungen. Phase 3922 Kitchen: `KitchenPhase3922StornoRateTicker` — XCircle-Icon rot, Bester #1 Name+% im Header, Alert "Hohe Storno-Rate!", kompakt aufsteigend, Rang+%+Delta neg=gruen, Team-Avg+Ziel <=5%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3918–3922 ABGESCHLOSSEN — Fahrer-Storno-Rate-Ranking
+- Phase 3918 Backend: `/api/delivery/admin/fahrer-storno-rate/route.ts` (bereits vorhanden) — force-dynamic, await createClient(), Storno-Rate heute je Fahrer, aufsteigend Rang 1=niedrigste Rate=bester, Ampel gruen/gelb/rot, Alert "Hohe Storno-Rate!", Mock Tom 2.1%/Max 3.2%/Lena 8.7%/Sarah 18.5%/Jana 21.4% ✅
+- Phase 3919 Dispatch: `DispatchPhase3919StornoRateBoard` — XCircle-Icon rot, aufsteigend Rang 1=niedrigste Storno-Rate, KPI-Grid Bester/Team-Avg/Hoechster, Alert "Hohe Storno-Rate!", Delta neg=gruen ✅
+- Phase 3920 Fahrer: `FahrerPhase3920MeineStornoRate` — XCircle-Icon rot, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=5%, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3921 Storefront: uebersprungen ✅
+- Phase 3922 Kitchen: `KitchenPhase3922StornoRateTicker` — XCircle-Icon rot, Bester #1 Name+% im Header, Alert "Hohe Storno-Rate!", kompakt aufsteigend, Team-Avg+Ziel <=5% ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3923–3927 — Fahrer-Lieferungen-pro-km-Ranking
+1. **Phase 3923 Backend:** GET /api/delivery/admin/fahrer-lieferungen-pro-km — Lieferungen pro Kilometer je Fahrer letzte 30 Tage (hoeherer Wert=effizienter); absteigend Rang 1=hoechste Effizienz=bester; Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Geringe Liefereffizienz!"; Mock Max 3.8/Anna 3.1/Lena 2.4/Tim 1.6 Lief./km; ziel=3; Route bereits vorhanden.
+2. **Phase 3924 Dispatch:** LieferungenProKmBoard — PackageCheck-Icon grau; absteigend Rang 1=hoechste Effizienz; KPI-Grid Effizientester/Team-Avg/Niedrigster; Alert "Geringe Liefereffizienz!"; Delta pos=gruen; 30-Min-Polling; nach Phase3919. PFLICHT: Import + Render + Barrel.
+3. **Phase 3925 Fahrer-App:** MeineLieferungenProKm — PackageCheck-Icon grau; Wert 5xl+Rang 3xl farbkodiert; Ziel >=3 Lief./km; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3920. PFLICHT: Import + Render + Barrel.
+4. **Phase 3926 Storefront:** Ueberspringen.
+5. **Phase 3927 Kitchen:** LieferungenProKmTicker — PackageCheck-Icon grau; Effizientester #1 Name+Wert im Header; Alert "Geringe Liefereffizienz!"; kompakt absteigend; Rang+Wert+Delta pos=gruen; Team-Avg+Ziel >=3; 30-Min-Polling; nach Phase3922. PFLICHT: Import + Render + Barrel.
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3913–3917 implementiert — Fahrer-Reaktionszeit-Ranking. Phase 3913 Backend: bestehendes `/api/delivery/admin/fahrer-reaktionszeit-statistik/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), Ø Zeit von Tour-Zuweisung bis Fahrerbestaetigung in min letzte 7 Tage, aufsteigend Rang 1=kuerzeste Zeit=bester, Ampel schnell=gruen/normal=gelb/langsam=rot, Alert "Lange Reaktionszeiten!", Mock Max 2.4min/Anna 4.7min/Tom 7.2min, sla_ziel_min=5. Phase 3914 Dispatch: `DispatchPhase3914RaktionszeitBoard` — Timer-Icon grau, aufsteigend, KPI-Grid Schnellste/Team-Avg/Langsamste, Alert "Lange Reaktionszeiten!", Delta besser=gruen, Import+Render+Barrel ✅. Phase 3915 Fahrer: `FahrerPhase3915MeineReaktionszeit` — Timer-Icon grau, min-Wert 5xl+Rang 3xl farbkodiert, Ziel <=5min, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3916 Storefront: uebersprungen. Phase 3917 Kitchen: `KitchenPhase3917RaktionszeitTicker` — Timer-Icon grau, Schnellste #1 Name+min im Header, Alert "Lange Reaktionszeiten!", kompakt aufsteigend, Rang+min+Delta besser=gruen, Team-Avg+Ziel <=5min, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3913–3917 ABGESCHLOSSEN — Fahrer-Reaktionszeit-Ranking
