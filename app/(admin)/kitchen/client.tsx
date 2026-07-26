@@ -987,6 +987,7 @@ import { KitchenPhase3737TourenProSchichtTicker } from './phase3737-touren-pro-s
 import { KitchenPhase3742KmProTourTicker } from './phase3742-km-pro-tour-ticker';
 import { KitchenPhase3747PuenktlichkeitTicker } from './phase3747-puenktlichkeit-ticker';
 import { KitchenPhase3752ReaktionszeitTicker } from './phase3752-reaktionszeit-ticker';
+import { KitchenPhase3757SchichtstundenTicker } from './phase3757-schichtstunden-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4281,6 +4282,7 @@ export function KitchenBoard({
       <KitchenPhase3742KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3747PuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3752ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3757SchichtstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11425,3 +11427,5 @@ export { KitchenPhase3737TourenProSchichtTicker } from './phase3737-touren-pro-s
 export { KitchenPhase3742KmProTourTicker } from './phase3742-km-pro-tour-ticker';
 export { KitchenPhase3747PuenktlichkeitTicker } from './phase3747-puenktlichkeit-ticker';
 export { KitchenPhase3752ReaktionszeitTicker } from './phase3752-reaktionszeit-ticker';
+// Phase 3757 — Schichtstunden Ticker (Clock-Icon blau; Fleißigster #1 Name+h im Header; Alert "Wenige Schichtstunden!"; kompakt absteigend; Rang+h+Delta pos=gruen; Team-O+Ziel >=6h; 30-Min-Polling)
+export { KitchenPhase3757SchichtstundenTicker } from './phase3757-schichtstunden-ticker';
