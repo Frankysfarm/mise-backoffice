@@ -1065,6 +1065,7 @@ import { DispatchPhase3854TourenProTagBoard } from './phase3854-touren-pro-tag-b
 import { DispatchPhase3859StoppsProTourBoard } from './phase3859-stopps-pro-tour-board';
 import { DispatchPhase3864WartezeitProStoppBoard } from './phase3864-wartezeit-pro-stopp-board';
 import { DispatchPhase3869AblehnungsquoteBoard } from './phase3869-ablehnungsquote-board';
+import { DispatchPhase3874KundenbewertungBoard } from './phase3874-kundenbewertung-board';
 
 type Driver = {
   employee_id: string;
@@ -4747,6 +4748,7 @@ export function DispatchBoard({
           <DispatchPhase3859StoppsProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3864WartezeitProStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3869AblehnungsquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3874KundenbewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12951,5 +12953,7 @@ export { DispatchPhase3859StoppsProTourBoard } from './phase3859-stopps-pro-tour
 export { DispatchPhase3864WartezeitProStoppBoard } from './phase3864-wartezeit-pro-stopp-board';
 // Phase 3869 — Ablehnungsquote Board (XCircle-Icon orange; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Beste/Team-Avg/Höchste; Alert "Hohe Ablehnungsquote!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3869AblehnungsquoteBoard } from './phase3869-ablehnungsquote-board';
+// Phase 3874 — Kundenbewertung Board (Star-Icon gold; absteigend Rang 1=höchste Bewertung=bester; KPI-Grid Beste/Team-Avg/Niedrigste; Alert "Niedrige Bewertungen!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3874KundenbewertungBoard } from './phase3874-kundenbewertung-board';
 // Phase 3849 — Tour-Score Visualisierung Live Komplett (Trophy amber; Flotten-Avg; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert ausstehend/unterwegs/geliefert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; ETA je Stopp; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3849TourScoreVisualisierungLiveKomplett } from './phase3849-tour-score-visualisierung-live-komplett';

@@ -1,0 +1,159 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { Star, TrendingUp, TrendingDown, Minus, Wifi } from 'lucide-react';
+
+interface FahrerRow {
+  fahrer_id: string;
+  fahrer_name: string;
+  rang: number;
+  bewertung_avg: number;
+  trend_delta: number;
+  ampel: 'gruen' | 'gelb' | 'rot';
+}
+
+interface ApiData {
+  fahrer: FahrerRow[];
+  team_durchschnitt: number;
+  alert_count: number;
+}
+
+const MOCK_FAHRER: FahrerRow = {
+  fahrer_id: 'demo',
+  fahrer_name: 'Julia F.',
+  rang: 1,
+  bewertung_avg: 4.9,
+  trend_delta: 0.1,
+  ampel: 'gruen',
+};
+
+export function FahrerPhase3875MeineKundenbewertung({
+  driverId,
+  locationId,
+  isOnline,
+}: {
+  driverId: string | null;
+  locationId: string | null;
+  isOnline: boolean;
+}) {
+  const [fahrer, setFahrer] = useState<FahrerRow>(MOCK_FAHRER);
+  const [teamAvg, setTeamAvg] = useState(4.1);
+  const [gesamt, setGesamt] = useState(4);
+  const [loading, setLoading] = useState(false);
+
+  const ziel = 4.5;
+
+  const load = useCallback(async () => {
+    if (!locationId || !driverId || !isOnline) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/delivery/admin/fahrer-kundenbewertung?location_id=${locationId}`);
+      if (res.ok) {
+        const d: ApiData = await res.json();
+        const me = d.fahrer.find(f => f.fahrer_id === driverId);
+        if (me) {
+          setFahrer(me);
+          setTeamAvg(d.team_durchschnitt);
+          setGesamt(d.fahrer.length);
+        }
+      }
+    } catch {
+      // Mock-Fallback
+    } finally {
+      setLoading(false);
+    }
+  }, [driverId, locationId, isOnline]);
+
+  useEffect(() => {
+    load();
+    const id = setInterval(load, 30 * 60 * 1000);
+    return () => clearInterval(id);
+  }, [load]);
+
+  if (!isOnline) {
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-2 text-sm text-gray-400">
+        <Wifi className="w-4 h-4" />
+        <span>Offline — Kundenbewertung nicht verfügbar</span>
+      </div>
+    );
+  }
+
+  const valColor = fahrer.ampel === 'gruen' ? 'text-emerald-600' : fahrer.ampel === 'gelb' ? 'text-yellow-600' : 'text-red-500';
+  const rangColor = fahrer.rang === 1 ? 'text-yellow-500' : fahrer.rang <= Math.ceil(gesamt / 4) ? 'text-emerald-600' : fahrer.rang > Math.floor(gesamt * 0.75) ? 'text-red-500' : 'text-gray-700';
+  const istGut = fahrer.bewertung_avg >= ziel;
+
+  const starCount = Math.round(fahrer.bewertung_avg);
+  const stars = Array.from({ length: 5 }, (_, i) => i < starCount);
+
+  const coaching = fahrer.bewertung_avg < 3.5
+    ? 'Deine Bewertungen sind sehr niedrig. Sei freundlich, pünktlich und kommuniziere aktiv mit Kunden.'
+    : fahrer.bewertung_avg < ziel
+      ? 'Die Bewertungen können verbessert werden. Lächle, sei höflich und übergib Bestellungen sorgfältig.'
+      : 'Hervorragende Kundenbewertungen! Du machst einen tollen Job.';
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+          <span className="text-sm font-semibold text-gray-900">Meine Kundenbewertung</span>
+          {loading && <span className="w-2.5 h-2.5 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin" />}
+        </div>
+        <span className="text-xs text-gray-400">Ziel ≥{ziel}★</span>
+      </div>
+
+      {/* Wert + Rang */}
+      <div className="flex items-end justify-between">
+        <div>
+          <div className={`text-5xl font-black leading-none ${valColor}`}>{fahrer.bewertung_avg}</div>
+          <div className="flex gap-0.5 mt-1">
+            {stars.map((filled, i) => (
+              <Star key={i} className={`w-3.5 h-3.5 ${filled ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
+            ))}
+          </div>
+          <div className="flex items-center gap-1 mt-1">
+            {fahrer.trend_delta > 0
+              ? <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+              : fahrer.trend_delta < 0
+                ? <TrendingDown className="w-3.5 h-3.5 text-red-400" />
+                : <Minus className="w-3.5 h-3.5 text-gray-400" />
+            }
+            <span className="text-xs text-gray-500">
+              {fahrer.trend_delta > 0 ? '+' : ''}{fahrer.trend_delta}★
+            </span>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className={`text-3xl font-black ${rangColor}`}>#{fahrer.rang}</div>
+          <div className="text-[10px] text-gray-400">von {gesamt}</div>
+        </div>
+      </div>
+
+      {/* Fortschrittsbalken */}
+      <div>
+        <div className="flex justify-between text-[10px] text-gray-400 mb-1">
+          <span>Bewertung</span>
+          <span>{istGut ? '✓ Ziel erreicht' : `${(ziel - fahrer.bewertung_avg).toFixed(1)}★ unter Ziel`}</span>
+        </div>
+        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full ${fahrer.ampel === 'gruen' ? 'bg-emerald-500' : fahrer.ampel === 'gelb' ? 'bg-yellow-400' : 'bg-red-400'}`}
+            style={{ width: `${Math.min(100, (fahrer.bewertung_avg / 5) * 100)}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Team-Avg */}
+      <div className="text-[11px] text-gray-500 text-center">
+        Team-Ø: <span className="font-semibold text-gray-700">{teamAvg}★</span>
+      </div>
+
+      {/* Coaching-Tipp */}
+      <div className="bg-yellow-50 border border-yellow-100 rounded-lg px-3 py-2 text-[11px] text-yellow-800">
+        {coaching}
+      </div>
+    </div>
+  );
+}
