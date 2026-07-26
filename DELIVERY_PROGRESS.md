@@ -2,6 +2,18 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3948–3952 implementiert — Fahrer-Leerfahrten-Ranking. Phase 3948 Backend: bestehendes `/api/delivery/admin/fahrer-leerfahrten-ranking/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), leerfahrten_pct je Fahrer heute, aufsteigend Rang 1=niedrigste Quote=bester, Ampel gruen/gelb/rot, rank_delta, alert_bottom, Alert "Hohe Leerfahrtenquote!", Mock Julia 5%/Sara 12%/Max 22%/Tim 38%. Phase 3949 Dispatch: `DispatchPhase3949LeerfahrtenBoard` — Car-Icon orange, aufsteigend, KPI-Grid Bester/Team-Avg/Hoechster, Alert "Hohe Leerfahrtenquote!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3950 Fahrer: `FahrerPhase3950MeineLeerfahrten` — Car-Icon orange, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=15%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3951 Storefront: uebersprungen. Phase 3952 Kitchen: `KitchenPhase3952LeerfahrtenTicker` — Car-Icon orange, Bester #1 Name+% im Header, Alert "Hohe Leerfahrtenquote!", kompakt aufsteigend, Rang+%+Delta rank_delta<0=gruen, Team-Avg+Ziel <=15%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3948–3952 ABGESCHLOSSEN — Fahrer-Leerfahrten-Ranking
+- Phase 3948 Backend: `/api/delivery/admin/fahrer-leerfahrten-ranking/route.ts` (bereits vorhanden) — force-dynamic, leerfahrten_pct je Fahrer heute, aufsteigend Rang 1=niedrigste Quote=bester, Ampel gruen/gelb/rot, rank_delta (< 0 = verbessert), alert_bottom, Mock Julia 5%/Sara 12%/Max 22%/Tim 38% ✅
+- Phase 3949 Dispatch: `DispatchPhase3949LeerfahrtenBoard` — Car-Icon orange, aufsteigend Rang 1=niedrigste Leerfahrtenquote, KPI-Grid Bester/Team-Avg/Hoechster, Alert "Hohe Leerfahrtenquote!", rank_delta<0=gruen ✅
+- Phase 3950 Fahrer: `FahrerPhase3950MeineLeerfahrten` — Car-Icon orange, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=15%, Coaching-Tipp (3 Stufen), isOnline-Guard ✅
+- Phase 3951 Storefront: uebersprungen ✅
+- Phase 3952 Kitchen: `KitchenPhase3952LeerfahrtenTicker` — Car-Icon orange, Bester #1 Name+% im Header, Alert "Hohe Leerfahrtenquote!", kompakt aufsteigend, Team-Avg+Ziel <=15% ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3953–3957 — Fahrer-Kundenbewertung-Ranking
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3943–3947 implementiert — Fahrer-Trinkgeld-Betrag-Ranking. Phase 3943 Backend: bestehendes `/api/delivery/admin/fahrer-trinkgeld-ranking/route.ts` adaptiert (bereits vorhanden) — force-dynamic, avg_tip_eur je Fahrer heute, absteigend Rang 1=hoechster Betrag=bester, Ampel gruen/gelb/rot, rank_delta, alert_bottom, Alert "Niedriges Trinkgeld!", Mock Julia 3.20€/Max 2.50€/Sara 1.80€/Tim 0.90€. Phase 3944 Dispatch: `DispatchPhase3944TrinkgeldBetragBoard` — Gift-Icon gruen, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedriges Trinkgeld!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3945 Fahrer: `FahrerPhase3945MeinTrinkgeldBetrag` — Gift-Icon gruen, €-Wert 5xl+Rang 3xl farbkodiert, Ziel >=2€, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3946 Storefront: uebersprungen. Phase 3947 Kitchen: `KitchenPhase3947TrinkgeldBetragTicker` — Gift-Icon gruen, Bester #1 Name+€ im Header, Alert "Niedriges Trinkgeld!", kompakt absteigend, Rang+€+Delta rank_delta<0=gruen, Team-Avg+Ziel >=2€, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3943–3947 ABGESCHLOSSEN — Fahrer-Trinkgeld-Betrag-Ranking
