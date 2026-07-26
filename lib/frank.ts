@@ -34,6 +34,11 @@ import {
   decideIntelligentDispatch,
   type IntelligentDispatchDriver,
 } from './delivery/intelligent-dispatch';
+import {
+  decideLongDistanceHold,
+  evaluateCorridorBundle,
+  type CorridorBundleDecision,
+} from './delivery/long-distance-batching';
 
 interface DriverRow {
   id: string;
@@ -44,8 +49,12 @@ interface DriverRow {
   state: string;
 }
 
-function intelligent15kmEnabled(useAtomicWriter: boolean): boolean {
-  return process.env.P0_INTELLIGENT_15KM_ENABLED === 'true' && useAtomicWriter;
+function intelligent20kmEnabled(useAtomicWriter: boolean): boolean {
+  return process.env.P0_INTELLIGENT_20KM_ENABLED === 'true' && useAtomicWriter;
+}
+
+function smartLongDistanceBatchingEnabled(): boolean {
+  return process.env.P0_SMART_LONG_DISTANCE_BATCHING_ENABLED === 'true';
 }
 
 interface OrderRow {
@@ -59,6 +68,7 @@ interface OrderRow {
   kunde_stadt: string | null;
   created_at?: string | null;
   dispatch_version?: number | null;
+  eta_latest?: string | null;
 }
 
 interface LocationRow {
@@ -119,7 +129,7 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
   const c = sb();
   const { data: orders } = await c
     .from('customer_orders')
-    .select('id, bestellnummer, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, created_at, dispatch_version')
+    .select('id, bestellnummer, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, created_at, dispatch_version, eta_latest')
     .eq('typ', 'lieferung')
     .is('mise_driver_id', null)
     .is('mise_batch_id', null)
@@ -175,6 +185,24 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   }
   const preset = await tenantStrategy(loc.tenant_id);
 
+  if (smartLongDistanceBatchingEnabled()) {
+    const hold = decideLongDistanceHold({
+      id: o.id,
+      pickup: { lat: loc.lat, lng: loc.lng },
+      dropoff: { lat: o.kunde_lat, lng: o.kunde_lng },
+      createdAt: o.created_at ?? new Date(0).toISOString(),
+      deadlineAt: o.eta_latest ?? null,
+    }, new Date());
+    await logDecision(
+      hold.action === 'hold' ? 'hold' : 'reroute',
+      null,
+      [o.id],
+      `LONG_DISTANCE_${hold.reasonCode}`,
+      hold as unknown as Record<string, unknown>,
+    );
+    if (hold.action === 'reject' || hold.action === 'hold') return 'held';
+  }
+
   // 2) Customer-Adresse geocoden falls nötig
   if (o.kunde_lat == null || o.kunde_lng == null) {
     const addr = [o.kunde_adresse, o.kunde_plz, o.kunde_stadt].filter(Boolean).join(', ');
@@ -229,7 +257,11 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
       .maybeSingle();
     if (!openBatch) continue;
 
-    const fits = await canBundle(openBatch.id, d, o, loc, preset);
+    let corridorDecision: CorridorBundleDecision | null = null;
+    const fits = smartLongDistanceBatchingEnabled()
+      ? Boolean(corridorDecision = await canSmartCorridorBundle(openBatch.id, d, o, loc, preset))
+        && corridorDecision.compatible
+      : await canBundle(openBatch.id, d, o, loc, preset);
     if (!fits) continue;
 
     await addOrderToBundle(openBatch.id, o.id, loc, d.vehicle);
@@ -238,7 +270,10 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
       'bundle',
       d.id,
       [o.id],
-      `An offenen Bundle gehängt — kürzerer Umweg als neuer Trip.`,
+      `An offenen Bundle gehängt — ${corridorDecision?.reasonCode ?? 'kürzerer Umweg als neuer Trip'}.`,
+      corridorDecision
+        ? corridorDecision as unknown as Record<string, unknown>
+        : undefined,
     );
     return 'bundled';
   }
@@ -254,7 +289,7 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
 
   // 5) Neuer Bundle für nearest-Driver (nach last position oder zufällig)
   let best: DriverRow;
-  if (intelligent15kmEnabled(useAtomicWriter)) {
+  if (intelligent20kmEnabled(useAtomicWriter)) {
     const driverIds = nearby.map((driver) => driver.id);
     const [{ data: details, error: detailsError }, { data: recent, error: recentError },
       { data: tenantConfig, error: tenantError }, { data: deadlineRow, error: deadlineError }] =
@@ -411,6 +446,50 @@ async function canBundle(
   });
 
   return samePickup && nearDropoff;
+}
+
+async function canSmartCorridorBundle(
+  batchId: string,
+  driver: DriverRow,
+  newOrder: OrderRow,
+  pickupLoc: LocationRow,
+  preset: StrategyPreset,
+): Promise<CorridorBundleDecision> {
+  const { data: stops } = await sb()
+    .from('mise_delivery_batch_stops')
+    .select('order_id,type,sequence,lat,lng,completed_at')
+    .eq('batch_id', batchId)
+    .order('sequence', { ascending: true });
+  const open = (stops ?? []).filter((stop: any) => stop.completed_at == null);
+  const pickups = open.filter((stop: any) => stop.type === 'pickup');
+  const dropoffs = open.filter((stop: any) => stop.type === 'dropoff');
+  const samePickup = pickups.some((stop: any) =>
+    stop.lat != null && stop.lng != null &&
+    pickupLoc.lat != null && pickupLoc.lng != null &&
+    haversineKm(
+      { lat: stop.lat, lng: stop.lng },
+      { lat: pickupLoc.lat, lng: pickupLoc.lng },
+    ) < 0.1);
+  const routeEnd = dropoffs[dropoffs.length - 1];
+  return evaluateCorridorBundle({
+    routeStart: samePickup
+      ? { lat: pickupLoc.lat, lng: pickupLoc.lng }
+      : { lat: null, lng: null },
+    routeEnd: { lat: routeEnd?.lat ?? null, lng: routeEnd?.lng ?? null },
+    candidate: {
+      id: newOrder.id,
+      pickup: { lat: pickupLoc.lat, lng: pickupLoc.lng },
+      dropoff: { lat: newOrder.kunde_lat, lng: newOrder.kunde_lng },
+      createdAt: newOrder.created_at ?? new Date(0).toISOString(),
+      deadlineAt: newOrder.eta_latest ?? null,
+    },
+    existingAdditionalOrders: Math.max(
+      0,
+      new Set(dropoffs.map((stop: any) => stop.order_id)).size - 1,
+    ),
+    activeStops: dropoffs.length,
+    maxCapacity: VEHICLE_SLOTS[driver.vehicle] + preset.slotBonus,
+  }, new Date());
 }
 
 function pickBest(drivers: DriverRow[], pickupLoc: LocationRow): DriverRow {

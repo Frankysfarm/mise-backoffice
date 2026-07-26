@@ -80,7 +80,7 @@ export interface DispatchCandidateDecision {
 }
 
 export interface IntelligentDispatchDecision {
-  algorithmVersion: 'intelligent-haversine-v1';
+  algorithmVersion: 'intelligent-haversine-v2-20km';
   approximation: 'haversine_static_speed';
   evaluatedAt: string;
   effectiveMaxDeliveryKm: number;
@@ -122,7 +122,7 @@ export function normalizeIntelligentDispatchConfig(
 ): IntelligentDispatchConfig {
   return {
     maxDeliveryKm: Math.min(
-      15,
+      20,
       Math.max(0.1, finiteNonNegative(input.maxDeliveryKm ?? 8, 8)),
     ),
     gpsFreshSeconds: Math.max(
@@ -174,7 +174,7 @@ export function decideIntelligentDispatch(
   if (!Number.isFinite(nowMs)) throw new Error('invalid evaluation time');
 
   const base: IntelligentDispatchDecision = {
-    algorithmVersion: 'intelligent-haversine-v1',
+    algorithmVersion: 'intelligent-haversine-v2-20km',
     approximation: 'haversine_static_speed',
     evaluatedAt: nowInput.toISOString(),
     effectiveMaxDeliveryKm: config.maxDeliveryKm,

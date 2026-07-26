@@ -19,7 +19,23 @@ const baseDriver: IntelligentDispatchDriver = {
   lastAssignedAt: null,
 };
 
-assert.equal(normalizeIntelligentDispatchConfig({ maxDeliveryKm: 99 }).maxDeliveryKm, 15);
+assert.equal(normalizeIntelligentDispatchConfig({ maxDeliveryKm: 99 }).maxDeliveryKm, 20);
+
+const boundary20 = decideIntelligentDispatch(
+  { id: '20km', pickup: { lat: 0, lng: 0 }, dropoff: { lat: 0, lng: 0.17985 }, deadlineAt: null },
+  [{ ...baseDriver, position: { lat: 0, lng: 0 }, lastPositionAt: now.toISOString() }],
+  { maxDeliveryKm: 20 },
+  now,
+);
+assert.equal(boundary20.winnerDriverId, 'driver-b');
+
+const outside20 = decideIntelligentDispatch(
+  { id: '20.1km', pickup: { lat: 0, lng: 0 }, dropoff: { lat: 0, lng: 0.18077 }, deadlineAt: null },
+  [{ ...baseDriver, position: { lat: 0, lng: 0 }, lastPositionAt: now.toISOString() }],
+  { maxDeliveryKm: 20 },
+  now,
+);
+assert.equal(outside20.candidates[0].reasonCodes[0], 'OUTSIDE_DELIVERY_RADIUS');
 
 const outside = decideIntelligentDispatch(
   {

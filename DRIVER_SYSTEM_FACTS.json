@@ -1,0 +1,487 @@
+{
+  "repository": {
+    "branch": "codex/p0-single-writer-atomic-offer",
+    "commit": "f14afea523f766603fe49c8cba716086abe72b37",
+    "dirty_files": [
+      "docs/task-packets/P1-INTELLIGENT-15KM-ELIGIBILITY.md",
+      "lib/delivery/intelligent-dispatch.ts",
+      "lib/frank.ts",
+      "scripts/tests/intelligent-dispatch.test.ts",
+      "tsconfig.p0.json",
+      "docs/task-packets/P1-LONG-DISTANCE-SMART-BATCHING.md",
+      "lib/delivery/long-distance-batching.ts",
+      "scripts/migrations/275_gps_history_security_retention.sql",
+      "scripts/tests/long-distance-batching.test.ts",
+      "tsconfig.p0.tsbuildinfo"
+    ],
+    "stack": [
+      "Next.js 14.2.18",
+      "React 18.3.1",
+      "TypeScript 5.6.3",
+      "Supabase JS 2.103.0",
+      "PostgreSQL",
+      "Capacitor 6"
+    ],
+    "apps": [
+      "customer storefront in backoffice",
+      "kitchen web UI",
+      "dispatcher/admin web UI",
+      "driver web app",
+      "Capacitor native driver wrapper"
+    ],
+    "services": [
+      "Next.js API",
+      "Supabase REST/Auth/Realtime/Postgres",
+      "cron workers",
+      "APNs",
+      "Web Push",
+      "Google Maps APIs",
+      "Stripe"
+    ]
+  },
+  "architecture": {
+    "components": [
+      "customer_orders/order_items",
+      "legacy delivery_batches/driver_status",
+      "mise_delivery_batches/mise_drivers",
+      "Frank JavaScript dispatcher",
+      "legacy dispatch engine",
+      "database dispatch RPCs",
+      "default-off atomic offer path",
+      "driver WebView",
+      "PushKit/CallKit native shell"
+    ],
+    "data_flows": [
+      "Storefront to Next API to customer_orders and order_items",
+      "Cron to dispatch writers to batches/stops/order assignment",
+      "Database outbox/realtime to driver app",
+      "Driver browser direct writes and driver-v1 APIs to database",
+      "Browser geolocation to driver_status",
+      "Driver-v1 position API to GPS history and current state"
+    ],
+    "external_dependencies": [
+      "Supabase",
+      "Google Geocoding and Directions",
+      "Apple APNs PushKit CallKit",
+      "VAPID Web Push",
+      "Stripe",
+      "OpenStreetMap tiles"
+    ]
+  },
+  "state_machines": {
+    "orders": {
+      "states": ["neu", "bestätigt", "in_zubereitung", "fertig", "unterwegs", "geliefert", "storniert", "scheduled", "released"],
+      "finding": "No single central enum or transition validator; legacy and alternative status vocabularies coexist."
+    },
+    "drivers": {
+      "states": ["offline", "idle", "assigned", "at_restaurant", "en_route", "returning"],
+      "finding": "mise_drivers and driver_status are separate, non-transactionally synchronized authorities."
+    },
+    "assignments": {
+      "atomic_states": ["offered", "accepted", "declined", "expired", "picked_up", "in_progress", "completed", "cancelled"],
+      "legacy_states": ["pending_acceptance", "assigned", "at_restaurant", "in_progress", "completed", "cancelled"],
+      "finding": "Atomic CAS state machine exists but is default-off and deployment state is unknown."
+    },
+    "kitchen": {
+      "states": ["scheduled", "cooking", "ready", "picked_up"],
+      "finding": "Kitchen and customer_order states are not proven to be one atomic state machine."
+    },
+    "routes": {
+      "states": ["pending_acceptance", "assigned", "at_restaurant", "in_progress", "completed", "cancelled"],
+      "finding": "Legacy UI can locally defer stops and therefore alter next-stop selection."
+    },
+    "gps": {
+      "states": ["offline", "watching", "fresh", "stale", "permission_error", "offline_network"],
+      "finding": "No sequence number, device timestamp ordering, or native killed-app tracking is proven."
+    }
+  },
+  "dispatch": {
+    "entry_points": [
+      "lib/frank.ts dispatchTick",
+      "lib/delivery/dispatch-engine.ts smartDispatchTick",
+      "fn_frank_assign_nearest_driver database RPC",
+      "atomic offer RPC when feature flag and tenant gate are active"
+    ],
+    "triggers": [
+      "Vercel smart-dispatch cron every two minutes",
+      "internal token-protected dispatch tick",
+      "database triggers documented by migration 274 runbook"
+    ],
+    "candidate_filters": [
+      "tenant membership active",
+      "driver active and not offline in legacy",
+      "legacy radius from driver to pickup when coordinates exist",
+      "atomic intelligent path requires idle or returning, fresh GPS, capacity, radius and deadline feasibility"
+    ],
+    "score_factors": [
+      "driver-to-pickup static travel minutes",
+      "pickup-to-dropoff static travel minutes",
+      "six service minutes",
+      "active-stop workload penalty",
+      "recent assignment fairness penalty"
+    ],
+    "weights": [
+      "bike 18 km/h",
+      "car 35 km/h",
+      "pickup service 3 minutes",
+      "dropoff service 3 minutes",
+      "workload 8 minutes per active stop",
+      "fairness 2 minutes per assignment last hour",
+      "recent assignment extra 2 minutes",
+      "deadline safety 5 minutes"
+    ],
+    "batching_rules": [
+      "legacy same pickup within 0.1 km",
+      "legacy new dropoff within tenant detour preset",
+      "bike two and car four base dropoffs",
+      "optional default-off corridor policy with heading, corridor, detour, capacity and deadline checks"
+    ],
+    "locking": [
+      "legacy JavaScript writes are not one transaction",
+      "atomic v1 uses tenant advisory transaction lock and compare-and-swap"
+    ],
+    "idempotency": [
+      "atomic v1 transition keys and offer idempotency",
+      "no end-to-end legacy idempotency proven"
+    ],
+    "auditability": [
+      "mise_frank_decisions",
+      "dispatch_offer_audit for atomic v1",
+      "pure intelligent candidate decision breakdown"
+    ],
+    "unknowns": [
+      "active production writer",
+      "active tenant gates",
+      "production feature flags",
+      "production migration 274 status"
+    ]
+  },
+  "hold_and_kitchen_release": {
+    "entry_points": [
+      "Frank tenant strategy hold",
+      "default-off long-distance hold",
+      "scheduled order release cron"
+    ],
+    "rules": [
+      "spar strategy waits up to 180 seconds",
+      "long-distance tiers are 0, 60, 180 and 300 seconds up to a 20 km hard cap",
+      "scheduled release uses scheduled_at minus estimated preparation minutes"
+    ],
+    "timeouts": [
+      "long-distance absolute deadline anchored to order creation",
+      "scheduled release checked every smart-dispatch cron"
+    ],
+    "watchdogs": [
+      "scheduled release cron",
+      "no persisted watchdog proven for default-off long-distance hold"
+    ],
+    "failure_modes": [
+      "long-distance holdUntil is calculated but not persisted by current Frank integration",
+      "missing schedule migration is silently treated as zero released",
+      "kitchen load and real traffic ETA are not inputs to long-distance hold"
+    ],
+    "unknowns": [
+      "production cron health",
+      "production hold constraints",
+      "actual kitchen preparation configuration"
+    ]
+  },
+  "gps": {
+    "client_modules": [
+      "app/fahrer/app/client.tsx browser geolocation watcher",
+      "Capacitor Geolocation dependency"
+    ],
+    "backend_modules": [
+      "app/api/driver/v1/me/position/route.ts",
+      "mise_driver_locations",
+      "mise_drivers current coordinates",
+      "driver_status current coordinates"
+    ],
+    "permissions": [
+      "iOS when-in-use description",
+      "iOS always-and-when-in-use description",
+      "iOS location background mode in template and CI"
+    ],
+    "foreground_behavior": "Browser watchPosition while UI online, high accuracy, at most one direct driver_status update per 15 seconds.",
+    "background_behavior": "No native CLLocationManager/background tracking implementation is present; WebView behavior is platform-throttled and unproven.",
+    "stale_thresholds": [
+      "300 seconds in default intelligent dispatch config",
+      "future position more than 30 seconds rejected by intelligent scorer"
+    ],
+    "transport": [
+      "direct Supabase browser update to driver_status",
+      "authenticated POST /api/driver/v1/me/position"
+    ],
+    "storage": [
+      "mise_driver_locations history",
+      "mise_drivers last coordinates",
+      "driver_status last coordinates"
+    ],
+    "recovery": [
+      "no GPS offline queue or replay proven",
+      "watcher cleanup on offline/unmount"
+    ],
+    "platform_gaps": [
+      "no killed-app tracking implementation",
+      "no reboot recovery",
+      "no Android manifest/project evidence",
+      "no accuracy or impossible-jump filter",
+      "no sequence/version ordering"
+    ],
+    "unknowns": [
+      "real device permission state",
+      "background battery behavior",
+      "production retention job",
+      "TestFlight binary configuration"
+    ]
+  },
+  "database": {
+    "tables": [
+      "customer_orders",
+      "order_items",
+      "delivery_batches",
+      "delivery_batch_stops",
+      "driver_status",
+      "mise_drivers",
+      "mise_driver_tenants",
+      "mise_delivery_batches",
+      "mise_delivery_batch_stops",
+      "mise_driver_locations",
+      "mise_frank_decisions",
+      "mise_push_outbox",
+      "dispatch_writer_gates",
+      "dispatch_offer_assignments",
+      "dispatch_offer_audit",
+      "dispatch_offer_transition_requests"
+    ],
+    "constraints": [
+      "atomic v1 partial active assignment uniqueness in migration 274",
+      "kitchen_timings unique order_id",
+      "legacy exact active-assignment uniqueness not proven"
+    ],
+    "indexes": [
+      "dispatch and batch indexes across migrations",
+      "atomic offer active indexes in migration 274",
+      "GPS history index deployment status unknown"
+    ],
+    "triggers": [
+      "legacy create_dispatch_batch writer",
+      "Frank database writer",
+      "push outbox assignment trigger",
+      "batch location trigger"
+    ],
+    "security_rules": [
+      "atomic v1 tables use service-role RLS policies",
+      "untracked migration 275 enables GPS history RLS and service-role-only grants",
+      "production RLS state not verified"
+    ],
+    "race_risks": [
+      "legacy batch, stops and order assignment are separate HTTP writes",
+      "legacy bundle merge writes are separate and unguarded",
+      "legacy driver/order/stop lifecycle updates lack expected-state and version guards",
+      "multiple writer paths coexist"
+    ]
+  },
+  "tests": {
+    "commands": [
+      {"command": "git diff --check", "exit_code": 0, "result": "passed"},
+      {"command": "npx tsc -p tsconfig.p0.json --noEmit --pretty false", "exit_code": 0, "result": "passed"},
+      {"command": "npx tsx scripts/tests/atomic-lifecycle-contract.test.ts", "exit_code": 0, "result": "passed"},
+      {"command": "npx tsx scripts/tests/atomic-offer-client-state.test.ts", "exit_code": 0, "result": "passed"},
+      {"command": "npx tsx scripts/tests/intelligent-dispatch.test.ts", "exit_code": 0, "result": "passed"},
+      {"command": "npx tsx scripts/tests/long-distance-batching.test.ts", "exit_code": 0, "result": "passed"},
+      {"command": "npm run lint", "exit_code": 1, "result": "blocked by interactive initial ESLint configuration"},
+      {"command": "npm run build", "exit_code": null, "result": "manually interrupted after more than two minutes without progress; invalid turbopack option warning"},
+      {"command": "./scripts/verify-fast.sh", "exit_code": 1, "result": "native validator reports missing required files and scans invalid JSON-like dependency files"}
+    ],
+    "passing": [
+      "focused atomic lifecycle contract",
+      "atomic client retry state",
+      "pure intelligent dispatch",
+      "pure long-distance hold and corridor",
+      "focused TypeScript check"
+    ],
+    "failing": [
+      "lint configuration",
+      "native verification scaffold"
+    ],
+    "missing_scenarios": [
+      "complete order-to-delivery E2E",
+      "two live workers race",
+      "multi-order pick completeness",
+      "push loss and duplicate",
+      "app killed and background GPS",
+      "offline replay idempotency",
+      "cancel during hold",
+      "out-of-order events",
+      "server restart",
+      "two stores competing for driver",
+      "old app compatibility"
+    ]
+  },
+  "defects": [
+    {
+      "id": "P0-01",
+      "severity": "P0",
+      "title": "Legacy assignment is not atomic",
+      "status": "IMPLEMENTIERT ABER DEFEKT",
+      "evidence": ["lib/frank.ts:554-587"],
+      "reproduction": ["Two workers can read the same unassigned order before separate writes complete."],
+      "root_cause": "Batch, stops and order claim are separate PostgREST requests.",
+      "affected_files": ["lib/frank.ts"],
+      "business_impact": "Duplicate or partially assigned orders.",
+      "recommended_next_action": "Validate and activate one atomic writer in isolated staging before any rollout.",
+      "confidence": "high"
+    },
+    {
+      "id": "P0-02",
+      "severity": "P0",
+      "title": "Multiple dispatch writers and state models coexist",
+      "status": "IMPLEMENTIERT ABER DEFEKT",
+      "evidence": ["app/api/driver/v1/internal/dispatch/route.ts:42-75", "lib/frank.ts:128-381", "scripts/migrations/005_open_batches_view.sql:14-65"],
+      "reproduction": [],
+      "root_cause": "Legacy, Frank DB, Frank JS and optional atomic paths evolved independently.",
+      "affected_files": ["lib/frank.ts", "lib/delivery/dispatch-engine.ts", "scripts/migrations/005_open_batches_view.sql"],
+      "business_impact": "Conflicting assignments and irreconcilable states.",
+      "recommended_next_action": "Inventory runtime writers and enforce tenant-scoped single-writer election.",
+      "confidence": "high"
+    },
+    {
+      "id": "P0-03",
+      "severity": "P0",
+      "title": "Pick completeness is not a server invariant",
+      "status": "IMPLEMENTIERT ABER DEFEKT",
+      "evidence": ["app/api/driver/v1/orders/[id]/pick-verify/route.ts:13-19", "app/fahrer/app/pick-dialog.tsx:35-68"],
+      "reproduction": ["Mark an item missing; it counts as confirmed and enables completion after all rows are marked."],
+      "root_cause": "Completeness and missing-item policy live in the client and separate database RPC.",
+      "affected_files": ["app/fahrer/app/pick-dialog.tsx", "app/api/driver/v1/orders/[id]/pick-verify/route.ts"],
+      "business_impact": "Driver may depart with missing or incompletely picked assigned orders.",
+      "recommended_next_action": "Define an atomic batch-pick server transition with explicit missing-item resolution.",
+      "confidence": "high"
+    },
+    {
+      "id": "P0-04",
+      "severity": "P0",
+      "title": "Critical legacy lifecycle writes are client-side",
+      "status": "NUR UI-SEITIG",
+      "evidence": ["app/fahrer/app/client.tsx:1435-1565"],
+      "reproduction": [],
+      "root_cause": "Browser Supabase client is used as business service.",
+      "affected_files": ["app/fahrer/app/client.tsx"],
+      "business_impact": "Server state transitions can be bypassed or partially applied.",
+      "recommended_next_action": "Move critical mutations behind authenticated versioned APIs and least-privilege RLS.",
+      "confidence": "high"
+    },
+    {
+      "id": "P0-05",
+      "severity": "P0",
+      "title": "No reproducible full E2E and concurrency release gate",
+      "status": "FEHLT",
+      "evidence": ["package.json contains no test scripts", "available tests are pure TS and SQL contracts"],
+      "reproduction": [],
+      "root_cause": "No proven isolated staging stack and device test pipeline.",
+      "affected_files": ["package.json", "scripts/tests"],
+      "business_impact": "Regressions reach operations without evidence.",
+      "recommended_next_action": "Create isolated schema-compatible staging and mandatory race/device E2E gates.",
+      "confidence": "high"
+    },
+    {
+      "id": "P1-01",
+      "severity": "P1",
+      "title": "Legacy dispatcher allows missing GPS",
+      "status": "IMPLEMENTIERT ABER DEFEKT",
+      "evidence": ["lib/frank.ts:239-243"],
+      "reproduction": ["A driver with null coordinates remains in nearby candidates."],
+      "root_cause": "Legacy fallback prioritizes availability over location validity.",
+      "affected_files": ["lib/frank.ts"],
+      "business_impact": "Wrong or distant driver assignment.",
+      "recommended_next_action": "Fail closed or explicit supervised fallback after atomic baseline is active.",
+      "confidence": "high"
+    },
+    {
+      "id": "P1-02",
+      "severity": "P1",
+      "title": "Background GPS is not implemented natively",
+      "status": "VORHANDEN ABER NICHT ANGESCHLOSSEN",
+      "evidence": ["app/fahrer/app/client.tsx:1353-1391", "/Users/eule/mise-driver-app/ios-resources/AppDelegate.swift:1-149"],
+      "reproduction": [],
+      "root_cause": "Background entitlement exists without CLLocationManager/background service code.",
+      "affected_files": ["app/fahrer/app/client.tsx", "/Users/eule/mise-driver-app/ios-resources/AppDelegate.swift"],
+      "business_impact": "Stale driver location when minimized, locked or killed.",
+      "recommended_next_action": "Implement and device-test a policy-compliant native tracker after privacy decision.",
+      "confidence": "high"
+    },
+    {
+      "id": "P1-03",
+      "severity": "P1",
+      "title": "GPS writes have no ordering or error handling",
+      "status": "IMPLEMENTIERT ABER DEFEKT",
+      "evidence": ["app/api/driver/v1/me/position/route.ts:37-62"],
+      "reproduction": ["Send delayed requests in reverse order; server timestamp reflects arrival and last write wins."],
+      "root_cause": "No device timestamp, sequence or compare-and-swap; database errors ignored.",
+      "affected_files": ["app/api/driver/v1/me/position/route.ts"],
+      "business_impact": "Older points may replace newer position and history may silently fail.",
+      "recommended_next_action": "Version GPS events and enforce monotonic current-position updates.",
+      "confidence": "high"
+    },
+    {
+      "id": "P1-04",
+      "severity": "P1",
+      "title": "Two incompatible offline queues use one storage key",
+      "status": "IMPLEMENTIERT ABER DEFEKT",
+      "evidence": ["app/fahrer/app/offline-sync-manager.tsx:12-55", "app/fahrer/app/offline-sync-banner.tsx:7-41"],
+      "reproduction": ["Enqueue using one representation and mount the other queue reader."],
+      "root_cause": "Duplicate independently designed offline subsystems.",
+      "affected_files": ["app/fahrer/app/offline-sync-manager.tsx", "app/fahrer/app/offline-sync-banner.tsx"],
+      "business_impact": "Lost, malformed or duplicated offline actions.",
+      "recommended_next_action": "Replace with one versioned outbox and server idempotency contract.",
+      "confidence": "high"
+    },
+    {
+      "id": "P1-05",
+      "severity": "P1",
+      "title": "Long-distance hold is not persisted and ignores kitchen load",
+      "status": "TEILWEISE IMPLEMENTIERT",
+      "evidence": ["lib/delivery/long-distance-batching.ts:121-165", "lib/frank.ts:188-204"],
+      "reproduction": [],
+      "root_cause": "Pure policy was connected only as log-and-return.",
+      "affected_files": ["lib/delivery/long-distance-batching.ts", "lib/frank.ts"],
+      "business_impact": "Operational hold state is not visible or coordinated with kitchen.",
+      "recommended_next_action": "Do not activate until canonical persistent deadline and kitchen/route feasibility exist.",
+      "confidence": "high"
+    }
+  ],
+  "requirements_matrix": [
+    {"id": "REQ-01", "area": "assignment", "requirement": "exactly one active assignment", "status": "IMPLEMENTIERT ABER DEFEKT", "priority": "P0"},
+    {"id": "REQ-02", "area": "pick", "requirement": "all assigned orders picked before departure", "status": "IMPLEMENTIERT ABER DEFEKT", "priority": "P0"},
+    {"id": "REQ-03", "area": "gps", "requirement": "reliable background tracking", "status": "VORHANDEN ABER NICHT ANGESCHLOSSEN", "priority": "P1"},
+    {"id": "REQ-04", "area": "push", "requirement": "delivery receipt and recovery", "status": "TEILWEISE IMPLEMENTIERT", "priority": "P1"},
+    {"id": "REQ-05", "area": "dispatch", "requirement": "auditable intelligent driver selection", "status": "TEILWEISE IMPLEMENTIERT", "priority": "P1"},
+    {"id": "REQ-06", "area": "hold", "requirement": "deadline-safe kitchen-coordinated hold", "status": "TEILWEISE IMPLEMENTIERT", "priority": "P1"},
+    {"id": "REQ-07", "area": "recovery", "requirement": "idempotent restart and failure recovery", "status": "IMPLEMENTIERT ABER DEFEKT", "priority": "P0"},
+    {"id": "REQ-08", "area": "testing", "requirement": "race, E2E and device evidence", "status": "FEHLT", "priority": "P0"}
+  ],
+  "recommended_workstreams": [
+    "canonical architecture and state machines",
+    "database invariants and single-writer atomic transitions",
+    "batch pick and pickup correctness",
+    "versioned recovery",
+    "push realtime ledger and app acknowledgment",
+    "native GPS lifecycle and privacy",
+    "deterministic dispatch baseline",
+    "road routing ETA and kitchen-coordinated hold",
+    "operations console and emergency override",
+    "observability and security",
+    "isolated simulation, device E2E and release gates"
+  ],
+  "open_questions": [
+    "Which dispatch writer and feature flags are active for each production tenant?",
+    "Which migrations and RLS policies are deployed on the new server?",
+    "Which Git commit is running in backend and TestFlight?",
+    "Which storefront and payment path creates current live orders?",
+    "What driver exception and emergency policy is approved?",
+    "What delivery quality and deadline limits are business requirements?",
+    "What GPS retention period is approved?",
+    "Is a schema-compatible isolated staging environment available?"
+  ]
+}

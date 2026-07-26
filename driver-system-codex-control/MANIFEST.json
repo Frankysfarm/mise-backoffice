@@ -1,0 +1,29 @@
+{
+  "package": "driver-system-codex-control",
+  "generated": "2026-07-26",
+  "purpose": "Controlled multi-agent remediation plan for the audited driver/dispatch system",
+  "entrypoint": "01_PASTE_THIS_INTO_CODEX.txt",
+  "files": [
+    "00_READ_ME_FIRST.md",
+    "01_PASTE_THIS_INTO_CODEX.txt",
+    "AGENTS.driver-remediation.proposed.md",
+    "docs/driver-remediation/ACCEPTANCE_GATES.md",
+    "docs/driver-remediation/AGENT_ROSTER.md",
+    "docs/driver-remediation/EXECUTION_GRAPH.md",
+    "docs/driver-remediation/PRODUCT_DECISIONS.md",
+    "docs/driver-remediation/PROGRAM_CHARTER.md",
+    "docs/driver-remediation/task-packets/T00_BASELINE_STAGING_TOOLCHAIN.md",
+    "docs/driver-remediation/task-packets/T01_CANONICAL_STATE_MODEL.md",
+    "docs/driver-remediation/task-packets/T02_ATOMIC_SINGLE_WRITER.md",
+    "docs/driver-remediation/task-packets/T03_SERVER_API_AND_CLIENT_BOUNDARY.md",
+    "docs/driver-remediation/task-packets/T04_PICK_PICKUP_CORRECTNESS.md",
+    "docs/driver-remediation/task-packets/T05_RECOVERY_PUSH_OFFLINE.md",
+    "docs/driver-remediation/task-packets/T06_GPS_TRANSPORT_AND_NATIVE.md",
+    "docs/driver-remediation/task-packets/T07_DETERMINISTIC_DISPATCH_BASELINE.md",
+    "docs/driver-remediation/task-packets/T08_ROUTING_BATCHING_KITCHEN_HOLD.md",
+    "docs/driver-remediation/task-packets/T09_OPERATIONS_SECURITY_OBSERVABILITY.md",
+    "docs/driver-remediation/task-packets/T10_E2E_CANARY_RELEASE.md",
+    "source-audit/DRIVER_SYSTEM_AUDIT.md",
+    "source-audit/DRIVER_SYSTEM_FACTS.json"
+  ]
+}

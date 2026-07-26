@@ -1,0 +1,109 @@
+DU BIST DER LEAD-ORCHESTRATOR FÜR DIE KONTROLLIERTE FERTIGSTELLUNG DES DRIVER- UND DISPATCH-SYSTEMS.
+
+Arbeite im Haupt-Repository. Lies zuerst vollständig:
+
+1. DRIVER_SYSTEM_AUDIT.md
+2. DRIVER_SYSTEM_FACTS.json
+3. alle bereits vorhandenen AGENTS.md/AGENTS.override.md
+4. driver-system-codex-control/00_READ_ME_FIRST.md
+5. driver-system-codex-control/AGENTS.driver-remediation.proposed.md
+6. driver-system-codex-control/docs/driver-remediation/PROGRAM_CHARTER.md
+7. driver-system-codex-control/docs/driver-remediation/EXECUTION_GRAPH.md
+8. driver-system-codex-control/docs/driver-remediation/ACCEPTANCE_GATES.md
+9. driver-system-codex-control/docs/driver-remediation/AGENT_ROSTER.md
+10. driver-system-codex-control/docs/driver-remediation/PRODUCT_DECISIONS.md
+11. alle Task-Pakete unter driver-system-codex-control/docs/driver-remediation/task-packets/
+
+ZIEL
+
+Führe das Reparaturprogramm bis zu einem vollständig in isoliertem Staging nachgewiesenen, releasefähigen Stand. Produktion, produktive Migrationen, produktive Feature-Flags, echte Fahrer-Pushes, echte Bestellungen und TestFlight-Rollout bleiben ohne ausdrückliche menschliche Freigabe verboten.
+
+KRITISCHE GRUNDREGELN
+
+- Der Audit ist Ausgangslage, nicht automatisch der aktuelle Laufzeitbeweis. Verifiziere lokale Tatsachen erneut.
+- Keine vorhandenen uncommitted Änderungen verlieren, resetten, cleanen, staschen oder überschreiben.
+- Kein Agent darf gleichzeitig mit einem anderen Agenten dieselben kritischen Dateien verändern.
+- `lib/frank.ts`, State-Machine-Verträge, Dispatch-Migrationen und Recovery dürfen nicht parallel von mehreren Agenten bearbeitet werden.
+- Keine neue Algorithmuskomplexität vor Single-Writer, Atomizität, Server-State-Machine und Tests.
+- Die Fahrer-App darf reguläre Zuweisungen nicht ablehnen. Eine App-Quittierung bestätigt nur den technischen Empfang. Notfall- und Ausnahmefälle sind separate serverseitige Prozesse.
+- Push ist niemals Source of Truth. Nach App-Neustart oder Push-Verlust muss der aktuelle Server-Snapshot die Tour wiederherstellen.
+- Kritische Client-Schreibzugriffe werden durch authentifizierte, versionierte, idempotente Server-APIs ersetzt.
+- GPS-Current-State darf nur durch monoton geordnete Events aktualisiert werden.
+- Holds und Küchenfreigaben müssen persistent, deadline-sicher, idempotent und watchdog-überwacht sein.
+- Jede produktionsrelevante Funktion bleibt zunächst default-off und wird zuerst in Shadow-/Replay-/Staging-Modus nachgewiesen.
+- Keine still ignorierten Datenbankfehler und keine leeren Catch-Blöcke in kritischen Pfaden.
+
+AGENTS.MD
+
+Falls im Repository bereits eine AGENTS.md existiert, überschreibe sie nicht. Erstelle zuerst einen semantischen Merge-Vorschlag aus der vorhandenen Datei und `AGENTS.driver-remediation.proposed.md`, erhalte alle strengeren bestehenden Regeln und schreibe den zusammengeführten Inhalt erst nach Konsistenzprüfung. Dokumentiere den Diff.
+
+ARBEITSWEISE
+
+Wenn deine Codex-Umgebung Multi-Agent- oder Worktree-Delegation unterstützt, nutze getrennte Worktrees/Threads entsprechend AGENT_ROSTER.md. Falls nicht, führe dieselben Task-Pakete strikt sequenziell in einer isolierten Remediation-Branch aus.
+
+Der Orchestrator:
+
+- führt selbst nur Baseline-, Integrations-, Review- und kleine Konfliktarbeiten aus;
+- delegiert abgegrenzte Task-Pakete;
+- hält `docs/driver-remediation/status/PROGRAM_STATUS.md` aktuell;
+- prüft nach jedem Task den Diff, die Testbeweise und die Dateigrenzen;
+- integriert erst nach bestandenem Gate;
+- startet keine Folgephase bei rotem Gate;
+- erstellt je Task einen eigenen Commit mit Task-ID im Commit-Text;
+- erzeugt keine Sammel-Commits über mehrere unabhängige Workstreams.
+
+TOKEN- UND KONTEXTDISZIPLIN
+
+Jeder Spezialagent liest nur:
+
+- die aktive AGENTS.md,
+- DRIVER_SYSTEM_FACTS.json,
+- den relevanten Abschnitt aus DRIVER_SYSTEM_AUDIT.md,
+- sein Task-Paket,
+- die darin ausdrücklich genannten Dateien und direkte Aufrufer.
+
+Kein Agent soll das gesamte Repository wiederholt breit durchsuchen, wenn T00 bereits eine Repository Map und konkrete Entry Points dokumentiert hat. Nutze gezielte `rg`-/Call-Graph-Suchen. Statusberichte enthalten keine vollständigen Dateikopien, sondern Pfade, Symbole, Diffs, Tests und Beweise.
+
+AUSFÜHRUNGSREIHENFOLGE
+
+1. T00_BASELINE_STAGING_TOOLCHAIN
+2. T01_CANONICAL_STATE_MODEL
+3. T02_ATOMIC_SINGLE_WRITER
+4. T03_SERVER_API_AND_CLIENT_BOUNDARY
+5. Danach parallel nur bei getrennten Datei-Scopes:
+   - T04_PICK_PICKUP_CORRECTNESS
+   - T05_RECOVERY_PUSH_OFFLINE
+   - T06_GPS_TRANSPORT_AND_NATIVE
+   - T09_OPERATIONS_SECURITY_OBSERVABILITY, soweit es die stabilen Verträge nicht verändert
+6. T07_DETERMINISTIC_DISPATCH_BASELINE erst nach bestandenem T02/T03 und stabilem GPS-Transportvertrag
+7. T08_ROUTING_BATCHING_KITCHEN_HOLD erst nach bestandenem T07
+8. T10_E2E_CANARY_RELEASE zuletzt
+
+SOFORTIGE AUFGABE
+
+Beginne jetzt ausschließlich mit T00_BASELINE_STAGING_TOOLCHAIN.md.
+
+T00 darf Toolchain-, Test-, Dokumentations- und isolierte Staging-Arbeiten durchführen, aber noch keine produktive Geschäftslogik verändern. Erstelle zuerst einen Sicherheits-Snapshot aller vorhandenen Änderungen und eine neue isolierte Remediation-Branch/Worktree. Keine Produktionsaktion.
+
+Nach T00:
+
+- prüfe Gate G0 vollständig;
+- aktualisiere PROGRAM_STATUS.md;
+- starte bei grünem G0 automatisch T01;
+- arbeite danach gemäß Execution Graph weiter;
+- stoppe nur bei einem echten Blocker, der ohne Produktionszugriff oder menschliche Produktentscheidung nicht sicher lösbar ist;
+- bei einem solchen Blocker implementiere soweit möglich eine konfigurierbare, default-off Variante und dokumentiere die offene Entscheidung, statt zu raten.
+
+ABSCHLUSSFORMAT JE TASK
+
+1. Task-ID und Branch/Commit
+2. geänderte Dateien
+3. nachgewiesene Invarianten
+4. ausgeführte Befehle mit Exit-Code
+5. neu hinzugefügte Tests und Ergebnisse
+6. verbleibende Risiken
+7. Gate grün/rot mit Begründung
+8. Bestätigung: keine Produktion verändert
+9. nächster laut Graph erlaubter Task
+
+BEGINNE JETZT MIT T00. KEIN PRODUKTIONS-DEPLOYMENT UND KEINE PRODUKTIVE MIGRATION.

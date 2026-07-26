@@ -1,4 +1,4 @@
-# P1 Intelligent 15 km Dispatch Eligibility
+# P1 Intelligent 20 km Dispatch Eligibility
 
 ## Problem
 
@@ -9,7 +9,7 @@ deadline feasibility.
 ## Scope
 
 - Reject orders whose restaurant-to-customer distance exceeds the configured
-  limit. The effective limit is always capped at 15 km.
+  limit. The effective limit is always capped at 20 km.
 - Fail closed when pickup, dropoff, or driver coordinates are missing.
 - Reject stale or implausibly future-dated driver GPS positions.
 - Include driver-to-pickup travel, pickup-to-dropoff travel, service time, and a
@@ -30,7 +30,7 @@ deadline feasibility.
 The integration is active only when both conditions are true:
 
 1. `P0_ATOMIC_OFFER_ENABLED=true`
-2. `P0_INTELLIGENT_15KM_ENABLED=true`
+2. `P0_INTELLIGENT_20KM_ENABLED=true`
 
 The atomic offer RPC additionally enforces the tenant-scoped single-writer
 gate. With either environment flag absent, Frank keeps the legacy selection
@@ -38,7 +38,7 @@ path unchanged.
 
 The configured distance is read from dispatch configuration, tenant delivery
 radius, or `P0_MAX_DELIVERY_KM`, in that order, with an 8 km fallback. Every
-value is clamped to a maximum of 15 km.
+value is clamped to a maximum of 20 km.
 
 ## Verification
 
@@ -51,7 +51,7 @@ value is clamped to a maximum of 15 km.
 
 ## Rollback
 
-Set `P0_INTELLIGENT_15KM_ENABLED=false` or remove it. No data rollback is
+Set `P0_INTELLIGENT_20KM_ENABLED=false` or remove it. No data rollback is
 required because the feature is default-off and the legacy path remains.
 
 ## Known limitations

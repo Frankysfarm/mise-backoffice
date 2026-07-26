@@ -8,6 +8,7 @@
     "lib/delivery/atomic-offer.ts",
     "lib/delivery/atomic-lifecycle-contract.ts",
     "lib/delivery/atomic-lifecycle.ts",
+    "lib/delivery/long-distance-batching.ts",
     "lib/frank.ts",
     "lib/apns-voip.ts",
     "app/api/driver/v1/internal/push-flush/route.ts",
