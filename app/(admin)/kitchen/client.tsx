@@ -1005,6 +1005,7 @@ import { KitchenPhase3827AuftragsablehnungsQuoteTicker } from './phase3827-auftr
 import { KitchenPhase3832PuenktlichkeitsQuoteTicker } from './phase3832-puenktlichkeits-quote-ticker';
 import { KitchenPhase3837KundenbewertungsTicker } from './phase3837-kundenbewertungs-ticker';
 import { KitchenPhase3842ReklamationsQuoteTicker } from './phase3842-reklamations-quote-ticker';
+import { KitchenPhase3847LieferzeitTicker } from './phase3847-lieferzeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4317,6 +4318,7 @@ export function KitchenBoard({
       <KitchenPhase3832PuenktlichkeitsQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3837KundenbewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3842ReklamationsQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3847LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11500,3 +11502,5 @@ export { KitchenPhase3832PuenktlichkeitsQuoteTicker } from './phase3832-puenktli
 export { KitchenPhase3837KundenbewertungsTicker } from './phase3837-kundenbewertungs-ticker';
 // Phase 3842 — Reklamations-Quote Ticker (ShieldAlert-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Reklamationsquote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Avg+Ziel ≤3%; 30-Min-Polling)
 export { KitchenPhase3842ReklamationsQuoteTicker } from './phase3842-reklamations-quote-ticker';
+// Phase 3847 — Lieferzeit Ticker (Timer-Icon blau; Bester #1 Name+min im Header; Alert "Lange Lieferzeiten!"; kompakt aufsteigend; Rang+min+Delta neg=grün; Team-Avg+Ziel ≤25min; 30-Min-Polling)
+export { KitchenPhase3847LieferzeitTicker } from './phase3847-lieferzeit-ticker';

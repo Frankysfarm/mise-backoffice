@@ -1059,6 +1059,7 @@ import { DispatchPhase3824AuftragsablehnungsQuoteBoard } from './phase3824-auftr
 import { DispatchPhase3829PuenktlichkeitsQuoteBoard } from './phase3829-puenktlichkeits-quote-board';
 import { DispatchPhase3834KundenbewertungsDurchschnittBoard } from './phase3834-kundenbewertungs-durchschnitt-board';
 import { DispatchPhase3839ReklamationsQuoteBoard } from './phase3839-reklamations-quote-board';
+import { DispatchPhase3844LieferzeitDurchschnittBoard } from './phase3844-lieferzeit-durchschnitt-board';
 
 type Driver = {
   employee_id: string;
@@ -4735,6 +4736,7 @@ export function DispatchBoard({
           <DispatchPhase3829PuenktlichkeitsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3834KundenbewertungsDurchschnittBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3839ReklamationsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3844LieferzeitDurchschnittBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12927,3 +12929,5 @@ export { DispatchPhase3829PuenktlichkeitsQuoteBoard } from './phase3829-puenktli
 export { DispatchPhase3834KundenbewertungsDurchschnittBoard } from './phase3834-kundenbewertungs-durchschnitt-board';
 // Phase 3839 — Reklamations-Quote Board (ShieldAlert-Icon orange; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Bester/Team-Avg/Höchste; Alert "Hohe Reklamationsquote!"; Delta neg=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3839ReklamationsQuoteBoard } from './phase3839-reklamations-quote-board';
+// Phase 3844 — Lieferzeit-Durchschnitt Board (Timer-Icon blau; aufsteigend Rang 1=kürzeste Lieferzeit=bester; KPI-Grid Bester/Team-Avg/Längste; Alert "Lange Lieferzeiten!"; Delta neg=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3844LieferzeitDurchschnittBoard } from './phase3844-lieferzeit-durchschnitt-board';
