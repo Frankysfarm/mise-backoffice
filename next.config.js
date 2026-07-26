@@ -1,10 +1,8 @@
 /** @type {import('next').NextConfig} */
-const path = require('path');
 const nextConfig = {
   reactStrictMode: true,
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
-  turbopack: { root: __dirname },
   experimental: {
     outputFileTracingExcludes: {
       '*': ['**/@swc/**', '**/node_modules/**'],
