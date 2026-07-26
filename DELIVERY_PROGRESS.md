@@ -2,6 +2,18 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3943–3947 implementiert — Fahrer-Trinkgeld-Betrag-Ranking. Phase 3943 Backend: bestehendes `/api/delivery/admin/fahrer-trinkgeld-ranking/route.ts` adaptiert (bereits vorhanden) — force-dynamic, avg_tip_eur je Fahrer heute, absteigend Rang 1=hoechster Betrag=bester, Ampel gruen/gelb/rot, rank_delta, alert_bottom, Alert "Niedriges Trinkgeld!", Mock Julia 3.20€/Max 2.50€/Sara 1.80€/Tim 0.90€. Phase 3944 Dispatch: `DispatchPhase3944TrinkgeldBetragBoard` — Gift-Icon gruen, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedriges Trinkgeld!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3945 Fahrer: `FahrerPhase3945MeinTrinkgeldBetrag` — Gift-Icon gruen, €-Wert 5xl+Rang 3xl farbkodiert, Ziel >=2€, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3946 Storefront: uebersprungen. Phase 3947 Kitchen: `KitchenPhase3947TrinkgeldBetragTicker` — Gift-Icon gruen, Bester #1 Name+€ im Header, Alert "Niedriges Trinkgeld!", kompakt absteigend, Rang+€+Delta rank_delta<0=gruen, Team-Avg+Ziel >=2€, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3943–3947 ABGESCHLOSSEN — Fahrer-Trinkgeld-Betrag-Ranking
+- Phase 3943 Backend: `/api/delivery/admin/fahrer-trinkgeld-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_tip_eur je Fahrer heute, absteigend Rang 1=hoechster Betrag=bester, Ampel gruen/gelb/rot, rank_delta (< 0 = verbessert), alert_bottom, Mock Julia 3.20€/Max 2.50€/Sara 1.80€/Tim 0.90€ ✅
+- Phase 3944 Dispatch: `DispatchPhase3944TrinkgeldBetragBoard` — Gift-Icon gruen, absteigend Rang 1=hoechstes Trinkgeld, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedriges Trinkgeld!", rank_delta<0=gruen ✅
+- Phase 3945 Fahrer: `FahrerPhase3945MeinTrinkgeldBetrag` — Gift-Icon gruen, €-Wert 5xl+Rang 3xl farbkodiert, Ziel >=2€, Coaching-Tipp (3 Stufen), isOnline-Guard ✅
+- Phase 3946 Storefront: uebersprungen ✅
+- Phase 3947 Kitchen: `KitchenPhase3947TrinkgeldBetragTicker` — Gift-Icon gruen, Bester #1 Name+€ im Header, Alert "Niedriges Trinkgeld!", kompakt absteigend, Team-Avg+Ziel >=2€ ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3948–3952 — Naechstes Ranking-Thema (TBD)
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3938–3942 implementiert — Fahrer-Puenktlichkeit-Trend-Ranking. Phase 3938 Backend: bestehendes `/api/delivery/admin/fahrer-puenktlichkeit-trend/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), Puenktlichkeitsquote letzte 7 Tage Zeitreihe je Fahrer, absteigend aktuell_pct Rang 1=hoechste Quote=bester, trend steigend/stabil/fallend, Alert abweichung<-20% "Sinkende Puenktlichkeit!", Mock Max 93%/Luca 75%/Sara 60%, ziel=90. Phase 3939 Dispatch: `DispatchPhase3939PuenktlichkeitTrendBoard` — Clock-Icon blau, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Sinkende Puenktlichkeit!", Trend steigend=gruen, Import+Render+Barrel ✅. Phase 3940 Fahrer: `FahrerPhase3940MeinePuenktlichkeitTrend` — Clock-Icon blau, %-Wert 5xl+Rang 3xl farbkodiert, Ziel >=90%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3941 Storefront: uebersprungen. Phase 3942 Kitchen: `KitchenPhase3942PuenktlichkeitTrendTicker` — Clock-Icon blau, Bester #1 Name+% im Header, Alert "Sinkende Puenktlichkeit!", kompakt absteigend, Rang+%+Delta steigend=gruen, Team-Avg+Ziel >=90%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3938–3942 ABGESCHLOSSEN — Fahrer-Puenktlichkeit-Trend-Ranking
