@@ -29423,3 +29423,55 @@ Backend-Architekt-Agent (2026-07-26): Phasen 3768–3772 implementiert — Fahre
 5. **Phase 3787 Kitchen:** RueckgabequoteTicker — RotateCcw-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Rueckgabequote!"; kompakt aufsteigend; Rang+%+Delta neg=gruen; Team-Avg+Ziel <=3%; 30-Min-Polling; nach Phase3782. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-26): Phasen 3778–3782 implementiert — Fahrer-Lieferzeit-Genauigkeit-Ranking. Backend fahrer-lieferzeit-genauigkeit/route.ts komplett auf Spec rewritten: delivery_tours delivered_at <= promised_delivery_at, absteigend Rang 1=höchste Rate=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert Bottom-25% "Späte Lieferungen!", rank_delta pos=verbessert (prevRang-rang), Mock Julia 95%/Sara 87%/Max 74%/Tim 58%, force-dynamic, await createClient(). 3 neue Frontend-Komponenten: Phase3779 Dispatch (Clock-Icon violett, KPI-Grid Bester/Team-Avg/Niedrigster, Alert, Delta pos=TrendUp grün, RankBadge, Import+Render+Barrel ✅) / Phase3780 Fahrer-App (Clock-Icon violett, % 5xl+Rang 3xl, Rang-Balken, Ziel-Marker ≥90%, Team-Avg-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3782 Kitchen (Clock-Icon violett, Bester #1 im Header, Alert, Ziel ≥90%, Import+Render+Barrel ✅). Phase 3781 Storefront übersprungen. Build ✓ exit 0. Push erfolgt.
+
+---
+
+## Batch 3793–3797 — Fahrer-Trinkgeld-Quote-Ranking (ABGESCHLOSSEN 2026-07-26)
+
+### Phase 3793 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-trinkgeld-avg/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-trinkgeld-avg?location_id=...
+**Logik:** avg(tip_amount) pro Lieferung je Fahrer letzte 30 Tage (delivery_tours); Rang 1=hoechstes Trinkgeld=bester; Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedriges Trinkgeld!"; Mock Julia F.EUR2.80/Sara K.EUR2.30/Max M.EUR1.70/Tim B.EUR0.90; force-dynamic; await createClient() aus @/lib/supabase/server ✅
+
+### Phase 3794 — Trinkgeld-Quote Ranking Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3794-trinkgeld-quote-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3794TrinkgeldQuoteRankingBoard`
+**UI:** Coins-Icon gelb; absteigend Rang 1=hoechstes Trinkgeld; Balken 0–max; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriges Trinkgeld!"; Delta pos=TrendUp gruen; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import + Render + Barrel ✅
+
+### Phase 3795 — Mein Trinkgeld (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3795-mein-trinkgeld.tsx` *(neu)*
+**Component:** `FahrerPhase3795MeinTrinkgeld`
+**UI:** Coins-Icon gelb; EUR-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Ziel-Balken >=EUR2.00 mit Marker; Team-Avg-Vergleich; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import + Render + Barrel ✅
+
+### Phase 3796 — Storefront
+Uebersprungen (intern irrelevant fuer Kunden) ✅
+
+### Phase 3797 — Trinkgeld-Quote Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3797-trinkgeld-quote-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3797TrinkgeldQuoteTicker`
+**UI:** Coins-Icon gelb; Bester #1 Name+EUR im Header; Alert "Niedriges Trinkgeld!"; kompakt absteigend; Rang+EUR+Delta pos=TrendUp gruen; Team-Avg+Ziel >=EUR2.00; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import + Render + Barrel ✅
+
+### Build-Ergebnis
+**pnpm run build exit 0** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ TrinkgeldQuoteTicker Phase3797 + TrinkgeldQuoteRankingBoard Phase3794 synchron |
+| Dispatch ↔ Driver | ✅ Phase3794 Board + Phase3795 MeinTrinkgeld |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase uebersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3793–3797 implementiert — Fahrer-Trinkgeld-Quote-Ranking. Backend fahrer-trinkgeld-avg/route.ts neu erstellt: await createClient() aus @/lib/supabase/server, force-dynamic, delivery_tours avg(tip_amount) je Fahrer letzte 30 Tage, absteigend Rang 1=hoechstes Trinkgeld=bester, Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert Bottom-25% "Niedriges Trinkgeld!", Mock Julia EUR2.80/Sara EUR2.30/Max EUR1.70/Tim EUR0.90. 3 neue Frontend-Komponenten: Phase3794 Dispatch (Coins-Icon gelb, KPI-Grid Bester/Team-Avg/Niedrigster, Alert, Delta pos=TrendUp gruen, RankBadge, Import+Render+Barrel ✅) / Phase3795 Fahrer (Coins-Icon gelb, EUR-Wert 5xl+Rang 3xl, Rang-Balken, Ziel-Marker >=EUR2.00, Team-Avg-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3797 Kitchen (Coins-Icon gelb, Bester #1 im Header, Alert, Ziel >=EUR2.00, Import+Render+Barrel ✅). Phase 3796 Storefront uebersprungen. Build pnpm exit 0. Push erfolgt (commit be99c4c5).
+
+### Naechste Phasen 3798–3802 — Fahrer-Reaktionszeit-Ranking
+1. **Phase 3798 Backend:** GET /api/delivery/admin/fahrer-reaktionszeit — Durchschnittliche Zeit (Sek) zwischen Auftragseingang und Fahrerannahme je Fahrer letzte 30 Tage (delivery_tours: avg(EXTRACT(EPOCH FROM (accepted_at - created_at)))); Rang 1=niedrigste Zeit=bester (aufsteigend); Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Langsame Reaktion!"; rank_delta neg=verbessert; Mock Julia F.45s/Sara K.72s/Max M.95s/Tim B.138s; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3799 Dispatch:** ReaktionszeitRankingBoard — Timer-Icon blau; aufsteigend Rang 1=niedrigste Zeit; KPI-Grid Bester/Team-Avg/Langsamster; Alert "Langsame Reaktion!"; Delta neg=gruen; RankBadge; 30-Min-Polling; nach Phase3794. PFLICHT: Import + Render + Barrel.
+3. **Phase 3800 Fahrer-App:** MeineReaktionszeit — Timer-Icon blau; Sek-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken <=60s; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3795. PFLICHT: Import + Render + Barrel.
+4. **Phase 3801 Storefront:** Ueberspringen.
+5. **Phase 3802 Kitchen:** ReaktionszeitTicker — Timer-Icon blau; Bester #1 Name+s im Header; Alert "Langsame Reaktion!"; kompakt aufsteigend; Rang+s+Delta neg=gruen; Team-Avg+Ziel <=60s; 30-Min-Polling; nach Phase3797. PFLICHT: Import + Render + Barrel.
