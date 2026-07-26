@@ -10739,3 +10739,5 @@ export { FahrerPhase3790MeineStornoquote } from './phase3790-meine-stornoquote';
 // Phase 3795 — Mein Trinkgeld (Coins-Icon gelb; €-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken >=€2.00; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3795MeinTrinkgeld } from './phase3795-mein-trinkgeld';
 export { FahrerPhase3800MeineReaktionszeit } from './phase3800-meine-reaktionszeit';
+// Phase 3805 — Tour-Stopp Navigation Smart Hub (Nächster-Stopp Hero-Card indigo mit ETA + 3 Navi-App-Links; Fortschrittsbalken; Alle-Stopps-Liste mit Status-Dots und Inline-Navigation; Hinweis-Banner für Sonderkommentare; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase3805TourStoppNavigationSmartHub } from './phase3805-tour-stopp-navigation-smart-hub';

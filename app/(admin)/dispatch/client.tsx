@@ -12893,3 +12893,5 @@ export { DispatchPhase3789StornoquoteRankingBoard } from './phase3789-stornoquot
 // Phase 3794 — Trinkgeld-Quote Ranking Board (Coins-Icon gelb; absteigend Rang 1=höchstes Trinkgeld; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriges Trinkgeld!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3794TrinkgeldQuoteRankingBoard } from './phase3794-trinkgeld-quote-ranking-board';
 export { DispatchPhase3799ReaktionszeitRankingBoard } from './phase3799-reaktionszeit-ranking-board';
+// Phase 3804 — Tour-Score Live Dashboard (Trophy amber; Flotten-Avg; Score-Balken 0–100 je Fahrer; aufklappbare Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Stopp-Dot-Timeline farbkodiert ausstehend/unterwegs/geliefert; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase3804TourScoreLiveDashboard } from './phase3804-tour-score-live-dashboard';

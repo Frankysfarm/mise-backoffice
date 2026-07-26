@@ -11466,3 +11466,5 @@ export { KitchenPhase3792StornoquoteTicker } from './phase3792-stornoquote-ticke
 // Phase 3797 — Trinkgeld-Quote Ticker (Coins-Icon gelb; Bester #1 Name+€ im Header; Alert "Niedriges Trinkgeld!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Avg+Ziel >=€2.00; 30-Min-Polling)
 export { KitchenPhase3797TrinkgeldQuoteTicker } from './phase3797-trinkgeld-quote-ticker';
 export { KitchenPhase3802ReaktionszeitTicker } from './phase3802-reaktionszeit-ticker';
+// Phase 3807 — Smart-Timing Countdown & Farbkodierung Cockpit (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/Aktiv/Überfällig; Kochstart-Score; Fortschrittsbalken; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase3807SmartTimingCountdownFarbkodierungCockpit } from './phase3807-smart-timing-countdown-farbkodierung-cockpit';
