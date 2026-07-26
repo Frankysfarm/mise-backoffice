@@ -1056,6 +1056,7 @@ import { DispatchPhase3809KilometerstandRankingBoard } from './phase3809-kilomet
 import { DispatchPhase3814GeschwindigkeitRankingBoard } from './phase3814-geschwindigkeit-ranking-board';
 import { DispatchPhase3819TourenProSchichtRankingBoard } from './phase3819-touren-pro-schicht-ranking-board';
 import { DispatchPhase3824AuftragsablehnungsQuoteBoard } from './phase3824-auftragsablehnungs-quote-board';
+import { DispatchPhase3829PuenktlichkeitsQuoteBoard } from './phase3829-puenktlichkeits-quote-board';
 
 type Driver = {
   employee_id: string;
@@ -4729,6 +4730,7 @@ export function DispatchBoard({
           <DispatchPhase3814GeschwindigkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3819TourenProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3824AuftragsablehnungsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3829PuenktlichkeitsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12915,3 +12917,5 @@ export { DispatchPhase3819TourenProSchichtRankingBoard } from './phase3819-toure
 export { DispatchPhase3824AuftragsablehnungsQuoteBoard } from './phase3824-auftragsablehnungs-quote-board';
 // Phase 3824 — Tour-Score & Visualisierung Echtzeit Supreme (Trophy amber; Flotten-KPI-Grid Ø/Top/Aktiv/Alerts; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3824TourScoreVisualisierungEchtzeitSupreme } from './phase3824-tour-score-visualisierung-echtzeit-supreme';
+// Phase 3829 — Pünktlichkeits-Quote Board (Clock-Icon blau; absteigend Rang 1=höchste Pünktlichkeit=bester; KPI-Grid Bester/Team-Avg/Niedrigste; Alert "Viele Verspätungen!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3829PuenktlichkeitsQuoteBoard } from './phase3829-puenktlichkeits-quote-board';
