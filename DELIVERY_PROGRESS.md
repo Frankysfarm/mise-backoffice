@@ -12,6 +12,18 @@ Frontend-Ingenieur-Agent (2026-07-26): Phasen 3968–3972 implementiert — Fahr
 - Phase 3972 Kitchen: `KitchenPhase3972SchichtAuslastungTicker` — Activity-Icon violet, Bester #1 Name+Pct im Header, Alert "Geringe Schicht-Auslastung!", kompakt absteigend, Team-Avg+Ziel >=80% ✅
 - Build ✓ exit 0. Push erfolgt.
 
+Backend-Architekt-Agent (2026-07-26): Phasen 3963–3967 implementiert — Fahrer-Pakete-pro-Stunde-Ranking. Phase 3963 Backend: bestehendes `/api/delivery/admin/fahrer-pakete-pro-stunde/route.ts` (bereits vorhanden) — force-dynamic, await createClient(), avg(stop_count/duration_h) je Fahrer letzte 30 Tage, absteigend Rang 1=meiste Pakete=bester, Ampel gruen(Top-25%)/gelb/rot(Bottom-25%), Alert "Niedrige Paketquote!", Mock Julia 4.8/Sara 3.9/Max 3.1/Tim 2.2, ziel=4.0. Phase 3964 Dispatch: `DispatchPhase3964PaketeProStundeBoard` — Package-Icon lila, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedrige Paketquote!", Delta pos=gruen, Import+Render+Barrel ✅. Phase 3965 Fahrer: `FahrerPhase3965MeinePaketeProStunde` — Package-Icon lila, /h-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Ziel >=4.0/h, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3966 Storefront: uebersprungen. Phase 3967 Kitchen: `KitchenPhase3967PaketeProStundeTicker` — Package-Icon lila, Bester #1 Name+/h im Header, Alert "Niedrige Paketquote!", kompakt absteigend, Rang+/h+Delta pos=gruen, Team-Avg+Ziel >=4.0/h, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3963–3967 ABGESCHLOSSEN — Fahrer-Pakete-pro-Stunde-Ranking (Backend-Architekt)
+- Phase 3963 Backend: `/api/delivery/admin/fahrer-pakete-pro-stunde/route.ts` (bereits vorhanden) — force-dynamic, avg Pakete/Stunde letzte 30 Tage, absteigend Rang 1=meiste Pakete=bester, Ampel prozentbasiert, Alert "Niedrige Paketquote!", Mock Julia 4.8/Sara 3.9/Max 3.1/Tim 2.2 ✅
+- Phase 3964 Dispatch: `DispatchPhase3964PaketeProStundeBoard` — Package lila, absteigend, KPI-Grid, Alert, Delta pos=gruen ✅
+- Phase 3965 Fahrer: `FahrerPhase3965MeinePaketeProStunde` — Package lila, 5xl+Rang 3xl, Rang-Balken, Ziel >=4.0/h, Coaching, isOnline-Guard ✅
+- Phase 3966 Storefront: uebersprungen ✅
+- Phase 3967 Kitchen: `KitchenPhase3967PaketeProStundeTicker` — Package lila, Bester #1, Alert, Ziel >=4.0/h ✅
+- Build exit 0. Push erfolgt.
+
+### Naechste Phasen 3973–3977 — Naechstes Ranking-Thema (TBD)
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3953–3957 implementiert — Fahrer-Kundenbewertung-Ranking. Phase 3953 Backend: bestehendes `/api/delivery/admin/fahrer-kundenbewertung-ranking/route.ts` (bereits vorhanden) — force-dynamic, await createClient(), avg_bewertung je Fahrer letzte 30 Tage, absteigend Rang 1=hoechste Bewertung=bester, Ampel gruen/gelb/rot, rank_delta, alert_niedrig, Alert "Niedrige Kundenbewertung!", Mock Julia 4.9/Sara 4.7/Max 4.3/Tim 3.8, ziel=4.5. Phase 3954 Dispatch: `DispatchPhase3954KundenbewertungBoard` — Star-Icon amber, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Schlechte Bewertungen!", pos=gruen, Import+Render+Barrel ✅. Phase 3955 Fahrer: `FahrerPhase3955MeineKundenbewertung` — Star-Icon amber, Wert 5xl+Rang 3xl farbkodiert, Ziel >=4.5, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3956 Storefront: uebersprungen. Phase 3957 Kitchen: `KitchenPhase3957KundenbewertungTicker` — Star-Icon amber, Bester #1 Name+Sterne im Header, Alert "Schlechte Bewertungen!", kompakt absteigend, Rang+Sterne+Delta pos=gruen, Team-Avg+Ziel >=4.5, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3953–3957 ABGESCHLOSSEN — Fahrer-Kundenbewertung-Ranking
