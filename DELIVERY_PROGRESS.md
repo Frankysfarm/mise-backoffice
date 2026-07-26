@@ -32,7 +32,17 @@ Frontend-Ingenieur-Agent (2026-07-26): Phasen 3958–3962 implementiert — Fahr
 - Phase 3962 Kitchen: `KitchenPhase3962LieferzeitTicker` — Truck-Icon slate, Schnellster #1 Name+min im Header, Alert "Hohe Lieferzeit!", kompakt aufsteigend, Team-Avg+Ziel <=25 min ✅
 - Build ✓ exit 0. Push erfolgt.
 
-### Naechste Phasen 3963–3967 — Naechstes Ranking-Thema (TBD)
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3963–3967 implementiert — Fahrer-Touren-Anzahl-Ranking. Phase 3963 Backend: bestehendes `/api/delivery/admin/fahrer-touren-anzahl-ranking/route.ts` (bereits vorhanden) — force-dynamic, touren je Fahrer heute, absteigend Rang 1=meiste Touren=bester, Ampel gruen/gelb/rot, rank_delta, alert_bottom, Alert "Geringe Tourenanzahl!", Mock Julia 8/Sara 6/Max 4/Tim 2, ziel=5. Phase 3964 Dispatch: `DispatchPhase3964TourenAnzahlBoard` — Navigation-Icon blau, absteigend, KPI-Grid Meiste/Team-Avg/Wenigste, Alert "Geringe Tourenanzahl!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3965 Fahrer: `FahrerPhase3965MeineTourenAnzahl` — Navigation-Icon blau, Touren 5xl+Rang 3xl farbkodiert, Ziel >=5/Tag, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3966 Storefront: uebersprungen. Phase 3967 Kitchen: `KitchenPhase3967TourenAnzahlTicker` — Navigation-Icon blau, Bester #1 Name+Touren im Header, Alert "Geringe Tourenanzahl!", kompakt absteigend, Rang+Touren+Delta rank_delta<0=gruen, Team-Avg+Ziel >=5/Tag, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3963–3967 ABGESCHLOSSEN — Fahrer-Touren-Anzahl-Ranking
+- Phase 3963 Backend: `/api/delivery/admin/fahrer-touren-anzahl-ranking/route.ts` (bereits vorhanden) — force-dynamic, touren je Fahrer heute, absteigend Rang 1=meiste Touren=bester, Ampel gruen/gelb/rot, rank_delta (< 0 = verbessert), alert_bottom, Mock Julia 8/Sara 6/Max 4/Tim 2 ✅
+- Phase 3964 Dispatch: `DispatchPhase3964TourenAnzahlBoard` — Navigation-Icon blau, absteigend Rang 1=meiste Touren, KPI-Grid Meiste/Team-Avg/Wenigste, Alert "Geringe Tourenanzahl!", rank_delta<0=gruen ✅
+- Phase 3965 Fahrer: `FahrerPhase3965MeineTourenAnzahl` — Navigation-Icon blau, Touren 5xl+Rang 3xl farbkodiert, Ziel >=5/Tag, Coaching-Tipp (3 Stufen), isOnline-Guard ✅
+- Phase 3966 Storefront: uebersprungen ✅
+- Phase 3967 Kitchen: `KitchenPhase3967TourenAnzahlTicker` — Navigation-Icon blau, Bester #1 Name+Touren im Header, Alert "Geringe Tourenanzahl!", kompakt absteigend, Team-Avg+Ziel >=5/Tag ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3968–3972 — Naechstes Ranking-Thema (TBD)
 
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3948–3952 implementiert — Fahrer-Leerfahrten-Ranking. Phase 3948 Backend: bestehendes `/api/delivery/admin/fahrer-leerfahrten-ranking/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), leerfahrten_pct je Fahrer heute, aufsteigend Rang 1=niedrigste Quote=bester, Ampel gruen/gelb/rot, rank_delta, alert_bottom, Alert "Hohe Leerfahrtenquote!", Mock Julia 5%/Sara 12%/Max 22%/Tim 38%. Phase 3949 Dispatch: `DispatchPhase3949LeerfahrtenBoard` — Car-Icon orange, aufsteigend, KPI-Grid Bester/Team-Avg/Hoechster, Alert "Hohe Leerfahrtenquote!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3950 Fahrer: `FahrerPhase3950MeineLeerfahrten` — Car-Icon orange, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=15%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3951 Storefront: uebersprungen. Phase 3952 Kitchen: `KitchenPhase3952LeerfahrtenTicker` — Car-Icon orange, Bester #1 Name+% im Header, Alert "Hohe Leerfahrtenquote!", kompakt aufsteigend, Rang+%+Delta rank_delta<0=gruen, Team-Avg+Ziel <=15%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
