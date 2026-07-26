@@ -10,7 +10,7 @@ interface ApiData {
     rang: number;
     avg_min: number;
     ampel: 'gruen' | 'gelb' | 'rot';
-    alert_langsam: boolean;
+    alert_lang: boolean;
   };
   team_avg_min: number;
   gesamt: number;
@@ -24,7 +24,7 @@ const MOCK: ApiData = {
     rang: 1,
     avg_min: 18,
     ampel: 'gruen',
-    alert_langsam: false,
+    alert_lang: false,
   },
   team_avg_min: 26,
   gesamt: 4,
@@ -32,9 +32,9 @@ const MOCK: ApiData = {
 };
 
 const COACHING: Record<string, string> = {
-  gruen: 'Schnelle Lieferzeiten! Weiter so.',
-  gelb: 'Lieferzeiten im mittleren Bereich. Versuche effizienter zu navigieren.',
-  rot: 'Lange Lieferzeiten! Route und Stopps prüfen.',
+  gruen: 'Sehr schnelle Lieferzeiten! Weiter so.',
+  gelb: 'Lieferzeit im Mittelfeld. Routenoptimierung prüfen.',
+  rot: 'Lange Lieferzeiten! Bitte Route und Pausen überprüfen.',
 };
 
 export function FahrerPhase3845MeineLieferzeit({
@@ -95,35 +95,31 @@ export function FahrerPhase3845MeineLieferzeit({
       {/* Header */}
       <div className="flex items-center gap-2">
         <Timer className="w-5 h-5 text-blue-500" />
-        <span className="font-semibold text-gray-900 text-sm">Meine Lieferzeit</span>
+        <span className="font-semibold text-gray-900 text-sm">Meine Ø Lieferzeit</span>
         {loading && <span className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />}
       </div>
 
-      {/* Hauptwert */}
-      <div className="text-center">
-        <div className={`text-5xl font-black leading-none ${valueColor}`}>{f.avg_min} min</div>
-        <div className="mt-1 text-sm text-gray-500">Ø Lieferzeit (30 Tage)</div>
-        <div className={`text-3xl font-black mt-1 ${rangColor}`}>
-          Rang {f.rang} / {data.gesamt}
-        </div>
+      {/* Wert + Rang */}
+      <div className="flex items-end justify-between">
+        <span className={`text-5xl font-black ${valueColor}`}>{f.avg_min}<span className="text-2xl ml-1">min</span></span>
+        <span className={`text-3xl font-bold ${rangColor}`}>#{f.rang}<span className="text-sm font-normal text-gray-400"> / {data.gesamt}</span></span>
       </div>
 
-      {/* Alert */}
-      {f.alert_langsam && (
-        <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-200 rounded-lg text-xs text-orange-800">
-          <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-          <span>Lange Lieferzeiten! Route und Stopps prüfen.</span>
+      {f.alert_lang && (
+        <div className="flex items-center gap-1.5 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-2.5 py-1.5">
+          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+          <span>Lange Lieferzeiten! Bitte Route überprüfen.</span>
         </div>
       )}
 
       {/* Rang-Balken */}
       <div>
         <div className="flex justify-between text-[10px] text-gray-400 mb-0.5">
-          <span>Rang-Position</span>
-          <span>{rangPct}% von unten</span>
+          <span>Rang</span>
+          <span>{f.rang}/{data.gesamt}</span>
         </div>
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div className={`h-full ${barColor} rounded-full transition-all duration-500`} style={{ width: `${100 - rangPct}%` }} />
+          <div className={`h-full rounded-full ${barColor}`} style={{ width: `${rangPct}%` }} />
         </div>
       </div>
 
@@ -131,23 +127,24 @@ export function FahrerPhase3845MeineLieferzeit({
       <div>
         <div className="flex justify-between text-[10px] text-gray-400 mb-0.5">
           <span>Ziel ≤{zielMin} min</span>
-          <span>{f.avg_min} / {zielMin * 2} min</span>
+          <span>{f.avg_min} min</span>
         </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div className={`h-full ${barColor} rounded-full transition-all duration-500`} style={{ width: `${zielBarPct}%` }} />
+        <div className="relative h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className={`h-full rounded-full ${barColor}`} style={{ width: `${zielBarPct}%` }} />
+          <div className="absolute top-0 bottom-0 w-0.5 bg-blue-500" style={{ left: `${Math.min((zielMin / Math.max(zielMin * 2, 1)) * 100, 100)}%` }} />
         </div>
       </div>
 
       {/* Team-Avg */}
-      <div className="flex items-center justify-between text-xs px-3 py-2 bg-gray-50 rounded-lg">
-        <span className="text-gray-500">Team-Durchschnitt</span>
-        <span className="font-bold text-gray-800">{data.team_avg_min} min</span>
+      <div className="flex justify-between text-xs text-gray-500">
+        <span>Team-Ø</span>
+        <span className="font-semibold text-blue-600">{data.team_avg_min} min</span>
       </div>
 
       {/* Coaching-Tipp */}
-      <div className="text-[11px] text-gray-500 italic text-center">{COACHING[f.ampel]}</div>
-
-      <div className="text-[10px] text-gray-400 text-center">Ziel ≤{zielMin} min · 30-Min-Polling</div>
+      <div className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-2 italic">
+        {COACHING[f.ampel]}
+      </div>
     </div>
   );
 }

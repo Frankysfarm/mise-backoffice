@@ -10775,5 +10775,5 @@ export { FahrerPhase3830MeinePuenktlichkeitsQuote } from './phase3830-meine-puen
 export { FahrerPhase3835MeineKundenbewertung } from './phase3835-meine-kundenbewertung';
 // Phase 3840 — Meine Reklamationsquote (ShieldAlert-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken ≤3%; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3840MeineReklamationsQuote } from './phase3840-meine-reklamations-quote';
-// Phase 3845 — Meine Lieferzeit (Timer-Icon blau; min-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken ≤25min; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+// Phase 3845 — Meine Ø Lieferzeit (Timer-Icon blau; Minuten-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken ≤25min; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3845MeineLieferzeit } from './phase3845-meine-lieferzeit';

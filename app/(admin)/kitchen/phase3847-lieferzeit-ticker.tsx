@@ -10,7 +10,7 @@ interface FahrerRow {
   avg_min: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
-  alert_langsam: boolean;
+  alert_lang: boolean;
 }
 
 interface ApiData {
@@ -23,10 +23,10 @@ interface ApiData {
 
 const MOCK: ApiData = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, avg_min: 18, rank_delta: -1, ampel: 'gruen', alert_langsam: false },
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, avg_min: 22, rank_delta:  0, ampel: 'gruen', alert_langsam: false },
-    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, avg_min: 28, rank_delta:  1, ampel: 'gelb',  alert_langsam: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, avg_min: 36, rank_delta:  0, ampel: 'rot',   alert_langsam: true  },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, avg_min: 18, rank_delta: -1, ampel: 'gruen', alert_lang: false },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, avg_min: 22, rank_delta:  0, ampel: 'gruen', alert_lang: false },
+    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, avg_min: 28, rank_delta:  1, ampel: 'gelb',  alert_lang: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, avg_min: 36, rank_delta:  0, ampel: 'rot',   alert_lang: true  },
   ],
   team_avg_min: 26,
   bester_name: 'Julia F.',
@@ -66,7 +66,7 @@ export function KitchenPhase3847LieferzeitTicker({ locationId }: { locationId: s
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Timer className="w-4 h-4 text-blue-500" />
-          <span className="text-sm font-semibold text-gray-900">Lieferzeit</span>
+          <span className="text-sm font-semibold text-gray-900">Ø Lieferzeit</span>
           {loading && <span className="w-2.5 h-2.5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />}
         </div>
         {best && (
@@ -80,41 +80,40 @@ export function KitchenPhase3847LieferzeitTicker({ locationId }: { locationId: s
 
       {/* Alert */}
       {data.alert_count > 0 && (
-        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-orange-50 border border-orange-200 rounded-lg text-[11px] text-orange-800">
-          <AlertTriangle className="w-3 h-3 shrink-0" />
-          <span>Lange Lieferzeiten!</span>
+        <div className="flex items-center gap-1 text-[10px] text-red-600 bg-red-50 border border-red-200 rounded px-2 py-1">
+          <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+          <span>Lange Lieferzeiten! ({data.alert_count} Fahrer)</span>
         </div>
       )}
 
-      {/* Kompakt-Liste (aufsteigend: kürzeste Zeit = Rang 1 = bester) */}
-      <div className="space-y-1.5">
+      {/* Kompakte Liste aufsteigend */}
+      <div className="space-y-1">
         {data.fahrer.map(f => {
-          const tColor = f.ampel === 'gruen' ? 'text-emerald-700' : f.ampel === 'gelb' ? 'text-yellow-600' : 'text-red-500';
-          const barColor = f.ampel === 'gruen' ? 'bg-emerald-500' : f.ampel === 'gelb' ? 'bg-yellow-400' : 'bg-red-400';
-          const barPct = (f.avg_min / maxMin) * 100;
+          const barPct = Math.round((f.avg_min / maxMin) * 100);
+          const textColor =
+            f.ampel === 'gruen' ? 'text-emerald-700' : f.ampel === 'gelb' ? 'text-yellow-600' : 'text-red-500';
+          const barColor =
+            f.ampel === 'gruen' ? 'bg-emerald-500' : f.ampel === 'gelb' ? 'bg-yellow-400' : 'bg-red-400';
           return (
-            <div key={f.fahrer_id} className="space-y-0.5">
-              <div className="flex items-center gap-1.5 text-xs">
-                <span className="w-4 text-gray-400 font-mono text-[10px]">#{f.rang}</span>
-                <span className="flex-1 text-gray-800 font-medium truncate">{f.fahrer_name}</span>
-                <span className={`font-bold ${tColor}`}>{f.avg_min} min</span>
-                {f.rank_delta !== 0 && (
-                  f.rank_delta < 0
-                    ? <TrendingUp className="w-3 h-3 text-emerald-500" />
-                    : <TrendingDown className="w-3 h-3 text-red-400" />
-                )}
-                {f.alert_langsam && <AlertTriangle className="w-3 h-3 text-orange-500" />}
-              </div>
-              <div className="h-1 bg-gray-100 rounded-full overflow-hidden ml-5">
+            <div key={f.fahrer_id} className="flex items-center gap-2">
+              <span className="text-[10px] text-gray-400 w-4 text-right">#{f.rang}</span>
+              <span className="text-xs text-gray-700 w-16 truncate">{f.fahrer_name}</span>
+              <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div className={`h-full rounded-full ${barColor}`} style={{ width: `${barPct}%` }} />
               </div>
+              <span className={`text-xs font-bold ${textColor} w-10 text-right`}>{f.avg_min} min</span>
+              {f.rank_delta !== 0 && (
+                f.rank_delta < 0
+                  ? <TrendingUp className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                  : <TrendingDown className="w-3 h-3 text-red-400 flex-shrink-0" />
+              )}
             </div>
           );
         })}
       </div>
 
-      {/* Footer */}
-      <div className="flex items-center justify-between text-[10px] text-gray-400 border-t border-gray-100 pt-1.5">
+      {/* Team-Avg + Ziel */}
+      <div className="flex justify-between text-[10px] text-gray-400 pt-1 border-t border-gray-100">
         <span>Team-Ø {data.team_avg_min} min</span>
         <span>Ziel ≤{data.ziel_min} min</span>
       </div>

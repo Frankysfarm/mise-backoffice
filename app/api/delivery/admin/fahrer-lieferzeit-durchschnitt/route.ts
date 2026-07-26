@@ -10,7 +10,7 @@ interface FahrerRow {
   avg_min: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
-  alert_langsam: boolean;
+  alert_lang: boolean;
 }
 
 interface ApiResponse {
@@ -25,10 +25,10 @@ interface ApiResponse {
 
 const MOCK: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, avg_min: 18, rank_delta: -1, ampel: 'gruen', alert_langsam: false },
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, avg_min: 22, rank_delta:  0, ampel: 'gruen', alert_langsam: false },
-    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, avg_min: 28, rank_delta:  1, ampel: 'gelb',  alert_langsam: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, avg_min: 36, rank_delta:  0, ampel: 'rot',   alert_langsam: true  },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, avg_min: 18, rank_delta: -1, ampel: 'gruen', alert_lang: false },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, avg_min: 22, rank_delta:  0, ampel: 'gruen', alert_lang: false },
+    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, avg_min: 28, rank_delta:  1, ampel: 'gelb',  alert_lang: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, avg_min: 36, rank_delta:  0, ampel: 'rot',   alert_lang: true  },
   ],
   team_avg_min: 26,
   bester_name: 'Julia F.',
@@ -72,9 +72,9 @@ export async function GET(req: NextRequest) {
           .eq('driver_id', d.id)
           .gte('created_at', since)
           .not('duration_minutes', 'is', null);
-        const durations = (tours ?? []).map(t => t.duration_minutes).filter(v => typeof v === 'number');
-        const avg_min =
-          durations.length > 0 ? Math.round(durations.reduce((s, v) => s + v, 0) / durations.length) : 0;
+
+        const vals = (tours ?? []).map(t => t.duration_minutes as number).filter(v => v > 0);
+        const avg_min = vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : 0;
         return { fahrer_id: d.id, fahrer_name: d.name, avg_min };
       }),
     );
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest) {
         rang: i + 1,
         rank_delta: 0,
         ampel,
-        alert_langsam: ampel === 'rot',
+        alert_lang: ampel === 'rot',
       };
     });
 
@@ -106,7 +106,7 @@ export async function GET(req: NextRequest) {
       team_avg_min,
       bester_name: fahrer[0]?.fahrer_name ?? '',
       laengste_name: fahrer[fahrer.length - 1]?.fahrer_name ?? '',
-      alert_count: fahrer.filter(f => f.alert_langsam).length,
+      alert_count: fahrer.filter(f => f.alert_lang).length,
       gesamt: fahrer.length,
       ziel_min: 25,
     } satisfies ApiResponse);
