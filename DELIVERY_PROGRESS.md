@@ -12,12 +12,19 @@ Frontend-Ingenieur-Agent (2026-07-26): Phasen 3953–3957 implementiert — Fahr
 - Phase 3957 Kitchen: `KitchenPhase3957KundenbewertungTicker` — Star-Icon amber, Bester #1 Name+Sterne im Header, Alert "Schlechte Bewertungen!", kompakt absteigend, Team-Avg+Ziel >=4.5 ✅
 - Build ✓ exit 0. Push erfolgt.
 
-### Naechste Phasen 3958–3962 — Fahrer-Reaktionszeit-Verbesserung-Ranking
-1. **Phase 3958 Backend:** GET /api/delivery/admin/fahrer-reaktionszeit-verbesserung — Delta Reaktionszeit aktuell vs. letzter Monat je Fahrer; absteigend Rang 1=groesste Verbesserung=bester; Ampel gruen/gelb/rot; Alert "Sinkende Reaktionszeit!"; Mock Julia -2min/Sara -1min/Max +0.5min/Tim +2min; ziel=-1.0min; PFLICHT: force-dynamic + await createClient(). HINWEIS: pruefen ob Route bereits vorhanden.
-2. **Phase 3959 Dispatch:** ReactionsVerbesserungBoard — TrendingDown-Icon gruen; absteigend; KPI-Grid Bester/Team-Avg/Schlechtester; Alert "Sinkende Reaktionszeit!"; Delta pos=gruen; 30-Min-Polling; nach Phase3954. PFLICHT: Import + Render + Barrel.
-3. **Phase 3960 Fahrer-App:** MeineReaktionszeitVerbesserung — TrendingDown-Icon gruen; Delta-Wert 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3955. PFLICHT: Import + Render + Barrel.
-4. **Phase 3961 Storefront:** Ueberspringen.
-5. **Phase 3962 Kitchen:** ReactionsVerbesserungTicker — TrendingDown-Icon gruen; Bester #1 Name+Delta im Header; Alert "Sinkende Reaktionszeit!"; kompakt absteigend; 30-Min-Polling; nach Phase3957. PFLICHT: Import + Render + Barrel.
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3958–3962 implementiert — Fahrer-Durchschnitts-Lieferzeit-Ranking. Phase 3958 Backend: bestehendes `/api/delivery/admin/fahrer-durchschnitts-lieferzeit-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_min je Fahrer letzte 30 Tage, aufsteigend Rang 1=niedrigste Zeit=bester, Ampel gruen/gelb/rot, rank_delta, alert_top, Alert "Hohe Lieferzeit!", Mock Julia 18/Sara 22/Max 28/Tim 36 min, ziel=25 min. Phase 3959 Dispatch: `DispatchPhase3959LieferzeitBoard` — Truck-Icon slate, aufsteigend, KPI-Grid Schnellster/Team-Avg/Langsamster, Alert "Hohe Lieferzeit!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3960 Fahrer: `FahrerPhase3960MeineLieferzeit` — Truck-Icon slate, min-Wert 5xl+Rang 3xl farbkodiert, Ziel <=25 min, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3961 Storefront: uebersprungen. Phase 3962 Kitchen: `KitchenPhase3962LieferzeitTicker` — Truck-Icon slate, Schnellster #1 Name+min im Header, Alert "Hohe Lieferzeit!", kompakt aufsteigend, Rang+min+Delta rank_delta<0=gruen, Team-Avg+Ziel <=25 min, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3958–3962 ABGESCHLOSSEN — Fahrer-Durchschnitts-Lieferzeit-Ranking
+- Phase 3958 Backend: `/api/delivery/admin/fahrer-durchschnitts-lieferzeit-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_min je Fahrer letzte 30 Tage, aufsteigend Rang 1=niedrigste Zeit=bester, Ampel gruen/gelb/rot, rank_delta (< 0 = verbessert), alert_top, Mock Julia 18/Sara 22/Max 28/Tim 36 min ✅
+- Phase 3959 Dispatch: `DispatchPhase3959LieferzeitBoard` — Truck-Icon slate, aufsteigend Rang 1=niedrigste Lieferzeit, KPI-Grid Schnellster/Team-Avg/Langsamster, Alert "Hohe Lieferzeit!", rank_delta<0=gruen ✅
+- Phase 3960 Fahrer: `FahrerPhase3960MeineLieferzeit` — Truck-Icon slate, min-Wert 5xl+Rang 3xl farbkodiert, Ziel <=25 min, Coaching-Tipp (3 Stufen), isOnline-Guard ✅
+- Phase 3961 Storefront: uebersprungen ✅
+- Phase 3962 Kitchen: `KitchenPhase3962LieferzeitTicker` — Truck-Icon slate, Schnellster #1 Name+min im Header, Alert "Hohe Lieferzeit!", kompakt aufsteigend, Team-Avg+Ziel <=25 min ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3963–3967 — Naechstes Ranking-Thema (TBD)
+
+### Naechste Phasen 3958–3962 — Naechstes Ranking-Thema (TBD)
 
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3948–3952 implementiert — Fahrer-Leerfahrten-Ranking. Phase 3948 Backend: bestehendes `/api/delivery/admin/fahrer-leerfahrten-ranking/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), leerfahrten_pct je Fahrer heute, aufsteigend Rang 1=niedrigste Quote=bester, Ampel gruen/gelb/rot, rank_delta, alert_bottom, Alert "Hohe Leerfahrtenquote!", Mock Julia 5%/Sara 12%/Max 22%/Tim 38%. Phase 3949 Dispatch: `DispatchPhase3949LeerfahrtenBoard` — Car-Icon orange, aufsteigend, KPI-Grid Bester/Team-Avg/Hoechster, Alert "Hohe Leerfahrtenquote!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3950 Fahrer: `FahrerPhase3950MeineLeerfahrten` — Car-Icon orange, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=15%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3951 Storefront: uebersprungen. Phase 3952 Kitchen: `KitchenPhase3952LeerfahrtenTicker` — Car-Icon orange, Bester #1 Name+% im Header, Alert "Hohe Leerfahrtenquote!", kompakt aufsteigend, Rang+%+Delta rank_delta<0=gruen, Team-Avg+Ziel <=15%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
