@@ -1021,6 +1021,7 @@ import { KitchenPhase3897LeerfahrtenquoteTicker } from './phase3897-leerfahrtenq
 import { KitchenPhase3902LieferzeitTicker } from './phase3902-lieferzeit-ticker';
 import { KitchenPhase3907WartezeitTuerTicker } from './phase3907-wartezeit-tuer-ticker';
 import { KitchenPhase3912KmProTourTicker } from './phase3912-km-pro-tour-ticker';
+import { KitchenPhase3917RaktionszeitTicker } from './phase3917-reaktionszeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4349,6 +4350,7 @@ export function KitchenBoard({
       <KitchenPhase3902LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3907WartezeitTuerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3912KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3917RaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11563,5 +11565,7 @@ export { KitchenPhase3902LieferzeitTicker } from './phase3902-lieferzeit-ticker'
 export { KitchenPhase3907WartezeitTuerTicker } from './phase3907-wartezeit-tuer-ticker';
 // Phase 3912 — Km/Tour Ticker (Route-Icon grau; Effizientester #1 Name+km im Header; Alert "Hohe Km-Zahlen!"; kompakt aufsteigend; Rang+km+Delta neg=grün; Team-Avg+Ziel ≤8km; 30-Min-Polling)
 export { KitchenPhase3912KmProTourTicker } from './phase3912-km-pro-tour-ticker';
+// Phase 3917 — Reaktionszeit Ticker (Timer-Icon grau; Schnellste #1 Name+min im Header; Alert "Lange Reaktionszeiten!"; kompakt aufsteigend; Rang+min+Delta besser=grün; Team-Avg+Ziel ≤5min; 30-Min-Polling)
+export { KitchenPhase3917RaktionszeitTicker } from './phase3917-reaktionszeit-ticker';
 // Phase 3852 — Smart-Timing Live Countdown Hub (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/Aktiv/Überfällig/AvgPrep; Kochstart-Score; Fortschrittsbalken; Koch-Empfehlung; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3852SmartTimingLiveCountdownHub } from './phase3852-smart-timing-live-countdown-hub';
