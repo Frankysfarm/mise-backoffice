@@ -11431,4 +11431,5 @@ export { KitchenPhase3747PuenktlichkeitTicker } from './phase3747-puenktlichkeit
 export { KitchenPhase3752ReaktionszeitTicker } from './phase3752-reaktionszeit-ticker';
 // Phase 3757 — Schichtstunden Ticker (Clock-Icon blau; Fleißigster #1 Name+h im Header; Alert "Wenige Schichtstunden!"; kompakt absteigend; Rang+h+Delta pos=gruen; Team-O+Ziel >=6h; 30-Min-Polling)
 export { KitchenPhase3757SchichtstundenTicker } from './phase3757-schichtstunden-ticker';
+// Phase 3762 — Erstabholung-Pünktlichkeit Ticker (Package-Icon cyan; Bester #1 Name+% im Header; Alert "Späte Erstabholung!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Avg+Ziel >=90%; 30-Min-Polling)
 export { KitchenPhase3762ErstabholungPuenktlichkeitTicker } from './phase3762-erstabholung-puenktlichkeit-ticker';

@@ -12858,4 +12858,5 @@ export { DispatchPhase3744PuenktlichkeitRankingBoard } from './phase3744-puenktl
 export { DispatchPhase3749ReaktionszeitRankingBoard } from './phase3749-reaktionszeit-ranking-board';
 // Phase 3754 — Schichtstunden-Ranking Board (Clock-Icon blau; absteigend Rang 1=meiste Stunden; KPI-Grid Fleissigster/Team-Avg/Wenigste; Alert "Wenige Schichtstunden!"; Delta pos=gruen; RankBadge; 30-Min-Polling)
 export { DispatchPhase3754SchichtstundenRankingBoard } from './phase3754-schichtstunden-ranking-board';
+// Phase 3759 — Erstabholung-Pünktlichkeit Board (Package-Icon cyan; absteigend Rang 1=höchste Rate; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Späte Erstabholung!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3759ErstabholungPuenktlichkeitBoard } from './phase3759-erstabholung-puenktlichkeit-board';

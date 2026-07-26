@@ -10704,4 +10704,5 @@ export { FahrerPhase3745MeinePuenktlichkeit } from './phase3745-meine-puenktlich
 export { FahrerPhase3750MeineReaktionszeit } from './phase3750-meine-reaktionszeit';
 // Phase 3755 — Meine Schichtstunden (Clock-Icon blau; h-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel >=6h; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3755MeineSchichtstunden } from './phase3755-meine-schichtstunden';
+// Phase 3760 — Meine Erstabholung-Pünktlichkeit (Package-Icon cyan; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel >=90%; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3760MeineErstabholungPuenktlichkeit } from './phase3760-meine-erstabholung-puenktlichkeit';

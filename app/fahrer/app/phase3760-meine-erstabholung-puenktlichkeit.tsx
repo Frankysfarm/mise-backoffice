@@ -4,25 +4,25 @@ import { useState, useEffect, useCallback } from 'react';
 import { Package, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface MeineErstabholungData {
-  rate_pct: number;
+  puenktlichkeit_rate: number;
   rang: number;
   gesamt: number;
   rank_delta: number;
-  team_avg_pct: number;
-  ziel_pct: number;
+  team_avg_rate: number;
+  ziel_rate: number;
   ampel: 'gruen' | 'gelb' | 'rot';
   coaching_tipp: string;
 }
 
 const MOCK: MeineErstabholungData = {
-  rate_pct: 71,
+  puenktlichkeit_rate: 71,
   rang: 3,
   gesamt: 4,
   rank_delta: -1,
-  team_avg_pct: 75.5,
-  ziel_pct: 90,
+  team_avg_rate: 75.5,
+  ziel_rate: 90,
   ampel: 'gelb',
-  coaching_tipp: 'Noch 19% zum Ziel! Plane deinen Weg zur Abholung besser, um pünktlicher zu werden.',
+  coaching_tipp: 'Noch 19% zum Ziel! Frühzeitig zum Restaurant aufbrechen hilft.',
 };
 
 function ampelClasses(ampel: MeineErstabholungData['ampel']) {
@@ -50,19 +50,20 @@ export function FahrerPhase3760MeineErstabholungPuenktlichkeit({
       const json = await res.json();
       const me = json.fahrer?.find((f: { fahrer_id: string }) => f.fahrer_id === driverId);
       if (!me) return;
+      const ziel = json.ziel_rate ?? 90;
       setData({
-        rate_pct: me.rate_pct,
+        puenktlichkeit_rate: me.puenktlichkeit_rate,
         rang: me.rang,
         gesamt: json.gesamt,
         rank_delta: me.rank_delta,
-        team_avg_pct: json.team_avg_pct,
-        ziel_pct: json.ziel_pct ?? 90,
+        team_avg_rate: json.team_avg_rate,
+        ziel_rate: ziel,
         ampel: me.ampel,
         coaching_tipp: me.ampel === 'rot'
-          ? 'Deine Erstabholung ist häufig zu spät. Starte früher, um pünktlich beim Restaurant zu sein!'
+          ? 'Deine Erstabholung ist oft zu spät. Plane mehr Zeit ein!'
           : me.ampel === 'gelb'
-          ? `Noch ${Math.max(0, (json.ziel_pct ?? 90) - me.rate_pct)}% zum Ziel. Plane deine Abholung besser!`
-          : 'Klasse! Du holst pünktlich ab — weiter so!',
+          ? `Noch ${Math.max(0, ziel - me.puenktlichkeit_rate)}% zum Ziel. Frühzeitig aufbrechen hilft!`
+          : 'Super! Deine Erstabholung ist top — weiter so!',
       });
     } catch {
       // Mock-Fallback
@@ -78,8 +79,8 @@ export function FahrerPhase3760MeineErstabholungPuenktlichkeit({
   if (!isOnline) return null;
 
   const c = ampelClasses(data.ampel);
-  const barPct = Math.min((data.rate_pct / Math.max(data.ziel_pct, 1)) * 100, 100);
-  const teamBarPct = Math.min((data.team_avg_pct / Math.max(data.ziel_pct, 1)) * 100, 100);
+  const barPct = Math.min((data.puenktlichkeit_rate / Math.max(data.ziel_rate, 1)) * 100, 100);
+  const teamBarPct = Math.min((data.team_avg_rate / Math.max(data.ziel_rate, 1)) * 100, 100);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
@@ -91,7 +92,7 @@ export function FahrerPhase3760MeineErstabholungPuenktlichkeit({
 
       {/* Haupt-Wert */}
       <div className="text-center space-y-1">
-        <div className={`text-5xl font-black ${c.value}`}>{data.rate_pct}%</div>
+        <div className={`text-5xl font-black ${c.value}`}>{data.puenktlichkeit_rate}%</div>
         <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${c.badge}`}>
           Rang #{data.rang} von {data.gesamt}
           {data.rank_delta !== 0 && (
@@ -105,8 +106,8 @@ export function FahrerPhase3760MeineErstabholungPuenktlichkeit({
       {/* Ziel-Balken */}
       <div className="space-y-1.5">
         <div className="flex justify-between text-[11px] text-gray-500">
-          <span>Ich ({data.rate_pct}%)</span>
-          <span>Ziel ≥{data.ziel_pct}%</span>
+          <span>Ich ({data.puenktlichkeit_rate}%)</span>
+          <span>Ziel ≥{data.ziel_rate}%</span>
         </div>
         <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
           <div
@@ -115,7 +116,7 @@ export function FahrerPhase3760MeineErstabholungPuenktlichkeit({
           />
         </div>
         <div className="flex items-center justify-between text-[11px] text-gray-400">
-          <span>Team-Ø {data.team_avg_pct}%</span>
+          <span>Team-Ø {data.team_avg_rate}%</span>
           <div className="h-2.5 w-16 bg-gray-100 rounded-full overflow-hidden">
             <div className="h-full bg-cyan-300 rounded-full" style={{ width: `${teamBarPct}%` }} />
           </div>

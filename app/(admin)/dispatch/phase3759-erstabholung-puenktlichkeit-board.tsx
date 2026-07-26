@@ -7,7 +7,7 @@ interface FahrerRow {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
-  rate_pct: number;
+  puenktlichkeit_rate: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
   alert_spaet: boolean;
@@ -15,27 +15,27 @@ interface FahrerRow {
 
 interface ApiData {
   fahrer: FahrerRow[];
-  team_avg_pct: number;
+  team_avg_rate: number;
   bester_name: string;
   niedrigster_name: string;
   alert_count: number;
   gesamt: number;
-  ziel_pct: number;
+  ziel_rate: number;
 }
 
 const MOCK: ApiData = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, rate_pct: 92, rank_delta:  1, ampel: 'gruen', alert_spaet: false },
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, rate_pct: 84, rank_delta:  0, ampel: 'gruen', alert_spaet: false },
-    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, rate_pct: 71, rank_delta: -1, ampel: 'gelb',  alert_spaet: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, rate_pct: 55, rank_delta:  0, ampel: 'rot',   alert_spaet: true  },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, puenktlichkeit_rate: 92, rank_delta:  1, ampel: 'gruen', alert_spaet: false },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, puenktlichkeit_rate: 84, rank_delta:  0, ampel: 'gruen', alert_spaet: false },
+    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, puenktlichkeit_rate: 71, rank_delta: -1, ampel: 'gelb',  alert_spaet: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, puenktlichkeit_rate: 55, rank_delta:  0, ampel: 'rot',   alert_spaet: true  },
   ],
-  team_avg_pct: 75.5,
+  team_avg_rate: 75.5,
   bester_name: 'Julia F.',
   niedrigster_name: 'Tim B.',
   alert_count: 1,
   gesamt: 4,
-  ziel_pct: 90,
+  ziel_rate: 90,
 };
 
 function ampelColor(ampel: FahrerRow['ampel']) {
@@ -69,7 +69,7 @@ export function DispatchPhase3759ErstabholungPuenktlichkeitBoard({ locationId }:
     return () => clearInterval(id);
   }, [load]);
 
-  const maxPct = Math.max(...data.fahrer.map(f => f.rate_pct), 1);
+  const maxRate = Math.max(...data.fahrer.map(f => f.puenktlichkeit_rate), 1);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
@@ -88,16 +88,16 @@ export function DispatchPhase3759ErstabholungPuenktlichkeitBoard({ locationId }:
       {/* KPI-Grid */}
       <div className="grid grid-cols-3 gap-2 text-center">
         <div className="bg-emerald-50 rounded-lg p-2">
-          <div className="text-base font-black text-emerald-600">{data.fahrer[0]?.rate_pct}%</div>
+          <div className="text-base font-black text-emerald-600">{data.fahrer[0]?.puenktlichkeit_rate}%</div>
           <div className="text-[10px] text-gray-500">Bester</div>
         </div>
         <div className="bg-gray-50 rounded-lg p-2">
-          <div className="text-base font-black text-gray-800">{data.team_avg_pct}%</div>
+          <div className="text-base font-black text-gray-800">{data.team_avg_rate}%</div>
           <div className="text-[10px] text-gray-500">Team-Ø</div>
         </div>
         <div className={`rounded-lg p-2 ${data.alert_count > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
           <div className={`text-base font-black ${data.alert_count > 0 ? 'text-red-600' : 'text-gray-800'}`}>
-            {data.fahrer[data.fahrer.length - 1]?.rate_pct}%
+            {data.fahrer[data.fahrer.length - 1]?.puenktlichkeit_rate}%
           </div>
           <div className="text-[10px] text-gray-500">Niedrigster</div>
         </div>
@@ -115,13 +115,13 @@ export function DispatchPhase3759ErstabholungPuenktlichkeitBoard({ locationId }:
       <div className="space-y-2">
         {data.fahrer.map(f => {
           const c = ampelColor(f.ampel);
-          const barPct = (f.rate_pct / maxPct) * 100;
+          const barPct = (f.puenktlichkeit_rate / maxRate) * 100;
           return (
             <div key={f.fahrer_id} className={`rounded-lg border ${c.border} ${c.bg} p-2.5 space-y-1.5`}>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-gray-400 w-6">{RANK_BADGE[f.rang] ?? `#${f.rang}`}</span>
                 <span className="flex-1 text-sm font-bold text-gray-900 truncate">{f.fahrer_name}</span>
-                <span className={`text-sm font-black ${c.text}`}>{f.rate_pct}%</span>
+                <span className={`text-sm font-black ${c.text}`}>{f.puenktlichkeit_rate}%</span>
                 {f.rank_delta !== 0 && (
                   f.rank_delta < 0
                     ? <TrendingUp className="w-3 h-3 text-emerald-500 shrink-0" />
@@ -141,7 +141,7 @@ export function DispatchPhase3759ErstabholungPuenktlichkeitBoard({ locationId }:
       </div>
 
       <div className="text-[10px] text-gray-400 text-center">
-        Ziel ≥{data.ziel_pct}% · Rang 1=höchste Rate=bester · 30-Min-Polling
+        Ziel ≥{data.ziel_rate}% · Rang 1=höchste Rate=bester · 30-Min-Polling
       </div>
     </div>
   );
