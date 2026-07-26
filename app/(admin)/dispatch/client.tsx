@@ -1061,6 +1061,7 @@ import { DispatchPhase3834KundenbewertungsDurchschnittBoard } from './phase3834-
 import { DispatchPhase3839ReklamationsQuoteBoard } from './phase3839-reklamations-quote-board';
 import { DispatchPhase3844LieferzeitDurchschnittBoard } from './phase3844-lieferzeit-durchschnitt-board';
 import { DispatchPhase3849SchichtEffizienzScoreBoard } from './phase3849-schicht-effizienz-score-board';
+import { DispatchPhase3854TourenProTagBoard } from './phase3854-touren-pro-tag-board';
 
 type Driver = {
   employee_id: string;
@@ -4739,6 +4740,7 @@ export function DispatchBoard({
           <DispatchPhase3839ReklamationsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3844LieferzeitDurchschnittBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3849SchichtEffizienzScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3854TourenProTagBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12935,3 +12937,5 @@ export { DispatchPhase3839ReklamationsQuoteBoard } from './phase3839-reklamation
 export { DispatchPhase3844LieferzeitDurchschnittBoard } from './phase3844-lieferzeit-durchschnitt-board';
 // Phase 3849 — Schicht-Effizienz-Score Board (BarChart3-Icon violett; absteigend Rang 1=höchster Score=bester; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriger Effizienz-Score!"; Delta pos=grün; 30-Min-Polling)
 export { DispatchPhase3849SchichtEffizienzScoreBoard } from './phase3849-schicht-effizienz-score-board';
+// Phase 3854 — Touren-pro-Tag Board (Activity-Icon grün; absteigend Rang 1=meiste Touren=bester; KPI-Grid Meiste/Team-Avg/Wenigste; Alert "Wenige Touren!"; Delta pos=grün; 30-Min-Polling)
+export { DispatchPhase3854TourenProTagBoard } from './phase3854-touren-pro-tag-board';

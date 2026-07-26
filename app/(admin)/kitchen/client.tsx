@@ -1007,6 +1007,7 @@ import { KitchenPhase3837KundenbewertungsTicker } from './phase3837-kundenbewert
 import { KitchenPhase3842ReklamationsQuoteTicker } from './phase3842-reklamations-quote-ticker';
 import { KitchenPhase3847LieferzeitTicker } from './phase3847-lieferzeit-ticker';
 import { KitchenPhase3852SchichtEffizienzTicker } from './phase3852-schicht-effizienz-ticker';
+import { KitchenPhase3857TourenProTagTicker } from './phase3857-touren-pro-tag-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4321,6 +4322,7 @@ export function KitchenBoard({
       <KitchenPhase3842ReklamationsQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3847LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3852SchichtEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3857TourenProTagTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11508,3 +11510,5 @@ export { KitchenPhase3842ReklamationsQuoteTicker } from './phase3842-reklamation
 export { KitchenPhase3847LieferzeitTicker } from './phase3847-lieferzeit-ticker';
 // Phase 3852 — Schicht-Effizienz Ticker (BarChart3-Icon violett; Bester #1 Name+Score im Header; Alert "Niedriger Effizienz-Score!"; kompakt absteigend; Rang+Score+Delta pos=grün; Team-Avg+Ziel ≥70; 30-Min-Polling)
 export { KitchenPhase3852SchichtEffizienzTicker } from './phase3852-schicht-effizienz-ticker';
+// Phase 3857 — Touren-pro-Tag Ticker (Activity-Icon grün; Bester #1 Name+Touren im Header; Alert "Wenige Touren!"; kompakt absteigend; Rang+Touren+Delta pos=grün; Team-Avg+Ziel >=7/Tag; 30-Min-Polling)
+export { KitchenPhase3857TourenProTagTicker } from './phase3857-touren-pro-tag-ticker';

@@ -983,6 +983,7 @@ import { FahrerPhase3835MeineKundenbewertung } from './phase3835-meine-kundenbew
 import { FahrerPhase3840MeineReklamationsQuote } from './phase3840-meine-reklamations-quote';
 import { FahrerPhase3845MeineLieferzeit } from './phase3845-meine-lieferzeit';
 import { FahrerPhase3850MeinSchichtEffizienzScore } from './phase3850-mein-schicht-effizienz-score';
+import { FahrerPhase3855MeineTourenProTag } from './phase3855-meine-touren-pro-tag';
 
 type Driver = {
   id: string;
@@ -6894,6 +6895,7 @@ export function FahrerApp({
           <FahrerPhase3840MeineReklamationsQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3845MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3850MeinSchichtEffizienzScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3855MeineTourenProTag driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10781,3 +10783,5 @@ export { FahrerPhase3840MeineReklamationsQuote } from './phase3840-meine-reklama
 export { FahrerPhase3845MeineLieferzeit } from './phase3845-meine-lieferzeit';
 // Phase 3850 — Mein Schicht-Effizienz-Score (BarChart3-Icon violett; Score 5xl+Rang 3xl farbkodiert; Fortschrittsbalken; Detail-Metriken Touren/h+km/Stopp+Wartezeit; Ziel ≥70; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3850MeinSchichtEffizienzScore } from './phase3850-mein-schicht-effizienz-score';
+// Phase 3855 — Meine Touren pro Tag (Activity-Icon grün; Touren/Tag 5xl+Rang 3xl farbkodiert; Fortschrittsbalken; Ziel >=7 Touren/Tag; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3855MeineTourenProTag } from './phase3855-meine-touren-pro-tag';
