@@ -976,6 +976,7 @@ import { FahrerPhase3800MeineReaktionszeit } from './phase3800-meine-reaktionsze
 import { FahrerPhase3805TourStoppNavigationSmartHub } from './phase3805-tour-stopp-navigation-smart-hub';
 import { FahrerPhase3810MeinKilometerstand } from './phase3810-mein-kilometerstand';
 import { FahrerPhase3815MeineGeschwindigkeit } from './phase3815-meine-geschwindigkeit';
+import { FahrerPhase3820MeineTourenProSchicht } from './phase3820-meine-touren-pro-schicht';
 
 type Driver = {
   id: string;
@@ -6880,6 +6881,7 @@ export function FahrerApp({
           <FahrerPhase3805TourStoppNavigationSmartHub fahrerToken={driver.id} />
           <FahrerPhase3810MeinKilometerstand driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3815MeineGeschwindigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3820MeineTourenProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10751,3 +10753,5 @@ export { FahrerPhase3805TourStoppNavigationSmartHub } from './phase3805-tour-sto
 export { FahrerPhase3810MeinKilometerstand } from './phase3810-mein-kilometerstand';
 // Phase 3815 — Meine Geschwindigkeit (Gauge-Icon blau; km/h-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel ≥25km/h; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3815MeineGeschwindigkeit } from './phase3815-meine-geschwindigkeit';
+// Phase 3820 — Meine Touren/Schicht (Package-Icon orange; T/S-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel ≥6.0; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3820MeineTourenProSchicht } from './phase3820-meine-touren-pro-schicht';
