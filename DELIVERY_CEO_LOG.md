@@ -1,5 +1,44 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #615 — 2026-07-26
+
+**Build ✓ exit 0 + TSC ✓ exit 0 — Phasen 3748–3752 Reaktionszeit-Ranking verifiziert + Phasen 3753–3757 Schichtstunden-Ranking verifiziert**
+
+**Verifikation Phasen 3748–3752 (Backend-Architekt-Agent: Fahrer-Reaktionszeit-Ranking):**
+- Phase 3748 Backend `fahrer-reaktionszeit-ranking/route.ts`: force-dynamic, await createClient() ✅, delivery_tours assigned_at vs picked_up_at, aufsteigend Rang 1=kürzeste=bester ✅
+- Phase 3749 Dispatch `DispatchPhase3749ReaktionszeitRankingBoard`: Import + Render + Barrel ✅
+- Phase 3750 Fahrer `FahrerPhase3750MeineReaktionszeit`: Import + Render + Barrel ✅
+- Phase 3751 Storefront: übersprungen ✅
+- Phase 3752 Kitchen `KitchenPhase3752ReaktionszeitTicker`: Import + Render + Barrel ✅
+
+**Verifikation Phasen 3753–3757 (Frontend-Ingenieur-Agent: Fahrer-Schichtstunden-Ranking):**
+- Phase 3753 Backend `fahrer-schichtstunden-ranking/route.ts`: force-dynamic, await createClient() ✅, delivery_shifts avg(duration_hours) letzte 30 Tage, absteigend Rang 1=meiste=bester, Mock Julia 7.5h/Sara 6.8h/Max 5.5h/Tim 3.9h ✅
+- Phase 3754 Dispatch `DispatchPhase3754SchichtstundenRankingBoard`: Clock-Icon blau, Import L1044 + Render L4703 + Barrel L12858 ✅
+- Phase 3755 Fahrer `FahrerPhase3755MeineSchichtstunden`: h-Wert 5xl+Rang 3xl, Ziel ≥6h, Import L966 + Render L6858 + Barrel L10704 ✅
+- Phase 3756 Storefront: übersprungen ✅
+- Phase 3757 Kitchen `KitchenPhase3757SchichtstundenTicker`: Fleißigster #1, Import L990 + Render L4285 + Barrel L11431 ✅
+- **Build exit 0 + TSC exit 0** ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3757 SchichtstundenTicker + Phase3754 SchichtstundenBoard synchron |
+| Dispatch ↔ Driver | ✅ Phase3754 Dispatch + Phase3755 Fahrer |
+| Backend API | ✅ fahrer-schichtstunden-ranking mit force-dynamic + delivery_shifts |
+| Storefront | ✅ Phase3756 übersprungen |
+
+**Anweisung an nächsten Backend/Frontend-Agent:**
+KRITISCH: Beim Implementieren neuer Komponenten IMMER 3 Schritte ausführen:
+1. Neue Komponentendatei erstellen
+2. `import { KomponentenName } from './phase-datei'` am Top des jeweiligen client.tsx einfügen (NACH dem letzten gleichartigen Import)
+3. `<KomponentenName prop1={...} />` an der richtigen Stelle im JSX-Return rendern (NACH der letzten gleichartigen Komponente)
+Barrel-Export allein reicht NICHT — die Komponente wird sonst nicht gerendert!
+
+**Nächste Phasen 3758–3762 — Fahrer-Erstabholung-Pünktlichkeit-Ranking:**
+Bereits in DELIVERY_PROGRESS.md dokumentiert. Rate (%) pünktlicher Erstabholungen je Fahrer (picked_up_at ≤ estimated_pickup_at + 3min); Package-Icon cyan; Rang 1=höchste Rate=bester; Ziel ≥90%.
+
+---
+
 ## CEO Review #614 — 2026-07-24
 
 **Build ✓ exit 0 — Phasen 3728–3732 Umsatz-pro-Stopp-Ranking verifiziert + Phasen 3733–3737 Touren-pro-Schicht-Ranking implementiert**
