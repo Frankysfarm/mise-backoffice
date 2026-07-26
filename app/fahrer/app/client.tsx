@@ -992,6 +992,7 @@ import { FahrerPhase3875MeineKundenbewertung } from './phase3875-meine-kundenbew
 import { FahrerPhase3880MeinePuenktlichkeit } from './phase3880-meine-puenktlichkeit';
 import { FahrerPhase3885MeinUmsatzProStunde } from './phase3885-mein-umsatz-pro-stunde';
 import { FahrerPhase3885MeineReklamationsquote } from './phase3885-meine-reklamationsquote';
+import { FahrerPhase3890MeineTrinkgeldQuote } from './phase3890-meine-trinkgeld-quote';
 
 type Driver = {
   id: string;
@@ -6912,6 +6913,7 @@ export function FahrerApp({
           <FahrerPhase3880MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3885MeinUmsatzProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3885MeineReklamationsquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3890MeineTrinkgeldQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10816,5 +10818,7 @@ export { FahrerPhase3880MeinePuenktlichkeit } from './phase3880-meine-puenktlich
 export { FahrerPhase3885MeinUmsatzProStunde } from './phase3885-mein-umsatz-pro-stunde';
 // Phase 3885 — Meine Reklamationsquote (AlertOctagon-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Fortschrittsbalken; Ziel ≤3%; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3885MeineReklamationsquote } from './phase3885-meine-reklamationsquote';
+// Phase 3890 — Meine Trinkgeld-Quote (Heart-Icon pink; %-Wert 5xl+Rang 3xl farbkodiert; Fortschrittsbalken; Ziel ≥5%; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3890MeineTrinkgeldQuote } from './phase3890-meine-trinkgeld-quote';
 // Phase 3850 — Tour-Stopp Live Navigation (Aktiver-Stopp Hero-Card ETA+Google-Maps+Waze+Telefon; Fortschrittsbalken Geliefert/Gesamt; Alle-Stopps-Liste mit Status-Dots; Notiz-Hinweis-Banner; Inline-Navi-Links je Stopp; 10-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3850TourStoppLiveNavigation } from './phase3850-tour-stopp-live-navigation';
