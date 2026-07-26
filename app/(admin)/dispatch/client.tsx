@@ -1040,6 +1040,7 @@ import { DispatchPhase3729UmsatzProStoppRankingBoard } from './phase3729-umsatz-
 import { DispatchPhase3734TourenProSchichtRankingBoard } from './phase3734-touren-pro-schicht-ranking-board';
 import { DispatchPhase3739KmProTourRankingBoard } from './phase3739-km-pro-tour-ranking-board';
 import { DispatchPhase3744PuenktlichkeitRankingBoard } from './phase3744-puenktlichkeit-ranking-board';
+import { DispatchPhase3749ReaktionszeitRankingBoard } from './phase3749-reaktionszeit-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4697,6 +4698,7 @@ export function DispatchBoard({
           <DispatchPhase3734TourenProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3739KmProTourRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3744PuenktlichkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3749ReaktionszeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12849,3 +12851,4 @@ export { DispatchPhase3729UmsatzProStoppRankingBoard } from './phase3729-umsatz-
 export { DispatchPhase3734TourenProSchichtRankingBoard } from './phase3734-touren-pro-schicht-ranking-board';
 export { DispatchPhase3739KmProTourRankingBoard } from './phase3739-km-pro-tour-ranking-board';
 export { DispatchPhase3744PuenktlichkeitRankingBoard } from './phase3744-puenktlichkeit-ranking-board';
+export { DispatchPhase3749ReaktionszeitRankingBoard } from './phase3749-reaktionszeit-ranking-board';
