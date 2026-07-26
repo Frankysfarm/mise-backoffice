@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3938–3942 implementiert — Fahrer-Puenktlichkeit-Trend-Ranking. Phase 3938 Backend: bestehendes `/api/delivery/admin/fahrer-puenktlichkeit-trend/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), Puenktlichkeitsquote letzte 7 Tage Zeitreihe je Fahrer, absteigend aktuell_pct Rang 1=hoechste Quote=bester, trend steigend/stabil/fallend, Alert abweichung<-20% "Sinkende Puenktlichkeit!", Mock Max 93%/Luca 75%/Sara 60%, ziel=90. Phase 3939 Dispatch: `DispatchPhase3939PuenktlichkeitTrendBoard` — Clock-Icon blau, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Sinkende Puenktlichkeit!", Trend steigend=gruen, Import+Render+Barrel ✅. Phase 3940 Fahrer: `FahrerPhase3940MeinePuenktlichkeitTrend` — Clock-Icon blau, %-Wert 5xl+Rang 3xl farbkodiert, Ziel >=90%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3941 Storefront: uebersprungen. Phase 3942 Kitchen: `KitchenPhase3942PuenktlichkeitTrendTicker` — Clock-Icon blau, Bester #1 Name+% im Header, Alert "Sinkende Puenktlichkeit!", kompakt absteigend, Rang+%+Delta steigend=gruen, Team-Avg+Ziel >=90%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3938–3942 ABGESCHLOSSEN — Fahrer-Puenktlichkeit-Trend-Ranking
+- Phase 3938 Backend: `/api/delivery/admin/fahrer-puenktlichkeit-trend/route.ts` (bereits vorhanden) — force-dynamic, await createClient(), aktuell_pct 7-Tage-Zeitreihe je Fahrer, absteigend Rang 1=hoechste Quote=bester, trend steigend/stabil/fallend, Alert abweichung<-20% "Sinkende Puenktlichkeit!", Mock Max 93%/Luca 75%/Sara 60% ✅
+- Phase 3939 Dispatch: `DispatchPhase3939PuenktlichkeitTrendBoard` — Clock-Icon blau, absteigend Rang 1=hoechste Puenktlichkeit, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Sinkende Puenktlichkeit!", Trend steigend=gruen ✅
+- Phase 3940 Fahrer: `FahrerPhase3940MeinePuenktlichkeitTrend` — Clock-Icon blau, %-Wert 5xl+Rang 3xl farbkodiert, Ziel >=90%, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3941 Storefront: uebersprungen ✅
+- Phase 3942 Kitchen: `KitchenPhase3942PuenktlichkeitTrendTicker` — Clock-Icon blau, Bester #1 Name+% im Header, Alert "Sinkende Puenktlichkeit!", kompakt absteigend, Trend steigend=gruen, Team-Avg+Ziel >=90% ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3943–3947 — Fahrer-Trinkgeld-Betrag-Ranking
+1. **Phase 3943 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-betrag — Durchschnittlicher Trinkgeld-Betrag je Lieferung je Fahrer letzte 30 Tage; absteigend Rang 1=hoechster Betrag=bester; Ampel gruen/gelb/rot; Alert "Niedriges Trinkgeld!"; Route bereits vorhanden.
+2. **Phase 3944 Dispatch:** TrinkgeldBetragBoard — EuroIcon oder Gift-Icon gruen; absteigend Rang 1=hoechster Betrag; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriges Trinkgeld!"; Delta pos=gruen; 30-Min-Polling; nach Phase3939. PFLICHT: Import + Render + Barrel.
+3. **Phase 3945 Fahrer-App:** MeinTrinkgeldBetrag — EuroIcon oder Gift-Icon gruen; €-Wert 5xl+Rang 3xl farbkodiert; Ziel >=2€; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3940. PFLICHT: Import + Render + Barrel.
+4. **Phase 3946 Storefront:** Ueberspringen.
+5. **Phase 3947 Kitchen:** TrinkgeldBetragTicker — EuroIcon oder Gift-Icon gruen; Bester #1 Name+€ im Header; Alert "Niedriges Trinkgeld!"; kompakt absteigend; Rang+€+Delta pos=gruen; Team-Avg+Ziel >=2€; 30-Min-Polling; nach Phase3942. PFLICHT: Import + Render + Barrel.
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3933–3937 implementiert — Fahrer-Routen-Score-Ranking. Phase 3933 Backend: bestehendes `/api/delivery/admin/fahrer-routen-score/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), Routen-Effizienz-Score 0-100 heute je Fahrer, absteigend Rang 1=hoechster Score=bester, Ampel hoch=gruen/mittel=gelb/niedrig=rot, Alert "Schlechter Routen-Score!", Mock Max 88/Lisa 72/Tom 51/Jan 28, ziel=80. Phase 3934 Dispatch: `DispatchPhase3934RoutenScoreBoard` — BarChart2-Icon grau, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Schlechter Routen-Score!", Delta besser=gruen, Import+Render+Barrel ✅. Phase 3935 Fahrer: `FahrerPhase3935MeinRoutenScore` — BarChart2-Icon grau, Score 5xl+Rang 3xl farbkodiert, Ziel >=80, Coaching-Tipp aus hinweis-Feld, isOnline-Guard, Import+Render+Barrel ✅. Phase 3936 Storefront: uebersprungen. Phase 3937 Kitchen: `KitchenPhase3937RoutenScoreTicker` — BarChart2-Icon grau, Bester #1 Name+Score im Header, Alert "Schlechter Routen-Score!", kompakt absteigend, Rang+Score+Delta besser=gruen, Team-Avg+Ziel >=80, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3933–3937 ABGESCHLOSSEN — Fahrer-Routen-Score-Ranking
