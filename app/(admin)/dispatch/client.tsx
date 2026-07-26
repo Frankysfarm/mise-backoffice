@@ -1049,6 +1049,7 @@ import { DispatchPhase3774UmsatzProKmRankingBoard } from './phase3774-umsatz-pro
 import { DispatchPhase3779LieferzeitGenauigkeitBoard } from './phase3779-lieferzeit-genauigkeit-board';
 import { DispatchPhase3784TourScoreVisualisierungSupreme } from './phase3784-tour-score-visualisierung-supreme';
 import { DispatchPhase3789StornoquoteRankingBoard } from './phase3789-stornoquote-ranking-board';
+import { DispatchPhase3794TrinkgeldQuoteRankingBoard } from './phase3794-trinkgeld-quote-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4715,6 +4716,7 @@ export function DispatchBoard({
           <DispatchPhase3779LieferzeitGenauigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3784TourScoreVisualisierungSupreme locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3789StornoquoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3794TrinkgeldQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12886,3 +12888,5 @@ export { DispatchPhase3779LieferzeitGenauigkeitBoard } from './phase3779-lieferz
 // Phase 3779 — Tour-Score & Visualisierung Supreme (Trophy amber; Flotten-KPI-Grid Avg/Top/Aktiv; Score-Balken je Fahrer 0–100; Stopp-Dot-Timeline farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3784TourScoreVisualisierungSupreme } from './phase3784-tour-score-visualisierung-supreme';
 export { DispatchPhase3789StornoquoteRankingBoard } from './phase3789-stornoquote-ranking-board';
+// Phase 3794 — Trinkgeld-Quote Ranking Board (Coins-Icon gelb; absteigend Rang 1=höchstes Trinkgeld; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriges Trinkgeld!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3794TrinkgeldQuoteRankingBoard } from './phase3794-trinkgeld-quote-ranking-board';
