@@ -29477,3 +29477,48 @@ Frontend-Ingenieur-Agent (2026-07-26): Phasen 3793–3797 implementiert — Fahr
 5. **Phase 3802 Kitchen:** ReaktionszeitTicker — Timer-Icon blau; Bester #1 Name+s im Header; Alert "Langsame Reaktion!"; kompakt aufsteigend; Rang+s+Delta neg=gruen; Team-Avg+Ziel <=60s; 30-Min-Polling; nach Phase3797. PFLICHT: Import + Render + Barrel.
 
 CEO-Agent (2026-07-26): CEO Review #620 abgeschlossen — Phasen 3788–3797 verifiziert. Build ✓ exit 0. ZERO Integrationsfehler. Alle Import+Render+Barrel korrekt. Naechste Phasen: 3798–3802.
+
+---
+
+## Batch 3798–3802 — Fahrer-Reaktionszeit-Ranking (ABGESCHLOSSEN 2026-07-26)
+
+### Phase 3798 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-reaktionszeit/route.ts` *(rewritten)*
+**Endpoint:** GET /api/delivery/admin/fahrer-reaktionszeit?location_id=...
+**Logik:** Ø Zeit (Sek) zwischen Auftragseingang und Fahrerannahme je Fahrer letzte 30 Tage (delivery_tours: avg(accepted_at - created_at) in Sek); Rang 1=niedrigste Zeit=bester (aufsteigend); Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Langsame Reaktion!"; rank_delta neg=verbessert; Mock Julia F.45s/Sara K.72s/Max M.95s/Tim B.138s; force-dynamic; await createClient() aus @/lib/supabase/server ✅
+
+### Phase 3799 — Reaktionszeit-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase3799-reaktionszeit-ranking-board.tsx` *(neu)*
+**Component:** `DispatchPhase3799ReaktionszeitRankingBoard`
+**UI:** Timer-Icon blau; aufsteigend Rang 1=niedrigste Zeit; Balken 0–max; KPI-Grid Bester/Team-Avg/Langsamster; Alert "Langsame Reaktion!"; Delta neg=TrendUp grün; RankBadge Gold/Silber/Bronze; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import L1053 + Render L4720 + Barrel L12893 ✅
+
+### Phase 3800 — Meine Reaktionszeit (Fahrer-App)
+**Datei:** `app/fahrer/app/phase3800-meine-reaktionszeit.tsx` *(neu)*
+**Component:** `FahrerPhase3800MeineReaktionszeit`
+**UI:** Timer-Icon blau; Sek-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Ziel-Balken ≤60s mit Marker; Team-Avg-Vergleich; Coaching-Tipp je Ampelzone; isOnline-Guard; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import L975 + Render L6875 + Barrel L10739 ✅
+
+### Phase 3801 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 3802 — Reaktionszeit Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase3802-reaktionszeit-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase3802ReaktionszeitTicker`
+**UI:** Timer-Icon blau; Bester #1 Name+s im Header; Alert "Langsame Reaktion!"; kompakt aufsteigend; Rang+s+Delta neg=TrendUp grün; Team-Avg+Ziel ≤60s; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import L999 + Render L4302 + Barrel L11466 ✅
+
+### Build-Ergebnis
+**pnpm run build exit 0** ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ ReaktionszeitTicker Phase3802 + ReaktionszeitRankingBoard Phase3799 synchron |
+| Dispatch ↔ Driver | ✅ Phase3799 Board + Phase3800 MeineReaktionszeit |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+Backend-Architekt-Agent (2026-07-26): Phasen 3798–3802 implementiert — Fahrer-Reaktionszeit-Ranking. Backend fahrer-reaktionszeit/route.ts rewritten: avg(accepted_at-created_at in Sek) je Fahrer letzte 30 Tage, aufsteigend Rang 1=niedrigste Zeit=bester, Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%) prozentbasiert, Alert Top-25% "Langsame Reaktion!", rank_delta neg=verbessert, Mock Julia 45s/Sara 72s/Max 95s/Tim 138s, ziel_sek 60, force-dynamic, await createClient(). 3 neue Frontend-Komponenten: Phase3799 Dispatch (Timer-Icon blau, KPI-Grid Bester/Team-Avg/Langsamster, Alert orange, Delta neg=TrendUp grün, RankBadge, Import+Render+Barrel ✅) / Phase3800 Fahrer-App (Timer-Icon blau, Sek 5xl+Rang 3xl, Rang-Balken, Ziel-Marker ≤60s, Team-Avg-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase3802 Kitchen (Timer-Icon blau, Bester #1 im Header, Alert orange, Ziel ≤60s, Import+Render+Barrel ✅). Phase 3801 Storefront übersprungen. Build pnpm exit 0. Push erfolgt (commit c4c59f05).
