@@ -1,5 +1,51 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #627 — 2026-07-26
+
+**Build ✓ exit 0 — Phasen 3893–3907 (Leerfahrtenquote + Lieferzeit + Wartezeit-Tür-Ranking) verifiziert**
+
+**Verifikation Phasen 3893–3897 (Fahrer-Leerfahrtenquote-Ranking):**
+- Phase 3893 Backend `/api/delivery/admin/fahrer-leerfahrtenquote/route.ts`: force-dynamic ✅, await createClient() ✅, Leerfahrtenanteil % je Fahrer, aufsteigend Rang 1=niedrigste Quote=bester, Ampel gruen/gelb/rot, Alert "Viele Leerfahrten!", Mock Julia 2%/Sara 5%/Max 9%/Tim 18% ✅
+- Phase 3894 Dispatch `DispatchPhase3894LeerfahrtenquoteBoard`: Car-Icon grau, aufsteigend Rang 1=niedrigste Quote, KPI-Grid Bester/Team-Avg/Hoechste, Alert "Viele Leerfahrten!", Delta neg=gruen, Import+Render+Barrel ✅
+- Phase 3895 Fahrer `FahrerPhase3895MeineLeerfahrtenquote`: Car-Icon grau, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=5%, isOnline-Guard, Coaching-Tipp, Import+Render+Barrel ✅
+- Phase 3896 Storefront: uebersprungen ✅
+- Phase 3897 Kitchen `KitchenPhase3897LeerfahrtenquoteTicker`: Car-Icon grau, Bester #1 Name+% im Header, Alert "Viele Leerfahrten!", kompakt aufsteigend, Team-Avg+Ziel <=5%, Import+Render+Barrel ✅
+
+**Verifikation Phasen 3898–3902 (Fahrer-Lieferzeit-Ranking):**
+- Phase 3898 Backend `/api/delivery/admin/fahrer-lieferzeit-durchschnitt/route.ts`: force-dynamic ✅, await createClient() ✅, Lieferzeit in min je Fahrer, aufsteigend Rang 1=kuerzeste Zeit=bester, Ampel gruen/gelb/rot, Alert "Lange Lieferzeiten!" ✅
+- Phase 3899 Dispatch `DispatchPhase3899LieferzeitBoard`: Clock-Icon blau, aufsteigend Rang 1=kuerzeste Lieferzeit, KPI-Grid Schnellster/Team-Avg/Laengster, Alert "Lange Lieferzeiten!", Delta neg=gruen, Import+Render+Barrel ✅
+- Phase 3900 Fahrer `FahrerPhase3900MeineLieferzeit`: Clock-Icon blau, min-Wert 5xl+Rang 3xl farbkodiert, Ziel <=25min, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3901 Storefront: uebersprungen ✅
+- Phase 3902 Kitchen `KitchenPhase3902LieferzeitTicker`: Clock-Icon blau, Schnellster #1 Name+min im Header, Alert "Lange Lieferzeiten!", kompakt aufsteigend, Team-Avg+Ziel <=25min, Import+Render+Barrel ✅
+
+**Verifikation Phasen 3903–3907 (Fahrer-Wartezeit-Tür-Ranking):**
+- Phase 3903 Backend `/api/delivery/admin/fahrer-wartezeit/route.ts`: force-dynamic ✅, await createClient() ✅, Wartezeit in min je Fahrer, aufsteigend Rang 1=kuerzeste Wartezeit=bester, Ampel gruen(<5min)/gelb(5-10min)/rot(>=10min), Alert "Lange Wartezeiten!" ✅
+- Phase 3904 Dispatch `DispatchPhase3904WartezeitTuerBoard`: DoorOpen-Icon grau, aufsteigend Rang 1=kuerzeste Wartezeit, KPI-Grid Bester/Team-Avg/Laengster, Alert "Lange Wartezeiten!", Delta neg=gruen, Import+Render+Barrel ✅
+- Phase 3905 Fahrer `FahrerPhase3905MeineWartezeitTuer`: DoorOpen-Icon grau, min-Wert 5xl+Rang 3xl farbkodiert, Ziel <=5min, isOnline-Guard, Coaching-Tipp, Import+Render+Barrel ✅
+- Phase 3906 Storefront: uebersprungen ✅
+- Phase 3907 Kitchen `KitchenPhase3907WartezeitTuerTicker`: DoorOpen-Icon grau, Bester #1 Name+min im Header, Alert "Lange Wartezeiten!", kompakt aufsteigend, Team-Avg+Ziel <=5min, Import+Render+Barrel ✅
+- **Build exit 0** ✅ (431 Seiten, alle App-Router-Routen kompiliert)
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3897/3902/3907 Ticker (Kitchen) + Phase3894/3899/3904 Board (Dispatch) synchron |
+| Dispatch ↔ Driver | ✅ Phase3894/3895 Leerfahrtenquote + Phase3899/3900 Lieferzeit + Phase3904/3905 Wartezeit |
+| Backend API | ✅ fahrer-leerfahrtenquote + fahrer-lieferzeit-durchschnitt + fahrer-wartezeit — alle force-dynamic + await createClient() |
+| Storefront | ✅ Phasen 3896/3901/3906 uebersprungen |
+
+**Anweisung an naechsten Agent:**
+Naechste Phasen 3908–3912 — Fahrer-Kilometer-pro-Tour-Ranking:
+1. **Phase 3908 Backend:** GET /api/delivery/admin/fahrer-km-pro-tour-ranking — bereits vorhanden (force-dynamic ✅, await createClient() ✅); avg km je Fahrer pro Tour letzte 30 Tage; aufsteigend Rang 1=niedrigste km/Tour=bester (kuerzeste Route=effizient); Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe km-Zahlen!"; Mock Julia F.4.2km/Sara K.5.1km/Max M.6.8km/Tim B.9.3km; ziel_km=8; Felder: km_avg, team_avg, bester_name, letzter_name, alert_top. KEINE Aenderung noetig wenn korrekt.
+2. **Phase 3909 Dispatch:** KmProTourBoard — Route-Icon grau; aufsteigend Rang 1=niedrigste km/Tour; KPI-Grid Bester/Team-Avg/Hoechster; Alert "Hohe km-Zahlen!"; Delta neg=gruen; RankBadge; 30-Min-Polling; nach Phase3904. PFLICHT: Import + Render + Barrel.
+3. **Phase 3910 Fahrer-App:** MeineKmProTour — Route-Icon grau; km-Wert 5xl+Rang 3xl farbkodiert; Ziel <=8km/Tour; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3905. PFLICHT: Import + Render + Barrel.
+4. **Phase 3911 Storefront:** Ueberspringen.
+5. **Phase 3912 Kitchen:** KmProTourTicker — Route-Icon grau; Bester #1 Name+km im Header; Alert "Hohe km-Zahlen!"; kompakt aufsteigend; Rang+km+Delta neg=gruen; Team-Avg+Ziel <=8km; 30-Min-Polling; nach Phase3907. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: IMMER alle 3 Schritte: Import am Dateikopf + Render im JSX + Barrel-Export. Barrel allein reicht NICHT!
+
+---
+
 ## CEO Review #626 — 2026-07-26
 
 **Build ✓ exit 0 — Phasen 3888–3892 Fahrer-Trinkgeld-Quote-Ranking verifiziert**
