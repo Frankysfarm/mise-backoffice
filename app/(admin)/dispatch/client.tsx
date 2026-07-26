@@ -1042,6 +1042,7 @@ import { DispatchPhase3739KmProTourRankingBoard } from './phase3739-km-pro-tour-
 import { DispatchPhase3744PuenktlichkeitRankingBoard } from './phase3744-puenktlichkeit-ranking-board';
 import { DispatchPhase3749ReaktionszeitRankingBoard } from './phase3749-reaktionszeit-ranking-board';
 import { DispatchPhase3754SchichtstundenRankingBoard } from './phase3754-schichtstunden-ranking-board';
+import { DispatchPhase3759ErstabholungPuenktlichkeitBoard } from './phase3759-erstabholung-puenktlichkeit-board';
 
 type Driver = {
   employee_id: string;
@@ -4701,6 +4702,7 @@ export function DispatchBoard({
           <DispatchPhase3744PuenktlichkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3749ReaktionszeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3754SchichtstundenRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3759ErstabholungPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12856,3 +12858,4 @@ export { DispatchPhase3744PuenktlichkeitRankingBoard } from './phase3744-puenktl
 export { DispatchPhase3749ReaktionszeitRankingBoard } from './phase3749-reaktionszeit-ranking-board';
 // Phase 3754 — Schichtstunden-Ranking Board (Clock-Icon blau; absteigend Rang 1=meiste Stunden; KPI-Grid Fleissigster/Team-Avg/Wenigste; Alert "Wenige Schichtstunden!"; Delta pos=gruen; RankBadge; 30-Min-Polling)
 export { DispatchPhase3754SchichtstundenRankingBoard } from './phase3754-schichtstunden-ranking-board';
+export { DispatchPhase3759ErstabholungPuenktlichkeitBoard } from './phase3759-erstabholung-puenktlichkeit-board';

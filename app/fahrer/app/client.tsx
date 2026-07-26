@@ -964,6 +964,7 @@ import { FahrerPhase3740MeineKmProTour } from './phase3740-meine-km-pro-tour';
 import { FahrerPhase3745MeinePuenktlichkeit } from './phase3745-meine-puenktlichkeit';
 import { FahrerPhase3750MeineReaktionszeit } from './phase3750-meine-reaktionszeit';
 import { FahrerPhase3755MeineSchichtstunden } from './phase3755-meine-schichtstunden';
+import { FahrerPhase3760MeineErstabholungPuenktlichkeit } from './phase3760-meine-erstabholung-puenktlichkeit';
 
 type Driver = {
   id: string;
@@ -6856,6 +6857,7 @@ export function FahrerApp({
           <FahrerPhase3745MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3750MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3755MeineSchichtstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3760MeineErstabholungPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10702,3 +10704,4 @@ export { FahrerPhase3745MeinePuenktlichkeit } from './phase3745-meine-puenktlich
 export { FahrerPhase3750MeineReaktionszeit } from './phase3750-meine-reaktionszeit';
 // Phase 3755 — Meine Schichtstunden (Clock-Icon blau; h-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel >=6h; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3755MeineSchichtstunden } from './phase3755-meine-schichtstunden';
+export { FahrerPhase3760MeineErstabholungPuenktlichkeit } from './phase3760-meine-erstabholung-puenktlichkeit';
