@@ -22,12 +22,22 @@ Frontend-Ingenieur-Agent (2026-07-26): Phasen 3848–3852 implementiert — Fahr
 - Phase 3852 Kitchen: `KitchenPhase3852SchichtEffizienzTicker` — BarChart3-Icon violett, Bester #1 Name+Score im Header, Alert "Niedriger Effizienz-Score!", kompakt absteigend, Team-Avg+Ziel >=70 ✅
 - Build ✓ exit 0. Push erfolgt.
 
-### Naechste Phasen 3853–3857 — Fahrer-Touren-pro-Tag-Ranking
-1. **Phase 3853 Backend:** GET /api/delivery/admin/fahrer-touren-pro-tag — Durchschnittliche Touren je Arbeitstag je Fahrer letzte 30 Tage (delivery_tours: count/COUNT(DISTINCT date)); Rang 1=meiste Touren=bester (absteigend); Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenige Touren!"; rank_delta pos=verbessert; Mock Julia F.8.5/Sara K.7.2/Max M.6.0/Tim B.4.3 Touren/Tag; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
-2. **Phase 3854 Dispatch:** TourenProTagBoard — Activity-Icon gruen; absteigend Rang 1=meiste Touren; KPI-Grid Bester/Team-Avg/Wenigste; Alert "Wenige Touren!"; Delta pos=gruen; RankBadge; 30-Min-Polling; nach Phase3849. PFLICHT: Import + Render + Barrel.
-3. **Phase 3855 Fahrer-App:** MeineTourenProTag — Activity-Icon gruen; Touren/Tag-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken >=7 Touren/Tag; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3850. PFLICHT: Import + Render + Barrel.
-4. **Phase 3856 Storefront:** Ueberspringen.
-5. **Phase 3857 Kitchen:** TourenProTagTicker — Activity-Icon gruen; Bester #1 Name+Touren im Header; Alert "Wenige Touren!"; kompakt absteigend; Rang+Touren+Delta pos=gruen; Team-Avg+Ziel >=7 Touren/Tag; 30-Min-Polling; nach Phase3852. PFLICHT: Import + Render + Barrel.
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3853–3857 implementiert — Fahrer-Touren-pro-Tag-Ranking. Phase 3853 Backend: bestehendes `/api/delivery/admin/fahrer-touren-pro-tag/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), delivery_tours count/COUNT(DISTINCT date) je Fahrer, absteigend Rang 1=meiste Touren=bester, Ampel gruen(Top-25%)/gelb/rot(Bottom-25%), Alert "Wenige Touren!", Mock Julia 8.2/Sara 7.1/Max 6.5/Tim 4.8. Phase 3854 Dispatch: `DispatchPhase3854TourenProTagBoard` — Activity-Icon gruen, absteigend, KPI-Grid Meiste/Team-Avg/Wenigste, Alert "Wenige Touren!", Delta pos=gruen, Import+Render+Barrel ✅. Phase 3855 Fahrer: `FahrerPhase3855MeineTourenProTag` — Activity-Icon gruen, Touren/Tag 5xl+Rang 3xl farbkodiert, Fortschrittsbalken, Ziel >=7/Tag, Team-Avg, Coaching-Tipp, isOnline-Guard, client-seitige driver_id-Filterung, Import+Render+Barrel ✅. Phase 3856 Storefront: uebersprungen. Phase 3857 Kitchen: `KitchenPhase3857TourenProTagTicker` — Activity-Icon gruen, Bester #1 Name+Touren im Header, Alert "Wenige Touren!", kompakt absteigend, Rang+Touren+Delta pos=gruen, Team-Avg+Ziel >=7/Tag, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3853–3857 ABGESCHLOSSEN — Fahrer-Touren-pro-Tag-Ranking
+- Phase 3853 Backend: `/api/delivery/admin/fahrer-touren-pro-tag/route.ts` (bereits vorhanden, adaptiert) — force-dynamic, await createClient(), delivery_tours count/Arbeitstage, absteigend Rang 1=meiste Touren=bester, Ampel gruen/gelb/rot, Alert Bottom-25% "Wenige Touren!", Mock Julia 8.2/Sara 7.1/Max 6.5/Tim 4.8 ✅
+- Phase 3854 Dispatch: `DispatchPhase3854TourenProTagBoard` — Activity-Icon gruen, absteigend Rang 1=meiste Touren, KPI-Grid Meiste/Team-Avg/Wenigste, Alert "Wenige Touren!", Delta pos=gruen ✅
+- Phase 3855 Fahrer: `FahrerPhase3855MeineTourenProTag` — Activity-Icon gruen, Touren/Tag 5xl+Rang 3xl farbkodiert, Fortschrittsbalken, Ziel >=7/Tag, Team-Avg, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3856 Storefront: uebersprungen ✅
+- Phase 3857 Kitchen: `KitchenPhase3857TourenProTagTicker` — Activity-Icon gruen, Bester #1 Name+Touren im Header, Alert "Wenige Touren!", kompakt absteigend, Team-Avg+Ziel >=7/Tag ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3858–3862 — Fahrer-Stopps-pro-Tour-Ranking
+1. **Phase 3858 Backend:** GET /api/delivery/admin/fahrer-stopps-pro-tour — Durchschnittliche Anzahl Stopps je Tour je Fahrer letzte 30 Tage (delivery_tours: avg(stops_count)); Rang 1=meiste Stopps=bester (absteigend); Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenige Stopps!"; rank_delta pos=verbessert; Mock Julia F.12.5/Sara K.10.8/Max M.9.2/Tim B.6.5 Stopps/Tour; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3859 Dispatch:** StoppsProTourBoard — MapPin-Icon indigo; absteigend Rang 1=meiste Stopps; KPI-Grid Bester/Team-Avg/Wenigste; Alert "Wenige Stopps!"; Delta pos=gruen; RankBadge; 30-Min-Polling; nach Phase3854. PFLICHT: Import + Render + Barrel.
+3. **Phase 3860 Fahrer-App:** MeineStoppsProTour — MapPin-Icon indigo; Stopps/Tour-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken >=10 Stopps/Tour; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3855. PFLICHT: Import + Render + Barrel.
+4. **Phase 3861 Storefront:** Ueberspringen.
+5. **Phase 3862 Kitchen:** StoppsProTourTicker — MapPin-Icon indigo; Bester #1 Name+Stopps im Header; Alert "Wenige Stopps!"; kompakt absteigend; Rang+Stopps+Delta pos=gruen; Team-Avg+Ziel >=10; 30-Min-Polling; nach Phase3857. PFLICHT: Import + Render + Barrel.
 
 ---
 
