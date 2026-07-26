@@ -972,6 +972,7 @@ import { FahrerPhase3780MeineLieferzeitGenauigkeit } from './phase3780-meine-lie
 import { FahrerPhase3785TourStopsNavigationUltimate } from './phase3785-tour-stops-navigation-ultimate';
 import { FahrerPhase3790MeineStornoquote } from './phase3790-meine-stornoquote';
 import { FahrerPhase3795MeinTrinkgeld } from './phase3795-mein-trinkgeld';
+import { FahrerPhase3800MeineReaktionszeit } from './phase3800-meine-reaktionszeit';
 
 type Driver = {
   id: string;
@@ -6872,6 +6873,7 @@ export function FahrerApp({
           <FahrerPhase3785TourStopsNavigationUltimate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3790MeineStornoquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3795MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3800MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10736,3 +10738,4 @@ export { FahrerPhase3785TourStopsNavigationUltimate } from './phase3785-tour-sto
 export { FahrerPhase3790MeineStornoquote } from './phase3790-meine-stornoquote';
 // Phase 3795 — Mein Trinkgeld (Coins-Icon gelb; €-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken >=€2.00; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3795MeinTrinkgeld } from './phase3795-mein-trinkgeld';
+export { FahrerPhase3800MeineReaktionszeit } from './phase3800-meine-reaktionszeit';

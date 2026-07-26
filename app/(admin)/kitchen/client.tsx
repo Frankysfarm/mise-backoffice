@@ -996,6 +996,7 @@ import { KitchenPhase3782LieferzeitGenauigkeitTicker } from './phase3782-lieferz
 import { KitchenPhase3787SmartTimingEchtzeitPro } from './phase3787-smart-timing-echtzeit-pro';
 import { KitchenPhase3792StornoquoteTicker } from './phase3792-stornoquote-ticker';
 import { KitchenPhase3797TrinkgeldQuoteTicker } from './phase3797-trinkgeld-quote-ticker';
+import { KitchenPhase3802ReaktionszeitTicker } from './phase3802-reaktionszeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4299,6 +4300,7 @@ export function KitchenBoard({
       <KitchenPhase3787SmartTimingEchtzeitPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3792StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3797TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3802ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11463,3 +11465,4 @@ export { KitchenPhase3787SmartTimingEchtzeitPro } from './phase3787-smart-timing
 export { KitchenPhase3792StornoquoteTicker } from './phase3792-stornoquote-ticker';
 // Phase 3797 — Trinkgeld-Quote Ticker (Coins-Icon gelb; Bester #1 Name+€ im Header; Alert "Niedriges Trinkgeld!"; kompakt absteigend; Rang+€+Delta pos=grün; Team-Avg+Ziel >=€2.00; 30-Min-Polling)
 export { KitchenPhase3797TrinkgeldQuoteTicker } from './phase3797-trinkgeld-quote-ticker';
+export { KitchenPhase3802ReaktionszeitTicker } from './phase3802-reaktionszeit-ticker';
