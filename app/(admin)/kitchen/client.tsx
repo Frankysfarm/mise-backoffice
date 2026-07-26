@@ -999,6 +999,7 @@ import { KitchenPhase3797TrinkgeldQuoteTicker } from './phase3797-trinkgeld-quot
 import { KitchenPhase3802ReaktionszeitTicker } from './phase3802-reaktionszeit-ticker';
 import { KitchenPhase3807SmartTimingCountdownFarbkodierungCockpit } from './phase3807-smart-timing-countdown-farbkodierung-cockpit';
 import { KitchenPhase3812KilometerstandTicker } from './phase3812-kilometerstand-ticker';
+import { KitchenPhase3817GeschwindigkeitTicker } from './phase3817-geschwindigkeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4305,6 +4306,7 @@ export function KitchenBoard({
       <KitchenPhase3802ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3807SmartTimingCountdownFarbkodierungCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3812KilometerstandTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3817GeschwindigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11474,3 +11476,5 @@ export { KitchenPhase3802ReaktionszeitTicker } from './phase3802-reaktionszeit-t
 export { KitchenPhase3807SmartTimingCountdownFarbkodierungCockpit } from './phase3807-smart-timing-countdown-farbkodierung-cockpit';
 // Phase 3812 — Kilometerstand Ticker (Route-Icon grün; Meister #1 Name+km im Header; Alert "Wenig gefahren!"; kompakt absteigend; Rang+km+Delta; Team-Avg+Ziel ≥800km; 30-Min-Polling)
 export { KitchenPhase3812KilometerstandTicker } from './phase3812-kilometerstand-ticker';
+// Phase 3817 — Geschwindigkeit Ticker (Gauge-Icon blau; Schnellster #1 Name+km/h im Header; Alert "Langsam unterwegs!"; kompakt absteigend; Rang+km/h+Delta; Team-Avg+Ziel ≥25km/h; 30-Min-Polling)
+export { KitchenPhase3817GeschwindigkeitTicker } from './phase3817-geschwindigkeit-ticker';

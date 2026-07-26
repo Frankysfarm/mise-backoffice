@@ -1053,6 +1053,7 @@ import { DispatchPhase3794TrinkgeldQuoteRankingBoard } from './phase3794-trinkge
 import { DispatchPhase3799ReaktionszeitRankingBoard } from './phase3799-reaktionszeit-ranking-board';
 import { DispatchPhase3804TourScoreLiveDashboard } from './phase3804-tour-score-live-dashboard';
 import { DispatchPhase3809KilometerstandRankingBoard } from './phase3809-kilometerstand-ranking-board';
+import { DispatchPhase3814GeschwindigkeitRankingBoard } from './phase3814-geschwindigkeit-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4723,6 +4724,7 @@ export function DispatchBoard({
           <DispatchPhase3799ReaktionszeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3804TourScoreLiveDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3809KilometerstandRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3814GeschwindigkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12901,3 +12903,5 @@ export { DispatchPhase3799ReaktionszeitRankingBoard } from './phase3799-reaktion
 export { DispatchPhase3804TourScoreLiveDashboard } from './phase3804-tour-score-live-dashboard';
 // Phase 3809 — Kilometerstand-Ranking Board (Route-Icon grün; absteigend Rang 1=meiste km; KPI-Grid Meiste/Team-Avg/Wenigste; Alert "Wenig gefahren!"; RankBadge; 30-Min-Polling)
 export { DispatchPhase3809KilometerstandRankingBoard } from './phase3809-kilometerstand-ranking-board';
+// Phase 3814 — Geschwindigkeit-Ranking Board (Gauge-Icon blau; absteigend Rang 1=höchste km/h; KPI-Grid Schnellster/Team-Avg/Langsamster; Alert "Langsam unterwegs!"; RankBadge; 30-Min-Polling)
+export { DispatchPhase3814GeschwindigkeitRankingBoard } from './phase3814-geschwindigkeit-ranking-board';
