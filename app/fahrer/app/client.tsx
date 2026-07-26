@@ -970,6 +970,7 @@ import { FahrerPhase3770MeineKundenbewertung } from './phase3770-meine-kundenbew
 import { FahrerPhase3775MeinUmsatzProKm } from './phase3775-mein-umsatz-pro-km';
 import { FahrerPhase3780MeineLieferzeitGenauigkeit } from './phase3780-meine-lieferzeit-genauigkeit';
 import { FahrerPhase3785TourStopsNavigationUltimate } from './phase3785-tour-stops-navigation-ultimate';
+import { FahrerPhase3790MeineStornoquote } from './phase3790-meine-stornoquote';
 
 type Driver = {
   id: string;
@@ -6868,6 +6869,7 @@ export function FahrerApp({
           <FahrerPhase3775MeinUmsatzProKm driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3780MeineLieferzeitGenauigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3785TourStopsNavigationUltimate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3790MeineStornoquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10729,3 +10731,4 @@ export { FahrerPhase3780MeineLieferzeitGenauigkeit } from './phase3780-meine-lie
 
 // Phase 3780 — Tour-Stops Navigation Ultimate (MapPin blau; Fortschrittsbalken Geliefert/Ausstehend/Restzeit; aktiver Stopp als Hero-Card mit Google-Maps-Link; Stopp-Liste mit Status-Dots; Hinweis-Banner; On-Time-Indikator; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3785TourStopsNavigationUltimate } from './phase3785-tour-stops-navigation-ultimate';
+export { FahrerPhase3790MeineStornoquote } from './phase3790-meine-stornoquote';

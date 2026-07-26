@@ -994,6 +994,7 @@ import { KitchenPhase3772KundenbewertungTicker } from './phase3772-kundenbewertu
 import { KitchenPhase3777UmsatzProKmTicker } from './phase3777-umsatz-pro-km-ticker';
 import { KitchenPhase3782LieferzeitGenauigkeitTicker } from './phase3782-lieferzeit-genauigkeit-ticker';
 import { KitchenPhase3787SmartTimingEchtzeitPro } from './phase3787-smart-timing-echtzeit-pro';
+import { KitchenPhase3792StornoquoteTicker } from './phase3792-stornoquote-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4295,6 +4296,7 @@ export function KitchenBoard({
       <KitchenPhase3777UmsatzProKmTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3782LieferzeitGenauigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3787SmartTimingEchtzeitPro locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3792StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11456,3 +11458,4 @@ export { KitchenPhase3782LieferzeitGenauigkeitTicker } from './phase3782-lieferz
 
 // Phase 3782 — Smart-Timing Echtzeit Pro (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/AvgPrep/Kochstart-Score; Fortschrittsbalken; Kochstart-Empfehlung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3787SmartTimingEchtzeitPro } from './phase3787-smart-timing-echtzeit-pro';
+export { KitchenPhase3792StornoquoteTicker } from './phase3792-stornoquote-ticker';
