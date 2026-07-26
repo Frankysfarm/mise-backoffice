@@ -997,6 +997,7 @@ import { KitchenPhase3787SmartTimingEchtzeitPro } from './phase3787-smart-timing
 import { KitchenPhase3792StornoquoteTicker } from './phase3792-stornoquote-ticker';
 import { KitchenPhase3797TrinkgeldQuoteTicker } from './phase3797-trinkgeld-quote-ticker';
 import { KitchenPhase3802ReaktionszeitTicker } from './phase3802-reaktionszeit-ticker';
+import { KitchenPhase3807SmartTimingCountdownFarbkodierungCockpit } from './phase3807-smart-timing-countdown-farbkodierung-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4301,6 +4302,7 @@ export function KitchenBoard({
       <KitchenPhase3792StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3797TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3802ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3807SmartTimingCountdownFarbkodierungCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

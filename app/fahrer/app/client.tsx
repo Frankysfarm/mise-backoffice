@@ -973,6 +973,7 @@ import { FahrerPhase3785TourStopsNavigationUltimate } from './phase3785-tour-sto
 import { FahrerPhase3790MeineStornoquote } from './phase3790-meine-stornoquote';
 import { FahrerPhase3795MeinTrinkgeld } from './phase3795-mein-trinkgeld';
 import { FahrerPhase3800MeineReaktionszeit } from './phase3800-meine-reaktionszeit';
+import { FahrerPhase3805TourStoppNavigationSmartHub } from './phase3805-tour-stopp-navigation-smart-hub';
 
 type Driver = {
   id: string;
@@ -6874,6 +6875,7 @@ export function FahrerApp({
           <FahrerPhase3790MeineStornoquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3795MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3800MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3805TourStoppNavigationSmartHub fahrerToken={driver.id} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster

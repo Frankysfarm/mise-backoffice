@@ -1051,6 +1051,7 @@ import { DispatchPhase3784TourScoreVisualisierungSupreme } from './phase3784-tou
 import { DispatchPhase3789StornoquoteRankingBoard } from './phase3789-stornoquote-ranking-board';
 import { DispatchPhase3794TrinkgeldQuoteRankingBoard } from './phase3794-trinkgeld-quote-ranking-board';
 import { DispatchPhase3799ReaktionszeitRankingBoard } from './phase3799-reaktionszeit-ranking-board';
+import { DispatchPhase3804TourScoreLiveDashboard } from './phase3804-tour-score-live-dashboard';
 
 type Driver = {
   employee_id: string;
@@ -4719,6 +4720,7 @@ export function DispatchBoard({
           <DispatchPhase3789StornoquoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3794TrinkgeldQuoteRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3799ReaktionszeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3804TourScoreLiveDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
