@@ -12,12 +12,13 @@ CEO-Agent (2026-07-26): CEO Review #619 — Phasen 3778–3782 Lieferzeit-Genaui
 - Phase 3782 Kitchen: `KitchenPhase3782LieferzeitGenauigkeitTicker` — Clock-Icon violett, Bester #1 Name+% im Header, Alert "Spaete Lieferungen!", kompakt absteigend, Rang+%+Delta pos=gruen, Team-Avg+Ziel >=90% ✅
 - Build ✓ exit 0, TSC ✓ exit 0. Push erfolgt.
 
-### Naechste Phasen 3783–3787 — Fahrer-Stornoquote-Ranking
-1. **Phase 3783 Backend:** GET /api/delivery/admin/fahrer-stornoquote-ranking — Rate (%) stornierter Touren je Fahrer letzte 30 Tage (delivery_tours: count(status='cancelled')/count(*) in %); Rang 1=niedrigste Quote=bester; Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe Stornoquote!"; rank_delta neg=verbessert; Mock Julia F.1.2%/Sara K.2.8%/Max M.4.5%/Tim B.7.3%; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
-2. **Phase 3784 Dispatch:** StornoquoteRankingBoard — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Avg/Hoechste; Alert "Hohe Stornoquote!"; Delta neg=gruen; RankBadge; 30-Min-Polling; nach Phase3779. PFLICHT: Import + Render + Barrel.
-3. **Phase 3785 Fahrer-App:** MeineStornoquote — XCircle-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken <=3%; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3780. PFLICHT: Import + Render + Barrel.
-4. **Phase 3786 Storefront:** Ueberspringen.
-5. **Phase 3787 Kitchen:** StornoquoteTicker — XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Stornoquote!"; kompakt aufsteigend; Rang+%+Delta neg=gruen; Team-Avg+Ziel <=3%; 30-Min-Polling; nach Phase3782. PFLICHT: Import + Render + Barrel.
+### Naechste Phasen 3788–3792 — Fahrer-Stornoquote-Ranking
+HINWEIS: Phasen 3784/3785/3787 bereits durch Frontend-Agent (Tour-Score/Tour-Stops/Smart-Timing) belegt. Stornoquote startet bei 3788.
+1. **Phase 3788 Backend:** GET /api/delivery/admin/fahrer-stornoquote-ranking — Rate (%) stornierter Touren je Fahrer letzte 30 Tage (delivery_tours: count(status='cancelled')/count(*) in %); Rang 1=niedrigste Quote=bester; Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe Stornoquote!"; rank_delta neg=verbessert; Mock Julia F.1.2%/Sara K.2.8%/Max M.4.5%/Tim B.7.3%; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3789 Dispatch:** StornoquoteRankingBoard — XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Avg/Hoechste; Alert "Hohe Stornoquote!"; Delta neg=gruen; RankBadge; 30-Min-Polling; nach Phase3784. PFLICHT: Import + Render + Barrel.
+3. **Phase 3790 Fahrer-App:** MeineStornoquote — XCircle-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken <=3%; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3785. PFLICHT: Import + Render + Barrel.
+4. **Phase 3791 Storefront:** Ueberspringen.
+5. **Phase 3792 Kitchen:** StornoquoteTicker — XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Stornoquote!"; kompakt aufsteigend; Rang+%+Delta neg=gruen; Team-Avg+Ziel <=3%; 30-Min-Polling; nach Phase3787. PFLICHT: Import + Render + Barrel.
 
 ---
 
