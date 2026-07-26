@@ -977,6 +977,7 @@ import { FahrerPhase3805TourStoppNavigationSmartHub } from './phase3805-tour-sto
 import { FahrerPhase3810MeinKilometerstand } from './phase3810-mein-kilometerstand';
 import { FahrerPhase3815MeineGeschwindigkeit } from './phase3815-meine-geschwindigkeit';
 import { FahrerPhase3820MeineTourenProSchicht } from './phase3820-meine-touren-pro-schicht';
+import { FahrerPhase3825MeineAuftragsablehnungsQuote } from './phase3825-meine-auftragsablehnungs-quote';
 
 type Driver = {
   id: string;
@@ -6882,6 +6883,7 @@ export function FahrerApp({
           <FahrerPhase3810MeinKilometerstand driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3815MeineGeschwindigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3820MeineTourenProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3825MeineAuftragsablehnungsQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10755,6 +10757,7 @@ export { FahrerPhase3810MeinKilometerstand } from './phase3810-mein-kilometersta
 export { FahrerPhase3815MeineGeschwindigkeit } from './phase3815-meine-geschwindigkeit';
 // Phase 3820 — Meine Touren/Schicht (Package-Icon orange; T/S-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel ≥6.0; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3820MeineTourenProSchicht } from './phase3820-meine-touren-pro-schicht';
-
+// Phase 3825 — Meine Auftragsablehnungs-Quote (XCircle-Icon rot; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken ≤5%; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3825MeineAuftragsablehnungsQuote } from './phase3825-meine-auftragsablehnungs-quote';
 // Phase 1101 — Tour-Stopp Ultra-Navigation Hub (Aktiver Stopp Hero-Card mit ETA+Google-Maps+Waze+Telefon; Fortschrittsbalken Geliefert/Gesamt; Stopp-Liste mit Status-Dots; Hinweis-Banner; 10-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1101TourStoppUltraNavigationHub } from './phase1101-tour-stopp-ultra-navigation-hub';

@@ -1055,6 +1055,7 @@ import { DispatchPhase3804TourScoreLiveDashboard } from './phase3804-tour-score-
 import { DispatchPhase3809KilometerstandRankingBoard } from './phase3809-kilometerstand-ranking-board';
 import { DispatchPhase3814GeschwindigkeitRankingBoard } from './phase3814-geschwindigkeit-ranking-board';
 import { DispatchPhase3819TourenProSchichtRankingBoard } from './phase3819-touren-pro-schicht-ranking-board';
+import { DispatchPhase3824AuftragsablehnungsQuoteBoard } from './phase3824-auftragsablehnungs-quote-board';
 
 type Driver = {
   employee_id: string;
@@ -4727,6 +4728,7 @@ export function DispatchBoard({
           <DispatchPhase3809KilometerstandRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3814GeschwindigkeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3819TourenProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3824AuftragsablehnungsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12909,6 +12911,7 @@ export { DispatchPhase3809KilometerstandRankingBoard } from './phase3809-kilomet
 export { DispatchPhase3814GeschwindigkeitRankingBoard } from './phase3814-geschwindigkeit-ranking-board';
 // Phase 3819 — Touren/Schicht-Ranking Board (Package-Icon orange; absteigend Rang 1=meiste Touren/Schicht; KPI-Grid Bester/Team-Avg/Wenigste; Alert "Wenige Touren!"; RankBadge; 30-Min-Polling)
 export { DispatchPhase3819TourenProSchichtRankingBoard } from './phase3819-touren-pro-schicht-ranking-board';
-
+// Phase 3824 — Auftragsablehnungs-Quote Board (XCircle-Icon rot; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Bester/Team-Avg/Höchste; Alert "Hohe Ablehnungsquote!"; Delta neg=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3824AuftragsablehnungsQuoteBoard } from './phase3824-auftragsablehnungs-quote-board';
 // Phase 3824 — Tour-Score & Visualisierung Echtzeit Supreme (Trophy amber; Flotten-KPI-Grid Ø/Top/Aktiv/Alerts; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3824TourScoreVisualisierungEchtzeitSupreme } from './phase3824-tour-score-visualisierung-echtzeit-supreme';

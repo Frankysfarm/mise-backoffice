@@ -69,7 +69,7 @@ function statusLabel(s: BestellungRow['status']) {
   return { wartend: 'Wartend', in_zubereitung: 'In Zubereitung', fertig: 'Fertig', abgeholt: 'Abgeholt' }[s];
 }
 
-export function KitchenPhase3827SmartTimingKochstartFahrerBridge() {
+export function KitchenPhase3828SmartTimingKochstartFahrerBridge() {
   const [data, setData]     = useState<ApiData>(MOCK);
   const [tick, setTick]     = useState(0);
   const [loading, setLoading] = useState(false);

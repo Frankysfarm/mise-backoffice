@@ -1001,6 +1001,7 @@ import { KitchenPhase3807SmartTimingCountdownFarbkodierungCockpit } from './phas
 import { KitchenPhase3812KilometerstandTicker } from './phase3812-kilometerstand-ticker';
 import { KitchenPhase3817GeschwindigkeitTicker } from './phase3817-geschwindigkeit-ticker';
 import { KitchenPhase3822TourenProSchichtTicker } from './phase3822-touren-pro-schicht-ticker';
+import { KitchenPhase3827AuftragsablehnungsQuoteTicker } from './phase3827-auftragsablehnungs-quote-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4309,6 +4310,7 @@ export function KitchenBoard({
       <KitchenPhase3812KilometerstandTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3817GeschwindigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3822TourenProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3827AuftragsablehnungsQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11482,6 +11484,7 @@ export { KitchenPhase3812KilometerstandTicker } from './phase3812-kilometerstand
 export { KitchenPhase3817GeschwindigkeitTicker } from './phase3817-geschwindigkeit-ticker';
 // Phase 3822 — Touren/Schicht Ticker (Package-Icon orange; Bester #1 Name+T/S im Header; Alert "Wenige Touren!"; kompakt absteigend; Rang+T/S+Delta; Team-Avg+Ziel ≥6.0; 30-Min-Polling)
 export { KitchenPhase3822TourenProSchichtTicker } from './phase3822-touren-pro-schicht-ticker';
-
-// Phase 3827 — Smart-Timing Kochstart-Fahrer-Bridge Cockpit (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Fahrer-ETA-Sync-Balken; Kochstart-Score 0–100; On-Time-Rate; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
-export { KitchenPhase3827SmartTimingKochstartFahrerBridge } from './phase3827-smart-timing-kochstart-fahrer-bridge';
+// Phase 3827 — Auftragsablehnungs-Quote Ticker (XCircle-Icon rot; Bester #1 Name+% im Header; Alert "Hohe Ablehnungsquote!"; kompakt aufsteigend; Rang+%+Delta neg=grün; Team-Avg+Ziel ≤5%; 30-Min-Polling)
+export { KitchenPhase3827AuftragsablehnungsQuoteTicker } from './phase3827-auftragsablehnungs-quote-ticker';
+// Phase 3828 — Smart-Timing Kochstart-Fahrer-Bridge Cockpit (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; Fahrer-ETA-Sync-Balken; Kochstart-Score 0–100; On-Time-Rate; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase3828SmartTimingKochstartFahrerBridge } from './phase3828-smart-timing-kochstart-fahrer-bridge';
