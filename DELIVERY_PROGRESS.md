@@ -12,12 +12,22 @@ Frontend-Ingenieur-Agent + Backend-Architekt-Agent (2026-07-26): Phasen 3843–3
 - Phase 3847 Kitchen: `KitchenPhase3847LieferzeitTicker` — Timer-Icon blau, Bester #1 Name+min im Header, Alert "Lange Lieferzeiten!", kompakt aufsteigend, Rang+min+Delta neg=gruen, Team-Avg+Ziel <=25min ✅
 - Build ✓ exit 0. Push erfolgt.
 
-### Naechste Phasen 3848–3852 — Fahrer-Schicht-Effizienz-Score-Ranking
-1. **Phase 3848 Backend:** GET /api/delivery/admin/fahrer-schicht-effizienz — Effizienz-Score je Fahrer letzte 30 Tage (Score = (Touren/Schicht * 0.4) + (km/h * 0.3) + (Puenktlichkeit% * 0.2) + ((100-Ablehnungsquote%) * 0.1), normiert 0-100); Rang 1=hoechster Score=bester (absteigend); Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedriger Effizienz-Score!"; rank_delta pos=verbessert; Mock Julia F.88/Sara K.75/Max M.62/Tim B.45; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
-2. **Phase 3849 Dispatch:** SchichtEffizienzScoreBoard — BarChart3-Icon violett; absteigend Rang 1=hoechster Score; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriger Effizienz-Score!"; Delta pos=gruen; RankBadge; 30-Min-Polling; nach Phase3844. PFLICHT: Import + Render + Barrel.
-3. **Phase 3850 Fahrer-App:** MeinSchichtEffizienzScore — BarChart3-Icon violett; Score-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken >=70; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3845. PFLICHT: Import + Render + Barrel.
-4. **Phase 3851 Storefront:** Ueberspringen.
-5. **Phase 3852 Kitchen:** SchichtEffizienzTicker — BarChart3-Icon violett; Bester #1 Name+Score im Header; Alert "Niedriger Effizienz-Score!"; kompakt absteigend; Rang+Score+Delta pos=gruen; Team-Avg+Ziel >=70; 30-Min-Polling; nach Phase3847. PFLICHT: Import + Render + Barrel.
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3848–3852 implementiert — Fahrer-Schicht-Effizienz-Score-Ranking. Phase 3848 Backend: bestehendes `/api/delivery/admin/fahrer-schicht-effizienz/route.ts` adaptiert (Phase 1816, bereits vorhanden) — force-dynamic, await createClient(), Effizienz-Score 0-100 je Fahrer: Touren/h 40%+km/Stopp 30%+Wartezeit 30%, absteigend Rang 1=hoechster Score=bester, Ampel gruen(>=75)/gelb(50-74)/rot(<50), Mock Max 88/Lena 72/Tom 45. Phase 3849 Dispatch: `DispatchPhase3849SchichtEffizienzScoreBoard` — BarChart3-Icon violett, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedriger Effizienz-Score!", Delta pos=gruen, Import+Render+Barrel ✅. Phase 3850 Fahrer: `FahrerPhase3850MeinSchichtEffizienzScore` — BarChart3-Icon violett, Score 5xl+Rang 3xl farbkodiert, Fortschrittsbalken, Detail-Metriken Touren/h+km/Stopp+Wartezeit, Ziel >=70, Team-Avg, Coaching-Tipp, isOnline-Guard, client-seitige driver_id-Filterung, Import+Render+Barrel ✅. Phase 3851 Storefront: uebersprungen. Phase 3852 Kitchen: `KitchenPhase3852SchichtEffizienzTicker` — BarChart3-Icon violett, Bester #1 Name+Score im Header, Alert "Niedriger Effizienz-Score!", kompakt absteigend, Rang+Score+Delta pos=gruen, Team-Avg+Ziel >=70, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3848–3852 ABGESCHLOSSEN — Fahrer-Schicht-Effizienz-Score-Ranking
+- Phase 3848 Backend: `/api/delivery/admin/fahrer-schicht-effizienz/route.ts` (Phase 1816 adaptiert) — force-dynamic, await createClient(), Score 0-100: Touren/h 40%+km/Stopp 30%+Wartezeit 30%, absteigend Rang 1=hoechster Score=bester, Ampel gruen(>=75)/gelb(50-74)/rot(<50), Mock Max 88/Lena 72/Tom 45 ✅
+- Phase 3849 Dispatch: `DispatchPhase3849SchichtEffizienzScoreBoard` — BarChart3-Icon violett, absteigend Rang 1=hoechster Score, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedriger Effizienz-Score!", Delta pos=gruen ✅
+- Phase 3850 Fahrer: `FahrerPhase3850MeinSchichtEffizienzScore` — BarChart3-Icon violett, Score 5xl+Rang 3xl farbkodiert, Fortschrittsbalken, Detail-Metriken, Ziel >=70, Team-Avg, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3851 Storefront: uebersprungen ✅
+- Phase 3852 Kitchen: `KitchenPhase3852SchichtEffizienzTicker` — BarChart3-Icon violett, Bester #1 Name+Score im Header, Alert "Niedriger Effizienz-Score!", kompakt absteigend, Team-Avg+Ziel >=70 ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3853–3857 — Fahrer-Touren-pro-Tag-Ranking
+1. **Phase 3853 Backend:** GET /api/delivery/admin/fahrer-touren-pro-tag — Durchschnittliche Touren je Arbeitstag je Fahrer letzte 30 Tage (delivery_tours: count/COUNT(DISTINCT date)); Rang 1=meiste Touren=bester (absteigend); Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Wenige Touren!"; rank_delta pos=verbessert; Mock Julia F.8.5/Sara K.7.2/Max M.6.0/Tim B.4.3 Touren/Tag; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3854 Dispatch:** TourenProTagBoard — Activity-Icon gruen; absteigend Rang 1=meiste Touren; KPI-Grid Bester/Team-Avg/Wenigste; Alert "Wenige Touren!"; Delta pos=gruen; RankBadge; 30-Min-Polling; nach Phase3849. PFLICHT: Import + Render + Barrel.
+3. **Phase 3855 Fahrer-App:** MeineTourenProTag — Activity-Icon gruen; Touren/Tag-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken >=7 Touren/Tag; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3850. PFLICHT: Import + Render + Barrel.
+4. **Phase 3856 Storefront:** Ueberspringen.
+5. **Phase 3857 Kitchen:** TourenProTagTicker — Activity-Icon gruen; Bester #1 Name+Touren im Header; Alert "Wenige Touren!"; kompakt absteigend; Rang+Touren+Delta pos=gruen; Team-Avg+Ziel >=7 Touren/Tag; 30-Min-Polling; nach Phase3852. PFLICHT: Import + Render + Barrel.
 
 ---
 
