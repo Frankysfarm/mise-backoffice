@@ -3,46 +3,35 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Clock, TrendingUp, TrendingDown, Minus, WifiOff } from 'lucide-react';
 
-type Trend = 'steigend' | 'fallend' | 'stabil';
-
-interface FahrerTrend {
+interface FahrerRow {
   fahrer_id: string;
   name: string;
   aktuell_pct: number;
-  trend: Trend;
-  abweichung_pct: number;
+  trend: 'steigend' | 'fallend' | 'stabil';
   alert: boolean;
 }
 
 interface ApiData {
-  fahrer: FahrerTrend[];
+  fahrer: FahrerRow[];
   alert_count: number;
 }
 
 const MOCK: ApiData = {
   fahrer: [
-    { fahrer_id: 'f1', name: 'Max M.',  aktuell_pct: 93, trend: 'steigend', abweichung_pct:  13.4, alert: false },
-    { fahrer_id: 'f2', name: 'Sara K.', aktuell_pct: 60, trend: 'fallend',  abweichung_pct: -31.8, alert: true  },
-    { fahrer_id: 'f3', name: 'Luca P.', aktuell_pct: 75, trend: 'stabil',   abweichung_pct:   0.0, alert: false },
+    { fahrer_id: 'f1', name: 'Max M.',  aktuell_pct: 93, trend: 'steigend', alert: false },
+    { fahrer_id: 'f2', name: 'Sara K.', aktuell_pct: 60, trend: 'fallend',  alert: true  },
+    { fahrer_id: 'f3', name: 'Luca P.', aktuell_pct: 75, trend: 'stabil',   alert: false },
   ],
   alert_count: 1,
 };
 
-function ampel(pct: number): 'gruen' | 'gelb' | 'rot' {
-  if (pct >= 90) return 'gruen';
-  if (pct >= 70) return 'gelb';
-  return 'rot';
-}
-
-export function FahrerPhase3940MeinePuenktlichkeitTrend({
-  driverId,
-  locationId,
-  isOnline,
-}: {
+interface Props {
   driverId: string;
   locationId: string | null;
   isOnline: boolean;
-}) {
+}
+
+export function FahrerPhase3940MeinePuenktlichkeitTrend({ driverId, locationId, isOnline }: Props) {
   const [data, setData] = useState<ApiData>(MOCK);
   const [loading, setLoading] = useState(false);
 
@@ -67,76 +56,60 @@ export function FahrerPhase3940MeinePuenktlichkeitTrend({
 
   if (!isOnline) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-3 text-gray-400">
-        <WifiOff className="w-5 h-5 shrink-0" />
-        <span className="text-sm">Pünktlichkeit nicht verfügbar (offline)</span>
+      <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-2 text-gray-400 text-sm">
+        <WifiOff className="w-4 h-4" />
+        <span>Offline – Pünktlichkeit nicht verfügbar</span>
       </div>
     );
   }
 
   const sorted = [...data.fahrer].sort((a, b) => b.aktuell_pct - a.aktuell_pct);
-  const me = sorted.find(f => f.fahrer_id === driverId) ?? sorted[0];
-  const rang = sorted.indexOf(me) + 1;
-  const gesamt = sorted.length;
-  const a = ampel(me?.aktuell_pct ?? 0);
+  const myIndex = sorted.findIndex(f => f.fahrer_id === driverId);
+  const me = myIndex >= 0 ? sorted[myIndex] : sorted[0];
+  const rang = myIndex >= 0 ? myIndex + 1 : 1;
 
-  const tColor = a === 'gruen' ? 'text-gray-700' : a === 'gelb' ? 'text-yellow-500' : 'text-red-500';
-  const DeltaIcon = me?.trend === 'steigend'
-    ? <TrendingUp className="w-4 h-4 text-emerald-500" />
-    : me?.trend === 'fallend'
-      ? <TrendingDown className="w-4 h-4 text-red-400" />
-      : <Minus className="w-4 h-4 text-gray-300" />;
+  const ampel = me.aktuell_pct >= 85 ? 'gruen' : me.aktuell_pct >= 70 ? 'gelb' : 'rot';
+  const tColor = ampel === 'gruen' ? 'text-emerald-600' : ampel === 'gelb' ? 'text-yellow-500' : 'text-red-500';
+  const bgColor = ampel === 'gruen' ? 'bg-emerald-50' : ampel === 'gelb' ? 'bg-yellow-50' : 'bg-red-50';
+  const borderColor = ampel === 'gruen' ? 'border-emerald-200' : ampel === 'gelb' ? 'border-yellow-200' : 'border-red-200';
 
-  const coachMsg = a === 'gruen'
-    ? 'Exzellente Pünktlichkeit – weiter so!'
-    : a === 'gelb'
-      ? 'Routenplanung verbessern für mehr Pünktlichkeit.'
-      : 'Dringende Maßnahmen für bessere Pünktlichkeit nötig.';
-  const coachColor = a === 'gruen' ? 'bg-gray-50 text-gray-600' : a === 'gelb' ? 'bg-yellow-50 text-yellow-700' : 'bg-red-50 text-red-700';
+  const coaching =
+    ampel === 'gruen'
+      ? 'Ausgezeichnet – halte diese Pünktlichkeit!'
+      : ampel === 'gelb'
+        ? 'Tipp: Frühzeitig losfahren verbessert deine Quote.'
+        : 'Achtung: Deine Pünktlichkeit braucht dringend Aufmerksamkeit!';
+
+  const DeltaIcon = me.trend === 'steigend'
+    ? <TrendingUp className="w-5 h-5 text-emerald-500" />
+    : me.trend === 'fallend'
+      ? <TrendingDown className="w-5 h-5 text-red-400" />
+      : <Minus className="w-5 h-5 text-gray-400" />;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
+    <div className={`bg-white rounded-xl border ${borderColor} p-4 space-y-3`}>
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Clock className="w-5 h-5 text-blue-500" />
-        <h3 className="font-semibold text-gray-900 text-sm">Meine Pünktlichkeit</h3>
-        {loading && <span className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin ml-auto" />}
+        <Clock className="w-4 h-4 text-blue-500" />
+        <span className="text-sm font-semibold text-gray-900">Meine Pünktlichkeit</span>
+        {loading && <span className="w-2.5 h-2.5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin ml-auto" />}
       </div>
 
-      {/* Hauptwert */}
-      <div className="flex flex-col items-center py-2 gap-1">
-        <span className={`text-5xl font-black ${tColor}`}>{me?.aktuell_pct ?? 0}<span className="text-xl font-bold ml-1">%</span></span>
-        <div className="flex items-center gap-1.5">
-          <span className="text-3xl font-bold text-gray-400">Rang {rang}</span>
-          <span className="text-xl text-gray-300">/ {gesamt}</span>
+      {/* Hauptwert + Rang */}
+      <div className={`rounded-xl p-4 ${bgColor} flex items-center justify-between`}>
+        <div>
+          <div className={`text-5xl font-black ${tColor}`}>{me.aktuell_pct}%</div>
+          <div className="text-xs text-gray-500 mt-1">Pünktlichkeitsquote</div>
+        </div>
+        <div className="text-right flex flex-col items-end gap-1">
+          <div className={`text-3xl font-black ${tColor}`}>#{rang}</div>
+          <div className="text-[11px] text-gray-400">von {sorted.length}</div>
           {DeltaIcon}
         </div>
-        <span className="text-xs text-gray-400">Ziel ≥90% pünktlich</span>
       </div>
 
       {/* Coaching */}
-      <div className={`rounded-lg px-3 py-2 text-xs ${coachColor}`}>
-        {coachMsg}
-      </div>
-
-      {/* Mini-Liste */}
-      <div className="space-y-0.5">
-        {sorted.map((f, i) => {
-          const isMe = f.fahrer_id === driverId;
-          const fa = ampel(f.aktuell_pct);
-          const fColor = fa === 'gruen' ? 'text-gray-700' : fa === 'gelb' ? 'text-yellow-600' : 'text-red-500';
-          return (
-            <div
-              key={f.fahrer_id}
-              className={`flex items-center gap-2 text-xs px-2 py-1 rounded-md ${isMe ? 'bg-gray-100 font-semibold' : ''}`}
-            >
-              <span className="w-4 text-gray-400 font-mono text-[10px]">#{i + 1}</span>
-              <span className="flex-1 text-gray-700 truncate">{f.name}</span>
-              <span className={`font-bold ${fColor}`}>{f.aktuell_pct}%</span>
-            </div>
-          );
-        })}
-      </div>
+      <div className="text-[11px] text-gray-500 italic px-1">{coaching}</div>
     </div>
   );
 }

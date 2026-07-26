@@ -1,20 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Clock, TrendingUp, TrendingDown, Minus, AlertTriangle } from 'lucide-react';
 
-type Trend = 'steigend' | 'fallend' | 'stabil';
-
-interface FahrerTrend {
+interface FahrerRow {
   fahrer_id: string;
   name: string;
   aktuell_pct: number;
-  trend: Trend;
+  trend: 'steigend' | 'fallend' | 'stabil';
   alert: boolean;
 }
 
 interface ApiData {
-  fahrer: FahrerTrend[];
+  fahrer: FahrerRow[];
   alert_count: number;
 }
 
@@ -26,12 +24,6 @@ const MOCK: ApiData = {
   ],
   alert_count: 1,
 };
-
-function ampel(pct: number): 'gruen' | 'gelb' | 'rot' {
-  if (pct >= 90) return 'gruen';
-  if (pct >= 70) return 'gelb';
-  return 'rot';
-}
 
 export function KitchenPhase3942PuenktlichkeitTrendTicker({ locationId }: { locationId: string | null }) {
   const [data, setData] = useState<ApiData>(MOCK);
@@ -56,11 +48,12 @@ export function KitchenPhase3942PuenktlichkeitTrendTicker({ locationId }: { loca
     return () => clearInterval(id);
   }, [load]);
 
+  // descending: highest aktuell_pct = Rang 1 = best
   const sorted = [...data.fahrer].sort((a, b) => b.aktuell_pct - a.aktuell_pct);
   const best = sorted[0];
-  const teamAvg = sorted.length > 0
-    ? Math.round(sorted.reduce((s, f) => s + f.aktuell_pct, 0) / sorted.length)
-    : 0;
+  const n = sorted.length;
+  const teamAvg = n > 0 ? Math.round(sorted.reduce((s, f) => s + f.aktuell_pct, 0) / n) : 0;
+  const maxVal = Math.max(...sorted.map(f => f.aktuell_pct), 1);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-2">
@@ -83,17 +76,17 @@ export function KitchenPhase3942PuenktlichkeitTrendTicker({ locationId }: { loca
       {/* Alert */}
       {data.alert_count > 0 && (
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-red-50 border border-red-200 rounded-lg text-[11px] text-red-700">
-          <Clock className="w-3 h-3 shrink-0" />
+          <AlertTriangle className="w-3 h-3 shrink-0" />
           <span>Sinkende Pünktlichkeit!</span>
         </div>
       )}
 
-      {/* Kompakt-Liste */}
+      {/* Kompakt-Liste (absteigend: hoechste Quote = Rang 1 = bester) */}
       <div className="space-y-1.5">
         {sorted.map((f, i) => {
-          const a = ampel(f.aktuell_pct);
-          const tColor = a === 'gruen' ? 'text-gray-700' : a === 'gelb' ? 'text-yellow-600' : 'text-red-500';
-          const barColor = a === 'gruen' ? 'bg-blue-400' : a === 'gelb' ? 'bg-yellow-400' : 'bg-red-400';
+          const amp = f.aktuell_pct >= 85 ? 'gruen' : f.aktuell_pct >= 70 ? 'gelb' : 'rot';
+          const tColor = amp === 'gruen' ? 'text-emerald-600' : amp === 'gelb' ? 'text-yellow-600' : 'text-red-500';
+          const barColor = amp === 'gruen' ? 'bg-emerald-400' : amp === 'gelb' ? 'bg-yellow-400' : 'bg-red-400';
           const DeltaIcon = f.trend === 'steigend'
             ? <TrendingUp className="w-3 h-3 text-emerald-500" />
             : f.trend === 'fallend'
@@ -108,7 +101,7 @@ export function KitchenPhase3942PuenktlichkeitTrendTicker({ locationId }: { loca
                 {DeltaIcon}
               </div>
               <div className="h-1 bg-gray-100 rounded-full overflow-hidden ml-5">
-                <div className={`h-full rounded-full ${barColor}`} style={{ width: `${f.aktuell_pct}%` }} />
+                <div className={`h-full rounded-full ${barColor}`} style={{ width: `${(f.aktuell_pct / maxVal) * 100}%` }} />
               </div>
             </div>
           );
@@ -118,7 +111,7 @@ export function KitchenPhase3942PuenktlichkeitTrendTicker({ locationId }: { loca
       {/* Footer */}
       <div className="flex items-center justify-between text-[10px] text-gray-400 border-t border-gray-100 pt-1.5">
         <span>Team-Ø {teamAvg}%</span>
-        <span>Ziel ≥90%</span>
+        <span>Ziel ≥85%</span>
       </div>
     </div>
   );
