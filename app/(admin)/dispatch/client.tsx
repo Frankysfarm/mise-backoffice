@@ -13020,7 +13020,7 @@ export { DispatchPhase3929TourenAuslastungBoard } from './phase3929-touren-ausla
 export { DispatchPhase3934RoutenScoreBoard } from './phase3934-routen-score-board';
 // Phase 3939 — Pünktlichkeit-Trend Board (Clock-Icon blau; absteigend Rang 1=höchste Quote=bester; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Sinkende Pünktlichkeit!"; Trend steigend=grün; 30-Min-Polling)
 export { DispatchPhase3939PuenktlichkeitTrendBoard } from './phase3939-puenktlichkeit-trend-board';
-// Phase 3944 — Trinkgeld-Betrag Board (Gift-Icon gruen; absteigend Rang 1=hoechster Betrag=bester; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriges Trinkgeld!"; rank_delta<0=gruen; 30-Min-Polling)
+// Phase 3944 — Trinkgeld-Betrag Board (Euro-Icon gruen; absteigend Rang 1=hoechster Betrag=bester; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriges Trinkgeld!"; Delta pos=gruen; 30-Min-Polling)
 export { DispatchPhase3944TrinkgeldBetragBoard } from './phase3944-trinkgeld-betrag-board';
 // Phase 3929 — Tour-Score Visualisierung Live Kommando (Trophy amber; Flotten-KPI-Grid Avg/Top/Aktiv/Alerts; Score-Balken je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3929TourScoreVisualisierungLiveKommando } from './phase3929-tour-score-visualisierung-live-kommando';

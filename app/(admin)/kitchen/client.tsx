@@ -11593,7 +11593,7 @@ export { KitchenPhase3932TourenAuslastungTicker } from './phase3932-touren-ausla
 export { KitchenPhase3937RoutenScoreTicker } from './phase3937-routen-score-ticker';
 // Phase 3942 — Pünktlichkeit-Trend Ticker (Clock-Icon blau; Bester #1 Name+% im Header; Alert "Sinkende Pünktlichkeit!"; kompakt absteigend; Rang+%+Delta steigend=grün; Team-Avg+Ziel ≥90%; 30-Min-Polling)
 export { KitchenPhase3942PuenktlichkeitTrendTicker } from './phase3942-puenktlichkeit-trend-ticker';
-// Phase 3947 — Trinkgeld-Betrag Ticker (Gift-Icon gruen; Bester #1 Name+€ im Header; Alert "Niedriges Trinkgeld!"; kompakt absteigend; Rang+€+Delta rank_delta<0=gruen; Team-Avg+Ziel >=2€; 30-Min-Polling)
+// Phase 3947 — Trinkgeld-Betrag Ticker (Euro-Icon gruen; Bester #1 Name+€ im Header; Alert "Niedriges Trinkgeld!"; kompakt absteigend; Rang+€+Delta pos=gruen; Team-Avg+Ziel >=2€; 30-Min-Polling)
 export { KitchenPhase3947TrinkgeldBetragTicker } from './phase3947-trinkgeld-betrag-ticker';
 // Phase 3932 — Smart-Timing Countdown Farbkodierung Final (Timer indigo; 5-KPI-Grid On-Time/AvgPrep/Kochstart/Überfällig/Sync; Score-Balken; Countdown-Kacheln 4-stufig grün/gelb/orange/rot; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3932SmartTimingCountdownFarbkodierungFinal } from './phase3932-smart-timing-countdown-farbkodierung-final';

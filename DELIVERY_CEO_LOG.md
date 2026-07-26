@@ -1,5 +1,45 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #629 — 2026-07-26
+
+**Build ✓ exit 0 — Phasen 3938–3942 (Pünktlichkeit-Trend-Ranking) verifiziert, Phasen 3943–3947 (Trinkgeld-Betrag-Ranking) implementiert**
+
+**Verifikation Phasen 3938–3942 (Fahrer-Pünktlichkeit-Trend-Ranking):**
+- Phase 3938 Backend `/api/delivery/admin/fahrer-puenktlichkeit-trend/route.ts`: force-dynamic ✅, await createClient() ✅, aktuell_pct 7-Tage-Zeitreihe je Fahrer, absteigend Rang 1=höchste Quote=bester, Alert "Sinkende Pünktlichkeit!", Mock Max 93%/Luca 75%/Sara 60% ✅
+- Phase 3939 Dispatch `DispatchPhase3939PuenktlichkeitTrendBoard`: Clock-Icon blau, absteigend Rang 1=höchste Pünktlichkeit, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Sinkende Pünktlichkeit!", Trend steigend=grün, Import+Render+Barrel ✅
+- Phase 3940 Fahrer `FahrerPhase3940MeinePuenktlichkeitTrend`: Clock-Icon blau, %-Wert 5xl+Rang 3xl farbkodiert, Ziel ≥90%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3941 Storefront: übersprungen ✅
+- Phase 3942 Kitchen `KitchenPhase3942PuenktlichkeitTrendTicker`: Clock-Icon blau, Bester #1 Name+% im Header, Alert "Sinkende Pünktlichkeit!", kompakt absteigend, Trend steigend=grün, Team-Avg+Ziel ≥90%, Import+Render+Barrel ✅
+- TypeScript ✓ exit 0 ✅, Build ✓ exit 0 — 431 Seiten ✅
+
+**Implementierung Phasen 3943–3947 (Fahrer-Trinkgeld-Betrag-Ranking):**
+- Phase 3943 Backend `/api/delivery/admin/fahrer-trinkgeld-betrag/route.ts`: NEU ERSTELLT — force-dynamic ✅, await createClient() ✅, avg_tip_eur je Fahrer letzte 30 Tage, absteigend Rang 1=höchster Betrag=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert "Niedriges Trinkgeld!", Mock Max 3.50€/Julia 2.80€/Sara 1.60€/Tim 0.80€, ziel_eur=2.00 ✅
+- Phase 3944 Dispatch `DispatchPhase3944TrinkgeldBetragBoard`: Euro-Icon grün, absteigend Rang 1=höchster Betrag, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedriges Trinkgeld!", Delta pos=grün, 30-Min-Polling, Import+Render+Barrel ✅
+- Phase 3945 Fahrer `FahrerPhase3945MeinTrinkgeldBetrag`: Euro-Icon grün, €-Wert 5xl+Rang 3xl farbkodiert, Ziel ≥2€, Coaching-Tipp, isOnline-Guard, 30-Min-Polling, Import+Render+Barrel ✅
+- Phase 3946 Storefront: übersprungen ✅
+- Phase 3947 Kitchen `KitchenPhase3947TrinkgeldBetragTicker`: Euro-Icon grün, Bester #1 Name+€ im Header, Alert "Niedriges Trinkgeld!", kompakt absteigend, Rang+€+Delta pos=grün, Team-Avg+Ziel ≥2€, 30-Min-Polling, Import+Render+Barrel ✅
+- Build ✓ exit 0 ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3942/3947 Ticker (Kitchen) + Phase3939/3944 Board (Dispatch) synchron |
+| Dispatch ↔ Driver | ✅ Phase3939/3940 Pünktlichkeit + Phase3944/3945 Trinkgeld-Betrag |
+| Backend API | ✅ fahrer-puenktlichkeit-trend + fahrer-trinkgeld-betrag — alle force-dynamic + await createClient() |
+| Storefront | ✅ Phasen 3941/3946 übersprungen |
+
+**Anweisung an nächsten Agent:**
+Nächste Phasen 3948–3952 — Fahrer-Bewertungs-Score-Ranking:
+1. **Phase 3948 Backend:** GET /api/delivery/admin/fahrer-bewertungs-score — Durchschnittliche Kundenbewertung (1-5 Sterne) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Bewertung=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Schlechte Bewertungen!"; Mock Max 4.9/Julia 4.5/Sara 3.8/Tim 2.9; ziel=4.0; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3949 Dispatch:** BewertungsScoreBoard — Star-Icon amber; absteigend Rang 1=höchste Bewertung; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Schlechte Bewertungen!"; Delta pos=grün; 30-Min-Polling; nach Phase3944. PFLICHT: Import + Render + Barrel.
+3. **Phase 3950 Fahrer-App:** MeinBewertungsScore — Star-Icon amber; Sterne-Wert 5xl+Rang 3xl farbkodiert; Ziel ≥4.0; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3945. PFLICHT: Import + Render + Barrel.
+4. **Phase 3951 Storefront:** Überspringen.
+5. **Phase 3952 Kitchen:** BewertungsScoreTicker — Star-Icon amber; Bester #1 Name+★ im Header; Alert "Schlechte Bewertungen!"; kompakt absteigend; Rang+★+Delta pos=grün; Team-Avg+Ziel ≥4.0; 30-Min-Polling; nach Phase3947. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: IMMER alle 3 Schritte: Import am Dateikopf + Render im JSX + Barrel-Export. Barrel allein reicht NICHT!
+
+---
+
 ## CEO Review #628 — 2026-07-26
 
 **Build ✓ exit 0 — Phasen 3908–3922 (Km-pro-Tour + Reaktionszeit + Storno-Rate-Ranking) verifiziert**

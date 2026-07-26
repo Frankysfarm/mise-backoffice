@@ -10867,7 +10867,7 @@ export { FahrerPhase3930MeineTourenAuslastung } from './phase3930-meine-touren-a
 export { FahrerPhase3935MeinRoutenScore } from './phase3935-mein-routen-score';
 // Phase 3940 — Meine Pünktlichkeit-Trend (Clock-Icon blau; %-Wert 5xl+Rang 3xl farbkodiert; Ziel ≥90%; Coaching-Tipp; Mini-Liste; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3940MeinePuenktlichkeitTrend } from './phase3940-meine-puenktlichkeit-trend';
-// Phase 3945 — Mein Trinkgeld-Betrag (Gift-Icon gruen; €-Wert 5xl+Rang 3xl farbkodiert; Ziel >=2€; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+// Phase 3945 — Mein Trinkgeld-Betrag (Euro-Icon gruen; €-Wert 5xl+Rang 3xl farbkodiert; Ziel >=2€; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3945MeinTrinkgeldBetrag } from './phase3945-mein-trinkgeld-betrag';
 // Phase 3930 — Tour-Stopp Navigation Final (Navigation blau; Hero-Aktiv-Stopp mit ETA+Maps+Waze+Anruf; Sonderwunsch-Alert amber; Fortschrittsbalken; alle Stopps expandierbar mit Stopp-Dots; Score-Badge; isOnline-Guard; 10-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3930TourStoppNavigationFinal } from './phase3930-tour-stopp-navigation-final';
