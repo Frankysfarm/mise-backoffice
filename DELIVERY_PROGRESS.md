@@ -2,6 +2,25 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-26): Phasen 3758–3762 implementiert — Fahrer-Erstabholung-Pünktlichkeit-Ranking. Phase 3758 Backend: `/api/delivery/admin/fahrer-erstabholung-puenktlichkeit/route.ts` — force-dynamic, await createClient(), delivery_tours picked_up_at <= estimated_pickup_at + 3min Toleranz, absteigend Rang 1=hoechste Rate=bester, Ampel gruen/gelb/rot, Alert Bottom-25% "Spaete Erstabholung!", Mock Julia 92%/Sara 84%/Max 71%/Tim 55%. Phase 3759 Dispatch: `DispatchPhase3759ErstabholungPuenktlichkeitBoard` — Package-Icon cyan, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Spaete Erstabholung!", Delta pos=gruen, RankBadge, Import+Render+Barrel ✅. Phase 3760 Fahrer: `FahrerPhase3760MeineErstabholungPuenktlichkeit` — %-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Ziel-Balken >=90%, Team-Avg-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3761 Storefront: uebersprungen. Phase 3762 Kitchen: `KitchenPhase3762ErstabholungPuenktlichkeitTicker` — Package-Icon cyan, Bester #1 Name+% im Header, Alert "Spaete Erstabholung!", kompakt absteigend, Rang+%+Delta pos=gruen, Team-Avg+Ziel >=90%, Import+Render+Barrel ✅. Build ✓ exit 0. Push erfolgt (commit e688ea33).
+
+### ✅ Phasen 3758–3762 ABGESCHLOSSEN — Fahrer-Erstabholung-Pünktlichkeit-Ranking
+- Phase 3758 Backend: `/api/delivery/admin/fahrer-erstabholung-puenktlichkeit/route.ts` — force-dynamic, await createClient(), delivery_tours picked_up_at <= estimated_pickup_at + 3min Toleranz, absteigend Rang 1=hoechste Rate=bester, Ampel gruen/gelb/rot, Alert Bottom-25% "Spaete Erstabholung!", Mock Julia F.92%/Sara K.84%/Max M.71%/Tim B.55% ✅
+- Phase 3759 Dispatch: `DispatchPhase3759ErstabholungPuenktlichkeitBoard` — Package-Icon cyan, absteigend Rang 1=hoechste Rate, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Spaete Erstabholung!", Delta pos=gruen, RankBadge Gold/Silber/Bronze ✅
+- Phase 3760 Fahrer: `FahrerPhase3760MeineErstabholungPuenktlichkeit` — Package-Icon cyan, %-Wert 5xl+Rang 3xl farbkodiert, Rang-Balken, Ziel-Balken >=90%, Team-Avg-Vergleich cyan, Coaching-Tipp je Ampelzone, isOnline-Guard ✅
+- Phase 3761 Storefront: uebersprungen ✅
+- Phase 3762 Kitchen: `KitchenPhase3762ErstabholungPuenktlichkeitTicker` — Package-Icon cyan, Bester #1 Name+% im Header, Alert "Spaete Erstabholung!", kompakt absteigend, Rang+%+Delta pos=gruen, Team-Avg+Ziel >=90% ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3763–3767 — Fahrer-Leerfahrtenquote-Ranking
+1. **Phase 3763 Backend:** GET /api/delivery/admin/fahrer-leerfahrtenquote — Rate (%) der Leerfahrten (Touren ohne erfolgreiche Lieferung) je Fahrer letzte 30 Tage (delivery_tours: count(status='empty')/count(*) in %); Rang 1=niedrigste Quote=bester; Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe Leerfahrtenquote!"; rank_delta neg=verbessert; Mock Julia F.2%/Sara K.5%/Max M.9%/Tim B.15%; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3764 Dispatch:** LeerfahrtenquoteRankingBoard — AlertOctagon-Icon orange; aufsteigend Rang 1=niedrigste Quote; KPI-Grid Bester/Team-Avg/Hoechste; Alert "Hohe Leerfahrtenquote!"; Delta neg=gruen; RankBadge; 30-Min-Polling; nach Phase3759. PFLICHT: Import + Render + Barrel.
+3. **Phase 3765 Fahrer-App:** MeineLeerfahrtenquote — AlertOctagon-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken <=5%; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3760. PFLICHT: Import + Render + Barrel.
+4. **Phase 3766 Storefront:** Ueberspringen.
+5. **Phase 3767 Kitchen:** LeerfahrtenquoteTicker — AlertOctagon-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Leerfahrtenquote!"; kompakt aufsteigend; Rang+%+Delta neg=gruen; Team-Avg+Ziel <=5%; 30-Min-Polling; nach Phase3762. PFLICHT: Import + Render + Barrel.
+
+---
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3753–3757 implementiert — Fahrer-Schichtstunden-Ranking. Phase 3753 Backend: `/api/delivery/admin/fahrer-schichtstunden-ranking/route.ts` (neu) — `await createClient()` aus `@/lib/supabase/server`, force-dynamic, delivery_shifts duration_hours oder ended_at-started_at, letzte 30 Tage, absteigend Rang 1=meiste Stunden=bester, Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert Bottom-25% "Wenige Schichtstunden!", Mock Julia F.7.5h/Sara K.6.8h/Max M.5.5h/Tim B.3.9h. Phase 3754 Dispatch: `DispatchPhase3754SchichtstundenRankingBoard` — Clock-Icon blau, absteigend, KPI-Grid Fleissigster/Team-Avg/Wenigste, Alert "Wenige Schichtstunden!", Delta pos=gruen, RankBadge, Import+Render+Barrel ✅. Phase 3755 Fahrer: `FahrerPhase3755MeineSchichtstunden` — h-Wert 5xl+Rang 3xl, Rang-Balken, Ziel-Balken >=6h, Team-Avg-Vergleich, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3756 Storefront: uebersprungen. Phase 3757 Kitchen: `KitchenPhase3757SchichtstundenTicker` — Fleissigster #1 im Header, Alert, Ziel >=6h, Import+Render+Barrel ✅. Build ✓ exit 0. Push erfolgt (commit ba1ab7ae).
 
 ### ✅ Phasen 3753–3757 ABGESCHLOSSEN — Fahrer-Schichtstunden-Ranking
