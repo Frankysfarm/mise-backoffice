@@ -1064,6 +1064,7 @@ import { DispatchPhase3849SchichtEffizienzScoreBoard } from './phase3849-schicht
 import { DispatchPhase3854TourenProTagBoard } from './phase3854-touren-pro-tag-board';
 import { DispatchPhase3859StoppsProTourBoard } from './phase3859-stopps-pro-tour-board';
 import { DispatchPhase3864WartezeitProStoppBoard } from './phase3864-wartezeit-pro-stopp-board';
+import { DispatchPhase3864KmProStoppBoard } from './phase3864-km-pro-stopp-board';
 import { DispatchPhase3869AblehnungsquoteBoard } from './phase3869-ablehnungsquote-board';
 import { DispatchPhase3874KundenbewertungBoard } from './phase3874-kundenbewertung-board';
 
@@ -4747,6 +4748,7 @@ export function DispatchBoard({
           <DispatchPhase3854TourenProTagBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3859StoppsProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3864WartezeitProStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3864KmProStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3869AblehnungsquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3874KundenbewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -12951,6 +12953,7 @@ export { DispatchPhase3854TourenProTagBoard } from './phase3854-touren-pro-tag-b
 export { DispatchPhase3859StoppsProTourBoard } from './phase3859-stopps-pro-tour-board';
 // Phase 3864 — Wartezeit-pro-Stopp Board (Clock-Icon rot; aufsteigend Rang 1=kürzeste Wartezeit=bester; KPI-Grid Beste/Team-Avg/Längste; Alert "Lange Wartezeiten!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3864WartezeitProStoppBoard } from './phase3864-wartezeit-pro-stopp-board';
+export { DispatchPhase3864KmProStoppBoard } from './phase3864-km-pro-stopp-board';
 // Phase 3869 — Ablehnungsquote Board (XCircle-Icon orange; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Beste/Team-Avg/Höchste; Alert "Hohe Ablehnungsquote!"; Delta neg=grün; 30-Min-Polling)
 export { DispatchPhase3869AblehnungsquoteBoard } from './phase3869-ablehnungsquote-board';
 // Phase 3874 — Kundenbewertung Board (Star-Icon gold; absteigend Rang 1=höchste Bewertung=bester; KPI-Grid Beste/Team-Avg/Niedrigste; Alert "Niedrige Bewertungen!"; Delta pos=grün; 30-Min-Polling)
