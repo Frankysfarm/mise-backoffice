@@ -2,6 +2,26 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3883–3887 implementiert — Fahrer-Umsatz-pro-Stunde-Ranking. Phase 3883 Backend: bestehendes `/api/delivery/admin/fahrer-umsatz-pro-stunde/route.ts` (Phase 3623, bereits vorhanden) — force-dynamic, await createClient(), delivery_tours umsatz/stunden je Fahrer letzte 30 Tage, absteigend Rang 1=hoechster Umsatz/h=bester, Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert "Niedriger Umsatz/h!", Mock Julia 42€/h/Sara 38€/h/Max 35€/h/Tim 28€/h, ziel=30€/h. Phase 3884 Dispatch: `DispatchPhase3884UmsatzProStundeBoard` — Euro-Icon teal, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedriger Umsatz/h!", Delta pos=gruen, Import+Render+Barrel ✅. Phase 3885 Fahrer: `FahrerPhase3885MeinUmsatzProStunde` — Euro-Icon teal, €/h 5xl+Rang 3xl farbkodiert, Fortschrittsbalken, Ziel >=30€/h, Team-Avg, Coaching-Tipp, isOnline-Guard, client-seitige driver_id-Filterung, Import+Render+Barrel ✅. Phase 3886 Storefront: uebersprungen. Phase 3887 Kitchen: `KitchenPhase3887UmsatzProStundeTicker` — Euro-Icon teal, Bester #1 Name+€/h im Header, Alert "Niedriger Umsatz/h!", kompakt absteigend, Rang+€/h+Delta pos=gruen, Team-Avg+Ziel >=30€/h, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3883–3887 ABGESCHLOSSEN — Fahrer-Umsatz-pro-Stunde-Ranking
+- Phase 3883 Backend: `/api/delivery/admin/fahrer-umsatz-pro-stunde/route.ts` (Phase 3623, bereits vorhanden) — force-dynamic, await createClient(), umsatz/stunden, absteigend Rang 1=hoechster Umsatz/h=bester, Ampel gruen/gelb/rot, Alert Bottom-25% "Niedriger Umsatz/h!", Mock Julia 42€/h/Sara 38€/h/Max 35€/h/Tim 28€/h ✅
+- Phase 3884 Dispatch: `DispatchPhase3884UmsatzProStundeBoard` — Euro-Icon teal, absteigend Rang 1=hoechster Umsatz/h, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedriger Umsatz/h!", Delta pos=gruen ✅
+- Phase 3885 Fahrer: `FahrerPhase3885MeinUmsatzProStunde` — Euro-Icon teal, €/h 5xl+Rang 3xl farbkodiert, Fortschrittsbalken, Ziel >=30€/h, Team-Avg, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3886 Storefront: uebersprungen ✅
+- Phase 3887 Kitchen: `KitchenPhase3887UmsatzProStundeTicker` — Euro-Icon teal, Bester #1 Name+€/h im Header, Alert "Niedriger Umsatz/h!", kompakt absteigend, Rang+€/h+Delta pos=gruen, Team-Avg+Ziel >=30€/h ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3888–3892 — Fahrer-Trinkgeld-Quote-Ranking
+1. **Phase 3888 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-quote — Trinkgeld-Anteil am Bestellwert in % je Fahrer letzte 30 Tage; absteigend Rang 1=hoechste Quote=bester; Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Trinkgeld-Quote!"; Mock Julia F.8.2%/Sara K.6.5%/Max M.4.1%/Tim B.2.3%; ziel_pct=5; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()`.
+2. **Phase 3889 Dispatch:** TrinkgeldQuoteBoard — Heart-Icon pink; absteigend Rang 1=hoechste Quote; KPI-Grid Beste/Team-Avg/Niedrigste; Alert "Niedrige Trinkgeld-Quote!"; Delta pos=gruen; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 3890 Fahrer-App:** MeineTrinkgeldQuote — Heart-Icon pink; %-Wert 5xl+Rang 3xl farbkodiert; Ziel >=5%; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 3891 Storefront:** Ueberspringen.
+5. **Phase 3892 Kitchen:** TrinkgeldQuoteTicker — Heart-Icon pink; Bester #1 Name+% im Header; Alert "Niedrige Trinkgeld-Quote!"; kompakt absteigend; Rang+%+Delta pos=gruen; Team-Avg+Ziel >=5%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+
+## STATUS: MARKT-REIF
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3878–3882 implementiert — Fahrer-Pünktlichkeitsquote-Ranking. Phase 3878 Backend: bestehendes `/api/delivery/admin/fahrer-puenktlichkeit/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), delivery_tours delivered_at<=estimated_delivery_at in % je Fahrer letzte 30 Tage, absteigend Rang 1=hoechste Puenktlichkeit=bester, Ampel gruen(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert "Niedrige Puenktlichkeit!", Mock Julia F.96%/Sara K.89%/Max M.78%/Tim B.62%. Phase 3879 Dispatch: `DispatchPhase3879PuenktlichkeitBoard` — CheckCircle-Icon gruen, absteigend, KPI-Grid Beste/Team-Avg/Niedrigste, Alert "Niedrige Puenktlichkeit!", Delta pos=gruen, Import+Render+Barrel ✅. Phase 3880 Fahrer: `FahrerPhase3880MeinePuenktlichkeit` — CheckCircle-Icon gruen, %-Wert 5xl+Rang 3xl farbkodiert, Fortschrittsbalken, Ziel >=85%, Team-Avg, Coaching-Tipp, isOnline-Guard, client-seitige driver_id-Filterung, Import+Render+Barrel ✅. Phase 3881 Storefront: uebersprungen. Phase 3882 Kitchen: `KitchenPhase3882PuenktlichkeitTicker` — CheckCircle-Icon gruen, Bester #1 Name+% im Header, Alert "Niedrige Puenktlichkeit!", kompakt absteigend, Rang+%+Delta pos=gruen, Team-Avg+Ziel >=85%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3878–3882 ABGESCHLOSSEN — Fahrer-Pünktlichkeitsquote-Ranking
