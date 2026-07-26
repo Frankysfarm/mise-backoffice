@@ -5,9 +5,9 @@ Updated: 2026-07-26
 | Task | State | Gate | Branch | Commit | Notes |
 |---|---|---|---|---|---|
 | T00 Baseline, Staging and Toolchain | COMPLETE | G0 GREEN | `codex/driver-remediation` | `f7d6b619` | Snapshots, isolated worktrees, toolchain, native validator and disposable PostgreSQL path verified. |
-| T01 Canonical State Model | COMPLETE | G1 GREEN | `codex/driver-remediation` | pending task commit | Implementation plus independent specification and test reviews approved. |
-| T02 Atomic Single Writer | READY | G2 not evaluated | `codex/driver-remediation` | — | Permitted by green G1; migration/RPC ownership must be exclusive. |
-| T03 Server API and Client Boundary | NOT STARTED | G3 not evaluated | — | — | Blocked by T02. |
+| T01 Canonical State Model | COMPLETE | G1 GREEN | `codex/driver-remediation` | `8acbe488` | Implementation plus independent specification and test reviews approved. |
+| T02 Atomic Single Writer | COMPLETE | G2 GREEN (isolated PostgreSQL) | `codex/driver-remediation` | pending task commit | Two review cycles; DB and adversarial race reviewers approved final hardened implementation. |
+| T03 Server API and Client Boundary | READY | G3 not evaluated | `codex/driver-remediation` | — | Permitted by green G2; API/client ownership must be exclusive. |
 | T04–T10 | NOT STARTED | G4–G9 not evaluated | — | — | Governed by `EXECUTION_GRAPH.md`. |
 
 ## Production safety
@@ -45,3 +45,14 @@ for GPS, resume, reassignment, version-authority, override, mapping and test
 gaps. Those findings were corrected. Final independent specification and test
 reviews both returned `APPROVE`; the lead reran all three contract suites and
 the focused P0 TypeScript gate successfully.
+
+## G2 decision
+
+GREEN in the required isolated PostgreSQL environment after two rejection and
+hardening cycles. Final evidence includes 100 true-overlap two-session races,
+exact winner/loser and idempotent replay comparison, 48 failure-injection
+boundaries, lifecycle CAS, writer lease/epoch authority, full rollback
+projections, migration double-apply, executable preflight stop-gate and
+disable/rollback. Independent DB and adversarial race reviewers both returned
+`APPROVE`. Full Supabase staging/RLS/PostgREST remains a later G3/G9 proof and
+is not inferred from G2.

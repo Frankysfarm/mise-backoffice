@@ -25,7 +25,10 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { directions, geocode, haversineKm, type RouteResult } from './google-maps';
 import { randomUUID } from 'node:crypto';
 import {
+  atomicAssignmentV2Enabled,
   atomicOfferEnabled,
+  claimAtomicWriterV2,
+  createAtomicAssignmentV2,
   createAtomicSingleOrderOffer,
   selectedDispatchWriter,
   type DispatchWriter,
@@ -68,6 +71,7 @@ interface OrderRow {
   kunde_stadt: string | null;
   created_at?: string | null;
   dispatch_version?: number | null;
+  eta_earliest?: string | null;
   eta_latest?: string | null;
 }
 
@@ -98,6 +102,7 @@ function sb(): SupabaseClient {
 
 const VEHICLE_SLOTS: Record<'bike' | 'car', number> = { bike: 2, car: 4 };
 const MAX_BUNDLE_DETOUR_KM = 1.5;
+const ATOMIC_V2_WRITER_INSTANCE_ID = randomUUID();
 
 // --- Dispatch-Strategien pro Restaurant (tenants.dispatch_strategy) ---
 type DispatchStrategy = 'speed' | 'balance' | 'spar';
@@ -129,7 +134,7 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
   const c = sb();
   const { data: orders } = await c
     .from('customer_orders')
-    .select('id, bestellnummer, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, created_at, dispatch_version, eta_latest')
+    .select('id, bestellnummer, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, created_at, dispatch_version, eta_earliest, eta_latest')
     .eq('typ', 'lieferung')
     .is('mise_driver_id', null)
     .is('mise_batch_id', null)
@@ -178,8 +183,14 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     // This process is not the elected writer for the tenant.
     return 'held';
   }
-  const useAtomicWriter = selectedWriter === 'atomic_v1' && atomicOfferEnabled();
-  if (selectedWriter === 'atomic_v1' && !useAtomicWriter) {
+  const useAtomicV1 = selectedWriter === 'atomic_v1' && atomicOfferEnabled();
+  const useAtomicV2 =
+    selectedWriter === 'atomic_v2' && atomicAssignmentV2Enabled();
+  const useAtomicWriter = useAtomicV1 || useAtomicV2;
+  if (
+    (selectedWriter === 'atomic_v1' || selectedWriter === 'atomic_v2') &&
+    !useAtomicWriter
+  ) {
     await logDecision('hold', null, [o.id], 'ATOMIC_WRITER_KILL_SWITCH_CLOSED');
     return 'held';
   }
@@ -371,7 +382,8 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   } else {
     best = pickBest(nearby, loc);
   }
-  const created = await createBundle(best.id, o, loc, useAtomicWriter);
+  const atomicMode = useAtomicV2 ? 'v2' : useAtomicV1 ? 'v1' : null;
+  const created = await createBundle(best, o, loc, atomicMode);
   if (!created) return 'held';
   // Route erst nach Pickup
   // Atomic-v1 schreibt Audit + Push-Outbox bereits in derselben Transaktion.
@@ -509,22 +521,85 @@ function pickBest(drivers: DriverRow[], pickupLoc: LocationRow): DriverRow {
 }
 
 async function createBundle(
-  driverId: string,
+  driver: DriverRow,
   o: OrderRow,
   loc: LocationRow,
-  useAtomicWriter: boolean,
+  atomicMode: 'v1' | 'v2' | null,
 ): Promise<{ batchId: string; atomic: boolean } | null> {
   const c = sb();
-  if (useAtomicWriter) {
+  if (atomicMode) {
     if (
       o.kunde_lat == null || o.kunde_lng == null ||
       loc.lat == null || loc.lng == null
     ) return null;
     const decisionId = randomUUID();
+    if (atomicMode === 'v2') {
+      if (!o.eta_earliest || !o.eta_latest) {
+        await logDecision(
+          'hold',
+          null,
+          [o.id],
+          'ATOMIC_V2_PERSISTENT_DEADLINE_MISSING',
+        );
+        return null;
+      }
+      const lease = await claimAtomicWriterV2(
+        c,
+        loc.tenant_id,
+        ATOMIC_V2_WRITER_INSTANCE_ID,
+      );
+      if (!lease.ok || lease.writer_epoch == null) return null;
+      const { data: driverVersion, error: driverVersionError } = await c
+        .from('mise_drivers')
+        .select('state_version')
+        .eq('id', driver.id)
+        .single();
+      if (driverVersionError || driverVersion?.state_version == null) {
+        await logDecision(
+          'hold',
+          driver.id,
+          [o.id],
+          'ATOMIC_V2_DRIVER_VERSION_LOAD_FAILED',
+        );
+        return null;
+      }
+      const result = await createAtomicAssignmentV2(c, {
+        tenantId: loc.tenant_id,
+        writerId: ATOMIC_V2_WRITER_INSTANCE_ID,
+        writerEpoch: lease.writer_epoch,
+        driverId: driver.id,
+        expectedDriverVersion: Number(driverVersion.state_version),
+        actionId: decisionId,
+        orders: [{
+          orderId: o.id,
+          expectedOrderVersion: Number(o.dispatch_version ?? 0),
+          pickup: {
+            lat: loc.lat,
+            lng: loc.lng,
+            address:
+              [loc.adresse, loc.plz, loc.stadt].filter(Boolean).join(', ') ||
+              loc.name,
+          },
+          dropoff: {
+            lat: o.kunde_lat,
+            lng: o.kunde_lng,
+            address: o.kunde_adresse ?? '',
+          },
+          pickupDeadlineAt: o.eta_earliest,
+          deliveryDeadlineAt: o.eta_latest,
+        }],
+        push: {
+          title: `Neue Tour: ${loc.name}`,
+          body: 'Eine neue Lieferung ist dir zugewiesen.',
+        },
+      });
+      if (!result.ok || !result.batch_id) return null;
+      return { batchId: result.batch_id, atomic: true };
+    }
     const result = await createAtomicSingleOrderOffer(c, {
       tenantId: loc.tenant_id,
       orderId: o.id,
-      driverId,
+      driverId: driver.id,
       expectedOrderVersion: Number(o.dispatch_version ?? 0),
       decisionId,
       idempotencyKey: decisionId,
@@ -553,7 +628,7 @@ async function createBundle(
 
   const { data: batch, error } = await c
     .from('mise_delivery_batches')
-    .insert({ driver_id: driverId, state: 'pending_acceptance' })
+    .insert({ driver_id: driver.id, state: 'pending_acceptance' })
     .select('id')
     .single();
   if (error || !batch) throw new Error(error?.message ?? 'Batch insert failed');
@@ -581,7 +656,7 @@ async function createBundle(
 
   await c
     .from('customer_orders')
-    .update({ mise_batch_id: batch.id, mise_driver_id: driverId })
+    .update({ mise_batch_id: batch.id, mise_driver_id: driver.id })
     .eq('id', o.id);
 
   return { batchId: batch.id, atomic: false };
