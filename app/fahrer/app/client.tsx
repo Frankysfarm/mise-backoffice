@@ -1004,6 +1004,7 @@ import { FahrerPhase3930MeineTourenAuslastung } from './phase3930-meine-touren-a
 import { FahrerPhase3935MeinRoutenScore } from './phase3935-mein-routen-score';
 import { FahrerPhase3940MeinePuenktlichkeitTrend } from './phase3940-meine-puenktlichkeit-trend';
 import { FahrerPhase3945MeinTrinkgeldBetrag } from './phase3945-mein-trinkgeld-betrag';
+import { FahrerPhase3930TourStoppNavigationFinal } from './phase3930-tour-stopp-navigation-final';
 
 type Driver = {
   id: string;
@@ -6936,6 +6937,8 @@ export function FahrerApp({
           <FahrerPhase3935MeinRoutenScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3940MeinePuenktlichkeitTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3945MeinTrinkgeldBetrag driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 3930: Tour-Stopp Navigation Final — Hero-Aktiv-Stopp mit ETA+Maps+Waze+Anruf; Sonderwunsch-Alert; Fortschrittsbalken; alle Stopps expandierbar; Score-Badge; 10-Sek-Polling */}
+          <FahrerPhase3930TourStoppNavigationFinal driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10864,5 +10867,7 @@ export { FahrerPhase3935MeinRoutenScore } from './phase3935-mein-routen-score';
 export { FahrerPhase3940MeinePuenktlichkeitTrend } from './phase3940-meine-puenktlichkeit-trend';
 // Phase 3945 — Mein Trinkgeld-Betrag (Gift-Icon gruen; €-Wert 5xl+Rang 3xl farbkodiert; Ziel >=2€; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3945MeinTrinkgeldBetrag } from './phase3945-mein-trinkgeld-betrag';
+// Phase 3930 — Tour-Stopp Navigation Final (Navigation blau; Hero-Aktiv-Stopp mit ETA+Maps+Waze+Anruf; Sonderwunsch-Alert amber; Fortschrittsbalken; alle Stopps expandierbar mit Stopp-Dots; Score-Badge; isOnline-Guard; 10-Sek-Polling; Mock-Fallback)
+export { FahrerPhase3930TourStoppNavigationFinal } from './phase3930-tour-stopp-navigation-final';
 // Phase 3850 — Tour-Stopp Live Navigation (Aktiver-Stopp Hero-Card ETA+Google-Maps+Waze+Telefon; Fortschrittsbalken Geliefert/Gesamt; Alle-Stopps-Liste mit Status-Dots; Notiz-Hinweis-Banner; Inline-Navi-Links je Stopp; 10-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3850TourStoppLiveNavigation } from './phase3850-tour-stopp-live-navigation';

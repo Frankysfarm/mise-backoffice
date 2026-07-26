@@ -1082,6 +1082,7 @@ import { DispatchPhase3929TourenAuslastungBoard } from './phase3929-touren-ausla
 import { DispatchPhase3934RoutenScoreBoard } from './phase3934-routen-score-board';
 import { DispatchPhase3939PuenktlichkeitTrendBoard } from './phase3939-puenktlichkeit-trend-board';
 import { DispatchPhase3944TrinkgeldBetragBoard } from './phase3944-trinkgeld-betrag-board';
+import { DispatchPhase3929TourScoreVisualisierungLiveKommando } from './phase3929-tour-score-visualisierung-live-kommando';
 
 type Driver = {
   employee_id: string;
@@ -4781,6 +4782,7 @@ export function DispatchBoard({
           <DispatchPhase3934RoutenScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3939PuenktlichkeitTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3944TrinkgeldBetragBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3929TourScoreVisualisierungLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13018,5 +13020,7 @@ export { DispatchPhase3934RoutenScoreBoard } from './phase3934-routen-score-boar
 export { DispatchPhase3939PuenktlichkeitTrendBoard } from './phase3939-puenktlichkeit-trend-board';
 // Phase 3944 — Trinkgeld-Betrag Board (Gift-Icon gruen; absteigend Rang 1=hoechster Betrag=bester; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedriges Trinkgeld!"; rank_delta<0=gruen; 30-Min-Polling)
 export { DispatchPhase3944TrinkgeldBetragBoard } from './phase3944-trinkgeld-betrag-board';
+// Phase 3929 — Tour-Score Visualisierung Live Kommando (Trophy amber; Flotten-KPI-Grid Avg/Top/Aktiv/Alerts; Score-Balken je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase3929TourScoreVisualisierungLiveKommando } from './phase3929-tour-score-visualisierung-live-kommando';
 // Phase 3849 — Tour-Score Visualisierung Live Komplett (Trophy amber; Flotten-Avg; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert ausstehend/unterwegs/geliefert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; ETA je Stopp; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3849TourScoreVisualisierungLiveKomplett } from './phase3849-tour-score-visualisierung-live-komplett';

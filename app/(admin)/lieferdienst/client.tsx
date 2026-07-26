@@ -480,6 +480,7 @@ import { LieferdienstPhase2736StatistikLiveMaster } from './phase2736-statistike
 import { LieferdienstPhase2741StatistikEchtzeitCockpitPro } from './phase2741-statistik-echtzeit-cockpit-pro';
 import { LieferdienstPhase2746StatistikLiveCommandPro } from './phase2746-statistiken-live-command-pro';
 import { LieferdienstPhase2751StatistikenLiveIntelligenceDashboard } from './phase2751-statistiken-live-intelligence-dashboard';
+import { LieferdienstPhase2760StatistikLiveCockpitFinal } from './phase2760-statistiken-live-cockpit-final';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2326,6 +2327,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2746StatistikLiveCommandPro locationId={locationId ?? null} />
                 {/* Phase 2751: Statistiken Live Intelligence Dashboard — 2-KPI-Cards Bestellungen/Umsatz mit Ziel-Fortschrittsbalken; 4-Qualitäts-KPIs; Mini-Stundenverlauf-BarChart; Zonen-Tabelle; 60-Sek-Polling */}
                 <LieferdienstPhase2751StatistikenLiveIntelligenceDashboard locationId={locationId ?? null} />
+                {/* Phase 2760: Statistiken Live-Cockpit Final — 8 KPI-Kacheln Ampel+Δ%+Ziel; Alert-Strip; Stundenverlauf-BarChart 2-Modi; Zonen-SLA-Balken; Top-3-Fahrer; 1-Min-Polling */}
+                <LieferdienstPhase2760StatistikLiveCockpitFinal />
                 {/* Phase 2736: Statistiken Live-Master — 10 KPI-Kacheln Ampel+Δ%+Trend; Gesamt-Score; Stundenverlauf-BarChart 2-Modi; Insight-Tipp; 60-Sek-Polling */}
                 <LieferdienstPhase2736StatistikLiveMaster locationId={locationId ?? null} />
                 {/* Phase 2630: Statistiken Live Komplett — 10 KPI-Kacheln Ampel+Trend; Stundenverlauf-BarChart 2-Modi umschaltbar; Alert-Strip Rot-KPIs; 1-Min-Polling */}
@@ -4919,3 +4922,5 @@ export { LieferdienstPhase2725StatistikEchtzeitVollbildCockpit } from './phase27
 
 // Phase 2756 — Statistiken Komplett Dashboard (BarChart2-Icon indigo; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Badge; Stundenverlauf-BarChart 2-Modi Bestellungen/Umsatz Jetzt-Stunde lila; Zonen-SLA-Balken farbkodiert; Alert-Strip kritische KPIs; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase2756StatistikenKomplettDashboard } from './phase2756-statistiken-komplett-dashboard';
+// Phase 2760 — Statistiken Live-Cockpit Final (BarChart2 indigo; Alert-Strip Amberwarnungen; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Stundenverlauf-BarChart 2-Modi Bestellungen/Umsatz; Zonen-SLA-Balken farbkodiert; Top-3-Fahrer-Scores; 1-Min-Polling; Mock-Fallback)
+export { LieferdienstPhase2760StatistikLiveCockpitFinal } from './phase2760-statistiken-live-cockpit-final';

@@ -1028,6 +1028,7 @@ import { KitchenPhase3932TourenAuslastungTicker } from './phase3932-touren-ausla
 import { KitchenPhase3937RoutenScoreTicker } from './phase3937-routen-score-ticker';
 import { KitchenPhase3942PuenktlichkeitTrendTicker } from './phase3942-puenktlichkeit-trend-ticker';
 import { KitchenPhase3947TrinkgeldBetragTicker } from './phase3947-trinkgeld-betrag-ticker';
+import { KitchenPhase3932SmartTimingCountdownFarbkodierungFinal } from './phase3932-smart-timing-countdown-farbkodierung-final';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4363,6 +4364,7 @@ export function KitchenBoard({
       <KitchenPhase3937RoutenScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3942PuenktlichkeitTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3947TrinkgeldBetragTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3932SmartTimingCountdownFarbkodierungFinal locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11591,5 +11593,7 @@ export { KitchenPhase3937RoutenScoreTicker } from './phase3937-routen-score-tick
 export { KitchenPhase3942PuenktlichkeitTrendTicker } from './phase3942-puenktlichkeit-trend-ticker';
 // Phase 3947 — Trinkgeld-Betrag Ticker (Gift-Icon gruen; Bester #1 Name+€ im Header; Alert "Niedriges Trinkgeld!"; kompakt absteigend; Rang+€+Delta rank_delta<0=gruen; Team-Avg+Ziel >=2€; 30-Min-Polling)
 export { KitchenPhase3947TrinkgeldBetragTicker } from './phase3947-trinkgeld-betrag-ticker';
+// Phase 3932 — Smart-Timing Countdown Farbkodierung Final (Timer indigo; 5-KPI-Grid On-Time/AvgPrep/Kochstart/Überfällig/Sync; Score-Balken; Countdown-Kacheln 4-stufig grün/gelb/orange/rot; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase3932SmartTimingCountdownFarbkodierungFinal } from './phase3932-smart-timing-countdown-farbkodierung-final';
 // Phase 3852 — Smart-Timing Live Countdown Hub (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/Aktiv/Überfällig/AvgPrep; Kochstart-Score; Fortschrittsbalken; Koch-Empfehlung; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3852SmartTimingLiveCountdownHub } from './phase3852-smart-timing-live-countdown-hub';
