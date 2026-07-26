@@ -1003,6 +1003,7 @@ import { KitchenPhase3817GeschwindigkeitTicker } from './phase3817-geschwindigke
 import { KitchenPhase3822TourenProSchichtTicker } from './phase3822-touren-pro-schicht-ticker';
 import { KitchenPhase3827AuftragsablehnungsQuoteTicker } from './phase3827-auftragsablehnungs-quote-ticker';
 import { KitchenPhase3832PuenktlichkeitsQuoteTicker } from './phase3832-puenktlichkeits-quote-ticker';
+import { KitchenPhase3837KundenbewertungsTicker } from './phase3837-kundenbewertungs-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4313,6 +4314,7 @@ export function KitchenBoard({
       <KitchenPhase3822TourenProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3827AuftragsablehnungsQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3832PuenktlichkeitsQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3837KundenbewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11492,3 +11494,5 @@ export { KitchenPhase3827AuftragsablehnungsQuoteTicker } from './phase3827-auftr
 export { KitchenPhase3828SmartTimingKochstartFahrerBridge } from './phase3828-smart-timing-kochstart-fahrer-bridge';
 // Phase 3832 — Pünktlichkeits-Quote Ticker (Clock-Icon blau; Bester #1 Name+% im Header; Alert "Viele Verspätungen!"; kompakt absteigend; Rang+%+Delta pos=grün; Team-Avg+Ziel ≥85%; 30-Min-Polling)
 export { KitchenPhase3832PuenktlichkeitsQuoteTicker } from './phase3832-puenktlichkeits-quote-ticker';
+// Phase 3837 — Kundenbewertungs-Ticker (Star-Icon gelb; Bester #1 Name+Bewertung im Header; Alert "Niedrige Bewertungen!"; kompakt absteigend; Rang+★+Delta pos=grün; Team-Avg+Ziel ≥4.5★; 30-Min-Polling)
+export { KitchenPhase3837KundenbewertungsTicker } from './phase3837-kundenbewertungs-ticker';

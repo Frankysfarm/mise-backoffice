@@ -979,6 +979,7 @@ import { FahrerPhase3815MeineGeschwindigkeit } from './phase3815-meine-geschwind
 import { FahrerPhase3820MeineTourenProSchicht } from './phase3820-meine-touren-pro-schicht';
 import { FahrerPhase3825MeineAuftragsablehnungsQuote } from './phase3825-meine-auftragsablehnungs-quote';
 import { FahrerPhase3830MeinePuenktlichkeitsQuote } from './phase3830-meine-puenktlichkeits-quote';
+import { FahrerPhase3835MeineKundenbewertung } from './phase3835-meine-kundenbewertung';
 
 type Driver = {
   id: string;
@@ -6886,6 +6887,7 @@ export function FahrerApp({
           <FahrerPhase3820MeineTourenProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3825MeineAuftragsablehnungsQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3830MeinePuenktlichkeitsQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3835MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10765,3 +10767,5 @@ export { FahrerPhase3825MeineAuftragsablehnungsQuote } from './phase3825-meine-a
 export { FahrerPhase1101TourStoppUltraNavigationHub } from './phase1101-tour-stopp-ultra-navigation-hub';
 // Phase 3830 — Meine Pünktlichkeits-Quote (Clock-Icon blau; %-Wert 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken ≥85%; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3830MeinePuenktlichkeitsQuote } from './phase3830-meine-puenktlichkeits-quote';
+// Phase 3835 — Meine Kundenbewertung (Star-Icon gelb; Bewertungs-Ø 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel-Balken ≥4.5★; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3835MeineKundenbewertung } from './phase3835-meine-kundenbewertung';

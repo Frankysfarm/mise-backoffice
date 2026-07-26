@@ -1057,6 +1057,7 @@ import { DispatchPhase3814GeschwindigkeitRankingBoard } from './phase3814-geschw
 import { DispatchPhase3819TourenProSchichtRankingBoard } from './phase3819-touren-pro-schicht-ranking-board';
 import { DispatchPhase3824AuftragsablehnungsQuoteBoard } from './phase3824-auftragsablehnungs-quote-board';
 import { DispatchPhase3829PuenktlichkeitsQuoteBoard } from './phase3829-puenktlichkeits-quote-board';
+import { DispatchPhase3834KundenbewertungsDurchschnittBoard } from './phase3834-kundenbewertungs-durchschnitt-board';
 
 type Driver = {
   employee_id: string;
@@ -4731,6 +4732,7 @@ export function DispatchBoard({
           <DispatchPhase3819TourenProSchichtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3824AuftragsablehnungsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3829PuenktlichkeitsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3834KundenbewertungsDurchschnittBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12919,3 +12921,5 @@ export { DispatchPhase3824AuftragsablehnungsQuoteBoard } from './phase3824-auftr
 export { DispatchPhase3824TourScoreVisualisierungEchtzeitSupreme } from './phase3824-tour-score-visualisierung-echtzeit-supreme';
 // Phase 3829 — Pünktlichkeits-Quote Board (Clock-Icon blau; absteigend Rang 1=höchste Pünktlichkeit=bester; KPI-Grid Bester/Team-Avg/Niedrigste; Alert "Viele Verspätungen!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3829PuenktlichkeitsQuoteBoard } from './phase3829-puenktlichkeits-quote-board';
+// Phase 3834 — Kundenbewertungs-Durchschnitt Board (Star-Icon gelb; absteigend Rang 1=höchste Bewertung=bester; KPI-Grid Bester/Team-Avg/Niedrigste; Alert "Niedrige Bewertungen!"; Delta pos=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3834KundenbewertungsDurchschnittBoard } from './phase3834-kundenbewertungs-durchschnitt-board';
