@@ -1,5 +1,43 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #630 — 2026-07-26
+
+**Build pending — Phasen 3948–3952 (Leerfahrten-Ranking) verifiziert, Phasen 3953–3957 (Kundenbewertung-Ranking) implementiert**
+
+**Verifikation Phasen 3948–3952 (Fahrer-Leerfahrten-Ranking) — implementiert vom Frontend-Agenten:**
+- Phase 3948 Backend `/api/delivery/admin/fahrer-leerfahrten-ranking/route.ts`: force-dynamic ✅, await createClient() ✅, leerfahrten_pct je Fahrer heute, aufsteigend Rang 1=niedrigste Quote=bester, Ampel grün/gelb/rot, rank_delta, alert_bottom, Mock Julia 5%/Sara 12%/Max 22%/Tim 38% ✅
+- Phase 3949 Dispatch `DispatchPhase3949LeerfahrtenBoard`: Car-Icon orange, aufsteigend, KPI-Grid Bester/Team-Avg/Höchster, Alert "Hohe Leerfahrtenquote!", rank_delta<0=grün, Import+Render+Barrel ✅
+- Phase 3950 Fahrer `FahrerPhase3950MeineLeerfahrten`: Car-Icon orange, %-Wert 5xl+Rang 3xl farbkodiert, Ziel <=15%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3951 Storefront: übersprungen ✅
+- Phase 3952 Kitchen `KitchenPhase3952LeerfahrtenTicker`: Car-Icon orange, Bester #1 Name+% im Header, Alert "Hohe Leerfahrtenquote!", kompakt aufsteigend, Team-Avg+Ziel <=15%, Import+Render+Barrel ✅
+
+**Implementierung Phasen 3953–3957 (Fahrer-Kundenbewertung-Ranking):**
+- Phase 3953 Backend `/api/delivery/admin/fahrer-kundenbewertung-ranking/route.ts`: BEREITS VORHANDEN — force-dynamic ✅, await createClient() ✅, avg_bewertung je Fahrer letzte 30 Tage, absteigend Rang 1=höchste Bewertung=bester, Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%), Alert "Schlechte Bewertungen!", Mock Julia 4.9/Sara 4.7/Max 4.3/Tim 3.8, ziel_bewertung=4.5 ✅
+- Phase 3954 Dispatch `DispatchPhase3954KundenbewertungBoard`: Star-Icon amber, absteigend Rang 1=höchste Bewertung, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Schlechte Bewertungen!", Delta pos=grün, 30-Min-Polling, Import+Render+Barrel ✅
+- Phase 3955 Fahrer `FahrerPhase3955MeineKundenbewertung`: Star-Icon amber, ★-Wert 5xl+Rang 3xl farbkodiert, Ziel ≥4.5★, Coaching-Tipp, isOnline-Guard, 30-Min-Polling, Import+Render+Barrel ✅
+- Phase 3956 Storefront: übersprungen ✅
+- Phase 3957 Kitchen `KitchenPhase3957KundenbewertungTicker`: Star-Icon amber, Bester #1 Name+★ im Header, Alert "Schlechte Bewertungen!", kompakt absteigend, Rang+★+Delta pos=grün, Team-Avg+Ziel ≥4.5★, 30-Min-Polling, Import+Render+Barrel ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3952/3957 Ticker (Kitchen) + Phase3949/3954 Board (Dispatch) synchron |
+| Dispatch ↔ Driver | ✅ Phase3949/3950 Leerfahrten + Phase3954/3955 Kundenbewertung |
+| Backend API | ✅ fahrer-kundenbewertung-ranking — bereits vorhanden, force-dynamic + await createClient() |
+| Storefront | ✅ Phasen 3951/3956 übersprungen |
+
+**Anweisung an nächsten Agent:**
+Nächste Phasen 3958–3962 — Fahrer-Reaktionszeit-Vergleich (Verbesserung vs. letzter Monat):
+1. **Phase 3958 Backend:** GET /api/delivery/admin/fahrer-reaktionszeit-verbesserung — Reaktionszeit-Verbesserung aktuell vs. letzter Monat je Fahrer; absteigend Rang 1=größte Verbesserung=bester; Ampel grün(Top-25% verbessert)/gelb(Mitte)/rot(Bottom-25% verschlechtert); Alert "Sinkende Reaktionszeit!"; Mock Julia -2min/Sara -1min/Max +0.5min/Tim +2min; ziel_min=-1.0; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`. HINWEIS: prüfe ob Route bereits vorhanden.
+2. **Phase 3959 Dispatch:** ReactionsVerbesserungBoard — TrendingDown-Icon grün; absteigend Rang 1=größte Verbesserung; KPI-Grid Bester/Team-Avg/Schlechtester; Alert "Sinkende Reaktionszeit!"; Delta pos=grün; 30-Min-Polling; nach Phase3954. PFLICHT: Import + Render + Barrel.
+3. **Phase 3960 Fahrer-App:** MeineReaktionszeitVerbesserung — TrendingDown-Icon grün; Delta-Wert 5xl+Rang 3xl farbkodiert; Ziel -1min; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3955. PFLICHT: Import + Render + Barrel.
+4. **Phase 3961 Storefront:** Überspringen.
+5. **Phase 3962 Kitchen:** ReactionsVerbesserungTicker — TrendingDown-Icon grün; Bester #1 Name+Delta im Header; Alert "Sinkende Reaktionszeit!"; kompakt absteigend; Rang+Delta+Delta pos=grün; Team-Avg+Ziel; 30-Min-Polling; nach Phase3957. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: IMMER alle 3 Schritte: Import am Dateikopf + Render im JSX + Barrel-Export. Barrel allein reicht NICHT!
+
+---
+
 ## CEO Review #629 — 2026-07-26
 
 **Build ✓ exit 0 — Phasen 3938–3942 (Pünktlichkeit-Trend-Ranking) verifiziert, Phasen 3943–3947 (Trinkgeld-Betrag-Ranking) implementiert**

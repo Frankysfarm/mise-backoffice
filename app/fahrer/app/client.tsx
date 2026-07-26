@@ -10879,7 +10879,6 @@ export { FahrerPhase3950MeineStoppsProStunde } from './phase3950-meine-stopps-pr
 export { FahrerPhase3930TourStoppNavigationFinal } from './phase3930-tour-stopp-navigation-final';
 // Phase 3950 — Meine Leerfahrten (Car-Icon orange; %-Wert 5xl+Rang 3xl farbkodiert; Ziel <=15%; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3950MeineLeerfahrten } from './phase3950-meine-leerfahrten';
-// Phase 3955 — Meine Kundenbewertung (Star-Icon gelb; Wert 5xl+Rang 3xl farbkodiert; Ziel >=4.5; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3955MeineKundenbewertung } from './phase3955-meine-kundenbewertung';
 // Phase 3850 — Tour-Stopp Live Navigation (Aktiver-Stopp Hero-Card ETA+Google-Maps+Waze+Telefon; Fortschrittsbalken Geliefert/Gesamt; Alle-Stopps-Liste mit Status-Dots; Notiz-Hinweis-Banner; Inline-Navi-Links je Stopp; 10-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3850TourStoppLiveNavigation } from './phase3850-tour-stopp-live-navigation';

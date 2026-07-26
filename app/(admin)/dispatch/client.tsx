@@ -13032,7 +13032,6 @@ export { DispatchPhase3949StoppsProStundeBoard } from './phase3949-stopps-pro-st
 export { DispatchPhase3929TourScoreVisualisierungLiveKommando } from './phase3929-tour-score-visualisierung-live-kommando';
 // Phase 3949 — Leerfahrten Board (Car-Icon orange; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Bester/Team-Avg/Hoechster; Alert "Hohe Leerfahrtenquote!"; rank_delta<0=gruen; 30-Min-Polling)
 export { DispatchPhase3949LeerfahrtenBoard } from './phase3949-leerfahrten-board';
-// Phase 3954 — Kundenbewertung Board (Star-Icon gelb; absteigend Rang 1=hoechste Bewertung=bester)
 export { DispatchPhase3954KundenbewertungBoard } from './phase3954-kundenbewertung-board';
 // Phase 3849 — Tour-Score Visualisierung Live Komplett (Trophy amber; Flotten-Avg; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert ausstehend/unterwegs/geliefert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; ETA je Stopp; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3849TourScoreVisualisierungLiveKomplett } from './phase3849-tour-score-visualisierung-live-komplett';

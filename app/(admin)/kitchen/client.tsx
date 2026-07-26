@@ -11605,7 +11605,6 @@ export { KitchenPhase3952StoppsProStundeTicker } from './phase3952-stopps-pro-st
 export { KitchenPhase3932SmartTimingCountdownFarbkodierungFinal } from './phase3932-smart-timing-countdown-farbkodierung-final';
 // Phase 3952 — Leerfahrten Ticker (Car-Icon orange; Bester #1 Name+% im Header; Alert "Hohe Leerfahrtenquote!"; kompakt aufsteigend; Rang+%+Delta rank_delta<0=gruen; Team-Avg+Ziel <=15%; 30-Min-Polling)
 export { KitchenPhase3952LeerfahrtenTicker } from './phase3952-leerfahrten-ticker';
-// Phase 3957 — Kundenbewertung Ticker (Star-Icon gelb; Bester #1 Name+Wert im Header; Alert "Niedrige Kundenbewertung!"; kompakt absteigend; Rang+Wert+Delta rank_delta<0=gruen; Team-Avg+Ziel >=4.5; 30-Min-Polling)
 export { KitchenPhase3957KundenbewertungTicker } from './phase3957-kundenbewertung-ticker';
 // Phase 3852 — Smart-Timing Live Countdown Hub (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/Aktiv/Überfällig/AvgPrep; Kochstart-Score; Fortschrittsbalken; Koch-Empfehlung; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3852SmartTimingLiveCountdownHub } from './phase3852-smart-timing-live-countdown-hub';
