@@ -995,6 +995,7 @@ import { FahrerPhase3885MeineReklamationsquote } from './phase3885-meine-reklama
 import { FahrerPhase3890MeineTrinkgeldQuote } from './phase3890-meine-trinkgeld-quote';
 import { FahrerPhase3895MeineLeerfahrtenquote } from './phase3895-meine-leerfahrtenquote';
 import { FahrerPhase3900MeineLieferzeit } from './phase3900-meine-lieferzeit';
+import { FahrerPhase3905MeineWartezeitTuer } from './phase3905-meine-wartezeit-tuer';
 
 type Driver = {
   id: string;
@@ -6918,6 +6919,7 @@ export function FahrerApp({
           <FahrerPhase3890MeineTrinkgeldQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3895MeineLeerfahrtenquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3900MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3905MeineWartezeitTuer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10828,5 +10830,7 @@ export { FahrerPhase3890MeineTrinkgeldQuote } from './phase3890-meine-trinkgeld-
 export { FahrerPhase3895MeineLeerfahrtenquote } from './phase3895-meine-leerfahrtenquote';
 // Phase 3900 — Meine Ø Lieferzeit (Clock-Icon blau; min-Wert 5xl+Rang 3xl farbkodiert; Ziel ≤25min; Coaching-Tipp; Mini-Liste; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3900MeineLieferzeit } from './phase3900-meine-lieferzeit';
+// Phase 3905 — Meine Wartezeit (DoorOpen-Icon grau; min-Wert 5xl+Rang 3xl farbkodiert; Ziel ≤5min; Coaching-Tipp; Mini-Liste; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3905MeineWartezeitTuer } from './phase3905-meine-wartezeit-tuer';
 // Phase 3850 — Tour-Stopp Live Navigation (Aktiver-Stopp Hero-Card ETA+Google-Maps+Waze+Telefon; Fortschrittsbalken Geliefert/Gesamt; Alle-Stopps-Liste mit Status-Dots; Notiz-Hinweis-Banner; Inline-Navi-Links je Stopp; 10-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3850TourStoppLiveNavigation } from './phase3850-tour-stopp-live-navigation';

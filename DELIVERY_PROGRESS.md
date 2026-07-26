@@ -2,6 +2,23 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-26): Phasen 3903–3907 implementiert — Fahrer-Wartezeit-Ranking. Phase 3903 Backend: bestehendes `/api/delivery/admin/fahrer-wartezeit/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), delivery_batches arrived_at→actual_pickup_at Differenz in Minuten je Fahrer heute, Ampel gruen(<5min)/gelb(5-10min)/rot(>=10min), Alert "Lange Wartezeiten!", Mock Tom 3.1min/Max 4.2min/Lena 6.5min/Anna 11.3min/Sarah 12.8min. Phase 3904 Dispatch: `DispatchPhase3904WartezeitTuerBoard` — DoorOpen-Icon grau, aufsteigend client-seitig (niedrigste=Rang 1=bester), KPI-Grid Bester/Team-Avg/Laengster, Alert "Lange Wartezeiten!", Delta neg=gruen, Import+Render+Barrel ✅. Phase 3905 Fahrer: `FahrerPhase3905MeineWartezeitTuer` — DoorOpen-Icon grau, min-Wert 5xl+Rang 3xl farbkodiert, Ziel <=5min, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3906 Storefront: uebersprungen. Phase 3907 Kitchen: `KitchenPhase3907WartezeitTuerTicker` — DoorOpen-Icon grau, Bester #1 Name+min im Header, Alert "Lange Wartezeiten!", kompakt aufsteigend, Rang+min+Delta neg=gruen, Team-Avg+Ziel <=5min, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3903–3907 ABGESCHLOSSEN — Fahrer-Wartezeit-Ranking
+- Phase 3903 Backend: `/api/delivery/admin/fahrer-wartezeit/route.ts` (bereits vorhanden, adaptiert) — force-dynamic, await createClient(), delivery_batches arrived_at→pickup_at in min, Ampel gruen/gelb/rot, Alert "Lange Wartezeiten!", Mock Tom 3.1/Max 4.2/Lena 6.5/Anna 11.3/Sarah 12.8 min ✅
+- Phase 3904 Dispatch: `DispatchPhase3904WartezeitTuerBoard` — DoorOpen-Icon grau, aufsteigend Rang 1=kuerzeste Wartezeit, KPI-Grid Bester/Team-Avg/Laengster, Alert "Lange Wartezeiten!", Delta neg=gruen ✅
+- Phase 3905 Fahrer: `FahrerPhase3905MeineWartezeitTuer` — DoorOpen-Icon grau, min-Wert 5xl+Rang 3xl farbkodiert, Ziel <=5min, Coaching-Tipp, isOnline-Guard ✅
+- Phase 3906 Storefront: uebersprungen ✅
+- Phase 3907 Kitchen: `KitchenPhase3907WartezeitTuerTicker` — DoorOpen-Icon grau, Bester #1 Name+min im Header, Alert "Lange Wartezeiten!", kompakt aufsteigend, Team-Avg+Ziel <=5min ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3908–3912 — Fahrer-Km-pro-Tour-Ranking
+1. **Phase 3908 Backend:** GET /api/delivery/admin/fahrer-km-pro-tour — Durchschnittliche Kilometer je Tour (Fahrer letzte 30 Tage); aufsteigend Rang 1=kuerzeste Strecke=bester; Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert Top-25% "Hohe Km-Zahlen!"; Mock Julia F.4.2km/Sara K.6.8km/Max M.9.1km/Tim B.12.3km; ziel_km=8; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 3909 Dispatch:** KmProTourBoard — Route-Icon grau; aufsteigend Rang 1=kuerzeste Strecke; KPI-Grid Bester/Team-Avg/Hoechster; Alert "Hohe Km-Zahlen!"; Delta neg=gruen; RankBadge; 30-Min-Polling; nach Phase3904. PFLICHT: Import + Render + Barrel.
+3. **Phase 3910 Fahrer-App:** MeineKmProTour — Route-Icon grau; km-Wert 5xl+Rang 3xl farbkodiert; Ziel <=8km; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3905. PFLICHT: Import + Render + Barrel.
+4. **Phase 3911 Storefront:** Ueberspringen.
+5. **Phase 3912 Kitchen:** KmProTourTicker — Route-Icon grau; Bester #1 Name+km im Header; Alert "Hohe Km-Zahlen!"; kompakt aufsteigend; Rang+km+Delta neg=gruen; Team-Avg+Ziel <=8km; 30-Min-Polling; nach Phase3907. PFLICHT: Import + Render + Barrel.
+
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3898–3902 implementiert — Fahrer-Ø-Lieferzeit-Ranking. Phase 3898 Backend: bestehendes `/api/delivery/admin/fahrer-lieferzeit-durchschnitt/route.ts` adaptiert (bereits vorhanden) — force-dynamic, await createClient(), delivery_tours duration_minutes je Fahrer letzte 30 Tage, aufsteigend Rang 1=kuerzeste Zeit=bester, Ampel gruen(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%), Alert "Lange Lieferzeiten!", Mock Julia F.18min/Sara K.22min/Max M.28min/Tim B.36min, ziel_min=25. Phase 3899 Dispatch: `DispatchPhase3899LieferzeitBoard` — Clock-Icon blau, aufsteigend, KPI-Grid Schnellster/Team-Avg/Laengster, Alert "Lange Lieferzeiten!", Delta neg=gruen, Import+Render+Barrel ✅. Phase 3900 Fahrer: `FahrerPhase3900MeineLieferzeit` — Clock-Icon blau, min-Wert 5xl+Rang 3xl farbkodiert, Ziel <=25min, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3901 Storefront: uebersprungen. Phase 3902 Kitchen: `KitchenPhase3902LieferzeitTicker` — Clock-Icon blau, Schnellster #1 Name+min im Header, Alert "Lange Lieferzeiten!", kompakt aufsteigend, Rang+min+Delta neg=gruen, Team-Avg+Ziel <=25min, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3898–3902 ABGESCHLOSSEN — Fahrer-Ø-Lieferzeit-Ranking
