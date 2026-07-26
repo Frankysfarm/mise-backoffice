@@ -1058,6 +1058,7 @@ import { DispatchPhase3819TourenProSchichtRankingBoard } from './phase3819-toure
 import { DispatchPhase3824AuftragsablehnungsQuoteBoard } from './phase3824-auftragsablehnungs-quote-board';
 import { DispatchPhase3829PuenktlichkeitsQuoteBoard } from './phase3829-puenktlichkeits-quote-board';
 import { DispatchPhase3834KundenbewertungsDurchschnittBoard } from './phase3834-kundenbewertungs-durchschnitt-board';
+import { DispatchPhase3839ReklamationsQuoteBoard } from './phase3839-reklamations-quote-board';
 
 type Driver = {
   employee_id: string;
@@ -4733,6 +4734,7 @@ export function DispatchBoard({
           <DispatchPhase3824AuftragsablehnungsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3829PuenktlichkeitsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3834KundenbewertungsDurchschnittBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase3839ReklamationsQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -12923,3 +12925,5 @@ export { DispatchPhase3824TourScoreVisualisierungEchtzeitSupreme } from './phase
 export { DispatchPhase3829PuenktlichkeitsQuoteBoard } from './phase3829-puenktlichkeits-quote-board';
 // Phase 3834 — Kundenbewertungs-Durchschnitt Board (Star-Icon gelb; absteigend Rang 1=höchste Bewertung=bester; KPI-Grid Bester/Team-Avg/Niedrigste; Alert "Niedrige Bewertungen!"; Delta pos=grün; RankBadge; 30-Min-Polling)
 export { DispatchPhase3834KundenbewertungsDurchschnittBoard } from './phase3834-kundenbewertungs-durchschnitt-board';
+// Phase 3839 — Reklamations-Quote Board (ShieldAlert-Icon orange; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Bester/Team-Avg/Höchste; Alert "Hohe Reklamationsquote!"; Delta neg=grün; RankBadge; 30-Min-Polling)
+export { DispatchPhase3839ReklamationsQuoteBoard } from './phase3839-reklamations-quote-board';
