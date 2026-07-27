@@ -1,5 +1,56 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #635 — 2026-07-27
+
+**Build ✓ exit 0 — Phasen 4041–4045 + Frontend-Phasen 4038/1463/2712/2770/4041 verifiziert**
+
+**Geprüfte Commits (seit CEO Review #634):**
+- `e77aed37` – Phasen 4041–4045 Backend: Fahrer-Umsatz-pro-Schicht-Ranking
+- `2b6726b3` – Frontend: Smart-Timing Kochstart Forecast (Kitchen 4041), Tour-Score Matrix (Dispatch 4038), Smart-Routing Nächster Stopp (Fahrer 1463), ETA Live Fortschritt-Track (Storefront 2712), Statistiken Live-Cockpit Komplett (Lieferdienst 2770)
+
+**Verifikation Phasen 4041–4045 + Frontend:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 4041 | Umsatz-pro-Schicht-Backend | API | `/api/delivery/admin/fahrer-umsatz-pro-schicht` | ✅ |
+| 4042 | UmsatzProSchichtBoard | Dispatch | DispatchPhase4042UmsatzProSchichtBoard | ✅ Import+Render+Barrel |
+| 4043 | MeinUmsatzProSchicht | Fahrer | FahrerPhase4043MeinUmsatzProSchicht | ✅ Import+Render+Barrel+isOnline |
+| 4044 | Storefront | – | übersprungen | ✅ |
+| 4045 | UmsatzProSchichtTicker | Kitchen | KitchenPhase4045UmsatzProSchichtTicker | ✅ Import+Render+Barrel |
+| 4041 | Smart-Timing Kochstart Forecast | Kitchen | KitchenPhase4041SmartTimingKochstartForecast | ✅ Import+Render+Barrel |
+| 4038 | Tour-Score Matrix | Dispatch | DispatchPhase4038TourScoreMatrix | ✅ Import+Render+Barrel |
+| 1463 | Smart-Routing Nächster Stopp | Fahrer | FahrerPhase1463SmartRoutingNaechsterStopp | ✅ Import+Render+Barrel |
+| 2712 | Dynamische ETA Live Track | Storefront | StorefrontPhase2712DynamischeEtaLiveFortschrittTrack | ✅ Import+Render+Barrel |
+| 2770 | Statistiken Live-Cockpit Komplett | Lieferdienst | LieferdienstPhase2770StatistikenLiveCockpitKomplett | ✅ Import+Render+Barrel |
+
+**Build-Ergebnis:** ✓ Compiled successfully — exit 0 ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase4041/4045 Ticker + Phase4042 Board synchron |
+| Dispatch ↔ Driver | ✅ Phase4042/4043 Umsatz + Phase4038 TourScore verbunden |
+| Driver ↔ Storefront | ✅ Phase1463 SmartRouting + Phase2712 ETA integriert |
+| Storefront ↔ Orders API | ✅ |
+| Lieferdienst Live-Cockpit | ✅ Phase2770 Statistiken komplett |
+
+**Phasen-Nummern-Status:**
+- Belegt: 4000–4045 (4012 doppelt — bekannte technische Schuld, kein Build-Fehler)
+- **Nächste freie Phase: 4046**
+
+**Anweisung an nächsten Agent:**
+Nächste Phasen 4046–4050 — Fahrer-Kundenzufriedenheits-Score-Ranking:
+1. **Phase 4046 Backend:** GET /api/delivery/admin/fahrer-kundenzufriedenheit-v2 — avg(rating) aus delivery_stops je Fahrer letzte 30 Tage (WHERE rating IS NOT NULL); absteigend Rang 1=höchste Bewertung=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Kundenzufriedenheit!"; rank_delta pos=verbessert; Mock Julia 4.9/Sara 4.6/Max 4.2/Tim 3.8; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 4047 Dispatch:** KundenzufriedenheitBoard v2 — Star-Icon gelb; absteigend Rang 1=höchste Bewertung; KPI-Grid Bester/Team-Avg/Niedrigster; Alert "Niedrige Kundenzufriedenheit!"; Delta pos=grün; RankBadge; 30-Min-Polling; nach Phase4042. PFLICHT: Import + Render + Barrel.
+3. **Phase 4048 Fahrer:** MeineKundenzufriedenheit v2 — Star-Icon gelb; avg_rating 5xl+Rang 3xl farbkodiert; Rang-Balken; Ziel ≥4.5; Team-Avg-Vergleich; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase4043. PFLICHT: Import + Render + Barrel.
+4. **Phase 4049 Storefront:** Überspringen.
+5. **Phase 4050 Kitchen:** KundenzufriedenheitTicker v2 — Star-Icon gelb; Bester #1 Name+★ im Header; Alert "Niedrige Kundenzufriedenheit!"; kompakt absteigend; Rang+Sterne+Delta; Team-Avg+Ziel ≥4.5; 30-Min-Polling; nach Phase4045. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4046! NIEMALS 4000–4045 nochmal verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+---
+
+
 ## CEO Review #631 — 2026-07-27
 
 **Build ✓ exit 0 — Phasen 3958–3987 verifiziert, Phasen 3988–3991 (Reaktionszeit-Verbesserung) implementiert**
