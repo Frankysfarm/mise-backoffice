@@ -1111,6 +1111,7 @@ import { DispatchPhase4037AuslastungBoard } from './phase4037-auslastung-board';
 import { DispatchPhase4042UmsatzProSchichtBoard } from './phase4042-umsatz-pro-schicht-board';
 import { DispatchPhase4047BewertungsBoard } from './phase4047-bewertungs-board';
 import { DispatchPhase4052TrinkgeldQuoteBoard } from './phase4052-trinkgeld-quote-board';
+import { DispatchPhase4057StoppsProStundeBoard } from './phase4057-stopps-pro-stunde-board';
 import { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';
 
 type Driver = {
@@ -4843,6 +4844,7 @@ export function DispatchBoard({
           <DispatchPhase4042UmsatzProSchichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4047BewertungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4052TrinkgeldQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4057StoppsProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4038: Tour-Score Matrix — Visuelle Matrix aller Fahrer mit 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung; Farbkodierung je Zelle; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4038TourScoreMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -13143,5 +13145,7 @@ export { DispatchPhase4042UmsatzProSchichtBoard } from './phase4042-umsatz-pro-s
 export { DispatchPhase4047BewertungsBoard } from './phase4047-bewertungs-board';
 // Phase 4052 — Trinkgeld-Quote-Ranking Board (Coins yellow; absteigend Rang 1=hoechste Trinkgeld-Quote=bester; KPI-Grid Hoechste/Team-Avg/Niedrigste; Alert "Niedrige Trinkgeld-Quote!"; rank_delta>0=gruen; 30-Min-Polling)
 export { DispatchPhase4052TrinkgeldQuoteBoard } from './phase4052-trinkgeld-quote-board';
+// Phase 4057 — Stopps/Stunde-Ranking Board (MapPin blue; absteigend Rang 1=meiste Stopps/h=bester; KPI-Grid Meiste/Team-Avg/Wenigste; Alert "Niedrige Stopps-Rate!"; rank_delta>0=gruen; 30-Min-Polling)
+export { DispatchPhase4057StoppsProStundeBoard } from './phase4057-stopps-pro-stunde-board';
 // Phase 4038 — Tour-Score Matrix (Trophy amber; Matrix 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung je Fahrer; Farbkodierung je Zelle >=85gruen/>=70gelb/<70rot; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';
