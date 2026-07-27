@@ -1057,6 +1057,7 @@ import { FahrerPhase4118TourDistanzMeter } from './phase4118-tour-distanz-meter'
 import { FahrerPhase4123SchichtStoppUebersicht } from './phase4123-schicht-stopp-uebersicht';
 import { FahrerPhase4133MeineLieferdichte } from './phase4133-meine-lieferdichte';
 import { FahrerPhase4138MeinKmProStopp } from './phase4138-mein-km-pro-stopp';
+import { FahrerPhase4143MeineKundenbewertung } from './phase4143-meine-kundenbewertung';
 
 type Driver = {
   id: string;
@@ -7051,6 +7052,7 @@ export function FahrerApp({
           <FahrerPhase4123SchichtStoppUebersicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4133MeineLieferdichte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4138MeinKmProStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4143MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
@@ -11098,6 +11100,8 @@ export { FahrerPhase4123SchichtStoppUebersicht } from './phase4123-schicht-stopp
 export { FahrerPhase4133MeineLieferdichte } from './phase4133-meine-lieferdichte';
 // Phase 4138 — Mein km/Stopp (Navigation blue; km_pro_stopp 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; 30-Min-Polling)
 export { FahrerPhase4138MeinKmProStopp } from './phase4138-mein-km-pro-stopp';
+// Phase 4143 — Meine Kundenbewertung (Star amber; avg_bewertung 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; 30-Min-Polling)
+export { FahrerPhase4143MeineKundenbewertung } from './phase4143-meine-kundenbewertung';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 // Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)

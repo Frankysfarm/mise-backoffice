@@ -1136,6 +1136,7 @@ import { DispatchPhase4122TourEffizienzAmpel } from './phase4122-tour-effizienz-
 import { DispatchPhase4127DispatchSmartScoreBoard } from './phase4127-dispatch-smart-score-board';
 import { DispatchPhase4132LieferdichteBoard } from './phase4132-lieferdichte-board';
 import { DispatchPhase4137KmProStoppBoard } from './phase4137-km-pro-stopp-board';
+import { DispatchPhase4142KundenbewertungBoard } from './phase4142-kundenbewertung-board';
 
 type Driver = {
   employee_id: string;
@@ -4899,6 +4900,7 @@ export function DispatchBoard({
           <DispatchPhase4127DispatchSmartScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4132LieferdichteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4137KmProStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4142KundenbewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13249,3 +13251,5 @@ export { DispatchPhase4127DispatchSmartScoreBoard } from './phase4127-dispatch-s
 export { DispatchPhase4132LieferdichteBoard } from './phase4132-lieferdichte-board';
 // Phase 4137 — km-pro-Stopp-Board (Navigation blue; aufsteigend Rang 1=niedrigste km/Stopp=bester; KPI-Grid Effizienteste/Team-Avg/Höchste; Alert "Hohe km/Stopp!"; rank_delta>0=gruen; 30-Min-Polling)
 export { DispatchPhase4137KmProStoppBoard } from './phase4137-km-pro-stopp-board';
+// Phase 4142 — Kundenbewertung-Board (Star amber; absteigend Rang 1=höchste Bewertung=bester; KPI-Grid Beste/Team-Avg/Niedrigste; Alert "Niedrige Bewertung!"; rank_delta>0=gruen; 30-Min-Polling)
+export { DispatchPhase4142KundenbewertungBoard } from './phase4142-kundenbewertung-board';

@@ -1082,6 +1082,7 @@ import { KitchenPhase4125CountdownEskalationsWarnung } from './phase4125-countdo
 import { KitchenPhase4130EchtzeitKochzeitTrend } from './phase4130-echtzeit-kochzeit-trend';
 import { KitchenPhase4135LieferdichteTicker } from './phase4135-lieferdichte-ticker';
 import { KitchenPhase4140KmProStoppTicker } from './phase4140-km-pro-stopp-ticker';
+import { KitchenPhase4145KundenbewertungTicker } from './phase4145-kundenbewertung-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4481,6 +4482,7 @@ export function KitchenBoard({
       <KitchenPhase4130EchtzeitKochzeitTrend locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4135LieferdichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4140KmProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4145KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11822,3 +11824,5 @@ export { KitchenPhase4130EchtzeitKochzeitTrend } from './phase4130-echtzeit-koch
 export { KitchenPhase4135LieferdichteTicker } from './phase4135-lieferdichte-ticker';
 // Phase 4140 — km/Stopp-Ticker (Navigation blue; Bester #1 Name+km im Header blue-600; Alert-Zähler; kompakt aufsteigend Rang 1=niedrigste km/Stopp; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4140KmProStoppTicker } from './phase4140-km-pro-stopp-ticker';
+// Phase 4145 — Kundenbewertung-Ticker (Star amber; Bester #1 Name+★Score im Header amber-600; Alert-Zähler; kompakt absteigend Rang 1=höchste Bewertung; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4145KundenbewertungTicker } from './phase4145-kundenbewertung-ticker';
