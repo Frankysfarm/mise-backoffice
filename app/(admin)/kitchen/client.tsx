@@ -1051,6 +1051,7 @@ import { KitchenPhase4014FeierabendPuenktlichkeitTicker } from './phase4014-feie
 import { KitchenPhase4015LieferzeitTicker } from './phase4015-lieferzeit-ticker';
 import { KitchenPhase4020PaketverlustTicker } from './phase4020-paketverlust-ticker';
 import { KitchenPhase4025StornoquoteTicker } from './phase4025-stornoquote-ticker';
+import { KitchenPhase4030GeschwindigkeitTicker } from './phase4030-geschwindigkeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4412,6 +4413,7 @@ export function KitchenBoard({
       {/* Phase 4020: Paketverlust Ticker — AlertOctagon rot; Bester #1 Name+% im Header; Alert "Hoher Paketverlust!"; kompakt aufsteigend; rank_delta<0=gruen; Team-Avg+Ziel ≤1%; 30-Min-Polling */}
       <KitchenPhase4020PaketverlustTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4025StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4030GeschwindigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11689,3 +11691,5 @@ export { KitchenPhase4015LieferzeitTicker } from './phase4015-lieferzeit-ticker'
 export { KitchenPhase4020PaketverlustTicker } from './phase4020-paketverlust-ticker';
 // Phase 4025 — Stornoquote Ticker (XCircle rose; Bester #1 Name+% im Header; Alert-Zaehler; kompakt aufsteigend; Team-Avg+Ziel <=3%; 30-Min-Polling)
 export { KitchenPhase4025StornoquoteTicker } from './phase4025-stornoquote-ticker';
+// Phase 4030 — Geschwindigkeit Ticker (Gauge blue; Schnellste #1 Name+km/h im Header; Alert-Zaehler; kompakt absteigend; Team-Avg+Ziel >=25km/h; 30-Min-Polling)
+export { KitchenPhase4030GeschwindigkeitTicker } from './phase4030-geschwindigkeit-ticker';

@@ -1027,6 +1027,7 @@ import { FahrerPhase4012MeineFeierabendPuenktlichkeit } from './phase4012-meine-
 import { FahrerPhase4013MeineLieferzeit } from './phase4013-meine-lieferzeit';
 import { FahrerPhase4018MeinPaketverlust } from './phase4018-mein-paketverlust';
 import { FahrerPhase4023MeineStornoquote } from './phase4023-meine-stornoquote';
+import { FahrerPhase4028MeineGeschwindigkeit } from './phase4028-meine-geschwindigkeit';
 
 type Driver = {
   id: string;
@@ -6983,6 +6984,7 @@ export function FahrerApp({
           {/* Phase 4018: Mein Paketverlust — AlertOctagon rot; verlust_pct 5xl+Rang 3xl farbkodiert; Ziel ≤1%; Coaching-Tipp 3 Stufen; isOnline-Guard; Mini-Ranking isMe highlight; 30-Min-Polling */}
           <FahrerPhase4018MeinPaketverlust driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4023MeineStornoquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4028MeineGeschwindigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
@@ -10962,3 +10964,5 @@ export { FahrerPhase4013MeineLieferzeit } from './phase4013-meine-lieferzeit';
 export { FahrerPhase4018MeinPaketverlust } from './phase4018-mein-paketverlust';
 // Phase 4023 — Meine Stornoquote (XCircle rose; stornoquote_pct 5xl+Rang 3xl farbkodiert; Ziel <=3%; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta<0=gruen; 30-Min-Polling)
 export { FahrerPhase4023MeineStornoquote } from './phase4023-meine-stornoquote';
+// Phase 4028 — Meine Geschwindigkeit (Gauge blue; avg_kmh 5xl+Rang 3xl farbkodiert; Ziel >=25km/h; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta<0=gruen; 30-Min-Polling)
+export { FahrerPhase4028MeineGeschwindigkeit } from './phase4028-meine-geschwindigkeit';

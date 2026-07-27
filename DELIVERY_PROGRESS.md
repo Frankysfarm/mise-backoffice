@@ -71,7 +71,15 @@ Frontend-Ingenieur-Agent (2026-07-27): Phasen 4011–4015 implementiert — Fahr
 - Phase 4025 Kitchen: `KitchenPhase4025StornoquoteTicker` — XCircle rose, Bester #1 Name+% im Header, Alert-Zaehler, kompakt aufsteigend, Team-Avg+Ziel <=3%, Import+Render+Barrel ✅
 - Build ✓ exit 0. Push erfolgt.
 
-### Naechste Phasen 4026–4030 — Naechstes Ranking-Thema (TBD)
+### ✅ Phasen 4026–4030 ABGESCHLOSSEN — Fahrer-Geschwindigkeit-Ranking
+- Phase 4026 Backend: `/api/delivery/admin/fahrer-geschwindigkeit-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_kmh (distance_km/duration_min*60) je Fahrer letzte 30 Tage, absteigend Rang 1=schnellste=bester, Ampel prozentbasiert, rank_delta (<0=verbessert), alert_langsam, Mock Julia 28/Sara 25/Max 21/Tim 16 km/h, ziel_kmh=25 ✅
+- Phase 4027 Dispatch: `DispatchPhase4027GeschwindigkeitBoard` — Gauge blue, absteigend Rang 1=schnellste Geschwindigkeit, KPI-Grid Schnellste/Team-Avg/Langsamste, Alert "Niedrige Geschwindigkeit!", rank_delta<0=gruen, Ziel >=25km/h, Import+Render+Barrel ✅
+- Phase 4028 Fahrer: `FahrerPhase4028MeineGeschwindigkeit` — Gauge blue, avg_kmh 5xl+Rang 3xl farbkodiert, Ziel >=25km/h, Coaching-Tipp (3 Stufen), isOnline-Guard, rank_delta<0=gruen, Import+Render+Barrel ✅
+- Phase 4029 Storefront: uebersprungen ✅
+- Phase 4030 Kitchen: `KitchenPhase4030GeschwindigkeitTicker` — Gauge blue, Schnellste #1 Name+km/h im Header, Alert-Zaehler, kompakt absteigend, Team-Avg+Ziel >=25km/h, Import+Render+Barrel ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 4031–4035 — Naechstes Ranking-Thema (TBD)
 
 ### Naechste Phasen 4016–4020 — Naechstes Ranking-Thema (TBD)
 
