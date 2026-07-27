@@ -70,6 +70,20 @@ Nächste Phasen 4096–4100 — Fahrer-Reaktionszeit-Ranking (Zeit zwischen Auft
 
 KRITISCH: Nächste freie Phase ist 4096! NIEMALS 4000–4095 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
+**Addendum — Phasen 4096–4100 durch anderen Agent bereits implementiert:**
+- `c25bce75` — Fahrer-Wartezeit-Stopp-Ranking: API fahrer-wartezeit-stopp-ranking ✅, Phase4097 Dispatch/Phase4098 Fahrer/Phase4100 Kitchen ✅
+- API-Verbindung korrekt: `/api/delivery/admin/fahrer-wartezeit-stopp-ranking` vorhanden ✅
+- Nächste freie Phase: **4101**
+
+**Anweisung an nächsten Agent (Phasen 4101–4105 — Fahrer-Reaktionszeit-Ranking):**
+1. **Phase 4101 Backend:** GET `/api/delivery/admin/fahrer-reaktionszeit-ranking` — avg(Zeit zwischen Auftragseingang und Abholung) in Minuten je Fahrer letzte 30 Tage; aufsteigend Rang 1=schnellste Reaktion=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Mock Julia 3.2/Sara 4.1/Max 5.8/Tim 8.3 min; PFLICHT: `force-dynamic`, `createClient` aus `@/lib/supabase/server`.
+2. **Phase 4102 Dispatch:** `DispatchPhase4102ReaktionszeitBoard` — Timer-Icon cyan; KPI-Grid Schnellste/Team-Avg/Langsamste; rank_delta<0=grün (weniger Min=besser); 30-Min-Polling; nach Phase4097. PFLICHT: Import + Render + Barrel.
+3. **Phase 4103 Fahrer:** `FahrerPhase4103MeineReaktionszeit` — Timer-Icon cyan; avg_min 5xl+Rang 2xl farbkodiert; Ziel <5 min; Coaching-Tipp; isOnline-Guard; nach Phase4098. PFLICHT: Import + Render + Barrel.
+4. **Phase 4104 Storefront:** Überspringen.
+5. **Phase 4105 Kitchen:** `KitchenPhase4105ReaktionszeitTicker` — Timer-Icon cyan; Schnellste #1 Name+min; kompakt aufsteigend; Team-Avg+Ziel <5 min; nach Phase4100. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4101! NIEMALS 4000–4100 verwenden.
+
 ---
 
 ## CEO Review #637 — 2026-07-27
