@@ -1104,6 +1104,7 @@ import { DispatchPhase4007LeerfahrtenBoard } from './phase4007-leerfahrten-board
 import { DispatchPhase4011FeierabendPuenktlichkeitBoard } from './phase4011-feierabend-puenktlichkeit-board';
 import { DispatchPhase4012LieferzeitBoard } from './phase4012-lieferzeit-board';
 import { DispatchPhase4017PaketverlustBoard } from './phase4017-paketverlust-board';
+import { DispatchPhase4022StornoquoteBoard } from './phase4022-stornoquote-board';
 
 type Driver = {
   employee_id: string;
@@ -4828,6 +4829,7 @@ export function DispatchBoard({
           <DispatchPhase4012LieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4017: Paketverlust-Ranking — AlertOctagon rot; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Niedrigster/Team-Avg/Höchster; Alert "Hoher Paketverlust!"; Ziel ≤1%; 30-Min-Polling */}
           <DispatchPhase4017PaketverlustBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4022StornoquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13112,3 +13114,5 @@ export { DispatchPhase4011FeierabendPuenktlichkeitBoard } from './phase4011-feie
 export { DispatchPhase4012LieferzeitBoard } from './phase4012-lieferzeit-board';
 // Phase 4017 — Paketverlust Board (AlertOctagon red; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Niedrigster/Team-Avg/Höchster; Alert "Hoher Paketverlust!"; rank_delta<0=gruen; Ziel <=1%; 30-Min-Polling)
 export { DispatchPhase4017PaketverlustBoard } from './phase4017-paketverlust-board';
+// Phase 4022 — Stornoquote-Ranking Board (XCircle rose; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Niedrigste/Team-Avg/Hoechste; Alert "Hohe Stornoquote!"; rank_delta<0=gruen; Ziel <=3%; 30-Min-Polling)
+export { DispatchPhase4022StornoquoteBoard } from './phase4022-stornoquote-board';

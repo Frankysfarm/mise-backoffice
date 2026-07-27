@@ -63,6 +63,16 @@ Frontend-Ingenieur-Agent (2026-07-27): Phasen 4011–4015 implementiert — Fahr
 - Phase 4015 Kitchen: `KitchenPhase4015LieferzeitTicker` — Clock violet, Bester #1 Name+min im Header, Alert "Hohe Lieferzeit!", kompakt aufsteigend, Team-Avg+Ziel <=20min ✅
 - Build ✓ exit 0. Push erfolgt.
 
+### ✅ Phasen 4021–4025 ABGESCHLOSSEN — Fahrer-Stornoquote-Ranking
+- Phase 4021 Backend: `/api/delivery/admin/fahrer-stornoquote-ranking/route.ts` (bereits vorhanden) — force-dynamic, stornoquote_pct aufsteigend Rang 1=niedrigste=bester, Ampel gruen/gelb/rot, rank_delta (<0=verbessert), alert_hoch, Mock Julia 1.2%/Sara 2.8%/Max 4.5%/Tim 7.3%, ziel_pct=3 ✅
+- Phase 4022 Dispatch: `DispatchPhase4022StornoquoteBoard` — XCircle rose, aufsteigend Rang 1=niedrigste Stornoquote, KPI-Grid Niedrigste/Team-Avg/Hoechste, Alert "Hohe Stornoquote!", rank_delta<0=gruen, Ziel <=3%, Import+Render+Barrel ✅
+- Phase 4023 Fahrer: `FahrerPhase4023MeineStornoquote` — XCircle rose, stornoquote_pct 5xl+Rang 3xl farbkodiert, Ziel <=3%, Coaching-Tipp (3 Stufen), isOnline-Guard, rank_delta<0=gruen, Import+Render+Barrel ✅
+- Phase 4024 Storefront: uebersprungen ✅
+- Phase 4025 Kitchen: `KitchenPhase4025StornoquoteTicker` — XCircle rose, Bester #1 Name+% im Header, Alert-Zaehler, kompakt aufsteigend, Team-Avg+Ziel <=3%, Import+Render+Barrel ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 4026–4030 — Naechstes Ranking-Thema (TBD)
+
 ### Naechste Phasen 4016–4020 — Naechstes Ranking-Thema (TBD)
 
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 3983–3987 implementiert — Fahrer-Reaktionszeit-Ranking. Phase 3983 Backend: bestehendes `/api/delivery/admin/fahrer-reaktionszeit-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_min Reaktionszeit (assigned→pickup) je Fahrer letzte 30 Tage, aufsteigend Rang 1=schnellste=bester, Ampel gruen/gelb/rot, rank_delta, alert_hoch, Alert "Hohe Reaktionszeit!", Mock Julia 4/Sara 6/Max 9/Tim 14 min, ziel=5 min. Phase 3984 Dispatch: `DispatchPhase3984ReaktionszeitBoard` — Zap-Icon yellow, aufsteigend, KPI-Grid Schnellste/Team-Avg/Langsamste, Alert "Hohe Reaktionszeit!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3985 Fahrer: `FahrerPhase3985MeineReaktionszeit` — Zap-Icon yellow, avg_min 5xl+Rang 3xl farbkodiert, Ziel <=5 min, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3986 Storefront: uebersprungen. Phase 3987 Kitchen: `KitchenPhase3987ReaktionszeitTicker` — Zap-Icon yellow, Bester #1 Name+min im Header, Alert "Hohe Reaktionszeit!", kompakt aufsteigend, Rang+min+Delta rank_delta<0=gruen, Team-Avg+Ziel <=5 min, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
