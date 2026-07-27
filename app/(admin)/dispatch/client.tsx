@@ -13557,3 +13557,5 @@ export { DispatchPhase4450FahrerScoreTourVisualisierungV7 } from './phase4450-fa
 export { DispatchPhase4500FahrerScoreTourVisualisierungV8 } from './phase4500-fahrer-score-tour-visualisierung-v8';
 // Phase 4453 — Wartezeit/Stopp-Ranking-Board (Clock orange-500; INVERTED aufsteigend Rang 1=kürzeste Wartezeit=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Wartezeit; Balken=(min/maxMin)*100%; 30-Min-Polling)
 export { DispatchPhase4453WartezeitRankingBoard } from './phase4453-wartezeit-ranking-board';
+// Phase 4458 — Stoppdauer-Ranking-Board (Timer violet-500; INVERTED aufsteigend Rang 1=kürzeste Stoppdauer=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Stoppdauer; Balken=(sec/maxSec)*100%; 30-Min-Polling)
+export { DispatchPhase4458StoppdauerRankingBoard } from './phase4458-stoppdauer-ranking-board';

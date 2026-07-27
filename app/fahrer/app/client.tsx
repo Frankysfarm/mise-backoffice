@@ -11430,3 +11430,5 @@ export { FahrerPhase4410TourStoppNavigatorV5 } from './phase4410-tour-stopp-navi
 export { FahrerPhase4450TourStoppSmartNavV6 } from './phase4450-tour-stopp-smart-nav-v6';
 // Phase 4454 — Meine Wartezeit/Stopp (Clock orange-500; avg_wartezeit_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≤2min/≤5min/>5min; 30-Min-Polling)
 export { FahrerPhase4454MeineWartezeit } from './phase4454-meine-wartezeit';
+// Phase 4459 — Meine Stoppdauer (Timer violet-500; avg_stoppdauer_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≤5min/≤8min/>8min; 30-Min-Polling)
+export { FahrerPhase4459MeineStoppdauer } from './phase4459-meine-stoppdauer';
