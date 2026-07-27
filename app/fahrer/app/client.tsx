@@ -1085,6 +1085,7 @@ import { FahrerPhase4301MeinSchichtGesamtscore } from './phase4301-mein-schicht-
 import { FahrerPhase4253MeineKmProTour } from './phase4253-meine-km-pro-tour';
 import { FahrerPhase4258MeineWartezeitStopp } from './phase4258-meine-wartezeit-stopp';
 import { FahrerPhase4263MeineAuslastung } from './phase4263-meine-auslastung';
+import { FahrerPhase4258MeineSchichtdauer } from './phase4258-meine-schichtdauer';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 
@@ -7111,6 +7112,7 @@ export function FahrerApp({
           <FahrerPhase4253MeineKmProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4258MeineWartezeitStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4263MeineAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4258MeineSchichtdauer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11224,6 +11226,8 @@ export { FahrerPhase4253MeineKmProTour } from './phase4253-meine-km-pro-tour';
 export { FahrerPhase4258MeineWartezeitStopp } from './phase4258-meine-wartezeit-stopp';
 // Phase 4263 — Meine Auslastung (Gauge emerald; auslastung_pct 5xl+Rang 2xl farbkodiert; driver_id API-Param; isOnline-Guard; Coaching-Tipp 3 Stufen; rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { FahrerPhase4263MeineAuslastung } from './phase4263-meine-auslastung';
+// Phase 4258 — Meine Schichtdauer (Timer cyan; dauer_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen; rank_delta; 30-Min-Polling)
+export { FahrerPhase4258MeineSchichtdauer } from './phase4258-meine-schichtdauer';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 // Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)

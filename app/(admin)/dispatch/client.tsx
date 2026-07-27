@@ -1165,6 +1165,7 @@ import { DispatchPhase4302TourScoreFlottenCockpit } from './phase4302-tour-score
 import { DispatchPhase4252KmProTourBoard } from './phase4252-km-pro-tour-board';
 import { DispatchPhase4257WartezeitStoppBoard } from './phase4257-wartezeit-stopp-board';
 import { DispatchPhase4262AuslastungsBoard } from './phase4262-auslastungs-board';
+import { DispatchPhase4257SchichtdauerBoard } from './phase4257-schichtdauer-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4957,6 +4958,7 @@ export function DispatchBoard({
           <DispatchPhase4252KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4257WartezeitStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4262AuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4257SchichtdauerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13374,3 +13376,5 @@ export { DispatchPhase4252KmProTourBoard } from './phase4252-km-pro-tour-board';
 export { DispatchPhase4257WartezeitStoppBoard } from './phase4257-wartezeit-stopp-board';
 // Phase 4262 — Auslastungs-Board (Gauge emerald; absteigend Rang 1=höchste Auslastung; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Geringe Auslastung; 30-Min-Polling)
 export { DispatchPhase4262AuslastungsBoard } from './phase4262-auslastungs-board';
+// Phase 4257 — Schichtdauer-Board (Timer cyan; aufsteigend Rang 1=kürzeste Schicht; KPI-Grid Kürzeste/Team-Avg/Längste; Alert Kurze Schicht; 30-Min-Polling)
+export { DispatchPhase4257SchichtdauerBoard } from './phase4257-schichtdauer-board';
