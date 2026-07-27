@@ -1063,6 +1063,7 @@ import { KitchenPhase4070PuenktlichkeitsTicker } from './phase4070-puenktlichkei
 import { KitchenPhase4075LieferzeitTicker } from './phase4075-lieferzeit-ticker';
 import { KitchenPhase4080KmProTourTicker } from './phase4080-km-pro-tour-ticker';
 import { KitchenPhase4085StornoquoteTicker } from './phase4085-stornoquote-ticker';
+import { KitchenPhase4090SchichtstundenTicker } from './phase4090-schichtstunden-ticker';
 import { KitchenPhase4070KmProSchichtTicker } from './phase4070-km-pro-schicht-ticker';
 import { KitchenPhase4041SmartTimingKochstartForecast } from './phase4041-smart-timing-kochstart-forecast';
 import { KitchenPhase4065ReaktionszeitIndexTicker } from './phase4065-reaktionszeit-index-ticker';
@@ -4439,6 +4440,7 @@ export function KitchenBoard({
       <KitchenPhase4075LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4080KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4085StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4090SchichtstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4070KmProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4041: Smart-Timing Kochstart Forecast — Sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid Score/Prep/Überfällig; Prognose-Wellen nächste 90min; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4041SmartTimingKochstartForecast locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -11745,6 +11747,8 @@ export { KitchenPhase4075LieferzeitTicker } from './phase4075-lieferzeit-ticker'
 export { KitchenPhase4080KmProTourTicker } from './phase4080-km-pro-tour-ticker';
 // Phase 4085 — Stornoquote-Ticker (XCircle orange; Bester #1 Name+% im Header; Alert-Zaehler; kompakt aufsteigend Rang 1=niedrigste; dot-Farbkodierung; Team-Avg+Ziel; 30-Min-Polling)
 export { KitchenPhase4085StornoquoteTicker } from './phase4085-stornoquote-ticker';
+// Phase 4090 — Schichtstunden-Ticker (Clock sky; Bester #1 Name+h im Header; Alert-Zaehler; kompakt absteigend Rang 1=meiste; dot-Farbkodierung; Team-Avg+Ziel; 30-Min-Polling)
+export { KitchenPhase4090SchichtstundenTicker } from './phase4090-schichtstunden-ticker';
 // Phase 4070 (km) — km/Schicht-Ticker (Map blue; Bester #1 Name+km im Header; Alert-Zaehler; kompakt absteigend; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4070KmProSchichtTicker } from './phase4070-km-pro-schicht-ticker';
 // Phase 4041 — Smart-Timing Kochstart Forecast (Timer amber; Countdown je Bestellung 4-stufig grün/gelb/orange/rot; KPI-Grid Score/Prep/Überfällig; Prognose-Wellen nächste 90min; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
