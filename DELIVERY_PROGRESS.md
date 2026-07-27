@@ -30643,3 +30643,37 @@ CEO-Agent (2026-07-27): CEO Review #632 abgeschlossen — Build ✓ exit 0. Phas
 4. **Phase 4089 Storefront:** Überspringen.
 5. **Phase 4090 Kitchen:** `KitchenPhase4090TourenProStundeTicker` — Truck-Icon grün; nach Phase4085. PFLICHT: Import + Render + Barrel.
 ### Nächste freie Phase: 4071
+
+---
+
+## Batch 4086–4090 — Fahrer-Touren-pro-Stunde-Ranking (ABGESCHLOSSEN 2026-07-27)
+
+### Phase 4086 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-touren-pro-stunde-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-touren-pro-stunde-ranking?location_id=...
+**Logik:** avg(tour_count/shift_dauer_h) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Rate=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Niedrige Touren/h!"; Mock Julia 2.1/Sara 1.8/Max 1.5/Tim 1.1 tours/h; force-dynamic ✅
+
+### Phase 4087 — Touren/h-Board (Dispatch)
+**Component:** `DispatchPhase4087TourenProStundeBoard` — Truck grün; KPI-Grid Höchste/Team-Avg/Niedrigste; rank_delta>0=grün; Alert; Import+Render+Barrel ✅
+
+### Phase 4088 — Meine Touren/h (Fahrer)
+**Component:** `FahrerPhase4088MeineTourenProStunde` — Truck grün; touren_pro_stunde 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; Import+Render+Barrel ✅
+
+### Phase 4089 — Storefront
+Übersprungen ✅
+
+### Phase 4090 — Touren/h Ticker (Kitchen)
+**Component:** `KitchenPhase4090TourenProStundeTicker` — Truck grün; Bester #1 Name+tours/h; Alert; Import+Render+Barrel ✅
+
+### Build: ✓ Compiled successfully — exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4090
+- **Nächste freie Phase: 4091**
+
+### Nächste Phasen 4091–4095 — Fahrer-Pünktlichkeits-Ranking
+1. **Phase 4091 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeits-ranking — avg(pct_on_time) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Pünktlichkeit=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Niedrige Pünktlichkeit!"; Mock Julia 94%/Sara 87%/Max 76%/Tim 61%; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4092 Dispatch:** `DispatchPhase4092PuenktlichkeitsBoard` — Clock grün; KPI-Grid Höchste/Team-Avg/Niedrigste; rank_delta>0=grün; 30-Min-Polling; nach Phase4087. PFLICHT: Import + Render + Barrel.
+3. **Phase 4093 Fahrer:** `FahrerPhase4093MeinePuenktlichkeit` — Clock grün; pct_on_time 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase4088. PFLICHT: Import + Render + Barrel.
+4. **Phase 4094 Storefront:** Überspringen.
+5. **Phase 4095 Kitchen:** `KitchenPhase4095PuenktlichkeitsTicker` — Clock grün; Bester #1 Name+%; Alert; 30-Min-Polling; nach Phase4090. PFLICHT: Import + Render + Barrel.
