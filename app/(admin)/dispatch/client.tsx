@@ -1145,6 +1145,7 @@ import { DispatchPhase4162ErstkontaktBoard } from './phase4162-erstkontakt-board
 import { DispatchPhase4167StoppdauerBoard } from './phase4167-stoppdauer-board';
 import { DispatchPhase4172FahrzeitBoard } from './phase4172-fahrzeit-board';
 import { DispatchPhase4177KmProTourBoard } from './phase4177-km-pro-tour-board';
+import { DispatchPhase4182PuenktlichkeitsBoard } from './phase4182-puenktlichkeits-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4918,6 +4919,7 @@ export function DispatchBoard({
           <DispatchPhase4167StoppdauerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4172FahrzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4177KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4182PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -13290,3 +13292,5 @@ export { DispatchPhase4167StoppdauerBoard } from './phase4167-stoppdauer-board';
 export { DispatchPhase4172FahrzeitBoard } from './phase4172-fahrzeit-board';
 // Phase 4177 — km-pro-Tour-Board (Route teal; aufsteigend Rang 1=wenigste km/Tour=effizientester; KPI-Grid Effizienteste/Team-Avg/Höchste; Alert "Hohe km/Tour!"; rank_delta<0=TrendingUp grün; Balken; 30-Min-Polling)
 export { DispatchPhase4177KmProTourBoard } from './phase4177-km-pro-tour-board';
+// Phase 4182 — Pünktlichkeits-Board (Target violet; absteigend Rang 1=höchste Pünktlichkeitsrate; KPI-Grid Pünktlichster/Team-Avg/Niedrigster; Alert "Niedrige Pünktlichkeit!"; rank_delta<0=TrendingUp grün; Balken; 30-Min-Polling)
+export { DispatchPhase4182PuenktlichkeitsBoard } from './phase4182-puenktlichkeits-board';
