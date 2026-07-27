@@ -1158,6 +1158,7 @@ import { DispatchPhase4217ReaktionszeitBoard } from './phase4217-reaktionszeit-b
 import { DispatchPhase4222LeerfahrtenBoard } from './phase4222-leerfahrten-board';
 import { DispatchPhase4227StornoquoteBoard } from './phase4227-stornoquote-board';
 import { DispatchPhase4232StoppsProStundeBoard } from './phase4232-stopps-pro-stunde-board';
+import { DispatchPhase4237TourenProStundeBoard } from './phase4237-touren-pro-stunde-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4942,6 +4943,7 @@ export function DispatchBoard({
           <DispatchPhase4222LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4227StornoquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4232StoppsProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4237TourenProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13345,3 +13347,5 @@ export { DispatchPhase4222LeerfahrtenBoard } from './phase4222-leerfahrten-board
 export { DispatchPhase4227StornoquoteBoard } from './phase4227-stornoquote-board';
 // Phase 4232 — Stopps-pro-Stunde-Board (Activity teal; absteigend Rang 1=höchste Stopps/h; KPI-Grid Schnellste/Team-Avg/Niedrigste; Alert "Niedrige Stopps/h!"; rank_delta>0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4232StoppsProStundeBoard } from './phase4232-stopps-pro-stunde-board';
+// Phase 4237 — Touren-pro-Stunde-Board (Clock indigo; absteigend Rang 1=höchste Touren/h; KPI-Grid Schnellste/Team-Avg/Niedrigste; Alert "Niedrige Touren/h!"; rank_delta>0=TrendingUp emerald; 30-Min-Polling)
+export { DispatchPhase4237TourenProStundeBoard } from './phase4237-touren-pro-stunde-board';

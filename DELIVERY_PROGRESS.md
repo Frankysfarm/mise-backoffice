@@ -28,6 +28,14 @@ Backend-Architekt-Agent (2026-07-27): Phasen 4212/4213/4215 implementiert — Fa
 - Phase 4225 Kitchen: `KitchenPhase4225LeerfahrtenTicker` — Route orange-500, Niedrigste #1 Name+% im Header orange-600, alert_bottom-Zaehler, dot-Farbkodierung, Team-Avg ✅
 - Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4226.
 
+### ✅ Phasen 4236–4240 ABGESCHLOSSEN — Fahrer-Touren-pro-Stunde-Ranking
+- Phase 4236 Backend: `/api/delivery/admin/fahrer-touren-pro-stunde-ranking/route.ts` — bereits vorhanden, force-dynamic, touren_pro_stunde=Touren/h, absteigend Rang 1=höchste=bester, rank_delta (prevRang-rang, positiv=verbessert), alert_bottom, kein driver_id-Param (client-seitig), Mock Julia 2.1/Sara 1.8/Max 1.5/Tim 1.1 ✅
+- Phase 4237 Dispatch: `DispatchPhase4237TourenProStundeBoard` — Clock indigo-500, absteigend Rang 1=höchste Touren/h, KPI-Grid Schnellste/Team-Avg/Niedrigste (indigo-50/gray-50/red-50), Alert "Niedrige Touren/h!", rank_delta>0=TrendingUp emerald, Balken (touren_pro_stunde/max)*100% ✅
+- Phase 4238 Fahrer: `FahrerPhase4238MeineTourenProStunde` — Clock indigo-500, touren_pro_stunde 5xl+Rang 2xl farbkodiert, client-seitiger Filter, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta>0=TrendingUp emerald ✅
+- Phase 4239 Storefront: uebersprungen ✅
+- Phase 4240 Kitchen: `KitchenPhase4240TourenProStundeTicker` — Clock indigo-500, Schnellste #1 Name+/h im Header indigo-600, alert_bottom-Zaehler, dot-Farbkodierung, Team-Avg ✅
+- Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4241.
+
 ### ✅ Phasen 4231–4235 ABGESCHLOSSEN — Fahrer-Stopps-pro-Stunde-Ranking
 - Phase 4231 Backend: `/api/delivery/admin/fahrer-stopps-pro-stunde-ranking/route.ts` — bereits vorhanden, force-dynamic, stopps_pro_stunde=Stopps/h, absteigend Rang 1=höchste Stopps/h=bester, POSITION-based rank_delta (prevRang-rang, positiv=verbessert), alert_bottom, driver_id-Param, Mock Julia 3.2/Sara 2.8/Max 2.1/Tim 1.4 ✅
 - Phase 4232 Dispatch: `DispatchPhase4232StoppsProStundeBoard` — Activity teal-500, absteigend Rang 1=höchste Stopps/h, KPI-Grid Schnellste/Team-Avg/Niedrigste (teal-50/gray-50/red-50), Alert "Niedrige Stopps/h!", rank_delta>0=TrendingUp emerald, Balken (stopps_pro_stunde/max)*100% ✅
