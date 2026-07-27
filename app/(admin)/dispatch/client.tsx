@@ -1160,6 +1160,7 @@ import { DispatchPhase4227StornoquoteBoard } from './phase4227-stornoquote-board
 import { DispatchPhase4232StoppsProStundeBoard } from './phase4232-stopps-pro-stunde-board';
 import { DispatchPhase4237TourenProStundeBoard } from './phase4237-touren-pro-stunde-board';
 import { DispatchPhase4242TageskilometerBoard } from './phase4242-tageskilometer-board';
+import { DispatchPhase4247AuftragsdichteBoard } from './phase4247-auftragsdichte-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4946,6 +4947,7 @@ export function DispatchBoard({
           <DispatchPhase4232StoppsProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4237TourenProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4242TageskilometerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4247AuftragsdichteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13353,3 +13355,5 @@ export { DispatchPhase4232StoppsProStundeBoard } from './phase4232-stopps-pro-st
 export { DispatchPhase4237TourenProStundeBoard } from './phase4237-touren-pro-stunde-board';
 // Phase 4242 — Tageskilometer-Board (MapPin blue; absteigend Rang 1=meiste km; KPI-Grid Meiste/Team-Avg/Wenigste; Alert "Wenige km!"; rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4242TageskilometerBoard } from './phase4242-tageskilometer-board';
+// Phase 4247 — Auftragsdichte-Board (BarChart2 blue; absteigend Rang 1=höchste Dichte=bester; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert "Niedrige Dichte!"; rank_delta>0=grün; 30-Min-Polling)
+export { DispatchPhase4247AuftragsdichteBoard } from './phase4247-auftragsdichte-board';
