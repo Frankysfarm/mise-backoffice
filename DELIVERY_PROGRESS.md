@@ -2,6 +2,15 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4326–4330 implementiert — Fahrer-Lieferzeit-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4327LieferzeitBoard`. Fahrer: `FahrerPhase4328MeineLieferzeit`. Kitchen: `KitchenPhase4330LieferzeitTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4331.
+
+### ✅ Phasen 4326–4330 ABGESCHLOSSEN — Fahrer-Lieferzeit-Ranking
+- Phase 4326 Backend: `/api/delivery/admin/fahrer-lieferzeit-ranking` — bereits vorhanden, aufsteigend Rang 1=niedrigste avg_min=schnellster, VALUE-BASED rank_delta (avg_min_today - avg_min_yesterday, <0=schneller=TrendingDown emerald), alert_bottom, bester_name/letzter_name, team_avg_min ✅
+- Phase 4327 Dispatch: `DispatchPhase4327LieferzeitBoard` — Timer green-600, aufsteigend Rang 1=kürzeste Lieferzeit, KPI-Grid Schnellste/Team-Avg/Langsamste (green-50/gray-50/red-50), Alert "Hoch", rank_delta<0=TrendingDown emerald, Balken=(avg_min/maxMin)*100% ✅
+- Phase 4328 Fahrer: `FahrerPhase4328MeineLieferzeit` — Timer green-600, avg_min 5xl+Rang 2xl farbkodiert, driver_id API-Param+client-side filter, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta<0=TrendingDown emerald ✅
+- Phase 4329 Storefront: übersprungen (kein Storefront-Frontend) ✅
+- Phase 4330 Kitchen: `KitchenPhase4330LieferzeitTicker` — Timer green-600, Schnellster #1 Name+min im Header green-700, alert_count-Zähler, kompakt aufsteigend Rang 1=kürzeste Lieferzeit, dot-Farbkodierung, Team-Avg ✅
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4321–4325 implementiert — Fahrer-Pünktlichkeits-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4322PuenktlichkeitBoard`. Fahrer: `FahrerPhase4323MeinePuenktlichkeit`. Kitchen: `KitchenPhase4325PuenktlichkeitTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4326.
 
 ### ✅ Phasen 4321–4325 ABGESCHLOSSEN — Fahrer-Pünktlichkeits-Ranking

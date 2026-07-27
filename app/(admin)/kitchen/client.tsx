@@ -1121,6 +1121,7 @@ import { KitchenPhase4310LeerfahrtenTicker } from './phase4310-leerfahrten-ticke
 import { KitchenPhase4315TrinkgeldTicker } from './phase4315-trinkgeld-ticker';
 import { KitchenPhase4320BewertungTicker } from './phase4320-bewertung-ticker';
 import { KitchenPhase4325PuenktlichkeitTicker } from './phase4325-puenktlichkeit-ticker';
+import { KitchenPhase4330LieferzeitTicker } from './phase4330-lieferzeit-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4567,6 +4568,7 @@ export function KitchenBoard({
       <KitchenPhase4315TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4320BewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4325PuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4330LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4305SchichtstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -11992,6 +11994,8 @@ export { KitchenPhase4315TrinkgeldTicker } from './phase4315-trinkgeld-ticker';
 export { KitchenPhase4320BewertungTicker } from './phase4320-bewertung-ticker';
 // Phase 4325 — Pünktlichkeit-Ticker (Clock blue; Bester #1 Name+% im Header blue-700; alert_count-Zaehler; kompakt absteigend Rang 1=höchste Pünktlichkeit; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4325PuenktlichkeitTicker } from './phase4325-puenktlichkeit-ticker';
+// Phase 4330 — Lieferzeit-Ticker (Timer green; Schnellster #1 Name+min im Header green-700; alert_count-Zaehler; kompakt aufsteigend Rang 1=kürzeste Lieferzeit; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4330LieferzeitTicker } from './phase4330-lieferzeit-ticker';
 // Phase 4305 — Schichtstunden-Ticker (Clock indigo; Fleißigster #1 Name+h im Header indigo-600; alert_wenig-Zaehler; kompakt absteigend Rang 1=meiste Stunden; dot-Farbkodierung; Team-Avg+Ziel; 30-Min-Polling)
 export { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 // Phase 4300 — Smart-Timing Countdown Farbkodierung Board (Timer indigo; 4-stufig grün/gelb/orange/rot; Echtzeit-Countdown alle Bestellungen; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback)

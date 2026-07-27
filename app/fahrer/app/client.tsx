@@ -1097,6 +1097,7 @@ import { FahrerPhase4308MeineLeerfahrten } from './phase4308-meine-leerfahrten';
 import { FahrerPhase4313MeinTrinkgeld } from './phase4313-mein-trinkgeld';
 import { FahrerPhase4318MeineBewertung } from './phase4318-meine-bewertung';
 import { FahrerPhase4323MeinePuenktlichkeit } from './phase4323-meine-puenktlichkeit';
+import { FahrerPhase4328MeineLieferzeit } from './phase4328-meine-lieferzeit';
 import { FahrerPhase4303MeineSchichtstunden } from './phase4303-meine-schichtstunden';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
@@ -7136,6 +7137,7 @@ export function FahrerApp({
           <FahrerPhase4313MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4318MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4323MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4328MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4303MeineSchichtstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
@@ -11274,6 +11276,8 @@ export { FahrerPhase4313MeinTrinkgeld } from './phase4313-mein-trinkgeld';
 export { FahrerPhase4318MeineBewertung } from './phase4318-meine-bewertung';
 // Phase 4323 — Meine Pünktlichkeit (Clock blue; rate_pct 5xl+Rang 2xl farbkodiert; driver_id API-Param+client-side filter; isOnline-Guard; Coaching-Tipp 3 Stufen; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling)
 export { FahrerPhase4323MeinePuenktlichkeit } from './phase4323-meine-puenktlichkeit';
+// Phase 4328 — Meine Lieferzeit (Timer green; avg_min 5xl+Rang 2xl farbkodiert; driver_id API-Param+client-side filter; isOnline-Guard; Coaching-Tipp 3 Stufen; VALUE-BASED rank_delta<0=TrendingDown emerald; 30-Min-Polling)
+export { FahrerPhase4328MeineLieferzeit } from './phase4328-meine-lieferzeit';
 // Phase 4303 — Meine Schichtstunden (Clock indigo; avg_stunden 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen; STANDARD rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { FahrerPhase4303MeineSchichtstunden } from './phase4303-meine-schichtstunden';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
