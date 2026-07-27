@@ -1095,6 +1095,7 @@ import { KitchenPhase4185PuenktlichkeitsTicker } from './phase4185-puenktlichkei
 import { KitchenPhase4190AblieferungsquoteTicker } from './phase4190-ablieferungsquote-ticker';
 import { KitchenPhase4195TrinkgeldQuoteTicker } from './phase4195-trinkgeld-quote-ticker';
 import { KitchenPhase4200ErstkontaktTicker } from './phase4200-erstkontakt-ticker';
+import { KitchenPhase4205StoppdauerTicker } from './phase4205-stoppdauer-ticker';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
 import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';
 
@@ -4513,6 +4514,7 @@ export function KitchenBoard({
       <KitchenPhase4190AblieferungsquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4195TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4200ErstkontaktTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4205StoppdauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11882,3 +11884,5 @@ export { KitchenPhase4190AblieferungsquoteTicker } from './phase4190-ablieferung
 export { KitchenPhase4195TrinkgeldQuoteTicker } from './phase4195-trinkgeld-quote-ticker';
 // Phase 4200 — Erstkontakt-Ticker (Clock indigo; Schnellster #1 Name+s im Header indigo-600; Alert-Zähler; kompakt aufsteigend Rang 1=schnellster; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4200ErstkontaktTicker } from './phase4200-erstkontakt-ticker';
+// Phase 4205 — Stopp-Verweildauer-Ticker (Timer orange; Schnellster #1 Name+s im Header orange-600; Alert-Zähler; kompakt aufsteigend Rang 1=kürzeste; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4205StoppdauerTicker } from './phase4205-stoppdauer-ticker';

@@ -1150,6 +1150,7 @@ import { DispatchPhase4172TourScoreLiveVisualisierung } from './phase4172-tour-s
 import { DispatchPhase4187AblieferungsquoteBoard } from './phase4187-ablieferungsquote-board';
 import { DispatchPhase4192TrinkgeldQuoteBoard } from './phase4192-trinkgeld-quote-board';
 import { DispatchPhase4197ErstkontaktBoard } from './phase4197-erstkontakt-board';
+import { DispatchPhase4202StoppdauerBoard } from './phase4202-stoppdauer-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4927,6 +4928,7 @@ export function DispatchBoard({
           <DispatchPhase4187AblieferungsquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4192TrinkgeldQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4197ErstkontaktBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4202StoppdauerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13311,3 +13313,5 @@ export { DispatchPhase4187AblieferungsquoteBoard } from './phase4187-ablieferung
 export { DispatchPhase4192TrinkgeldQuoteBoard } from './phase4192-trinkgeld-quote-board';
 // Phase 4197 — Erstkontakt-Board (Clock indigo; aufsteigend Rang 1=schnellster Kontakt; KPI-Grid Schnellster/Team-Avg/Langsamster; Alert "Langer Erstkontakt!"; rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4197ErstkontaktBoard } from './phase4197-erstkontakt-board';
+// Phase 4202 — Stopp-Verweildauer-Board (Timer orange; aufsteigend Rang 1=kürzeste Stoppdauer; KPI-Grid Schnellster/Team-Avg/Längste; Alert "Lange Stoppdauer!"; rank_delta<0=TrendingUp emerald; 30-Min-Polling)
+export { DispatchPhase4202StoppdauerBoard } from './phase4202-stoppdauer-board';
