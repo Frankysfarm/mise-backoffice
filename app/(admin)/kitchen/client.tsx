@@ -1116,6 +1116,7 @@ import { KitchenPhase4280ReaktionszeitTicker } from './phase4280-reaktionszeit-t
 import { KitchenPhase4285TourstartTicker } from './phase4285-tourstart-ticker';
 import { KitchenPhase4290BestellungenProStoppTicker } from './phase4290-bestellungen-pro-stopp-ticker';
 import { KitchenPhase4295AbschlussquoteTicker } from './phase4295-abschlussquote-ticker';
+import { KitchenPhase4300StornoquoteTicker } from './phase4300-stornoquote-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4557,6 +4558,7 @@ export function KitchenBoard({
       <KitchenPhase4285TourstartTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4290BestellungenProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4295AbschlussquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4300StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4305SchichtstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -11972,6 +11974,8 @@ export { KitchenPhase4285TourstartTicker } from './phase4285-tourstart-ticker';
 export { KitchenPhase4290BestellungenProStoppTicker } from './phase4290-bestellungen-pro-stopp-ticker';
 // Phase 4295 — Abschlussquoten-Ticker (CheckCircle green; Bester #1 Name+% im Header green-700; alert_bottom-Zaehler; kompakt absteigend Rang 1=höchste Quote; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4295AbschlussquoteTicker } from './phase4295-abschlussquote-ticker';
+// Phase 4300 — Stornoquoten-Ticker (XCircle red; Bester #1 Name+% im Header green-700; alert_hoch-Zaehler; kompakt aufsteigend Rang 1=niedrigste Quote; dot-Farbkodierung; Team-Avg+Ziel; 30-Min-Polling)
+export { KitchenPhase4300StornoquoteTicker } from './phase4300-stornoquote-ticker';
 // Phase 4305 — Schichtstunden-Ticker (Clock indigo; Fleißigster #1 Name+h im Header indigo-600; alert_wenig-Zaehler; kompakt absteigend Rang 1=meiste Stunden; dot-Farbkodierung; Team-Avg+Ziel; 30-Min-Polling)
 export { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 // Phase 4300 — Smart-Timing Countdown Farbkodierung Board (Timer indigo; 4-stufig grün/gelb/orange/rot; Echtzeit-Countdown alle Bestellungen; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback)

@@ -1092,6 +1092,7 @@ import { FahrerPhase4278MeineReaktionszeit } from './phase4278-meine-reaktionsze
 import { FahrerPhase4283MeinTourstart } from './phase4283-mein-tourstart';
 import { FahrerPhase4288MeineBestellungenProStopp } from './phase4288-meine-bestellungen-pro-stopp';
 import { FahrerPhase4293MeineAbschlussquote } from './phase4293-meine-abschlussquote';
+import { FahrerPhase4298MeineStornoquote } from './phase4298-meine-stornoquote';
 import { FahrerPhase4303MeineSchichtstunden } from './phase4303-meine-schichtstunden';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
@@ -7126,6 +7127,7 @@ export function FahrerApp({
           <FahrerPhase4283MeinTourstart driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4288MeineBestellungenProStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4293MeineAbschlussquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4298MeineStornoquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4303MeineSchichtstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
@@ -11254,6 +11256,8 @@ export { FahrerPhase4283MeinTourstart } from './phase4283-mein-tourstart';
 export { FahrerPhase4288MeineBestellungenProStopp } from './phase4288-meine-bestellungen-pro-stopp';
 // Phase 4293 — Meine Abschlussquote (CheckCircle green; quote_pct 5xl+Rang 2xl farbkodiert; driver_id API-Param; isOnline-Guard; Coaching-Tipp 3 Stufen; INVERTED rank_delta>0=TrendingUp emerald; team_avg_pct; 30-Min-Polling)
 export { FahrerPhase4293MeineAbschlussquote } from './phase4293-meine-abschlussquote';
+// Phase 4298 — Meine Stornoquote (XCircle red; stornoquote_pct 5xl+Rang 2xl farbkodiert; driver_id API-Param; isOnline-Guard; Coaching-Tipp 3 Stufen; INVERTED rank_delta>0=TrendingUp emerald; ziel_pct; 30-Min-Polling)
+export { FahrerPhase4298MeineStornoquote } from './phase4298-meine-stornoquote';
 // Phase 4303 — Meine Schichtstunden (Clock indigo; avg_stunden 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen; STANDARD rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { FahrerPhase4303MeineSchichtstunden } from './phase4303-meine-schichtstunden';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)

@@ -2,6 +2,16 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4296–4300 implementiert — Fahrer-Stornoquoten-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4297StornoquoteBoard`. Fahrer: `FahrerPhase4298MeineStornoquote`. Kitchen: `KitchenPhase4300StornoquoteTicker` (koexistiert mit 4300SmartTiming). Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4306.
+
+### ✅ Phasen 4296–4300 ABGESCHLOSSEN — Fahrer-Stornoquoten-Ranking
+- Phase 4296 Backend: `/api/delivery/admin/fahrer-stornoquote-ranking` — bereits vorhanden, aufsteigend Rang 1=niedrigste stornoquote_pct=bester, INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald), alert_hoch, bester_name/hoechste_name, driver_id-Param, team_avg_pct, ziel_pct=3 ✅
+- Phase 4297 Dispatch: `DispatchPhase4297StornoquoteBoard` — XCircle red-500, aufsteigend Rang 1=niedrigste Stornoquote, KPI-Grid Niedrigste/Team-Avg+Ziel/Höchste (green-50/gray-50/red-50), Alert "Hoch", rank_delta>0=TrendingUp emerald, Balken=(pct/maxPct)*100% ✅
+- Phase 4298 Fahrer: `FahrerPhase4298MeineStornoquote` — XCircle red-500, stornoquote_pct 5xl+Rang 2xl farbkodiert, driver_id API-Param, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta>0=TrendingUp emerald, ziel_pct ✅
+- Phase 4299 Storefront: uebersprungen ✅
+- Phase 4300 Kitchen: `KitchenPhase4300StornoquoteTicker` — XCircle red-500, Bester #1 Name+% im Header green-700, alert_hoch-Zaehler, dot-Farbkodierung, Team-Avg+Ziel (koexistiert mit 4300SmartTiming) ✅
+- Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4306.
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4291–4295 implementiert — Fahrer-Abschlussquoten-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4292AbschlussquoteBoard`. Fahrer: `FahrerPhase4293MeineAbschlussquote`. Kitchen: `KitchenPhase4295AbschlussquoteTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4296.
 
 ### ✅ Phasen 4291–4295 ABGESCHLOSSEN — Fahrer-Abschlussquoten-Ranking
