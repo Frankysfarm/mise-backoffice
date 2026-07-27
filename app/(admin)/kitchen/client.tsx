@@ -11759,6 +11759,8 @@ export { KitchenPhase4090SchichtstundenTicker } from './phase4090-schichtstunden
 export { KitchenPhase4095TageskilometerTicker } from './phase4095-tageskilometer-ticker';
 // Phase 4070 (km) — km/Schicht-Ticker (Map blue; Bester #1 Name+km im Header; Alert-Zaehler; kompakt absteigend; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4070KmProSchichtTicker } from './phase4070-km-pro-schicht-ticker';
+// Phase 4090 — Smart-Countdown Cockpit V2 (Timer indigo; 4-KPI-Grid Kochstart-Score/Pünktlich/AvgPrep/Aktiv; Score-Balken; Countdown-Kacheln 4-stufig grün/gelb/orange/rot; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4090SmartCountdownCockpitV2 } from './phase4090-smart-countdown-cockpit-v2';
 // Phase 4041 — Smart-Timing Kochstart Forecast (Timer amber; Countdown je Bestellung 4-stufig grün/gelb/orange/rot; KPI-Grid Score/Prep/Überfällig; Prognose-Wellen nächste 90min; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4041SmartTimingKochstartForecast } from './phase4041-smart-timing-kochstart-forecast';
 // Phase 4065 — Reaktionszeit-Index Ticker (Timer violet; Schnellste #1 Name+min im Header; Alert "Hohe Reaktionszeit!"; kompakt aufsteigend; dot-Farbkodierung grün/gelb/rot; Team-Avg+Ziel ≤5min; 30-Min-Polling)

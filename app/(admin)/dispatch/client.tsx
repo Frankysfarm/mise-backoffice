@@ -13190,3 +13190,5 @@ export { DispatchPhase4067KmProSchichtBoard } from './phase4067-km-pro-schicht-b
 export { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';
 // Phase 4062 — Fahrzeit-Ranking Board (Car-Icon sky; aufsteigend Rang 1=kürzeste Fahrzeit=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Lange Fahrzeit!"; rank_delta<0=gruen; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4062FahrzeitRankingBoard } from './phase4062-fahrzeit-ranking-board';
+// Phase 4087 — Tour-Score Visualisierung Pro (Trophy amber; Flotten-KPI Avg/Top/Aktiv; Score-Ring+Delta je Fahrer; Stopp-Dot-Timeline farbkodiert ausstehend/unterwegs/geliefert/problem; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; Navi-Links; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4087TourScoreVisualisierungPro } from './phase4087-tour-score-visualisierung-pro';
