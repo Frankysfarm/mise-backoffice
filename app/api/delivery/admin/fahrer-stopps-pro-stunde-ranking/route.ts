@@ -74,8 +74,8 @@ export async function GET(req: NextRequest) {
       return buildMockResponse(driver_id);
     }
 
-    const curData = curRes.data as Array<{ driver_id: string; stop_count: number; duration_min: number; drivers: { full_name: string } | null }>;
-    const prevData = (prevRes.data ?? []) as Array<{ driver_id: string; stop_count: number; duration_min: number }>;
+    const curData = curRes.data as unknown as Array<{ driver_id: string; stop_count: number; duration_min: number; drivers: { full_name: string } | null }>;
+    const prevData = (prevRes.data ?? []) as unknown as Array<{ driver_id: string; stop_count: number; duration_min: number }>;
 
     const grouped: Record<string, { name: string; total_stops: number; total_min: number }> = {};
     for (const row of curData) {

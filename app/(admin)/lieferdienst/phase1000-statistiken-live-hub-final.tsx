@@ -212,7 +212,7 @@ export function LieferdienstPhase1000StatistikenLiveHubFinal({ locationId }: { l
                 <BarChart data={data.stunden} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                   <XAxis dataKey="stunde" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    formatter={(v: number) => chartMode === 'umsatz' ? fmtEur(v) : `${v} Bestellungen`}
+                    formatter={(v: unknown) => chartMode === 'umsatz' ? fmtEur(v as number) : `${v} Bestellungen`}
                     contentStyle={{ fontSize: 11, borderRadius: 8 }}
                   />
                   <Bar dataKey={chartMode === 'bestellungen' ? 'bestellungen' : 'umsatz_eur'} radius={[4, 4, 0, 0]}>

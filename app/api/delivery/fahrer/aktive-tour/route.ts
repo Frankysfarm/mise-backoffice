@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
     };
 
     const now = Date.now();
-    const stopps_raw = (tour.delivery_stops as StopRow[] ?? []).sort((a, b) => a.stopp_nr - b.stopp_nr);
+    const stopps_raw = (tour.delivery_stops as unknown as StopRow[] ?? []).sort((a, b) => a.stopp_nr - b.stopp_nr);
 
     const stopps: TourStop[] = stopps_raw.map(s => {
       const st = s.status.toLowerCase();

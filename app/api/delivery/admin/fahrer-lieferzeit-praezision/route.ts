@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
 
     // Compute per-driver average ETA deviation for today
     const driverMap = new Map<string, { name: string; deviations: number[] }>();
-    for (const row of curRes.data as Array<{
+    for (const row of curRes.data as unknown as Array<{
       driver_id: string;
       promised_eta: string;
       actual_delivered_at: string;
@@ -116,7 +116,7 @@ export async function GET(req: NextRequest) {
 
     // Compute per-driver average deviation for yesterday
     const prevMap = new Map<string, number[]>();
-    for (const row of (prevRes.data ?? []) as Array<{
+    for (const row of (prevRes.data ?? []) as unknown as Array<{
       driver_id: string;
       promised_eta: string;
       actual_delivered_at: string;

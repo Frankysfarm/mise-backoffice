@@ -82,8 +82,8 @@ export async function GET(req: NextRequest) {
       drivers?: { full_name: string } | null;
     };
 
-    const curData = curRes.data as StopRow[];
-    const prevData = (prevRes.data ?? []) as StopRow[];
+    const curData = curRes.data as unknown as StopRow[];
+    const prevData = (prevRes.data ?? []) as unknown as StopRow[];
 
     function calcAvgRating(stops: StopRow[], dId: string): number {
       const driverStops = stops.filter(s => s.driver_id === dId && s.rating != null);

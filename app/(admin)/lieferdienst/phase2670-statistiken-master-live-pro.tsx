@@ -221,7 +221,7 @@ export function LieferdienstPhase2670StatistikenMasterLivePro({ locationId }: { 
             <XAxis dataKey="hour" tick={{ fontSize: 8, fill: '#a8a29e' }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{ fontSize: 10, borderRadius: 8, border: '1px solid #e5e7eb' }}
-              formatter={(v: number) => chartMode === 'revenue' ? [`${v.toFixed(0)} €`, 'Umsatz'] : [v, 'Bestellungen']}
+              formatter={(v: any) => chartMode === 'revenue' ? [`${v.toFixed(0)} €`, 'Umsatz'] : [v, 'Bestellungen']}
             />
             <Bar dataKey={chartMode === 'orders' ? 'orders' : 'revenue'} radius={[3, 3, 0, 0]}>
               {hourly.map((h, i) => (

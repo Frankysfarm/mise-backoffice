@@ -73,8 +73,8 @@ export async function GET(req: NextRequest) {
     }
 
     type OrderRow = { driver_id: string | null; status: string | null; drivers?: { full_name: string } | null };
-    const cur = curRes.data as OrderRow[];
-    const prev = (prevRes.data ?? []) as OrderRow[];
+    const cur = curRes.data as unknown as OrderRow[];
+    const prev = (prevRes.data ?? []) as unknown as OrderRow[];
 
     const driverIds = [...new Set(cur.map(r => r.driver_id).filter(Boolean))] as string[];
     if (!driverIds.length) return NextResponse.json(MOCK);

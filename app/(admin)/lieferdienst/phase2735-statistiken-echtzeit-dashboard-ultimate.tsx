@@ -220,8 +220,8 @@ export function LieferdienstPhase2735StatistikEchtzeitDashboardUltimate({ locati
                 <BarChart data={data.stunden} margin={{ top: 2, right: 2, bottom: 2, left: 2 }}>
                   <XAxis dataKey="stunde" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip
-                    formatter={(v: number) => chartMode === 'umsatz' ? [`${v}€`, 'Umsatz'] : [v, 'Bestellungen']}
-                    labelFormatter={(l: string) => `${l}:00 Uhr`}
+                    formatter={(v: any) => chartMode === 'umsatz' ? [`${v}€`, 'Umsatz'] : [v, 'Bestellungen']}
+                    labelFormatter={(l: any) => `${l}:00 Uhr`}
                     contentStyle={{ fontSize: 11, borderRadius: 8 }}
                   />
                   <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>

@@ -206,7 +206,7 @@ export function LieferdienstPhase2780StatistikTagesIntelligence({ locationId }: 
             <BarChart data={data.stunden} margin={{ top: 2, right: 2, left: -20, bottom: 0 }}>
               <XAxis dataKey="label" tick={{ fontSize: 9 }} />
               <Tooltip
-                formatter={(v: number) => chartMode === 'umsatz' ? [`€${v}`, 'Umsatz'] : [v, 'Bestellungen']}
+                formatter={(v: any) => chartMode === 'umsatz' ? [`€${v}`, 'Umsatz'] : [v, 'Bestellungen']}
                 contentStyle={{ fontSize: 10, padding: '2px 6px' }}
               />
               <Bar dataKey={chartMode} radius={[2, 2, 0, 0]}>

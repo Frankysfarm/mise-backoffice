@@ -84,8 +84,8 @@ export async function GET(req: NextRequest) {
       drivers?: { full_name: string } | null;
     };
 
-    const curData = curRes.data as TourRow[];
-    const prevData = (prevRes.data ?? []) as TourRow[];
+    const curData = curRes.data as unknown as TourRow[];
+    const prevData = (prevRes.data ?? []) as unknown as TourRow[];
 
     function calcPuenktlichkeit(tours: TourRow[], dId: string): number {
       const driverTours = tours.filter(t => t.driver_id === dId);

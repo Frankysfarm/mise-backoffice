@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
 
     type StopRow = { driver_id: string; created_at: string; delivered_at: string; drivers?: { full_name: string } | null };
 
-    const curData = curRes.data as StopRow[];
+    const curData = curRes.data as unknown as StopRow[];
     const prevData = (prevRes.data ?? []) as Omit<StopRow, 'drivers'>[];
 
     function calcAvgMin(rows: Omit<StopRow, 'drivers'>[], dId: string): number {

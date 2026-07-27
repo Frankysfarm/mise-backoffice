@@ -78,13 +78,13 @@ export function LieferdienstPhase2665StatistikenFinalMasterHub({ locationId }: {
       const yOrd = yOrders ?? [];
 
       const bestellungen = orders.length;
-      const umsatz = orders.reduce((s, o) => s + (Number(o.gesamtbetrag) || 0), 0);
-      const storniert = orders.filter(o => o.status === 'storniert').length;
+      const umsatz = orders.reduce((s: number, o: any) => s + (Number(o.gesamtbetrag) || 0), 0);
+      const storniert = orders.filter((o: any) => o.status === 'storniert').length;
       const stornoRate = bestellungen > 0 ? Math.round((storniert / bestellungen) * 100) : 0;
 
-      const delivered = orders.filter(o => o.status === 'geliefert' || o.status === 'abgeschlossen');
+      const delivered = orders.filter((o: any) => o.status === 'geliefert' || o.status === 'abgeschlossen');
       const avgMin = delivered.length > 0
-        ? Math.round(delivered.reduce((s, o) => s + (o.geschaetzte_zubereitung_min ?? 30), 0) / delivered.length)
+        ? Math.round(delivered.reduce((s: number, o: any) => s + (o.geschaetzte_zubereitung_min ?? 30), 0) / delivered.length)
         : null;
 
       const onTime = avgMin !== null && avgMin <= 35 ? 100 : avgMin !== null ? Math.round(Math.max(0, (1 - (avgMin - 35) / 35) * 100)) : null;
@@ -113,7 +113,7 @@ export function LieferdienstPhase2665StatistikenFinalMasterHub({ locationId }: {
         storno_rate: stornoRate,
         avg_bewertung: null,
         bestellungen_gestern: yOrd.length || null,
-        umsatz_gestern: yOrd.length ? yOrd.reduce((s, o) => s + (Number(o.gesamtbetrag) || 0), 0) : null,
+        umsatz_gestern: yOrd.length ? yOrd.reduce((s: number, o: any) => s + (Number(o.gesamtbetrag) || 0), 0) : null,
       });
       setLoading(false);
     };

@@ -174,7 +174,7 @@ export function LieferdienstPhase2736StatistikLiveMaster({ locationId }: { locat
             <ResponsiveContainer width="100%" height={80}>
               <BarChart data={data.stunden} margin={{ top: 0, right: 0, left: -24, bottom: 0 }}>
                 <XAxis dataKey="stunde" tick={{ fontSize: 10 }} />
-                <Tooltip formatter={(v: number) => chartMode === 'umsatz' ? `${v}€` : v} />
+                <Tooltip formatter={(v: any) => chartMode === 'umsatz' ? `${v}€` : v} />
                 <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>
                   {data.stunden.map((d) => (
                     <Cell key={d.stunde} fill={d.stunde === stunde ? '#7c3aed' : '#c4b5fd'} />

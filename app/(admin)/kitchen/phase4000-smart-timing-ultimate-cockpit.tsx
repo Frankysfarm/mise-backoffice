@@ -93,7 +93,7 @@ export function KitchenPhase4000SmartTimingUltimateCockpit({ locationId }: { loc
         .limit(10);
       if (orders && orders.length > 0) {
         const now = Date.now();
-        const mapped: Bestellung[] = orders.map((o, i) => {
+        const mapped: Bestellung[] = orders.map((o: any, i: number) => {
           const start = o.started_at ? new Date(o.started_at).getTime() : null;
           const elapsed = start ? (now - start) / 1000 : 0;
           const zielSek = 900;

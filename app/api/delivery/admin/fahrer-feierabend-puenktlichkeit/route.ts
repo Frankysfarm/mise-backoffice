@@ -83,8 +83,8 @@ export async function GET(req: NextRequest) {
       drivers?: { full_name: string } | null;
     };
 
-    const curData = curRes.data as TourRow[];
-    const prevData = (prevRes.data ?? []) as TourRow[];
+    const curData = curRes.data as unknown as TourRow[];
+    const prevData = (prevRes.data ?? []) as unknown as TourRow[];
 
     function isPuenktlich(completed_at: string | null, scheduled_end: string | null): boolean {
       if (!completed_at || !scheduled_end) return false;

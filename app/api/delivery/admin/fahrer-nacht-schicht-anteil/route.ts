@@ -80,8 +80,8 @@ export async function GET(req: NextRequest) {
       drivers?: { full_name: string } | null;
     };
 
-    const curData = curRes.data as TourRow[];
-    const prevData = (prevRes.data ?? []) as TourRow[];
+    const curData = curRes.data as unknown as TourRow[];
+    const prevData = (prevRes.data ?? []) as unknown as TourRow[];
 
     function isNachtSchicht(departed_at: string | null): boolean {
       if (!departed_at) return false;

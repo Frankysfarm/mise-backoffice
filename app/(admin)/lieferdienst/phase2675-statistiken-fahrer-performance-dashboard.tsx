@@ -164,7 +164,7 @@ export function LieferdienstPhase2675StatistikFahrerPerformanceDashboard({ locat
               <XAxis dataKey="hour" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={{ fontSize: 11, borderRadius: 8 }}
-                formatter={(v: number) => [`${v} Liefg.`]}
+                formatter={(v: any) => [`${v} Liefg.`]}
                 labelStyle={{ fontSize: 10 }}
               />
               <Bar dataKey="lieferungen" radius={[3, 3, 0, 0]}>

@@ -192,7 +192,7 @@ export function LieferdienstPhase2725StatistikEchtzeitVollbildCockpit() {
           <BarChart data={barData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
             <XAxis dataKey="stunde" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
             <Tooltip
-              formatter={(v: number) => [modus === 'umsatz' ? `${v}€` : v, modus === 'bestellungen' ? 'Bestellungen' : 'Umsatz']}
+              formatter={(v: any) => [modus === 'umsatz' ? `${v}€` : v, modus === 'bestellungen' ? 'Bestellungen' : 'Umsatz']}
               contentStyle={{ fontSize: 11 }}
             />
             <Bar dataKey={modus} radius={[2, 2, 0, 0]}>

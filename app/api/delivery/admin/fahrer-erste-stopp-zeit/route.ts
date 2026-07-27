@@ -82,8 +82,8 @@ export async function GET(req: NextRequest) {
       delivery_stops?: { created_at: string; delivered_at: string | null; drivers?: { full_name: string } | null }[];
     };
 
-    const curData = curRes.data as TourRow[];
-    const prevData = (prevRes.data ?? []) as TourRow[];
+    const curData = curRes.data as unknown as TourRow[];
+    const prevData = (prevRes.data ?? []) as unknown as TourRow[];
 
     function calcErsteStoppMin(tours: TourRow[], dId: string): number {
       const driverTours = tours.filter(t => t.driver_id === dId && t.departed_at);

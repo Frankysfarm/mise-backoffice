@@ -80,8 +80,8 @@ export async function GET(req: NextRequest) {
       drivers?: { full_name: string } | null;
     };
 
-    const curData = curRes.data as StopRow[];
-    const prevData = (prevRes.data ?? []) as StopRow[];
+    const curData = curRes.data as unknown as StopRow[];
+    const prevData = (prevRes.data ?? []) as unknown as StopRow[];
 
     const SUCCESS_STATUSES = new Set(['delivered', 'completed', 'success', 'zugestellt', 'abgeschlossen']);
 

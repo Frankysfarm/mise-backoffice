@@ -162,7 +162,7 @@ export function LieferdienstPhase2655StatistikTagesvergleichDashboard({ location
                   <Tooltip
                     contentStyle={{ background: '#1f2937', border: '1px solid #374151', borderRadius: 6, fontSize: 10 }}
                     labelFormatter={l => `${l}:00 Uhr`}
-                    formatter={(v: number, name: string) => [chartModus === 'umsatz' ? `${(v * 20).toFixed(0)}€` : v, name === 'heute' ? 'Heute' : 'Gestern']}
+                    formatter={(v: any, name: any) => [chartModus === 'umsatz' ? `${((v as number) * 20).toFixed(0)}€` : v, name === 'heute' ? 'Heute' : 'Gestern']}
                   />
                   <ReferenceLine x={d.aktuelle_stunde} stroke="#3b82f6" strokeDasharray="3 3" strokeWidth={1} />
                   <Bar dataKey="gestern" name="gestern" radius={[2, 2, 0, 0]}>

@@ -75,8 +75,8 @@ export function DispatchPhase3326ScoreTourVisHub({ locationId }: { locationId: s
         return;
       }
 
-      const batchIds = rawBatches.map(b => b.id);
-      const fahrerIds = rawBatches.map(b => b.fahrer_id).filter(Boolean) as string[];
+      const batchIds = rawBatches.map((b: any) => b.id);
+      const fahrerIds = rawBatches.map((b: any) => b.fahrer_id).filter(Boolean) as string[];
 
       const [stopsRes, driversRes] = await Promise.all([
         supabase
@@ -95,7 +95,7 @@ export function DispatchPhase3326ScoreTourVisHub({ locationId }: { locationId: s
       const stops = stopsRes.data ?? [];
       const drivers = driversRes.data ?? [];
 
-      const mapped = rawBatches.map(b => {
+      const mapped: BatchRow[] = rawBatches.map((b: any) => {
         const drv = drivers.find((d: any) => d.id === b.fahrer_id);
         const bStops = stops.filter((s: any) => s.batch_id === b.id);
         return {

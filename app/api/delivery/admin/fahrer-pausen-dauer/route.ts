@@ -95,8 +95,8 @@ export async function GET(request: NextRequest) {
       drivers?: { full_name: string } | null;
     };
 
-    const curData = curRes.data as BreakRow[];
-    const prevData = (prevRes.data ?? []) as BreakRow[];
+    const curData = curRes.data as unknown as BreakRow[];
+    const prevData = (prevRes.data ?? []) as unknown as BreakRow[];
 
     const driverMap = new Map<string, { name: string; totalMin: number; count: number }>();
     for (const row of curData) {

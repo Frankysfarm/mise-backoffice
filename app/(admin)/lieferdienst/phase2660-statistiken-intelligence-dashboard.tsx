@@ -49,6 +49,7 @@ const STUNDEN_MOCK: StundenPunkt[] = [
 
 const MOCK: ApiData = {
   schicht_start: '10:00',
+  stunden: STUNDEN_MOCK,
   alerts: [
     { typ: 'storno', text: 'Storno-Quote 6.2% — über Ziel (5%)' },
     { typ: 'lieferzeit', text: 'Ø Lieferzeit 38min — kritisch' },
@@ -178,7 +179,7 @@ export function LieferdienstPhase2660StatistikIntelligenceDashboard({ locationId
                 <XAxis dataKey="stunde" tick={{ fontSize: 9, fill: '#6b7280' }} axisLine={false} tickLine={false} />
                 <Tooltip
                   contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '6px', fontSize: '10px', color: '#fff' }}
-                  formatter={(v: number) => [chartMode === 'umsatz' ? `${v}€` : v, chartMode === 'umsatz' ? 'Umsatz' : 'Bestellungen']}
+                  formatter={(v: any) => [chartMode === 'umsatz' ? `${v}€` : v, chartMode === 'umsatz' ? 'Umsatz' : 'Bestellungen']}
                 />
                 <Bar dataKey={chartMode} radius={[2, 2, 0, 0]}>
                   {d.stunden.map((s, i) => (

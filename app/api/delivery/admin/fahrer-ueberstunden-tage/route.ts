@@ -83,8 +83,8 @@ export async function GET(req: NextRequest) {
       drivers?: { full_name: string } | null;
     };
 
-    const curData = curRes.data as TourRow[];
-    const prevData = (prevRes.data ?? []) as TourRow[];
+    const curData = curRes.data as unknown as TourRow[];
+    const prevData = (prevRes.data ?? []) as unknown as TourRow[];
 
     function isUeberstunde(row: TourRow): boolean {
       if (!row.completed_at || !row.scheduled_end) return false;

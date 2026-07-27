@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
 
     // Aggregate per driver
     const driverMap: Record<string, { name: string; accepted: number; offered: number }> = {};
-    for (const r of curRows as { driver_id: string; status: string; mise_drivers?: { first_name: string; last_name: string } | null }[]) {
+    for (const r of curRows as unknown as { driver_id: string; status: string; mise_drivers?: { first_name: string; last_name: string } | null }[]) {
       if (!driverMap[r.driver_id]) {
         const d = r.mise_drivers;
         const name = d ? `${d.first_name} ${d.last_name[0]}.` : r.driver_id.slice(0, 6);
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
 
     // Aggregate previous window for rank delta
     const prevMap: Record<string, { accepted: number; offered: number }> = {};
-    for (const r of (prevRes.data ?? []) as { driver_id: string; status: string }[]) {
+    for (const r of (prevRes.data ?? []) as unknown as { driver_id: string; status: string }[]) {
       if (!prevMap[r.driver_id]) prevMap[r.driver_id] = { accepted: 0, offered: 0 };
       prevMap[r.driver_id].offered += 1;
       if (r.status === 'completed') prevMap[r.driver_id].accepted += 1;

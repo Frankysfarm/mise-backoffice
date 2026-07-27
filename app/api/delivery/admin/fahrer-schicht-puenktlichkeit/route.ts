@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
     };
 
     const driverMap: Record<string, { name: string; puenktlich: number; gesamt: number }> = {};
-    for (const r of curRows as ShiftRow[]) {
+    for (const r of curRows as unknown as ShiftRow[]) {
       if (!driverMap[r.driver_id]) {
         const d = r.mise_drivers;
         const name = d ? `${d.first_name} ${d.last_name[0]}.` : r.driver_id.slice(0, 6);
@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
     }
 
     const prevMap: Record<string, { puenktlich: number; gesamt: number }> = {};
-    for (const r of (prevRes.data ?? []) as ShiftRow[]) {
+    for (const r of (prevRes.data ?? []) as unknown as ShiftRow[]) {
       if (!prevMap[r.driver_id]) prevMap[r.driver_id] = { puenktlich: 0, gesamt: 0 };
       prevMap[r.driver_id].gesamt += 1;
       const actual  = new Date(r.actual_start).getTime();

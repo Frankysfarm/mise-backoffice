@@ -117,8 +117,8 @@ export async function GET(request: NextRequest) {
       ended_at: string | null;
     };
 
-    const tourData = toursRes.data as TourRow[];
-    const shiftData = (shiftsRes.data ?? []) as ShiftRow[];
+    const tourData = toursRes.data as unknown as TourRow[];
+    const shiftData = (shiftsRes.data ?? []) as unknown as ShiftRow[];
 
     const tourMin = new Map<string, { name: string; activeMin: number }>();
     for (const t of tourData) {
@@ -158,13 +158,13 @@ export async function GET(request: NextRequest) {
     const bot25idx = Math.ceil(gesamt * 0.75);
 
     const prevTourMin = new Map<string, number>();
-    for (const t of (prevToursRes.data ?? []) as TourRow[]) {
+    for (const t of (prevToursRes.data ?? []) as unknown as TourRow[]) {
       if (!t.departed_at || !t.returned_at) continue;
       const min = (new Date(t.returned_at).getTime() - new Date(t.departed_at).getTime()) / 60000;
       if (min > 0) prevTourMin.set(t.driver_id, (prevTourMin.get(t.driver_id) ?? 0) + min);
     }
     const prevShiftMin = new Map<string, number>();
-    for (const s of (prevShiftsRes.data ?? []) as ShiftRow[]) {
+    for (const s of (prevShiftsRes.data ?? []) as unknown as ShiftRow[]) {
       if (!s.started_at || !s.ended_at) continue;
       const min = (new Date(s.ended_at).getTime() - new Date(s.started_at).getTime()) / 60000;
       if (min > 0) prevShiftMin.set(s.driver_id, (prevShiftMin.get(s.driver_id) ?? 0) + min);

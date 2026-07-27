@@ -122,7 +122,7 @@ export async function GET(req: NextRequest) {
       }>;
     };
 
-    const touren: TourScore[] = (tours as TourRow[]).map(t => {
+    const touren: TourScore[] = (tours as unknown as TourRow[]).map(t => {
       const stopps = (t.delivery_stops ?? []).sort((a, b) => a.stopp_nr - b.stopp_nr);
       const stopps_fertig = stopps.filter(s => s.status === 'abgeschlossen' || s.status === 'delivered' || s.status === 'completed').length;
       const aktiv = stopps.find(s => s.status === 'unterwegs' || s.status === 'aktiv');
