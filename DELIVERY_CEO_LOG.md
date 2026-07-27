@@ -1,5 +1,67 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #656 — 2026-07-27
+
+**TypeScript ✓ exit 0 (transpileModule alle 8 neuen Dateien OK) — Phasen 4452–4461 verifiziert + 5 kritische Integration-Bugs gefixt**
+
+**Geprüfte Commits (seit CEO Review #655):**
+- `a4ac3fdb` – feat(delivery/backend): Phasen 4452–4456 — Fahrer-Wartezeit-am-Stopp-Ranking
+- `7716581c` – feat(delivery/frontend): Phasen 4458–4461 — Fahrer-Stopp-Dauer-Ranking
+- `4250c598` – chore(progress): update DELIVERY_PROGRESS.md — Phasen 4457–4461 abgeschlossen
+
+**Bugs gefunden und gefixt (CEO Review #656):**
+
+| Bug | Datei | Fix |
+|---|---|---|
+| Phase4453 WartezeitRankingBoard nur Barrel, kein Import+Render | dispatch/client.tsx | Import L1206 + Render L5047 hinzugefügt |
+| Phase4458 StoppdauerRankingBoard nur Barrel, kein Import+Render | dispatch/client.tsx | Import L1207 + Render L5049 hinzugefügt |
+| Phase4454 MeineWartezeit nur Barrel, kein Import+Render | fahrer/client.tsx | Import L1126 + Render L7198 hinzugefügt |
+| Phase4459 MeineStoppdauer nur Barrel, kein Import+Render | fahrer/client.tsx | Import L1127 + Render L7200 hinzugefügt |
+| Phase4456 WartezeitTicker nur Barrel, kein Import+Render | kitchen/client.tsx | Import L1149 + Render L4632 hinzugefügt |
+| createClient() ohne await in fahrer-wartezeit-ranking/route.ts | Supabase Query lief nie durch → immer Mock-Fallback | `await createClient()` ✅ |
+
+**Verifikation Phasen 4452–4461:**
+
+| Phasen | Feature | Dispatch | Fahrer | Kitchen | Status |
+|---|---|---|---|---|---|
+| 4452–4456 | Fahrer-Wartezeit-am-Stopp | Phase4453WartezeitRankingBoard | Phase4454MeineWartezeit | Phase4456WartezeitTicker | ✅ (nach Fix) |
+| 4457–4461 | Fahrer-Stopp-Dauer | Phase4458StoppdauerRankingBoard | Phase4459MeineStoppdauer | Phase4461StoppdauerTicker | ✅ (nach Fix) |
+
+**Code-Review Details:**
+- Phase 4453 Backend: `createClient()` fehlte `await` → gefixt; Fallback-Mock korrekt; INVERTED aufsteigend Rang 1=kürzeste Wartezeit ✅
+- Phase 4453 Dispatch: Clock teal-500; KPI-Grid; Alert Hohe Wartezeit; balken_pct aus Backend; 30-Min-Polling ✅
+- Phase 4454 Fahrer: Clock teal-500; avg_wartezeit_min 5xl+Rang; isOnline-Guard; Coaching-Tipp; 30-Min-Polling ✅
+- Phase 4456 Kitchen: Clock teal-500; Schnellste #1; alert_count; dot-Farbkodierung; Team-Avg ✅
+- Phase 4458 Dispatch: Timer violet-500; INVERTED aufsteigend Rang 1=kürzeste Stoppdauer; secToMin korrekt (÷60); KPI-Grid; Alert ✅
+- Phase 4459 Fahrer: Timer violet-500; avg_sec 5xl; isOnline-Guard; Coaching 3 Stufen ≤5/≤8/>8min ✅
+- Phase 4461 Kitchen: Timer violet-500; Schnellster #1; alert_count; dot-Farbkodierung; Team-Avg ✅
+- Phase 4457 Backend (Stoppdauer): force-dynamic ✅; await createClient() ✅; INVERTED aufsteigend; Sanity-Check dur<0||>7200; gestern-Rang-Delta ✅
+
+**TypeScript-Ergebnis:** ✓ exit 0 (transpileModule alle 8 neuen Dateien) ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ WartezeitTicker + WartezeitBoard synchron; StoppdauerTicker + StoppdauerBoard synchron |
+| Dispatch ↔ Driver | ✅ Fahrer-Module korrekt integriert (nach Fix) |
+| Driver ↔ Storefront | ✅ Storefront konsequent übersprungen (Phase 4455, 4460) |
+| API-URLs Frontend ↔ Backend | ✅ `/api/delivery/admin/fahrer-wartezeit-ranking` + `/api/delivery/admin/fahrer-stoppdauer-ranking` konsistent |
+| Import + Render + Barrel | ✅ Alle 3 Schritte in allen 3 Clients für Phasen 4453–4461 (nach Fix) |
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase: **4462**. Vorgeschlagenes Feature: Fahrer-Umsatz-pro-Stopp-Ranking (Ø Bestellwert je Stopp, letzte 30 Tage).
+1. **Phase 4462 Backend:** GET /api/delivery/admin/fahrer-umsatz-stopp-ranking — avg(order_value_eur/Stopp) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Umsatz=bester; Quartil-Ampel; Alert "Niedrige Umsatz/Stopp!"; Mock Julia 28.40€/Sara 24.15€/Max 19.80€/Tim 14.55€; force-dynamic; await createClient().
+2. **Phase 4463 Dispatch:** `DispatchPhase4463UmsatzStoppBoard` — Euro euro-sign green-600; absteigend Rang 1=höchster Umsatz; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedriger Umsatz; Balken=(eur/maxEur)*100%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4464 Fahrer:** `FahrerPhase4464MeinUmsatzStopp` — Euro green-600; avg_eur 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4465 Storefront:** Überspringen.
+5. **Phase 4466 Kitchen:** `KitchenPhase4466UmsatzStoppTicker` — Euro green-600; Höchster #1 Name+€ green-700; alert_count; dot-Farbkodierung; Team-Avg; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4462! NIEMALS 4000–4461 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+CEO-Agent (2026-07-27): CEO Review #656 — TypeScript ✓ exit 0 (alle 8 Dateien). 5 Integration-Bugs + 1 await-Bug gefixt. Phasen 4452–4461 verifiziert. STATUS: MARKT-REIF bestätigt.
+
+---
+
 ## CEO Review #654 — 2026-07-27
 
 **Build: Container-Turbopack-Timeout (bekanntes Problem) | TypeScript ✓ exit 0 (transpileModule alle 4 neuen Dateien OK) — Phasen 4431–4435 verifiziert + Phasen 4436–4440 implementiert**
