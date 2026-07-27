@@ -1101,6 +1101,7 @@ import { DispatchPhase3993TourstartPuenktlichkeitBoard } from './phase3993-tours
 import { DispatchPhase4000TourScoreLiveKommando } from './phase4000-tour-score-live-kommando';
 import { DispatchPhase4001SchichtstartPuenktlichkeitBoard } from './phase4001-schichtstart-puenktlichkeit-board';
 import { DispatchPhase4007LeerfahrtenBoard } from './phase4007-leerfahrten-board';
+import { DispatchPhase4011FeierabendPuenktlichkeitBoard } from './phase4011-feierabend-puenktlichkeit-board';
 import { DispatchPhase4012LieferzeitBoard } from './phase4012-lieferzeit-board';
 
 type Driver = {
@@ -4821,6 +4822,8 @@ export function DispatchBoard({
           <DispatchPhase4000TourScoreLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4001SchichtstartPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4007LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4011: Feierabend-Pünktlichkeit Board — CheckCircle grün; absteigend Rang 1=höchste Quote=bester; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Überschrittene Schichtzeiten!"; rank_delta<0=grün; Ziel ≥85%; 30-Min-Polling */}
+          <DispatchPhase4011FeierabendPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4012LieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
@@ -13100,5 +13103,7 @@ export { DispatchPhase4000TourScoreLiveKommando } from './phase4000-tour-score-l
 export { DispatchPhase4001SchichtstartPuenktlichkeitBoard } from './phase4001-schichtstart-puenktlichkeit-board';
 // Phase 4007 — Leerfahrten-Ranking Board (Navigation indigo-500; KPI-Grid Wenigste/Team-Avg/Meiste; Alert "Hohe Leerfahrtenquote!"; aufsteigend Rang 1=niedrigste Leerfahrtenquote=bester; rank_delta<0=gruen; Ziel <=10%; 30-Min-Polling)
 export { DispatchPhase4007LeerfahrtenBoard } from './phase4007-leerfahrten-board';
+// Phase 4011 — Feierabend-Pünktlichkeit Board (CheckCircle-Icon grün; absteigend Rang 1=höchste Quote=bester; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Überschrittene Schichtzeiten!"; rank_delta<0=grün; Ziel ≥85%; 30-Min-Polling)
+export { DispatchPhase4011FeierabendPuenktlichkeitBoard } from './phase4011-feierabend-puenktlichkeit-board';
 // Phase 4012 — Lieferzeit-Ranking Board (Clock violet; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Hohe Lieferzeit!"; aufsteigend Rang 1=schnellste=bester; rank_delta<0=gruen; Ziel <=20min; 30-Min-Polling)
 export { DispatchPhase4012LieferzeitBoard } from './phase4012-lieferzeit-board';
