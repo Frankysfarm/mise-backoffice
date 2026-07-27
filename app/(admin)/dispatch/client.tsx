@@ -1144,6 +1144,7 @@ import { DispatchPhase4157GeschwindigkeitBoard } from './phase4157-geschwindigke
 import { DispatchPhase4162ErstkontaktBoard } from './phase4162-erstkontakt-board';
 import { DispatchPhase4167StoppdauerBoard } from './phase4167-stoppdauer-board';
 import { DispatchPhase4172FahrzeitBoard } from './phase4172-fahrzeit-board';
+import { DispatchPhase4177KmProTourBoard } from './phase4177-km-pro-tour-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4916,6 +4917,7 @@ export function DispatchBoard({
           <DispatchPhase4162ErstkontaktBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4167StoppdauerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4172FahrzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4177KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -13286,3 +13288,5 @@ export { DispatchPhase4162ErstkontaktBoard } from './phase4162-erstkontakt-board
 export { DispatchPhase4167StoppdauerBoard } from './phase4167-stoppdauer-board';
 // Phase 4172 — Fahrzeit-Board (Car cyan; aufsteigend Rang 1=kürzeste fahrzeit_min=schnellster; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Lange Fahrzeit!"; rank_delta<0=TrendingDown grün; Balken; 30-Min-Polling)
 export { DispatchPhase4172FahrzeitBoard } from './phase4172-fahrzeit-board';
+// Phase 4177 — km-pro-Tour-Board (Route teal; aufsteigend Rang 1=wenigste km/Tour=effizientester; KPI-Grid Effizienteste/Team-Avg/Höchste; Alert "Hohe km/Tour!"; rank_delta<0=TrendingUp grün; Balken; 30-Min-Polling)
+export { DispatchPhase4177KmProTourBoard } from './phase4177-km-pro-tour-board';

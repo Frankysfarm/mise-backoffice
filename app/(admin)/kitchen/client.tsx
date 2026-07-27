@@ -1090,6 +1090,7 @@ import { KitchenPhase4160GeschwindigkeitTicker } from './phase4160-geschwindigke
 import { KitchenPhase4165ErstkontaktTicker } from './phase4165-erstkontakt-ticker';
 import { KitchenPhase4170StoppdauerTicker } from './phase4170-stoppdauer-ticker';
 import { KitchenPhase4175FahrzeitTicker } from './phase4175-fahrzeit-ticker';
+import { KitchenPhase4180KmProTourTicker } from './phase4180-km-pro-tour-ticker';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
 
 /* ------------------------------ Types ------------------------------ */
@@ -4500,6 +4501,7 @@ export function KitchenBoard({
       <KitchenPhase4165ErstkontaktTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4170StoppdauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4175FahrzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4180KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11857,3 +11859,5 @@ export { KitchenPhase4165ErstkontaktTicker } from './phase4165-erstkontakt-ticke
 export { KitchenPhase4170StoppdauerTicker } from './phase4170-stoppdauer-ticker';
 // Phase 4175 — Fahrzeit-Ticker (Car cyan; Schnellster #1 Name+min im Header cyan-600; Alert-Zähler; kompakt aufsteigend Rang 1=kürzeste; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4175FahrzeitTicker } from './phase4175-fahrzeit-ticker';
+// Phase 4180 — km-pro-Tour-Ticker (Route teal; Effizientester #1 Name+km im Header teal-600; Alert-Zähler; kompakt aufsteigend Rang 1=wenigste km; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4180KmProTourTicker } from './phase4180-km-pro-tour-ticker';
