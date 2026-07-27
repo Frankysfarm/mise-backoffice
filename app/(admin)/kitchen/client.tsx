@@ -1097,6 +1097,7 @@ import { KitchenPhase4195TrinkgeldQuoteTicker } from './phase4195-trinkgeld-quot
 import { KitchenPhase4200ErstkontaktTicker } from './phase4200-erstkontakt-ticker';
 import { KitchenPhase4205StoppdauerTicker } from './phase4205-stoppdauer-ticker';
 import { KitchenPhase4210BewertungsTicker } from './phase4210-bewertungs-ticker';
+import { KitchenPhase4201KochstartOptimierungsBoard } from './phase4201-kochstart-optimierungs-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
 import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';
 
@@ -4517,6 +4518,7 @@ export function KitchenBoard({
       <KitchenPhase4200ErstkontaktTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4205StoppdauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4210BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4201KochstartOptimierungsBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11890,3 +11892,6 @@ export { KitchenPhase4200ErstkontaktTicker } from './phase4200-erstkontakt-ticke
 export { KitchenPhase4205StoppdauerTicker } from './phase4205-stoppdauer-ticker';
 // Phase 4210 — Kundenbewertungs-Ticker (ThumbsUp green; Bester #1 Name+★ im Header green-700; Alert-Zähler; kompakt absteigend Rang 1=höchste; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4210BewertungsTicker } from './phase4210-bewertungs-ticker';
+
+// Phase 4201 — Kochstart-Optimierungs-Board (ChefHat orange; Slot-Liste status-farbig; KPI-Grid On-Time/Sync-Delta; Fahrer-ETA-Sync; 20-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4201KochstartOptimierungsBoard } from './phase4201-kochstart-optimierungs-board';

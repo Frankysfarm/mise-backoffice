@@ -488,6 +488,7 @@ import { LieferdienstPhase2785TagesStatistikCockpit } from './phase2785-tages-st
 import { LieferdienstPhase2790LieferQualitaetsStatistik } from './phase2790-liefer-qualitaets-statistik';
 import { LieferdienstPhase4150StatistikenDashboard } from './phase4150-statistiken-dashboard';
 import { LieferdienstPhase4155StatistikenEchtzeitHub } from './phase4155-statistiken-echtzeit-hub';
+import { LieferdienstPhase4201UmsatzEchtzeitTracker } from './phase4201-umsatz-echtzeit-tracker';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2356,6 +2357,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4150StatistikenDashboard locationId={locationId ?? null} />
                 {/* Phase 4155: Statistiken Echtzeit-Hub — Alert-Strip; Gesamt-Score; 8-KPI-Kacheln 2-spaltig mit Traffic-Light + Delta%; Stundenverlauf-Chart; Top-Fahrer; Zonen-SLA; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase4155StatistikenEchtzeitHub locationId={locationId ?? null} />
+                {/* Phase 4201: Umsatz Echtzeit-Tracker — Heute vs. Gestern Delta+%; €/h Ziel-Balken; Stundenverlauf Chart; Top-Zone; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4201UmsatzEchtzeitTracker locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4963,3 +4966,6 @@ export { LieferdienstPhase2790LieferQualitaetsStatistik } from './phase2790-lief
 export { LieferdienstPhase4150StatistikenDashboard } from './phase4150-statistiken-dashboard';
 // Phase 4155 — Statistiken Echtzeit-Hub (Alert-Strip; Gesamt-Score; 8-KPI-Kacheln; Traffic-Light + Delta%; Stundenverlauf-Chart; Top-Fahrer; Zonen-SLA; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4155StatistikenEchtzeitHub } from './phase4155-statistiken-echtzeit-hub';
+
+// Phase 4201 — Umsatz Echtzeit-Tracker (Euro green; Heute vs. Gestern Delta+%; €/h Ziel-Balken 3-farbig; Stundenverlauf Chart; Top-Zone; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4201UmsatzEchtzeitTracker } from './phase4201-umsatz-echtzeit-tracker';

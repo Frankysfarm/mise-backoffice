@@ -4,6 +4,7 @@ import { Phase2720DynamischeEtaLiveTrackingCockpit } from '@/app/order/[location
 import { Phase4000EtaLiveTracker } from '@/app/order/[locationSlug]/phase4000-eta-live-tracker';
 import { Phase4150DynamischeEtaLiveTracking } from '@/app/order/[locationSlug]/phase4150-dynamische-eta-live-tracking';
 import { Phase4155DynamischeEtaLiveCockpitUltra } from '@/app/order/[locationSlug]/phase4155-dynamische-eta-live-cockpit-ultra';
+import { Phase4201LiefervertrauenStatusKarte } from '@/app/order/[locationSlug]/phase4201-liefervertrauen-status-karte';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -44,6 +45,9 @@ export default function TrackingPage({
 
         {/* Phase 4155: Dynamische ETA Live-Cockpit Ultra — SVG-Ring animiert; ETA-Bereich low/high; Fahrer-Name + Distanz; Telefon-Link; 5-Stufen Timeline animated; 20-Sek-Polling; Mock-Fallback */}
         <Phase4155DynamischeEtaLiveCockpitUltra orderId={orderId} />
+
+        {/* Phase 4201: Liefervertrauen Status-Karte — Shield Konfidenz-Badge; 3-KPI Pünktlichkeit/Bewertung/Ø-Lieferzeit; 3-stufig grün/gelb/rot; 5-Min-Polling; Mock-Fallback */}
+        <Phase4201LiefervertrauenStatusKarte orderId={orderId} />
 
         {/* ETA-Karte (kompakt, als Ergänzung) */}
         <SmartDeliveryLiveEta orderId={orderId} />

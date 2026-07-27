@@ -1152,6 +1152,7 @@ import { DispatchPhase4192TrinkgeldQuoteBoard } from './phase4192-trinkgeld-quot
 import { DispatchPhase4197ErstkontaktBoard } from './phase4197-erstkontakt-board';
 import { DispatchPhase4202StoppdauerBoard } from './phase4202-stoppdauer-board';
 import { DispatchPhase4207BewertungsBoard } from './phase4207-bewertungs-board';
+import { DispatchPhase4201ZonenKapazitaetsLiveGrid } from './phase4201-zonen-kapazitaets-live-grid';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4935,6 +4936,8 @@ export function DispatchBoard({
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4172TourScoreLiveVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4201: Zonen-Kapazität Live-Grid — Auslastungs-Balken 3-stufig; KPI-Grid Fahrer/Touren/Auslastung; Alert-Zähler; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4201ZonenKapazitaetsLiveGrid locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13319,3 +13322,6 @@ export { DispatchPhase4197ErstkontaktBoard } from './phase4197-erstkontakt-board
 export { DispatchPhase4202StoppdauerBoard } from './phase4202-stoppdauer-board';
 // Phase 4207 — Kundenbewertungs-Board (ThumbsUp green; absteigend Rang 1=höchste Bewertung; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert "Niedrige Bewertung!"; rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4207BewertungsBoard } from './phase4207-bewertungs-board';
+
+// Phase 4201 — Zonen-Kapazität Live-Grid (MapPin indigo; 3-KPI-Grid Fahrer/Touren/Auslastung; Zonen-Balken 3-stufig grün/gelb/rot; Status ok/warn/krit; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4201ZonenKapazitaetsLiveGrid } from './phase4201-zonen-kapazitaets-live-grid';
