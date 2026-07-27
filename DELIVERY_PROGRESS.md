@@ -2,6 +2,15 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4321–4325 implementiert — Fahrer-Pünktlichkeits-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4322PuenktlichkeitBoard`. Fahrer: `FahrerPhase4323MeinePuenktlichkeit`. Kitchen: `KitchenPhase4325PuenktlichkeitTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4326.
+
+### ✅ Phasen 4321–4325 ABGESCHLOSSEN — Fahrer-Pünktlichkeits-Ranking
+- Phase 4321 Backend: `/api/delivery/admin/fahrer-puenktlichkeits-ranking` — bereits vorhanden, absteigend Rang 1=höchste rate_pct=bester, INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald), alert_niedrig, bester_name/letzter_name, team_avg_pct ✅
+- Phase 4322 Dispatch: `DispatchPhase4322PuenktlichkeitBoard` — Clock blue-500, absteigend Rang 1=höchste Pünktlichkeit, KPI-Grid Pünktlichster/Team-Avg/Niedrigste (blue-50/gray-50/red-50), Alert "Niedrig", rank_delta>0=TrendingUp emerald, Balken=rate_pct direkt ✅
+- Phase 4323 Fahrer: `FahrerPhase4323MeinePuenktlichkeit` — Clock blue-500, rate_pct 5xl+Rang 2xl farbkodiert, driver_id API-Param+client-side filter, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta>0=TrendingUp emerald ✅
+- Phase 4324 Storefront: übersprungen (kein Storefront-Frontend) ✅
+- Phase 4325 Kitchen: `KitchenPhase4325PuenktlichkeitTicker` — Clock blue-500, Bester #1 Name+% im Header blue-700, alert_count-Zähler, kompakt absteigend Rang 1=höchste Pünktlichkeit, dot-Farbkodierung, Team-Avg ✅
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4316–4320 implementiert — Fahrer-Bewertungs-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4317BewertungBoard`. Fahrer: `FahrerPhase4318MeineBewertung`. Kitchen: `KitchenPhase4320BewertungTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4321.
 
 ### ✅ Phasen 4316–4320 ABGESCHLOSSEN — Fahrer-Bewertungs-Ranking
