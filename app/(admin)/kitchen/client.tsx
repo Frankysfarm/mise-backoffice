@@ -1043,6 +1043,7 @@ import { KitchenPhase3982TrinkgeldTicker } from './phase3982-trinkgeld-ticker';
 import { KitchenPhase3987ReaktionszeitTicker } from './phase3987-reaktionszeit-ticker';
 import { KitchenPhase3991ReactionsVerbesserungTicker } from './phase3991-reaktionszeit-verbesserung-ticker';
 import { KitchenPhase3992KmProTourTicker } from './phase3992-km-pro-tour-ticker';
+import { KitchenPhase3996TourstartPuenktlichkeitTicker } from './phase3996-tourstart-puenktlichkeit-ticker';
 import { KitchenPhase4000SmartTimingUltimateCockpit } from './phase4000-smart-timing-ultimate-cockpit';
 import { KitchenPhase4004SchichtstartPuenktlichkeitTicker } from './phase4004-schichtstart-puenktlichkeit-ticker';
 
@@ -4395,6 +4396,7 @@ export function KitchenBoard({
       <KitchenPhase3987ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3991ReactionsVerbesserungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3992KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase3996TourstartPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4000: Smart-Timing Ultimate Cockpit — sekundengenauer Countdown je Bestellung; 5-stufige Farbkodierung; Kochstart-Score; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling */}
       <KitchenPhase4000SmartTimingUltimateCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4004SchichtstartPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -11655,6 +11657,8 @@ export { KitchenPhase3987ReaktionszeitTicker } from './phase3987-reaktionszeit-t
 export { KitchenPhase3991ReactionsVerbesserungTicker } from './phase3991-reaktionszeit-verbesserung-ticker';
 // Phase 3992 — km-pro-Tour Ticker (Route-Icon teal; Bester #1 Name+km im Header; Alert "Hohe km pro Tour!"; kompakt aufsteigend; Rang+km+Delta rank_delta<0=gruen; Team-Avg; 30-Min-Polling)
 export { KitchenPhase3992KmProTourTicker } from './phase3992-km-pro-tour-ticker';
+// Phase 3996 — Tourstart-Pünktlichkeit Ticker (Clock-Icon blau; Bester #1 Name+Verzögerung im Header; Alert "Verspäteter Tourstart!"; kompakt aufsteigend; Team-Ø+Ziel; 30-Min-Polling)
+export { KitchenPhase3996TourstartPuenktlichkeitTicker } from './phase3996-tourstart-puenktlichkeit-ticker';
 // Phase 3852 — Smart-Timing Live Countdown Hub (sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid On-Time/Aktiv/Überfällig/AvgPrep; Kochstart-Score; Fortschrittsbalken; Koch-Empfehlung; Alert-Strip; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3852SmartTimingLiveCountdownHub } from './phase3852-smart-timing-live-countdown-hub';
 // Phase 3957 — Smart-Timing Kochzeit Ultra Cockpit (Timer violett; 6-KPI-Grid Pünktlich/Prep/Kochstart/Überfällig/Sync/Ziel; Kochstart-Score-Balken; Countdown-Kacheln 4-stufig grün/gelb/orange/rot; Komplexitäts-Alert Flamme; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)

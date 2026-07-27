@@ -1019,6 +1019,7 @@ import { FahrerPhase3980MeinTrinkgeld } from './phase3980-mein-trinkgeld';
 import { FahrerPhase3985MeineReaktionszeit } from './phase3985-meine-reaktionszeit';
 import { FahrerPhase3990MeineReaktionszeitVerbesserung } from './phase3990-meine-reaktionszeit-verbesserung';
 import { FahrerPhase3990MeineKmProTour } from './phase3990-meine-km-pro-tour';
+import { FahrerPhase3994MeineTourstartPuenktlichkeit } from './phase3994-meine-tourstart-puenktlichkeit';
 import { FahrerPhase4000TourStopNavHub } from './phase4000-tour-stop-nav-hub';
 import { FahrerPhase4002MeineSchichtstartPuenktlichkeit } from './phase4002-meine-schichtstart-puenktlichkeit';
 
@@ -6969,6 +6970,7 @@ export function FahrerApp({
           <FahrerPhase3985MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3990MeineReaktionszeitVerbesserung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3990MeineKmProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase3994MeineTourstartPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4002MeineSchichtstartPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
@@ -10929,6 +10931,8 @@ export { FahrerPhase3985MeineReaktionszeit } from './phase3985-meine-reaktionsze
 export { FahrerPhase3990MeineReaktionszeitVerbesserung } from './phase3990-meine-reaktionszeit-verbesserung';
 // Phase 3990 — Meine km pro Tour (Route-Icon teal; km_avg 5xl+Rang 3xl farbkodiert; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase3990MeineKmProTour } from './phase3990-meine-km-pro-tour';
+// Phase 3994 — Mein Tourstart (Clock-Icon blau; aufsteigend Rang 1=kürzeste Verzögerung=bester; +Xmin 5xl+Rang 3xl; Rang-Balken; Ziel 0min; Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
+export { FahrerPhase3994MeineTourstartPuenktlichkeit } from './phase3994-meine-tourstart-puenktlichkeit';
 // Phase 3850 — Tour-Stopp Live Navigation (Aktiver-Stopp Hero-Card ETA+Google-Maps+Waze+Telefon; Fortschrittsbalken Geliefert/Gesamt; Alle-Stopps-Liste mit Status-Dots; Notiz-Hinweis-Banner; Inline-Navi-Links je Stopp; 10-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3850TourStoppLiveNavigation } from './phase3850-tour-stopp-live-navigation';
 // Phase 3955 — Smart Tour Navigation Hub Ultra (Navigation blau; Hero-Aktiv-Stopp mit ETA+Maps+Waze+Telefon; Sonderwunsch-Alert amber; Gradient-Header mit Fortschrittsbalken; Alle-Stopps expandierbar mit Navi-Links je Stopp; Score-Badge; isOnline-Guard; 10-Sek-Polling; Mock-Fallback)
