@@ -477,6 +477,7 @@ import { LiveTrackingHub } from './live-tracking-hub';
 import { StorefrontPhase1010DynamischeEtaLiveMaster } from './phase1010-dynamische-eta-live-master';
 import { StorefrontPhase1000DynamischeEtaLiveMaster } from './phase1000-dynamische-eta-live-master';
 import { Phase1000LiveEtaLieferstatusCockpit } from './phase1000-live-eta-lieferstatus-cockpit';
+import { StorefrontPhase1000DynamischeEtaLiveTrackingV2 } from './phase1000-dynamische-eta-live-tracking-v2';
 import { StorefrontPhase1015LiveTrackingStatusPro } from './phase1015-live-tracking-status-pro';
 
 type Props = {
@@ -3340,6 +3341,13 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           className="mx-4 mb-4"
         />
       )}
+      {/* Phase 1000 V2: Dynamische ETA Live-Tracking V2 — Sekundengenauer Countdown + 4-stufige ETA-Farbkodierung + Phasenpfad + Fahrer-Nähe-Indikator; 20-Sek-Polling */}
+      {order.isDelivery && order.orderId && (
+        <StorefrontPhase1000DynamischeEtaLiveTrackingV2
+          orderId={order.orderId}
+          locationId={locationId}
+        />
+      )}
       {/* Phase 985: Live-ETA-Tracking-Banner — Farbcodierter Phasen-Fortschritt + Sekunden-Countdown + Live-Tracking-Dot */}
       {order.isDelivery && (
         <Phase985LiveEtaTrackingBanner
@@ -3997,3 +4005,5 @@ export { StorefrontPhase1000DynamischeEtaLiveTrackingUltra } from './phase1000-d
 export { StorefrontPhase2712DynamischeEtaLiveFortschrittTrack } from './phase2712-dynamische-eta-live-fortschritt-track';
 // Phase 1000 — Live-ETA-Lieferstatus-Cockpit (Indigo Header mit Status-Text + Hero-Countdown 1-Sek-Tick; 4-Phasen-Stepper farbkodiert; Fahrer-Info Distanz-Chip; ETA-Footer; 30-Sek-Polling; Mock-Fallback)
 export { Phase1000LiveEtaLieferstatusCockpit } from './phase1000-live-eta-lieferstatus-cockpit';
+// Phase 1000 V2 — Dynamische ETA Live-Tracking V2 (Sekundengenauer Countdown; 4-stufige ETA-Farbkodierung; Phasenpfad Bestellt→Küche→Unterwegs→Geliefert; Fahrer-Nähe-Indikator; 20-Sek-Polling; Mock-Fallback)
+export { StorefrontPhase1000DynamischeEtaLiveTrackingV2 } from './phase1000-dynamische-eta-live-tracking-v2';

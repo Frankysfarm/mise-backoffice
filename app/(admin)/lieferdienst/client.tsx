@@ -490,6 +490,8 @@ import { LieferdienstPhase2790LieferQualitaetsStatistik } from './phase2790-lief
 import { LieferdienstPhase4150StatistikenDashboard } from './phase4150-statistiken-dashboard';
 import { LieferdienstPhase4155StatistikenEchtzeitHub } from './phase4155-statistiken-echtzeit-hub';
 import { LieferdienstPhase4201UmsatzEchtzeitTracker } from './phase4201-umsatz-echtzeit-tracker';
+import { LieferdienstPhase4210StatistikenDashboardV2 } from './phase4210-statistiken-dashboard-v2';
+import { LieferdienstPhase4215StatistikenDashboardV3 } from './phase4215-statistiken-dashboard-v3';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2362,6 +2364,10 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4155StatistikenEchtzeitHub locationId={locationId ?? null} />
                 {/* Phase 4201: Umsatz Echtzeit-Tracker — Heute vs. Gestern Delta+%; €/h Ziel-Balken; Stundenverlauf Chart; Top-Zone; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase4201UmsatzEchtzeitTracker locationId={locationId ?? null} />
+                {/* Phase 4210: Statistiken Dashboard V2 — Score-Ring+Insight; Alert-Strip; 8-KPI-Grid Ampel+Δ%+Ziel; Stundenverlauf Chart 2-Modi; Top-3-Fahrer; Zonen-SLA; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4210StatistikenDashboardV2 locationId={locationId ?? null} />
+                {/* Phase 4215: Statistiken Dashboard V3 — Score+Delta Header; 8-KPI-Grid Ampel+Δ%+Ziel; Stundenverlauf Balken 2-Modi; Top-3-Fahrer Score-Balken; Alert-Count; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4215StatistikenDashboardV3 locationId={locationId ?? null} />
               </>
             </div>
           )}

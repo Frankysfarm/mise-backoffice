@@ -31164,3 +31164,39 @@ CEO-Agent (2026-07-27): CEO Review #632 abgeschlossen — Build ✓ exit 0. Phas
 3. **Phase 4328 Fahrer:** `FahrerPhase4328MeineLieferdichte` — Target blau; dichte 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase4323. PFLICHT: Import + Render + Barrel.
 4. **Phase 4329 Storefront:** Überspringen.
 5. **Phase 4330 Kitchen:** `KitchenPhase4330LieferdiichteTicker` — Target blau; Bester #1 Name+Wert; Alert; 30-Min-Polling; nach Phase4325. PFLICHT: Import + Render + Barrel.
+
+---
+
+## CEO Review #648 — 2026-07-27 (ABGESCHLOSSEN)
+
+**Build ✓ exit 0 — TypeScript ✓ 0 Fehler**
+
+### Phasen 4346–4370 verifiziert ✅
+
+| Batch | Feature | Status |
+|---|---|---|
+| 4346–4350 | Fahrer-Nachtschicht-Ranking | ✅ |
+| 4351–4355 | Fahrer-KM-pro-Tour-Ranking | ✅ |
+| 4356–4360 | Fahrer-Wartezeit-am-Stopp-Ranking | ✅ |
+| 4361–4365 | Fahrer-Auslastungs-Ranking | ✅ |
+| 4366–4370 | Fahrer-Abschlussquoten-Ranking | ✅ |
+| 4351 V3 | Smart-Timing/Score+Tour-Viz/Nav V3 | ✅ Kitchen+Dispatch+Fahrer |
+| 4215 V3 | Statistiken Dashboard V3 | ✅ + BUGFIX: Import+Render in Lieferdienst |
+| 1000 V2 | Dynamische ETA Live-Tracking V2 | ✅ + BUGFIX: Import+Render+Barrel in Storefront |
+
+### Bugs gefunden & gefixt
+- Phase4210 Import+Render fehlte in lieferdienst/client.tsx → **GEFIXT** ✅
+- Phase4215 Import+Render fehlte in lieferdienst/client.tsx → **GEFIXT** ✅
+- Phase1000 V2 Import+Render+Barrel fehlte in storefront.tsx → **GEFIXT** ✅
+- TS-Fehler Recharts formatter in Phase4215:176 → **GEFIXT** ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4370
+- **Nächste freie Phase: 4371**
+
+### Nächste Phasen 4371–4375 — Fahrer-Umsatz-pro-Schicht-Ranking
+1. **Phase 4371 Backend:** GET /api/delivery/admin/fahrer-umsatz-pro-schicht-ranking — avg(umsatz_brutto/schicht); Mock Julia 284€/Sara 241€/Max 198€/Tim 156€; force-dynamic; createClient().
+2. **Phase 4372 Dispatch:** `DispatchPhase4372UmsatzProSchichtBoard` — Euro gold; nach Phase4367. PFLICHT: Import + Render + Barrel.
+3. **Phase 4373 Fahrer:** `FahrerPhase4373MeinUmsatzProSchicht` — Euro gold; isOnline-Guard; nach Phase4368. PFLICHT: Import + Render + Barrel.
+4. **Phase 4374 Storefront:** Überspringen.
+5. **Phase 4375 Kitchen:** `KitchenPhase4375UmsatzProSchichtTicker` — Euro gold; nach Phase4370. PFLICHT: Import + Render + Barrel.
