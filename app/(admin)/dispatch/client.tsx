@@ -1179,6 +1179,7 @@ import { DispatchPhase4317BewertungBoard } from './phase4317-bewertung-board';
 import { DispatchPhase4322PuenktlichkeitBoard } from './phase4322-puenktlichkeit-board';
 import { DispatchPhase4327LieferzeitBoard } from './phase4327-lieferzeit-board';
 import { DispatchPhase4332TourenAnzahlBoard } from './phase4332-touren-anzahl-board';
+import { DispatchPhase4337BestellwertBoard } from './phase4337-bestellwert-board';
 import { DispatchPhase4302SchichtstundenBoard } from './phase4302-schichtstunden-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
@@ -4986,6 +4987,7 @@ export function DispatchBoard({
           <DispatchPhase4322PuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4327LieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4332TourenAnzahlBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4337BestellwertBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4302SchichtstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
@@ -13432,6 +13434,8 @@ export { DispatchPhase4322PuenktlichkeitBoard } from './phase4322-puenktlichkeit
 export { DispatchPhase4327LieferzeitBoard } from './phase4327-lieferzeit-board';
 // Phase 4332 — Touren-Anzahl-Board (Route purple; absteigend Rang 1=meiste Touren=bester; KPI-Grid Meiste/Team-Avg/Wenigste; Alert Wenig; STANDARD rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4332TourenAnzahlBoard } from './phase4332-touren-anzahl-board';
+// Phase 4337 — Bestellwert-Board (ShoppingCart orange; absteigend Rang 1=höchster avg_bestellwert=bester; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig; INVERTED rank_delta>0=TrendingUp emerald; driver_id/driver_name; 30-Min-Polling)
+export { DispatchPhase4337BestellwertBoard } from './phase4337-bestellwert-board';
 // Phase 4302 — Schichtstunden-Board (Clock indigo; absteigend Rang 1=meiste Stunden=fleißigster; KPI-Grid Fleißigster/Team-Avg/Wenigste; Alert Kurze Schicht; STANDARD rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4302SchichtstundenBoard } from './phase4302-schichtstunden-board';
 // Phase 4307 — Fahrer-Score + Tour-Visualisierung Board (Trophy amber; Score-Badge+Delta; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)

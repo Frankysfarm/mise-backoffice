@@ -2,6 +2,15 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4336–4340 implementiert — Fahrer-Bestellwert-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4337BestellwertBoard`. Fahrer: `FahrerPhase4338MeinBestellwert`. Kitchen: `KitchenPhase4340BestellwertTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4341.
+
+### ✅ Phasen 4336–4340 ABGESCHLOSSEN — Fahrer-Bestellwert-Ranking
+- Phase 4336 Backend: `/api/delivery/admin/fahrer-bestellwert-ranking` — bereits vorhanden, absteigend Rang 1=höchster avg_bestellwert=bester, INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald), alert (bool), team_avg, driver_id/driver_name ✅
+- Phase 4337 Dispatch: `DispatchPhase4337BestellwertBoard` — ShoppingCart orange-500, absteigend Rang 1=höchster Bestellwert, KPI-Grid Höchster/Team-Avg/Niedrigster (orange-50/gray-50/red-50), alert-Zähler, rank_delta>0=TrendingUp emerald, Balken=(avg_bestellwert/maxWert)*100% ✅
+- Phase 4338 Fahrer: `FahrerPhase4338MeinBestellwert` — ShoppingCart orange-500, avg_bestellwert 5xl+Rang 2xl farbkodiert, driver_id filter, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta>0=TrendingUp emerald ✅
+- Phase 4339 Storefront: übersprungen (kein Storefront-Frontend) ✅
+- Phase 4340 Kitchen: `KitchenPhase4340BestellwertTicker` — ShoppingCart orange-500, Bester #1 Name+€ im Header orange-700, alert-Zähler, kompakt absteigend Rang 1=höchster Bestellwert, dot-Farbkodierung, Team-Avg ✅
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4331–4335 implementiert — Fahrer-Touren-Anzahl-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4332TourenAnzahlBoard`. Fahrer: `FahrerPhase4333MeineTourenAnzahl`. Kitchen: `KitchenPhase4335TourenAnzahlTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4336.
 
 ### ✅ Phasen 4331–4335 ABGESCHLOSSEN — Fahrer-Touren-Anzahl-Ranking
