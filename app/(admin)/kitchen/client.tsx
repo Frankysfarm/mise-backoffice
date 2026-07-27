@@ -1146,6 +1146,7 @@ import { KitchenPhase4435TrinkgeldTicker } from './phase4435-trinkgeld-ticker';
 import { KitchenPhase4440BewertungsTicker } from './phase4440-bewertungs-ticker';
 import { KitchenPhase4445ReaktionszeitTicker } from './phase4445-reaktionszeit-ticker';
 import { KitchenPhase4451KmTicker } from './phase4451-km-ticker';
+import { KitchenPhase4456WartezeitTicker } from './phase4456-wartezeit-ticker';
 import { KitchenPhase4461StoppdauerTicker } from './phase4461-stoppdauer-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
@@ -4627,6 +4628,8 @@ export function KitchenBoard({
       <KitchenPhase4440BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4445ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4451KmTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4456: Wartezeit-Ticker — Clock teal-500; Schnellste #1 Name+min teal-600; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤3min; 30-Min-Polling */}
+      <KitchenPhase4456WartezeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4461: Stoppdauer-Ticker — Timer violet-500; Schnellster #1 Name+min violet-600; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤5min; 30-Min-Polling */}
       <KitchenPhase4461StoppdauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}

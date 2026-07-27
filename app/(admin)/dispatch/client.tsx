@@ -1203,6 +1203,8 @@ import { DispatchPhase4432TrinkgeldRankingBoard } from './phase4432-trinkgeld-ra
 import { DispatchPhase4437BewertungsRankingBoard } from './phase4437-bewertungs-ranking-board';
 import { DispatchPhase4442ReaktionszeitBoard } from './phase4442-reaktionszeit-board';
 import { DispatchPhase4447KmRankingBoard } from './phase4447-km-ranking-board';
+import { DispatchPhase4453WartezeitRankingBoard } from './phase4453-wartezeit-ranking-board';
+import { DispatchPhase4458StoppdauerRankingBoard } from './phase4458-stoppdauer-ranking-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5041,6 +5043,10 @@ export function DispatchBoard({
           <DispatchPhase4437BewertungsRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4442ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4447KmRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4453: Wartezeit-Ranking-Board — Clock teal-500; INVERTED aufsteigend Rang 1=kürzeste Wartezeit=bester; KPI-Grid Kürzeste/Team-Avg/Längste; Alert Hohe Wartezeit; Balken=(sec/maxSec)*100%; 30-Min-Polling */}
+          <DispatchPhase4453WartezeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4458: Stoppdauer-Ranking-Board — Timer violet-500; INVERTED aufsteigend Rang 1=kürzeste Stoppdauer=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Stoppdauer; Balken=(sec/maxSec)*100%; 30-Min-Polling */}
+          <DispatchPhase4458StoppdauerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}

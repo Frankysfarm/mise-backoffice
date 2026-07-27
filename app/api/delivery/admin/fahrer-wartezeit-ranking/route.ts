@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
