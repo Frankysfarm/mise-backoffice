@@ -188,7 +188,7 @@ export function LieferdienstPhase4220StatistikDashboardV4({ locationId }: Props)
               <XAxis dataKey="label" tick={{ fontSize: 8, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ fontSize: 10, padding: '4px 8px', borderRadius: 6 }}
-                formatter={(v: number) => chartMode === 'umsatz' ? [`€${v}`, 'Umsatz'] : [v, 'Bestellungen']}
+                formatter={(v) => chartMode === 'umsatz' ? [`€${v}`, 'Umsatz'] : [v, 'Bestellungen']}
               />
               <Bar dataKey={chartMode === 'umsatz' ? 'umsatz_eur' : 'bestellungen'} radius={[3, 3, 0, 0]} maxBarSize={20}>
                 {data.stunden.map((entry) => (
