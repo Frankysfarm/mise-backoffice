@@ -87,7 +87,16 @@ Frontend-Ingenieur-Agent (2026-07-27): Phasen 4011–4015 implementiert — Fahr
 - Phase 4035 Kitchen: `KitchenPhase4035KmProTourTicker` — Route teal, Bester #1 Name+km im Header, Alert-Zaehler, kompakt aufsteigend, Team-Avg, Import+Render+Barrel ✅
 - Build ✓ exit 0. Push erfolgt.
 
-### Naechste Phasen 4036–4040 — Naechstes Ranking-Thema (TBD)
+### Phasen 4036–4040 — Fahrer-Auslastung-Ranking ABGESCHLOSSEN
+
+- Phase 4036 Backend: `/api/delivery/admin/fahrer-auslastungs-ranking` — bereits vorhanden ✅
+- Phase 4037 Dispatch: `DispatchPhase4037AuslastungBoard` — Activity violet, absteigend Rang 1=hoechste Auslastung=bester; KPI-Grid Hoechste/Team-Avg/Niedrigste; Alert "Niedrige Auslastung!"; rank_delta<0=gruen; Import+Render+Barrel ✅
+- Phase 4038 Fahrer: `FahrerPhase4038MeineAuslastung` — auslastung_pct 5xl+Rang farbkodiert; Coaching-Tipp; isOnline-Guard; Import+Render+Barrel ✅
+- Phase 4039 Storefront: skip
+- Phase 4040 Kitchen: `KitchenPhase4040AuslastungTicker` — Activity violet, Bester #1 Name+% im Header, dot-Farbkodierung absteigend, Team-Avg, Import+Render+Barrel ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 4041–4045 — Naechstes Ranking-Thema (TBD)
 
 ### Naechste Phasen 4016–4020 — Naechstes Ranking-Thema (TBD)
 

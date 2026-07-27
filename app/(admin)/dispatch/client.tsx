@@ -1107,6 +1107,7 @@ import { DispatchPhase4017PaketverlustBoard } from './phase4017-paketverlust-boa
 import { DispatchPhase4022StornoquoteBoard } from './phase4022-stornoquote-board';
 import { DispatchPhase4027GeschwindigkeitBoard } from './phase4027-geschwindigkeit-board';
 import { DispatchPhase4032KmProTourBoard } from './phase4032-km-pro-tour-board';
+import { DispatchPhase4037AuslastungBoard } from './phase4037-auslastung-board';
 
 type Driver = {
   employee_id: string;
@@ -4834,6 +4835,7 @@ export function DispatchBoard({
           <DispatchPhase4022StornoquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4027GeschwindigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4032KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4037AuslastungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13124,3 +13126,5 @@ export { DispatchPhase4022StornoquoteBoard } from './phase4022-stornoquote-board
 export { DispatchPhase4027GeschwindigkeitBoard } from './phase4027-geschwindigkeit-board';
 // Phase 4032 — km/Tour-Ranking Board (Route teal; aufsteigend Rang 1=kuerzeste Touren=bester; KPI-Grid Kuerzeste/Team-Avg/Laengste; Alert "Lange Touren!"; rank_delta<0=gruen; 30-Min-Polling)
 export { DispatchPhase4032KmProTourBoard } from './phase4032-km-pro-tour-board';
+// Phase 4037 — Auslastung-Ranking Board (Activity violet; absteigend Rang 1=hoechste Auslastung=bester; KPI-Grid Hoechste/Team-Avg/Niedrigste; Alert "Niedrige Auslastung!"; rank_delta<0=gruen; 30-Min-Polling)
+export { DispatchPhase4037AuslastungBoard } from './phase4037-auslastung-board';
