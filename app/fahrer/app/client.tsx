@@ -1068,6 +1068,7 @@ import { FahrerPhase4173MeineFahrzeit } from './phase4173-meine-fahrzeit';
 import { FahrerPhase4178MeinKmProTour } from './phase4178-mein-km-pro-tour';
 import { FahrerPhase4183MeinePuenktlichkeit } from './phase4183-meine-puenktlichkeit';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
+import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 
 type Driver = {
   id: string;
@@ -7935,6 +7936,16 @@ export function FahrerApp({
         </div>
       )}
 
+      {/* Phase 4173: Tour-Stopp-Navigations-Hub — Alle Stopp-Details mit Navi-Button; Kundenkontakt; expandierbare Stopp-Liste; Aktiver-Stopp-Highlight; Fortschrittsanzeige; 20-Sek-Polling; Mock-Fallback */}
+      {activeBatch && activeBatch.status === 'unterwegs' && (
+        <div className="px-4 pb-4">
+          <FahrerPhase4173TourStoppNavigationsHub
+            driverId={driver.id}
+            activeBatchId={activeBatch.id}
+          />
+        </div>
+      )}
+
       {/* Schicht-Abschluss Modal */}
       {showShiftEnd && shiftSnapshot && (
         <SchichtAbschlussModal
@@ -11147,3 +11158,5 @@ export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-rou
 export { FahrerPhase1954TourStoppLiveNavigator } from './phase1954-tour-stopp-live-navigator';
 // Phase 4150 — Tour-Stopp Navigation Hub (Fortschritts-Ring; Nächster-Stopp-Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Button + Telefon; GPS-Deeplink Android/iOS/Web; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
+// Phase 4173 — Tour-Stopp-Navigations-Hub (Navigation blue; Aktiver-Stopp-Fokus mit Navi+Telefon-CTA; expandierbare Stopp-Liste mit Status-Dots; Kundenkontakt; Notiz-Alert; Fortschritt-Anzeige; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';

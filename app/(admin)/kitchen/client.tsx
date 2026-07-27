@@ -1093,6 +1093,7 @@ import { KitchenPhase4175FahrzeitTicker } from './phase4175-fahrzeit-ticker';
 import { KitchenPhase4180KmProTourTicker } from './phase4180-km-pro-tour-ticker';
 import { KitchenPhase4185PuenktlichkeitsTicker } from './phase4185-puenktlichkeits-ticker';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
+import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4504,6 +4505,8 @@ export function KitchenBoard({
       <KitchenPhase4175FahrzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4180KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4185PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4175: Smart-Timing Countdown Farbkodierung Ultimate — Echtzeit-Countdown je Bestellung 4-stufig grün/gelb/orange/rot; KPI-Grid Score/On-Time/Prep/Fahrer-Sync; Score-Balken; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
+      <KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11865,3 +11868,5 @@ export { KitchenPhase4175FahrzeitTicker } from './phase4175-fahrzeit-ticker';
 export { KitchenPhase4180KmProTourTicker } from './phase4180-km-pro-tour-ticker';
 // Phase 4185 — Pünktlichkeits-Ticker (Target violet; Pünktlichster #1 Name+% im Header violet-600; Alert-Zähler; kompakt absteigend Rang 1=höchste Rate; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4185PuenktlichkeitsTicker } from './phase4185-puenktlichkeits-ticker';
+// Phase 4175 — Smart-Timing Countdown Farbkodierung Ultimate (Timer indigo; 4-KPI-Grid Score/On-Time/Prep/Fahrer-Sync; Score-Balken; Countdown-Kacheln 4-stufig grün/gelb/orange/rot; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';

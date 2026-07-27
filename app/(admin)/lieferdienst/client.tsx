@@ -487,6 +487,7 @@ import { LieferdienstPhase2775StatistikenWochenZielCockpit } from './phase2775-s
 import { LieferdienstPhase2785TagesStatistikCockpit } from './phase2785-tages-statistik-cockpit';
 import { LieferdienstPhase2790LieferQualitaetsStatistik } from './phase2790-liefer-qualitaets-statistik';
 import { LieferdienstPhase4150StatistikenDashboard } from './phase4150-statistiken-dashboard';
+import { LieferdienstPhase4155StatistikenEchtzeitHub } from './phase4155-statistiken-echtzeit-hub';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2353,6 +2354,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2790LieferQualitaetsStatistik locationId={locationId ?? null} />
                 {/* Phase 4150: Statistiken Dashboard — Umsatz-Zielbalken; 6-KPI-Grid mit Delta; Stunden-Verlauf Balken; Aktive-Fahrer + Trinkgeld; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase4150StatistikenDashboard locationId={locationId ?? null} />
+                {/* Phase 4155: Statistiken Echtzeit-Hub — Alert-Strip; Gesamt-Score; 8-KPI-Kacheln 2-spaltig mit Traffic-Light + Delta%; Stundenverlauf-Chart; Top-Fahrer; Zonen-SLA; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4155StatistikenEchtzeitHub locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4958,3 +4961,5 @@ export { LieferdienstPhase2785TagesStatistikCockpit } from './phase2785-tages-st
 export { LieferdienstPhase2790LieferQualitaetsStatistik } from './phase2790-liefer-qualitaets-statistik';
 // Phase 4150 — Statistiken Dashboard (Umsatz-Zielbalken; 6-KPI-Grid mit Delta%; Stunden-Verlauf Balkendiagramm; Aktive-Fahrer + Trinkgeld; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4150StatistikenDashboard } from './phase4150-statistiken-dashboard';
+// Phase 4155 — Statistiken Echtzeit-Hub (Alert-Strip; Gesamt-Score; 8-KPI-Kacheln; Traffic-Light + Delta%; Stundenverlauf-Chart; Top-Fahrer; Zonen-SLA; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4155StatistikenEchtzeitHub } from './phase4155-statistiken-echtzeit-hub';
