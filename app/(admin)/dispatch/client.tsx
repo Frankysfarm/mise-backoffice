@@ -1171,6 +1171,7 @@ import { DispatchPhase4272LieferzeitBoard } from './phase4272-lieferzeit-board';
 import { DispatchPhase4277ReaktionszeitBoard } from './phase4277-reaktionszeit-board';
 import { DispatchPhase4282TourstartBoard } from './phase4282-tourstart-board';
 import { DispatchPhase4287BestellungenProStoppBoard } from './phase4287-bestellungen-pro-stopp-board';
+import { DispatchPhase4292AbschlussquoteBoard } from './phase4292-abschlussquote-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4969,6 +4970,7 @@ export function DispatchBoard({
           <DispatchPhase4277ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4282TourstartBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4287BestellungenProStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4292AbschlussquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13398,3 +13400,5 @@ export { DispatchPhase4277ReaktionszeitBoard } from './phase4277-reaktionszeit-b
 export { DispatchPhase4282TourstartBoard } from './phase4282-tourstart-board';
 // Phase 4287 — Bestellungen/Stopp-Board (Package blue; absteigend Rang 1=meiste Best./Stopp; KPI-Grid Bester/Team-Avg/Letzter; Alert Niedrig; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4287BestellungenProStoppBoard } from './phase4287-bestellungen-pro-stopp-board';
+// Phase 4292 — Abschlussquoten-Board (CheckCircle green; absteigend Rang 1=höchste quote_pct; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig; INVERTED rank_delta>0=TrendingUp emerald; team_avg_pct; 30-Min-Polling)
+export { DispatchPhase4292AbschlussquoteBoard } from './phase4292-abschlussquote-board';

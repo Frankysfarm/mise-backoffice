@@ -2,6 +2,16 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4291–4295 implementiert — Fahrer-Abschlussquoten-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4292AbschlussquoteBoard`. Fahrer: `FahrerPhase4293MeineAbschlussquote`. Kitchen: `KitchenPhase4295AbschlussquoteTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4296.
+
+### ✅ Phasen 4291–4295 ABGESCHLOSSEN — Fahrer-Abschlussquoten-Ranking
+- Phase 4291 Backend: `/api/delivery/admin/fahrer-abschlussquoten-ranking` — bereits vorhanden, absteigend Rang 1=höchste quote_pct=beste Abschlussquote, INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald), alert_bottom, bester_name/letzter_name, driver_id-Param, team_avg_pct ✅
+- Phase 4292 Dispatch: `DispatchPhase4292AbschlussquoteBoard` — CheckCircle green-500, absteigend Rang 1=höchste quote_pct, KPI-Grid Beste/Team-Avg/Niedrigste (green-50/gray-50/red-50), Alert "Niedrige Abschlussquote!", rank_delta>0=TrendingUp emerald, Balken=quote_pct direkt (0-100%) ✅
+- Phase 4293 Fahrer: `FahrerPhase4293MeineAbschlussquote` — CheckCircle green-500, quote_pct 5xl+Rang 2xl farbkodiert, driver_id API-Param, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta>0=TrendingUp emerald, team_avg_pct ✅
+- Phase 4294 Storefront: uebersprungen ✅
+- Phase 4295 Kitchen: `KitchenPhase4295AbschlussquoteTicker` — CheckCircle green-500, Bester #1 Name+% im Header green-700, alert_bottom-Zaehler, dot-Farbkodierung, Team-Avg ✅
+- Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4296.
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4286–4290 implementiert — Fahrer-Bestellungen-pro-Stopp-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4287BestellungenProStoppBoard`. Fahrer: `FahrerPhase4288MeineBestellungenProStopp`. Kitchen: `KitchenPhase4290BestellungenProStoppTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4291.
 
 ### ✅ Phasen 4286–4290 ABGESCHLOSSEN — Fahrer-Bestellungen-pro-Stopp-Ranking
