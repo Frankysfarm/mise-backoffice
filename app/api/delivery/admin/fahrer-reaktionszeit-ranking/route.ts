@@ -3,28 +3,11 @@ import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-interface TourRow { driver_id: string; driver_name: string; assigned_at: string; picked_up_at: string | null; departed_at: string | null; }
-
-const MOCK: ApiResponse = {
-  fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, avg_min: 4,  rank_delta:  0, ampel: 'gruen', alert_hoch: false },
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, avg_min: 6,  rank_delta:  1, ampel: 'gruen', alert_hoch: false },
-    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, avg_min: 9,  rank_delta: -1, ampel: 'gelb',  alert_hoch: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, avg_min: 14, rank_delta:  0, ampel: 'rot',   alert_hoch: true  },
-  ],
-  team_avg_min: 8,
-  schnellster_name: 'Julia F.',
-  langsamster_name: 'Tim B.',
-  alert_count: 1,
-  gesamt: 4,
-  ziel_min: 5,
-};
-
 interface FahrerRow {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
-  avg_min: number;
+  avg_reaktionszeit_min: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
   alert_hoch: boolean;
@@ -37,123 +20,130 @@ interface ApiResponse {
   langsamster_name: string;
   alert_count: number;
   gesamt: number;
-  ziel_min: number;
 }
 
-function ampelColor(rank: number, total: number): 'gruen' | 'gelb' | 'rot' {
+const MOCK_DATA: ApiResponse = {
+  fahrer: [
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, avg_reaktionszeit_min: 3.2, rank_delta:  1, ampel: 'gruen', alert_hoch: false },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, avg_reaktionszeit_min: 4.1, rank_delta:  0, ampel: 'gruen', alert_hoch: false },
+    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, avg_reaktionszeit_min: 6.3, rank_delta: -1, ampel: 'gelb',  alert_hoch: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, avg_reaktionszeit_min: 9.8, rank_delta:  0, ampel: 'rot',   alert_hoch: true  },
+  ],
+  team_avg_min: 5.85,
+  schnellster_name: 'Julia F.',
+  langsamster_name: 'Tim B.',
+  alert_count: 1,
+  gesamt: 4,
+};
+
+function ampelVon(rank: number, total: number): 'gruen' | 'gelb' | 'rot' {
   const pct = rank / total;
   if (pct <= 0.25) return 'gruen';
   if (pct <= 0.75) return 'gelb';
   return 'rot';
 }
 
-function thirtyDaysAgo(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 30);
-  return d.toISOString();
-}
-
-function yesterday(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString();
-}
-
 export async function GET(req: NextRequest) {
-  const { searchParams } = req.nextUrl;
-  const location_id = searchParams.get('location_id');
-
-  if (!location_id) return NextResponse.json(MOCK);
-
-  const supabase = await createClient();
+  const locationId = req.nextUrl.searchParams.get('location_id');
+  const driverId   = req.nextUrl.searchParams.get('driver_id');
+  if (!locationId) return NextResponse.json(MOCK_DATA);
 
   try {
-    const since30 = thirtyDaysAgo();
-    const sinceYest = yesterday();
+    const supabase = await createClient();
 
-    const [res30, resYest] = await Promise.all([
+    const cur30Start  = new Date(Date.now() - 30 * 86400000).toISOString();
+    const prev30Start = new Date(Date.now() - 60 * 86400000).toISOString();
+
+    const [curRes, prevRes] = await Promise.all([
       supabase
         .from('delivery_tours')
-        .select('driver_id, driver_name, assigned_at, picked_up_at, departed_at')
-        .eq('location_id', location_id)
-        .gte('created_at', since30),
+        .select('driver_id, driver_name, created_at, departed_at')
+        .eq('location_id', locationId)
+        .gte('created_at', cur30Start),
       supabase
         .from('delivery_tours')
-        .select('driver_id, assigned_at, picked_up_at, departed_at')
-        .eq('location_id', location_id)
-        .gte('created_at', sinceYest),
+        .select('driver_id, created_at, departed_at')
+        .eq('location_id', locationId)
+        .gte('created_at', prev30Start)
+        .lt('created_at', cur30Start),
     ]);
 
-    const tours: TourRow[] = res30.data ?? [];
-    if (tours.length === 0) return NextResponse.json(MOCK);
+    const curData = curRes.data ?? [];
+    if (!curData.length) return NextResponse.json(MOCK_DATA);
 
-    // Compute yesterday avg per driver for rank_delta
-    const yestMap: Record<string, number> = {};
-    const yestAcc: Record<string, { sum: number; count: number }> = {};
-    for (const t of (resYest.data ?? []) as TourRow[]) {
-      const endAt = t.picked_up_at ?? t.departed_at;
-      if (!endAt || !t.assigned_at) continue;
-      const min = (new Date(endAt).getTime() - new Date(t.assigned_at).getTime()) / 60000;
-      if (min < 0 || min > 120) continue;
-      if (!yestAcc[t.driver_id]) yestAcc[t.driver_id] = { sum: 0, count: 0 };
-      yestAcc[t.driver_id].sum += min;
-      yestAcc[t.driver_id].count += 1;
+    const groupCur = new Map<string, { name: string; times: number[] }>();
+    for (const t of curData) {
+      if (!t.driver_id || !t.departed_at) continue;
+      const diffMin = (new Date(t.departed_at).getTime() - new Date(t.created_at).getTime()) / 60000;
+      if (diffMin < 0 || diffMin > 120) continue;
+      const prev = groupCur.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, times: [] };
+      prev.times.push(diffMin);
+      groupCur.set(t.driver_id, prev);
     }
-    for (const [id, v] of Object.entries(yestAcc)) {
-      yestMap[id] = v.sum / v.count;
-    }
+    if (!groupCur.size) return NextResponse.json(MOCK_DATA);
 
-    // Compute 30-day avg per driver
-    const driverAcc: Record<string, { name: string; sum: number; count: number }> = {};
-    for (const t of tours) {
-      const endAt = t.picked_up_at ?? t.departed_at;
-      if (!endAt || !t.assigned_at) continue;
-      const min = (new Date(endAt).getTime() - new Date(t.assigned_at).getTime()) / 60000;
-      if (min < 0 || min > 120) continue;
-      if (!driverAcc[t.driver_id]) driverAcc[t.driver_id] = { name: t.driver_name, sum: 0, count: 0 };
-      driverAcc[t.driver_id].sum += min;
-      driverAcc[t.driver_id].count += 1;
+    const groupPrev = new Map<string, number[]>();
+    for (const t of prevRes.data ?? []) {
+      if (!t.driver_id || !t.departed_at) continue;
+      const diffMin = (new Date(t.departed_at).getTime() - new Date(t.created_at).getTime()) / 60000;
+      if (diffMin < 0 || diffMin > 120) continue;
+      const arr = groupPrev.get(t.driver_id) ?? [];
+      arr.push(diffMin);
+      groupPrev.set(t.driver_id, arr);
     }
 
-    const rows = Object.entries(driverAcc).map(([id, v]) => ({
-      fahrer_id: id,
-      fahrer_name: v.name,
-      avg_min_raw: v.sum / v.count,
+    const unsorted = Array.from(groupCur.entries()).map(([id, v]) => ({
+      fahrer_id:   id,
+      fahrer_name: v.name || id.slice(0, 8),
+      avg_reaktionszeit_min: v.times.length
+        ? Math.round((v.times.reduce((s, x) => s + x, 0) / v.times.length) * 10) / 10
+        : 0,
     }));
 
-    if (rows.length === 0) return NextResponse.json(MOCK);
+    // INVERTED: aufsteigend — kürzeste Reaktionszeit = Rang 1 = bester
+    const sorted = [...unsorted].sort((a, b) => a.avg_reaktionszeit_min - b.avg_reaktionszeit_min);
+    const total  = sorted.length;
 
-    // Rank ascending: lower time = better
-    rows.sort((a, b) => a.avg_min_raw - b.avg_min_raw);
-    const total = rows.length;
-    const teamAvgMin = Math.round(rows.reduce((s, r) => s + r.avg_min_raw, 0) / total);
+    const prevSorted = [...unsorted].map(f => {
+      const arr = groupPrev.get(f.fahrer_id) ?? [];
+      const pAvg = arr.length
+        ? Math.round((arr.reduce((s, x) => s + x, 0) / arr.length) * 10) / 10
+        : f.avg_reaktionszeit_min;
+      return { fahrer_id: f.fahrer_id, avg: pAvg };
+    }).sort((a, b) => a.avg - b.avg);
+    const prevRanks = new Map(prevSorted.map((f, i) => [f.fahrer_id, i + 1]));
 
-    const fahrer: FahrerRow[] = rows.map((r, i) => {
-      const rang = i + 1;
-      const amp = ampelColor(rang, total);
-      const yest = yestMap[r.fahrer_id];
-      const rank_delta = yest != null ? Math.round(r.avg_min_raw - yest) : 0;
+    let fahrer: FahrerRow[] = sorted.map((f, i) => {
+      const rang     = i + 1;
+      const prevRang = prevRanks.get(f.fahrer_id) ?? rang;
+      const ampel    = ampelVon(rang, total);
       return {
-        fahrer_id: r.fahrer_id,
-        fahrer_name: r.fahrer_name,
+        fahrer_id:             f.fahrer_id,
+        fahrer_name:           f.fahrer_name,
         rang,
-        avg_min: Math.round(r.avg_min_raw),
-        rank_delta,
-        ampel: amp,
-        alert_hoch: amp === 'rot',
+        avg_reaktionszeit_min: f.avg_reaktionszeit_min,
+        rank_delta:            prevRang - rang,
+        ampel,
+        alert_hoch:            ampel === 'rot',
       };
     });
 
+    if (driverId) fahrer = fahrer.filter(f => f.fahrer_id === driverId);
+    if (!fahrer.length) return NextResponse.json(MOCK_DATA);
+
+    const teamAvg = Math.round(
+      (sorted.reduce((s, f) => s + f.avg_reaktionszeit_min, 0) / total) * 10
+    ) / 10;
+
     return NextResponse.json({
       fahrer,
-      team_avg_min: teamAvgMin,
-      schnellster_name: fahrer[0]?.fahrer_name ?? '—',
-      langsamster_name: fahrer[fahrer.length - 1]?.fahrer_name ?? '—',
-      alert_count: fahrer.filter(f => f.alert_hoch).length,
-      gesamt: total,
-      ziel_min: 5,
+      team_avg_min:     teamAvg,
+      schnellster_name: sorted[0]?.fahrer_name ?? '',
+      langsamster_name: sorted[total - 1]?.fahrer_name ?? '',
+      alert_count:      fahrer.filter(f => f.alert_hoch).length,
+      gesamt:           total,
     } satisfies ApiResponse);
   } catch {
-    return NextResponse.json(MOCK);
+    return NextResponse.json(MOCK_DATA);
   }
 }
