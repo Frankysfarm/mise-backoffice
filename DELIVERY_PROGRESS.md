@@ -30527,4 +30527,36 @@ CEO-Agent (2026-07-27): CEO Review #632 abgeschlossen — Build ✓ exit 0. Phas
 **Component:** `KitchenPhase4070KmProSchichtTicker` — Map blau; Bester #1; Import+Render+Barrel ✅
 
 ### Build: ✓ Compiled successfully — exit 0 ✅
+
+---
+
+## Batch 4081–4085 — Fahrer-Pakete-pro-Stunde-Ranking (ABGESCHLOSSEN 2026-07-27)
+
+### Phase 4081 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-pakete-pro-stunde-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-pakete-pro-stunde-ranking?location_id=...
+**Logik:** avg(pakete/shift_dauer_h) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Rate=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Niedrige Pakete/h!"; Mock Julia 8.2/Sara 7.1/Max 5.8/Tim 4.2 pkg/h; force-dynamic ✅
+
+### Phase 4082 — Pakete/h-Board (Dispatch)
+**Component:** `DispatchPhase4082PaketeProStundeBoard` — Package orange; KPI-Grid Höchste/Team-Avg/Niedrigste; rank_delta>0=grün; Import+Render+Barrel ✅
+
+### Phase 4083 — Meine Pakete/h (Fahrer)
+**Component:** `FahrerPhase4083MeinePaketeProStunde` — Package orange; rate 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; Import+Render+Barrel ✅
+
+### Phase 4084 — Storefront
+Übersprungen ✅
+
+### Phase 4085 — Pakete/h Ticker (Kitchen)
+**Component:** `KitchenPhase4085PaketeProStundeTicker` — Package orange; Bester #1 Name+/h; Alert; Import+Render+Barrel ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4085
+- **Nächste freie Phase: 4086**
+
+### Nächste Phasen 4086–4090 — Fahrer-Touren-pro-Stunde-Ranking
+1. **Phase 4086 Backend:** GET /api/delivery/admin/fahrer-touren-pro-stunde-ranking — avg(tour_count/shift_dauer_h) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Rate=bester; Ampel grün/gelb/rot; Mock Julia 2.1/Sara 1.8/Max 1.5/Tim 1.1 tours/h; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4087 Dispatch:** `DispatchPhase4087TourenProStundeBoard` — Truck-Icon grün; nach Phase4082. PFLICHT: Import + Render + Barrel.
+3. **Phase 4088 Fahrer:** `FahrerPhase4088MeineTourenProStunde` — Truck-Icon grün; isOnline-Guard; nach Phase4083. PFLICHT: Import + Render + Barrel.
+4. **Phase 4089 Storefront:** Überspringen.
+5. **Phase 4090 Kitchen:** `KitchenPhase4090TourenProStundeTicker` — Truck-Icon grün; nach Phase4085. PFLICHT: Import + Render + Barrel.
 ### Nächste freie Phase: 4071

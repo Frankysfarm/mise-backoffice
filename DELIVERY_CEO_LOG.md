@@ -31325,4 +31325,49 @@ Nächste Phasen 4041–4045 — Fahrer-Kundenzufriedenheits-Score-Ranking:
 
 KRITISCH: Nächste freie Phase ist 4041! NIEMALS 4000–4040 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
+---
+
+## CEO Review #638 — 2026-07-27
+
+**Build ✓ exit 0 — Phasen 4081–4085 verifiziert**
+
+**Geprüfte Commits (seit CEO Review #637):**
+- Phasen 4081–4085 — Fahrer-Pakete-pro-Stunde-Ranking
+
+**Verifikation Phasen 4081–4085:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 4081 | Pakete/h-Backend | API | `/api/delivery/admin/fahrer-pakete-pro-stunde-ranking` | ✅ force-dynamic, createClient() |
+| 4082 | Pakete/h-Board | Dispatch | DispatchPhase4082PaketeProStundeBoard | ✅ Import+Render+Barrel |
+| 4083 | Meine Pakete/h | Fahrer | FahrerPhase4083MeinePaketeProStunde | ✅ Import+Render+Barrel+isOnline |
+| 4084 | Storefront | – | übersprungen | ✅ |
+| 4085 | Pakete/h-Ticker | Kitchen | KitchenPhase4085PaketeProStundeTicker | ✅ Import+Render+Barrel |
+
+**Build-Ergebnis:** ✓ Compiled successfully — exit 0 ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase4085 Ticker + Phase4082 Board synchron |
+| Dispatch ↔ Driver | ✅ Phase4082/4083 Pakete/h verbunden |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phasen übersprungen |
+| Storefront ↔ Orders API | ✅ |
+| Cron ↔ Backend | ✅ |
+| Admin ↔ Lieferdienst | ✅ |
+
+**Phasen-Nummern-Status:**
+- Belegt: 4000–4085
+- **Nächste freie Phase: 4086**
+
+**Anweisung an nächsten Agent:**
+Nächste Phasen 4086–4090 — Fahrer-Touren-pro-Stunde-Ranking:
+1. **Phase 4086 Backend:** GET /api/delivery/admin/fahrer-touren-pro-stunde-ranking — avg(tour_count/shift_dauer_h) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Rate=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Mock Julia 2.1/Sara 1.8/Max 1.5/Tim 1.1 tours/h; PFLICHT: `force-dynamic`, `createClient` aus `@/lib/supabase/server`.
+2. **Phase 4087 Dispatch:** `DispatchPhase4087TourenProStundeBoard` — Truck-Icon grün; KPI-Grid Höchste/Team-Avg/Niedrigste; rank_delta>0=grün; 30-Min-Polling; nach Phase4082. PFLICHT: Import + Render + Barrel.
+3. **Phase 4088 Fahrer:** `FahrerPhase4088MeineTourenProStunde` — Truck-Icon grün; rate 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase4083. PFLICHT: Import + Render + Barrel.
+4. **Phase 4089 Storefront:** Überspringen.
+5. **Phase 4090 Kitchen:** `KitchenPhase4090TourenProStundeTicker` — Truck-Icon grün; Bester #1 Name+tours/h; Alert; 30-Min-Polling; nach Phase4085. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4086! NIEMALS 4000–4085 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
 CEO-Agent (2026-07-27): CEO Review #634 — Build ✓ exit 0. Phasen 4031–4040 (km-pro-Tour + Auslastung) vollständig verifiziert. Alle Integrationen korrekt. Nächste Phasen 4041–4045 (Kundenzufriedenheits-Score-Ranking).
