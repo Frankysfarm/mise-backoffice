@@ -1195,6 +1195,7 @@ import { DispatchPhase4392SpaetschichtBoard } from './phase4392-spaetschicht-boa
 import { DispatchPhase4397MittagsschichtBoard } from './phase4397-mittagsschicht-board';
 import { DispatchPhase4402AbendschichtBoard } from './phase4402-abendschicht-board';
 import { DispatchPhase4407NachtRankingBoard } from './phase4407-nacht-ranking-board';
+import { DispatchPhase4412GesamtstundenBoard } from './phase4412-gesamtstunden-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5022,6 +5023,7 @@ export function DispatchBoard({
           <DispatchPhase4402AbendschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4407: Nacht-Anteil-Ranking-Board — Moon violet-600; absteigend Rang 1=höchster Nachtanteil; KPI-Grid Meiste/Team-Avg/Wenigste; Alert Hoher Nacht-Anteil; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling */}
           <DispatchPhase4407NachtRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4412GesamtstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13503,6 +13505,8 @@ export { DispatchPhase4397MittagsschichtBoard } from './phase4397-mittagsschicht
 export { DispatchPhase4402AbendschichtBoard } from './phase4402-abendschicht-board';
 // Phase 4407 — Nacht-Anteil-Ranking-Board (Moon violet-600; absteigend Rang 1=höchster Nachtanteil; KPI-Grid Meiste/Team-Avg/Wenigste Nacht; Alert Hoher Nacht-Anteil; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4407NachtRankingBoard } from './phase4407-nacht-ranking-board';
+// Phase 4412 — Gesamtstunden-Ranking-Board (Clock blue-600; absteigend Rang 1=meiste Stunden; KPI-Grid Meiste/Team-Avg/Wenigste; Alert Niedrige Stunden; 30-Min-Polling)
+export { DispatchPhase4412GesamtstundenBoard } from './phase4412-gesamtstunden-board';
 // Phase 4307 — Fahrer-Score + Tour-Visualisierung Board (Trophy amber; Score-Badge+Delta; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4307FahrerScoreTourVisualisierungBoard } from './phase4307-fahrer-score-tour-visualisierung-board';
 // Phase 4351 — Score + Tour-Visualisierung V3 (Trophy amber; Score-Ring 3-stufig+Delta; Stopp-Sequenz Farbkacheln; expandierbare Tour-Details; 3-KPI-Sub-Grid; Fahrer-Progress-Balken; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
