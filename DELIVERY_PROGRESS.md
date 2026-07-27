@@ -28,6 +28,14 @@ Backend-Architekt-Agent (2026-07-27): Phasen 4212/4213/4215 implementiert — Fa
 - Phase 4225 Kitchen: `KitchenPhase4225LeerfahrtenTicker` — Route orange-500, Niedrigste #1 Name+% im Header orange-600, alert_bottom-Zaehler, dot-Farbkodierung, Team-Avg ✅
 - Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4226.
 
+### ✅ Phasen 4241–4245 ABGESCHLOSSEN — Fahrer-Tageskilometer-Ranking
+- Phase 4241 Backend: `/api/delivery/admin/fahrer-tageskilometer-ranking/route.ts` — bereits vorhanden, supabase direkt (legacy), km=Tages-km, absteigend Rang 1=meiste km=bester, STANDARD rank_delta (rang-yestRang, negativ=verbessert=TrendingUp emerald), alert_bottom, driver_id-Param, Mock Max 48.2/Julia 41.5/Sara 28/Tim 12.3 ✅
+- Phase 4242 Dispatch: `DispatchPhase4242TageskilometerBoard` — MapPin blue-500, absteigend Rang 1=meiste km, KPI-Grid Meiste/Team-Avg/Wenigste (blue-50/gray-50/red-50), Alert "Wenige km!", rank_delta<0=TrendingUp emerald, Balken (km/max)*100% ✅
+- Phase 4243 Fahrer: `FahrerPhase4243MeineTageskilometer` — MapPin blue-500, km 5xl+Rang 2xl farbkodiert, driver_id API-Param (server-seitig), isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta<0=TrendingUp emerald ✅
+- Phase 4244 Storefront: uebersprungen ✅
+- Phase 4245 Kitchen: `KitchenPhase4245TageskilometerTicker` — MapPin blue-500, Meiste #1 Name+km im Header blue-600, alert_bottom-Zaehler, dot-Farbkodierung, Team-Avg ✅
+- Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4246.
+
 ### ✅ Phasen 4236–4240 ABGESCHLOSSEN — Fahrer-Touren-pro-Stunde-Ranking
 - Phase 4236 Backend: `/api/delivery/admin/fahrer-touren-pro-stunde-ranking/route.ts` — bereits vorhanden, force-dynamic, touren_pro_stunde=Touren/h, absteigend Rang 1=höchste=bester, rank_delta (prevRang-rang, positiv=verbessert), alert_bottom, kein driver_id-Param (client-seitig), Mock Julia 2.1/Sara 1.8/Max 1.5/Tim 1.1 ✅
 - Phase 4237 Dispatch: `DispatchPhase4237TourenProStundeBoard` — Clock indigo-500, absteigend Rang 1=höchste Touren/h, KPI-Grid Schnellste/Team-Avg/Niedrigste (indigo-50/gray-50/red-50), Alert "Niedrige Touren/h!", rank_delta>0=TrendingUp emerald, Balken (touren_pro_stunde/max)*100% ✅

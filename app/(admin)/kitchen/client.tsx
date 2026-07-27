@@ -1104,6 +1104,7 @@ import { KitchenPhase4225LeerfahrtenTicker } from './phase4225-leerfahrten-ticke
 import { KitchenPhase4230StornoquoteTicker } from './phase4230-stornoquote-ticker';
 import { KitchenPhase4235StoppsProStundeTicker } from './phase4235-stopps-pro-stunde-ticker';
 import { KitchenPhase4240TourenProStundeTicker } from './phase4240-touren-pro-stunde-ticker';
+import { KitchenPhase4245TageskilometerTicker } from './phase4245-tageskilometer-ticker';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
 import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';
 
@@ -4531,6 +4532,7 @@ export function KitchenBoard({
       <KitchenPhase4230StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4235StoppsProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4240TourenProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4245TageskilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11919,3 +11921,5 @@ export { KitchenPhase4230StornoquoteTicker } from './phase4230-stornoquote-ticke
 export { KitchenPhase4235StoppsProStundeTicker } from './phase4235-stopps-pro-stunde-ticker';
 // Phase 4240 — Touren-pro-Stunde-Ticker (Clock indigo; Schnellste #1 Name+/h im Header indigo-600; alert_bottom-Zähler; kompakt absteigend Rang 1=höchste Touren/h; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4240TourenProStundeTicker } from './phase4240-touren-pro-stunde-ticker';
+// Phase 4245 — Tageskilometer-Ticker (MapPin blue; Meiste #1 Name+km im Header blue-600; alert_bottom-Zähler; kompakt absteigend Rang 1=meiste km; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4245TageskilometerTicker } from './phase4245-tageskilometer-ticker';
