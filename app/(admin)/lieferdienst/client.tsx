@@ -4993,3 +4993,6 @@ export { LieferdienstPhase4210StatistikenDashboardV2 } from './phase4210-statist
 export { LieferdienstPhase4215StatistikenDashboardV3 } from './phase4215-statistiken-dashboard-v3';
 // Phase 4410 — Statistiken Dashboard V6 (Score+Delta Header; Profit-Marge; Produktivitäts-Ring; 12-KPI-Grid 3-spaltig Ampel+Δ%+Ziel; Stundenverlauf 3-Modi Chart Bestellg/Umsatz/SLA; Zonen-Ranking mit SLA-Balken; Top-3-Fahrer Pünktlichkeit; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4410StatistikDashboardV6 } from './phase4410-statistiken-dashboard-v6';
+
+// Phase 2800 — Statistiken Executive Dashboard (BarChart2 indigo; 10-KPI-Grid 2-spaltig Ampel+Delta%+Ziel; Gesamt-Score-Ring; Insight-Tipp; Alert-Strip; Stundenverlauf-BarChart 2-Modi; Top-3-Fahrer; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase2800StatistikenExecutiveDashboard } from './phase2800-statistiken-executive-dashboard';
