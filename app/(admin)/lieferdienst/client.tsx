@@ -486,6 +486,7 @@ import { LieferdienstPhase2770StatistikenLiveCockpitKomplett } from './phase2770
 import { LieferdienstPhase2775StatistikenWochenZielCockpit } from './phase2775-statistiken-wochenziel-cockpit';
 import { LieferdienstPhase2785TagesStatistikCockpit } from './phase2785-tages-statistik-cockpit';
 import { LieferdienstPhase2790LieferQualitaetsStatistik } from './phase2790-liefer-qualitaets-statistik';
+import { LieferdienstPhase4150StatistikenDashboard } from './phase4150-statistiken-dashboard';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2350,6 +2351,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2785TagesStatistikCockpit locationId={locationId ?? null} />
                 {/* Phase 2790: Liefer-Qualitäts-Statistik — Sterne-Verteilung; 4 Kategorien; Top-Lob/Kritik; vs. Vorwoche; 5-Min-Polling; Mock-Fallback */}
                 <LieferdienstPhase2790LieferQualitaetsStatistik locationId={locationId ?? null} />
+                {/* Phase 4150: Statistiken Dashboard — Umsatz-Zielbalken; 6-KPI-Grid mit Delta; Stunden-Verlauf Balken; Aktive-Fahrer + Trinkgeld; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4150StatistikenDashboard locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4953,3 +4956,5 @@ export { LieferdienstPhase2780StatistikTagesIntelligence } from './phase2780-sta
 export { LieferdienstPhase2785TagesStatistikCockpit } from './phase2785-tages-statistik-cockpit';
 // Phase 2790 — Liefer-Qualitäts-Statistik (Award; Sterne-Ring 4.6; 1–5 Balken; 4 Kategorien Stars; Top-Lob/Kritik; vs. Vorwoche; 5-Min-Polling; Mock-Fallback)
 export { LieferdienstPhase2790LieferQualitaetsStatistik } from './phase2790-liefer-qualitaets-statistik';
+// Phase 4150 — Statistiken Dashboard (Umsatz-Zielbalken; 6-KPI-Grid mit Delta%; Stunden-Verlauf Balkendiagramm; Aktive-Fahrer + Trinkgeld; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4150StatistikenDashboard } from './phase4150-statistiken-dashboard';

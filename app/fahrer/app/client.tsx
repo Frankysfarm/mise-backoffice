@@ -1062,6 +1062,7 @@ import { FahrerPhase4143MeineKundenbewertung } from './phase4143-meine-kundenbew
 import { FahrerPhase4148MeineLeerfahrten } from './phase4148-meine-leerfahrten';
 import { FahrerPhase4153MeineLieferzeit } from './phase4153-meine-lieferzeit';
 import { FahrerPhase4158MeineGeschwindigkeit } from './phase4158-meine-geschwindigkeit';
+import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 
 type Driver = {
   id: string;
@@ -7061,6 +7062,8 @@ export function FahrerApp({
           <FahrerPhase4148MeineLeerfahrten driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4153MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4158MeineGeschwindigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
+          <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
@@ -11122,3 +11125,5 @@ export { FahrerPhase4158MeineGeschwindigkeit } from './phase4158-meine-geschwind
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 // Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)
 export { FahrerPhase1954TourStoppLiveNavigator } from './phase1954-tour-stopp-live-navigator';
+// Phase 4150 — Tour-Stopp Navigation Hub (Fortschritts-Ring; Nächster-Stopp-Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Button + Telefon; GPS-Deeplink Android/iOS/Web; 30-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';

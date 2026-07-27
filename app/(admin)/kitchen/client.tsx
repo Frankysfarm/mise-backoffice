@@ -1087,6 +1087,7 @@ import { KitchenPhase4145KundenbewertungTicker } from './phase4145-kundenbewertu
 import { KitchenPhase4150LeerfahrtenTicker } from './phase4150-leerfahrten-ticker';
 import { KitchenPhase4155LieferzeitTicker } from './phase4155-lieferzeit-ticker';
 import { KitchenPhase4160GeschwindigkeitTicker } from './phase4160-geschwindigkeit-ticker';
+import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -1577,6 +1578,8 @@ export function KitchenBoard({
       <KitchenSchichtKpiZusammenfassung orders={orders} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Schicht-Endstand: Kumulierte Schicht-KPIs (Pünktlichkeit, ø Prep-Zeit, Storno-Rate) */}
       <KitchenSchichtEndstand locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4150: Smart-Countdown Farbkodierung Live — Echtzeit-Countdown je Bestellung 4-stufig grün/gelb/orange/rot; KPI-Grid Score/Pünktl./Prep/Aktiv; Score-Balken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
+      <KitchenPhase4150SmartCountdownFarbkodierungLive locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Smart Delivery Kochstart-Hub: Farbkodierter Countdown + Fahrer-Sync für alle aktiven Bestellungen */}
       <KitchenSmartDeliveryKochstartHub orders={filtered as any} timings={timings as any} locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 2780: Küchen-Dispatch-Sync-Cockpit — Cross-System-Ansicht Küche→Dispatch→Fahrer mit Countdown + Kochstart-Empfehlung */}
