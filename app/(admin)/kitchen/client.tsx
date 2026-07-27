@@ -1044,6 +1044,7 @@ import { KitchenPhase3987ReaktionszeitTicker } from './phase3987-reaktionszeit-t
 import { KitchenPhase3991ReactionsVerbesserungTicker } from './phase3991-reaktionszeit-verbesserung-ticker';
 import { KitchenPhase3992KmProTourTicker } from './phase3992-km-pro-tour-ticker';
 import { KitchenPhase4000SmartTimingUltimateCockpit } from './phase4000-smart-timing-ultimate-cockpit';
+import { KitchenPhase4004SchichtstartPuenktlichkeitTicker } from './phase4004-schichtstart-puenktlichkeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4396,6 +4397,7 @@ export function KitchenBoard({
       <KitchenPhase3992KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4000: Smart-Timing Ultimate Cockpit — sekundengenauer Countdown je Bestellung; 5-stufige Farbkodierung; Kochstart-Score; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling */}
       <KitchenPhase4000SmartTimingUltimateCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4004SchichtstartPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11659,3 +11661,5 @@ export { KitchenPhase3852SmartTimingLiveCountdownHub } from './phase3852-smart-t
 export { KitchenPhase3957SmartTimingKochzeitUltraCockpit } from './phase3957-smart-timing-kochzeit-ultra-cockpit';
 // Phase 4000 — Smart-Timing Ultimate Cockpit (Timer amber; 5-stufige Farbkodierung grün/gelb/amber/orange/rot; KPI-Grid Kochstart-Score/Pünktlich/AvgPrep; Fahrer-ETA-Sync; Komplexitäts-Badge; Score-Balken; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4000SmartTimingUltimateCockpit } from './phase4000-smart-timing-ultimate-cockpit';
+// Phase 4004 — Schichtstart-Pünktlichkeit Ticker (Clock-Icon blue; Bester #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; rank_delta<0=gruen; Team-Avg+Ziel >=90%; 30-Min-Polling)
+export { KitchenPhase4004SchichtstartPuenktlichkeitTicker } from './phase4004-schichtstart-puenktlichkeit-ticker';

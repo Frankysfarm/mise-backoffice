@@ -1098,6 +1098,7 @@ import { DispatchPhase3984ReaktionszeitBoard } from './phase3984-reaktionszeit-b
 import { DispatchPhase3989ReactionsVerbesserungBoard } from './phase3989-reaktionszeit-verbesserung-board';
 import { DispatchPhase3989KmProTourBoard } from './phase3989-km-pro-tour-board';
 import { DispatchPhase4000TourScoreLiveKommando } from './phase4000-tour-score-live-kommando';
+import { DispatchPhase4001SchichtstartPuenktlichkeitBoard } from './phase4001-schichtstart-puenktlichkeit-board';
 
 type Driver = {
   employee_id: string;
@@ -4814,6 +4815,7 @@ export function DispatchBoard({
           <DispatchPhase3989KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4000: Tour-Score Live-Kommando — Flotten-KPI Avg/Top/Aktiv; Score-Balken je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-KPIs aufklappbar; Alert Score<70; 20-Sek-Polling */}
           <DispatchPhase4000TourScoreLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4001SchichtstartPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13086,3 +13088,5 @@ export { DispatchPhase3849TourScoreVisualisierungLiveKomplett } from './phase384
 export { DispatchPhase3954TourScoreVisualisierungUltimate } from './phase3954-tour-score-visualisierung-ultimate';
 // Phase 4000 — Tour-Score Live-Kommando (Trophy amber; Flotten-KPI Avg/Top/Aktiv/Touren; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-KPIs aufklappbar inkl. P��nktlichkeit/Lieferzeit/Bewertung+Navi; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4000TourScoreLiveKommando } from './phase4000-tour-score-live-kommando';
+// Phase 4001 — Schichtstart-Pünktlichkeit Board (Clock-Icon blue; absteigend Rang 1=hoechste Pünktlichkeit=bester; KPI-Grid Pünktlichster/Team-Avg/Niedrigster; Alert "Niedrige Pünktlichkeit!"; rank_delta<0=gruen; Ziel >=90%; 30-Min-Polling)
+export { DispatchPhase4001SchichtstartPuenktlichkeitBoard } from './phase4001-schichtstart-puenktlichkeit-board';
