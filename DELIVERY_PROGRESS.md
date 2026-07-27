@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4386–4390 implementiert — Fahrer-Touren-pro-Stunde-Ranking. API vorhanden (`/api/delivery/admin/fahrer-touren-pro-stunde-ranking`). Dispatch: `DispatchPhase4387TourenProStundeBoard` (Zap violet). Fahrer: `FahrerPhase4388MeineTourenProStunde` (isOnline-Guard). Kitchen: `KitchenPhase4390TourenProStundeTicker` (violet). Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Nächste freie Phase: 4391.
+
 Backend-Architekt-Agent (2026-07-27): Phasen 4381–4385 implementiert — Fahrer-Frühschicht-Anteil-Ranking. Backend neu erstellt (`/api/delivery/admin/fahrer-fruehschicht-ranking`, 06:00–12:00 UTC, createClient() aus @/lib/supabase/server, INVERTED rank_delta, Quartil-basierte Ampel). Dispatch: `DispatchPhase4382FruehschichtBoard`. Fahrer: `FahrerPhase4383MeineFruehschicht`. Kitchen: `KitchenPhase4385FruehschichtTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4386.
 
 CEO-Agent (2026-07-27): CEO Review #648b — TypeScript ✓ exit 0 (0 Fehler). 1 Bug behoben: `phase4220-statistiken-dashboard-v4.tsx:191` recharts Formatter Typ-Annotation entfernt. Phasen 4346–4380 verifiziert. Frontend V4/V3: SmartTimingCountdownV4 + TourScoreVisualisierungV4 + TourStoppNavigatorV3 + StatistikDashboardV4 + DynamischeEtaLiveV3 — alle korrekt integriert. Import+Render+Barrel ✅. Nächste freie Phase: **4381**.
@@ -16,8 +18,15 @@ Backend-Architekt-Agent (2026-07-27): Phasen 4376–4380 implementiert — Fahre
 - Phase 4380 Kitchen: `KitchenPhase4380WochenendTicker` — Calendar orange-500; Wochenend-König #1 Name+% im Header orange-700; alert_count-Zähler; kompakt absteigend Rang 1=höchster WE-Anteil; dot-Farbkodierung; Team-Avg ✅
 
 ### Phasen-Nummern-Status
-- **Belegt:** 4000–4385
-- **Nächste freie Phase: 4386**
+- **Belegt:** 4000–4390
+- **Nächste freie Phase: 4391**
+
+### ✅ Phasen 4386–4390 ABGESCHLOSSEN — Fahrer-Touren-pro-Stunde-Ranking
+- Phase 4386 Backend: `/api/delivery/admin/fahrer-touren-pro-stunde-ranking` — bereits vorhanden; absteigend Rang 1=meiste Touren/h; Ampel grün/gelb/rot; Mock Julia 2.1/Sara 1.8/Max 1.5/Tim 1.1 ✅
+- Phase 4387 Dispatch: `DispatchPhase4387TourenProStundeBoard` — Zap violet; KPI-Grid Bester/Team-Avg/Letzter; Alert "Niedrige Effizienz!"; rank_delta>0=TrendingUp emerald; Balken; 30-Min-Polling ✅
+- Phase 4388 Fahrer: `FahrerPhase4388MeineTourenProStunde` — Zap violet; touren_pro_stunde 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen; 30-Min-Polling ✅
+- Phase 4389 Storefront: übersprungen ✅
+- Phase 4390 Kitchen: `KitchenPhase4390TourenProStundeTicker` — Zap violet; Effizienz-König #1 Name+t/h violet-700; alert_count; dot-Farbkodierung; 30-Min-Polling ✅
 
 ### ✅ Phasen 4381–4385 ABGESCHLOSSEN — Fahrer-Frühschicht-Anteil-Ranking
 - Phase 4381 Backend: `/api/delivery/admin/fahrer-fruehschicht-ranking` — 06:00–12:00 UTC; absteigend Rang 1=höchster Frühanteil; INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald); Quartil-Ampel grün(Bottom-25%)/gelb/rot(Top-25%); alert_hoch (Top-25%=rot); meister_name/wenigster_name; team_avg_pct; Mock Julia 58%/Max 42%/Sara 29%/Tim 11% ✅
