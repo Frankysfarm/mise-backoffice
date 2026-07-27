@@ -43,7 +43,7 @@ const decline = readFileSync('app/api/driver/v1/offers/transition/route.ts', 'ut
 const oldAccept = readFileSync('app/api/driver/v1/_lib/accept-as-ack.ts', 'utf8');
 
 assert.match(server, /loadDriverV2Snapshot\(client, driverId, correlationId\)/, 'every action reloads snapshot with the handler correlation id');
-assert.match(server, /GPS_MONOTONIC_PERSISTENCE_T06_DEFAULT_OFF/, 'GPS boundary does not invent T06 persistence');
+assert.match(server, /fn_ingest_driver_gps_v2/, 'GPS boundary delegates to the T06 monotonic RPC');
 assert.match(migration, /action_id uuid NOT NULL UNIQUE/, 'exception action replay is unique');
 assert.match(migration, /request_fingerprint/, 'item action replay fingerprint is stored');
 assert.match(migration, /completed_at timestamptz NOT NULL DEFAULT now\(\)/, 'global registry records completion');

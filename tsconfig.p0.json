@@ -11,6 +11,8 @@
     "lib/delivery/canonical-state-contract.ts",
     "lib/delivery/driver-v2-contract.ts",
     "lib/delivery/driver-v2-server.ts",
+    "lib/delivery/gps-transport.ts",
+    "lib/delivery/gps-dispatch-eligibility.ts",
     "lib/delivery/long-distance-batching.ts",
     "lib/frank.ts",
     "lib/apns-voip.ts",

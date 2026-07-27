@@ -75,7 +75,12 @@ export type DriverV2Snapshot = {
     'resolved_missing' | 'unresolved' | null; evidence?: Record<string, unknown> }>;
   stops: Array<{ id: string; order_id: string; type: string; state: string; version: number; sequence: number; address: string | null; lat: number | null; lng: number | null; arrived_at: string | null; completed_at: string | null }>;
   exception: null | { id: string; kind: DriverExceptionKind; state: string; version: number };
-  gps_transport: { persistence: 't06_default_off'; accepted: false };
+  gps_transport: {
+    persistence: 't06_configured_default_off';
+    accepted: boolean;
+    policy_enabled: boolean;
+    background_policy_enabled: boolean;
+  };
 };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

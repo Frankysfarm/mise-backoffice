@@ -5,10 +5,18 @@ import {
   DRIVER_EXCEPTION_KINDS, DRIVER_V2_API_VERSION, type DriverV2Action,
   type DriverV2Envelope, type DriverV2Snapshot, validateDriverV2ActionEnvelope,
 } from './driver-v2-contract';
+import { validateCanonicalGpsEvent } from './gps-transport';
 
 type DbResult<T> = { data: T | null; error: { message: string } | null };
 function checked<T>(result: DbResult<T>, label: string): T | null {
   if (result.error) throw new Error(`${label}: ${result.error.message}`);
+  return result.data;
+}
+function checkedGpsPolicy<T>(result: DbResult<T>): T | null {
+  if (result.error) {
+    if (/mise_gps_transport_config.*(does not exist|schema cache)/i.test(result.error.message)) return null;
+    throw new Error(`GPS_POLICY_SNAPSHOT: ${result.error.message}`);
+  }
   return result.data;
 }
 
@@ -55,6 +63,11 @@ export async function loadDriverV2Snapshot(
     .select('id,kind,state,exception_version').eq('driver_id', driverId)
     .not('state', 'in', '("resolved","closed")').order('created_at', { ascending: false })
     .limit(1).maybeSingle(), 'EXCEPTION_SNAPSHOT') as any;
+  const membership = checked(await client.from('mise_driver_tenants').select('tenant_id')
+    .eq('driver_id', driverId).eq('status', 'active').limit(1).maybeSingle(), 'GPS_POLICY_TENANT') as any;
+  const gpsPolicy = membership ? checkedGpsPolicy(await client.from('mise_gps_transport_config')
+    .select('tracking_enabled,background_tracking_enabled').eq('tenant_id', membership.tenant_id)
+    .maybeSingle()) as any : null;
   const projection = JSON.stringify({
     d: [driver.state, driver.state_version], a: assignment && [assignment.id, assignment.state, assignment.assignment_version],
     t: trip && [trip.id, trip.state, trip.state_version, trip.route_version],
@@ -77,7 +90,11 @@ export async function loadDriverV2Snapshot(
       outcome: i.outcome, evidence: i.evidence })),
     stops: stops.map((s) => ({ id: s.id, order_id: s.order_id, type: s.type, state: s.state, version: s.stop_version, sequence: s.sequence, address: s.address, lat: s.lat, lng: s.lng, arrived_at: s.arrived_at, completed_at: s.completed_at })),
     exception: exception ? { id: exception.id, kind: exception.kind, state: exception.state, version: exception.exception_version } : null,
-    gps_transport: { persistence: 't06_default_off', accepted: false },
+    gps_transport: {
+      persistence: 't06_configured_default_off', accepted: false,
+      policy_enabled: Boolean(gpsPolicy?.tracking_enabled),
+      background_policy_enabled: Boolean(gpsPolicy?.background_tracking_enabled),
+    },
   };
 }
 
@@ -102,26 +119,32 @@ export async function executeDriverV2Action(
     return { ok: false, reason_code: 'EXPECTED_VERSION_CONFLICT', correlation_id: correlationId, snapshot: before };
   }
   if (action === 'upload_gps') {
-    const gps = envelope.payload ?? {};
-    const lat = Number(gps.latitude);
-    const lng = Number(gps.longitude);
-    const accuracy = Number(gps.accuracy_m);
-    const sequence = Number(gps.sequence);
-    if (typeof gps.session_id !== 'string'
-      || !Number.isSafeInteger(sequence) || sequence < 0
-      || !Number.isFinite(lat) || lat < -90 || lat > 90
-      || !Number.isFinite(lng) || lng < -180 || lng > 180
-      || !Number.isFinite(accuracy) || accuracy < 0
-      || typeof gps.captured_at !== 'string' || !Number.isFinite(Date.parse(gps.captured_at))) {
+    let gps;
+    try {
+      gps = validateCanonicalGpsEvent(envelope.payload);
+    } catch {
       return {
         ok: false, reason_code: 'INVALID_GPS_EVENT',
         correlation_id: correlationId, snapshot: before,
       };
     }
-    return {
-      ok: false, reason_code: 'GPS_MONOTONIC_PERSISTENCE_T06_DEFAULT_OFF',
-      correlation_id: correlationId, snapshot: before,
-    };
+    const tenantRow = checked(await client.from('mise_driver_tenants').select('tenant_id')
+      .eq('driver_id', driverId).eq('status', 'active').limit(1).maybeSingle(), 'GPS_TENANT_LOOKUP') as any;
+    if (!tenantRow) return { ok: false, reason_code: 'DRIVER_TENANT_FORBIDDEN', correlation_id: correlationId, snapshot: before };
+    const result = checked(await client.rpc('fn_ingest_driver_gps_v2', {
+      p_tenant_id: tenantRow.tenant_id, p_driver_id: driverId, p_action_id: envelope.action_id,
+      p_session_id: gps.session_id, p_sequence: gps.sequence, p_captured_at: gps.captured_at,
+      p_latitude: gps.latitude, p_longitude: gps.longitude, p_accuracy_m: gps.accuracy_m,
+      p_speed_mps: gps.speed_mps ?? null, p_heading_deg: gps.heading_deg ?? null,
+      p_app_version: gps.app_version, p_app_build: gps.app_build ?? null,
+      p_platform: gps.platform, p_app_state: gps.app_state,
+      p_permission_state: gps.permission_state, p_network_state: gps.network_state,
+      p_capability_flags: gps.capability_flags ?? {},
+      p_expected_driver_version: envelope.expected_versions.driver, p_correlation_id: correlationId,
+    }), 'GPS_INGEST') as any;
+    const after = await loadDriverV2Snapshot(client, driverId, correlationId);
+    after.gps_transport.accepted = Boolean(result?.ok);
+    return { ...(result ?? { ok: false, reason_code: 'EMPTY_GPS_RPC_RESULT' }), correlation_id: correlationId, snapshot: after };
   }
   if (action === 'report_exception' && !DRIVER_EXCEPTION_KINDS.includes(envelope.payload?.kind as any)) {
     return { ok: false, reason_code: 'INVALID_EXCEPTION_KIND', correlation_id: correlationId, snapshot: before };
