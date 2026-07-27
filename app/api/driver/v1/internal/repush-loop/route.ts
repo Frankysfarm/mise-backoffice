@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
   }
 
   const c = sb();
-  const { data: repush } = await c.rpc('fn_repush_pending_batches');
+  const { data: repush, error: repushError } = await c.rpc('fn_repush_pending_batches');
+  if (repushError) return NextResponse.json({ ok: false, reason_code: 'REPUSH_FAILED' }, { status: 500 });
   const { data: atomicV2 } = await c.from('dispatch_writer_gates')
     .select('tenant_id').eq('writer', 'atomic_v2').eq('enabled', true).limit(1);
   let cancelled = 0;
@@ -38,10 +39,15 @@ export async function POST(req: NextRequest) {
     if (result.error) return NextResponse.json({ ok: false, reason_code: 'AUTO_CANCEL_FAILED' }, { status: 500 });
     cancelled = Number(result.data ?? 0);
   }
+  const { data: escalated, error: watchdogError } = await c.rpc(
+    'fn_watchdog_escalate_orphan_assignments', { p_limit: 50 },
+  );
+  if (watchdogError) return NextResponse.json({ ok: false, reason_code: 'RECOVERY_WATCHDOG_FAILED' }, { status: 500 });
 
   return NextResponse.json({
     ok: true,
     repushed: Number(repush ?? 0),
     auto_cancelled: Number(cancelled ?? 0),
+    escalated: Number(escalated ?? 0),
   });
 }

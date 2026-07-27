@@ -173,9 +173,15 @@ export async function PATCH(
     recordTourPerformance(params.id).catch(() => {});
   }
 
-  // Bei Stornierung: Recovery Engine befreit nicht-gelieferte Stops (fire-and-forget)
+  // Bei Stornierung: Recovery wird sichtbar und server-autoritativ eskaliert.
   if (body.state === 'cancelled') {
-    recoverCancelledBatch(params.id, 'admin_cancelled', true).catch(() => {});
+    const recovery = await recoverCancelledBatch(params.id, 'admin_cancelled', false);
+    if (recovery.error) {
+      return NextResponse.json({
+        error: 'Recovery-Eskalation fehlgeschlagen',
+        reason_code: recovery.error,
+      }, { status: 409 });
+    }
   }
 
   // Webhook-Events für externe Systeme (fire-and-forget)

@@ -473,7 +473,7 @@ export async function GET(req: NextRequest) {
         ? snapshotAllLocations().catch(() => ({ locations: 0, snapshots: 0 }))
         : Promise.resolve(null),
       evaluateAlertsAllLocations().catch(() => ({ locations: 0, created: 0, resolved: 0 })),
-      scanStaleBatches(60).catch(() => ({ scanned: 0, recovered: [] as string[] })),
+      scanStaleBatches(60),
       // Rating-Tokens generieren + Links versenden (alle 10 Min)
       isRatingTick ? (async () => {
         try {

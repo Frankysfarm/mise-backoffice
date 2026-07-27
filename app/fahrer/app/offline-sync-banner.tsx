@@ -3,41 +3,12 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { WifiOff, RefreshCw, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const QUEUE_KEY = 'mise_offline_queue';
-
-interface QueuedRequest {
-  id: string;
-  url: string;
-  method: string;
-  body: string | null;
-  headers: Record<string, string>;
-  queuedAt: string;
-}
-
-function getQueue(): QueuedRequest[] {
-  try {
-    return JSON.parse(localStorage.getItem(QUEUE_KEY) ?? '[]');
-  } catch {
-    return [];
-  }
-}
-
-function saveQueue(q: QueuedRequest[]) {
-  localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
-}
+import { readOfflineOutbox } from './offline-outbox';
+import { replayCanonicalDriverOutbox } from './offline-replay-client';
 
 export function addToOfflineQueue(url: string, method: string, body: unknown, headers?: Record<string, string>) {
-  const q = getQueue();
-  q.push({
-    id: crypto.randomUUID(),
-    url,
-    method,
-    body: body ? JSON.stringify(body) : null,
-    headers: headers ?? { 'Content-Type': 'application/json' },
-    queuedAt: new Date().toISOString(),
-  });
-  saveQueue(q);
+  void url; void method; void body; void headers;
+  throw new Error('LEGACY_OFFLINE_QUEUE_ENTRYPOINT_DISABLED');
 }
 
 export function FahrerOfflineSyncBanner() {
@@ -48,40 +19,16 @@ export function FahrerOfflineSyncBanner() {
   const syncResultTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const refreshQueueCount = useCallback(() => {
-    setQueueCount(getQueue().length);
+    setQueueCount(readOfflineOutbox().actions.filter((item) => !item.terminalResult).length);
   }, []);
 
   const replayQueue = useCallback(async () => {
-    const q = getQueue();
-    if (q.length === 0) return;
+    if (readOfflineOutbox().actions.every((item) => item.terminalResult)) return;
     setSyncing(true);
     setSyncResult(null);
 
-    let ok = 0;
-    let fail = 0;
-    const remaining: QueuedRequest[] = [];
-
-    for (const item of q) {
-      try {
-        const res = await fetch(item.url, {
-          method: item.method,
-          headers: item.headers,
-          body: item.body,
-        });
-        if (res.ok) {
-          ok++;
-        } else {
-          fail++;
-          remaining.push(item);
-        }
-      } catch {
-        fail++;
-        remaining.push(item);
-      }
-    }
-
-    saveQueue(remaining);
-    setQueueCount(remaining.length);
+    const { ok, fail } = await replayCanonicalDriverOutbox();
+    setQueueCount(readOfflineOutbox().actions.filter((item) => !item.terminalResult).length);
     setSyncing(false);
     setSyncResult({ ok, fail });
 

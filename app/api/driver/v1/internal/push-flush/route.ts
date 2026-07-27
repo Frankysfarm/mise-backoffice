@@ -15,6 +15,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sb } from '../../_lib/driver-auth';
 import { sendVoipPush } from '@/lib/apns-voip';
 import { sendAlertPush, isApnsAlertConfigured } from '@/lib/apns-alert';
+import { randomUUID } from 'node:crypto';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -53,16 +54,19 @@ export async function POST(req: NextRequest) {
 
   const c = sb();
 
-  const { data: pending } = await c
-    .from('mise_push_outbox')
-    .select(
-      'id, driver_id, type, title, body, data, sound, priority, attempts, drivers:driver_id(expo_push_token,voip_push_token,push_enabled)',
-    )
-    .is('sent_at', null)
-    .is('failed_at', null)
-    .lt('attempts', 5)
-    .order('created_at', { ascending: true })
-    .limit(50);
+  const workerId = randomUUID();
+  const { data: claimed, error: claimError } = await c.rpc('fn_claim_wake_notifications', {
+    p_worker_id: workerId, p_limit: 50,
+  });
+  if (claimError) return NextResponse.json({ ok: false, reason_code: 'PUSH_CLAIM_FAILED' }, { status: 500 });
+  type Row = OutboxRow & { drivers: DriverShortRow | null };
+  const pending: Row[] = [];
+  for (const row of (claimed ?? []) as OutboxRow[]) {
+    const { data: drivers, error: driverError } = await c.from('mise_drivers')
+      .select('expo_push_token,voip_push_token,push_enabled').eq('id', row.driver_id).maybeSingle();
+    if (driverError) return NextResponse.json({ ok: false, reason_code: 'PUSH_DRIVER_LOOKUP_FAILED' }, { status: 500 });
+    pending.push({ ...row, drivers: drivers as DriverShortRow | null });
+  }
 
   if (!pending || pending.length === 0) {
     return NextResponse.json({ ok: true, sent: 0, failed: 0, skipped: 0, voip: 0, expo: 0 });
@@ -86,16 +90,23 @@ export async function POST(req: NextRequest) {
   let voipCount = 0;
   let expoCount = 0;
 
-  type Row = OutboxRow & { drivers: DriverShortRow | null };
+  const finish = async (id: string, accepted: boolean, providerMessageId: string | null, error: string | null) => {
+    const result = await c.rpc('fn_finish_wake_notification', {
+      p_notification_id: id, p_worker_id: workerId, p_provider_accepted: accepted,
+      p_provider_message_id: providerMessageId, p_error: error,
+    });
+    if (result.error || !(result.data as { ok?: boolean } | null)?.ok) throw new Error('PUSH_LEDGER_UPDATE_FAILED');
+  };
+  const wakeData = (row: OutboxRow) => ({
+    wake_only: true, notification_id: row.id, event_type: row.type,
+    snapshot_path: '/api/driver/v2/snapshot',
+  });
 
   for (const row of pending as unknown as Row[]) {
     const drv = row.drivers;
     const enabled = drv?.push_enabled ?? true;
     if (!enabled) {
-      await c
-        .from('mise_push_outbox')
-        .update({ failed_at: new Date().toISOString(), fail_reason: 'push_enabled=false' })
-        .eq('id', row.id);
+      await finish(row.id, false, null, 'PUSH_DISABLED');
       skipped++;
       continue;
     }
@@ -103,39 +114,29 @@ export async function POST(req: NextRequest) {
     // 1) VoIP-First für Bundle-Assignments
     const isAssign = row.type === 'order_assigned' || row.type === 'assign';
     if (isAssign && drv?.voip_push_token) {
-      const data = (row.data ?? {}) as Record<string, unknown>;
+      const data = wakeData(row);
       const r = await sendVoipPush(drv.voip_push_token, {
-        batch_id: typeof data.batch_id === 'string' ? data.batch_id : '',
-        order_count: typeof data.order_count === 'number' ? data.order_count : 1,
-        restaurant_name: typeof data.restaurant_name === 'string' ? data.restaurant_name : 'Bestellung',
-        distance_km: typeof data.distance_km === 'number' ? data.distance_km : null,
-        payout_eur: typeof data.payout_eur === 'number' ? data.payout_eur : null,
-        reason_text: row.body,
-        decision_id: typeof data.decision_id === 'string' ? data.decision_id : undefined,
-        offer_id: typeof data.offer_id === 'string' ? data.offer_id : undefined,
-        assignment_version:
-          typeof data.assignment_version === 'number'
-            ? data.assignment_version
-            : undefined,
+        batch_id: '',
+        order_count: 1,
+        restaurant_name: 'Aktualisierung',
+        distance_km: null,
+        payout_eur: null,
+        reason_text: 'App öffnen und aktuellen Stand laden.',
+        decision_id: data.notification_id,
       });
       if (r.ok) {
-        await c
-          .from('mise_push_outbox')
-          .update({
-            sent_at: new Date().toISOString(),
-            fail_reason: 'voip-ok',
-          })
-          .eq('id', row.id);
+        await finish(row.id, true, null, null);
         sent++;
         voipCount++;
         continue;
       }
       // Token tot? -> in DB nullen
       if (r.tokenDead) {
-        await c
+        const { error: tokenError } = await c
           .from('mise_drivers')
           .update({ voip_push_token: null, voip_push_token_updated_at: new Date().toISOString() })
           .eq('id', row.driver_id);
+        if (tokenError) throw new Error('DEAD_VOIP_TOKEN_CLEAR_FAILED');
       }
       // Egal welcher Fehler — fall back auf Expo wenn vorhanden
       // (kein continue → es geht in den Expo-Block unten)
@@ -146,20 +147,21 @@ export async function POST(req: NextRequest) {
     const isExpoTok = typeof rawTok === 'string' && /^Expo(nent)?PushToken\[/.test(rawTok);
     if (rawTok && !isExpoTok && /^[0-9a-fA-F]{64}$/.test(rawTok) && isApnsAlertConfigured()) {
       const r = await sendAlertPush(rawTok, {
-        title: row.title,
-        body: row.body,
+        title: 'Aktualisierung',
+        body: 'Bitte App öffnen und aktuellen Stand laden.',
         sound: 'default',
-        data: (row.data ?? {}) as Record<string, unknown>,
+        data: wakeData(row),
       });
       if (r.ok) {
-        await c.from('mise_push_outbox').update({ sent_at: new Date().toISOString(), fail_reason: 'apns-alert-ok' }).eq('id', row.id);
+        await finish(row.id, true, null, null);
         sent++;
         continue;
       }
       if (r.tokenDead) {
-        await c.from('mise_drivers').update({ expo_push_token: null, push_token_updated_at: new Date().toISOString() }).eq('id', row.driver_id);
+        const { error: tokenError } = await c.from('mise_drivers').update({ expo_push_token: null, push_token_updated_at: new Date().toISOString() }).eq('id', row.driver_id);
+        if (tokenError) throw new Error('DEAD_ALERT_TOKEN_CLEAR_FAILED');
       }
-      await c.from('mise_push_outbox').update({ failed_at: new Date().toISOString(), fail_reason: r.error ?? 'apns-alert-fail' }).eq('id', row.id);
+      await finish(row.id, false, null, r.error ?? 'APNS_ALERT_REJECTED');
       skipped++;
       continue;
     }
@@ -167,10 +169,7 @@ export async function POST(req: NextRequest) {
     // 2) Expo-Push (Standard oder Fallback)
     const expoToken = drv?.expo_push_token;
     if (!expoToken) {
-      await c
-        .from('mise_push_outbox')
-        .update({ failed_at: new Date().toISOString(), fail_reason: 'no expo token' })
-        .eq('id', row.id);
+      await finish(row.id, false, null, 'NO_EXPO_TOKEN');
       skipped++;
       continue;
     }
@@ -178,9 +177,9 @@ export async function POST(req: NextRequest) {
       outboxId: row.id,
       message: {
         to: expoToken,
-        title: row.title,
-        body: row.body,
-        data: row.data,
+        title: 'Aktualisierung',
+        body: 'Bitte App öffnen und aktuellen Stand laden.',
+        data: wakeData(row),
         sound: row.sound ?? 'default',
         priority: row.priority ?? 'high',
         channelId: 'orders',
@@ -208,22 +207,10 @@ export async function POST(req: NextRequest) {
         const outboxId = expoBatch[i].outboxId;
         if (!ticket) continue;
         if (ticket.status === 'ok') {
-          await c
-            .from('mise_push_outbox')
-            .update({ sent_at: new Date().toISOString() })
-            .eq('id', outboxId);
+          await finish(outboxId, true, null, null);
           sent++;
         } else {
-          const row = pending.find((p: OutboxRow) => p.id === outboxId);
-          const newAttempts = (row?.attempts ?? 0) + 1;
-          await c
-            .from('mise_push_outbox')
-            .update({
-              attempts: newAttempts,
-              fail_reason: ticket.message ?? 'unknown',
-              failed_at: newAttempts >= 5 ? new Date().toISOString() : null,
-            })
-            .eq('id', outboxId);
+          await finish(outboxId, false, null, ticket.message ?? 'EXPO_REJECTED');
           failed++;
         }
       }

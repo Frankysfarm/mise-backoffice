@@ -4,6 +4,8 @@ import React, { useEffect, useMemo, useRef, useState, useTransition } from 'reac
 import { createClient } from '@/lib/supabase/client';
 import { realtimeRequiresReload, type DriverV2Action, type DriverV2Envelope, type DriverV2Snapshot } from '@/lib/delivery/driver-v2-contract';
 import { buildAtomicPickupManifest } from '@/lib/delivery/driver-v2-pick-contract';
+import { executeDriverV2OrQueue, readOfflineOutbox } from './offline-outbox';
+import { applyValidatedDriverSnapshotEvent } from './driver-snapshot-event';
 import { useRouter } from 'next/navigation';
 import {
   Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, FileText, Footprints,
@@ -1102,6 +1104,15 @@ export function FahrerApp({
     setOpenBatches((current) => current.filter((batch) => batch.batch_id !== snapshot.trip?.id));
   }
 
+  useEffect(() => {
+    const apply = (event: Event) => {
+      applyValidatedDriverSnapshotEvent(event, driver.id, reconcileDriverSnapshot);
+    };
+    window.addEventListener('mise:driver-snapshot-reconciled', apply);
+    return () => window.removeEventListener('mise:driver-snapshot-reconciled', apply);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driver.id]);
+
   async function driverV2Request(path: string, action?: DriverV2Action, payload: Record<string, unknown> = {}) {
     const { data } = await supabase.auth.getSession();
     const token = data.session?.access_token;
@@ -1112,7 +1123,21 @@ export function FahrerApp({
     const targetStop = current?.stops.find((stop) => stop.id === payload.stop_id)
       ?? (current?.stops.length === 1 ? current.stops[0] : undefined);
     const actionStoreKey = `mise_driver_v2_action:${action ?? 'snapshot'}:${path}:${String(payload.order_id ?? payload.stop_id ?? '')}`;
-    const storedEnvelope = action ? localStorage.getItem(actionStoreKey) : null;
+    let storedEnvelope = action ? localStorage.getItem(actionStoreKey) : null;
+    if (storedEnvelope) {
+      try {
+        const storedActionId = (JSON.parse(storedEnvelope) as { action_id?: string }).action_id;
+        const completed = readOfflineOutbox().actions.find((item) =>
+          item.actionId === storedActionId && item.terminalResult?.ok);
+        if (completed) {
+          localStorage.removeItem(actionStoreKey);
+          storedEnvelope = null;
+        }
+      } catch {
+        localStorage.removeItem(actionStoreKey);
+        storedEnvelope = null;
+      }
+    }
     const actionId = action ? crypto.randomUUID() : null;
     const nextEnvelope = action && current ? {
       action,
@@ -1127,12 +1152,24 @@ export function FahrerApp({
     } satisfies DriverV2Envelope : null;
     const requestBody = storedEnvelope ?? (nextEnvelope ? JSON.stringify(nextEnvelope) : undefined);
     if (action && requestBody && !storedEnvelope) localStorage.setItem(actionStoreKey, requestBody);
-    const response = await fetch(`/api/driver/v2/${path}`, {
-      method: action ? 'POST' : 'GET',
-      cache: 'no-store',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: requestBody,
-    });
+    let response: Response;
+    if (action && requestBody) {
+      const envelope = JSON.parse(requestBody) as Record<string, unknown>;
+      const attempt = await executeDriverV2OrQueue(
+        `/api/driver/v2/${path}`, action as Parameters<typeof executeDriverV2OrQueue>[1],
+        envelope, {
+          getAccessToken: async () => token,
+          reconcileSnapshot: reloadDriverV2Snapshot,
+        },
+      );
+      if (attempt.queued || !attempt.response) throw new Error('DRIVER_V2_ACTION_QUEUED_OFFLINE');
+      response = attempt.response;
+    } else {
+      response = await fetch(`/api/driver/v2/${path}`, {
+        method: 'GET', cache: 'no-store',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+    }
     const result = await response.json().catch(() => null);
     if (result?.snapshot) reconcileDriverSnapshot(result.snapshot);
     if (!response.ok || !result?.ok) {

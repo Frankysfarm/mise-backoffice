@@ -6,16 +6,14 @@ import {
   AlertTriangle, CheckCircle2, Clock, RefreshCw, Upload,
   WifiOff, Wifi, Database, Loader2,
 } from 'lucide-react';
+import {
+  enqueueOfflineRequest, readOfflineOutbox, type OfflineActionV1,
+} from './offline-outbox';
+import { replayCanonicalDriverOutbox } from './offline-replay-client';
 
 /* ── Types ──────────────────────────────────────────────────────── */
 
-type SyncItem = {
-  id: string;
-  type: 'stop_complete' | 'proof_photo' | 'status_update' | 'feedback';
-  payload: Record<string, unknown>;
-  timestamp: string;
-  attempts: number;
-};
+type SyncItem = OfflineActionV1;
 
 type SyncState = {
   online: boolean;
@@ -27,41 +25,35 @@ type SyncState = {
 
 /* ── Offline storage helpers ────────────────────────────────────── */
 
-const STORAGE_KEY = 'mise_offline_queue';
-
 function readQueue(): SyncItem[] {
-  try {
-    if (typeof window === 'undefined') return [];
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as SyncItem[]) : [];
-  } catch {
-    return [];
-  }
+  return readOfflineOutbox().actions.filter((item) => !item.terminalResult);
 }
 
-function writeQueue(items: SyncItem[]) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  } catch { /* quota exceeded — ignore */ }
-}
-
-function clearQueue() {
-  try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
-}
-
-export function enqueueOfflineAction(type: SyncItem['type'], payload: Record<string, unknown>) {
-  const queue = readQueue();
-  queue.push({ id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, type, payload, timestamp: new Date().toISOString(), attempts: 0 });
-  writeQueue(queue);
+export function enqueueOfflineAction(type: string, payload: Record<string, unknown>) {
+  const endpoints: Record<string, string> = {
+    complete_stop: '/api/driver/v2/stops/complete',
+    arrive: '/api/driver/v2/stops/arrive',
+    resolve_items: '/api/driver/v2/items/resolve',
+    atomic_pickup: '/api/driver/v2/pickup/atomic',
+    start_shift: '/api/driver/v2/session/start',
+    end_shift: '/api/driver/v2/session/end',
+    report_exception: '/api/driver/v2/exceptions',
+  };
+  const endpoint = endpoints[type];
+  if (!endpoint) throw new Error('UNSUPPORTED_OFFLINE_ACTION');
+  enqueueOfflineRequest(endpoint, type, payload);
 }
 
 /* ── Type label map ─────────────────────────────────────────────── */
 
-const TYPE_LABELS: Record<SyncItem['type'], string> = {
-  stop_complete:  'Stop abgeschlossen',
-  proof_photo:    'Foto-Nachweis',
-  status_update:  'Status-Update',
-  feedback:       'Fahrer-Feedback',
+const TYPE_LABELS: Record<string, string> = {
+  complete_stop: 'Stop abgeschlossen',
+  arrive: 'Am Stopp angekommen',
+  resolve_items: 'Artikel geprüft',
+  atomic_pickup: 'Abholung abgeschlossen',
+  start_shift: 'Schicht gestartet',
+  end_shift: 'Schicht beendet',
+  report_exception: 'Ausnahme gemeldet',
 };
 
 /* ── Component ──────────────────────────────────────────────────── */
@@ -106,37 +98,8 @@ export function OfflineSyncManager() {
     syncingRef.current = true;
     setState((s) => ({ ...s, syncInProgress: true }));
 
-    let synced = 0;
-    const remaining: SyncItem[] = [];
-
-    for (const item of queue) {
-      try {
-        // Map type to API endpoint
-        const endpoint = item.type === 'stop_complete'
-          ? '/api/delivery/tours/sync-stop'
-          : item.type === 'proof_photo'
-          ? '/api/delivery/tours/sync-proof'
-          : item.type === 'status_update'
-          ? '/api/delivery/driver/shift-status'
-          : '/api/delivery/driver/feedback';
-
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...item.payload, _offline_id: item.id, _offline_ts: item.timestamp }),
-        });
-
-        if (res.ok) {
-          synced++;
-        } else {
-          remaining.push({ ...item, attempts: item.attempts + 1 });
-        }
-      } catch {
-        remaining.push({ ...item, attempts: item.attempts + 1 });
-      }
-    }
-
-    writeQueue(remaining.filter((i) => i.attempts < 5));
+    const { ok: synced } = await replayCanonicalDriverOutbox();
+    const remaining = readQueue();
     setState((s) => ({
       ...s,
       pendingItems: remaining,
@@ -219,12 +182,12 @@ export function OfflineSyncManager() {
 
           {/* Pending items list */}
           {state.pendingItems.slice(0, 5).map((item) => (
-            <div key={item.id} className="flex items-center gap-2 px-3 py-1.5">
+            <div key={item.actionId} className="flex items-center gap-2 px-3 py-1.5">
               <AlertTriangle className="h-3 w-3 text-amber-500 shrink-0" />
-              <span className="text-[10px] font-medium">{TYPE_LABELS[item.type]}</span>
+              <span className="text-[10px] font-medium">{TYPE_LABELS[item.action as keyof typeof TYPE_LABELS] ?? item.action}</span>
               <span className="ml-auto text-[9px] text-muted-foreground flex items-center gap-0.5">
                 <Clock className="h-2.5 w-2.5" />
-                {new Date(item.timestamp).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                {new Date(item.createdAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
               </span>
               {item.attempts > 0 && (
                 <span className="text-[9px] text-red-500">Versuch {item.attempts}</span>
