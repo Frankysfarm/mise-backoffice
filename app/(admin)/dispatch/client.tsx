@@ -1147,6 +1147,7 @@ import { DispatchPhase4172FahrzeitBoard } from './phase4172-fahrzeit-board';
 import { DispatchPhase4177KmProTourBoard } from './phase4177-km-pro-tour-board';
 import { DispatchPhase4182PuenktlichkeitsBoard } from './phase4182-puenktlichkeits-board';
 import { DispatchPhase4172TourScoreLiveVisualisierung } from './phase4172-tour-score-live-visualisierung';
+import { DispatchPhase4187AblieferungsquoteBoard } from './phase4187-ablieferungsquote-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4921,6 +4922,7 @@ export function DispatchBoard({
           <DispatchPhase4172FahrzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4177KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4182PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4187AblieferungsquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13299,3 +13301,5 @@ export { DispatchPhase4177KmProTourBoard } from './phase4177-km-pro-tour-board';
 export { DispatchPhase4182PuenktlichkeitsBoard } from './phase4182-puenktlichkeits-board';
 // Phase 4172 — Tour-Score Live-Visualisierung (Trophy amber; Flotten-KPIs Avg/Top/Top-Fahrer; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4172TourScoreLiveVisualisierung } from './phase4172-tour-score-live-visualisierung';
+// Phase 4172 — Ablieferungsquote-Board (CheckCircle green; absteigend Rang 1=höchste Quote=bester; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert "Niedrige Quote!"; rank_delta>0=gruen; 30-Min-Polling)
+export { DispatchPhase4187AblieferungsquoteBoard } from './phase4187-ablieferungsquote-board';
