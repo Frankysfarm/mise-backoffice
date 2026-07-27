@@ -13,7 +13,8 @@ Updated: 2026-07-27
 | T06 GPS Transport/Native | SOURCE CANDIDATE COMPLETE | G5 RED (external evidence + T07 wiring) | main + native isolated branches | `625204bc`, native `4d048c2` | Source approved independently; native compile/device matrix unavailable and dispatch eligibility intentionally awaits T07. |
 | T07 Deterministic Dispatch Baseline | COMPLETE | G6 GREEN | `codex/driver-remediation` | `277b1094` | Independent review approved deterministic default-off/shadow/active behavior and Atomic-v2-only assignment after 400 green overlap races. |
 | T09 Operations/Security/Observability | SOURCE CANDIDATE COMPLETE | G8 RED (durable integration pending) | `codex/driver-remediation` | `596c7b52` | Independent review approved the default-off redaction/alert/policy contract; DB/RLS/API/dashboard/callsites remain unimplemented. |
-| T08 Routing/Batching/Kitchen Hold and T10 | NOT STARTED | G7/G9 not evaluated | — | — | T08 is now unblocked; T10 remains last. |
+| T08 Routing/Batching/Kitchen Hold | IN PROGRESS | G7 pending | `codex/driver-remediation` | — | Exclusive routing/hold scope assigned to `t07_dispatch` as the T08 implementer; default-off/shadow evidence required. |
+| T10 E2E Canary Release | NOT STARTED | G9 not evaluated | — | — | Remains last after G7/G8. |
 
 ## Production safety
 
