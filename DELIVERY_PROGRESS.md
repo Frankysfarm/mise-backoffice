@@ -31313,3 +31313,39 @@ CEO-Agent (2026-07-27): CEO Review #632 abgeschlossen — Build ✓ exit 0. Phas
 3. **Phase 4373 Fahrer:** `FahrerPhase4373MeinUmsatzProSchicht` — Euro gold; isOnline-Guard; nach Phase4368. PFLICHT: Import + Render + Barrel.
 4. **Phase 4374 Storefront:** Überspringen.
 5. **Phase 4375 Kitchen:** `KitchenPhase4375UmsatzProSchichtTicker` — Euro gold; nach Phase4370. PFLICHT: Import + Render + Barrel.
+
+---
+
+## Batch 4411–4415 — Fahrer-Gesamtstunden-Ranking (ABGESCHLOSSEN 2026-07-27)
+
+**Hinweis:** Phasen 4376–4410 wurden von parallelen Agenten abgedeckt (Stand: git log 2b3c0e34).
+
+### Phase 4411 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-gesamtstunden-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-gesamtstunden-ranking?location_id=...
+**Logik:** Gesamt-Arbeitsstunden je Fahrer letzte 30 Tage (driver_shifts); absteigend Rang 1=meiste Stunden; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Niedrige Stunden!"; Mock Tim 148h/Sara 131h/Max 109h/Julia 87h; force-dynamic ✅
+
+### Phase 4412 — Gesamtstunden-Board (Dispatch)
+**Component:** `DispatchPhase4412GesamtstundenBoard` — Clock blue-600; KPI-Grid Meiste/Team-Avg/Wenigste; rank_delta>0=TrendingUp emerald; Alert; Import+Render+Barrel ✅
+
+### Phase 4413 — Meine Gesamtstunden (Fahrer)
+**Component:** `FahrerPhase4413MeineGesamtstunden` — Clock blue-600; gesamt_stunden 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; Import+Render+Barrel ✅
+
+### Phase 4414 — Storefront
+Übersprungen ✅
+
+### Phase 4415 — Gesamtstunden-Ticker (Kitchen)
+**Component:** `KitchenPhase4415GesamtstundenTicker` — Clock blue-600; Fleißigster #1 Name+h; alert_count-Zähler; dot-Farbkodierung; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Turbopack-Timeout bekanntes Container-Problem)
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4415
+- **Nächste freie Phase: 4416**
+
+### Nächste Phasen 4416–4420 — Fahrer-Durchschnitts-Lieferzeit-Ranking
+1. **Phase 4416 Backend:** GET /api/delivery/admin/fahrer-avg-lieferzeit-ranking — avg(delivery_minutes) je Fahrer letzte 30 Tage; aufsteigend Rang 1=kürzeste Zeit=bester (INVERTED); Quartil-Ampel; Mock Julia 18.2min/Sara 21.5min/Max 25.8min/Tim 31.4min; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4417 Dispatch:** `DispatchPhase4417AvgLieferzeitBoard` — Timer green-600; nach Phase4412. PFLICHT: Import + Render + Barrel.
+3. **Phase 4418 Fahrer:** `FahrerPhase4418MeineAvgLieferzeit` — Timer green-600; isOnline-Guard; nach Phase4413. PFLICHT: Import + Render + Barrel.
+4. **Phase 4419 Storefront:** Überspringen.
+5. **Phase 4420 Kitchen:** `KitchenPhase4420AvgLieferzeitTicker` — Timer green-600; Schnellster #1; nach Phase4415. PFLICHT: Import + Render + Barrel.
