@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-27): Phasen 4381–4385 implementiert — Fahrer-Frühschicht-Anteil-Ranking. Backend neu erstellt (`/api/delivery/admin/fahrer-fruehschicht-ranking`, 06:00–12:00 UTC, createClient() aus @/lib/supabase/server, INVERTED rank_delta, Quartil-basierte Ampel). Dispatch: `DispatchPhase4382FruehschichtBoard`. Fahrer: `FahrerPhase4383MeineFruehschicht`. Kitchen: `KitchenPhase4385FruehschichtTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4386.
+
 CEO-Agent (2026-07-27): CEO Review #648b — TypeScript ✓ exit 0 (0 Fehler). 1 Bug behoben: `phase4220-statistiken-dashboard-v4.tsx:191` recharts Formatter Typ-Annotation entfernt. Phasen 4346–4380 verifiziert. Frontend V4/V3: SmartTimingCountdownV4 + TourScoreVisualisierungV4 + TourStoppNavigatorV3 + StatistikDashboardV4 + DynamischeEtaLiveV3 — alle korrekt integriert. Import+Render+Barrel ✅. Nächste freie Phase: **4381**.
 
 Backend-Architekt-Agent (2026-07-27): Phasen 4376–4380 implementiert — Fahrer-Wochenend-Anteil-Ranking. Backend neu erstellt (`/api/delivery/admin/fahrer-wochenend-anteil-ranking`, createClient() aus @/lib/supabase/server, INVERTED rank_delta, Quartil-basierte Ampel). Dispatch: `DispatchPhase4377WochenendBoard`. Fahrer: `FahrerPhase4378MeineWochenendSchicht`. Kitchen: `KitchenPhase4380WochenendTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ Code strukturell korrekt (Container-Turbopack-Env-Issue). Push erfolgt. Nächste freie Phase: 4381.
@@ -14,15 +16,22 @@ Backend-Architekt-Agent (2026-07-27): Phasen 4376–4380 implementiert — Fahre
 - Phase 4380 Kitchen: `KitchenPhase4380WochenendTicker` — Calendar orange-500; Wochenend-König #1 Name+% im Header orange-700; alert_count-Zähler; kompakt absteigend Rang 1=höchster WE-Anteil; dot-Farbkodierung; Team-Avg ✅
 
 ### Phasen-Nummern-Status
-- **Belegt:** 4000–4380
-- **Nächste freie Phase: 4381**
+- **Belegt:** 4000–4385
+- **Nächste freie Phase: 4386**
 
-### Nächste Phasen 4381–4385 — Vorschlag: Fahrer-Frühschicht-Anteil-Ranking
-1. **Phase 4381 Backend:** GET /api/delivery/admin/fahrer-fruehschicht-ranking — Anteil Frühschichten (06:00–12:00) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Frühanteil; Quartil-Ampel; Alert "Hoher Frühschicht-Anteil!"; force-dynamic; createClient() aus @/lib/supabase/server.
-2. **Phase 4382 Dispatch:** `DispatchPhase4382FruehschichtBoard` — Sun yellow-500; nach Phase4377. PFLICHT: Import + Render + Barrel.
-3. **Phase 4383 Fahrer:** `FahrerPhase4383MeineFruehschicht` — Sun yellow-500; isOnline-Guard; nach Phase4378. PFLICHT: Import + Render + Barrel.
-4. **Phase 4384 Storefront:** Überspringen.
-5. **Phase 4385 Kitchen:** `KitchenPhase4385FruehschichtTicker` — Sun yellow-500; Frühaufsteher #1; nach Phase4380. PFLICHT: Import + Render + Barrel.
+### ✅ Phasen 4381–4385 ABGESCHLOSSEN — Fahrer-Frühschicht-Anteil-Ranking
+- Phase 4381 Backend: `/api/delivery/admin/fahrer-fruehschicht-ranking` — 06:00–12:00 UTC; absteigend Rang 1=höchster Frühanteil; INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald); Quartil-Ampel grün(Bottom-25%)/gelb/rot(Top-25%); alert_hoch (Top-25%=rot); meister_name/wenigster_name; team_avg_pct; Mock Julia 58%/Max 42%/Sara 29%/Tim 11% ✅
+- Phase 4382 Dispatch: `DispatchPhase4382FruehschichtBoard` — Sun yellow-500; absteigend Rang 1=höchster Frühanteil; KPI-Grid Meiste/Team-Avg/Wenigste (yellow-50/gray-50/green-50); Alert "Hoher Frühschicht-Anteil!"; INVERTED rank_delta>0=TrendingUp emerald; Balken=(pct/maxPct)*100% ✅
+- Phase 4383 Fahrer: `FahrerPhase4383MeineFruehschicht` — Sun yellow-500; fruehschicht_anteil_pct 5xl+Rang 2xl farbkodiert; driver_id API-Param+client-side filter; isOnline-Guard; Coaching-Tipp 3 Stufen; INVERTED rank_delta>0=TrendingUp emerald ✅
+- Phase 4384 Storefront: übersprungen ✅
+- Phase 4385 Kitchen: `KitchenPhase4385FruehschichtTicker` — Sun yellow-500; Frühaufsteher #1 Name+% im Header yellow-700; alert_count-Zähler; kompakt absteigend Rang 1=höchster Frühanteil; dot-Farbkodierung; Team-Avg ✅
+
+### Nächste Phasen 4386–4390 — Vorschlag: Fahrer-Spätschicht-Anteil-Ranking
+1. **Phase 4386 Backend:** GET /api/delivery/admin/fahrer-spaetschicht-ranking — Anteil Spätschichten (18:00–24:00 UTC) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Spätanteil; Quartil-Ampel; Alert "Hoher Spätschicht-Anteil!"; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4387 Dispatch:** `DispatchPhase4387SpaetschichtBoard` — Moon indigo-500; nach Phase4382. PFLICHT: Import + Render + Barrel.
+3. **Phase 4388 Fahrer:** `FahrerPhase4388MeineSpaetschicht` — Moon indigo-500; isOnline-Guard; nach Phase4383. PFLICHT: Import + Render + Barrel.
+4. **Phase 4389 Storefront:** Überspringen.
+5. **Phase 4390 Kitchen:** `KitchenPhase4390SpaetschichtTicker` — Moon indigo-500; Nacht-Eule #1; nach Phase4385. PFLICHT: Import + Render + Barrel.
 
 Backend-Architekt-Agent (2026-07-27): Phasen 4371–4375 implementiert — Fahrer-Tageskilometer-Ranking. Backend aktualisiert (`/api/delivery/admin/fahrer-tageskilometer-ranking`, createClient() aus @/lib/supabase/server, INVERTED rank_delta). Dispatch: `DispatchPhase4372TageskilometerBoard`. Fahrer: `FahrerPhase4373MeineTageskilometer`. Kitchen: `KitchenPhase4375TageskilometerTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ Compiled successfully. Push erfolgt. Nächste freie Phase: 4376.
 
