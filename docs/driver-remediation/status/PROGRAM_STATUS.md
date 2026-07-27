@@ -11,8 +11,9 @@ Updated: 2026-07-27
 | T04 Pick/Pickup Correctness | COMPLETE | G4 GREEN | `codex/driver-remediation` | `60621b64` | Atomic whole-batch pickup, cancellation-after-snapshot handling, disabled legacy bypasses and two-device race verified. |
 | T05 Recovery/Push/Offline | COMPLETE | G4 GREEN | `codex/driver-remediation` | `a1408ce2`, `0c90ba95` | Ownership-preserving recovery, wake-only push, snapshot-first ACK, strict offline replay and defensive database privileges verified. |
 | T06 GPS Transport/Native | SOURCE CANDIDATE COMPLETE | G5 RED (external evidence + T07 wiring) | main + native isolated branches | `625204bc`, native `4d048c2` | Source approved independently; native compile/device matrix unavailable and dispatch eligibility intentionally awaits T07. |
-| T07 Deterministic Dispatch Baseline | NOT STARTED | G6 not evaluated | — | — | Now unblocked by the stable T06 transport/eligibility contract. |
-| T08–T10 | NOT STARTED | G7–G9 not evaluated | — | — | Governed by `EXECUTION_GRAPH.md`. |
+| T07 Deterministic Dispatch Baseline | IN PROGRESS | G6 pending | `codex/driver-remediation` | — | Exclusive dispatch ownership assigned to `t07_dispatch`; default-off/shadow evidence required. |
+| T09 Operations/Security/Observability | IN PROGRESS (safe subset) | G8 pending | `codex/driver-remediation` | — | Contract-preserving new modules/tests assigned to `t09_ops_security`; protected scopes excluded. |
+| T08 and T10 | NOT STARTED | G7/G9 not evaluated | — | — | T08 waits for G6; T10 remains last. |
 
 ## Production safety
 
