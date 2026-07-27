@@ -1141,6 +1141,7 @@ import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
 import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';
 import { KitchenPhase4380SmartTimingCountdownV4 } from './phase4380-smart-timing-countdown-v4';
+import { KitchenPhase4395SmartTimingCountdownV5 } from './phase4395-smart-timing-countdown-v5';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4603,6 +4604,8 @@ export function KitchenBoard({
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
       <KitchenPhase4380SmartTimingCountdownV4 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4395: Smart-Timing Countdown V5 — Kritisch-Alert-Banner; Stations-Heatmap; 12-KPI-Grid; Effizienz-Balken; Notiz-Expand; 12-Sek-Polling; Mock-Fallback */}
+      <KitchenPhase4395SmartTimingCountdownV5 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

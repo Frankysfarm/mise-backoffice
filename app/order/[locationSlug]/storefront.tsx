@@ -480,6 +480,7 @@ import { Phase1000LiveEtaLieferstatusCockpit } from './phase1000-live-eta-liefer
 import { StorefrontPhase1000DynamischeEtaLiveTrackingV2 } from './phase1000-dynamische-eta-live-tracking-v2';
 import { StorefrontPhase1015LiveTrackingStatusPro } from './phase1015-live-tracking-status-pro';
 import { StorefrontPhase1020DynamischeEtaLiveV3 } from './phase1020-dynamische-eta-live-v3';
+import { StorefrontPhase1025DynamischeEtaLiveV4 } from './phase1025-dynamische-eta-live-v4';
 
 type Props = {
   location: Location;
@@ -3352,6 +3353,13 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {/* Phase 1020 V3: Dynamische ETA Live V3 — Phasen-Timeline; Fahrer-Entfernung; Küchen-Fortschrittsbalken; Sekunden-Tick; 20-Sek-Polling; Mock-Fallback */}
       {order.isDelivery && order.orderId && (
         <StorefrontPhase1020DynamischeEtaLiveV3
+          orderId={order.orderId}
+          locationId={locationId}
+        />
+      )}
+      {/* Phase 1025 V4: Dynamische ETA Live V4 — Hero-ETA mit Sekunden-Countdown; 5-stufige Phasen-Timeline; Küchen-Fortschrittsbalken; Fahrer-Proximity-Bar; Verzögerungs-Alert; 20-Sek-Polling; Mock-Fallback */}
+      {order.isDelivery && order.orderId && (
+        <StorefrontPhase1025DynamischeEtaLiveV4
           orderId={order.orderId}
           locationId={locationId}
         />

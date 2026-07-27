@@ -493,6 +493,7 @@ import { LieferdienstPhase4201UmsatzEchtzeitTracker } from './phase4201-umsatz-e
 import { LieferdienstPhase4210StatistikenDashboardV2 } from './phase4210-statistiken-dashboard-v2';
 import { LieferdienstPhase4215StatistikenDashboardV3 } from './phase4215-statistiken-dashboard-v3';
 import { LieferdienstPhase4220StatistikDashboardV4 } from './phase4220-statistiken-dashboard-v4';
+import { LieferdienstPhase4395StatistikDashboardV5 } from './phase4395-statistiken-dashboard-v5';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2371,6 +2372,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4215StatistikenDashboardV3 locationId={locationId ?? null} />
                 {/* Phase 4220: Statistiken Dashboard V4 — 12-KPI-Grid Ampel+Trend; Stunden-BarChart 2-Modi; Zonen-Ranking SLA+Lieferzeit; Alert-Strip; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase4220StatistikDashboardV4 locationId={locationId ?? null} />
+                {/* Phase 4395: Statistiken Dashboard V5 — Profit+Umsatz Summary; 12-KPI-Tiles Ampel+Delta; Stunden-BarChart 2-Modi; Zonen-Ranking; Top-3-Fahrer; Alert-Strip; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4395StatistikDashboardV5 locationId={locationId ?? null} />
               </>
             </div>
           )}

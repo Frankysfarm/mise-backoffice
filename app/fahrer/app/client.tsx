@@ -1116,6 +1116,7 @@ import { FahrerPhase4398MeineMittagsschicht } from './phase4398-meine-mittagssch
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
+import { FahrerPhase4395TourStoppNavigatorV4 } from './phase4395-tour-stopp-navigator-v4';
 
 type Driver = {
   id: string;
@@ -8044,6 +8045,15 @@ export function FahrerApp({
       {activeBatch && activeBatch.status === 'unterwegs' && (
         <div className="px-4 pb-4">
           <FahrerPhase4380TourStoppNavigatorV3
+            driverId={driver.id}
+            activeBatchId={activeBatch.id}
+          />
+        </div>
+      )}
+      {/* Phase 4395: Tour-Stopp-Navigator V4 — Sticky-NavBar mit 1-Tap-Navi; Notiz-Alert; Bar-Kassierhilfe; Fortschrittsbalken; Gesamt-Betrag; Zahlungsart-Split; Stopp-Timeline expandierbar; 20-Sek-Polling; Mock-Fallback */}
+      {activeBatch && activeBatch.status === 'unterwegs' && (
+        <div className="px-4 pb-4">
+          <FahrerPhase4395TourStoppNavigatorV4
             driverId={driver.id}
             activeBatchId={activeBatch.id}
           />

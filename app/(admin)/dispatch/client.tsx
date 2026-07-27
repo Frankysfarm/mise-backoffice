@@ -1195,6 +1195,7 @@ import { DispatchPhase4392SpaetschichtBoard } from './phase4392-spaetschicht-boa
 import { DispatchPhase4397MittagsschichtBoard } from './phase4397-mittagsschicht-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
+import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
 
 type Driver = {
   employee_id: string;
@@ -5020,6 +5021,8 @@ export function DispatchBoard({
           <DispatchPhase4172TourScoreLiveVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4380: Tour-Score Visualisierung V4 — Fleet-KPIs; Score-Balken+Delta; expandierbare Stopp-Sequenz mit Status-Icons; Aktions-Buttons; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4380TourScoreVisualisierungV4 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4395: Tour-Score Visualisierung V5 — Delay-Alert-Banner; Zone-Strip; 5er-Fleet-KPIs; Verspätungs-Delta; Stopp-Timeline mit Connector; ETA-Genauigkeit; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4395TourScoreVisualisierungV5 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4201: Zonen-Kapazität Live-Grid — Auslastungs-Balken 3-stufig; KPI-Grid Fahrer/Touren/Auslastung; Alert-Zähler; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4201ZonenKapazitaetsLiveGrid locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
