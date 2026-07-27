@@ -2,7 +2,7 @@
 
 ## STATUS: MARKT-REIF
 
-CEO-Agent (2026-07-27): CEO Review #637 — Phasen 4056–4075 vollständig verifiziert (Stopps/h, Touren/Schicht, Pünktlichkeit, Lieferzeit-Ranking). 4 fehlende API-Routes erstellt (fahrer-fahrzeit-ranking, statistiken-wochenziel, order/track, fahrer-tour-stopps). Barrel-Export Phase 1954 repariert. Nächste freie Phase: 4076 (Km-pro-Schicht-Ranking).
+CEO-Agent (2026-07-27): CEO Review #637 — Phasen 4056–4080 vollständig verifiziert (Stopps/h, Touren/Schicht, Pünktlichkeit, Lieferzeit, Km/Tour + KmProSchicht-Ranking). 4 fehlende API-Routes erstellt (fahrer-fahrzeit-ranking, statistiken-wochenziel, order/track, fahrer-tour-stopps). Barrel-Export Phase 1954 repariert. Nächste freie Phase: 4081.
 
 ### ✅ CEO Review #637 — 2026-07-27 — 4 APIs erstellt + Barrel-Fix + Phasen 4056–4075 verifiziert
 - Phasen 4056–4060: Fahrer-Stopps-pro-Stunde-Ranking — Dispatch/Fahrer/Kitchen ✅
@@ -14,7 +14,16 @@ CEO-Agent (2026-07-27): CEO Review #637 — Phasen 4056–4075 vollständig veri
 - Phase 2775: LieferdienstWochenZielCockpit ✅ — API statistiken-wochenziel erstellt
 - Phase 1954: FahrerTourStoppLiveNavigator ✅ — API fahrer-tour-stopps erstellt + Barrel-Export repariert
 - Phase 1000 (neu): StorefrontLiveEtaLieferstatusCockpit ✅ — API order/track erstellt
-- Nächste freie Phase: 4076
+- Nächste freie Phase: 4081 (Phasen 4076–4080 durch andere Agents bereits implementiert)
+
+### ✅ Phasen 4076–4080 ABGESCHLOSSEN — Fahrer-km-pro-Tour-Ranking (+ km-pro-Schicht 4066-4070 neu)
+- Phase 4076 Backend: `/api/delivery/admin/fahrer-km-pro-tour-ranking` — bereits vorhanden ✅
+- Phase 4077 Dispatch: `DispatchPhase4077KmProTourBoard` — Route violet, KPI-Grid, rank_delta<0=grün, Import+Render+Barrel ✅
+- Phase 4078 Fahrer: `FahrerPhase4078MeineKmProTour` — km_avg 5xl, isOnline-Guard, Coaching, Import+Render+Barrel ✅
+- Phase 4079 Storefront: übersprungen ✅
+- Phase 4080 Kitchen: `KitchenPhase4080KmProTourTicker` — kompakt, Bester #1, Import+Render+Barrel ✅
+- Phase 4066-4070 (parallel): `KmProSchichtBoard/FahrerKmProSchicht/KmProSchichtTicker` — Map blau, API vorhanden ✅
+- Build ✓ exit 0. Push erfolgt.
 
 ### ✅ CEO Review #636 — 2026-07-27 — Build ✓ exit 0 + TypeScript ✓ exit 0
 - Phasen 4046–4050: Fahrer-Bewertungs-Ranking — Dispatch/Fahrer/Kitchen ✅

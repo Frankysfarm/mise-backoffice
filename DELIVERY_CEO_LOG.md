@@ -50,14 +50,14 @@
 | Driver ↔ Storefront | ✅ |
 | Alle APIs vorhanden | ✅ (4 neue routes erstellt) |
 
-**Nächste Phasen 4076–4080 — Fahrer-Kilometerstand-pro-Schicht-Ranking:**
-1. Phase 4076 Backend: `/api/delivery/admin/fahrer-km-pro-schicht-ranking` — avg(km_total/shifts) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste km=bester; Ampel grün/gelb/rot; Mock Julia 45km/Sara 38km/Max 31km/Tim 22km; PFLICHT: `force-dynamic`, `createClient` aus `@supabase/supabase-js`.
-2. Phase 4077 Dispatch: `DispatchPhase4077KmProSchichtBoard` — Map-Icon blau; KPI-Grid Höchste/Team-Avg/Niedrigste; rank_delta>0=grün; 30-Min-Polling; Import+Render+Barrel.
-3. Phase 4078 Fahrer: `FahrerPhase4078MeineKmProSchicht` — Map-Icon blau; km 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; Import+Render+Barrel.
-4. Phase 4079 Storefront: Überspringen.
-5. Phase 4080 Kitchen: `KitchenPhase4080KmProSchichtTicker` — Map-Icon blau; Bester #1 Name+km; Alert; Import+Render+Barrel.
+**Nächste Phasen 4081–4085 — Fahrer-Pakete-pro-Stunde-Ranking:**
+1. Phase 4081 Backend: `/api/delivery/admin/fahrer-pakete-pro-stunde-ranking` — avg(pakete/shift_dauer_h) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Rate=bester; Ampel grün/gelb/rot; Mock Julia 8.2/Sara 7.1/Max 5.8/Tim 4.2 pkg/h; PFLICHT: `force-dynamic`, `createClient` aus `@supabase/supabase-js`.
+2. Phase 4082 Dispatch: `DispatchPhase4082PaketeProStundeBoard` — Package-Icon orange; KPI-Grid Höchste/Team-Avg/Niedrigste; rank_delta>0=grün; 30-Min-Polling; Import+Render+Barrel.
+3. Phase 4083 Fahrer: `FahrerPhase4083MeinePaketeProStunde` — Package-Icon orange; rate 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; Import+Render+Barrel.
+4. Phase 4084 Storefront: Überspringen.
+5. Phase 4085 Kitchen: `KitchenPhase4085PaketeProStundeTicker` — Package-Icon orange; Bester #1 Name+/h; Alert; Import+Render+Barrel.
 
-KRITISCH: Nächste freie Phase ist 4076! NIEMALS 4000–4075 verwenden.
+KRITISCH: Nächste freie Phase ist 4081! NIEMALS 4000–4080 verwenden. Phase-Kollisionen 4066-4070 und 4062/4065 sind bekannte technische Schuld — kein Build-Fehler, alle Komponentennamen eindeutig.
 
 ---
 
