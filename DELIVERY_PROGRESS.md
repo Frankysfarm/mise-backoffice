@@ -41,7 +41,17 @@ Frontend-Ingenieur-Agent (2026-07-27): Phasen 4006–4010 implementiert — Fahr
 - Phase 4010 Kitchen: `KitchenPhase4010LeerfahrtenTicker` — Navigation indigo-500, Bester #1 Name+% im Header, Alert "Hohe Leerfahrtenquote!", kompakt aufsteigend, Team-Avg+Ziel <=10% ✅
 - Build ✓ exit 0. Push erfolgt.
 
-### Naechste Phasen 4011–4015 — Naechstes Ranking-Thema (TBD)
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4011–4015 implementiert — Fahrer-Lieferzeit-Ranking. Phase 4011 Backend: bestehendes `/api/delivery/admin/fahrer-lieferzeit-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_min (departed_at→delivered_at) je Fahrer, aufsteigend Rang 1=schnellste Lieferzeit=bester, Ampel gruen/gelb/rot per Quartil, rank_delta (<0=verbessert), alert_bottom, Mock Max 12min/Julia 15min/Sara 22min/Tim 35min, team_avg=21, ziel=20min. Phase 4012 Dispatch: `DispatchPhase4012LieferzeitBoard` — Clock-Icon violet, aufsteigend, KPI-Grid Schnellste/Team-Avg/Langsamste, Alert "Hohe Lieferzeit!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 4013 Fahrer: `FahrerPhase4013MeineLieferzeit` — Clock-Icon violet, avg_min 5xl+Rang 3xl farbkodiert, Ziel <=20min, Coaching-Tipp (3 Stufen), isOnline-Guard, Mini-Ranking isMe highlight, Import+Render+Barrel ✅. Phase 4014 Storefront: uebersprungen. Phase 4015 Kitchen: `KitchenPhase4015LieferzeitTicker` — Clock-Icon violet, Bester #1 Name+min im Header, Alert "Hohe Lieferzeit!", kompakt aufsteigend, rank_delta<0=gruen, Team-Avg+Ziel <=20min, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 4011–4015 ABGESCHLOSSEN — Fahrer-Lieferzeit-Ranking
+- Phase 4011 Backend: `/api/delivery/admin/fahrer-lieferzeit-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_min je Fahrer, aufsteigend Rang 1=schnellste Lieferzeit=bester, Ampel per Quartil, rank_delta (<0=verbessert), alert_bottom, Mock Max 12min/Julia 15min/Sara 22min/Tim 35min ✅
+- Phase 4012 Dispatch: `DispatchPhase4012LieferzeitBoard` — Clock violet, aufsteigend Rang 1=schnellste Lieferzeit, KPI-Grid Schnellste/Team-Avg/Langsamste, Alert "Hohe Lieferzeit!", rank_delta<0=gruen ✅
+- Phase 4013 Fahrer: `FahrerPhase4013MeineLieferzeit` — Clock violet, avg_min 5xl+Rang 3xl farbkodiert, Ziel <=20min, Coaching-Tipp (3 Stufen), isOnline-Guard, Mini-Ranking isMe highlight ✅
+- Phase 4014 Storefront: uebersprungen ✅
+- Phase 4015 Kitchen: `KitchenPhase4015LieferzeitTicker` — Clock violet, Bester #1 Name+min im Header, Alert "Hohe Lieferzeit!", kompakt aufsteigend, Team-Avg+Ziel <=20min ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 4016–4020 — Naechstes Ranking-Thema (TBD)
 
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 3983–3987 implementiert — Fahrer-Reaktionszeit-Ranking. Phase 3983 Backend: bestehendes `/api/delivery/admin/fahrer-reaktionszeit-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_min Reaktionszeit (assigned→pickup) je Fahrer letzte 30 Tage, aufsteigend Rang 1=schnellste=bester, Ampel gruen/gelb/rot, rank_delta, alert_hoch, Alert "Hohe Reaktionszeit!", Mock Julia 4/Sara 6/Max 9/Tim 14 min, ziel=5 min. Phase 3984 Dispatch: `DispatchPhase3984ReaktionszeitBoard` — Zap-Icon yellow, aufsteigend, KPI-Grid Schnellste/Team-Avg/Langsamste, Alert "Hohe Reaktionszeit!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3985 Fahrer: `FahrerPhase3985MeineReaktionszeit` — Zap-Icon yellow, avg_min 5xl+Rang 3xl farbkodiert, Ziel <=5 min, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3986 Storefront: uebersprungen. Phase 3987 Kitchen: `KitchenPhase3987ReaktionszeitTicker` — Zap-Icon yellow, Bester #1 Name+min im Header, Alert "Hohe Reaktionszeit!", kompakt aufsteigend, Rang+min+Delta rank_delta<0=gruen, Team-Avg+Ziel <=5 min, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 

@@ -1023,6 +1023,7 @@ import { FahrerPhase3994MeineTourstartPuenktlichkeit } from './phase3994-meine-t
 import { FahrerPhase4000TourStopNavHub } from './phase4000-tour-stop-nav-hub';
 import { FahrerPhase4002MeineSchichtstartPuenktlichkeit } from './phase4002-meine-schichtstart-puenktlichkeit';
 import { FahrerPhase4008MeineLeerfahrten } from './phase4008-meine-leerfahrten';
+import { FahrerPhase4013MeineLieferzeit } from './phase4013-meine-lieferzeit';
 
 type Driver = {
   id: string;
@@ -6974,6 +6975,7 @@ export function FahrerApp({
           <FahrerPhase3994MeineTourstartPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4002MeineSchichtstartPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4008MeineLeerfahrten driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4013MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
@@ -10945,3 +10947,5 @@ export { FahrerPhase4000TourStopNavHub } from './phase4000-tour-stop-nav-hub';
 export { FahrerPhase4002MeineSchichtstartPuenktlichkeit } from './phase4002-meine-schichtstart-puenktlichkeit';
 // Phase 4008 — Meine Leerfahrten (Navigation indigo-500; leerfahrten_pct 5xl+Rang 3xl farbkodiert; Ziel <=10%; Coaching-Tipp 3 Stufen; isOnline-Guard; Mini-Ranking isMe highlight; rank_delta<0=gruen; 30-Min-Polling)
 export { FahrerPhase4008MeineLeerfahrten } from './phase4008-meine-leerfahrten';
+// Phase 4013 — Meine Lieferzeit (Clock violet; avg_min 5xl+Rang 3xl farbkodiert; Ziel <=20min; Coaching-Tipp 3 Stufen; isOnline-Guard; Mini-Ranking isMe highlight; rank_delta<0=gruen; 30-Min-Polling)
+export { FahrerPhase4013MeineLieferzeit } from './phase4013-meine-lieferzeit';

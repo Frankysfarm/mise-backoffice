@@ -1101,6 +1101,7 @@ import { DispatchPhase3993TourstartPuenktlichkeitBoard } from './phase3993-tours
 import { DispatchPhase4000TourScoreLiveKommando } from './phase4000-tour-score-live-kommando';
 import { DispatchPhase4001SchichtstartPuenktlichkeitBoard } from './phase4001-schichtstart-puenktlichkeit-board';
 import { DispatchPhase4007LeerfahrtenBoard } from './phase4007-leerfahrten-board';
+import { DispatchPhase4012LieferzeitBoard } from './phase4012-lieferzeit-board';
 
 type Driver = {
   employee_id: string;
@@ -4820,6 +4821,7 @@ export function DispatchBoard({
           <DispatchPhase4000TourScoreLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4001SchichtstartPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4007LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4012LieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13098,3 +13100,5 @@ export { DispatchPhase4000TourScoreLiveKommando } from './phase4000-tour-score-l
 export { DispatchPhase4001SchichtstartPuenktlichkeitBoard } from './phase4001-schichtstart-puenktlichkeit-board';
 // Phase 4007 — Leerfahrten-Ranking Board (Navigation indigo-500; KPI-Grid Wenigste/Team-Avg/Meiste; Alert "Hohe Leerfahrtenquote!"; aufsteigend Rang 1=niedrigste Leerfahrtenquote=bester; rank_delta<0=gruen; Ziel <=10%; 30-Min-Polling)
 export { DispatchPhase4007LeerfahrtenBoard } from './phase4007-leerfahrten-board';
+// Phase 4012 — Lieferzeit-Ranking Board (Clock violet; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Hohe Lieferzeit!"; aufsteigend Rang 1=schnellste=bester; rank_delta<0=gruen; Ziel <=20min; 30-Min-Polling)
+export { DispatchPhase4012LieferzeitBoard } from './phase4012-lieferzeit-board';
