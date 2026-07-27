@@ -28,6 +28,7 @@ export async function loadDriverV2Snapshot(
   let stops: any[] = [];
   let orders: any[] = [];
   let items: any[] = [];
+  let assignments: any[] = [];
   if (assignment) {
     trip = checked(await client.from('mise_delivery_batches')
       .select('id,state,state_version,route_version').eq('id', assignment.batch_id).maybeSingle(), 'TRIP_SNAPSHOT');
@@ -35,10 +36,20 @@ export async function loadDriverV2Snapshot(
       .select('id,order_id,type,state,stop_version,sequence,address,lat,lng,arrived_at,completed_at').eq('batch_id', assignment.batch_id)
       .order('sequence'), 'STOP_SNAPSHOT') as any[]) ?? [];
     const ids = [...new Set(stops.map((s) => s.order_id))];
+    assignments = (checked(await client.from('dispatch_offer_assignments')
+      .select('id,order_id,tenant_id,state,assignment_version').eq('batch_id', assignment.batch_id),
+      'ASSIGNMENTS_SNAPSHOT') as any[]) ?? [];
     if (ids.length) orders = (checked(await client.from('customer_orders')
       .select('id,status,dispatch_version,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag').in('id', ids), 'ORDER_SNAPSHOT') as any[]) ?? [];
     if (ids.length) items = (checked(await client.from('order_items')
       .select('id,order_id,name,menge').in('order_id', ids), 'ITEM_SNAPSHOT') as any[]) ?? [];
+    if (ids.length) {
+      const outcomes = (checked(await client.from('driver_item_outcomes_v2')
+        .select('item_id,outcome,evidence').in('order_id', ids), 'ITEM_OUTCOME_SNAPSHOT') as any[]) ?? [];
+      const outcomeByItem = new Map(outcomes.map((row) => [row.item_id, row]));
+      items = items.map((row) => ({ ...row, outcome: outcomeByItem.get(row.id)?.outcome ?? null,
+        evidence: outcomeByItem.get(row.id)?.evidence ?? {} }));
+    }
   }
   const exception = checked(await client.from('driver_exceptions_v2')
     .select('id,kind,state,exception_version').eq('driver_id', driverId)
@@ -58,9 +69,12 @@ export async function loadDriverV2Snapshot(
     generated_at: new Date().toISOString(),
     driver: { id: driver.id, state: driver.state, version: driver.state_version, active: driver.active },
     assignment: assignment ? { id: assignment.id, tenant_id: assignment.tenant_id, state: assignment.state, version: assignment.assignment_version, received_by_app_at: assignment.received_by_app_at } : null,
+    assignments: assignments.map((row) => ({ id: row.id, order_id: row.order_id,
+      tenant_id: row.tenant_id, state: row.state, version: row.assignment_version })),
     trip: trip ? { id: trip.id, state: trip.state, version: trip.state_version, route_version: trip.route_version } : null,
     orders: orders.map((o) => ({ id: o.id, state: o.status, version: o.dispatch_version, bestellnummer: o.bestellnummer, kunde_name: o.kunde_name, kunde_adresse: o.kunde_adresse, kunde_plz: o.kunde_plz, kunde_lat: o.kunde_lat, kunde_lng: o.kunde_lng, gesamtbetrag: o.gesamtbetrag })),
-    items: items.map((i) => ({ id: i.id, order_id: i.order_id, name: i.name, menge: i.menge, outcome: null })),
+    items: items.map((i) => ({ id: i.id, order_id: i.order_id, name: i.name, menge: i.menge,
+      outcome: i.outcome, evidence: i.evidence })),
     stops: stops.map((s) => ({ id: s.id, order_id: s.order_id, type: s.type, state: s.state, version: s.stop_version, sequence: s.sequence, address: s.address, lat: s.lat, lng: s.lng, arrived_at: s.arrived_at, completed_at: s.completed_at })),
     exception: exception ? { id: exception.id, kind: exception.kind, state: exception.state, version: exception.exception_version } : null,
     gps_transport: { persistence: 't06_default_off', accepted: false },

@@ -14,9 +14,10 @@ export type DriverExceptionKind = (typeof DRIVER_EXCEPTION_KINDS)[number];
 export type DriverV2Action =
   | 'start_shift' | 'end_shift' | 'ack_receipt' | 'arrive'
   | 'resolve_items' | 'confirm_pickup' | 'depart_pickup'
-  | 'complete_stop' | 'report_exception' | 'upload_gps';
+  | 'atomic_pickup' | 'complete_stop' | 'report_exception' | 'upload_gps';
 
 export type DriverV2Envelope = {
+  action?: DriverV2Action;
   action_id: string;
   expected_state: string;
   expected_versions: {
@@ -36,6 +37,7 @@ const ACTION_STATES: Record<DriverV2Action, readonly string[]> = {
   ack_receipt: ['assigned', 'at_pickup', 'delivering', 'returning'],
   arrive: ['assigned', 'delivering'], resolve_items: ['assigned', 'at_pickup'],
   confirm_pickup: ['assigned', 'at_pickup'], depart_pickup: ['at_pickup'],
+  atomic_pickup: ['assigned', 'at_pickup'],
   complete_stop: ['delivering'], report_exception: ['available', 'assigned', 'at_pickup', 'delivering', 'returning'],
   upload_gps: ['offline', 'available', 'assigned', 'at_pickup', 'delivering', 'returning', 'exception'],
 };
@@ -44,6 +46,7 @@ const REQUIRED: Record<DriverV2Action, readonly string[]> = {
   arrive: ['driver', 'trip', 'route', 'stop'], resolve_items: ['driver', 'order', 'assignment', 'trip', 'route', 'stop'],
   confirm_pickup: ['driver', 'order', 'assignment', 'trip', 'route', 'stop'],
   depart_pickup: ['driver', 'order', 'assignment', 'trip', 'route', 'stop'],
+  atomic_pickup: ['driver', 'trip', 'route'],
   complete_stop: ['driver', 'order', 'assignment', 'trip', 'route', 'stop'],
   report_exception: ['driver'], upload_gps: ['driver'],
 };
@@ -64,9 +67,12 @@ export type DriverV2Snapshot = {
   generated_at: string;
   driver: { id: string; state: string; version: number; active: boolean };
   assignment: null | { id: string; tenant_id: string; state: string; version: number; received_by_app_at: string | null };
+  assignments: Array<{ id: string; order_id: string; tenant_id: string; state: string; version: number }>;
   trip: null | { id: string; state: string; version: number; route_version: number };
   orders: Array<{ id: string; state: string; version: number; bestellnummer: string; kunde_name: string; kunde_adresse: string | null; kunde_plz: string | null; kunde_lat: number | null; kunde_lng: number | null; gesamtbetrag: number }>;
-  items: Array<{ id: string; order_id: string; name: string; menge: number; outcome: 'picked' | 'missing' | null }>;
+  items: Array<{ id: string; order_id: string; name: string; menge: number; outcome:
+    'present_confirmed' | 'substituted_approved' | 'cancelled_refunded' |
+    'resolved_missing' | 'unresolved' | null; evidence?: Record<string, unknown> }>;
   stops: Array<{ id: string; order_id: string; type: string; state: string; version: number; sequence: number; address: string | null; lat: number | null; lng: number | null; arrived_at: string | null; completed_at: string | null }>;
   exception: null | { id: string; kind: DriverExceptionKind; state: string; version: number };
   gps_transport: { persistence: 't06_default_off'; accepted: false };

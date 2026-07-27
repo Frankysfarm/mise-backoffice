@@ -2,7 +2,8 @@
 
 import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { realtimeRequiresReload, resolveSingleOrderItems, type DriverV2Action, type DriverV2Envelope, type DriverV2Snapshot } from '@/lib/delivery/driver-v2-contract';
+import { realtimeRequiresReload, type DriverV2Action, type DriverV2Envelope, type DriverV2Snapshot } from '@/lib/delivery/driver-v2-contract';
+import { buildAtomicPickupManifest } from '@/lib/delivery/driver-v2-pick-contract';
 import { useRouter } from 'next/navigation';
 import {
   Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, FileText, Footprints,
@@ -1114,6 +1115,7 @@ export function FahrerApp({
     const storedEnvelope = action ? localStorage.getItem(actionStoreKey) : null;
     const actionId = action ? crypto.randomUUID() : null;
     const nextEnvelope = action && current ? {
+      action,
       action_id: actionId!,
       expected_state: current.driver.state,
       expected_versions: {
@@ -7626,21 +7628,19 @@ export function FahrerApp({
       {pickOpen && activeBatch && (
         <PickDialog
           orderBestellnummer={activeBatch.stops[0]?.order.bestellnummer ?? ''}
-          items={pickItems}
+          items={(driverV2Ref.current?.items.length ? driverV2Ref.current.items.filter((item) =>
+            driverV2Ref.current?.orders.some((order) => order.id === item.order_id
+              && order.state === 'assigned'
+              && driverV2Ref.current?.assignments.some((assignment) =>
+                assignment.order_id === order.id && assignment.state === 'assigned'))) : pickItems)}
           batchId={activeBatch.id}
           onClose={() => setPickOpen(false)}
           onComplete={() => { setPickOpen(false); router.refresh(); }}
           onAtomicPickup={driverV2Ref.current?.assignment ? async (items) => {
-            const orderId = await resolveSingleOrderItems(items, async (orderId, orderItems) => {
-              const stop = driverV2Ref.current?.stops.find((s) => s.type === 'pickup' && s.order_id === orderId);
-              await driverV2Request('items/resolve', 'resolve_items', {
-                items: orderItems.map(({ id, outcome }) => ({ id, outcome })),
-                stop_id: stop?.id, order_id: orderId,
-              });
-            });
-            const stop = driverV2Ref.current?.stops.find((s) => s.type === 'pickup' && s.order_id === orderId);
-            await driverV2Request('pickup/confirm', 'confirm_pickup', { order_id: orderId, stop_id: stop?.id });
-            await driverV2Request('pickup/depart', 'depart_pickup', { order_id: orderId, stop_id: stop?.id });
+            const snapshot = driverV2Ref.current;
+            if (!snapshot) throw new Error('Fahrer-Snapshot fehlt. Bitte neu laden.');
+            const manifest = buildAtomicPickupManifest(snapshot, items);
+            await driverV2Request('pickup/atomic', 'atomic_pickup', { manifest });
             return true;
           } : undefined}
         />

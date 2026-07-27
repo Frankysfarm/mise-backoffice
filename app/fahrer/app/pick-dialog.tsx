@@ -8,9 +8,12 @@ type Item = {
   order_id: string;
   name: string;
   menge: number;
-  notiz: string | null;
-  pick_confirmed_at: string | null;
-  pick_missing: boolean | null;
+  notiz?: string | null;
+  pick_confirmed_at?: string | null;
+  pick_missing?: boolean | null;
+  outcome?: 'present_confirmed' | 'substituted_approved' | 'cancelled_refunded' |
+    'resolved_missing' | 'unresolved' | null;
+  evidence?: Record<string, unknown>;
 };
 
 export function PickDialog({
@@ -26,19 +29,23 @@ export function PickDialog({
   batchId: string;
   onClose: () => void;
   onComplete: () => void;
-  onAtomicPickup?: (items: Array<{ id: string; order_id: string; outcome: 'picked' | 'missing' }>) => Promise<boolean>;
+  onAtomicPickup?: (items: Array<{ id: string; order_id: string; outcome:
+    'present_confirmed' | 'substituted_approved' | 'cancelled_refunded' |
+    'resolved_missing' | 'unresolved'; evidence?: Record<string, unknown> }>) => Promise<boolean>;
 }) {
   const [pending, setPending] = useState<string | null>(null);
   const [local, setLocal] = useState(items);
 
-  const firstUnconfirmed = local.find((i) => !i.pick_confirmed_at);
-  const allDone = !firstUnconfirmed;
+  const normalized = local.map((item) => ({ ...item, outcome: item.outcome ??
+    (item.pick_confirmed_at ? (item.pick_missing ? 'unresolved' : 'present_confirmed') : null) }));
+  const allDone = normalized.every((item) => item.outcome && item.outcome !== 'unresolved');
 
-  async function confirm(id: string, missing = false) {
+  async function confirm(id: string) {
     setPending(id);
     if (onAtomicPickup) {
       setLocal((xs) => xs.map((x) => x.id === id
-        ? { ...x, pick_confirmed_at: new Date().toISOString(), pick_missing: missing }
+        ? { ...x, pick_confirmed_at: new Date().toISOString(), pick_missing: false,
+          outcome: 'present_confirmed' as const }
         : x));
       setPending(null);
       return;
@@ -51,10 +58,11 @@ export function PickDialog({
     setPending('complete');
     if (onAtomicPickup) {
       try {
-        const handled = await onAtomicPickup(local.map((item) => ({
+        const handled = await onAtomicPickup(normalized.map((item) => ({
           id: item.id,
           order_id: item.order_id,
-          outcome: item.pick_missing ? 'missing' as const : 'picked' as const,
+          outcome: item.outcome ?? 'unresolved',
+          evidence: item.evidence,
         })));
         setPending(null);
         if (handled) onComplete();
@@ -69,7 +77,7 @@ export function PickDialog({
     alert('Versionierter Fahrer-Snapshot erforderlich. Bitte neu laden.');
   }
 
-  const confirmed = local.filter((i) => i.pick_confirmed_at).length;
+  const confirmed = normalized.filter((i) => i.outcome && i.outcome !== 'unresolved').length;
 
   return (
     <div className="fixed inset-0 z-50 bg-matcha-900 text-white flex flex-col">
@@ -93,10 +101,10 @@ export function PickDialog({
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {local.map((item, idx) => {
-          const done = !!item.pick_confirmed_at;
-          const missing = !!item.pick_missing;
-          const isCurrent = !done && item.id === firstUnconfirmed?.id;
+        {normalized.map((item, idx) => {
+          const done = !!item.outcome;
+          const missing = item.outcome === 'unresolved';
+          const isCurrent = !done;
           return (
             <div
               key={item.id}
@@ -127,27 +135,26 @@ export function PickDialog({
               {isCurrent && (
                 <div className="mt-4 flex gap-2">
                   <button
-                    onClick={() => confirm(item.id, false)}
+                    onClick={() => confirm(item.id)}
                     disabled={pending === item.id}
                     className="flex-1 h-12 rounded-xl bg-accent text-matcha-900 font-display font-bold inline-flex items-center justify-center gap-2 active:scale-[0.98]"
                   >
                     {pending === item.id ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                     Ist dabei
                   </button>
-                  <button
-                    onClick={() => confirm(item.id, true)}
-                    disabled={pending === item.id}
-                    className="h-12 px-4 rounded-xl bg-red-500/20 text-red-200 border-2 border-red-500/40 font-bold inline-flex items-center justify-center gap-2"
-                  >
-                    <X size={16} />
-                    Fehlt
-                  </button>
                 </div>
               )}
 
               {done && missing && (
                 <div className="mt-2 text-xs text-red-200 font-semibold inline-flex items-center gap-1">
-                  <AlertCircle size={12} /> Küche wurde informiert
+                  <AlertCircle size={12} /> Fehlt: Küche/Dispatch muss Ersatz, Erstattung oder
+                  „gelöst fehlend“ serverseitig bestätigen. Abfahrt bleibt gesperrt.
+                </div>
+              )}
+              {done && !missing && item.outcome !== 'present_confirmed' && (
+                <div className="mt-2 text-xs text-matcha-200 font-semibold">
+                  Server-Lösung: {item.outcome === 'substituted_approved' ? 'Ersatz genehmigt'
+                    : item.outcome === 'cancelled_refunded' ? 'storniert/erstattet' : 'Fehlbestand gelöst'}
                 </div>
               )}
             </div>
@@ -162,7 +169,8 @@ export function PickDialog({
           className="w-full h-14 rounded-2xl bg-accent text-matcha-900 font-display font-black text-lg inline-flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-40"
         >
           {pending === 'complete' ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
-          {allDone ? 'Alles dabei — losfahren' : `Noch ${local.length - confirmed} prüfen`}
+          {allDone ? 'Gesamte Tour atomar übernehmen & losfahren'
+            : `Abfahrt gesperrt — ${local.length - confirmed} offen`}
         </button>
       </footer>
     </div>
