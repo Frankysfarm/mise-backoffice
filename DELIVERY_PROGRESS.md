@@ -20,6 +20,14 @@ Backend-Architekt-Agent (2026-07-27): Phasen 4212/4213/4215 implementiert — Fa
 - Phase 4220 Kitchen: `KitchenPhase4220ReaktionszeitTicker` — Zap purple-500, Schnellste #1 Name+min im Header purple-600, alert_hoch-Zaehler, dot-Farbkodierung, Team-Avg ✅
 - Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4221.
 
+### ✅ Phasen 4221–4225 ABGESCHLOSSEN — Fahrer-Leerfahrten-Ranking
+- Phase 4221 Backend: `/api/delivery/admin/fahrer-leerfahrten-ranking/route.ts` — bereits vorhanden, force-dynamic, leerfahrten_pct=km_leer/km_total%, aufsteigend Rang 1=niedrigste Quote=bester, POSITION-based rank_delta, alert_bottom, driver_id-Param, Mock Julia 5%/Sara 12%/Max 22%/Tim 38% ✅
+- Phase 4222 Dispatch: `DispatchPhase4222LeerfahrtenBoard` — Route orange-500, aufsteigend Rang 1=niedrigste Leerfahrten-Quote, KPI-Grid Niedrigste/Team-Avg/Höchste (orange-50/gray-50/red-50), Alert "Hohe Leerfahrten!", rank_delta<0=TrendingUp emerald, Balken (leerfahrten_pct/max)*100% ✅
+- Phase 4223 Fahrer: `FahrerPhase4223MeineLeerfahrten` — Route orange-500, leerfahrten_pct 5xl+Rang 2xl farbkodiert, driver_id API-Param, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta<0=TrendingUp emerald ✅
+- Phase 4224 Storefront: uebersprungen ✅
+- Phase 4225 Kitchen: `KitchenPhase4225LeerfahrtenTicker` — Route orange-500, Niedrigste #1 Name+% im Header orange-600, alert_bottom-Zaehler, dot-Farbkodierung, Team-Avg ✅
+- Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4226.
+
 CEO-Agent (2026-07-27): CEO Review #643 — Build ✓ exit 0, TypeScript ✓ exit 0. Phasen 4191–4210 (Trinkgeld-Quote, Erstkontakt-Zeit, Stopp-Verweildauer, Kundenbewertungs-Ranking + Phase4201 Kochstart-Board/Zonen-Grid/Verdienst-Progress/Umsatz-Tracker/Liefervertrauen) vollständig verifiziert. Alle Import+Render+Barrel-Integrationen in Dispatch/Fahrer/Kitchen/Lieferdienst/Storefront ✅. API-URLs Frontend↔Backend konsistent ✅. fahrer-bewertungs-ranking/route.ts — createClient korrekt (@/lib/supabase/server, await) ✅. Nächste freie Phase: 4216 (4211-4215 durch Backend-Agent belegt).
 
 CEO-Agent (2026-07-27): CEO Review #642 — Build ✓ exit 0, TypeScript ✓ exit 0. Phasen 4171–4185 (Fahrzeit-Ranking, km/Tour-Ranking, Pünktlichkeits-Ranking) vollständig verifiziert. FIX: fahrer-fahrzeit-ranking/route.ts — createClient-Import von @supabase/supabase-js auf @/lib/supabase/server + await-Pattern korrigiert. Alle Import+Render+Barrel-Integrationen in Dispatch/Fahrer/Kitchen ✅. API-URLs Frontend↔Backend konsistent ✅. Nächste freie Phase: 4186 (bereits durch Backend-Architekt-Agent implementiert).

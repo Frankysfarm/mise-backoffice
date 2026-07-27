@@ -1075,6 +1075,7 @@ import { FahrerPhase4208MeineBewertung } from './phase4208-meine-bewertung';
 import { FahrerPhase4201VerdienstZielProgress } from './phase4201-verdienst-ziel-progress';
 import { FahrerPhase4213MeinUmsatzProStopp } from './phase4213-mein-umsatz-pro-stopp';
 import { FahrerPhase4218MeineReaktionszeit } from './phase4218-meine-reaktionszeit';
+import { FahrerPhase4223MeineLeerfahrten } from './phase4223-meine-leerfahrten';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 
@@ -7090,6 +7091,7 @@ export function FahrerApp({
           <FahrerPhase4201VerdienstZielProgress driverId={driver.id} locationId={driver.location_id ?? null} />
           <FahrerPhase4213MeinUmsatzProStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4218MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4223MeineLeerfahrten driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11183,6 +11185,8 @@ export { FahrerPhase4208MeineBewertung } from './phase4208-meine-bewertung';
 export { FahrerPhase4213MeinUmsatzProStopp } from './phase4213-mein-umsatz-pro-stopp';
 // Phase 4218 — Meine Reaktionszeit (Zap purple; avg_min 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; client-seitiger Filter; rank_delta<0=TrendingDown emerald; 30-Min-Polling)
 export { FahrerPhase4218MeineReaktionszeit } from './phase4218-meine-reaktionszeit';
+// Phase 4223 — Meine Leerfahrten-Quote (Route orange; leerfahrten_pct 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; driver_id API-Param; rank_delta<0=TrendingUp emerald; 30-Min-Polling)
+export { FahrerPhase4223MeineLeerfahrten } from './phase4223-meine-leerfahrten';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 // Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)
