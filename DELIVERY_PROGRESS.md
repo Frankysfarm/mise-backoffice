@@ -2,6 +2,15 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4316–4320 implementiert — Fahrer-Bewertungs-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4317BewertungBoard`. Fahrer: `FahrerPhase4318MeineBewertung`. Kitchen: `KitchenPhase4320BewertungTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4321.
+
+### ✅ Phasen 4316–4320 ABGESCHLOSSEN — Fahrer-Bewertungs-Ranking
+- Phase 4316 Backend: `/api/delivery/admin/fahrer-bewertungs-ranking` — bereits vorhanden, absteigend Rang 1=höchster score=bester, STANDARD rank_delta (rang-yestRang, <0=verbessert=TrendingUp emerald), alert_bottom, bester_name/niedrigster_name, team_avg_score ✅
+- Phase 4317 Dispatch: `DispatchPhase4317BewertungBoard` — Star yellow-500, absteigend Rang 1=höchste Bewertung, KPI-Grid Bester/Team-Avg/Niedrigster (yellow-50/gray-50/red-50), Alert "Niedrig", rank_delta<0=TrendingUp emerald, Balken=(score/maxScore)*100% ✅
+- Phase 4318 Fahrer: `FahrerPhase4318MeineBewertung` — Star yellow-500, score 5xl+Rang 2xl farbkodiert, driver_id API-Param+client-side filter, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta<0=TrendingUp emerald ✅
+- Phase 4319 Storefront: übersprungen (kein Storefront-Frontend) ✅
+- Phase 4320 Kitchen: `KitchenPhase4320BewertungTicker` — Star yellow-500, Bester #1 Name+★ im Header yellow-700, alert_count-Zähler, kompakt absteigend Rang 1=höchste Bewertung, dot-Farbkodierung, Team-Avg ✅
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4311–4315 implementiert — Fahrer-Trinkgeld-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4312TrinkgeldBoard`. Fahrer: `FahrerPhase4313MeinTrinkgeld`. Kitchen: `KitchenPhase4315TrinkgeldTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4316.
 
 ### ✅ Phasen 4311–4315 ABGESCHLOSSEN — Fahrer-Trinkgeld-Ranking
