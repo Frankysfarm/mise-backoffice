@@ -31567,3 +31567,41 @@ Neue Komponenten hinzugefügt (TypeScript ✅), aber noch nicht aktiv eingebunde
 KRITISCH: Nächste freie Phase ist 4452! NIEMALS 4000–4451 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4452–4456 — Fahrer-Wartezeit-am-Stopp-Ranking (ABGESCHLOSSEN 2026-07-27)
+
+### Phase 4452 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-wartezeit-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-wartezeit-ranking?location_id=...
+**Logik:** Ø Wartezeit/Stopp je Fahrer letzte 30 Tage; INVERTED aufsteigend Rang 1=kürzeste Wartezeit=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Hohe Wartezeit!" wenn >5min; Mock Sara 2.1min/Julia 3.4min/Max 5.8min/Tim 8.2min; force-dynamic ✅; createClient() ✅
+
+### Phase 4453 — Wartezeit-Ranking-Board (Dispatch)
+**Component:** `DispatchPhase4453WartezeitRankingBoard` — Clock orange-500; INVERTED aufsteigend Rang 1=kürzeste Wartezeit; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Wartezeit; Balken=(min/maxMin)*100%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4454 — Meine Wartezeit (Fahrer)
+**Component:** `FahrerPhase4454MeineWartezeit` — Clock orange-500; avg_wartezeit_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen (≤2min/≤5min/>5min); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4455 — Storefront
+Übersprungen ✅
+
+### Phase 4456 — Wartezeit-Ticker (Kitchen)
+**Component:** `KitchenPhase4456WartezeitTicker` — Clock orange-500; Schnellster #1 Name+min orange-600; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≤3min; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 neue Fehler (Pre-existing-Errors identisch mit Phase4447) ✅ Turbopack-Timeout bekanntes Container-Problem
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4456 (4455 übersprungen)
+- **Nächste freie Phase: 4457**
+
+### Nächste Phasen 4457–4461 — Fahrer-Stopp-Dauer-Ranking
+1. **Phase 4457 Backend:** GET /api/delivery/admin/fahrer-stoppdauer-ranking — avg(stop_duration_minutes) je Fahrer letzte 30 Tage; INVERTED aufsteigend Rang 1=kürzeste Stoppdauer=bester; Quartil-Ampel; Alert "Hohe Stoppdauer!"; Mock Sara 4.2min/Julia 6.1min/Max 8.5min/Tim 11.3min; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4458 Dispatch:** `DispatchPhase4458StoppdauerRankingBoard` — Timer violet-500; INVERTED Rang 1=kürzeste Stoppdauer; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4459 Fahrer:** `FahrerPhase4459MeineStoppdauer` — Timer violet-500; avg_stoppdauer_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen (≤5min/≤8min/>8min); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4460 Storefront:** Überspringen.
+5. **Phase 4461 Kitchen:** `KitchenPhase4461StoppdauerTicker` — Timer violet-500; Schnellster #1 Name+min; Ziel ≤5min; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4457! NIEMALS 4000–4456 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+## STATUS: MARKT-REIF

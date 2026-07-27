@@ -13555,3 +13555,5 @@ export { DispatchPhase4450FahrerScoreTourVisualisierungV7 } from './phase4450-fa
 
 // Phase 4500 — Fahrer-Score + Tour-Visualisierung V8 (Trophy amber; Score-Ring 4-stufig Platin/Gold/Gut/Schwach+Delta; Stopp-Timeline farbkodiert; ETA-Sync; Flotten-KPI-Grid Score/Pünktlichkeit/Lieferzeit; Zonen-SLA; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4500FahrerScoreTourVisualisierungV8 } from './phase4500-fahrer-score-tour-visualisierung-v8';
+// Phase 4453 — Wartezeit/Stopp-Ranking-Board (Clock orange-500; INVERTED aufsteigend Rang 1=kürzeste Wartezeit=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Wartezeit; Balken=(min/maxMin)*100%; 30-Min-Polling)
+export { DispatchPhase4453WartezeitRankingBoard } from './phase4453-wartezeit-ranking-board';

@@ -12125,3 +12125,5 @@ export { KitchenPhase4450SmartTimingCountdownFarbkodierungV8 } from './phase4450
 
 // Phase 4500 — Smart-Timing V8 Farbkodierung-Countdown Ultra (Timer indigo; 5-stufig grün/hellgrün/gelb/orange/rot; Echtzeit-Countdown alle Bestellungen; KPI-Grid Score/Pünktlichkeit/Prep/Schicht-Delta; Stationsübersicht; Kochstart-Empfehlung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4500SmartTimingV8FarbkodierungCountdown } from './phase4500-smart-timing-v8-farbkodierung-countdown';
+// Phase 4456 — Wartezeit-Ticker (Clock orange-500; Schnellster #1 Name+min orange-600; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≤3min; 30-Min-Polling)
+export { KitchenPhase4456WartezeitTicker } from './phase4456-wartezeit-ticker';

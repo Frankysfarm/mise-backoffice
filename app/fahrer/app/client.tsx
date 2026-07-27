@@ -11428,3 +11428,5 @@ export { FahrerPhase4351TourStoppNavV3 } from './phase4351-tour-stopp-nav-v3';
 export { FahrerPhase4410TourStoppNavigatorV5 } from './phase4410-tour-stopp-navigator-v5';
 // Phase 4450 — Tour-Stopp Smart-Navigator V6 (Route indigo; Nächster-Stopp CTA blau mit Navi+Tel+Notiz; Bar-Kassierhilfe; GPS-Deeplink Android/iOS/Web; Stopp-Fortschrittsbalken; expandierbare Stopp-Liste Status-Dots; Artikel-Details; Effizienz-Score; Offline-Guard; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4450TourStoppSmartNavV6 } from './phase4450-tour-stopp-smart-nav-v6';
+// Phase 4454 — Meine Wartezeit/Stopp (Clock orange-500; avg_wartezeit_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≤2min/≤5min/>5min; 30-Min-Polling)
+export { FahrerPhase4454MeineWartezeit } from './phase4454-meine-wartezeit';
