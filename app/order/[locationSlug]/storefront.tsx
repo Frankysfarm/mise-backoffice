@@ -4026,3 +4026,5 @@ export { Phase1000LiveEtaLieferstatusCockpit } from './phase1000-live-eta-liefer
 export { StorefrontPhase1000DynamischeEtaLiveTrackingV2 } from './phase1000-dynamische-eta-live-tracking-v2';
 // Phase 1030 — Dynamische ETA Live V5 (Saffron Hero-Countdown 1-Sek-Tick; 5-stufige Phasen-Timeline; Küchen-Fortschrittsbalken; Fahrer-Proximity-Pulsbalken mit Meter; Übergabe-Code-Karte; Bewertungs-Sterne nach Zustellung; 20-Sek-Polling; Mock-Fallback)
 export { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-eta-live-v5';
+// Phase 4450 — Dynamische ETA + Live-Tracking Widget (ETA-Ring Min/Max-Korridor; Phasen-Timeline animiert; Fahrer-Nähe-Anzeige; Prep-Fortschrittsbalken; Verzögerungs-Alert; 15-Sek-Polling; Mock-Fallback)
+export { Phase4450DynamischeEtaLiveTracking } from './phase4450-dynamische-eta-live-tracking';

@@ -1202,6 +1202,7 @@ import { DispatchPhase4427StornoRankingBoard } from './phase4427-storno-ranking-
 import { DispatchPhase4432TrinkgeldRankingBoard } from './phase4432-trinkgeld-ranking-board';
 import { DispatchPhase4437BewertungsRankingBoard } from './phase4437-bewertungs-ranking-board';
 import { DispatchPhase4442ReaktionszeitBoard } from './phase4442-reaktionszeit-board';
+import { DispatchPhase4447KmRankingBoard } from './phase4447-km-ranking-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5039,6 +5040,7 @@ export function DispatchBoard({
           <DispatchPhase4432TrinkgeldRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4437BewertungsRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4442ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4447KmRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13540,6 +13542,8 @@ export { DispatchPhase4432TrinkgeldRankingBoard } from './phase4432-trinkgeld-ra
 export { DispatchPhase4437BewertungsRankingBoard } from './phase4437-bewertungs-ranking-board';
 // Phase 4442 — Reaktionszeit-Board (Zap yellow-500; INVERTED aufsteigend Rang 1=kürzeste Zeit=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Reaktionszeit; 30-Min-Polling)
 export { DispatchPhase4442ReaktionszeitBoard } from './phase4442-reaktionszeit-board';
+// Phase 4447 — KM-Ranking-Board (MapPin blue-500; absteigend Rang 1=meiste km=bester; KPI-Grid Meiste/Team-Avg/Wenigste; Alert Wenige Kilometer; 30-Min-Polling)
+export { DispatchPhase4447KmRankingBoard } from './phase4447-km-ranking-board';
 // Phase 4307 — Fahrer-Score + Tour-Visualisierung Board (Trophy amber; Score-Badge+Delta; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4307FahrerScoreTourVisualisierungBoard } from './phase4307-fahrer-score-tour-visualisierung-board';
 // Phase 4351 — Score + Tour-Visualisierung V3 (Trophy amber; Score-Ring 3-stufig+Delta; Stopp-Sequenz Farbkacheln; expandierbare Tour-Details; 3-KPI-Sub-Grid; Fahrer-Progress-Balken; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)

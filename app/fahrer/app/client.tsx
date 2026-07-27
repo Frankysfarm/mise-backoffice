@@ -1122,6 +1122,7 @@ import { FahrerPhase4428MeineStornoQuote } from './phase4428-meine-storno-quote'
 import { FahrerPhase4433MeinTrinkgeld } from './phase4433-mein-trinkgeld';
 import { FahrerPhase4438MeineBewertung } from './phase4438-meine-bewertung';
 import { FahrerPhase4443MeineReaktionszeit } from './phase4443-meine-reaktionszeit';
+import { FahrerPhase4448MeineKilometer } from './phase4448-meine-kilometer';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7191,6 +7192,7 @@ export function FahrerApp({
           <FahrerPhase4433MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4438MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4443MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4448MeineKilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11405,6 +11407,8 @@ export { FahrerPhase4433MeinTrinkgeld } from './phase4433-mein-trinkgeld';
 export { FahrerPhase4438MeineBewertung } from './phase4438-meine-bewertung';
 // Phase 4443 — Meine Reaktionszeit (Zap yellow-500; avg_reaktionszeit_min 5xl+Rang 2xl farbkodiert; INVERTED; isOnline-Guard; Coaching-Tipp 3 Stufen ≤3min/≤6min/>6min; 30-Min-Polling)
 export { FahrerPhase4443MeineReaktionszeit } from './phase4443-meine-reaktionszeit';
+// Phase 4448 — Meine KM/Tour (MapPin blue-500; avg_km 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen; 30-Min-Polling)
+export { FahrerPhase4448MeineKilometer } from './phase4448-meine-kilometer';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 // Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)
