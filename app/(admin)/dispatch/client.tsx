@@ -1166,6 +1166,7 @@ import { DispatchPhase4252KmProTourBoard } from './phase4252-km-pro-tour-board';
 import { DispatchPhase4257WartezeitStoppBoard } from './phase4257-wartezeit-stopp-board';
 import { DispatchPhase4262AuslastungsBoard } from './phase4262-auslastungs-board';
 import { DispatchPhase4257SchichtdauerBoard } from './phase4257-schichtdauer-board';
+import { DispatchPhase4267KundenzufriedenheitBoard } from './phase4267-kundenzufriedenheit-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4959,6 +4960,7 @@ export function DispatchBoard({
           <DispatchPhase4257WartezeitStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4262AuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4257SchichtdauerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4267KundenzufriedenheitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13378,3 +13380,5 @@ export { DispatchPhase4257WartezeitStoppBoard } from './phase4257-wartezeit-stop
 export { DispatchPhase4262AuslastungsBoard } from './phase4262-auslastungs-board';
 // Phase 4257 — Schichtdauer-Board (Timer cyan; aufsteigend Rang 1=kürzeste Schicht; KPI-Grid Kürzeste/Team-Avg/Längste; Alert Kurze Schicht; 30-Min-Polling)
 export { DispatchPhase4257SchichtdauerBoard } from './phase4257-schichtdauer-board';
+// Phase 4267 — Kundenzufriedenheit-Board (Star yellow; absteigend Rang 1=beste Bewertung; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrige Bewertung; 30-Min-Polling)
+export { DispatchPhase4267KundenzufriedenheitBoard } from './phase4267-kundenzufriedenheit-board';
