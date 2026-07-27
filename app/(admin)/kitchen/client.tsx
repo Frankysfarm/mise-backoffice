@@ -1125,6 +1125,7 @@ import { KitchenPhase4330LieferzeitTicker } from './phase4330-lieferzeit-ticker'
 import { KitchenPhase4335TourenAnzahlTicker } from './phase4335-touren-anzahl-ticker';
 import { KitchenPhase4340BestellwertTicker } from './phase4340-bestellwert-ticker';
 import { KitchenPhase4345StoppsProStundeTicker } from './phase4345-stopps-pro-stunde-ticker';
+import { KitchenPhase4350NachtschichtTicker } from './phase4350-nachtschicht-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4576,6 +4577,7 @@ export function KitchenBoard({
       <KitchenPhase4340BestellwertTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4305SchichtstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4345StoppsProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4350NachtschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
@@ -12008,6 +12010,8 @@ export { KitchenPhase4335TourenAnzahlTicker } from './phase4335-touren-anzahl-ti
 export { KitchenPhase4340BestellwertTicker } from './phase4340-bestellwert-ticker';
 // Phase 4345 — Stopps/h-Ticker (Activity teal; Schnellster #1 Name+/h im Header teal-700; alert_count-Zaehler; kompakt absteigend Rang 1=meiste Stopps/h; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4345StoppsProStundeTicker } from './phase4345-stopps-pro-stunde-ticker';
+// Phase 4350 — Nachtschicht-Ticker (Moon purple; Nacht-König #1 Name+% im Header purple-600; alert_count-Zaehler; kompakt absteigend Rang 1=höchster Nachtanteil; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4350NachtschichtTicker } from './phase4350-nachtschicht-ticker';
 // Phase 4305 — Schichtstunden-Ticker (Clock indigo; Fleißigster #1 Name+h im Header indigo-600; alert_wenig-Zaehler; kompakt absteigend Rang 1=meiste Stunden; dot-Farbkodierung; Team-Avg+Ziel; 30-Min-Polling)
 export { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 // Phase 4300 — Smart-Timing Countdown Farbkodierung Board (Timer indigo; 4-stufig grün/gelb/orange/rot; Echtzeit-Countdown alle Bestellungen; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback)

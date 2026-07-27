@@ -2,6 +2,15 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-27): Phasen 4346–4350 implementiert — Fahrer-Nachtschicht-Ranking. Backend neu erstellt (`/api/delivery/admin/fahrer-nachtschicht-ranking`). Dispatch: `DispatchPhase4347NachtschichtBoard`. Fahrer: `FahrerPhase4348MeineNachtschicht`. Kitchen: `KitchenPhase4350NachtschichtTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4351.
+
+### ✅ Phasen 4346–4350 ABGESCHLOSSEN — Fahrer-Nachtschicht-Ranking
+- Phase 4346 Backend: `/api/delivery/admin/fahrer-nachtschicht-ranking` — absteigend Rang 1=höchster nacht_anteil_pct (22–06 Uhr), INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald), alert_hoch (≥35%), meister_name/wenigster_name, team_avg_pct, Mock Julia 45%/Sara 38%/Max 22%/Tim 8%, echte Supabase-Abfrage delivery_tours.started_at ✅
+- Phase 4347 Dispatch: `DispatchPhase4347NachtschichtBoard` — Moon purple-500, absteigend Rang 1=höchster Nachtanteil, KPI-Grid Meiste/Team-Avg/Wenigste (purple-50/gray-50/green-50), Alert "Hoher Nachtanteil!", INVERTED rank_delta>0=TrendingUp emerald, Balken=(pct/maxPct)*100% ✅
+- Phase 4348 Fahrer: `FahrerPhase4348MeineNachtschicht` — Moon purple-500, nacht_anteil_pct 5xl+Rang 2xl farbkodiert, driver_id API-Param+client-side filter, isOnline-Guard, Coaching-Tipp 3 Stufen, INVERTED rank_delta>0=TrendingUp emerald ✅
+- Phase 4349 Storefront: übersprungen ✅
+- Phase 4350 Kitchen: `KitchenPhase4350NachtschichtTicker` — Moon purple-500, Nacht-König #1 Name+% im Header purple-600, alert_count-Zähler, dot-Farbkodierung, Team-Avg ✅
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4336–4340 implementiert — Fahrer-Bestellwert-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4337BestellwertBoard`. Fahrer: `FahrerPhase4338MeinBestellwert`. Kitchen: `KitchenPhase4340BestellwertTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4341.
 
 ### ✅ Phasen 4336–4340 ABGESCHLOSSEN — Fahrer-Bestellwert-Ranking
