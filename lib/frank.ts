@@ -38,6 +38,17 @@ import {
   type IntelligentDispatchDriver,
 } from './delivery/intelligent-dispatch';
 import {
+  canonicalShiftEligible,
+  decideDeterministicDispatch,
+  deterministicModePolicy,
+  deterministicScanStatuses,
+  executeDeterministicDecision,
+  preDecisionHold,
+  snapshotPageSaturated,
+  type DeterministicDispatchDecision,
+  type DeterministicDriverSnapshot,
+} from './delivery/deterministic-dispatch';
+import {
   decideLongDistanceHold,
   evaluateCorridorBundle,
   type CorridorBundleDecision,
@@ -58,6 +69,12 @@ function intelligent20kmEnabled(useAtomicWriter: boolean): boolean {
 
 function smartLongDistanceBatchingEnabled(): boolean {
   return process.env.P0_SMART_LONG_DISTANCE_BATCHING_ENABLED === 'true';
+}
+
+type DeterministicDispatchMode = 'off' | 'shadow' | 'active';
+function deterministicDispatchMode(): DeterministicDispatchMode {
+  const mode = process.env.T07_DETERMINISTIC_DISPATCH_MODE;
+  return mode === 'shadow' || mode === 'active' ? mode : 'off';
 }
 
 interface OrderRow {
@@ -114,7 +131,8 @@ const STRATEGY_PRESETS: Record<DispatchStrategy, StrategyPreset> = {
 };
 
 async function tenantStrategy(tenantId: string): Promise<StrategyPreset> {
-  const { data } = await sb().from('tenants').select('dispatch_strategy').eq('id', tenantId).maybeSingle();
+  const { data, error } = await sb().from('tenants').select('dispatch_strategy').eq('id', tenantId).maybeSingle();
+  if (error) throw new Error(`TENANT_STRATEGY_LOAD_FAILED:${error.code ?? 'unknown'}`);
   const s = ((data as { dispatch_strategy?: string } | null)?.dispatch_strategy as DispatchStrategy) ?? 'balance';
   return STRATEGY_PRESETS[s] ?? STRATEGY_PRESETS.balance;
 }
@@ -132,15 +150,20 @@ export interface DispatchTickResult {
  */
 export async function dispatchTick(): Promise<DispatchTickResult> {
   const c = sb();
-  const { data: orders } = await c
+  const tickMode = deterministicDispatchMode();
+  const tickPolicy = deterministicModePolicy(tickMode);
+  const { data: orders, error: ordersError } = await c
     .from('customer_orders')
     .select('id, bestellnummer, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, created_at, dispatch_version, eta_earliest, eta_latest')
     .eq('typ', 'lieferung')
     .is('mise_driver_id', null)
     .is('mise_batch_id', null)
-    .in('status', ['neu', 'in_zubereitung', 'fertig'])
+    .in('status', [...tickPolicy.scanStatuses])
     .order('created_at', { ascending: true })
     .limit(50);
+  if (ordersError) {
+    throw new Error(`FRANK_ORDER_SNAPSHOT_FAILED:${ordersError.code ?? 'unknown'}`);
+  }
 
   const result: DispatchTickResult = {
     scanned_orders: orders?.length ?? 0,
@@ -150,10 +173,22 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
   };
 
   for (const o of orders ?? []) {
-    const outcome = await dispatchOrder(o as OrderRow);
-    if (outcome === 'bundled') result.bundled++;
-    else if (outcome === 'assigned') result.assigned++;
-    else result.held++;
+    try {
+      const outcome = await dispatchOrder(o as OrderRow);
+      if (outcome === 'bundled') result.bundled++;
+      else if (outcome === 'assigned') result.assigned++;
+      else result.held++;
+    } catch (error) {
+      result.held++;
+      const message = error instanceof Error ? error.message : 'UNKNOWN';
+      try {
+        await logDecision('hold', null, [(o as OrderRow).id], 'DISPATCH_ORDER_FAILED', {
+          error_code: message.slice(0, 120),
+        });
+      } catch (auditError) {
+        throw new AggregateError([error, auditError], 'DISPATCH_AND_AUDIT_FAILED');
+      }
+    }
   }
   return result;
 }
@@ -165,11 +200,14 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
 
   // 1) Pickup-Location (Restaurant) laden
   if (!o.location_id) return 'held';
-  const { data: locRaw } = await c
+  const { data: locRaw, error: locationError } = await c
     .from('locations')
     .select('id, tenant_id, name, lat, lng, adresse, plz, stadt')
     .eq('id', o.location_id)
     .maybeSingle();
+  if (locationError) {
+    throw new Error(`DISPATCH_LOCATION_LOAD_FAILED:${locationError.code ?? 'unknown'}`);
+  }
   if (!locRaw) return 'held';
   const loc = locRaw as LocationRow;
   let selectedWriter: DispatchWriter | null;
@@ -187,6 +225,8 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   const useAtomicV2 =
     selectedWriter === 'atomic_v2' && atomicAssignmentV2Enabled();
   const useAtomicWriter = useAtomicV1 || useAtomicV2;
+  const deterministicMode = deterministicDispatchMode();
+  const deterministicPolicy = deterministicModePolicy(deterministicMode);
   if (
     (selectedWriter === 'atomic_v1' || selectedWriter === 'atomic_v2') &&
     !useAtomicWriter
@@ -196,30 +236,12 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   }
   const preset = await tenantStrategy(loc.tenant_id);
 
-  if (smartLongDistanceBatchingEnabled()) {
-    const hold = decideLongDistanceHold({
-      id: o.id,
-      pickup: { lat: loc.lat, lng: loc.lng },
-      dropoff: { lat: o.kunde_lat, lng: o.kunde_lng },
-      createdAt: o.created_at ?? new Date(0).toISOString(),
-      deadlineAt: o.eta_latest ?? null,
-    }, new Date());
-    await logDecision(
-      hold.action === 'hold' ? 'hold' : 'reroute',
-      null,
-      [o.id],
-      `LONG_DISTANCE_${hold.reasonCode}`,
-      hold as unknown as Record<string, unknown>,
-    );
-    if (hold.action === 'reject' || hold.action === 'hold') return 'held';
-  }
-
   // 2) Customer-Adresse geocoden falls nötig
   if (o.kunde_lat == null || o.kunde_lng == null) {
     const addr = [o.kunde_adresse, o.kunde_plz, o.kunde_stadt].filter(Boolean).join(', ');
     if (!addr) {
       await logDecision('hold', null, [o.id], 'Keine Lieferadresse');
-      return 'held';
+      return preDecisionHold();
     }
     try {
       const g = await geocode(addr);
@@ -237,7 +259,7 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
       // Google deny / network → Order parken, Cron probiert nächste Runde wieder
       const msg = e instanceof Error ? e.message : String(e);
       await logDecision('hold', null, [o.id], `Geocoding-Fehler: ${msg.slice(0, 100)}`);
-      return 'held';
+      return preDecisionHold();
     }
   }
 
@@ -248,14 +270,135 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   }
   const drivers = await driversForTenant(loc.tenant_id);
   const nearby = drivers.filter((d) => {
-    if (d.last_lat == null || d.last_lng == null) return true; // keine Position → trotzdem versuchen
-    const km = haversineKm({ lat: d.last_lat, lng: d.last_lng }, { lat: loc.lat!, lng: loc.lng! });
+    if (d.last_lat == null || d.last_lng == null) return true;
+    const km = haversineKm(
+      { lat: d.last_lat, lng: d.last_lng },
+      { lat: loc.lat!, lng: loc.lng! },
+    );
     return km <= d.max_radius_km;
   });
+  let deterministicWinner: DriverRow | null = null;
+  let deterministicDecision: DeterministicDispatchDecision | null = null;
+  let deterministicActionId: string | null = null;
+  let shadowWinnerDriverId: string | null | undefined;
+  const finish = async (
+    outcome: Outcome,
+    incumbentDriverId: string | null,
+    incumbentReason: string,
+  ): Promise<Outcome> => {
+    if (deterministicMode === 'shadow' && shadowWinnerDriverId !== undefined) {
+      await logDecision('hold', shadowWinnerDriverId, [o.id], 'T07_SHADOW_INCUMBENT_OUTCOME', {
+        shadowWinnerDriverId,
+        incumbentDriverId,
+        incumbentOutcome: outcome,
+        incumbentReason,
+        matchesIncumbent:
+          outcome === 'assigned' &&
+          shadowWinnerDriverId === incumbentDriverId,
+      });
+    }
+    return outcome;
+  };
+  if (deterministicPolicy.evaluate) {
+    if (!useAtomicV2) {
+      await logDecision('hold', null, [o.id], 'T07_CANONICAL_WRITER_REQUIRED', {
+        mode: deterministicMode,
+      });
+      if (deterministicPolicy.mayInvokeAtomicWriter) return 'held';
+    } else if (
+      loc.lat == null || loc.lng == null ||
+      o.kunde_lat == null || o.kunde_lng == null
+    ) {
+      await logDecision('hold', null, [o.id], 'T07_ROUTE_COORDINATES_MISSING', {
+        mode: deterministicMode,
+      });
+      if (deterministicPolicy.mayInvokeAtomicWriter) return 'held';
+    } else {
+      const snapshots = await loadDeterministicDriverSnapshots(loc.tenant_id);
+      if (!snapshots) {
+        await logDecision('hold', null, [o.id], 'T07_CANDIDATE_SNAPSHOT_FAILED', {
+          mode: deterministicMode,
+        });
+        if (deterministicPolicy.mayInvokeAtomicWriter) return 'held';
+      }
+      const dispatchConfig = snapshots
+        ? await loadDeterministicTenantConfig(loc.tenant_id)
+        : null;
+      if (snapshots && !dispatchConfig) {
+        await logDecision('hold', null, [o.id], 'T07_TENANT_CONFIG_FAILED', {
+          mode: deterministicMode,
+        });
+        if (deterministicPolicy.mayInvokeAtomicWriter) return 'held';
+      }
+      if (snapshots && dispatchConfig) {
+        const evaluatedAt = new Date();
+        deterministicActionId =
+          deterministicPolicy.mayInvokeAtomicWriter ? randomUUID() : null;
+        const decision = decideDeterministicDispatch({
+          id: o.id,
+          tenantId: loc.tenant_id,
+          pickup: { lat: loc.lat, lng: loc.lng },
+          dropoff: { lat: o.kunde_lat, lng: o.kunde_lng },
+          deliveryDeadlineAt: o.eta_latest ?? null,
+        }, snapshots, {
+          maxDeliveryKm: dispatchConfig.maxDeliveryKm,
+          idleGpsStaleSeconds: dispatchConfig.idleGpsStaleSeconds,
+          maxGpsAccuracyM: dispatchConfig.maxGpsAccuracyM,
+        }, evaluatedAt);
+        deterministicDecision = decision;
+        if (deterministicMode === 'shadow') {
+          shadowWinnerDriverId = decision.winnerDriverId;
+        }
+        await logDecision(
+          deterministicMode === 'shadow'
+            ? 'hold'
+            : decision.winnerDriverId ? 'reroute' : 'hold',
+          decision.winnerDriverId,
+          [o.id],
+          deterministicMode === 'shadow'
+            ? 'T07_SHADOW_DECISION'
+            : decision.winnerDriverId
+              ? 'T07_CANDIDATE_SELECTED_PENDING_CAS'
+              : decision.reasonCode,
+          {
+            mode: deterministicMode,
+            decisionActionId: deterministicActionId,
+            ...decision,
+          } as unknown as Record<string, unknown>,
+        );
+        if (deterministicPolicy.mayInvokeAtomicWriter) {
+          if (!decision.winnerDriverId) return 'held';
+          deterministicWinner =
+            drivers.find((driver) => driver.id === decision.winnerDriverId) ?? null;
+          if (!deterministicWinner) return 'held';
+        }
+      }
+    }
+  }
 
-  if (nearby.length === 0) {
+  if (deterministicPolicy.continueIncumbent && smartLongDistanceBatchingEnabled()) {
+    const hold = decideLongDistanceHold({
+      id: o.id,
+      pickup: { lat: loc.lat, lng: loc.lng },
+      dropoff: { lat: o.kunde_lat, lng: o.kunde_lng },
+      createdAt: o.created_at ?? new Date(0).toISOString(),
+      deadlineAt: o.eta_latest ?? null,
+    }, new Date());
+    await logDecision(
+      hold.action === 'hold' ? 'hold' : 'reroute',
+      null,
+      [o.id],
+      `LONG_DISTANCE_${hold.reasonCode}`,
+      hold as unknown as Record<string, unknown>,
+    );
+    if (hold.action === 'reject' || hold.action === 'hold') {
+      return finish('held', null, `LONG_DISTANCE_${hold.reasonCode}`);
+    }
+  }
+
+  if (deterministicPolicy.continueIncumbent && nearby.length === 0) {
     await logDecision('hold', null, [o.id], 'Kein Fahrer im Radius');
-    return 'held';
+    return finish('held', null, 'NO_DRIVER_IN_RADIUS');
   }
 
   // 4) Bundling: gibt's einen Driver mit pending_acceptance Bundle das passt?
@@ -286,21 +429,23 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
         ? corridorDecision as unknown as Record<string, unknown>
         : undefined,
     );
-    return 'bundled';
+    return finish('bundled', d.id, 'LEGACY_BUNDLE');
   }
 
   // 4b) Spar-Modus: kein passender Bundle -> kurz warten (sammeln) statt sofort allein rauszuschicken
-  if (preset.holdSec > 0 && o.created_at) {
+  if (deterministicPolicy.continueIncumbent && preset.holdSec > 0 && o.created_at) {
     const ageSec = (Date.now() - new Date(o.created_at).getTime()) / 1000;
     if (ageSec < preset.holdSec) {
       await logDecision('hold', null, [o.id], `Spar-Modus: warte auf Buendel (${Math.round(ageSec)}/${preset.holdSec}s)`);
-      return 'held';
+      return finish('held', null, 'LEGACY_STRATEGY_HOLD');
     }
   }
 
   // 5) Neuer Bundle für nearest-Driver (nach last position oder zufällig)
   let best: DriverRow;
-  if (intelligent20kmEnabled(useAtomicWriter)) {
+  if (deterministicWinner) {
+    best = deterministicWinner;
+  } else if (intelligent20kmEnabled(useAtomicWriter)) {
     const driverIds = nearby.map((driver) => driver.id);
     const [{ data: details, error: detailsError }, { data: recent, error: recentError },
       { data: tenantConfig, error: tenantError }, { data: deadlineRow, error: deadlineError }] =
@@ -326,7 +471,7 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
       await logDecision('hold', null, [o.id], 'INTELLIGENT_INPUT_LOAD_FAILED', {
         reason_code: 'INTELLIGENT_INPUT_LOAD_FAILED',
       });
-      return 'held';
+      return finish('held', null, 'INTELLIGENT_INPUT_LOAD_FAILED');
     }
 
     const recentRows = (recent ?? []) as Array<{
@@ -375,27 +520,178 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
         : 'NO_INTELLIGENT_CANDIDATE',
       decision as unknown as Record<string, unknown>,
     );
-    if (!decision.winnerDriverId) return 'held';
+    if (!decision.winnerDriverId) return finish('held', null, 'INTELLIGENT_NO_WINNER');
     const selected = nearby.find((driver) => driver.id === decision.winnerDriverId);
-    if (!selected) return 'held';
+    if (!selected) return finish('held', null, 'INTELLIGENT_WINNER_NOT_IN_POOL');
     best = selected;
   } else {
     best = pickBest(nearby, loc);
   }
   const atomicMode = useAtomicV2 ? 'v2' : useAtomicV1 ? 'v1' : null;
-  const created = await createBundle(best, o, loc, atomicMode);
-  if (!created) return 'held';
+  const created =
+    deterministicPolicy.mayInvokeAtomicWriter && deterministicDecision
+      ? (await executeDeterministicDecision(
+        'active',
+        deterministicDecision,
+        async () => createBundle(
+          best, o, loc, atomicMode, deterministicActionId ?? undefined,
+        ),
+      )).result
+      : await createBundle(
+        best, o, loc, atomicMode, deterministicActionId ?? undefined,
+      );
+  if (!created) return finish('held', best.id, 'CANONICAL_WRITER_REJECTED');
   // Route erst nach Pickup
   // Atomic-v1 schreibt Audit + Push-Outbox bereits in derselben Transaktion.
   if (!created.atomic) {
     await logDecision('assign', best.id, [o.id], `Direkt zugewiesen — kein passender Bundle offen.`);
+  } else if (deterministicMode === 'active') {
+    await logDecision('assign', best.id, [o.id], 'T07_ASSIGNMENT_COMMITTED', {
+      algorithmVersion: 'deterministic-baseline-v1',
+      decisionActionId: created.actionId,
+      correlationId: created.correlationId,
+      batchId: created.batchId,
+    });
   }
-  return 'assigned';
+  return finish('assigned', best.id, 'INCUMBENT_ASSIGNMENT_COMMITTED');
+}
+
+async function loadDeterministicTenantConfig(tenantId: string): Promise<{
+  maxDeliveryKm: number;
+  idleGpsStaleSeconds: number;
+  maxGpsAccuracyM: number;
+} | null> {
+  const c = sb();
+  const [{ data: tenant, error: tenantError }, { data: gps, error: gpsError }] =
+    await Promise.all([
+      c.from('tenants').select('lieferradius_km,dispatch_config').eq('id', tenantId).maybeSingle(),
+      c.from('mise_gps_transport_config')
+        .select('idle_stale_seconds,max_accuracy_m')
+        .eq('tenant_id', tenantId)
+        .maybeSingle(),
+    ]);
+  if (tenantError || gpsError || !gps) return null;
+  const config = (tenant?.dispatch_config ?? {}) as Record<string, unknown>;
+  return {
+    maxDeliveryKm: Number(config.max_delivery_km ?? tenant?.lieferradius_km ?? 20),
+    idleGpsStaleSeconds: Number(gps.idle_stale_seconds),
+    maxGpsAccuracyM: Number(gps.max_accuracy_m),
+  };
+}
+
+async function loadDeterministicDriverSnapshots(
+  tenantId: string,
+): Promise<DeterministicDriverSnapshot[] | null> {
+  const c = sb();
+  const { data: memberships, error: membershipsError } = await c
+    .from('mise_driver_tenants')
+    .select('driver_id,status')
+    .eq('tenant_id', tenantId)
+    .limit(500);
+  if (membershipsError) return null;
+  if (snapshotPageSaturated((memberships ?? []).length, 500)) return null;
+  const ids = (memberships ?? []).map((row: any) => row.driver_id as string);
+  if (ids.length === 0) return [];
+  const membershipByDriver = new Map(
+    (memberships ?? []).map((row: any) => [row.driver_id, row.status === 'active']),
+  );
+  const { data: activeBatches, error: activeBatchesError } = await c
+    .from('mise_delivery_batches')
+    .select('id,driver_id,state')
+    .in('driver_id', ids)
+    .not('state', 'in', '("completed","cancelled")')
+    .limit(500);
+  if (activeBatchesError) return null;
+  if (snapshotPageSaturated((activeBatches ?? []).length, 500)) return null;
+  const batchIds = (activeBatches ?? []).map((batch: any) => batch.id as string);
+  const { data: activeStops, error: activeStopsError } = batchIds.length
+    ? await c.from('mise_delivery_batch_stops')
+      .select('batch_id,completed_at')
+      .in('batch_id', batchIds)
+      .is('completed_at', null)
+      .limit(2000)
+    : { data: [], error: null };
+  if (activeStopsError) return null;
+  if (snapshotPageSaturated((activeStops ?? []).length, 2000)) return null;
+  const driverByBatch = new Map(
+    (activeBatches ?? []).map((batch: any) => [batch.id, batch.driver_id]),
+  );
+  const activeStopsByDriver = new Map<string, number>();
+  for (const stop of activeStops ?? []) {
+    const driverId = driverByBatch.get((stop as any).batch_id) as string | undefined;
+    if (driverId) {
+      activeStopsByDriver.set(
+        driverId,
+        (activeStopsByDriver.get(driverId) ?? 0) + 1,
+      );
+    }
+  }
+  const since = new Date(Date.now() - 60 * 60_000).toISOString();
+  const [
+    { data: details, error: detailsError },
+    { data: positions, error: positionsError },
+    { data: exceptions, error: exceptionsError },
+    { data: assignments, error: assignmentsError },
+  ] = await Promise.all([
+    c.from('mise_drivers')
+      .select('id,active,state,vehicle,max_radius_km,current_capacity,max_capacity')
+      .in('id', ids).limit(500),
+    c.from('mise_driver_position_current')
+      .select('driver_id,tenant_id,captured_at,received_at,latitude,longitude,accuracy_m,quality_flags,operational_state')
+      .eq('tenant_id', tenantId).in('driver_id', ids).limit(500),
+    c.from('driver_exceptions_v2')
+      .select('driver_id,state').in('driver_id', ids)
+      .in('state', ['reported', 'triaged', 'mitigating', 'reassignment_required'])
+      .limit(500),
+    c.from('mise_frank_decisions')
+      .select('driver_id,created_at').in('driver_id', ids)
+      .eq('type', 'assign').gte('created_at', since).limit(5000),
+  ]);
+  if (detailsError || positionsError || exceptionsError || assignmentsError) return null;
+  if (
+    snapshotPageSaturated((details ?? []).length, 500) ||
+    snapshotPageSaturated((positions ?? []).length, 500) ||
+    snapshotPageSaturated((exceptions ?? []).length, 500) ||
+    snapshotPageSaturated((assignments ?? []).length, 5000)
+  ) return null;
+  const positionByDriver = new Map((positions ?? []).map((row: any) => [row.driver_id, row]));
+  const blocked = new Set((exceptions ?? []).map((row: any) => row.driver_id));
+  return (details ?? []).map((row: any) => {
+    const position = positionByDriver.get(row.id) as any;
+    const recent = (assignments ?? [])
+      .filter((entry: any) => entry.driver_id === row.id)
+      .map((entry: any) => entry.created_at as string)
+      .sort();
+    return {
+      id: row.id,
+      tenantMembershipActive: membershipByDriver.get(row.id) === true,
+      shiftActive: canonicalShiftEligible(Boolean(row.active), row.state),
+      active: Boolean(row.active),
+      state: row.state,
+      vehicle: row.vehicle,
+      maxRadiusKm: Number(row.max_radius_km ?? 0),
+      currentCapacity: Number(row.current_capacity ?? 0),
+      maxCapacity: Number(row.max_capacity ?? (row.vehicle === 'car' ? 4 : 2)),
+      activeRouteStops: activeStopsByDriver.get(row.id) ?? 0,
+      blockingException: blocked.has(row.id),
+      assignmentsLastHour: recent.length,
+      lastAssignedAt: recent[recent.length - 1] ?? null,
+      gps: position ? {
+        latitude: Number(position.latitude),
+        longitude: Number(position.longitude),
+        captured_at: position.captured_at,
+        received_at: position.received_at,
+        accuracy_m: Number(position.accuracy_m),
+        quality_flags: position.quality_flags ?? [],
+        operational_state: position.operational_state,
+      } : null,
+    };
+  });
 }
 
 async function driversForTenant(tenantId: string): Promise<DriverRow[]> {
   const c = sb();
-  const { data } = await c
+  const { data, error } = await c
     .from('mise_driver_tenants')
     .select(
       `status,
@@ -403,6 +699,7 @@ async function driversForTenant(tenantId: string): Promise<DriverRow[]> {
     )
     .eq('tenant_id', tenantId)
     .eq('status', 'active');
+  if (error) throw new Error(`DISPATCH_DRIVER_POOL_LOAD_FAILED:${error.code ?? 'unknown'}`);
   return (data ?? [])
     .map((row: any) => row.driver)
     .filter((d: any) => d && d.active && d.state !== 'offline')
@@ -525,14 +822,20 @@ async function createBundle(
   o: OrderRow,
   loc: LocationRow,
   atomicMode: 'v1' | 'v2' | null,
-): Promise<{ batchId: string; atomic: boolean } | null> {
+  actionId?: string,
+): Promise<{
+  batchId: string;
+  atomic: boolean;
+  actionId?: string;
+  correlationId?: string;
+} | null> {
   const c = sb();
   if (atomicMode) {
     if (
       o.kunde_lat == null || o.kunde_lng == null ||
       loc.lat == null || loc.lng == null
     ) return null;
-    const decisionId = randomUUID();
+    const decisionId = actionId ?? randomUUID();
     if (atomicMode === 'v2') {
       if (!o.eta_earliest || !o.eta_latest) {
         await logDecision(
@@ -593,8 +896,23 @@ async function createBundle(
           body: 'Eine neue Lieferung ist dir zugewiesen.',
         },
       });
-      if (!result.ok || !result.batch_id) return null;
-      return { batchId: result.batch_id, atomic: true };
+      if (!result.ok || !result.batch_id) {
+        if (actionId) {
+          await logDecision('hold', driver.id, [o.id], 'T07_ATOMIC_CAS_REJECTED', {
+            algorithmVersion: 'deterministic-baseline-v1',
+            decisionActionId: decisionId,
+            correlationId: result.correlation_id,
+            atomicReasonCode: result.reason_code ?? 'INVALID_ATOMIC_RESULT',
+          });
+        }
+        return null;
+      }
+      return {
+        batchId: result.batch_id,
+        atomic: true,
+        actionId: decisionId,
+        correlationId: result.correlation_id,
+      };
     }
     const result = await createAtomicSingleOrderOffer(c, {
       tenantId: loc.tenant_id,
@@ -623,7 +941,12 @@ async function createBundle(
       },
     });
     if (!result.ok || !result.batch_id) return null;
-    return { batchId: result.batch_id, atomic: true };
+    return {
+      batchId: result.batch_id,
+      atomic: true,
+      actionId: decisionId,
+      correlationId: result.correlation_id,
+    };
   }
 
   const { data: batch, error } = await c
@@ -825,11 +1148,12 @@ async function logDecision(
   reasonData?: Record<string, unknown>,
 ): Promise<void> {
   const c = sb();
-  await c.from('mise_frank_decisions').insert({
+  const { error } = await c.from('mise_frank_decisions').insert({
     type,
     driver_id: driverId,
     order_ids: orderIds,
     reason_text: reasonText,
     ...(reasonData ? { reason_data: reasonData } : {}),
   });
+  if (error) throw new Error(`FRANK_DECISION_AUDIT_FAILED:${error.code ?? 'unknown'}`);
 }
