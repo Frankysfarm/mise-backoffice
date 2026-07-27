@@ -1198,6 +1198,7 @@ import { DispatchPhase4407NachtRankingBoard } from './phase4407-nacht-ranking-bo
 import { DispatchPhase4412GesamtstundenBoard } from './phase4412-gesamtstunden-board';
 import { DispatchPhase4417AvgLieferzeitBoard } from './phase4417-avg-lieferzeit-board';
 import { DispatchPhase4422PuenktlichkeitsBoard } from './phase4422-puenktlichkeits-board';
+import { DispatchPhase4427StornoRankingBoard } from './phase4427-storno-ranking-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5029,6 +5030,7 @@ export function DispatchBoard({
           {/* Phase 4417: Ø-Lieferzeit-Board — Timer green-600; aufsteigend Rang 1=kürzeste Zeit=bester (INVERTED); KPI-Grid Schnellster/Team-Avg/Langsamster; Alert Hohe Lieferzeit; 30-Min-Polling */}
           <DispatchPhase4417AvgLieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4422PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4427StornoRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13516,6 +13518,8 @@ export { DispatchPhase4412GesamtstundenBoard } from './phase4412-gesamtstunden-b
 export { DispatchPhase4417AvgLieferzeitBoard } from './phase4417-avg-lieferzeit-board';
 // Phase 4422 — Pünktlichkeits-Board (CheckCircle2 emerald-600; absteigend Rang 1=höchste Quote=bester; KPI-Grid Pünktlichster/Team-Avg/Niedrigster; Alert Niedrige Quote; 30-Min-Polling)
 export { DispatchPhase4422PuenktlichkeitsBoard } from './phase4422-puenktlichkeits-board';
+// Phase 4427 — Storno-Quote-Ranking-Board (XCircle red-600; aufsteigend Rang 1=niedrigste Quote=bester INVERTED; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert Hohe Stornoquote; 30-Min-Polling)
+export { DispatchPhase4427StornoRankingBoard } from './phase4427-storno-ranking-board';
 // Phase 4307 — Fahrer-Score + Tour-Visualisierung Board (Trophy amber; Score-Badge+Delta; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4307FahrerScoreTourVisualisierungBoard } from './phase4307-fahrer-score-tour-visualisierung-board';
 // Phase 4351 — Score + Tour-Visualisierung V3 (Trophy amber; Score-Ring 3-stufig+Delta; Stopp-Sequenz Farbkacheln; expandierbare Tour-Details; 3-KPI-Sub-Grid; Fahrer-Progress-Balken; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
