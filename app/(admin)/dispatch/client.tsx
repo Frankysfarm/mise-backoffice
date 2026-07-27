@@ -13402,3 +13402,5 @@ export { DispatchPhase4282TourstartBoard } from './phase4282-tourstart-board';
 export { DispatchPhase4287BestellungenProStoppBoard } from './phase4287-bestellungen-pro-stopp-board';
 // Phase 4292 — Abschlussquoten-Board (CheckCircle green; absteigend Rang 1=höchste quote_pct; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig; INVERTED rank_delta>0=TrendingUp emerald; team_avg_pct; 30-Min-Polling)
 export { DispatchPhase4292AbschlussquoteBoard } from './phase4292-abschlussquote-board';
+// Phase 4307 — Fahrer-Score + Tour-Visualisierung Board (Trophy amber; Score-Badge+Delta; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4307FahrerScoreTourVisualisierungBoard } from './phase4307-fahrer-score-tour-visualisierung-board';

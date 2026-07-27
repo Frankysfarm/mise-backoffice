@@ -4974,3 +4974,5 @@ export { LieferdienstPhase4155StatistikenEchtzeitHub } from './phase4155-statist
 
 // Phase 4201 — Umsatz Echtzeit-Tracker (Euro green; Heute vs. Gestern Delta+%; €/h Ziel-Balken 3-farbig; Stundenverlauf Chart; Top-Zone; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4201UmsatzEchtzeitTracker } from './phase4201-umsatz-echtzeit-tracker';
+// Phase 4210 — Statistiken Dashboard V2 (Score-Ring+Insight; Alert-Strip; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Stundenverlauf Chart 2-Modi; Top-3-Fahrer Score-Balken; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4210StatistikenDashboardV2 } from './phase4210-statistiken-dashboard-v2';

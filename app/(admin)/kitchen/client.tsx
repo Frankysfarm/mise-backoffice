@@ -11972,3 +11972,5 @@ export { KitchenPhase4290BestellungenProStoppTicker } from './phase4290-bestellu
 export { KitchenPhase4295AbschlussquoteTicker } from './phase4295-abschlussquote-ticker';
 // Phase 4300 — Smart-Timing Countdown Farbkodierung Board (Timer indigo; 4-stufig grün/gelb/orange/rot; Echtzeit-Countdown alle Bestellungen; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
+// Phase 4305 — Smart-Timing Echtzeit-Cockpit V2 (Score-Ring+KPI-Grid; Countdown-Kacheln mit Farb-Legende; Fahrer-ETA-Sync; Status-Badges; Artikel-Anzeige; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4305SmartTimingEchtzeitCockpitV2 } from './phase4305-smart-timing-echtzeit-cockpit-v2';

@@ -11263,3 +11263,5 @@ export { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-n
 
 // Phase 4201 — Verdienst-Ziel Progress (Euro green; Heute-€ Ziel-Balken; KPI-Grid Touren/Trinkgeld/Prognose; Bonus-Schwellen-Alert amber; 1-Min-Polling; Mock-Fallback)
 export { FahrerPhase4201VerdienstZielProgress } from './phase4201-verdienst-ziel-progress';
+// Phase 4305 — Smart Tour-Stopp Nav Hub (Route indigo; Score+Restzeit Header; Fortschrittsbalken; expandierbare Stopp-Liste Status-Dots farbkodiert; Navi-Deeplink Google Maps; Kunden-Tel; Notiz-Alert; Bonus-Zap; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4305SmartTourStoppNavHub } from './phase4305-smart-tour-stopp-nav-hub';
