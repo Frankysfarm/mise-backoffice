@@ -1063,6 +1063,7 @@ import { FahrerPhase4148MeineLeerfahrten } from './phase4148-meine-leerfahrten';
 import { FahrerPhase4153MeineLieferzeit } from './phase4153-meine-lieferzeit';
 import { FahrerPhase4158MeineGeschwindigkeit } from './phase4158-meine-geschwindigkeit';
 import { FahrerPhase4163MeinErstkontakt } from './phase4163-mein-erstkontakt';
+import { FahrerPhase4168MeineStoppdauer } from './phase4168-meine-stoppdauer';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 
 type Driver = {
@@ -7064,6 +7065,7 @@ export function FahrerApp({
           <FahrerPhase4153MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4158MeineGeschwindigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4163MeinErstkontakt driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4168MeineStoppdauer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11125,6 +11127,8 @@ export { FahrerPhase4153MeineLieferzeit } from './phase4153-meine-lieferzeit';
 export { FahrerPhase4158MeineGeschwindigkeit } from './phase4158-meine-geschwindigkeit';
 // Phase 4163 — Mein Erstkontakt (Phone rose; avg_sek 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta<0=gruen; 30-Min-Polling)
 export { FahrerPhase4163MeinErstkontakt } from './phase4163-mein-erstkontakt';
+// Phase 4168 — Meine Stopp-Dauer (Timer orange; avg_sec 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta<0=gruen; 30-Min-Polling)
+export { FahrerPhase4168MeineStoppdauer } from './phase4168-meine-stoppdauer';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 // Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)

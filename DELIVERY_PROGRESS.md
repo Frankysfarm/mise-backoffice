@@ -225,7 +225,16 @@ Frontend-Ingenieur-Agent (2026-07-27): Phasen 4161–4165 implementiert — Fahr
 - Phase 4164 Storefront: uebersprungen ✅
 - Phase 4165 Kitchen: `KitchenPhase4165ErstkontaktTicker` — Phone rose-500, Schnellster #1 Name+sek Header rose-600, Alert-Zähler, dot-Farbkodierung ✅
 
-### Naechste Phasen 4166–4170 — Naechstes Ranking-Thema (TBD)
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4166–4170 implementiert — Fahrer-Stoppdauer-Ranking. Phase 4166 Backend: bestehendes `/api/delivery/admin/fahrer-stoppdauer-ranking` wiederverwendet ✅. Phase 4167 Dispatch: `DispatchPhase4167StoppdauerBoard` — Timer orange-500, aufsteigend Rang 1=kürzeste avg_sec=bester, KPI-Grid Kürzeste/Team-Avg/Längste, Alert "Lange Stoppdauer!", rank_delta<0=gruen, Balken 0–maxSec, Import+Render+Barrel ✅. Phase 4168 Fahrer: `FahrerPhase4168MeineStoppdauer` — Timer orange-500, avg_sec 5xl+Rang 2xl farbkodiert, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 4169 Storefront: uebersprungen. Phase 4170 Kitchen: `KitchenPhase4170StoppdauerTicker` — Timer orange-500, Kürzester #1 Name+sek im Header (orange-600), Alert-Zähler, kompakt aufsteigend, dot-Farbkodierung, Team-Avg, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### Phasen 4166–4170 — Fahrer-Stoppdauer-Ranking ABGESCHLOSSEN
+- Phase 4166 Backend: `/api/delivery/admin/fahrer-stoppdauer-ranking/route.ts` (bereits vorhanden) ✅
+- Phase 4167 Dispatch: `DispatchPhase4167StoppdauerBoard` — Timer orange-500, aufsteigend Rang 1=kürzeste avg_sec, KPI-Grid Kürzeste/Team-Avg/Längste, Alert "Lange Stoppdauer!", rank_delta<0=gruen ✅
+- Phase 4168 Fahrer: `FahrerPhase4168MeineStoppdauer` — Timer orange-500, avg_sec 5xl+Rang 2xl, isOnline-Guard, Coaching-Tipp, rank_delta<0=gruen ✅
+- Phase 4169 Storefront: uebersprungen ✅
+- Phase 4170 Kitchen: `KitchenPhase4170StoppdauerTicker` — Timer orange-500, Kürzester #1 Name+sek Header orange-600, Alert-Zähler, dot-Farbkodierung ✅
+
+### Naechste Phasen 4171–4175 — Naechstes Ranking-Thema (TBD)
 
 Backend-Architekt-Agent (2026-07-27): Phasen 4006–4010 implementiert — Fahrer-Feierabend-Pünktlichkeit-Ranking. Phase 4006 Backend: bestehendes `/api/delivery/admin/fahrer-feierabend-puenktlichkeit/route.ts` — force-dynamic, await createClient(), feierabend_pct = % Schichten die within 15min Soll-Schichtende beendet, absteigend Rang 1=hoechste Quote=bester, Ampel gruen/gelb/rot per Quartil, rank_delta, alert_bottom, Mock Julia 89%/Sara 76%/Max 61%/Tim 44%, ziel=85%. Phase 4007 Dispatch: `DispatchPhase4007FeierabendPuenktlichkeitBoard` — CheckCircle-Icon gruen, absteigend Rang 1=hoechste Pünktlichkeit, KPI-Grid Pünktlichster/Team-Ø/Niedrigster, Alert "Überschrittene Schichtzeiten!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 4008 Fahrer: `FahrerPhase4008MeineFeierabendPuenktlichkeit` — CheckCircle gruen, feierabend_pct 5xl+Rang 3xl farbkodiert, Ziel >=85%, Coaching-Tipp (3 Stufen), isOnline-Guard, Mini-Ranking isMe highlight, Import+Render+Barrel ✅. Phase 4009 Storefront: uebersprungen. Phase 4010 Kitchen: `KitchenPhase4010FeierabendPuenktlichkeitTicker` — CheckCircle gruen, Bester #1 Name+% im Header, Alert "Überschrittene Schichtzeiten!", kompakt absteigend, Team-Ø+Ziel >=85%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
