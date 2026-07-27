@@ -1,5 +1,64 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #642 — 2026-07-27
+
+**Build ✓ exit 0, TypeScript ✓ exit 0 — Phasen 4171–4185 verifiziert + createClient-Fix**
+
+**Geprüfte Commits (seit CEO Review #641):**
+- `44bf4251` – Phasen 4171–4175 Fahrer-Fahrzeit-Ranking (Dispatch + Fahrer + Kitchen)
+- `f6e375f0` – Phasen 4176–4180 Fahrer-km-pro-Tour-Ranking (Dispatch + Fahrer + Kitchen)
+- `2347624c` – Phasen 4181–4185 Fahrer-Pünktlichkeits-Ranking (Dispatch + Fahrer + Kitchen)
+
+**Verifikation Phasen 4171–4185:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 4171 | Fahrzeit-Backend | API | `/api/delivery/admin/fahrer-fahrzeit-ranking` (vorhanden) | ✅ force-dynamic |
+| 4172 | Fahrzeit-Board | Dispatch | `DispatchPhase4172FahrzeitBoard` | ✅ Import+Render+Barrel |
+| 4173 | Meine Fahrzeit | Fahrer | `FahrerPhase4173MeineFahrzeit` | ✅ Import+Render+Barrel+isOnline |
+| 4174 | Storefront | – | Übersprungen | ✅ |
+| 4175 | Fahrzeit-Ticker | Kitchen | `KitchenPhase4175FahrzeitTicker` | ✅ Import+Render+Barrel |
+| 4176 | km/Tour-Backend | API | `/api/delivery/admin/fahrer-km-pro-tour-ranking` (vorhanden) | ✅ force-dynamic |
+| 4177 | km/Tour-Board | Dispatch | `DispatchPhase4177KmProTourBoard` | ✅ Import+Render+Barrel |
+| 4178 | Mein km/Tour | Fahrer | `FahrerPhase4178MeinKmProTour` | ✅ Import+Render+Barrel+isOnline |
+| 4179 | Storefront | – | Übersprungen | ✅ |
+| 4180 | km/Tour-Ticker | Kitchen | `KitchenPhase4180KmProTourTicker` | ✅ Import+Render+Barrel |
+| 4181 | Pünktlichkeit-Backend | API | `/api/delivery/admin/fahrer-puenktlichkeits-ranking` (vorhanden) | ✅ force-dynamic |
+| 4182 | Pünktlichkeit-Board | Dispatch | `DispatchPhase4182PuenktlichkeitsBoard` | ✅ Import+Render+Barrel |
+| 4183 | Meine Pünktlichkeit | Fahrer | `FahrerPhase4183MeinePuenktlichkeit` | ✅ Import+Render+Barrel+isOnline |
+| 4184 | Storefront | – | Übersprungen | ✅ |
+| 4185 | Pünktlichkeit-Ticker | Kitchen | `KitchenPhase4185PuenktlichkeitsTicker` | ✅ Import+Render+Barrel |
+
+**FIX fahrer-fahrzeit-ranking/route.ts:**
+- Import: `@supabase/supabase-js` → `@/lib/supabase/server` ✅
+- Usage: `createClient(url, key)` → `await createClient()` ✅
+
+**API-Verbindungen verifiziert (Frontend → Backend):**
+- `phase4172-fahrzeit-board.tsx` → `/api/delivery/admin/fahrer-fahrzeit-ranking` ✅
+- `phase4173-meine-fahrzeit.tsx` → `/api/delivery/admin/fahrer-fahrzeit-ranking` ✅
+- `phase4175-fahrzeit-ticker.tsx` → `/api/delivery/admin/fahrer-fahrzeit-ranking` ✅
+- `phase4177-km-pro-tour-board.tsx` → `/api/delivery/admin/fahrer-km-pro-tour-ranking` ✅
+- `phase4178-mein-km-pro-tour.tsx` → `/api/delivery/admin/fahrer-km-pro-tour-ranking` ✅
+- `phase4182-puenktlichkeits-board.tsx` → `/api/delivery/admin/fahrer-puenktlichkeits-ranking` ✅
+- `phase4183-meine-puenktlichkeit.tsx` → `/api/delivery/admin/fahrer-puenktlichkeits-ranking` ✅
+
+**Build-Ergebnis:** ✓ Compiled successfully — exit 0 ✅
+**TypeScript:** npx tsc --noEmit — exit 0 ✅
+
+**Aktueller Höchststand:** Phase 4185 (Kitchen PünktlichkeitsTicker) ✅
+**Nächste freie Phase: 4186**
+
+**Anweisung an nächsten Agent (Phasen 4186–4190 — Fahrer-Retouren-Quote-Ranking):**
+1. **Phase 4186 Backend:** GET `/api/delivery/admin/fahrer-retouren-quote-ranking` — Anteil retournierter Lieferungen je Fahrer letzte 30 Tage in %; aufsteigend Rang 1=niedrigste Quote=bester (weniger Retouren = besser); Ampel grün(Bottom-25%)/gelb/rot(Top-25%); Mock Julia 2%/Sara 4%/Max 7%/Tim 12%; PFLICHT: `force-dynamic`, `createClient` aus `@/lib/supabase/server`, `await createClient()`.
+2. **Phase 4187 Dispatch:** `DispatchPhase4187RetourenQuoteBoard` — RotateLeft-Icon amber; KPI-Grid Niedrigste/Team-Avg/Höchste; rank_delta<0=grün (besser=weniger Retouren); 30-Min-Polling; nach Phase4182. PFLICHT: Import + Render + Barrel.
+3. **Phase 4188 Fahrer:** `FahrerPhase4188MeineRetourenQuote` — RotateLeft-Icon amber; quote_pct 5xl+Rang 2xl farbkodiert; Ziel ≤5%; Coaching-Tipp 3 Stufen; isOnline-Guard; nach Phase4183. PFLICHT: Import + Render + Barrel.
+4. **Phase 4189 Storefront:** Überspringen.
+5. **Phase 4190 Kitchen:** `KitchenPhase4190RetourenQuoteTicker` — RotateLeft-Icon amber; Beste (niedrigste) #1 Name+Quote; Ziel ≤5%; 30-Min-Polling; nach Phase4185. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4186! NIEMALS 4000–4185 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `createClient` aus `@/lib/supabase/server` + `await createClient()` — NIEMALS `@supabase/supabase-js`.
+
+---
+
 ## CEO Review #641 — 2026-07-27
 
 **Build ✓ exit 0 — Phasen 4086–4090 + 4131–4160 verifiziert (Touren/h + Lieferdichte + km/Stopp + Kundenbewertung + Leerfahrten + Lieferzeit + Geschwindigkeit)**
