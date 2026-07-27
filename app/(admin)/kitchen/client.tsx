@@ -1085,6 +1085,7 @@ import { KitchenPhase4140KmProStoppTicker } from './phase4140-km-pro-stopp-ticke
 import { KitchenPhase4145KundenbewertungTicker } from './phase4145-kundenbewertung-ticker';
 import { KitchenPhase4150LeerfahrtenTicker } from './phase4150-leerfahrten-ticker';
 import { KitchenPhase4155LieferzeitTicker } from './phase4155-lieferzeit-ticker';
+import { KitchenPhase4160GeschwindigkeitTicker } from './phase4160-geschwindigkeit-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4487,6 +4488,7 @@ export function KitchenBoard({
       <KitchenPhase4145KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4150LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4155LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4160GeschwindigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11834,3 +11836,5 @@ export { KitchenPhase4145KundenbewertungTicker } from './phase4145-kundenbewertu
 export { KitchenPhase4150LeerfahrtenTicker } from './phase4150-leerfahrten-ticker';
 // Phase 4155 — Ø-Lieferzeit-Ticker (Clock teal; Schnellster #1 Name+min im Header teal-600; Alert-Zähler; kompakt aufsteigend Rang 1=schnellste; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4155LieferzeitTicker } from './phase4155-lieferzeit-ticker';
+// Phase 4160 — Geschwindigkeit-Ticker (Zap sky; Schnellster #1 Name+km/h im Header sky-600; Alert-Zähler; kompakt absteigend Rang 1=höchste; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4160GeschwindigkeitTicker } from './phase4160-geschwindigkeit-ticker';

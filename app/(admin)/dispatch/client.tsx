@@ -1139,6 +1139,7 @@ import { DispatchPhase4137KmProStoppBoard } from './phase4137-km-pro-stopp-board
 import { DispatchPhase4142KundenbewertungBoard } from './phase4142-kundenbewertung-board';
 import { DispatchPhase4147LeerfahrtenBoard } from './phase4147-leerfahrten-board';
 import { DispatchPhase4152LieferzeitBoard } from './phase4152-lieferzeit-board';
+import { DispatchPhase4157GeschwindigkeitBoard } from './phase4157-geschwindigkeit-board';
 
 type Driver = {
   employee_id: string;
@@ -4905,6 +4906,7 @@ export function DispatchBoard({
           <DispatchPhase4142KundenbewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4147LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4152LieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4157GeschwindigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13261,3 +13263,5 @@ export { DispatchPhase4142KundenbewertungBoard } from './phase4142-kundenbewertu
 export { DispatchPhase4147LeerfahrtenBoard } from './phase4147-leerfahrten-board';
 // Phase 4152 — Ø-Lieferzeit-Board (Clock teal; aufsteigend Rang 1=schnellste avg_min=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Hohe Lieferzeit!"; rank_delta<0=gruen; 30-Min-Polling)
 export { DispatchPhase4152LieferzeitBoard } from './phase4152-lieferzeit-board';
+// Phase 4157 — Geschwindigkeit-Board (Zap sky; absteigend Rang 1=höchste avg_kmh=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Niedrige Geschwindigkeit!"; rank_delta>0=gruen; 30-Min-Polling)
+export { DispatchPhase4157GeschwindigkeitBoard } from './phase4157-geschwindigkeit-board';
