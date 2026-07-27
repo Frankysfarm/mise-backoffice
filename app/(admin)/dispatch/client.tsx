@@ -1119,6 +1119,7 @@ import { DispatchPhase4077KmProTourBoard } from './phase4077-km-pro-tour-board';
 import { DispatchPhase4082StornoquoteBoard } from './phase4082-stornoquote-board';
 import { DispatchPhase4082PaketeProStundeBoard } from './phase4082-pakete-pro-stunde-board';
 import { DispatchPhase4087SchichtstundenBoard } from './phase4087-schichtstunden-board';
+import { DispatchPhase4087TourenProStundeBoard } from './phase4087-touren-pro-stunde-board';
 import { DispatchPhase4092TageskilometerBoard } from './phase4092-tageskilometer-board';
 import { DispatchPhase4097WartezeitStoppBoard } from './phase4097-wartezeit-stopp-board';
 import { DispatchPhase4102AbwesenheitBoard } from './phase4102-abwesenheit-board';
@@ -4879,6 +4880,7 @@ export function DispatchBoard({
           <DispatchPhase4082StornoquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4082PaketeProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4087SchichtstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4087TourenProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4092TageskilometerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4097WartezeitStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4102AbwesenheitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
@@ -13243,6 +13245,8 @@ export { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix'
 export { DispatchPhase4062FahrzeitRankingBoard } from './phase4062-fahrzeit-ranking-board';
 // Phase 4087 — Tour-Score Visualisierung Pro (Trophy amber; Flotten-KPI Avg/Top/Aktiv; Score-Ring+Delta je Fahrer; Stopp-Dot-Timeline farbkodiert ausstehend/unterwegs/geliefert/problem; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; Navi-Links; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4087TourScoreVisualisierungPro } from './phase4087-tour-score-visualisierung-pro';
+// Phase 4087 — Touren/h-Ranking Board (Truck gruen; KPI-Grid Hoechste/Team-Avg/Niedrigste; Rang-Balken; rank_delta>0=gruen; Alert Niedrige Touren/h; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4087TourenProStundeBoard } from './phase4087-touren-pro-stunde-board';
 // Phase 4107 — Fahrer-Score Übersicht (Trophy; P/B/E-Balken; Top-Performer/Coaching-Alert; Rang-Delta; 1-Min-Polling; Mock-Fallback)
 export { DispatchPhase4107FahrerScoreUebersicht } from './phase4107-fahrer-score-uebersicht';
 // Phase 4112 — Tour-Visualisierungs-Board (Route; expandierbare Stopp-Liste; Fortschrittsbalken; Effizienz-Score; 15-Sek-Polling; Mock-Fallback)

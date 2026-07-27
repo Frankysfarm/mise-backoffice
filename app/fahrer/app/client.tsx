@@ -1043,6 +1043,7 @@ import { FahrerPhase4078MeineKmProTour } from './phase4078-meine-km-pro-tour';
 import { FahrerPhase4083MeineStornoquote } from './phase4083-meine-stornoquote';
 import { FahrerPhase4083MeinePaketeProStunde } from './phase4083-meine-pakete-pro-stunde';
 import { FahrerPhase4088MeineSchichtstunden } from './phase4088-meine-schichtstunden';
+import { FahrerPhase4088MeineTourenProStunde } from './phase4088-meine-touren-pro-stunde';
 import { FahrerPhase4093MeineTageskilometer } from './phase4093-meine-tageskilometer';
 import { FahrerPhase4098MeineWartezeitStopp } from './phase4098-meine-wartezeit-stopp';
 import { FahrerPhase4103MeineAbwesenheit } from './phase4103-meine-abwesenheit';
@@ -7037,6 +7038,7 @@ export function FahrerApp({
           <FahrerPhase4083MeineStornoquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4083MeinePaketeProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4088MeineSchichtstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4088MeineTourenProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4093MeineTageskilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4098MeineWartezeitStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4103MeineAbwesenheit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
@@ -11078,6 +11080,8 @@ export { FahrerPhase4083MeineStornoquote } from './phase4083-meine-stornoquote';
 export { FahrerPhase4083MeinePaketeProStunde } from './phase4083-meine-pakete-pro-stunde';
 // Phase 4088 — Meine Schichtstunden (Clock sky; avg_stunden 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; Rang 1=meiste Schichtstunden; 30-Min-Polling)
 export { FahrerPhase4088MeineSchichtstunden } from './phase4088-meine-schichtstunden';
+// Phase 4088 — Meine Touren/h (Truck gruen; touren_pro_stunde 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; Rang 1=meiste Touren/h; 30-Min-Polling)
+export { FahrerPhase4088MeineTourenProStunde } from './phase4088-meine-touren-pro-stunde';
 // Phase 4093 — Meine Tages-km (Navigation teal; km 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; Rang 1=meiste km heute; 30-Min-Polling)
 export { FahrerPhase4093MeineTageskilometer } from './phase4093-meine-tageskilometer';
 // Phase 4098 — Meine Wartezeit am Stopp (AlarmClock amber; wartezeit_min 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; 30-Min-Polling)

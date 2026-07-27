@@ -1064,6 +1064,7 @@ import { KitchenPhase4075LieferzeitTicker } from './phase4075-lieferzeit-ticker'
 import { KitchenPhase4080KmProTourTicker } from './phase4080-km-pro-tour-ticker';
 import { KitchenPhase4085StornoquoteTicker } from './phase4085-stornoquote-ticker';
 import { KitchenPhase4085PaketeProStundeTicker } from './phase4085-pakete-pro-stunde-ticker';
+import { KitchenPhase4090TourenProStundeTicker } from './phase4090-touren-pro-stunde-ticker';
 import { KitchenPhase4090SchichtstundenTicker } from './phase4090-schichtstunden-ticker';
 import { KitchenPhase4095TageskilometerTicker } from './phase4095-tageskilometer-ticker';
 import { KitchenPhase4100WartezeitStoppTicker } from './phase4100-wartezeit-stopp-ticker';
@@ -4460,6 +4461,7 @@ export function KitchenBoard({
       <KitchenPhase4080KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4085StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4085PaketeProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4090TourenProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4090SchichtstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4095TageskilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4100WartezeitStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -11792,6 +11794,8 @@ export { KitchenPhase4080KmProTourTicker } from './phase4080-km-pro-tour-ticker'
 export { KitchenPhase4085StornoquoteTicker } from './phase4085-stornoquote-ticker';
 // Phase 4085 — Pakete/h-Ticker (Package orange; Bester #1 Name+/h im Header; Alert-Zaehler; kompakt absteigend; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4085PaketeProStundeTicker } from './phase4085-pakete-pro-stunde-ticker';
+// Phase 4090 — Touren/h-Ticker (Truck gruen; Bester #1 Name+tours/h im Header; Alert-Zaehler Niedrige Touren/h; kompakt absteigend; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4090TourenProStundeTicker } from './phase4090-touren-pro-stunde-ticker';
 // Phase 4090 — Schichtstunden-Ticker (Clock sky; Bester #1 Name+h im Header; Alert-Zaehler; kompakt absteigend Rang 1=meiste; dot-Farbkodierung; Team-Avg+Ziel; 30-Min-Polling)
 export { KitchenPhase4090SchichtstundenTicker } from './phase4090-schichtstunden-ticker';
 // Phase 4095 — Tageskilometer-Ticker (Navigation teal; Bester #1 Name+km im Header; Alert-Zaehler; kompakt absteigend Rang 1=meiste km heute; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
