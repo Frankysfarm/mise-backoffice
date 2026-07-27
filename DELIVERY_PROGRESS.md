@@ -296,7 +296,15 @@ Frontend-Ingenieur-Agent (2026-07-27): Phasen 4181–4185 implementiert — Fahr
 - Phase 4195 Kitchen: `KitchenPhase4195TrinkgeldQuoteTicker` — Star amber, Bester #1 Name+% im Header amber-600, Alert-Zähler, dot-Farbkodierung, Team-Avg, 30-Min-Polling ✅
 - Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4196.
 
-### Naechste Phasen 4196–4200 — Naechstes Ranking-Thema (TBD)
+### ✅ Phasen 4196–4200 ABGESCHLOSSEN — Fahrer-Erstkontakt-Zeit-Ranking
+- Phase 4196 Backend: `/api/delivery/admin/fahrer-erstkontakt-ranking` (bereits vorhanden) — force-dynamic, avg_sek Erstkontakt je Fahrer, aufsteigend Rang 1=kürzeste Zeit=bester, Ampel per Quartil, rank_delta (rang-yRang, negativ=verbessert), alert_bottom, Mock Julia 42s/Max 67s/Sara 95s/Tim 148s ✅
+- Phase 4197 Dispatch: `DispatchPhase4197ErstkontaktBoard` — Clock indigo, aufsteigend Rang 1=schnellster Kontakt, KPI-Grid Schnellster/Team-Avg/Langsamster, Alert "Langer Erstkontakt!", rank_delta<0=TrendingUp emerald, Balken (avg_sek/maxSek)*100% ✅
+- Phase 4198 Fahrer: `FahrerPhase4198MeinErstkontakt` — Clock indigo, avg_sek 5xl+Rang 2xl farbkodiert, driver_id API-Param, Coaching-Tipp 3 Stufen, isOnline-Guard ✅
+- Phase 4199 Storefront: uebersprungen ✅
+- Phase 4200 Kitchen: `KitchenPhase4200ErstkontaktTicker` — Clock indigo, Schnellster #1 Name+s im Header indigo-600, Alert-Zähler, dot-Farbkodierung, Team-Avg, 30-Min-Polling ✅
+- Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4201.
+
+### Naechste Phasen 4201–4205 — Naechstes Ranking-Thema (TBD)
 
 Backend-Architekt-Agent (2026-07-27): Phasen 4006–4010 implementiert — Fahrer-Feierabend-Pünktlichkeit-Ranking. Phase 4006 Backend: bestehendes `/api/delivery/admin/fahrer-feierabend-puenktlichkeit/route.ts` — force-dynamic, await createClient(), feierabend_pct = % Schichten die within 15min Soll-Schichtende beendet, absteigend Rang 1=hoechste Quote=bester, Ampel gruen/gelb/rot per Quartil, rank_delta, alert_bottom, Mock Julia 89%/Sara 76%/Max 61%/Tim 44%, ziel=85%. Phase 4007 Dispatch: `DispatchPhase4007FeierabendPuenktlichkeitBoard` — CheckCircle-Icon gruen, absteigend Rang 1=hoechste Pünktlichkeit, KPI-Grid Pünktlichster/Team-Ø/Niedrigster, Alert "Überschrittene Schichtzeiten!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 4008 Fahrer: `FahrerPhase4008MeineFeierabendPuenktlichkeit` — CheckCircle gruen, feierabend_pct 5xl+Rang 3xl farbkodiert, Ziel >=85%, Coaching-Tipp (3 Stufen), isOnline-Guard, Mini-Ranking isMe highlight, Import+Render+Barrel ✅. Phase 4009 Storefront: uebersprungen. Phase 4010 Kitchen: `KitchenPhase4010FeierabendPuenktlichkeitTicker` — CheckCircle gruen, Bester #1 Name+% im Header, Alert "Überschrittene Schichtzeiten!", kompakt absteigend, Team-Ø+Ziel >=85%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
