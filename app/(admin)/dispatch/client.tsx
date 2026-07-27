@@ -1156,6 +1156,7 @@ import { DispatchPhase4201ZonenKapazitaetsLiveGrid } from './phase4201-zonen-kap
 import { DispatchPhase4212UmsatzProStoppBoard } from './phase4212-umsatz-pro-stopp-board';
 import { DispatchPhase4217ReaktionszeitBoard } from './phase4217-reaktionszeit-board';
 import { DispatchPhase4222LeerfahrtenBoard } from './phase4222-leerfahrten-board';
+import { DispatchPhase4227StornoquoteBoard } from './phase4227-stornoquote-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4938,6 +4939,7 @@ export function DispatchBoard({
           <DispatchPhase4212UmsatzProStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4217ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4222LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4227StornoquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13337,3 +13339,5 @@ export { DispatchPhase4212UmsatzProStoppBoard } from './phase4212-umsatz-pro-sto
 export { DispatchPhase4217ReaktionszeitBoard } from './phase4217-reaktionszeit-board';
 // Phase 4222 — Leerfahrten-Board (Route orange; aufsteigend Rang 1=niedrigste Leerfahrten-Quote; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert "Hohe Leerfahrten!"; rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4222LeerfahrtenBoard } from './phase4222-leerfahrten-board';
+// Phase 4227 — Storno-Quote-Board (XCircle rose; aufsteigend Rang 1=niedrigste Storno-Quote; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert "Hohe Storno-Quote!"; rank_delta>0=TrendingUp emerald; 30-Min-Polling)
+export { DispatchPhase4227StornoquoteBoard } from './phase4227-stornoquote-board';

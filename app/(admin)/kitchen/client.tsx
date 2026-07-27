@@ -1101,6 +1101,7 @@ import { KitchenPhase4201KochstartOptimierungsBoard } from './phase4201-kochstar
 import { KitchenPhase4215UmsatzProStoppTicker } from './phase4215-umsatz-pro-stopp-ticker';
 import { KitchenPhase4220ReaktionszeitTicker } from './phase4220-reaktionszeit-ticker';
 import { KitchenPhase4225LeerfahrtenTicker } from './phase4225-leerfahrten-ticker';
+import { KitchenPhase4230StornoquoteTicker } from './phase4230-stornoquote-ticker';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
 import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';
 
@@ -4525,6 +4526,7 @@ export function KitchenBoard({
       <KitchenPhase4215UmsatzProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4220ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4225LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4230StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11907,3 +11909,5 @@ export { KitchenPhase4215UmsatzProStoppTicker } from './phase4215-umsatz-pro-sto
 export { KitchenPhase4220ReaktionszeitTicker } from './phase4220-reaktionszeit-ticker';
 // Phase 4225 — Leerfahrten-Ticker (Route orange; Niedrigste #1 Name+% im Header orange-600; alert_bottom-Zähler; kompakt aufsteigend Rang 1=niedrigste Quote; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4225LeerfahrtenTicker } from './phase4225-leerfahrten-ticker';
+// Phase 4230 — Storno-Quote-Ticker (XCircle rose; Niedrigste #1 Name+% im Header green-600; alert_hoch-Zähler; kompakt aufsteigend Rang 1=niedrigste; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4230StornoquoteTicker } from './phase4230-stornoquote-ticker';
