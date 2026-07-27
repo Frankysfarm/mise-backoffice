@@ -1141,6 +1141,7 @@ import { DispatchPhase4142KundenbewertungBoard } from './phase4142-kundenbewertu
 import { DispatchPhase4147LeerfahrtenBoard } from './phase4147-leerfahrten-board';
 import { DispatchPhase4152LieferzeitBoard } from './phase4152-lieferzeit-board';
 import { DispatchPhase4157GeschwindigkeitBoard } from './phase4157-geschwindigkeit-board';
+import { DispatchPhase4162ErstkontaktBoard } from './phase4162-erstkontakt-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4910,6 +4911,7 @@ export function DispatchBoard({
           <DispatchPhase4147LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4152LieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4157GeschwindigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4162ErstkontaktBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -13274,3 +13276,5 @@ export { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score
 export { DispatchPhase4152LieferzeitBoard } from './phase4152-lieferzeit-board';
 // Phase 4157 — Geschwindigkeit-Board (Zap sky; absteigend Rang 1=höchste avg_kmh=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Niedrige Geschwindigkeit!"; rank_delta>0=gruen; 30-Min-Polling)
 export { DispatchPhase4157GeschwindigkeitBoard } from './phase4157-geschwindigkeit-board';
+// Phase 4162 — Erstkontakt-Board (Phone rose; aufsteigend Rang 1=niedrigste avg_sek=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Langsamer Kontakt!"; rank_delta<0=gruen; 30-Min-Polling)
+export { DispatchPhase4162ErstkontaktBoard } from './phase4162-erstkontakt-board';
