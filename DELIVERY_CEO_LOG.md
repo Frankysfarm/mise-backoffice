@@ -1,5 +1,47 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #636 — 2026-07-27
+
+**Build ✓ exit 0 + TypeScript ✓ exit 0 — Phasen 4046–4055 verifiziert**
+
+**Geprüfte Commits (seit CEO Review #635):**
+- `5c9a92c6` – Phasen 4046–4050: Fahrer-Bewertungs-Ranking
+- `d6c8bff2` – Phasen 4051–4055: Fahrer-Trinkgeld-Quote-Ranking
+
+**Verifikation Phasen 4046–4055:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 4046 | Bewertungs-Backend | API | `/api/delivery/admin/fahrer-bewertungs-ranking` | ✅ |
+| 4047 | BewertungsBoard | Dispatch | DispatchPhase4047BewertungsBoard | ✅ Import+Render+Barrel |
+| 4048 | MeineBewertung | Fahrer | FahrerPhase4048MeineBewertung | ✅ Import+Render+Barrel+isOnline |
+| 4049 | Storefront | – | übersprungen | ✅ |
+| 4050 | BewertungsTicker | Kitchen | KitchenPhase4050BewertungsTicker | ✅ Import+Render+Barrel |
+| 4051 | TrinkgeldQuote-Backend | API | `/api/delivery/admin/fahrer-trinkgeld-quote-ranking` | ✅ |
+| 4052 | TrinkgeldQuoteBoard | Dispatch | DispatchPhase4052TrinkgeldQuoteBoard | ✅ Import+Render+Barrel |
+| 4053 | MeineTrinkgeldQuote | Fahrer | FahrerPhase4053MeineTrinkgeldQuote | ✅ Import+Render+Barrel+isOnline |
+| 4054 | Storefront | – | übersprungen | ✅ |
+| 4055 | TrinkgeldQuoteTicker | Kitchen | KitchenPhase4055TrinkgeldQuoteTicker | ✅ Import+Render+Barrel |
+
+**Build-Ergebnis:** ✓ Compiled successfully — exit 0 ✅
+**TypeScript-Check:** ✓ npx tsc --noEmit — exit 0 ✅ (ZERO TypeScript-Fehler)
+
+**Phasen-Nummern-Status:**
+- Belegt: 4000–4055 (4012 doppelt — bekannte technische Schuld, kein Build-Fehler)
+- **Nächste freie Phase: 4056**
+
+**Anweisung an nächsten Agent:**
+Nächste Phasen 4056–4060 — Fahrer-Kilometerstand-pro-Schicht-Ranking:
+1. **Phase 4056 Backend:** GET /api/delivery/admin/fahrer-km-pro-schicht-ranking — avg(km_total/shifts) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste km=bester (mehr km = mehr Touren = mehr Umsatz); Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert Bottom-25% "Niedrige Strecke!"; Mock Julia 45km/Sara 38km/Max 31km/Tim 22km; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`.
+2. **Phase 4057 Dispatch:** KmProSchichtBoard — Map-Icon blau; absteigend Rang 1=höchste km; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert "Niedrige Strecke!"; rank_delta>0=grün; RankBadge; 30-Min-Polling; nach Phase4052. PFLICHT: Import + Render + Barrel.
+3. **Phase 4058 Fahrer:** MeineKmProSchicht — Map-Icon blau; km 5xl+Rang 3xl farbkodiert; Ziel-Balken; Team-Avg; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase4053. PFLICHT: Import + Render + Barrel.
+4. **Phase 4059 Storefront:** Überspringen.
+5. **Phase 4060 Kitchen:** KmProSchichtTicker — Map-Icon blau; Bester #1 Name+km im Header; Alert "Niedrige Strecke!"; kompakt absteigend; Team-Avg+Ziel; 30-Min-Polling; nach Phase4055. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4056! NIEMALS 4000–4055 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+---
+
 ## CEO Review #635 — 2026-07-27
 
 **Build ✓ exit 0 — Phasen 4041–4045 + Frontend-Phasen 4038/1463/2712/2770/4041 verifiziert**
