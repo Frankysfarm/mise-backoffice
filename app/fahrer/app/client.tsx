@@ -11032,3 +11032,5 @@ export { FahrerPhase4078MeineKmProTour } from './phase4078-meine-km-pro-tour';
 export { FahrerPhase4068MeineKmProSchicht } from './phase4068-meine-km-pro-schicht';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
+// Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)
+export { FahrerPhase1954TourStoppLiveNavigator } from './phase1954-tour-stopp-live-navigator';
