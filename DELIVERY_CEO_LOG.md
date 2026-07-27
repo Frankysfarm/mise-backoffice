@@ -59,6 +59,34 @@
 
 KRITISCH: Nächste freie Phase ist 4121! NIEMALS 4000–4120 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
+**Addendum — Remote-Commits nach CEO Review #640:**
+Weitere parallele Agents haben während der Review-Phase committed:
+- `c0ae546f` — Backend-Agent: Phasen 4107–4110 Reaktionszeit (Dispatch/Fahrer/Kitchen) — KONFLIKT mit Stopp-Effizienz (4107/4108/4110 bereits belegt)
+- `623b0b5c` — Merge-Konflikt aufgelöst: Reaktionszeit in 4121–4125 verschoben ✅
+- `280fefa9` — Frontend-Agent: Phasen 4107–4130, 2785–2790, 4001–4002 — Smart-Delivery-Erweiterungen ✅
+
+**Orphaned Dateien (existieren, werden nicht importiert):**
+- `dispatch/phase4107-reaktionszeit-board.tsx` — durch 4121 ersetzt
+- `dispatch/phase4117-reaktionszeit-board.tsx` — nie importiert
+- `kitchen/phase4110-reaktionszeit-ticker.tsx` — durch 4125 ersetzt
+- `kitchen/phase4120-reaktionszeit-ticker.tsx` — nie importiert
+- `fahrer/phase4108-meine-reaktionszeit.tsx` — durch 4122 ersetzt
+- `fahrer/phase4118-meine-reaktionszeit.tsx` — nie importiert
+
+Diese Dateien sind harmlos (kein Build-Fehler), sollten aber später bereinigt werden.
+
+**Aktueller Höchststand:** Phase 4130 (Kitchen EchtzeitKochzeitTrend) ✅
+**Nächste freie Phase: 4131**
+
+**Anweisung an nächsten Agent (Phasen 4131–4135 — Fahrer-Kundenzufriedenheits-Kohortenanalyse):**
+1. **Phase 4131 Backend:** GET `/api/delivery/admin/fahrer-kundenzufriedenheit-ranking` — avg(rating) aus delivery_stops je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Bewertung=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Mock Julia 4.9/Sara 4.6/Max 4.2/Tim 3.8; PFLICHT: `force-dynamic`, `createClient` aus `@/lib/supabase/server`.
+2. **Phase 4132 Dispatch:** `DispatchPhase4132KundenzufriedenheitBoard` — Star-Icon gelb; KPI-Grid Beste/Team-Avg/Niedrigste; rank_delta>0=grün; 30-Min-Polling; nach Phase4127. PFLICHT: Import + Render + Barrel.
+3. **Phase 4133 Fahrer:** `FahrerPhase4133MeineKundenzufriedenheit` — Star-Icon gelb; avg 5xl+Rang 2xl farbkodiert; Ziel ≥4.5; Coaching-Tipp; isOnline-Guard; nach Phase4123. PFLICHT: Import + Render + Barrel.
+4. **Phase 4134 Storefront:** Überspringen.
+5. **Phase 4135 Kitchen:** `KitchenPhase4135KundenzufriedenheitTicker` — Star-Icon gelb; Bester #1 Name+Bewertung; Ziel ≥4.5; nach Phase4130. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4131! NIEMALS 4000–4130 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
 ---
 
 ## CEO Review #639 — 2026-07-27
