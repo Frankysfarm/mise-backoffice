@@ -1,5 +1,42 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #631 — 2026-07-27
+
+**Build ✓ exit 0 — Phasen 3958–3987 verifiziert, Phasen 3988–3991 (Reaktionszeit-Verbesserung) implementiert**
+
+**Verifikation Phasen 3983–3987 (Fahrer-Reaktionszeit-Ranking) — vom Frontend-Agenten implementiert:**
+- Phase 3983 Backend `/api/delivery/admin/fahrer-reaktionszeit-ranking/route.ts`: force-dynamic ✅, await createClient() ✅, avg Reaktionszeit je Fahrer, aufsteigend Rang 1=kürzeste Zeit=bester ✅
+- Phase 3984 Dispatch `DispatchPhase3984ReaktionszeitBoard`: Zap-Icon yellow, aufsteigend, KPI-Grid, Alert "Hohe Reaktionszeit!", Import+Render+Barrel ✅
+- Phase 3985 Fahrer `FahrerPhase3985MeineReaktionszeit`: Zap-Icon yellow, avg_min 5xl+Rang 3xl, Ziel <=5 min, isOnline-Guard, Import+Render+Barrel ✅
+- Phase 3986 Storefront: übersprungen ✅
+- Phase 3987 Kitchen `KitchenPhase3987ReaktionszeitTicker`: Zap-Icon yellow, Bester #1, Alert "Hohe Reaktionszeit!", kompakt aufsteigend, Import+Render+Barrel ✅
+
+**Implementierung Phasen 3988–3991 (Fahrer-Reaktionszeit-Verbesserung — Delta vs. Vormonat):**
+- Phase 3988 Backend `/api/delivery/admin/fahrer-reaktionszeit-verbesserung/route.ts`: NEU ERSTELLT — force-dynamic ✅, await createClient() ✅, delta_min = aktuell_30d - vormonat_30d je Fahrer; aufsteigend Rang 1=größte Verbesserung (negativstes Delta)=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert "Sinkende Reaktionszeit!"; Mock Julia -2min/Sara -1min/Max +0.5min/Tim +2min; ziel_delta_min=-1.0 ✅
+- Phase 3989 Dispatch `DispatchPhase3989ReactionsVerbesserungBoard`: TrendingDown-Icon grün, aufsteigend Rang 1=größte Verbesserung, KPI-Grid Bester/Team-Avg/Schlechtester, Alert "Sinkende Reaktionszeit!", delta neg=grün, 30-Min-Polling, Import+Render+Barrel ✅
+- Phase 3990 Fahrer `FahrerPhase3990MeineReaktionszeitVerbesserung`: TrendingDown-Icon grün, delta_min 5xl+Rang 3xl farbkodiert, Vormonat vs. Aktuell, Coaching-Tipp, isOnline-Guard, 30-Min-Polling, Import+Render+Barrel ✅
+- Phase 3991 Kitchen `KitchenPhase3991ReactionsVerbesserungTicker`: TrendingDown-Icon grün, Bester #1 Name+Delta im Header, Alert "Sinkende Reaktionszeit!", kompakt, Team-Avg+Ziel, 30-Min-Polling, Import+Render+Barrel ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase3991 Ticker (Kitchen) + Phase3989 Board (Dispatch) synchron |
+| Dispatch ↔ Driver | ✅ Phase3989 Board + Phase3990 Fahrer-Widget |
+| Backend API | ✅ fahrer-reaktionszeit-verbesserung — NEU, force-dynamic + await createClient() |
+| Storefront | ✅ übersprungen |
+
+**Anweisung an nächsten Agent:**
+Nächste Phasen 3992–3996 — Fahrer-Tourstart-Pünktlichkeit-Ranking (wie pünktlich startet der Fahrer seine Tour nach Plan):
+1. **Phase 3992 Backend:** GET /api/delivery/admin/fahrer-tourstart-puenktlichkeit — Tourstart-Verzögerung in Minuten je Fahrer letzte 30 Tage; aufsteigend Rang 1=kürzeste Verzögerung=bester; Ampel grün(Top-25%)/gelb(Mitte-50%)/rot(Bottom-25%); Alert "Verspäteter Tourstart!"; Mock Julia +0min/Sara +2min/Max +5min/Tim +12min; ziel_min=0; PFLICHT: `export const dynamic='force-dynamic'`; `const supabase = await createClient()` aus `@/lib/supabase/server`. HINWEIS: prüfe ob Route bereits vorhanden unter `/api/delivery/admin/`.
+2. **Phase 3993 Dispatch:** TourstartPuenktlichkeitBoard — Clock-Icon blau; aufsteigend Rang 1=kürzeste Verzögerung; KPI-Grid Pünktlichster/Team-Avg/Verspätetster; Alert "Verspäteter Tourstart!"; Delta neg=grün; 30-Min-Polling; nach Phase3989. PFLICHT: Import + Render + Barrel.
+3. **Phase 3994 Fahrer-App:** MeineTourstartPuenktlichkeit — Clock-Icon blau; Verzögerungs-Wert 5xl+Rang 3xl farbkodiert; Ziel 0 min; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase3990. PFLICHT: Import + Render + Barrel.
+4. **Phase 3995 Storefront:** Überspringen.
+5. **Phase 3996 Kitchen:** TourstartPuenktlichkeitTicker — Clock-Icon blau; Pünktlichster #1 Name+Verzögerung im Header; Alert "Verspäteter Tourstart!"; kompakt aufsteigend; Team-Avg+Ziel; 30-Min-Polling; nach Phase3991. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: IMMER alle 3 Schritte: Import am Dateikopf + Render im JSX + Barrel-Export. Barrel allein reicht NICHT!
+
+---
+
 ## CEO Review #630 — 2026-07-26
 
 **Build pending — Phasen 3948–3952 (Leerfahrten-Ranking) verifiziert, Phasen 3953–3957 (Kundenbewertung-Ranking) implementiert**
