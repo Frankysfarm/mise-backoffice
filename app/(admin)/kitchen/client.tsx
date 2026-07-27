@@ -1081,6 +1081,7 @@ import { KitchenPhase4120TimingFarbkodierungsMatrix } from './phase4120-timing-f
 import { KitchenPhase4125CountdownEskalationsWarnung } from './phase4125-countdown-eskalations-warnung';
 import { KitchenPhase4130EchtzeitKochzeitTrend } from './phase4130-echtzeit-kochzeit-trend';
 import { KitchenPhase4135LieferdichteTicker } from './phase4135-lieferdichte-ticker';
+import { KitchenPhase4140KmProStoppTicker } from './phase4140-km-pro-stopp-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4479,6 +4480,7 @@ export function KitchenBoard({
       {/* Phase 4130 — Echtzeit-Kochzeit-Trend (SVG-Linienchart 60-Min; 5-Min-Intervalle; Farbdots grün/gelb/rot; Ziel-Linie; Prognose KI; 15-Sek-Polling; Mock-Fallback) */}
       <KitchenPhase4130EchtzeitKochzeitTrend locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4135LieferdichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4140KmProStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11818,3 +11820,5 @@ export { KitchenPhase4125CountdownEskalationsWarnung } from './phase4125-countdo
 export { KitchenPhase4130EchtzeitKochzeitTrend } from './phase4130-echtzeit-kochzeit-trend';
 // Phase 4135 — Lieferdichte-Ticker (MapPin emerald; Bester #1 Name+Stkm im Header emerald-600; Alert-Zaehler; kompakt absteigend Rang 1=hoechste Stopps/km; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4135LieferdichteTicker } from './phase4135-lieferdichte-ticker';
+// Phase 4140 — km/Stopp-Ticker (Navigation blue; Bester #1 Name+km im Header blue-600; Alert-Zähler; kompakt aufsteigend Rang 1=niedrigste km/Stopp; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4140KmProStoppTicker } from './phase4140-km-pro-stopp-ticker';

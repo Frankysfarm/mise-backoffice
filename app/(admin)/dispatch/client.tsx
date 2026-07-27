@@ -1135,6 +1135,7 @@ import { DispatchPhase4117ScoreVergleichsMatrix } from './phase4117-score-vergle
 import { DispatchPhase4122TourEffizienzAmpel } from './phase4122-tour-effizienz-ampel';
 import { DispatchPhase4127DispatchSmartScoreBoard } from './phase4127-dispatch-smart-score-board';
 import { DispatchPhase4132LieferdichteBoard } from './phase4132-lieferdichte-board';
+import { DispatchPhase4137KmProStoppBoard } from './phase4137-km-pro-stopp-board';
 
 type Driver = {
   employee_id: string;
@@ -4897,6 +4898,7 @@ export function DispatchBoard({
           {/* Phase 4127: Dispatch Smart-Score Board — Gewichteter Ring-Score; 4 Kategorien; Schicht-Ziel vs. Prognose; Empfehlung; 30-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4127DispatchSmartScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4132LieferdichteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4137KmProStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13245,3 +13247,5 @@ export { DispatchPhase4122TourEffizienzAmpel } from './phase4122-tour-effizienz-
 export { DispatchPhase4127DispatchSmartScoreBoard } from './phase4127-dispatch-smart-score-board';
 // Phase 4132 — Lieferdichte-Ranking Board (MapPin emerald; absteigend Rang 1=hoechste Stopps/km=bester; KPI-Grid Dichteste/Team-Avg/Niedrigste; Alert "Niedrige Lieferdichte!"; rank_delta>0=gruen; 30-Min-Polling)
 export { DispatchPhase4132LieferdichteBoard } from './phase4132-lieferdichte-board';
+// Phase 4137 — km-pro-Stopp-Board (Navigation blue; aufsteigend Rang 1=niedrigste km/Stopp=bester; KPI-Grid Effizienteste/Team-Avg/Höchste; Alert "Hohe km/Stopp!"; rank_delta>0=gruen; 30-Min-Polling)
+export { DispatchPhase4137KmProStoppBoard } from './phase4137-km-pro-stopp-board';
