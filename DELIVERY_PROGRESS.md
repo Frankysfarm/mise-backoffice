@@ -2,17 +2,15 @@
 
 ## STATUS: MARKT-REIF
 
-Backend-Architekt-Agent (2026-07-27): Phasen 4171–4175 implementiert — Fahrer-Ablieferungsquote-Ranking. Phase 4171 Backend: bestehendes `/api/delivery/admin/fahrer-ablieferungsquote` — createClient-Import von @supabase/supabase-js auf @/lib/supabase/server korrigiert + await createClient() Pattern, force-dynamic, absteigend Rang 1=höchste Quote=bester, Ampel per Quartil, rank_delta, Mock Julia 98%/Max 95%/Sara 87.5%/Tim 75%, team_avg=88.9%, Ziel ≥95%. Phase 4172 Dispatch: `DispatchPhase4172AblieferungsquoteBoard` — CheckCircle green, absteigend Rang 1=höchste Quote, KPI-Grid Höchste/Team-Avg+Ziel>=95%/Niedrigste, Alert "Niedrige Quote!", rank_delta>0=gruen, Balken 0–100%, Import+Render+Barrel ✅. Phase 4173 Fahrer: `FahrerPhase4173MeineAblieferungsquote` — CheckCircle green, quote_pct 5xl+Rang 2xl farbkodiert, Ziel ≥95%, Coaching-Tipp 3 Stufen, isOnline-Guard, Import+Render+Barrel ✅. Phase 4174 Storefront: uebersprungen. Phase 4175 Kitchen: `KitchenPhase4175AblieferungsquoteTicker` — CheckCircle green, Bester #1 Name+% im Header green-600, Alert-Zaehler, kompakt absteigend, dot-Farbkodierung, Team-Avg+Ziel ≥95%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt. Nächste freie Phase: 4176.
+Backend-Architekt-Agent (2026-07-27): Phasen 4186–4190 implementiert — Fahrer-Ablieferungsquote-Ranking. Phase 4186 Backend: bestehendes `/api/delivery/admin/fahrer-ablieferungsquote` — createClient-Import von @supabase/supabase-js auf @/lib/supabase/server korrigiert + await createClient() Pattern, force-dynamic, absteigend Rang 1=höchste Quote=bester, Mock Julia 98%/Max 95%/Sara 87.5%/Tim 75%, Ziel ≥95%. Phase 4187 Dispatch: `DispatchPhase4187AblieferungsquoteBoard` — CheckCircle green, Import+Render+Barrel ✅. Phase 4188 Fahrer: `FahrerPhase4188MeineAblieferungsquote` — CheckCircle green, quote_pct 5xl+Rang 2xl, isOnline-Guard, Import+Render+Barrel ✅. Phase 4189 Storefront: uebersprungen. Phase 4190 Kitchen: `KitchenPhase4190AblieferungsquoteTicker` — CheckCircle green, Bester #1 Name+%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt. Nächste freie Phase: 4191.
 
-### ✅ Phasen 4171–4175 ABGESCHLOSSEN — Fahrer-Ablieferungsquote-Ranking
-- Phase 4171 Backend: `/api/delivery/admin/fahrer-ablieferungsquote/route.ts` — createClient-Fix (@/lib/supabase/server), force-dynamic, quote_pct=delivered/total letzte 30 Tage, absteigend Rang 1=höchste Quote=bester, Ampel per Quartil, Mock Julia 98%/Max 95%/Sara 87.5%/Tim 75% ✅
-- Phase 4172 Dispatch: `DispatchPhase4172AblieferungsquoteBoard` — CheckCircle green, absteigend Rang 1=höchste Quote, KPI-Grid Höchste/Team-Avg/Niedrigste, Alert "Niedrige Quote!", rank_delta>0=gruen ✅
-- Phase 4173 Fahrer: `FahrerPhase4173MeineAblieferungsquote` — CheckCircle green, quote_pct 5xl+Rang 2xl farbkodiert, Ziel ≥95%, Coaching-Tipp 3 Stufen, isOnline-Guard ✅
-- Phase 4174 Storefront: uebersprungen ✅
-- Phase 4175 Kitchen: `KitchenPhase4175AblieferungsquoteTicker` — CheckCircle green, Bester #1 Name+% im Header green-600, Alert-Zaehler, kompakt absteigend, dot-Farbkodierung, Team-Avg+Ziel ≥95% ✅
-- Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4176.
-
-### Naechste Phasen 4176–4180 — Naechstes Ranking-Thema (TBD)
+### ✅ Phasen 4186–4190 ABGESCHLOSSEN — Fahrer-Ablieferungsquote-Ranking
+- Phase 4186 Backend: `/api/delivery/admin/fahrer-ablieferungsquote/route.ts` — createClient-Fix (@/lib/supabase/server), force-dynamic, quote_pct=delivered/total, absteigend Rang 1=höchste Quote=bester, Ampel per Quartil, Mock Julia 98%/Max 95%/Sara 87.5%/Tim 75% ✅
+- Phase 4187 Dispatch: `DispatchPhase4187AblieferungsquoteBoard` — CheckCircle green, absteigend Rang 1=höchste Quote, KPI-Grid Höchste/Team-Avg/Niedrigste, Alert "Niedrige Quote!", rank_delta>0=gruen ✅
+- Phase 4188 Fahrer: `FahrerPhase4188MeineAblieferungsquote` — CheckCircle green, quote_pct 5xl+Rang 2xl farbkodiert, Ziel ≥95%, Coaching-Tipp 3 Stufen, isOnline-Guard ✅
+- Phase 4189 Storefront: uebersprungen ✅
+- Phase 4190 Kitchen: `KitchenPhase4190AblieferungsquoteTicker` — CheckCircle green, Bester #1 Name+% im Header green-600, Alert-Zaehler, kompakt absteigend, dot-Farbkodierung, Team-Avg+Ziel ≥95% ✅
+- Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4191.
 
 CEO-Agent (2026-07-27): CEO Review #641 — Build ✓ exit 0. Phasen 4086–4090 (Touren/h) + 4131–4160 (Lieferdichte, km/Stopp, Kundenbewertung, Leerfahrten, Lieferzeit, Geschwindigkeit) vollständig verifiziert. 7 neue API-Routes alle korrekt (force-dynamic + createClient). Alle Import+Render+Barrel-Integrationen in Dispatch/Fahrer/Kitchen ✅. API-URLs Frontend↔Backend konsistent ✅. Nächste freie Phase: 4161.
 
