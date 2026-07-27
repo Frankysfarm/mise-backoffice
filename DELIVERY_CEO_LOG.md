@@ -1,5 +1,85 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #641 — 2026-07-27
+
+**Build ✓ exit 0 — Phasen 4086–4090 + 4131–4160 verifiziert (Touren/h + Lieferdichte + km/Stopp + Kundenbewertung + Leerfahrten + Lieferzeit + Geschwindigkeit)**
+
+**Geprüfte Commits (seit CEO Review #640):**
+- `db4330fe` – Phasen 4086–4090 Fahrer-Touren-pro-Stunde-Ranking (API + Dispatch + Fahrer + Kitchen)
+- `8baa6aff` – Docs: DELIVERY_PROGRESS + CEO_LOG Batch 4086–4090
+- `6bc940fc` – Phasen 4131–4135 Fahrer-Lieferdichte-Ranking (API + Dispatch + Fahrer + Kitchen)
+- `404da870` – Phasen 4136–4140 Fahrer-km-pro-Stopp-Ranking (API + Dispatch + Fahrer + Kitchen)
+- `386509d3` – Phasen 4141–4145 Fahrer-Kundenbewertung-Ranking (API + Dispatch + Fahrer + Kitchen)
+- `c24d8383` – Phasen 4146–4150 Fahrer-Leerfahrten-Ranking (API + Dispatch + Fahrer + Kitchen)
+- `55c727e6` – Phasen 4151–4155 Fahrer-Durchschnitts-Lieferzeit-Ranking (API + Dispatch + Fahrer + Kitchen)
+- `2d1660df` – Phasen 4156–4160 Fahrer-Geschwindigkeit-Ranking (API + Dispatch + Fahrer + Kitchen)
+
+**Verifikation Phasen 4086–4090 + 4131–4160:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 4086 | Touren/h-Backend | API | `/api/delivery/admin/fahrer-touren-pro-stunde-ranking` | ✅ force-dynamic, createClient |
+| 4087 | Touren/h-Board | Dispatch | `DispatchPhase4087TourenProStundeBoard` | ✅ Import+Render+Barrel |
+| 4088 | Meine Touren/h | Fahrer | `FahrerPhase4088MeineTourenProStunde` | ✅ Import+Render+Barrel+isOnline |
+| 4089 | Storefront | – | Übersprungen | ✅ |
+| 4090 | Touren/h-Ticker | Kitchen | `KitchenPhase4090TourenProStundeTicker` | ✅ Import+Render+Barrel |
+| 4131 | Lieferdichte-Backend | API | `/api/delivery/admin/fahrer-lieferdichte-ranking` | ✅ force-dynamic, createClient |
+| 4132 | Lieferdichte-Board | Dispatch | `DispatchPhase4132LieferdichteBoard` | ✅ Import+Render+Barrel |
+| 4133 | Meine Lieferdichte | Fahrer | `FahrerPhase4133MeineLieferdichte` | ✅ Import+Render+Barrel+isOnline |
+| 4134 | Storefront | – | Übersprungen | ✅ |
+| 4135 | Lieferdichte-Ticker | Kitchen | `KitchenPhase4135LieferdichteTicker` | ✅ Import+Render+Barrel |
+| 4136 | km/Stopp-Backend | API | `/api/delivery/admin/fahrer-km-pro-stopp` | ✅ force-dynamic, createClient |
+| 4137 | km/Stopp-Board | Dispatch | `DispatchPhase4137KmProStoppBoard` | ✅ Import+Render+Barrel |
+| 4138 | Mein km/Stopp | Fahrer | `FahrerPhase4138MeinKmProStopp` | ✅ Import+Render+Barrel+isOnline |
+| 4139 | Storefront | – | Übersprungen | ✅ |
+| 4140 | km/Stopp-Ticker | Kitchen | `KitchenPhase4140KmProStoppTicker` | ✅ Import+Render+Barrel |
+| 4141 | Kundenbewertung-Backend | API | `/api/delivery/admin/fahrer-kundenbewertung-ranking` | ✅ force-dynamic, createClient |
+| 4142 | Kundenbewertung-Board | Dispatch | `DispatchPhase4142KundenbewertungBoard` | ✅ Import+Render+Barrel |
+| 4143 | Meine Kundenbewertung | Fahrer | `FahrerPhase4143MeineKundenbewertung` | ✅ Import+Render+Barrel+isOnline |
+| 4144 | Storefront | – | Übersprungen | ✅ |
+| 4145 | Kundenbewertung-Ticker | Kitchen | `KitchenPhase4145KundenbewertungTicker` | ✅ Import+Render+Barrel |
+| 4146 | Leerfahrten-Backend | API | `/api/delivery/admin/fahrer-leerfahrten-ranking` | ✅ force-dynamic, createClient |
+| 4147 | Leerfahrten-Board | Dispatch | `DispatchPhase4147LeerfahrtenBoard` | ✅ Import+Render+Barrel |
+| 4148 | Meine Leerfahrten | Fahrer | `FahrerPhase4148MeineLeerfahrten` | ✅ Import+Render+Barrel+isOnline |
+| 4149 | Storefront | – | Übersprungen | ✅ |
+| 4150 | Leerfahrten-Ticker | Kitchen | `KitchenPhase4150LeerfahrtenTicker` | ✅ Import+Render+Barrel |
+| 4151 | Lieferzeit-Backend | API | `/api/delivery/admin/fahrer-durchschnitts-lieferzeit-ranking` | ✅ force-dynamic, createClient |
+| 4152 | Lieferzeit-Board | Dispatch | `DispatchPhase4152LieferzeitBoard` | ✅ Import+Render+Barrel |
+| 4153 | Meine Lieferzeit | Fahrer | `FahrerPhase4153MeineLieferzeit` | ✅ Import+Render+Barrel+isOnline |
+| 4154 | Storefront | – | Übersprungen | ✅ |
+| 4155 | Lieferzeit-Ticker | Kitchen | `KitchenPhase4155LieferzeitTicker` | ✅ Import+Render+Barrel |
+| 4156 | Geschwindigkeit-Backend | API | `/api/delivery/admin/fahrer-geschwindigkeit-ranking` | ✅ force-dynamic, createClient |
+| 4157 | Geschwindigkeit-Board | Dispatch | `DispatchPhase4157GeschwindigkeitBoard` | ✅ Import+Render+Barrel |
+| 4158 | Meine Geschwindigkeit | Fahrer | `FahrerPhase4158MeineGeschwindigkeit` | ✅ Import+Render+Barrel+isOnline |
+| 4159 | Storefront | – | Übersprungen | ✅ |
+| 4160 | Geschwindigkeit-Ticker | Kitchen | `KitchenPhase4160GeschwindigkeitTicker` | ✅ Import+Render+Barrel |
+
+**API-Verbindungen verifiziert (Frontend → Backend):**
+- `phase4087-touren-pro-stunde-board.tsx` → `/api/delivery/admin/fahrer-touren-pro-stunde-ranking` ✅
+- `phase4132-lieferdichte-board.tsx` → `/api/delivery/admin/fahrer-lieferdichte-ranking` ✅
+- `phase4137-km-pro-stopp-board.tsx` → `/api/delivery/admin/fahrer-km-pro-stopp` ✅
+- `phase4142-kundenbewertung-board.tsx` → `/api/delivery/admin/fahrer-kundenbewertung-ranking` ✅
+- `phase4147-leerfahrten-board.tsx` → `/api/delivery/admin/fahrer-leerfahrten-ranking` ✅
+- `phase4152-lieferzeit-board.tsx` → `/api/delivery/admin/fahrer-durchschnitts-lieferzeit-ranking` ✅
+- `phase4157-geschwindigkeit-board.tsx` → `/api/delivery/admin/fahrer-geschwindigkeit-ranking` ✅
+
+**Build-Ergebnis:** ✓ Compiled successfully — exit 0 ✅
+
+**Phasen-Nummern-Status:**
+- Belegt: 4000–4160
+- **Nächste freie Phase: 4161**
+
+**Anweisung an nächsten Agent (Phasen 4161–4165 — Fahrer-Pünktlichkeitsquote-Ranking):**
+1. **Phase 4161 Backend:** GET `/api/delivery/admin/fahrer-puenktlichkeitsquote-ranking` — Anteil pünktlicher Lieferungen (innerhalb Zeitfenster) je Fahrer letzte 30 Tage in %; absteigend Rang 1=höchste Quote=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Mock Julia 94%/Sara 89%/Max 82%/Tim 71%; PFLICHT: `force-dynamic`, `createClient` aus `@/lib/supabase/server`.
+2. **Phase 4162 Dispatch:** `DispatchPhase4162PuenktlichkeitsquoteBoard` — Clock-Icon blau; KPI-Grid Beste/Team-Avg/Niedrigste; rank_delta>0=grün; 30-Min-Polling; nach Phase4157. PFLICHT: Import + Render + Barrel.
+3. **Phase 4163 Fahrer:** `FahrerPhase4163MeinePuenktlichkeitsquote` — Clock-Icon blau; Quote 5xl+Rang 2xl farbkodiert; Ziel ≥90%; Coaching-Tipp; isOnline-Guard; nach Phase4158. PFLICHT: Import + Render + Barrel.
+4. **Phase 4164 Storefront:** Überspringen.
+5. **Phase 4165 Kitchen:** `KitchenPhase4165PuenktlichkeitsquoteTicker` — Clock-Icon blau; Pünktlichste #1 Name+Quote; Ziel ≥90%; 30-Min-Polling; nach Phase4160. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4161! NIEMALS 4000–4160 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+---
+
 ## CEO Review #640 — 2026-07-27
 
 **Build ✓ exit 0 — Phasen 4101–4120 verifiziert (Abwesenheit + Stopp-Effizienz + Retour-Quote + Auslastung)**
