@@ -11,9 +11,9 @@ Updated: 2026-07-27
 | T04 Pick/Pickup Correctness | COMPLETE | G4 GREEN | `codex/driver-remediation` | `60621b64` | Atomic whole-batch pickup, cancellation-after-snapshot handling, disabled legacy bypasses and two-device race verified. |
 | T05 Recovery/Push/Offline | COMPLETE | G4 GREEN | `codex/driver-remediation` | `a1408ce2`, `0c90ba95` | Ownership-preserving recovery, wake-only push, snapshot-first ACK, strict offline replay and defensive database privileges verified. |
 | T06 GPS Transport/Native | SOURCE CANDIDATE COMPLETE | G5 RED (external evidence + T07 wiring) | main + native isolated branches | `625204bc`, native `4d048c2` | Source approved independently; native compile/device matrix unavailable and dispatch eligibility intentionally awaits T07. |
-| T07 Deterministic Dispatch Baseline | IN PROGRESS | G6 pending | `codex/driver-remediation` | — | Exclusive dispatch ownership assigned to `t07_dispatch`; default-off/shadow evidence required. |
+| T07 Deterministic Dispatch Baseline | COMPLETE | G6 GREEN | `codex/driver-remediation` | `277b1094` | Independent review approved deterministic default-off/shadow/active behavior and Atomic-v2-only assignment after 400 green overlap races. |
 | T09 Operations/Security/Observability | SOURCE CANDIDATE COMPLETE | G8 RED (durable integration pending) | `codex/driver-remediation` | `596c7b52` | Independent review approved the default-off redaction/alert/policy contract; DB/RLS/API/dashboard/callsites remain unimplemented. |
-| T08 and T10 | NOT STARTED | G7/G9 not evaluated | — | — | T08 waits for G6; T10 remains last. |
+| T08 Routing/Batching/Kitchen Hold and T10 | NOT STARTED | G7/G9 not evaluated | — | — | T08 is now unblocked; T10 remains last. |
 
 ## Production safety
 
@@ -119,3 +119,21 @@ G8 still requires durable database/RLS enforcement, authenticated operations
 APIs, checked lifecycle callsites, scheduler/retention database tests,
 dashboards and alert delivery. No external telemetry, production flag or
 production system was changed.
+
+## G6 decision
+
+GREEN in the isolated remediation environment after repeated rejection and
+hardening cycles. The baseline is default-off, shadow mode preserves the
+incumbent operational path and records the actual resulting outcome, and
+active mode can write only through Atomic-v2. Candidate decisions are
+deterministic and auditable, reject stale/delayed/untrusted GPS, use canonical
+driver state, respect backend-configured distances beyond 20 km, fail closed
+on incomplete snapshots and exclude loaded routes until T08 can prove route
+compatibility. Decision action IDs and Atomic-v2 correlation IDs distinguish
+pending, committed and CAS-loser outcomes.
+
+The full runner passed the canonical 100-overlap suite and the retained repeat
+runner passed three additional complete suites. One earlier intermittent
+failure in the frozen T02 harness was not reproduced across the subsequent 400
+overlaps and remains a documented residual risk. G6 does not authorize
+production or activate the feature flag.

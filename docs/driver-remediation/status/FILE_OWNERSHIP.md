@@ -4,8 +4,8 @@ Updated: 2026-07-27
 
 | File/scope | Active task | Owner | Mode | Notes |
 |---|---|---|---|---|
-| `lib/frank.ts` | T07 | `t07_dispatch` | exclusive | Deterministic baseline and T06 GPS-eligibility wiring only; atomic-v2 writer contract is frozen. |
-| `lib/delivery/dispatch-engine.ts` | T07 | `t07_dispatch` | exclusive | Deterministic scoring/reason contracts only; no recovery/client changes. |
+| `lib/frank.ts` | none | released by T07 | protected | Deterministic baseline accepted at G6; T08 changes require new exclusive ownership. |
+| `lib/delivery/dispatch-engine.ts` | none | released by T07 | protected | Deterministic scoring/reason contract frozen after G6. |
 | canonical lifecycle/state-machine modules | none | released by T01 | protected | T01 contract is frozen for T02 consumption; changes require explicit ownership. |
 | dispatch/assignment migrations and RPCs | none | released by T02 | protected | T02 Atomic-v2 migrations/RPCs frozen after G2 approval. |
 | `lib/delivery/recovery.ts` | none | released by T05 | protected | Ownership-preserving recovery contract frozen after G4. |
