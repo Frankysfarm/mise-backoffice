@@ -2,6 +2,16 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4256–4260 implementiert — Fahrer-Wartezeit-Stopp-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4257WartezeitStoppBoard`. Fahrer: `FahrerPhase4258MeineWartezeitStopp`. Kitchen: `KitchenPhase4260WartezeitStoppTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4261.
+
+### ✅ Phasen 4256–4260 ABGESCHLOSSEN — Fahrer-Wartezeit-Stopp-Ranking
+- Phase 4256 Backend: `/api/delivery/admin/fahrer-wartezeit-stopp-ranking` — bereits vorhanden, aufsteigend Rang 1=niedrigste Wartezeit=schnellster, INVERTED rank_delta (prevRang-rang, positiv=verbessert=TrendingUp emerald), alert_top, driver_id-Param, Mock Julia 2.1/Sara 3.5/Max 5.2/Tim 8.1 min ✅
+- Phase 4257 Dispatch: `DispatchPhase4257WartezeitStoppBoard` — Timer orange-500, aufsteigend Rang 1=niedrigste Wartezeit, KPI-Grid Schnellste/Team-Avg/Langsamste (orange-50/gray-50/red-50), Alert "Lange Wartezeit am Stopp!", rank_delta>0=TrendingUp emerald, Balken (wartezeit_min/max)*100% ✅
+- Phase 4258 Fahrer: `FahrerPhase4258MeineWartezeitStopp` — Timer orange-500, wartezeit_min 5xl+Rang 2xl farbkodiert, driver_id API-Param, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta>0=TrendingUp emerald ✅
+- Phase 4259 Storefront: uebersprungen ✅
+- Phase 4260 Kitchen: `KitchenPhase4260WartezeitStoppTicker` — Timer orange-500, Schnellste #1 Name+min im Header orange-600, alert_top-Zaehler, dot-Farbkodierung, Team-Avg ✅
+- Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4261.
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4251–4255 implementiert — Fahrer-km-pro-Tour-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4252KmProTourBoard`. Fahrer: `FahrerPhase4253MeineKmProTour`. Kitchen: `KitchenPhase4255KmProTourTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4256.
 
 ### ✅ Phasen 4251–4255 ABGESCHLOSSEN — Fahrer-km-pro-Tour-Ranking
