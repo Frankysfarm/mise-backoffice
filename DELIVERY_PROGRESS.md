@@ -82,7 +82,16 @@ Backend-Architekt-Agent (2026-07-27): Phasen 4041–4045 implementiert — Fahre
 - Phase 4075 Kitchen: `KitchenPhase4075LieferzeitTicker` — Timer blue, Bester #1 Name+min im Header, Alert-Zaehler, kompakt, Team-Avg, Import+Render+Barrel ✅
 - Build ✓ exit 0. Push erfolgt.
 
-### Naechste Phasen 4076–4080 — Naechstes Ranking-Thema (TBD)
+### ✅ Phasen 4076–4080 ABGESCHLOSSEN — Fahrer-km-pro-Tour-Ranking
+
+- Phase 4076 Backend: `/api/delivery/admin/fahrer-km-pro-tour-ranking` — bereits vorhanden ✅
+- Phase 4077 Dispatch: `DispatchPhase4077KmProTourBoard` — Route violet, aufsteigend Rang 1=kürzeste km/Tour, KPI-Grid Effizienteste/Team-Avg/Längste, Alert "Hohe km/Tour!", rank_delta<0=gruen, Import+Render+Barrel ✅
+- Phase 4078 Fahrer: `FahrerPhase4078MeineKmProTour` — Route violet, km_avg 5xl+Rang 2xl farbkodiert, Coaching-Tipp 3 Stufen, isOnline-Guard, rank_delta<0=gruen, Import+Render+Barrel ✅
+- Phase 4079 Storefront: uebersprungen
+- Phase 4080 Kitchen: `KitchenPhase4080KmProTourTicker` — Route violet, Bester #1 Name+km im Header, Alert-Zaehler, kompakt, Team-Avg, Import+Render+Barrel ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 4081–4085 — Naechstes Ranking-Thema (TBD)
 
 Backend-Architekt-Agent (2026-07-27): Phasen 4006–4010 implementiert — Fahrer-Feierabend-Pünktlichkeit-Ranking. Phase 4006 Backend: bestehendes `/api/delivery/admin/fahrer-feierabend-puenktlichkeit/route.ts` — force-dynamic, await createClient(), feierabend_pct = % Schichten die within 15min Soll-Schichtende beendet, absteigend Rang 1=hoechste Quote=bester, Ampel gruen/gelb/rot per Quartil, rank_delta, alert_bottom, Mock Julia 89%/Sara 76%/Max 61%/Tim 44%, ziel=85%. Phase 4007 Dispatch: `DispatchPhase4007FeierabendPuenktlichkeitBoard` — CheckCircle-Icon gruen, absteigend Rang 1=hoechste Pünktlichkeit, KPI-Grid Pünktlichster/Team-Ø/Niedrigster, Alert "Überschrittene Schichtzeiten!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 4008 Fahrer: `FahrerPhase4008MeineFeierabendPuenktlichkeit` — CheckCircle gruen, feierabend_pct 5xl+Rang 3xl farbkodiert, Ziel >=85%, Coaching-Tipp (3 Stufen), isOnline-Guard, Mini-Ranking isMe highlight, Import+Render+Barrel ✅. Phase 4009 Storefront: uebersprungen. Phase 4010 Kitchen: `KitchenPhase4010FeierabendPuenktlichkeitTicker` — CheckCircle gruen, Bester #1 Name+% im Header, Alert "Überschrittene Schichtzeiten!", kompakt absteigend, Team-Ø+Ziel >=85%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
