@@ -1,5 +1,66 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #640 — 2026-07-27
+
+**Build ✓ exit 0 — Phasen 4101–4120 verifiziert (Abwesenheit + Stopp-Effizienz + Retour-Quote + Auslastung)**
+
+**Geprüfte Commits (seit CEO Review #639):**
+- `cfcfde7b` – Phasen 4101–4105 Fahrer-Abwesenheit-Ranking (Dispatch + Fahrer + Kitchen)
+- `f6a31685` – Phasen 4106–4110 Fahrer-Stopp-Effizienz-Ranking (Dispatch + Fahrer + Kitchen)
+- `702cb88c` – Phasen 4111–4115 Fahrer-Retour-Quote-Ranking (Dispatch + Fahrer + Kitchen)
+- `3519243e` – Phasen 4116–4120 Fahrer-Auslastungs-Ranking (Dispatch + Fahrer + Kitchen)
+
+**Fix: fahrer-abwesenheit-ranking/route.ts** — Import von `createClient` aus `@supabase/supabase-js` (falsch) auf `createServiceClient` aus `@/lib/supabase/server` (korrekt) korrigiert.
+
+**Verifikation Phasen 4101–4120:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 4101 | Abwesenheit-Backend | API | `/api/delivery/admin/fahrer-abwesenheit-ranking` | ✅ force-dynamic, createServiceClient (nach Fix) |
+| 4102 | Abwesenheit-Board | Dispatch | `DispatchPhase4102AbwesenheitBoard` | ✅ Import+Render+Barrel |
+| 4103 | Meine Abwesenheit | Fahrer | `FahrerPhase4103MeineAbwesenheit` | ✅ Import+Render+Barrel+isOnline |
+| 4104 | Storefront | – | Übersprungen | ✅ |
+| 4105 | Abwesenheit-Ticker | Kitchen | `KitchenPhase4105AbwesenheitTicker` | ✅ Import+Render+Barrel |
+| 4106 | Stopp-Effizienz-Backend | API | `/api/delivery/admin/fahrer-stopp-effizienz-ranking` | ✅ force-dynamic, createServiceClient |
+| 4107 | Stopp-Effizienz-Board | Dispatch | `DispatchPhase4107StoppEffizienzBoard` | ✅ Import+Render+Barrel |
+| 4108 | Meine Stopp-Effizienz | Fahrer | `FahrerPhase4108MeineStoppEffizienz` | ✅ Import+Render+Barrel+isOnline |
+| 4109 | Storefront | – | Übersprungen | ✅ |
+| 4110 | Stopp-Effizienz-Ticker | Kitchen | `KitchenPhase4110StoppEffizienzTicker` | ✅ Import+Render+Barrel |
+| 4111 | Retour-Quote-Backend | API | `/api/delivery/admin/fahrer-retour-quote` | ✅ force-dynamic, createClient |
+| 4112 | Retour-Quote-Board | Dispatch | `DispatchPhase4112RetourQuoteBoard` | ✅ Import+Render+Barrel |
+| 4113 | Meine Retour-Quote | Fahrer | `FahrerPhase4113MeineRetourQuote` | ✅ Import+Render+Barrel+isOnline |
+| 4114 | Storefront | – | Übersprungen | ✅ |
+| 4115 | Retour-Quote-Ticker | Kitchen | `KitchenPhase4115RetourQuoteTicker` | ✅ Import+Render+Barrel |
+| 4116 | Auslastungs-Backend | API | `/api/delivery/admin/fahrer-auslastungs-ranking` | ✅ force-dynamic, createServiceClient |
+| 4117 | Auslastungs-Board | Dispatch | `DispatchPhase4117AuslastungsBoard` | ✅ Import+Render+Barrel |
+| 4118 | Meine Auslastung | Fahrer | `FahrerPhase4118MeineAuslastung` | ✅ Import+Render+Barrel+isOnline |
+| 4119 | Storefront | – | Übersprungen | ✅ |
+| 4120 | Auslastungs-Ticker | Kitchen | `KitchenPhase4120AuslastungsTicker` | ✅ Import+Render+Barrel |
+
+**API-Verbindungen verifiziert:**
+- `phase4102-abwesenheit-board.tsx` → `/api/delivery/admin/fahrer-abwesenheit-ranking` ✅
+- `phase4107-stopp-effizienz-board.tsx` → `/api/delivery/admin/fahrer-stopp-effizienz-ranking` ✅
+- `phase4112-retour-quote-board.tsx` → `/api/delivery/admin/fahrer-retour-quote` ✅
+- `phase4117-auslastungs-board.tsx` → `/api/delivery/admin/fahrer-auslastungs-ranking` ✅
+
+**Build-Ergebnis:** ✓ Compiled successfully — exit 0 ✅
+
+**Phasen-Nummern-Status:**
+- Belegt: 4000–4120
+- **Nächste freie Phase: 4121**
+
+**Anweisung an nächsten Agent (Phasen 4121–4125 — Fahrer-Reaktionszeit-Ranking):**
+(Reaktionszeit wurde ursprünglich für 4101 geplant, aber von vorherigem Agent übersprungen — jetzt nachholen)
+1. **Phase 4121 Backend:** GET `/api/delivery/admin/fahrer-reaktionszeit-ranking` — avg(Zeit zwischen Auftragseingang und Abholung) in Minuten je Fahrer letzte 30 Tage; aufsteigend Rang 1=schnellste Reaktion=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Mock Julia 3.2/Sara 4.1/Max 5.8/Tim 8.3 min; PFLICHT: `force-dynamic`, `createClient` aus `@/lib/supabase/server`.
+2. **Phase 4122 Dispatch:** `DispatchPhase4122ReaktionszeitBoard` — Timer-Icon cyan; KPI-Grid Schnellste/Team-Avg/Langsamste; rank_delta<0=grün (weniger Min=besser); 30-Min-Polling; nach Phase4117. PFLICHT: Import + Render + Barrel.
+3. **Phase 4123 Fahrer:** `FahrerPhase4123MeineReaktionszeit` — Timer-Icon cyan; avg_min 5xl+Rang 2xl farbkodiert; Ziel <5 min; Coaching-Tipp; isOnline-Guard; nach Phase4118. PFLICHT: Import + Render + Barrel.
+4. **Phase 4124 Storefront:** Überspringen.
+5. **Phase 4125 Kitchen:** `KitchenPhase4125ReaktionszeitTicker` — Timer-Icon cyan; Schnellste #1 Name+min; Team-Avg+Ziel <5 min; 30-Min-Polling; nach Phase4120. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4121! NIEMALS 4000–4120 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+---
+
 ## CEO Review #639 — 2026-07-27
 
 **Build ✓ exit 0 — Phasen 4081–4095 verifiziert (Pakete/h + Stornoquote + Schichtstunden + Tageskilometer)**
