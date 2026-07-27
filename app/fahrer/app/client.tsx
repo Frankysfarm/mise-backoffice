@@ -1068,6 +1068,7 @@ import { FahrerPhase4173MeineFahrzeit } from './phase4173-meine-fahrzeit';
 import { FahrerPhase4178MeinKmProTour } from './phase4178-mein-km-pro-tour';
 import { FahrerPhase4183MeinePuenktlichkeit } from './phase4183-meine-puenktlichkeit';
 import { FahrerPhase4188MeineAblieferungsquote } from './phase4188-meine-ablieferungsquote';
+import { FahrerPhase4193MeineTrinkgeldQuote } from './phase4193-meine-trinkgeld-quote';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 
@@ -7075,6 +7076,7 @@ export function FahrerApp({
           <FahrerPhase4178MeinKmProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4183MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4188MeineAblieferungsquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4193MeineTrinkgeldQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11156,6 +11158,8 @@ export { FahrerPhase4178MeinKmProTour } from './phase4178-mein-km-pro-tour';
 export { FahrerPhase4183MeinePuenktlichkeit } from './phase4183-meine-puenktlichkeit';
 // Phase 4173 — Meine Ablieferungsquote (CheckCircle green; quote_pct 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; Ziel ≥95%; rank_delta>0=gruen; 30-Min-Polling)
 export { FahrerPhase4188MeineAblieferungsquote } from './phase4188-meine-ablieferungsquote';
+// Phase 4193 — Meine Trinkgeld-Quote (Star amber; trinkgeld_quote 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; Client-Side Filter; rank_delta<0=TrendingUp emerald; 30-Min-Polling)
+export { FahrerPhase4193MeineTrinkgeldQuote } from './phase4193-meine-trinkgeld-quote';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 // Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)
