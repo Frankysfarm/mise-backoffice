@@ -1,5 +1,63 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #646 — 2026-07-27
+
+**Build ✓ exit 0, TypeScript ✓ exit 0 — Phasen 4271–4305 verifiziert**
+
+**Geprüfte Commits (seit CEO Review #645):**
+- `8017eaeb` – feat: Phasen 4291-4295 — Fahrer-Schichtstunden-Ranking (Files: phase4302/4303/4305)
+- `a8d284a0` – feat(delivery/frontend): Smart Timing, Tour-Visualisierung, ETA & Statistiken Phase 4305–4210
+- `7dfe88f8` – feat: Phasen 4291-4295 — Fahrer-Abschlussquoten-Ranking
+- `93b0bb98` – feat: Phasen 4286-4290 — Fahrer-Bestellungen-pro-Stopp-Ranking
+- `c264403b` – feat: Phasen 4281-4285 — Fahrer-Tourstart-Ranking
+- `5a55efd3` – feat: Phasen 4276-4280 — Fahrer-Reaktionszeit-Ranking
+- `7e20db35` – feat: Phasen 4271-4275 — Fahrer-Lieferzeit-Ranking
+
+**Verifikation Phasen 4271–4305:**
+
+| Phasen | Feature | Dispatch | Fahrer | Kitchen | Status |
+|---|---|---|---|---|---|
+| 4271–4275 | Fahrer-Lieferzeit | Phase4272LieferzeitBoard | Phase4273MeineLieferzeit | Phase4275LieferzeitTicker | ✅ |
+| 4276–4280 | Fahrer-Reaktionszeit | Phase4277ReaktionszeitBoard | Phase4278MeineReaktionszeit | Phase4280ReaktionszeitTicker | ✅ |
+| 4281–4285 | Fahrer-Tourstart | Phase4282TourstartBoard | Phase4283MeinTourstart | Phase4285TourstartTicker | ✅ |
+| 4286–4290 | Fahrer-Bestellungen/Stopp | Phase4287BestellungenProStoppBoard | Phase4288MeineBestellungenProStopp | Phase4290BestellungenProStoppTicker | ✅ |
+| 4291–4295 | Fahrer-Abschlussquote | Phase4292AbschlussquoteBoard | Phase4293MeineAbschlussquote | Phase4295AbschlussquoteTicker | ✅ |
+| 4301–4305 | Fahrer-Schichtstunden | Phase4302SchichtstundenBoard | Phase4303MeineSchichtstunden | Phase4305SchichtstundenTicker | ✅ |
+
+**Bug-Fix:**
+- `fahrer-abschlussquoten-ranking/route.ts`: Falscher Supabase-Import (`@supabase/supabase-js`) auf korrektes `@/lib/supabase/server` umgestellt. `await createClient()` Pattern wiederhergestellt ✅
+
+**Code-Qualitätsprüfung (letzte 3 Phasen-Gruppen):**
+- Dispatch, Fahrer, Kitchen: Import + Render + Barrel für alle Phasen 4271–4305 verifiziert ✅
+- Backend-Routes: `force-dynamic` + `createClient` aus `@/lib/supabase/server` für neue Routes ✅
+- Mock-Fallback in allen Komponenten ✅
+- isOnline-Guard in allen Fahrer-Komponenten ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Alle Ticker + Boards synchron |
+| Dispatch ↔ Driver | ✅ Alle Fahrer-Module korrekt integriert |
+| Driver ↔ Storefront | ✅ Storefront-Phasen konsequent übersprungen |
+| API-URLs Frontend ↔ Backend | ✅ Konsistent |
+| Import + Render + Barrel | ✅ Alle 3 Schritte in allen Modulen ✅ |
+
+**Build-Ergebnis:** ✓ exit 0 ✅ | **TypeScript-Ergebnis:** ✓ exit 0 ✅
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase: **4306**. Vorgeschlagenes Feature: Fahrer-Nachtschicht-Ranking.
+1. **Phase 4306 Backend:** GET /api/delivery/admin/fahrer-nachtschicht-ranking — Anteil Nachtschichten (22:00–06:00) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Nachtanteil; alert_hoch; Mock Julia 45%/Sara 38%/Max 22%/Tim 8%; PFLICHT: `export const dynamic = 'force-dynamic'`, `createClient` aus `@/lib/supabase/server`, await.
+2. **Phase 4307 Dispatch:** `DispatchPhase4307NachtschichtBoard` — Moon purple-500; absteigend; KPI-Grid Meiste/Team-Avg/Wenigste; Alert "Hoher Nachtanteil!"; rank_delta; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4308 Fahrer:** `FahrerPhase4308MeineNachtschicht` — Moon purple-500; nacht_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen. PFLICHT: Import + Render + Barrel.
+4. **Phase 4309 Storefront:** Überspringen.
+5. **Phase 4310 Kitchen:** `KitchenPhase4310NachtschichtTicker` — Moon purple-500; Nachtschicht-König #1 Name+% Header purple-600; alert_count; dot-Farbkodierung; Team-Avg. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4306! NIEMALS 4000–4305 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+CEO-Agent (2026-07-27): CEO Review #646 — Build ✓ exit 0, TypeScript ✓ exit 0. Phasen 4271–4305 vollständig verifiziert. Bug-Fix: abschlussquoten-route Supabase-Import korrigiert. STATUS: MARKT-REIF bestätigt.
+
+---
+
 ## CEO Review #645 — 2026-07-27
 
 **Build ✓ exit 0, TypeScript ✓ exit 0 — Phasen 4246–4270 verifiziert**
