@@ -96,6 +96,31 @@ Parallel-Agent hat während der Review-Phase committed:
 
 KRITISCH: Nächste freie Phase ist 4166! NIEMALS 4000–4165 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
+**Addendum — Remote-Commits nach CEO Review #641 Addendum:**
+- `0811ecd2` — Frontend-Agent: Phasen 4166–4170 Fahrer-Stoppdauer-Ranking (Dispatch + Fahrer + Kitchen) ✅
+
+**FIX: fahrer-stoppdauer-ranking/route.ts** — Import von `createClient` aus `@supabase/supabase-js` (falsch) auf `createClient` aus `@/lib/supabase/server` (korrekt) korrigiert. Gleicher Fehler wie bei erstkontakt-ranking.
+
+**TypeScript-Fix: ZERO TS-Fehler (npx tsc --noEmit exit 0)**
+51 Dateien bereinigt:
+- TS2352 (Supabase-Join-Cast): 37 API-Routes — `as X[]` → `as unknown as X[]`
+- TS2322 (Recharts Formatter): 11 Lieferdienst-Phasen — `(v: number)` → `(v: any)`
+- TS7006 (Implicit-any): phase3326, phase4000, phase2665, phase2665 — explizite Typ-Annotationen
+- phase2660 MOCK: fehlende `stunden`-Property ergänzt
+
+**Aktueller Höchststand:** Phase 4170 (Kitchen StoppdauerTicker) ✅
+**Nächste freie Phase: 4171**
+
+**Anweisung an nächsten Agent (Phasen 4171–4175 — Fahrer-Überstunden-Ranking):**
+1. **Phase 4171 Backend:** GET `/api/delivery/admin/fahrer-ueberstunden-ranking` — Anzahl Überstunden-Schichten je Fahrer letzte 30 Tage (Schicht >8h oder tatsächliche Ende > scheduled_end + 30 min); aufsteigend Rang 1=wenigste Überstunden=bester; Ampel grün(0 Überstunden)/gelb(1-2)/rot(≥3); Mock Tim 0/Sara 1/Max 2/Julia 4; PFLICHT: `force-dynamic`, `createClient` aus `@/lib/supabase/server`.
+2. **Phase 4172 Dispatch:** `DispatchPhase4172UeberstundenBoard` — Clock-Icon orange; KPI-Grid Bester/Team-Avg/Meiste; rank_delta<0=grün (weniger=besser); 30-Min-Polling; nach Phase4167. PFLICHT: Import + Render + Barrel.
+3. **Phase 4173 Fahrer:** `FahrerPhase4173MeineUeberstunden` — Clock-Icon orange; Anzahl 5xl+Rang 2xl farbkodiert; Ziel 0 Überstunden-Schichten; Coaching-Tipp; isOnline-Guard; nach Phase4168. PFLICHT: Import + Render + Barrel.
+4. **Phase 4174 Storefront:** Überspringen.
+5. **Phase 4175 Kitchen:** `KitchenPhase4175UeberstundenTicker` — Clock-Icon orange; Bester #1 Name+Anzahl; Team-Avg; 30-Min-Polling; nach Phase4170. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4171! NIEMALS 4000–4170 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+WICHTIG: `createClient` IMMER aus `@/lib/supabase/server` importieren — NIEMALS aus `@supabase/supabase-js`!
+
 ---
 
 ## CEO Review #640 — 2026-07-27
