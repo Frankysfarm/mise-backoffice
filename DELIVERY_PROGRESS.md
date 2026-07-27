@@ -2,6 +2,16 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4261–4265 implementiert — Fahrer-Auslastungs-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4262AuslastungsBoard`. Fahrer: `FahrerPhase4263MeineAuslastung`. Kitchen: `KitchenPhase4265AuslastungsTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4266.
+
+### ✅ Phasen 4261–4265 ABGESCHLOSSEN — Fahrer-Auslastungs-Ranking
+- Phase 4261 Backend: `/api/delivery/admin/fahrer-auslastungs-ranking` — bereits vorhanden, absteigend Rang 1=höchste auslastung_pct=aktivster, STANDARD rank_delta (rang-prevRang, negativ=verbessert=TrendingUp emerald), alert_bottom, driver_id-Param, team_avg_pct, Mock Max 72.4/Julia 65.8/Sara 58.2/Tim 41.5% ✅
+- Phase 4262 Dispatch: `DispatchPhase4262AuslastungsBoard` — Gauge emerald-500, absteigend Rang 1=höchste Auslastung, KPI-Grid Höchste/Team-Avg/Niedrigste (emerald-50/gray-50/red-50), Alert "Geringe Auslastung – Schichteinsatz prüfen!", rank_delta<0=TrendingUp emerald, Balken (auslastung_pct/max)*100% ✅
+- Phase 4263 Fahrer: `FahrerPhase4263MeineAuslastung` — Gauge emerald-500, auslastung_pct 5xl+Rang 2xl farbkodiert, driver_id API-Param, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta<0=TrendingUp emerald ✅
+- Phase 4264 Storefront: uebersprungen ✅
+- Phase 4265 Kitchen: `KitchenPhase4265AuslastungsTicker` — Gauge emerald-500, Bester #1 Name+% im Header emerald-600, alert_bottom-Zaehler, dot-Farbkodierung, Team-Avg ✅
+- Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4266.
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4256–4260 implementiert — Fahrer-Wartezeit-Stopp-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4257WartezeitStoppBoard`. Fahrer: `FahrerPhase4258MeineWartezeitStopp`. Kitchen: `KitchenPhase4260WartezeitStoppTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4261.
 
 ### ✅ Phasen 4256–4260 ABGESCHLOSSEN — Fahrer-Wartezeit-Stopp-Ranking

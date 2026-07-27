@@ -1164,6 +1164,7 @@ import { DispatchPhase4247AuftragsdichteBoard } from './phase4247-auftragsdichte
 import { DispatchPhase4302TourScoreFlottenCockpit } from './phase4302-tour-score-flotten-cockpit';
 import { DispatchPhase4252KmProTourBoard } from './phase4252-km-pro-tour-board';
 import { DispatchPhase4257WartezeitStoppBoard } from './phase4257-wartezeit-stopp-board';
+import { DispatchPhase4262AuslastungsBoard } from './phase4262-auslastungs-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4955,6 +4956,7 @@ export function DispatchBoard({
           <DispatchPhase4302TourScoreFlottenCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4252KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4257WartezeitStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4262AuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13370,3 +13372,5 @@ export { DispatchPhase4302TourScoreFlottenCockpit } from './phase4302-tour-score
 export { DispatchPhase4252KmProTourBoard } from './phase4252-km-pro-tour-board';
 // Phase 4257 — Wartezeit-Stopp-Board (Timer orange; aufsteigend Rang 1=niedrigste Wartezeit=schnellster; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Lange Wartezeit; 30-Min-Polling)
 export { DispatchPhase4257WartezeitStoppBoard } from './phase4257-wartezeit-stopp-board';
+// Phase 4262 — Auslastungs-Board (Gauge emerald; absteigend Rang 1=höchste Auslastung; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Geringe Auslastung; 30-Min-Polling)
+export { DispatchPhase4262AuslastungsBoard } from './phase4262-auslastungs-board';

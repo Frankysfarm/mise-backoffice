@@ -1108,6 +1108,7 @@ import { KitchenPhase4245TageskilometerTicker } from './phase4245-tageskilometer
 import { KitchenPhase4250AuftragsdichteTicker } from './phase4250-auftragsdichte-ticker';
 import { KitchenPhase4255KmProTourTicker } from './phase4255-km-pro-tour-ticker';
 import { KitchenPhase4260WartezeitStoppTicker } from './phase4260-wartezeit-stopp-ticker';
+import { KitchenPhase4265AuslastungsTicker } from './phase4265-auslastungs-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
 import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';
@@ -4540,6 +4541,7 @@ export function KitchenBoard({
       <KitchenPhase4250AuftragsdichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4255KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4260WartezeitStoppTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4265AuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
@@ -11938,5 +11940,7 @@ export { KitchenPhase4250AuftragsdichteTicker } from './phase4250-auftragsdichte
 export { KitchenPhase4255KmProTourTicker } from './phase4255-km-pro-tour-ticker';
 // Phase 4260 — Wartezeit-Stopp-Ticker (Timer orange; Schnellste #1 Name+min im Header orange-600; alert_top-Zaehler; kompakt aufsteigend Rang 1=niedrigste Wartezeit; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4260WartezeitStoppTicker } from './phase4260-wartezeit-stopp-ticker';
+// Phase 4265 — Auslastungs-Ticker (Gauge emerald; Bester #1 Name+% im Header emerald-600; alert_bottom-Zaehler; kompakt absteigend Rang 1=höchste Auslastung; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4265AuslastungsTicker } from './phase4265-auslastungs-ticker';
 // Phase 4300 — Smart-Timing Countdown Farbkodierung Board (Timer indigo; 4-stufig grün/gelb/orange/rot; Echtzeit-Countdown alle Bestellungen; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
