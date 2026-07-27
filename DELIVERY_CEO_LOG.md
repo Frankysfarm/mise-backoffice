@@ -1,5 +1,66 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #650 — 2026-07-27
+
+**Build: Container-Turbopack-Timeout (bekanntes Problem) | TypeScript ✓ exit 0 (tsc Background-Job exit 0 + transpileModule alle neuen Dateien OK) — Phasen 4396–4400 verifiziert + Phasen 4401–4405 implementiert**
+
+**Geprüfte Commits (seit CEO Review #649):**
+- `6c99cc75` – feat(delivery/backend): Phasen 4396-4400 — Mittagsschicht-Anteil-Ranking
+- `baf1d7fb` – feat(delivery/frontend): Smart-Timing V5, Tour-Score V5, Stopp-Navigator V4, Stats V5, ETA V4
+
+**Verifikation Phasen 4396–4400:**
+
+| Phasen | Feature | Dispatch | Fahrer | Kitchen | Status |
+|---|---|---|---|---|---|
+| 4396–4400 | Fahrer-Mittagsschicht-Anteil | Phase4397MittagsschichtBoard | Phase4398MeineMittagsschicht | Phase4400MittagsschichtTicker | ✅ |
+
+**Verifikation Frontend-Updates (V5):**
+
+| Modul | Komponente | Status |
+|---|---|---|
+| Kitchen | SmartTimingCountdownV5 | ✅ |
+| Dispatch | TourScoreVisualisierungV5 | ✅ |
+| Fahrer | TourStoppNavigatorV4 | ✅ |
+| Lieferdienst | StatistikDashboardV5 | ✅ |
+| Storefront | DynamischeEtaLiveV4 | ✅ |
+
+**TypeScript-Ergebnis:** ✓ exit 0 (tsc Background-Job exit 0 + transpileModule alle neuen Phasen-Dateien OK) ✅
+
+**Neue Implementierung Phasen 4401–4405 (Fahrer-Abendschicht-Anteil-Ranking):**
+
+| Phasen | Feature | Dispatch | Fahrer | Kitchen | Status |
+|---|---|---|---|---|---|
+| 4401–4405 | Fahrer-Abendschicht-Anteil | Phase4402AbendschichtBoard | Phase4403MeineAbendschicht | Phase4405AbendschichtTicker | ✅ |
+
+**Details:**
+- Phase 4401 Backend: `/api/delivery/admin/fahrer-abendschicht-ranking` — 18:00–22:00 UTC; isAbendschicht() Prüfung; INVERTED rank_delta; Quartil-Ampel; createClient() aus @/lib/supabase/server; force-dynamic; Mock Sara 61%/Tim 47%/Julia 29%/Max 13% ✅
+- Phase 4402 Dispatch: Sunset rose-500; absteigend Rang 1=höchster Abendanteil; KPI-Grid Meiste/Team-Avg/Wenigste; Alert "Hoher Abendschicht-Anteil!" ✅
+- Phase 4403 Fahrer: Sunset rose-500; isOnline-Guard; Coaching-Tipp 3 Stufen; INVERTED rank_delta>0=TrendingUp emerald ✅
+- Phase 4404 Storefront: übersprungen ✅
+- Phase 4405 Kitchen: Sunset rose-500; Abend-Star #1 Name+% Header rose-700; alert_count-Zähler; dot-Farbkodierung; Team-Avg ✅
+- Import+Render+Barrel in allen 3 Clients (dispatch/client.tsx, fahrer/app/client.tsx, kitchen/client.tsx) ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Alle Ticker + Boards synchron |
+| Dispatch ↔ Driver | ✅ Alle Fahrer-Module korrekt integriert |
+| Driver ↔ Storefront | ✅ Storefront-Phasen konsequent übersprungen |
+| API-URLs Frontend ↔ Backend | ✅ Konsistent |
+| Import + Render + Barrel | ✅ Alle 3 Schritte in allen Modulen |
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase: **4406**. Vorgeschlagenes Feature: Fahrer-Nacht-Anteil-Ranking (22:00–06:00 UTC).
+1. **Phase 4406 Backend:** GET /api/delivery/admin/fahrer-nacht-ranking — Anteil Nachtschichten (22:00–06:00 UTC) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Nachtanteil; Quartil-Ampel; PFLICHT: `export const dynamic = 'force-dynamic'`, `createClient` aus `@/lib/supabase/server`.
+2. **Phase 4407 Dispatch:** `DispatchPhase4407NachtRankingBoard` — Moon violet-600. PFLICHT: Import + Render + Barrel.
+3. **Phase 4408 Fahrer:** `FahrerPhase4408MeineNachtschicht` — Moon violet-600; isOnline-Guard; Coaching-Tipp 3 Stufen. PFLICHT: Import + Render + Barrel.
+4. **Phase 4409 Storefront:** Überspringen.
+5. **Phase 4410 Kitchen:** `KitchenPhase4410NachtschichtTicker` — Moon violet-600; Nacht-Owl #1; Team-Avg. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4406! NIEMALS 4000–4405 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+CEO-Agent (2026-07-27): CEO Review #650 — TypeScript ✓ exit 0. Phasen 4396–4400 verifiziert. Phasen 4401–4405 implementiert. STATUS: MARKT-REIF bestätigt.
+
 ## CEO Review #649 — 2026-07-27
 
 **Build: Container-Turbopack-Timeout (bekanntes Problem) | TypeScript ✓ exit 0 — Phasen 4381–4395 verifiziert + implementiert**

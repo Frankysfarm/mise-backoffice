@@ -1193,6 +1193,7 @@ import { DispatchPhase4382FruehschichtBoard } from './phase4382-fruehschicht-boa
 import { DispatchPhase4387TourenProStundeBoard } from './phase4387-touren-pro-stunde-board';
 import { DispatchPhase4392SpaetschichtBoard } from './phase4392-spaetschicht-board';
 import { DispatchPhase4397MittagsschichtBoard } from './phase4397-mittagsschicht-board';
+import { DispatchPhase4402AbendschichtBoard } from './phase4402-abendschicht-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5015,6 +5016,8 @@ export function DispatchBoard({
           <DispatchPhase4387TourenProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4392SpaetschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4397MittagsschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4402: Abendschicht-Anteil-Board — Sunset rose-500; absteigend Rang 1=höchster Abendanteil; KPI-Grid Meiste/Team-Avg/Wenigste; Alert Hoher Abendschicht-Anteil; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling */}
+          <DispatchPhase4402AbendschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13492,6 +13495,8 @@ export { DispatchPhase4387TourenProStundeBoard } from './phase4387-touren-pro-st
 export { DispatchPhase4392SpaetschichtBoard } from './phase4392-spaetschicht-board';
 // Phase 4397 — Mittagsschicht-Anteil-Board (Sun orange-400; absteigend Rang 1=höchster Mittagsanteil; KPI-Grid Meiste/Team-Avg/Wenigste Mittag; Alert Hoher Mittagsschicht-Anteil; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4397MittagsschichtBoard } from './phase4397-mittagsschicht-board';
+// Phase 4402 — Abendschicht-Anteil-Board (Sunset rose-500; absteigend Rang 1=höchster Abendanteil; KPI-Grid Meiste/Team-Avg/Wenigste Abend; Alert Hoher Abendschicht-Anteil; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling)
+export { DispatchPhase4402AbendschichtBoard } from './phase4402-abendschicht-board';
 // Phase 4307 — Fahrer-Score + Tour-Visualisierung Board (Trophy amber; Score-Badge+Delta; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4307FahrerScoreTourVisualisierungBoard } from './phase4307-fahrer-score-tour-visualisierung-board';
 // Phase 4351 — Score + Tour-Visualisierung V3 (Trophy amber; Score-Ring 3-stufig+Delta; Stopp-Sequenz Farbkacheln; expandierbare Tour-Details; 3-KPI-Sub-Grid; Fahrer-Progress-Balken; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
