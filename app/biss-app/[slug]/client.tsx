@@ -10,6 +10,7 @@ import { BissPhase2200DynamischeEtaLiveFinalHub } from './phase2200-dynamische-e
 import { BissPhase2310LiveEtaTrackingHub } from './phase2310-live-eta-tracking-hub';
 import { BissPhase2315DynamischeEtaLiveTrackingFinal } from './phase2315-dynamische-eta-live-tracking-final';
 import { BissPhase2320DynamischeEtaLiveTrackingKommando } from './phase2320-dynamische-eta-live-tracking-kommando';
+import { BissPhase2400LiveTrackingUltimate } from './phase2400-live-tracking-ultimate';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Location = { id: string; name: string; adresse: string | null; stadt: string | null; plz: string | null; telefon: string | null };
@@ -328,6 +329,10 @@ function OrderSuccess({ orderId, bestellnummer, onClose }: { orderId: string; be
         {/* Phase 2320: Dynamische ETA Live Tracking Kommando — MM:SS-Countdown Sekundengenau; 5-Stufen-Phasen-Timeline mit Icons; Delay-Warnung; Fahrer-Name+Distanz+Konfidenz; Realtime-Sub + 15-Sek-Polling */}
         <div className="mt-3 mb-2 text-left">
           <BissPhase2320DynamischeEtaLiveTrackingKommando orderId={orderId} bestellnummer={bestellnummer} />
+        </div>
+        {/* Phase 2400: Live-Tracking Ultimate — 5-Phasen-Timeline mit Icons; MM:SS-Countdown bis ETA; Fahrer-Name+Stopps vor dir; farbkodiert; Realtime-Sub + 15-Sek-Polling */}
+        <div className="mt-3 mb-2 text-left">
+          <BissPhase2400LiveTrackingUltimate orderId={orderId} bestellnummer={bestellnummer} />
         </div>
 
         <button onClick={onClose} className="mt-2 px-6 py-3 bg-matcha-600 text-white rounded-xl font-semibold hover:bg-matcha-700 transition-colors">

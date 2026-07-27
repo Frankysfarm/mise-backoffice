@@ -1204,6 +1204,8 @@ import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
 import { DispatchPhase4410TourScoreVisualisierungV6 } from './phase4410-tour-score-visualisierung-v6';
+import { DispatchPhase4500FahrerScoreTourVisualisierungV8 } from './phase4500-fahrer-score-tour-visualisierung-v8';
+import { DispatchPhase1000TourScoreLiveBoard } from './phase1000-tour-score-live-board';
 
 type Driver = {
   employee_id: string;
@@ -5041,6 +5043,12 @@ export function DispatchBoard({
           <DispatchPhase4380TourScoreVisualisierungV4 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4395: Tour-Score Visualisierung V5 — Delay-Alert-Banner; Zone-Strip; 5er-Fleet-KPIs; Verspätungs-Delta; Stopp-Timeline mit Connector; ETA-Genauigkeit; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4395TourScoreVisualisierungV5 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4410: Tour-Score Visualisierung V6 — Delay-Alert-Banner; Fleet-KPIs; Stopp-Timeline; ETA-Genauigkeit; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4410TourScoreVisualisierungV6 />
+          {/* Phase 4500: Fahrer-Score Tour-Visualisierung V8 — Score-Ring; Tour-Board; Pünktlichkeit; Stopp-Timeline; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4500FahrerScoreTourVisualisierungV8 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 1000: Tour-Score-Live-Board — Fortschrittsbalken je Tour; Pünktlichkeits-Score 0–100; Stopp-Timeline; Fahrer-Score; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase1000TourScoreLiveBoard batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4201: Zonen-Kapazität Live-Grid — Auslastungs-Balken 3-stufig; KPI-Grid Fahrer/Touren/Auslastung; Alert-Zähler; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4201ZonenKapazitaetsLiveGrid locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>

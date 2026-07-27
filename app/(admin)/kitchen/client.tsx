@@ -1150,6 +1150,8 @@ import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './pha
 import { KitchenPhase4380SmartTimingCountdownV4 } from './phase4380-smart-timing-countdown-v4';
 import { KitchenPhase4395SmartTimingCountdownV5 } from './phase4395-smart-timing-countdown-v5';
 import { KitchenPhase4410SmartTimingCountdownV6 } from './phase4410-smart-timing-countdown-v6';
+import { KitchenPhase4500SmartTimingV8FarbkodierungCountdown } from './phase4500-smart-timing-v8-farbkodierung-countdown';
+import { KitchenPhase1000SmartTimingDashboard } from './phase1000-smart-timing-dashboard';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4624,6 +4626,12 @@ export function KitchenBoard({
       <KitchenPhase4380SmartTimingCountdownV4 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4395: Smart-Timing Countdown V5 — Kritisch-Alert-Banner; Stations-Heatmap; 12-KPI-Grid; Effizienz-Balken; Notiz-Expand; 12-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4395SmartTimingCountdownV5 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4410: Smart-Timing Countdown V6 — Stationen-Heatmap; Batch-Hinweis; Schicht-Vergleich-Delta; Prognose; 4-stufige Ampel; 1-Sek-Tick + 12-Sek-Polling; Mock-Fallback */}
+      <KitchenPhase4410SmartTimingCountdownV6 />
+      {/* Phase 4500: Smart-Timing V8 Farbkodierung-Countdown Ultra — 5-stufige Ampel; KPI-Grid Score/Pünktlichkeit; Stationsübersicht; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
+      <KitchenPhase4500SmartTimingV8FarbkodierungCountdown locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 1000: Smart-Timing-Dashboard — Unified Countdown+Farbkodierung+Schicht-Score; sekunden-genau; rot<5Min, amber<15Min, grün≥15Min */}
+      <KitchenPhase1000SmartTimingDashboard orders={filtered as any} />
     </div>
   );
 }
