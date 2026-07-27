@@ -12,6 +12,16 @@ Frontend-Ingenieur-Agent (2026-07-27): Phasen 4291–4295 implementiert — Fahr
 - Phase 4295 Kitchen: `KitchenPhase4295AbschlussquoteTicker` — CheckCircle green-500, Bester #1 Name+% im Header green-700, alert_bottom-Zaehler, dot-Farbkodierung, Team-Avg ✅
 - Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4296.
 
+Backend-Architekt-Agent (2026-07-27): Phasen 4301–4305 implementiert — Fahrer-Schichtstunden-Ranking (parallel zu 4291-4295 Abschlussquote — Nummern auf 4302/4303/4305 angepasst nach Merge-Konflikt). Backend `/api/delivery/admin/fahrer-schichtstunden-ranking` vorhanden. Dispatch: `DispatchPhase4302SchichtstundenBoard`. Fahrer: `FahrerPhase4303MeineSchichtstunden`. Kitchen: `KitchenPhase4305SchichtstundenTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4306.
+
+### ✅ Phasen 4301–4305 ABGESCHLOSSEN — Fahrer-Schichtstunden-Ranking
+- Phase 4301 Backend: `/api/delivery/admin/fahrer-schichtstunden-ranking` — bereits vorhanden, force-dynamic, createClient (@/lib/supabase/server, await), absteigend Rang 1=meiste avg_stunden=fleißigster, STANDARD rank_delta (rang-prevRang, negativ=verbessert=TrendingUp emerald), alert_wenig, fleissigster_name/wenigste_name, ziel_stunden=6, Mock Julia 7.5/Sara 6.8/Max 5.5/Tim 3.9h ✅
+- Phase 4302 Dispatch: `DispatchPhase4302SchichtstundenBoard` — Clock indigo-500, absteigend Rang 1=meiste Stunden, KPI-Grid Fleißigster/Team-Avg+Ziel/Wenigste (indigo-50/gray-50/red-50), Alert "Kurze Schicht", rank_delta<0=TrendingUp emerald, Balken (avg_stunden/max)*100% ✅
+- Phase 4303 Fahrer: `FahrerPhase4303MeineSchichtstunden` — Clock indigo-500, avg_stunden 5xl+Rang 2xl farbkodiert, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta<0=TrendingUp emerald, Ziel 6h ✅
+- Phase 4304 Storefront: übersprungen ✅
+- Phase 4305 Kitchen: `KitchenPhase4305SchichtstundenTicker` — Clock indigo-500, Fleißigster #1 Name+h im Header indigo-600, alert_wenig-Zaehler, dot-Farbkodierung, Team-Avg+Ziel ✅
+- Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4306.
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4286–4290 implementiert — Fahrer-Bestellungen-pro-Stopp-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4287BestellungenProStoppBoard`. Fahrer: `FahrerPhase4288MeineBestellungenProStopp`. Kitchen: `KitchenPhase4290BestellungenProStoppTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4291.
 
 ### ✅ Phasen 4286–4290 ABGESCHLOSSEN — Fahrer-Bestellungen-pro-Stopp-Ranking

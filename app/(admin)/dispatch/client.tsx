@@ -1172,6 +1172,7 @@ import { DispatchPhase4277ReaktionszeitBoard } from './phase4277-reaktionszeit-b
 import { DispatchPhase4282TourstartBoard } from './phase4282-tourstart-board';
 import { DispatchPhase4287BestellungenProStoppBoard } from './phase4287-bestellungen-pro-stopp-board';
 import { DispatchPhase4292AbschlussquoteBoard } from './phase4292-abschlussquote-board';
+import { DispatchPhase4302SchichtstundenBoard } from './phase4302-schichtstunden-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4971,6 +4972,7 @@ export function DispatchBoard({
           <DispatchPhase4282TourstartBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4287BestellungenProStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4292AbschlussquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4302SchichtstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13402,5 +13404,7 @@ export { DispatchPhase4282TourstartBoard } from './phase4282-tourstart-board';
 export { DispatchPhase4287BestellungenProStoppBoard } from './phase4287-bestellungen-pro-stopp-board';
 // Phase 4292 — Abschlussquoten-Board (CheckCircle green; absteigend Rang 1=höchste quote_pct; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig; INVERTED rank_delta>0=TrendingUp emerald; team_avg_pct; 30-Min-Polling)
 export { DispatchPhase4292AbschlussquoteBoard } from './phase4292-abschlussquote-board';
+// Phase 4302 — Schichtstunden-Board (Clock indigo; absteigend Rang 1=meiste Stunden=fleißigster; KPI-Grid Fleißigster/Team-Avg/Wenigste; Alert Kurze Schicht; STANDARD rank_delta<0=TrendingUp emerald; 30-Min-Polling)
+export { DispatchPhase4302SchichtstundenBoard } from './phase4302-schichtstunden-board';
 // Phase 4307 — Fahrer-Score + Tour-Visualisierung Board (Trophy amber; Score-Badge+Delta; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4307FahrerScoreTourVisualisierungBoard } from './phase4307-fahrer-score-tour-visualisierung-board';
