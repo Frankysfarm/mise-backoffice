@@ -1070,6 +1070,7 @@ import { KitchenPhase4100WartezeitStoppTicker } from './phase4100-wartezeit-stop
 import { KitchenPhase4105AbwesenheitTicker } from './phase4105-abwesenheit-ticker';
 import { KitchenPhase4110StoppEffizienzTicker } from './phase4110-stopp-effizienz-ticker';
 import { KitchenPhase4115RetourQuoteTicker } from './phase4115-retour-quote-ticker';
+import { KitchenPhase4120ReaktionszeitTicker } from './phase4120-reaktionszeit-ticker';
 import { KitchenPhase4070KmProSchichtTicker } from './phase4070-km-pro-schicht-ticker';
 import { KitchenPhase4041SmartTimingKochstartForecast } from './phase4041-smart-timing-kochstart-forecast';
 import { KitchenPhase4065ReaktionszeitIndexTicker } from './phase4065-reaktionszeit-index-ticker';
@@ -4453,6 +4454,7 @@ export function KitchenBoard({
       <KitchenPhase4105AbwesenheitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4110StoppEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4115RetourQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4120ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4070KmProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4041: Smart-Timing Kochstart Forecast — Sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid Score/Prep/Überfällig; Prognose-Wellen nächste 90min; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4041SmartTimingKochstartForecast locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -11773,6 +11775,8 @@ export { KitchenPhase4105AbwesenheitTicker } from './phase4105-abwesenheit-ticke
 export { KitchenPhase4110StoppEffizienzTicker } from './phase4110-stopp-effizienz-ticker';
 // Phase 4115 — Retour-Quote-Ticker (RotateCcw purple; Bester #1 Name+% im Header purple-600; Alert-Zaehler; kompakt aufsteigend Rang 1=niedrigste Retourquote; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4115RetourQuoteTicker } from './phase4115-retour-quote-ticker';
+// Phase 4120 — Reaktionszeit-Ticker (Timer cyan; Schnellster #1 Name+min im Header cyan-600; Alert-Zaehler; kompakt aufsteigend Rang 1=schnellste Reaktion; dot-Farbkodierung; Team-Avg+Ziel <5min; 30-Min-Polling)
+export { KitchenPhase4120ReaktionszeitTicker } from './phase4120-reaktionszeit-ticker';
 // Phase 4070 (km) — km/Schicht-Ticker (Map blue; Bester #1 Name+km im Header; Alert-Zaehler; kompakt absteigend; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4070KmProSchichtTicker } from './phase4070-km-pro-schicht-ticker';
 // Phase 4090 — Smart-Countdown Cockpit V2 (Timer indigo; 4-KPI-Grid Kochstart-Score/Pünktlich/AvgPrep/Aktiv; Score-Balken; Countdown-Kacheln 4-stufig grün/gelb/orange/rot; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)

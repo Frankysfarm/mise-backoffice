@@ -1124,6 +1124,7 @@ import { DispatchPhase4097WartezeitStoppBoard } from './phase4097-wartezeit-stop
 import { DispatchPhase4102AbwesenheitBoard } from './phase4102-abwesenheit-board';
 import { DispatchPhase4107StoppEffizienzBoard } from './phase4107-stopp-effizienz-board';
 import { DispatchPhase4112RetourQuoteBoard } from './phase4112-retour-quote-board';
+import { DispatchPhase4117ReaktionszeitBoard } from './phase4117-reaktionszeit-board';
 import { DispatchPhase4067KmProSchichtBoard } from './phase4067-km-pro-schicht-board';
 import { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';
 import { DispatchPhase4062FahrzeitRankingBoard } from './phase4062-fahrzeit-ranking-board';
@@ -4871,6 +4872,7 @@ export function DispatchBoard({
           <DispatchPhase4102AbwesenheitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4107StoppEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4112RetourQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4117ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4067KmProSchichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4038: Tour-Score Matrix — Visuelle Matrix aller Fahrer mit 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung; Farbkodierung je Zelle; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4038TourScoreMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
@@ -13200,6 +13202,8 @@ export { DispatchPhase4102AbwesenheitBoard } from './phase4102-abwesenheit-board
 export { DispatchPhase4107StoppEffizienzBoard } from './phase4107-stopp-effizienz-board';
 // Phase 4112 — Retour-Quote-Ranking Board (RotateCcw purple; aufsteigend Rang 1=niedrigste Retourquote=bester; KPI-Grid Zuverlaessigste/Team-Avg/Hoechste; Alert "Hohe Retourquote!"; rank_delta>0=gruen; 30-Min-Polling)
 export { DispatchPhase4112RetourQuoteBoard } from './phase4112-retour-quote-board';
+// Phase 4117 — Reaktionszeit-Ranking Board (Timer cyan; aufsteigend Rang 1=schnellste Reaktion=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Hohe Reaktionszeit!"; rank_delta<0=gruen; 30-Min-Polling)
+export { DispatchPhase4117ReaktionszeitBoard } from './phase4117-reaktionszeit-board';
 // Phase 4067 (km) — km/Schicht-Ranking Board (Map blue; absteigend Rang 1=hoechste km=bester; KPI-Grid Hoechste/Team-Avg/Niedrigste; Alert "Niedrige Strecke!"; rank_delta>0=gruen; 30-Min-Polling)
 export { DispatchPhase4067KmProSchichtBoard } from './phase4067-km-pro-schicht-board';
 // Phase 4038 — Tour-Score Matrix (Trophy amber; Matrix 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung je Fahrer; Farbkodierung je Zelle >=85gruen/>=70gelb/<70rot; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
