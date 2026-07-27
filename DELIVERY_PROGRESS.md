@@ -31605,3 +31605,42 @@ KRITISCH: Nächste freie Phase ist 4452! NIEMALS 4000–4451 verwenden. IMMER al
 KRITISCH: Nächste freie Phase ist 4457! NIEMALS 4000–4456 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4457–4461 — Fahrer-Stopp-Dauer-Ranking (ABGESCHLOSSEN 2026-07-27)
+
+### Phase 4457 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-stoppdauer-ranking/route.ts` *(bereits vorhanden)*
+**Endpoint:** GET /api/delivery/admin/fahrer-stoppdauer-ranking?location_id=...&driver_id=...
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_sec, rank_delta, ampel, alert_bottom}], team_avg_sec, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** Ø Stoppdauer/Stopp (departed_at–arrived_at) je Fahrer; INVERTED aufsteigend Rang 1=kürzeste Stoppdauer=bester; Quartil-Ampel; Alert alert_bottom=true wenn rot; Mock Max 45s/Julia 72s/Sara 120s/Tim 195s; force-dynamic ✅; createClient() ✅
+
+### Phase 4458 — Stoppdauer-Ranking-Board (Dispatch)
+**Component:** `DispatchPhase4458StoppdauerRankingBoard` — Timer violet-500; INVERTED aufsteigend Rang 1=kürzeste Stoppdauer; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Stoppdauer; Balken=(sec/maxSec)*100%; secToMin-Hilfsfunktion; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4459 — Meine Stoppdauer (Fahrer)
+**Component:** `FahrerPhase4459MeineStoppdauer` — Timer violet-500; avg_stoppdauer 5xl+Rang 2xl farbkodiert; isOnline-Guard; driver_id param; Coaching-Tipp 3 Stufen (≤5min/≤8min/>8min); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4460 — Storefront
+Übersprungen ✅
+
+### Phase 4461 — Stoppdauer-Ticker (Kitchen)
+**Component:** `KitchenPhase4461StoppdauerTicker` — Timer violet-500; Schnellster #1 Name+min violet-600; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≤5min; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript 0 neue Fehler (Pre-existing-Errors identisch) ✅ Turbopack-Timeout bekanntes Container-Problem
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4461 (4455, 4460 übersprungen)
+- **Nächste freie Phase: 4462**
+
+### Nächste Phasen 4462–4466 — Fahrer-Bestellwert-pro-Stopp-Ranking
+1. **Phase 4462 Backend:** GET /api/delivery/admin/fahrer-bestellwert-ranking — avg(order_total) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Bestellwert=bester; Quartil-Ampel; Alert "Niedriger Bestellwert!"; Mock Tim 28.50€/Max 22.30€/Julia 18.70€/Sara 14.20€; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4463 Dispatch:** `DispatchPhase4463BestellwertRankingBoard` — Euro amber-500; absteigend Rang 1=höchster Bestellwert; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4464 Fahrer:** `FahrerPhase4464MeinBestellwert` — Euro amber-500; avg_bestellwert 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen (≥25€/≥18€/<18€); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4465 Storefront:** Überspringen.
+5. **Phase 4466 Kitchen:** `KitchenPhase4466BestellwertTicker` — Euro amber-500; Höchster #1 Name+€; Ziel ≥20€; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4462! NIEMALS 4000–4461 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+## STATUS: MARKT-REIF
