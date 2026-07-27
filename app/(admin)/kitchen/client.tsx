@@ -1106,6 +1106,7 @@ import { KitchenPhase4235StoppsProStundeTicker } from './phase4235-stopps-pro-st
 import { KitchenPhase4240TourenProStundeTicker } from './phase4240-touren-pro-stunde-ticker';
 import { KitchenPhase4245TageskilometerTicker } from './phase4245-tageskilometer-ticker';
 import { KitchenPhase4250AuftragsdichteTicker } from './phase4250-auftragsdichte-ticker';
+import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
 import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';
 
@@ -4535,6 +4536,8 @@ export function KitchenBoard({
       <KitchenPhase4240TourenProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4245TageskilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4250AuftragsdichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
+      <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11927,3 +11930,5 @@ export { KitchenPhase4240TourenProStundeTicker } from './phase4240-touren-pro-st
 export { KitchenPhase4245TageskilometerTicker } from './phase4245-tageskilometer-ticker';
 // Phase 4250 — Auftragsdichte-Ticker (BarChart2 blue; Dichtester #1 Name+/h im Header blue-600; Alert-Zähler; kompakt absteigend Rang 1=höchste Dichte; dot-Farbkodierung; Team-Avg+Ziel ≥4.0/h; 30-Min-Polling)
 export { KitchenPhase4250AuftragsdichteTicker } from './phase4250-auftragsdichte-ticker';
+// Phase 4300 — Smart-Timing Countdown Farbkodierung Board (Timer indigo; 4-stufig grün/gelb/orange/rot; Echtzeit-Countdown alle Bestellungen; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';

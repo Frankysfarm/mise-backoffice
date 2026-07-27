@@ -48,6 +48,7 @@ import { Phase500LiveEtaBanner } from '@/app/order/[locationSlug]/phase500-live-
 import { Phase501BestellPhasenKompass } from '@/app/order/[locationSlug]/phase501-bestell-phasen-kompass';
 import { BestellPhasenTimeline } from '@/app/order/[locationSlug]/bestell-phasen-timeline';
 import { Phase1000LiveEtaCockpit } from '@/app/order/[locationSlug]/phase1000-live-eta-cockpit';
+import { Phase4206EchtzeitLieferstatusCockpit } from '@/app/order/[locationSlug]/phase4206-echtzeit-lieferstatus-cockpit';
 import { FahrerNaeheAlert } from './fahrer-naehe-alert';
 
 type Order = {
@@ -520,6 +521,10 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon,
               restaurantName={tenant?.name ?? null}
             />
           </div>
+        )}
+        {/* Phase 4206: Echtzeit-Lieferstatus-Cockpit — 5-stufiger Phasen-Stepper; Fortschrittsbalken; Fahrer-Nähe-Karte; ETA-Badge; 15-Sek-Polling; Mock-Fallback */}
+        {!['storniert', 'abgebrochen'].includes(order.status) && (
+          <Phase4206EchtzeitLieferstatusCockpit orderId={order.order_id} className="mt-3" />
         )}
         {/* Phase 541: Bestell-Phasen-Timeline — Vertikale Fortschrittsleiste mit Check-Markierungen je Bestellphase */}
         {order.typ === 'lieferung' && !['storniert', 'abgebrochen'].includes(order.status) && (

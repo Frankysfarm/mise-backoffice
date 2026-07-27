@@ -1081,6 +1081,7 @@ import { FahrerPhase4233MeineStoppsProStunde } from './phase4233-meine-stopps-pr
 import { FahrerPhase4238MeineTourenProStunde } from './phase4238-meine-touren-pro-stunde';
 import { FahrerPhase4243MeineTageskilometer } from './phase4243-meine-tageskilometer';
 import { FahrerPhase4248MeineAuftragsdichte } from './phase4248-meine-auftragsdichte';
+import { FahrerPhase4301MeinSchichtGesamtscore } from './phase4301-mein-schicht-gesamtscore';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 
@@ -7102,6 +7103,8 @@ export function FahrerApp({
           <FahrerPhase4238MeineTourenProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4243MeineTageskilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4248MeineAuftragsdichte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4301: Mein Schicht-Gesamtscore — Trophy amber; Gesamt-Score 5xl+Fortschrittsbalken; 4 Sub-Scores Pünktlichkeit/Lieferzeit/Bewertung/Effizienz; Coaching-Tipp; Rang-Delta; isOnline-Guard; 30-Min-Polling; Mock-Fallback */}
+          <FahrerPhase4301MeinSchichtGesamtscore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11207,6 +11210,8 @@ export { FahrerPhase4238MeineTourenProStunde } from './phase4238-meine-touren-pr
 export { FahrerPhase4243MeineTageskilometer } from './phase4243-meine-tageskilometer';
 // Phase 4248 — Meine Auftragsdichte (BarChart2 blue; dichte 5xl+Rang 2xl farbkodiert; Ziel ≥4.0/h; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=grün; 30-Min-Polling)
 export { FahrerPhase4248MeineAuftragsdichte } from './phase4248-meine-auftragsdichte';
+// Phase 4301 — Mein Schicht-Gesamtscore (Trophy amber; Gesamt-Score 5xl+Fortschrittsbalken; Sub-Scores Pünktlichkeit/Lieferzeit/Bewertung/Effizienz; Coaching-Tipp; Rang-Delta; isOnline-Guard; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4301MeinSchichtGesamtscore } from './phase4301-mein-schicht-gesamtscore';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 // Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)

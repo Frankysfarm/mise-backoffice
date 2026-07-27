@@ -482,6 +482,7 @@ import { LieferdienstPhase2746StatistikLiveCommandPro } from './phase2746-statis
 import { LieferdienstPhase2751StatistikenLiveIntelligenceDashboard } from './phase2751-statistiken-live-intelligence-dashboard';
 import { LieferdienstPhase2760StatistikLiveCockpitFinal } from './phase2760-statistiken-live-cockpit-final';
 import { LieferdienstStatistikenDashboard } from './statistiken-dashboard-phase4000';
+import { LieferdienstPhase4005StatistikenLiveCockpit } from './statistiken-live-cockpit-phase4005';
 import { LieferdienstPhase2770StatistikenLiveCockpitKomplett } from './phase2770-statistiken-live-cockpit-komplett';
 import { LieferdienstPhase2775StatistikenWochenZielCockpit } from './phase2775-statistiken-wochenziel-cockpit';
 import { LieferdienstPhase2785TagesStatistikCockpit } from './phase2785-tages-statistik-cockpit';
@@ -2345,6 +2346,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2635LieferSlaEchtzeitCockpit />
                 {/* Phase 4000: Statistiken-Dashboard — Schicht-KPIs, Tages-/Wochenvergleich, Top-Fahrer, Zonen-Ertrag; 30-Sek-Polling; Mock-Fallback */}
                 <LieferdienstStatistikenDashboard locationId={locationId ?? null} />
+                {/* Phase 4005: Statistiken Live-Cockpit — 8 KPI-Kacheln; Stündlicher Verlauf BarChart; Top-Fahrer+Zonen-Grid; Schicht-Fortschrittsbalken; 30-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4005StatistikenLiveCockpit locationId={locationId ?? null} />
                 {/* Phase 2770: Statistiken Live-Cockpit Komplett — 6 KPI-Kacheln Ampel+Δ%+Ziel+Fortschrittsbalken; Gesamt-Score; Alert-Strip Rot-KPIs; Fahrer-Online; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase2770StatistikenLiveCockpitKomplett locationId={locationId ?? null} />
                 {/* Phase 2775: Statistiken Wochenziel-Cockpit — 6 Wochentrend-KPIs Ampel+Fortschrittsbalken; Zielerreichung-%; Alert "Ziel verfehlt"; 60-Sek-Polling; Mock-Fallback */}
@@ -4952,6 +4955,8 @@ export { LieferdienstPhase2760StatistikLiveCockpitFinal } from './phase2760-stat
 export { LieferdienstPhase2765StatistikenLiveDashboardV2 } from './phase2765-statistiken-live-dashboard-v2';
 // Phase 4000 — Statistiken-Dashboard (Schicht-KPIs, Tages-/Wochenvergleich, Top-Fahrer Ranking, Zonen-Ertrag; 30-Sek-Polling; Mock-Fallback)
 export { LieferdienstStatistikenDashboard } from './statistiken-dashboard-phase4000';
+// Phase 4005 — Statistiken Live-Cockpit (Activity violet; 8 KPI-Kacheln mit Delta-Pfeilen; Stündlicher BarChart; Top-Fahrer+Zonen-Grid; Schicht-Fortschrittsbalken; 30-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4005StatistikenLiveCockpit } from './statistiken-live-cockpit-phase4005';
 // Phase 2770 — Statistiken Live-Cockpit Komplett (Activity violet; 6 KPI-Kacheln Ampel+Δ%+Ziel+Fortschrittsbalken; Gesamt-Score-Balken; Alert-Strip Rot-KPIs; Fahrer-Online; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase2770StatistikenLiveCockpitKomplett } from './phase2770-statistiken-live-cockpit-komplett';
 // Phase 2775 — Statistiken Wochenziel-Cockpit (Target-Icon indigo; 6 KPI-Wochenziele Ampel+Fortschrittsbalken; Gesamt-Zielerreichung %; Alert "Ziel verfehlt"; Erreichte vs. offene Ziele; 60-Sek-Polling; Mock-Fallback)
