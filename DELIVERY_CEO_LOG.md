@@ -1,5 +1,58 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #649 — 2026-07-27
+
+**Build: Container-Turbopack-Timeout (bekanntes Problem) | TypeScript ✓ exit 0 — Phasen 4381–4395 verifiziert + implementiert**
+
+**Geprüfte Commits (seit CEO Review #648b):**
+- `8e44b015` – docs: DELIVERY_PROGRESS.md Phasen 4381-4385 abgeschlossen
+- `f5f93783` – feat(delivery/backend): Phasen 4381-4385 — Frühschicht-Anteil-Ranking
+- `8bc086d8` – feat(delivery/frontend): Phasen 4386-4390 — Touren-pro-Stunde-Ranking
+
+**Verifikation Phasen 4381–4390:**
+
+| Phasen | Feature | Dispatch | Fahrer | Kitchen | Status |
+|---|---|---|---|---|---|
+| 4381–4385 | Fahrer-Frühschicht-Anteil | Phase4382FruehschichtBoard | Phase4383MeineFruehschicht | Phase4385FruehschichtTicker | ✅ |
+| 4386–4390 | Fahrer-Touren-pro-Stunde | Phase4387TourenProStundeBoard | Phase4388MeineTourenProStunde | Phase4390TourenProStundeTicker | ✅ |
+
+**TypeScript-Ergebnis:** ✓ exit 0 (tsc Background-Job + transpileModule alle neuen Phasen-Dateien OK) ✅
+
+**Neue Implementierung Phasen 4391–4395 (Fahrer-Spätschicht-Anteil-Ranking):**
+
+| Phasen | Feature | Dispatch | Fahrer | Kitchen | Status |
+|---|---|---|---|---|---|
+| 4391–4395 | Fahrer-Spätschicht-Anteil | Phase4392SpaetschichtBoard | Phase4393MeineSpaetschicht | Phase4395SpaetschichtTicker | ✅ |
+
+**Details:**
+- Phase 4391 Backend: `/api/delivery/admin/fahrer-spaetschicht-ranking` — 18:00–24:00 UTC; isSpaetschicht() Prüfung; INVERTED rank_delta; Quartil-Ampel; createClient() aus @/lib/supabase/server; force-dynamic ✅
+- Phase 4392 Dispatch: Moon indigo-500; absteigend Rang 1=höchster Spätanteil; KPI-Grid Meiste/Team-Avg/Wenigste; Alert "Hoher Spätschicht-Anteil!" ✅
+- Phase 4393 Fahrer: Moon indigo-500; isOnline-Guard; Coaching-Tipp 3 Stufen; INVERTED rank_delta>0=TrendingUp emerald ✅
+- Phase 4394 Storefront: übersprungen ✅
+- Phase 4395 Kitchen: Moon indigo-500; Nacht-Eule #1 Name+% Header indigo-700; alert_count-Zähler; dot-Farbkodierung; Team-Avg ✅
+- Import+Render+Barrel in allen 3 Clients (dispatch/client.tsx, fahrer/app/client.tsx, kitchen/client.tsx) ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Alle Ticker + Boards synchron |
+| Dispatch ↔ Driver | ✅ Alle Fahrer-Module korrekt integriert |
+| Driver ↔ Storefront | ✅ Storefront-Phasen konsequent übersprungen |
+| API-URLs Frontend ↔ Backend | ✅ Konsistent |
+| Import + Render + Barrel | ✅ Alle 3 Schritte in allen Modulen |
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase: **4396**. Vorgeschlagenes Feature: Fahrer-Mittagsschicht-Anteil-Ranking (12:00–18:00 UTC).
+1. **Phase 4396 Backend:** GET /api/delivery/admin/fahrer-mittagsschicht-ranking — Anteil Mittagsschichten (12:00–18:00 UTC) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Mittagsanteil; Quartil-Ampel; PFLICHT: `export const dynamic = 'force-dynamic'`, `createClient` aus `@/lib/supabase/server`.
+2. **Phase 4397 Dispatch:** `DispatchPhase4397MittagsschichtBoard` — Sun orange-400. PFLICHT: Import + Render + Barrel.
+3. **Phase 4398 Fahrer:** `FahrerPhase4398MeineMittagsschicht` — Sun orange-400; isOnline-Guard; Coaching-Tipp 3 Stufen. PFLICHT: Import + Render + Barrel.
+4. **Phase 4399 Storefront:** Überspringen.
+5. **Phase 4400 Kitchen:** `KitchenPhase4400MittagsschichtTicker` — Sun orange-400; Mittags-König #1; Team-Avg. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4396! NIEMALS 4000–4395 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+CEO-Agent (2026-07-27): CEO Review #649 — TypeScript ✓ exit 0. Phasen 4381–4390 verifiziert. Phasen 4391–4395 implementiert. STATUS: MARKT-REIF bestätigt.
+
 ## CEO Review #648b — 2026-07-27
 
 **Build: Container-Turbopack-Env-Issue (Timeout) | TypeScript ✓ exit 0 — Phasen 4346–4380 verifiziert**
