@@ -1118,6 +1118,7 @@ import { DispatchPhase4072LieferzeitBoard } from './phase4072-lieferzeit-board';
 import { DispatchPhase4077KmProTourBoard } from './phase4077-km-pro-tour-board';
 import { DispatchPhase4082StornoquoteBoard } from './phase4082-stornoquote-board';
 import { DispatchPhase4087SchichtstundenBoard } from './phase4087-schichtstunden-board';
+import { DispatchPhase4092TageskilometerBoard } from './phase4092-tageskilometer-board';
 import { DispatchPhase4067KmProSchichtBoard } from './phase4067-km-pro-schicht-board';
 import { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';
 import { DispatchPhase4062FahrzeitRankingBoard } from './phase4062-fahrzeit-ranking-board';
@@ -4859,6 +4860,7 @@ export function DispatchBoard({
           <DispatchPhase4077KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4082StornoquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4087SchichtstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4092TageskilometerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4067KmProSchichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4038: Tour-Score Matrix — Visuelle Matrix aller Fahrer mit 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung; Farbkodierung je Zelle; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4038TourScoreMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
@@ -13176,6 +13178,8 @@ export { DispatchPhase4077KmProTourBoard } from './phase4077-km-pro-tour-board';
 export { DispatchPhase4082StornoquoteBoard } from './phase4082-stornoquote-board';
 // Phase 4087 — Schichtstunden-Ranking Board (Clock sky; absteigend Rang 1=meiste Stunden=bester; KPI-Grid Meiste/Team-Avg/Wenigste; Alert "Wenig Schichtstunden!"; rank_delta>0=gruen; 30-Min-Polling)
 export { DispatchPhase4087SchichtstundenBoard } from './phase4087-schichtstunden-board';
+// Phase 4092 — Tageskilometer-Ranking Board (Navigation teal; absteigend Rang 1=meiste km heute=bester; KPI-Grid Meiste/Team-Avg/Wenigste; Alert "Niedrige Tages-km!"; rank_delta>0=gruen; 30-Min-Polling)
+export { DispatchPhase4092TageskilometerBoard } from './phase4092-tageskilometer-board';
 // Phase 4067 (km) — km/Schicht-Ranking Board (Map blue; absteigend Rang 1=hoechste km=bester; KPI-Grid Hoechste/Team-Avg/Niedrigste; Alert "Niedrige Strecke!"; rank_delta>0=gruen; 30-Min-Polling)
 export { DispatchPhase4067KmProSchichtBoard } from './phase4067-km-pro-schicht-board';
 // Phase 4038 — Tour-Score Matrix (Trophy amber; Matrix 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung je Fahrer; Farbkodierung je Zelle >=85gruen/>=70gelb/<70rot; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
