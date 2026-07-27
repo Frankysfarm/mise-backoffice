@@ -1103,6 +1103,7 @@ import { DispatchPhase4001SchichtstartPuenktlichkeitBoard } from './phase4001-sc
 import { DispatchPhase4007LeerfahrtenBoard } from './phase4007-leerfahrten-board';
 import { DispatchPhase4011FeierabendPuenktlichkeitBoard } from './phase4011-feierabend-puenktlichkeit-board';
 import { DispatchPhase4012LieferzeitBoard } from './phase4012-lieferzeit-board';
+import { DispatchPhase4017PaketverlustBoard } from './phase4017-paketverlust-board';
 
 type Driver = {
   employee_id: string;
@@ -4825,6 +4826,8 @@ export function DispatchBoard({
           {/* Phase 4011: Feierabend-Pünktlichkeit Board — CheckCircle grün; absteigend Rang 1=höchste Quote=bester; KPI-Grid Pünktlichster/Team-Ø/Niedrigster; Alert "Überschrittene Schichtzeiten!"; rank_delta<0=grün; Ziel ≥85%; 30-Min-Polling */}
           <DispatchPhase4011FeierabendPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4012LieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4017: Paketverlust-Ranking — AlertOctagon rot; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Niedrigster/Team-Avg/Höchster; Alert "Hoher Paketverlust!"; Ziel ≤1%; 30-Min-Polling */}
+          <DispatchPhase4017PaketverlustBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13107,3 +13110,5 @@ export { DispatchPhase4007LeerfahrtenBoard } from './phase4007-leerfahrten-board
 export { DispatchPhase4011FeierabendPuenktlichkeitBoard } from './phase4011-feierabend-puenktlichkeit-board';
 // Phase 4012 — Lieferzeit-Ranking Board (Clock violet; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Hohe Lieferzeit!"; aufsteigend Rang 1=schnellste=bester; rank_delta<0=gruen; Ziel <=20min; 30-Min-Polling)
 export { DispatchPhase4012LieferzeitBoard } from './phase4012-lieferzeit-board';
+// Phase 4017 — Paketverlust Board (AlertOctagon red; aufsteigend Rang 1=niedrigste Quote=bester; KPI-Grid Niedrigster/Team-Avg/Höchster; Alert "Hoher Paketverlust!"; rank_delta<0=gruen; Ziel <=1%; 30-Min-Polling)
+export { DispatchPhase4017PaketverlustBoard } from './phase4017-paketverlust-board';

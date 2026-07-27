@@ -1049,6 +1049,7 @@ import { KitchenPhase4004SchichtstartPuenktlichkeitTicker } from './phase4004-sc
 import { KitchenPhase4010LeerfahrtenTicker } from './phase4010-leerfahrten-ticker';
 import { KitchenPhase4014FeierabendPuenktlichkeitTicker } from './phase4014-feierabend-puenktlichkeit-ticker';
 import { KitchenPhase4015LieferzeitTicker } from './phase4015-lieferzeit-ticker';
+import { KitchenPhase4020PaketverlustTicker } from './phase4020-paketverlust-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4407,6 +4408,8 @@ export function KitchenBoard({
       {/* Phase 4014: Feierabend-Pünktlichkeit Ticker — CheckCircle grün; Bester #1 Name+% im Header; Alert "Überschrittene Schichtzeiten!"; kompakt absteigend; Team-Avg+Ziel ≥85%; 30-Min-Polling */}
       <KitchenPhase4014FeierabendPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4015LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4020: Paketverlust Ticker — AlertOctagon rot; Bester #1 Name+% im Header; Alert "Hoher Paketverlust!"; kompakt aufsteigend; rank_delta<0=gruen; Team-Avg+Ziel ≤1%; 30-Min-Polling */}
+      <KitchenPhase4020PaketverlustTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11680,3 +11683,5 @@ export { KitchenPhase4010LeerfahrtenTicker } from './phase4010-leerfahrten-ticke
 export { KitchenPhase4014FeierabendPuenktlichkeitTicker } from './phase4014-feierabend-puenktlichkeit-ticker';
 // Phase 4015 — Lieferzeit Ticker (Clock violet; Bester #1 Name+min im Header; Alert "Hohe Lieferzeit!"; kompakt aufsteigend; rank_delta<0=gruen; Team-Avg+Ziel <=20min; 30-Min-Polling)
 export { KitchenPhase4015LieferzeitTicker } from './phase4015-lieferzeit-ticker';
+// Phase 4020 — Paketverlust Ticker (AlertOctagon red; Bester #1 Name+% im Header; Alert "Hoher Paketverlust!"; kompakt aufsteigend; rank_delta<0=gruen; Team-Avg+Ziel <=1%; 30-Min-Polling)
+export { KitchenPhase4020PaketverlustTicker } from './phase4020-paketverlust-ticker';

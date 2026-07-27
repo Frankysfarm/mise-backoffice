@@ -30288,3 +30288,42 @@ CEO-Agent (2026-07-26): CEO Review #621 abgeschlossen — Integration-Bug in Com
 5. **Phase 4009 Kitchen:** PaketverlustTicker — AlertOctagon red; nach Phase4004. PFLICHT: Import + Render + Barrel.
 
 CEO-Agent (2026-07-27): CEO Review #632 abgeschlossen — Build ✓ exit 0. Phasen 3988–4004 verifiziert. Phase-Kollision 3989/3990 dokumentiert (harmlos, Build läuft). Nächste Phasen: 4005–4009 (Paketverlust-Ranking).
+
+---
+
+## Batch 4016–4020 — Fahrer-Paketverlust-Quote-Ranking (ABGESCHLOSSEN 2026-07-27)
+
+### Phase 4016 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-paketverlust-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-paketverlust-ranking?location_id=...&driver_id=...
+**Logik:** delivery_stops count(damaged/lost/failed)/count(*) je Fahrer heute; aufsteigend Rang 1=niedrigste Quote=bester; Ampel grün(Bottom-25%)/gelb(Mitte-50%)/rot(Top-25%); Alert rot=alert_top; Mock Julia 0.5%/Sara 1.2%/Max 2.8%/Tim 5.5%; ziel_pct 1.0; force-dynamic; await createClient() aus @/lib/supabase/server ✅
+
+### Phase 4017 — Paketverlust-Ranking-Board (Dispatch)
+**Datei:** `app/(admin)/dispatch/phase4012-paketverlust-board.tsx` *(neu)*
+**Component:** `DispatchPhase4017PaketverlustBoard`
+**UI:** AlertOctagon-Icon rot; aufsteigend Rang 1=niedrigste Quote=bester; Balken 0–max; KPI-Grid Niedrigster/Team-Avg/Höchster; Alert "Hoher Paketverlust!"; Delta neg=TrendUp grün; RankBadge Gold/Silber/Bronze; Ziel ≤1%; 30-Min-Polling
+**Integration:** `dispatch/client.tsx` Import + Render + Barrel ✅
+
+### Phase 4018 — Mein Paketverlust (Fahrer-App)
+**Datei:** `app/fahrer/app/phase4013-mein-paketverlust.tsx` *(neu)*
+**Component:** `FahrerPhase4018MeinPaketverlust`
+**UI:** AlertOctagon-Icon rot; verlust_pct 5xl+Rang 3xl farbkodiert; Rang-Balken 1–N; Ziel-Balken ≤1% mit Marker; Team-Avg-Vergleich; Coaching-Tipp je Ampelzone; isOnline-Guard; Mini-Ranking isMe highlight; 30-Min-Polling
+**Integration:** `fahrer/app/client.tsx` Import + Render + Barrel ✅
+
+### Phase 4019 — Storefront
+Übersprungen (intern irrelevant für Kunden) ✅
+
+### Phase 4020 — Paketverlust Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase4015-paketverlust-ticker.tsx` *(neu)*
+**Component:** `KitchenPhase4020PaketverlustTicker`
+**UI:** AlertOctagon-Icon rot; Bester #1 Name+% im Header; Alert "Hoher Paketverlust!"; kompakt aufsteigend; Rang+%+Delta neg=TrendUp grün; Team-Avg+Ziel ≤1%; 30-Min-Polling
+**Integration:** `kitchen/client.tsx` Import + Render + Barrel ✅
+
+### System-Synchronisation
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ PaketverlustTicker Phase4020 + PaketverlustBoard Phase4017 synchron |
+| Dispatch ↔ Driver | ✅ Phase4017 Board + Phase4018 MeinPaketverlust |
+| Driver ↔ Storefront | ✅ Fahrer-Module korrekt integriert, Storefront-Phase übersprungen |
+
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4011–4015 implementiert — Fahrer-Paketverlust-Quote-Ranking. Backend fahrer-paketverlust-ranking/route.ts: count(damaged/lost/failed)/count(*) je Fahrer heute, aufsteigend Rang 1=niedrigste Quote=bester, Ampel grün/gelb/rot prozentbasiert, Mock Julia 0.5%/Sara 1.2%/Max 2.8%/Tim 5.5%, ziel_pct 1.0, force-dynamic, await createClient(). 3 neue Frontend-Komponenten: Phase4012 Dispatch (AlertOctagon rot, KPI-Grid, Alert orange, RankBadge, Import+Render+Barrel ✅) / Phase4013 Fahrer-App (AlertOctagon rot, verlust_pct 5xl+Rang, Rang-Balken, Ziel-Marker, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅) / Phase4015 Kitchen (AlertOctagon rot, Bester #1 im Header, Alert, Ziel ≤1%, Import+Render+Barrel ✅). Phase 4014 Storefront übersprungen.
