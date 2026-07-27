@@ -9,9 +9,10 @@ Updated: 2026-07-27
 | T02 Atomic Single Writer | COMPLETE | G2 GREEN (isolated PostgreSQL) | `codex/driver-remediation` | `43d5ee06` | Two review cycles; DB and adversarial race reviewers approved final hardened implementation. |
 | T03 Server API and Client Boundary | COMPLETE | G3 GREEN (isolated PostgreSQL + source/client contracts) | `codex/driver-remediation` | `60932fc9` | API/security and client-boundary reviewers approved after three hardening cycles. |
 | T04 Pick/Pickup Correctness | COMPLETE | G4 GREEN | `codex/driver-remediation` | `60621b64` | Atomic whole-batch pickup, cancellation-after-snapshot handling, disabled legacy bypasses and two-device race verified. |
-| T05 Recovery/Push/Offline | COMPLETE | G4 GREEN | `codex/driver-remediation` | `a1408ce2` | Ownership-preserving recovery, wake-only push, snapshot-first ACK, strict offline replay and defensive database privileges verified. |
-| T06 GPS Transport/Native | IN PROGRESS | G5 pending | main + native isolated branches | — | Exclusive GPS/native scope assigned to `t06_gps_native`. |
-| T07–T10 | NOT STARTED | G6–G9 not evaluated | — | — | Governed by `EXECUTION_GRAPH.md`. |
+| T05 Recovery/Push/Offline | COMPLETE | G4 GREEN | `codex/driver-remediation` | `a1408ce2`, `0c90ba95` | Ownership-preserving recovery, wake-only push, snapshot-first ACK, strict offline replay and defensive database privileges verified. |
+| T06 GPS Transport/Native | SOURCE CANDIDATE COMPLETE | G5 RED (external evidence + T07 wiring) | main + native isolated branches | `625204bc`, native `4d048c2` | Source approved independently; native compile/device matrix unavailable and dispatch eligibility intentionally awaits T07. |
+| T07 Deterministic Dispatch Baseline | NOT STARTED | G6 not evaluated | — | — | Now unblocked by the stable T06 transport/eligibility contract. |
+| T08–T10 | NOT STARTED | G7–G9 not evaluated | — | — | Governed by `EXECUTION_GRAPH.md`. |
 
 ## Production safety
 
@@ -87,3 +88,20 @@ restart, replay and conflicts, and restricts offline replay to validated,
 fingerprinted v2 actions. The isolated PostgreSQL suite proves migration
 double-apply, hostile pre-grant revocation, RLS/service-role boundaries,
 episode deduplication and restart safety. No production action occurred.
+
+## G5 decision
+
+RED, with the source candidate independently approved. PostgreSQL tests prove
+monotonic GPS current-state updates, exact idempotency fingerprints,
+cross-tenant and changed-authority rejection, retired-session fencing,
+out-of-order history, quality flags and concurrent successor handling. Native
+source tests prove authenticated policy gating, bounded encrypted queues,
+session rotation, terminal-head recovery and reproducible iOS/Android project
+integration.
+
+G5 cannot turn green in the current host environment: Android compilation
+requires a Java runtime, iOS compilation requires full Xcode/CocoaPods, and the
+foreground/background/lock/relaunch/reboot matrix requires real devices.
+Additionally, `gpsEligibleForNewAssignment` remains intentionally unwired until
+T07 obtains exclusive dispatch ownership. Both source commits remain
+default-off candidates; no production action occurred.
