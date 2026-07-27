@@ -2,6 +2,17 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 3983–3987 implementiert — Fahrer-Reaktionszeit-Ranking. Phase 3983 Backend: bestehendes `/api/delivery/admin/fahrer-reaktionszeit-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_min Reaktionszeit (assigned→pickup) je Fahrer letzte 30 Tage, aufsteigend Rang 1=schnellste=bester, Ampel gruen/gelb/rot, rank_delta, alert_hoch, Alert "Hohe Reaktionszeit!", Mock Julia 4/Sara 6/Max 9/Tim 14 min, ziel=5 min. Phase 3984 Dispatch: `DispatchPhase3984ReaktionszeitBoard` — Zap-Icon yellow, aufsteigend, KPI-Grid Schnellste/Team-Avg/Langsamste, Alert "Hohe Reaktionszeit!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3985 Fahrer: `FahrerPhase3985MeineReaktionszeit` — Zap-Icon yellow, avg_min 5xl+Rang 3xl farbkodiert, Ziel <=5 min, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3986 Storefront: uebersprungen. Phase 3987 Kitchen: `KitchenPhase3987ReaktionszeitTicker` — Zap-Icon yellow, Bester #1 Name+min im Header, Alert "Hohe Reaktionszeit!", kompakt aufsteigend, Rang+min+Delta rank_delta<0=gruen, Team-Avg+Ziel <=5 min, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3983–3987 ABGESCHLOSSEN — Fahrer-Reaktionszeit-Ranking
+- Phase 3983 Backend: `/api/delivery/admin/fahrer-reaktionszeit-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_min Reaktionszeit letzte 30 Tage, aufsteigend Rang 1=schnellste=bester, Ampel prozentbasiert, rank_delta (<0=verbessert), alert_hoch Top-25%, Mock Julia 4/Sara 6/Max 9/Tim 14 min ✅
+- Phase 3984 Dispatch: `DispatchPhase3984ReaktionszeitBoard` — Zap yellow, aufsteigend Rang 1=schnellste Reaktion, KPI-Grid Schnellste/Team-Avg/Langsamste, Alert "Hohe Reaktionszeit!", rank_delta<0=gruen ✅
+- Phase 3985 Fahrer: `FahrerPhase3985MeineReaktionszeit` — Zap yellow, avg_min 5xl+Rang 3xl farbkodiert, Ziel <=5 min, Coaching-Tipp (3 Stufen), isOnline-Guard ✅
+- Phase 3986 Storefront: uebersprungen ✅
+- Phase 3987 Kitchen: `KitchenPhase3987ReaktionszeitTicker` — Zap yellow, Bester #1 Name+min im Header, Alert "Hohe Reaktionszeit!", kompakt aufsteigend, Team-Avg+Ziel <=5 min ✅
+- Build ✓ exit 0. Push erfolgt.
+
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 3978–3982 implementiert — Fahrer-Trinkgeld-Ranking. Phase 3978 Backend: bestehendes `/api/delivery/admin/fahrer-trinkgeld-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_tip_eur + tip_count je Fahrer heute, absteigend Rang 1=höchstes Tip=bester, Ampel gruen/gelb/rot, rank_delta, alert_bottom, Alert "Geringes Trinkgeld!", Mock Julia 3.20€/Max 2.50€/Sara 1.80€/Tim 0.90€, team_avg=2.10€. Phase 3979 Dispatch: `DispatchPhase3979TrinkgeldBoard` — Coins-Icon amber, absteigend, KPI-Grid Höchstes/Team-Avg/Niedrigstes, Alert "Geringes Trinkgeld!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3980 Fahrer: `FahrerPhase3980MeinTrinkgeld` — Coins-Icon amber, avg_tip_eur 5xl+Rang 3xl farbkodiert+tip_count, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3981 Storefront: uebersprungen. Phase 3982 Kitchen: `KitchenPhase3982TrinkgeldTicker` — Coins-Icon amber, Bester #1 Name+Tip im Header, Alert "Geringes Trinkgeld!", kompakt absteigend, Rang+Tip+Delta rank_delta<0=gruen, Team-Avg, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3978–3982 ABGESCHLOSSEN — Fahrer-Trinkgeld-Ranking
