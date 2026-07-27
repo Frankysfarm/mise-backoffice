@@ -32,7 +32,17 @@ Backend-Architekt-Agent (2026-07-26): Phasen 3963–3967 implementiert — Fahre
 - Phase 3967 Kitchen: `KitchenPhase3967PaketeProStundeTicker` — Package lila, Bester #1, Alert, Ziel >=4.0/h ✅
 - Build exit 0. Push erfolgt.
 
-### Naechste Phasen 3973–3977 — Naechstes Ranking-Thema (TBD)
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 3978–3982 implementiert — Fahrer-Abschlussquoten-Ranking. Phase 3978 Backend: bestehendes `/api/delivery/admin/fahrer-abschlussquoten-ranking/route.ts` (bereits vorhanden) — createClient(), quote_pct je Fahrer heute, absteigend Rang 1=hoechste Quote=bester, Ampel gruen/gelb/rot per Quartil, rank_delta (>0=verbessert), alert_bottom, Alert "Niedrige Abschlussquote!", Mock Max 97%/Julia 89%/Sara 76%/Tim 52%, ziel=90%. Phase 3979 Dispatch: `DispatchPhase3979AbschlussquoteBoard` — Target-Icon teal, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedrige Abschlussquote!", rank_delta>0=gruen, Import+Render+Barrel ✅. Phase 3980 Fahrer: `FahrerPhase3980MeineAbschlussquote` — Target-Icon teal, quote_pct 5xl+Rang 3xl farbkodiert, Ziel >=90%, Coaching-Tipp, isOnline-Guard, Mini-Ranking isMe highlight, Import+Render+Barrel ✅. Phase 3981 Storefront: uebersprungen. Phase 3982 Kitchen: `KitchenPhase3982AbschlussquoteTicker` — Target-Icon teal, Bester #1 Name+% im Header, Alert "Niedrige Abschlussquote!", kompakt absteigend, rank_delta>0=gruen, Team-Avg+Ziel >=90%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3978–3982 ABGESCHLOSSEN — Fahrer-Abschlussquoten-Ranking
+- Phase 3978 Backend: `/api/delivery/admin/fahrer-abschlussquoten-ranking/route.ts` (bereits vorhanden) — createClient(), quote_pct je Fahrer heute, absteigend Rang 1=hoechste Quote=bester, Ampel per Quartil, rank_delta (>0=verbessert), alert_bottom, Mock Max 97%/Julia 89%/Sara 76%/Tim 52% ✅
+- Phase 3979 Dispatch: `DispatchPhase3979AbschlussquoteBoard` — Target-Icon teal, absteigend Rang 1=hoechste Abschlussquote, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Niedrige Abschlussquote!", rank_delta>0=gruen ✅
+- Phase 3980 Fahrer: `FahrerPhase3980MeineAbschlussquote` — Target-Icon teal, quote_pct 5xl+Rang 3xl farbkodiert, Ziel >=90%, Coaching-Tipp (3 Stufen), isOnline-Guard, Mini-Ranking isMe highlight ✅
+- Phase 3981 Storefront: uebersprungen ✅
+- Phase 3982 Kitchen: `KitchenPhase3982AbschlussquoteTicker` — Target-Icon teal, Bester #1 Name+% im Header, Alert "Niedrige Abschlussquote!", kompakt absteigend, Team-Avg+Ziel >=90% ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 3983–3987 — Naechstes Ranking-Thema (TBD)
 
 Frontend-Ingenieur-Agent (2026-07-26): Phasen 3953–3957 implementiert — Fahrer-Kundenbewertung-Ranking. Phase 3953 Backend: bestehendes `/api/delivery/admin/fahrer-kundenbewertung-ranking/route.ts` (bereits vorhanden) — force-dynamic, await createClient(), avg_bewertung je Fahrer letzte 30 Tage, absteigend Rang 1=hoechste Bewertung=bester, Ampel gruen/gelb/rot, rank_delta, alert_niedrig, Alert "Niedrige Kundenbewertung!", Mock Julia 4.9/Sara 4.7/Max 4.3/Tim 3.8, ziel=4.5. Phase 3954 Dispatch: `DispatchPhase3954KundenbewertungBoard` — Star-Icon amber, absteigend, KPI-Grid Bester/Team-Avg/Niedrigster, Alert "Schlechte Bewertungen!", pos=gruen, Import+Render+Barrel ✅. Phase 3955 Fahrer: `FahrerPhase3955MeineKundenbewertung` — Star-Icon amber, Wert 5xl+Rang 3xl farbkodiert, Ziel >=4.5, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3956 Storefront: uebersprungen. Phase 3957 Kitchen: `KitchenPhase3957KundenbewertungTicker` — Star-Icon amber, Bester #1 Name+Sterne im Header, Alert "Schlechte Bewertungen!", kompakt absteigend, Rang+Sterne+Delta pos=gruen, Team-Avg+Ziel >=4.5, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
