@@ -1,15 +1,17 @@
 # Driver Remediation Program Status
 
-Updated: 2026-07-26
+Updated: 2026-07-27
 
 | Task | State | Gate | Branch | Commit | Notes |
 |---|---|---|---|---|---|
 | T00 Baseline, Staging and Toolchain | COMPLETE | G0 GREEN | `codex/driver-remediation` | `f7d6b619` | Snapshots, isolated worktrees, toolchain, native validator and disposable PostgreSQL path verified. |
 | T01 Canonical State Model | COMPLETE | G1 GREEN | `codex/driver-remediation` | `8acbe488` | Implementation plus independent specification and test reviews approved. |
 | T02 Atomic Single Writer | COMPLETE | G2 GREEN (isolated PostgreSQL) | `codex/driver-remediation` | `43d5ee06` | Two review cycles; DB and adversarial race reviewers approved final hardened implementation. |
-| T03 Server API and Client Boundary | COMPLETE | G3 GREEN (isolated PostgreSQL + source/client contracts) | `codex/driver-remediation` | pending task commit | API/security and client-boundary reviewers approved after three hardening cycles. |
-| T04 Pick/Pickup Correctness | READY | G4 pending | `codex/driver-remediation` | — | Permitted by green G3; serialize edits to lifecycle/UI contracts. |
-| T05–T10 | NOT STARTED | G4–G9 not evaluated | — | — | Governed by `EXECUTION_GRAPH.md`. |
+| T03 Server API and Client Boundary | COMPLETE | G3 GREEN (isolated PostgreSQL + source/client contracts) | `codex/driver-remediation` | `60932fc9` | API/security and client-boundary reviewers approved after three hardening cycles. |
+| T04 Pick/Pickup Correctness | COMPLETE | G4 GREEN | `codex/driver-remediation` | `60621b64` | Atomic whole-batch pickup, cancellation-after-snapshot handling, disabled legacy bypasses and two-device race verified. |
+| T05 Recovery/Push/Offline | COMPLETE | G4 GREEN | `codex/driver-remediation` | `a1408ce2` | Ownership-preserving recovery, wake-only push, snapshot-first ACK, strict offline replay and defensive database privileges verified. |
+| T06 GPS Transport/Native | IN PROGRESS | G5 pending | main + native isolated branches | — | Exclusive GPS/native scope assigned to `t06_gps_native`. |
+| T07–T10 | NOT STARTED | G6–G9 not evaluated | — | — | Governed by `EXECUTION_GRAPH.md`. |
 
 ## Production safety
 
@@ -68,3 +70,20 @@ snapshots, reloads on unknown Realtime versions and reconnect, persists exact
 retry envelopes, rejects ordinary decline and no longer mounts the identified
 direct-write/optimistic lifecycle widgets. Independent API/security and client
 reviewers both returned `APPROVE`.
+
+## G4 decision
+
+GREEN after repeated adversarial review and correction cycles. T04 proves
+whole-batch pickup with exact active order/item manifests, immutable kitchen
+resolution provenance, no ordinary driver-side missing-item decision,
+transactional cancellation-after-snapshot handling, failure rollback and a
+real two-device race. Legacy single-order pickup/depart routes and RPCs cannot
+write.
+
+T05 preserves active assignment ownership during stale GPS and recovery,
+uses one CAS escalation path, separates provider acceptance from technical app
+ACK, treats push as wake-only, restores the canonical snapshot after push,
+restart, replay and conflicts, and restricts offline replay to validated,
+fingerprinted v2 actions. The isolated PostgreSQL suite proves migration
+double-apply, hostile pre-grant revocation, RLS/service-role boundaries,
+episode deduplication and restart safety. No production action occurred.

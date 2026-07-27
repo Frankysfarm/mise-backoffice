@@ -1,6 +1,6 @@
 # Critical File Ownership
 
-Updated: 2026-07-26
+Updated: 2026-07-27
 
 | File/scope | Active task | Owner | Mode | Notes |
 |---|---|---|---|---|
@@ -8,10 +8,14 @@ Updated: 2026-07-26
 | `lib/delivery/dispatch-engine.ts` | none | unassigned | protected | T02/T07 ownership must be exclusive. |
 | canonical lifecycle/state-machine modules | none | released by T01 | protected | T01 contract is frozen for T02 consumption; changes require explicit ownership. |
 | dispatch/assignment migrations and RPCs | none | released by T02 | protected | T02 Atomic-v2 migrations/RPCs frozen after G2 approval. |
-| `lib/delivery/recovery.ts` | none | unassigned | protected | T05 after stable contracts. |
-| `app/fahrer/app/client.tsx` | none | released by T03 | protected | Canonical snapshot/API boundary frozen; T04/T06 need new exclusive ownership. |
+| `lib/delivery/recovery.ts` | none | released by T05 | protected | Ownership-preserving recovery contract frozen after G4. |
+| `app/api/cron/smart-dispatch/route.ts` and `app/api/delivery/tours/[id]/status/route.ts` recovery callsites | none | released by T05 | protected | Recovery failures must remain visible; dispatch/status business logic is frozen. |
+| `app/fahrer/app/client.tsx` | none | released by T04/T05 | protected | Atomic pickup and canonical offline/snapshot reconciliation frozen after G4. |
 | `app/api/driver/v1/**` lifecycle boundary | none | released by T03 | protected | v1 adapters constrained; future changes require exclusive ownership. |
 | `app/api/driver/v2/**` and `lib/delivery/driver-v2-*` | none | released by T03 | protected | Canonical action/snapshot boundary frozen after G3. |
+| migration `279_*`, pick/item APIs/tests | none | released by T04 | protected | Atomic multi-order pickup contract frozen after G4. |
+| migration `280_*`, GPS API/transport/native files | T06 | `t06_gps_native` | exclusive | Monotonic GPS and platform lifecycle only. |
+| migration `281_*`, recovery/outbox/push tests | none | released by T05 | protected | Push is wake-up only; assignment authority unchanged. |
 | `package.json`, `next.config.js`, ESLint config | none | released by T00 | protected | Tool configuration complete. |
 | native verification scripts in `/Users/eule/mise-driver-native-t00` | none | released by T00 | protected | Native T00 commit `0ec66de`; no app logic changed. |
 | `docs/driver-remediation/status/*` | program | lead orchestrator | exclusive | Baseline, status, gates and command evidence. |
