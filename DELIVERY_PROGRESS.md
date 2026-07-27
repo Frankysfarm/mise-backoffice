@@ -2,6 +2,16 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4286–4290 implementiert — Fahrer-Bestellungen-pro-Stopp-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4287BestellungenProStoppBoard`. Fahrer: `FahrerPhase4288MeineBestellungenProStopp`. Kitchen: `KitchenPhase4290BestellungenProStoppTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4291.
+
+### ✅ Phasen 4286–4290 ABGESCHLOSSEN — Fahrer-Bestellungen-pro-Stopp-Ranking
+- Phase 4286 Backend: `/api/delivery/admin/fahrer-bestellungen-pro-stopp` — bereits vorhanden, absteigend Rang 1=höchste bestellungen_pro_stopp=bestes Bündeln, INVERTED rank_delta (>0=verbessert=TrendingUp emerald), alert_bottom, bester_name/letzter_name, client-side Filter ✅
+- Phase 4287 Dispatch: `DispatchPhase4287BestellungenProStoppBoard` — Package blue-500, absteigend Rang 1=meiste Best./Stopp, KPI-Grid Bester/Team-Avg/Letzter (blue-50/gray-50/red-50), Alert "Niedrig", rank_delta>0=TrendingUp emerald, toFixed(1) ✅
+- Phase 4288 Fahrer: `FahrerPhase4288MeineBestellungenProStopp` — Package blue-500, bps 5xl+Rang 2xl farbkodiert, client-side Filter, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta>0=TrendingUp emerald ✅
+- Phase 4289 Storefront: uebersprungen ✅
+- Phase 4290 Kitchen: `KitchenPhase4290BestellungenProStoppTicker` — Package blue-500, Bester #1 Name+bps im Header blue-600, alert_bottom-Zaehler, dot-Farbkodierung, Team-Avg ✅
+- Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4291.
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4281–4285 implementiert — Fahrer-Tourstart-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4282TourstartBoard`. Fahrer: `FahrerPhase4283MeinTourstart`. Kitchen: `KitchenPhase4285TourstartTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4286.
 
 ### ✅ Phasen 4281–4285 ABGESCHLOSSEN — Fahrer-Tourstart-Ranking
