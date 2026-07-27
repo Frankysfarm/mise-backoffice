@@ -2,6 +2,15 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4311–4315 implementiert — Fahrer-Trinkgeld-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4312TrinkgeldBoard`. Fahrer: `FahrerPhase4313MeinTrinkgeld`. Kitchen: `KitchenPhase4315TrinkgeldTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4316.
+
+### ✅ Phasen 4311–4315 ABGESCHLOSSEN — Fahrer-Trinkgeld-Ranking
+- Phase 4311 Backend: `/api/delivery/admin/fahrer-trinkgeld-ranking` — bereits vorhanden, absteigend Rang 1=höchstes avg_tip_eur=bester, INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald), alert_bottom, bester_name/niedrigster_name, team_avg_eur ✅
+- Phase 4312 Dispatch: `DispatchPhase4312TrinkgeldBoard` — Gift amber-500, absteigend Rang 1=höchstes Trinkgeld, KPI-Grid Höchste/Team-Avg/Niedrigste (amber-50/gray-50/red-50), Alert "Niedrig", rank_delta>0=TrendingUp emerald, Balken=(avg_tip_eur/maxTip)*100% ✅
+- Phase 4313 Fahrer: `FahrerPhase4313MeinTrinkgeld` — Gift amber-500, avg_tip_eur 5xl+Rang 2xl farbkodiert, driver_id API-Param+client-side filter, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta>0=TrendingUp emerald ✅
+- Phase 4314 Storefront: übersprungen (kein Storefront-Frontend) ✅
+- Phase 4315 Kitchen: `KitchenPhase4315TrinkgeldTicker` — Gift amber-500, Bester #1 Name+€ im Header amber-700, alert_bottom-Zähler, kompakt absteigend Rang 1=höchstes Trinkgeld, dot-Farbkodierung, Team-Avg ✅
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4306–4310 implementiert — Fahrer-Leerfahrten-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4307LeerfahrtenBoard`. Fahrer: `FahrerPhase4308MeineLeerfahrten`. Kitchen: `KitchenPhase4310LeerfahrtenTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4311.
 
 ### ✅ Phasen 4306–4310 ABGESCHLOSSEN — Fahrer-Leerfahrten-Ranking
