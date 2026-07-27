@@ -1138,6 +1138,7 @@ import { DispatchPhase4132LieferdichteBoard } from './phase4132-lieferdichte-boa
 import { DispatchPhase4137KmProStoppBoard } from './phase4137-km-pro-stopp-board';
 import { DispatchPhase4142KundenbewertungBoard } from './phase4142-kundenbewertung-board';
 import { DispatchPhase4147LeerfahrtenBoard } from './phase4147-leerfahrten-board';
+import { DispatchPhase4152LieferzeitBoard } from './phase4152-lieferzeit-board';
 
 type Driver = {
   employee_id: string;
@@ -4903,6 +4904,7 @@ export function DispatchBoard({
           <DispatchPhase4137KmProStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4142KundenbewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4147LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4152LieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13257,3 +13259,5 @@ export { DispatchPhase4137KmProStoppBoard } from './phase4137-km-pro-stopp-board
 export { DispatchPhase4142KundenbewertungBoard } from './phase4142-kundenbewertung-board';
 // Phase 4147 — Leerfahrten-Board (Truck violet; aufsteigend Rang 1=niedrigste Leerfahrtenquote=bester; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert "Hohe Leerfahrten!"; rank_delta>0=gruen; 30-Min-Polling)
 export { DispatchPhase4147LeerfahrtenBoard } from './phase4147-leerfahrten-board';
+// Phase 4152 — Ø-Lieferzeit-Board (Clock teal; aufsteigend Rang 1=schnellste avg_min=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Hohe Lieferzeit!"; rank_delta<0=gruen; 30-Min-Polling)
+export { DispatchPhase4152LieferzeitBoard } from './phase4152-lieferzeit-board';
