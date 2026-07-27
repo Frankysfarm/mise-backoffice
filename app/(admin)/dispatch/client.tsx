@@ -1173,6 +1173,7 @@ import { DispatchPhase4282TourstartBoard } from './phase4282-tourstart-board';
 import { DispatchPhase4287BestellungenProStoppBoard } from './phase4287-bestellungen-pro-stopp-board';
 import { DispatchPhase4292AbschlussquoteBoard } from './phase4292-abschlussquote-board';
 import { DispatchPhase4297StornoquoteBoard } from './phase4297-stornoquote-board';
+import { DispatchPhase4307LeerfahrtenBoard } from './phase4307-leerfahrten-board';
 import { DispatchPhase4302SchichtstundenBoard } from './phase4302-schichtstunden-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
@@ -4974,6 +4975,7 @@ export function DispatchBoard({
           <DispatchPhase4287BestellungenProStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4292AbschlussquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4297StornoquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4307LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4302SchichtstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
@@ -13408,6 +13410,8 @@ export { DispatchPhase4287BestellungenProStoppBoard } from './phase4287-bestellu
 export { DispatchPhase4292AbschlussquoteBoard } from './phase4292-abschlussquote-board';
 // Phase 4297 — Stornoquoten-Board (XCircle red; aufsteigend Rang 1=niedrigste stornoquote_pct; KPI-Grid Niedrigste/Team-Avg+Ziel/Höchste; Alert Hoch; INVERTED rank_delta>0=TrendingUp emerald; ziel_pct; 30-Min-Polling)
 export { DispatchPhase4297StornoquoteBoard } from './phase4297-stornoquote-board';
+// Phase 4307 — Leerfahrten-Board (MapPin violet; aufsteigend Rang 1=wenigste leerfahrten_pct; KPI-Grid Wenigste/Team-Avg/Meiste; Alert Hoch; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling)
+export { DispatchPhase4307LeerfahrtenBoard } from './phase4307-leerfahrten-board';
 // Phase 4302 — Schichtstunden-Board (Clock indigo; absteigend Rang 1=meiste Stunden=fleißigster; KPI-Grid Fleißigster/Team-Avg/Wenigste; Alert Kurze Schicht; STANDARD rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4302SchichtstundenBoard } from './phase4302-schichtstunden-board';
 // Phase 4307 — Fahrer-Score + Tour-Visualisierung Board (Trophy amber; Score-Badge+Delta; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
