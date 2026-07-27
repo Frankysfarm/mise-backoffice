@@ -1109,6 +1109,7 @@ import { DispatchPhase4027GeschwindigkeitBoard } from './phase4027-geschwindigke
 import { DispatchPhase4032KmProTourBoard } from './phase4032-km-pro-tour-board';
 import { DispatchPhase4037AuslastungBoard } from './phase4037-auslastung-board';
 import { DispatchPhase4042UmsatzProSchichtBoard } from './phase4042-umsatz-pro-schicht-board';
+import { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';
 
 type Driver = {
   employee_id: string;
@@ -4838,6 +4839,8 @@ export function DispatchBoard({
           <DispatchPhase4032KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4037AuslastungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4042UmsatzProSchichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4038: Tour-Score Matrix — Visuelle Matrix aller Fahrer mit 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung; Farbkodierung je Zelle; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4038TourScoreMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13132,3 +13135,5 @@ export { DispatchPhase4032KmProTourBoard } from './phase4032-km-pro-tour-board';
 export { DispatchPhase4037AuslastungBoard } from './phase4037-auslastung-board';
 // Phase 4042 — Umsatz-pro-Schicht-Ranking Board (Euro gruen; absteigend Rang 1=hoechster Umsatz=bester; KPI-Grid Hoechster/Team-Avg/Niedrigster; Alert "Niedriger Umsatz!"; rank_delta>0=gruen; Ziel >=200€/Schicht; 30-Min-Polling)
 export { DispatchPhase4042UmsatzProSchichtBoard } from './phase4042-umsatz-pro-schicht-board';
+// Phase 4038 — Tour-Score Matrix (Trophy amber; Matrix 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung je Fahrer; Farbkodierung je Zelle >=85gruen/>=70gelb/<70rot; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';

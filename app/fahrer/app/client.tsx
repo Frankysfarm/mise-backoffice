@@ -355,6 +355,7 @@ import { FahrerPhase1087TourStoppSmartNavigatorHub } from './phase1087-tour-stop
 import { FahrerPhase1090StoppNavigatorCockpit } from './phase1090-stopp-navigator-cockpit';
 import { FahrerPhase1091TourAbschlussSelfieCheck } from './phase1091-tour-abschluss-selfie-check';
 import { FahrerPhase1096KilometerstandQuittung } from './phase1096-kilometerstand-quittung';
+import { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 import { FahrerPhase1101LiveKundenbewertung } from './phase1101-live-kundenbewertung';
 import { FahrerPhase1106TrinkgeldWochenUebersicht } from './phase1106-trinkgeld-wochen-uebersicht';
 import { FahrerPhase1111KundenFeedbackChronik } from './phase1111-kunden-feedback-chronik';
@@ -7840,6 +7841,18 @@ export function FahrerApp({
         </div>
       )}
 
+      {/* Phase 1463: Smart-Routing Nächster Stopp — GPS-Navigation mit Route-Auswahl; Zeitersparnis-Anzeige; Kundenkontakt; 2 Routen-Optionen; 30-Sek-Polling; Mock-Fallback */}
+      {activeBatch && activeBatch.status === 'unterwegs' && (
+        <div className="px-4 pb-4">
+          <FahrerPhase1463SmartRoutingNaechsterStopp
+            driverId={driver.id}
+            isOnline={isOnline}
+            activeBatchId={activeBatch.id}
+            stopSequence={activeBatch.stops.findIndex((s) => !s.geliefert_am) + 1}
+          />
+        </div>
+      )}
+
       {/* Schicht-Abschluss Modal */}
       {showShiftEnd && shiftSnapshot && (
         <SchichtAbschlussModal
@@ -10978,3 +10991,5 @@ export { FahrerPhase4033MeineKmProTour } from './phase4033-meine-km-pro-tour';
 export { FahrerPhase4038MeineAuslastung } from './phase4038-meine-auslastung';
 // Phase 4043 — Mein Umsatz/Schicht (Euro gruen; umsatz_pro_schicht 5xl+Rang 3xl farbkodiert; Ziel >=200€/Schicht; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; 30-Min-Polling)
 export { FahrerPhase4043MeinUmsatzProSchicht } from './phase4043-mein-umsatz-pro-schicht';
+// Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
+export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';

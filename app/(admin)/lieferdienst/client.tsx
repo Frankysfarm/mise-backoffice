@@ -482,6 +482,7 @@ import { LieferdienstPhase2746StatistikLiveCommandPro } from './phase2746-statis
 import { LieferdienstPhase2751StatistikenLiveIntelligenceDashboard } from './phase2751-statistiken-live-intelligence-dashboard';
 import { LieferdienstPhase2760StatistikLiveCockpitFinal } from './phase2760-statistiken-live-cockpit-final';
 import { LieferdienstStatistikenDashboard } from './statistiken-dashboard-phase4000';
+import { LieferdienstPhase2770StatistikenLiveCockpitKomplett } from './phase2770-statistiken-live-cockpit-komplett';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2338,6 +2339,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2635LieferSlaEchtzeitCockpit />
                 {/* Phase 4000: Statistiken-Dashboard — Schicht-KPIs, Tages-/Wochenvergleich, Top-Fahrer, Zonen-Ertrag; 30-Sek-Polling; Mock-Fallback */}
                 <LieferdienstStatistikenDashboard locationId={locationId ?? null} />
+                {/* Phase 2770: Statistiken Live-Cockpit Komplett — 6 KPI-Kacheln Ampel+Δ%+Ziel+Fortschrittsbalken; Gesamt-Score; Alert-Strip Rot-KPIs; Fahrer-Online; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase2770StatistikenLiveCockpitKomplett locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4931,3 +4934,5 @@ export { LieferdienstPhase2760StatistikLiveCockpitFinal } from './phase2760-stat
 export { LieferdienstPhase2765StatistikenLiveDashboardV2 } from './phase2765-statistiken-live-dashboard-v2';
 // Phase 4000 — Statistiken-Dashboard (Schicht-KPIs, Tages-/Wochenvergleich, Top-Fahrer Ranking, Zonen-Ertrag; 30-Sek-Polling; Mock-Fallback)
 export { LieferdienstStatistikenDashboard } from './statistiken-dashboard-phase4000';
+// Phase 2770 — Statistiken Live-Cockpit Komplett (Activity violet; 6 KPI-Kacheln Ampel+Δ%+Ziel+Fortschrittsbalken; Gesamt-Score-Balken; Alert-Strip Rot-KPIs; Fahrer-Online; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase2770StatistikenLiveCockpitKomplett } from './phase2770-statistiken-live-cockpit-komplett';

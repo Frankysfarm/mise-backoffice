@@ -172,6 +172,7 @@ import { Phase995EchtzeitKuechenTransparenzWidget } from './phase995-echtzeit-ku
 import { StorefrontPhase997DynamischeEtaLiveCockpit } from './phase997-dynamische-eta-live-cockpit';
 import { StorefrontPhase998DynamischeEtaLiveTrackingUltra } from './phase998-dynamische-eta-live-tracking-ultra';
 import { Phase999LiveTrackingEtaKommando } from './phase999-live-tracking-eta-kommando';
+import { StorefrontPhase2712DynamischeEtaLiveFortschrittTrack } from './phase2712-dynamische-eta-live-fortschritt-track';
 import { Phase2660DynamischeEtaLiveTrackingFinal } from './phase2660-dynamische-eta-live-tracking-final';
 import { Phase2665EtaLiveTrackerPro } from './phase2665-eta-live-tracker-pro';
 import { StorefrontPhase2670DynamischeEtaLiveTrackingUltraPro } from './phase2670-dynamische-eta-live-tracking-ultra-pro';
@@ -943,6 +944,17 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         {orderSuccess.type === 'lieferung' && (
           <div className="px-4 pb-4 max-w-lg mx-auto">
             <Phase999LiveTrackingEtaKommando
+              orderId={orderSuccess.orderId}
+              locationId={location.id}
+              initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
+              bestellnummer={orderSuccess.orderId?.slice(-6)}
+            />
+          </div>
+        )}
+        {/* Phase 2712: Dynamische ETA Live Fortschritt-Track — 4-Step Tracker Bestätigt/Küche/Unterwegs/Geliefert; Farbkodiert; Fortschrittsbalken; Fahrer-Info; ETA-Countdown; 30-Sek-Polling */}
+        {orderSuccess.type === 'lieferung' && (
+          <div className="px-4 pb-4 max-w-lg mx-auto">
+            <StorefrontPhase2712DynamischeEtaLiveFortschrittTrack
               orderId={orderSuccess.orderId}
               locationId={location.id}
               initialEtaMin={orderSuccess.eta > 0 ? orderSuccess.eta : 30}
@@ -3970,3 +3982,5 @@ export { StorefrontPhase2711DynamischeEtaLiveUltimatePro } from './phase2711-dyn
 
 // Phase 1000 — Dynamische ETA Live-Tracking Ultra (Animierter 4-Phasen-Stepper; Sekundengenauer ETA-Countdown; Fahrer-Distanz-Chip; Dynamische ETA-Anpassung bei Verzögerung; Pulse-Animation unterwegs; 30-Sek-Polling; Mock-Fallback)
 export { StorefrontPhase1000DynamischeEtaLiveTrackingUltra } from './phase1000-dynamische-eta-live-tracking-ultra';
+// Phase 2712 — Dynamische ETA Live Fortschritt-Track (4-Step Bestätigt/Küche/Unterwegs/Geliefert; Farbkodierung je Step; animierter Verbindungsbalken; Fahrer-Info bei unterwegs; ETA-Fortschrittsbalken; Pulse bei Status-Wechsel; 30-Sek-Polling; Mock-Fallback)
+export { StorefrontPhase2712DynamischeEtaLiveFortschrittTrack } from './phase2712-dynamische-eta-live-fortschritt-track';
