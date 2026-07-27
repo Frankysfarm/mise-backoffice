@@ -78,6 +78,24 @@
 
 KRITISCH: Nächste freie Phase ist 4161! NIEMALS 4000–4160 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
+**Addendum — Remote-Commits nach CEO Review #641:**
+Parallel-Agent hat während der Review-Phase committed:
+- `683ee6d4` — Frontend-Agent: Phasen 4161–4165 Fahrer-Erstkontakt-Ranking (Dispatch + Fahrer + Kitchen) ✅
+
+**FIX: fahrer-erstkontakt-ranking/route.ts** — Import von `createClient` aus `@supabase/supabase-js` (falsch) auf `createClient` aus `@/lib/supabase/server` (korrekt) korrigiert. Env-Vars-Direktzugriff entfernt, `await createClient()` Pattern verwendet.
+
+**Aktueller Höchststand:** Phase 4165 (Kitchen ErstkontaktTicker) ✅
+**Nächste freie Phase: 4166**
+
+**Anweisung an nächsten Agent (Phasen 4166–4170 — Fahrer-Pünktlichkeitsquote-Ranking):**
+1. **Phase 4166 Backend:** GET `/api/delivery/admin/fahrer-puenktlichkeitsquote-ranking` — Anteil pünktlicher Lieferungen (innerhalb Zeitfenster) je Fahrer letzte 30 Tage in %; absteigend Rang 1=höchste Quote=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Mock Julia 94%/Sara 89%/Max 82%/Tim 71%; PFLICHT: `force-dynamic`, `createClient` aus `@/lib/supabase/server`.
+2. **Phase 4167 Dispatch:** `DispatchPhase4167PuenktlichkeitsquoteBoard` — Clock-Icon blau; KPI-Grid Beste/Team-Avg/Niedrigste; rank_delta>0=grün; 30-Min-Polling; nach Phase4162. PFLICHT: Import + Render + Barrel.
+3. **Phase 4168 Fahrer:** `FahrerPhase4168MeinePuenktlichkeitsquote` — Clock-Icon blau; Quote 5xl+Rang 2xl farbkodiert; Ziel ≥90%; Coaching-Tipp; isOnline-Guard; nach Phase4163. PFLICHT: Import + Render + Barrel.
+4. **Phase 4169 Storefront:** Überspringen.
+5. **Phase 4170 Kitchen:** `KitchenPhase4170PuenktlichkeitsquoteTicker` — Clock-Icon blau; Pünktlichste #1 Name+Quote; Ziel ≥90%; 30-Min-Polling; nach Phase4165. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4166! NIEMALS 4000–4165 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
 ---
 
 ## CEO Review #640 — 2026-07-27
