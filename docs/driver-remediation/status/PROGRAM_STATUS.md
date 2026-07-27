@@ -12,7 +12,7 @@ Updated: 2026-07-27
 | T05 Recovery/Push/Offline | COMPLETE | G4 GREEN | `codex/driver-remediation` | `a1408ce2`, `0c90ba95` | Ownership-preserving recovery, wake-only push, snapshot-first ACK, strict offline replay and defensive database privileges verified. |
 | T06 GPS Transport/Native | SOURCE CANDIDATE COMPLETE | G5 RED (external evidence + T07 wiring) | main + native isolated branches | `625204bc`, native `4d048c2` | Source approved independently; native compile/device matrix unavailable and dispatch eligibility intentionally awaits T07. |
 | T07 Deterministic Dispatch Baseline | IN PROGRESS | G6 pending | `codex/driver-remediation` | — | Exclusive dispatch ownership assigned to `t07_dispatch`; default-off/shadow evidence required. |
-| T09 Operations/Security/Observability | IN PROGRESS (safe subset) | G8 pending | `codex/driver-remediation` | — | Contract-preserving new modules/tests assigned to `t09_ops_security`; protected scopes excluded. |
+| T09 Operations/Security/Observability | SOURCE CANDIDATE COMPLETE | G8 RED (durable integration pending) | `codex/driver-remediation` | `596c7b52` | Independent review approved the default-off redaction/alert/policy contract; DB/RLS/API/dashboard/callsites remain unimplemented. |
 | T08 and T10 | NOT STARTED | G7/G9 not evaluated | — | — | T08 waits for G6; T10 remains last. |
 
 ## Production safety
@@ -106,3 +106,16 @@ foreground/background/lock/relaunch/reboot matrix requires real devices.
 Additionally, `gpsEligibleForNewAssignment` remains intentionally unwired until
 T07 obtains exclusive dispatch ownership. Both source commits remain
 default-off candidates; no production action occurred.
+
+## G8 partial decision
+
+RED, with the safe additive source contract independently approved. The
+default-off candidate provides recursive PII/location/credential redaction,
+correlation-safe structured events, deterministic operational alerts,
+tenant-matched kill-switch and override evidence contracts, role/tenant read
+policy and bounded retention calculations. It is intentionally unwired.
+
+G8 still requires durable database/RLS enforcement, authenticated operations
+APIs, checked lifecycle callsites, scheduler/retention database tests,
+dashboards and alert delivery. No external telemetry, production flag or
+production system was changed.
