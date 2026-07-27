@@ -1058,6 +1058,7 @@ import { KitchenPhase4045UmsatzProSchichtTicker } from './phase4045-umsatz-pro-s
 import { KitchenPhase4050BewertungsTicker } from './phase4050-bewertungs-ticker';
 import { KitchenPhase4055TrinkgeldQuoteTicker } from './phase4055-trinkgeld-quote-ticker';
 import { KitchenPhase4060StoppsProStundeTicker } from './phase4060-stopps-pro-stunde-ticker';
+import { KitchenPhase4065TourenProSchichtTicker } from './phase4065-touren-pro-schicht-ticker';
 import { KitchenPhase4041SmartTimingKochstartForecast } from './phase4041-smart-timing-kochstart-forecast';
 
 /* ------------------------------ Types ------------------------------ */
@@ -4427,6 +4428,7 @@ export function KitchenBoard({
       <KitchenPhase4050BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4055TrinkgeldQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4060StoppsProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4065TourenProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4041: Smart-Timing Kochstart Forecast — Sekundengenauer Countdown je Bestellung; 4-stufige Farbkodierung grün/gelb/orange/rot; KPI-Grid Score/Prep/Überfällig; Prognose-Wellen nächste 90min; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4041SmartTimingKochstartForecast locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
@@ -11720,5 +11722,7 @@ export { KitchenPhase4050BewertungsTicker } from './phase4050-bewertungs-ticker'
 export { KitchenPhase4055TrinkgeldQuoteTicker } from './phase4055-trinkgeld-quote-ticker';
 // Phase 4060 — Stopps/Stunde-Ticker (MapPin blue; Bester #1 Name+/h im Header; Alert-Zaehler; kompakt absteigend; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4060StoppsProStundeTicker } from './phase4060-stopps-pro-stunde-ticker';
+// Phase 4065 — Touren/Schicht-Ticker (Truck indigo; Bester #1 Name im Header; Alert-Zaehler; kompakt absteigend; dot-Farbkodierung; Team-Avg+Ziel >=6.0; 30-Min-Polling)
+export { KitchenPhase4065TourenProSchichtTicker } from './phase4065-touren-pro-schicht-ticker';
 // Phase 4041 — Smart-Timing Kochstart Forecast (Timer amber; Countdown je Bestellung 4-stufig grün/gelb/orange/rot; KPI-Grid Score/Prep/Überfällig; Prognose-Wellen nächste 90min; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4041SmartTimingKochstartForecast } from './phase4041-smart-timing-kochstart-forecast';
