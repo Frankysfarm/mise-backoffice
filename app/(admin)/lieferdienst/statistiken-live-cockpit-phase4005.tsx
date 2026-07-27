@@ -135,8 +135,8 @@ export function LieferdienstPhase4005StatistikenLiveCockpit({ locationId }: { lo
               <XAxis dataKey="stunde" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, border: '1px solid #e5e7eb' }}
-                formatter={(v: number) => [`${v} Bestellungen`, '']}
-                labelFormatter={(l: string) => `${l}:00 Uhr`}
+                formatter={(v) => [`${v} Bestellungen`, '']}
+                labelFormatter={(l) => `${l}:00 Uhr`}
               />
               <Bar dataKey="bestellungen" radius={[3, 3, 0, 0]}>
                 {data.stunden.map((s, i) => (

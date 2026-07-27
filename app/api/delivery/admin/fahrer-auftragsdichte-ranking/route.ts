@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
         .gte('started_at', since30),
       supabase
         .from('delivery_tours')
-        .select('driver_id, created_at, delivered_at, completed_at')
+        .select('driver_id, driver_name, created_at, delivered_at, completed_at')
         .eq('location_id', location_id)
         .gte('created_at', sinceYest),
       supabase

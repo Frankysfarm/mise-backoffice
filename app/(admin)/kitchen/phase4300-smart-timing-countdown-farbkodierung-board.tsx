@@ -113,7 +113,7 @@ export function KitchenPhase4300SmartTimingCountdownFarbkodierungBoard({ locatio
               <span className={`w-2 h-2 rounded-full flex-shrink-0 ${st.dot}`} />
               <span className="text-[10px] text-gray-500 font-medium w-9 flex-shrink-0">#{b.bestellnummer}</span>
               <span className="text-[10px] text-gray-700 flex-1 truncate">{b.kunde_name}</span>
-              {b.fahrer_wartet && <Zap className="w-3 h-3 text-amber-500 flex-shrink-0" title="Fahrer wartet" />}
+              {b.fahrer_wartet && <Zap className="w-3 h-3 text-amber-500 flex-shrink-0" aria-label="Fahrer wartet" />}
               <span className={`text-[11px] font-bold tabular-nums ${st.text}`}>{fmtSec(dispSec)}</span>
             </div>
           );
