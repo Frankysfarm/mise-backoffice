@@ -1044,6 +1044,7 @@ import { FahrerPhase4083MeineStornoquote } from './phase4083-meine-stornoquote';
 import { FahrerPhase4083MeinePaketeProStunde } from './phase4083-meine-pakete-pro-stunde';
 import { FahrerPhase4088MeineSchichtstunden } from './phase4088-meine-schichtstunden';
 import { FahrerPhase4093MeineTageskilometer } from './phase4093-meine-tageskilometer';
+import { FahrerPhase4098MeineWartezeitStopp } from './phase4098-meine-wartezeit-stopp';
 import { FahrerPhase4068MeineKmProSchicht } from './phase4068-meine-km-pro-schicht';
 
 type Driver = {
@@ -7022,6 +7023,7 @@ export function FahrerApp({
           <FahrerPhase4083MeinePaketeProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4088MeineSchichtstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4093MeineTageskilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4098MeineWartezeitStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4068MeineKmProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
@@ -11044,6 +11046,8 @@ export { FahrerPhase4083MeinePaketeProStunde } from './phase4083-meine-pakete-pr
 export { FahrerPhase4088MeineSchichtstunden } from './phase4088-meine-schichtstunden';
 // Phase 4093 — Meine Tages-km (Navigation teal; km 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; Rang 1=meiste km heute; 30-Min-Polling)
 export { FahrerPhase4093MeineTageskilometer } from './phase4093-meine-tageskilometer';
+// Phase 4098 — Meine Wartezeit am Stopp (AlarmClock amber; wartezeit_min 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; 30-Min-Polling)
+export { FahrerPhase4098MeineWartezeitStopp } from './phase4098-meine-wartezeit-stopp';
 // Phase 4068 — Meine km/Schicht (Map blue; km_pro_schicht 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; 30-Min-Polling)
 export { FahrerPhase4068MeineKmProSchicht } from './phase4068-meine-km-pro-schicht';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
