@@ -1169,6 +1169,7 @@ import { DispatchPhase4257SchichtdauerBoard } from './phase4257-schichtdauer-boa
 import { DispatchPhase4267KundenzufriedenheitBoard } from './phase4267-kundenzufriedenheit-board';
 import { DispatchPhase4272LieferzeitBoard } from './phase4272-lieferzeit-board';
 import { DispatchPhase4277ReaktionszeitBoard } from './phase4277-reaktionszeit-board';
+import { DispatchPhase4282TourstartBoard } from './phase4282-tourstart-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4965,6 +4966,7 @@ export function DispatchBoard({
           <DispatchPhase4267KundenzufriedenheitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4272LieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4277ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4282TourstartBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13390,3 +13392,5 @@ export { DispatchPhase4267KundenzufriedenheitBoard } from './phase4267-kundenzuf
 export { DispatchPhase4272LieferzeitBoard } from './phase4272-lieferzeit-board';
 // Phase 4277 — Reaktionszeit-Board (Zap amber; aufsteigend Rang 1=schnellste Reaktion; KPI-Grid Schnellste/Team-Avg+Ziel/Langsamste; Alert Langsam; VALUE-BASED rank_delta<0=TrendingDown emerald; 30-Min-Polling)
 export { DispatchPhase4277ReaktionszeitBoard } from './phase4277-reaktionszeit-board';
+// Phase 4282 — Tourstart-Board (Clock rose; aufsteigend Rang 1=schnellster Tourstart; KPI-Grid Schnellster/Team-Avg/Langsamster; Alert Verspätet; bester_name/letzter_name; VALUE-BASED rank_delta<0=TrendingDown emerald; 30-Min-Polling)
+export { DispatchPhase4282TourstartBoard } from './phase4282-tourstart-board';
