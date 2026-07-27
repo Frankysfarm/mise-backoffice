@@ -1126,6 +1126,7 @@ import { FahrerPhase4448MeineKilometer } from './phase4448-meine-kilometer';
 import { FahrerPhase4454MeineWartezeit } from './phase4454-meine-wartezeit';
 import { FahrerPhase4459MeineStoppdauer } from './phase4459-meine-stoppdauer';
 import { FahrerPhase4464MeinBestellwert } from './phase4464-mein-bestellwert';
+import { FahrerPhase4469MeineTourenProTag } from './phase4469-meine-touren-pro-tag';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7201,6 +7202,7 @@ export function FahrerApp({
           {/* Phase 4459: Meine Stoppdauer — Timer violet-500; avg_stoppdauer_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≤5min/≤8min/>8min; 30-Min-Polling */}
           <FahrerPhase4459MeineStoppdauer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4464MeinBestellwert driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4469MeineTourenProTag driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11441,3 +11443,4 @@ export { FahrerPhase4454MeineWartezeit } from './phase4454-meine-wartezeit';
 // Phase 4459 — Meine Stoppdauer (Timer violet-500; avg_stoppdauer_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≤5min/≤8min/>8min; 30-Min-Polling)
 export { FahrerPhase4459MeineStoppdauer } from './phase4459-meine-stoppdauer';
 export { FahrerPhase4464MeinBestellwert } from './phase4464-mein-bestellwert';
+export { FahrerPhase4469MeineTourenProTag } from './phase4469-meine-touren-pro-tag';

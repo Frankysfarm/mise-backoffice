@@ -1206,6 +1206,7 @@ import { DispatchPhase4447KmRankingBoard } from './phase4447-km-ranking-board';
 import { DispatchPhase4453WartezeitRankingBoard } from './phase4453-wartezeit-ranking-board';
 import { DispatchPhase4458StoppdauerRankingBoard } from './phase4458-stoppdauer-ranking-board';
 import { DispatchPhase4463BestellwertRankingBoard } from './phase4463-bestellwert-ranking-board';
+import { DispatchPhase4468TourenProTagBoard } from './phase4468-touren-pro-tag-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5049,6 +5050,7 @@ export function DispatchBoard({
           {/* Phase 4458: Stoppdauer-Ranking-Board — Timer violet-500; INVERTED aufsteigend Rang 1=kürzeste Stoppdauer=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Stoppdauer; Balken=(sec/maxSec)*100%; 30-Min-Polling */}
           <DispatchPhase4458StoppdauerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4463BestellwertRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4468TourenProTagBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13568,3 +13570,4 @@ export { DispatchPhase4453WartezeitRankingBoard } from './phase4453-wartezeit-ra
 // Phase 4458 — Stoppdauer-Ranking-Board (Timer violet-500; INVERTED aufsteigend Rang 1=kürzeste Stoppdauer=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Stoppdauer; Balken=(sec/maxSec)*100%; 30-Min-Polling)
 export { DispatchPhase4458StoppdauerRankingBoard } from './phase4458-stoppdauer-ranking-board';
 export { DispatchPhase4463BestellwertRankingBoard } from './phase4463-bestellwert-ranking-board';
+export { DispatchPhase4468TourenProTagBoard } from './phase4468-touren-pro-tag-board';

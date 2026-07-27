@@ -31703,13 +31703,38 @@ KRITISCH: Nächste freie Phase ist 4462! NIEMALS 4000–4461 verwenden. IMMER al
 - **Belegt:** 4000–4466 (4455, 4460, 4465 übersprungen)
 - **Nächste freie Phase: 4467**
 
-### Nächste Phasen 4467–4471 — Fahrer-Touren-pro-Tag-Ranking
-1. **Phase 4467 Backend:** GET /api/delivery/admin/fahrer-touren-pro-tag-ranking — avg(tours/Tag) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Touren/Tag=bester; Quartil-Ampel; Alert "Wenige Touren!"; Mock Tim 4.8/Max 4.1/Julia 3.5/Sara 2.9; force-dynamic; createClient() aus @/lib/supabase/server.
-2. **Phase 4468 Dispatch:** `DispatchPhase4468TourenProTagBoard` — Route teal-500; KPI-Grid Meiste/Team-Avg/Wenigste; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-3. **Phase 4469 Fahrer:** `FahrerPhase4469MeineTourenProTag` — Route teal-500; isOnline-Guard; Coaching-Tipp 3 Stufen (≥4.5/≥3.5/<3.5); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-4. **Phase 4470 Storefront:** Überspringen.
-5. **Phase 4471 Kitchen:** `KitchenPhase4471TourenTicker` — Route teal-500; Fleißigster #1; Ziel ≥4/Tag; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+## Batch 4467–4471 — Fahrer-Touren-pro-Tag-Ranking (ABGESCHLOSSEN 2026-07-27)
 
-KRITISCH: Nächste freie Phase ist 4467! NIEMALS 4000–4466 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+### Phase 4467 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-touren-pro-tag-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-touren-pro-tag-ranking?location_id=...
+**Logik:** avg(tours/Tag) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Touren/Tag=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Wenige Touren!" wenn <3.5/Tag; Mock Tim 4.8/Max 4.1/Julia 3.5/Sara 2.9; force-dynamic ✅; createClient() ✅
+
+### Phase 4468 — Touren/Tag-Ranking-Board (Dispatch)
+**Component:** `DispatchPhase4468TourenProTagBoard` — Route teal-500; absteigend Rang 1=meiste Touren/Tag; KPI-Grid Meiste/Team-Avg/Wenigste; Alert Wenige Touren; Balken=(val/maxVal)*100%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4469 — Meine Touren/Tag (Fahrer)
+**Component:** `FahrerPhase4469MeineTourenProTag` — Route teal-500; avg_touren_pro_tag 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen (≥4.5/≥3.5/<3.5); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4470 — Storefront
+Übersprungen ✅
+
+### Phase 4471 — Touren-Ticker (Kitchen)
+**Component:** `KitchenPhase4471TourenTicker` — Route teal-500; Fleißigster #1 Name+Touren/Tag teal-600; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥4/Tag; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4471 (4455, 4460, 4465, 4470 übersprungen)
+- **Nächste freie Phase: 4472**
+
+### Nächste Phasen 4472–4476 — Fahrer-Pünktlichkeitsquote-Ranking
+1. **Phase 4472 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit-ranking — pct(on_time deliveries) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Pünktlichkeit=bester; Quartil-Ampel; Alert "Pünktlichkeitsproblem!"; Mock Tim 96%/Max 91%/Julia 84%/Sara 76%; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4473 Dispatch:** `DispatchPhase4473PuenktlichkeitBoard` — Clock indigo-500; KPI-Grid Pünktlichste/Team-Avg/Unpünktlichste; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4474 Fahrer:** `FahrerPhase4474MeinePuenktlichkeit` — Clock indigo-500; isOnline-Guard; Coaching-Tipp 3 Stufen (≥95%/≥85%/<85%); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4475 Storefront:** Überspringen.
+5. **Phase 4476 Kitchen:** `KitchenPhase4476PuenktlichkeitsTicker` — Clock indigo-500; Pünktlichster #1; Ziel ≥90%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4472! NIEMALS 4000–4471 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
 ## STATUS: MARKT-REIF
