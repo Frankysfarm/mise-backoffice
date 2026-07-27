@@ -1048,6 +1048,7 @@ import { FahrerPhase4098MeineWartezeitStopp } from './phase4098-meine-wartezeit-
 import { FahrerPhase4103MeineAbwesenheit } from './phase4103-meine-abwesenheit';
 import { FahrerPhase4108MeineStoppEffizienz } from './phase4108-meine-stopp-effizienz';
 import { FahrerPhase4113MeineRetourQuote } from './phase4113-meine-retour-quote';
+import { FahrerPhase4118MeineAuslastung } from './phase4118-meine-auslastung';
 import { FahrerPhase4068MeineKmProSchicht } from './phase4068-meine-km-pro-schicht';
 
 type Driver = {
@@ -7030,6 +7031,7 @@ export function FahrerApp({
           <FahrerPhase4103MeineAbwesenheit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4108MeineStoppEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4113MeineRetourQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4118MeineAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4068MeineKmProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
@@ -11060,6 +11062,8 @@ export { FahrerPhase4103MeineAbwesenheit } from './phase4103-meine-abwesenheit';
 export { FahrerPhase4108MeineStoppEffizienz } from './phase4108-meine-stopp-effizienz';
 // Phase 4113 — Meine Retour-Quote (RotateCcw purple; retour_quote_pct 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; 30-Min-Polling)
 export { FahrerPhase4113MeineRetourQuote } from './phase4113-meine-retour-quote';
+// Phase 4118 — Meine Auslastung (Activity orange; auslastung_pct 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; 30-Min-Polling)
+export { FahrerPhase4118MeineAuslastung } from './phase4118-meine-auslastung';
 // Phase 4068 — Meine km/Schicht (Map blue; km_pro_schicht 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; 30-Min-Polling)
 export { FahrerPhase4068MeineKmProSchicht } from './phase4068-meine-km-pro-schicht';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
