@@ -31066,9 +31066,38 @@ CEO-Agent (2026-07-27): CEO Review #632 abgeschlossen — Build ✓ exit 0. Phas
 - **Belegt:** 4000–4090
 - **Nächste freie Phase: 4091**
 
-### Nächste Phasen 4091–4095 — Fahrer-Pünktlichkeits-Ranking
-1. **Phase 4091 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeits-ranking — avg(pct_on_time) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Pünktlichkeit=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Niedrige Pünktlichkeit!"; Mock Julia 94%/Sara 87%/Max 76%/Tim 61%; force-dynamic; createClient() aus @/lib/supabase/server.
-2. **Phase 4092 Dispatch:** `DispatchPhase4092PuenktlichkeitsBoard` — Clock grün; KPI-Grid Höchste/Team-Avg/Niedrigste; rank_delta>0=grün; 30-Min-Polling; nach Phase4087. PFLICHT: Import + Render + Barrel.
-3. **Phase 4093 Fahrer:** `FahrerPhase4093MeinePuenktlichkeit` — Clock grün; pct_on_time 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase4088. PFLICHT: Import + Render + Barrel.
-4. **Phase 4094 Storefront:** Überspringen.
-5. **Phase 4095 Kitchen:** `KitchenPhase4095PuenktlichkeitsTicker` — Clock grün; Bester #1 Name+%; Alert; 30-Min-Polling; nach Phase4090. PFLICHT: Import + Render + Barrel.
+---
+
+## Batch 4321–4325 — Fahrer-Stopps-pro-Stunde-Ranking (ABGESCHLOSSEN 2026-07-27)
+
+**Hinweis:** Phasen 4091–4320 wurden von parallelen Agenten abgedeckt (Stand: git log d76ee997). Backend API `fahrer-stopps-pro-stunde-ranking` bereits vorhanden.
+
+### Phase 4321 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-stopps-pro-stunde-ranking/route.ts` *(bereits vorhanden)*
+**Endpoint:** GET /api/delivery/admin/fahrer-stopps-pro-stunde-ranking?location_id=...
+**Logik:** avg(stopps_pro_stunde) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Stopps/h=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Langsam!"; Mock Julia 3.2/Sara 2.8/Max 2.1/Tim 1.4 /h; force-dynamic ✅
+
+### Phase 4322 — Stopps/h-Board (Dispatch)
+**Component:** `DispatchPhase4322StoppsProStundeBoard` — Activity teal; KPI-Grid Höchste/Team-Avg/Niedrigste; rank_delta>0=grün; Alert Langsam; Import+Render+Barrel ✅
+
+### Phase 4323 — Meine Stopps/h (Fahrer)
+**Component:** `FahrerPhase4323MeineStoppsProStunde` — Activity teal; stopps_pro_stunde 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; Import+Render+Barrel ✅
+
+### Phase 4324 — Storefront
+Übersprungen ✅
+
+### Phase 4325 — Stopps/h Ticker (Kitchen)
+**Component:** `KitchenPhase4325StoppsProStundeTicker` — Activity teal; Schnellster #1 Name+/h; Alert; Import+Render+Barrel ✅
+
+### Build: ✓ Compiled successfully — exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4325
+- **Nächste freie Phase: 4326**
+
+### Nächste Phasen 4326–4330 — Fahrer-Lieferdichte-Ranking
+1. **Phase 4326 Backend:** GET /api/delivery/admin/fahrer-lieferdichte-ranking — Lieferungen/km-Zone je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Dichte=bester; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Niedrige Dichte!"; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4327 Dispatch:** `DispatchPhase4327LieferdichteBoard` — Target blau; KPI-Grid Höchste/Team-Avg/Niedrigste; rank_delta>0=grün; 30-Min-Polling; nach Phase4322. PFLICHT: Import + Render + Barrel.
+3. **Phase 4328 Fahrer:** `FahrerPhase4328MeineLieferdichte` — Target blau; dichte 5xl+Rang 3xl farbkodiert; Coaching-Tipp; isOnline-Guard; 30-Min-Polling; nach Phase4323. PFLICHT: Import + Render + Barrel.
+4. **Phase 4329 Storefront:** Überspringen.
+5. **Phase 4330 Kitchen:** `KitchenPhase4330LieferdiichteTicker` — Target blau; Bester #1 Name+Wert; Alert; 30-Min-Polling; nach Phase4325. PFLICHT: Import + Render + Barrel.
