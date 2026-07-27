@@ -4941,3 +4941,5 @@ export { LieferdienstStatistikenDashboard } from './statistiken-dashboard-phase4
 export { LieferdienstPhase2770StatistikenLiveCockpitKomplett } from './phase2770-statistiken-live-cockpit-komplett';
 // Phase 2775 — Statistiken Wochenziel-Cockpit (Target-Icon indigo; 6 KPI-Wochenziele Ampel+Fortschrittsbalken; Gesamt-Zielerreichung %; Alert "Ziel verfehlt"; Erreichte vs. offene Ziele; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase2775StatistikenWochenZielCockpit } from './phase2775-statistiken-wochenziel-cockpit';
+// Phase 2780 — Statistiken Tages-Intelligence Dashboard (BarChart2 indigo; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Ring; Insight-Tipp; Alert-Strip Rot-KPIs; Stundenverlauf-BarChart 2-Modi Jetzt-Stunde indigo; Top-3-Fahrer Score-Balken; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase2780StatistikTagesIntelligence } from './phase2780-statistiken-tages-intelligence';
