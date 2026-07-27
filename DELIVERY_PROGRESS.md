@@ -79,7 +79,15 @@ Frontend-Ingenieur-Agent (2026-07-27): Phasen 4011–4015 implementiert — Fahr
 - Phase 4030 Kitchen: `KitchenPhase4030GeschwindigkeitTicker` — Gauge blue, Schnellste #1 Name+km/h im Header, Alert-Zaehler, kompakt absteigend, Team-Avg+Ziel >=25km/h, Import+Render+Barrel ✅
 - Build ✓ exit 0. Push erfolgt.
 
-### Naechste Phasen 4031–4035 — Naechstes Ranking-Thema (TBD)
+### ✅ Phasen 4031–4035 ABGESCHLOSSEN — Fahrer-km-pro-Tour-Ranking
+- Phase 4031 Backend: `/api/delivery/admin/fahrer-km-pro-tour-ranking/route.ts` (bereits vorhanden) — force-dynamic, km_avg je Tour aufsteigend Rang 1=kuerzeste=bester, Ampel prozentbasiert, rank_delta (<0=verbessert), alert_top, Mock Julia 4.2/Sara 5.1/Max 6.8/Tim 9.3 km ✅
+- Phase 4032 Dispatch: `DispatchPhase4032KmProTourBoard` — Route teal, aufsteigend Rang 1=kuerzeste Touren, KPI-Grid Kuerzeste/Team-Avg/Laengste, Alert "Lange Touren!", rank_delta<0=gruen, Import+Render+Barrel ✅
+- Phase 4033 Fahrer: `FahrerPhase4033MeineKmProTour` — Route teal, km_avg 5xl+Rang 3xl farbkodiert, Coaching-Tipp (3 Stufen), isOnline-Guard, rank_delta<0=gruen, Import+Render+Barrel ✅
+- Phase 4034 Storefront: uebersprungen ✅
+- Phase 4035 Kitchen: `KitchenPhase4035KmProTourTicker` — Route teal, Bester #1 Name+km im Header, Alert-Zaehler, kompakt aufsteigend, Team-Avg, Import+Render+Barrel ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 4036–4040 — Naechstes Ranking-Thema (TBD)
 
 ### Naechste Phasen 4016–4020 — Naechstes Ranking-Thema (TBD)
 
