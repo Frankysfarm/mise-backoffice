@@ -30,7 +30,14 @@ export async function POST(req: NextRequest) {
 
   const c = sb();
   const { data: repush } = await c.rpc('fn_repush_pending_batches');
-  const { data: cancelled } = await c.rpc('fn_auto_cancel_unaccepted_batches');
+  const { data: atomicV2 } = await c.from('dispatch_writer_gates')
+    .select('tenant_id').eq('writer', 'atomic_v2').eq('enabled', true).limit(1);
+  let cancelled = 0;
+  if (process.env.DRIVER_V1_AUTO_CANCEL_COMPAT === 'true' && !atomicV2?.length) {
+    const result = await c.rpc('fn_auto_cancel_unaccepted_batches');
+    if (result.error) return NextResponse.json({ ok: false, reason_code: 'AUTO_CANCEL_FAILED' }, { status: 500 });
+    cancelled = Number(result.data ?? 0);
+  }
 
   return NextResponse.json({
     ok: true,

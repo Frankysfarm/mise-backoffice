@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { realtimeRequiresReload, resolveSingleOrderItems, type DriverV2Action, type DriverV2Envelope, type DriverV2Snapshot } from '@/lib/delivery/driver-v2-contract';
 import { useRouter } from 'next/navigation';
 import {
   Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, FileText, Footprints,
@@ -173,9 +174,6 @@ import { TourZeitfensterAmpel } from './tour-zeitfenster-ampel';
 import { TourSequenzNavigatorPro } from './tour-sequenz-navigator-pro';
 import { FahrerStoppSchnellKommando } from './stopp-schnell-kommando';
 import { FahrerStopZielkompass } from './stop-zielkompass';
-import { TourStopSchnellQuittierung } from './tour-stop-schnell-quittierung';
-import { TourStopQuickActions } from './tour-stop-quick-actions';
-import { TourStopImpulseKarte } from './tour-stop-impulse-karte';
 import { SchichtEndSummary } from './schicht-end-summary';
 import { FahrerTourVerdienstVerlauf } from './tour-verdienst-verlauf';
 import { FahrerBatterieAnzeige } from './batterie-anzeige';
@@ -636,7 +634,6 @@ import { FahrerPhase2290TourStoppNaviKommando } from './phase2290-tour-stopp-nav
 import { FahrerPhase2293MeinDurchsatz } from './phase2293-mein-durchsatz';
 import { FahrerPhase2295TourStoppNavigationCockpit } from './phase2295-tour-stopp-navigation-cockpit';
 import { FahrerPhase2298MeineSchichtBilanz } from './phase2298-meine-schicht-bilanz';
-import { FahrerPhase2200SmartStoppNaviCockpit } from './phase2200-smart-stopp-navi-cockpit';
 import { FahrerPhase2300SmartTourNavPro } from './phase2300-smart-tour-nav-pro';
 import { FahrerPhase2303MeinePausen } from './phase2303-meine-pausen';
 import { FahrerPhase2309MeineDistanz } from './phase2309-meine-distanz';
@@ -736,8 +733,6 @@ import { FahrerPhase2763MeinLiefergebiet } from './phase2763-mein-liefergebiet';
 import { FahrerPhase2768MeineFehlerquote } from './phase2768-meine-fehlerquote';
 import { FahrerPhase2773MeinTagesPerformanceIndex } from './phase2773-mein-tages-performance-index';
 import { FahrerPhase2778MeineRestschichtPrognose } from './phase2778-meine-restschicht-prognose';
-import { FahrerPhase2780TourStoppNavigationsFinalHub } from './phase2780-tour-stopp-navigations-final-hub';
-import { FahrerPhase2785SmartTourStopsNavigatorPro } from './phase2785-smart-tour-stops-navigator-pro';
 import { FahrerPhase2788MeineReaktionszeit } from './phase2788-meine-reaktionszeit';
 import { FahrerPhase2794MeineAbschlussrate } from './phase2794-meine-abschlussrate';
 import { FahrerPhase2799MeineKilometerEffizienz } from './phase2799-meine-kilometer-effizienz';
@@ -849,15 +844,12 @@ import { FahrerPhase3322MeineAvgLieferzeit } from './phase3322-meine-avg-lieferz
 import { FahrerPhase3320TourStoppNavigationHubUltimate } from './phase3320-tour-stopp-navigation-hub-ultimate';
 import { FahrerPhase3295TourStoppSmartNavigatorPro } from './phase3295-tour-stopp-smart-navigator-pro';
 import { FahrerPhase3257TourStoppNavigationsUltraKommando } from './phase3257-tour-stopp-navigations-ultra-kommando';
-import { FahrerPhase3200TourStoppSmartKommandoUltra } from './phase3200-tour-stopp-smart-kommando-ultra';
 import { FahrerPhase2945TourStoppGpsNavigatorUltimate } from './phase2945-tour-stopp-gps-navigator-ultimate';
 import { FahrerPhase2896TourStoppNaviFinal } from './phase2896-tour-stopp-navi-final';
 import { FahrerPhase2878NaechsterStoppGpsNavigationsKommando } from './phase2878-naechster-stopp-gps-navigations-kommando';
 import { FahrerPhase2855TourStopsNavigationEchtzeitHub } from './phase2855-tour-stops-navigation-echtzeit-hub';
 import { FahrerPhase2640TourStoppSmartKommando } from './phase2640-tour-stopp-smart-kommando';
 import { FahrerPhase2645TourStoppNavigatorProUltimate } from './phase2645-tour-stopp-navigator-pro-ultimate';
-import { FahrerPhase2605TourStoppGpsKommandoPro } from './phase2605-tour-stopp-gps-kommando-pro';
-import { FahrerPhase2610TourNavigatorGpsFinal } from './phase2610-tour-navigator-gps-final';
 import { FahrerPhase2620SmartTourNavigationMaster } from './phase2620-smart-tour-navigation-master';
 import { FahrerPhase2625TourNavigationKompaktFinal } from './phase2625-tour-navigation-kompakt-final';
 import { FahrerPhase2523TourStoppSmartNaviPro } from './phase2523-tour-stopp-smart-navi-pro';
@@ -869,9 +861,7 @@ import { FahrerPhase2447MeineUeberstunden } from './phase2447-meine-ueberstunden
 import { FahrerPhase1001TourStoppSmartNavFinal } from './phase1001-tour-stopp-smart-nav-final';
 import { FahrerPhase2510TourStoppNavigationsHub } from './phase2510-tour-stopp-navigations-hub';
 import { FahrerPhase2520TourStoppNavigatorFinal } from './phase2520-tour-stopp-navigator-final';
-import { Phase2630SmartTourStoppNavigatorUltimateFinal } from './phase2630-smart-tour-stopp-navigator-ultimate-final';
 import { SmartTourStopHubV2 } from './smart-tour-stop-hub-v2';
-import { FahrerPhase3327TourStopsNaviFinalHub } from './phase3327-tour-stops-navi-final-hub';
 import { FahrerPhase3331MeineLieferzeitPraezision } from './phase3331-meine-lieferzeit-praezision';
 import { FahrerPhase3336MeineKundenbewertung } from './phase3336-meine-kundenbewertung';
 import { FahrerPhase3341MeinUmsatzProTour } from './phase3341-mein-umsatz-pro-tour';
@@ -1053,8 +1043,125 @@ export function FahrerApp({
   const [pending, startTransition] = useTransition();
   const atomicOfferRef = useRef<CanonicalClientOffer | null>(null);
   const [atomicOffer, setAtomicOffer] = useState<CanonicalClientOffer | null>(null);
+  const driverV2Ref = useRef<DriverV2Snapshot | null>(null);
+  const [driverV2Snapshot, setDriverV2Snapshot] = useState<DriverV2Snapshot | null>(null);
 
   const isOnline = status?.ist_online ?? false;
+
+  function reconcileDriverSnapshot(snapshot: DriverV2Snapshot) {
+    driverV2Ref.current = snapshot;
+    setDriverV2Snapshot(snapshot);
+    setStatus((current) => ({
+      ...(current ?? {
+        employee_id: driver.id,
+        fahrzeug: driver.fahrzeug_praeferenz,
+        aktueller_batch_id: null,
+        online_seit: null,
+        last_lat: null,
+        last_lng: null,
+        last_update: null,
+      }),
+      ist_online: snapshot.driver.active && snapshot.driver.state !== 'offline',
+    }));
+    setActiveBatch((current) => {
+      if (!snapshot.trip) return null;
+      if (!current || current.id !== snapshot.trip.id) {
+        const canonicalStops = snapshot.stops.filter((stop) => stop.type === 'dropoff').map((stop) => {
+          const order = snapshot.orders.find((row) => row.id === stop.order_id)!;
+          return {
+            id: stop.id, batch_id: snapshot.trip!.id, order_id: stop.order_id,
+            reihenfolge: stop.sequence, angekommen_am: stop.arrived_at,
+            geliefert_am: stop.completed_at, order: {
+              id: order.id, bestellnummer: order.bestellnummer, kunde_name: order.kunde_name,
+              kunde_adresse: order.kunde_adresse, kunde_plz: order.kunde_plz,
+              kunde_lat: order.kunde_lat, kunde_lng: order.kunde_lng,
+              gesamtbetrag: order.gesamtbetrag,
+            },
+          };
+        });
+        return {
+          id: snapshot.trip.id,
+          status: snapshot.trip.state === 'in_progress' ? 'unterwegs' : snapshot.trip.state,
+          started_at: null, stops: canonicalStops,
+        };
+      }
+      return {
+        ...current,
+        status: snapshot.trip.state === 'in_progress' ? 'unterwegs' : snapshot.trip.state,
+        stops: current.stops.map((local) => {
+          const canonical = snapshot.stops.find((stop) => stop.id === local.id);
+          return canonical ? {
+            ...local,
+            angekommen_am: canonical.arrived_at,
+            geliefert_am: canonical.completed_at,
+          } : local;
+        }),
+      };
+    });
+    setOpenBatches((current) => current.filter((batch) => batch.batch_id !== snapshot.trip?.id));
+  }
+
+  async function driverV2Request(path: string, action?: DriverV2Action, payload: Record<string, unknown> = {}) {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) throw new Error('DRIVER_SESSION_MISSING');
+    const current = driverV2Ref.current;
+    const targetOrder = current?.orders.find((order) => order.id === payload.order_id)
+      ?? (current?.orders.length === 1 ? current.orders[0] : undefined);
+    const targetStop = current?.stops.find((stop) => stop.id === payload.stop_id)
+      ?? (current?.stops.length === 1 ? current.stops[0] : undefined);
+    const actionStoreKey = `mise_driver_v2_action:${action ?? 'snapshot'}:${path}:${String(payload.order_id ?? payload.stop_id ?? '')}`;
+    const storedEnvelope = action ? localStorage.getItem(actionStoreKey) : null;
+    const actionId = action ? crypto.randomUUID() : null;
+    const nextEnvelope = action && current ? {
+      action_id: actionId!,
+      expected_state: current.driver.state,
+      expected_versions: {
+        driver: current.driver.version, assignment: current.assignment?.version,
+        trip: current.trip?.version, route: current.trip?.route_version,
+        order: targetOrder?.version, stop: targetStop?.version,
+      },
+      occurred_at: new Date().toISOString(), payload,
+    } satisfies DriverV2Envelope : null;
+    const requestBody = storedEnvelope ?? (nextEnvelope ? JSON.stringify(nextEnvelope) : undefined);
+    if (action && requestBody && !storedEnvelope) localStorage.setItem(actionStoreKey, requestBody);
+    const response = await fetch(`/api/driver/v2/${path}`, {
+      method: action ? 'POST' : 'GET',
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: requestBody,
+    });
+    const result = await response.json().catch(() => null);
+    if (result?.snapshot) reconcileDriverSnapshot(result.snapshot);
+    if (!response.ok || !result?.ok) {
+      if (action && ['EXPECTED_VERSION_CONFLICT','EXPECTED_STATE_CONFLICT',
+        'IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST'].includes(result?.reason_code)) {
+        localStorage.removeItem(actionStoreKey);
+      }
+      throw new Error(result?.reason_code ?? 'DRIVER_V2_REQUEST_FAILED');
+    }
+    if (action) localStorage.removeItem(actionStoreKey);
+    return result;
+  }
+
+  async function reloadDriverV2Snapshot() {
+    const result = await driverV2Request('snapshot');
+    reconcileDriverSnapshot(result.snapshot);
+  }
+
+  useEffect(() => {
+    reloadDriverV2Snapshot().catch(() => {});
+    const reconnect = () => reloadDriverV2Snapshot().catch(() => {});
+    window.addEventListener('online', reconnect);
+    return () => window.removeEventListener('online', reconnect);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!driverV2Snapshot?.assignment || driverV2Snapshot.assignment.received_by_app_at) return;
+    driverV2Request('assignments/ack', 'ack_receipt').catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverV2Snapshot?.assignment?.id, driverV2Snapshot?.assignment?.version]);
 
   function persistAtomicOffer(offer: CanonicalClientOffer | null) {
     atomicOfferRef.current = offer;
@@ -1370,13 +1477,8 @@ export function FahrerApp({
         const now = Date.now();
         if (now - lastPush < 15000) return;   // max alle 15s
         lastPush = now;
-        supabase.from('driver_status').update({
-          last_lat: pos.coords.latitude,
-          last_lng: pos.coords.longitude,
-          last_heading: pos.coords.heading ?? null,
-          last_speed_kmh: pos.coords.speed != null ? Math.round(pos.coords.speed * 3.6) : null,
-          last_update: new Date().toISOString(),
-        }).eq('employee_id', driver.id).then(() => {});
+        // T06 owns monotonic persistence. T03 deliberately does not write GPS
+        // current-state directly; the v2 endpoint validates and remains default-off.
       },
       () => setGpsOk(false),
       { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 },
@@ -1423,21 +1525,28 @@ export function FahrerApp({
       .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batches' }, refresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batch_stops' }, refresh)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'driver_status', filter: `employee_id=eq.${driver.id}` }, refresh)
-      .subscribe();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'dispatch_offer_assignments' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customer_orders' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_drivers' }, refresh)
+      .subscribe((state: string) => {
+        // Supabase change payloads do not expose the canonical aggregate snapshot
+        // version. A (re)subscription therefore always replaces local state.
+        if (state === 'SUBSCRIBED') reloadDriverV2Snapshot().catch(() => router.refresh());
+      });
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function refresh() {
-    router.refresh();
+    if (realtimeRequiresReload(driverV2Ref.current?.snapshot_version ?? null, null)) {
+      await reloadDriverV2Snapshot().catch(() => router.refresh());
+    }
   }
 
   async function goOffline() {
     setShowShiftEnd(false);
     startTransition(async () => {
-      await supabase.from('driver_status').upsert({
-        employee_id: driver.id, ist_online: false, fahrzeug: driver.fahrzeug_praeferenz, online_seit: null,
-      });
+      await driverV2Request('session/end', 'end_shift');
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null, last_lat: null, last_lng: null, last_update: null }), ist_online: false, online_seit: null }));
     });
   }
@@ -1477,10 +1586,7 @@ export function FahrerApp({
     }
     // Going online
     startTransition(async () => {
-      await supabase.from('driver_status').upsert({
-        employee_id: driver.id, ist_online: true, fahrzeug: driver.fahrzeug_praeferenz,
-        online_seit: new Date().toISOString(),
-      });
+      await driverV2Request('session/start', 'start_shift');
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null, last_lat: null, last_lng: null, last_update: null }), ist_online: true, online_seit: new Date().toISOString() }));
     });
   }
@@ -1499,19 +1605,8 @@ export function FahrerApp({
         }
         return;
       }
-      const { data } = isMise
-        ? await supabase.rpc('claim_mise_delivery_batch', { p_batch_id: batchId, p_employee_id: driver.id })
-        : await supabase.rpc('claim_delivery_batch', { p_batch_id: batchId });
-      if ((data as any)?.ok) {
-        if (isMise) {
-          await supabase.from('driver_status')
-            .update({ aktueller_batch_id: batchId })
-            .eq('employee_id', driver.id);
-        }
-        window.location.reload();
-      } else {
-        alert((data as any)?.error ?? 'Konnte Tour nicht annehmen');
-      }
+      void isMise;
+      alert('Diese Legacy-Tour kann nicht direkt übernommen werden. Bitte Snapshot neu laden.');
     });
   }
 
@@ -1530,38 +1625,15 @@ export function FahrerApp({
         }
         return;
       }
-      const now = new Date().toISOString();
-
-      // Legacy-Stop updaten
-      await supabase.from('delivery_batch_stops')
-        .update({ geliefert_am: now })
-        .eq('id', stopId);
-
-      // Mise-Stop updaten (falls dieser Stop aus dem Mise-System stammt)
-      await supabase.from('mise_delivery_batch_stops')
-        .update({ completed_at: now })
-        .eq('id', stopId);
-
-      if (stop) {
-        await supabase.from('customer_orders')
-          .update({ status: 'geliefert', geliefert_am: now })
-          .eq('id', stop.order_id);
-      }
-
-      router.refresh();
+      await driverV2Request('stops/complete', 'complete_stop', { stop_id: stopId, order_id: stop?.order_id });
+      await refresh();
     });
   }
 
   async function markArrived(stopId: string) {
     startTransition(async () => {
-      const now = new Date().toISOString();
-      await supabase.from('delivery_batch_stops')
-        .update({ angekommen_am: now })
-        .eq('id', stopId);
-      await supabase.from('mise_delivery_batch_stops')
-        .update({ angekommen_am: now })
-        .eq('id', stopId);
-      router.refresh();
+      await driverV2Request('stops/arrive', 'arrive', { stop_id: stopId });
+      await refresh();
     });
   }
 
@@ -3738,7 +3810,9 @@ export function FahrerApp({
             gpsSpeed={gpsSpeed}
             driverLat={driverPos?.lat ?? null}
             driverLng={driverPos?.lng ?? null}
-            onAllDone={() => router.refresh()}
+            onAllDone={() => reloadDriverV2Snapshot().catch(() => {})}
+            onArrive={markArrived}
+            onDeliver={markDelivered}
           />
           </>
         )}
@@ -4926,72 +5000,6 @@ export function FahrerApp({
         {isOnline && activeBatch && (
           <StopSmartCountdown driverId={driver.id} />
         )}
-        {/* Phase 406: Tour-Stop-Schnell-Quittierung — Aktueller Stopp quittieren mit 3 Quick-Actions */}
-        {isOnline && activeBatch && (
-          <div className="px-4">
-            <TourStopSchnellQuittierung />
-          </div>
-        )}
-        {/* Phase 407: Tour-Stop-Quick-Actions — Navigation + Kontakt + Lieferung quittieren */}
-        {isOnline && activeBatch && (() => {
-          const currentStop = activeBatch.stops.find(s => !s.geliefert_am);
-          if (!currentStop) return null;
-          const address = [currentStop.order.kunde_adresse, currentStop.order.kunde_plz].filter(Boolean).join(', ');
-          return (
-            <div className="px-4 mt-3">
-              <TourStopQuickActions
-                tourId={activeBatch.id}
-                stopId={currentStop.id}
-                stopAddress={address}
-                customerName={currentStop.order.kunde_name}
-                customerPhone={currentStop.order.kunde_telefon ?? null}
-                lat={currentStop.order.kunde_lat ?? null}
-                lng={currentStop.order.kunde_lng ?? null}
-                onComplete={() => {
-                  setActiveBatch(prev => prev ? {
-                    ...prev,
-                    stops: prev.stops.map(s => s.id === currentStop.id ? { ...s, geliefert_am: new Date().toISOString() } : s)
-                  } : prev);
-                }}
-              />
-            </div>
-          );
-        })()}
-
-        {/* Phase 409: Tour-Stop-Impulse-Karte — Kompakter Stopp-Überblick mit Navigations-Buttons + Lieferbestätigung */}
-        {isOnline && activeBatch && (() => {
-          const currentStop = activeBatch.stops.find(s => !s.geliefert_am);
-          if (!currentStop) return null;
-          const completedCount = activeBatch.stops.filter(s => s.geliefert_am).length;
-          const address = [currentStop.order.kunde_adresse, currentStop.order.kunde_plz].filter(Boolean).join(', ');
-          return (
-            <div className="px-4 mt-3">
-              <TourStopImpulseKarte
-                stop={{
-                  orderId: currentStop.order.id,
-                  orderNr: currentStop.order.bestellnummer ?? `#${currentStop.order.id.slice(-4)}`,
-                  address,
-                  customerName: currentStop.order.kunde_name ?? 'Kunde',
-                  phone: currentStop.order.kunde_telefon ?? null,
-                  etaMin: null,
-                  timeWindowStart: null,
-                  timeWindowEnd: null,
-                  notes: currentStop.order.kunde_lieferhinweis ?? null,
-                  stopIndex: completedCount + 1,
-                  totalStops: activeBatch.stops.length,
-                  isOverdue: false,
-                }}
-                onConfirm={() => {
-                  setActiveBatch(prev => prev ? {
-                    ...prev,
-                    stops: prev.stops.map(s => s.id === currentStop.id ? { ...s, geliefert_am: new Date().toISOString() } : s)
-                  } : prev);
-                }}
-              />
-            </div>
-          );
-        })()}
-
         {/* Tages-Zusammenfassung: Schicht-Performance als aufklappbare Übersicht */}
         {!activeBatch && isOnline && todayStats && (
           <FahrerTagesZusammenfassung
@@ -6471,9 +6479,7 @@ export function FahrerApp({
           {/* Phase 2778: Meine Restschicht-Prognose — Prognostizierte Auslastung % 4xl; Restschicht-Countdown; Balken 0–150% Ziel >80%; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Prognose Touren + Rate; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2778MeineRestschichtPrognose driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2780: Tour-Stopp Navigations-Final-Hub — Hero-Stopp + One-Tap-Navigation Google Maps/Waze + ETA-Countdown + Kunden-Anruf + Stopp-Bestätigung + Nächste-Stopps-Vorschau + Fortschrittsring; 20-Sek-Polling + 1-Sek-Tick */}
-          <FahrerPhase2780TourStoppNavigationsFinalHub driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2785: Smart Tour-Stops Navigator Pro — Aktiver Stopp + Nächste-Stopps-Liste + One-Tap-Navigation Google Maps/Waze + Kunden-Anruf + ETA-Countdown + Fortschrittsring + Stopp-Bestätigung; 15-Sek-Polling + 1-Sek-Tick */}
-          <FahrerPhase2785SmartTourStopsNavigatorPro driverId={driver.id} isOnline={isOnline} />
           {/* Phase 2788: Meine Reaktionszeit — Ø Min 4xl groß + Farbcode; Balken 0–10 Min Ziel 2 Min; KPI-Grid Trend/Ziel/Ampel/Team-Ø; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
           <FahrerPhase2788MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2794: Meine Abschlussrate — Rate % 4xl groß + Farbcode; Balken 0–100% Ziel 95%; KPI-Grid Trend/Ziel/Ampel/Touren; Coaching-Tipp; isOnline-Guard; 30-Min-Polling */}
@@ -6875,7 +6881,6 @@ export function FahrerApp({
           {/* Phase 3257: Tour-Stopp Navigations-Ultra-Kommando — Hero-Stopp; Google-Maps-Link; Anruf-Button; Kommentar-Warnung; Fortschrittsring; mobile-first; 15-Sek-Polling */}
           <FahrerPhase3257TourStoppNavigationsUltraKommando fahrerId={driver.id} />
           {/* Phase 3200: Tour-Stopp Smart-Kommando Ultra — Hero-Stopp mit Adresse+ETA-Countdown; Kundenkontakt; Pakete; Quick-Confirm-Button; weitere Stopps kompakt; mobile-first; 15-Sek-Polling+1-Sek-Tick */}
-          <FahrerPhase3200TourStoppSmartKommandoUltra driverId={driver.id} />
           {/* Phase 2945: Tour-Stopp GPS-Navigator Ultimate — Hero-Stopp mit ETA-Countdown; Google Maps/Waze; Anruf; Fortschrittsring; Done-Counter; mobile-first; 15-Sek-Polling */}
           <FahrerPhase2945TourStoppGpsNavigatorUltimate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 2920: Tour-Stopp Ultra-Navigator — Hero-Stopp farbkodiert ETA-Countdown; Maps/Waze/Anruf; Angekommen/Zugestellt; Sequenz-Dots; 1-Sek-Tick+15-Sek-Polling */}
@@ -6919,11 +6924,6 @@ export function FahrerApp({
             />
           )}
           {/* Phase 3327: Tour-Stops-Navi-Final-Hub — Nächster-Stopp-Hero mit Google-Maps + Anruf + Barzahlung-Alert + 1-Tap Zugestellt-CTA; alle Stopps gelistet; 15-Sek-Polling */}
-          {activeBatch && (
-            <div className="px-4">
-              <FahrerPhase3327TourStopsNaviFinalHub batchId={activeBatch.id} driverId={driver.id} />
-            </div>
-          )}
           {/* Phase 2888: Tour-Stopp Live-Navigations-Kommando — Tour-Fortschritt + Stop-Dots; Nächster Stopp prominent mit Navigation-Button; Alle Stopps Übersicht mit ETA + Telefon; 20-Sek-Polling */}
           {activeBatch && <Phase2888TourStoppLiveNavigationsKommando driverId={driver.id} batchId={activeBatch.id} />}
           {/* Phase 2878: Nächster Stopp GPS Navigations-Kommando — Hero-Stop farbkodiert + ETA-Countdown + Google Maps + Anruf + Bestätigen + Weitere Stopps; mobile-first */}
@@ -6985,9 +6985,7 @@ export function FahrerApp({
           {/* Phase 2830: Tour-Stopp Navigation Final Hub — Hero-Stopp + One-Tap Google Maps/Waze + Kunden-Anruf + ETA-Countdown + Nächste-Stopps-Vorschau + Fortschrittsbalken; 15-Sek-Polling + 1-Sek-Tick */}
           <FahrerPhase2830TourStoppNavigationFinalHub fahrerToken={driver.id} />
           {/* Phase 2605: Tour-Stopp GPS-Kommando Pro — One-Tap-Navigation + Kunden-Anruf + Stopp-Bestätigung + Fortschrittsring + Preview nächste Stopps; Mobile-first; 30-Sek-Polling */}
-          <FahrerPhase2605TourStoppGpsKommandoPro driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2610: Tour Navigator GPS Final — Aktueller Stopp Hero-Karte + One-Tap-Navigation + ETA-Countdown + Anruf + Stopp-Bestätigung + Preview nächste 2 Stopps + Fortschrittsring; Mobile-first; 20-Sek-Polling + 1-Sek-Tick */}
-          <FahrerPhase2610TourNavigatorGpsFinal driverId={driver.id} batchId={activeBatch?.id ?? null} />
           {/* Phase 2620: Smart Tour Navigation Master — GPS-Links + Countdown + Lieferbestätigung + Schicht-KPI-Zusammenfassung; Mobile-first */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <div className="px-4">
@@ -7059,7 +7057,6 @@ export function FahrerApp({
           {/* Phase 2520: Tour-Stopp Navigator Final — Nächster Stopp Fokus-Karte; One-Tap Navigation Google Maps; Anruf-Button; Stop-Progress-Dots; ETA-Ring; 20-Sek-Polling */}
           <FahrerPhase2520TourStoppNavigatorFinal driverId={driver.id} />
           {/* Phase 2630: Smart Tour-Stopp Navigator Ultimate Final — Nächster-Stopp-Fokus; Google/Waze/Apple-Navigation; Fortschrittsring; Stop-Dot-Reihe; Schnell-Bestätigung; Verdienst-Vorschau; Supabase-Realtime; 30-Sek-Polling */}
-          <Phase2630SmartTourStoppNavigatorUltimateFinal fahrerEmployeeId={driver.id} />
           {/* Phase 2625: Tour-Navigation Kompakt Final — Nächster Stopp Hero; One-Tap Google/Waze/Apple; Anruf; Notiz-Alert; Stop-Dots; Weitere Stopps aufklappbar; 20-Sek-Polling */}
           <FahrerPhase2625TourNavigationKompaktFinal driverId={driver.id} />
           {/* Phase 2640: Tour-Stopp Smart-Kommando — Hero-Stopp Hero + One-Tap Navi Google/Waze/Apple + Anruf + Notiz-Alert + ETA-Countdown + Stop-Dots + Weitere Stopps aufklappbar + Schicht-Einnahmen; 20-Sek-Polling + 1-Sek-ETA-Tick */}
@@ -7165,7 +7162,6 @@ export function FahrerApp({
             />
           )}
           {/* Phase 2200: Smart-Stopp-Navi-Cockpit — 1-Tap Navigation, Stopp-Bestätigung, ETA-Timeline */}
-          <FahrerPhase2200SmartStoppNaviCockpit />
           {/* Phase 2028: Smart-Tour-Stopp-Abschluss-Navigator — Aktueller Stopp groß, Navi + Anruf + Abliefern-CTA, Vorschau nächste Stopps */}
           {activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase2028SmartTourStoppAbschlussNavigator
@@ -7634,12 +7630,17 @@ export function FahrerApp({
           batchId={activeBatch.id}
           onClose={() => setPickOpen(false)}
           onComplete={() => { setPickOpen(false); router.refresh(); }}
-          onAtomicPickup={atomicOffer ? async () => {
-            await runAtomicAction(
-              'picked_up',
-              `/api/driver/v1/orders/${activeBatch.stops[0]?.order_id}/picked-up`,
-            );
-            await runAtomicAction('in_progress');
+          onAtomicPickup={driverV2Ref.current?.assignment ? async (items) => {
+            const orderId = await resolveSingleOrderItems(items, async (orderId, orderItems) => {
+              const stop = driverV2Ref.current?.stops.find((s) => s.type === 'pickup' && s.order_id === orderId);
+              await driverV2Request('items/resolve', 'resolve_items', {
+                items: orderItems.map(({ id, outcome }) => ({ id, outcome })),
+                stop_id: stop?.id, order_id: orderId,
+              });
+            });
+            const stop = driverV2Ref.current?.stops.find((s) => s.type === 'pickup' && s.order_id === orderId);
+            await driverV2Request('pickup/confirm', 'confirm_pickup', { order_id: orderId, stop_id: stop?.id });
+            await driverV2Request('pickup/depart', 'depart_pickup', { order_id: orderId, stop_id: stop?.id });
             return true;
           } : undefined}
         />

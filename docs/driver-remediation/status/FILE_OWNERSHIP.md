@@ -9,7 +9,9 @@ Updated: 2026-07-26
 | canonical lifecycle/state-machine modules | none | released by T01 | protected | T01 contract is frozen for T02 consumption; changes require explicit ownership. |
 | dispatch/assignment migrations and RPCs | none | released by T02 | protected | T02 Atomic-v2 migrations/RPCs frozen after G2 approval. |
 | `lib/delivery/recovery.ts` | none | unassigned | protected | T05 after stable contracts. |
-| `app/fahrer/app/client.tsx` | none | unassigned | protected | T03/T04/T06 must serialize edits. |
+| `app/fahrer/app/client.tsx` | none | released by T03 | protected | Canonical snapshot/API boundary frozen; T04/T06 need new exclusive ownership. |
+| `app/api/driver/v1/**` lifecycle boundary | none | released by T03 | protected | v1 adapters constrained; future changes require exclusive ownership. |
+| `app/api/driver/v2/**` and `lib/delivery/driver-v2-*` | none | released by T03 | protected | Canonical action/snapshot boundary frozen after G3. |
 | `package.json`, `next.config.js`, ESLint config | none | released by T00 | protected | Tool configuration complete. |
 | native verification scripts in `/Users/eule/mise-driver-native-t00` | none | released by T00 | protected | Native T00 commit `0ec66de`; no app logic changed. |
 | `docs/driver-remediation/status/*` | program | lead orchestrator | exclusive | Baseline, status, gates and command evidence. |

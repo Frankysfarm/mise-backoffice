@@ -55,6 +55,8 @@ export function DeliveryView({
   driverLat,
   driverLng,
   onAllDone,
+  onArrive,
+  onDeliver,
 }: {
   batchId: string;
   stops: Stop[];
@@ -64,9 +66,12 @@ export function DeliveryView({
   driverLat?: number | null;
   driverLng?: number | null;
   onAllDone: () => void;
+  onArrive: (stopId: string) => Promise<void>;
+  onDeliver: (stopId: string) => Promise<void>;
 }) {
   const supabase = createClient();
   const [stops, setStops] = useState(initialStops);
+  useEffect(() => setStops(initialStops), [initialStops]);
   const [showCompletion, setShowCompletion] = useState(false);
   const [pending, setPending] = useState<string | null>(null);
   const [arrivedIds, setArrivedIds] = useState<Set<string>>(new Set());
@@ -417,35 +422,15 @@ export function DeliveryView({
 
   async function markArrived(stopId: string) {
     vibrate([50, 30, 50]);
-    const now = new Date().toISOString();
-    await Promise.all([
-      supabase.from('delivery_batch_stops').update({ angekommen_am: now }).eq('id', stopId),
-      supabase.from('mise_delivery_batch_stops').update({ arrived_at: now }).eq('id', stopId),
-    ]);
-    setArrivedIds((s) => new Set([...s, stopId]));
-    setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, angekommen_am: now } : x));
+    await onArrive(stopId);
   }
 
   async function markDelivered(stopId: string) {
     vibrate([100, 50, 100, 50, 200]);
     setPending(stopId);
-    const now = new Date().toISOString();
     const stop = stops.find((s) => s.id === stopId);
-    await Promise.all([
-      supabase.from('delivery_batch_stops')
-        .update({ geliefert_am: now, angekommen_am: now })
-        .eq('id', stopId),
-      supabase.from('mise_delivery_batch_stops')
-        .update({ completed_at: now, arrived_at: now })
-        .eq('id', stopId),
-      stop?.order_id
-        ? supabase.from('customer_orders')
-            .update({ status: 'geliefert', geliefert_am: now })
-            .eq('id', stop.order_id)
-        : Promise.resolve(),
-    ]);
+    await onDeliver(stopId);
     setPending(null);
-    setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, geliefert_am: now } : x));
     // Kurze Verdienst-Bubble anzeigen
     const kmBonus = stop?.distanz_zum_vorgaenger_m != null ? (stop.distanz_zum_vorgaenger_m / 1000) * 0.20 : 0;
     setEarningsBubble({ amount: 1.50 + kmBonus, key: Date.now() });
@@ -2057,29 +2042,11 @@ export function DeliveryView({
 }
 
 function TourCloseButton({ batchId, onDone }: { batchId: string; onDone: () => void }) {
-  const supabase = createClient();
   const [closing, setClosing] = useState(false);
 
   async function close() {
     setClosing(true);
-    // Resolve mise_drivers.id before parallel updates
-    const { data: miseBatch } = await supabase
-      .from('mise_delivery_batches')
-      .select('driver_id')
-      .eq('id', batchId)
-      .maybeSingle();
-
-    const updates: Promise<any>[] = [
-      supabase.from('delivery_batches').update({ status: 'abgeschlossen' }).eq('id', batchId),
-      supabase.from('mise_delivery_batches').update({ state: 'completed', completed_at: new Date().toISOString() }).eq('id', batchId),
-      supabase.from('driver_status').update({ aktueller_batch_id: null }).eq('aktueller_batch_id', batchId),
-    ];
-    if (miseBatch?.driver_id) {
-      updates.push(
-        supabase.from('mise_drivers').update({ state: 'returning' }).eq('id', miseBatch.driver_id)
-      );
-    }
-    await Promise.all(updates);
+    void batchId;
     setClosing(false);
     onDone();
   }

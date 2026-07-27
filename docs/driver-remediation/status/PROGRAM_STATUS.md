@@ -6,9 +6,10 @@ Updated: 2026-07-26
 |---|---|---|---|---|---|
 | T00 Baseline, Staging and Toolchain | COMPLETE | G0 GREEN | `codex/driver-remediation` | `f7d6b619` | Snapshots, isolated worktrees, toolchain, native validator and disposable PostgreSQL path verified. |
 | T01 Canonical State Model | COMPLETE | G1 GREEN | `codex/driver-remediation` | `8acbe488` | Implementation plus independent specification and test reviews approved. |
-| T02 Atomic Single Writer | COMPLETE | G2 GREEN (isolated PostgreSQL) | `codex/driver-remediation` | pending task commit | Two review cycles; DB and adversarial race reviewers approved final hardened implementation. |
-| T03 Server API and Client Boundary | READY | G3 not evaluated | `codex/driver-remediation` | — | Permitted by green G2; API/client ownership must be exclusive. |
-| T04–T10 | NOT STARTED | G4–G9 not evaluated | — | — | Governed by `EXECUTION_GRAPH.md`. |
+| T02 Atomic Single Writer | COMPLETE | G2 GREEN (isolated PostgreSQL) | `codex/driver-remediation` | `43d5ee06` | Two review cycles; DB and adversarial race reviewers approved final hardened implementation. |
+| T03 Server API and Client Boundary | COMPLETE | G3 GREEN (isolated PostgreSQL + source/client contracts) | `codex/driver-remediation` | pending task commit | API/security and client-boundary reviewers approved after three hardening cycles. |
+| T04 Pick/Pickup Correctness | READY | G4 pending | `codex/driver-remediation` | — | Permitted by green G3; serialize edits to lifecycle/UI contracts. |
+| T05–T10 | NOT STARTED | G4–G9 not evaluated | — | — | Governed by `EXECUTION_GRAPH.md`. |
 
 ## Production safety
 
@@ -56,3 +57,14 @@ projections, migration double-apply, executable preflight stop-gate and
 disable/rollback. Independent DB and adversarial race reviewers both returned
 `APPROVE`. Full Supabase staging/RLS/PostgREST remains a later G3/G9 proof and
 is not inferred from G2.
+
+## G3 decision
+
+GREEN for the isolated server-authoritative boundary. The final PostgreSQL
+suite proves authenticated lifecycle RPCs, global idempotency, RLS/direct-write
+denial, canonical item resolution, technical ACK, exception audit and a true
+two-session stop-CAS race. The client boundary restores/reconciles canonical
+snapshots, reloads on unknown Realtime versions and reconnect, persists exact
+retry envelopes, rejects ordinary decline and no longer mounts the identified
+direct-write/optimistic lifecycle widgets. Independent API/security and client
+reviewers both returned `APPROVE`.

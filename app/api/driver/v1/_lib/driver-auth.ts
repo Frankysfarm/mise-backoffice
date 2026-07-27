@@ -118,11 +118,12 @@ async function driverFromSupabaseJwt(token: string): Promise<DriverPublic | null
   if (error || !userData.user) return null;
   const authUserId = userData.user.id;
 
-  const { data: driver } = await c
+  const { data: driver, error: driverError } = await c
     .from('mise_drivers')
     .select(DRIVER_SELECT)
     .eq('auth_user_id', authUserId)
     .maybeSingle();
+  if (driverError) throw new Error('DRIVER_AUTH_LOOKUP_FAILED');
   if (!driver) return null;
   return driver as DriverPublic;
 }
@@ -131,28 +132,32 @@ async function driverFromLegacySession(
   token: string,
 ): Promise<{ driver: DriverPublic; token: string } | null> {
   const c = sb();
-  const { data: session } = await c
+  const { data: session, error: sessionError } = await c
     .from('mise_driver_sessions')
     .select('token,driver_id,expires_at')
     .eq('token', token)
     .maybeSingle();
+  if (sessionError) throw new Error('DRIVER_SESSION_LOOKUP_FAILED');
   if (!session) return null;
   if (new Date(session.expires_at) < new Date()) {
-    await c.from('mise_driver_sessions').delete().eq('token', token);
+    const { error: deleteError } = await c.from('mise_driver_sessions').delete().eq('token', token);
+    if (deleteError) throw new Error('DRIVER_SESSION_DELETE_FAILED');
     return null;
   }
 
-  const { data: driver } = await c
+  const { data: driver, error: driverError } = await c
     .from('mise_drivers')
     .select(DRIVER_SELECT)
     .eq('id', session.driver_id)
     .maybeSingle();
+  if (driverError) throw new Error('DRIVER_AUTH_LOOKUP_FAILED');
   if (!driver) return null;
 
-  await c
+  const { error: touchError } = await c
     .from('mise_driver_sessions')
     .update({ last_seen: new Date().toISOString() })
     .eq('token', token);
+  if (touchError) throw new Error('DRIVER_SESSION_TOUCH_FAILED');
 
   return { driver: driver as DriverPublic, token };
 }

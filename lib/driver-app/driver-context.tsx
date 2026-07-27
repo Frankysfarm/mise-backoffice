@@ -164,22 +164,8 @@ export function DriverProvider({ children }: { children: ReactNode }) {
   }
 
   const declineOrder = () => {
-    if (incomingOrder && isRealOrderId(incomingOrder.id)) {
-      callDriverApi(`/api/driver-app/orders/${incomingOrder.id}/decline`, { reason: 'driver_declined' });
-    }
-    setIncomingOrder(null)
-    setIsRinging(false)
-    
-    if (pendingOrders.length > 0) {
-      const [nextOrder, ...rest] = pendingOrders
-      setIncomingOrder(nextOrder)
-      setPendingOrders(rest)
-      setIsRinging(true)
-    } else if (collectedOrders.length > 0) {
-      setPhase('collecting')
-    } else {
-      setPhase('waiting')
-    }
+    void incomingOrder;
+    window.alert('Zuweisungen können nicht abgelehnt werden. Bitte eine Sicherheitsausnahme melden.')
   }
 
   // Bestellungen sammeln - Fahrer geht zur Abholung

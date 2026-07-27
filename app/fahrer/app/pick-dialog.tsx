@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 import { Check, X, Loader2, AlertCircle, ShoppingBag } from 'lucide-react';
 
 type Item = {
   id: string;
+  order_id: string;
   name: string;
   menge: number;
   notiz: string | null;
@@ -26,9 +26,8 @@ export function PickDialog({
   batchId: string;
   onClose: () => void;
   onComplete: () => void;
-  onAtomicPickup?: () => Promise<boolean>;
+  onAtomicPickup?: (items: Array<{ id: string; order_id: string; outcome: 'picked' | 'missing' }>) => Promise<boolean>;
 }) {
-  const supabase = createClient();
   const [pending, setPending] = useState<string | null>(null);
   const [local, setLocal] = useState(items);
 
@@ -37,23 +36,26 @@ export function PickDialog({
 
   async function confirm(id: string, missing = false) {
     setPending(id);
-    const { error } = await supabase.rpc('confirm_pick_item', {
-      p_order_item_id: id,
-      p_missing: missing,
-      p_note: missing ? 'Fahrer meldet: Item fehlt' : null,
-    });
+    if (onAtomicPickup) {
+      setLocal((xs) => xs.map((x) => x.id === id
+        ? { ...x, pick_confirmed_at: new Date().toISOString(), pick_missing: missing }
+        : x));
+      setPending(null);
+      return;
+    }
     setPending(null);
-    if (error) { alert(error.message); return; }
-    setLocal((xs) => xs.map((x) => x.id === id
-      ? { ...x, pick_confirmed_at: new Date().toISOString(), pick_missing: missing }
-      : x));
+    alert('Versionierter Fahrer-Snapshot erforderlich. Bitte neu laden.');
   }
 
   async function complete() {
     setPending('complete');
     if (onAtomicPickup) {
       try {
-        const handled = await onAtomicPickup();
+        const handled = await onAtomicPickup(local.map((item) => ({
+          id: item.id,
+          order_id: item.order_id,
+          outcome: item.pick_missing ? 'missing' as const : 'picked' as const,
+        })));
         setPending(null);
         if (handled) onComplete();
       } catch (error) {
@@ -62,13 +64,9 @@ export function PickDialog({
       }
       return;
     }
-    const { data, error } = await supabase.rpc('confirm_pickup_complete', { p_batch_id: batchId });
     setPending(null);
-    if (error || !(data as any)?.ok) {
-      alert(error?.message ?? (data as any)?.error ?? 'Fehler');
-      return;
-    }
-    onComplete();
+    void batchId;
+    alert('Versionierter Fahrer-Snapshot erforderlich. Bitte neu laden.');
   }
 
   const confirmed = local.filter((i) => i.pick_confirmed_at).length;

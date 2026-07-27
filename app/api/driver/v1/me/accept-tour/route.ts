@@ -1,56 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
-import { executeAtomicDriverTransition } from '@/lib/delivery/atomic-lifecycle';
-
+import { acceptAsTechnicalAck } from '../../_lib/accept-as-ack';
 export const runtime = 'nodejs';
-export const dynamic = 'force-dynamic';
-
-/**
- * POST /api/driver/v1/me/accept-tour  { batch_id? }
- * Vom nativen CallKit-„Annehmen" aufgerufen: setzt die offene (pending_acceptance)
- * Tour des Fahrers auf assigned. Bearer ODER Cookie.
- */
 export async function POST(req: NextRequest) {
-  let body: { batch_id?: string; offer_id?: unknown; assignment_version?: unknown; transition_key?: unknown } = {};
-  try { body = await req.json(); } catch { /* noop */ }
-
+  const body = await req.json().catch(() => ({}));
   let uid: string | null = null;
-  const auth = req.headers.get('authorization') ?? '';
-  const mm = /^Bearer (.+)$/i.exec(auth);
-  if (mm) { const svc = createServiceClient(); const { data } = await svc.auth.getUser(mm[1].trim()); if (data?.user) uid = data.user.id; }
-  if (!uid) { const sb = await createClient(); const { data } = await sb.auth.getUser(); if (data?.user) uid = data.user.id; }
-  if (!uid) return NextResponse.json({ error: 'unauth' }, { status: 401 });
-
-  const svc = createServiceClient();
-  const { data: drv } = await svc.from('mise_drivers').select('id').eq('auth_user_id', uid).maybeSingle();
-  if (!drv) return NextResponse.json({ error: 'kein Fahrer' }, { status: 404 });
-
-  try {
-    const atomic = await executeAtomicDriverTransition(
-      svc, drv.id, body, 'accept',
-      { batchId: typeof body.batch_id === 'string' ? body.batch_id : undefined },
-    );
-    if (atomic.handled) {
-      return NextResponse.json(atomic.result, { status: atomic.status });
-    }
-  } catch (error) {
-    return NextResponse.json({
-      ok: false,
-      reason_code: 'ATOMIC_TRANSITION_FAILED',
-      error: error instanceof Error ? error.message : String(error),
-    }, { status: 500 });
+  const bearer = /^Bearer (.+)$/i.exec(req.headers.get('authorization') ?? '');
+  if (bearer) {
+    const { data } = await createServiceClient().auth.getUser(bearer[1].trim());
+    uid = data.user?.id ?? null;
   }
-
-  let query = svc.from('mise_delivery_batches').select('id').eq('driver_id', drv.id).eq('state', 'pending_acceptance');
-  if (typeof body.batch_id === 'string' && body.batch_id.length > 10) {
-    query = query.eq('id', body.batch_id);
-  } else {
-    query = query.order('created_at', { ascending: false }).limit(1);
+  if (!uid) {
+    const { data } = await (await createClient()).auth.getUser();
+    uid = data.user?.id ?? null;
   }
-  const { data: batch } = await query.maybeSingle();
-  if (!batch) return NextResponse.json({ ok: false, error: 'keine offene Tour' });
-
-  await svc.from('mise_delivery_batches').update({ state: 'assigned', accepted_at: new Date().toISOString() }).eq('id', batch.id);
-  console.log('[ACCEPT-TOUR] OK', drv.id, batch.id);
-  return NextResponse.json({ ok: true, batch_id: batch.id });
+  if (!uid) return NextResponse.json({ ok: false, reason_code: 'UNAUTHORIZED' }, { status: 401 });
+  const service = createServiceClient();
+  const { data: driver, error } = await service.from('mise_drivers')
+    .select('id').eq('auth_user_id', uid).maybeSingle();
+  if (error) return NextResponse.json({ ok: false, reason_code: 'DRIVER_LOOKUP_FAILED' }, { status: 500 });
+  if (!driver) return NextResponse.json({ ok: false, reason_code: 'DRIVER_NOT_FOUND' }, { status: 404 });
+  return acceptAsTechnicalAck(service, driver.id, body);
 }
