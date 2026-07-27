@@ -1054,6 +1054,7 @@ import { KitchenPhase4025StornoquoteTicker } from './phase4025-stornoquote-ticke
 import { KitchenPhase4030GeschwindigkeitTicker } from './phase4030-geschwindigkeit-ticker';
 import { KitchenPhase4035KmProTourTicker } from './phase4035-km-pro-tour-ticker';
 import { KitchenPhase4040AuslastungTicker } from './phase4040-auslastung-ticker';
+import { KitchenPhase4045UmsatzProSchichtTicker } from './phase4045-umsatz-pro-schicht-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4418,6 +4419,7 @@ export function KitchenBoard({
       <KitchenPhase4030GeschwindigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4035KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4040AuslastungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4045UmsatzProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11701,3 +11703,5 @@ export { KitchenPhase4030GeschwindigkeitTicker } from './phase4030-geschwindigke
 export { KitchenPhase4035KmProTourTicker } from './phase4035-km-pro-tour-ticker';
 // Phase 4040 — Auslastung-Ticker (Activity violet; kompakte Liste absteigend; Bester #1 im Header; dot-Farbkodierung; 30-Min-Polling)
 export { KitchenPhase4040AuslastungTicker } from './phase4040-auslastung-ticker';
+// Phase 4045 — Umsatz/Schicht-Ticker (Euro gruen; Bester #1 Name+€ im Header; Alert-Zaehler; kompakt absteigend; Team-Avg+Ziel >=200€/Schicht; 30-Min-Polling)
+export { KitchenPhase4045UmsatzProSchichtTicker } from './phase4045-umsatz-pro-schicht-ticker';

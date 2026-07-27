@@ -1108,6 +1108,7 @@ import { DispatchPhase4022StornoquoteBoard } from './phase4022-stornoquote-board
 import { DispatchPhase4027GeschwindigkeitBoard } from './phase4027-geschwindigkeit-board';
 import { DispatchPhase4032KmProTourBoard } from './phase4032-km-pro-tour-board';
 import { DispatchPhase4037AuslastungBoard } from './phase4037-auslastung-board';
+import { DispatchPhase4042UmsatzProSchichtBoard } from './phase4042-umsatz-pro-schicht-board';
 
 type Driver = {
   employee_id: string;
@@ -4836,6 +4837,7 @@ export function DispatchBoard({
           <DispatchPhase4027GeschwindigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4032KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4037AuslastungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4042UmsatzProSchichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13128,3 +13130,5 @@ export { DispatchPhase4027GeschwindigkeitBoard } from './phase4027-geschwindigke
 export { DispatchPhase4032KmProTourBoard } from './phase4032-km-pro-tour-board';
 // Phase 4037 — Auslastung-Ranking Board (Activity violet; absteigend Rang 1=hoechste Auslastung=bester; KPI-Grid Hoechste/Team-Avg/Niedrigste; Alert "Niedrige Auslastung!"; rank_delta<0=gruen; 30-Min-Polling)
 export { DispatchPhase4037AuslastungBoard } from './phase4037-auslastung-board';
+// Phase 4042 — Umsatz-pro-Schicht-Ranking Board (Euro gruen; absteigend Rang 1=hoechster Umsatz=bester; KPI-Grid Hoechster/Team-Avg/Niedrigster; Alert "Niedriger Umsatz!"; rank_delta>0=gruen; Ziel >=200€/Schicht; 30-Min-Polling)
+export { DispatchPhase4042UmsatzProSchichtBoard } from './phase4042-umsatz-pro-schicht-board';

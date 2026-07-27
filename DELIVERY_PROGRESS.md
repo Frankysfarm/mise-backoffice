@@ -2,6 +2,18 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-27): Phasen 4041–4045 implementiert — Fahrer-Umsatz-pro-Schicht-Ranking. Phase 4041 Backend: bestehendes `/api/delivery/admin/fahrer-umsatz-pro-schicht/route.ts` — force-dynamic, await createClient(), umsatz_pro_schicht = avg(revenue/shift) je Fahrer letzte 30 Tage, absteigend Rang 1=hoechster Umsatz=bester, Ampel gruen/gelb/rot per Quartil, rank_delta, alert_bottom, Mock Julia 285€/Sara 241€/Max 198€/Tim 143€, ziel=200€. Phase 4042 Dispatch: `DispatchPhase4042UmsatzProSchichtBoard` — Euro-Icon gruen, absteigend Rang 1=hoechster Umsatz, KPI-Grid Hoechster/Team-Avg/Niedrigster, Alert "Niedriger Umsatz!", rank_delta>0=gruen, Import+Render+Barrel ✅. Phase 4043 Fahrer: `FahrerPhase4043MeinUmsatzProSchicht` — Euro-Icon gruen, umsatz_pro_schicht 5xl+Rang 3xl farbkodiert, Ziel >=200€/Schicht, Coaching-Tipp (3 Stufen), isOnline-Guard, Import+Render+Barrel ✅. Phase 4044 Storefront: uebersprungen. Phase 4045 Kitchen: `KitchenPhase4045UmsatzProSchichtTicker` — Euro-Icon gruen, Bester #1 Name+€ im Header, Alert-Zaehler, kompakt absteigend, Team-Avg+Ziel >=200€, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 4041–4045 ABGESCHLOSSEN — Fahrer-Umsatz-pro-Schicht-Ranking
+- Phase 4041 Backend: `/api/delivery/admin/fahrer-umsatz-pro-schicht/route.ts` (bereits vorhanden) — force-dynamic, umsatz_pro_schicht avg(revenue/shift) letzte 30 Tage, absteigend Rang 1=hoechster Umsatz=bester, Ampel per Quartil, rank_delta (>0=verbessert), alert_bottom, Mock Julia 285€/Sara 241€/Max 198€/Tim 143€ ✅
+- Phase 4042 Dispatch: `DispatchPhase4042UmsatzProSchichtBoard` — Euro gruen, absteigend Rang 1=hoechster Umsatz, KPI-Grid Hoechster/Team-Avg/Niedrigster, Alert "Niedriger Umsatz!", rank_delta>0=gruen ✅
+- Phase 4043 Fahrer: `FahrerPhase4043MeinUmsatzProSchicht` — Euro gruen, umsatz_pro_schicht 5xl+Rang 3xl farbkodiert, Ziel >=200€/Schicht, Coaching-Tipp (3 Stufen), isOnline-Guard ✅
+- Phase 4044 Storefront: uebersprungen ✅
+- Phase 4045 Kitchen: `KitchenPhase4045UmsatzProSchichtTicker` — Euro gruen, Bester #1 Name+€ im Header, Alert-Zaehler, kompakt absteigend, Team-Avg+Ziel >=200€ ✅
+- Build ✓ exit 0. Push erfolgt.
+
+### Naechste Phasen 4046–4050 — Naechstes Ranking-Thema (TBD)
+
 Backend-Architekt-Agent (2026-07-27): Phasen 4006–4010 implementiert — Fahrer-Feierabend-Pünktlichkeit-Ranking. Phase 4006 Backend: bestehendes `/api/delivery/admin/fahrer-feierabend-puenktlichkeit/route.ts` — force-dynamic, await createClient(), feierabend_pct = % Schichten die within 15min Soll-Schichtende beendet, absteigend Rang 1=hoechste Quote=bester, Ampel gruen/gelb/rot per Quartil, rank_delta, alert_bottom, Mock Julia 89%/Sara 76%/Max 61%/Tim 44%, ziel=85%. Phase 4007 Dispatch: `DispatchPhase4007FeierabendPuenktlichkeitBoard` — CheckCircle-Icon gruen, absteigend Rang 1=hoechste Pünktlichkeit, KPI-Grid Pünktlichster/Team-Ø/Niedrigster, Alert "Überschrittene Schichtzeiten!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 4008 Fahrer: `FahrerPhase4008MeineFeierabendPuenktlichkeit` — CheckCircle gruen, feierabend_pct 5xl+Rang 3xl farbkodiert, Ziel >=85%, Coaching-Tipp (3 Stufen), isOnline-Guard, Mini-Ranking isMe highlight, Import+Render+Barrel ✅. Phase 4009 Storefront: uebersprungen. Phase 4010 Kitchen: `KitchenPhase4010FeierabendPuenktlichkeitTicker` — CheckCircle gruen, Bester #1 Name+% im Header, Alert "Überschrittene Schichtzeiten!", kompakt absteigend, Team-Ø+Ziel >=85%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 4006–4010 ABGESCHLOSSEN — Fahrer-Feierabend-Pünktlichkeit-Ranking

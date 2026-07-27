@@ -1030,6 +1030,7 @@ import { FahrerPhase4023MeineStornoquote } from './phase4023-meine-stornoquote';
 import { FahrerPhase4028MeineGeschwindigkeit } from './phase4028-meine-geschwindigkeit';
 import { FahrerPhase4033MeineKmProTour } from './phase4033-meine-km-pro-tour';
 import { FahrerPhase4038MeineAuslastung } from './phase4038-meine-auslastung';
+import { FahrerPhase4043MeinUmsatzProSchicht } from './phase4043-mein-umsatz-pro-schicht';
 
 type Driver = {
   id: string;
@@ -6989,6 +6990,7 @@ export function FahrerApp({
           <FahrerPhase4028MeineGeschwindigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4033MeineKmProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4038MeineAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4043MeinUmsatzProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
@@ -10974,3 +10976,5 @@ export { FahrerPhase4028MeineGeschwindigkeit } from './phase4028-meine-geschwind
 export { FahrerPhase4033MeineKmProTour } from './phase4033-meine-km-pro-tour';
 // Phase 4038 — Meine Auslastung (Activity violet; auslastung_pct 5xl; Rang+Delta; Coaching-Tipp; isOnline-Guard; 30-Min-Polling)
 export { FahrerPhase4038MeineAuslastung } from './phase4038-meine-auslastung';
+// Phase 4043 — Mein Umsatz/Schicht (Euro gruen; umsatz_pro_schicht 5xl+Rang 3xl farbkodiert; Ziel >=200€/Schicht; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; 30-Min-Polling)
+export { FahrerPhase4043MeinUmsatzProSchicht } from './phase4043-mein-umsatz-pro-schicht';
