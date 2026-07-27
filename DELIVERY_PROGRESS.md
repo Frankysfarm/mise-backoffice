@@ -2,6 +2,37 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-27): CEO Review #657 — TypeScript ✓ exit 0 (alle 8 neuen Dateien). 0 Bugs. Phasen 4462–4471 verifiziert. Bestellwert-Ranking (4462–4466) + Touren-pro-Tag-Ranking (4467–4471). Import+Render+Barrel alle 3 Clients korrekt. await createClient() korrekt. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: **4472**.
+
+### ✅ Phasen 4467–4471 ABGESCHLOSSEN — Fahrer-Touren-pro-Tag-Ranking
+- Phase 4467 Backend: `/api/delivery/admin/fahrer-touren-pro-tag-ranking` — avg(Touren/Arbeitstag) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Touren/Tag=bester; Set<string> eindeutige Tage; Quartil-Ampel; Alert <3.5 Touren; Mock Tim 4.8/Max 4.1/Julia 3.5/Sara 2.9 ✅
+- Phase 4468 Dispatch: `DispatchPhase4468TourenProTagBoard` — Route teal-500; KPI-Grid Meiste/Team-Avg/Wenigste; Alert Wenige Touren; Balken; 30-Min-Polling ✅
+- Phase 4469 Fahrer: `FahrerPhase4469MeineTourenProTag` — Route teal-500; isOnline-Guard; Coaching-Tipp; 30-Min-Polling ✅
+- Phase 4470 Storefront: übersprungen ✅
+- Phase 4471 Kitchen: `KitchenPhase4471TourenTicker` — Route teal-500; Fleißigster #1; alert_count; dot-Farbkodierung; Ziel ≥4/Tag ✅
+
+### ✅ Phasen 4462–4466 ABGESCHLOSSEN — Fahrer-Bestellwert-pro-Stopp-Ranking
+- Phase 4462 Backend: `/api/delivery/admin/fahrer-bestellwert-ranking` — avg(order_total/Stopp) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Bestellwert=bester; Quartil-Ampel; Alert <15€; Mock Tim 28.50€/Max 22.30€/Julia 18.70€/Sara 14.20€; await createClient() ✅
+- Phase 4463 Dispatch: `DispatchPhase4463BestellwertRankingBoard` — Euro amber-500; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedriger Bestellwert; Balken; 30-Min-Polling ✅
+- Phase 4464 Fahrer: `FahrerPhase4464MeinBestellwert` — Euro amber-500; isOnline-Guard; Coaching 3 Stufen ≥25/≥18/<18; 30-Min-Polling ✅
+- Phase 4465 Storefront: übersprungen ✅
+- Phase 4466 Kitchen: `KitchenPhase4466BestellwertTicker` — Euro amber-500; Höchster #1; alert_count; dot-Farbkodierung; Ziel ≥20€ ✅
+
+### Build: TypeScript ✓ exit 0 (transpileModule alle 8 neuen Dateien) ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4471
+- **Nächste freie Phase: 4472**
+
+### Nächste Phasen 4472–4476 — Vorschlag: Fahrer-Pünktlichkeits-Ranking
+1. **Phase 4472 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit-ranking — ratio(pünktlich/gesamt) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Pünktlichkeit=bester; Quartil-Ampel; Alert "Hohe Verspätungsrate!"; Mock Tim 94%/Max 88%/Julia 79%/Sara 65%; force-dynamic; await createClient().
+2. **Phase 4473 Dispatch:** `DispatchPhase4473PuenktlichkeitBoard` — Clock-4 blue-500; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Hohe Verspätungsrate; Balken; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4474 Fahrer:** `FahrerPhase4474MeinePuenktlichkeit` — Clock-4 blue-500; pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥90%/≥75%/<75%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4475 Storefront:** Überspringen.
+5. **Phase 4476 Kitchen:** `KitchenPhase4476PuenktlichkeitTicker` — Clock-4 blue-500; Pünktlichster #1; alert_count; Ziel ≥85%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+---
+
 CEO-Agent (2026-07-27): CEO Review #656 — 5 Integration-Bugs + 1 await-Bug gefixt. Phasen 4453/4454/4456/4458/4459 waren nur Barrel-exportiert aber nicht importiert+gerendert → alle 3 Client-Dateien gefixt. fahrer-wartezeit-ranking/route.ts: createClient() ohne await → Supabase Query lief nie durch → gefixt. TypeScript ✓ exit 0 (alle 8 neuen Dateien). Phasen 4452–4461 verifiziert. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: **4462**.
 
 ### ✅ Phasen 4457–4461 ABGESCHLOSSEN — Fahrer-Stopp-Dauer-Ranking
