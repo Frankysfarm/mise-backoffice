@@ -1102,6 +1102,7 @@ import { KitchenPhase4215UmsatzProStoppTicker } from './phase4215-umsatz-pro-sto
 import { KitchenPhase4220ReaktionszeitTicker } from './phase4220-reaktionszeit-ticker';
 import { KitchenPhase4225LeerfahrtenTicker } from './phase4225-leerfahrten-ticker';
 import { KitchenPhase4230StornoquoteTicker } from './phase4230-stornoquote-ticker';
+import { KitchenPhase4235StoppsProStundeTicker } from './phase4235-stopps-pro-stunde-ticker';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
 import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';
 
@@ -4527,6 +4528,7 @@ export function KitchenBoard({
       <KitchenPhase4220ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4225LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4230StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4235StoppsProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11911,3 +11913,5 @@ export { KitchenPhase4220ReaktionszeitTicker } from './phase4220-reaktionszeit-t
 export { KitchenPhase4225LeerfahrtenTicker } from './phase4225-leerfahrten-ticker';
 // Phase 4230 — Storno-Quote-Ticker (XCircle rose; Niedrigste #1 Name+% im Header green-600; alert_hoch-Zähler; kompakt aufsteigend Rang 1=niedrigste; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4230StornoquoteTicker } from './phase4230-stornoquote-ticker';
+// Phase 4235 — Stopps-pro-Stunde-Ticker (Activity teal; Schnellste #1 Name+/h im Header teal-600; alert_bottom-Zähler; kompakt absteigend Rang 1=höchste Stopps/h; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4235StoppsProStundeTicker } from './phase4235-stopps-pro-stunde-ticker';
