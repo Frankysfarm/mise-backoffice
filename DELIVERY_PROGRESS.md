@@ -2,6 +2,16 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 3978–3982 implementiert — Fahrer-Trinkgeld-Ranking. Phase 3978 Backend: bestehendes `/api/delivery/admin/fahrer-trinkgeld-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_tip_eur + tip_count je Fahrer heute, absteigend Rang 1=höchstes Tip=bester, Ampel gruen/gelb/rot, rank_delta, alert_bottom, Alert "Geringes Trinkgeld!", Mock Julia 3.20€/Max 2.50€/Sara 1.80€/Tim 0.90€, team_avg=2.10€. Phase 3979 Dispatch: `DispatchPhase3979TrinkgeldBoard` — Coins-Icon amber, absteigend, KPI-Grid Höchstes/Team-Avg/Niedrigstes, Alert "Geringes Trinkgeld!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3980 Fahrer: `FahrerPhase3980MeinTrinkgeld` — Coins-Icon amber, avg_tip_eur 5xl+Rang 3xl farbkodiert+tip_count, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3981 Storefront: uebersprungen. Phase 3982 Kitchen: `KitchenPhase3982TrinkgeldTicker` — Coins-Icon amber, Bester #1 Name+Tip im Header, Alert "Geringes Trinkgeld!", kompakt absteigend, Rang+Tip+Delta rank_delta<0=gruen, Team-Avg, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
+
+### ✅ Phasen 3978–3982 ABGESCHLOSSEN — Fahrer-Trinkgeld-Ranking
+- Phase 3978 Backend: `/api/delivery/admin/fahrer-trinkgeld-ranking/route.ts` (bereits vorhanden) — force-dynamic, avg_tip_eur+tip_count heute, absteigend Rang 1=höchstes Tip=bester, Ampel prozentbasiert, rank_delta (<0=verbessert), alert_bottom Bottom-25%, Mock Julia 3.20€/Max 2.50€/Sara 1.80€/Tim 0.90€ ✅
+- Phase 3979 Dispatch: `DispatchPhase3979TrinkgeldBoard` — Coins amber, absteigend Rang 1=höchstes Tip, KPI-Grid Höchstes/Team-Avg/Niedrigstes, Alert "Geringes Trinkgeld!", rank_delta<0=gruen ✅
+- Phase 3980 Fahrer: `FahrerPhase3980MeinTrinkgeld` — Coins amber, avg_tip_eur 5xl+Rang 3xl farbkodiert, tip_count sichtbar, Coaching-Tipp (3 Stufen), isOnline-Guard ✅
+- Phase 3981 Storefront: uebersprungen ✅
+- Phase 3982 Kitchen: `KitchenPhase3982TrinkgeldTicker` — Coins amber, Bester #1 Name+Tip im Header, Alert "Geringes Trinkgeld!", kompakt absteigend, Team-Avg ✅
+- Build ✓ exit 0. Push erfolgt.
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 3973–3977 implementiert — Fahrer-Stornoquote-Ranking. Phase 3973 Backend: bestehendes `/api/delivery/admin/fahrer-stornoquote-ranking/route.ts` (bereits vorhanden) — force-dynamic, await createClient(), stornoquote_pct je Fahrer letzte 30 Tage, aufsteigend Rang 1=niedrigste Quote=bester, Ampel gruen/gelb/rot, rank_delta, alert_hoch, Alert "Hohe Stornoquote!", Mock Julia 1.2%/Sara 2.8%/Max 4.5%/Tim 7.3%, ziel=3%. Phase 3974 Dispatch: `DispatchPhase3974StornoquoteBoard` — XCircle-Icon orange, aufsteigend, KPI-Grid Niedrigste/Team-Avg/Höchste, Alert "Hohe Stornoquote!", rank_delta<0=gruen, Import+Render+Barrel ✅. Phase 3975 Fahrer: `FahrerPhase3975MeineStornoquote` — XCircle-Icon orange, stornoquote_pct 5xl+Rang 3xl farbkodiert, Ziel <=3%, Coaching-Tipp, isOnline-Guard, Import+Render+Barrel ✅. Phase 3976 Storefront: uebersprungen. Phase 3977 Kitchen: `KitchenPhase3977StornoquoteTicker` — XCircle-Icon orange, Bester #1 Name+Quote im Header, Alert "Hohe Stornoquote!", kompakt aufsteigend, Rang+Quote+Delta rank_delta<0=gruen, Team-Avg+Ziel <=3%, Import+Render+Barrel ✅. Build exit 0. Push erfolgt.
 
 ### ✅ Phasen 3973–3977 ABGESCHLOSSEN — Fahrer-Stornoquote-Ranking
