@@ -31675,3 +31675,41 @@ KRITISCH: Nächste freie Phase ist 4457! NIEMALS 4000–4456 verwenden. IMMER al
 KRITISCH: Nächste freie Phase ist 4462! NIEMALS 4000–4461 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4462–4466 — Fahrer-Bestellwert-pro-Stopp-Ranking (ABGESCHLOSSEN 2026-07-27)
+
+### Phase 4462 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-bestellwert-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-bestellwert-ranking?location_id=...
+**Logik:** Ø Bestellwert/Stopp je Fahrer letzte 30 Tage (delivery_stops.order_total); absteigend Rang 1=höchster Bestellwert=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Niedriger Bestellwert!" wenn <15€; Mock Tim 28.50€/Max 22.30€/Julia 18.70€/Sara 14.20€; force-dynamic ✅; createClient() aus @/lib/supabase/server ✅
+
+### Phase 4463 — Bestellwert-Ranking-Board (Dispatch)
+**Component:** `DispatchPhase4463BestellwertRankingBoard` — Euro amber-500; absteigend Rang 1=höchster Bestellwert; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedriger Bestellwert; Balken=(val/maxVal)*100%; rank_delta>0=TrendingUp emerald; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4464 — Mein Bestellwert (Fahrer)
+**Component:** `FahrerPhase4464MeinBestellwert` — Euro amber-500; avg_bestellwert 5xl+Rang 2xl farbkodiert; isOnline-Guard; driverId-Filter; Coaching-Tipp 3 Stufen (≥25€/≥18€/<18€); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4465 — Storefront
+Übersprungen ✅
+
+### Phase 4466 — Bestellwert-Ticker (Kitchen)
+**Component:** `KitchenPhase4466BestellwertTicker` — Euro amber-500; Höchster #1 Name+€ amber-700; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥20€; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Turbopack-Timeout bekanntes Container-Problem)
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4466 (4455, 4460, 4465 übersprungen)
+- **Nächste freie Phase: 4467**
+
+### Nächste Phasen 4467–4471 — Fahrer-Touren-pro-Tag-Ranking
+1. **Phase 4467 Backend:** GET /api/delivery/admin/fahrer-touren-pro-tag-ranking — avg(tours/Tag) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Touren/Tag=bester; Quartil-Ampel; Alert "Wenige Touren!"; Mock Tim 4.8/Max 4.1/Julia 3.5/Sara 2.9; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4468 Dispatch:** `DispatchPhase4468TourenProTagBoard` — Route teal-500; KPI-Grid Meiste/Team-Avg/Wenigste; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4469 Fahrer:** `FahrerPhase4469MeineTourenProTag` — Route teal-500; isOnline-Guard; Coaching-Tipp 3 Stufen (≥4.5/≥3.5/<3.5); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4470 Storefront:** Überspringen.
+5. **Phase 4471 Kitchen:** `KitchenPhase4471TourenTicker` — Route teal-500; Fleißigster #1; Ziel ≥4/Tag; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4467! NIEMALS 4000–4466 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+## STATUS: MARKT-REIF

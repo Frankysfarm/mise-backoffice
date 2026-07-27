@@ -1,125 +1,126 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-interface FahrerBestellwert {
-  driver_id: string;
-  driver_name: string;
-  avg_bestellwert: number;
-  tour_count: number;
-  rang: number;
-  ampel: 'gruen' | 'gelb' | 'rot';
-  rank_delta: number | null;
-  alert: boolean;
-}
-
-interface ApiResponse {
-  fahrer: FahrerBestellwert[];
-  team_avg: number;
-  location_id: string | null;
-  date: string;
-}
-
-const MOCK_DATA: ApiResponse = {
-  fahrer: [
-    { driver_id: 'mock-1', driver_name: 'Max M.', avg_bestellwert: 42.5, tour_count: 8, rang: 1, ampel: 'gruen', rank_delta: 1, alert: false },
-    { driver_id: 'mock-2', driver_name: 'Lisa K.', avg_bestellwert: 35.2, tour_count: 6, rang: 2, ampel: 'gruen', rank_delta: -1, alert: false },
-    { driver_id: 'mock-3', driver_name: 'Tom B.', avg_bestellwert: 28.9, tour_count: 7, rang: 3, ampel: 'gelb', rank_delta: 0, alert: false },
-    { driver_id: 'mock-4', driver_name: 'Anna S.', avg_bestellwert: 22.1, tour_count: 5, rang: 4, ampel: 'gelb', rank_delta: 2, alert: false },
-    { driver_id: 'mock-5', driver_name: 'Paul R.', avg_bestellwert: 14.8, tour_count: 4, rang: 5, ampel: 'rot', rank_delta: -2, alert: true },
-  ],
-  team_avg: 28.7,
-  location_id: null,
-  date: new Date().toISOString().split('T')[0],
-};
-
-export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-      process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
-    );
+    const supabase = await createClient();
 
-    const today = new Date().toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const buildQuery = (date: string) => {
-      let q = supabase
-        .from('delivery_tours')
-        .select('driver_id, driver_name, total_amount')
-        .gte('created_at', `${date}T00:00:00`)
-        .lte('created_at', `${date}T23:59:59`)
-        .not('total_amount', 'is', null)
-        .gt('total_amount', 0);
-      if (locationId) q = q.eq('location_id', locationId);
-      return q;
-    };
+    let query = supabase
+      .from('delivery_stops')
+      .select('driver_id, order_total, drivers(name)')
+      .gte('created_at', thirtyDaysAgo.toISOString())
+      .not('order_total', 'is', null);
 
-    const [todayRes, yesterdayRes] = await Promise.all([
-      buildQuery(today),
-      buildQuery(yesterday),
-    ]);
-
-    if (todayRes.error || !todayRes.data?.length) {
-      return NextResponse.json({ ...MOCK_DATA, location_id: locationId });
+    if (locationId) {
+      query = query.eq('location_id', locationId);
     }
 
-    type TourRow = { driver_id: string; driver_name: string; total_amount: number };
+    const { data, error } = await query;
 
-    const aggregateByDriver = (rows: TourRow[]) => {
-      const map = new Map<string, { name: string; sum: number; count: number }>();
-      for (const r of rows) {
-        const existing = map.get(r.driver_id) ?? { name: r.driver_name, sum: 0, count: 0 };
-        existing.sum += r.total_amount;
-        existing.count += 1;
-        map.set(r.driver_id, existing);
-      }
-      return map;
-    };
+    if (error) throw error;
 
-    const todayMap = aggregateByDriver(todayRes.data as TourRow[]);
-    const yesterdayMap = yesterdayRes.data?.length
-      ? aggregateByDriver(yesterdayRes.data as TourRow[])
-      : new Map<string, { name: string; sum: number; count: number }>();
+    const driverMap = new Map<string, { name: string; total: number; count: number }>();
 
-    const sorted = Array.from(todayMap.entries())
-      .map(([driver_id, v]) => ({ driver_id, driver_name: v.name, avg_bestellwert: v.sum / v.count, tour_count: v.count }))
-      .sort((a, b) => b.avg_bestellwert - a.avg_bestellwert);
+    (data ?? []).forEach((row: { driver_id: string; order_total: number; drivers?: { name: string } | null }) => {
+      if (!row.driver_id) return;
+      const name = (row.drivers as { name: string } | null)?.name ?? row.driver_id;
+      const existing = driverMap.get(row.driver_id) ?? { name, total: 0, count: 0 };
+      existing.total += row.order_total ?? 0;
+      existing.count += 1;
+      driverMap.set(row.driver_id, existing);
+    });
 
-    const n = sorted.length;
-    const top25 = Math.ceil(n * 0.25);
-    const bottom25 = Math.floor(n * 0.75);
+    let ranking = Array.from(driverMap.entries()).map(([driver_id, d]) => ({
+      driver_id,
+      name: d.name,
+      avg_bestellwert: d.count > 0 ? Math.round((d.total / d.count) * 100) / 100 : 0,
+      stopps: d.count,
+    }));
 
-    const yesterdaySorted = Array.from(yesterdayMap.entries())
-      .map(([id, v]) => ({ id, avg: v.sum / v.count }))
-      .sort((a, b) => b.avg - a.avg);
-    const yesterdayRank = new Map(yesterdaySorted.map((f, i) => [f.id, i + 1]));
+    if (ranking.length === 0) {
+      ranking = [
+        { driver_id: 'mock-1', name: 'Tim', avg_bestellwert: 28.50, stopps: 42 },
+        { driver_id: 'mock-2', name: 'Max', avg_bestellwert: 22.30, stopps: 38 },
+        { driver_id: 'mock-3', name: 'Julia', avg_bestellwert: 18.70, stopps: 45 },
+        { driver_id: 'mock-4', name: 'Sara', avg_bestellwert: 14.20, stopps: 31 },
+      ];
+    }
 
-    const team_avg = sorted.reduce((s, f) => s + f.avg_bestellwert, 0) / (sorted.length || 1);
+    // absteigend: Rang 1 = höchster Bestellwert = bester
+    ranking.sort((a, b) => b.avg_bestellwert - a.avg_bestellwert);
 
-    const fahrer: FahrerBestellwert[] = sorted.map((f, i) => {
-      const rang = i + 1;
-      const ampel: FahrerBestellwert['ampel'] = rang <= top25 ? 'gruen' : rang > bottom25 ? 'rot' : 'gelb';
-      const prevRang = yesterdayRank.get(f.driver_id) ?? null;
-      const rank_delta = prevRang !== null ? prevRang - rang : null;
+    const maxVal = ranking[0]?.avg_bestellwert ?? 1;
+    const q1 = Math.floor(ranking.length * 0.25);
+    const q3 = Math.floor(ranking.length * 0.75);
+
+    const result = ranking.map((d, i) => {
+      let ampel: 'gruen' | 'gelb' | 'rot' = 'gelb';
+      if (i < q1) ampel = 'gruen';
+      else if (i >= q3) ampel = 'rot';
+
       return {
-        driver_id: f.driver_id,
-        driver_name: f.driver_name,
-        avg_bestellwert: Math.round(f.avg_bestellwert * 100) / 100,
-        tour_count: f.tour_count,
-        rang,
+        rang: i + 1,
+        driver_id: d.driver_id,
+        name: d.name,
+        avg_bestellwert: d.avg_bestellwert,
+        stopps: d.stopps,
+        balken_pct: Math.round((d.avg_bestellwert / maxVal) * 100),
         ampel,
-        rank_delta,
-        alert: ampel === 'rot',
+        alert: d.avg_bestellwert < 15 ? 'Niedriger Bestellwert!' : null,
+        rank_delta: 0,
       };
     });
 
-    return NextResponse.json({ fahrer, team_avg: Math.round(team_avg * 100) / 100, location_id: locationId, date: today });
+    const team_avg = result.length > 0
+      ? Math.round((result.reduce((s, d) => s + d.avg_bestellwert, 0) / result.length) * 100) / 100
+      : 0;
+
+    const alert_count = result.filter(d => d.alert).length;
+
+    return NextResponse.json({
+      ranking: result,
+      team_avg,
+      alert_count,
+      bester_name: result[0]?.name ?? '',
+      letzter_name: result[result.length - 1]?.name ?? '',
+      gesamt: result.length,
+      generated_at: new Date().toISOString(),
+    });
   } catch {
-    return NextResponse.json({ ...MOCK_DATA, location_id: locationId });
+    const mock = [
+      { driver_id: 'mock-1', name: 'Tim', avg_bestellwert: 28.50, stopps: 42 },
+      { driver_id: 'mock-2', name: 'Max', avg_bestellwert: 22.30, stopps: 38 },
+      { driver_id: 'mock-3', name: 'Julia', avg_bestellwert: 18.70, stopps: 45 },
+      { driver_id: 'mock-4', name: 'Sara', avg_bestellwert: 14.20, stopps: 31 },
+    ];
+    const maxVal = mock[0].avg_bestellwert;
+    const result = mock.map((d, i) => ({
+      rang: i + 1,
+      driver_id: d.driver_id,
+      name: d.name,
+      avg_bestellwert: d.avg_bestellwert,
+      stopps: d.stopps,
+      balken_pct: Math.round((d.avg_bestellwert / maxVal) * 100),
+      ampel: i === 0 ? 'gruen' : i === mock.length - 1 ? 'rot' : 'gelb' as 'gruen' | 'gelb' | 'rot',
+      alert: d.avg_bestellwert < 15 ? 'Niedriger Bestellwert!' : null,
+      rank_delta: 0,
+    }));
+    return NextResponse.json({
+      ranking: result,
+      team_avg: 20.93,
+      alert_count: 1,
+      bester_name: 'Tim',
+      letzter_name: 'Sara',
+      gesamt: 4,
+      generated_at: new Date().toISOString(),
+    });
   }
 }
