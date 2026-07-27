@@ -1139,6 +1139,7 @@ import { KitchenPhase4400MittagsschichtTicker } from './phase4400-mittagsschicht
 import { KitchenPhase4405AbendschichtTicker } from './phase4405-abendschicht-ticker';
 import { KitchenPhase4410NachtschichtTicker } from './phase4410-nachtschicht-ticker';
 import { KitchenPhase4415GesamtstundenTicker } from './phase4415-gesamtstunden-ticker';
+import { KitchenPhase4420AvgLieferzeitTicker } from './phase4420-avg-lieferzeit-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4609,6 +4610,8 @@ export function KitchenBoard({
       {/* Phase 4410: Nachtschicht-Ticker — Moon violet-600; Nacht-Owl #1 Name+% im Header violet-700; alert_count-Zaehler; kompakt absteigend Rang 1=höchster Nachtanteil; dot-Farbkodierung; Team-Avg; 30-Min-Polling */}
       <KitchenPhase4410NachtschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4415GesamtstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4420: Ø-Lieferzeit-Ticker — Timer green-600; Schnellster #1 Name+min im Header green-700; alert_count-Zaehler; kompakt aufsteigend Rang 1=kürzeste Zeit; dot-Farbkodierung; Team-Avg; 30-Min-Polling */}
+      <KitchenPhase4420AvgLieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12073,6 +12076,8 @@ export { KitchenPhase4405AbendschichtTicker } from './phase4405-abendschicht-tic
 export { KitchenPhase4410NachtschichtTicker } from './phase4410-nachtschicht-ticker';
 // Phase 4415 — Gesamtstunden-Ticker (Clock blue-600; Fleißigster #1 Name+h im Header blue-700; alert_count-Zaehler; kompakt absteigend Rang 1=meiste Stunden; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4415GesamtstundenTicker } from './phase4415-gesamtstunden-ticker';
+// Phase 4420 — Ø-Lieferzeit-Ticker (Timer green-600; Schnellster #1 Name+min im Header green-700; alert_count-Zaehler; kompakt aufsteigend Rang 1=kürzeste Zeit; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4420AvgLieferzeitTicker } from './phase4420-avg-lieferzeit-ticker';
 // Phase 4305 — Schichtstunden-Ticker (Clock indigo; Fleißigster #1 Name+h im Header indigo-600; alert_wenig-Zaehler; kompakt absteigend Rang 1=meiste Stunden; dot-Farbkodierung; Team-Avg+Ziel; 30-Min-Polling)
 export { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 // Phase 4300 — Smart-Timing Countdown Farbkodierung Board (Timer indigo; 4-stufig grün/gelb/orange/rot; Echtzeit-Countdown alle Bestellungen; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback)
