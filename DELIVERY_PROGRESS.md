@@ -2,6 +2,22 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4361–4370 implementiert — Fahrer-Auslastungs-Ranking (4361–4365) und Abschlussquoten-Ranking (4366–4370). Backends bereits vorhanden. Dispatch: `DispatchPhase4362AuslastungBoard` + `DispatchPhase4367AbschlussquoteBoard`. Fahrer: `FahrerPhase4363MeineAuslastung` + `FahrerPhase4368MeineAbschlussquote`. Kitchen: `KitchenPhase4365AuslastungTicker` + `KitchenPhase4370AbschlussquoteTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4371.
+
+### ✅ Phasen 4361–4365 ABGESCHLOSSEN — Fahrer-Auslastungs-Ranking
+- Phase 4361 Backend: `/api/delivery/admin/fahrer-auslastungs-ranking` — bereits vorhanden, absteigend Rang 1=höchste Auslastung, STANDARD rank_delta (rang-prevRang, <0=verbessert=TrendingUp emerald), alert_bottom, bester_name/letzter_name, team_avg_pct, Mock Max 72.4%/Julia 65.8%/Sara 58.2%/Tim 41.5% ✅
+- Phase 4362 Dispatch: `DispatchPhase4362AuslastungBoard` — Zap sky-500, absteigend Rang 1=höchste Auslastung, KPI-Grid Aktivste/Team-Avg/Inaktivste (sky-50/gray-50/red-50), Alert "Niedrige Auslastung", rank_delta<0=TrendingUp emerald, Balken=(pct/maxPct)*100% ✅
+- Phase 4363 Fahrer: `FahrerPhase4363MeineAuslastung` — Zap sky-500, auslastung_pct 5xl+Rang 2xl farbkodiert, driver_id filter, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta<0=TrendingUp emerald ✅
+- Phase 4364 Storefront: übersprungen ✅
+- Phase 4365 Kitchen: `KitchenPhase4365AuslastungTicker` — Zap sky-500, Aktivste #1 Name+% im Header sky-700, alert_count-Zähler, dot-Farbkodierung, Team-Avg ✅
+
+### ✅ Phasen 4366–4370 ABGESCHLOSSEN — Fahrer-Abschlussquoten-Ranking
+- Phase 4366 Backend: `/api/delivery/admin/fahrer-abschlussquoten-ranking` — bereits vorhanden, absteigend Rang 1=höchste Abschlussquote, INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald), alert_bottom, bester_name/letzter_name, team_avg_pct, Mock Max 97%/Julia 89%/Sara 76%/Tim 52% ✅
+- Phase 4367 Dispatch: `DispatchPhase4367AbschlussquoteBoard` — CheckCircle green-600, absteigend Rang 1=höchste Quote, KPI-Grid Bester/Team-Avg/Niedrigste (green-50/gray-50/red-50), Alert "Niedrige Quote", INVERTED rank_delta>0=TrendingUp emerald, Balken=(pct/maxPct)*100% ✅
+- Phase 4368 Fahrer: `FahrerPhase4368MeineAbschlussquote` — CheckCircle green-600, quote_pct 5xl+Rang 2xl farbkodiert, driver_id filter, isOnline-Guard, Coaching-Tipp 3 Stufen, INVERTED rank_delta>0=TrendingUp emerald ✅
+- Phase 4369 Storefront: übersprungen ✅
+- Phase 4370 Kitchen: `KitchenPhase4370AbschlussquoteTicker` — CheckCircle green-600, Bester #1 Name+% im Header green-700, alert_count-Zähler, dot-Farbkodierung, Team-Avg ✅
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4351–4360 implementiert — Fahrer-KM-pro-Tour-Ranking (4351–4355) und Wartezeit-am-Stopp-Ranking (4356–4360). Backends bereits vorhanden. Dispatch: `DispatchPhase4352KmProTourBoard` + `DispatchPhase4357WartezeitBoard`. Fahrer: `FahrerPhase4353MeineKmProTour` + `FahrerPhase4358MeineWartezeit`. Kitchen: `KitchenPhase4355KmProTourTicker` + `KitchenPhase4360WartezeitTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4361.
 
 ### ✅ Phasen 4351–4355 ABGESCHLOSSEN — Fahrer-KM-pro-Tour-Ranking
