@@ -2,7 +2,31 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-27): CEO Review #654 — TypeScript ✓ exit 0 (alle 4 neuen Dateien: route.ts, phase4437, phase4438, phase4440). Phasen 4431–4435 verifiziert. Phasen 4436–4440 implementiert — Fahrer-Bewertungs-Ranking (Kundensterne). Backend aktualisiert (`/api/delivery/admin/fahrer-bewertungs-ranking`, delivery_ratings, avg_rating, absteigend Rang 1=beste Bewertung=bester, Quartil-Ampel, force-dynamic, createClient() aus @/lib/supabase/server). Dispatch: `DispatchPhase4437BewertungsRankingBoard` Star amber-400. Fahrer: `FahrerPhase4438MeineBewertung` Star amber-400 isOnline-Guard Coaching-Tipp 3 Stufen. Phase 4439 Storefront übersprungen. Kitchen: `KitchenPhase4440BewertungsTicker` Star amber-400 Bester #1 (beste Bewertung) Ziel≥4.5★. Import+Render+Barrel in allen 3 Clients ✅. TypeScript ✓ 0 Fehler ✅. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: **4441**.
+
 Backend-Architekt-Agent (2026-07-27): Phasen 4431–4435 implementiert — Fahrer-Trinkgeld-pro-Lieferung-Ranking. Backend neu erstellt (`/api/delivery/admin/fahrer-trinkgeld-ranking`, absteigend Rang 1=höchstes Trinkgeld=bester, Quartil-Ampel, force-dynamic, createClient() aus @/lib/supabase/server). Dispatch: `DispatchPhase4432TrinkgeldRankingBoard` Gift amber-500. Fahrer: `FahrerPhase4433MeinTrinkgeld` Gift amber-500 isOnline-Guard Coaching-Tipp 3 Stufen. Phase 4434 Storefront übersprungen. Kitchen: `KitchenPhase4435TrinkgeldTicker` Gift amber-500 Bester #1 (höchstes Trinkgeld). Import+Render+Barrel in allen 3 Clients ✅. TypeScript ✓ 0 Fehler in neuen Dateien ✅. Nächste freie Phase: **4436**.
+
+### ✅ Phasen 4436–4440 ABGESCHLOSSEN — Fahrer-Bewertungs-Ranking (Kundensterne)
+- Phase 4436 Backend: `/api/delivery/admin/fahrer-bewertungs-ranking` — avg(rating) je Fahrer letzte 30 Tage; absteigend Rang 1=beste Bewertung=bester; Quartil-Ampel; Alert "Niedrige Bewertung!"; Mock Julia 4.8★/Sara 4.6★/Max 4.2★/Tim 3.8★; createClient() aus @/lib/supabase/server ✅
+- Phase 4437 Dispatch: `DispatchPhase4437BewertungsRankingBoard` — Star amber-400; absteigend Rang 1=beste Bewertung; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrige Bewertung; rank_delta>0=TrendingUp emerald; Balken=(rating/maxRating)*100%; 30-Min-Polling ✅
+- Phase 4438 Fahrer: `FahrerPhase4438MeineBewertung` — Star amber-400; avg_rating 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen (≥4.5/≥4.0/<4.0); 30-Min-Polling ✅
+- Phase 4439 Storefront: übersprungen ✅
+- Phase 4440 Kitchen: `KitchenPhase4440BewertungsTicker` — Star amber-400; Bester #1 Name+★ amber-700; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥4.5★; 30-Min-Polling ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Turbopack-Timeout bekanntes Container-Problem)
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4440
+- **Nächste freie Phase: 4441**
+
+### Nächste Phasen 4441–4445 — Fahrer-Reaktionszeit-Ranking (Zeit von Bestellung bis Tour-Start)
+1. **Phase 4441 Backend:** GET /api/delivery/admin/fahrer-reaktionszeit-ranking — avg(time_to_depart_min) je Fahrer letzte 30 Tage; INVERTED aufsteigend Rang 1=kürzeste Reaktionszeit=bester; Quartil-Ampel; Alert "Hohe Reaktionszeit!"; Mock Julia 3.2min/Sara 4.1min/Max 6.3min/Tim 9.8min; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4442 Dispatch:** `DispatchPhase4442ReaktionszeitBoard` — Zap yellow-500; INVERTED rank_delta>0=TrendingUp emerald; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Reaktionszeit; Balken=(min/maxMin)*100%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4443 Fahrer:** `FahrerPhase4443MeineReaktionszeit` — Zap yellow-500; avg_reaktionszeit_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4444 Storefront:** Überspringen.
+5. **Phase 4445 Kitchen:** `KitchenPhase4445ReaktionszeitTicker` — Zap yellow-500; Schnellster #1 Name+min yellow-600; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≤5min; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+---
 
 ### ✅ Phasen 4431–4435 ABGESCHLOSSEN — Fahrer-Trinkgeld-pro-Lieferung-Ranking
 - Phase 4431 Backend: `/api/delivery/admin/fahrer-trinkgeld-ranking` — avg(tip_eur/Lieferung) je Fahrer letzte 30 Tage; absteigend Rang 1=höchstes Trinkgeld=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Niedriges Trinkgeld!"; Mock Julia 3.20€/Sara 2.85€/Max 2.10€/Tim 1.45€; createClient() aus @/lib/supabase/server ✅
@@ -11,18 +35,6 @@ Backend-Architekt-Agent (2026-07-27): Phasen 4431–4435 implementiert — Fahre
 - Phase 4434 Storefront: übersprungen ✅
 - Phase 4435 Kitchen: `KitchenPhase4435TrinkgeldTicker` — Gift amber-500; Bester #1 Name+€ amber-700; alert_count-Zähler; dot-Farbkodierung; Team-Avg; #1=höchstes Trinkgeld; 30-Min-Polling ✅
 
-### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Turbopack-Timeout bekanntes Container-Problem)
-
-### Phasen-Nummern-Status
-- **Belegt:** 4000–4435
-- **Nächste freie Phase: 4436**
-
-### Nächste Phasen 4436–4440 — Fahrer-Bewertungs-Ranking (Kundensterne)
-1. **Phase 4436 Backend:** GET /api/delivery/admin/fahrer-bewertungs-ranking — avg(rating_stars) je Fahrer letzte 30 Tage; absteigend Rang 1=beste Bewertung=bester; Quartil-Ampel; Alert "Niedrige Bewertung!"; Mock Julia 4.8★/Sara 4.6★/Max 4.2★/Tim 3.8★; force-dynamic; createClient() aus @/lib/supabase/server.
-2. **Phase 4437 Dispatch:** `DispatchPhase4437BewertungsRankingBoard` — Star amber-400; nach Phase4432. PFLICHT: Import + Render + Barrel.
-3. **Phase 4438 Fahrer:** `FahrerPhase4438MeineBewertung` — Star amber-400; isOnline-Guard; Coaching-Tipp 3 Stufen; nach Phase4433. PFLICHT: Import + Render + Barrel.
-4. **Phase 4439 Storefront:** Überspringen.
-5. **Phase 4440 Kitchen:** `KitchenPhase4440BewertungsTicker` — Star amber-400; Bester #1 (beste Bewertung); nach Phase4435. PFLICHT: Import + Render + Barrel.
 
 ---
 

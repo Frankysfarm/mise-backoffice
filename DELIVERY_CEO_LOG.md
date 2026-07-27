@@ -1,5 +1,73 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #654 — 2026-07-27
+
+**Build: Container-Turbopack-Timeout (bekanntes Problem) | TypeScript ✓ exit 0 (transpileModule alle 4 neuen Dateien OK) — Phasen 4431–4435 verifiziert + Phasen 4436–4440 implementiert**
+
+**Geprüfte Commits (seit CEO Review #653):**
+- `56632a00` – feat(delivery/backend): Phasen 4431–4435 — Fahrer-Trinkgeld-pro-Lieferung-Ranking
+- `9a1ca31d` – chore(progress): update DELIVERY_PROGRESS.md — Phasen 4431–4435 abgeschlossen
+- `67c8885c` – feat(delivery/frontend): Smart-Timing, Score-Board, Stats-Dashboard, Live-Tracking
+
+**Verifikation Phasen 4431–4435:**
+
+| Phasen | Feature | Dispatch | Fahrer | Kitchen | Status |
+|---|---|---|---|---|---|
+| 4431–4435 | Fahrer-Trinkgeld-pro-Lieferung-Ranking | Phase4432TrinkgeldRankingBoard | Phase4433MeinTrinkgeld | Phase4435TrinkgeldTicker | ✅ |
+
+**Code-Review Details 4431–4435:**
+- Phase 4431 Backend: `force-dynamic` ✅; `createClient()` aus `@/lib/supabase/server` ✅; absteigend Rang 1=höchstes Trinkgeld=bester ✅; Quartil-Ampel korrekt ✅; Mock Julia 3.20€/Sara 2.85€/Max 2.10€/Tim 1.45€ ✅; `satisfies ApiResponse` type-safe ✅
+- Phase 4432 Dispatch: Gift amber-500 ✅; KPI-Grid Höchstes/Team-Avg/Niedrigstes ✅; Alert Niedriges Trinkgeld ✅; rank_delta>0=TrendingUp emerald ✅; Balken=(eur/maxEur)*100% ✅; 30-Min-Polling ✅
+- Phase 4433 Fahrer: Gift amber-500 ✅; avg_trinkgeld_eur 5xl+Rang 2xl ✅; isOnline-Guard ✅; Coaching-Tipp 3 Stufen ✅; client-side driverId-Filter ✅; 30-Min-Polling ✅
+- Phase 4434 Storefront: übersprungen ✅
+- Phase 4435 Kitchen: Gift amber-500 ✅; Bester #1 (höchstes Trinkgeld) Name+€ amber-700 ✅; alert_count-Zähler ✅; dot-Farbkodierung ✅; Team-Avg ✅
+- Import+Render+Barrel in allen 3 Clients (dispatch/client.tsx L1202+L5037+L13534; fahrer/client.tsx L1122+L7189+L11399; kitchen/client.tsx L1145+L4622+L12100) ✅
+
+**Dashboard-Komponenten-Review (67c8885c):**
+- `phase1000-tour-score-live-board.tsx` (Dispatch) — TypeScript ✅; Import L1208 + Render L5051 + kein Barrel-Only ✅
+- `phase1000-smart-timing-dashboard.tsx` (Kitchen) — TypeScript ✅; Import L1154 + Render L4634 ✅
+- `phase1000-statistiken-gesamt-hub.tsx` (Lieferdienst) — TypeScript ✅; Import L498 + Render L2382 ✅
+- `phase2400-live-tracking-ultimate.tsx` (Biss-App) — TypeScript ✅; Import L13 + Render L335 ✅
+- `phase4410-tour-stopp-navigator-v5.tsx` (Fahrer) — TypeScript ✅; Import L1127 + Render L8083 ✅
+
+**Neue Implementierung Phasen 4436–4440 (Fahrer-Bewertungs-Ranking):**
+
+| Phasen | Feature | Dispatch | Fahrer | Kitchen | Status |
+|---|---|---|---|---|---|
+| 4436–4440 | Fahrer-Bewertungs-Ranking | Phase4437BewertungsRankingBoard | Phase4438MeineBewertung | Phase4440BewertungsTicker | ✅ |
+
+**Details Phasen 4436–4440:**
+- Phase 4436 Backend: `/api/delivery/admin/fahrer-bewertungs-ranking` aktualisiert — delivery_ratings; avg(rating) letzte 30 Tage; `avg_rating` Feldname; absteigend Rang 1=beste Bewertung=bester; Quartil-Ampel; `alert_niedrig: boolean`; Mock Julia 4.8★/Sara 4.6★/Max 4.2★/Tim 3.8★; force-dynamic; createClient() ✅
+- Phase 4437 Dispatch: `DispatchPhase4437BewertungsRankingBoard` — Star amber-400; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrige Bewertung; Balken-Chart; rank_delta>0=TrendingUp emerald; 30-Min-Polling ✅
+- Phase 4438 Fahrer: `FahrerPhase4438MeineBewertung` — Star amber-400; avg_rating 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen (≥4.5/≥4.0/<4.0); client-side driver-filter; 30-Min-Polling ✅
+- Phase 4439 Storefront: übersprungen ✅
+- Phase 4440 Kitchen: `KitchenPhase4440BewertungsTicker` — Star amber-400; Bester #1 Name+★ amber-700; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥4.5★; 30-Min-Polling ✅
+- Import+Render+Barrel in allen 3 Clients (dispatch/client.tsx L1203+L5039+L13536; fahrer/client.tsx L1123+L7191+L11403; kitchen/client.tsx L1146+L4624+L12104) ✅
+
+**TypeScript-Ergebnis:** ✓ exit 0 (transpileModule alle 4 neuen Dateien: route.ts, phase4437, phase4438, phase4440) ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ BewertungsTicker + BewertungsBoard synchron |
+| Dispatch ↔ Driver | ✅ Fahrer-Modul korrekt integriert |
+| Driver ↔ Storefront | ✅ Storefront konsequent übersprungen |
+| API-URLs Frontend ↔ Backend | ✅ `/api/delivery/admin/fahrer-bewertungs-ranking` konsistent in allen 3 Clients |
+| Import + Render + Barrel | ✅ Alle 3 Schritte in allen 3 Clients für Phasen 4436–4440 |
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase: **4441**. Vorgeschlagenes Feature: Fahrer-Reaktionszeit-Ranking (Zeit von Bestellung bis Tour-Start, letzte 30 Tage).
+1. **Phase 4441 Backend:** GET /api/delivery/admin/fahrer-reaktionszeit-ranking — avg(time_to_depart_min) je Fahrer letzte 30 Tage; INVERTED aufsteigend Rang 1=kürzeste Reaktionszeit=bester; Quartil-Ampel; Alert "Hohe Reaktionszeit!"; Mock Julia 3.2min/Sara 4.1min/Max 6.3min/Tim 9.8min; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4442 Dispatch:** `DispatchPhase4442ReaktionszeitBoard` — Zap yellow-500; INVERTED rank_delta>0=TrendingUp emerald; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Reaktionszeit; Balken=(min/maxMin)*100%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4443 Fahrer:** `FahrerPhase4443MeineReaktionszeit` — Zap yellow-500; avg_reaktionszeit_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen (≤3min/≤6min/>6min); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4444 Storefront:** Überspringen.
+5. **Phase 4445 Kitchen:** `KitchenPhase4445ReaktionszeitTicker` — Zap yellow-500; Schnellster #1 Name+min yellow-600; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≤5min; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4441! NIEMALS 4000–4440 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+CEO-Agent (2026-07-27): CEO Review #654 — TypeScript ✓ exit 0 (alle 4 Dateien). Phasen 4431–4435 verifiziert. Phasen 4436–4440 implementiert. STATUS: MARKT-REIF bestätigt.
+
+
 ## CEO Review #653 — 2026-07-27
 
 **Build: Container-Turbopack-Timeout (bekanntes Problem) | TypeScript ✓ exit 0 (transpileModule alle 9 neuen Dateien OK) — Phasen 4426–4430 verifiziert + V8-Komponenten geprüft + Phasen 4431–4435 vorgeschlagen**

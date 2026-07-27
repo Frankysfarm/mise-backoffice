@@ -1143,6 +1143,7 @@ import { KitchenPhase4420AvgLieferzeitTicker } from './phase4420-avg-lieferzeit-
 import { KitchenPhase4425PuenktlichkeitsTicker } from './phase4425-puenktlichkeits-ticker';
 import { KitchenPhase4430StornoTicker } from './phase4430-storno-ticker';
 import { KitchenPhase4435TrinkgeldTicker } from './phase4435-trinkgeld-ticker';
+import { KitchenPhase4440BewertungsTicker } from './phase4440-bewertungs-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4620,6 +4621,7 @@ export function KitchenBoard({
       <KitchenPhase4425PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4430StornoTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4435TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4440BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12098,6 +12100,8 @@ export { KitchenPhase4425PuenktlichkeitsTicker } from './phase4425-puenktlichkei
 export { KitchenPhase4430StornoTicker } from './phase4430-storno-ticker';
 // Phase 4435 — Trinkgeld-Ticker (Gift amber-500; Bester #1 (höchstes Trinkgeld) Name+€ im Header amber-700; alert_count-Zaehler; dot-Farbkodierung; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4435TrinkgeldTicker } from './phase4435-trinkgeld-ticker';
+// Phase 4440 — Bewertungs-Ticker (Star amber-400; Bester #1 (beste Bewertung) Name+★ amber-700; alert_count-Zaehler; dot-Farbkodierung; Team-Avg; Ziel ≥4.5★; 30-Min-Polling)
+export { KitchenPhase4440BewertungsTicker } from './phase4440-bewertungs-ticker';
 // Phase 4305 — Schichtstunden-Ticker (Clock indigo; Fleißigster #1 Name+h im Header indigo-600; alert_wenig-Zaehler; kompakt absteigend Rang 1=meiste Stunden; dot-Farbkodierung; Team-Avg+Ziel; 30-Min-Polling)
 export { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 // Phase 4300 — Smart-Timing Countdown Farbkodierung Board (Timer indigo; 4-stufig grün/gelb/orange/rot; Echtzeit-Countdown alle Bestellungen; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback)
