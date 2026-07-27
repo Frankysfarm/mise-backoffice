@@ -1116,6 +1116,7 @@ import { DispatchPhase4062TourenProSchichtBoard } from './phase4062-touren-pro-s
 import { DispatchPhase4067PuenktlichkeitBoard } from './phase4067-puenktlichkeit-board';
 import { DispatchPhase4072LieferzeitBoard } from './phase4072-lieferzeit-board';
 import { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';
+import { DispatchPhase4062FahrzeitRankingBoard } from './phase4062-fahrzeit-ranking-board';
 
 type Driver = {
   employee_id: string;
@@ -4853,6 +4854,8 @@ export function DispatchBoard({
           <DispatchPhase4072LieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4038: Tour-Score Matrix — Visuelle Matrix aller Fahrer mit 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung; Farbkodierung je Zelle; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4038TourScoreMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4062: Fahrzeit-Ranking Board — Car-Icon sky; Schnellste/Team-Avg/Langsamste KPIs; aufsteigend Rang 1=kürzeste Zeit=bester; Alert "Lange Fahrzeit!"; rank_delta pos=rot; 30-Min-Polling; Mock-Fallback */}
+          <DispatchPhase4062FahrzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13161,3 +13164,5 @@ export { DispatchPhase4067PuenktlichkeitBoard } from './phase4067-puenktlichkeit
 export { DispatchPhase4072LieferzeitBoard } from './phase4072-lieferzeit-board';
 // Phase 4038 — Tour-Score Matrix (Trophy amber; Matrix 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung je Fahrer; Farbkodierung je Zelle >=85gruen/>=70gelb/<70rot; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';
+// Phase 4062 — Fahrzeit-Ranking Board (Car-Icon sky; aufsteigend Rang 1=kürzeste Fahrzeit=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Lange Fahrzeit!"; rank_delta<0=gruen; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4062FahrzeitRankingBoard } from './phase4062-fahrzeit-ranking-board';

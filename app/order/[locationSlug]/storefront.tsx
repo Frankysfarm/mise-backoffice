@@ -476,6 +476,7 @@ import { LiveTrackingFortschritt } from './live-tracking-fortschritt';
 import { LiveTrackingHub } from './live-tracking-hub';
 import { StorefrontPhase1010DynamischeEtaLiveMaster } from './phase1010-dynamische-eta-live-master';
 import { StorefrontPhase1000DynamischeEtaLiveMaster } from './phase1000-dynamische-eta-live-master';
+import { Phase1000LiveEtaLieferstatusCockpit } from './phase1000-live-eta-lieferstatus-cockpit';
 import { StorefrontPhase1015LiveTrackingStatusPro } from './phase1015-live-tracking-status-pro';
 
 type Props = {
@@ -3319,6 +3320,16 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       )}
       {/* Phase 1006: Live-Küchen-Auslastungs-Anzeige — Echtzeit-Ampel Niedrig/Normal/Hoch/Peak + erwartete Wartezeit */}
       <StorefrontPhase1006KuechenAuslastungsAnzeige locationId={locationId} className="mx-4 mb-3" />
+      {/* Phase 1000: Live-ETA-Lieferstatus-Cockpit — 4-Phasen-Stepper Farbkodiert + Hero-Countdown + Fahrer-Info + ETA-Footer; 30-Sek-Polling */}
+      {order.isDelivery && (
+        <Phase1000LiveEtaLieferstatusCockpit
+          orderId={order.orderId ?? null}
+          locationId={locationId}
+          initialStatus={(order.status as any) ?? 'bestätigt'}
+          initialEtaMin={order.etaMin ?? null}
+          driverName={(order as any).fahrer_name ?? null}
+        />
+      )}
       {/* Phase 1000: Live-Bestellstatus-Timeline Pro — Interaktive Timeline Bestellt→Küche→Fertig→Unterwegs→Geliefert + Sekunden-Countdown */}
       {order.isDelivery && (
         <Phase1000LiveBestellstatusTimelinePro
@@ -3984,3 +3995,5 @@ export { StorefrontPhase2711DynamischeEtaLiveUltimatePro } from './phase2711-dyn
 export { StorefrontPhase1000DynamischeEtaLiveTrackingUltra } from './phase1000-dynamische-eta-live-tracking-ultra';
 // Phase 2712 — Dynamische ETA Live Fortschritt-Track (4-Step Bestätigt/Küche/Unterwegs/Geliefert; Farbkodierung je Step; animierter Verbindungsbalken; Fahrer-Info bei unterwegs; ETA-Fortschrittsbalken; Pulse bei Status-Wechsel; 30-Sek-Polling; Mock-Fallback)
 export { StorefrontPhase2712DynamischeEtaLiveFortschrittTrack } from './phase2712-dynamische-eta-live-fortschritt-track';
+// Phase 1000 — Live-ETA-Lieferstatus-Cockpit (Indigo Header mit Status-Text + Hero-Countdown 1-Sek-Tick; 4-Phasen-Stepper farbkodiert; Fahrer-Info Distanz-Chip; ETA-Footer; 30-Sek-Polling; Mock-Fallback)
+export { Phase1000LiveEtaLieferstatusCockpit } from './phase1000-live-eta-lieferstatus-cockpit';

@@ -558,6 +558,7 @@ import FahrerPhase1950MeinePausenPlanung from './phase1950-meine-pausen-planung'
 import { FahrerPhase1951TourStoppNavigatorUltra } from './phase1951-tour-stopp-navigator-ultra';
 import { FahrerPhase1952TourFortschrittsRing } from './phase1952-tour-fortschritts-ring';
 import { FahrerPhase1953NaechsterStoppEtaCockpit } from './phase1953-naechster-stopp-eta-cockpit';
+import { FahrerPhase1954TourStoppLiveNavigator } from './phase1954-tour-stopp-live-navigator';
 import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-smart-sequenz-nav';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
@@ -6077,6 +6078,12 @@ export function FahrerApp({
           )}
           {/* Phase 1953: Nächster-Stopp-ETA-Cockpit — ETA-Countdown + Strecke + Verkehr + One-Tap Navigation; 2-Min-Polling */}
           <FahrerPhase1953NaechsterStoppEtaCockpit
+            locationId={driver.location_id}
+            driverId={driver.id}
+            isOnline={isOnline}
+          />
+          {/* Phase 1954: Tour-Stopp Live-Navigator — Stopp-Liste mit Status-Dots + Aktiver-Stopp Quick-Nav + Google Maps je Stopp; 60-Sek-Polling */}
+          <FahrerPhase1954TourStoppLiveNavigator
             locationId={driver.location_id}
             driverId={driver.id}
             isOnline={isOnline}
