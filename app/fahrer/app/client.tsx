@@ -11325,3 +11325,5 @@ export { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-n
 export { FahrerPhase4201VerdienstZielProgress } from './phase4201-verdienst-ziel-progress';
 // Phase 4305 — Smart Tour-Stopp Nav Hub (Route indigo; Score+Restzeit Header; Fortschrittsbalken; expandierbare Stopp-Liste Status-Dots farbkodiert; Navi-Deeplink Google Maps; Kunden-Tel; Notiz-Alert; Bonus-Zap; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4305SmartTourStoppNavHub } from './phase4305-smart-tour-stopp-nav-hub';
+// Phase 4351 — Tour-Stopp Nav V3 (Route indigo; Nächster-Stopp-CTA mit Navi+Tel; Stopp-Liste Status-Dots; expandierbare Details; KPI-Strip Effizienz/km/Pakete; Fortschrittsbalken; GPS-Deeplink; Bonus-Zap; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4351TourStoppNavV3 } from './phase4351-tour-stopp-nav-v3';

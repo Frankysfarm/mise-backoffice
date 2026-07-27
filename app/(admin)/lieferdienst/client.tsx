@@ -4976,3 +4976,5 @@ export { LieferdienstPhase4155StatistikenEchtzeitHub } from './phase4155-statist
 export { LieferdienstPhase4201UmsatzEchtzeitTracker } from './phase4201-umsatz-echtzeit-tracker';
 // Phase 4210 — Statistiken Dashboard V2 (Score-Ring+Insight; Alert-Strip; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Stundenverlauf Chart 2-Modi; Top-3-Fahrer Score-Balken; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4210StatistikenDashboardV2 } from './phase4210-statistiken-dashboard-v2';
+// Phase 4215 — Statistiken Dashboard V3 (Score+Delta Header; 8-KPI-Grid Ampel+Δ%+Ziel; Stundenverlauf Balkendiagramm 2-Modi Umsatz/Lieferungen; Top-3-Fahrer Score-Balken; Alert-Count; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4215StatistikenDashboardV3 } from './phase4215-statistiken-dashboard-v3';

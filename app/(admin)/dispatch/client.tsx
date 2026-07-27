@@ -13464,3 +13464,5 @@ export { DispatchPhase4362AuslastungBoard } from './phase4362-auslastung-board';
 export { DispatchPhase4367AbschlussquoteBoard } from './phase4367-abschlussquote-board';
 // Phase 4307 — Fahrer-Score + Tour-Visualisierung Board (Trophy amber; Score-Badge+Delta; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4307FahrerScoreTourVisualisierungBoard } from './phase4307-fahrer-score-tour-visualisierung-board';
+// Phase 4351 — Score + Tour-Visualisierung V3 (Trophy amber; Score-Ring 3-stufig+Delta; Stopp-Sequenz Farbkacheln; expandierbare Tour-Details; 3-KPI-Sub-Grid; Fahrer-Progress-Balken; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4351ScoreTourVisualisierungV3 } from './phase4351-score-tour-visualisierung-v3';

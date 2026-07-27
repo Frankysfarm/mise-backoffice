@@ -12034,3 +12034,5 @@ export { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden
 export { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 // Phase 4305 — Smart-Timing Echtzeit-Cockpit V2 (Score-Ring+KPI-Grid; Countdown-Kacheln mit Farb-Legende; Fahrer-ETA-Sync; Status-Badges; Artikel-Anzeige; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4305SmartTimingEchtzeitCockpitV2 } from './phase4305-smart-timing-echtzeit-cockpit-v2';
+// Phase 4351 — Smart-Timing Countdown V3 (Timer indigo; 4-stufig grün/gelb/orange/rot; Echtzeit-Countdown alle Bestellungen; Timing-Score+On-Time%; Überfällig+Fahrer-wartet-Alerts; Farb-Legende; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4351SmartTimingCountdownV3 } from './phase4351-smart-timing-countdown-v3';
