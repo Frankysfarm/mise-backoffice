@@ -2,15 +2,15 @@
 
 ## STATUS: MARKT-REIF
 
-Backend-Architekt-Agent (2026-07-27): Phasen 4221/4222/4223/4225 implementiert — Fahrer-Auftragsdichte-Ranking. Phase 4221 Backend: `/api/delivery/admin/fahrer-auftragsdichte-ranking` — force-dynamic, createClient (@/lib/supabase/server, await), Aufträge/Schichtstunde je Fahrer (letzte 30 Tage), absteigend Rang 1=höchste Dichte=bester, Ampel per Quartil, rank_delta, Mock Julia 4.2/Max 3.8/Sara 3.1/Tim 2.4/h, ziel=4.0. Phase 4222 Dispatch: `DispatchPhase4222AuftragsdichteBoard` — BarChart2 blue-600, absteigend, KPI-Grid Höchste/Team-Avg/Niedrigste, Alert "Niedrige Dichte!", rank_delta>0=grün, Import+Render+Barrel ✅. Phase 4223 Fahrer: `FahrerPhase4223MeineAuftragsdichte` — BarChart2 blue-600, dichte 5xl+Rang 2xl farbkodiert, Ziel ≥4.0/h, Coaching-Tipp 3 Stufen, isOnline-Guard, Import+Render+Barrel ✅. Phase 4224 Storefront: übersprungen. Phase 4225 Kitchen: `KitchenPhase4225AuftragsdichteTicker` — BarChart2 blue-600, Dichtester #1 Name+/h, Alert-Zähler, kompakt absteigend, dot-Farbkodierung, Team-Avg+Ziel ≥4.0/h, Import+Render+Barrel ✅. Build ✓ exit 0 (npm install + local next 14.2.18). Push erfolgt. Nächste freie Phase: 4226.
+Backend-Architekt-Agent (2026-07-27): Phasen 4246/4247/4248/4250 implementiert — Fahrer-Auftragsdichte-Ranking. Parallele Agents belegten 4221-4245 (Leerfahrten, Storno, StoppsProStunde, TourenProStunde, Tageskilometer). Phasennummern angepasst auf 4247/4248/4250. Backend: `/api/delivery/admin/fahrer-auftragsdichte-ranking` — force-dynamic, createClient (@/lib/supabase/server, await). Dispatch: `DispatchPhase4247AuftragsdichteBoard`. Fahrer: `FahrerPhase4248MeineAuftragsdichte`. Kitchen: `KitchenPhase4250AuftragsdichteTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0 (npm install + local next 14.2.18). Push erfolgt. Nächste freie Phase: 4251.
 
-### ✅ Phasen 4221–4225 ABGESCHLOSSEN — Fahrer-Auftragsdichte-Ranking
-- Phase 4221 Backend: `/api/delivery/admin/fahrer-auftragsdichte-ranking` — force-dynamic, createClient (@/lib/supabase/server, await), Aufträge/Schichtstunde, absteigend Rang 1=höchste Dichte=bester, Ampel per Quartil, Mock Julia 4.2/Max 3.8/Sara 3.1/Tim 2.4, ziel=4.0 ✅
-- Phase 4222 Dispatch: `DispatchPhase4222AuftragsdichteBoard` — BarChart2 blue-600, absteigend Rang 1=höchste Dichte, KPI-Grid Höchste/Team-Avg/Niedrigste, Alert "Niedrige Dichte!", rank_delta>0=grün ✅
-- Phase 4223 Fahrer: `FahrerPhase4223MeineAuftragsdichte` — BarChart2 blue-600, dichte 5xl+Rang 2xl farbkodiert, Ziel ≥4.0/h, Coaching-Tipp (3 Stufen), isOnline-Guard ✅
-- Phase 4224 Storefront: übersprungen ✅
-- Phase 4225 Kitchen: `KitchenPhase4225AuftragsdichteTicker` — BarChart2 blue-600, Dichtester #1 Name+/h im Header, Alert-Zähler, kompakt absteigend, dot-Farbkodierung, Team-Avg+Ziel ≥4.0/h ✅
-- Build ✓ exit 0 (npm install + local next 14.2.18). Push erfolgt. Nächste freie Phase: 4226.
+### ✅ Phasen 4246–4250 ABGESCHLOSSEN — Fahrer-Auftragsdichte-Ranking
+- Phase 4246 Backend: `/api/delivery/admin/fahrer-auftragsdichte-ranking` — force-dynamic, createClient (@/lib/supabase/server, await), Aufträge/Schichtstunde, absteigend Rang 1=höchste Dichte=bester, Ampel per Quartil, Mock Julia 4.2/Max 3.8/Sara 3.1/Tim 2.4, ziel=4.0 ✅
+- Phase 4247 Dispatch: `DispatchPhase4247AuftragsdichteBoard` — BarChart2 blue-600, absteigend Rang 1=höchste Dichte, KPI-Grid Höchste/Team-Avg/Niedrigste, Alert "Niedrige Dichte!", rank_delta>0=grün ✅
+- Phase 4248 Fahrer: `FahrerPhase4248MeineAuftragsdichte` — BarChart2 blue-600, dichte 5xl+Rang 2xl farbkodiert, Ziel ≥4.0/h, Coaching-Tipp (3 Stufen), isOnline-Guard ✅
+- Phase 4249 Storefront: übersprungen ✅
+- Phase 4250 Kitchen: `KitchenPhase4250AuftragsdichteTicker` — BarChart2 blue-600, Dichtester #1 Name+/h im Header, Alert-Zähler, kompakt absteigend, dot-Farbkodierung, Team-Avg+Ziel ≥4.0/h ✅
+- Build ✓ exit 0 (npm install + local next 14.2.18). Push erfolgt. Nächste freie Phase: 4251.
 
 Backend-Architekt-Agent (2026-07-27): Phasen 4212/4213/4215 implementiert — Fahrer-Umsatz-pro-Stopp-Ranking. Parallele Agents belegten 4191-4210 (Trinkgeld, Erstkontakt, Stoppdauer, Bewertung). Eigene Phasen-Nummern auf 4212/4213/4215 angepasst. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4216.
 
