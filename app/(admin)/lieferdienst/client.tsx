@@ -484,6 +484,8 @@ import { LieferdienstPhase2760StatistikLiveCockpitFinal } from './phase2760-stat
 import { LieferdienstStatistikenDashboard } from './statistiken-dashboard-phase4000';
 import { LieferdienstPhase2770StatistikenLiveCockpitKomplett } from './phase2770-statistiken-live-cockpit-komplett';
 import { LieferdienstPhase2775StatistikenWochenZielCockpit } from './phase2775-statistiken-wochenziel-cockpit';
+import { LieferdienstPhase2785TagesStatistikCockpit } from './phase2785-tages-statistik-cockpit';
+import { LieferdienstPhase2790LieferQualitaetsStatistik } from './phase2790-liefer-qualitaets-statistik';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2344,6 +2346,10 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2770StatistikenLiveCockpitKomplett locationId={locationId ?? null} />
                 {/* Phase 2775: Statistiken Wochenziel-Cockpit — 6 Wochentrend-KPIs Ampel+Fortschrittsbalken; Zielerreichung-%; Alert "Ziel verfehlt"; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase2775StatistikenWochenZielCockpit locationId={locationId ?? null} />
+                {/* Phase 2785: Tages-Statistik Cockpit — 4 KPI-Kacheln Bestellungen/Umsatz/Lieferzeit/Bewertung; vs. Vortag; Stunden-Balkendiagramm; 1-Min-Polling; Mock-Fallback */}
+                <LieferdienstPhase2785TagesStatistikCockpit locationId={locationId ?? null} />
+                {/* Phase 2790: Liefer-Qualitäts-Statistik — Sterne-Verteilung; 4 Kategorien; Top-Lob/Kritik; vs. Vorwoche; 5-Min-Polling; Mock-Fallback */}
+                <LieferdienstPhase2790LieferQualitaetsStatistik locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4943,3 +4949,7 @@ export { LieferdienstPhase2770StatistikenLiveCockpitKomplett } from './phase2770
 export { LieferdienstPhase2775StatistikenWochenZielCockpit } from './phase2775-statistiken-wochenziel-cockpit';
 // Phase 2780 — Statistiken Tages-Intelligence Dashboard (BarChart2 indigo; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Ring; Insight-Tipp; Alert-Strip Rot-KPIs; Stundenverlauf-BarChart 2-Modi Jetzt-Stunde indigo; Top-3-Fahrer Score-Balken; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase2780StatistikTagesIntelligence } from './phase2780-statistiken-tages-intelligence';
+// Phase 2785 — Tages-Statistik Cockpit (4 KPI-Kacheln Bestellungen/Umsatz/Lieferzeit/Bewertung; vs. Vortag Δ%; Stunden-Balken; 1-Min-Polling; Mock-Fallback)
+export { LieferdienstPhase2785TagesStatistikCockpit } from './phase2785-tages-statistik-cockpit';
+// Phase 2790 — Liefer-Qualitäts-Statistik (Award; Sterne-Ring 4.6; 1–5 Balken; 4 Kategorien Stars; Top-Lob/Kritik; vs. Vorwoche; 5-Min-Polling; Mock-Fallback)
+export { LieferdienstPhase2790LieferQualitaetsStatistik } from './phase2790-liefer-qualitaets-statistik';

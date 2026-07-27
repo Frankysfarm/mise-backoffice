@@ -1129,6 +1129,11 @@ import { DispatchPhase4121ReaktionszeitBoard } from './phase4121-reaktionszeit-b
 import { DispatchPhase4067KmProSchichtBoard } from './phase4067-km-pro-schicht-board';
 import { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';
 import { DispatchPhase4062FahrzeitRankingBoard } from './phase4062-fahrzeit-ranking-board';
+import { DispatchPhase4107FahrerScoreUebersicht } from './phase4107-fahrer-score-uebersicht';
+import { DispatchPhase4112TourVisualisierungsBoard } from './phase4112-tour-visualisierungs-board';
+import { DispatchPhase4117ScoreVergleichsMatrix } from './phase4117-score-vergleichs-matrix';
+import { DispatchPhase4122TourEffizienzAmpel } from './phase4122-tour-effizienz-ampel';
+import { DispatchPhase4127DispatchSmartScoreBoard } from './phase4127-dispatch-smart-score-board';
 
 type Driver = {
   employee_id: string;
@@ -4880,6 +4885,16 @@ export function DispatchBoard({
           <DispatchPhase4038TourScoreMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4062: Fahrzeit-Ranking Board — Car-Icon sky; Schnellste/Team-Avg/Langsamste KPIs; aufsteigend Rang 1=kürzeste Zeit=bester; Alert "Lange Fahrzeit!"; rank_delta pos=rot; 30-Min-Polling; Mock-Fallback */}
           <DispatchPhase4062FahrzeitRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4107: Fahrer-Score Übersicht — Trophy; Pünktlichkeit/Bewertung/Effizienz Balken; Top-Performer/Coaching-Alert; 1-Min-Polling; Mock-Fallback */}
+          <DispatchPhase4107FahrerScoreUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4112: Tour-Visualisierungs-Board — Stopp-by-Stopp expandierbar; Fortschrittsbalken; Effizienz-Score; 15-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4112TourVisualisierungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4117: Score-Vergleichs-Matrix — 5 Dimensionen vs. Vorwoche; Gesamt-Ring; Trend-Arrows; 1-Min-Polling; Mock-Fallback */}
+          <DispatchPhase4117ScoreVergleichsMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4122: Tour-Effizienz-Ampel — 3-farbig grün/gelb/rot; Delay + km-Abweichung; Puls-Animation kritisch; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4122TourEffizienzAmpel locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4127: Dispatch Smart-Score Board — Gewichteter Ring-Score; 4 Kategorien; Schicht-Ziel vs. Prognose; Empfehlung; 30-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4127DispatchSmartScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13216,3 +13231,13 @@ export { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix'
 export { DispatchPhase4062FahrzeitRankingBoard } from './phase4062-fahrzeit-ranking-board';
 // Phase 4087 — Tour-Score Visualisierung Pro (Trophy amber; Flotten-KPI Avg/Top/Aktiv; Score-Ring+Delta je Fahrer; Stopp-Dot-Timeline farbkodiert ausstehend/unterwegs/geliefert/problem; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung aufklappbar; Navi-Links; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4087TourScoreVisualisierungPro } from './phase4087-tour-score-visualisierung-pro';
+// Phase 4107 — Fahrer-Score Übersicht (Trophy; P/B/E-Balken; Top-Performer/Coaching-Alert; Rang-Delta; 1-Min-Polling; Mock-Fallback)
+export { DispatchPhase4107FahrerScoreUebersicht } from './phase4107-fahrer-score-uebersicht';
+// Phase 4112 — Tour-Visualisierungs-Board (Route; expandierbare Stopp-Liste; Fortschrittsbalken; Effizienz-Score; 15-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4112TourVisualisierungsBoard } from './phase4112-tour-visualisierungs-board';
+// Phase 4117 — Score-Vergleichs-Matrix (5 Dimensionen; Gesamt-Ring; vs. Vorwoche; Trend-Arrows; 1-Min-Polling; Mock-Fallback)
+export { DispatchPhase4117ScoreVergleichsMatrix } from './phase4117-score-vergleichs-matrix';
+// Phase 4122 — Tour-Effizienz-Ampel (3-farbig grün/gelb/rot; Delay + km-Abweichung; Puls-Animation kritisch; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4122TourEffizienzAmpel } from './phase4122-tour-effizienz-ampel';
+// Phase 4127 — Dispatch Smart-Score Board (Gewichteter Ring-Score 4 Kategorien; Schicht-Ziel; Prognose; KI-Empfehlung; 30-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4127DispatchSmartScoreBoard } from './phase4127-dispatch-smart-score-board';

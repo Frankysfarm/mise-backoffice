@@ -1075,6 +1075,11 @@ import { KitchenPhase4125ReaktionszeitTicker } from './phase4125-reaktionszeit-t
 import { KitchenPhase4070KmProSchichtTicker } from './phase4070-km-pro-schicht-ticker';
 import { KitchenPhase4041SmartTimingKochstartForecast } from './phase4041-smart-timing-kochstart-forecast';
 import { KitchenPhase4065ReaktionszeitIndexTicker } from './phase4065-reaktionszeit-index-ticker';
+import { KitchenPhase4110SmartPrepEffizienzRing } from './phase4110-smart-prep-effizienz-ring';
+import { KitchenPhase4115KochzeitFeedbackLoop } from './phase4115-kochzeit-feedback-loop';
+import { KitchenPhase4120TimingFarbkodierungsMatrix } from './phase4120-timing-farbkodierungs-matrix';
+import { KitchenPhase4125CountdownEskalationsWarnung } from './phase4125-countdown-eskalations-warnung';
+import { KitchenPhase4130EchtzeitKochzeitTrend } from './phase4130-echtzeit-kochzeit-trend';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4462,6 +4467,16 @@ export function KitchenBoard({
       <KitchenPhase4041SmartTimingKochstartForecast locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4065: Reaktionszeit-Index Ticker — Timer violet; Schnellste #1 Name+min im Header; Alert "Hohe Reaktionszeit!"; kompakt aufsteigend; dot-Farbkodierung; Team-Avg+Ziel ≤5min; 30-Min-Polling */}
       <KitchenPhase4065ReaktionszeitIndexTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4110 — Smart-Prep-Effizienz-Ring (Kanal-Effizienz-Ring; 4-Kanal-Balken; Ø-Prep vs. Ziel; Bester/Schlechtester Kanal; 20-Sek-Polling; Mock-Fallback) */}
+      <KitchenPhase4110SmartPrepEffizienzRing locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4115 — Kochzeit-Feedback-Loop (7-Tage-Verlauf; Lernkurve %; Best/Worst-Tag; Balkendiagramm; KI-Empfehlung; 1-Min-Polling; Mock-Fallback) */}
+      <KitchenPhase4115KochzeitFeedbackLoop locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4120 — Timing-Farbkodierungs-Matrix (Station × Zeitfenster; grün/gelb/rot; Kritisch/Warnung/OK-Zähler; 30-Sek-Polling; Mock-Fallback) */}
+      <KitchenPhase4120TimingFarbkodierungsMatrix locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4125 — Countdown-Eskalations-Warnung (3-stufige Eskalation; Fahrer-Sync; Puls-Animation Stufe-3; 10-Sek-Polling; Mock-Fallback) */}
+      <KitchenPhase4125CountdownEskalationsWarnung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4130 — Echtzeit-Kochzeit-Trend (SVG-Linienchart 60-Min; 5-Min-Intervalle; Farbdots grün/gelb/rot; Ziel-Linie; Prognose KI; 15-Sek-Polling; Mock-Fallback) */}
+      <KitchenPhase4130EchtzeitKochzeitTrend locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11789,3 +11804,13 @@ export { KitchenPhase4090SmartCountdownCockpitV2 } from './phase4090-smart-count
 export { KitchenPhase4041SmartTimingKochstartForecast } from './phase4041-smart-timing-kochstart-forecast';
 // Phase 4065 — Reaktionszeit-Index Ticker (Timer violet; Schnellste #1 Name+min im Header; Alert "Hohe Reaktionszeit!"; kompakt aufsteigend; dot-Farbkodierung grün/gelb/rot; Team-Avg+Ziel ≤5min; 30-Min-Polling)
 export { KitchenPhase4065ReaktionszeitIndexTicker } from './phase4065-reaktionszeit-index-ticker';
+// Phase 4110 — Smart-Prep-Effizienz-Ring (SVG-Ring + Kanal-Balken; Ø-Prep vs. Ziel; Bester/Schlechtester Kanal; 4-stufige Farbkodierung; 20-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4110SmartPrepEffizienzRing } from './phase4110-smart-prep-effizienz-ring';
+// Phase 4115 — Kochzeit-Feedback-Loop (7-Tage-Balken grün/rot Ziel-Vergleich; Lernkurve-%; Empfehlung; 1-Min-Polling; Mock-Fallback)
+export { KitchenPhase4115KochzeitFeedbackLoop } from './phase4115-kochzeit-feedback-loop';
+// Phase 4120 — Timing-Farbkodierungs-Matrix (Station × Zeitfenster-Tabelle; grün/gelb/rot; Kritisch/Warnung/OK-Zähler; 30-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4120TimingFarbkodierungsMatrix } from './phase4120-timing-farbkodierungs-matrix';
+// Phase 4125 — Countdown-Eskalations-Warnung (3-stufig 1–5/6–15/>15min; Fahrer-wartet-Badge; Stufe-3 animiert; 10-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4125CountdownEskalationsWarnung } from './phase4125-countdown-eskalations-warnung';
+// Phase 4130 — Echtzeit-Kochzeit-Trend (SVG-Linienchart 12-Punkte 60-Min; farbige Dots grün/gelb/rot; Ziel-Strich; Prognose-KPI; 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4130EchtzeitKochzeitTrend } from './phase4130-echtzeit-kochzeit-trend';
