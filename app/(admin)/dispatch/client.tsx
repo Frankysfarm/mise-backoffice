@@ -1154,6 +1154,7 @@ import { DispatchPhase4202StoppdauerBoard } from './phase4202-stoppdauer-board';
 import { DispatchPhase4207BewertungsBoard } from './phase4207-bewertungs-board';
 import { DispatchPhase4201ZonenKapazitaetsLiveGrid } from './phase4201-zonen-kapazitaets-live-grid';
 import { DispatchPhase4212UmsatzProStoppBoard } from './phase4212-umsatz-pro-stopp-board';
+import { DispatchPhase4217ReaktionszeitBoard } from './phase4217-reaktionszeit-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4934,6 +4935,7 @@ export function DispatchBoard({
           <DispatchPhase4202StoppdauerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4207BewertungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4212UmsatzProStoppBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4217ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13329,3 +13331,5 @@ export { DispatchPhase4207BewertungsBoard } from './phase4207-bewertungs-board';
 export { DispatchPhase4201ZonenKapazitaetsLiveGrid } from './phase4201-zonen-kapazitaets-live-grid';
 // Phase 4212 — Umsatz-pro-Stopp-Board (Banknote emerald; absteigend Rang 1=höchster Umsatz=bester; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert "Niedriger Umsatz!"; rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4212UmsatzProStoppBoard } from './phase4212-umsatz-pro-stopp-board';
+// Phase 4217 — Reaktionszeit-Board (Zap purple; aufsteigend Rang 1=schnellste Reaktion; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert "Hohe Reaktionszeit!"; rank_delta<0=TrendingDown emerald; 30-Min-Polling)
+export { DispatchPhase4217ReaktionszeitBoard } from './phase4217-reaktionszeit-board';
