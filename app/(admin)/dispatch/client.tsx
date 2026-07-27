@@ -1162,6 +1162,7 @@ import { DispatchPhase4237TourenProStundeBoard } from './phase4237-touren-pro-st
 import { DispatchPhase4242TageskilometerBoard } from './phase4242-tageskilometer-board';
 import { DispatchPhase4247AuftragsdichteBoard } from './phase4247-auftragsdichte-board';
 import { DispatchPhase4302TourScoreFlottenCockpit } from './phase4302-tour-score-flotten-cockpit';
+import { DispatchPhase4252KmProTourBoard } from './phase4252-km-pro-tour-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4951,6 +4952,7 @@ export function DispatchBoard({
           <DispatchPhase4247AuftragsdichteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4302: Tour-Score Flotten-Cockpit — Score-Ring+Balken je Fahrer; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4302TourScoreFlottenCockpit locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4252KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13362,3 +13364,5 @@ export { DispatchPhase4242TageskilometerBoard } from './phase4242-tageskilometer
 export { DispatchPhase4247AuftragsdichteBoard } from './phase4247-auftragsdichte-board';
 // Phase 4302 — Tour-Score Flotten-Cockpit (Trophy amber; Score-Balken+Ring je Fahrer; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4302TourScoreFlottenCockpit } from './phase4302-tour-score-flotten-cockpit';
+// Phase 4252 — km-pro-Tour-Board (Navigation violet; aufsteigend Rang 1=niedrigste km/Tour=effizientster; KPI-Grid Effizientste/Team-Avg/Höchste; Alert Hohe km/Tour; 30-Min-Polling)
+export { DispatchPhase4252KmProTourBoard } from './phase4252-km-pro-tour-board';
