@@ -1119,6 +1119,7 @@ import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-na
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
 import { FahrerPhase4395TourStoppNavigatorV4 } from './phase4395-tour-stopp-navigator-v4';
+import { FahrerPhase4410TourStoppNavigatorV5 } from './phase4410-tour-stopp-navigator-v5';
 
 type Driver = {
   id: string;
@@ -11381,3 +11382,5 @@ export { FahrerPhase4201VerdienstZielProgress } from './phase4201-verdienst-ziel
 export { FahrerPhase4305SmartTourStoppNavHub } from './phase4305-smart-tour-stopp-nav-hub';
 // Phase 4351 — Tour-Stopp Nav V3 (Route indigo; Nächster-Stopp-CTA mit Navi+Tel; Stopp-Liste Status-Dots; expandierbare Details; KPI-Strip Effizienz/km/Pakete; Fortschrittsbalken; GPS-Deeplink; Bonus-Zap; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4351TourStoppNavV3 } from './phase4351-tour-stopp-nav-v3';
+// Phase 4410 — Tour-Stopp Navigator V5 (Sticky-NavBar blau für aktiven Stopp; Notiz-Alert amber; Bar-Kassierhilfe; Verdienst-Live-Strip mit Trinkgeld; Score+Pünktlichkeit Strip; Artikel-Liste expandierbar; 1-Tap-Navigation; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4410TourStoppNavigatorV5 } from './phase4410-tour-stopp-navigator-v5';

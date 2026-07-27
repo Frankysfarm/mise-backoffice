@@ -481,6 +481,7 @@ import { StorefrontPhase1000DynamischeEtaLiveTrackingV2 } from './phase1000-dyna
 import { StorefrontPhase1015LiveTrackingStatusPro } from './phase1015-live-tracking-status-pro';
 import { StorefrontPhase1020DynamischeEtaLiveV3 } from './phase1020-dynamische-eta-live-v3';
 import { StorefrontPhase1025DynamischeEtaLiveV4 } from './phase1025-dynamische-eta-live-v4';
+import { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-eta-live-v5';
 
 type Props = {
   location: Location;
@@ -4023,3 +4024,5 @@ export { StorefrontPhase2712DynamischeEtaLiveFortschrittTrack } from './phase271
 export { Phase1000LiveEtaLieferstatusCockpit } from './phase1000-live-eta-lieferstatus-cockpit';
 // Phase 1000 V2 — Dynamische ETA Live-Tracking V2 (Sekundengenauer Countdown; 4-stufige ETA-Farbkodierung; Phasenpfad Bestellt→Küche→Unterwegs→Geliefert; Fahrer-Nähe-Indikator; 20-Sek-Polling; Mock-Fallback)
 export { StorefrontPhase1000DynamischeEtaLiveTrackingV2 } from './phase1000-dynamische-eta-live-tracking-v2';
+// Phase 1030 — Dynamische ETA Live V5 (Saffron Hero-Countdown 1-Sek-Tick; 5-stufige Phasen-Timeline; Küchen-Fortschrittsbalken; Fahrer-Proximity-Pulsbalken mit Meter; Übergabe-Code-Karte; Bewertungs-Sterne nach Zustellung; 20-Sek-Polling; Mock-Fallback)
+export { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-eta-live-v5';

@@ -1144,6 +1144,7 @@ import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-sma
 import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';
 import { KitchenPhase4380SmartTimingCountdownV4 } from './phase4380-smart-timing-countdown-v4';
 import { KitchenPhase4395SmartTimingCountdownV5 } from './phase4395-smart-timing-countdown-v5';
+import { KitchenPhase4410SmartTimingCountdownV6 } from './phase4410-smart-timing-countdown-v6';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -12076,3 +12077,5 @@ export { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4
 export { KitchenPhase4305SmartTimingEchtzeitCockpitV2 } from './phase4305-smart-timing-echtzeit-cockpit-v2';
 // Phase 4351 — Smart-Timing Countdown V3 (Timer indigo; 4-stufig grün/gelb/orange/rot; Echtzeit-Countdown alle Bestellungen; Timing-Score+On-Time%; Überfällig+Fahrer-wartet-Alerts; Farb-Legende; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4351SmartTimingCountdownV3 } from './phase4351-smart-timing-countdown-v3';
+// Phase 4410 — Smart-Timing Countdown V6 (Timer indigo; Stationen-Heatmap Pizza/Grill/Pasta/Salat; Batch-Hinweis; Schicht-Vergleich-Delta; Prognose nächste Bestellung; Artikel-Anzahl; 4-stufige Ampel; 1-Sek-Tick + 12-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4410SmartTimingCountdownV6 } from './phase4410-smart-timing-countdown-v6';

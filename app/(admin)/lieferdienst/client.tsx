@@ -494,6 +494,7 @@ import { LieferdienstPhase4210StatistikenDashboardV2 } from './phase4210-statist
 import { LieferdienstPhase4215StatistikenDashboardV3 } from './phase4215-statistiken-dashboard-v3';
 import { LieferdienstPhase4220StatistikDashboardV4 } from './phase4220-statistiken-dashboard-v4';
 import { LieferdienstPhase4395StatistikDashboardV5 } from './phase4395-statistiken-dashboard-v5';
+import { LieferdienstPhase4410StatistikDashboardV6 } from './phase4410-statistiken-dashboard-v6';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -4990,3 +4991,5 @@ export { LieferdienstPhase4201UmsatzEchtzeitTracker } from './phase4201-umsatz-e
 export { LieferdienstPhase4210StatistikenDashboardV2 } from './phase4210-statistiken-dashboard-v2';
 // Phase 4215 — Statistiken Dashboard V3 (Score+Delta Header; 8-KPI-Grid Ampel+Δ%+Ziel; Stundenverlauf Balkendiagramm 2-Modi Umsatz/Lieferungen; Top-3-Fahrer Score-Balken; Alert-Count; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4215StatistikenDashboardV3 } from './phase4215-statistiken-dashboard-v3';
+// Phase 4410 — Statistiken Dashboard V6 (Score+Delta Header; Profit-Marge; Produktivitäts-Ring; 12-KPI-Grid 3-spaltig Ampel+Δ%+Ziel; Stundenverlauf 3-Modi Chart Bestellg/Umsatz/SLA; Zonen-Ranking mit SLA-Balken; Top-3-Fahrer Pünktlichkeit; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4410StatistikDashboardV6 } from './phase4410-statistiken-dashboard-v6';

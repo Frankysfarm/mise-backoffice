@@ -1198,6 +1198,7 @@ import { DispatchPhase4407NachtRankingBoard } from './phase4407-nacht-ranking-bo
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
+import { DispatchPhase4410TourScoreVisualisierungV6 } from './phase4410-tour-score-visualisierung-v6';
 
 type Driver = {
   employee_id: string;
@@ -13506,3 +13507,5 @@ export { DispatchPhase4407NachtRankingBoard } from './phase4407-nacht-ranking-bo
 export { DispatchPhase4307FahrerScoreTourVisualisierungBoard } from './phase4307-fahrer-score-tour-visualisierung-board';
 // Phase 4351 — Score + Tour-Visualisierung V3 (Trophy amber; Score-Ring 3-stufig+Delta; Stopp-Sequenz Farbkacheln; expandierbare Tour-Details; 3-KPI-Sub-Grid; Fahrer-Progress-Balken; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4351ScoreTourVisualisierungV3 } from './phase4351-score-tour-visualisierung-v3';
+// Phase 4410 — Tour-Score Visualisierung V6 (Trophy amber; Rang-Badge farbkodiert; Zonen-SLA-Balken; Fleet-KPI-Grid Score/Pünktlichkeit/Pakete; Stopp-Timeline mit Connector; expandierbare Fahrer-Details; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4410TourScoreVisualisierungV6 } from './phase4410-tour-score-visualisierung-v6';
