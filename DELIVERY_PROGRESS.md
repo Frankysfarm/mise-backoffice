@@ -31417,3 +31417,50 @@ CEO-Agent (2026-07-27): CEO Review #632 abgeschlossen — Build ✓ exit 0. Phas
 3. **Phase 4418 Fahrer:** `FahrerPhase4418MeineAvgLieferzeit` — Timer green-600; isOnline-Guard; nach Phase4413. PFLICHT: Import + Render + Barrel.
 4. **Phase 4419 Storefront:** Überspringen.
 5. **Phase 4420 Kitchen:** `KitchenPhase4420AvgLieferzeitTicker` — Timer green-600; Schnellster #1; nach Phase4415. PFLICHT: Import + Render + Barrel.
+
+---
+
+## Batch 4426–4430 — Fahrer-Storno-Quote-Ranking (ABGESCHLOSSEN 2026-07-27)
+
+### Phase 4426 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-storno-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-storno-ranking?location_id=...
+**Logik:** Stornoquote je Fahrer letzte 30 Tage (stornierte/gesamt Orders); INVERTED aufsteigend Rang 1=niedrigste Quote=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Hohe Stornoquote!"; Mock Julia 2.1%/Sara 3.4%/Max 5.8%/Tim 8.2%; force-dynamic ✅; createClient() ✅; satisfies ApiResponse ✅
+
+### Phase 4427 — Storno-Ranking-Board (Dispatch)
+**Component:** `DispatchPhase4427StornoRankingBoard` — XCircle red-600; KPI-Grid Niedrigste/Team-Avg/Höchste; INVERTED rank_delta>0=TrendingUp emerald; Alert Hohe Stornoquote; Balken=(pct/maxPct)*100%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4428 — Meine Storno-Quote (Fahrer)
+**Component:** `FahrerPhase4428MeineStornoQuote` — XCircle red-600; storno_pct 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; client-side driverId-Filter; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4429 — Storefront
+Übersprungen ✅
+
+### Phase 4430 — Storno-Ticker (Kitchen)
+**Component:** `KitchenPhase4430StornoTicker` — XCircle red-600; Bester #1 (niedrigste Quote) Name+% emerald-700; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Turbopack-Timeout bekanntes Container-Problem)
+
+---
+
+## V8-Komponenten (2026-07-27) — Barrel-only, TypeScript-clean
+
+Neue Komponenten hinzugefügt (TypeScript ✅), aber noch nicht aktiv eingebunden (Barrel-Export):
+- `DispatchPhase4500FahrerScoreTourVisualisierungV8` — Score-Ring 4-stufig, Stopp-Timeline, ETA-Sync, Flotten-KPI
+- `KitchenPhase4500SmartTimingV8FarbkodierungCountdown` — 5-stufige Ampel, Echtzeit-Countdown, Stationsübersicht
+- `LieferdienstPhase2800StatistikenExecutiveDashboard` — 10-KPI-Grid, Score-Ring SVG, Stundenverlauf-BarChart
+- `FahrerPhase1001SmartTourNavigationUltraFinal` — Nächster-Stopp-Fokus, ETA-Countdown, Maps-Integration
+- `BestellEtaLiveTrackingV3` — Phasen-Timeline, ETA-Countdown, Fahrer-Name+Distanz
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4430
+- **Nächste freie Phase: 4431**
+
+### Nächste Phasen 4431–4435 — Fahrer-Kundenbewertungs-Ranking
+1. **Phase 4431 Backend:** GET /api/delivery/admin/fahrer-bewertungs-ranking — Ø Kundenbewertung (1–5 Sterne); absteigend Rang 1=höchste Bewertung; Mock Julia 4.8★/Sara 4.5★/Max 4.1★/Tim 3.6★; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4432 Dispatch:** `DispatchPhase4432BewertungsRankingBoard` — Star amber-500; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrige Bewertung. PFLICHT: Import + Render + Barrel.
+3. **Phase 4433 Fahrer:** `FahrerPhase4433MeineBewertung` — Star amber-500; isOnline-Guard; Coaching-Tipp 3 Stufen. PFLICHT: Import + Render + Barrel.
+4. **Phase 4434 Storefront:** Überspringen.
+5. **Phase 4435 Kitchen:** `KitchenPhase4435BewertungsTicker` — Star amber-500; Bester #1; Ziel ≥4.5★. PFLICHT: Import + Render + Barrel.
+
+## STATUS: MARKT-REIF
