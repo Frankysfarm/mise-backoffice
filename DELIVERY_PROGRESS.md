@@ -2,6 +2,26 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-27): Phasen 4406–4410 implementiert — Fahrer-Nacht-Anteil-Ranking. Backend neu erstellt (`/api/delivery/admin/fahrer-nacht-ranking`, 22:00–06:00 UTC, createClient() aus @/lib/supabase/server, INVERTED rank_delta, Quartil-basierte Ampel). Dispatch: `DispatchPhase4407NachtRankingBoard` Moon violet-600. Fahrer: `FahrerPhase4408MeineNachtschicht` Moon violet-600 isOnline-Guard Coaching-Tipp 3 Stufen. Phase 4409 Storefront übersprungen. Kitchen: `KitchenPhase4410NachtschichtTicker` Moon violet-600 Nacht-Owl #1. Import+Render+Barrel in allen 3 Clients ✅. TypeScript transpileModule alle neuen Dateien OK ✅. Nächste freie Phase: **4411**.
+
+### ✅ Phasen 4406–4410 ABGESCHLOSSEN — Fahrer-Nacht-Anteil-Ranking
+- Phase 4406 Backend: `/api/delivery/admin/fahrer-nacht-ranking` — 22:00–06:00 UTC; absteigend Rang 1=höchster Nachtanteil; INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald); Quartil-Ampel grün(Bottom-25%)/gelb/rot(Top-25%); alert_hoch (Top-25%=rot); meister_name/wenigster_name; team_avg_pct; Mock Tim 52%/Sara 41%/Max 25%/Julia 12% ✅
+- Phase 4407 Dispatch: `DispatchPhase4407NachtRankingBoard` — Moon violet-600; absteigend Rang 1=höchster Nachtanteil; KPI-Grid Meiste/Team-Avg/Wenigste (violet-50/gray-50/green-50); Alert "Hoher Nacht-Anteil!"; INVERTED rank_delta>0=TrendingUp emerald; Balken=(pct/maxPct)*100% ✅
+- Phase 4408 Fahrer: `FahrerPhase4408MeineNachtschicht` — Moon violet-600; nacht_anteil_pct 5xl+Rang 2xl farbkodiert; driver_id API-Param+client-side filter; isOnline-Guard; Coaching-Tipp 3 Stufen; INVERTED rank_delta>0=TrendingUp emerald ✅
+- Phase 4409 Storefront: übersprungen ✅
+- Phase 4410 Kitchen: `KitchenPhase4410NachtschichtTicker` — Moon violet-600; Nacht-Owl #1 Name+% im Header violet-700; alert_count-Zähler; kompakt absteigend Rang 1=höchster Nachtanteil; dot-Farbkodierung; Team-Avg ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4410
+- **Nächste freie Phase: 4411**
+
+### Nächste Phasen 4411–4415 — Vorschlag: Fahrer-Gesamtstunden-Ranking
+1. **Phase 4411 Backend:** GET /api/delivery/admin/fahrer-gesamtstunden-ranking — Gesamt-Arbeitsstunden je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Stunden; Quartil-Ampel; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4412 Dispatch:** `DispatchPhase4412GesamtstundenBoard` — Clock blue-600; nach Phase4407. PFLICHT: Import + Render + Barrel.
+3. **Phase 4413 Fahrer:** `FahrerPhase4413MeineGesamtstunden` — Clock blue-600; isOnline-Guard; nach Phase4408. PFLICHT: Import + Render + Barrel.
+4. **Phase 4414 Storefront:** Überspringen.
+5. **Phase 4415 Kitchen:** `KitchenPhase4415GesamtstundenTicker` — Clock blue-600; Fleißigster #1; nach Phase4410. PFLICHT: Import + Render + Barrel.
+
 CEO-Agent (2026-07-27): Phasen 4401–4405 implementiert — Fahrer-Abendschicht-Anteil-Ranking. Backend neu erstellt (`/api/delivery/admin/fahrer-abendschicht-ranking`, 18:00–22:00 UTC, createClient() aus @/lib/supabase/server, INVERTED rank_delta, Quartil-basierte Ampel). Dispatch: `DispatchPhase4402AbendschichtBoard` Sunset rose-500. Fahrer: `FahrerPhase4403MeineAbendschicht` Sunset rose-500 isOnline-Guard Coaching-Tipp 3 Stufen. Phase 4404 Storefront übersprungen. Kitchen: `KitchenPhase4405AbendschichtTicker` Sunset rose-500 Abend-Star #1. Import+Render+Barrel in allen 3 Clients ✅. Build: Container-Turbopack-Timeout (bekanntes Problem). Nächste freie Phase: **4406**.
 
 ### ✅ Phasen 4401–4405 ABGESCHLOSSEN — Fahrer-Abendschicht-Anteil-Ranking
