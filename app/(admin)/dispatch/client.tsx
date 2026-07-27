@@ -1097,6 +1097,7 @@ import { DispatchPhase3979TrinkgeldBoard } from './phase3979-trinkgeld-board';
 import { DispatchPhase3984ReaktionszeitBoard } from './phase3984-reaktionszeit-board';
 import { DispatchPhase3989ReactionsVerbesserungBoard } from './phase3989-reaktionszeit-verbesserung-board';
 import { DispatchPhase3989KmProTourBoard } from './phase3989-km-pro-tour-board';
+import { DispatchPhase4000TourScoreLiveKommando } from './phase4000-tour-score-live-kommando';
 
 type Driver = {
   employee_id: string;
@@ -4811,6 +4812,8 @@ export function DispatchBoard({
           <DispatchPhase3984ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3989ReactionsVerbesserungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase3989KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4000: Tour-Score Live-Kommando — Flotten-KPI Avg/Top/Aktiv; Score-Balken je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-KPIs aufklappbar; Alert Score<70; 20-Sek-Polling */}
+          <DispatchPhase4000TourScoreLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13081,3 +13084,5 @@ export { DispatchPhase3989KmProTourBoard } from './phase3989-km-pro-tour-board';
 export { DispatchPhase3849TourScoreVisualisierungLiveKomplett } from './phase3849-tour-score-visualisierung-live-komplett';
 // Phase 3954 — Tour-Score Visualisierung Ultimate (Trophy amber; 4-Flotten-KPIs Avg/Top/Fahrer/Alerts; Score-Ring+Delta je Fahrer; Stopp-Dot-Timeline farbkodiert; aufklappbarer Stopp-Detail inkl. Sub-KPIs+Navi-Links; Alert Score<70 Rot-Highlight; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase3954TourScoreVisualisierungUltimate } from './phase3954-tour-score-visualisierung-ultimate';
+// Phase 4000 — Tour-Score Live-Kommando (Trophy amber; Flotten-KPI Avg/Top/Aktiv/Touren; Score-Balken 0–100 je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-KPIs aufklappbar inkl. P��nktlichkeit/Lieferzeit/Bewertung+Navi; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4000TourScoreLiveKommando } from './phase4000-tour-score-live-kommando';

@@ -481,6 +481,7 @@ import { LieferdienstPhase2741StatistikEchtzeitCockpitPro } from './phase2741-st
 import { LieferdienstPhase2746StatistikLiveCommandPro } from './phase2746-statistiken-live-command-pro';
 import { LieferdienstPhase2751StatistikenLiveIntelligenceDashboard } from './phase2751-statistiken-live-intelligence-dashboard';
 import { LieferdienstPhase2760StatistikLiveCockpitFinal } from './phase2760-statistiken-live-cockpit-final';
+import { LieferdienstStatistikenDashboard } from './statistiken-dashboard-phase4000';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2335,6 +2336,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase2630StatistikenLiveKomplett locationId={locationId ?? null} />
                 {/* Phase 2635: Liefer-SLA-Echtzeit-Cockpit — 5 SLA-Metriken Ampel+Fortschrittsbalken; Trend-Pfeile; SLA-Gesamt%; Alert wenn unter Ziel; 1-Min-Polling */}
                 <LieferdienstPhase2635LieferSlaEchtzeitCockpit />
+                {/* Phase 4000: Statistiken-Dashboard — Schicht-KPIs, Tages-/Wochenvergleich, Top-Fahrer, Zonen-Ertrag; 30-Sek-Polling; Mock-Fallback */}
+                <LieferdienstStatistikenDashboard locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -4926,3 +4929,5 @@ export { LieferdienstPhase2756StatistikenKomplettDashboard } from './phase2756-s
 export { LieferdienstPhase2760StatistikLiveCockpitFinal } from './phase2760-statistiken-live-cockpit-final';
 // Phase 2765 — Statistiken Live Dashboard v2 (BarChart2 indigo; Alert-Strip kritische KPIs rot; Score-Ring+Insight; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel+Trend; Stundenverlauf-BarChart 2-Modi Bestellungen/Umsatz Jetzt-Stunde indigo; Zonen-SLA-Balken farbkodiert; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase2765StatistikenLiveDashboardV2 } from './phase2765-statistiken-live-dashboard-v2';
+// Phase 4000 — Statistiken-Dashboard (Schicht-KPIs, Tages-/Wochenvergleich, Top-Fahrer Ranking, Zonen-Ertrag; 30-Sek-Polling; Mock-Fallback)
+export { LieferdienstStatistikenDashboard } from './statistiken-dashboard-phase4000';

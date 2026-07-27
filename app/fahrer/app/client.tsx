@@ -1019,6 +1019,7 @@ import { FahrerPhase3980MeinTrinkgeld } from './phase3980-mein-trinkgeld';
 import { FahrerPhase3985MeineReaktionszeit } from './phase3985-meine-reaktionszeit';
 import { FahrerPhase3990MeineReaktionszeitVerbesserung } from './phase3990-meine-reaktionszeit-verbesserung';
 import { FahrerPhase3990MeineKmProTour } from './phase3990-meine-km-pro-tour';
+import { FahrerPhase4000TourStopNavHub } from './phase4000-tour-stop-nav-hub';
 
 type Driver = {
   id: string;
@@ -6967,6 +6968,8 @@ export function FahrerApp({
           <FahrerPhase3985MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3990MeineReaktionszeitVerbesserung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3990MeineKmProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
+          <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
           {isOnline && activeBatch && (activeBatch.stops ?? []).length > 0 && (
             <FahrerPhase3553TourStopsNavigatorMaster
@@ -10928,3 +10931,5 @@ export { FahrerPhase3990MeineKmProTour } from './phase3990-meine-km-pro-tour';
 export { FahrerPhase3850TourStoppLiveNavigation } from './phase3850-tour-stopp-live-navigation';
 // Phase 3955 — Smart Tour Navigation Hub Ultra (Navigation blau; Hero-Aktiv-Stopp mit ETA+Maps+Waze+Telefon; Sonderwunsch-Alert amber; Gradient-Header mit Fortschrittsbalken; Alle-Stopps expandierbar mit Navi-Links je Stopp; Score-Badge; isOnline-Guard; 10-Sek-Polling; Mock-Fallback)
 export { FahrerPhase3955SmartTourNavigationHubUltra } from './phase3955-smart-tour-navigation-hub-ultra';
+// Phase 4000 — Tour-Stop Navigation Hub (alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4000TourStopNavHub } from './phase4000-tour-stop-nav-hub';

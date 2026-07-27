@@ -1043,6 +1043,7 @@ import { KitchenPhase3982TrinkgeldTicker } from './phase3982-trinkgeld-ticker';
 import { KitchenPhase3987ReaktionszeitTicker } from './phase3987-reaktionszeit-ticker';
 import { KitchenPhase3991ReactionsVerbesserungTicker } from './phase3991-reaktionszeit-verbesserung-ticker';
 import { KitchenPhase3992KmProTourTicker } from './phase3992-km-pro-tour-ticker';
+import { KitchenPhase4000SmartTimingUltimateCockpit } from './phase4000-smart-timing-ultimate-cockpit';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4393,6 +4394,8 @@ export function KitchenBoard({
       <KitchenPhase3987ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3991ReactionsVerbesserungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase3992KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4000: Smart-Timing Ultimate Cockpit — sekundengenauer Countdown je Bestellung; 5-stufige Farbkodierung; Kochstart-Score; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling */}
+      <KitchenPhase4000SmartTimingUltimateCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11654,3 +11657,5 @@ export { KitchenPhase3992KmProTourTicker } from './phase3992-km-pro-tour-ticker'
 export { KitchenPhase3852SmartTimingLiveCountdownHub } from './phase3852-smart-timing-live-countdown-hub';
 // Phase 3957 — Smart-Timing Kochzeit Ultra Cockpit (Timer violett; 6-KPI-Grid Pünktlich/Prep/Kochstart/Überfällig/Sync/Ziel; Kochstart-Score-Balken; Countdown-Kacheln 4-stufig grün/gelb/orange/rot; Komplexitäts-Alert Flamme; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase3957SmartTimingKochzeitUltraCockpit } from './phase3957-smart-timing-kochzeit-ultra-cockpit';
+// Phase 4000 — Smart-Timing Ultimate Cockpit (Timer amber; 5-stufige Farbkodierung grün/gelb/amber/orange/rot; KPI-Grid Kochstart-Score/Pünktlich/AvgPrep; Fahrer-ETA-Sync; Komplexitäts-Badge; Score-Balken; Überfällig-Alert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4000SmartTimingUltimateCockpit } from './phase4000-smart-timing-ultimate-cockpit';
