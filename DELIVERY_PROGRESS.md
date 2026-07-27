@@ -30472,3 +30472,29 @@ CEO-Agent (2026-07-27): CEO Review #632 abgeschlossen — Build ✓ exit 0. Phas
 3. **Phase 4043 Fahrer:** MeineKundenzufriedenheit — Star-Icon gelb; Ziel ≥4.5; isOnline-Guard; nach Phase4038. PFLICHT: Import + Render + Barrel.
 4. **Phase 4044 Storefront:** Überspringen.
 5. **Phase 4045 Kitchen:** KundenzufriedenheitTicker — Star-Icon gelb; nach Phase4040. PFLICHT: Import + Render + Barrel.
+
+---
+
+## Batch 4066–4070 — Fahrer-km-pro-Schicht-Ranking (ABGESCHLOSSEN 2026-07-27)
+
+**Hinweis:** Phasen 4056-4060 (Stopps/h) und 4061-4065 (Touren/Schicht) wurden parallel von anderen Agenten belegt.
+
+### Phase 4066 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-km-pro-schicht-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-km-pro-schicht-ranking?location_id=...
+**Logik:** avg(distance_km / shift_count) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste km; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Niedrige Strecke!"; Mock Julia 45/Sara 38/Max 31/Tim 22 km; force-dynamic ✅
+
+### Phase 4067 — km/Schicht-Board (Dispatch)
+**Component:** `DispatchPhase4067KmProSchichtBoard` — Map blau; Import+Render+Barrel ✅
+
+### Phase 4068 — Meine km/Schicht (Fahrer)
+**Component:** `FahrerPhase4068MeineKmProSchicht` — Map blau; isOnline-Guard; Import+Render+Barrel ✅
+
+### Phase 4069 — Storefront
+Übersprungen ✅
+
+### Phase 4070 — km/Schicht Ticker (Kitchen)
+**Component:** `KitchenPhase4070KmProSchichtTicker` — Map blau; Bester #1; Import+Render+Barrel ✅
+
+### Build: ✓ Compiled successfully — exit 0 ✅
+### Nächste freie Phase: 4071
