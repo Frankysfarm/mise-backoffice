@@ -2,6 +2,26 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-27): Phasen 4371–4375 implementiert — Fahrer-Tageskilometer-Ranking. Backend aktualisiert (`/api/delivery/admin/fahrer-tageskilometer-ranking`, createClient() aus @/lib/supabase/server, INVERTED rank_delta). Dispatch: `DispatchPhase4372TageskilometerBoard`. Fahrer: `FahrerPhase4373MeineTageskilometer`. Kitchen: `KitchenPhase4375TageskilometerTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ Compiled successfully. Push erfolgt. Nächste freie Phase: 4376.
+
+### ✅ Phasen 4371–4375 ABGESCHLOSSEN — Fahrer-Tageskilometer-Ranking
+- Phase 4371 Backend: `/api/delivery/admin/fahrer-tageskilometer-ranking` — aktualisiert auf createClient() aus @/lib/supabase/server; absteigend Rang 1=meiste km=bester; INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald); alert_bottom (Bottom-25%=rot); bester_name/letzter_name; team_avg_km; Mock Julia 48.2/Sara 38.5/Max 27.0/Tim 14.3 km ✅
+- Phase 4372 Dispatch: `DispatchPhase4372TageskilometerBoard` — Map blue-500; absteigend Rang 1=meiste km; KPI-Grid Meiste/Team-Avg/Wenigste (blue-50/gray-50/red-50); Alert "Niedrige Tagesleistung!"; INVERTED rank_delta>0=TrendingUp emerald; Balken=(km/maxKm)*100% ✅
+- Phase 4373 Fahrer: `FahrerPhase4373MeineTageskilometer` — Map blue-500; km 5xl+Rang 2xl farbkodiert; driver_id API-Param+client-side filter; isOnline-Guard; Coaching-Tipp 3 Stufen; INVERTED rank_delta>0=TrendingUp emerald ✅
+- Phase 4374 Storefront: übersprungen ✅
+- Phase 4375 Kitchen: `KitchenPhase4375TageskilometerTicker` — Map blue-500; Km-König #1 Name+km im Header blue-700; alert_count-Zähler; kompakt absteigend Rang 1=meiste km; dot-Farbkodierung; Team-Avg ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4375
+- **Nächste freie Phase: 4376**
+
+### Nächste Phasen 4376–4380 — Fahrer-Wochenend-Anteil-Ranking
+1. **Phase 4376 Backend:** GET /api/delivery/admin/fahrer-wochenend-anteil-ranking — Anteil Wochenend-Schichten je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Wochenend-Anteil; Ampel grün(Bottom-25%)/gelb/rot(Top-25%); Alert "Hoher Wochenend-Anteil!"; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4377 Dispatch:** `DispatchPhase4377WochenendBoard` — Calendar orange-500; nach Phase4372. PFLICHT: Import + Render + Barrel.
+3. **Phase 4378 Fahrer:** `FahrerPhase4378MeineWochenendSchicht` — Calendar orange-500; isOnline-Guard; nach Phase4373. PFLICHT: Import + Render + Barrel.
+4. **Phase 4379 Storefront:** Überspringen.
+5. **Phase 4380 Kitchen:** `KitchenPhase4380WochenendTicker` — Calendar orange-500; Wochenend-König #1; nach Phase4375. PFLICHT: Import + Render + Barrel.
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4361–4370 implementiert — Fahrer-Auslastungs-Ranking (4361–4365) und Abschlussquoten-Ranking (4366–4370). Backends bereits vorhanden. Dispatch: `DispatchPhase4362AuslastungBoard` + `DispatchPhase4367AbschlussquoteBoard`. Fahrer: `FahrerPhase4363MeineAuslastung` + `FahrerPhase4368MeineAbschlussquote`. Kitchen: `KitchenPhase4365AuslastungTicker` + `KitchenPhase4370AbschlussquoteTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4371.
 
 ### ✅ Phasen 4361–4365 ABGESCHLOSSEN — Fahrer-Auslastungs-Ranking

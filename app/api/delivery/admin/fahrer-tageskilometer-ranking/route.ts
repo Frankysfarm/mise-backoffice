@@ -1,135 +1,128 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-interface TourRow {
-  driver_id: string;
-  driver_name: string;
-  departed_at: string;
-  distance_km?: number | null;
+interface FahrerRow {
+  fahrer_id: string;
+  fahrer_name: string;
+  rang: number;
+  km: number;
+  rank_delta: number;
+  ampel: 'gruen' | 'gelb' | 'rot';
+  alert_bottom: boolean;
 }
 
-const MOCK_DATA = {
+interface ApiResponse {
+  fahrer: FahrerRow[];
+  team_avg_km: number;
+  bester_name: string;
+  letzter_name: string;
+  alert_count: number;
+  gesamt: number;
+}
+
+const MOCK_DATA: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Max M.',   rang: 1, km: 48.2, rank_delta: -1, ampel: 'gruen', alert_bottom: false },
-    { fahrer_id: 'f2', fahrer_name: 'Julia F.', rang: 2, km: 41.5, rank_delta:  0, ampel: 'gruen', alert_bottom: false },
-    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, km: 28.0, rank_delta:  1, ampel: 'gelb',  alert_bottom: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, km: 12.3, rank_delta:  0, ampel: 'rot',   alert_bottom: true  },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, km: 48.2, rank_delta:  1, ampel: 'gruen', alert_bottom: false },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, km: 38.5, rank_delta:  0, ampel: 'gruen', alert_bottom: false },
+    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, km: 27.0, rank_delta: -1, ampel: 'gelb',  alert_bottom: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, km: 14.3, rank_delta:  0, ampel: 'rot',   alert_bottom: true  },
   ],
-  team_avg_km: 32.5,
-  bester_name: 'Max M.',
+  team_avg_km: 32.0,
+  bester_name: 'Julia F.',
   letzter_name: 'Tim B.',
   alert_count: 1,
   gesamt: 4,
 };
 
-function todayRange() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const end   = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-  return { start: start.toISOString(), end: end.toISOString() };
-}
-
-function yesterdayRange() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-  const end   = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  return { start: start.toISOString(), end: end.toISOString() };
-}
-
-function ampel(rank: number, total: number): string {
-  const pct = rank / total;
+function ampelVon(rang: number, total: number): 'gruen' | 'gelb' | 'rot' {
+  const pct = rang / total;
   if (pct <= 0.25) return 'gruen';
   if (pct <= 0.75) return 'gelb';
   return 'rot';
 }
 
+function todayRange() {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const end   = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
+function yesterdayRange() {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
+  const end   = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
 export async function GET(req: NextRequest) {
-  const { searchParams } = req.nextUrl;
-  const location_id = searchParams.get('location_id');
-  const driver_id   = searchParams.get('driver_id');
-
-  if (!location_id) return NextResponse.json(MOCK_DATA);
-
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-    process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
-  );
+  const locationId = req.nextUrl.searchParams.get('location_id');
+  if (!locationId) return NextResponse.json(MOCK_DATA);
 
   try {
+    const supabase = await createClient();
     const today     = todayRange();
     const yesterday = yesterdayRange();
 
-    const [todayRes, yestRes] = await Promise.all([
+    const [curRes, prevRes] = await Promise.all([
       supabase
         .from('delivery_tours')
         .select('driver_id, driver_name, departed_at, distance_km')
-        .eq('location_id', location_id)
+        .eq('location_id', locationId)
         .gte('departed_at', today.start)
-        .lt('departed_at', today.end)
-        .not('departed_at', 'is', null),
+        .lt('departed_at', today.end),
       supabase
         .from('delivery_tours')
         .select('driver_id, distance_km')
-        .eq('location_id', location_id)
+        .eq('location_id', locationId)
         .gte('departed_at', yesterday.start)
-        .lt('departed_at', yesterday.end)
-        .not('departed_at', 'is', null),
+        .lt('departed_at', yesterday.end),
     ]);
 
-    const todayTours: TourRow[]                           = (todayRes.data ?? []) as TourRow[];
-    const yestTours:  { driver_id: string; distance_km?: number | null }[] = (yestRes.data ?? []) as { driver_id: string; distance_km?: number | null }[];
+    const curData = curRes.data ?? [];
+    if (!curData.length) return NextResponse.json(MOCK_DATA);
 
-    if (todayTours.length === 0) return NextResponse.json(MOCK_DATA);
-
-    // Aggregate km per driver today
-    const todayAcc: Record<string, { name: string; km: number }> = {};
-    for (const t of todayTours) {
-      if (!todayAcc[t.driver_id]) todayAcc[t.driver_id] = { name: t.driver_name ?? t.driver_id, km: 0 };
-      todayAcc[t.driver_id].km += typeof t.distance_km === 'number' ? t.distance_km : 0;
+    const curAcc = new Map<string, { name: string; km: number }>();
+    for (const t of curData) {
+      const prev = curAcc.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, km: 0 };
+      curAcc.set(t.driver_id, { name: prev.name, km: prev.km + (typeof t.distance_km === 'number' ? t.distance_km : 0) });
     }
 
-    // Aggregate km per driver yesterday
-    const yestAcc: Record<string, number> = {};
-    for (const t of yestTours) {
-      yestAcc[t.driver_id] = (yestAcc[t.driver_id] ?? 0) + (typeof t.distance_km === 'number' ? t.distance_km : 0);
+    const prevAcc = new Map<string, number>();
+    for (const t of (prevRes.data ?? [])) {
+      prevAcc.set(t.driver_id, (prevAcc.get(t.driver_id) ?? 0) + (typeof t.distance_km === 'number' ? t.distance_km : 0));
     }
 
-    // Sort descending by km (rank 1 = most km = best)
-    const entries = Object.entries(todayAcc)
+    const entries = [...curAcc.entries()]
       .map(([id, v]) => ({ fahrer_id: id, fahrer_name: v.name, km: Math.round(v.km * 10) / 10 }))
       .sort((a, b) => b.km - a.km);
 
     const total   = entries.length;
     const teamAvg = Math.round(entries.reduce((s, e) => s + e.km, 0) / total * 10) / 10;
 
-    // Yesterday ranking
-    const yestEntries = Object.entries(yestAcc)
-      .map(([id, km]) => ({ driver_id: id, km }))
+    const prevEntries = [...prevAcc.entries()]
+      .map(([id, km]) => ({ id, km }))
       .sort((a, b) => b.km - a.km);
-    const yestRankMap = new Map(yestEntries.map((e, i) => [e.driver_id, i + 1]));
+    const prevRankMap = new Map(prevEntries.map((e, i) => [e.id, i + 1]));
 
-    const fahrer = entries.map((e, i) => {
-      const rang       = i + 1;
-      const amp        = ampel(rang, total);
-      const yestRank   = yestRankMap.get(e.fahrer_id);
-      const rank_delta = yestRank != null ? rang - yestRank : 0;
+    const fahrer: FahrerRow[] = entries.map((e, i) => {
+      const rang     = i + 1;
+      const ampel    = ampelVon(rang, total);
+      const prevRang = prevRankMap.get(e.fahrer_id);
+      // INVERTED: prevRang - rang, >0 = verbessert (rang-Nummer gesunken = besser)
+      const rank_delta = prevRang != null ? prevRang - rang : 0;
       return {
         fahrer_id:    e.fahrer_id,
         fahrer_name:  e.fahrer_name,
         rang,
         km:           e.km,
         rank_delta,
-        ampel:        amp,
-        alert_bottom: amp === 'rot',
+        ampel,
+        alert_bottom: ampel === 'rot',
       };
     });
-
-    if (driver_id) {
-      const me = fahrer.find(f => f.fahrer_id === driver_id) ?? fahrer[0];
-      return NextResponse.json({ fahrer: me ? [me] : [], team_avg_km: teamAvg, gesamt: total });
-    }
 
     return NextResponse.json({
       fahrer,
