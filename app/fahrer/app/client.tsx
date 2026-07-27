@@ -1022,6 +1022,7 @@ import { FahrerPhase3990MeineKmProTour } from './phase3990-meine-km-pro-tour';
 import { FahrerPhase3994MeineTourstartPuenktlichkeit } from './phase3994-meine-tourstart-puenktlichkeit';
 import { FahrerPhase4000TourStopNavHub } from './phase4000-tour-stop-nav-hub';
 import { FahrerPhase4002MeineSchichtstartPuenktlichkeit } from './phase4002-meine-schichtstart-puenktlichkeit';
+import { FahrerPhase4008MeineLeerfahrten } from './phase4008-meine-leerfahrten';
 
 type Driver = {
   id: string;
@@ -6972,6 +6973,7 @@ export function FahrerApp({
           <FahrerPhase3990MeineKmProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase3994MeineTourstartPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4002MeineSchichtstartPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4008MeineLeerfahrten driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
@@ -10941,3 +10943,5 @@ export { FahrerPhase3955SmartTourNavigationHubUltra } from './phase3955-smart-to
 export { FahrerPhase4000TourStopNavHub } from './phase4000-tour-stop-nav-hub';
 // Phase 4002 — Meine Schichtstart-Pünktlichkeit (Clock-Icon blue; puenktlichkeit_pct 5xl+Rang 3xl farbkodiert; Ziel >=90%; Coaching-Tipp; isOnline-Guard; Mini-Ranking isMe highlight; rank_delta<0=gruen; 30-Min-Polling)
 export { FahrerPhase4002MeineSchichtstartPuenktlichkeit } from './phase4002-meine-schichtstart-puenktlichkeit';
+// Phase 4008 — Meine Leerfahrten (Navigation indigo-500; leerfahrten_pct 5xl+Rang 3xl farbkodiert; Ziel <=10%; Coaching-Tipp 3 Stufen; isOnline-Guard; Mini-Ranking isMe highlight; rank_delta<0=gruen; 30-Min-Polling)
+export { FahrerPhase4008MeineLeerfahrten } from './phase4008-meine-leerfahrten';

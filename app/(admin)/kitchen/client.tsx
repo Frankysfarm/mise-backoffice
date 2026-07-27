@@ -1046,6 +1046,7 @@ import { KitchenPhase3992KmProTourTicker } from './phase3992-km-pro-tour-ticker'
 import { KitchenPhase3996TourstartPuenktlichkeitTicker } from './phase3996-tourstart-puenktlichkeit-ticker';
 import { KitchenPhase4000SmartTimingUltimateCockpit } from './phase4000-smart-timing-ultimate-cockpit';
 import { KitchenPhase4004SchichtstartPuenktlichkeitTicker } from './phase4004-schichtstart-puenktlichkeit-ticker';
+import { KitchenPhase4010LeerfahrtenTicker } from './phase4010-leerfahrten-ticker';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4400,6 +4401,7 @@ export function KitchenBoard({
       {/* Phase 4000: Smart-Timing Ultimate Cockpit — sekundengenauer Countdown je Bestellung; 5-stufige Farbkodierung; Kochstart-Score; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling */}
       <KitchenPhase4000SmartTimingUltimateCockpit locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4004SchichtstartPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase4010LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -11667,3 +11669,5 @@ export { KitchenPhase3957SmartTimingKochzeitUltraCockpit } from './phase3957-sma
 export { KitchenPhase4000SmartTimingUltimateCockpit } from './phase4000-smart-timing-ultimate-cockpit';
 // Phase 4004 — Schichtstart-Pünktlichkeit Ticker (Clock-Icon blue; Bester #1 Name+% im Header; Alert "Niedrige Pünktlichkeit!"; kompakt absteigend; rank_delta<0=gruen; Team-Avg+Ziel >=90%; 30-Min-Polling)
 export { KitchenPhase4004SchichtstartPuenktlichkeitTicker } from './phase4004-schichtstart-puenktlichkeit-ticker';
+// Phase 4010 — Leerfahrten Ticker (Navigation indigo-500; Bester #1 Name+% im Header; Alert "Hohe Leerfahrtenquote!"; kompakt aufsteigend; rank_delta<0=gruen; Team-Avg+Ziel <=10%; 30-Min-Polling)
+export { KitchenPhase4010LeerfahrtenTicker } from './phase4010-leerfahrten-ticker';

@@ -1100,6 +1100,7 @@ import { DispatchPhase3989KmProTourBoard } from './phase3989-km-pro-tour-board';
 import { DispatchPhase3993TourstartPuenktlichkeitBoard } from './phase3993-tourstart-puenktlichkeit-board';
 import { DispatchPhase4000TourScoreLiveKommando } from './phase4000-tour-score-live-kommando';
 import { DispatchPhase4001SchichtstartPuenktlichkeitBoard } from './phase4001-schichtstart-puenktlichkeit-board';
+import { DispatchPhase4007LeerfahrtenBoard } from './phase4007-leerfahrten-board';
 
 type Driver = {
   employee_id: string;
@@ -4818,6 +4819,7 @@ export function DispatchBoard({
           {/* Phase 4000: Tour-Score Live-Kommando — Flotten-KPI Avg/Top/Aktiv; Score-Balken je Fahrer; Stopp-Dot-Timeline farbkodiert; Sub-KPIs aufklappbar; Alert Score<70; 20-Sek-Polling */}
           <DispatchPhase4000TourScoreLiveKommando locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4001SchichtstartPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4007LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13094,3 +13096,5 @@ export { DispatchPhase3954TourScoreVisualisierungUltimate } from './phase3954-to
 export { DispatchPhase4000TourScoreLiveKommando } from './phase4000-tour-score-live-kommando';
 // Phase 4001 — Schichtstart-Pünktlichkeit Board (Clock-Icon blue; absteigend Rang 1=hoechste Pünktlichkeit=bester; KPI-Grid Pünktlichster/Team-Avg/Niedrigster; Alert "Niedrige Pünktlichkeit!"; rank_delta<0=gruen; Ziel >=90%; 30-Min-Polling)
 export { DispatchPhase4001SchichtstartPuenktlichkeitBoard } from './phase4001-schichtstart-puenktlichkeit-board';
+// Phase 4007 — Leerfahrten-Ranking Board (Navigation indigo-500; KPI-Grid Wenigste/Team-Avg/Meiste; Alert "Hohe Leerfahrtenquote!"; aufsteigend Rang 1=niedrigste Leerfahrtenquote=bester; rank_delta<0=gruen; Ziel <=10%; 30-Min-Polling)
+export { DispatchPhase4007LeerfahrtenBoard } from './phase4007-leerfahrten-board';
