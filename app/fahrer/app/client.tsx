@@ -1073,6 +1073,7 @@ import { FahrerPhase4198MeinErstkontakt } from './phase4198-mein-erstkontakt';
 import { FahrerPhase4203MeineStoppdauer } from './phase4203-meine-stoppdauer';
 import { FahrerPhase4208MeineBewertung } from './phase4208-meine-bewertung';
 import { FahrerPhase4201VerdienstZielProgress } from './phase4201-verdienst-ziel-progress';
+import { FahrerPhase4213MeinUmsatzProStopp } from './phase4213-mein-umsatz-pro-stopp';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 
@@ -7086,6 +7087,7 @@ export function FahrerApp({
           <FahrerPhase4208MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4201: Verdienst-Ziel Progress — Heute-€ Ziel-Balken; KPI-Grid Touren/Trinkgeld/Prognose; Bonus-Schwellen-Alert; 1-Min-Polling; Mock-Fallback */}
           <FahrerPhase4201VerdienstZielProgress driverId={driver.id} locationId={driver.location_id ?? null} />
+          <FahrerPhase4213MeinUmsatzProStopp driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11175,6 +11177,8 @@ export { FahrerPhase4198MeinErstkontakt } from './phase4198-mein-erstkontakt';
 export { FahrerPhase4203MeineStoppdauer } from './phase4203-meine-stoppdauer';
 // Phase 4208 — Meine Kundenbewertung (ThumbsUp green; score 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; driver_id API-Param; rank_delta<0=TrendingUp emerald; 30-Min-Polling)
 export { FahrerPhase4208MeineBewertung } from './phase4208-meine-bewertung';
+// Phase 4213 — Mein Umsatz pro Stopp (Banknote emerald; avg_euro 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; Client-Side Filter; rank_delta<0=TrendingUp emerald; 30-Min-Polling)
+export { FahrerPhase4213MeinUmsatzProStopp } from './phase4213-mein-umsatz-pro-stopp';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 // Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)
