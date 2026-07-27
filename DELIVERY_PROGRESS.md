@@ -2,6 +2,16 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4271–4275 implementiert — Fahrer-Lieferzeit-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4272LieferzeitBoard`. Fahrer: `FahrerPhase4273MeineLieferzeit`. Kitchen: `KitchenPhase4275LieferzeitTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4276.
+
+### ✅ Phasen 4271–4275 ABGESCHLOSSEN — Fahrer-Lieferzeit-Ranking
+- Phase 4271 Backend: `/api/delivery/admin/fahrer-durchschnitts-lieferzeit-ranking` — bereits vorhanden, aufsteigend Rang 1=niedrigste avg_min=schnellste Lieferzeit, STANDARD rank_delta (<0=verbessert=TrendingUp emerald), alert_top, driver_id-Param, schnellster_name/langsamster_name ✅
+- Phase 4272 Dispatch: `DispatchPhase4272LieferzeitBoard` — Truck cyan-500, aufsteigend Rang 1=schnellste Lieferzeit, KPI-Grid Schnellste/Team-Avg/Langsamste (cyan-50/gray-50/red-50), Alert "Hohe Lieferzeit!", rank_delta<0=TrendingUp emerald ✅
+- Phase 4273 Fahrer: `FahrerPhase4273MeineLieferzeit` — Truck cyan-500, avg_min 5xl+Rang 2xl farbkodiert, driver_id API-Param, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta<0=TrendingUp emerald ✅
+- Phase 4274 Storefront: uebersprungen ✅
+- Phase 4275 Kitchen: `KitchenPhase4275LieferzeitTicker` — Truck cyan-500, Schnellste #1 Name+min im Header cyan-600, alert_top-Zaehler, dot-Farbkodierung, Team-Avg ✅
+- Import+Render+Barrel in Dispatch/Fahrer/Kitchen ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4276.
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4266–4270 implementiert — Fahrer-Kundenzufriedenheit-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4267KundenzufriedenheitBoard`. Fahrer: `FahrerPhase4268MeineKundenzufriedenheit`. Kitchen: `KitchenPhase4270KundenzufriedenheitTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4271.
 
 ### ✅ Phasen 4266–4270 ABGESCHLOSSEN — Fahrer-Kundenzufriedenheit-Ranking
