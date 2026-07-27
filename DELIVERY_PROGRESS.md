@@ -2,6 +2,22 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4351–4360 implementiert — Fahrer-KM-pro-Tour-Ranking (4351–4355) und Wartezeit-am-Stopp-Ranking (4356–4360). Backends bereits vorhanden. Dispatch: `DispatchPhase4352KmProTourBoard` + `DispatchPhase4357WartezeitBoard`. Fahrer: `FahrerPhase4353MeineKmProTour` + `FahrerPhase4358MeineWartezeit`. Kitchen: `KitchenPhase4355KmProTourTicker` + `KitchenPhase4360WartezeitTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4361.
+
+### ✅ Phasen 4351–4355 ABGESCHLOSSEN — Fahrer-KM-pro-Tour-Ranking
+- Phase 4351 Backend: `/api/delivery/admin/fahrer-km-pro-tour-ranking` — bereits vorhanden, aufsteigend Rang 1=wenigste km=effizientester, STANDARD rank_delta (rang-prevRang, <0=verbessert=TrendingUp emerald), alert_weit, bester_name/letzter_name, team_avg_km ✅
+- Phase 4352 Dispatch: `DispatchPhase4352KmProTourBoard` — Gauge teal-600, aufsteigend Rang 1=wenigste km, KPI-Grid Effizienteste/Team-Avg/Weiteste (teal-50/gray-50/red-50), Alert "Weite km", rank_delta<0=TrendingUp emerald, Balken=(km/maxKm)*100% ✅
+- Phase 4353 Fahrer: `FahrerPhase4353MeineKmProTour` — Gauge teal-600, km_avg 5xl+Rang 2xl farbkodiert, driver_id filter, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta<0=TrendingUp emerald ✅
+- Phase 4354 Storefront: übersprungen ✅
+- Phase 4355 Kitchen: `KitchenPhase4355KmProTourTicker` — Gauge teal-600, Effizienteste #1 Name+km im Header teal-700, alert_count-Zähler, dot-Farbkodierung, Team-Avg ✅
+
+### ✅ Phasen 4356–4360 ABGESCHLOSSEN — Fahrer-Wartezeit-am-Stopp-Ranking
+- Phase 4356 Backend: `/api/delivery/admin/fahrer-wartezeit-stopp-ranking` — bereits vorhanden, aufsteigend Rang 1=kürzeste Wartezeit=bester, INVERTED rank_delta (prevRang-rang, >0=verbessert=TrendingUp emerald), alert_top, bester_name/letzter_name, team_avg ✅
+- Phase 4357 Dispatch: `DispatchPhase4357WartezeitBoard` — Clock orange-500, aufsteigend Rang 1=kürzeste Wartezeit, KPI-Grid Schnellste/Team-Avg/Langsamste (orange-50/gray-50/red-50), Alert "Lange Wartezeit", rank_delta>0=TrendingUp emerald, Balken=(wartezeit_min/maxWait)*100% ✅
+- Phase 4358 Fahrer: `FahrerPhase4358MeineWartezeit` — Clock orange-500, wartezeit_min 5xl+Rang 2xl farbkodiert, driver_id filter, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta>0=TrendingUp emerald ✅
+- Phase 4359 Storefront: übersprungen ✅
+- Phase 4360 Kitchen: `KitchenPhase4360WartezeitTicker` — Clock orange-500, Schnellste #1 Name+min im Header orange-700, alert_count-Zähler, dot-Farbkodierung, Team-Avg ✅
+
 Backend-Architekt-Agent (2026-07-27): Phasen 4346–4350 implementiert — Fahrer-Nachtschicht-Ranking. Backend neu erstellt (`/api/delivery/admin/fahrer-nachtschicht-ranking`). Dispatch: `DispatchPhase4347NachtschichtBoard`. Fahrer: `FahrerPhase4348MeineNachtschicht`. Kitchen: `KitchenPhase4350NachtschichtTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4351.
 
 ### ✅ Phasen 4346–4350 ABGESCHLOSSEN — Fahrer-Nachtschicht-Ranking

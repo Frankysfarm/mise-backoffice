@@ -1183,6 +1183,8 @@ import { DispatchPhase4337BestellwertBoard } from './phase4337-bestellwert-board
 import { DispatchPhase4302SchichtstundenBoard } from './phase4302-schichtstunden-board';
 import { DispatchPhase4342StoppsProStundeBoard } from './phase4342-stopps-pro-stunde-board';
 import { DispatchPhase4347NachtschichtBoard } from './phase4347-nachtschicht-board';
+import { DispatchPhase4352KmProTourBoard } from './phase4352-km-pro-tour-board';
+import { DispatchPhase4357WartezeitBoard } from './phase4357-wartezeit-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 
 type Driver = {
@@ -4993,6 +4995,8 @@ export function DispatchBoard({
           <DispatchPhase4302SchichtstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4342StoppsProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4347NachtschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4352KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4357WartezeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13446,5 +13450,9 @@ export { DispatchPhase4302SchichtstundenBoard } from './phase4302-schichtstunden
 export { DispatchPhase4342StoppsProStundeBoard } from './phase4342-stopps-pro-stunde-board';
 // Phase 4347 — Nachtschicht-Board (Moon purple; absteigend Rang 1=höchster Nachtanteil; KPI-Grid Meiste/Team-Avg/Wenigste; Alert Hoher Nachtanteil; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling)
 export { DispatchPhase4347NachtschichtBoard } from './phase4347-nachtschicht-board';
+// Phase 4352 — km/Tour-Board (Gauge teal; aufsteigend Rang 1=wenigste km=effizientester; KPI-Grid Effizienteste/Team-Avg/Weiteste; Alert Weite km; STANDARD rank_delta<0=TrendingUp emerald; 30-Min-Polling)
+export { DispatchPhase4352KmProTourBoard } from './phase4352-km-pro-tour-board';
+// Phase 4357 — Wartezeit-Board (Clock orange; aufsteigend Rang 1=kürzeste Wartezeit=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Lange Wartezeit; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling)
+export { DispatchPhase4357WartezeitBoard } from './phase4357-wartezeit-board';
 // Phase 4307 — Fahrer-Score + Tour-Visualisierung Board (Trophy amber; Score-Badge+Delta; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4307FahrerScoreTourVisualisierungBoard } from './phase4307-fahrer-score-tour-visualisierung-board';
