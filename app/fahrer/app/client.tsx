@@ -1111,6 +1111,7 @@ import { FahrerPhase4373MeineTageskilometer } from './phase4373-meine-tageskilom
 import { FahrerPhase4378MeineWochenendSchicht } from './phase4378-meine-wochenend-schicht';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
+import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
 
 type Driver = {
   id: string;
@@ -8026,6 +8027,15 @@ export function FahrerApp({
       {activeBatch && activeBatch.status === 'unterwegs' && (
         <div className="px-4 pb-4">
           <FahrerPhase4173TourStoppNavigationsHub
+            driverId={driver.id}
+            activeBatchId={activeBatch.id}
+          />
+        </div>
+      )}
+      {/* Phase 4380: Tour-Stopp-Navigator V3 — Fortschrittsbalken; Stopp-Status; Navigation+Anruf; Notizen-Highlight; expandierbare Stopp-Details; 20-Sek-Polling; Mock-Fallback */}
+      {activeBatch && activeBatch.status === 'unterwegs' && (
+        <div className="px-4 pb-4">
+          <FahrerPhase4380TourStoppNavigatorV3
             driverId={driver.id}
             activeBatchId={activeBatch.id}
           />

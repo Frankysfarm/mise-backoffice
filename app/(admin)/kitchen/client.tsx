@@ -1136,6 +1136,7 @@ import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
 import { KitchenPhase4175SmartTimingCountdownFarbkodierungUltimate } from './phase4175-smart-timing-countdown-farbkodierung-ultimate';
+import { KitchenPhase4380SmartTimingCountdownV4 } from './phase4380-smart-timing-countdown-v4';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4592,6 +4593,8 @@ export function KitchenBoard({
       <KitchenPhase4380WochenendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
+      <KitchenPhase4380SmartTimingCountdownV4 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }

@@ -1190,6 +1190,7 @@ import { DispatchPhase4367AbschlussquoteBoard } from './phase4367-abschlussquote
 import { DispatchPhase4372TageskilometerBoard } from './phase4372-tageskilometer-board';
 import { DispatchPhase4377WochenendBoard } from './phase4377-wochenend-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
+import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 
 type Driver = {
   employee_id: string;
@@ -5009,6 +5010,8 @@ export function DispatchBoard({
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4172TourScoreLiveVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4380: Tour-Score Visualisierung V4 — Fleet-KPIs; Score-Balken+Delta; expandierbare Stopp-Sequenz mit Status-Icons; Aktions-Buttons; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4380TourScoreVisualisierungV4 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4201: Zonen-Kapazität Live-Grid — Auslastungs-Balken 3-stufig; KPI-Grid Fahrer/Touren/Auslastung; Alert-Zähler; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4201ZonenKapazitaetsLiveGrid locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>

@@ -479,6 +479,7 @@ import { StorefrontPhase1000DynamischeEtaLiveMaster } from './phase1000-dynamisc
 import { Phase1000LiveEtaLieferstatusCockpit } from './phase1000-live-eta-lieferstatus-cockpit';
 import { StorefrontPhase1000DynamischeEtaLiveTrackingV2 } from './phase1000-dynamische-eta-live-tracking-v2';
 import { StorefrontPhase1015LiveTrackingStatusPro } from './phase1015-live-tracking-status-pro';
+import { StorefrontPhase1020DynamischeEtaLiveV3 } from './phase1020-dynamische-eta-live-v3';
 
 type Props = {
   location: Location;
@@ -3344,6 +3345,13 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {/* Phase 1000 V2: Dynamische ETA Live-Tracking V2 — Sekundengenauer Countdown + 4-stufige ETA-Farbkodierung + Phasenpfad + Fahrer-Nähe-Indikator; 20-Sek-Polling */}
       {order.isDelivery && order.orderId && (
         <StorefrontPhase1000DynamischeEtaLiveTrackingV2
+          orderId={order.orderId}
+          locationId={locationId}
+        />
+      )}
+      {/* Phase 1020 V3: Dynamische ETA Live V3 — Phasen-Timeline; Fahrer-Entfernung; Küchen-Fortschrittsbalken; Sekunden-Tick; 20-Sek-Polling; Mock-Fallback */}
+      {order.isDelivery && order.orderId && (
+        <StorefrontPhase1020DynamischeEtaLiveV3
           orderId={order.orderId}
           locationId={locationId}
         />
