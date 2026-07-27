@@ -2,6 +2,15 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-27): Phasen 4331–4335 implementiert — Fahrer-Touren-Anzahl-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4332TourenAnzahlBoard`. Fahrer: `FahrerPhase4333MeineTourenAnzahl`. Kitchen: `KitchenPhase4335TourenAnzahlTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4336.
+
+### ✅ Phasen 4331–4335 ABGESCHLOSSEN — Fahrer-Touren-Anzahl-Ranking
+- Phase 4331 Backend: `/api/delivery/admin/fahrer-touren-anzahl-ranking` — bereits vorhanden, absteigend Rang 1=meiste Touren=bester, STANDARD rank_delta (rang-yestRank, <0=verbessert=TrendingUp emerald), alert_bottom, bester_name/letzter_name, team_avg_touren ✅
+- Phase 4332 Dispatch: `DispatchPhase4332TourenAnzahlBoard` — Route purple-600, absteigend Rang 1=meiste Touren, KPI-Grid Meiste/Team-Avg/Wenigste (purple-50/gray-50/red-50), Alert "Wenig", rank_delta<0=TrendingUp emerald, Balken=(touren/maxTouren)*100% ✅
+- Phase 4333 Fahrer: `FahrerPhase4333MeineTourenAnzahl` — Route purple-600, touren 5xl+Rang 2xl farbkodiert, driver_id API-Param+client-side filter, isOnline-Guard, Coaching-Tipp 3 Stufen, rank_delta<0=TrendingUp emerald ✅
+- Phase 4334 Storefront: übersprungen (kein Storefront-Frontend) ✅
+- Phase 4335 Kitchen: `KitchenPhase4335TourenAnzahlTicker` — Route purple-600, Meiste #1 Name+Touren im Header purple-700, alert_count-Zähler, kompakt absteigend Rang 1=meiste Touren, dot-Farbkodierung, Team-Avg ✅
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4326–4330 implementiert — Fahrer-Lieferzeit-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4327LieferzeitBoard`. Fahrer: `FahrerPhase4328MeineLieferzeit`. Kitchen: `KitchenPhase4330LieferzeitTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4331.
 
 ### ✅ Phasen 4326–4330 ABGESCHLOSSEN — Fahrer-Lieferzeit-Ranking
