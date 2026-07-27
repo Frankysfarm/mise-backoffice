@@ -2,6 +2,16 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-27): Phasen 4256–4260 implementiert — Fahrer-Schichtdauer-Ranking. Backend `/api/delivery/admin/fahrer-schicht-dauer` bereits vorhanden (force-dynamic, createClient @/lib/supabase/server). Dispatch: `DispatchPhase4257SchichtdauerBoard`. Fahrer: `FahrerPhase4258MeineSchichtdauer`. Kitchen: `KitchenPhase4260SchichtdauerTicker`. Import+Render+Barrel in allen 3 Clients ✅. Merge-Konflikte mit parallelem Frontend-Agent (4257/4258/4260 doppelt belegt) aufgelöst — beide Versionen koexistieren. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4266.
+
+### ✅ Phasen 4256–4260 ABGESCHLOSSEN — Fahrer-Schichtdauer-Ranking
+- Phase 4256 Backend: `/api/delivery/admin/fahrer-schicht-dauer` — bereits vorhanden, force-dynamic, createClient (@/lib/supabase/server, await), aufsteigend Rang 1=kürzeste Schicht, Ampel per Quartil, Mock Julia 480min/Sara 510min/Max 555min/Tim 615min ✅
+- Phase 4257 Dispatch: `DispatchPhase4257SchichtdauerBoard` — Timer cyan-500, aufsteigend Rang 1=kürzeste Schicht, KPI-Grid Kürzeste/Team-Avg/Längste, Alert "Kurze Schicht erkannt!", rank_delta<0=TrendingUp emerald, Balken ✅
+- Phase 4258 Fahrer: `FahrerPhase4258MeineSchichtdauer` — Timer cyan-500, dauer_min 5xl+Rang 2xl farbkodiert, isOnline-Guard, Coaching-Tipp 3 Stufen ✅
+- Phase 4259 Storefront: übersprungen ✅
+- Phase 4260 Kitchen: `KitchenPhase4260SchichtdauerTicker` — Timer cyan-500, Längste #1 Name+h im Header cyan-600, alert_count-Zaehler, dot-Farbkodierung, Team-Avg ✅
+- Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4266.
+
 Frontend-Ingenieur-Agent (2026-07-27): Phasen 4261–4265 implementiert — Fahrer-Auslastungs-Ranking. Backend bereits vorhanden. Dispatch: `DispatchPhase4262AuslastungsBoard`. Fahrer: `FahrerPhase4263MeineAuslastung`. Kitchen: `KitchenPhase4265AuslastungsTicker`. Import+Render+Barrel in allen 3 Clients ✅. Build ✓ exit 0. Push erfolgt. Nächste freie Phase: 4266.
 
 ### ✅ Phasen 4261–4265 ABGESCHLOSSEN — Fahrer-Auslastungs-Ranking
