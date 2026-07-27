@@ -11422,3 +11422,5 @@ export { FahrerPhase4305SmartTourStoppNavHub } from './phase4305-smart-tour-stop
 export { FahrerPhase4351TourStoppNavV3 } from './phase4351-tour-stopp-nav-v3';
 // Phase 4410 — Tour-Stopp Navigator V5 (Sticky-NavBar blau für aktiven Stopp; Notiz-Alert amber; Bar-Kassierhilfe; Verdienst-Live-Strip mit Trinkgeld; Score+Pünktlichkeit Strip; Artikel-Liste expandierbar; 1-Tap-Navigation; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4410TourStoppNavigatorV5 } from './phase4410-tour-stopp-navigator-v5';
+// Phase 4450 — Tour-Stopp Smart-Navigator V6 (Route indigo; Nächster-Stopp CTA blau mit Navi+Tel+Notiz; Bar-Kassierhilfe; GPS-Deeplink Android/iOS/Web; Stopp-Fortschrittsbalken; expandierbare Stopp-Liste Status-Dots; Artikel-Details; Effizienz-Score; Offline-Guard; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4450TourStoppSmartNavV6 } from './phase4450-tour-stopp-smart-nav-v6';

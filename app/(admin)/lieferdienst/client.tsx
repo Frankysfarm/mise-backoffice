@@ -5001,3 +5001,5 @@ export { LieferdienstPhase4410StatistikDashboardV6 } from './phase4410-statistik
 
 // Phase 2800 — Statistiken Executive Dashboard (BarChart2 indigo; 10-KPI-Grid 2-spaltig Ampel+Delta%+Ziel; Gesamt-Score-Ring; Insight-Tipp; Alert-Strip; Stundenverlauf-BarChart 2-Modi; Top-3-Fahrer; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase2800StatistikenExecutiveDashboard } from './phase2800-statistiken-executive-dashboard';
+// Phase 4450 — Statistiken-Dashboard V7 (BarChart indigo; Alerts-Strip warn/ok; 4-KPI-Grid Umsatz+Bestellungen+Lieferzeit+Bewertung+Δ%; Tagesziel-Fortschrittsbalken; Stunden-Umsatz-BarChart peak-highlighted; Zonen-Ranking SLA+Δ%; Top-3-Fahrer Score+Trinkgeld; Pünktlichkeit+Stornoquote; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4450StatistikenDashboardV7 } from './phase4450-statistiken-dashboard-v7';

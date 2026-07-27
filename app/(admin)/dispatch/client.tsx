@@ -13546,6 +13546,8 @@ export { DispatchPhase4307FahrerScoreTourVisualisierungBoard } from './phase4307
 export { DispatchPhase4351ScoreTourVisualisierungV3 } from './phase4351-score-tour-visualisierung-v3';
 // Phase 4410 — Tour-Score Visualisierung V6 (Trophy amber; Rang-Badge farbkodiert; Zonen-SLA-Balken; Fleet-KPI-Grid Score/Pünktlichkeit/Pakete; Stopp-Timeline mit Connector; expandierbare Fahrer-Details; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4410TourScoreVisualisierungV6 } from './phase4410-tour-score-visualisierung-v6';
+// Phase 4450 — Fahrer-Score + Tour-Visualisierung V7 (Trophy amber; Score-Ring 3-stufig+Delta; Flotten-Avg+SLA-Krit; expandierbare Stopp-Sequenz Farbkacheln; Stopp-Timeline ETA+km; Kunden-Tel; Fortschrittsbalken; Sub-KPI-Grid Pünktl/Lieferz/Bewertung; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4450FahrerScoreTourVisualisierungV7 } from './phase4450-fahrer-score-tour-visualisierung-v7';
 
 // Phase 4500 — Fahrer-Score + Tour-Visualisierung V8 (Trophy amber; Score-Ring 4-stufig Platin/Gold/Gut/Schwach+Delta; Stopp-Timeline farbkodiert; ETA-Sync; Flotten-KPI-Grid Score/Pünktlichkeit/Lieferzeit; Zonen-SLA; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4500FahrerScoreTourVisualisierungV8 } from './phase4500-fahrer-score-tour-visualisierung-v8';
