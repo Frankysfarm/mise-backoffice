@@ -1055,6 +1055,7 @@ import { FahrerPhase4108TourStoppFortschrittsRing } from './phase4108-tour-stopp
 import { FahrerPhase4113SmartNavigationPanel } from './phase4113-smart-navigation-panel';
 import { FahrerPhase4118TourDistanzMeter } from './phase4118-tour-distanz-meter';
 import { FahrerPhase4123SchichtStoppUebersicht } from './phase4123-schicht-stopp-uebersicht';
+import { FahrerPhase4133MeineLieferdichte } from './phase4133-meine-lieferdichte';
 
 type Driver = {
   id: string;
@@ -7047,6 +7048,7 @@ export function FahrerApp({
           <FahrerPhase4118TourDistanzMeter driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4123: Schicht-Stopp-Übersicht — Stunden-Balken pünktlich/verzögert; Stopp-Zähler; Ø min/Stopp; Beste Stunde; 1-Min-Polling; Mock-Fallback */}
           <FahrerPhase4123SchichtStoppUebersicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4133MeineLieferdichte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
@@ -11090,6 +11092,8 @@ export { FahrerPhase4113SmartNavigationPanel } from './phase4113-smart-navigatio
 export { FahrerPhase4118TourDistanzMeter } from './phase4118-tour-distanz-meter';
 // Phase 4123 — Schicht-Stopp-Übersicht (Stunden-Balken pünktlich/verzögert; Stopp-Zähler; Ø min/Stopp; Beste Stunde; 1-Min-Polling; Mock-Fallback)
 export { FahrerPhase4123SchichtStoppUebersicht } from './phase4123-schicht-stopp-uebersicht';
+// Phase 4133 — Meine Lieferdichte (MapPin emerald; stopps_pro_km 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; 30-Min-Polling)
+export { FahrerPhase4133MeineLieferdichte } from './phase4133-meine-lieferdichte';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 // Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)
