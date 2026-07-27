@@ -1109,6 +1109,7 @@ import { FahrerPhase4363MeineAuslastung } from './phase4363-meine-auslastung';
 import { FahrerPhase4368MeineAbschlussquote } from './phase4368-meine-abschlussquote';
 import { FahrerPhase4373MeineTageskilometer } from './phase4373-meine-tageskilometer';
 import { FahrerPhase4378MeineWochenendSchicht } from './phase4378-meine-wochenend-schicht';
+import { FahrerPhase4383MeineFruehschicht } from './phase4383-meine-fruehschicht';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7160,6 +7161,7 @@ export function FahrerApp({
           <FahrerPhase4368MeineAbschlussquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4373MeineTageskilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4378MeineWochenendSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4383MeineFruehschicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11330,6 +11332,8 @@ export { FahrerPhase4368MeineAbschlussquote } from './phase4368-meine-abschlussq
 export { FahrerPhase4373MeineTageskilometer } from './phase4373-meine-tageskilometer';
 // Phase 4378 — Meine Wochenend-Schicht (Calendar orange-500; wochenend_anteil_pct 5xl+Rang 2xl farbkodiert; driver_id API-Param+client-side filter; isOnline-Guard; Coaching-Tipp 3 Stufen; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling)
 export { FahrerPhase4378MeineWochenendSchicht } from './phase4378-meine-wochenend-schicht';
+// Phase 4383 — Meine Frühschicht (Sun yellow-500; fruehschicht_anteil_pct 5xl+Rang 2xl farbkodiert; driver_id API-Param+client-side filter; isOnline-Guard; Coaching-Tipp 3 Stufen; INVERTED rank_delta>0=TrendingUp emerald; 30-Min-Polling)
+export { FahrerPhase4383MeineFruehschicht } from './phase4383-meine-fruehschicht';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';
 // Phase 1954 — Tour-Stopp Live-Navigator (indigo; Stopp-Liste+Status-Dots; Quick-Nav; 60-Sek-Polling)
