@@ -1036,6 +1036,7 @@ import { FahrerPhase4048MeineBewertung } from './phase4048-meine-bewertung';
 import { FahrerPhase4053MeineTrinkgeldQuote } from './phase4053-meine-trinkgeld-quote';
 import { FahrerPhase4058MeineStoppsProStunde } from './phase4058-meine-stopps-pro-stunde';
 import { FahrerPhase4063MeineTourenProSchicht } from './phase4063-meine-touren-pro-schicht';
+import { FahrerPhase4068MeinePuenktlichkeit } from './phase4068-meine-puenktlichkeit';
 
 type Driver = {
   id: string;
@@ -7000,6 +7001,7 @@ export function FahrerApp({
           <FahrerPhase4053MeineTrinkgeldQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4058MeineStoppsProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4063MeineTourenProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase4068MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4000TourStopNavHub tourId={activeBatch?.id ?? null} />
           {/* Phase 3553: Tour-Stops Navigator Master — Hero-Stopp-Karte blau mit Navi+Anruf; alle Stopps expandierbar mit Status-Dot; Fortschrittsbalken; mobile-first; kein Polling (direkt aus activeBatch) */}
@@ -11007,5 +11009,7 @@ export { FahrerPhase4053MeineTrinkgeldQuote } from './phase4053-meine-trinkgeld-
 export { FahrerPhase4058MeineStoppsProStunde } from './phase4058-meine-stopps-pro-stunde';
 // Phase 4063 — Meine Touren/Schicht (Truck indigo; touren_pro_schicht 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; fahrer_single-Response; rank_delta>0=gruen; Ziel >=6.0; 30-Min-Polling)
 export { FahrerPhase4063MeineTourenProSchicht } from './phase4063-meine-touren-pro-schicht';
+// Phase 4068 — Meine Pünktlichkeit (Clock green; rate_pct 5xl+Rang 2xl farbkodiert; Coaching-Tipp 3 Stufen; isOnline-Guard; rank_delta>0=gruen; Ziel >=85%; 30-Min-Polling)
+export { FahrerPhase4068MeinePuenktlichkeit } from './phase4068-meine-puenktlichkeit';
 // Phase 1463 — Smart-Routing Nächster Stopp (Navigation2 blue; 2 Route-Optionen Schnellste/Kürzeste; Zeitersparnis-Chip; Kundenkontakt; GPS-CTA blau; activeBatch-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1463SmartRoutingNaechsterStopp } from './phase1463-smart-routing-naechster-stopp';

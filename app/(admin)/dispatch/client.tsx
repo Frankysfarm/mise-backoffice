@@ -1113,6 +1113,7 @@ import { DispatchPhase4047BewertungsBoard } from './phase4047-bewertungs-board';
 import { DispatchPhase4052TrinkgeldQuoteBoard } from './phase4052-trinkgeld-quote-board';
 import { DispatchPhase4057StoppsProStundeBoard } from './phase4057-stopps-pro-stunde-board';
 import { DispatchPhase4062TourenProSchichtBoard } from './phase4062-touren-pro-schicht-board';
+import { DispatchPhase4067PuenktlichkeitBoard } from './phase4067-puenktlichkeit-board';
 import { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';
 
 type Driver = {
@@ -4847,6 +4848,7 @@ export function DispatchBoard({
           <DispatchPhase4052TrinkgeldQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4057StoppsProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4062TourenProSchichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase4067PuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4038: Tour-Score Matrix — Visuelle Matrix aller Fahrer mit 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung; Farbkodierung je Zelle; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4038TourScoreMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -13151,5 +13153,7 @@ export { DispatchPhase4052TrinkgeldQuoteBoard } from './phase4052-trinkgeld-quot
 export { DispatchPhase4057StoppsProStundeBoard } from './phase4057-stopps-pro-stunde-board';
 // Phase 4062 — Touren/Schicht-Ranking Board (Truck indigo; absteigend Rang 1=meiste Touren/Schicht=bester; KPI-Grid Meiste/Team-Avg/Wenigste; Alert "Wenige Touren!"; rank_delta>0=gruen; Ziel >=6.0; 30-Min-Polling)
 export { DispatchPhase4062TourenProSchichtBoard } from './phase4062-touren-pro-schicht-board';
+// Phase 4067 — Pünktlichkeits-Ranking Board (Clock green; absteigend Rang 1=hoechste Puenktlichkeit=bester; KPI-Grid Puenktlichste/Team-Avg/Niedrigste; Alert "Niedrige Puenktlichkeit!"; rank_delta>0=gruen; Ziel >=85%; 30-Min-Polling)
+export { DispatchPhase4067PuenktlichkeitBoard } from './phase4067-puenktlichkeit-board';
 // Phase 4038 — Tour-Score Matrix (Trophy amber; Matrix 4 Sub-Scores Pünktlichkeit/Geschwindigkeit/Effizienz/Bewertung je Fahrer; Farbkodierung je Zelle >=85gruen/>=70gelb/<70rot; Flotten-Avg; Alert Score<70; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4038TourScoreMatrix } from './phase4038-tour-score-matrix';
