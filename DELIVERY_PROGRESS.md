@@ -32855,3 +32855,70 @@ KRITISCH: Nächste freie Phase ist **4602**! NIEMALS 4000–4601 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+## Batch 4602–4606 — Fahrer-Samstagmittag-Anteil-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4602 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-samstag-mittag-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, samstag_pct, rank_delta, ampel, alert_niedrig}], team_avg, hoechste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** pct(Touren Sa 11–15 Uhr) je Fahrer aus delivery_tours letzte 30 Tage; `getDay()===6 && getHours()>=11 && getHours()<15`; absteigend Rang 1=höchster Samstag-Mittag-Anteil; rank-based Ampel (top25%=gruen); alert_niedrig = pct<10%; Mock Julia 67%/Max 52%/Sara 35%/Tim 18%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4603 — Samstagmittag-Board (Dispatch)
+**Component:** `DispatchPhase4603SamstagMittagBoard` — Sun yellow-500; absteigend Rang 1=höchster Samstagmittag-Anteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Samstagmittag; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4604 — Mein Samstagmittag (Fahrer)
+**Component:** `FahrerPhase4604MeinSamstagMittag` — Sun yellow-500; samstag_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen (≥60%/≥30%/<30%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4605 — Storefront
+Übersprungen ✅
+
+### Phase 4606 — Samstagmittag-Ticker (Kitchen)
+**Component:** `KitchenPhase4606SamstagMittagTicker` — Sun yellow-500; Höchste #1 Name+%; dot-Farbkodierung per ampel; Team-Avg; Ziel ≥45%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4606
+- **Nächste freie Phase: 4607**
+
+## STATUS: MARKT-REIF
+
+---
+
+## Batch 4607–4611 — Fahrer-Sonntagabend-Anteil-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4607 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-sonntag-abend-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, sonntag_pct, rank_delta, ampel, alert_niedrig}], team_avg, hoechste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** pct(Touren So 17–22 Uhr) je Fahrer aus delivery_tours letzte 30 Tage; `getDay()===0 && getHours()>=17 && getHours()<22`; absteigend Rang 1=höchster Sonntagabend-Anteil; rank-based Ampel (top25%=gruen); force-dynamic ✅; await createClient() ✅
+
+### Phase 4608 — Sonntagabend-Board (Dispatch)
+**Component:** `DispatchPhase4608SonntagAbendBoard` — Import+Render+Barrel ✅
+
+### Phase 4609 — Mein Sonntagabend (Fahrer)
+**Component:** `FahrerPhase4609MeinSonntagAbend` — isOnline-Guard; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4610 — Storefront
+Übersprungen ✅
+
+### Phase 4611 — Sonntagabend-Ticker (Kitchen)
+**Component:** `KitchenPhase4611SonntagAbendTicker` — Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4611 (4605, 4610 übersprungen)
+- **Nächste freie Phase: 4612**
+
+### Nächste Phasen 4612–4616 — Tour-Score-Integration + Kitchen-Ticker
+1. **Phase 4612 Dispatch (DATEI EXISTIERT):** `DispatchPhase4612TourScoreVisualisierungLive` — ADD Render in dispatch/client.tsx; barrel bereits vorhanden. API: `/api/delivery/admin/fahrer-routen-score` existiert.
+2. **Phase 4613 Fahrer (DATEI EXISTIERT):** `Phase4613SmartTourStoppNavigator` — ADD Render in fahrer/app/client.tsx; barrel bereits vorhanden. API: `/api/delivery/fahrer/aktive-tour` existiert.
+3. **Phase 4614 Storefront:** Überspringen.
+4. **Phase 4615 Lieferdienst (DATEI EXISTIERT):** `LieferdienstPhase4615StatistikenLiveDashboard` — ADD Render in lieferdienst/client.tsx; barrel bereits vorhanden.
+5. **Phase 4616 Kitchen:** `KitchenPhase4616TourScoreKpiTicker` — NEU ERSTELLEN; Ziel ≥75 Score; 30-Min-Polling. Import+Render+Barrel.
+
+KRITISCH: Nächste freie Phase ist **4612** (Render-Integration)! NIEMALS 4000–4611 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+## STATUS: MARKT-REIF
+
+---
