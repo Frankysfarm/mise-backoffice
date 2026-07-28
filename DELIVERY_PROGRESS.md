@@ -33673,3 +33673,41 @@ KRITISCH: Nächste freie Phase ist **4682**! NIEMALS 4000–4681 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+## Batch 4692–4696 — Fahrer-Tourenanzahl-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4692 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-touren-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, touren_anzahl, rank_delta, ampel}], team_avg_touren, bester_name, letzter_name, gesamt }`
+**Logik:** count(delivery_tours) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Touren=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); prev30-Tage für rank_delta; Mock Max 148/Julia 132/Sara 98/Tim 71; force-dynamic ✅; await createClient() ✅
+
+### Phase 4693 — Touren-Anzahl Board (Dispatch)
+**Component:** `DispatchPhase4693TourenBoard` — Moon cyan-900; absteigend Rang 1=meiste Touren; KPI-Grid Meiste/Team-Avg/Wenigste; Balken farbkodiert grün/gelb/rot; DeltaIcon TrendingUp/Down/Minus je rank_delta; Bester-Name Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4694 — Meine Tourenanzahl (Fahrer)
+**Component:** `FahrerPhase4694MeineTourenAnzahl` — Moon cyan-900; touren_anzahl 4xl + Rang 2xl farbkodiert (grün/gelb/rot); isOnline-Guard; WifiOff-Fallback; driverId-Filter; Mini-Bar-Vergleich Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≥avg*1.15/≥avg*0.9/<avg*0.9); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4695 — Storefront
+Übersprungen ✅
+
+### Phase 4696 — Touren-Ticker (Kitchen)
+**Component:** `KitchenPhase4696TourenTicker` — Route cyan-900; Meiste #1 Name+Touren; Team-Avg; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4696 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665, 4670, 4675, 4680, 4685, 4690, 4695 übersprungen)
+- **Nächste freie Phase: 4697**
+
+### Nächste Phasen 4697–4701 — Vorschlag: Fahrer-Trinkgeld-pro-Tour-Ranking
+1. **Phase 4697 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-ranking — avg(tip_amount) je Fahrer letzte 30 Tage; absteigend Rang 1=höchstes Trinkgeld=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Mock Max 4.80€/Julia 3.90€/Sara 2.70€/Tim 1.40€; force-dynamic; await createClient().
+2. **Phase 4698 Dispatch:** `DispatchPhase4698TrinkgeldBoard` — Moon emerald-900; absteigend Rang 1=höchstes Trinkgeld; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4699 Fahrer:** `FahrerPhase4699MeinTrinkgeld` — Moon emerald-900; avg_tip 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Balken Ich vs Team-Ø; Coaching 3 Stufen (≥4€/≥2.50€/<2.50€); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4700 Storefront:** Überspringen.
+5. **Phase 4701 Kitchen:** `KitchenPhase4701TrinkgeldTicker` — Moon emerald-900; Höchste #1 Name+€; Team-Avg; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4697**! NIEMALS 4000–4696 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---

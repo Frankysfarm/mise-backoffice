@@ -1170,6 +1170,7 @@ import { FahrerPhase4674MeineBewertung } from './phase4674-meine-bewertung';
 import { FahrerPhase4679MeineStornoQuote } from './phase4679-meine-storno-quote';
 import { FahrerPhase4684MeineLieferzeit } from './phase4684-meine-lieferzeit';
 import { FahrerPhase4689MeinePuenktlichkeit } from './phase4689-meine-puenktlichkeit';
+import { FahrerPhase4694MeineTourenAnzahl } from './phase4694-meine-touren-anzahl';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7332,6 +7333,8 @@ export function FahrerApp({
           <FahrerPhase4684MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4689: Meine Pünktlichkeit — Moon teal-900; puenktlichkeit_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥90%/≥80%/<80%; 30-Min-Polling */}
           <FahrerPhase4689MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4694: Meine Tourenanzahl — Moon cyan-900; touren_anzahl 4xl+Rang 2xl; isOnline-Guard; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥avg*1.15/≥avg*0.9/<avg*0.9; 30-Min-Polling */}
+          <FahrerPhase4694MeineTourenAnzahl driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11657,6 +11660,8 @@ export { FahrerPhase4679MeineStornoQuote } from './phase4679-meine-storno-quote'
 export { FahrerPhase4684MeineLieferzeit } from './phase4684-meine-lieferzeit';
 // Phase 4689 — Meine Pünktlichkeit (Moon teal-900; puenktlichkeit_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥90%/≥80%/<80%; 30-Min-Polling)
 export { FahrerPhase4689MeinePuenktlichkeit } from './phase4689-meine-puenktlichkeit';
+// Phase 4694 — Meine Tourenanzahl (Moon cyan-900; touren_anzahl 4xl+Rang 2xl; isOnline-Guard; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥avg*1.15/≥avg*0.9/<avg*0.9; 30-Min-Polling)
+export { FahrerPhase4694MeineTourenAnzahl } from './phase4694-meine-touren-anzahl';
 // Phase 4649 — Smart Tour Navigation Hub (Navigation2 indigo; Aktiver-Stopp-Highlight blau+CTA; Stopp-Timeline Karten status-farbkodiert; ETA+km je Stopp; Score-Anzeige; 15-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4649SmartTourNavigationHub } from './phase4649-smart-tour-navigation-hub';
 // Phase 4584 — Tour-Stopp Navigation Hub (MapPin blue; Tour-Header mit Fortschritts-Balken; Aktiver-Stopp hervorgehoben mit Navigation+Telefon CTAs; Alle-Stopps-Liste expandierbar; Notiz-Anzeige; Native-Maps-Integration iOS/Android; 30-Sek-Polling; Mock-Fallback)

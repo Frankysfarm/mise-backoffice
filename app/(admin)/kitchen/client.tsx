@@ -1193,6 +1193,7 @@ import { KitchenPhase4676BewertungTicker } from './phase4676-bewertung-ticker';
 import { KitchenPhase4681StornoTicker } from './phase4681-storno-ticker';
 import { KitchenPhase4686LieferzeitTicker } from './phase4686-lieferzeit-ticker';
 import { KitchenPhase4691PuenktlichkeitTicker } from './phase4691-puenktlichkeit-ticker';
+import { KitchenPhase4696TourenTicker } from './phase4696-touren-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4765,6 +4766,8 @@ export function KitchenBoard({
       <KitchenPhase4686LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4691: Pünktlichkeit-Ticker — Moon teal-900; Höchste #1 Name+%; Team-Avg; Alert Niedrige Pünktlichkeit; 30-Min-Polling */}
       <KitchenPhase4691PuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4696: Touren-Ticker — Moon cyan-900; Meiste #1 Name+Touren; Team-Avg; 30-Min-Polling */}
+      <KitchenPhase4696TourenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12356,6 +12359,8 @@ export { KitchenPhase4681StornoTicker } from './phase4681-storno-ticker';
 export { KitchenPhase4686LieferzeitTicker } from './phase4686-lieferzeit-ticker';
 // Phase 4691 — Pünktlichkeit-Ticker (Moon teal-900; Höchste #1 Name+%; Team-Avg; Alert Niedrige Pünktlichkeit; 30-Min-Polling)
 export { KitchenPhase4691PuenktlichkeitTicker } from './phase4691-puenktlichkeit-ticker';
+// Phase 4696 — Touren-Ticker (Route cyan-900; Meiste #1 Name+Touren; Team-Avg; 30-Min-Polling)
+export { KitchenPhase4696TourenTicker } from './phase4696-touren-ticker';
 // Phase 4651 — Smart-Timing Countdown Live v9 (ChefHat indigo; Score-Anzeige; Alert-Banner rot; 4-KPI-Grid grün/gelb/rot; Countdown-Kacheln 4-stufig prioritätssortiert Farbkodierung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4651SmartTimingCountdownLiveV9 } from './phase4651-smart-timing-countdown-live-v9';
 // Phase 4586 — Smart-Timing Master Cockpit (Timer indigo; 4-KPI-Grid Score/On-Time/Prep/Queue+15min; Score-Balken; Countdown-Kacheln 5-stufig prioritätssortiert; Komplexitäts-Indikator; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
