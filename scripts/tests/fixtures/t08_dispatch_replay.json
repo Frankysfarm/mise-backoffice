@@ -1,0 +1,16 @@
+{
+  "dataset_version": "t08-replay-v1",
+  "clock": "2026-07-28T10:00:00.000Z",
+  "scenarios": [
+    {"id": "short-bike-empty", "distance_km": 2, "vehicle": "bike", "active_route": false, "expected": "NEW_ASSIGNMENT"},
+    {"id": "long-car-empty", "distance_km": 18, "vehicle": "car", "active_route": false, "expected": "NEW_ASSIGNMENT"},
+    {"id": "existing-compatible", "distance_km": 4, "vehicle": "car", "active_route": true, "expected": "INSERTION_FEASIBLE"},
+    {"id": "kitchen-delay", "kitchen_queue_minutes": 20, "expected": "DEADLINE_OVERRIDE"},
+    {"id": "stale-gps", "gps_age_seconds": 600, "expected": "GPS_STALE"},
+    {"id": "matrix-outage", "matrix": "unavailable", "expected": "CONSERVATIVE_FALLBACK"},
+    {"id": "deadline-risk", "deadline_minutes": 8, "expected": "DEADLINE_INFEASIBLE"},
+    {"id": "multi-store", "active_route": true, "candidate_store": "other", "expected": "MULTI_STORE_NOT_ALLOWED"},
+    {"id": "driver-failure", "driver_state": "offline", "expected": "DRIVER_OFFLINE"},
+    {"id": "worker-restart", "hold_due": true, "worker_runs": 2, "expected": "EXACTLY_ONE_RELEASE"}
+  ]
+}

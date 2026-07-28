@@ -118,7 +118,7 @@ export async function tryT08RouteAppend(
       { data: batches, error: batchError }] = await Promise.all([
       client.from('mise_drivers')
         .select('id,active,state,vehicle,state_version,current_capacity,max_capacity')
-        .in('id', ids).eq('active', true).neq('state', 'offline').limit(500),
+        .in('id', ids).limit(500),
       client.from('mise_driver_position_current')
         .select('driver_id,latitude,longitude,captured_at,accuracy_m,quality_flags,operational_state')
         .eq('tenant_id', location.tenantId).in('driver_id', ids).limit(500),
@@ -135,12 +135,34 @@ export async function tryT08RouteAppend(
       const driver = driverById.get((batch as any).driver_id) as any;
       const position = positionByDriver.get((batch as any).driver_id) as any;
       const capturedMs = Date.parse(position?.captured_at ?? '');
-      if (!driver || !position || !Number.isFinite(capturedMs) ||
-          nowMs - capturedMs > Number(gpsConfig.active_stale_seconds) * 1_000 ||
-          Number(position.accuracy_m) > Number(gpsConfig.max_accuracy_m) ||
-          (position.quality_flags ?? []).length > 0 ||
-          position.operational_state === 'invalid' ||
-          Number(driver.current_capacity) >= Number(driver.max_capacity)) continue;
+      const rejection = !driver || !driver.active || driver.state === 'offline'
+        ? 'DRIVER_OFFLINE'
+        : !position ? 'GPS_MISSING'
+          : !Number.isFinite(capturedMs) ||
+            nowMs - capturedMs > Number(gpsConfig.active_stale_seconds) * 1_000
+            ? 'GPS_STALE'
+            : Number(position.accuracy_m) > Number(gpsConfig.max_accuracy_m) ||
+              (position.quality_flags ?? []).length > 0 ||
+              position.operational_state === 'invalid'
+              ? 'GPS_UNTRUSTED'
+              : Number(driver.current_capacity) >= Number(driver.max_capacity)
+                ? 'CAPACITY_EXCEEDED'
+                : null;
+      if (rejection) {
+        candidates.push({
+          driverId: (batch as any).driver_id,
+          batchId: (batch as any).id,
+          expectedDriverVersion: Number(driver?.state_version ?? 0),
+          expectedRouteVersion: Number((batch as any).route_version),
+          input: {},
+          decision: {
+            compatible: false, reasonCode: rejection, stops: [],
+            totalMinutes: null, addedMinutes: null,
+            matrixFallbackUsed: false, arrivals: {},
+          },
+        });
+        continue;
+      }
       const { data: rawStops, error: stopError } = await client
         .from('mise_delivery_batch_stops')
         .select('id,order_id,type,lat,lng,address,sequence,state,completed_at')
