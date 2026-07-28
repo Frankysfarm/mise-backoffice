@@ -1158,6 +1158,7 @@ import { KitchenPhase4496BewertungTicker } from './phase4496-bewertung-ticker';
 import { KitchenPhase4501AnnahmeTicker } from './phase4501-annahme-ticker';
 import { KitchenPhase4506TourzeitTicker } from './phase4506-tourzeit-ticker';
 import { KitchenPhase4511KmProLieferungTicker } from './phase4511-km-pro-lieferung-ticker';
+import { KitchenPhase4516VarianzTicker } from './phase4516-varianz-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4660,6 +4661,8 @@ export function KitchenBoard({
       <KitchenPhase4506TourzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4511: km/Lieferung-Ticker — MapPin green-600; Effizientester #1 Name+km; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤4km/Lieferung; 30-Min-Polling */}
       <KitchenPhase4511KmProLieferungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4516: Zeitvarianz-Ticker — Activity purple-500; Konsistentester #1 Name+stddev; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤6min Varianz; 30-Min-Polling */}
+      <KitchenPhase4516VarianzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12181,3 +12184,5 @@ export { KitchenPhase4501AnnahmeTicker } from './phase4501-annahme-ticker';
 export { KitchenPhase4506TourzeitTicker } from './phase4506-tourzeit-ticker';
 // Phase 4511 — km/Lieferung-Ticker (MapPin green-600; Effizientester #1 Name+km; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤4km/Lieferung; 30-Min-Polling)
 export { KitchenPhase4511KmProLieferungTicker } from './phase4511-km-pro-lieferung-ticker';
+// Phase 4516 — Zeitvarianz-Ticker (Activity purple-500; Konsistentester #1 Name+stddev; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤6min Varianz; 30-Min-Polling)
+export { KitchenPhase4516VarianzTicker } from './phase4516-varianz-ticker';

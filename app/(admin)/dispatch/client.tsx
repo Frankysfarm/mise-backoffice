@@ -1215,6 +1215,7 @@ import { DispatchPhase4493BewertungBoard } from './phase4493-bewertung-board';
 import { DispatchPhase4498AnnahmeBoard } from './phase4498-annahme-board';
 import { DispatchPhase4503TourzeitBoard } from './phase4503-tourzeit-board';
 import { DispatchPhase4508KmProLieferungBoard } from './phase4508-km-pro-lieferung-board';
+import { DispatchPhase4513VarianzBoard } from './phase4513-varianz-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5075,6 +5076,8 @@ export function DispatchBoard({
           <DispatchPhase4503TourzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4508: km/Lieferung-Board — MapPin green-600; INVERTED Rang 1=wenigste km; KPI-Grid Effizienteste/Team-Avg/Ineffizienteste; Alert Hoher km-Verbrauch >8km; 30-Min-Polling */}
           <DispatchPhase4508KmProLieferungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4513: Zeitvarianz-Board — Activity purple-500; INVERTED Rang 1=niedrigste Varianz; KPI-Grid Konsistenteste/Team-Avg/Inkonsistenteste; Alert Hohe Zeitvarianz >15min; 30-Min-Polling */}
+          <DispatchPhase4513VarianzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13611,3 +13614,5 @@ export { DispatchPhase4498AnnahmeBoard } from './phase4498-annahme-board';
 export { DispatchPhase4503TourzeitBoard } from './phase4503-tourzeit-board';
 // Phase 4508 — km/Lieferung-Board (MapPin green-600; INVERTED Rang 1=wenigste km; KPI-Grid Effizienteste/Team-Avg/Ineffizienteste; Alert Hoher km-Verbrauch >8km; 30-Min-Polling)
 export { DispatchPhase4508KmProLieferungBoard } from './phase4508-km-pro-lieferung-board';
+// Phase 4513 — Zeitvarianz-Board (Activity purple-500; INVERTED Rang 1=niedrigste Varianz; KPI-Grid Konsistenteste/Team-Avg/Inkonsistenteste; Alert Hohe Zeitvarianz >15min; 30-Min-Polling)
+export { DispatchPhase4513VarianzBoard } from './phase4513-varianz-board';

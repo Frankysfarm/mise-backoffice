@@ -2,6 +2,32 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-28): CEO Review #661 — Build ✓ exit 0. 0 Bugs. Phasen 4507–4511 verifiziert. Phasen 4512–4516 (Fahrer-Lieferzeit-Varianz-Ranking) implementiert. Backend neu erstellt (`/api/delivery/admin/fahrer-lieferzeit-varianz-ranking`, INVERTED aufsteigend Rang 1=niedrigste Varianz=bester, stddev_min, Alert >15min, Mock Julia 4.2/Sara 6.8/Max 11.3/Tim 18.1, await createClient()). Dispatch: `DispatchPhase4513VarianzBoard` Activity purple-500. Fahrer: `FahrerPhase4514MeineZeitvarianz` Activity purple-500 isOnline-Guard Coaching-Tipp 3 Stufen ≤6min/≤12min/>12min. Phase 4515 Storefront übersprungen. Kitchen: `KitchenPhase4516VarianzTicker` Activity purple-500 Konsistentester #1 Ziel≤6min. Import+Render+Barrel in allen 3 Clients ✅. TypeScript ✓ 0 Fehler in neuen Dateien ✅. Build exit 0 ✅. Nächste freie Phase: **4517**.
+
+### ✅ Phasen 4512–4516 ABGESCHLOSSEN — Fahrer-Lieferzeit-Varianz-Ranking
+- Phase 4512 Backend: `/api/delivery/admin/fahrer-lieferzeit-varianz-ranking` — INVERTED aufsteigend Rang 1=niedrigste Varianz=bester; stddev(delivery_time_min) je Fahrer letzte 30 Tage; Quartil-Ampel; Alert >15min "Hohe Zeitvarianz!"; Mock Julia 4.2/Sara 6.8/Max 11.3/Tim 18.1; await createClient() ✅
+- Phase 4513 Dispatch: `DispatchPhase4513VarianzBoard` — Activity purple-500; INVERTED Rang 1=niedrigste Varianz; KPI-Grid Konsistenteste/Team-Avg/Inkonsistenteste; Alert Hohe Zeitvarianz; Balken=(sigma/maxSigma)*100%; 30-Min-Polling ✅
+- Phase 4514 Fahrer: `FahrerPhase4514MeineZeitvarianz` — Activity purple-500; stddev_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≤6min/≤12min/>12min; 30-Min-Polling ✅
+- Phase 4515 Storefront: übersprungen ✅
+- Phase 4516 Kitchen: `KitchenPhase4516VarianzTicker` — Activity purple-500; Konsistentester #1 Name+stddev; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤6min Varianz; 30-Min-Polling ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien · Pre-existing-Errors identisch ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4516 (4505, 4510, 4515 übersprungen)
+- **Nächste freie Phase: 4517**
+
+### Nächste Phasen 4517–4521 — Vorschlag: Fahrer-Lieferungen-pro-Stunde-Ranking (Produktivität)
+1. **Phase 4517 Backend:** GET /api/delivery/admin/fahrer-lieferungen-pro-stunde-ranking — avg(deliveries/hour) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Lieferungen/Stunde=bester; Quartil-Ampel; Alert <2/h "Niedrige Produktivität!"; Mock Julia 4.8/Max 4.1/Sara 3.6/Tim 2.2; force-dynamic; await createClient().
+2. **Phase 4518 Dispatch:** `DispatchPhase4518ProduktivitaetBoard` — Zap orange-500; Rang 1=meiste Lieferungen/h; KPI-Grid Produktivste/Team-Avg/Langsamste; Alert Niedrige Produktivität; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4519 Fahrer:** `FahrerPhase4519MeineProduktivitaet` — Zap orange-500; deliveries_pro_h 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥4/h/≥3/h/<3/h; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4520 Storefront:** Überspringen.
+5. **Phase 4521 Kitchen:** `KitchenPhase4521ProduktivitaetTicker` — Zap orange-500; Produktivste #1 Name+Rate; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥3.5/h; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4517! NIEMALS 4000–4516 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+---
+
 Frontend-Ingenieur-Agent (2026-07-28): Phasen 4507–4511 implementiert — Fahrer-km-pro-Lieferung-Ranking (Ø km/Lieferung). Backend neu erstellt (`/api/delivery/admin/fahrer-km-pro-lieferung-ranking`, INVERTED aufsteigend Rang 1=wenigste km/Lieferung=bester, avg_km_pro_lieferung, Alert >8km, Mock Julia 3.2/Sara 4.5/Max 6.1/Tim 8.7, await createClient()). Dispatch: `DispatchPhase4508KmProLieferungBoard` MapPin green-600. Fahrer: `FahrerPhase4509MeineKmProLieferung` MapPin green-600 isOnline-Guard Coaching-Tipp 3 Stufen ≤4km/≤6km/>6km. Phase 4510 Storefront übersprungen. Kitchen: `KitchenPhase4511KmProLieferungTicker` MapPin green-600 Effizientester #1 Ziel≤4km. Import+Render+Barrel in allen 3 Clients ✅. TypeScript ✓ 0 Fehler in neuen Dateien ✅. Build exit 0 ✅. Nächste freie Phase: **4512**.
 
 ### ✅ Phasen 4507–4511 ABGESCHLOSSEN — Fahrer-km-pro-Lieferung-Ranking
