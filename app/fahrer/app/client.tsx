@@ -1149,6 +1149,7 @@ import { FahrerPhase4564MeineKommentarRate } from './phase4564-meine-kommentar-r
 import { FahrerPhase4569MeinFruehschichtAnteil } from './phase4569-mein-fruehschicht-anteil';
 import { FahrerPhase4574MeinAbendAnteil } from './phase4574-mein-abend-anteil';
 import { FahrerPhase4579MeinSpitzenzeitAnteil } from './phase4579-mein-spitzenzeit-anteil';
+import { FahrerPhase4589MeinWochenendAnteil } from './phase4589-mein-wochenend-anteil';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7269,6 +7270,8 @@ export function FahrerApp({
           <FahrerPhase4574MeinAbendAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4579: Mein Spitzenzeit-Anteil — Zap amber-500; spitzen_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥70%/≥45%/<45%; 30-Min-Polling */}
           <FahrerPhase4579MeinSpitzenzeitAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4589: Mein Wochenend-Anteil — Calendar violet-500; wochenend_anteil_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥65%/≥35%/<35%; 30-Min-Polling */}
+          <FahrerPhase4589MeinWochenendAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11554,5 +11557,7 @@ export { FahrerPhase4569MeinFruehschichtAnteil } from './phase4569-mein-fruehsch
 export { FahrerPhase4574MeinAbendAnteil } from './phase4574-mein-abend-anteil';
 // Phase 4579 — Mein Spitzenzeit-Anteil (Zap amber-500; spitzen_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥70%/≥45%/<45%; 30-Min-Polling)
 export { FahrerPhase4579MeinSpitzenzeitAnteil } from './phase4579-mein-spitzenzeit-anteil';
+// Phase 4589 — Mein Wochenend-Anteil (Calendar violet-500; wochenend_anteil_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥65%/≥35%/<35%; 30-Min-Polling)
+export { FahrerPhase4589MeinWochenendAnteil } from './phase4589-mein-wochenend-anteil';
 // Phase 4584 — Tour-Stopp Navigation Hub (MapPin blue; Tour-Header mit Fortschritts-Balken; Aktiver-Stopp hervorgehoben mit Navigation+Telefon CTAs; Alle-Stopps-Liste expandierbar; Notiz-Anzeige; Native-Maps-Integration iOS/Android; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4584TourStoppNavigationHub } from './phase4584-tour-stopp-navigation-hub';

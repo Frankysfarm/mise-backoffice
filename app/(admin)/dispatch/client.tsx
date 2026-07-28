@@ -1229,6 +1229,7 @@ import { DispatchPhase4563KommentarRateBoard } from './phase4563-kommentar-rate-
 import { DispatchPhase4568FruehschichtAnteilBoard } from './phase4568-fruehschicht-anteil-board';
 import { DispatchPhase4573AbendAnteilBoard } from './phase4573-abend-anteil-board';
 import { DispatchPhase4578SpitzenzeitAnteilBoard } from './phase4578-spitzenzeit-anteil-board';
+import { DispatchPhase4588WochenendAnteilBoard } from './phase4588-wochenend-anteil-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5117,6 +5118,8 @@ export function DispatchBoard({
           <DispatchPhase4573AbendAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4578: Spitzenzeit-Anteil-Board — Zap amber-500; absteigend Rang 1=höchster Spitzenzeitanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Spitzenzeitfahrer; 30-Min-Polling */}
           <DispatchPhase4578SpitzenzeitAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4588: Wochenend-Anteil-Board — Calendar violet-500; absteigend Rang 1=höchster Wochenendanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Wochenendfahrer; 30-Min-Polling */}
+          <DispatchPhase4588WochenendAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13681,5 +13684,7 @@ export { DispatchPhase4568FruehschichtAnteilBoard } from './phase4568-fruehschic
 export { DispatchPhase4573AbendAnteilBoard } from './phase4573-abend-anteil-board';
 // Phase 4578 — Spitzenzeit-Anteil-Board (Zap amber-500; absteigend Rang 1=höchster Spitzenzeitanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Spitzenzeitfahrer; 30-Min-Polling)
 export { DispatchPhase4578SpitzenzeitAnteilBoard } from './phase4578-spitzenzeit-anteil-board';
+// Phase 4588 — Wochenend-Anteil-Board (Calendar violet-500; absteigend Rang 1=höchster Wochenendanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Wochenendfahrer; 30-Min-Polling)
+export { DispatchPhase4588WochenendAnteilBoard } from './phase4588-wochenend-anteil-board';
 // Phase 4583 — Tour-Score Visualisierung Hub (Trophy indigo; Team-Score+Delta-Trend; 3-KPI-Strip Touren/Lieferzeit/SLA; Fahrer-Score-Visualisierung Rang+Balken+Trend; Top-Insight; 60-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4583TourScoreVisualisierungHub } from './phase4583-tour-score-visualisierung-hub';
