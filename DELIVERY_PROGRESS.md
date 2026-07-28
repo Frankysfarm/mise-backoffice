@@ -33551,3 +33551,40 @@ KRITISCH: Nächste freie Phase ist **4677**! NIEMALS 4000–4676 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+## Batch 4677–4681 — Fahrer-Storno-Quote-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4677 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-storno-ranking/route.ts`
+**Status:** Bereits vorhanden. Reused. Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, storno_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, bester_name, letzter_name, alert_count, gesamt }`; INVERTED Rang 1=niedrigste Quote; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_hoch wenn ampel=rot; Mock Julia 2.1%/Sara 3.4%/Max 5.8%/Tim 8.2%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4678 — Storno Board (Dispatch)
+**Component:** `DispatchPhase4678StornoBoard` — Moon orange-900; INVERTED Rang 1=niedrigste Quote; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert "X Hohe Storno-Quote" wenn alert_count>0; Balken farbkodiert grün/gelb/orange; DeltaIcon; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4679 — Meine Storno-Quote (Fahrer)
+**Component:** `FahrerPhase4679MeineStornoQuote` — Moon orange-900; pct_storno 5xl + Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Balken Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≤5%/≤12%/>12%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4680 — Storefront
+Übersprungen ✅
+
+### Phase 4681 — Storno-Ticker (Kitchen)
+**Component:** `KitchenPhase4681StornoTicker` — Moon orange-900; #1 Name+storno_pct%; Team-Avg; Alert "X Hohe Storno" wenn alert_count>0; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4681 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665, 4670, 4675, 4680 übersprungen)
+- **Nächste freie Phase: 4682**
+
+### Nächste Phasen 4682–4686 — Vorschlag: Fahrer-Durchschnittliche-Lieferzeit-Ranking
+1. **Phase 4682 Backend:** GET /api/delivery/admin/fahrer-lieferzeit-ranking — avg(delivery_duration_min) je Fahrer letzte 30 Tage; aufsteigend Rang 1=schnellste=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert >45min "Zu langsam!"; Mock Julia 22min/Max 26min/Sara 34min/Tim 48min; force-dynamic; await createClient().
+2. **Phase 4683 Dispatch:** `DispatchPhase4683LieferzeitBoard` — Moon teal-900; aufsteigend Rang 1=schnellste; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Zu langsam; Balken farbkodiert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4684 Fahrer:** `FahrerPhase4684MeineLieferzeit` — Moon teal-900; avg_min 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen (≤25min/≤35min/>35min); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4685 Storefront:** Überspringen.
+5. **Phase 4686 Kitchen:** `KitchenPhase4686LieferzeitTicker` — Moon teal-900; Schnellste #1 Name+min; Team-Avg; Alert Zu langsam; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4682**! NIEMALS 4000–4681 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
