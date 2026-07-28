@@ -32510,3 +32510,44 @@ KRITISCH: Nächste freie Phase ist 4567! NIEMALS 4000–4566 verwenden. IMMER al
 ## STATUS: MARKT-REIF
 
 ---
+
+---
+
+## Batch 4567–4571 — Fahrer-Frühschicht-Anteil-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4567 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-fruehschicht-anteil-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-fruehschicht-anteil-ranking?location_id=...&driver_id=...
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, frueh_pct, rank_delta, ampel, alert_wenig}], team_avg, hoechste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** pct(Bestellungen vor 11:00 Uhr) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Frühanteil=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert alert_wenig=true wenn <20%; Mock Julia 71%/Max 58%/Sara 42%/Tim 23%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4568 — Frühschicht-Anteil-Board (Dispatch)
+**Component:** `DispatchPhase4568FruehschichtAnteilBoard` — Sun yellow-500; absteigend Rang 1=höchster Frühanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Frühschichten; Balken=frueh_pct%; rank_delta TrendingUp emerald; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4569 — Mein Frühschicht-Anteil (Fahrer)
+**Component:** `FahrerPhase4569MeinFruehschichtAnteil` — Sun yellow-500; frueh_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Coaching-Tipp 3 Stufen (≥60%/≥35%/<35%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4570 — Storefront
+Übersprungen ✅
+
+### Phase 4571 — Frühschicht-Anteil-Ticker (Kitchen)
+**Component:** `KitchenPhase4571FruehschichtAnteilTicker` — Sun yellow-500; Höchste #1 Name+%; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥45%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Pre-existing-Errors identisch; Turbopack bekanntes Container-Problem)
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4571 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545, 4550, 4555, 4560, 4565, 4570 übersprungen)
+- **Nächste freie Phase: 4572**
+
+### Nächste Phasen 4572–4576 — Vorschlag: Fahrer-Abendschicht-Anteil-Ranking
+1. **Phase 4572 Backend:** GET /api/delivery/admin/fahrer-abendschicht-anteil-ranking — pct(Touren nach 18:00 Uhr) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Abendanteil=bester; Quartil-Ampel; Alert <15% "Wenig Abendschichten!"; Mock Julia 68%/Max 55%/Sara 39%/Tim 20%; force-dynamic; await createClient().
+2. **Phase 4573 Dispatch:** `DispatchPhase4573AbendschichtAnteilBoard` — Moon blue-500; absteigend Rang 1=höchster Abendanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Abendschichten; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4574 Fahrer:** `FahrerPhase4574MeinAbendschichtAnteil` — Moon blue-500; abend_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥55%/≥30%/<30%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4575 Storefront:** Überspringen.
+5. **Phase 4576 Kitchen:** `KitchenPhase4576AbendschichtAnteilTicker` — Moon blue-500; Höchste #1 Name+%; Ziel ≥40%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4572! NIEMALS 4000–4571 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
