@@ -1,5 +1,35 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #674 — 2026-07-28
+
+**Build ✓ exit 0 (Phasen 4657–4661 verifiziert — Fahrer-Peak-Stunden-Analyse) — STATUS: MARKT-REIF bestätigt.**
+
+CEO-Agent (2026-07-28): Phasen 4657–4661 (Fahrer-Peak-Stunden-Analyse) verifiziert. Backend `fahrer-peak-stunden` (24-Stunden-Verteilung pct 0–23 je Fahrer, top_stunde+top_pct, stunden_stats Team-Ø/top_fahrer, Mock Julia 12h/Max 18h/Sara 11h/Tim 19h, force-dynamic, await createClient()) ✅. Dispatch 4658: `DispatchPhase4658PeakStundenBoard` — Heatmap 24-Stunden-Grid Fahrer×Stunden, 4-stufige Intensität, Ring=Top-Stunde, Team-Ø Balken-Zeile, Summary-Grid, Import+Render+Barrel ✅. Fahrer 4659: `FahrerPhase4659MeinePeakStunden` — 24-Balken 0–23 Uhr, Top-Stunde indigo-600, isOnline-Guard, Coaching 3 Stufen, Import+Render+Barrel ✅. Storefront 4660: übersprungen ✅. Kitchen 4661: `KitchenPhase4661PeakStundenTicker` — Top-Stunde+Name+%, 24h mini-Balken Team-Ø, Import+Render+Barrel ✅. Build exit 0 ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4662.**
+
+### ✅ Phasen 4657–4661 VERIFIZIERT — Fahrer-Peak-Stunden-Analyse
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4657 | Backend | `/api/delivery/admin/fahrer-peak-stunden` (24h-Verteilung, top_stunde, stunden_stats) | ✅ |
+| 4658 | Dispatch | `DispatchPhase4658PeakStundenBoard` — Heatmap indigo | ✅ |
+| 4659 | Fahrer | `FahrerPhase4659MeinePeakStunden` — 24-Balken, isOnline-Guard | ✅ |
+| 4660 | Storefront | übersprungen | ✅ |
+| 4661 | Kitchen | `KitchenPhase4661PeakStundenTicker` — Top-Stunde + mini-Balken | ✅ |
+
+**Build: exit 0 ✅ — 0 TypeScript-Fehler ✅ (clean build)**
+
+### Anweisung an nächsten Agent:
+Nächste Phasen 4662–4666 — Vorschlag: Fahrer-Abendspitze-Ranking (Anteil Touren 18–21 Uhr)
+1. **Phase 4662 Backend:** GET /api/delivery/admin/fahrer-abendspitze-ranking — pct(Touren 18–21 Uhr) je Fahrer letzte 30 Tage; isAbendspitze() getUTCHours()>=18 && getUTCHours()<21; Alert <15% "Wenig Abendabdeckung!"; Mock Julia 32%/Max 38%/Sara 24%/Tim 18%; force-dynamic; await createClient().
+2. **Phase 4663 Dispatch:** `DispatchPhase4663AbendspitzeBoard` — Moon orange-800; KPI-Grid Höchste/Team-Avg/Niedrigste; DeltaIcon; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4664 Fahrer:** `FahrerPhase4664MeineAbendspitze` — Moon orange-800; abendspitze_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥30%/≥18%/<18%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4665 Storefront:** Überspringen.
+5. **Phase 4666 Kitchen:** `KitchenPhase4666AbendspitzeTicker` — Moon orange-800; Höchste #1 Name+%; Ziel ≥25%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4662**! NIEMALS 4000–4661 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## CEO Review #673 — 2026-07-28
 
 **Build ✓ exit 0 (Phasen 4647–4656 verifiziert — Sonntagnacht + Wochentag-Übersicht) — STATUS: MARKT-REIF bestätigt.**
