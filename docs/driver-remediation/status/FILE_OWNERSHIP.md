@@ -1,11 +1,11 @@
 # Critical File Ownership
 
-Updated: 2026-07-27
+Updated: 2026-07-28
 
 | File/scope | Active task | Owner | Mode | Notes |
 |---|---|---|---|---|
-| `lib/frank.ts` | T08 | `t07_dispatch` | exclusive-limited | Routing/batching/hold integration only; T07 baseline and Atomic-v2 writer contract remain frozen. |
-| new T08 routing/batching/hold modules, migration and tests | T08 | `t07_dispatch` | exclusive | Default-off/shadow first; no recovery/client/native edits. |
+| `lib/frank.ts` | none | released after T08 | protected | T07 baseline plus default-off T08 route insertion are frozen after G7. |
+| T08 routing/batching/hold modules, migration and tests | none | released after T08 | protected | Atomic append, shadow and persistent hold evidence frozen after G7. |
 | `lib/delivery/dispatch-engine.ts` | none | released by T07 | protected | Deterministic scoring/reason contract frozen after G6. |
 | canonical lifecycle/state-machine modules | none | released after continuation regression | protected | T01 compatibility evidence was refreshed for the T03 boundary; transition semantics remain frozen. |
 | dispatch/assignment migrations and RPCs | none | released by T02 | protected | T02 Atomic-v2 migrations/RPCs frozen after G2 approval. |

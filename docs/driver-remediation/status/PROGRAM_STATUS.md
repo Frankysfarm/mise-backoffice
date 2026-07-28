@@ -1,6 +1,6 @@
 # Driver Remediation Program Status
 
-Updated: 2026-07-27
+Updated: 2026-07-28
 
 | Task | State | Gate | Branch | Commit | Notes |
 |---|---|---|---|---|---|
@@ -13,7 +13,7 @@ Updated: 2026-07-27
 | T06 GPS Transport/Native | LOCAL SOURCE/DB COMPLETE | G5 BLOCKED_EXTERNAL | main + native isolated branches | `e3ab3efa`, native `d38f19f` | Canonical device metadata, monotonic DB transport, encrypted native queues and T07 dispatch eligibility pass locally; compiled iOS/Android and real-device lifecycle evidence require external toolchains/devices. |
 | T07 Deterministic Dispatch Baseline | COMPLETE | G6 GREEN | `codex/driver-remediation` | `277b1094` | Independent review approved deterministic default-off/shadow/active behavior and Atomic-v2-only assignment after 400 green overlap races. |
 | T09 Operations/Security/Observability | SOURCE CANDIDATE COMPLETE | G8 RED (durable integration pending) | `codex/driver-remediation` | `596c7b52` | Independent review approved the default-off redaction/alert/policy contract; DB/RLS/API/dashboard/callsites remain unimplemented. |
-| T08 Routing/Batching/Kitchen Hold | IN PROGRESS | G7 pending | `codex/driver-remediation` | — | Exclusive routing/hold scope assigned to `t07_dispatch` as the T08 implementer; default-off/shadow evidence required. |
+| T08 Routing/Batching/Kitchen Hold | COMPLETE | G7 GREEN (isolated PostgreSQL + source contracts) | `codex/driver-remediation` | `5fa6b6f3`, `570d953e`, `c02e15e0` | Atomic route append, real Frank evaluation/RPC integration, read-only shadow, persistent hold watchdog and deterministic replay pass twice. |
 | T10 E2E Canary Release | NOT STARTED | G9 not evaluated | — | — | Remains last after G7/G8. |
 
 ## Production safety
@@ -123,6 +123,19 @@ G8 still requires durable database/RLS enforcement, authenticated operations
 APIs, checked lifecycle callsites, scheduler/retention database tests,
 dashboards and alert delivery. No external telemetry, production flag or
 production system was changed.
+
+## G7 decision
+
+GREEN in the isolated remediation environment. Two consecutive fresh-database
+runs prove the real two-session append race, exact idempotency/fingerprint
+semantics, rollback of every loser projection, persistent hold/release/
+cancellation behavior and restart-safe watchdog locking. Frank now evaluates
+active routes with canonical GPS, capacity, version, store and deadline inputs,
+uses road legs with an explicitly marked conservative fallback, records every
+relevant candidate reason, retries a CAS conflict only once and writes only
+through the Atomic-v2 append RPC. Shadow mode has an automated unchanged
+business-snapshot assertion. T08 remains default-off and no production action
+occurred.
 
 ## G6 decision
 

@@ -74,6 +74,12 @@ assert.equal(shouldRecomputeRoute({
   event: 'order_added', currentInputVersion: 3, nextInputVersion: 3,
   previousTotalMinutes: 20, proposedTotalMinutes: 15, minimumImprovementMinutes: 2,
 }).reasonCode, 'STALE_OR_DUPLICATE_EVENT');
+for (const event of ['driver_off_route', 'stop_completed'] as const) {
+  assert.equal(shouldRecomputeRoute({
+    event, currentInputVersion: 3, nextInputVersion: 4,
+    previousTotalMinutes: 20, proposedTotalMinutes: 24, minimumImprovementMinutes: 2,
+  }).replacePlan, true, `${event} must force a safety replan`);
+}
 
 for (const lng of [.027, .135, .144, .18, .225]) {
   const decision = evaluateBestInsertion({ ...base,
