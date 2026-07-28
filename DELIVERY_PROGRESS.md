@@ -32322,18 +32322,30 @@ KRITISCH: Nächste freie Phase ist 4537! NIEMALS 4000–4536 verwenden. IMMER al
 
 ### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Pre-existing-Errors identisch; Turbopack bekanntes Container-Problem)
 
+### ✅ Phasen 4547–4551 ABGESCHLOSSEN — Fahrer-Lieferfenster-Genauigkeit-Ranking
+
+Backend-Architekt-Agent (2026-07-28): Phasen 4547–4551 implementiert — Fahrer-Lieferfenster-Genauigkeit-Ranking (% Lieferungen im Zeitfenster). Backend neu erstellt (`/api/delivery/admin/fahrer-lieferfenster-ranking`, absteigend Rang 1=höchste Fenstergenauigkeit=bester, pct(delivered_at<=promised_delivery_at), Alert <80% "Schlechte Fenstereinhaltung!", Mock Julia 94%/Max 87%/Sara 79%/Tim 67%, await createClient()). Dispatch: `DispatchPhase4548LieferfensterBoard` Clock teal-500. Fahrer: `FahrerPhase4549MeineLieferfenster` Clock teal-500 isOnline-Guard Coaching-Tipp 3 Stufen ≥90%/≥80%/<80%. Phase 4550 Storefront übersprungen. Kitchen: `KitchenPhase4551LieferfensterTicker` Clock teal-500 Beste #1 Ziel≥88%. Import+Render+Barrel in allen 3 Clients ✅. TypeScript ✓ 0 Fehler in neuen Dateien ✅. Build exit 0 ✅. Nächste freie Phase: **4552**.
+
+- Phase 4547 Backend: `/api/delivery/admin/fahrer-lieferfenster-ranking` — absteigend Rang 1=höchste Fenstergenauigkeit=bester; pct(delivered_at≤promised_delivery_at) je Fahrer letzte 30 Tage; Quartil-Ampel; Alert <80% "Schlechte Fenstereinhaltung!"; Mock Julia 94%/Max 87%/Sara 79%/Tim 67%; await createClient() ✅
+- Phase 4548 Dispatch: `DispatchPhase4548LieferfensterBoard` — Clock teal-500; absteigend Rang 1=höchste Genauigkeit; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Schlechte Fenstereinhaltung; Balken=(pct/maxPct)*100%; rank_delta TrendingUp emerald; 30-Min-Polling ✅
+- Phase 4549 Fahrer: `FahrerPhase4549MeineLieferfenster` — Clock teal-500; fenster_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥90%/≥80%/<80%; 30-Min-Polling ✅
+- Phase 4550 Storefront: übersprungen ✅
+- Phase 4551 Kitchen: `KitchenPhase4551LieferfensterTicker` — Clock teal-500; Beste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥88%; 30-Min-Polling ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien · Pre-existing-Errors identisch ✅
+
 ### Phasen-Nummern-Status
-- **Belegt:** 4000–4546 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545 übersprungen)
-- **Nächste freie Phase: 4547**
+- **Belegt:** 4000–4551 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545, 4550 übersprungen)
+- **Nächste freie Phase: 4552**
 
-### Nächste Phasen 4547–4551 — Vorschlag: Fahrer-Lieferfenster-Genauigkeit-Ranking
-1. **Phase 4547 Backend:** GET /api/delivery/admin/fahrer-lieferfenster-ranking — pct(deliveries within promised window) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Fenstergenauigkeit=bester; Quartil-Ampel; Alert <80% "Schlechte Fenstereinhaltung!"; Mock Julia 94%/Max 87%/Sara 79%/Tim 67%; force-dynamic; await createClient().
-2. **Phase 4548 Dispatch:** `DispatchPhase4548LieferfensterBoard` — Clock teal-500; absteigend Rang 1=höchste Genauigkeit; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Schlechte Fenstereinhaltung; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-3. **Phase 4549 Fahrer:** `FahrerPhase4549MeineLieferfenster` — Clock teal-500; fenster_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen (≥90%/≥80%/<80%); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-4. **Phase 4550 Storefront:** Überspringen.
-5. **Phase 4551 Kitchen:** `KitchenPhase4551LieferfensterTicker` — Clock teal-500; Beste #1 Name+%; Ziel ≥88%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+### Nächste Phasen 4552–4556 — Vorschlag: Fahrer-Kundenzufriedenheits-Kommentar-Rate-Ranking
+1. **Phase 4552 Backend:** GET /api/delivery/admin/fahrer-kommentar-rate-ranking — pct(deliveries with written customer comment) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Kommentarrate=bester; Quartil-Ampel; Alert <30% "Wenige Kommentare!"; Mock Julia 65%/Max 52%/Sara 41%/Tim 28%; force-dynamic; await createClient().
+2. **Phase 4553 Dispatch:** `DispatchPhase4553KommentarRateBoard` — MessageSquare indigo-500; absteigend Rang 1=höchste Rate; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Wenige Kommentare; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4554 Fahrer:** `FahrerPhase4554MeineKommentarRate` — MessageSquare indigo-500; kommentar_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥60%/≥40%/<40%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4555 Storefront:** Überspringen.
+5. **Phase 4556 Kitchen:** `KitchenPhase4556KommentarRateTicker` — MessageSquare indigo-500; Beste #1 Name+%; Ziel ≥50%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
 
-KRITISCH: Nächste freie Phase ist 4547! NIEMALS 4000–4546 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+KRITISCH: Nächste freie Phase ist 4552! NIEMALS 4000–4551 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF
 
