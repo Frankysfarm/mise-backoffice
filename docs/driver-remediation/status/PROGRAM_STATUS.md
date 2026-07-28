@@ -10,7 +10,7 @@ Updated: 2026-07-27
 | T03 Server API and Client Boundary | COMPLETE | G3 GREEN (isolated PostgreSQL + source/client contracts) | `codex/driver-remediation` | `60932fc9` | API/security and client-boundary reviewers approved after three hardening cycles. |
 | T04 Pick/Pickup Correctness | COMPLETE | G4 GREEN | `codex/driver-remediation` | `60621b64` | Atomic whole-batch pickup, cancellation-after-snapshot handling, disabled legacy bypasses and two-device race verified. |
 | T05 Recovery/Push/Offline | COMPLETE | G4 GREEN | `codex/driver-remediation` | `a1408ce2`, `0c90ba95` | Ownership-preserving recovery, wake-only push, snapshot-first ACK, strict offline replay and defensive database privileges verified. |
-| T06 GPS Transport/Native | SOURCE CANDIDATE COMPLETE | G5 RED (external evidence + T07 wiring) | main + native isolated branches | `625204bc`, native `4d048c2` | Source approved independently; native compile/device matrix unavailable and dispatch eligibility intentionally awaits T07. |
+| T06 GPS Transport/Native | LOCAL SOURCE/DB COMPLETE | G5 BLOCKED_EXTERNAL | main + native isolated branches | `e3ab3efa`, native `d38f19f` | Canonical device metadata, monotonic DB transport, encrypted native queues and T07 dispatch eligibility pass locally; compiled iOS/Android and real-device lifecycle evidence require external toolchains/devices. |
 | T07 Deterministic Dispatch Baseline | COMPLETE | G6 GREEN | `codex/driver-remediation` | `277b1094` | Independent review approved deterministic default-off/shadow/active behavior and Atomic-v2-only assignment after 400 green overlap races. |
 | T09 Operations/Security/Observability | SOURCE CANDIDATE COMPLETE | G8 RED (durable integration pending) | `codex/driver-remediation` | `596c7b52` | Independent review approved the default-off redaction/alert/policy contract; DB/RLS/API/dashboard/callsites remain unimplemented. |
 | T08 Routing/Batching/Kitchen Hold | IN PROGRESS | G7 pending | `codex/driver-remediation` | — | Exclusive routing/hold scope assigned to `t07_dispatch` as the T08 implementer; default-off/shadow evidence required. |
@@ -93,7 +93,7 @@ episode deduplication and restart safety. No production action occurred.
 
 ## G5 decision
 
-RED, with the source candidate independently approved. PostgreSQL tests prove
+BLOCKED_EXTERNAL, with all locally executable source/database evidence green. PostgreSQL tests prove
 monotonic GPS current-state updates, exact idempotency fingerprints,
 cross-tenant and changed-authority rejection, retired-session fencing,
 out-of-order history, quality flags and concurrent successor handling. Native
@@ -104,9 +104,12 @@ integration.
 G5 cannot turn green in the current host environment: Android compilation
 requires a Java runtime, iOS compilation requires full Xcode/CocoaPods, and the
 foreground/background/lock/relaunch/reboot matrix requires real devices.
-Additionally, `gpsEligibleForNewAssignment` remains intentionally unwired until
-T07 obtains exclusive dispatch ownership. Both source commits remain
-default-off candidates; no production action occurred.
+`gpsEligibleForNewAssignment` is wired into the deterministic T07 candidate
+filter and its stale/untrusted exclusions pass locally. Native installation,
+tracking-mode, altitude and battery metadata are now part of the canonical
+event contract. Full Xcode, a Java/Android build toolchain and physical device
+matrices remain unavailable. Both source paths remain default-off candidates;
+no production action occurred.
 
 ## G8 partial decision
 

@@ -15,7 +15,7 @@ Updated: 2026-07-27
 | `app/api/driver/v1/**` lifecycle boundary | none | released by T03 | protected | v1 adapters constrained; future changes require exclusive ownership. |
 | `app/api/driver/v2/**` and `lib/delivery/driver-v2-*` | none | released by T03 | protected | Canonical action/snapshot boundary frozen after G3. |
 | migration `279_*`, pick/item APIs/tests | none | released by T04 | protected | Atomic multi-order pickup contract frozen after G4. |
-| migration `280_*`, GPS API/transport/native files | T06 continuation | program lead | exclusive | G5 local regression and native/source completion; no production retention or device-evidence claims. |
+| migration `280_*`, GPS API/transport/native files | none | released after T06 continuation | protected | Local source/DB candidate complete; G5 remains BLOCKED_EXTERNAL for compiled/device evidence. |
 | migration `281_*`, recovery/outbox/push tests | none | released by T05 | protected | Push is wake-up only; assignment authority unchanged. |
 | new T09 observability/security modules, tests and runbooks | none | released by T09 safe subset | protected | Default-off source candidate approved; durable integration awaits a separately owned T09 phase. |
 | `package.json`, `next.config.js`, ESLint config | none | released by T00 | protected | Tool configuration complete. |
