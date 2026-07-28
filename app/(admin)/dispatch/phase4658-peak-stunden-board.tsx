@@ -3,15 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Clock, WifiOff } from 'lucide-react';
 
-interface FahrerRow {
-  fahrer_id: string;
-  fahrer_name: string;
-  stunden: number[]; // pct per hour 0–23
-  top_stunde: number;
-  top_pct: number;
-}
-
-interface StundeStat {
+interface StundenStat {
   stunde: number;
   team_avg: number;
   top_fahrer: string;
@@ -19,30 +11,12 @@ interface StundeStat {
 }
 
 interface ApiResponse {
-  fahrer: FahrerRow[];
-  stunden_stats: StundeStat[];
+  stunden_stats: StundenStat[];
   gesamt: number;
 }
 
-// Show every 3rd label to avoid crowding
-const LABEL_HOURS = [0, 3, 6, 9, 12, 15, 18, 21, 23];
-
-function heatColor(pct: number): string {
-  if (pct >= 20) return 'bg-indigo-700 dark:bg-indigo-500';
-  if (pct >= 12) return 'bg-indigo-500 dark:bg-indigo-600';
-  if (pct >= 6)  return 'bg-indigo-300 dark:bg-indigo-800';
-  if (pct >= 2)  return 'bg-indigo-100 dark:bg-indigo-950';
-  return 'bg-gray-50 dark:bg-gray-900';
-}
-
-function heatText(pct: number): string {
-  if (pct >= 12) return 'text-white';
-  if (pct >= 6)  return 'text-indigo-900 dark:text-indigo-200';
-  return 'text-gray-400 dark:text-gray-600';
-}
-
-function fmtHour(h: number): string {
-  return `${String(h).padStart(2, '0')}`;
+function fmt(h: number) {
+  return `${String(h).padStart(2, '0')}h`;
 }
 
 export function DispatchPhase4658PeakStundenBoard({ locationId }: { locationId: string | null }) {
@@ -71,113 +45,81 @@ export function DispatchPhase4658PeakStundenBoard({ locationId }: { locationId: 
 
   if (error) {
     return (
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 flex items-center gap-2 text-gray-400">
-        <WifiOff className="w-5 h-5" />
-        <span className="text-sm">Peak-Stunden-Board nicht verfügbar</span>
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 flex items-center gap-2 text-gray-400">
+        <WifiOff className="w-4 h-4" />
+        <span className="text-xs">Peak-Stunden-Board nicht verfügbar</span>
       </div>
     );
   }
 
   if (!data) {
-    return (
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 animate-pulse h-64" />
-    );
+    return <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 animate-pulse h-40" />;
   }
 
-  const HOURS = Array.from({ length: 24 }, (_, i) => i);
+  const stats = data.stunden_stats;
+  const maxAvg = Math.max(...stats.map(s => s.team_avg), 1);
+  const topStunde = stats.reduce((best, s) => s.team_avg > best.team_avg ? s : best, stats[0]);
+
+  // Group into blocks of 6 for readability
+  const blocks: StundenStat[][] = [];
+  for (let i = 0; i < 24; i += 6) {
+    blocks.push(stats.slice(i, i + 6));
+  }
 
   return (
-    <div className="rounded-2xl border border-indigo-200 dark:border-indigo-900 bg-white dark:bg-gray-900 p-4 space-y-4">
-      {/* Header */}
-      <div className="flex items-center gap-2">
-        <Clock className="w-5 h-5 text-indigo-900 dark:text-indigo-300" />
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100">Peak-Stunden-Heatmap</h3>
-        <span className="ml-auto text-xs text-gray-400">{data.gesamt} Fahrer · letzte 30 Tage</span>
+    <div className="rounded-2xl border border-indigo-200 dark:border-indigo-900 bg-white dark:bg-gray-900 p-3 space-y-2">
+      <div className="flex items-center gap-1.5 justify-between">
+        <div className="flex items-center gap-1.5">
+          <Clock className="w-4 h-4 text-indigo-900 dark:text-indigo-300" />
+          <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Peak-Stunden-Board</span>
+        </div>
+        <span className="text-[10px] text-gray-400">{data.gesamt} Fahrer · 30 Tage</span>
       </div>
 
-      {/* Heatmap: rows = fahrer, cols = hours */}
-      <div className="overflow-x-auto">
-        <table className="text-[9px] border-separate border-spacing-px w-max">
-          <thead>
-            <tr>
-              <th className="text-left text-gray-500 dark:text-gray-400 font-normal pb-1 pr-2 min-w-[60px]" />
-              {HOURS.map(h => (
-                <th key={h} className="text-center text-gray-400 dark:text-gray-600 font-normal pb-0.5 min-w-[16px]">
-                  {LABEL_HOURS.includes(h) ? fmtHour(h) : ''}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.fahrer.map(f => (
-              <tr key={f.fahrer_id}>
-                <td className="pr-2 py-0.5 text-gray-700 dark:text-gray-300 font-medium truncate max-w-[60px] text-[10px]">
-                  {f.fahrer_name}
-                </td>
-                {HOURS.map(h => {
-                  const pct = f.stunden[h];
-                  const isTop = h === f.top_stunde;
-                  return (
-                    <td key={h} className="py-0.5">
-                      <div
-                        className={`w-4 h-4 rounded-sm flex items-center justify-center ${heatColor(pct)} ${heatText(pct)} ${isTop ? 'ring-1 ring-indigo-500 ring-offset-0' : ''}`}
-                        title={`${fmtHour(h)}h: ${pct}%`}
-                      >
-                        {pct >= 12 ? <span>{pct}</span> : null}
-                      </div>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
+      {topStunde && (
+        <div className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950 rounded-lg px-2 py-1.5">
+          <span className="text-base font-extrabold text-indigo-900 dark:text-indigo-300">{fmt(topStunde.stunde)}</span>
+          <span className="text-xs text-gray-600 dark:text-gray-400 truncate">Top: {topStunde.top_fahrer}</span>
+          <span className="ml-auto text-xs font-bold text-indigo-900 dark:text-indigo-300">{topStunde.top_pct}%</span>
+        </div>
+      )}
 
-            {/* Team-Ø row */}
-            <tr className="border-t border-gray-100 dark:border-gray-800">
-              <td className="pr-2 pt-1 text-indigo-900 dark:text-indigo-300 font-semibold text-[9px]">Team-Ø</td>
-              {data.stunden_stats.map(st => (
-                <td key={st.stunde} className="pt-1">
-                  <div
-                    className={`w-4 h-1.5 rounded-sm ${st.team_avg >= 10 ? 'bg-indigo-500' : st.team_avg >= 5 ? 'bg-indigo-300' : 'bg-indigo-100 dark:bg-indigo-950'}`}
-                    title={`${fmtHour(st.stunde)}h Ø ${st.team_avg}%`}
-                  />
-                </td>
-              ))}
-            </tr>
-
-            {/* Top-Fahrer je Stunde row */}
-            <tr>
-              <td className="pr-2 pt-0.5 text-gray-400 text-[8px]">Top</td>
-              {data.stunden_stats.map(st => (
-                <td key={st.stunde} className="pt-0.5 text-center">
-                  {st.top_pct >= 10 && (
-                    <div className="text-[7px] text-gray-500 dark:text-gray-400 leading-tight truncate max-w-[16px]" title={`${st.top_fahrer} ${st.top_pct}%`}>
-                      {st.top_fahrer.split(' ')[0].slice(0, 2)}
-                    </div>
-                  )}
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      {/* Top-Stunden Summary */}
-      <div className="grid grid-cols-2 gap-2">
-        {data.fahrer.slice(0, 4).map(f => (
-          <div key={f.fahrer_id} className="flex items-center gap-2 bg-indigo-50 dark:bg-indigo-950 rounded-lg px-3 py-2">
-            <span className="text-[10px] font-medium text-gray-600 dark:text-gray-300 truncate flex-1">{f.fahrer_name}</span>
-            <span className="text-[10px] font-bold text-indigo-900 dark:text-indigo-300">{fmtHour(f.top_stunde)}h</span>
-            <span className="text-[10px] text-gray-500">({f.top_pct}%)</span>
+      {/* 24-hour heatmap grid: 4 rows × 6 columns */}
+      <div className="space-y-1">
+        {blocks.map((block, bi) => (
+          <div key={bi} className="flex gap-0.5">
+            {block.map(s => {
+              const ratio = s.team_avg / maxAvg;
+              const isTop = s.stunde === topStunde?.stunde;
+              const bg = isTop
+                ? 'bg-indigo-700 dark:bg-indigo-500'
+                : ratio >= 0.75
+                ? 'bg-indigo-400 dark:bg-indigo-700'
+                : ratio >= 0.4
+                ? 'bg-indigo-200 dark:bg-indigo-900'
+                : 'bg-gray-100 dark:bg-gray-800';
+              return (
+                <div
+                  key={s.stunde}
+                  className={`flex-1 rounded text-center ${bg} flex flex-col items-center justify-center py-1 gap-0`}
+                  title={`${fmt(s.stunde)} — Ø ${s.team_avg}% · Top: ${s.top_fahrer} ${s.top_pct}%`}
+                >
+                  <span className={`text-[8px] leading-tight font-medium ${isTop ? 'text-white' : 'text-gray-600 dark:text-gray-400'}`}>
+                    {fmt(s.stunde)}
+                  </span>
+                  <span className={`text-[9px] font-bold leading-tight ${isTop ? 'text-white' : 'text-indigo-900 dark:text-indigo-300'}`}>
+                    {s.team_avg}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
 
-      {/* Legend */}
-      <div className="flex items-center gap-3 text-[9px] text-gray-400 border-t border-gray-100 dark:border-gray-800 pt-2">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-indigo-700 inline-block" />≥20%</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-indigo-500 inline-block" />12–19%</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-sm bg-indigo-300 inline-block" />6–11%</span>
-        <span className="ml-auto">Ring = Top-Stunde je Fahrer</span>
+      <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800 pt-1.5">
+        <span>Peak: <span className="font-medium text-indigo-900 dark:text-indigo-300">{fmt(topStunde?.stunde ?? 0)}</span></span>
+        <span>Team-Ø: <span className="font-medium">{Math.round(stats.reduce((s, v) => s + v.team_avg, 0) / 24)}% je Std.</span></span>
       </div>
     </div>
   );

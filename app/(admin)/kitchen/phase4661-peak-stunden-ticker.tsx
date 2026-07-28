@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Clock, WifiOff } from 'lucide-react';
 
-interface StundeStat {
+interface StundenStat {
   stunde: number;
   team_avg: number;
   top_fahrer: string;
@@ -11,12 +11,12 @@ interface StundeStat {
 }
 
 interface ApiResponse {
-  stunden_stats: StundeStat[];
+  stunden_stats: StundenStat[];
   gesamt: number;
 }
 
-function fmtHour(h: number): string {
-  return `${String(h).padStart(2, '0')}`;
+function fmt(h: number) {
+  return `${String(h).padStart(2, '0')}h`;
 }
 
 export function KitchenPhase4661PeakStundenTicker({ locationId }: { locationId: string | null }) {
@@ -53,18 +53,12 @@ export function KitchenPhase4661PeakStundenTicker({ locationId }: { locationId: 
   }
 
   if (!data) {
-    return (
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 animate-pulse h-24" />
-    );
+    return <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 animate-pulse h-24" />;
   }
 
-  const topStunde = data.stunden_stats.reduce(
-    (best, st) => st.top_pct > best.top_pct ? st : best,
-    data.stunden_stats[0],
-  );
-
-  const maxAvg = Math.max(...data.stunden_stats.map(st => st.team_avg), 1);
-  const HOURS = Array.from({ length: 24 }, (_, i) => i);
+  const stats = data.stunden_stats;
+  const topStunde = stats.reduce((best, s) => s.team_avg > best.team_avg ? s : best, stats[0]);
+  const maxAvg = Math.max(...stats.map(s => s.team_avg), 1);
 
   return (
     <div className="rounded-2xl border border-indigo-200 dark:border-indigo-900 bg-white dark:bg-gray-900 p-3 space-y-2">
@@ -75,43 +69,30 @@ export function KitchenPhase4661PeakStundenTicker({ locationId }: { locationId: 
 
       {topStunde && (
         <div className="flex items-center gap-2">
-          <span className="text-lg font-extrabold text-indigo-900 dark:text-indigo-300">
-            {fmtHour(topStunde.stunde)}:00
-          </span>
+          <span className="text-lg font-extrabold text-indigo-900 dark:text-indigo-300">{fmt(topStunde.stunde)}</span>
           <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{topStunde.top_fahrer}</span>
           <span className="ml-auto text-sm font-bold text-indigo-900 dark:text-indigo-300">{topStunde.top_pct}%</span>
         </div>
       )}
 
-      {/* 24h mini-bar chart — team average per hour */}
+      {/* Mini 24-bar chart — render every 3rd label to avoid clutter */}
       <div className="flex items-end gap-px h-8">
-        {HOURS.map(h => {
-          const st = data.stunden_stats[h];
-          const barH = Math.max(1, Math.round((st.team_avg / maxAvg) * 28));
-          const isTop = h === topStunde?.stunde;
+        {stats.map(s => {
+          const h = Math.max(2, Math.round((s.team_avg / maxAvg) * 28));
+          const isTop = s.stunde === topStunde?.stunde;
           return (
-            <div key={h} className="flex flex-col items-center flex-1">
+            <div key={s.stunde} className="flex flex-col items-center flex-1 gap-0" title={`${fmt(s.stunde)}: Ø ${s.team_avg}%`}>
               <div
                 className={`w-full rounded-t ${isTop ? 'bg-indigo-600 dark:bg-indigo-400' : 'bg-indigo-200 dark:bg-indigo-800'}`}
-                style={{ height: barH }}
-                title={`${fmtHour(h)}h Ø ${st.team_avg}%`}
+                style={{ height: h }}
               />
             </div>
           );
         })}
       </div>
 
-      {/* Hour axis labels every 6h */}
-      <div className="flex text-[7px] text-gray-400 gap-px">
-        {HOURS.map(h => (
-          <div key={h} className="flex-1 text-center">
-            {h % 6 === 0 ? fmtHour(h) : ''}
-          </div>
-        ))}
-      </div>
-
       <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800 pt-1.5">
-        <span>Stärkste Stunde: <span className="font-medium text-indigo-900 dark:text-indigo-300">{fmtHour(topStunde?.stunde ?? 0)}:00</span></span>
+        <span>Stärkste Stunde: <span className="font-medium text-indigo-900 dark:text-indigo-300">{fmt(topStunde?.stunde ?? 0)}</span></span>
         <span>{data.gesamt} Fahrer · 30 Tage</span>
       </div>
     </div>

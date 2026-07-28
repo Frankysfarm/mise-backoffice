@@ -3,17 +3,22 @@
 import { useEffect, useState } from 'react';
 import { Clock, WifiOff } from 'lucide-react';
 
-interface ApiResponse {
-  fahrer: Array<{
-    fahrer_id: string;
-    stunden: number[];
-    top_stunde: number;
-    top_pct: number;
-  }>;
+interface FahrerPeakStunden {
+  fahrer_id: string;
+  fahrer_name: string;
+  stunden: number[];
+  top_stunde: number;
+  top_pct: number;
+  gesamt_touren: number;
 }
 
-function fmtHour(h: number): string {
-  return `${String(h).padStart(2, '0')}`;
+interface ApiResponse {
+  fahrer: FahrerPeakStunden[];
+  gesamt: number;
+}
+
+function fmt(h: number) {
+  return `${String(h).padStart(2, '0')}:00`;
 }
 
 export function FahrerPhase4659MeinePeakStunden({
@@ -25,7 +30,8 @@ export function FahrerPhase4659MeinePeakStunden({
   locationId: string | null;
   isOnline: boolean;
 }) {
-  const [data, setData] = useState<{ stunden: number[]; top_stunde: number; top_pct: number } | null>(null);
+  const [data, setData] = useState<FahrerPeakStunden | null>(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!isOnline) return;
@@ -35,14 +41,12 @@ export function FahrerPhase4659MeinePeakStunden({
       try {
         const params = locationId ? `?location_id=${locationId}` : '';
         const res = await fetch(`/api/delivery/admin/fahrer-peak-stunden${params}`);
-        if (!res.ok) throw new Error('fetch failed');
+        if (!res.ok) throw new Error();
         const json: ApiResponse = await res.json();
-        const me = json.fahrer.find(f => f.fahrer_id === driverId);
-        if (!cancelled && me) {
-          setData({ stunden: me.stunden, top_stunde: me.top_stunde, top_pct: me.top_pct });
-        }
+        const me = json.fahrer.find(f => f.fahrer_id === driverId) ?? json.fahrer[0] ?? null;
+        if (!cancelled) setData(me);
       } catch {
-        // silent
+        if (!cancelled) setError(true);
       }
     }
 
@@ -51,74 +55,73 @@ export function FahrerPhase4659MeinePeakStunden({
     return () => { cancelled = true; clearInterval(iv); };
   }, [driverId, locationId, isOnline]);
 
-  if (!isOnline) {
+  if (!isOnline) return null;
+
+  if (error) {
     return (
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 flex items-center gap-2 text-gray-400">
-        <WifiOff className="w-5 h-5" />
-        <span className="text-sm">Offline — Peak-Stunden nicht verfügbar</span>
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 flex items-center gap-2 text-gray-400">
+        <WifiOff className="w-4 h-4" />
+        <span className="text-xs">Peak-Stunden nicht verfügbar</span>
       </div>
     );
   }
 
   if (!data) {
-    return (
-      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 animate-pulse h-40" />
-    );
+    return <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 animate-pulse h-32" />;
   }
 
   const maxPct = Math.max(...data.stunden, 1);
-  const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-  const coachingTip =
+  // Coaching text
+  const coaching =
     data.top_pct >= 20
-      ? `Top! Deine stärkste Stunde ${fmtHour(data.top_stunde)}:00 macht ${data.top_pct}% aus — nutze diesen Peak weiter.`
+      ? `Stark! Du bist am häufigsten um ${fmt(data.top_stunde)} Uhr aktiv — nutze diese Zeit optimal.`
       : data.top_pct >= 10
-      ? `Dein Peak bei ${fmtHour(data.top_stunde)}:00 (${data.top_pct}%) hat noch Potenzial — bleib in diesem Fenster aktiv.`
-      : `Deine Stunden sind sehr gleichmäßig verteilt. Versuch, dich auf Stoßzeiten zu konzentrieren.`;
+      ? `Um ${fmt(data.top_stunde)} Uhr bist du am aktivsten. Mehr Schichten in dieser Zeit steigern deine Einnahmen.`
+      : `Versuche, deine Peak-Zeit auf ${fmt(data.top_stunde)} Uhr zu legen — dann ist die Nachfrage am höchsten.`;
 
   return (
-    <div className="rounded-2xl border border-indigo-200 dark:border-indigo-900 bg-white dark:bg-gray-900 p-4 space-y-3">
-      <div className="flex items-center gap-2">
-        <Clock className="w-5 h-5 text-indigo-900 dark:text-indigo-300" />
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100">Meine Peak-Stunden</h3>
+    <div className="rounded-2xl border border-indigo-200 dark:border-indigo-900 bg-white dark:bg-gray-900 p-3 space-y-2">
+      <div className="flex items-center gap-1.5">
+        <Clock className="w-4 h-4 text-indigo-900 dark:text-indigo-300" />
+        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Meine Peak-Stunden</span>
       </div>
 
-      {/* 24-Bar Chart */}
-      <div className="flex items-end gap-0.5 h-20">
-        {HOURS.map(h => {
-          const pct = data.stunden[h];
+      <div className="flex items-baseline gap-2">
+        <span className="text-4xl font-extrabold text-indigo-900 dark:text-indigo-300">{fmt(data.top_stunde)}</span>
+        <span className="text-xl font-bold text-gray-500">{data.top_pct}%</span>
+      </div>
+
+      {/* 24-bar chart: hours 0–23 */}
+      <div className="flex items-end gap-px h-10">
+        {data.stunden.map((pct, h) => {
+          const barH = Math.max(2, Math.round((pct / maxPct) * 36));
           const isTop = h === data.top_stunde;
-          const height = Math.max(2, Math.round((pct / maxPct) * 64));
           return (
-            <div key={h} className="flex flex-col items-center flex-1 gap-0.5" title={`${fmtHour(h)}h: ${pct}%`}>
+            <div key={h} className="flex flex-col items-center flex-1" title={`${fmt(h)}: ${pct}%`}>
               <div
-                className={`w-full rounded-t transition-colors ${isTop ? 'bg-indigo-600 dark:bg-indigo-400' : 'bg-indigo-200 dark:bg-indigo-800'}`}
-                style={{ height, opacity: isTop ? 1 : 0.6 }}
+                className={`w-full rounded-t ${isTop ? 'bg-indigo-600 dark:bg-indigo-400' : 'bg-indigo-200 dark:bg-indigo-800'}`}
+                style={{ height: barH }}
               />
             </div>
           );
         })}
       </div>
 
-      {/* Hour labels — only every 6th */}
-      <div className="flex text-[8px] text-gray-400 gap-0.5">
-        {HOURS.map(h => (
-          <div key={h} className="flex-1 text-center">
-            {h % 6 === 0 ? fmtHour(h) : ''}
-          </div>
-        ))}
+      {/* Hour labels: show 0,6,12,18,23 */}
+      <div className="flex text-[8px] text-gray-400 justify-between px-0.5">
+        <span>00h</span>
+        <span>06h</span>
+        <span>12h</span>
+        <span>18h</span>
+        <span>23h</span>
       </div>
 
-      {/* Peak highlight */}
-      <div className="flex items-center justify-center gap-2 bg-indigo-50 dark:bg-indigo-950 rounded-lg px-3 py-2">
-        <Clock className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-        <span className="text-sm font-bold text-indigo-900 dark:text-indigo-300">
-          Peak: {fmtHour(data.top_stunde)}:00 Uhr
-        </span>
-        <span className="text-sm text-gray-500">({data.top_pct}% deiner Touren)</span>
-      </div>
+      <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-snug border-t border-gray-100 dark:border-gray-800 pt-1.5">
+        {coaching}
+      </p>
 
-      <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-snug">{coachingTip}</p>
+      <div className="text-[10px] text-gray-400">{data.gesamt_touren} Touren · 30 Tage</div>
     </div>
   );
 }

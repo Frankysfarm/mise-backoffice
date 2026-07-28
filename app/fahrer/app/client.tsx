@@ -7312,7 +7312,7 @@ export function FahrerApp({
           <FahrerPhase4649MeinSonntagNacht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4654: Meine Wochentag-Übersicht — Moon indigo-900; 7 Balken Mo–So; isOnline-Guard; Top-Tag hervorgehoben; 30-Min-Polling */}
           <FahrerPhase4654MeineWochentagUebersicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
-          {/* Phase 4659: Meine Peak-Stunden — Moon indigo-900; 24-Balken 0–23 Uhr; isOnline-Guard; Top-Stunde hervorgehoben; 30-Min-Polling */}
+          {/* Phase 4659: Meine Peak-Stunden — Moon indigo-900; 24-Balken 0–23 Uhr; isOnline-Guard; Top-Stunde hervorgehoben; Coaching; 30-Min-Polling */}
           <FahrerPhase4659MeinePeakStunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
@@ -11625,7 +11625,7 @@ export { FahrerPhase4644MeinSamstagNacht } from './phase4644-mein-samstag-nacht'
 export { FahrerPhase4649MeinSonntagNacht } from './phase4649-mein-sonntag-nacht';
 // Phase 4654 — Meine Wochentag-Übersicht (Moon indigo-900; 7 Balken Mo–So; isOnline-Guard; Top-Tag hervorgehoben; 30-Min-Polling)
 export { FahrerPhase4654MeineWochentagUebersicht } from './phase4654-meine-wochentag-uebersicht';
-// Phase 4659 — Meine Peak-Stunden (Moon indigo-900; 24-Balken 0–23 Uhr; isOnline-Guard; Top-Stunde hervorgehoben; 30-Min-Polling)
+// Phase 4659 — Meine Peak-Stunden (Clock indigo-900; 24-Balken 0–23 Uhr; isOnline-Guard; Top-Stunde hervorgehoben; Coaching; 30-Min-Polling)
 export { FahrerPhase4659MeinePeakStunden } from './phase4659-meine-peak-stunden';
 // Phase 4649 — Smart Tour Navigation Hub (Navigation2 indigo; Aktiver-Stopp-Highlight blau+CTA; Stopp-Timeline Karten status-farbkodiert; ETA+km je Stopp; Score-Anzeige; 15-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4649SmartTourNavigationHub } from './phase4649-smart-tour-navigation-hub';

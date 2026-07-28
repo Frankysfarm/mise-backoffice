@@ -2,7 +2,7 @@
  * GET /api/delivery/admin/fahrer-peak-stunden?location_id=<uuid>
  *
  * Phase 4657 — Fahrer-Peak-Stunden-Analyse
- * Touren je Stunde 0–23 je Fahrer letzte 30 Tage; top Stunde+Anteil je Fahrer; team stats
+ * Touren je Stunde 0–23 je Fahrer letzte 30 Tage; top Stunde+Anteil je Fahrer.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
@@ -10,16 +10,16 @@ import { createClient } from '@/lib/supabase/server';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-interface FahrerPeakStunde {
+interface FahrerPeakStunden {
   fahrer_id: string;
   fahrer_name: string;
-  stunden: number[]; // pct 0–100 per hour (index 0–23)
-  top_stunde: number; // 0–23
+  stunden: number[]; // Index 0–23 = Touren je Stunde
+  top_stunde: number;
   top_pct: number;
   gesamt_touren: number;
 }
 
-interface StundeStat {
+interface StundenStat {
   stunde: number;
   team_avg: number;
   top_fahrer: string;
@@ -27,51 +27,57 @@ interface StundeStat {
 }
 
 interface ApiResponse {
-  fahrer: FahrerPeakStunde[];
-  stunden_stats: StundeStat[];
+  fahrer: FahrerPeakStunden[];
+  stunden_stats: StundenStat[];
   gesamt: number;
 }
 
-// Realistic 24-h mock distributions (pct of own tours per hour)
-const MOCK_DIST: Record<string, number[]> = {
-  f1: [0,0,0,0,0,1,2,4,6,8,10,14,20,12,8,6,5,7,8,5,3,1,0,0], // Julia: lunch peak
-  f2: [0,0,0,0,0,1,2,3,5,7,9,12,18,10,7,6,8,25,8,4,2,0,0,0], // Max: evening peak
-  f3: [0,0,0,0,0,1,2,4,7,10,15,22,16,9,5,4,3,2,1,1,0,0,0,0], // Sara: morning peak
-  f4: [0,0,0,0,0,0,1,2,3,5,7,10,14,10,8,6,5,8,12,28,1,0,0,0], // Tim: late dinner peak
-};
-
-const MOCK_NAMES: Record<string, string> = {
-  f1: 'Julia S.', f2: 'Max M.', f3: 'Sara B.', f4: 'Tim K.',
-};
-
-const MOCK_TOTALS: Record<string, number> = {
-  f1: 120, f2: 98, f3: 87, f4: 74,
-};
-
-function buildMock(): ApiResponse {
-  const ids = ['f1', 'f2', 'f3', 'f4'];
-  const fahrer: FahrerPeakStunde[] = ids.map(id => {
-    const dist = MOCK_DIST[id];
-    const topIdx = dist.indexOf(Math.max(...dist));
+const MOCK: ApiResponse = {
+  fahrer: [
+    {
+      fahrer_id: 'f1',
+      fahrer_name: 'Julia S.',
+      stunden: [0,0,0,0,0,0,1,3,5,6,8,10,12,11,9,7,5,8,14,16,12,8,4,2],
+      top_stunde: 19,
+      top_pct: 12,
+      gesamt_touren: 150,
+    },
+    {
+      fahrer_id: 'f2',
+      fahrer_name: 'Max M.',
+      stunden: [0,0,0,0,0,0,2,4,6,8,10,12,14,12,10,8,6,4,10,15,11,7,3,1],
+      top_stunde: 19,
+      top_pct: 13,
+      gesamt_touren: 143,
+    },
+    {
+      fahrer_id: 'f3',
+      fahrer_name: 'Sara B.',
+      stunden: [0,0,0,0,0,0,0,2,4,5,7,9,11,10,8,6,4,6,12,14,10,6,3,1],
+      top_stunde: 19,
+      top_pct: 11,
+      gesamt_touren: 118,
+    },
+    {
+      fahrer_id: 'f4',
+      fahrer_name: 'Tim K.',
+      stunden: [0,0,0,0,0,0,1,2,4,6,8,11,13,12,10,8,5,7,11,13,9,5,2,0],
+      top_stunde: 18,
+      top_pct: 11,
+      gesamt_touren: 127,
+    },
+  ],
+  stunden_stats: Array.from({ length: 24 }, (_, h) => {
+    const avgs = [0,0,0,0,0,0,1,3,5,6,8,11,13,11,9,7,5,6,12,15,11,7,3,1];
     return {
-      fahrer_id: id,
-      fahrer_name: MOCK_NAMES[id],
-      stunden: dist,
-      top_stunde: topIdx,
-      top_pct: dist[topIdx],
-      gesamt_touren: MOCK_TOTALS[id],
+      stunde: h,
+      team_avg: avgs[h],
+      top_fahrer: h === 19 ? 'Max M.' : h === 18 ? 'Tim K.' : 'Julia S.',
+      top_pct: h === 19 ? 13 : h === 18 ? 11 : avgs[h] > 0 ? 12 : 0,
     };
-  });
-
-  const stunden_stats: StundeStat[] = Array.from({ length: 24 }, (_, h) => {
-    const vals = ids.map(id => ({ name: MOCK_NAMES[id], pct: MOCK_DIST[id][h] }));
-    const avg = Math.round(vals.reduce((s, v) => s + v.pct, 0) / vals.length);
-    const top = vals.reduce((a, b) => (a.pct >= b.pct ? a : b));
-    return { stunde: h, team_avg: avg, top_fahrer: top.name, top_pct: top.pct };
-  });
-
-  return { fahrer, stunden_stats, gesamt: ids.length };
-}
+  }),
+  gesamt: 4,
+};
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -93,44 +99,41 @@ export async function GET(request: NextRequest) {
       .not('driver_id', 'is', null);
 
     if (error || !touren?.length) {
-      return NextResponse.json(buildMock());
+      return NextResponse.json(MOCK);
     }
 
-    const byFahrer: Record<string, { name: string; total: number; counts: number[] }> = {};
+    const byFahrer: Record<string, { name: string; counts: number[]; total: number }> = {};
 
     for (const t of touren) {
       const id = t.driver_id as string;
       const name = (t.drivers as { full_name?: string } | null)?.full_name ?? id;
-      const hour = new Date(t.started_at as string).getUTCHours();
-      if (!byFahrer[id]) byFahrer[id] = { name, total: 0, counts: new Array(24).fill(0) };
+      if (!byFahrer[id]) {
+        byFahrer[id] = { name, counts: new Array(24).fill(0), total: 0 };
+      }
       byFahrer[id].total++;
-      byFahrer[id].counts[hour]++;
+      if (t.started_at) {
+        const h = new Date(t.started_at).getUTCHours();
+        byFahrer[id].counts[h]++;
+      }
     }
 
-    const fahrer: FahrerPeakStunde[] = Object.entries(byFahrer).map(([id, d]) => {
-      const pcts = d.counts.map(c => (d.total > 0 ? Math.round((c / d.total) * 100) : 0));
-      const topIdx = pcts.indexOf(Math.max(...pcts));
-      return {
-        fahrer_id: id,
-        fahrer_name: d.name,
-        stunden: pcts,
-        top_stunde: topIdx,
-        top_pct: pcts[topIdx],
-        gesamt_touren: d.total,
-      };
+    const fahrer: FahrerPeakStunden[] = Object.entries(byFahrer).map(([fahrer_id, v]) => {
+      const stunden = v.counts.map(c => v.total > 0 ? Math.round((c / v.total) * 100) : 0);
+      let top_stunde = 0;
+      let top_pct = 0;
+      stunden.forEach((p, i) => { if (p > top_pct) { top_pct = p; top_stunde = i; } });
+      return { fahrer_id, fahrer_name: v.name, stunden, top_stunde, top_pct, gesamt_touren: v.total };
     });
 
-    fahrer.sort((a, b) => b.top_pct - a.top_pct);
-
-    const stunden_stats: StundeStat[] = Array.from({ length: 24 }, (_, h) => {
-      if (!fahrer.length) return { stunde: h, team_avg: 0, top_fahrer: '', top_pct: 0 };
-      const avg = Math.round(fahrer.reduce((s, f) => s + f.stunden[h], 0) / fahrer.length);
-      const top = fahrer.reduce((a, b) => (a.stunden[h] >= b.stunden[h] ? a : b));
-      return { stunde: h, team_avg: avg, top_fahrer: top.fahrer_name, top_pct: top.stunden[h] };
+    const stunden_stats: StundenStat[] = Array.from({ length: 24 }, (_, h) => {
+      const vals = fahrer.map(f => f.stunden[h]);
+      const team_avg = vals.length > 0 ? Math.round(vals.reduce((s, v) => s + v, 0) / vals.length) : 0;
+      const top = fahrer.reduce((best, f) => f.stunden[h] > best.stunden[h] ? f : best, fahrer[0]);
+      return { stunde: h, team_avg, top_fahrer: top?.fahrer_name ?? '', top_pct: top?.stunden[h] ?? 0 };
     });
 
-    return NextResponse.json({ fahrer, stunden_stats, gesamt: fahrer.length });
+    return NextResponse.json({ fahrer, stunden_stats, gesamt: fahrer.length } satisfies ApiResponse);
   } catch {
-    return NextResponse.json(buildMock());
+    return NextResponse.json(MOCK);
   }
 }

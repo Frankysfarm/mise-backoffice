@@ -12324,7 +12324,7 @@ export { KitchenPhase4646SamstagNachtTicker } from './phase4646-samstag-nacht-ti
 export { KitchenPhase4651SonntagNachtTicker } from './phase4651-sonntag-nacht-ticker';
 // Phase 4656 — Wochentag-Ticker (Moon indigo-900; Bester-Tag Name+%; 7-Tage mini-Balken; 30-Min-Polling)
 export { KitchenPhase4656WochentagTicker } from './phase4656-wochentag-ticker';
-// Phase 4661 — Peak-Stunden-Ticker (Moon indigo-900; Top-Stunde Name+%; 24h mini-Balken; 30-Min-Polling)
+// Phase 4661 — Peak-Stunden-Ticker (Clock indigo-900; Top-Stunde Name+%; 24h mini-Balken; Team-Ø; 30-Min-Polling)
 export { KitchenPhase4661PeakStundenTicker } from './phase4661-peak-stunden-ticker';
 // Phase 4651 — Smart-Timing Countdown Live v9 (ChefHat indigo; Score-Anzeige; Alert-Banner rot; 4-KPI-Grid grün/gelb/rot; Countdown-Kacheln 4-stufig prioritätssortiert Farbkodierung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4651SmartTimingCountdownLiveV9 } from './phase4651-smart-timing-countdown-live-v9';
