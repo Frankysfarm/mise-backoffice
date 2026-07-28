@@ -1211,6 +1211,7 @@ import { DispatchPhase4473PuenktlichkeitBoard } from './phase4473-puenktlichkeit
 import { DispatchPhase4478ErstlieferungBoard } from './phase4478-erstlieferung-board';
 import { DispatchPhase4483StornoBoard } from './phase4483-storno-board';
 import { DispatchPhase4488ReklamationBoard } from './phase4488-reklamation-board';
+import { DispatchPhase4493BewertungBoard } from './phase4493-bewertung-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5063,6 +5064,8 @@ export function DispatchBoard({
           <DispatchPhase4483StornoBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4488: Reklamations-Quote-Board — MessageSquareWarning orange-500; INVERTED Rang 1=niedrigste Reklamationsquote; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert Hohe Reklamationsquote; 30-Min-Polling */}
           <DispatchPhase4488ReklamationBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4493: Bewertungs-Schnitt-Board — Star yellow-500; absteigend Rang 1=höchste Bewertung; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrige Bewertung; 30-Min-Polling */}
+          <DispatchPhase4493BewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13591,3 +13594,5 @@ export { DispatchPhase4478ErstlieferungBoard } from './phase4478-erstlieferung-b
 export { DispatchPhase4483StornoBoard } from './phase4483-storno-board';
 // Phase 4488 — Reklamations-Quote-Board (MessageSquareWarning orange-500; INVERTED Rang 1=niedrigste Reklamationsquote; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert Hohe Reklamationsquote; 30-Min-Polling)
 export { DispatchPhase4488ReklamationBoard } from './phase4488-reklamation-board';
+// Phase 4493 — Bewertungs-Schnitt-Board (Star yellow-500; absteigend Rang 1=höchste Bewertung; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrige Bewertung; 30-Min-Polling)
+export { DispatchPhase4493BewertungBoard } from './phase4493-bewertung-board';
