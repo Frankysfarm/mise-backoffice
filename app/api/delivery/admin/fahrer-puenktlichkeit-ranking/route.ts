@@ -1,124 +1,151 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const locationId = searchParams.get('location_id');
+interface FahrerRow {
+  fahrer_id: string;
+  fahrer_name: string;
+  rang: number;
+  puenktlichkeit_pct: number;
+  rank_delta: number;
+  ampel: 'gruen' | 'gelb' | 'rot';
+  alert_niedrig: boolean;
+}
+
+interface ApiResponse {
+  fahrer: FahrerRow[];
+  team_avg_pct: number;
+  bester_name: string;
+  letzter_name: string;
+  alert_count: number;
+  gesamt: number;
+}
+
+const MOCK_DATA: ApiResponse = {
+  fahrer: [
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, puenktlichkeit_pct: 94, rank_delta:  1, ampel: 'gruen', alert_niedrig: false },
+    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 2, puenktlichkeit_pct: 89, rank_delta:  0, ampel: 'gruen', alert_niedrig: false },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 3, puenktlichkeit_pct: 82, rank_delta: -1, ampel: 'gelb',  alert_niedrig: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, puenktlichkeit_pct: 71, rank_delta:  0, ampel: 'rot',   alert_niedrig: true  },
+  ],
+  team_avg_pct: 84,
+  bester_name: 'Julia F.',
+  letzter_name: 'Tim B.',
+  alert_count: 0,
+  gesamt: 4,
+};
+
+function ampelVon(rang: number, total: number): 'gruen' | 'gelb' | 'rot' {
+  const pct = rang / total;
+  if (pct <= 0.25) return 'gruen';
+  if (pct <= 0.75) return 'gelb';
+  return 'rot';
+}
+
+export async function GET(req: NextRequest) {
+  const locationId = req.nextUrl.searchParams.get('location_id');
+  const driverId   = req.nextUrl.searchParams.get('driver_id');
+  if (!locationId) return NextResponse.json(MOCK_DATA);
 
   try {
     const supabase = await createClient();
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const cur30Start  = new Date(Date.now() - 30 * 86400000).toISOString();
+    const prev30Start = new Date(Date.now() - 60 * 86400000).toISOString();
 
-    let query = supabase
-      .from('delivery_orders')
-      .select('driver_id, delivered_at, promised_at, drivers(name)')
-      .gte('delivered_at', thirtyDaysAgo.toISOString())
-      .not('driver_id', 'is', null)
-      .not('delivered_at', 'is', null)
-      .not('promised_at', 'is', null);
+    const [curRes, prevRes] = await Promise.all([
+      supabase
+        .from('orders')
+        .select('driver_id, driver_name, delivered_at, promised_at')
+        .eq('location_id', locationId)
+        .eq('status', 'delivered')
+        .gte('created_at', cur30Start)
+        .not('driver_id', 'is', null)
+        .not('delivered_at', 'is', null)
+        .not('promised_at', 'is', null),
+      supabase
+        .from('orders')
+        .select('driver_id, delivered_at, promised_at')
+        .eq('location_id', locationId)
+        .eq('status', 'delivered')
+        .gte('created_at', prev30Start)
+        .lt('created_at', cur30Start)
+        .not('driver_id', 'is', null)
+        .not('delivered_at', 'is', null)
+        .not('promised_at', 'is', null),
+    ]);
 
-    if (locationId) {
-      query = query.eq('location_id', locationId);
+    const curData = curRes.data ?? [];
+    if (!curData.length) return NextResponse.json(MOCK_DATA);
+
+    const groupCur = new Map<string, { name: string; total: number; onTime: number }>();
+    for (const o of curData) {
+      if (!o.driver_id) continue;
+      const entry = groupCur.get(o.driver_id) ?? { name: o.driver_name ?? o.driver_id, total: 0, onTime: 0 };
+      entry.total += 1;
+      if (new Date(o.delivered_at) <= new Date(o.promised_at)) entry.onTime += 1;
+      groupCur.set(o.driver_id, entry);
+    }
+    if (!groupCur.size) return NextResponse.json(MOCK_DATA);
+
+    const groupPrev = new Map<string, { total: number; onTime: number }>();
+    for (const o of prevRes.data ?? []) {
+      if (!o.driver_id) continue;
+      const entry = groupPrev.get(o.driver_id) ?? { total: 0, onTime: 0 };
+      entry.total += 1;
+      if (new Date(o.delivered_at) <= new Date(o.promised_at)) entry.onTime += 1;
+      groupPrev.set(o.driver_id, entry);
     }
 
-    const { data, error } = await query;
-
-    if (error) throw error;
-
-    type OrderRow = {
-      driver_id: string;
-      delivered_at: string;
-      promised_at: string;
-      drivers?: { name: string } | null;
-    };
-
-    const driverMap = new Map<string, { name: string; total: number; on_time: number }>();
-
-    (data ?? []).forEach((row: OrderRow) => {
-      if (!row.driver_id) return;
-      const name = (row.drivers as { name: string } | null)?.name ?? row.driver_id;
-      const existing = driverMap.get(row.driver_id) ?? { name, total: 0, on_time: 0 };
-      existing.total += 1;
-      if (new Date(row.delivered_at) <= new Date(row.promised_at)) {
-        existing.on_time += 1;
-      }
-      driverMap.set(row.driver_id, existing);
-    });
-
-    let ranking = Array.from(driverMap.entries()).map(([driver_id, d]) => ({
-      driver_id,
-      name: d.name,
-      puenktlichkeit_pct: d.total > 0 ? Math.round((d.on_time / d.total) * 100) : 0,
-      total: d.total,
-      on_time: d.on_time,
+    const unsorted = Array.from(groupCur.entries()).map(([id, v]) => ({
+      fahrer_id:        id,
+      fahrer_name:      v.name || id.slice(0, 8),
+      puenktlichkeit_pct: v.total > 0 ? Math.round((v.onTime / v.total) * 100) : 0,
     }));
 
-    if (ranking.length === 0) {
-      ranking = [
-        { driver_id: 'mock-1', name: 'Tim', puenktlichkeit_pct: 96, total: 120, on_time: 115 },
-        { driver_id: 'mock-2', name: 'Max', puenktlichkeit_pct: 91, total: 110, on_time: 100 },
-        { driver_id: 'mock-3', name: 'Julia', puenktlichkeit_pct: 84, total: 100, on_time: 84 },
-        { driver_id: 'mock-4', name: 'Sara', puenktlichkeit_pct: 76, total: 90, on_time: 68 },
-      ];
-    }
-
     // absteigend: Rang 1 = höchste Pünktlichkeit = bester
-    ranking.sort((a, b) => b.puenktlichkeit_pct - a.puenktlichkeit_pct);
+    const sorted = [...unsorted].sort((a, b) => b.puenktlichkeit_pct - a.puenktlichkeit_pct);
+    const total  = sorted.length;
 
-    const maxVal = ranking[0]?.puenktlichkeit_pct ?? 1;
-    const total = ranking.length;
-    const q1 = Math.ceil(total * 0.25);
-    const q3 = Math.ceil(total * 0.75);
+    const prevSorted = [...unsorted].map(f => {
+      const p = groupPrev.get(f.fahrer_id);
+      const pPct = p && p.total > 0 ? Math.round((p.onTime / p.total) * 100) : f.puenktlichkeit_pct;
+      return { fahrer_id: f.fahrer_id, puenktlichkeit_pct: pPct };
+    }).sort((a, b) => b.puenktlichkeit_pct - a.puenktlichkeit_pct);
+    const prevRanks = new Map(prevSorted.map((f, i) => [f.fahrer_id, i + 1]));
 
-    const ranked = ranking.map((f, i) => {
-      const rang = i + 1;
-      const ampel: 'gruen' | 'gelb' | 'rot' = rang <= q1 ? 'gruen' : rang >= q3 ? 'rot' : 'gelb';
-      const alert = f.puenktlichkeit_pct < 85 ? 'Pünktlichkeitsproblem!' : null;
+    let fahrer: FahrerRow[] = sorted.map((f, i) => {
+      const rang     = i + 1;
+      const prevRang = prevRanks.get(f.fahrer_id) ?? rang;
+      const ampel    = ampelVon(rang, total);
       return {
-        driver_id: f.driver_id,
-        name: f.name,
+        fahrer_id:          f.fahrer_id,
+        fahrer_name:        f.fahrer_name,
         rang,
         puenktlichkeit_pct: f.puenktlichkeit_pct,
-        total: f.total,
-        on_time: f.on_time,
-        balken_pct: Math.round((f.puenktlichkeit_pct / maxVal) * 100),
+        rank_delta:         prevRang - rang,
         ampel,
-        alert,
-        rank_delta: 0,
+        alert_niedrig:      f.puenktlichkeit_pct < 80,
       };
     });
 
-    const team_avg = Math.round(
-      ranking.reduce((s, f) => s + f.puenktlichkeit_pct, 0) / (ranking.length || 1)
+    if (driverId) fahrer = fahrer.filter(f => f.fahrer_id === driverId);
+    if (!fahrer.length) return NextResponse.json(MOCK_DATA);
+
+    const teamAvg = Math.round(
+      sorted.reduce((s, f) => s + f.puenktlichkeit_pct, 0) / total
     );
 
-    const alert_count = ranked.filter(f => f.alert).length;
-
     return NextResponse.json({
-      ranking: ranked,
-      team_avg,
-      alert_count,
-      bester_name: ranked[0]?.name ?? '',
-      letzter_name: ranked[ranked.length - 1]?.name ?? '',
-      gesamt: ranked.length,
-    });
+      fahrer,
+      team_avg_pct:  teamAvg,
+      bester_name:   sorted[0]?.fahrer_name ?? '',
+      letzter_name:  sorted[total - 1]?.fahrer_name ?? '',
+      alert_count:   teamAvg < 80 ? 1 : 0,
+      gesamt:        total,
+    } satisfies ApiResponse);
   } catch {
-    return NextResponse.json({
-      ranking: [
-        { driver_id: 'mock-1', name: 'Tim', rang: 1, puenktlichkeit_pct: 96, total: 120, on_time: 115, balken_pct: 100, ampel: 'gruen', alert: null, rank_delta: 0 },
-        { driver_id: 'mock-2', name: 'Max', rang: 2, puenktlichkeit_pct: 91, total: 110, on_time: 100, balken_pct: 95, ampel: 'gruen', alert: null, rank_delta: 0 },
-        { driver_id: 'mock-3', name: 'Julia', rang: 3, puenktlichkeit_pct: 84, total: 100, on_time: 84, balken_pct: 88, ampel: 'gelb', alert: 'Pünktlichkeitsproblem!', rank_delta: 0 },
-        { driver_id: 'mock-4', name: 'Sara', rang: 4, puenktlichkeit_pct: 76, total: 90, on_time: 68, balken_pct: 79, ampel: 'rot', alert: 'Pünktlichkeitsproblem!', rank_delta: 0 },
-      ],
-      team_avg: 87,
-      alert_count: 2,
-      bester_name: 'Tim',
-      letzter_name: 'Sara',
-      gesamt: 4,
-    });
+    return NextResponse.json(MOCK_DATA);
   }
 }
