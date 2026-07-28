@@ -13770,3 +13770,5 @@ export { DispatchPhase4663WochenendVergleich } from './phase4663-wochenend-vergl
 export { DispatchPhase4668UmsatzProStundeBoard } from './phase4668-umsatz-pro-stunde-board';
 // Phase 4643 — Tour-Score KPI Board (Trophy violet; Score-Anzeige je Fahrer 4-stufig; Fortschrittsbalken Stopps; ETA-Sync; Alert unter Ziel; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4643TourScoreKpiBoard } from './phase4643-tour-score-kpi-board';
+// Phase 4680 — Tour-Score Live Panel (Trophy indigo; Team-Ø Score Header; Fahrer-Score-Ringe 4-stufig Ampel; Aufklappbare Stop-Zeitlinie mit Echtzeit-Status; Score-Detail-Bars; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4680TourScoreLive } from './phase4680-tour-score-live';

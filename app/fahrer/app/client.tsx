@@ -11643,3 +11643,5 @@ export { FahrerPhase4649SmartTourNavigationHub } from './phase4649-smart-tour-na
 export { FahrerPhase4584TourStoppNavigationHub } from './phase4584-tour-stopp-navigation-hub';
 // Phase 4613 — Smart Tour-Stopp Navigator (Navigation indigo; Fortschritts-Header mit Score; Farbkodierte Stop-Timeline Karten; Aktiver Stopp blau+hervorgehoben; Aufklapp-Detail mit Notiz/Zahlung/Navigation-CTA; Google-Maps-Integration; 30-Sek-Polling; Mock-Fallback)
 export { Phase4613SmartTourStoppNavigator } from './phase4613-smart-tour-stopp-navigator';
+// Phase 1030 — Smart Tour-Stops Hub (Route matcha; Tour-Header Fortschrittsbalken+Stopp-Zähler+Elapsed; Aktueller-Stopp-Hero mit ETA-Ring+Adresse+Navi-CTA+Anruf+Geliefert-Button; Nächster-Stopp-Preview; Mini-Stop-Chips; Bestätigungs-Dialog; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase1030SmartTourStopsHub } from './phase1030-smart-tour-stops-hub';

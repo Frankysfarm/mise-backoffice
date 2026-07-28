@@ -5012,3 +5012,5 @@ export { LieferdienstPhase4500StatistikIntelligenceMaster } from './phase4500-st
 export { LieferdienstPhase4615StatistikenLiveDashboard } from './phase4615-statistiken-live-dashboard';
 // Phase 4620 — Statistiken Live Dashboard v2 (BarChart2 indigo; Gesamt-Score; Alert-Strip; 6-KPI-Grid 3-spaltig Ampel+Δ%+Icon; BarChart umschaltbar Bestellungen/Umsatz letzte Stunde; 30-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4620StatistikenLiveDashboardV2 } from './phase4620-statistiken-live-dashboard-v2';
+// Phase 4680 — Schicht-KPI-Dashboard (TrendingUp matcha; 6-KPI-Grid 3-spaltig Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit/Fahrer/Storno; Stundenverlauf-BarChart peak-highlighted; Top-Fahrer; 30-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4680ShiftKpiDashboard } from './phase4680-shift-kpi-dashboard';

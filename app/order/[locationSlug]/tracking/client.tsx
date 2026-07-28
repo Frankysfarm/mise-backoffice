@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { LiveDriverKarte } from '../live-driver-karte';
+import { LiveFahrerAnnaeherung } from '../live-fahrer-annaeherung';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 
@@ -297,6 +298,14 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
             </div>
           </div>
         )}
+
+        {/* Live Fahrer-Annäherung — erscheint wenn Fahrer < 5 Minuten entfernt */}
+        <LiveFahrerAnnaeherung
+          etaEarliest={order.eta_earliest}
+          driverName={order.driver_name ?? null}
+          isOnTheWay={isOnTheWay}
+          secRemain={secRemain}
+        />
 
         {/* Driver info — Live-Karte mit Kompass-Ring */}
         {isOnTheWay && (

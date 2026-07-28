@@ -12342,3 +12342,5 @@ export { KitchenPhase4651SmartTimingCountdownLiveV9 } from './phase4651-smart-ti
 export { KitchenPhase4586SmartTimingMasterCockpit } from './phase4586-smart-timing-master-cockpit';
 // Phase 4611 — Smart Countdown Farbkodierung Live (Timer indigo; 3-KPI-Strip Score/Pünktlichkeit/AvgPrep; Farbkodierte Countdown-Kacheln 6-stufig Ampel; Prioritätssortierung überfällig→wartend→bereit; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4611SmartCountdownFarbkodierungLive } from './phase4611-smart-countdown-farbkodierung-live';
+// Phase 4680 — Smart Timing Hub (Timer indigo; 4-KPI-Strip Aktiv/Überfällig/Fertig/Pünktl; Farbkodierte Order-Kacheln 6-stufig Ampel+Urgency; Prep-Fortschrittsbalken; Fahrer-ETA-Badge; Prioritätssortierung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4680SmartTimingHub } from './phase4680-smart-timing-hub';
