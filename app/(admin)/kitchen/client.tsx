@@ -1183,6 +1183,7 @@ import { KitchenPhase4626DienstagNachtTicker } from './phase4626-dienstag-nacht-
 import { KitchenPhase4631MittwochNachtTicker } from './phase4631-mittwoch-nacht-ticker';
 import { KitchenPhase4636DonnerstagNachtTicker } from './phase4636-donnerstag-nacht-ticker';
 import { KitchenPhase4641FreitagNachtTicker } from './phase4641-freitag-nacht-ticker';
+import { KitchenPhase4646SamstagNachtTicker } from './phase4646-samstag-nacht-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4735,6 +4736,8 @@ export function KitchenBoard({
       <KitchenPhase4636DonnerstagNachtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4641: Freitagnacht-Ticker — Moon emerald-700; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥22%; 30-Min-Polling */}
       <KitchenPhase4641FreitagNachtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4646: Samstagnacht-Ticker — Moon fuchsia-800; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥28%; 30-Min-Polling */}
+      <KitchenPhase4646SamstagNachtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12306,6 +12309,8 @@ export { KitchenPhase4631MittwochNachtTicker } from './phase4631-mittwoch-nacht-
 export { KitchenPhase4636DonnerstagNachtTicker } from './phase4636-donnerstag-nacht-ticker';
 // Phase 4641 — Freitagnacht-Ticker (Moon emerald-700; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥22%; 30-Min-Polling)
 export { KitchenPhase4641FreitagNachtTicker } from './phase4641-freitag-nacht-ticker';
+// Phase 4646 — Samstagnacht-Ticker (Moon fuchsia-800; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥28%; 30-Min-Polling)
+export { KitchenPhase4646SamstagNachtTicker } from './phase4646-samstag-nacht-ticker';
 // Phase 4586 — Smart-Timing Master Cockpit (Timer indigo; 4-KPI-Grid Score/On-Time/Prep/Queue+15min; Score-Balken; Countdown-Kacheln 5-stufig prioritätssortiert; Komplexitäts-Indikator; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4586SmartTimingMasterCockpit } from './phase4586-smart-timing-master-cockpit';
 // Phase 4611 — Smart Countdown Farbkodierung Live (Timer indigo; 3-KPI-Strip Score/Pünktlichkeit/AvgPrep; Farbkodierte Countdown-Kacheln 6-stufig Ampel; Prioritätssortierung überfällig→wartend→bereit; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
