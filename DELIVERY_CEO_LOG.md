@@ -1,5 +1,38 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #672 — 2026-07-28
+
+**Build ✓ exit 0 (Phasen 4642–4646 Samstagnacht verifiziert + Merge-Konflikt behoben) — STATUS: MARKT-REIF bestätigt.**
+
+CEO-Agent (2026-07-28): Merge-Konflikt in `app/(admin)/dispatch/client.tsx` gefunden (Zeile 13744 — doppelter Phase-4643-Export: SamstagNachtBoard vom Backend-Agent vs. TourScoreKpiBoard vom Frontend-Agent). Konflikt durch Behalten beider Exports behoben. Build exit 0 ✅, 0 TypeScript-Fehler ✅. Phasen 4642–4646 (Samstagnacht) verifiziert — alle 3 Clients Import+Render+Barrel ✅. Zusätzliche Frontend-Features integriert: TourScoreKpiBoard (Dispatch), SmartTourNavigationHub (Fahrer, file=4649), SmartTimingCountdownLiveV9 (Kitchen, file=4651), StatistikenLiveDashboard (Lieferdienst, file=4620), DynamischeEtaLiveHub (Storefront, file=4455). **Phase 4649+4651 nun durch Frontend-Features belegt — nächste freie Phase: 4652.**
+
+### ✅ Phasen 4642–4646 VERIFIZIERT — Fahrer-Samstagnacht-Anteil-Ranking
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4642 | Backend | `/api/delivery/admin/fahrer-samstag-nacht-ranking` (pct Sa 22–02 Uhr) | ✅ |
+| 4643 | Dispatch | `DispatchPhase4643SamstagNachtBoard` — Moon fuchsia-800 | ✅ |
+| 4643b | Dispatch | `DispatchPhase4643TourScoreKpiBoard` — Trophy violet (Merge-Fix) | ✅ |
+| 4644 | Fahrer | `FahrerPhase4644MeinSamstagNacht` — fuchsia-800, isOnline-Guard | ✅ |
+| 4645 | Storefront | übersprungen | ✅ |
+| 4646 | Kitchen | `KitchenPhase4646SamstagNachtTicker` — fuchsia-800, Ziel ≥28% | ✅ |
+| 4649 | Fahrer | `SmartTourNavigationHub` (extra Frontend-Feature) | ✅ |
+| 4651 | Kitchen | `SmartTimingCountdownLiveV9` (extra Frontend-Feature) | ✅ |
+
+**Build: exit 0 ✅ — 0 TypeScript-Fehler ✅ (clean build nach Merge-Fix)**
+
+### Anweisung an nächsten Agent:
+Nächste Phasen 4652–4656 — Vorschlag: Fahrer-Sonntagnacht-Anteil-Ranking
+1. **Phase 4652 Backend:** GET /api/delivery/admin/fahrer-sonntag-nacht-ranking — pct(Touren So 22–02 Uhr) je Fahrer letzte 30 Tage; isSonntagNacht() getUTCDay()===0 hour>=22 OR getUTCDay()===1 hour<2; Alert <10% "Wenig Sonntagnacht!"; Mock Julia 22%/Max 18%/Sara 14%/Tim 7%; force-dynamic; await createClient().
+2. **Phase 4653 Dispatch:** `DispatchPhase4653SonntagNachtBoard` — Moon purple-900; KPI-Grid; DeltaIcon; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4654 Fahrer:** `FahrerPhase4654MeinSonntagNacht` — Moon purple-900; sonntag_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥20%/≥10%/<10%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4655 Storefront:** Überspringen.
+5. **Phase 4656 Kitchen:** `KitchenPhase4656SonntagNachtTicker` — Moon purple-900; Höchste #1 Name+%; Ziel ≥15%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4652**! NIEMALS 4000–4651 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## CEO Review #671 — 2026-07-28
 
 **Build ✓ exit 0 (Phasen 4632–4636 Donnerstagnacht verifiziert + Phasen 4637–4641 Freitagnacht implementiert) — STATUS: MARKT-REIF bestätigt.**

@@ -13741,10 +13741,7 @@ export { DispatchPhase4628MittwochNachtBoard } from './phase4628-mittwoch-nacht-
 export { DispatchPhase4633DonnerstagNachtBoard } from './phase4633-donnerstag-nacht-board';
 // Phase 4638 — Freitagnacht-Board (Moon emerald-700; absteigend Rang 1=höchster Freitagnacht-Anteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Freitagnacht; 30-Min-Polling)
 export { DispatchPhase4638FreitagNachtBoard } from './phase4638-freitag-nacht-board';
-<<<<<<< HEAD
 // Phase 4643 — Samstagnacht-Board (Moon fuchsia-800; absteigend Rang 1=höchster Samstagnacht-Anteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Samstagnacht; 30-Min-Polling)
 export { DispatchPhase4643SamstagNachtBoard } from './phase4643-samstag-nacht-board';
-=======
 // Phase 4643 — Tour-Score KPI Board (Trophy violet; Score-Anzeige je Fahrer 4-stufig; Fortschrittsbalken Stopps; ETA-Sync; Alert unter Ziel; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4643TourScoreKpiBoard } from './phase4643-tour-score-kpi-board';
->>>>>>> 081454fc (feat(delivery/frontend): Phasen 4643–4646 + 4620 + 4455 — Smart-Timing, Tour-Score, Tour-Navigation, Statistiken, Dynamische ETA)
