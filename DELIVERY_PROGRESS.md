@@ -33449,3 +33449,42 @@ KRITISCH: Nächste freie Phase ist **4667**! NIEMALS 4000–4666 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+---
+
+## Batch 4667–4671 — Fahrer-Umsatz-pro-Stunde-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4667 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-umsatz-pro-stunde/route.ts`
+**Status:** Bereits vorhanden aus Phase 3623. Reused. Schema: `{ location_id, fahrer: [{fahrer_id, fahrer_name, umsatz_pro_stunde, rang, ampel, gesamt_umsatz, schicht_stunden, rank_delta}], team_avg_umsatz, alert_count, generiert_am }`; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Mock Julia 42€/h, Sara 38€/h, Max 35€/h, Tim 28€/h; force-dynamic ✅; await createClient() ✅
+
+### Phase 4668 — Umsatz/h Board (Dispatch)
+**Component:** `DispatchPhase4668UmsatzProStundeBoard` — Moon amber-800; absteigend Rang 1=höchster €/h; KPI-Grid Höchste(Name)/Team-Avg/Niedrigste(Name); DeltaIcon TrendingUp/Down/Minus je Rang; Alert "X Fahrer mit niedrigem Umsatz/h" wenn alert_count>0; Balken farbkodiert amber-500; Ziel ≥20€/h Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4669 — Mein Umsatz/h (Fahrer)
+**Component:** `FahrerPhase4669MeinUmsatzProStunde` — Moon amber-800; €/h 5xl + Rang 2xl farbkodiert (grün/gelb/rot); isOnline-Guard; WifiOff-Fallback; driverId-Filter; Mini-Bar-Vergleich Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≥22€/≥16€/<16€); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4670 — Storefront
+Übersprungen ✅
+
+### Phase 4671 — Umsatz/h-Ticker (Kitchen)
+**Component:** `KitchenPhase4671UmsatzProStundeTicker` — Moon amber-800; Leader #1 Name+€/h; Team-Avg; Ziel ≥20€/h mit zielDiff grün(+)/rot(-); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4671 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665, 4670 übersprungen)
+- **Nächste freie Phase: 4672**
+
+### Nächste Phasen 4672–4676 — Vorschlag: Fahrer-Durchschnittliche-Bewertung-pro-Tour-Ranking
+1. **Phase 4672 Backend:** GET /api/delivery/admin/fahrer-bewertung-ranking — avg(customer_rating) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Bewertung=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert <4.0 "Niedrige Bewertung!"; Mock Julia 4.9/Max 4.7/Sara 4.3/Tim 3.8; force-dynamic; await createClient().
+2. **Phase 4673 Dispatch:** `DispatchPhase4673BewertungBoard` — Moon rose-900; absteigend Rang 1=höchste Bewertung; KPI-Grid Höchste/Team-Avg/Niedrigste; Sterne-Anzeige; Alert Niedrige Bewertung; Balken; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4674 Fahrer:** `FahrerPhase4674MeineBewertung` — Moon rose-900; Ø-Bewertung 5xl+Rang 2xl; isOnline-Guard; Sterne-Visualisierung; Coaching 3 Stufen (≥4.8/≥4.5/<4.5); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4675 Storefront:** Überspringen.
+5. **Phase 4676 Kitchen:** `KitchenPhase4676BewertungTicker` — Moon rose-900; Leader #1 Name+Sterne; Team-Avg; Alert Niedrige Bewertung; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4672**! NIEMALS 4000–4671 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
