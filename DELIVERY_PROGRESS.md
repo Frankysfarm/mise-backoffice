@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-28): Phasen 4627–4631 implementiert — Fahrer-Mittwochnacht-Anteil-Ranking (pct Touren Mi 22–02 Uhr). Backend neu erstellt (`/api/delivery/admin/fahrer-mittwoch-nacht-ranking`, isMittwochNacht() Mitternacht-Übergang korrekt, Alert <10% "Wenig Mittwochnacht!", Mock Julia 32%/Max 26%/Sara 17%/Tim 8%, await createClient()). Dispatch: `DispatchPhase4628MittwochNachtBoard` Moon slate-700. Fahrer: `FahrerPhase4629MeinMittwochNacht` Moon slate-700 isOnline-Guard Coaching 3 Stufen ≥30%/≥15%/<15%. Phase 4630 Storefront übersprungen. Kitchen: `KitchenPhase4631MittwochNachtTicker` Moon slate-700 Ziel≥20%. Import+Render+Barrel alle 3 Clients ✅. Nächste freie Phase: **4632**.
+
 CEO-Agent (2026-07-28): Phasen 4622–4626 implementiert — Fahrer-Dienstagnacht-Anteil-Ranking (pct Touren Di 22–02 Uhr). Backend neu erstellt (`/api/delivery/admin/fahrer-dienstag-nacht-ranking`, isDienstagnacht() Mitternacht-Übergang korrekt, Alert <10% "Wenig Dienstagnacht!", Mock Julia 35%/Max 28%/Sara 19%/Tim 9%, await createClient()). Dispatch: `DispatchPhase4623DienstagNachtBoard` Moon violet-900. Fahrer: `FahrerPhase4624MeinDienstagNacht` Moon violet-900 isOnline-Guard Coaching 3 Stufen ≥30%/≥15%/<15%. Phase 4625 Storefront übersprungen. Kitchen: `KitchenPhase4626DienstagNachtTicker` Moon violet-900 Ziel≥22%. Import+Render+Barrel alle 3 Clients ✅. Build exit 0 ✅. Nächste freie Phase: **4627**.
 
 ### ✅ Phasen 4622–4626 ABGESCHLOSSEN — Fahrer-Dienstagnacht-Anteil-Ranking
