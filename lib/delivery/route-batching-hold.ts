@@ -3,6 +3,14 @@ import { haversineApproxKm } from './intelligent-dispatch';
 export type RoutePoint = { id: string; lat: number; lng: number };
 export type RouteLeg = { distanceKm: number; durationMinutes: number; source: 'road_matrix' | 'conservative_fallback' };
 export type RouteMatrix = Readonly<Record<string, RouteLeg>>;
+export type RouteMaterialEvent =
+  | 'order_added'
+  | 'stop_completed'
+  | 'pickup_ready_changed'
+  | 'deadline_changed'
+  | 'traffic_changed'
+  | 'driver_off_route'
+  | 'timer_tick';
 export type RouteStop = {
   id: string; orderId: string; kind: 'pickup' | 'dropoff'; point: RoutePoint;
   serviceMinutes: number; readyAt?: string | null; deadlineAt?: string | null;
@@ -10,6 +18,81 @@ export type RouteStop = {
 
 export function routeKey(from: RoutePoint, to: RoutePoint) {
   return `${from.id}->${to.id}`;
+}
+
+export class BoundedRouteMatrixCache {
+  private readonly values = new Map<string, { leg: RouteLeg; expiresAtMs: number }>();
+
+  constructor(
+    private readonly maxEntries: number,
+    private readonly ttlMs: number,
+  ) {
+    if (!Number.isInteger(maxEntries) || maxEntries < 1 || ttlMs < 1) {
+      throw new Error('INVALID_ROUTE_CACHE_CONFIG');
+    }
+  }
+
+  get(from: RoutePoint, to: RoutePoint, nowMs = Date.now()): RouteLeg | null {
+    const key = routeKey(from, to);
+    const value = this.values.get(key);
+    if (!value) return null;
+    if (value.expiresAtMs <= nowMs) {
+      this.values.delete(key);
+      return null;
+    }
+    // Refresh insertion order so eviction is deterministic LRU.
+    this.values.delete(key);
+    this.values.set(key, value);
+    return value.leg;
+  }
+
+  set(from: RoutePoint, to: RoutePoint, leg: RouteLeg, nowMs = Date.now()): void {
+    const key = routeKey(from, to);
+    this.values.delete(key);
+    this.values.set(key, { leg, expiresAtMs: nowMs + this.ttlMs });
+    while (this.values.size > this.maxEntries) {
+      const oldest = this.values.keys().next().value as string | undefined;
+      if (oldest === undefined) break;
+      this.values.delete(oldest);
+    }
+  }
+
+  get size(): number {
+    return this.values.size;
+  }
+}
+
+export function shouldRecomputeRoute(input: {
+  event: RouteMaterialEvent;
+  currentInputVersion: number;
+  nextInputVersion: number;
+  previousTotalMinutes: number | null;
+  proposedTotalMinutes: number | null;
+  minimumImprovementMinutes: number;
+}): { recompute: boolean; replacePlan: boolean; reasonCode: string } {
+  if (input.nextInputVersion <= input.currentInputVersion) {
+    return { recompute: false, replacePlan: false, reasonCode: 'STALE_OR_DUPLICATE_EVENT' };
+  }
+  if (input.event === 'timer_tick') {
+    return { recompute: false, replacePlan: false, reasonCode: 'NON_MATERIAL_EVENT' };
+  }
+  if (input.proposedTotalMinutes == null || !Number.isFinite(input.proposedTotalMinutes)) {
+    return { recompute: true, replacePlan: false, reasonCode: 'PROPOSED_ROUTE_INVALID' };
+  }
+  if (input.previousTotalMinutes == null || !Number.isFinite(input.previousTotalMinutes)) {
+    return { recompute: true, replacePlan: true, reasonCode: 'INITIAL_ROUTE_PLAN' };
+  }
+  const improvement = input.previousTotalMinutes - input.proposedTotalMinutes;
+  const safetyEvent = input.event === 'deadline_changed' ||
+    input.event === 'driver_off_route' || input.event === 'stop_completed';
+  if (!safetyEvent && improvement < Math.max(0, input.minimumImprovementMinutes)) {
+    return { recompute: true, replacePlan: false, reasonCode: 'HYSTERESIS_RETAINED' };
+  }
+  return {
+    recompute: true,
+    replacePlan: true,
+    reasonCode: safetyEvent ? 'SAFETY_EVENT_REPLAN' : 'MATERIAL_IMPROVEMENT',
+  };
 }
 
 export function resolveRouteLeg(

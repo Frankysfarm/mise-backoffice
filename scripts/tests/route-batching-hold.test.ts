@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {
-  decideKitchenHold, evaluateBestInsertion, resolveRouteLeg, type RoutePoint, type RouteStop,
+  BoundedRouteMatrixCache, decideKitchenHold, evaluateBestInsertion, resolveRouteLeg,
+  shouldRecomputeRoute, type RoutePoint, type RouteStop,
 } from '../../lib/delivery/route-batching-hold';
 
 const p = (id: string, lng: number): RoutePoint => ({ id, lat: 0, lng });
@@ -45,6 +46,34 @@ const road = resolveRouteLeg(p('a', 0), p('b', .03), {
 });
 assert.equal(road.durationMinutes, 25);
 assert.equal(resolveRouteLeg(p('x', 0), p('y', .03), {}).source, 'conservative_fallback');
+
+const cache = new BoundedRouteMatrixCache(2, 1000);
+cache.set(p('a', 0), p('b', 1), road, 100);
+assert.equal(cache.get(p('a', 0), p('b', 1), 1099)?.durationMinutes, 25);
+assert.equal(cache.get(p('a', 0), p('b', 1), 1100), null, 'TTL boundary must expire');
+cache.set(p('a', 0), p('b', 1), road, 2000);
+cache.set(p('b', 1), p('c', 2), road, 2000);
+cache.get(p('a', 0), p('b', 1), 2001);
+cache.set(p('c', 2), p('d', 3), road, 2001);
+assert.equal(cache.size, 2);
+assert.equal(cache.get(p('b', 1), p('c', 2), 2001), null, 'least recently used entry evicted');
+
+assert.equal(shouldRecomputeRoute({
+  event: 'timer_tick', currentInputVersion: 1, nextInputVersion: 2,
+  previousTotalMinutes: 20, proposedTotalMinutes: 19, minimumImprovementMinutes: 2,
+}).reasonCode, 'NON_MATERIAL_EVENT');
+assert.equal(shouldRecomputeRoute({
+  event: 'traffic_changed', currentInputVersion: 1, nextInputVersion: 2,
+  previousTotalMinutes: 20, proposedTotalMinutes: 19, minimumImprovementMinutes: 2,
+}).replacePlan, false, 'small route changes must not churn the plan');
+assert.equal(shouldRecomputeRoute({
+  event: 'deadline_changed', currentInputVersion: 2, nextInputVersion: 3,
+  previousTotalMinutes: 20, proposedTotalMinutes: 21, minimumImprovementMinutes: 2,
+}).replacePlan, true, 'deadline safety overrides optimization hysteresis');
+assert.equal(shouldRecomputeRoute({
+  event: 'order_added', currentInputVersion: 3, nextInputVersion: 3,
+  previousTotalMinutes: 20, proposedTotalMinutes: 15, minimumImprovementMinutes: 2,
+}).reasonCode, 'STALE_OR_DUPLICATE_EVENT');
 
 for (const lng of [.027, .135, .144, .18, .225]) {
   const decision = evaluateBestInsertion({ ...base,
