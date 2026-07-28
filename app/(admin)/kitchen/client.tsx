@@ -12371,3 +12371,5 @@ export { KitchenPhase4611SmartCountdownFarbkodierungLive } from './phase4611-sma
 export { KitchenPhase4700SmartTimingCountdownFarbkodierungV10 } from './phase4700-smart-timing-countdown-farbkodierung-v10';
 // Phase 4680 — Smart Timing Hub (Timer indigo; 4-KPI-Strip Aktiv/Überfällig/Fertig/Pünktl; Farbkodierte Order-Kacheln 6-stufig Ampel+Urgency; Prep-Fortschrittsbalken; Fahrer-ETA-Badge; Prioritätssortierung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4680SmartTimingHub } from './phase4680-smart-timing-hub';
+// Phase 4701 — Trinkgeld-Ticker (Moon emerald-900; Höchste #1 Name+€; Team-Avg; Alert niedrig; 30-Min-Polling)
+export { KitchenPhase4701TrinkgeldTicker } from './phase4701-trinkgeld-ticker';

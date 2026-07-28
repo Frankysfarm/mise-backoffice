@@ -11672,3 +11672,5 @@ export { Phase4613SmartTourStoppNavigator } from './phase4613-smart-tour-stopp-n
 export { FahrerPhase1030SmartTourStopsHub } from './phase1030-smart-tour-stops-hub';
 // Phase 1035 — Tour-Stopp Nav Hub Pro (Route blue; Tour-Header Fortschrittsbalken+Score; Aktiver-Stopp-Hero ETA-Ring+Adresse+Notiz+Zahlung; Navigation2-CTA+Anruf+Geliefert-Button; Nächster-Stopp-Preview; Alle-Stopps expandierbar mit Status-Farbkodierung; Native-Maps iOS/Android; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1035TourStoppNavHubPro } from './phase1035-tour-stopp-nav-hub-pro';
+// Phase 4699 — Mein Trinkgeld/Tour (Moon emerald-900; avg_tip 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥4€/≥2.50€/<2.50€; 30-Min-Polling)
+export { FahrerPhase4699MeinTrinkgeld } from './phase4699-mein-trinkgeld';
