@@ -1163,6 +1163,7 @@ import { KitchenPhase4521ProduktivitaetTicker } from './phase4521-produktivitaet
 import { KitchenPhase4526UmsatzProSchichtTicker } from './phase4526-umsatz-pro-schicht-ticker';
 import { KitchenPhase4531TrinkgeldTicker } from './phase4531-trinkgeld-ticker';
 import { KitchenPhase4536VollstaendigkeitTicker } from './phase4536-vollstaendigkeit-ticker';
+import { KitchenPhase4541KontaktRateTicker } from './phase4541-kontakt-rate-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4675,6 +4676,8 @@ export function KitchenBoard({
       <KitchenPhase4531TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4536: Vollständigkeits-Ticker — ClipboardCheck green-600; Beste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥92%; 30-Min-Polling */}
       <KitchenPhase4536VollstaendigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4541: Kontaktaufnahme-Ticker — MessageCircle blue-500; Beste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥80%; 30-Min-Polling */}
+      <KitchenPhase4541KontaktRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12206,3 +12209,5 @@ export { KitchenPhase4526UmsatzProSchichtTicker } from './phase4526-umsatz-pro-s
 export { KitchenPhase4531TrinkgeldTicker } from './phase4531-trinkgeld-ticker';
 // Phase 4536 — Vollständigkeits-Ticker (ClipboardCheck green-600; Beste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥92%; 30-Min-Polling)
 export { KitchenPhase4536VollstaendigkeitTicker } from './phase4536-vollstaendigkeit-ticker';
+// Phase 4541 — Kontaktaufnahme-Ticker (MessageCircle blue-500; Beste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥80%; 30-Min-Polling)
+export { KitchenPhase4541KontaktRateTicker } from './phase4541-kontakt-rate-ticker';
