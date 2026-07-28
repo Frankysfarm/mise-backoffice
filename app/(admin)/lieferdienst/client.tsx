@@ -495,6 +495,7 @@ import { LieferdienstPhase4215StatistikenDashboardV3 } from './phase4215-statist
 import { LieferdienstPhase4220StatistikDashboardV4 } from './phase4220-statistiken-dashboard-v4';
 import { LieferdienstPhase4395StatistikDashboardV5 } from './phase4395-statistiken-dashboard-v5';
 import { LieferdienstPhase4410StatistikDashboardV6 } from './phase4410-statistiken-dashboard-v6';
+import { LieferdienstPhase4615StatistikenLiveDashboard } from './phase4615-statistiken-live-dashboard';
 import { LieferdienstPhase1000StatistikenGesamtHub } from './phase1000-statistiken-gesamt-hub';
 
 export function LieferdienstClient() {
@@ -2378,6 +2379,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4395StatistikDashboardV5 locationId={locationId ?? null} />
                 {/* Phase 4410: Statistiken Dashboard V6 */}
                 <LieferdienstPhase4410StatistikDashboardV6 />
+                {/* Phase 4615: Statistiken Live Dashboard — BarChart2 indigo; Gesamt-Score-Balken; Alert-Strip; 8-KPI-Grid Ampel+Δ%+Ziel; Stundenverlauf BarChart; Top-3-Fahrer; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4615StatistikenLiveDashboard locationId={locationId ?? null} />
                 {/* Phase 1000: Statistiken-Gesamt-Hub — Tages-KPIs Umsatz/Bestellungen/Fahrer/Lieferzeit; Pünktlichkeit+Storno+Gewinn; Umsatz-Ziel-Progress; Top-3-Fahrer; 30-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase1000StatistikenGesamtHub locationId={locationId ?? null} />
               </>

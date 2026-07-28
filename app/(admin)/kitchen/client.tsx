@@ -1177,6 +1177,7 @@ import { KitchenPhase4596MontagStartTicker } from './phase4596-montag-start-tick
 import { KitchenPhase4601FreitagAbendTicker } from './phase4601-freitag-abend-ticker';
 import { KitchenPhase4606SamstagMittagTicker } from './phase4606-samstag-mittag-ticker';
 import { KitchenPhase4611SonntagAbendTicker } from './phase4611-sonntag-abend-ticker';
+import { KitchenPhase4616TourScoreKpiTicker } from './phase4616-tour-score-kpi-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4717,6 +4718,8 @@ export function KitchenBoard({
       <KitchenPhase4606SamstagMittagTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4611: Sonntagabend-Ticker — Star purple-500; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥38%; 30-Min-Polling */}
       <KitchenPhase4611SonntagAbendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4616: Tour-Score-KPI-Ticker — Trophy indigo-500; #1 Fahrer+Score; dot-Farbkodierung per level; Team-Ø; Ziel ≥75; 30-Min-Polling */}
+      <KitchenPhase4616TourScoreKpiTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12276,6 +12279,8 @@ export { KitchenPhase4601FreitagAbendTicker } from './phase4601-freitag-abend-ti
 export { KitchenPhase4606SamstagMittagTicker } from './phase4606-samstag-mittag-ticker';
 // Phase 4611 — Sonntagabend-Ticker (Star purple-500; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥38%; 30-Min-Polling)
 export { KitchenPhase4611SonntagAbendTicker } from './phase4611-sonntag-abend-ticker';
+// Phase 4616 — Tour-Score-KPI-Ticker (Trophy indigo-500; #1 Fahrer+Score; dot-Farbkodierung per level; Team-Ø; Ziel ≥75; 30-Min-Polling)
+export { KitchenPhase4616TourScoreKpiTicker } from './phase4616-tour-score-kpi-ticker';
 // Phase 4586 — Smart-Timing Master Cockpit (Timer indigo; 4-KPI-Grid Score/On-Time/Prep/Queue+15min; Score-Balken; Countdown-Kacheln 5-stufig prioritätssortiert; Komplexitäts-Indikator; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4586SmartTimingMasterCockpit } from './phase4586-smart-timing-master-cockpit';
 // Phase 4611 — Smart Countdown Farbkodierung Live (Timer indigo; 3-KPI-Strip Score/Pünktlichkeit/AvgPrep; Farbkodierte Countdown-Kacheln 6-stufig Ampel; Prioritätssortierung überfällig→wartend→bereit; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
