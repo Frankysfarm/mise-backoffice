@@ -1147,6 +1147,7 @@ import { FahrerPhase4554MeineMehrfach } from './phase4554-meine-mehrfach';
 import { FahrerPhase4559MeinNachtAnteil } from './phase4559-mein-nacht-anteil';
 import { FahrerPhase4564MeineKommentarRate } from './phase4564-meine-kommentar-rate';
 import { FahrerPhase4569MeinFruehschichtAnteil } from './phase4569-mein-fruehschicht-anteil';
+import { FahrerPhase4574MeinAbendAnteil } from './phase4574-mein-abend-anteil';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7263,6 +7264,8 @@ export function FahrerApp({
           <FahrerPhase4564MeineKommentarRate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4569: Mein Frühschicht-Anteil — Sun yellow-500; frueh_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥60%/≥35%/<35%; 30-Min-Polling */}
           <FahrerPhase4569MeinFruehschichtAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4574: Mein Abend-Anteil — Sunset rose-500; abend_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥55%/≥30%/<30%; 30-Min-Polling */}
+          <FahrerPhase4574MeinAbendAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11544,3 +11547,5 @@ export { FahrerPhase4559MeinNachtAnteil } from './phase4559-mein-nacht-anteil';
 export { FahrerPhase4564MeineKommentarRate } from './phase4564-meine-kommentar-rate';
 // Phase 4569 — Mein Frühschicht-Anteil (Sun yellow-500; frueh_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥60%/≥35%/<35%; 30-Min-Polling)
 export { FahrerPhase4569MeinFruehschichtAnteil } from './phase4569-mein-fruehschicht-anteil';
+// Phase 4574 — Mein Abend-Anteil (Sunset rose-500; abend_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥55%/≥30%/<30%; 30-Min-Polling)
+export { FahrerPhase4574MeinAbendAnteil } from './phase4574-mein-abend-anteil';

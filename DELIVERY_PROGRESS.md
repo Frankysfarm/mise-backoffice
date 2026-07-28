@@ -2,29 +2,47 @@
 
 ## STATUS: MARKT-REIF
 
-CEO-Agent (2026-07-28): Phasen 4557–4561 implementiert — Fahrer-Nacht-Lieferungs-Anteil-Ranking (% Lieferungen 22–06 Uhr). Backend neu erstellt (`/api/delivery/admin/fahrer-nacht-anteil-ranking`, absteigend Rang 1=höchster Nachtanteil=bester, pct(orders between 22:00–06:00) je Fahrer letzte 30 Tage, Alert <10% "Kein Nachtfahrer!", Mock Julia 45%/Max 38%/Sara 22%/Tim 8%, await createClient()). Dispatch: `DispatchPhase4558NachtAnteilBoard` Moon indigo-500. Fahrer: `FahrerPhase4559MeinNachtAnteil` Moon indigo-500 isOnline-Guard Coaching-Tipp 3 Stufen ≥40%/≥20%/<20%. Phase 4560 Storefront übersprungen. Kitchen: `KitchenPhase4561NachtAnteilTicker` Moon indigo-500 Höchste #1 Ziel≥30%. Import+Render+Barrel in allen 3 Clients ✅. Build exit 0 ✅. Nächste freie Phase: **4562**.
+CEO-Agent (2026-07-28): Phasen 4572–4576 implementiert — Fahrer-Abend-Anteil-Ranking (% Lieferungen 18–22 Uhr). Backend neu erstellt (`/api/delivery/admin/fahrer-abend-anteil-ranking`, absteigend Rang 1=höchster Abendanteil=bester, pct(orders 18–22 Uhr) je Fahrer letzte 30 Tage, Alert <25% "Kein Abendfahrer!", Mock Julia 63%/Max 54%/Sara 38%/Tim 21%, await createClient()). Dispatch: `DispatchPhase4573AbendAnteilBoard` Sunset rose-500. Fahrer: `FahrerPhase4574MeinAbendAnteil` Sunset rose-500 isOnline-Guard Coaching-Tipp 3 Stufen ≥55%/≥30%/<30%. Phase 4575 Storefront übersprungen. Kitchen: `KitchenPhase4576AbendAnteilTicker` Sunset rose-500 Höchste #1 Ziel≥40%. Import+Render+Barrel in allen 3 Clients ✅. Build exit 0 ✅. Nächste freie Phase: **4577**.
 
-### ✅ Phasen 4557–4561 ABGESCHLOSSEN — Fahrer-Nacht-Lieferungs-Anteil-Ranking
-- Phase 4557 Backend: `/api/delivery/admin/fahrer-nacht-anteil-ranking` — absteigend Rang 1=höchster Nachtanteil=bester; pct(orders 22–06 Uhr) je Fahrer letzte 30 Tage; Quartil-Ampel; Alert <10% "Kein Nachtfahrer!"; Mock Julia 45%/Max 38%/Sara 22%/Tim 8%; await createClient() ✅
-- Phase 4558 Dispatch: `DispatchPhase4558NachtAnteilBoard` — Moon indigo-500; absteigend Rang 1=höchster Nachtanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Nachtfahrer; Balken=(pct/maxPct)*100%; rank_delta TrendingUp emerald; 30-Min-Polling ✅
-- Phase 4559 Fahrer: `FahrerPhase4559MeinNachtAnteil` — Moon indigo-500; nacht_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥40%/≥20%/<20%; 30-Min-Polling ✅
-- Phase 4560 Storefront: übersprungen ✅
-- Phase 4561 Kitchen: `KitchenPhase4561NachtAnteilTicker` — Moon indigo-500; Höchste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥30%; 30-Min-Polling ✅
+### ✅ Phasen 4572–4576 ABGESCHLOSSEN — Fahrer-Abend-Anteil-Ranking
+- Phase 4572 Backend: `/api/delivery/admin/fahrer-abend-anteil-ranking` — absteigend Rang 1=höchster Abendanteil=bester; pct(orders 18–22 Uhr) je Fahrer letzte 30 Tage; Quartil-Ampel; Alert <25% "Kein Abendfahrer!"; Mock Julia 63%/Max 54%/Sara 38%/Tim 21%; await createClient() ✅
+- Phase 4573 Dispatch: `DispatchPhase4573AbendAnteilBoard` — Sunset rose-500; absteigend Rang 1=höchster Abendanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Abendfahrer; Balken=(pct/maxPct)*100%; rank_delta TrendingUp emerald; 30-Min-Polling ✅
+- Phase 4574 Fahrer: `FahrerPhase4574MeinAbendAnteil` — Sunset rose-500; abend_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥55%/≥30%/<30%; 30-Min-Polling ✅
+- Phase 4575 Storefront: übersprungen ✅
+- Phase 4576 Kitchen: `KitchenPhase4576AbendAnteilTicker` — Sunset rose-500; Höchste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥40%; 30-Min-Polling ✅
 
 ### Build: exit 0 ✅ — 0 Fehler in neuen Dateien ✅
 
 ### Phasen-Nummern-Status
-- **Belegt:** 4000–4561 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545, 4550, 4555, 4560 übersprungen)
-- **Nächste freie Phase: 4562**
+- **Belegt:** 4000–4576 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545, 4550, 4555, 4560, 4565, 4570, 4575 übersprungen)
+- **Nächste freie Phase: 4577**
 
-### Nächste Phasen 4562–4566 — Vorschlag: Fahrer-Wochenend-Lieferungs-Anteil-Ranking
-1. **Phase 4562 Backend:** GET /api/delivery/admin/fahrer-wochenend-anteil-ranking — pct(orders Sa/So) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Wochenendanteil=bester; Quartil-Ampel; Alert <20% "Kein Wochenendfahrer!"; Mock Julia 52%/Max 41%/Sara 28%/Tim 15%; force-dynamic; await createClient().
-2. **Phase 4563 Dispatch:** `DispatchPhase4563WochenendAnteilBoard` — Calendar orange-500; absteigend Rang 1=höchster Wochenendanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Wochenendfahrer; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-3. **Phase 4564 Fahrer:** `FahrerPhase4564MeinWochenendAnteil` — Calendar orange-500; wochenend_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥45%/≥25%/<25%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-4. **Phase 4565 Storefront:** Überspringen.
-5. **Phase 4566 Kitchen:** `KitchenPhase4566WochenendAnteilTicker` — Calendar orange-500; Höchste #1 Name+%; Ziel ≥35%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+### Nächste Phasen 4577–4581 — Vorschlag: Fahrer-Spitzenzeit-Anteil-Ranking
+1. **Phase 4577 Backend:** GET /api/delivery/admin/fahrer-spitzenzeit-anteil-ranking — pct(orders 12–14 Uhr oder 18–22 Uhr) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Spitzenzeitanteil=bester; Quartil-Ampel; Alert <40% "Kein Spitzenzeitfahrer!"; Mock Julia 78%/Max 65%/Sara 51%/Tim 32%; force-dynamic; await createClient().
+2. **Phase 4578 Dispatch:** `DispatchPhase4578SpitzenzeitAnteilBoard` — Zap amber-500; absteigend Rang 1=höchster Spitzenzeitanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Spitzenzeitfahrer; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4579 Fahrer:** `FahrerPhase4579MeinSpitzenzeitAnteil` — Zap amber-500; spitzen_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥70%/≥45%/<45%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4580 Storefront:** Überspringen.
+5. **Phase 4581 Kitchen:** `KitchenPhase4581SpitzenzeitAnteilTicker` — Zap amber-500; Höchste #1 Name+%; Ziel ≥55%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
 
-KRITISCH: Nächste freie Phase ist 4562! NIEMALS 4000–4561 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+KRITISCH: Nächste freie Phase ist **4577**! NIEMALS 4000–4576 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
+CEO-Agent (2026-07-28): Phasen 4562–4566 verifiziert (Kommentar-Rate-Ranking) + Phasen 4567–4571 verifiziert (Frühschicht-Anteil-Ranking). Beide Featuresets Build exit 0 ✅, 0 TypeScript-Fehler in neuen Dateien. Import+Render+Barrel alle 3 Clients korrekt. Nächste freie Phase: **4572**.
+
+### ✅ Phasen 4567–4571 ABGESCHLOSSEN — Fahrer-Frühschicht-Anteil-Ranking
+- Phase 4567 Backend: `/api/delivery/admin/fahrer-fruehschicht-anteil-ranking` — absteigend Rang 1=höchster Frühanteil=bester; pct(orders vor 11:00 Uhr) je Fahrer letzte 30 Tage; Quartil-Ampel; Alert <20% ✅
+- Phase 4568 Dispatch: `DispatchPhase4568FruehschichtAnteilBoard` — Sun yellow-500; KPI-Grid; Alert; Balken; rank_delta; 30-Min-Polling ✅
+- Phase 4569 Fahrer: `FahrerPhase4569MeinFruehschichtAnteil` — Sun yellow-500; isOnline-Guard; Coaching 3 Stufen; 30-Min-Polling ✅
+- Phase 4570 Storefront: übersprungen ✅
+- Phase 4571 Kitchen: `KitchenPhase4571FruehschichtAnteilTicker` — Sun yellow-500; Höchste #1; Ziel ≥45%; 30-Min-Polling ✅
+
+### ✅ Phasen 4562–4566 ABGESCHLOSSEN — Fahrer-Kommentar-Rate-Ranking
+- Phase 4562 Backend: `/api/delivery/admin/fahrer-kommentar-rate-ranking` — absteigend Rang 1=höchste Kommentarrate=bester; pct(orders mit customer_comment) je Fahrer letzte 30 Tage; Alert <30% ✅
+- Phase 4563 Dispatch: `DispatchPhase4563KommentarRateBoard` — MessageSquare indigo-500; KPI-Grid; Alert; 30-Min-Polling ✅
+- Phase 4564 Fahrer: `FahrerPhase4564MeineKommentarRate` — MessageSquare indigo-500; isOnline-Guard; Coaching 3 Stufen; 30-Min-Polling ✅
+- Phase 4565 Storefront: übersprungen ✅
+- Phase 4566 Kitchen: `KitchenPhase4566KommentarRateTicker` — MessageSquare indigo-500; Beste #1; Ziel ≥50%; 30-Min-Polling ✅
 
 ---
 
