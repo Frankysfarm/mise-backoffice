@@ -5052,6 +5052,7 @@ export function DispatchBoard({
           <DispatchPhase4458StoppdauerRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4463BestellwertRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase4468TourenProTagBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4473: Pünktlichkeits-Ranking-Board — Clock indigo-500; absteigend Rang 1=höchste Pünktlichkeit=bester; KPI-Grid Pünktlichste/Team-Avg/Unpünktlichste; Alert Pünktlichkeitsproblem; 30-Min-Polling */}
           <DispatchPhase4473PuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
@@ -13573,4 +13574,5 @@ export { DispatchPhase4453WartezeitRankingBoard } from './phase4453-wartezeit-ra
 export { DispatchPhase4458StoppdauerRankingBoard } from './phase4458-stoppdauer-ranking-board';
 export { DispatchPhase4463BestellwertRankingBoard } from './phase4463-bestellwert-ranking-board';
 export { DispatchPhase4468TourenProTagBoard } from './phase4468-touren-pro-tag-board';
+// Phase 4473 — Pünktlichkeits-Ranking-Board (Clock indigo-500; absteigend Rang 1=höchste Pünktlichkeit=bester; KPI-Grid Pünktlichste/Team-Avg/Unpünktlichste; Alert Pünktlichkeitsproblem; 30-Min-Polling)
 export { DispatchPhase4473PuenktlichkeitBoard } from './phase4473-puenktlichkeit-board';

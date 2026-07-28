@@ -7204,6 +7204,7 @@ export function FahrerApp({
           <FahrerPhase4459MeineStoppdauer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4464MeinBestellwert driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase4469MeineTourenProTag driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4474: Meine Pünktlichkeit — Clock indigo-500; puenktlichkeit_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≥95%/≥85%/<85%; 30-Min-Polling */}
           <FahrerPhase4474MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
@@ -11446,4 +11447,5 @@ export { FahrerPhase4454MeineWartezeit } from './phase4454-meine-wartezeit';
 export { FahrerPhase4459MeineStoppdauer } from './phase4459-meine-stoppdauer';
 export { FahrerPhase4464MeinBestellwert } from './phase4464-mein-bestellwert';
 export { FahrerPhase4469MeineTourenProTag } from './phase4469-meine-touren-pro-tag';
+// Phase 4474 — Meine Pünktlichkeit (Clock indigo-500; puenktlichkeit_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≥95%/≥85%/<85%; 30-Min-Polling)
 export { FahrerPhase4474MeinePuenktlichkeit } from './phase4474-meine-puenktlichkeit';

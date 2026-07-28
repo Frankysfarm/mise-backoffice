@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Clock4, TrendingUp, TrendingDown, Minus, WifiOff } from 'lucide-react';
+import { Clock, TrendingUp, TrendingDown, Minus, WifiOff } from 'lucide-react';
 
 interface FahrerPuenktlichkeit {
   driver_id: string;
@@ -46,7 +46,7 @@ export function FahrerPhase4474MeinePuenktlichkeit({ driverId, locationId, isOnl
   if (!isOnline) return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 flex items-center gap-3">
       <WifiOff className="w-5 h-5 text-gray-400" />
-      <span className="text-sm text-gray-500 dark:text-gray-400">Pünktlichkeits-Ranking — Offline nicht verfügbar</span>
+      <span className="text-sm text-gray-500 dark:text-gray-400">Pünktlichkeit — Offline nicht verfügbar</span>
     </div>
   );
 
@@ -58,14 +58,13 @@ export function FahrerPhase4474MeinePuenktlichkeit({ driverId, locationId, isOnl
 
   if (!data) return null;
 
-  const rangColor =
-    data.ampel === 'gruen' ? 'text-emerald-600 dark:text-emerald-400' :
-    data.ampel === 'rot' ? 'text-red-500 dark:text-red-400' : 'text-yellow-500 dark:text-yellow-400';
+  const rangColor = data.ampel === 'gruen' ? 'text-emerald-600 dark:text-emerald-400' :
+                    data.ampel === 'rot' ? 'text-red-500 dark:text-red-400' : 'text-yellow-500 dark:text-yellow-400';
 
   const coaching =
-    data.puenktlichkeit_pct >= 90 ? 'Exzellent! Du lieferst fast immer pünktlich — Spitzenklasse!' :
-    data.puenktlichkeit_pct >= 75 ? 'Gut! Achte auf kürzere Stopps und reibungslosere Übergaben, um die 90%-Marke zu knacken.' :
-    'Tipp: Plane mehr Zeit für jeden Stopp ein und vermeide Wartezeiten, um deine Pünktlichkeit zu verbessern.';
+    data.puenktlichkeit_pct >= 95 ? 'Ausgezeichnet! Du gehörst zu den pünktlichsten Fahrern — halte dieses Niveau!' :
+    data.puenktlichkeit_pct >= 85 ? 'Gut! Versuche, noch ein paar Minuten pro Tour einzusparen, um die 95%-Marke zu erreichen.' :
+    'Tipp: Plane Puffer für unerwartete Staus ein und verlasse die Küche direkt beim Abholen, um pünktlicher zu werden.';
 
   const deltaIcon =
     data.rank_delta > 0 ? <TrendingUp className="w-4 h-4 text-emerald-500" /> :
@@ -75,14 +74,14 @@ export function FahrerPhase4474MeinePuenktlichkeit({ driverId, locationId, isOnl
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 space-y-3">
       <div className="flex items-center gap-2">
-        <Clock4 className="w-5 h-5 text-blue-500" />
+        <Clock className="w-5 h-5 text-indigo-500" />
         <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Meine Pünktlichkeit</h3>
       </div>
 
       <div className="flex items-end gap-4">
         <div>
-          <div className="text-5xl font-extrabold text-blue-500 dark:text-blue-400">{data.puenktlichkeit_pct.toFixed(1)}%</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Pünktlichkeitsrate (Ø 30 Tage)</div>
+          <div className="text-5xl font-extrabold text-indigo-500 dark:text-indigo-400">{data.puenktlichkeit_pct}%</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">pünktliche Lieferungen (30 Tage)</div>
         </div>
         <div className="pb-1">
           <div className={`text-2xl font-bold ${rangColor}`}>#{data.rang}</div>
@@ -95,11 +94,11 @@ export function FahrerPhase4474MeinePuenktlichkeit({ driverId, locationId, isOnl
         </div>
       </div>
 
-      <div className="rounded-lg bg-blue-50 dark:bg-blue-900/20 px-3 py-2 text-xs text-blue-700 dark:text-blue-300">
+      <div className="rounded-lg bg-indigo-50 dark:bg-indigo-900/20 px-3 py-2 text-xs text-indigo-700 dark:text-indigo-300">
         {coaching}
       </div>
 
-      <div className="text-xs text-gray-400">Ziel: ≥85% · Gut: ≥90%</div>
+      <div className="text-xs text-gray-400">Ziel: ≥90% · Sehr gut: ≥95%</div>
     </div>
   );
 }

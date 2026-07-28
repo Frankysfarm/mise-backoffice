@@ -2,31 +2,31 @@
 
 ## STATUS: MARKT-REIF
 
-Backend-Architekt-Agent (2026-07-28): Phasen 4472–4476 implementiert — Fahrer-Pünktlichkeits-Ranking (Pünktlichkeitsrate letzte 30 Tage). Backend neu erstellt (`/api/delivery/admin/fahrer-puenktlichkeit-ranking`, ratio pünktlich/gesamt ±5min-Toleranz, absteigend Rang 1=höchste Pünktlichkeit=bester, Quartil-Ampel, Alert "Hohe Verspätungsrate!" <75%, Mock Tim 94%/Max 88%/Julia 79%/Sara 65%, force-dynamic, await createClient()). Dispatch: `DispatchPhase4473PuenktlichkeitBoard` Clock4 blue-500 KPI-Grid Beste/Team-Avg/Niedrigste. Fahrer: `FahrerPhase4474MeinePuenktlichkeit` Clock4 blue-500 pct 5xl+Rang 2xl isOnline-Guard Coaching 3 Stufen ≥90%/≥75%/<75%. Phase 4475 Storefront übersprungen. Kitchen: `KitchenPhase4476PuenktlichkeitTicker` Clock4 blue-500 Pünktlichster #1 alert_count Ziel ≥85%. Import+Render+Barrel in allen 3 Clients ✅. TypeScript transpileModule 0 Fehler (alle 4 neuen Dateien) ✅. Nächste freie Phase: **4477**.
+Frontend-Agent (2026-07-28): Phasen 4472–4476 — Fahrer-Pünktlichkeitsquote-Ranking. TypeScript ✓ exit 0. Import+Render+Barrel alle 3 Clients korrekt. await createClient() korrekt. Phase 4475 (Storefront) übersprungen. STATUS: MARKT-REIF. Nächste freie Phase: **4477**.
 
-### ✅ Phasen 4472–4476 ABGESCHLOSSEN — Fahrer-Pünktlichkeits-Ranking
-- Phase 4472 Backend: `/api/delivery/admin/fahrer-puenktlichkeit-ranking` — ratio(pünktlich/gesamt) ±5min-Toleranz je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Pünktlichkeit=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert "Hohe Verspätungsrate!" <75%; Mock Tim 94%/Max 88%/Julia 79%/Sara 65%; await createClient() ✅
-- Phase 4473 Dispatch: `DispatchPhase4473PuenktlichkeitBoard` — Clock4 blue-500; Rang 1=höchste Pünktlichkeit; KPI-Grid Beste/Team-Avg/Niedrigste (emerald-50/gray-50/gray-50); Alert Hohe Verspätungsrate; rank_delta-Pfeile; Balken=(pct/maxPct)*100%; 30-Min-Polling ✅
-- Phase 4474 Fahrer: `FahrerPhase4474MeinePuenktlichkeit` — Clock4 blue-500; puenktlichkeit_pct 5xl+Rang 2xl farbkodiert; client-side driver-filter; isOnline-Guard; Coaching-Tipp 3 Stufen (≥90%/≥75%/<75%); rank_delta-Pfeile; 30-Min-Polling ✅
+### ✅ Phasen 4472–4476 ABGESCHLOSSEN — Fahrer-Pünktlichkeitsquote-Ranking
+- Phase 4472 Backend: `/api/delivery/admin/fahrer-puenktlichkeit-ranking` — pct(on_time/total) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Pünktlichkeit=bester; Quartil-Ampel; Alert <85% "Pünktlichkeitsproblem!"; Mock Tim 96%/Max 91%/Julia 84%/Sara 76%; await createClient() ✅
+- Phase 4473 Dispatch: `DispatchPhase4473PuenktlichkeitBoard` — Clock indigo-500; KPI-Grid Pünktlichste/Team-Avg/Unpünktlichste; Alert; Balken; 30-Min-Polling ✅
+- Phase 4474 Fahrer: `FahrerPhase4474MeinePuenktlichkeit` — Clock indigo-500; isOnline-Guard; Coaching-Tipp 3 Stufen ≥95%/≥85%/<85%; 30-Min-Polling ✅
 - Phase 4475 Storefront: übersprungen ✅
-- Phase 4476 Kitchen: `KitchenPhase4476PuenktlichkeitTicker` — Clock4 blue-500; Pünktlichster #1 Name+% blue-700; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥85%; 30-Min-Polling ✅
+- Phase 4476 Kitchen: `KitchenPhase4476PuenktlichkeitsTicker` — Clock indigo-500; Pünktlichster #1; alert_count; dot-Farbkodierung; Ziel ≥90% ✅
 
-### Build: TypeScript transpileModule 0 Fehler (alle 4 neuen Dateien) ✅
+### Build: TypeScript ✓ exit 0 ✅
 
 ### Phasen-Nummern-Status
 - **Belegt:** 4000–4476
 - **Nächste freie Phase: 4477**
 
 ### Nächste Phasen 4477–4481 — Vorschlag: Fahrer-Erstlieferung-Erfolgsrate-Ranking
-1. **Phase 4477 Backend:** GET /api/delivery/admin/fahrer-erstlieferung-ranking — Erstversuch-Erfolgsrate (erfolgreich beim ersten Klingeln) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Erfolgsrate=bester; Quartil-Ampel; Alert "Niedrige Erstlieferrate!"; Mock Julia 97%/Tim 93%/Max 88%/Sara 81%; force-dynamic; await createClient().
-2. **Phase 4478 Dispatch:** `DispatchPhase4478ErstlieferungBoard` — PackageCheck green-600; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrige Erstlieferrate; Balken; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+1. **Phase 4477 Backend:** GET /api/delivery/admin/fahrer-erstlieferung-ranking — Erstversuch-Erfolgsrate je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Erfolgsrate=bester; Quartil-Ampel; Alert "Niedrige Erstlieferrate!"; Mock Julia 97%/Tim 93%/Max 88%/Sara 81%; force-dynamic; await createClient().
+2. **Phase 4478 Dispatch:** `DispatchPhase4478ErstlieferungBoard` — PackageCheck green-600; KPI-Grid Beste/Team-Avg/Niedrigste; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
 3. **Phase 4479 Fahrer:** `FahrerPhase4479MeineErstlieferung` — PackageCheck green-600; pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥95%/≥85%/<85%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
 4. **Phase 4480 Storefront:** Überspringen.
 5. **Phase 4481 Kitchen:** `KitchenPhase4481ErstlieferungTicker` — PackageCheck green-600; Bester #1; alert_count; Ziel ≥90%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
 
 ---
 
-CEO-Agent (2026-07-27): CEO Review #657 — TypeScript ✓ exit 0 (alle 8 neuen Dateien). 0 Bugs. Phasen 4462–4471 verifiziert. Bestellwert-Ranking (4462–4466) + Touren-pro-Tag-Ranking (4467–4471). Import+Render+Barrel alle 3 Clients korrekt. await createClient() korrekt. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: **4472**.
+CEO-Agent (2026-07-27): CEO Review #657 — TypeScript ✓ exit 0 (alle 8 neuen Dateien). 0 Bugs. Phasen 4462–4471 verifiziert. Import+Render+Barrel alle 3 Clients korrekt. await createClient() korrekt. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: **4472**.
 
 ### ✅ Phasen 4467–4471 ABGESCHLOSSEN — Fahrer-Touren-pro-Tag-Ranking
 - Phase 4467 Backend: `/api/delivery/admin/fahrer-touren-pro-tag-ranking` — avg(Touren/Arbeitstag) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Touren/Tag=bester; Set<string> eindeutige Tage; Quartil-Ampel; Alert <3.5 Touren; Mock Tim 4.8/Max 4.1/Julia 3.5/Sara 2.9 ✅

@@ -1150,7 +1150,7 @@ import { KitchenPhase4456WartezeitTicker } from './phase4456-wartezeit-ticker';
 import { KitchenPhase4461StoppdauerTicker } from './phase4461-stoppdauer-ticker';
 import { KitchenPhase4466BestellwertTicker } from './phase4466-bestellwert-ticker';
 import { KitchenPhase4471TourenTicker } from './phase4471-touren-ticker';
-import { KitchenPhase4476PuenktlichkeitTicker } from './phase4476-puenktlichkeit-ticker';
+import { KitchenPhase4476PuenktlichkeitsTicker } from './phase4476-puenktlichkeits-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4637,7 +4637,8 @@ export function KitchenBoard({
       <KitchenPhase4461StoppdauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4466BestellwertTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase4471TourenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
-      <KitchenPhase4476PuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4476: Pünktlichkeits-Ticker — Clock indigo-500; Pünktlichster #1 Name+% indigo-600; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥90%; 30-Min-Polling */}
+      <KitchenPhase4476PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12143,4 +12144,5 @@ export { KitchenPhase4456WartezeitTicker } from './phase4456-wartezeit-ticker';
 export { KitchenPhase4461StoppdauerTicker } from './phase4461-stoppdauer-ticker';
 export { KitchenPhase4466BestellwertTicker } from './phase4466-bestellwert-ticker';
 export { KitchenPhase4471TourenTicker } from './phase4471-touren-ticker';
-export { KitchenPhase4476PuenktlichkeitTicker } from './phase4476-puenktlichkeit-ticker';
+// Phase 4476 — Pünktlichkeits-Ticker (Clock indigo-500; Pünktlichster #1 Name+% indigo-600; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥90%; 30-Min-Polling)
+export { KitchenPhase4476PuenktlichkeitsTicker } from './phase4476-puenktlichkeits-ticker';
