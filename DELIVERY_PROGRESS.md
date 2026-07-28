@@ -2,6 +2,32 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-28): Phasen 4687–4691 implementiert — Fahrer-Pünktlichkeit-Ranking (Anteil pünktliche Lieferungen ≤ ETA). Backend 4687: `/api/delivery/admin/fahrer-puenktlichkeit-ranking` neu mit Schema fahrer[]/fahrer_id/fahrer_name/puenktlichkeit_pct/rang/rank_delta/ampel/alert_niedrig; Mock Julia 94%/Max 89%/Sara 82%/Tim 71%; Alert team_avg_pct<80% "Niedrige Pünktlichkeit!"; await createClient() ✅. Dispatch 4688: `DispatchPhase4688PuenktlichkeitBoard` teal-900, KPI-Grid Höchste/Team-Avg/Niedrigste, DeltaIcon, Balken farbkodiert, Alert, Import+Render+Barrel ✅. Fahrer 4689: `FahrerPhase4689MeinePuenktlichkeit` teal-900, pct 4xl+Rang, isOnline-Guard, Balken Ich vs Team-Ø, Coaching ≥90%/≥80%/<80%, Import+Render+Barrel ✅. Storefront 4690: übersprungen ✅. Kitchen 4691: `KitchenPhase4691PuenktlichkeitTicker` teal-900, Höchste #1 Name+%, Team-Avg, Alert, Import+Render+Barrel ✅. Build exit 0 ✅. **Nächste freie Phase: 4692.**
+
+### ✅ Phasen 4687–4691 ABGESCHLOSSEN — Fahrer-Pünktlichkeit-Ranking
+- Phase 4687 Backend: `/api/delivery/admin/fahrer-puenktlichkeit-ranking` — pct(delivered_at ≤ promised_at) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Pünktlichkeit; Quartil-Ampel; Alert team_avg_pct<80% "Niedrige Pünktlichkeit!"; Mock Julia 94%/Max 89%/Sara 82%/Tim 71%; await createClient() ✅
+- Phase 4688 Dispatch: `DispatchPhase4688PuenktlichkeitBoard` — Moon teal-900; KPI-Grid Höchste/Team-Avg/Niedrigste; DeltaIcon TrendingUp/Down/Minus; Balken farbkodiert grün/gelb/rot; Alert team_avg<80%; Import+Render+Barrel ✅
+- Phase 4689 Fahrer: `FahrerPhase4689MeinePuenktlichkeit` — Moon teal-900; puenktlichkeit_pct 4xl+Rang; isOnline-Guard; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥90%/≥80%/<80%; Import+Render+Barrel ✅
+- Phase 4690 Storefront: übersprungen ✅
+- Phase 4691 Kitchen: `KitchenPhase4691PuenktlichkeitTicker` — Moon teal-900; Höchste #1 Name+%; Team-Avg; Alert Niedrige Pünktlichkeit; Import+Render+Barrel ✅
+
+### Build: exit 0 ✅ — 0 TypeScript-Fehler ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4691 (4685, 4690 und andere Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 4692**
+
+### Nächste Phasen 4692–4696 — Vorschlag: Fahrer-Touren-Effizienz-Ranking (Touren pro Stunde)
+1. **Phase 4692 Backend:** GET /api/delivery/admin/fahrer-touren-effizienz — count(tours)/shift_hours je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Effizienz; Quartil-Ampel; Alert team_avg<2.0 "Niedrige Effizienz!"; Mock Julia 3.2/Max 2.8/Sara 2.4/Tim 1.9; force-dynamic; await createClient().
+2. **Phase 4693 Dispatch:** `DispatchPhase4693TourenEffizienzBoard` — Moon violet-900; KPI-Grid Höchste/Team-Avg/Niedrigste; DeltaIcon; Balken; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4694 Fahrer:** `FahrerPhase4694MeineTourenEffizienz` — Moon violet-900; touren_pst 4xl+Rang; isOnline-Guard; Coaching 3 Stufen ≥3.0/≥2.0/<2.0; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4695 Storefront:** Überspringen.
+5. **Phase 4696 Kitchen:** `KitchenPhase4696TourenEffizienzTicker` — Moon violet-900; Höchste #1 Name+Touren/h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4692**! NIEMALS 4000–4691 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 Backend-Architekt-Agent (2026-07-28): Phasen 4682–4686 implementiert — Fahrer-Lieferzeit-Ranking (avg. Lieferzeit in Minuten). Backend `/api/delivery/admin/fahrer-lieferzeit-ranking` (INVERTED Rang 1=schnellste, avg_min aus orders.delivery_duration_min, Quartil-Ampel, Alert team_avg>45 "Hohe Lieferzeit!", Mock Julia 28min/Max 32min/Sara 37min/Tim 44min, await createClient(), force-dynamic) ✅. Dispatch 4683: `DispatchPhase4683LieferzeitBoard` cyan-900, KPI-Grid Schnellste/Team-Avg/Langsamste, DeltaIcon, Balken farbkodiert, Alert >45 min, Import+Render+Barrel ✅. Fahrer 4684: `FahrerPhase4684MeineLieferzeit` cyan-900, avg_min 4xl+Rang 2xl, isOnline-Guard, Balken Ich vs Team-Ø, Coaching 3 Stufen ≤30min/≤40min/>40min, Import+Render+Barrel ✅. Storefront 4685: übersprungen ✅. Kitchen 4686: `KitchenPhase4686LieferzeitTicker` cyan-900, Schnellste #1 Name+Min, Team-Avg, Alert Hohe Lieferzeit, Import+Render+Barrel ✅. Build exit 0 ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4687.**
 
 ### ✅ Phasen 4682–4686 ABGESCHLOSSEN — Fahrer-Lieferzeit-Ranking
