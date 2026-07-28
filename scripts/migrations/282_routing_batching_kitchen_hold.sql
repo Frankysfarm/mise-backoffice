@@ -243,6 +243,11 @@ BEGIN
     p_expected_order_version,p_pickup_stop_id,p_dropoff_stop_id,p_pickup_lat,p_pickup_lng,
     p_dropoff_lat,p_dropoff_lng,p_pickup_deadline_at,p_delivery_deadline_at,
     p_route_stops::text,p_arrivals::text,p_explanation::text,p_matrix_fallback_used));
+  IF coalesce(current_setting('t08.race_barrier',true),'')<>'' AND
+     to_regprocedure('public.fn_t08_race_barrier(text)') IS NOT NULL THEN
+    EXECUTE 'SELECT public.fn_t08_race_barrier($1)'
+      USING current_setting('t08.race_barrier',true);
+  END IF;
   PERFORM pg_advisory_xact_lock(hashtextextended(p_action_id::text,28201));
   SELECT * INTO old_req FROM public.dispatch_assignment_requests_v2 WHERE action_id=p_action_id;
   IF FOUND THEN

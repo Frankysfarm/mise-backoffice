@@ -79,6 +79,29 @@ BEGIN
   IF r->>'idempotent_replay'<>'true' THEN RAISE EXCEPTION 'append replay failed %',r; END IF;
   r:=fn_append_order_to_route_v2(
     '82000000-0000-0000-0000-000000000001','82000000-0000-0000-0000-000000000040',1,
+    '82000000-0000-0000-0000-000000000020',0,
+    '82000000-0000-0000-0000-000000000030',1,
+    '82000000-0000-0000-0000-000000000012',0,
+    '82000000-0000-0000-0000-000000000033','82000000-0000-0000-0000-000000000034',
+    50,6,50.02,6.02,'store','new',
+    '2099-01-01T10:10:00Z','2099-01-01T10:45:00Z',
+    '[{"id":"82000000-0000-0000-0000-000000000031","kind":"pickup"},
+      {"id":"82000000-0000-0000-0000-000000000033","kind":"pickup"},
+      {"id":"82000000-0000-0000-0000-000000000032","kind":"dropoff"},
+      {"id":"82000000-0000-0000-0000-000000000034","kind":"dropoff"}]',
+    '{}','{"reason_code":"CHANGED_FINGERPRINT"}',false,
+    '82000000-0000-0000-0000-000000000041','82000000-0000-0000-0000-000000000042');
+  IF r->>'reason_code'<>'IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST'
+     OR (SELECT count(*) FROM mise_delivery_batch_stops WHERE order_id=
+       '82000000-0000-0000-0000-000000000012')<>2
+     OR (SELECT count(*) FROM dispatch_offer_assignments WHERE order_id=
+       '82000000-0000-0000-0000-000000000012')<>1
+     OR (SELECT count(*) FROM dispatch_assignment_requests_v2 WHERE action='route_append'
+       AND tenant_id='82000000-0000-0000-0000-000000000001')<>1 THEN
+    RAISE EXCEPTION 'append idempotency fingerprint reuse was not rejected atomically %',r;
+  END IF;
+  r:=fn_append_order_to_route_v2(
+    '82000000-0000-0000-0000-000000000001','82000000-0000-0000-0000-000000000040',1,
     '82000000-0000-0000-0000-000000000020',1,
     '82000000-0000-0000-0000-000000000030',1,
     '82000000-0000-0000-0000-000000000013',0,
