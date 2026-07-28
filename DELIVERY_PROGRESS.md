@@ -2,6 +2,32 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-28): Phasen 4507–4511 implementiert — Fahrer-km-pro-Lieferung-Ranking (Ø km/Lieferung). Backend neu erstellt (`/api/delivery/admin/fahrer-km-pro-lieferung-ranking`, INVERTED aufsteigend Rang 1=wenigste km/Lieferung=bester, avg_km_pro_lieferung, Alert >8km, Mock Julia 3.2/Sara 4.5/Max 6.1/Tim 8.7, await createClient()). Dispatch: `DispatchPhase4508KmProLieferungBoard` MapPin green-600. Fahrer: `FahrerPhase4509MeineKmProLieferung` MapPin green-600 isOnline-Guard Coaching-Tipp 3 Stufen ≤4km/≤6km/>6km. Phase 4510 Storefront übersprungen. Kitchen: `KitchenPhase4511KmProLieferungTicker` MapPin green-600 Effizientester #1 Ziel≤4km. Import+Render+Barrel in allen 3 Clients ✅. TypeScript ✓ 0 Fehler in neuen Dateien ✅. Build exit 0 ✅. Nächste freie Phase: **4512**.
+
+### ✅ Phasen 4507–4511 ABGESCHLOSSEN — Fahrer-km-pro-Lieferung-Ranking
+- Phase 4507 Backend: `/api/delivery/admin/fahrer-km-pro-lieferung-ranking` — INVERTED aufsteigend Rang 1=wenigste km/Lieferung=bester; avg_km_pro_lieferung je Fahrer letzte 30 Tage; Quartil-Ampel; Alert >8km "Hoher km-Verbrauch!"; Mock Julia 3.2/Sara 4.5/Max 6.1/Tim 8.7; await createClient() ✅
+- Phase 4508 Dispatch: `DispatchPhase4508KmProLieferungBoard` — MapPin green-600; INVERTED Rang 1=wenigste km; KPI-Grid Effizienteste/Team-Avg/Ineffizienteste; Alert Hoher km-Verbrauch; Balken=(km/maxKm)*100%; 30-Min-Polling ✅
+- Phase 4509 Fahrer: `FahrerPhase4509MeineKmProLieferung` — MapPin green-600; avg_km_pro_lieferung 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≤4km/≤6km/>6km; 30-Min-Polling ✅
+- Phase 4510 Storefront: übersprungen ✅
+- Phase 4511 Kitchen: `KitchenPhase4511KmProLieferungTicker` — MapPin green-600; Effizientester #1 Name+km; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤4km/Lieferung; 30-Min-Polling ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien · Pre-existing-Errors identisch ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4511 (4505, 4510 übersprungen)
+- **Nächste freie Phase: 4512**
+
+### Nächste Phasen 4512–4516 — Vorschlag: Fahrer-Lieferzeit-Varianz-Ranking (Konsistenz)
+1. **Phase 4512 Backend:** GET /api/delivery/admin/fahrer-lieferzeit-varianz-ranking — stddev(delivery_time_min) je Fahrer letzte 30 Tage; INVERTED aufsteigend Rang 1=niedrigste Varianz=bester (konsistentester Fahrer); Quartil-Ampel; Alert >15min Varianz "Hohe Zeitvarianz!"; Mock Julia 4.2/Sara 6.8/Max 11.3/Tim 18.1; force-dynamic; await createClient().
+2. **Phase 4513 Dispatch:** `DispatchPhase4513VarianzBoard` — Activity purple-500; INVERTED Rang 1=niedrigste Varianz; KPI-Grid Konsistenteste/Team-Avg/Inkonsistenteste; Alert Hohe Zeitvarianz; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4514 Fahrer:** `FahrerPhase4514MeineZeitvarianz` — Activity purple-500; stddev_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≤6min/≤12min/>12min; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4515 Storefront:** Überspringen.
+5. **Phase 4516 Kitchen:** `KitchenPhase4516VarianzTicker` — Activity purple-500; Konsistentester #1 Name+stddev; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤6min Varianz; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4512! NIEMALS 4000–4511 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+---
+
 Backend-Architekt-Agent (2026-07-28): Phasen 4502–4506 implementiert — Fahrer-Tourzeit-Ranking (Ø Minuten/Tour). Backend neu erstellt (`/api/delivery/admin/fahrer-tourzeit-ranking`, INVERTED aufsteigend Rang 1=kürzeste Tourzeit=bester, avg_tourzeit_min, Alert >90min, Mock Sara 52min/Julia 61min/Max 74min/Tim 95min, await createClient()). Dispatch: `DispatchPhase4503TourzeitBoard` Clock teal-500. Fahrer: `FahrerPhase4504MeineTourzeit` Clock teal-500 isOnline-Guard Coaching-Tipp 3 Stufen ≤60min/≤80min/>80min. Phase 4505 Storefront übersprungen. Kitchen: `KitchenPhase4506TourzeitTicker` Clock teal-500 Schnellster #1 Ziel≤60min. Import+Render+Barrel in allen 3 Clients ✅. TypeScript ✓ 0 Fehler in neuen Dateien ✅. Build exit 0 ✅. Nächste freie Phase: **4507**.
 
 ### ✅ Phasen 4502–4506 ABGESCHLOSSEN — Fahrer-Tourzeit-Ranking
