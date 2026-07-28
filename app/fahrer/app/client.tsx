@@ -1130,6 +1130,7 @@ import { FahrerPhase4469MeineTourenProTag } from './phase4469-meine-touren-pro-t
 import { FahrerPhase4474MeinePuenktlichkeit } from './phase4474-meine-puenktlichkeit';
 import { FahrerPhase4479MeineErstlieferung } from './phase4479-meine-erstlieferung';
 import { FahrerPhase4484MeineStornoQuote } from './phase4484-meine-storno-quote';
+import { FahrerPhase4489MeineReklamationsQuote } from './phase4489-meine-reklamations-quote';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7212,6 +7213,8 @@ export function FahrerApp({
           <FahrerPhase4479MeineErstlieferung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4484: Meine Storno-Quote — XCircle rose-500; storno_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≤2%/≤5%/>5%; 30-Min-Polling */}
           <FahrerPhase4484MeineStornoQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4489: Meine Reklamations-Quote — MessageSquareWarning orange-500; reklamation_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≤2%/≤5%/>5%; 30-Min-Polling */}
+          <FahrerPhase4489MeineReklamationsQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11459,3 +11462,5 @@ export { FahrerPhase4474MeinePuenktlichkeit } from './phase4474-meine-puenktlich
 export { FahrerPhase4479MeineErstlieferung } from './phase4479-meine-erstlieferung';
 // Phase 4484 — Meine Storno-Quote (XCircle rose-500; storno_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≤2%/≤5%/>5%; 30-Min-Polling)
 export { FahrerPhase4484MeineStornoQuote } from './phase4484-meine-storno-quote';
+// Phase 4489 — Meine Reklamations-Quote (MessageSquareWarning orange-500; reklamation_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≤2%/≤5%/>5%; 30-Min-Polling)
+export { FahrerPhase4489MeineReklamationsQuote } from './phase4489-meine-reklamations-quote';

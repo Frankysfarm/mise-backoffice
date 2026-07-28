@@ -1153,6 +1153,7 @@ import { KitchenPhase4471TourenTicker } from './phase4471-touren-ticker';
 import { KitchenPhase4476PuenktlichkeitsTicker } from './phase4476-puenktlichkeits-ticker';
 import { KitchenPhase4481ErstlieferungTicker } from './phase4481-erstlieferung-ticker';
 import { KitchenPhase4486StornoTicker } from './phase4486-storno-ticker';
+import { KitchenPhase4491ReklamationTicker } from './phase4491-reklamation-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4645,6 +4646,8 @@ export function KitchenBoard({
       <KitchenPhase4481ErstlieferungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4486: Storno-Quote-Ticker — XCircle rose-500; Bester #1 Name+% rose-600; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤3%; 30-Min-Polling */}
       <KitchenPhase4486StornoTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4491: Reklamations-Quote-Ticker — MessageSquareWarning orange-500; Bester #1 Name+% orange-600; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤3%; 30-Min-Polling */}
+      <KitchenPhase4491ReklamationTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12156,3 +12159,5 @@ export { KitchenPhase4476PuenktlichkeitsTicker } from './phase4476-puenktlichkei
 export { KitchenPhase4481ErstlieferungTicker } from './phase4481-erstlieferung-ticker';
 // Phase 4486 — Storno-Quote-Ticker (XCircle rose-500; Bester #1 Name+% rose-600; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤3%; 30-Min-Polling)
 export { KitchenPhase4486StornoTicker } from './phase4486-storno-ticker';
+// Phase 4491 — Reklamations-Quote-Ticker (MessageSquareWarning orange-500; Bester #1 Name+% orange-600; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤3%; 30-Min-Polling)
+export { KitchenPhase4491ReklamationTicker } from './phase4491-reklamation-ticker';

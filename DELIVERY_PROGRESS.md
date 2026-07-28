@@ -31917,3 +31917,42 @@ KRITISCH: Nächste freie Phase ist 4472! NIEMALS 4000–4471 verwenden. IMMER al
 KRITISCH: Nächste freie Phase ist 4487! NIEMALS 4000–4486 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4487–4491 — Fahrer-Reklamations-Quote-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4487 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-reklamation-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-reklamation-ranking?location_id=...&driver_id=...
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, reklamation_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** pct(orders with complaints) je Fahrer letzte 30 Tage; INVERTED aufsteigend Rang 1=niedrigste Reklamationsquote=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert alert_hoch=true wenn rot; Mock Julia 1.5%/Sara 2.8%/Max 4.9%/Tim 7.1%; force-dynamic ✅; createClient() aus @/lib/supabase/server ✅
+
+### Phase 4488 — Reklamations-Quote-Board (Dispatch)
+**Component:** `DispatchPhase4488ReklamationBoard` — MessageSquareWarning orange-500; INVERTED aufsteigend Rang 1=niedrigste Reklamationsquote; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert Hohe Reklamationsquote; Balken=(pct/maxPct)*100%; rank_delta TrendingUp emerald; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4489 — Meine Reklamations-Quote (Fahrer)
+**Component:** `FahrerPhase4489MeineReklamationsQuote` — MessageSquareWarning orange-500; reklamation_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; driverId-Filter; Coaching-Tipp 3 Stufen (≤2%/≤5%/>5%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4490 — Storefront
+Übersprungen ✅
+
+### Phase 4491 — Reklamations-Ticker (Kitchen)
+**Component:** `KitchenPhase4491ReklamationTicker` — MessageSquareWarning orange-500; Bester #1 Name+% orange-600; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≤3%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Pre-existing-Errors identisch; Turbopack bekanntes Container-Problem)
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4491 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490 übersprungen)
+- **Nächste freie Phase: 4492**
+
+### Nächste Phasen 4492–4496 — Fahrer-Bewertungs-Schnitt-Ranking
+1. **Phase 4492 Backend:** GET /api/delivery/admin/fahrer-bewertung-ranking — avg(rating) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Bewertung=bester; Quartil-Ampel; Alert "Niedrige Bewertung!"; Mock Julia 4.8/Max 4.5/Sara 4.1/Tim 3.7; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4493 Dispatch:** `DispatchPhase4493BewertungBoard` — Star yellow-500; absteigend Rang 1=höchste Bewertung; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrige Bewertung; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4494 Fahrer:** `FahrerPhase4494MeineBewertung` — Star yellow-500; avg_rating 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen (≥4.7/≥4.3/<4.3); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4495 Storefront:** Überspringen.
+5. **Phase 4496 Kitchen:** `KitchenPhase4496BewertungTicker` — Star yellow-500; Bester #1 Name+Sterne; Ziel ≥4.5; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4492! NIEMALS 4000–4491 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+## STATUS: MARKT-REIF
