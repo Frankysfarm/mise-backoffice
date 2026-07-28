@@ -11612,6 +11612,8 @@ export { FahrerPhase4634MeinDonnerstagNacht } from './phase4634-mein-donnerstag-
 export { FahrerPhase4639MeinFreitagNacht } from './phase4639-mein-freitag-nacht';
 // Phase 4644 — Mein Samstagnacht (Moon fuchsia-800; samstag_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥38%/≥20%/<20%; 30-Min-Polling)
 export { FahrerPhase4644MeinSamstagNacht } from './phase4644-mein-samstag-nacht';
+// Phase 4649 — Smart Tour Navigation Hub (Navigation2 indigo; Aktiver-Stopp-Highlight blau+CTA; Stopp-Timeline Karten status-farbkodiert; ETA+km je Stopp; Score-Anzeige; 15-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4649SmartTourNavigationHub } from './phase4649-smart-tour-navigation-hub';
 // Phase 4584 — Tour-Stopp Navigation Hub (MapPin blue; Tour-Header mit Fortschritts-Balken; Aktiver-Stopp hervorgehoben mit Navigation+Telefon CTAs; Alle-Stopps-Liste expandierbar; Notiz-Anzeige; Native-Maps-Integration iOS/Android; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4584TourStoppNavigationHub } from './phase4584-tour-stopp-navigation-hub';
 // Phase 4613 — Smart Tour-Stopp Navigator (Navigation indigo; Fortschritts-Header mit Score; Farbkodierte Stop-Timeline Karten; Aktiver Stopp blau+hervorgehoben; Aufklapp-Detail mit Notiz/Zahlung/Navigation-CTA; Google-Maps-Integration; 30-Sek-Polling; Mock-Fallback)

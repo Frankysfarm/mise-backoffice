@@ -12311,6 +12311,8 @@ export { KitchenPhase4636DonnerstagNachtTicker } from './phase4636-donnerstag-na
 export { KitchenPhase4641FreitagNachtTicker } from './phase4641-freitag-nacht-ticker';
 // Phase 4646 — Samstagnacht-Ticker (Moon fuchsia-800; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥28%; 30-Min-Polling)
 export { KitchenPhase4646SamstagNachtTicker } from './phase4646-samstag-nacht-ticker';
+// Phase 4651 — Smart-Timing Countdown Live v9 (ChefHat indigo; Score-Anzeige; Alert-Banner rot; 4-KPI-Grid grün/gelb/rot; Countdown-Kacheln 4-stufig prioritätssortiert Farbkodierung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4651SmartTimingCountdownLiveV9 } from './phase4651-smart-timing-countdown-live-v9';
 // Phase 4586 — Smart-Timing Master Cockpit (Timer indigo; 4-KPI-Grid Score/On-Time/Prep/Queue+15min; Score-Balken; Countdown-Kacheln 5-stufig prioritätssortiert; Komplexitäts-Indikator; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4586SmartTimingMasterCockpit } from './phase4586-smart-timing-master-cockpit';
 // Phase 4611 — Smart Countdown Farbkodierung Live (Timer indigo; 3-KPI-Strip Score/Pünktlichkeit/AvgPrep; Farbkodierte Countdown-Kacheln 6-stufig Ampel; Prioritätssortierung überfällig→wartend→bereit; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
