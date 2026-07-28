@@ -12251,3 +12251,5 @@ export { KitchenPhase4571FruehschichtAnteilTicker } from './phase4571-fruehschic
 export { KitchenPhase4576AbendAnteilTicker } from './phase4576-abend-anteil-ticker';
 // Phase 4581 — Spitzenzeit-Anteil-Ticker (Zap amber-500; Höchste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥55%; 30-Min-Polling)
 export { KitchenPhase4581SpitzenzeitAnteilTicker } from './phase4581-spitzenzeit-anteil-ticker';
+// Phase 4586 — Smart-Timing Master Cockpit (Timer indigo; 4-KPI-Grid Score/On-Time/Prep/Queue+15min; Score-Balken; Countdown-Kacheln 5-stufig prioritätssortiert; Komplexitäts-Indikator; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4586SmartTimingMasterCockpit } from './phase4586-smart-timing-master-cockpit';

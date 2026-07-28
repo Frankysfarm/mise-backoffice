@@ -11554,3 +11554,5 @@ export { FahrerPhase4569MeinFruehschichtAnteil } from './phase4569-mein-fruehsch
 export { FahrerPhase4574MeinAbendAnteil } from './phase4574-mein-abend-anteil';
 // Phase 4579 — Mein Spitzenzeit-Anteil (Zap amber-500; spitzen_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥70%/≥45%/<45%; 30-Min-Polling)
 export { FahrerPhase4579MeinSpitzenzeitAnteil } from './phase4579-mein-spitzenzeit-anteil';
+// Phase 4584 — Tour-Stopp Navigation Hub (MapPin blue; Tour-Header mit Fortschritts-Balken; Aktiver-Stopp hervorgehoben mit Navigation+Telefon CTAs; Alle-Stopps-Liste expandierbar; Notiz-Anzeige; Native-Maps-Integration iOS/Android; 30-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4584TourStoppNavigationHub } from './phase4584-tour-stopp-navigation-hub';

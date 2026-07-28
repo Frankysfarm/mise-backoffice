@@ -13681,3 +13681,5 @@ export { DispatchPhase4568FruehschichtAnteilBoard } from './phase4568-fruehschic
 export { DispatchPhase4573AbendAnteilBoard } from './phase4573-abend-anteil-board';
 // Phase 4578 — Spitzenzeit-Anteil-Board (Zap amber-500; absteigend Rang 1=höchster Spitzenzeitanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Spitzenzeitfahrer; 30-Min-Polling)
 export { DispatchPhase4578SpitzenzeitAnteilBoard } from './phase4578-spitzenzeit-anteil-board';
+// Phase 4583 — Tour-Score Visualisierung Hub (Trophy indigo; Team-Score+Delta-Trend; 3-KPI-Strip Touren/Lieferzeit/SLA; Fahrer-Score-Visualisierung Rang+Balken+Trend; Top-Insight; 60-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4583TourScoreVisualisierungHub } from './phase4583-tour-score-visualisierung-hub';
