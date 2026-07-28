@@ -11,7 +11,7 @@ interface MehrfachData {
     avg_lieferungen: number;
     ampel: 'gruen' | 'gelb' | 'rot';
   }>;
-  team_avg_lieferungen: number;
+  team_avg: number;
   alert_count: number;
 }
 
@@ -46,7 +46,7 @@ export function KitchenPhase4556MehrfachTicker({ locationId }: Props) {
     <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3">
       <div className="flex items-center gap-2 mb-2">
         <Package className="w-4 h-4 text-purple-500" />
-        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Bündelungs-Effizienz</span>
+        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Mehrfachlieferungs-Effizienz</span>
         {data.alert_count > 0 && (
           <span className="ml-auto flex items-center gap-1 text-xs text-red-500">
             <AlertTriangle className="w-3 h-3" />
@@ -59,7 +59,7 @@ export function KitchenPhase4556MehrfachTicker({ locationId }: Props) {
         <div className="flex items-center gap-2 mb-2">
           <span className="text-xs text-gray-500 dark:text-gray-400">#1</span>
           <span className="text-sm font-bold text-purple-600 dark:text-purple-400">{top.fahrer_name}</span>
-          <span className="text-sm font-bold text-purple-600 dark:text-purple-400">{top.avg_lieferungen.toFixed(1)}/Tour</span>
+          <span className="text-sm font-bold text-purple-600 dark:text-purple-400">Ø {top.avg_lieferungen.toFixed(1)}</span>
         </div>
       )}
 
@@ -69,14 +69,14 @@ export function KitchenPhase4556MehrfachTicker({ locationId }: Props) {
             <div className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColor(f.ampel)}`} />
             <span className="text-xs text-gray-600 dark:text-gray-400 truncate flex-1">{f.fahrer_name}</span>
             <span className="text-xs tabular-nums font-medium text-gray-700 dark:text-gray-300">
-              {f.avg_lieferungen.toFixed(1)}/T
+              Ø {f.avg_lieferungen.toFixed(1)}
             </span>
           </div>
         ))}
       </div>
 
       <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-        Team-Avg {data.team_avg_lieferungen.toFixed(1)}/Tour · Ziel ≥3.0/Tour
+        Team-Avg {data.team_avg.toFixed(1)} · Ziel ≥3.0
       </div>
     </div>
   );

@@ -7252,7 +7252,7 @@ export function FahrerApp({
           <FahrerPhase4544MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4549: Meine Lieferfenster-Genauigkeit — Clock teal-500; fenster_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥90%/≥80%/<80%; 30-Min-Polling */}
           <FahrerPhase4549MeineLieferfenster driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
-          {/* Phase 4554: Meine Bündelungs-Effizienz — Package purple-500; avg_lieferungen 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥3.5/≥2.5/<2.5; 30-Min-Polling */}
+          {/* Phase 4554: Meine Mehrfachlieferungs-Effizienz — Package purple-500; avg_lieferungen 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥3.5/≥2.5/<2.5; 30-Min-Polling */}
           <FahrerPhase4554MeineMehrfach driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
@@ -11527,5 +11527,5 @@ export { FahrerPhase4539MeineKontaktRate } from './phase4539-meine-kontakt-rate'
 export { FahrerPhase4544MeineReaktionszeit } from './phase4544-meine-reaktionszeit';
 // Phase 4549 — Meine Lieferfenster-Genauigkeit (Clock teal-500; fenster_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥90%/≥80%/<80%; 30-Min-Polling)
 export { FahrerPhase4549MeineLieferfenster } from './phase4549-meine-lieferfenster';
-// Phase 4554 — Meine Bündelungs-Effizienz (Package purple-500; avg_lieferungen 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥3.5/≥2.5/<2.5; 30-Min-Polling)
+// Phase 4554 — Meine Mehrfachlieferungs-Effizienz (Package purple-500; avg_lieferungen 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥3.5/≥2.5/<2.5; 30-Min-Polling)
 export { FahrerPhase4554MeineMehrfach } from './phase4554-meine-mehrfach';

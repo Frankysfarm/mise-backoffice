@@ -10,7 +10,7 @@ interface MehrfachData {
     avg_lieferungen: number;
     ampel: 'gruen' | 'gelb' | 'rot';
   }>;
-  team_avg_lieferungen: number;
+  team_avg: number;
   gesamt: number;
 }
 
@@ -42,7 +42,7 @@ export function FahrerPhase4554MeineMehrfach({ driverId, locationId, isOnline }:
   if (!isOnline) return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 flex items-center gap-3">
       <WifiOff className="w-5 h-5 text-gray-400" />
-      <span className="text-sm text-gray-500 dark:text-gray-400">Offline — Bündelungs-Effizienz nicht verfügbar</span>
+      <span className="text-sm text-gray-500 dark:text-gray-400">Offline — Mehrfachlieferungen nicht verfügbar</span>
     </div>
   );
 
@@ -63,15 +63,15 @@ export function FahrerPhase4554MeineMehrfach({ driverId, locationId, isOnline }:
     : 'text-red-500 dark:text-red-400';
 
   const coaching =
-    me.avg_lieferungen >= 3.5 ? { text: 'Top-Bündelung! Du nutzt jede Tour optimal aus.', cls: 'text-emerald-600 dark:text-emerald-400' } :
-    me.avg_lieferungen >= 2.5 ? { text: 'Solide! Versuche mehrere Bestellungen pro Tour zu bündeln.', cls: 'text-yellow-600 dark:text-yellow-400' } :
-                                 { text: 'Geringe Bündelung — bitte Dispatch um Mehrfach-Touren.', cls: 'text-red-500 dark:text-red-400' };
+    me.avg_lieferungen >= 3.5 ? { text: 'Ausgezeichnet! Du bündelst Lieferungen sehr effizient.', cls: 'text-emerald-600 dark:text-emerald-400' } :
+    me.avg_lieferungen >= 2.5 ? { text: 'Gut! Versuche mehr Stopps pro Tour zu kombinieren.',      cls: 'text-yellow-600 dark:text-yellow-400' } :
+                                 { text: 'Wenige Lieferungen pro Tour — bündele öfter für mehr Effizienz.', cls: 'text-red-500 dark:text-red-400' };
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4">
       <div className="flex items-center gap-2 mb-3">
         <Package className="w-5 h-5 text-purple-500" />
-        <h3 className="font-semibold text-gray-900 dark:text-white text-sm">Meine Bündelungs-Effizienz</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white text-sm">Meine Mehrfachlieferungs-Effizienz</h3>
       </div>
 
       <div className="flex items-end gap-4 mb-3">
@@ -79,14 +79,16 @@ export function FahrerPhase4554MeineMehrfach({ driverId, locationId, isOnline }:
           {me.avg_lieferungen.toFixed(1)}
         </div>
         <div className="pb-1">
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">Ø Lieferungen/Tour</div>
           <div className={`text-2xl font-bold tabular-nums ${colorClass}`}>#{me.rang}</div>
           <div className="text-xs text-gray-500 dark:text-gray-400">von {data?.gesamt ?? '–'}</div>
         </div>
       </div>
 
+      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+        Ø Lieferungen/Tour
+      </div>
       <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-        Team-Avg: <span className="font-medium text-gray-700 dark:text-gray-300">{data?.team_avg_lieferungen?.toFixed(1) ?? '–'}/Tour</span>
+        Team-Avg: <span className="font-medium text-gray-700 dark:text-gray-300">{data?.team_avg?.toFixed(1) ?? '–'}</span>
       </div>
 
       <p className={`text-xs font-medium ${coaching.cls}`}>{coaching.text}</p>

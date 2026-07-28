@@ -15,7 +15,7 @@ interface FahrerRow {
 
 interface ApiResponse {
   fahrer: FahrerRow[];
-  team_avg_lieferungen: number;
+  team_avg: number;
   hoechste_name: string;
   niedrigste_name: string;
   alert_count: number;
@@ -29,15 +29,15 @@ const MOCK_DATA: ApiResponse = {
     { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, avg_lieferungen: 2.5, rank_delta: -1, ampel: 'gelb',  alert_niedrig: false },
     { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, avg_lieferungen: 1.6, rank_delta:  0, ampel: 'rot',   alert_niedrig: true  },
   ],
-  team_avg_lieferungen: 2.8,
+  team_avg: 2.8,
   hoechste_name: 'Julia F.',
   niedrigste_name: 'Tim B.',
   alert_count: 1,
   gesamt: 4,
 };
 
-function ampelVon(rank: number, total: number): 'gruen' | 'gelb' | 'rot' {
-  const pct = rank / total;
+function ampelVon(rang: number, total: number): 'gruen' | 'gelb' | 'rot' {
+  const pct = rang / total;
   if (pct <= 0.25) return 'gruen';
   if (pct <= 0.75) return 'gelb';
   return 'rot';
@@ -61,8 +61,7 @@ export async function GET(req: NextRequest) {
         .eq('location_id', locationId)
         .eq('status', 'delivered')
         .gte('created_at', cur30Start)
-        .not('driver_id', 'is', null)
-        .not('tour_id', 'is', null),
+        .not('driver_id', 'is', null),
       supabase
         .from('orders')
         .select('driver_id, tour_id')
@@ -70,44 +69,45 @@ export async function GET(req: NextRequest) {
         .eq('status', 'delivered')
         .gte('created_at', prev30Start)
         .lt('created_at', cur30Start)
-        .not('driver_id', 'is', null)
-        .not('tour_id', 'is', null),
+        .not('driver_id', 'is', null),
     ]);
 
     const curData = curRes.data ?? [];
     if (!curData.length) return NextResponse.json(MOCK_DATA);
 
-    type DriverAcc = { name: string; tours: Map<string, number> };
+    type DriverAcc = { name: string; tours: Set<string>; deliveries: number };
     const groupCur = new Map<string, DriverAcc>();
     for (const o of curData) {
-      if (!groupCur.has(o.driver_id)) groupCur.set(o.driver_id, { name: o.driver_name ?? o.driver_id, tours: new Map() });
+      if (!groupCur.has(o.driver_id)) groupCur.set(o.driver_id, { name: o.driver_name ?? o.driver_id, tours: new Set(), deliveries: 0 });
       const acc = groupCur.get(o.driver_id)!;
-      acc.tours.set(o.tour_id, (acc.tours.get(o.tour_id) ?? 0) + 1);
+      if (o.tour_id) acc.tours.add(o.tour_id);
+      acc.deliveries += 1;
     }
 
     const prevData = prevRes.data ?? [];
-    type PrevAcc = { tours: Map<string, number> };
+    type PrevAcc = { tours: Set<string>; deliveries: number };
     const groupPrev = new Map<string, PrevAcc>();
     for (const o of prevData) {
-      if (!groupPrev.has(o.driver_id)) groupPrev.set(o.driver_id, { tours: new Map() });
+      if (!groupPrev.has(o.driver_id)) groupPrev.set(o.driver_id, { tours: new Set(), deliveries: 0 });
       const acc = groupPrev.get(o.driver_id)!;
-      acc.tours.set(o.tour_id, (acc.tours.get(o.tour_id) ?? 0) + 1);
+      if (o.tour_id) acc.tours.add(o.tour_id);
+      acc.deliveries += 1;
     }
-
-    const avgLieferungen = (tours: Map<string, number>) => {
-      if (!tours.size) return 0;
-      const total = Array.from(tours.values()).reduce((s, v) => s + v, 0);
-      return total / tours.size;
-    };
 
     type SortRow = { id: string; name: string; avg: number };
     const sorted: SortRow[] = Array.from(groupCur.entries())
-      .map(([id, acc]) => ({ id, name: acc.name, avg: avgLieferungen(acc.tours) }))
+      .map(([id, acc]) => {
+        const tourCount = acc.tours.size || 1;
+        return { id, name: acc.name, avg: acc.deliveries / tourCount };
+      })
       .sort((a, b) => b.avg - a.avg);
 
     const prevRankMap = new Map<string, number>();
     const prevSorted = Array.from(groupPrev.entries())
-      .map(([id, acc]) => ({ id, avg: avgLieferungen(acc.tours) }))
+      .map(([id, acc]) => {
+        const tourCount = acc.tours.size || 1;
+        return { id, avg: acc.deliveries / tourCount };
+      })
       .sort((a, b) => b.avg - a.avg);
     prevSorted.forEach((r, i) => prevRankMap.set(r.id, i + 1));
 
@@ -131,7 +131,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       fahrer: filteredRows.length ? filteredRows : fahrerRows,
-      team_avg_lieferungen: Math.round(teamAvg * 10) / 10,
+      team_avg: Math.round(teamAvg * 10) / 10,
       hoechste_name: sorted[0]?.name ?? '',
       niedrigste_name: sorted[sorted.length - 1]?.name ?? '',
       alert_count: fahrerRows.filter(f => f.alert_niedrig).length,
