@@ -1188,6 +1188,7 @@ import { KitchenPhase4651SonntagNachtTicker } from './phase4651-sonntag-nacht-ti
 import { KitchenPhase4656WochentagTicker } from './phase4656-wochentag-ticker';
 import { KitchenPhase4661PeakStundenTicker } from './phase4661-peak-stunden-ticker';
 import { KitchenPhase4666WochenendTicker } from './phase4666-wochenend-ticker';
+import { KitchenPhase4671UmsatzProStundeTicker } from './phase4671-umsatz-pro-stunde-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4750,6 +4751,8 @@ export function KitchenBoard({
       <KitchenPhase4661PeakStundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4666: WE vs. Wochentag Ticker — Moon violet-900; Team-Ø WE%+WT%; WE-Leader Name+%; Delta-Trend Pfeil; 30-Min-Polling */}
       <KitchenPhase4666WochenendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4671: Umsatz/h Ticker — Moon amber-800; Höchste #1 Name+€/h; Team-Avg; Ziel ≥20€/h; zielDiff grün/rot; 30-Min-Polling */}
+      <KitchenPhase4671UmsatzProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12331,6 +12334,8 @@ export { KitchenPhase4656WochentagTicker } from './phase4656-wochentag-ticker';
 export { KitchenPhase4661PeakStundenTicker } from './phase4661-peak-stunden-ticker';
 // Phase 4666 — WE vs. Wochentag Ticker (Calendar violet-900; Team-Ø WE%+WT%; WE-Leader Name+%; Delta-Trend Pfeil; 30-Min-Polling)
 export { KitchenPhase4666WochenendTicker } from './phase4666-wochenend-ticker';
+// Phase 4671 — Umsatz/h Ticker (Euro amber-800; Höchste #1 Name+€/h; Team-Avg; Ziel ≥20€/h; zielDiff grün/rot; 30-Min-Polling)
+export { KitchenPhase4671UmsatzProStundeTicker } from './phase4671-umsatz-pro-stunde-ticker';
 // Phase 4651 — Smart-Timing Countdown Live v9 (ChefHat indigo; Score-Anzeige; Alert-Banner rot; 4-KPI-Grid grün/gelb/rot; Countdown-Kacheln 4-stufig prioritätssortiert Farbkodierung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4651SmartTimingCountdownLiveV9 } from './phase4651-smart-timing-countdown-live-v9';
 // Phase 4586 — Smart-Timing Master Cockpit (Timer indigo; 4-KPI-Grid Score/On-Time/Prep/Queue+15min; Score-Balken; Countdown-Kacheln 5-stufig prioritätssortiert; Komplexitäts-Indikator; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
