@@ -10,7 +10,7 @@ interface KommentarData {
     kommentar_pct: number;
     ampel: 'gruen' | 'gelb' | 'rot';
   }>;
-  team_avg_pct: number;
+  team_avg: number;
   gesamt: number;
 }
 
@@ -63,11 +63,9 @@ export function FahrerPhase4564MeineKommentarRate({ driverId, locationId, isOnli
     : 'text-red-500 dark:text-red-400';
 
   const coaching =
-    me.kommentar_pct >= 60
-      ? { text: 'Super! Du erhältst viele Kunden-Kommentare — weiter so!', cls: 'text-emerald-600 dark:text-emerald-400' }
-      : me.kommentar_pct >= 40
-      ? { text: 'Gut! Bitte Kunden aktiv um Feedback nach der Lieferung.', cls: 'text-yellow-600 dark:text-yellow-400' }
-      : { text: 'Wenig Kommentare — frage Kunden freundlich nach ihrer Meinung.', cls: 'text-red-500 dark:text-red-400' };
+    me.kommentar_pct >= 60 ? { text: 'Ausgezeichnet! Kunden schreiben dir oft — weiter so!',            cls: 'text-emerald-600 dark:text-emerald-400' } :
+    me.kommentar_pct >= 40 ? { text: 'Gut! Mit freundlichem Service kannst du die Quote noch steigern.', cls: 'text-yellow-600 dark:text-yellow-400' } :
+                              { text: 'Wenige Kommentare — ein Lächeln motiviert Kunden zum Schreiben.', cls: 'text-red-500 dark:text-red-400' };
 
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4">
@@ -78,7 +76,7 @@ export function FahrerPhase4564MeineKommentarRate({ driverId, locationId, isOnli
 
       <div className="flex items-end gap-4 mb-3">
         <div className={`text-5xl font-bold tabular-nums ${colorClass}`}>
-          {me.kommentar_pct.toFixed(1)}%
+          {me.kommentar_pct}%
         </div>
         <div className="pb-1">
           <div className={`text-2xl font-bold tabular-nums ${colorClass}`}>#{me.rang}</div>
@@ -86,8 +84,11 @@ export function FahrerPhase4564MeineKommentarRate({ driverId, locationId, isOnli
         </div>
       </div>
 
+      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+        Anteil Lieferungen mit Kundenkommentar
+      </div>
       <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-        Team-Avg: <span className="font-medium text-gray-700 dark:text-gray-300">{data?.team_avg_pct?.toFixed(1) ?? '–'}%</span>
+        Team-Avg: <span className="font-medium text-gray-700 dark:text-gray-300">{data?.team_avg ?? '–'}%</span>
       </div>
 
       <p className={`text-xs font-medium ${coaching.cls}`}>{coaching.text}</p>

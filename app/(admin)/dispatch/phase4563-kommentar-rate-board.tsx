@@ -15,7 +15,7 @@ interface FahrerKommentar {
 
 interface KommentarData {
   fahrer: FahrerKommentar[];
-  team_avg_pct: number;
+  team_avg: number;
   alert_count: number;
   beste_name: string;
   niedrigste_name: string;
@@ -52,8 +52,6 @@ export function DispatchPhase4563KommentarRateBoard({ locationId }: Props) {
 
   if (!data) return null;
 
-  const maxPct = Math.max(...data.fahrer.map(f => f.kommentar_pct), 1);
-
   const ampelClass = (a: string) =>
     a === 'gruen' ? 'text-emerald-600 dark:text-emerald-400' :
     a === 'gelb'  ? 'text-yellow-500 dark:text-yellow-400'  :
@@ -87,7 +85,7 @@ export function DispatchPhase4563KommentarRateBoard({ locationId }: Props) {
         </div>
         <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-2 text-center">
           <div className="text-xs text-gray-500 dark:text-gray-400">Team-Avg</div>
-          <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">{data.team_avg_pct.toFixed(1)}%</div>
+          <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">{data.team_avg}%</div>
         </div>
         <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-2 text-center">
           <div className="text-xs text-gray-500 dark:text-gray-400">Niedrigste</div>
@@ -107,7 +105,7 @@ export function DispatchPhase4563KommentarRateBoard({ locationId }: Props) {
                 {f.alert_wenig && <AlertTriangle className="w-3 h-3 text-red-400" />}
               </div>
               <span className={`text-sm font-bold tabular-nums ${ampelClass(f.ampel)}`}>
-                {f.kommentar_pct.toFixed(1)}%
+                {f.kommentar_pct}%
               </span>
             </div>
             <div className="h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
@@ -116,7 +114,7 @@ export function DispatchPhase4563KommentarRateBoard({ locationId }: Props) {
                   f.ampel === 'gruen' ? 'bg-emerald-500' :
                   f.ampel === 'gelb'  ? 'bg-yellow-400'  : 'bg-red-500'
                 }`}
-                style={{ width: `${(f.kommentar_pct / maxPct) * 100}%` }}
+                style={{ width: `${f.kommentar_pct}%` }}
               />
             </div>
           </div>

@@ -11,7 +11,7 @@ interface KommentarData {
     kommentar_pct: number;
     ampel: 'gruen' | 'gelb' | 'rot';
   }>;
-  team_avg_pct: number;
+  team_avg: number;
   alert_count: number;
 }
 
@@ -59,7 +59,7 @@ export function KitchenPhase4566KommentarRateTicker({ locationId }: Props) {
         <div className="flex items-center gap-2 mb-2">
           <span className="text-xs text-gray-500 dark:text-gray-400">#1</span>
           <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{top.fahrer_name}</span>
-          <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{top.kommentar_pct.toFixed(1)}%</span>
+          <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{top.kommentar_pct}%</span>
         </div>
       )}
 
@@ -69,14 +69,14 @@ export function KitchenPhase4566KommentarRateTicker({ locationId }: Props) {
             <div className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColor(f.ampel)}`} />
             <span className="text-xs text-gray-600 dark:text-gray-400 truncate flex-1">{f.fahrer_name}</span>
             <span className="text-xs tabular-nums font-medium text-gray-700 dark:text-gray-300">
-              {f.kommentar_pct.toFixed(1)}%
+              {f.kommentar_pct}%
             </span>
           </div>
         ))}
       </div>
 
       <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-        Team-Avg {data.team_avg_pct.toFixed(1)}% · Ziel ≥50%
+        Team-Avg {data.team_avg}% · Ziel ≥50%
       </div>
     </div>
   );

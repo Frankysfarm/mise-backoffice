@@ -15,7 +15,7 @@ interface FahrerRow {
 
 interface ApiResponse {
   fahrer: FahrerRow[];
-  team_avg_pct: number;
+  team_avg: number;
   beste_name: string;
   niedrigste_name: string;
   alert_count: number;
@@ -29,7 +29,7 @@ const MOCK_DATA: ApiResponse = {
     { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, kommentar_pct: 41, rank_delta: -1, ampel: 'gelb',  alert_wenig: false },
     { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, kommentar_pct: 28, rank_delta:  0, ampel: 'rot',   alert_wenig: true  },
   ],
-  team_avg_pct: 46.5,
+  team_avg: 46.5,
   beste_name: 'Julia F.',
   niedrigste_name: 'Tim B.',
   alert_count: 1,
@@ -57,14 +57,14 @@ export async function GET(req: NextRequest) {
     const [curRes, prevRes] = await Promise.all([
       supabase
         .from('orders')
-        .select('driver_id, driver_name, customer_note, delivery_note')
+        .select('driver_id, driver_name, customer_comment')
         .eq('location_id', locationId)
         .eq('status', 'delivered')
         .gte('created_at', cur30Start)
         .not('driver_id', 'is', null),
       supabase
         .from('orders')
-        .select('driver_id, customer_note, delivery_note')
+        .select('driver_id, customer_comment')
         .eq('location_id', locationId)
         .eq('status', 'delivered')
         .gte('created_at', prev30Start)
@@ -78,16 +78,10 @@ export async function GET(req: NextRequest) {
     type DriverAcc = { name: string; total: number; withComment: number };
     const groupCur = new Map<string, DriverAcc>();
     for (const o of curData) {
-      if (!groupCur.has(o.driver_id)) {
-        groupCur.set(o.driver_id, { name: o.driver_name ?? o.driver_id, total: 0, withComment: 0 });
-      }
+      if (!groupCur.has(o.driver_id)) groupCur.set(o.driver_id, { name: o.driver_name ?? o.driver_id, total: 0, withComment: 0 });
       const acc = groupCur.get(o.driver_id)!;
       acc.total += 1;
-      const hasComment = !!(
-        (o.customer_note && String(o.customer_note).trim().length > 0) ||
-        (o.delivery_note && String(o.delivery_note).trim().length > 0)
-      );
-      if (hasComment) acc.withComment += 1;
+      if (o.customer_comment && String(o.customer_comment).trim().length > 0) acc.withComment += 1;
     }
 
     const prevData = prevRes.data ?? [];
@@ -97,32 +91,19 @@ export async function GET(req: NextRequest) {
       if (!groupPrev.has(o.driver_id)) groupPrev.set(o.driver_id, { total: 0, withComment: 0 });
       const acc = groupPrev.get(o.driver_id)!;
       acc.total += 1;
-      const hasComment = !!(
-        (o.customer_note && String(o.customer_note).trim().length > 0) ||
-        (o.delivery_note && String(o.delivery_note).trim().length > 0)
-      );
-      if (hasComment) acc.withComment += 1;
+      if (o.customer_comment && String(o.customer_comment).trim().length > 0) acc.withComment += 1;
     }
 
     type SortRow = { id: string; name: string; pct: number };
     const sorted: SortRow[] = Array.from(groupCur.entries())
-      .map(([id, acc]) => ({
-        id,
-        name: acc.name,
-        pct: acc.total > 0 ? Math.round((acc.withComment / acc.total) * 1000) / 10 : 0,
-      }))
+      .map(([id, acc]) => ({ id, name: acc.name, pct: acc.total > 0 ? (acc.withComment / acc.total) * 100 : 0 }))
       .sort((a, b) => b.pct - a.pct);
 
-    const prevPctMap = new Map<string, number>(
-      Array.from(groupPrev.entries()).map(([id, acc]) => [
-        id,
-        acc.total > 0 ? Math.round((acc.withComment / acc.total) * 1000) / 10 : 0,
-      ])
-    );
-    const prevSorted = [...sorted]
-      .map(r => ({ ...r, pct: prevPctMap.get(r.id) ?? r.pct }))
+    const prevRankMap = new Map<string, number>();
+    const prevSorted = Array.from(groupPrev.entries())
+      .map(([id, acc]) => ({ id, pct: acc.total > 0 ? (acc.withComment / acc.total) * 100 : 0 }))
       .sort((a, b) => b.pct - a.pct);
-    const prevRankMap = new Map(prevSorted.map((r, i) => [r.id, i + 1]));
+    prevSorted.forEach((r, i) => prevRankMap.set(r.id, i + 1));
 
     const total = sorted.length;
     const fahrerRows: FahrerRow[] = sorted.map((r, i) => {
@@ -132,7 +113,7 @@ export async function GET(req: NextRequest) {
         fahrer_id: r.id,
         fahrer_name: r.name,
         rang,
-        kommentar_pct: r.pct,
+        kommentar_pct: Math.round(r.pct),
         rank_delta: prevRang - rang,
         ampel: ampelVon(rang, total),
         alert_wenig: r.pct < 30,
@@ -144,7 +125,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       fahrer: filteredRows.length ? filteredRows : fahrerRows,
-      team_avg_pct: Math.round(teamAvg * 10) / 10,
+      team_avg: Math.round(teamAvg),
       beste_name: sorted[0]?.name ?? '',
       niedrigste_name: sorted[sorted.length - 1]?.name ?? '',
       alert_count: fahrerRows.filter(f => f.alert_wenig).length,
