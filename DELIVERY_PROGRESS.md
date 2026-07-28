@@ -2,6 +2,32 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-28): Phasen 4637–4641 implementiert — Fahrer-Freitagnacht-Anteil-Ranking (pct Touren Fr 22–02 Uhr). Backend neu erstellt (`/api/delivery/admin/fahrer-freitag-nacht-ranking`, isFreitagNacht() getUTCDay()===5 hour>=22 OR getUTCDay()===6 hour<2, Alert <10% "Wenig Freitagnacht!", Mock Julia 38%/Max 31%/Sara 22%/Tim 11%, await createClient()). Dispatch: `DispatchPhase4638FreitagNachtBoard` Moon emerald-700. Fahrer: `FahrerPhase4639MeinFreitagNacht` Moon emerald-700 isOnline-Guard Coaching 3 Stufen ≥35%/≥18%/<18%. Phase 4640 Storefront übersprungen. Kitchen: `KitchenPhase4641FreitagNachtTicker` Moon emerald-700 Ziel≥22%. Import+Render+Barrel alle 3 Clients ✅. Build exit 0 ✅. Nächste freie Phase: **4642**.
+
+### ✅ Phasen 4637–4641 ABGESCHLOSSEN — Fahrer-Freitagnacht-Anteil-Ranking
+- Phase 4637 Backend: `/api/delivery/admin/fahrer-freitag-nacht-ranking` — absteigend Rang 1=höchster Freitagnacht-Anteil; pct(Touren Fr 22–02 Uhr) je Fahrer letzte 30 Tage; isFreitagNacht() getUTCDay()===5 hour>=22 OR getUTCDay()===6 hour<2; Quartil-Ampel; Alert <10% "Wenig Freitagnacht!"; Mock Julia 38%/Max 31%/Sara 22%/Tim 11%; await createClient() ✅
+- Phase 4638 Dispatch: `DispatchPhase4638FreitagNachtBoard` — Moon emerald-700; KPI-Grid Höchste/Team-Avg/Niedrigste; DeltaIcon TrendingUp/Down/Minus; Balken; Alert; 30-Min-Polling ✅
+- Phase 4639 Fahrer: `FahrerPhase4639MeinFreitagNacht` — Moon emerald-700; isOnline-Guard; Coaching 3 Stufen ≥35%/≥18%/<18%; 30-Min-Polling ✅
+- Phase 4640 Storefront: übersprungen ✅
+- Phase 4641 Kitchen: `KitchenPhase4641FreitagNachtTicker` — Moon emerald-700; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥22%; 30-Min-Polling ✅
+
+### Build: exit 0 ✅ — 0 TypeScript-Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4641 (4640, 4635, 4630, 4625, 4620, 4615, 4610, 4605 und weitere Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 4642**
+
+### Nächste Phasen 4642–4646 — Vorschlag: Fahrer-Samstagnacht-Anteil-Ranking
+1. **Phase 4642 Backend:** GET /api/delivery/admin/fahrer-samstag-nacht-ranking — pct(Touren Sa 22–02 Uhr) je Fahrer letzte 30 Tage; isSamstagNacht() getUTCDay()===6 hour>=22 OR getUTCDay()===0 hour<2; Alert <10% "Wenig Samstagnacht!"; Mock Julia 42%/Max 35%/Sara 25%/Tim 13%; force-dynamic; await createClient().
+2. **Phase 4643 Dispatch:** `DispatchPhase4643SamstagNachtBoard` — Moon rose-700; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Samstagnacht; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4644 Fahrer:** `FahrerPhase4644MeinSamstagNacht` — Moon rose-700; samstag_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥38%/≥20%/<20%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4645 Storefront:** Überspringen.
+5. **Phase 4646 Kitchen:** `KitchenPhase4646SamstagNachtTicker` — Moon rose-700; Höchste #1 Name+%; Ziel ≥25%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4642**! NIEMALS 4000–4641 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 Backend-Architekt-Agent (2026-07-28): Phasen 4632–4636 implementiert — Fahrer-Donnerstagnacht-Anteil-Ranking (pct Touren Do 22–02 Uhr). Backend neu erstellt (`/api/delivery/admin/fahrer-donnerstag-nacht-ranking`, isDonnerstagNacht() getUTCDay()===4 hour>=22 OR getUTCDay()===5 hour<2, Alert <10% "Wenig Donnerstagnacht!", Mock Julia 29%/Max 24%/Sara 16%/Tim 7%, await createClient()). Dispatch: `DispatchPhase4633DonnerstagNachtBoard` Moon blue-700. Fahrer: `FahrerPhase4634MeinDonnerstagNacht` Moon blue-700 isOnline-Guard Coaching 3 Stufen ≥30%/≥15%/<15%. Phase 4635 Storefront übersprungen. Kitchen: `KitchenPhase4636DonnerstagNachtTicker` Moon blue-700 Ziel≥18%. Import+Render+Barrel alle 3 Clients ✅. Build exit 0 ✅. Nächste freie Phase: **4637**.
 
 ### ✅ Phasen 4632–4636 ABGESCHLOSSEN — Fahrer-Donnerstagnacht-Anteil-Ranking
