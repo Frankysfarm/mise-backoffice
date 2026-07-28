@@ -794,7 +794,7 @@ for (const fixture of CURRENT_COMPATIBILITY_BRIDGE_FIXTURES) {
   }
   assert.equal(
     diagnoseCurrentCompatibilityBridge(fixture),
-    fixture.expectedCurrentInvalidDiagnostic,
+    fixture.expectedCurrentDiagnostic,
   );
 }
 assert.deepEqual(

@@ -7,7 +7,7 @@ Updated: 2026-07-27
 | `lib/frank.ts` | T08 | `t07_dispatch` | exclusive-limited | Routing/batching/hold integration only; T07 baseline and Atomic-v2 writer contract remain frozen. |
 | new T08 routing/batching/hold modules, migration and tests | T08 | `t07_dispatch` | exclusive | Default-off/shadow first; no recovery/client/native edits. |
 | `lib/delivery/dispatch-engine.ts` | none | released by T07 | protected | Deterministic scoring/reason contract frozen after G6. |
-| canonical lifecycle/state-machine modules | none | released by T01 | protected | T01 contract is frozen for T02 consumption; changes require explicit ownership. |
+| canonical lifecycle/state-machine modules | continuation regression | program lead | exclusive-limited | Reopened only to refresh stale T01 compatibility evidence after the already-green T03 boundary migration; transition semantics remain frozen. |
 | dispatch/assignment migrations and RPCs | none | released by T02 | protected | T02 Atomic-v2 migrations/RPCs frozen after G2 approval. |
 | `lib/delivery/recovery.ts` | none | released by T05 | protected | Ownership-preserving recovery contract frozen after G4. |
 | `app/api/cron/smart-dispatch/route.ts` and `app/api/delivery/tours/[id]/status/route.ts` recovery callsites | none | released by T05 | protected | Recovery failures must remain visible; dispatch/status business logic is frozen. |

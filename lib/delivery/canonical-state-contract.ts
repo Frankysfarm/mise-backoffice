@@ -1332,7 +1332,9 @@ export function decideCanonicalTransition(
 export type CurrentBridgeGapCode =
   | 'CURRENT_ACCEPT_IS_OPERATIONAL_DECISION'
   | 'CURRENT_DECLINE_EXPOSED'
-  | 'CURRENT_ACK_LIMITED_TO_OFFERED_V1';
+  | 'CURRENT_ACK_LIMITED_TO_OFFERED_V1'
+  | 'CURRENT_ACCEPT_IS_TECHNICAL_ACK'
+  | 'CURRENT_DECLINE_REJECTED';
 
 export interface CurrentCompatibilityBridgeFixture {
   id: string;
@@ -1342,14 +1344,17 @@ export interface CurrentCompatibilityBridgeFixture {
   currentBehavior:
     | 'changes_pending_acceptance_or_offered_to_assigned_or_accepted'
     | 'permits_driver_decline_and_terminalizes_local_or_server_offer'
-    | 'technical_ack_exists_but_requires_atomic_v1_offered_state';
+    | 'technical_ack_exists_but_requires_atomic_v1_offered_state'
+    | 'accept_maps_to_technical_ack_only'
+    | 'normal_decline_is_rejected';
   evidenceSnippets: readonly string[];
-  expectedCurrentInvalidDiagnostic: CurrentBridgeGapCode;
+  expectedCurrentDiagnostic: CurrentBridgeGapCode;
 }
 
 /**
- * Inventory fixture for current code that T01 is not authorized to change.
- * Tests keep the incompatibility visible until T03 replaces the bridge.
+ * Current compatibility inventory. T03 resolved the legacy accept endpoints
+ * into technical ACK adapters and rejects normal decline. Remaining client
+ * types and the v1-only ACK surface stay explicit until their later cutover.
  */
 export const CURRENT_COMPATIBILITY_BRIDGE_FIXTURES:
 readonly CurrentCompatibilityBridgeFixture[] = [
@@ -1358,42 +1363,36 @@ readonly CurrentCompatibilityBridgeFixture[] = [
     surface: 'api',
     sourceFile: 'app/api/driver/v1/orders/accept/route.ts',
     action: 'accept',
-    currentBehavior: 'changes_pending_acceptance_or_offered_to_assigned_or_accepted',
-    evidenceSnippets: [
-      "executeAtomicDriverTransition(c, m.driver.id, body, 'accept')",
-      ".update({ state: 'assigned'",
-    ],
-    expectedCurrentInvalidDiagnostic: 'CURRENT_ACCEPT_IS_OPERATIONAL_DECISION',
+    currentBehavior: 'accept_maps_to_technical_ack_only',
+    evidenceSnippets: ['acceptAsTechnicalAck'],
+    expectedCurrentDiagnostic: 'CURRENT_ACCEPT_IS_TECHNICAL_ACK',
   },
   {
     id: 'api.me.accept_tour',
     surface: 'api',
     sourceFile: 'app/api/driver/v1/me/accept-tour/route.ts',
     action: 'accept',
-    currentBehavior: 'changes_pending_acceptance_or_offered_to_assigned_or_accepted',
-    evidenceSnippets: [
-      "svc, drv.id, body, 'accept'",
-      ".update({ state: 'assigned'",
-    ],
-    expectedCurrentInvalidDiagnostic: 'CURRENT_ACCEPT_IS_OPERATIONAL_DECISION',
+    currentBehavior: 'accept_maps_to_technical_ack_only',
+    evidenceSnippets: ['acceptAsTechnicalAck'],
+    expectedCurrentDiagnostic: 'CURRENT_ACCEPT_IS_TECHNICAL_ACK',
   },
   {
     id: 'api.offers.transition.accept',
     surface: 'api',
     sourceFile: 'app/api/driver/v1/offers/transition/route.ts',
     action: 'accept',
-    currentBehavior: 'changes_pending_acceptance_or_offered_to_assigned_or_accepted',
-    evidenceSnippets: ["'accept', 'decline'"],
-    expectedCurrentInvalidDiagnostic: 'CURRENT_ACCEPT_IS_OPERATIONAL_DECISION',
+    currentBehavior: 'accept_maps_to_technical_ack_only',
+    evidenceSnippets: ["body.action === 'accept'", 'acceptAsTechnicalAck'],
+    expectedCurrentDiagnostic: 'CURRENT_ACCEPT_IS_TECHNICAL_ACK',
   },
   {
     id: 'api.offers.transition.decline',
     surface: 'api',
     sourceFile: 'app/api/driver/v1/offers/transition/route.ts',
     action: 'decline',
-    currentBehavior: 'permits_driver_decline_and_terminalizes_local_or_server_offer',
-    evidenceSnippets: ["'accept', 'decline'"],
-    expectedCurrentInvalidDiagnostic: 'CURRENT_DECLINE_EXPOSED',
+    currentBehavior: 'normal_decline_is_rejected',
+    evidenceSnippets: ["body.action === 'decline'", 'NORMAL_DECLINE_NOT_ALLOWED'],
+    expectedCurrentDiagnostic: 'CURRENT_DECLINE_REJECTED',
   },
   {
     id: 'client.atomic_offer.accept',
@@ -1402,7 +1401,7 @@ readonly CurrentCompatibilityBridgeFixture[] = [
     action: 'accept',
     currentBehavior: 'changes_pending_acceptance_or_offered_to_assigned_or_accepted',
     evidenceSnippets: ["| 'accept'"],
-    expectedCurrentInvalidDiagnostic: 'CURRENT_ACCEPT_IS_OPERATIONAL_DECISION',
+    expectedCurrentDiagnostic: 'CURRENT_ACCEPT_IS_OPERATIONAL_DECISION',
   },
   {
     id: 'client.atomic_offer.decline',
@@ -1411,16 +1410,16 @@ readonly CurrentCompatibilityBridgeFixture[] = [
     action: 'decline',
     currentBehavior: 'permits_driver_decline_and_terminalizes_local_or_server_offer',
     evidenceSnippets: ["| 'decline'", "action === 'decline'"],
-    expectedCurrentInvalidDiagnostic: 'CURRENT_DECLINE_EXPOSED',
+    expectedCurrentDiagnostic: 'CURRENT_DECLINE_EXPOSED',
   },
   {
     id: 'client.claim_batch.accept',
     surface: 'client',
     sourceFile: 'app/fahrer/app/client.tsx',
     action: 'accept',
-    currentBehavior: 'changes_pending_acceptance_or_offered_to_assigned_or_accepted',
+    currentBehavior: 'accept_maps_to_technical_ack_only',
     evidenceSnippets: ["runAtomicAction('accept'"],
-    expectedCurrentInvalidDiagnostic: 'CURRENT_ACCEPT_IS_OPERATIONAL_DECISION',
+    expectedCurrentDiagnostic: 'CURRENT_ACCEPT_IS_TECHNICAL_ACK',
   },
   {
     id: 'api.offers.ack',
@@ -1429,7 +1428,7 @@ readonly CurrentCompatibilityBridgeFixture[] = [
     action: 'ack_receipt',
     currentBehavior: 'technical_ack_exists_but_requires_atomic_v1_offered_state',
     evidenceSnippets: ["fn_dispatch_ack_offer_v1"],
-    expectedCurrentInvalidDiagnostic: 'CURRENT_ACK_LIMITED_TO_OFFERED_V1',
+    expectedCurrentDiagnostic: 'CURRENT_ACK_LIMITED_TO_OFFERED_V1',
   },
   {
     id: 'client.native_offer.ack',
@@ -1438,7 +1437,7 @@ readonly CurrentCompatibilityBridgeFixture[] = [
     action: 'ack_receipt',
     currentBehavior: 'technical_ack_exists_but_requires_atomic_v1_offered_state',
     evidenceSnippets: ["'/api/driver/v1/offers/ack'"],
-    expectedCurrentInvalidDiagnostic: 'CURRENT_ACK_LIMITED_TO_OFFERED_V1',
+    expectedCurrentDiagnostic: 'CURRENT_ACK_LIMITED_TO_OFFERED_V1',
   },
 ];
 
@@ -1456,6 +1455,12 @@ export function diagnoseCurrentCompatibilityBridge(
     'permits_driver_decline_and_terminalizes_local_or_server_offer'
   ) {
     return 'CURRENT_DECLINE_EXPOSED';
+  }
+  if (fixture.currentBehavior === 'accept_maps_to_technical_ack_only') {
+    return 'CURRENT_ACCEPT_IS_TECHNICAL_ACK';
+  }
+  if (fixture.currentBehavior === 'normal_decline_is_rejected') {
+    return 'CURRENT_DECLINE_REJECTED';
   }
   return 'CURRENT_ACK_LIMITED_TO_OFFERED_V1';
 }
