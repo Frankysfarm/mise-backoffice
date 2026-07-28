@@ -1143,6 +1143,7 @@ import { FahrerPhase4534MeineVollstaendigkeit } from './phase4534-meine-vollstae
 import { FahrerPhase4539MeineKontaktRate } from './phase4539-meine-kontakt-rate';
 import { FahrerPhase4544MeineReaktionszeit } from './phase4544-meine-reaktionszeit';
 import { FahrerPhase4549MeineLieferfenster } from './phase4549-meine-lieferfenster';
+import { FahrerPhase4554MeineMehrfach } from './phase4554-meine-mehrfach';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7251,6 +7252,8 @@ export function FahrerApp({
           <FahrerPhase4544MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4549: Meine Lieferfenster-Genauigkeit — Clock teal-500; fenster_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥90%/≥80%/<80%; 30-Min-Polling */}
           <FahrerPhase4549MeineLieferfenster driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4554: Meine Bündelungs-Effizienz — Package purple-500; avg_lieferungen 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥3.5/≥2.5/<2.5; 30-Min-Polling */}
+          <FahrerPhase4554MeineMehrfach driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11524,3 +11527,5 @@ export { FahrerPhase4539MeineKontaktRate } from './phase4539-meine-kontakt-rate'
 export { FahrerPhase4544MeineReaktionszeit } from './phase4544-meine-reaktionszeit';
 // Phase 4549 — Meine Lieferfenster-Genauigkeit (Clock teal-500; fenster_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥90%/≥80%/<80%; 30-Min-Polling)
 export { FahrerPhase4549MeineLieferfenster } from './phase4549-meine-lieferfenster';
+// Phase 4554 — Meine Bündelungs-Effizienz (Package purple-500; avg_lieferungen 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥3.5/≥2.5/<2.5; 30-Min-Polling)
+export { FahrerPhase4554MeineMehrfach } from './phase4554-meine-mehrfach';

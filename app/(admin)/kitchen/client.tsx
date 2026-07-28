@@ -1166,6 +1166,7 @@ import { KitchenPhase4536VollstaendigkeitTicker } from './phase4536-vollstaendig
 import { KitchenPhase4541KontaktRateTicker } from './phase4541-kontakt-rate-ticker';
 import { KitchenPhase4546ReaktionszeitTicker } from './phase4546-reaktionszeit-ticker';
 import { KitchenPhase4551LieferfensterTicker } from './phase4551-lieferfenster-ticker';
+import { KitchenPhase4556MehrfachTicker } from './phase4556-mehrfach-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4684,6 +4685,8 @@ export function KitchenBoard({
       <KitchenPhase4546ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4551: Lieferfenster-Ticker — Clock teal-500; Beste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥88%; 30-Min-Polling */}
       <KitchenPhase4551LieferfensterTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4556: Bündelungs-Effizienz-Ticker — Package purple-500; Höchste #1 Name+Ø-Lieferungen; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥3.0/Tour; 30-Min-Polling */}
+      <KitchenPhase4556MehrfachTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12221,3 +12224,5 @@ export { KitchenPhase4541KontaktRateTicker } from './phase4541-kontakt-rate-tick
 export { KitchenPhase4546ReaktionszeitTicker } from './phase4546-reaktionszeit-ticker';
 // Phase 4551 — Lieferfenster-Ticker (Clock teal-500; Beste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥88%; 30-Min-Polling)
 export { KitchenPhase4551LieferfensterTicker } from './phase4551-lieferfenster-ticker';
+// Phase 4556 — Bündelungs-Effizienz-Ticker (Package purple-500; Höchste #1 Name+Ø-Lieferungen; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥3.0/Tour; 30-Min-Polling)
+export { KitchenPhase4556MehrfachTicker } from './phase4556-mehrfach-ticker';
