@@ -10,28 +10,28 @@ interface FahrerRow {
   fenster_pct: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
-  alert_niedrig: boolean;
+  alert_schlecht: boolean;
 }
 
 interface ApiResponse {
   fahrer: FahrerRow[];
   team_avg_pct: number;
   beste_name: string;
-  niedrigste_name: string;
+  schlechteste_name: string;
   alert_count: number;
   gesamt: number;
 }
 
 const MOCK_DATA: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, fenster_pct: 94.0, rank_delta:  0, ampel: 'gruen', alert_niedrig: false },
-    { fahrer_id: 'f2', fahrer_name: 'Max M.',   rang: 2, fenster_pct: 87.0, rank_delta:  1, ampel: 'gruen', alert_niedrig: false },
-    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, fenster_pct: 79.0, rank_delta: -1, ampel: 'gelb',  alert_niedrig: true  },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, fenster_pct: 67.0, rank_delta:  0, ampel: 'rot',   alert_niedrig: true  },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, fenster_pct: 94.0, rank_delta:  0, ampel: 'gruen', alert_schlecht: false },
+    { fahrer_id: 'f2', fahrer_name: 'Max M.',   rang: 2, fenster_pct: 87.0, rank_delta:  1, ampel: 'gruen', alert_schlecht: false },
+    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, fenster_pct: 79.0, rank_delta: -1, ampel: 'gelb',  alert_schlecht: true  },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, fenster_pct: 67.0, rank_delta:  0, ampel: 'rot',   alert_schlecht: true  },
   ],
-  team_avg_pct: 81.75,
+  team_avg_pct: 81.8,
   beste_name: 'Julia F.',
-  niedrigste_name: 'Tim B.',
+  schlechteste_name: 'Tim B.',
   alert_count: 2,
   gesamt: 4,
 };
@@ -57,93 +57,87 @@ export async function GET(req: NextRequest) {
     const [curRes, prevRes] = await Promise.all([
       supabase
         .from('orders')
-        .select('driver_id, driver_name, delivered_at, promised_delivery_at')
+        .select('driver_id, driver_name, promised_delivery_at, actual_delivery_at')
         .eq('location_id', locationId)
         .eq('status', 'delivered')
         .gte('created_at', cur30Start)
         .not('driver_id', 'is', null)
-        .not('delivered_at', 'is', null)
-        .not('promised_delivery_at', 'is', null),
+        .not('promised_delivery_at', 'is', null)
+        .not('actual_delivery_at', 'is', null),
       supabase
         .from('orders')
-        .select('driver_id, delivered_at, promised_delivery_at')
+        .select('driver_id, promised_delivery_at, actual_delivery_at')
         .eq('location_id', locationId)
         .eq('status', 'delivered')
         .gte('created_at', prev30Start)
         .lt('created_at', cur30Start)
         .not('driver_id', 'is', null)
-        .not('delivered_at', 'is', null)
-        .not('promised_delivery_at', 'is', null),
+        .not('promised_delivery_at', 'is', null)
+        .not('actual_delivery_at', 'is', null),
     ]);
 
     const curData = curRes.data ?? [];
     if (!curData.length) return NextResponse.json(MOCK_DATA);
 
-    type DriverAcc = { name: string; onTime: number; total: number };
+    type DriverAcc = { name: string; total: number; inWindow: number };
     const groupCur = new Map<string, DriverAcc>();
-
     for (const o of curData) {
-      const isOnTime = new Date(o.delivered_at).getTime() <= new Date(o.promised_delivery_at).getTime();
-      const existing = groupCur.get(o.driver_id);
-      if (existing) {
-        if (isOnTime) existing.onTime++;
-        existing.total++;
-      } else {
-        groupCur.set(o.driver_id, { name: o.driver_name ?? o.driver_id, onTime: isOnTime ? 1 : 0, total: 1 });
-      }
+      const actual    = new Date(o.actual_delivery_at).getTime();
+      const promised  = new Date(o.promised_delivery_at).getTime();
+      const onTime    = actual <= promised;
+      if (!groupCur.has(o.driver_id)) groupCur.set(o.driver_id, { name: o.driver_name ?? o.driver_id, total: 0, inWindow: 0 });
+      const acc = groupCur.get(o.driver_id)!;
+      acc.total += 1;
+      if (onTime) acc.inWindow += 1;
     }
 
-    if (!groupCur.size) return NextResponse.json(MOCK_DATA);
-
-    type PrevAcc = { onTime: number; total: number };
+    const prevData = prevRes.data ?? [];
+    type PrevAcc = { total: number; inWindow: number };
     const groupPrev = new Map<string, PrevAcc>();
-    for (const o of (prevRes.data ?? [])) {
-      const isOnTime = new Date(o.delivered_at).getTime() <= new Date(o.promised_delivery_at).getTime();
-      const existing = groupPrev.get(o.driver_id);
-      if (existing) { if (isOnTime) existing.onTime++; existing.total++; }
-      else groupPrev.set(o.driver_id, { onTime: isOnTime ? 1 : 0, total: 1 });
+    for (const o of prevData) {
+      const actual   = new Date(o.actual_delivery_at).getTime();
+      const promised = new Date(o.promised_delivery_at).getTime();
+      if (!groupPrev.has(o.driver_id)) groupPrev.set(o.driver_id, { total: 0, inWindow: 0 });
+      const acc = groupPrev.get(o.driver_id)!;
+      acc.total += 1;
+      if (actual <= promised) acc.inWindow += 1;
     }
 
-    const entries = Array.from(groupCur.entries()).map(([id, acc]) => ({
-      fahrer_id: id,
-      fahrer_name: acc.name,
-      pct: acc.total > 0 ? (acc.onTime / acc.total) * 100 : 0,
-    }));
-
-    entries.sort((a, b) => b.pct - a.pct);
-
-    const total = entries.length;
-
-    const prevRanks = new Map<string, number>();
-    const prevEntries = Array.from(groupPrev.entries())
-      .map(([id, acc]) => ({ id, pct: acc.total > 0 ? (acc.onTime / acc.total) * 100 : 0 }))
+    type SortRow = { id: string; name: string; pct: number };
+    const sorted: SortRow[] = Array.from(groupCur.entries())
+      .map(([id, acc]) => ({ id, name: acc.name, pct: acc.total ? (acc.inWindow / acc.total) * 100 : 0 }))
       .sort((a, b) => b.pct - a.pct);
-    prevEntries.forEach((e, i) => prevRanks.set(e.id, i + 1));
 
-    const fahrer: FahrerRow[] = entries.map((e, i) => {
+    const prevRankMap = new Map<string, number>();
+    const prevSorted = Array.from(groupPrev.entries())
+      .map(([id, acc]) => ({ id, pct: acc.total ? (acc.inWindow / acc.total) * 100 : 0 }))
+      .sort((a, b) => b.pct - a.pct);
+    prevSorted.forEach((r, i) => prevRankMap.set(r.id, i + 1));
+
+    const total = sorted.length;
+    const fahrerRows: FahrerRow[] = sorted.map((r, i) => {
       const rang = i + 1;
-      const prevRang = prevRanks.get(e.fahrer_id) ?? rang;
-      const ampel = ampelVon(rang, total);
+      const prevRang = prevRankMap.get(r.id) ?? rang;
       return {
-        fahrer_id: e.fahrer_id,
-        fahrer_name: e.fahrer_name,
+        fahrer_id: r.id,
+        fahrer_name: r.name,
         rang,
-        fenster_pct: Math.round(e.pct * 10) / 10,
+        fenster_pct: Math.round(r.pct * 10) / 10,
         rank_delta: prevRang - rang,
-        ampel,
-        alert_niedrig: e.pct < 80,
+        ampel: ampelVon(rang, total),
+        alert_schlecht: r.pct < 80,
       };
     });
 
-    const query = driverId ? fahrer.filter(f => f.fahrer_id === driverId) : fahrer;
-    const teamAvg = entries.reduce((s, e) => s + e.pct, 0) / entries.length;
+    const filteredRows = driverId ? fahrerRows.filter(f => f.fahrer_id === driverId) : fahrerRows;
+    const teamAvg = sorted.reduce((s, r) => s + r.pct, 0) / (sorted.length || 1);
 
     return NextResponse.json({
-      fahrer: query.length ? query : fahrer,
+      fahrer: filteredRows.length ? filteredRows : fahrerRows,
       team_avg_pct: Math.round(teamAvg * 10) / 10,
-      beste_name: fahrer[0]?.fahrer_name ?? '',
-      niedrigste_name: fahrer[total - 1]?.fahrer_name ?? '',
-      alert_count: fahrer.filter(f => f.alert_niedrig).length,
+      beste_name: sorted[0]?.name ?? '',
+      schlechteste_name: sorted[sorted.length - 1]?.name ?? '',
+      alert_count: fahrerRows.filter(f => f.alert_schlecht).length,
       gesamt: total,
     } satisfies ApiResponse);
   } catch {

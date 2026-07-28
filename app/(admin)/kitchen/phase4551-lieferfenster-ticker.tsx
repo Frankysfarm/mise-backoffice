@@ -3,12 +3,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Clock, AlertTriangle } from 'lucide-react';
 
-interface FahrerFenster {
-  fahrer_id: string;
-  fahrer_name: string;
-  rang: number;
-  fenster_pct: number;
-  ampel: 'gruen' | 'gelb' | 'rot';
+interface FensterData {
+  fahrer: Array<{
+    fahrer_id: string;
+    fahrer_name: string;
+    rang: number;
+    fenster_pct: number;
+    ampel: 'gruen' | 'gelb' | 'rot';
+  }>;
+  team_avg_pct: number;
+  alert_count: number;
 }
 
 interface Props {
@@ -16,19 +20,12 @@ interface Props {
 }
 
 export function KitchenPhase4551LieferfensterTicker({ locationId }: Props) {
-  const [fahrer, setFahrer] = useState<FahrerFenster[]>([]);
-  const [teamAvg, setTeamAvg] = useState<number>(0);
-  const [alertCount, setAlertCount] = useState(0);
+  const [data, setData] = useState<FensterData | null>(null);
 
   const fetchData = useCallback(async () => {
     const params = locationId ? `?location_id=${locationId}` : '';
     const res = await fetch(`/api/delivery/admin/fahrer-lieferfenster-ranking${params}`, { cache: 'no-store' });
-    if (res.ok) {
-      const json = await res.json();
-      setFahrer(json.fahrer ?? []);
-      setTeamAvg(json.team_avg_pct ?? 0);
-      setAlertCount(json.alert_count ?? 0);
-    }
+    if (res.ok) setData(await res.json());
   }, [locationId]);
 
   useEffect(() => {
@@ -37,43 +34,50 @@ export function KitchenPhase4551LieferfensterTicker({ locationId }: Props) {
     return () => clearInterval(iv);
   }, [fetchData]);
 
-  const best = fahrer[0];
-  if (!best) return null;
+  if (!data) return null;
 
-  const dotColor = (a: FahrerFenster['ampel']) =>
-    a === 'gruen' ? 'bg-teal-500' : a === 'rot' ? 'bg-red-500' : 'bg-yellow-400';
+  const top = data.fahrer[0];
+
+  const dotColor = (a: string) =>
+    a === 'gruen' ? 'bg-emerald-500' :
+    a === 'gelb'  ? 'bg-yellow-400'  : 'bg-red-500';
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3 space-y-2">
-      <div className="flex items-center gap-2">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-3">
+      <div className="flex items-center gap-2 mb-2">
         <Clock className="w-4 h-4 text-teal-500" />
-        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Lieferfenster-Ranking</span>
-        {alertCount > 0 && (
-          <span className="ml-auto flex items-center gap-1 text-xs text-red-500 dark:text-red-400">
-            <AlertTriangle className="w-3 h-3" />{alertCount}
+        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Lieferfenster-Genauigkeit</span>
+        {data.alert_count > 0 && (
+          <span className="ml-auto flex items-center gap-1 text-xs text-red-500">
+            <AlertTriangle className="w-3 h-3" />
+            {data.alert_count}
           </span>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500">Beste #1</span>
-        <span className="text-sm font-bold text-teal-500 dark:text-teal-400">{best.fahrer_name}</span>
-        <div className="ml-auto flex items-center gap-1">
-          <Clock className="w-3 h-3 text-teal-500" />
-          <span className="text-sm font-semibold text-teal-500 dark:text-teal-400">{best.fenster_pct?.toFixed(1)}%</span>
+      {top && (
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-xs text-gray-500 dark:text-gray-400">#1</span>
+          <span className="text-sm font-bold text-teal-600 dark:text-teal-400">{top.fahrer_name}</span>
+          <span className="text-sm font-bold text-teal-600 dark:text-teal-400">{top.fenster_pct.toFixed(1)}%</span>
         </div>
-      </div>
+      )}
 
-      <div className="flex gap-2 flex-wrap">
-        {fahrer.map(f => (
-          <div key={f.fahrer_id} className="flex items-center gap-1">
-            <span className={`w-2 h-2 rounded-full ${dotColor(f.ampel)}`} />
-            <span className="text-xs text-gray-600 dark:text-gray-400">{f.fahrer_name} {f.fenster_pct?.toFixed(1)}%</span>
+      <div className="space-y-1">
+        {data.fahrer.map(f => (
+          <div key={f.fahrer_id} className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColor(f.ampel)}`} />
+            <span className="text-xs text-gray-600 dark:text-gray-400 truncate flex-1">{f.fahrer_name}</span>
+            <span className="text-xs tabular-nums font-medium text-gray-700 dark:text-gray-300">
+              {f.fenster_pct.toFixed(1)}%
+            </span>
           </div>
         ))}
       </div>
 
-      <div className="text-xs text-gray-400">Team-Avg: {teamAvg?.toFixed(1)}% · Ziel ≥88%</div>
+      <div className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+        Team-Avg {data.team_avg_pct.toFixed(1)}% · Ziel ≥88%
+      </div>
     </div>
   );
 }

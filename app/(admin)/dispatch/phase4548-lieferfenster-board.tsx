@@ -10,7 +10,7 @@ interface FahrerFenster {
   fenster_pct: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
-  alert_niedrig: boolean;
+  alert_schlecht: boolean;
 }
 
 interface FensterData {
@@ -18,7 +18,7 @@ interface FensterData {
   team_avg_pct: number;
   alert_count: number;
   beste_name: string;
-  niedrigste_name: string;
+  schlechteste_name: string;
   gesamt: number;
 }
 
@@ -45,83 +45,83 @@ export function DispatchPhase4548LieferfensterBoard({ locationId }: Props) {
 
   if (loading) return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-700 p-4 animate-pulse">
-      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-52 mb-3" />
+      <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-56 mb-3" />
       <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-10 bg-gray-100 dark:bg-gray-800 rounded" />)}</div>
     </div>
   );
 
   if (!data) return null;
 
-  const best  = data.fahrer[0];
-  const worst = data.fahrer[data.fahrer.length - 1];
-  const alerts = data.fahrer.filter(d => d.alert_niedrig);
-  const maxVal = best?.fenster_pct ?? 1;
+  const maxPct = Math.max(...data.fahrer.map(f => f.fenster_pct), 1);
 
-  const ampelColor = (a: FahrerFenster['ampel']) =>
-    a === 'gruen' ? 'text-teal-500 dark:text-teal-400' :
-    a === 'rot'   ? 'text-red-500 dark:text-red-400' : 'text-yellow-500 dark:text-yellow-400';
+  const ampelClass = (a: string) =>
+    a === 'gruen' ? 'text-emerald-600 dark:text-emerald-400' :
+    a === 'gelb'  ? 'text-yellow-500 dark:text-yellow-400'  :
+                    'text-red-500 dark:text-red-400';
 
-  const ampelBg = (a: FahrerFenster['ampel']) =>
-    a === 'gruen' ? 'bg-teal-500' : a === 'rot' ? 'bg-red-500' : 'bg-yellow-400';
-
-  const deltaIcon = (delta: number) =>
-    delta > 0 ? <TrendingUp className="w-3 h-3 text-emerald-500" /> :
-    delta < 0 ? <TrendingDown className="w-3 h-3 text-red-400" /> :
-    <Minus className="w-3 h-3 text-gray-400" />;
+  const DeltaIcon = ({ d }: { d: number }) =>
+    d > 0 ? <TrendingUp className="w-3 h-3 text-emerald-500" /> :
+    d < 0 ? <TrendingDown className="w-3 h-3 text-red-400" />   :
+             <Minus className="w-3 h-3 text-gray-400" />;
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 space-y-4">
-      <div className="flex items-center gap-2">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4">
+      <div className="flex items-center gap-2 mb-3">
         <Clock className="w-5 h-5 text-teal-500" />
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Lieferfenster-Ranking (30 Tage)</h3>
-        <span className="ml-auto text-xs text-gray-400">% im Zeitfenster</span>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2 text-center">
-        <div className="rounded-lg bg-teal-50 dark:bg-teal-900/20 p-2">
-          <div className="text-lg font-bold text-teal-500 dark:text-teal-400">{best?.fenster_pct?.toFixed(1)}%</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">Beste ({best?.fahrer_name})</div>
-        </div>
-        <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-2">
-          <div className="text-lg font-bold text-gray-700 dark:text-gray-300">{data.team_avg_pct?.toFixed(1)}%</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">Team-Avg</div>
-        </div>
-        <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-2">
-          <div className="text-lg font-bold text-gray-500 dark:text-gray-400">{worst?.fenster_pct?.toFixed(1)}%</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">Niedrigste ({worst?.fahrer_name})</div>
-        </div>
-      </div>
-
-      {alerts.length > 0 && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-3 py-2">
-          <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
-          <span className="text-xs text-red-700 dark:text-red-300">
-            Schlechte Fenstereinhaltung: {alerts.map(a => a.fahrer_name).join(', ')}
+        <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+          Lieferfenster-Genauigkeit — Ranking
+        </h3>
+        {data.alert_count > 0 && (
+          <span className="ml-auto flex items-center gap-1 text-xs text-red-500 font-medium">
+            <AlertTriangle className="w-3 h-3" />
+            {data.alert_count} Schlechte Fenstereinhaltung!
           </span>
-        </div>
-      )}
+        )}
+      </div>
 
+      {/* KPI Grid */}
+      <div className="grid grid-cols-3 gap-2 mb-3">
+        <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-2 text-center">
+          <div className="text-xs text-gray-500 dark:text-gray-400">Beste</div>
+          <div className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 truncate">{data.beste_name}</div>
+        </div>
+        <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-2 text-center">
+          <div className="text-xs text-gray-500 dark:text-gray-400">Team-Avg</div>
+          <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">{data.team_avg_pct.toFixed(1)}%</div>
+        </div>
+        <div className="rounded-lg bg-gray-50 dark:bg-gray-800 p-2 text-center">
+          <div className="text-xs text-gray-500 dark:text-gray-400">Niedrigste</div>
+          <div className="text-sm font-semibold text-red-500 dark:text-red-400 truncate">{data.schlechteste_name}</div>
+        </div>
+      </div>
+
+      {/* Ranking Table */}
       <div className="space-y-2">
-        {data.fahrer.map((f) => (
-          <div key={f.fahrer_id} className="space-y-1">
-            <div className="flex items-center gap-2 text-sm">
-              <span className={`text-xs font-bold w-5 ${ampelColor(f.ampel)}`}>#{f.rang}</span>
-              <span className="flex-1 font-medium text-gray-800 dark:text-gray-200">{f.fahrer_name}</span>
-              <span className="flex items-center gap-0.5 text-xs text-gray-500">{deltaIcon(f.rank_delta)}</span>
-              <Clock className="w-3 h-3 text-teal-500" />
-              <span className={`font-semibold text-xs ${ampelColor(f.ampel)}`}>{f.fenster_pct?.toFixed(1)}%</span>
+        {data.fahrer.map(f => (
+          <div key={f.fahrer_id} className="rounded-lg bg-gray-50 dark:bg-gray-800 px-3 py-2">
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-gray-400 w-5">#{f.rang}</span>
+                <DeltaIcon d={f.rank_delta} />
+                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{f.fahrer_name}</span>
+                {f.alert_schlecht && <AlertTriangle className="w-3 h-3 text-red-400" />}
+              </div>
+              <span className={`text-sm font-bold tabular-nums ${ampelClass(f.ampel)}`}>
+                {f.fenster_pct.toFixed(1)}%
+              </span>
             </div>
-            <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-800">
+            <div className="h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
               <div
-                className={`h-full rounded-full ${ampelBg(f.ampel)}`}
-                style={{ width: `${maxVal > 0 ? Math.round((f.fenster_pct / maxVal) * 100) : 0}%` }}
+                className={`h-full rounded-full transition-all ${
+                  f.ampel === 'gruen' ? 'bg-emerald-500' :
+                  f.ampel === 'gelb'  ? 'bg-yellow-400'  : 'bg-red-500'
+                }`}
+                style={{ width: `${(f.fenster_pct / maxPct) * 100}%` }}
               />
             </div>
           </div>
         ))}
       </div>
-
-      <div className="text-xs text-gray-400">Ziel: ≥88% · {data.gesamt} Fahrer</div>
     </div>
   );
 }

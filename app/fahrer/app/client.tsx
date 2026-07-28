@@ -7249,7 +7249,7 @@ export function FahrerApp({
           <FahrerPhase4539MeineKontaktRate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4544: Meine Reaktionszeit — Zap yellow-500; reaktionszeit_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≤10min/≤20min/>20min; 30-Min-Polling */}
           <FahrerPhase4544MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
-          {/* Phase 4549: Meine Lieferfenster-Genauigkeit — Clock teal-500; fenster_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≥90%/≥80%/<80%; 30-Min-Polling */}
+          {/* Phase 4549: Meine Lieferfenster-Genauigkeit — Clock teal-500; fenster_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥90%/≥80%/<80%; 30-Min-Polling */}
           <FahrerPhase4549MeineLieferfenster driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
@@ -11522,5 +11522,5 @@ export { FahrerPhase4534MeineVollstaendigkeit } from './phase4534-meine-vollstae
 export { FahrerPhase4539MeineKontaktRate } from './phase4539-meine-kontakt-rate';
 // Phase 4544 — Meine Reaktionszeit (Zap yellow-500; reaktionszeit_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≤10min/≤20min/>20min; 30-Min-Polling)
 export { FahrerPhase4544MeineReaktionszeit } from './phase4544-meine-reaktionszeit';
-// Phase 4549 — Meine Lieferfenster-Genauigkeit (Clock teal-500; fenster_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≥90%/≥80%/<80%; 30-Min-Polling)
+// Phase 4549 — Meine Lieferfenster-Genauigkeit (Clock teal-500; fenster_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥90%/≥80%/<80%; 30-Min-Polling)
 export { FahrerPhase4549MeineLieferfenster } from './phase4549-meine-lieferfenster';
