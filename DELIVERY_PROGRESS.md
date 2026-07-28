@@ -33282,20 +33282,35 @@ KRITISCH: Nächste freie Phase ist **4647**! NIEMALS 4000–4646 verwenden. IMME
 ### Phase 4651 — Sonntagnacht-Ticker (Kitchen)
 **Component:** `KitchenPhase4651SonntagNachtTicker` — Moon purple-900; Höchste #1 Name+%; dot-Farbkodierung per ampel; Team-Avg; Ziel ≥15%; zielDiff farbkodiert grün/rot; 30-Min-Polling; Import+Render+Barrel ✅
 
+### Phase 4652 — Wochentag-Übersicht Backend
+**Route:** `GET /api/delivery/admin/fahrer-wochentag-uebersicht` — alle 7 Wochentag-Anteile (Mo–So) je Fahrer als Matrix letzte 30 Tage; Mock Julia/Max/Sara/Tim; force-dynamic; await createClient(); TagStat top-Fahrer je Tag; team_avg je Tag ✅
+
+### Phase 4653 — Wochentag-Übersicht (Dispatch)
+**Component:** `DispatchPhase4653WochentagUebersicht` — Moon indigo-900; 7-Spalten-Matrix Mo–So; Farbkodierung 4-stufig (≥20%/12–19%/6–11%/<6%); Ring = Top-Tag je Fahrer; Team-Ø + Top-Fahrer Zeile; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4654 — Meine Wochentag-Übersicht (Fahrer)
+**Component:** `FahrerPhase4654MeineWochentagUebersicht` — Moon indigo-900; 7-Balken Mo–So relativ skaliert; isOnline-Guard; Top-Tag hervorgehoben indigo-600; Coaching-Text Top-Tag+%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4655 — Storefront
+Übersprungen ✅
+
+### Phase 4656 — Wochentag-Ticker (Kitchen)
+**Component:** `KitchenPhase4656WochentagTicker` — Moon indigo-900; Bester-Tag Name+%; 7-Tage mini-Balken Team-Ø; Stärkster-Tag-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
 ### Build: TypeScript ✓ exit 0 ✅
 
 ### Phasen-Nummern-Status
-- **Belegt:** 4000–4651 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650 übersprungen)
-- **Nächste freie Phase: 4652**
+- **Belegt:** 4000–4656 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655 übersprungen)
+- **Nächste freie Phase: 4657**
 
-### Nächste Phasen 4652–4656 — Vorschlag: Fahrer-Wochentag-Übersicht-Dashboard
-1. **Phase 4652 Backend:** GET /api/delivery/admin/fahrer-wochentag-uebersicht — alle 7 Wochentag-Anteile (Mo–So) je Fahrer als Matrix letzte 30 Tage; Mock Julia/Max/Sara/Tim; force-dynamic; await createClient().
-2. **Phase 4653 Dispatch:** `DispatchPhase4653WochentagUebersicht` — Moon indigo-900; 7-Spalten-Matrix Mo–So; top Fahrer je Tag; Team-Ø Zeile; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-3. **Phase 4654 Fahrer:** `FahrerPhase4654MeineWochentagUebersicht` — Moon indigo-900; 7-Balken Mo–So; isOnline-Guard; Top-Tag hervorgehoben; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-4. **Phase 4655 Storefront:** Überspringen.
-5. **Phase 4656 Kitchen:** `KitchenPhase4656WochentagTicker` — Moon indigo-900; Bester-Tag Name+%; 7-Tage mini-Balken; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+### Nächste Phasen 4657–4661 — Vorschlag: Fahrer-Peak-Stunden-Analyse
+1. **Phase 4657 Backend:** GET /api/delivery/admin/fahrer-peak-stunden — Touren je Stunde 0–23 je Fahrer letzte 30 Tage; top Stunde+Anteil; Mock Julia/Max/Sara/Tim; force-dynamic; await createClient().
+2. **Phase 4658 Dispatch:** `DispatchPhase4658PeakStundenBoard` — Moon indigo-900; Heatmap 24-Stunden-Grid; top Fahrer je Stunde; Team-Ø Linie; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4659 Fahrer:** `FahrerPhase4659MeinePeakStunden` — Moon indigo-900; 24-Balken 0–23 Uhr; isOnline-Guard; Top-Stunde hervorgehoben; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4660 Storefront:** Überspringen.
+5. **Phase 4661 Kitchen:** `KitchenPhase4661PeakStundenTicker` — Moon indigo-900; Top-Stunde Name+%; 24h mini-Balken; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
 
-KRITISCH: Nächste freie Phase ist **4652**! NIEMALS 4000–4651 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+KRITISCH: Nächste freie Phase ist **4657**! NIEMALS 4000–4656 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF
 

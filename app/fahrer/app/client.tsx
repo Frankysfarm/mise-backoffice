@@ -1162,6 +1162,7 @@ import { FahrerPhase4634MeinDonnerstagNacht } from './phase4634-mein-donnerstag-
 import { FahrerPhase4639MeinFreitagNacht } from './phase4639-mein-freitag-nacht';
 import { FahrerPhase4644MeinSamstagNacht } from './phase4644-mein-samstag-nacht';
 import { FahrerPhase4649MeinSonntagNacht } from './phase4649-mein-sonntag-nacht';
+import { FahrerPhase4654MeineWochentagUebersicht } from './phase4654-meine-wochentag-uebersicht';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7308,6 +7309,8 @@ export function FahrerApp({
           <FahrerPhase4644MeinSamstagNacht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4649: Mein Sonntagnacht — Moon purple-900; sonntag_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥20%/≥10%/<10%; 30-Min-Polling */}
           <FahrerPhase4649MeinSonntagNacht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4654: Meine Wochentag-Übersicht — Moon indigo-900; 7 Balken Mo–So; isOnline-Guard; Top-Tag hervorgehoben; 30-Min-Polling */}
+          <FahrerPhase4654MeineWochentagUebersicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11617,6 +11620,8 @@ export { FahrerPhase4639MeinFreitagNacht } from './phase4639-mein-freitag-nacht'
 export { FahrerPhase4644MeinSamstagNacht } from './phase4644-mein-samstag-nacht';
 // Phase 4649 — Mein Sonntagnacht (Moon purple-900; sonntag_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥20%/≥10%/<10%; 30-Min-Polling)
 export { FahrerPhase4649MeinSonntagNacht } from './phase4649-mein-sonntag-nacht';
+// Phase 4654 — Meine Wochentag-Übersicht (Moon indigo-900; 7 Balken Mo–So; isOnline-Guard; Top-Tag hervorgehoben; 30-Min-Polling)
+export { FahrerPhase4654MeineWochentagUebersicht } from './phase4654-meine-wochentag-uebersicht';
 // Phase 4649 — Smart Tour Navigation Hub (Navigation2 indigo; Aktiver-Stopp-Highlight blau+CTA; Stopp-Timeline Karten status-farbkodiert; ETA+km je Stopp; Score-Anzeige; 15-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4649SmartTourNavigationHub } from './phase4649-smart-tour-navigation-hub';
 // Phase 4584 — Tour-Stopp Navigation Hub (MapPin blue; Tour-Header mit Fortschritts-Balken; Aktiver-Stopp hervorgehoben mit Navigation+Telefon CTAs; Alle-Stopps-Liste expandierbar; Notiz-Anzeige; Native-Maps-Integration iOS/Android; 30-Sek-Polling; Mock-Fallback)
