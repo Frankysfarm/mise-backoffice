@@ -207,6 +207,172 @@ BEGIN
   RETURN n;
 END $$;
 
+-- Atomic-v2 append for a driver who already owns an active batch. Route stop
+-- ids are caller-generated so the exact evaluated order can be committed
+-- without a second route mutation after this transaction.
+CREATE OR REPLACE FUNCTION public.fn_append_order_to_route_v2(
+  p_tenant_id uuid,p_writer_id uuid,p_writer_epoch bigint,p_driver_id uuid,
+  p_expected_driver_version bigint,p_batch_id uuid,p_expected_route_version bigint,
+  p_order_id uuid,p_expected_order_version bigint,p_pickup_stop_id uuid,
+  p_dropoff_stop_id uuid,p_pickup_lat numeric,p_pickup_lng numeric,
+  p_dropoff_lat numeric,p_dropoff_lng numeric,p_pickup_address text,
+  p_dropoff_address text,p_pickup_deadline_at timestamptz,
+  p_delivery_deadline_at timestamptz,p_route_stops jsonb,p_arrivals jsonb,
+  p_explanation jsonb,p_matrix_fallback_used boolean,p_action_id uuid,
+  p_correlation_id uuid
+) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE
+  g public.dispatch_writer_gates%ROWTYPE;
+  d public.mise_drivers%ROWTYPE;
+  b public.mise_delivery_batches%ROWTYPE;
+  o public.customer_orders%ROWTYPE;
+  old_req public.dispatch_assignment_requests_v2%ROWTYPE;
+  v_assignment_id uuid;
+  fingerprint text;
+  result jsonb;
+  active_count integer;
+  represented_count integer;
+BEGIN
+  IF p_action_id IS NULL OR p_correlation_id IS NULL OR p_pickup_stop_id=p_dropoff_stop_id
+     OR jsonb_typeof(p_route_stops)<>'array' OR jsonb_typeof(p_arrivals)<>'object'
+     OR jsonb_typeof(p_explanation)<>'object' THEN
+    RETURN jsonb_build_object('ok',false,'reason_code','INVALID_APPEND_ENVELOPE');
+  END IF;
+  fingerprint:=md5(concat_ws('|',p_tenant_id,p_writer_id,p_writer_epoch,p_driver_id,
+    p_expected_driver_version,p_batch_id,p_expected_route_version,p_order_id,
+    p_expected_order_version,p_pickup_stop_id,p_dropoff_stop_id,p_pickup_lat,p_pickup_lng,
+    p_dropoff_lat,p_dropoff_lng,p_pickup_deadline_at,p_delivery_deadline_at,
+    p_route_stops::text,p_arrivals::text,p_explanation::text,p_matrix_fallback_used));
+  PERFORM pg_advisory_xact_lock(hashtextextended(p_action_id::text,28201));
+  SELECT * INTO old_req FROM public.dispatch_assignment_requests_v2 WHERE action_id=p_action_id;
+  IF FOUND THEN
+    IF old_req.request_fingerprint<>fingerprint THEN
+      RETURN jsonb_build_object('ok',false,'reason_code','IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST',
+        'correlation_id',old_req.correlation_id);
+    END IF;
+    RETURN old_req.result||jsonb_build_object('idempotent_replay',true);
+  END IF;
+
+  PERFORM pg_advisory_xact_lock(hashtextextended(p_tenant_id::text,27601));
+  SELECT * INTO g FROM public.dispatch_writer_gates WHERE tenant_id=p_tenant_id FOR UPDATE;
+  IF NOT FOUND OR NOT g.enabled OR g.writer<>'atomic_v2'
+     OR g.active_writer_id IS DISTINCT FROM p_writer_id OR g.writer_epoch<>p_writer_epoch
+     OR g.lease_expires_at<=clock_timestamp() THEN
+    RETURN jsonb_build_object('ok',false,'reason_code','WRITER_LEASE_STALE_OR_NOT_OWNER');
+  END IF;
+  IF NOT EXISTS(SELECT 1 FROM public.dispatch_routing_hold_config_v2
+    WHERE tenant_id=p_tenant_id AND enabled AND NOT shadow_only) THEN
+    RETURN jsonb_build_object('ok',false,'reason_code','T08_ACTIVE_DEFAULT_OFF');
+  END IF;
+
+  SELECT * INTO d FROM public.mise_drivers WHERE id=p_driver_id FOR UPDATE;
+  SELECT * INTO b FROM public.mise_delivery_batches WHERE id=p_batch_id FOR UPDATE;
+  SELECT * INTO o FROM public.customer_orders WHERE id=p_order_id FOR UPDATE;
+  IF NOT FOUND OR o.tenant_id<>p_tenant_id OR o.typ::text<>'lieferung'
+     OR o.status::text NOT IN ('fertig','ready') OR o.mise_batch_id IS NOT NULL THEN
+    RETURN jsonb_build_object('ok',false,'reason_code','ORDER_NOT_ASSIGNABLE');
+  END IF;
+  IF d.id IS NULL OR d.state_version<>p_expected_driver_version
+     OR d.current_capacity+1>d.max_capacity THEN
+    RETURN jsonb_build_object('ok',false,'reason_code','DRIVER_VERSION_OR_CAPACITY_CONFLICT');
+  END IF;
+  IF b.id IS NULL OR b.driver_id<>p_driver_id OR b.state IN ('completed','cancelled')
+     OR b.route_version<>p_expected_route_version THEN
+    RETURN jsonb_build_object('ok',false,'reason_code','BATCH_ROUTE_VERSION_CONFLICT');
+  END IF;
+  IF o.dispatch_version<>p_expected_order_version OR o.location_id IS DISTINCT FROM b.location_id THEN
+    RETURN jsonb_build_object('ok',false,'reason_code','ORDER_VERSION_OR_STORE_CONFLICT');
+  END IF;
+  IF p_pickup_lat NOT BETWEEN -90 AND 90 OR p_dropoff_lat NOT BETWEEN -90 AND 90
+     OR p_pickup_lng NOT BETWEEN -180 AND 180 OR p_dropoff_lng NOT BETWEEN -180 AND 180
+     OR p_pickup_deadline_at<=clock_timestamp()
+     OR p_delivery_deadline_at<=p_pickup_deadline_at THEN
+    RETURN jsonb_build_object('ok',false,'reason_code','INVALID_ROUTE_OR_DEADLINE');
+  END IF;
+
+  SELECT count(*) INTO active_count FROM public.mise_delivery_batch_stops
+    WHERE batch_id=p_batch_id AND state NOT IN ('completed','cancelled');
+  SELECT count(DISTINCT (s->>'id')::uuid) INTO represented_count
+    FROM jsonb_array_elements(p_route_stops) s
+    WHERE s->>'id' IS NOT NULL;
+  IF jsonb_array_length(p_route_stops)<>active_count+2
+     OR represented_count<>active_count+2
+     OR NOT EXISTS(SELECT 1 FROM jsonb_array_elements(p_route_stops) s
+       WHERE (s->>'id')::uuid=p_pickup_stop_id AND s->>'kind'='pickup')
+     OR NOT EXISTS(SELECT 1 FROM jsonb_array_elements(p_route_stops) s
+       WHERE (s->>'id')::uuid=p_dropoff_stop_id AND s->>'kind'='dropoff')
+     OR EXISTS(SELECT 1 FROM public.mise_delivery_batch_stops s
+       WHERE s.batch_id=p_batch_id AND s.state NOT IN ('completed','cancelled')
+       AND NOT EXISTS(SELECT 1 FROM jsonb_array_elements(p_route_stops) r
+         WHERE (r->>'id')::uuid=s.id)) THEN
+    RETURN jsonb_build_object('ok',false,'reason_code','ROUTE_STOP_SET_MISMATCH');
+  END IF;
+
+  INSERT INTO public.mise_delivery_batch_stops(
+    id,batch_id,order_id,type,sequence,lat,lng,address,state,stop_version)
+  VALUES
+    (p_pickup_stop_id,p_batch_id,p_order_id,'pickup',active_count,p_pickup_lat,
+      p_pickup_lng,p_pickup_address,'pending',0),
+    (p_dropoff_stop_id,p_batch_id,p_order_id,'dropoff',active_count+1,p_dropoff_lat,
+      p_dropoff_lng,p_dropoff_address,'pending',0);
+  UPDATE public.mise_delivery_batch_stops s SET sequence=r.ord::integer-1
+  FROM jsonb_array_elements(p_route_stops) WITH ORDINALITY r(item,ord)
+  WHERE s.batch_id=p_batch_id AND s.id=(r.item->>'id')::uuid
+    AND s.state NOT IN ('completed','cancelled');
+
+  UPDATE public.customer_orders SET mise_batch_id=p_batch_id,mise_driver_id=p_driver_id,
+    status='assigned',dispatch_version=dispatch_version+1,
+    assignment_deadline_at=p_delivery_deadline_at,updated_at=clock_timestamp()
+  WHERE id=p_order_id AND dispatch_version=p_expected_order_version AND mise_batch_id IS NULL;
+  IF NOT FOUND THEN RAISE EXCEPTION 'ORDER_APPEND_CAS_CONFLICT' USING ERRCODE='40001'; END IF;
+  UPDATE public.mise_drivers SET current_capacity=current_capacity+1,
+    state_version=state_version+1,updated_at=clock_timestamp()
+  WHERE id=p_driver_id AND state_version=p_expected_driver_version
+    AND current_capacity+1<=max_capacity;
+  IF NOT FOUND THEN RAISE EXCEPTION 'DRIVER_APPEND_CAS_CONFLICT' USING ERRCODE='40001'; END IF;
+  UPDATE public.mise_delivery_batches SET route_version=route_version+1,
+    state_version=state_version+1,delivery_deadline_at=least(delivery_deadline_at,p_delivery_deadline_at),
+    updated_at=clock_timestamp()
+  WHERE id=p_batch_id AND route_version=p_expected_route_version;
+  IF NOT FOUND THEN RAISE EXCEPTION 'BATCH_APPEND_CAS_CONFLICT' USING ERRCODE='40001'; END IF;
+
+  INSERT INTO public.dispatch_route_plans_v2(assignment_id,tenant_id,route_version,input_version,
+    state,stops,arrivals,explanation,matrix_fallback_used,action_id,correlation_id)
+  VALUES(p_batch_id,p_tenant_id,p_expected_route_version+1,p_expected_route_version+1,
+    'active',p_route_stops,p_arrivals,p_explanation,p_matrix_fallback_used,p_action_id,p_correlation_id)
+  ON CONFLICT(assignment_id) DO UPDATE SET route_version=excluded.route_version,
+    input_version=excluded.input_version,state='active',stops=excluded.stops,
+    arrivals=excluded.arrivals,explanation=excluded.explanation,
+    matrix_fallback_used=excluded.matrix_fallback_used,action_id=excluded.action_id,
+    correlation_id=excluded.correlation_id,updated_at=clock_timestamp();
+  INSERT INTO public.dispatch_offer_assignments(tenant_id,order_id,batch_id,driver_id,state,
+    decision_id,idempotency_key,action_id,request_fingerprint,expected_order_version,
+    assignment_version,lease_expires_at,pickup_deadline_at,delivery_deadline_at,
+    algorithm_version,correlation_id)
+  VALUES(p_tenant_id,p_order_id,p_batch_id,p_driver_id,'assigned',p_action_id,gen_random_uuid(),
+    p_action_id,fingerprint,p_expected_order_version,1,NULL,p_pickup_deadline_at,
+    p_delivery_deadline_at,'route-insertion-v1',p_correlation_id)
+  RETURNING id INTO v_assignment_id;
+  INSERT INTO public.dispatch_offer_audit(decision_id,idempotency_key,order_id,batch_id,
+    driver_id,outcome,reason_code,expected_order_version,algorithm_version,details,
+    correlation_id,event_type)
+  VALUES(gen_random_uuid(),gen_random_uuid(),p_order_id,p_batch_id,p_driver_id,'assigned',
+    'ATOMIC_V2_ROUTE_APPEND',p_expected_order_version,'route-insertion-v1',p_explanation,
+    p_correlation_id,'route.order_appended');
+  INSERT INTO public.mise_push_outbox(driver_id,type,title,body,sound,priority,data)
+  VALUES(p_driver_id,'route_updated','Tour aktualisiert','Ein weiterer Stopp wurde eingeplant.',
+    'default','high',jsonb_build_object('batch_id',p_batch_id,'assignment_id',v_assignment_id,
+      'route_version',p_expected_route_version+1,'correlation_id',p_correlation_id,
+      'requires_acceptance',false));
+  result:=jsonb_build_object('ok',true,'idempotent_replay',false,'batch_id',p_batch_id,
+    'assignment_id',v_assignment_id,'route_version',p_expected_route_version+1,
+    'driver_version',p_expected_driver_version+1,'correlation_id',p_correlation_id);
+  INSERT INTO public.dispatch_assignment_requests_v2(action_id,tenant_id,request_fingerprint,
+    action,correlation_id,result)
+  VALUES(p_action_id,p_tenant_id,fingerprint,'route_append',p_correlation_id,result);
+  RETURN result;
+END $$;
+
 ALTER TABLE public.dispatch_routing_hold_config_v2 ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.dispatch_kitchen_holds_v2 ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.dispatch_kitchen_release_outbox_v2 ENABLE ROW LEVEL SECURITY;
@@ -231,6 +397,11 @@ REVOKE ALL ON FUNCTION public.fn_cancel_kitchen_hold_v2(
 ) FROM PUBLIC,anon,authenticated;
 REVOKE ALL ON FUNCTION public.fn_watchdog_release_kitchen_holds_v2(integer)
   FROM PUBLIC,anon,authenticated;
+REVOKE ALL ON FUNCTION public.fn_append_order_to_route_v2(
+  uuid,uuid,bigint,uuid,bigint,uuid,bigint,uuid,bigint,uuid,uuid,
+  numeric,numeric,numeric,numeric,text,text,timestamptz,timestamptz,
+  jsonb,jsonb,jsonb,boolean,uuid,uuid
+) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.fn_schedule_kitchen_hold_v2(
   uuid,uuid,bigint,bigint,timestamptz,timestamptz,timestamptz,text,jsonb,uuid,uuid
 ) TO service_role;
@@ -244,4 +415,9 @@ GRANT EXECUTE ON FUNCTION public.fn_watchdog_release_kitchen_holds_v2(integer)
   TO service_role;
 GRANT EXECUTE ON FUNCTION public.fn_persist_route_plan_v2(
   uuid,uuid,bigint,bigint,jsonb,jsonb,jsonb,boolean,uuid,uuid
+) TO service_role;
+GRANT EXECUTE ON FUNCTION public.fn_append_order_to_route_v2(
+  uuid,uuid,bigint,uuid,bigint,uuid,bigint,uuid,bigint,uuid,uuid,
+  numeric,numeric,numeric,numeric,text,text,timestamptz,timestamptz,
+  jsonb,jsonb,jsonb,boolean,uuid,uuid
 ) TO service_role;
