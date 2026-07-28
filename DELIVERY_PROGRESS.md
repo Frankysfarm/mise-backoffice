@@ -33514,3 +33514,40 @@ KRITISCH: Nächste freie Phase ist **4672**! NIEMALS 4000–4671 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+## Batch 4672–4676 — Fahrer-Bewertung-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4672 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-bewertung-ranking/route.ts`
+**Status:** Bereits vorhanden. Reused. Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_rating, rank_delta, ampel, alert_niedrig}], team_avg_rating, bester_name, letzter_name, alert_count, gesamt }`; Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_niedrig wenn ampel=rot; Mock Julia 4.8/Max 4.5/Sara 4.1/Tim 3.7; force-dynamic ✅; await createClient() ✅
+
+### Phase 4673 — Bewertung Board (Dispatch)
+**Component:** `DispatchPhase4673BewertungBoard` — Moon rose-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert "X Fahrer mit niedriger Bewertung (<4.0)" wenn alert_count>0; Balken (avg_rating/maxRating)*100%; DeltaIcon TrendingUp/Down/Minus je rank_delta; Sterne-Anzeige farbkodiert; Rang-Dot ampelDot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4674 — Meine Bewertung (Fahrer)
+**Component:** `FahrerPhase4674MeineBewertung` — Moon rose-900; Ø-Bewertung 5xl + Rang 2xl farbkodiert (grün/gelb/rot); isOnline-Guard; WifiOff-Fallback; driverId-Filter; StarRating Visualisierung lg; Mini-Bar-Vergleich Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≥4.8/≥4.5/<4.5); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4675 — Storefront
+Übersprungen ✅
+
+### Phase 4676 — Bewertungs-Ticker (Kitchen)
+**Component:** `KitchenPhase4676BewertungTicker` — Moon rose-900; Leader #1 Name+avg_rating★; Alert "X Fahrer unter 4.0 Sterne" wenn alert_count>0; Team-Avg; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4676 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665, 4670, 4675 übersprungen)
+- **Nächste freie Phase: 4677**
+
+### Nächste Phasen 4677–4681 — Vorschlag: Fahrer-Storno-Quote-Ranking
+1. **Phase 4677 Backend:** GET /api/delivery/admin/fahrer-storno-ranking — storno_count / tour_count je Fahrer letzte 30 Tage als pct_storno; INVERTED aufsteigend Rang 1=niedrigste Storno-Quote=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert >15% "Hohe Storno-Quote!"; Mock Julia 3%/Max 6%/Sara 11%/Tim 18%; force-dynamic; await createClient().
+2. **Phase 4678 Dispatch:** `DispatchPhase4678StornoBoard` — Moon orange-900; INVERTED aufsteigend Rang 1=niedrigste Storno-Quote; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert Hohe Storno-Quote; Balken farbkodiert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4679 Fahrer:** `FahrerPhase4679MeineStornoQuote` — Moon orange-900; pct_storno 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen (≤5%/≤12%/>12%); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4680 Storefront:** Überspringen.
+5. **Phase 4681 Kitchen:** `KitchenPhase4681StornoTicker` — Moon orange-900; Niedrigste #1 Name+%; Team-Avg; Alert Hohe Storno; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4677**! NIEMALS 4000–4676 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
