@@ -32113,3 +32113,42 @@ KRITISCH: Nächste freie Phase ist 4492! NIEMALS 4000–4491 verwenden. IMMER al
 KRITISCH: Nächste freie Phase ist 4497! NIEMALS 4000–4496 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4517–4521 — Fahrer-Lieferungen-pro-Stunde-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4517 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-lieferungen-pro-stunde-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-lieferungen-pro-stunde-ranking?location_id=...&driver_id=...
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, deliveries_pro_h, rank_delta, ampel, alert_niedrig}], team_avg_pro_h, produktivste_name, wenigste_name, alert_count, gesamt }`
+**Logik:** avg(deliveries/hour) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Lieferungen/h=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert alert_niedrig=true wenn rot (<2/h); Mock Julia 4.8/Max 4.1/Sara 3.6/Tim 2.2; force-dynamic ✅; await createClient() ✅
+
+### Phase 4518 — Produktivitäts-Board (Dispatch)
+**Component:** `DispatchPhase4518ProduktivitaetBoard` — Zap orange-500; absteigend Rang 1=meiste Lieferungen/h; KPI-Grid Produktivste/Team-Avg/Langsamste; Alert Niedrige Produktivität (<2/h); Balken=(rate/maxRate)*100%; rank_delta TrendingUp emerald; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4519 — Meine Produktivität (Fahrer)
+**Component:** `FahrerPhase4519MeineProduktivitaet` — Zap orange-500; deliveries_pro_h 5xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Coaching-Tipp 3 Stufen (≥4/h/≥3/h/<3/h); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4520 — Storefront
+Übersprungen ✅
+
+### Phase 4521 — Produktivitäts-Ticker (Kitchen)
+**Component:** `KitchenPhase4521ProduktivitaetTicker` — Zap orange-500; Produktivste #1 Name+Rate orange-600; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥3.5/h; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Pre-existing-Errors identisch; Turbopack bekanntes Container-Problem)
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4521 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520 übersprungen)
+- **Nächste freie Phase: 4522**
+
+### Nächste Phasen 4522–4526 — Fahrer-Umsatz-pro-Schicht-Ranking
+1. **Phase 4522 Backend:** GET /api/delivery/admin/fahrer-umsatz-pro-schicht-ranking — avg(revenue/shift) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Umsatz/Schicht=bester; Quartil-Ampel; Alert "Niedriger Schichtumsatz!"; Mock Julia 187€/Max 162€/Sara 143€/Tim 98€; force-dynamic; await createClient() aus @/lib/supabase/server.
+2. **Phase 4523 Dispatch:** `DispatchPhase4523UmsatzProSchichtBoard` — Euro amber-500; absteigend Rang 1=höchster Umsatz; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedriger Schichtumsatz; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4524 Fahrer:** `FahrerPhase4524MeinUmsatzProSchicht` — Euro amber-500; umsatz_pro_schicht 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen (≥150€/≥120€/<120€); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4525 Storefront:** Überspringen.
+5. **Phase 4526 Kitchen:** `KitchenPhase4526UmsatzProSchichtTicker` — Euro amber-500; Bester #1 Name+€/Schicht; Ziel ≥130€; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4522! NIEMALS 4000–4521 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
