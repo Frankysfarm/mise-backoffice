@@ -18,6 +18,7 @@ export type OpsReasonCode =
   | 'QUEUE_BACKLOG'
   | 'DELIVERY_DEADLINE_RISK'
   | 'WORKER_HEARTBEAT_OVERDUE'
+  | 'WRITER_LEASE_LOST'
   | 'APP_VERSION_ERROR_RATE';
 
 export interface OpsEventInput {

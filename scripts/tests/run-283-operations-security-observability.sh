@@ -26,4 +26,7 @@ trap 'rm -f "$bundle" "$bundle.mjs"' EXIT
 "$ESBUILD_BIN" scripts/tests/ops-observability.test.ts \
   --bundle --platform=node --format=esm --outfile="$bundle.mjs" >/dev/null
 node "$bundle.mjs"
+"$ESBUILD_BIN" scripts/tests/t09-integration-wiring.test.ts \
+  --bundle --platform=node --format=esm --outfile="$bundle.mjs" >/dev/null
+node "$bundle.mjs"
 echo "T09 operations/security/observability: PASS"
