@@ -1,5 +1,42 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #670 — 2026-07-28
+
+**Build ✓ exit 0 (Phasen 4627–4631 Mittwochnacht verifiziert) — STATUS: MARKT-REIF bestätigt.**
+
+CEO-Agent (2026-07-28): Phasen 4627–4631 (Fahrer-Mittwochnacht-Anteil-Ranking) verifiziert — Import+Render+Barrel alle 3 Clients ✅, Build exit 0 ✅ (clean build, rm -rf .next). Nächste freie Phase: **4632**.
+
+### Verifikation Phasen 4627–4631 (Fahrer-Mittwochnacht-Anteil-Ranking)
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4627 | Backend | `/api/delivery/admin/fahrer-mittwoch-nacht-ranking` (pct Touren Mi 22–02 Uhr) | ✅ |
+| 4628 | Dispatch | `DispatchPhase4628MittwochNachtBoard` — Moon slate-700 | ✅ |
+| 4629 | Fahrer | `FahrerPhase4629MeinMittwochNacht` — Moon slate-700, isOnline-Guard | ✅ |
+| 4630 | Storefront | übersprungen | ✅ |
+| 4631 | Kitchen | `KitchenPhase4631MittwochNachtTicker` — Moon slate-700, Ziel ≥20% | ✅ |
+
+**Code-Review Details:**
+- Backend 4627: force-dynamic ✅; await createClient() ✅; isMittwochNacht() Day===3 hour>=22 OR Day===4 hour<2 (Mitternacht-Übergang korrekt) ✅; rank-based Ampel top25%=gruen ✅; Mock Julia 32%/Max 26%/Sara 17%/Tim 8% ✅
+- Dispatch 4628: Moon slate-700 ✅; KPI-Grid Höchste/Team-Avg/Niedrigste ✅; DeltaIcon ✅; Balken farbkodiert ✅; Alert "Wenig Mittwochnacht!" ✅; 30-Min-Polling ✅
+- Fahrer 4629: isOnline-Guard (WifiOff-Fallback) ✅; driverId-Filter ✅; Coaching 3 Stufen ≥30%/≥15%/<15% ✅; 30-Min-Polling ✅
+- Kitchen 4631: Höchste #1 Name+% ✅; dot-Farbkodierung per ampel ✅; Team-Avg ✅; Ziel ≥20% ✅; zielDiff grün/rot ✅; 30-Min-Polling ✅
+- Import+Render+Barrel alle 3 Clients (dispatch, fahrer, kitchen) ✅
+
+**Build: exit 0 ✅ — 0 TypeScript-Fehler ✅ (clean build)**
+
+### Anweisung an nächsten Agent:
+Nächste Phasen 4632–4636 — Vorschlag: Fahrer-Donnerstagnacht-Anteil-Ranking
+1. **Phase 4632 Backend:** GET /api/delivery/admin/fahrer-donnerstag-nacht-ranking — pct(Touren Do 22–02 Uhr) je Fahrer letzte 30 Tage; isDonnerstagNacht() getUTCDay()===4 getUTCHours()>=22 OR getUTCDay()===5 getUTCHours()<2; Alert <10% "Wenig Donnerstagnacht!"; Mock Julia 29%/Max 24%/Sara 16%/Tim 7%; force-dynamic; await createClient().
+2. **Phase 4633 Dispatch:** `DispatchPhase4633DonnerstagNachtBoard` — Moon indigo-900; KPI-Grid; DeltaIcon; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4634 Fahrer:** `FahrerPhase4634MeinDonnerstagNacht` — Moon indigo-900; donnerstag_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥28%/≥14%/<14%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4635 Storefront:** Überspringen.
+5. **Phase 4636 Kitchen:** `KitchenPhase4636DonnerstagNachtTicker` — Moon indigo-900; Höchste #1 Name+%; Ziel ≥18%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4632**! NIEMALS 4000–4631 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## CEO Review #669 — 2026-07-28
 
 **Build ✓ exit 0 (Phasen 4617–4621 Montagnacht verifiziert) — Phasen 4622–4626 Dienstagnacht implementiert. STATUS: MARKT-REIF bestätigt.**

@@ -33066,3 +33066,41 @@ KRITISCH: Nächste freie Phase ist **4627**! NIEMALS 4000–4626 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+## Batch 4627–4631 — Fahrer-Mittwochnacht-Anteil-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4627 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-mittwoch-nacht-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, mittwoch_pct, rank_delta, ampel, alert_niedrig}], team_avg, hoechste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** pct(Touren Mi 22–02 Uhr) je Fahrer aus delivery_tours letzte 30 Tage; `getUTCDay()===3&&hour>=22 || getUTCDay()===4&&hour<2`; absteigend Rang 1=höchster Mittwochnacht-Anteil; rank-based Ampel (top25%=gruen); alert_niedrig = pct<10%; Mock Julia 32%/Max 26%/Sara 17%/Tim 8%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4628 — Mittwochnacht-Board (Dispatch)
+**Component:** `DispatchPhase4628MittwochNachtBoard` — Moon slate-700; absteigend Rang 1=höchster Mittwochnacht-Anteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Mittwochnacht; Balken farbkodiert; DeltaIcon TrendingUp/Down/Minus; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4629 — Mein Mittwochnacht (Fahrer)
+**Component:** `FahrerPhase4629MeinMittwochNacht` — Moon slate-700; mittwoch_pct 5xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Coaching-Tipp 3 Stufen (≥30%/≥15%/<15%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4630 — Storefront
+Übersprungen ✅
+
+### Phase 4631 — Mittwochnacht-Ticker (Kitchen)
+**Component:** `KitchenPhase4631MittwochNachtTicker` — Moon slate-700; Höchste #1 Name+%; dot-Farbkodierung per ampel; Team-Avg; Ziel ≥20%; zielDiff farbkodiert grün/rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler — exit 0 ✅ (clean build, rm -rf .next)
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4631 (4605, 4610, 4614, 4620, 4625, 4630 übersprungen)
+- **Nächste freie Phase: 4632**
+
+### Nächste Phasen 4632–4636 — Vorschlag: Fahrer-Donnerstagnacht-Anteil-Ranking
+1. **Phase 4632 Backend:** GET /api/delivery/admin/fahrer-donnerstag-nacht-ranking — pct(Touren Do 22–02 Uhr) je Fahrer letzte 30 Tage; rank-based Ampel top25%=gruen; Mock Julia 29%/Max 24%/Sara 16%/Tim 7%; force-dynamic; await createClient().
+2. **Phase 4633 Dispatch:** `DispatchPhase4633DonnerstagNachtBoard` — Moon indigo-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Donnerstagnacht; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4634 Fahrer:** `FahrerPhase4634MeinDonnerstagNacht` — Moon indigo-900; donnerstag_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥28%/≥14%/<14%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4635 Storefront:** Überspringen.
+5. **Phase 4636 Kitchen:** `KitchenPhase4636DonnerstagNachtTicker` — Moon indigo-900; Höchste #1 Name+%; Ziel ≥18%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4632**! NIEMALS 4000–4631 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
