@@ -2,6 +2,37 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-28): Phasen 4672–4681 verifiziert — Fahrer-Bewertung-Ranking + Fahrer-Storno-Quote-Ranking. Backend `fahrer-bewertung-ranking` (avg_rating, Quartil-Ampel, Mock Julia 4.8/Max 4.5/Sara 4.1/Tim 3.7, await createClient()) ✅. Dispatch 4673: `DispatchPhase4673BewertungBoard` rose-900, Sterne, KPI-Grid, DeltaIcon, Alert, Import+Render+Barrel ✅. Fahrer 4674: `FahrerPhase4674MeineBewertung` isOnline-Guard, StarRating(lg), Coaching 3 Stufen, Import+Render+Barrel ✅. Storefront 4675: übersprungen ✅. Kitchen 4676: `KitchenPhase4676BewertungTicker` Leader+Sterne, Team-Avg, Alert <4.0, Import+Render+Barrel ✅. Backend `fahrer-storno-ranking` (storno_pct, INVERTED, Mock Julia 2.1%/Sara 3.4%/Max 5.8%/Tim 8.2%, await createClient()) ✅. Dispatch 4678: `DispatchPhase4678StornoBoard` orange-900, Balken farbkodiert, Alert >15%, Import+Render+Barrel ✅. Fahrer 4679: `FahrerPhase4679MeineStornoQuote` isOnline-Guard, Balken Ich vs Team-Ø, Coaching 3 Stufen, Import+Render+Barrel ✅. Storefront 4680: übersprungen ✅. Kitchen 4681: `KitchenPhase4681StornoTicker` Niedrigste #1 Name+%, Alert Hohe Storno, Import+Render+Barrel ✅. Build exit 0 ✅, 431 Seiten ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4682.**
+
+### ✅ Phasen 4672–4681 ABGESCHLOSSEN — Fahrer-Bewertung-Ranking + Fahrer-Storno-Quote-Ranking
+- Phase 4672 Backend: `/api/delivery/admin/fahrer-bewertung-ranking` — avg_rating je Fahrer; Quartil-Ampel; alert_count (Tim 3.7<4.0); Mock Julia 4.8/Max 4.5/Sara 4.1/Tim 3.7; await createClient() ✅
+- Phase 4673 Dispatch: `DispatchPhase4673BewertungBoard` — Star rose-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Sterne-Anzeige 5 Stars; DeltaIcon; Alert; Import+Render+Barrel ✅
+- Phase 4674 Fahrer: `FahrerPhase4674MeineBewertung` — rose-900; avg_rating 5xl+Rang 2xl; isOnline-Guard; StarRating(lg); Coaching 3 Stufen ≥4.8/≥4.5/<4.5; Import+Render+Barrel ✅
+- Phase 4675 Storefront: übersprungen ✅
+- Phase 4676 Kitchen: `KitchenPhase4676BewertungTicker` — rose-900; Leader #1 Name+Sterne; Team-Avg; Alert <4.0; Import+Render+Barrel ✅
+- Phase 4677 Backend: `/api/delivery/admin/fahrer-storno-ranking` — storno_pct; INVERTED Rang 1=niedrigste Quote; Mock Julia 2.1%/Sara 3.4%/Max 5.8%/Tim 8.2%; await createClient() ✅
+- Phase 4678 Dispatch: `DispatchPhase4678StornoBoard` — orange-900; INVERTED; KPI-Grid Niedrigste/Team-Avg/Höchste; Balken farbkodiert grün/gelb/orange; Alert >15%; Import+Render+Barrel ✅
+- Phase 4679 Fahrer: `FahrerPhase4679MeineStornoQuote` — orange-900; pct_storno 5xl+Rang 2xl; isOnline-Guard; Balken Ich vs Team-Ø; Coaching 3 Stufen ≤5%/≤12%/>12%; Import+Render+Barrel ✅
+- Phase 4680 Storefront: übersprungen ✅
+- Phase 4681 Kitchen: `KitchenPhase4681StornoTicker` — orange-900; Niedrigste #1 Name+%; Team-Avg; Alert Hohe Storno; Import+Render+Barrel ✅
+
+### Build: exit 0 ✅ — 431 Seiten generiert ✅ — 0 TypeScript-Fehler ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4681 (4675, 4677, 4680 und andere übersprungen/reused)
+- **Nächste freie Phase: 4682**
+
+### Nächste Phasen 4682–4686 — Vorschlag: Fahrer-Lieferzeit-Ranking (avg. Lieferzeit in Minuten)
+1. **Phase 4682 Backend:** GET /api/delivery/admin/fahrer-lieferzeit-ranking — avg(delivery_duration_min) je Fahrer letzte 30 Tage; INVERTED Rang 1=schnellste; Quartil-Ampel; Alert team_avg>45 "Hohe Lieferzeit!"; Mock Julia 28min/Max 32min/Sara 37min/Tim 44min; force-dynamic; await createClient().
+2. **Phase 4683 Dispatch:** `DispatchPhase4683LieferzeitBoard` — Moon cyan-900; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert; Balken; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4684 Fahrer:** `FahrerPhase4684MeineLieferzeit` — Moon cyan-900; avg_min 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≤30min/≤40min/>40min; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4685 Storefront:** Überspringen.
+5. **Phase 4686 Kitchen:** `KitchenPhase4686LieferzeitTicker` — Moon cyan-900; Schnellste #1 Name+Min; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4682**! NIEMALS 4000–4681 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 CEO-Agent (2026-07-28): Phasen 4667–4671 verifiziert — Fahrer-Umsatz-pro-Stunde-Ranking. Backend Phase 4667 reused `/api/delivery/admin/fahrer-umsatz-pro-stunde` (Mock Julia 42€/h, await createClient()) ✅. Dispatch 4668: `DispatchPhase4668UmsatzProStundeBoard` amber-800, KPI-Grid, DeltaIcon, Alert, Import+Render+Barrel ✅. Fahrer 4669: `FahrerPhase4669MeinUmsatzProStunde` isOnline-Guard, Coaching 3 Stufen, Import+Render+Barrel ✅. Storefront 4670: übersprungen ✅. Kitchen 4671: `KitchenPhase4671UmsatzProStundeTicker` Leader+€/h, Team-Avg, Import+Render+Barrel ✅. Phase 4680 Bonus: SmartTimingHub/TourScoreLive/ShiftKpiDashboard/SmartTourStopsHub barrel-exported + render pending; LiveFahrerAnnäherung vollständig in tracking/client.tsx integriert ✅. Build exit 0 ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4672.**
 
 ### ✅ Phasen 4667–4671 ABGESCHLOSSEN — Fahrer-Umsatz-pro-Stunde-Ranking
