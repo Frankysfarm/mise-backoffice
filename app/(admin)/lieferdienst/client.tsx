@@ -5005,3 +5005,5 @@ export { LieferdienstPhase2800StatistikenExecutiveDashboard } from './phase2800-
 export { LieferdienstPhase4450StatistikenDashboardV7 } from './phase4450-statistiken-dashboard-v7';
 // Phase 4500 — Statistiken Intelligence Master (BarChart2 indigo; Gesamt-Score-Balken; Alert-Strip rot-KPIs; 8-KPI-Grid 2-spaltig Ampel+Δ%+Trend farbkodiert; Stundenverlauf-BarChart 2-Modi Bestellungen/Umsatz letzte Stunde lila; Top-Insight; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4500StatistikIntelligenceMaster } from './phase4500-statistiken-intelligence-master';
+// Phase 4615 — Statistiken Live Dashboard (BarChart2 indigo; Gesamt-Score-Balken; Alert-Strip; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel-Fortschrittsbalken; Stundenverlauf BarChart umschaltbar Bestellungen/Umsatz; Top-3-Fahrer Score+Touren+Trinkgeld; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4615StatistikenLiveDashboard } from './phase4615-statistiken-live-dashboard';

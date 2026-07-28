@@ -11576,3 +11576,5 @@ export { FahrerPhase4599MeinFreitagAbend } from './phase4599-mein-freitag-abend'
 export { FahrerPhase4604MeinSamstagMittag } from './phase4604-mein-samstag-mittag';
 // Phase 4584 — Tour-Stopp Navigation Hub (MapPin blue; Tour-Header mit Fortschritts-Balken; Aktiver-Stopp hervorgehoben mit Navigation+Telefon CTAs; Alle-Stopps-Liste expandierbar; Notiz-Anzeige; Native-Maps-Integration iOS/Android; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4584TourStoppNavigationHub } from './phase4584-tour-stopp-navigation-hub';
+// Phase 4613 — Smart Tour-Stopp Navigator (Navigation indigo; Fortschritts-Header mit Score; Farbkodierte Stop-Timeline Karten; Aktiver Stopp blau+hervorgehoben; Aufklapp-Detail mit Notiz/Zahlung/Navigation-CTA; Google-Maps-Integration; 30-Sek-Polling; Mock-Fallback)
+export { Phase4613SmartTourStoppNavigator } from './phase4613-smart-tour-stopp-navigator';

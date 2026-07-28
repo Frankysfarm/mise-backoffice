@@ -13703,3 +13703,5 @@ export { DispatchPhase4598FreitagAbendBoard } from './phase4598-freitag-abend-bo
 export { DispatchPhase4603SamstagMittagBoard } from './phase4603-samstag-mittag-board';
 // Phase 4583 — Tour-Score Visualisierung Hub (Trophy indigo; Team-Score+Delta-Trend; 3-KPI-Strip Touren/Lieferzeit/SLA; Fahrer-Score-Visualisierung Rang+Balken+Trend; Top-Insight; 60-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4583TourScoreVisualisierungHub } from './phase4583-tour-score-visualisierung-hub';
+// Phase 4612 — Tour-Score Visualisierung Live (Trophy indigo; Team-Score+Balken+Delta; 3-KPI-Strip; Fahrer-Rang+Score+Trend+Ampel; Aufklappbare Tour-Stopp-Zeitlinie mit Echtzeit-Status; 60-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4612TourScoreVisualisierungLive } from './phase4612-tour-score-visualisierung-live';
