@@ -13797,3 +13797,5 @@ export { DispatchPhase4693TourenBoard } from './phase4693-touren-board';
 export { DispatchPhase4643TourScoreKpiBoard } from './phase4643-tour-score-kpi-board';
 // Phase 4680 — Tour-Score Live Panel (Trophy indigo; Team-Ø Score Header; Fahrer-Score-Ringe 4-stufig Ampel; Aufklappbare Stop-Zeitlinie mit Echtzeit-Status; Score-Detail-Bars; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4680TourScoreLive } from './phase4680-tour-score-live';
+// Phase 4700 — Tour-Score Visualisierung Ultimate (Trophy indigo; Team-Ø Score Header+Delta; Alert unter Ziel; Fahrer-Score-Balken 4-stufig Ampel; Aufklappbare Stop-Zeitlinie farbkodiert done/aktiv/late/pending; ETA je Stopp; KPI-Row Pünktlichkeit+Lieferzeit; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4700TourScoreVisualisierungUltimate } from './phase4700-tour-score-visualisierung-ultimate';

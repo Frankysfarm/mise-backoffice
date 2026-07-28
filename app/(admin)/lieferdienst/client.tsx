@@ -5014,3 +5014,5 @@ export { LieferdienstPhase4615StatistikenLiveDashboard } from './phase4615-stati
 export { LieferdienstPhase4620StatistikenLiveDashboardV2 } from './phase4620-statistiken-live-dashboard-v2';
 // Phase 4680 — Schicht-KPI-Dashboard (TrendingUp matcha; 6-KPI-Grid 3-spaltig Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit/Fahrer/Storno; Stundenverlauf-BarChart peak-highlighted; Top-Fahrer; 30-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4680ShiftKpiDashboard } from './phase4680-shift-kpi-dashboard';
+// Phase 4010 — Statistiken Live Cockpit Pro (BarChart3 emerald; Umsatz-Fortschrittsbalken; Tab-Nav KPIs/Fahrer/Zonen; 6-KPI-Grid Ampel grün/gelb je Ziel; Stundenverlauf-BarChart; Top-Fahrer-Ranking; Zonen-Ertrag-Balken; 30-Sek-Polling; Mock-Fallback)
+export { LieferdienstStatistikenLiveCockpitPhase4010 } from './statistiken-live-cockpit-phase4010';
