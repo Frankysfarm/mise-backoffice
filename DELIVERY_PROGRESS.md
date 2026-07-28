@@ -33385,3 +33385,41 @@ KRITISCH: Nächste freie Phase ist **4662**! NIEMALS 4000–4661 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+## Batch 4662–4666 — Fahrer-Wochenend-vs-Wochentag-Vergleich (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4662 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-wochenend-vergleich/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, pct_wochenend, pct_wochentag, delta, ampel}], team_avg_we, team_avg_wt, team_avg_delta, we_leader_name, we_leader_pct, alert_wochenende, gesamt }`
+**Logik:** pct(Touren Sa+So) vs pct(Touren Mo–Fr) je Fahrer aus delivery_tours letzte 30 Tage; `getUTCDay()===0||day===6` für WE; delta=pct_wochenend−pct_wochentag; ampel: gruen=delta≥10/gelb=delta>-10/rot=delta≤-10; alert_wochenende=team_avg_delta<0; Mock Julia(45%WE/31%WT)/Max(38%WE/28%WT)/Sara(25%WE/34%WT)/Tim(20%WE/30%WT); force-dynamic ✅; await createClient() ✅
+
+### Phase 4663 — WE vs. Wochentag Board (Dispatch)
+**Component:** `DispatchPhase4663WochenendVergleich` — Moon violet-900; KPI-Grid Team-Ø WE/WT/Δ; Alert "Mehr Fahrer am Wochenende nötig" wenn team_avg_delta<0; Bar-Chart WE vs WT paarweise je Fahrer (violet/gray Balken); Delta-Chip grün/rot mit TrendingUp/Down/Minus-Icon; Ampel-Dot je Fahrer; WE-Leader Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4664 — Mein WE vs. Wochentag (Fahrer)
+**Component:** `FahrerPhase4664MeinWochenendVergleich` — Moon violet-900; WE-Pct 5xl + Delta-Icon + WT-Pct 3xl; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Mini-Bar-Vergleich WE vs WT; Coaching-Tipp 3 Stufen (delta≥10/delta≥0/delta<0); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4665 — Storefront
+Übersprungen ✅
+
+### Phase 4666 — WE-Ticker (Kitchen)
+**Component:** `KitchenPhase4666WochenendTicker` — Moon violet-900; Team-Ø WE%+WT% mit Delta-Icon; WE-Leader Name+%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4666 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665 übersprungen)
+- **Nächste freie Phase: 4667**
+
+### Nächste Phasen 4667–4671 — Vorschlag: Fahrer-Umsatz-pro-Stunde-Ranking
+1. **Phase 4667 Backend:** GET /api/delivery/admin/fahrer-umsatz-pro-stunde — Gesamtumsatz / aktive Stunden je Fahrer letzte 30 Tage; rank-based Ampel top25%=gruen; Mock Julia 24€/Max 21€/Sara 18€/Tim 14€; force-dynamic; await createClient().
+2. **Phase 4668 Dispatch:** `DispatchPhase4668UmsatzProStundeBoard` — Moon amber-800; absteigend Rang 1=höchster €/h; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon TrendingUp/Down/Minus; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4669 Fahrer:** `FahrerPhase4669MeinUmsatzProStunde` — Moon amber-800; €/h 5xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Coaching-Tipp 3 Stufen (≥22€/≥16€/<16€); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4670 Storefront:** Überspringen.
+5. **Phase 4671 Kitchen:** `KitchenPhase4671UmsatzProStundeTicker` — Moon amber-800; Höchste #1 Name+€/h; Team-Avg; Ziel ≥20€/h; zielDiff farbkodiert grün/rot; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4667**! NIEMALS 4000–4666 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
