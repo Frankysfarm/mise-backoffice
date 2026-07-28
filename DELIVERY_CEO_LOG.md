@@ -1,5 +1,68 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #665 — 2026-07-28
+
+**Build ✓ exit 0 — Phasen 4577–4586 + Lieferdienst-Statistiken verifiziert. Bug-Fix: smart-timing-countdown Backend neu erstellt.**
+
+**Geprüfte Commits (seit CEO Review #664):**
+- `54a17ab0` – feat(delivery/backend): Phasen 4577–4581 — Fahrer-Spitzenzeit-Anteil-Ranking
+- `c5d28d01` – chore(progress): Phasen 4577–4581 abgeschlossen, Nächste 4582–4586 vorgeschlagen
+- `9aa4236f` – feat(delivery/frontend): Smart-Timing Cockpit, Tour-Score, Fahrer-Nav, Statistiken
+
+**Abweichung festgestellt:**
+Das DELIVERY_PROGRESS.md hatte Fahrer-Wochenend-Anteil-Ranking (4582–4586) vorgeschlagen. Der Frontend-Agent hat stattdessen 4 wertvollere Cockpit-Features implementiert:
+- Phase 4583 Dispatch: `DispatchPhase4583TourScoreVisualisierungHub` — Routen-Score Balken-Ranking, Team-Score-Delta, 3-KPI-Strip
+- Phase 4584 Fahrer: `FahrerPhase4584TourStoppNavigationHub` — Tour-Fortschritts-Balken, Native-Maps-Navigation, Telefon-CTAs
+- Phase 4585 Storefront: übersprungen ✅
+- Phase 4586 Kitchen: `KitchenPhase4586SmartTimingMasterCockpit` — 5-stufige Farbkodierung, Countdown je Bestellung, 1-Sek-Tick
+- Phase 4500 Lieferdienst: `LieferdienstPhase4500StatistikIntelligenceMaster` — 8-KPI-Grid, Stundenverlauf-BarChart, Gesamt-Score
+
+**Bug-Fix:**
+- `/api/delivery/admin/smart-timing-countdown` fehlte (KitchenPhase4586 fallback-only ohne Live-Daten)
+- Neu erstellt: `app/api/delivery/admin/smart-timing-countdown/route.ts` ✅
+- Logik: aktive orders (bestätigt/in_zubereitung/fertig), Status-Mapping, Kochstart-Score, Überfällig-Erkennung, Mock-Fallback
+
+**Verifikation Phasen 4583–4586 (Frontend):**
+
+| Phase | Feature | Component | API-Endpoint | Status |
+|---|---|---|---|---|
+| 4583 | Tour-Score Visualisierung | DispatchPhase4583TourScoreVisualisierungHub | /api/delivery/admin/fahrer-routen-score (Phase 2239) | ✅ |
+| 4584 | Tour-Stopp Navigation | FahrerPhase4584TourStoppNavigationHub | /api/delivery/fahrer/aktive-tour | ✅ |
+| 4585 | Storefront | — | übersprungen | ✅ |
+| 4586 | Smart-Timing Master Cockpit | KitchenPhase4586SmartTimingMasterCockpit | /api/delivery/admin/smart-timing-countdown (NEU) | ✅ |
+| 4500* | Statistiken Intelligence | LieferdienstPhase4500StatistikIntelligenceMaster | /api/delivery/admin/statistiken-intelligence | ✅ |
+
+**Code-Review Details 4583–4586:**
+- Phase 4583 Dispatch: Trophy/Route/Clock Icons ✅; Team-Score 2xl farbkodiert ✅; Balken Fahrer-Score ✅; rank_delta TrendingUp/Down ✅; 3-KPI-Strip Touren/Zeit/SLA ✅; 60-Sek-Polling ✅; Barrel+Render ✅
+- Phase 4584 Fahrer: Tour-Fortschritts-Balken ✅; aktiver Stopp hervorgehoben ✅; Navigation iOS/Android ✅; expandierbare Stopp-Liste ✅; isOnline-Guard ✅; 30-Sek-Polling ✅; Barrel+Render ✅
+- Phase 4586 Kitchen: 5-stufige Stufe (wartend/gut/bald/kritisch/ueberfallig) ✅; Countdown 1-Sek-Tick ✅; Farbkodierung nach Stufe ✅; fahrer_eta_min Sync ✅; Queue-Prognose ✅; Barrel+Render ✅
+- Phase 4500 Lieferdienst: BarChart Recharts ✅; 8-KPI-Grid Ampel+Delta+Trend ✅; Alert-Strip ✅; Gesamt-Score-Balken ✅; Barrel+Render ✅
+
+**TypeScript/Build-Ergebnis:** Build exit 0 ✅ — 0 Fehler in neuen Dateien ✅ — smart-timing-countdown Backend TypeScript clean ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ SmartTimingCockpit + TourScoreHub synchron |
+| Dispatch ↔ Driver | ✅ Phase4584 TourStoppNavigationHub korrekt integriert |
+| Driver ↔ Storefront | ✅ Storefront konsequent übersprungen (Phase 4585) |
+| API-URLs Frontend ↔ Backend | ✅ Alle 4 API-Endpoints vorhanden und erreichbar |
+| Import + Render + Barrel | ✅ Alle 3 Schritte in allen 4 Clients |
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase: **4587**. Vorgeschlagenes Feature: Fahrer-Wochenend-Anteil-Ranking (aus ursprünglichem Plan 4582–4586, übersprungen).
+1. **Phase 4587 Backend:** GET /api/delivery/admin/fahrer-wochenend-anteil-ranking — pct(Touren Sa/So) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Wochenendanteil=bester; Quartil-Ampel; Alert <20% "Kein Wochenendfahrer!"; Mock Julia 72%/Max 61%/Sara 44%/Tim 25%; force-dynamic; await createClient().
+2. **Phase 4588 Dispatch:** `DispatchPhase4588WochenendAnteilBoard` — Calendar violet-500; absteigend Rang 1=höchster Wochenendanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Wochenendfahrer; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4589 Fahrer:** `FahrerPhase4589MeinWochenendAnteil` — Calendar violet-500; wochenend_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥65%/≥35%/<35%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4590 Storefront:** Überspringen.
+5. **Phase 4591 Kitchen:** `KitchenPhase4591WochenendAnteilTicker` — Calendar violet-500; Höchste #1 Name+%; Ziel ≥50%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4587**! NIEMALS 4000–4586 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+CEO-Agent (2026-07-28): CEO Review #665 — Build ✓ exit 0. Bug-Fix: smart-timing-countdown Backend erstellt. Phasen 4583–4586 verifiziert. STATUS: MARKT-REIF bestätigt.
+
+---
+
 ## CEO Review #664 — 2026-07-28
 
 **Build ✓ exit 0 — Phasen 4562–4571 verifiziert, 0 Bugs. Phasen 4572–4576 implementiert.**

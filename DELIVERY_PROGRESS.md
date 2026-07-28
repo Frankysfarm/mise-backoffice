@@ -32611,3 +32611,52 @@ KRITISCH: Nächste freie Phase ist **4582**! NIEMALS 4000–4581 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+---
+
+## Batch 4582–4586 — Smart-Cockpit Bundle (ABGESCHLOSSEN 2026-07-28)
+
+**Hinweis:** Frontend-Agent wich vom Plan (Wochenend-Anteil-Ranking) ab und implementierte wertvollere Cockpit-Features.
+
+### Phase 4582 — Backend API (Smart-Timing Countdown)
+**Datei:** `app/api/delivery/admin/smart-timing-countdown/route.ts` *(neu, CEO-Agent Fix)*
+**Endpoint:** GET /api/delivery/admin/smart-timing-countdown?location_id=...
+**Schema:** `{ bestellungen: [{id, bestellnummer, kunde_name, prep_start_iso, target_min, status, fahrer_eta_min, komplexitaet}], kochstart_score, on_time_rate, avg_prep_min, ueberfallig_count, fahrer_sync_count, kochzeit_ziel_min, queue_prognose_15min }`
+**Logik:** Aktive orders (bestätigt/in_zubereitung/fertig); Status-Mapping → kocht/wartend/bereit/ueberfallig; Kochstart-Score; Überfällig-Erkennung nach 15 Min; Mock-Fallback; force-dynamic ✅; await createClient() ✅
+
+### Phase 4583 — Tour-Score Visualisierung Hub (Dispatch)
+**Component:** `DispatchPhase4583TourScoreVisualisierungHub` — Trophy amber; Team-Score+Delta-Trend; Fahrer-Score-Balken-Ranking; rank_delta Pfeile; 3-KPI-Strip Touren/Zeit/SLA; Top-Insight; 60-Sek-Polling; Import+Render+Barrel ✅
+**API:** /api/delivery/admin/fahrer-routen-score (Phase 2239, wiederverwendet)
+
+### Phase 4584 — Tour-Stopp Navigation Hub (Fahrer)
+**Component:** `FahrerPhase4584TourStoppNavigationHub` — MapPin/Navigation; Tour-Fortschritts-Balken; aktiver Stopp hervorgehoben; Native-Maps iOS/Android; Telefon-CTAs; expandierbare Stopp-Liste; isOnline-Guard; 30-Sek-Polling; Import+Render+Barrel ✅
+**API:** /api/delivery/fahrer/aktive-tour
+
+### Phase 4585 — Storefront
+Übersprungen ✅
+
+### Phase 4586 — Smart-Timing Master Cockpit (Kitchen)
+**Component:** `KitchenPhase4586SmartTimingMasterCockpit` — Timer indigo; 5-stufige Farbkodierung (wartend→gut→bald→kritisch→ueberfallig); Countdown je Bestellung (1-Sek-Tick); Queue-Prognose +15Min; Fahrer-ETA-Sync; 15-Sek-Polling; Import+Render+Barrel ✅
+**API:** /api/delivery/admin/smart-timing-countdown (NEU, Phase 4582)
+
+### Phase 4500* — Statistiken Intelligence Master (Lieferdienst, Sondernummer)
+**Component:** `LieferdienstPhase4500StatistikIntelligenceMaster` — BarChart2; Gesamt-Score-Balken; Alert-Strip; 8-KPI-Grid Ampel+Delta+Trend; Stundenverlauf-BarChart 2 Modi; Top-Insight; 60-Sek-Polling; Import+Render+Barrel ✅
+**API:** /api/delivery/admin/statistiken-intelligence
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4586 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500*, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545, 4550, 4555, 4560, 4565, 4570, 4575, 4580, 4585 übersprungen)
+- **Nächste freie Phase: 4587**
+
+### Nächste Phasen 4587–4591 — Fahrer-Wochenend-Anteil-Ranking
+1. **Phase 4587 Backend:** GET /api/delivery/admin/fahrer-wochenend-anteil-ranking — pct(Touren Sa/So) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Wochenendanteil=bester; Quartil-Ampel; Alert <20% "Kein Wochenendfahrer!"; Mock Julia 72%/Max 61%/Sara 44%/Tim 25%; force-dynamic; await createClient().
+2. **Phase 4588 Dispatch:** `DispatchPhase4588WochenendAnteilBoard` — Calendar violet-500; absteigend Rang 1=höchster Wochenendanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Wochenendfahrer; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4589 Fahrer:** `FahrerPhase4589MeinWochenendAnteil` — Calendar violet-500; wochenend_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥65%/≥35%/<35%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4590 Storefront:** Überspringen.
+5. **Phase 4591 Kitchen:** `KitchenPhase4591WochenendAnteilTicker` — Calendar violet-500; Höchste #1 Name+%; Ziel ≥50%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4587**! NIEMALS 4000–4586 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
