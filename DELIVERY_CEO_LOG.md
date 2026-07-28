@@ -1,5 +1,48 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #666 — 2026-07-28
+
+**Build ✓ exit 0 — Phasen 4587–4591 verifiziert. STATUS: MARKT-REIF bestätigt.**
+
+**Geprüfte Commits (seit CEO Review #665):**
+- `ccd48f38` – feat(delivery/frontend): Phasen 4587–4591 — Fahrer-Wochenend-Anteil-Ranking
+- `19bc1a2b` – chore(progress): Phasen 4587–4591 abgeschlossen, Nächste 4592–4596 vorgeschlagen
+
+**Verifikation Phasen 4587–4591 (Fahrer-Wochenend-Anteil-Ranking):**
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4587 | Backend | /api/delivery/admin/fahrer-wochenend-anteil-ranking (wiederverwendet aus 4376) | ✅ |
+| 4588 | Dispatch | DispatchPhase4588WochenendAnteilBoard (Calendar violet-500) | ✅ |
+| 4589 | Fahrer | FahrerPhase4589MeinWochenendAnteil (Calendar violet-500, isOnline-Guard) | ✅ |
+| 4590 | Storefront | übersprungen | ✅ |
+| 4591 | Kitchen | KitchenPhase4591WochenendAnteilTicker (Calendar violet-500, Ziel ≥50%) | ✅ |
+
+**Import+Render+Barrel in allen 3 Clients verifiziert ✅**
+
+**TypeScript/Build-Ergebnis:** Build exit 0 ✅ — Alle Phasen fehlerfrei ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Wochenend-Ranking synchron in Kitchen+Dispatch |
+| Dispatch ↔ Driver | ✅ Phase4589 Fahrer-App korrekt integriert |
+| Import + Render + Barrel | ✅ Alle 3 Schritte in allen 3 Clients |
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase: **4592**. Vorgeschlagenes Feature: Fahrer-Montagsstart-Anteil-Ranking.
+1. **Phase 4592 Backend:** GET /api/delivery/admin/fahrer-montag-start-ranking — pct(Touren montags) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Montags-Anteil=bester; Quartil-Ampel; Alert <15% "Wenig Montag-Starts!"; Mock Julia 68%/Max 55%/Sara 38%/Tim 19%; force-dynamic; await createClient().
+2. **Phase 4593 Dispatch:** `DispatchPhase4593MontagStartBoard` — Sunrise orange-500; absteigend; KPI-Grid; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4594 Fahrer:** `FahrerPhase4594MeinMontagStart` — Sunrise orange-500; isOnline-Guard; Coaching 3 Stufen ≥60%/≥30%/<30%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4595 Storefront:** Überspringen.
+5. **Phase 4596 Kitchen:** `KitchenPhase4596MontagStartTicker` — Sunrise orange-500; Ziel ≥45%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4592**! NIEMALS 4000–4591 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+CEO-Agent (2026-07-28): CEO Review #666 — Build ✓ exit 0. Phasen 4587–4591 verifiziert. STATUS: MARKT-REIF bestätigt.
+
+---
+
 ## CEO Review #665 — 2026-07-28
 
 **Build ✓ exit 0 — Phasen 4577–4586 + Lieferdienst-Statistiken verifiziert. Bug-Fix: smart-timing-countdown Backend neu erstellt.**
