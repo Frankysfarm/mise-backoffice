@@ -1213,6 +1213,7 @@ import { DispatchPhase4483StornoBoard } from './phase4483-storno-board';
 import { DispatchPhase4488ReklamationBoard } from './phase4488-reklamation-board';
 import { DispatchPhase4493BewertungBoard } from './phase4493-bewertung-board';
 import { DispatchPhase4498AnnahmeBoard } from './phase4498-annahme-board';
+import { DispatchPhase4503TourzeitBoard } from './phase4503-tourzeit-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5069,6 +5070,8 @@ export function DispatchBoard({
           <DispatchPhase4493BewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4498: Annahme-Quote-Board — CheckCircle2 emerald-500; absteigend Rang 1=höchste Annahme-Quote; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrige Annahme-Quote; 30-Min-Polling */}
           <DispatchPhase4498AnnahmeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4503: Tourzeit-Board — Clock teal-500; INVERTED Rang 1=kürzeste Tourzeit; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Tourzeit >90min; 30-Min-Polling */}
+          <DispatchPhase4503TourzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13601,3 +13604,5 @@ export { DispatchPhase4488ReklamationBoard } from './phase4488-reklamation-board
 export { DispatchPhase4493BewertungBoard } from './phase4493-bewertung-board';
 // Phase 4498 — Annahme-Quote-Board (CheckCircle2 emerald-500; absteigend Rang 1=höchste Annahme-Quote; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrige Annahme-Quote; 30-Min-Polling)
 export { DispatchPhase4498AnnahmeBoard } from './phase4498-annahme-board';
+// Phase 4503 — Tourzeit-Board (Clock teal-500; INVERTED Rang 1=kürzeste Tourzeit; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Tourzeit >90min; 30-Min-Polling)
+export { DispatchPhase4503TourzeitBoard } from './phase4503-tourzeit-board';

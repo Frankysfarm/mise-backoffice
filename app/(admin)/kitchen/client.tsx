@@ -1156,6 +1156,7 @@ import { KitchenPhase4486StornoTicker } from './phase4486-storno-ticker';
 import { KitchenPhase4491ReklamationTicker } from './phase4491-reklamation-ticker';
 import { KitchenPhase4496BewertungTicker } from './phase4496-bewertung-ticker';
 import { KitchenPhase4501AnnahmeTicker } from './phase4501-annahme-ticker';
+import { KitchenPhase4506TourzeitTicker } from './phase4506-tourzeit-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4654,6 +4655,8 @@ export function KitchenBoard({
       <KitchenPhase4496BewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4501: Annahme-Quote-Ticker — CheckCircle2 emerald-500; Bester #1 Name+%; Ziel ≥90%; 30-Min-Polling */}
       <KitchenPhase4501AnnahmeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4506: Tourzeit-Ticker — Clock teal-500; Schnellster #1 Name+min; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤60min; 30-Min-Polling */}
+      <KitchenPhase4506TourzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12171,3 +12174,5 @@ export { KitchenPhase4491ReklamationTicker } from './phase4491-reklamation-ticke
 export { KitchenPhase4496BewertungTicker } from './phase4496-bewertung-ticker';
 // Phase 4501 — Annahme-Quote-Ticker (CheckCircle2 emerald-500; Bester #1 Name+%; Ziel ≥90%; 30-Min-Polling)
 export { KitchenPhase4501AnnahmeTicker } from './phase4501-annahme-ticker';
+// Phase 4506 — Tourzeit-Ticker (Clock teal-500; Schnellster #1 Name+min; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤60min; 30-Min-Polling)
+export { KitchenPhase4506TourzeitTicker } from './phase4506-tourzeit-ticker';
