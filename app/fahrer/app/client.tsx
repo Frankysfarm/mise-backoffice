@@ -1144,6 +1144,7 @@ import { FahrerPhase4539MeineKontaktRate } from './phase4539-meine-kontakt-rate'
 import { FahrerPhase4544MeineReaktionszeit } from './phase4544-meine-reaktionszeit';
 import { FahrerPhase4549MeineLieferfenster } from './phase4549-meine-lieferfenster';
 import { FahrerPhase4554MeineMehrfach } from './phase4554-meine-mehrfach';
+import { FahrerPhase4559MeinNachtAnteil } from './phase4559-mein-nacht-anteil';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7254,6 +7255,8 @@ export function FahrerApp({
           <FahrerPhase4549MeineLieferfenster driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4554: Meine Mehrfachlieferungs-Effizienz — Package purple-500; avg_lieferungen 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥3.5/≥2.5/<2.5; 30-Min-Polling */}
           <FahrerPhase4554MeineMehrfach driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4559: Mein Nacht-Lieferungs-Anteil — Moon indigo-500; nacht_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥40%/≥20%/<20%; 30-Min-Polling */}
+          <FahrerPhase4559MeinNachtAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11529,3 +11532,5 @@ export { FahrerPhase4544MeineReaktionszeit } from './phase4544-meine-reaktionsze
 export { FahrerPhase4549MeineLieferfenster } from './phase4549-meine-lieferfenster';
 // Phase 4554 — Meine Mehrfachlieferungs-Effizienz (Package purple-500; avg_lieferungen 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥3.5/≥2.5/<2.5; 30-Min-Polling)
 export { FahrerPhase4554MeineMehrfach } from './phase4554-meine-mehrfach';
+// Phase 4559 — Mein Nacht-Lieferungs-Anteil (Moon indigo-500; nacht_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥40%/≥20%/<20%; 30-Min-Polling)
+export { FahrerPhase4559MeinNachtAnteil } from './phase4559-mein-nacht-anteil';

@@ -2,6 +2,32 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-28): Phasen 4557–4561 implementiert — Fahrer-Nacht-Lieferungs-Anteil-Ranking (% Lieferungen 22–06 Uhr). Backend neu erstellt (`/api/delivery/admin/fahrer-nacht-anteil-ranking`, absteigend Rang 1=höchster Nachtanteil=bester, pct(orders between 22:00–06:00) je Fahrer letzte 30 Tage, Alert <10% "Kein Nachtfahrer!", Mock Julia 45%/Max 38%/Sara 22%/Tim 8%, await createClient()). Dispatch: `DispatchPhase4558NachtAnteilBoard` Moon indigo-500. Fahrer: `FahrerPhase4559MeinNachtAnteil` Moon indigo-500 isOnline-Guard Coaching-Tipp 3 Stufen ≥40%/≥20%/<20%. Phase 4560 Storefront übersprungen. Kitchen: `KitchenPhase4561NachtAnteilTicker` Moon indigo-500 Höchste #1 Ziel≥30%. Import+Render+Barrel in allen 3 Clients ✅. Build exit 0 ✅. Nächste freie Phase: **4562**.
+
+### ✅ Phasen 4557–4561 ABGESCHLOSSEN — Fahrer-Nacht-Lieferungs-Anteil-Ranking
+- Phase 4557 Backend: `/api/delivery/admin/fahrer-nacht-anteil-ranking` — absteigend Rang 1=höchster Nachtanteil=bester; pct(orders 22–06 Uhr) je Fahrer letzte 30 Tage; Quartil-Ampel; Alert <10% "Kein Nachtfahrer!"; Mock Julia 45%/Max 38%/Sara 22%/Tim 8%; await createClient() ✅
+- Phase 4558 Dispatch: `DispatchPhase4558NachtAnteilBoard` — Moon indigo-500; absteigend Rang 1=höchster Nachtanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Nachtfahrer; Balken=(pct/maxPct)*100%; rank_delta TrendingUp emerald; 30-Min-Polling ✅
+- Phase 4559 Fahrer: `FahrerPhase4559MeinNachtAnteil` — Moon indigo-500; nacht_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥40%/≥20%/<20%; 30-Min-Polling ✅
+- Phase 4560 Storefront: übersprungen ✅
+- Phase 4561 Kitchen: `KitchenPhase4561NachtAnteilTicker` — Moon indigo-500; Höchste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥30%; 30-Min-Polling ✅
+
+### Build: exit 0 ✅ — 0 Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4561 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545, 4550, 4555, 4560 übersprungen)
+- **Nächste freie Phase: 4562**
+
+### Nächste Phasen 4562–4566 — Vorschlag: Fahrer-Wochenend-Lieferungs-Anteil-Ranking
+1. **Phase 4562 Backend:** GET /api/delivery/admin/fahrer-wochenend-anteil-ranking — pct(orders Sa/So) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Wochenendanteil=bester; Quartil-Ampel; Alert <20% "Kein Wochenendfahrer!"; Mock Julia 52%/Max 41%/Sara 28%/Tim 15%; force-dynamic; await createClient().
+2. **Phase 4563 Dispatch:** `DispatchPhase4563WochenendAnteilBoard` — Calendar orange-500; absteigend Rang 1=höchster Wochenendanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Wochenendfahrer; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4564 Fahrer:** `FahrerPhase4564MeinWochenendAnteil` — Calendar orange-500; wochenend_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥45%/≥25%/<25%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4565 Storefront:** Überspringen.
+5. **Phase 4566 Kitchen:** `KitchenPhase4566WochenendAnteilTicker` — Calendar orange-500; Höchste #1 Name+%; Ziel ≥35%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4562! NIEMALS 4000–4561 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 Frontend-Ingenieur-Agent (2026-07-28): Phasen 4552–4556 implementiert — Fahrer-Mehrfachlieferungs-Effizienz-Ranking (Ø Lieferungen/Tour). Backend neu erstellt (`/api/delivery/admin/fahrer-mehrfach-ranking`, absteigend Rang 1=meiste Lieferungen/Tour=bester, avg(deliveries/tour) je Fahrer, Alert <2.0 "Geringe Bündelung!", Mock Julia 3.8/Max 3.2/Sara 2.5/Tim 1.6, await createClient()). Dispatch: `DispatchPhase4553MehrfachBoard` Package purple-500. Fahrer: `FahrerPhase4554MeineMehrfach` Package purple-500 isOnline-Guard Coaching-Tipp 3 Stufen ≥3.5/≥2.5/<2.5. Phase 4555 Storefront übersprungen. Kitchen: `KitchenPhase4556MehrfachTicker` Package purple-500 Höchste #1 Ziel≥3.0. Import+Render+Barrel in allen 3 Clients ✅. TypeScript-Fehler identisch mit Vorgänger-Phasen ✅. Build: pre-existing Turbopack Container-Problem (unverändert) ✅. Nächste freie Phase: **4557**.
 
 ### ✅ Phasen 4552–4556 ABGESCHLOSSEN — Fahrer-Mehrfachlieferungs-Effizienz-Ranking
