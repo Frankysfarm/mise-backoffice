@@ -31956,3 +31956,42 @@ KRITISCH: Nächste freie Phase ist 4487! NIEMALS 4000–4486 verwenden. IMMER al
 KRITISCH: Nächste freie Phase ist 4492! NIEMALS 4000–4491 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4492–4496 — Fahrer-Bewertungs-Schnitt-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4492 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-bewertung-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-bewertung-ranking?location_id=...&driver_id=...
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_rating, rank_delta, ampel, alert_niedrig}], team_avg_rating, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** avg(rating) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Bewertung=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert alert_niedrig=true wenn rot; Mock Julia 4.8/Max 4.5/Sara 4.1/Tim 3.7; force-dynamic ✅; createClient() aus @/lib/supabase/server ✅
+
+### Phase 4493 — Bewertungs-Schnitt-Board (Dispatch)
+**Component:** `DispatchPhase4493BewertungBoard` — Star yellow-500; absteigend Rang 1=höchste Bewertung; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrige Bewertung; Balken=(avg_rating/maxRating)*100%; rank_delta TrendingUp emerald; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4494 — Meine Bewertung (Fahrer)
+**Component:** `FahrerPhase4494MeineBewertung` — Star yellow-500; avg_rating 5xl+Rang 2xl farbkodiert; isOnline-Guard; driverId-Filter; Coaching-Tipp 3 Stufen (≥4.7/≥4.3/<4.3); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4495 — Storefront
+Übersprungen ✅
+
+### Phase 4496 — Bewertungs-Ticker (Kitchen)
+**Component:** `KitchenPhase4496BewertungTicker` — Star yellow-500; Bester #1 Name+Sterne; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥4.5; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Pre-existing-Errors identisch; Turbopack bekanntes Container-Problem)
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4496 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495 übersprungen)
+- **Nächste freie Phase: 4497**
+
+### Nächste Phasen 4497–4501 — Fahrer-Annahme-Quote-Ranking
+1. **Phase 4497 Backend:** GET /api/delivery/admin/fahrer-annahme-ranking — pct(accepted offers) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Annahme-Quote=bester; Quartil-Ampel; Alert "Niedrige Annahme-Quote!"; Mock Julia 95%/Max 88%/Sara 79%/Tim 65%; force-dynamic; createClient() aus @/lib/supabase/server.
+2. **Phase 4498 Dispatch:** `DispatchPhase4498AnnahmeBoard` — CheckCircle2 emerald-500; absteigend Rang 1=höchste Annahme-Quote; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrige Annahme-Quote; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4499 Fahrer:** `FahrerPhase4499MeineAnnahmeQuote` — CheckCircle2 emerald-500; annahme_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen (≥90%/≥75%/<75%); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4500 Storefront:** Überspringen.
+5. **Phase 4501 Kitchen:** `KitchenPhase4501AnnahmeTicker` — CheckCircle2 emerald-500; Bester #1 Name+%; Ziel ≥90%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4497! NIEMALS 4000–4496 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+## STATUS: MARKT-REIF
