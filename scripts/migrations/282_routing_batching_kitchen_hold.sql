@@ -45,6 +45,20 @@ CREATE TABLE IF NOT EXISTS public.dispatch_kitchen_release_outbox_v2 (
   delivered_at timestamptz
 );
 
+CREATE TABLE IF NOT EXISTS public.dispatch_kitchen_hold_audit_v2 (
+  id bigserial PRIMARY KEY,
+  order_id uuid NOT NULL REFERENCES public.customer_orders(id),
+  tenant_id uuid NOT NULL REFERENCES public.tenants(id),
+  action_id uuid NOT NULL,
+  correlation_id uuid NOT NULL,
+  event_type text NOT NULL CHECK (event_type IN ('scheduled','rescheduled','released','cancelled')),
+  reason_code text NOT NULL,
+  hold_version bigint NOT NULL,
+  details jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  UNIQUE (action_id,event_type)
+);
+
 CREATE TABLE IF NOT EXISTS public.dispatch_route_plans_v2 (
   assignment_id uuid PRIMARY KEY,
   tenant_id uuid NOT NULL REFERENCES public.tenants(id),
@@ -149,6 +163,13 @@ BEGIN
     next_evaluation_at=excluded.next_evaluation_at,reason_code=excluded.reason_code,
     input_snapshot=excluded.input_snapshot,decision_action_id=excluded.decision_action_id,
     correlation_id=excluded.correlation_id,updated_at=clock_timestamp();
+  INSERT INTO public.dispatch_kitchen_hold_audit_v2(order_id,tenant_id,action_id,
+    correlation_id,event_type,reason_code,hold_version,details)
+  SELECT order_id,tenant_id,p_action_id,p_correlation_id,
+    CASE WHEN hold_version=1 THEN 'scheduled' ELSE 'rescheduled' END,
+    p_reason_code,hold_version,p_input_snapshot
+  FROM public.dispatch_kitchen_holds_v2 WHERE order_id=p_order_id
+  ON CONFLICT(action_id,event_type) DO NOTHING;
   RETURN (SELECT jsonb_build_object('ok',true,'state',state,'hold_version',hold_version,'idempotent_replay',false)
     FROM public.dispatch_kitchen_holds_v2 WHERE order_id=p_order_id);
 END $$;
@@ -167,6 +188,12 @@ BEGIN
   IF h.state<>'held' OR h.hold_version<>p_expected_hold_version THEN
     RETURN jsonb_build_object('ok',false,'reason_code','HOLD_VERSION_CONFLICT','hold_version',h.hold_version);
   END IF;
+  IF EXISTS (
+    SELECT 1 FROM public.customer_orders
+    WHERE id=p_order_id AND status::text IN ('cancelled','canceled','storniert')
+  ) THEN
+    RETURN jsonb_build_object('ok',false,'reason_code','ORDER_CANCELLED');
+  END IF;
   UPDATE public.dispatch_kitchen_holds_v2 SET state='released',hold_version=hold_version+1,
     release_action_id=p_action_id,released_at=clock_timestamp(),reason_code=p_reason_code,
     correlation_id=p_correlation_id,updated_at=clock_timestamp() WHERE order_id=p_order_id;
@@ -174,6 +201,11 @@ BEGIN
   VALUES(p_order_id,p_tenant_id,p_action_id,p_correlation_id,
     jsonb_build_object('type','kitchen_release','order_id',p_order_id,'reason_code',p_reason_code))
   ON CONFLICT(order_id) DO NOTHING;
+  INSERT INTO public.dispatch_kitchen_hold_audit_v2(order_id,tenant_id,action_id,
+    correlation_id,event_type,reason_code,hold_version)
+  SELECT order_id,tenant_id,p_action_id,p_correlation_id,'released',p_reason_code,hold_version
+  FROM public.dispatch_kitchen_holds_v2 WHERE order_id=p_order_id
+  ON CONFLICT(action_id,event_type) DO NOTHING;
   RETURN (SELECT jsonb_build_object('ok',true,'state',state,'hold_version',hold_version,'idempotent_replay',false)
     FROM public.dispatch_kitchen_holds_v2 WHERE order_id=p_order_id);
 END $$;
@@ -189,6 +221,11 @@ BEGIN
   IF h.state<>'held' OR h.hold_version<>p_expected_hold_version THEN RETURN jsonb_build_object('ok',false,'reason_code','HOLD_VERSION_CONFLICT'); END IF;
   UPDATE public.dispatch_kitchen_holds_v2 SET state='cancelled',hold_version=hold_version+1,
     cancelled_at=clock_timestamp(),updated_at=clock_timestamp() WHERE order_id=p_order_id;
+  INSERT INTO public.dispatch_kitchen_hold_audit_v2(order_id,tenant_id,action_id,
+    correlation_id,event_type,reason_code,hold_version)
+  SELECT order_id,tenant_id,p_action_id,correlation_id,'cancelled','ORDER_CANCELLED',hold_version
+  FROM public.dispatch_kitchen_holds_v2 WHERE order_id=p_order_id
+  ON CONFLICT(action_id,event_type) DO NOTHING;
   RETURN jsonb_build_object('ok',true,'state','cancelled','idempotent_replay',false);
 END $$;
 
@@ -200,9 +237,17 @@ BEGIN
     WHERE state='held' AND (kitchen_release_at<=clock_timestamp() OR absolute_hold_deadline_at<=clock_timestamp())
     ORDER BY absolute_hold_deadline_at FOR UPDATE SKIP LOCKED LIMIT greatest(1,least(p_limit,1000))
   LOOP
-    r:=public.fn_release_kitchen_hold_v2(h.tenant_id,h.order_id,h.hold_version,
-      gen_random_uuid(),h.correlation_id,'WATCHDOG_DEADLINE');
-    IF (r->>'ok')::boolean THEN n:=n+1; END IF;
+    IF EXISTS (
+      SELECT 1 FROM public.customer_orders
+      WHERE id=h.order_id AND status::text IN ('cancelled','canceled','storniert')
+    ) THEN
+      r:=public.fn_cancel_kitchen_hold_v2(
+        h.tenant_id,h.order_id,h.hold_version,gen_random_uuid());
+    ELSE
+      r:=public.fn_release_kitchen_hold_v2(h.tenant_id,h.order_id,h.hold_version,
+        gen_random_uuid(),h.correlation_id,'WATCHDOG_DEADLINE');
+      IF (r->>'ok')::boolean THEN n:=n+1; END IF;
+    END IF;
   END LOOP;
   RETURN n;
 END $$;
@@ -381,12 +426,15 @@ END $$;
 ALTER TABLE public.dispatch_routing_hold_config_v2 ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.dispatch_kitchen_holds_v2 ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.dispatch_kitchen_release_outbox_v2 ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.dispatch_kitchen_hold_audit_v2 ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.dispatch_route_plans_v2 ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON public.dispatch_routing_hold_config_v2,public.dispatch_kitchen_holds_v2,
-  public.dispatch_kitchen_release_outbox_v2 FROM PUBLIC,anon,authenticated;
+  public.dispatch_kitchen_release_outbox_v2,public.dispatch_kitchen_hold_audit_v2
+  FROM PUBLIC,anon,authenticated;
 REVOKE ALL ON public.dispatch_route_plans_v2 FROM PUBLIC,anon,authenticated;
 GRANT ALL ON public.dispatch_routing_hold_config_v2,public.dispatch_kitchen_holds_v2,
-  public.dispatch_kitchen_release_outbox_v2 TO service_role;
+  public.dispatch_kitchen_release_outbox_v2,public.dispatch_kitchen_hold_audit_v2
+  TO service_role;
 GRANT ALL ON public.dispatch_route_plans_v2 TO service_role;
 REVOKE ALL ON FUNCTION public.fn_persist_route_plan_v2(
   uuid,uuid,bigint,bigint,jsonb,jsonb,jsonb,boolean,uuid,uuid

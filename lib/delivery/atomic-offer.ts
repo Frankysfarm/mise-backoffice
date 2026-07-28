@@ -139,6 +139,71 @@ export interface AtomicAssignmentV2Input {
   push: { title: string; body: string };
 }
 
+export interface AtomicRouteAppendV2Input {
+  tenantId: string;
+  writerId: string;
+  writerEpoch: number;
+  driverId: string;
+  expectedDriverVersion: number;
+  batchId: string;
+  expectedRouteVersion: number;
+  orderId: string;
+  expectedOrderVersion: number;
+  pickupStopId: string;
+  dropoffStopId: string;
+  pickup: { lat: number; lng: number; address: string };
+  dropoff: { lat: number; lng: number; address: string };
+  pickupDeadlineAt: string;
+  deliveryDeadlineAt: string;
+  routeStops: unknown[];
+  arrivals: Record<string, string>;
+  explanation: Record<string, unknown>;
+  matrixFallbackUsed: boolean;
+  actionId: string;
+  correlationId: string;
+}
+
+export async function appendOrderToRouteV2(
+  client: SupabaseClient,
+  input: AtomicRouteAppendV2Input,
+): Promise<AtomicOfferResult> {
+  if (!atomicAssignmentV2Enabled()) {
+    return { ok: false, reason_code: 'FEATURE_DISABLED' };
+  }
+  const { data, error } = await client.rpc('fn_append_order_to_route_v2', {
+    p_tenant_id: input.tenantId,
+    p_writer_id: input.writerId,
+    p_writer_epoch: input.writerEpoch,
+    p_driver_id: input.driverId,
+    p_expected_driver_version: input.expectedDriverVersion,
+    p_batch_id: input.batchId,
+    p_expected_route_version: input.expectedRouteVersion,
+    p_order_id: input.orderId,
+    p_expected_order_version: input.expectedOrderVersion,
+    p_pickup_stop_id: input.pickupStopId,
+    p_dropoff_stop_id: input.dropoffStopId,
+    p_pickup_lat: input.pickup.lat,
+    p_pickup_lng: input.pickup.lng,
+    p_dropoff_lat: input.dropoff.lat,
+    p_dropoff_lng: input.dropoff.lng,
+    p_pickup_address: input.pickup.address,
+    p_dropoff_address: input.dropoff.address,
+    p_pickup_deadline_at: input.pickupDeadlineAt,
+    p_delivery_deadline_at: input.deliveryDeadlineAt,
+    p_route_stops: input.routeStops,
+    p_arrivals: input.arrivals,
+    p_explanation: input.explanation,
+    p_matrix_fallback_used: input.matrixFallbackUsed,
+    p_action_id: input.actionId,
+    p_correlation_id: input.correlationId,
+  });
+  if (error) throw new Error(`fn_append_order_to_route_v2 failed: ${error.message}`);
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error('fn_append_order_to_route_v2 returned an invalid contract');
+  }
+  return data as AtomicOfferResult;
+}
+
 export async function createAtomicAssignmentV2(
   client: SupabaseClient,
   input: AtomicAssignmentV2Input,

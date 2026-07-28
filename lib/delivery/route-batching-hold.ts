@@ -218,7 +218,12 @@ export type KitchenHoldInput = {
   prepMinutes: number; kitchenQueueMinutes: number; driverEtaToPickupMinutes: number;
   pickupToCustomerMinutes: number; serviceMinutes: number;
   configuredMaxHoldMinutes: number; confidenceMarginMinutes: number;
-  previous?: { releaseAt: string; absoluteDeadlineAt: string; inputVersion: number } | null;
+  previous?: {
+    releaseAt: string;
+    absoluteDeadlineAt: string;
+    inputVersion: number;
+    holdVersion?: number;
+  } | null;
   inputVersion: number;
 };
 

@@ -49,6 +49,9 @@ import {
   type DeterministicDriverSnapshot,
 } from './delivery/deterministic-dispatch';
 import {
+  tryT08RouteAppend,
+} from './delivery/t08-frank-route';
+import {
   decideLongDistanceHold,
   evaluateCorridorBundle,
   type CorridorBundleDecision,
@@ -430,6 +433,40 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
         : undefined,
     );
     return finish('bundled', d.id, 'LEGACY_BUNDLE');
+  }
+
+  if (useAtomicV2 && o.eta_earliest && o.eta_latest) {
+    const appendOutcome = await tryT08RouteAppend(
+      c,
+      ATOMIC_V2_WRITER_INSTANCE_ID,
+      {
+        id: o.id,
+        locationId: o.location_id,
+        dispatchVersion: Number(o.dispatch_version ?? 0),
+        pickupDeadlineAt: o.eta_earliest,
+        deliveryDeadlineAt: o.eta_latest,
+        dropoff: {
+          lat: o.kunde_lat!,
+          lng: o.kunde_lng!,
+          address: o.kunde_adresse ?? '',
+        },
+      },
+      {
+        tenantId: loc.tenant_id,
+        id: loc.id,
+        lat: loc.lat,
+        lng: loc.lng,
+        address: [loc.adresse, loc.plz, loc.stadt].filter(Boolean).join(', ') || loc.name,
+      },
+      (reason, driverId, data) =>
+        logDecision('hold', driverId, [o.id], reason, data),
+    );
+    if (appendOutcome === 'appended') {
+      return finish('bundled', null, 'T08_ROUTE_APPEND_COMMITTED');
+    }
+    if (appendOutcome === 'conflict') {
+      return finish('held', null, 'T08_ROUTE_APPEND_CONFLICT');
+    }
   }
 
   // 4b) Spar-Modus: kein passender Bundle -> kurz warten (sammeln) statt sofort allein rauszuschicken

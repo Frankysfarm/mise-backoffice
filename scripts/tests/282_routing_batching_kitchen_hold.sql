@@ -8,7 +8,8 @@ INSERT INTO customer_orders(id,tenant_id,location_id,bestellnummer,kunde_name,ty
 VALUES
 ('82000000-0000-0000-0000-000000000011','82000000-0000-0000-0000-000000000001','82000000-0000-0000-0000-000000000002','T08-1','fixture','lieferung','fertig'),
 ('82000000-0000-0000-0000-000000000012','82000000-0000-0000-0000-000000000001','82000000-0000-0000-0000-000000000002','T08-2','fixture','lieferung','fertig'),
-('82000000-0000-0000-0000-000000000013','82000000-0000-0000-0000-000000000001','82000000-0000-0000-0000-000000000002','T08-3','fixture','lieferung','fertig');
+('82000000-0000-0000-0000-000000000013','82000000-0000-0000-0000-000000000001','82000000-0000-0000-0000-000000000002','T08-3','fixture','lieferung','fertig'),
+('82000000-0000-0000-0000-000000000014','82000000-0000-0000-0000-000000000001','82000000-0000-0000-0000-000000000002','T08-4','fixture','lieferung','fertig');
 INSERT INTO dispatch_routing_hold_config_v2(tenant_id,enabled,shadow_only)
 VALUES('82000000-0000-0000-0000-000000000001',true,false);
 
@@ -157,6 +158,10 @@ BEGIN
   IF r->>'idempotent_replay'<>'true' THEN RAISE EXCEPTION 'release replay failed %',r; END IF;
   IF (SELECT count(*) FROM dispatch_kitchen_release_outbox_v2 WHERE order_id='82000000-0000-0000-0000-000000000011')<>1
     THEN RAISE EXCEPTION 'duplicate kitchen release'; END IF;
+  IF (SELECT count(*) FROM dispatch_kitchen_hold_audit_v2 WHERE order_id=
+      '82000000-0000-0000-0000-000000000011')<>2 THEN
+    RAISE EXCEPTION 'kitchen hold audit incomplete';
+  END IF;
 
   r:=fn_schedule_kitchen_hold_v2(
     '82000000-0000-0000-0000-000000000001','82000000-0000-0000-0000-000000000012',0,1,
@@ -178,4 +183,19 @@ BEGIN
     THEN RAISE EXCEPTION 'watchdog failed %',v; END IF;
   v:=fn_watchdog_release_kitchen_holds_v2(100);
   IF v<>0 THEN RAISE EXCEPTION 'watchdog restart duplicate %',v; END IF;
+
+  r:=fn_schedule_kitchen_hold_v2(
+    '82000000-0000-0000-0000-000000000001','82000000-0000-0000-0000-000000000014',0,1,
+    clock_timestamp()-interval '1 minute',clock_timestamp()+interval '1 minute',
+    clock_timestamp()-interval '1 minute','WAIT','{}',
+    '82000000-0000-0000-0000-000000000106','82000000-0000-0000-0000-000000000204');
+  UPDATE customer_orders SET status='cancelled'
+    WHERE id='82000000-0000-0000-0000-000000000014';
+  v:=fn_watchdog_release_kitchen_holds_v2(100);
+  IF v<>0 OR (SELECT state FROM dispatch_kitchen_holds_v2 WHERE order_id=
+      '82000000-0000-0000-0000-000000000014')<>'cancelled'
+      OR EXISTS(SELECT 1 FROM dispatch_kitchen_release_outbox_v2 WHERE order_id=
+        '82000000-0000-0000-0000-000000000014') THEN
+    RAISE EXCEPTION 'watchdog released cancelled order %',v;
+  END IF;
 END $$;
