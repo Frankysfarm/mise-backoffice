@@ -33319,3 +33319,41 @@ KRITISCH: Nächste freie Phase ist **4657**! NIEMALS 4000–4656 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+## Batch 4657–4661 — Fahrer-Peak-Stunden-Analyse (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4657 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-peak-stunden/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, stunden[24], top_stunde, top_pct, gesamt_touren}], stunden_stats[24], gesamt }`
+**Logik:** pct(Touren je Stunde 0–23) je Fahrer aus delivery_tours letzte 30 Tage; top_stunde = Stunde mit höchstem Anteil; stunden_stats mit team_avg+top_fahrer je Stunde; Mock Julia(peak 12h 20%)/Max(peak 18h 25%)/Sara(peak 11h 22%)/Tim(peak 19h 28%); force-dynamic ✅; await createClient() ✅
+
+### Phase 4658 — Peak-Stunden-Board (Dispatch)
+**Component:** `DispatchPhase4658PeakStundenBoard` — Moon indigo-900; Heatmap 24-Stunden-Grid (Zeilen=Fahrer, Spalten=Stunden 0–23); Intensität 4-stufig ≥20%/12–19%/6–11%/<2%; Ring = Top-Stunde je Fahrer; Team-Ø mini-Balken-Zeile; Top-Fahrer-Kürzel-Zeile je Stunde; Summary-Grid Top-Stunde je Fahrer; Legende; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4659 — Meine Peak-Stunden (Fahrer)
+**Component:** `FahrerPhase4659MeinePeakStunden` — Moon indigo-900; 24-Balken 0–23 Uhr (isTop=indigo-600 hervorgehoben); isOnline-Guard; WifiOff-Fallback; driverId-Filter; Peak-Highlight-Box (Stunde+Pct); Coaching-Tipp 3 Stufen (≥20%/≥10%/<10%); Stundenbeschriftung alle 6h; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4660 — Storefront
+Übersprungen ✅
+
+### Phase 4661 — Peak-Stunden-Ticker (Kitchen)
+**Component:** `KitchenPhase4661PeakStundenTicker` — Moon indigo-900; Top-Stunde als XX:00 + Name + %; 24h mini-Balken Team-Ø (isTop=indigo-600); Stundenbeschriftung alle 6h; Footer Stärkste-Stunde + Fahrer-Anzahl; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4661 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660 übersprungen)
+- **Nächste freie Phase: 4662**
+
+### Nächste Phasen 4662–4666 — Vorschlag: Fahrer-Wochenend-vs-Wochentag-Vergleich
+1. **Phase 4662 Backend:** GET /api/delivery/admin/fahrer-wochenend-vergleich — pct_wochenend (Sa+So) vs pct_wochentag (Mo–Fr) je Fahrer letzte 30 Tage; delta=pct_wochenend-pct_wochentag; ampel: gruen=+10%/gelb=neutral/rot=-10%; Mock Julia(45%WE/31%WT)/Max(38%WE/28%WT)/Sara(25%WE/34%WT)/Tim(20%WE/30%WT); force-dynamic; await createClient().
+2. **Phase 4663 Dispatch:** `DispatchPhase4663WochenendVergleich` — Moon violet-900; Bar-Chart WE vs WT paarweise je Fahrer; Delta-Chip grün/rot; Alert "Mehr Fahrer am Wochenende nötig" wenn team_avg_delta<0; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4664 Fahrer:** `FahrerPhase4664MeinWochenendVergleich` — Moon violet-900; WE-Pct 5xl + WT-Pct 3xl; isOnline-Guard; Delta +/-%; Coaching 3 Stufen (delta≥10/delta≥0/delta<0); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4665 Storefront:** Überspringen.
+5. **Phase 4666 Kitchen:** `KitchenPhase4666WochenendTicker` — Moon violet-900; Team-Ø WE%+WT%; WE-Leader Name+%; Delta-Trend Pfeil; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4662**! NIEMALS 4000–4661 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---

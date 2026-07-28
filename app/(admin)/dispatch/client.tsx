@@ -1243,6 +1243,7 @@ import { DispatchPhase4638FreitagNachtBoard } from './phase4638-freitag-nacht-bo
 import { DispatchPhase4643SamstagNachtBoard } from './phase4643-samstag-nacht-board';
 import { DispatchPhase4648SonntagNachtBoard } from './phase4648-sonntag-nacht-board';
 import { DispatchPhase4653WochentagUebersicht } from './phase4653-wochentag-uebersicht';
+import { DispatchPhase4658PeakStundenBoard } from './phase4658-peak-stunden-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5159,6 +5160,8 @@ export function DispatchBoard({
           <DispatchPhase4648SonntagNachtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4653: Wochentag-Übersicht — Moon indigo-900; 7-Spalten-Matrix Mo–So; top Fahrer je Tag; Team-Ø Zeile; 30-Min-Polling */}
           <DispatchPhase4653WochentagUebersicht locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4658: Peak-Stunden-Board — Moon indigo-900; Heatmap 24-Stunden-Grid; top Fahrer je Stunde; Team-Ø Linie; 30-Min-Polling */}
+          <DispatchPhase4658PeakStundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13753,5 +13756,7 @@ export { DispatchPhase4643SamstagNachtBoard } from './phase4643-samstag-nacht-bo
 export { DispatchPhase4648SonntagNachtBoard } from './phase4648-sonntag-nacht-board';
 // Phase 4653 — Wochentag-Übersicht (Moon indigo-900; 7-Spalten-Matrix Mo–So; top Fahrer je Tag; Team-Ø Zeile; 30-Min-Polling)
 export { DispatchPhase4653WochentagUebersicht } from './phase4653-wochentag-uebersicht';
+// Phase 4658 — Peak-Stunden-Board (Moon indigo-900; Heatmap 24-Stunden-Grid; top Fahrer je Stunde; Team-Ø Linie; 30-Min-Polling)
+export { DispatchPhase4658PeakStundenBoard } from './phase4658-peak-stunden-board';
 // Phase 4643 — Tour-Score KPI Board (Trophy violet; Score-Anzeige je Fahrer 4-stufig; Fortschrittsbalken Stopps; ETA-Sync; Alert unter Ziel; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4643TourScoreKpiBoard } from './phase4643-tour-score-kpi-board';
