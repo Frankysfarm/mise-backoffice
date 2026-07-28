@@ -1174,6 +1174,7 @@ import { KitchenPhase4576AbendAnteilTicker } from './phase4576-abend-anteil-tick
 import { KitchenPhase4581SpitzenzeitAnteilTicker } from './phase4581-spitzenzeit-anteil-ticker';
 import { KitchenPhase4591WochenendAnteilTicker } from './phase4591-wochenend-anteil-ticker';
 import { KitchenPhase4596MontagStartTicker } from './phase4596-montag-start-ticker';
+import { KitchenPhase4601FreitagAbendTicker } from './phase4601-freitag-abend-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4708,6 +4709,8 @@ export function KitchenBoard({
       <KitchenPhase4591WochenendAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4596: Montag-Start-Ticker — Sunrise orange-500; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥45%; 30-Min-Polling */}
       <KitchenPhase4596MontagStartTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4601: Freitagabend-Ticker — Moon indigo-500; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥40%; 30-Min-Polling */}
+      <KitchenPhase4601FreitagAbendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12261,5 +12264,7 @@ export { KitchenPhase4581SpitzenzeitAnteilTicker } from './phase4581-spitzenzeit
 export { KitchenPhase4591WochenendAnteilTicker } from './phase4591-wochenend-anteil-ticker';
 // Phase 4596 — Montag-Start-Ticker (Sunrise orange-500; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥45%; 30-Min-Polling)
 export { KitchenPhase4596MontagStartTicker } from './phase4596-montag-start-ticker';
+// Phase 4601 — Freitagabend-Ticker (Moon indigo-500; Höchste #1 Name+%; dot-Farbkodierung; Team-Avg; Ziel ≥40%; 30-Min-Polling)
+export { KitchenPhase4601FreitagAbendTicker } from './phase4601-freitag-abend-ticker';
 // Phase 4586 — Smart-Timing Master Cockpit (Timer indigo; 4-KPI-Grid Score/On-Time/Prep/Queue+15min; Score-Balken; Countdown-Kacheln 5-stufig prioritätssortiert; Komplexitäts-Indikator; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4586SmartTimingMasterCockpit } from './phase4586-smart-timing-master-cockpit';
