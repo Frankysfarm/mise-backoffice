@@ -1236,6 +1236,7 @@ import { DispatchPhase4603SamstagMittagBoard } from './phase4603-samstag-mittag-
 import { DispatchPhase4608SonntagAbendBoard } from './phase4608-sonntag-abend-board';
 import { DispatchPhase4612TourScoreVisualisierungLive } from './phase4612-tour-score-visualisierung-live';
 import { DispatchPhase4618MontagNachtBoard } from './phase4618-montag-nacht-board';
+import { DispatchPhase4623DienstagNachtBoard } from './phase4623-dienstag-nacht-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5138,6 +5139,8 @@ export function DispatchBoard({
           <DispatchPhase4612TourScoreVisualisierungLive locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4618: Montagnacht-Board — Moon indigo-900; absteigend Rang 1=höchster Montagnacht-Anteil; KPI-Grid; Alert Wenig Montagnacht; 30-Min-Polling */}
           <DispatchPhase4618MontagNachtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4623: Dienstagnacht-Board — Moon violet-900; absteigend Rang 1=höchster Dienstagnacht-Anteil; KPI-Grid; Alert Wenig Dienstagnacht; 30-Min-Polling */}
+          <DispatchPhase4623DienstagNachtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13718,3 +13721,5 @@ export { DispatchPhase4583TourScoreVisualisierungHub } from './phase4583-tour-sc
 export { DispatchPhase4612TourScoreVisualisierungLive } from './phase4612-tour-score-visualisierung-live';
 // Phase 4618 — Montagnacht-Board (Moon indigo-900; absteigend Rang 1=höchster Montagnacht-Anteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Montagnacht; 30-Min-Polling)
 export { DispatchPhase4618MontagNachtBoard } from './phase4618-montag-nacht-board';
+// Phase 4623 — Dienstagnacht-Board (Moon violet-900; absteigend Rang 1=höchster Dienstagnacht-Anteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Dienstagnacht; 30-Min-Polling)
+export { DispatchPhase4623DienstagNachtBoard } from './phase4623-dienstag-nacht-board';
