@@ -33262,3 +33262,41 @@ KRITISCH: Nächste freie Phase ist **4647**! NIEMALS 4000–4646 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+## Batch 4647–4651 — Fahrer-Sonntagnacht-Anteil-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4647 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-sonntag-nacht-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, sonntag_pct, rank_delta, ampel, alert_niedrig}], team_avg, hoechste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** pct(Touren So 22–02 Uhr) je Fahrer aus delivery_tours letzte 30 Tage; `getUTCDay()===0&&hour>=22 || getUTCDay()===1&&hour<2`; absteigend Rang 1=höchster Sonntagnacht-Anteil; rank-based Ampel (top25%=gruen); alert_niedrig = pct<10%; Mock Julia 22%/Max 18%/Sara 14%/Tim 7%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4648 — Sonntagnacht-Board (Dispatch)
+**Component:** `DispatchPhase4648SonntagNachtBoard` — Moon purple-900; absteigend Rang 1=höchster Sonntagnacht-Anteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Sonntagnacht; Balken farbkodiert; DeltaIcon TrendingUp/Down/Minus; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4649 — Mein Sonntagnacht (Fahrer)
+**Component:** `FahrerPhase4649MeinSonntagNacht` — Moon purple-900; sonntag_pct 5xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Coaching-Tipp 3 Stufen (≥20%/≥10%/<10%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4650 — Storefront
+Übersprungen ✅
+
+### Phase 4651 — Sonntagnacht-Ticker (Kitchen)
+**Component:** `KitchenPhase4651SonntagNachtTicker` — Moon purple-900; Höchste #1 Name+%; dot-Farbkodierung per ampel; Team-Avg; Ziel ≥15%; zielDiff farbkodiert grün/rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4651 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650 übersprungen)
+- **Nächste freie Phase: 4652**
+
+### Nächste Phasen 4652–4656 — Vorschlag: Fahrer-Wochentag-Übersicht-Dashboard
+1. **Phase 4652 Backend:** GET /api/delivery/admin/fahrer-wochentag-uebersicht — alle 7 Wochentag-Anteile (Mo–So) je Fahrer als Matrix letzte 30 Tage; Mock Julia/Max/Sara/Tim; force-dynamic; await createClient().
+2. **Phase 4653 Dispatch:** `DispatchPhase4653WochentagUebersicht` — Moon indigo-900; 7-Spalten-Matrix Mo–So; top Fahrer je Tag; Team-Ø Zeile; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4654 Fahrer:** `FahrerPhase4654MeineWochentagUebersicht` — Moon indigo-900; 7-Balken Mo–So; isOnline-Guard; Top-Tag hervorgehoben; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4655 Storefront:** Überspringen.
+5. **Phase 4656 Kitchen:** `KitchenPhase4656WochentagTicker` — Moon indigo-900; Bester-Tag Name+%; 7-Tage mini-Balken; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4652**! NIEMALS 4000–4651 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
