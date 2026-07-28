@@ -1138,6 +1138,7 @@ import { FahrerPhase4509MeineKmProLieferung } from './phase4509-meine-km-pro-lie
 import { FahrerPhase4514MeineZeitvarianz } from './phase4514-meine-zeitvarianz';
 import { FahrerPhase4519MeineProduktivitaet } from './phase4519-meine-produktivitaet';
 import { FahrerPhase4524MeinUmsatzProSchicht } from './phase4524-mein-umsatz-pro-schicht';
+import { FahrerPhase4529MeinTrinkgeld } from './phase4529-mein-trinkgeld';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7236,6 +7237,8 @@ export function FahrerApp({
           <FahrerPhase4519MeineProduktivitaet driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4524: Mein Umsatz/Schicht — Euro amber-500; umsatz_pro_schicht 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≥150€/≥120€/<120€; 30-Min-Polling */}
           <FahrerPhase4524MeinUmsatzProSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4529: Mein Trinkgeld — Gift amber-400; avg_trinkgeld 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≥2€/≥1€/<1€; 30-Min-Polling */}
+          <FahrerPhase4529MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11499,3 +11502,5 @@ export { FahrerPhase4514MeineZeitvarianz } from './phase4514-meine-zeitvarianz';
 export { FahrerPhase4519MeineProduktivitaet } from './phase4519-meine-produktivitaet';
 // Phase 4524 — Mein Umsatz/Schicht (Euro amber-500; umsatz_pro_schicht 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≥150€/≥120€/<120€; 30-Min-Polling)
 export { FahrerPhase4524MeinUmsatzProSchicht } from './phase4524-mein-umsatz-pro-schicht';
+// Phase 4529 — Mein Trinkgeld (Gift amber-400; avg_trinkgeld 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≥2€/≥1€/<1€; 30-Min-Polling)
+export { FahrerPhase4529MeinTrinkgeld } from './phase4529-mein-trinkgeld';

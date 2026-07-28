@@ -1161,6 +1161,7 @@ import { KitchenPhase4511KmProLieferungTicker } from './phase4511-km-pro-lieferu
 import { KitchenPhase4516VarianzTicker } from './phase4516-varianz-ticker';
 import { KitchenPhase4521ProduktivitaetTicker } from './phase4521-produktivitaet-ticker';
 import { KitchenPhase4526UmsatzProSchichtTicker } from './phase4526-umsatz-pro-schicht-ticker';
+import { KitchenPhase4531TrinkgeldTicker } from './phase4531-trinkgeld-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4669,6 +4670,8 @@ export function KitchenBoard({
       <KitchenPhase4521ProduktivitaetTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4526: Umsatz/Schicht-Ticker — Euro amber-500; Bester #1 Name+€/Schicht; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥130€/Schicht; 30-Min-Polling */}
       <KitchenPhase4526UmsatzProSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4531: Trinkgeld/Tour-Ticker — Gift amber-400; Bester #1 Name+€/Tour; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥1.50€/Tour; 30-Min-Polling */}
+      <KitchenPhase4531TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12196,3 +12199,5 @@ export { KitchenPhase4516VarianzTicker } from './phase4516-varianz-ticker';
 export { KitchenPhase4521ProduktivitaetTicker } from './phase4521-produktivitaet-ticker';
 // Phase 4526 — Umsatz/Schicht-Ticker (Euro amber-500; Bester #1 Name+€/Schicht; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥130€/Schicht; 30-Min-Polling)
 export { KitchenPhase4526UmsatzProSchichtTicker } from './phase4526-umsatz-pro-schicht-ticker';
+// Phase 4531 — Trinkgeld/Tour-Ticker (Gift amber-400; Bester #1 Name+€/Tour; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥1.50€/Tour; 30-Min-Polling)
+export { KitchenPhase4531TrinkgeldTicker } from './phase4531-trinkgeld-ticker';

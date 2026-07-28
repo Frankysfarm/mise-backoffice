@@ -2,6 +2,32 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-28): Phasen 4527–4531 implementiert — Fahrer-Trinkgeld-pro-Tour-Ranking (Ø €/Tour). Backend neu erstellt (`/api/delivery/admin/fahrer-trinkgeld-pro-tour-ranking`, absteigend Rang 1=höchstes Trinkgeld/Tour=bester, avg(tip_amount/tours) je Fahrer, Alert <0.50€ "Niedriges Trinkgeld!", Mock Julia 2.80€/Max 2.10€/Sara 1.50€/Tim 0.40€, await createClient()). Dispatch: `DispatchPhase4528TrinkgeldBoard` Gift amber-400. Fahrer: `FahrerPhase4529MeinTrinkgeld` Gift amber-400 isOnline-Guard Coaching-Tipp 3 Stufen ≥2€/≥1€/<1€. Phase 4530 Storefront übersprungen. Kitchen: `KitchenPhase4531TrinkgeldTicker` Gift amber-400 Bester #1 Ziel≥1.50€. Import+Render+Barrel in allen 3 Clients ✅. TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Turbopack bekanntes Container-Problem). Nächste freie Phase: **4532**.
+
+### ✅ Phasen 4527–4531 ABGESCHLOSSEN — Fahrer-Trinkgeld-pro-Tour-Ranking
+- Phase 4527 Backend: `/api/delivery/admin/fahrer-trinkgeld-pro-tour-ranking` — absteigend Rang 1=höchstes Trinkgeld/Tour=bester; avg(tip_amount/tours) je Fahrer letzte 30 Tage; Quartil-Ampel; Alert <0.50€ "Niedriges Trinkgeld!"; Mock Julia 2.80€/Max 2.10€/Sara 1.50€/Tim 0.40€; await createClient() ✅
+- Phase 4528 Dispatch: `DispatchPhase4528TrinkgeldBoard` — Gift amber-400; absteigend Rang 1=höchstes Trinkgeld; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedriges Trinkgeld; Balken=(val/maxVal)*100%; rank_delta TrendingUp emerald; 30-Min-Polling ✅
+- Phase 4529 Fahrer: `FahrerPhase4529MeinTrinkgeld` — Gift amber-400; avg_trinkgeld 5xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥2€/≥1€/<1€; 30-Min-Polling ✅
+- Phase 4530 Storefront: übersprungen ✅
+- Phase 4531 Kitchen: `KitchenPhase4531TrinkgeldTicker` — Gift amber-400; Bester #1 Name+€/Tour; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥1.50€/Tour; 30-Min-Polling ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien · Pre-existing-Errors identisch ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4531 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520, 4525, 4530 übersprungen)
+- **Nächste freie Phase: 4532**
+
+### Nächste Phasen 4532–4536 — Vorschlag: Fahrer-Kundenzufriedenheits-NPS-Ranking
+1. **Phase 4532 Backend:** GET /api/delivery/admin/fahrer-nps-ranking — avg(nps_score) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster NPS=bester; Quartil-Ampel; Alert <30 "Niedriger NPS!"; Mock Julia 82/Max 71/Sara 58/Tim 34; force-dynamic; await createClient().
+2. **Phase 4533 Dispatch:** `DispatchPhase4533NpsBoard` — ThumbsUp green-500; absteigend Rang 1=höchster NPS; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedriger NPS; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4534 Fahrer:** `FahrerPhase4534MeinNps` — ThumbsUp green-500; nps_score 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥70/≥50/<50; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4535 Storefront:** Überspringen.
+5. **Phase 4536 Kitchen:** `KitchenPhase4536NpsTicker` — ThumbsUp green-500; Bester #1 Name+NPS; Ziel ≥60; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4532! NIEMALS 4000–4531 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 Frontend-Ingenieur-Agent (2026-07-28): Phasen 4522–4526 implementiert — Fahrer-Umsatz-pro-Schicht-Ranking (Ø €/Schicht). Backend neu erstellt (`/api/delivery/admin/fahrer-umsatz-pro-schicht-ranking`, absteigend Rang 1=höchster Umsatz/Schicht=bester, avg revenue per day grouped as shift, Alert Niedriger Schichtumsatz, Mock Julia 187€/Max 162€/Sara 143€/Tim 98€, await createClient()). Dispatch: `DispatchPhase4523UmsatzProSchichtBoard` Euro amber-500. Fahrer: `FahrerPhase4524MeinUmsatzProSchicht` Euro amber-500 isOnline-Guard Coaching-Tipp 3 Stufen ≥150€/≥120€/<120€. Phase 4525 Storefront übersprungen. Kitchen: `KitchenPhase4526UmsatzProSchichtTicker` Euro amber-500 Bester #1 Ziel≥130€. Import+Render+Barrel in allen 3 Clients ✅. TypeScript ✓ 0 Fehler in neuen Dateien ✅. Nächste freie Phase: **4527**.
 
 ### ✅ Phasen 4522–4526 ABGESCHLOSSEN — Fahrer-Umsatz-pro-Schicht-Ranking
