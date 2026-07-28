@@ -1171,6 +1171,7 @@ import { KitchenPhase4561NachtAnteilTicker } from './phase4561-nacht-anteil-tick
 import { KitchenPhase4566KommentarRateTicker } from './phase4566-kommentar-rate-ticker';
 import { KitchenPhase4571FruehschichtAnteilTicker } from './phase4571-fruehschicht-anteil-ticker';
 import { KitchenPhase4576AbendAnteilTicker } from './phase4576-abend-anteil-ticker';
+import { KitchenPhase4581SpitzenzeitAnteilTicker } from './phase4581-spitzenzeit-anteil-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4699,6 +4700,8 @@ export function KitchenBoard({
       <KitchenPhase4571FruehschichtAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4576: Abend-Anteil-Ticker — Sunset rose-500; Höchste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥40%; 30-Min-Polling */}
       <KitchenPhase4576AbendAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4581: Spitzenzeit-Anteil-Ticker — Zap amber-500; Höchste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥55%; 30-Min-Polling */}
+      <KitchenPhase4581SpitzenzeitAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12246,3 +12249,5 @@ export { KitchenPhase4566KommentarRateTicker } from './phase4566-kommentar-rate-
 export { KitchenPhase4571FruehschichtAnteilTicker } from './phase4571-fruehschicht-anteil-ticker';
 // Phase 4576 — Abend-Anteil-Ticker (Sunset rose-500; Höchste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥40%; 30-Min-Polling)
 export { KitchenPhase4576AbendAnteilTicker } from './phase4576-abend-anteil-ticker';
+// Phase 4581 — Spitzenzeit-Anteil-Ticker (Zap amber-500; Höchste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥55%; 30-Min-Polling)
+export { KitchenPhase4581SpitzenzeitAnteilTicker } from './phase4581-spitzenzeit-anteil-ticker';
