@@ -32922,3 +32922,41 @@ KRITISCH: Nächste freie Phase ist **4612** (Render-Integration)! NIEMALS 4000�
 ## STATUS: MARKT-REIF
 
 ---
+
+## Batch 4612–4616 — Tour-Score-Integration + KPI-Ticker (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4612 — Tour-Score Visualisierung Live (Dispatch)
+**Component:** `DispatchPhase4612TourScoreVisualisierungLive` — Datei existierte bereits; Import + Render in dispatch/client.tsx nach Phase 4608 ✅; Barrel war bereits vorhanden ✅
+
+### Phase 4613 — Smart Tour-Stopp Navigator (Fahrer)
+**Component:** `Phase4613SmartTourStoppNavigator` — Datei existierte bereits; Import + Render in fahrer/app/client.tsx nach Phase 4609 mit fahrerToken=driver.id ✅; Barrel war bereits vorhanden ✅
+
+### Phase 4614 — Storefront
+Übersprungen ✅
+
+### Phase 4615 — Statistiken Live Dashboard (Lieferdienst)
+**Component:** `LieferdienstPhase4615StatistikenLiveDashboard` — Datei existierte bereits; Import + Render in lieferdienst/client.tsx nach Phase 4410 mit locationId ✅; Barrel war bereits vorhanden ✅
+
+### Phase 4616 — Tour-Score-KPI-Ticker (Kitchen)
+**Datei:** `app/(admin)/kitchen/phase4616-tour-score-kpi-ticker.tsx`
+**Component:** `KitchenPhase4616TourScoreKpiTicker` — Trophy indigo-500; #1 Fahrer+Score; dot-Farbkodierung per level (hoch=grün/mittel=gelb/niedrig=rot); Team-Ø; Ziel ≥75; zielDiff farbkodiert grün/rot; 30-Min-Polling; Import + Render + Barrel ✅
+**API:** `/api/delivery/admin/fahrer-routen-score` (existiert, routen_score+level je Fahrer)
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4616 (4605, 4610, 4614 übersprungen)
+- **Nächste freie Phase: 4617**
+
+### Nächste Phasen 4617–4621 — Vorschlag: Fahrer-Wochentag-Anteil-Ranking (Montag-Mittag)
+1. **Phase 4617 Backend:** GET /api/delivery/admin/fahrer-montag-mittag-ranking — pct(Touren Mo 11–15 Uhr) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Montagmittag-Anteil; rank-based Ampel top25%=gruen; Alert <10% "Wenig Montagmittag-Starts!"; Mock Julia 65%/Max 55%/Sara 38%/Tim 20%; force-dynamic; await createClient().
+2. **Phase 4618 Dispatch:** `DispatchPhase4618MontagMittagBoard` — Sun yellow-400; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Montagmittag; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4619 Fahrer:** `FahrerPhase4619MeinMontagMittag` — Sun yellow-400; montag_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥60%/≥30%/<30%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4620 Storefront:** Überspringen.
+5. **Phase 4621 Kitchen:** `KitchenPhase4621MontagMittagTicker` — Sun yellow-400; Höchste #1 Name+%; Ziel ≥40%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4617**! NIEMALS 4000–4616 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
