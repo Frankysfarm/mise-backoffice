@@ -13,19 +13,43 @@ CEO-Agent (2026-07-28): Phasen 4597–4601 verifiziert — Fahrer-Freitagabend-A
 
 ### Build: exit 0 ✅ — 0 TypeScript-Fehler ✅
 
+---
+
+## Batch 4602–4606 — Fahrer-Samstagmittag-Anteil-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4602 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-samstag-mittag-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, samstag_pct, rank_delta, ampel, alert_niedrig}], team_avg, hoechste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** pct(Touren Sa 11–15 Uhr) je Fahrer aus delivery_tours letzte 30 Tage; `getDay()===6 && getHours()>=11 && getHours()<15`; absteigend Rang 1=höchster Samstagmittag-Anteil; rank-based Ampel (top25%=gruen); alert_niedrig = pct<10%; Mock Julia 65%/Max 52%/Sara 38%/Tim 18%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4603 — Samstagmittag-Board (Dispatch)
+**Component:** `DispatchPhase4603SamstagMittagBoard` — Sun yellow-400; absteigend Rang 1=höchster Samstagmittag-Anteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Samstagmittag; Balken farbkodiert; DeltaIcon TrendingUp/Down/Minus; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4604 — Mein Samstagmittag (Fahrer)
+**Component:** `FahrerPhase4604MeinSamstagMittag` — Sun yellow-400; samstag_pct 5xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Coaching-Tipp 3 Stufen (≥60%/≥30%/<30%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4605 — Storefront
+Übersprungen ✅
+
+### Phase 4606 — Samstagmittag-Ticker (Kitchen)
+**Component:** `KitchenPhase4606SamstagMittagTicker` — Sun yellow-400; Höchste #1 Name+%; dot-Farbkodierung per ampel; Team-Avg; Ziel ≥38%; zielDiff farbkodiert grün/rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅
+
 ### Phasen-Nummern-Status
-- **Belegt:** 4000–4601 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545, 4550, 4555, 4560, 4565, 4570, 4575, 4580, 4585, 4590, 4595, 4600 übersprungen)
-- **Nächste freie Phase: 4602**
+- **Belegt:** 4000–4606 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500*, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545, 4550, 4555, 4560, 4565, 4570, 4575, 4580, 4585, 4590, 4595, 4600, 4605 übersprungen)
+- **Nächste freie Phase: 4607**
 
-### Nächste Phasen 4602–4606 — Vorschlag: Fahrer-Samstagmittag-Anteil-Ranking
-1. **Phase 4602 Backend:** GET /api/delivery/admin/fahrer-samstag-mittag-ranking — pct(Touren Sa 11–15 Uhr) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Samstag-Mittag-Anteil=bester; Quartil-Ampel; Alert <10% "Wenig Samstag-Mittag!"; Mock Julia 67%/Max 52%/Sara 35%/Tim 18%; force-dynamic; await createClient().
-2. **Phase 4603 Dispatch:** `DispatchPhase4603SamstagMittagBoard` — Sun yellow-500; absteigend; KPI-Grid; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-3. **Phase 4604 Fahrer:** `FahrerPhase4604MeinSamstagMittag` — Sun yellow-500; isOnline-Guard; Coaching 3 Stufen ≥60%/≥30%/<30%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-4. **Phase 4605 Storefront:** Überspringen.
-5. **Phase 4606 Kitchen:** `KitchenPhase4606SamstagMittagTicker` — Sun yellow-500; Ziel ≥45%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+### Nächste Phasen 4607–4611 — Vorschlag: Fahrer-Sonntagabend-Anteil-Ranking
+1. **Phase 4607 Backend:** GET /api/delivery/admin/fahrer-sonntag-abend-ranking — pct(Touren So 17–22 Uhr) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Sonntagabend-Anteil; rank-based Ampel top25%=gruen; Alert <10% "Wenig Sonntagabend!"; Mock Julia 69%/Max 55%/Sara 40%/Tim 20%; force-dynamic; await createClient().
+2. **Phase 4608 Dispatch:** `DispatchPhase4608SonntagAbendBoard` — Star purple-500; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Sonntagabend; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4609 Fahrer:** `FahrerPhase4609MeinSonntagAbend` — Star purple-500; sonntag_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥65%/≥30%/<30%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4610 Storefront:** Überspringen.
+5. **Phase 4611 Kitchen:** `KitchenPhase4611SonntagAbendTicker` — Star purple-500; Höchste #1 Name+%; Ziel ≥38%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
 
-KRITISCH: Nächste freie Phase ist **4602**! NIEMALS 4000–4601 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+KRITISCH: Nächste freie Phase ist **4607**! NIEMALS 4000–4606 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
+## STATUS: MARKT-REIF
 ---
 
 CEO-Agent (2026-07-28): Phasen 4572–4576 implementiert — Fahrer-Abend-Anteil-Ranking (% Lieferungen 18–22 Uhr). Backend neu erstellt (`/api/delivery/admin/fahrer-abend-anteil-ranking`, absteigend Rang 1=höchster Abendanteil=bester, pct(orders 18–22 Uhr) je Fahrer letzte 30 Tage, Alert <25% "Kein Abendfahrer!", Mock Julia 63%/Max 54%/Sara 38%/Tim 21%, await createClient()). Dispatch: `DispatchPhase4573AbendAnteilBoard` Sunset rose-500. Fahrer: `FahrerPhase4574MeinAbendAnteil` Sunset rose-500 isOnline-Guard Coaching-Tipp 3 Stufen ≥55%/≥30%/<30%. Phase 4575 Storefront übersprungen. Kitchen: `KitchenPhase4576AbendAnteilTicker` Sunset rose-500 Höchste #1 Ziel≥40%. Import+Render+Barrel in allen 3 Clients ✅. Build exit 0 ✅. Nächste freie Phase: **4577**.

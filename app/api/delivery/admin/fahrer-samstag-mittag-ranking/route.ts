@@ -7,7 +7,7 @@ interface FahrerRow {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
-  freitag_pct: number;
+  samstag_pct: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
   alert_niedrig: boolean;
@@ -24,22 +24,22 @@ interface ApiResponse {
 
 const MOCK_DATA: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, freitag_pct: 71, rank_delta:  1, ampel: 'gruen', alert_niedrig: false },
-    { fahrer_id: 'f2', fahrer_name: 'Max M.',   rang: 2, freitag_pct: 58, rank_delta:  0, ampel: 'gelb',  alert_niedrig: false },
-    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, freitag_pct: 42, rank_delta: -1, ampel: 'gelb',  alert_niedrig: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, freitag_pct: 22, rank_delta:  0, ampel: 'rot',   alert_niedrig: false },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, samstag_pct: 65, rank_delta:  1, ampel: 'gruen', alert_niedrig: false },
+    { fahrer_id: 'f2', fahrer_name: 'Max M.',   rang: 2, samstag_pct: 52, rank_delta:  0, ampel: 'gelb',  alert_niedrig: false },
+    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, samstag_pct: 38, rank_delta: -1, ampel: 'gelb',  alert_niedrig: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, samstag_pct: 18, rank_delta:  0, ampel: 'rot',   alert_niedrig: true  },
   ],
-  team_avg: 48,
+  team_avg: 43,
   hoechste_name: 'Julia F.',
   niedrigste_name: 'Tim B.',
-  alert_count: 0,
+  alert_count: 1,
   gesamt: 4,
 };
 
-function isFreitagAbend(startedAt: string): boolean {
+function isSamstagMittag(startedAt: string): boolean {
   const d = new Date(startedAt);
-  // Friday = 5, 17:00–22:00 local hours
-  return d.getDay() === 5 && d.getHours() >= 17 && d.getHours() < 22;
+  // Saturday = 6, 11:00–15:00 local hours
+  return d.getDay() === 6 && d.getHours() >= 11 && d.getHours() < 15;
 }
 
 function ampelVon(rang: number, total: number): 'gruen' | 'gelb' | 'rot' {
@@ -76,22 +76,22 @@ export async function GET(req: NextRequest) {
     const curData = curRes.data ?? [];
     if (!curData.length) return NextResponse.json(MOCK_DATA);
 
-    const groupCur = new Map<string, { name: string; freitag: number; total: number }>();
+    const groupCur = new Map<string, { name: string; samstag: number; total: number }>();
     for (const t of curData) {
-      const prev = groupCur.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, freitag: 0, total: 0 };
+      const prev = groupCur.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, samstag: 0, total: 0 };
       groupCur.set(t.driver_id, {
         name: prev.name,
-        freitag: prev.freitag + (t.started_at && isFreitagAbend(t.started_at) ? 1 : 0),
+        samstag: prev.samstag + (t.started_at && isSamstagMittag(t.started_at) ? 1 : 0),
         total: prev.total + 1,
       });
     }
     if (!groupCur.size) return NextResponse.json(MOCK_DATA);
 
-    const groupPrev = new Map<string, { freitag: number; total: number }>();
+    const groupPrev = new Map<string, { samstag: number; total: number }>();
     for (const t of prevRes.data ?? []) {
-      const prev = groupPrev.get(t.driver_id) ?? { freitag: 0, total: 0 };
+      const prev = groupPrev.get(t.driver_id) ?? { samstag: 0, total: 0 };
       groupPrev.set(t.driver_id, {
-        freitag: prev.freitag + (t.started_at && isFreitagAbend(t.started_at) ? 1 : 0),
+        samstag: prev.samstag + (t.started_at && isSamstagMittag(t.started_at) ? 1 : 0),
         total: prev.total + 1,
       });
     }
@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
     const unsorted = Array.from(groupCur.entries()).map(([id, v]) => ({
       fahrer_id: id,
       fahrer_name: v.name || id.slice(0, 8),
-      pct: v.total > 0 ? Math.round((v.freitag / v.total) * 1000) / 10 : 0,
+      pct: v.total > 0 ? Math.round((v.samstag / v.total) * 1000) / 10 : 0,
     }));
 
     const sorted = [...unsorted].sort((a, b) => b.pct - a.pct);
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
     const prevPcts = new Map(
       Array.from(groupPrev.entries()).map(([id, v]) => [
         id,
-        v.total > 0 ? Math.round((v.freitag / v.total) * 1000) / 10 : 0,
+        v.total > 0 ? Math.round((v.samstag / v.total) * 1000) / 10 : 0,
       ])
     );
     const prevSorted = [...unsorted]
@@ -123,7 +123,7 @@ export async function GET(req: NextRequest) {
         fahrer_id: f.fahrer_id,
         fahrer_name: f.fahrer_name,
         rang,
-        freitag_pct: f.pct,
+        samstag_pct: f.pct,
         rank_delta: prevRang - rang,
         ampel: ampelVon(rang, total),
         alert_niedrig: f.pct < 10,
@@ -131,7 +131,7 @@ export async function GET(req: NextRequest) {
     });
 
     const team_avg = Math.round(
-      (fahrer.reduce((s, f) => s + f.freitag_pct, 0) / total) * 10
+      (fahrer.reduce((s, f) => s + f.samstag_pct, 0) / total) * 10
     ) / 10;
 
     return NextResponse.json({
