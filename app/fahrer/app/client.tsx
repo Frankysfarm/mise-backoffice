@@ -1166,6 +1166,7 @@ import { FahrerPhase4654MeineWochentagUebersicht } from './phase4654-meine-woche
 import { FahrerPhase4659MeinePeakStunden } from './phase4659-meine-peak-stunden';
 import { FahrerPhase4664MeinWochenendVergleich } from './phase4664-mein-wochenend-vergleich';
 import { FahrerPhase4669MeinUmsatzProStunde } from './phase4669-mein-umsatz-pro-stunde';
+import { FahrerPhase4674MeineBewertung } from './phase4674-meine-bewertung';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7320,6 +7321,8 @@ export function FahrerApp({
           <FahrerPhase4664MeinWochenendVergleich driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4669: Mein Umsatz/Stunde — Moon amber-800; €/h 5xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Coaching 3 Stufen; 30-Min-Polling */}
           <FahrerPhase4669MeinUmsatzProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4674: Meine Bewertung — Moon rose-900; Ø-Bewertung 5xl+Rang 2xl; isOnline-Guard; Sterne-Visualisierung; Coaching 3 Stufen ≥4.8/≥4.5/<4.5; 30-Min-Polling */}
+          <FahrerPhase4674MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11637,6 +11640,8 @@ export { FahrerPhase4659MeinePeakStunden } from './phase4659-meine-peak-stunden'
 export { FahrerPhase4664MeinWochenendVergleich } from './phase4664-mein-wochenend-vergleich';
 // Phase 4669 — Mein Umsatz/Stunde (Euro amber-800; €/h 5xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Coaching 3 Stufen ≥22€/≥16€/<16€; 30-Min-Polling)
 export { FahrerPhase4669MeinUmsatzProStunde } from './phase4669-mein-umsatz-pro-stunde';
+// Phase 4674 — Meine Bewertung (Star rose-900; Ø-Bewertung 5xl+Rang 2xl; isOnline-Guard; Sterne-Visualisierung; Coaching 3 Stufen ≥4.8/≥4.5/<4.5; 30-Min-Polling)
+export { FahrerPhase4674MeineBewertung } from './phase4674-meine-bewertung';
 // Phase 4649 — Smart Tour Navigation Hub (Navigation2 indigo; Aktiver-Stopp-Highlight blau+CTA; Stopp-Timeline Karten status-farbkodiert; ETA+km je Stopp; Score-Anzeige; 15-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4649SmartTourNavigationHub } from './phase4649-smart-tour-navigation-hub';
 // Phase 4584 — Tour-Stopp Navigation Hub (MapPin blue; Tour-Header mit Fortschritts-Balken; Aktiver-Stopp hervorgehoben mit Navigation+Telefon CTAs; Alle-Stopps-Liste expandierbar; Notiz-Anzeige; Native-Maps-Integration iOS/Android; 30-Sek-Polling; Mock-Fallback)
