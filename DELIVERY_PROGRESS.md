@@ -32660,3 +32660,44 @@ KRITISCH: Nächste freie Phase ist **4587**! NIEMALS 4000–4586 verwenden. IMME
 
 ## STATUS: MARKT-REIF
 
+
+
+---
+
+## Batch 4587–4591 — Fahrer-Wochenend-Anteil-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4587 — Backend API
+**Hinweis:** Backend bereits in Phase 4376 implementiert (`app/api/delivery/admin/fahrer-wochenend-anteil-ranking/route.ts`) — wiederverwendet ✅
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, wochenend_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`
+**Logik:** pct(Touren Sa/So) je Fahrer aus delivery_tours letzte 30 Tage; absteigend Rang 1=höchster Wochenendanteil; Quartil-Ampel; force-dynamic ✅; await createClient() ✅
+
+### Phase 4588 — Wochenend-Anteil-Board (Dispatch)
+**Component:** `DispatchPhase4588WochenendAnteilBoard` — Calendar violet-500; absteigend Rang 1=höchster Wochenendanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Kein Wochenendfahrer; Balken=(val/maxVal)*100%; rank_delta TrendingUp emerald; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4589 — Mein Wochenend-Anteil (Fahrer)
+**Component:** `FahrerPhase4589MeinWochenendAnteil` — Calendar violet-500; wochenend_anteil_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Coaching-Tipp 3 Stufen (≥65%/≥35%/<35%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4590 — Storefront
+Übersprungen ✅
+
+### Phase 4591 — Wochenend-Anteil-Ticker (Kitchen)
+**Component:** `KitchenPhase4591WochenendAnteilTicker` — Calendar violet-500; Höchste #1 Name+%; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥50%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ Build exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4591 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500*, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545, 4550, 4555, 4560, 4565, 4570, 4575, 4580, 4585, 4590 übersprungen)
+- **Nächste freie Phase: 4592**
+
+### Nächste Phasen 4592–4596 — Vorschlag: Fahrer-Montagsstart-Anteil-Ranking
+1. **Phase 4592 Backend:** GET /api/delivery/admin/fahrer-montag-start-ranking — pct(Touren montags) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Montags-Anteil=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert <15% "Wenig Montag-Starts!"; Mock Julia 68%/Max 55%/Sara 38%/Tim 19%; force-dynamic; await createClient().
+2. **Phase 4593 Dispatch:** `DispatchPhase4593MontagStartBoard` — Sunrise orange-500; absteigend Rang 1=höchster Montagsanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Montag-Starts; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4594 Fahrer:** `FahrerPhase4594MeinMontagStart` — Sunrise orange-500; montag_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥60%/≥30%/<30%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4595 Storefront:** Überspringen.
+5. **Phase 4596 Kitchen:** `KitchenPhase4596MontagStartTicker` — Sunrise orange-500; Höchste #1 Name+%; Ziel ≥45%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4592**! NIEMALS 4000–4591 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
