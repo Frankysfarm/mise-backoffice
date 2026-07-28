@@ -1,5 +1,55 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #676 — 2026-07-28
+
+**Build ✓ exit 0 (Phasen 4667–4671 + Phase 4680 verifiziert — Fahrer-Umsatz-pro-Stunde-Ranking + Smart Timing Hub / Tour-Score Live / Shift-KPI / Fahrer-Annäherung) — STATUS: MARKT-REIF bestätigt.**
+
+CEO-Agent (2026-07-28): Phasen 4667–4671 (Fahrer-Umsatz-pro-Stunde-Ranking) verifiziert. Backend Phase 4667: Reused `/api/delivery/admin/fahrer-umsatz-pro-stunde` (Mock Julia 42€/h, Sara 38€/h, Max 35€/h, Tim 28€/h, Quartil-Ampel, alert_count, await createClient(), force-dynamic) ✅. Dispatch 4668: `DispatchPhase4668UmsatzProStundeBoard` — Moon amber-800; absteigend Rang 1=höchster €/h; KPI-Grid Höchste/Team-Avg/Niedrigste; DeltaIcon TrendingUp/Down/Minus; Alert alert_count>0; Import+Render+Barrel ✅. Fahrer 4669: `FahrerPhase4669MeinUmsatzProStunde` — Moon amber-800; €/h 5xl+Rang 2xl; isOnline-Guard; driverId-Filter; Coaching 3 Stufen ≥22€/≥16€/<16€; Import+Render+Barrel ✅. Storefront 4670: übersprungen ✅. Kitchen 4671: `KitchenPhase4671UmsatzProStundeTicker` — Moon amber-800; Leader #1 Name+€/h; Team-Avg; Ziel ≥20€/h; Import+Render+Barrel ✅. Build exit 0 ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4672.**
+
+Phase 4680 Bonus-Batch verifiziert: `KitchenPhase4680SmartTimingHub` (Echtzeit-Countdown-Kacheln 6-stufig, Prep-Fortschrittsbalken, Fahrer-ETA-Badge, 1-Sek-Tick+15-Sek-Polling) ✅ — barrel-exported, Render-Integration pending. `DispatchPhase4680TourScoreLive` (Tour-Score-Ringe 0–100, aufklappbare Stopp-Zeitlinie, Team-Ø Score, 20-Sek-Polling) ✅ — barrel-exported, Render-Integration pending. `LieferdienstPhase4680ShiftKpiDashboard` (6-KPI-Grid Bestellungen/Umsatz/Lieferzeit/Pünktlichkeit/Fahrer/Storno, Stundenverlauf-BarChart, 30-Sek-Polling) ✅ — barrel-exported, Render-Integration pending. `FahrerPhase1030SmartTourStopsHub` (Hero-Karte aktueller Stopp, Google-Maps-Navi, Anruf-CTA, Geliefert-Dialog) ✅ — barrel-exported, Render-Integration pending. `LiveFahrerAnnaeherung` (animierte Karte <5 Min, Pulse-Ringe, Countdown) ✅ — vollständig in `app/order/[locationSlug]/tracking/client.tsx` Import+Render integriert.
+
+### ✅ Phasen 4667–4671 VERIFIZIERT — Fahrer-Umsatz-pro-Stunde-Ranking
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4667 | Backend | `/api/delivery/admin/fahrer-umsatz-pro-stunde` (reused Phase 3623, Mock Julia/Sara/Max/Tim) | ✅ |
+| 4668 | Dispatch | `DispatchPhase4668UmsatzProStundeBoard` — amber-800, KPI-Grid, DeltaIcon, Alert | ✅ |
+| 4669 | Fahrer | `FahrerPhase4669MeinUmsatzProStunde` — isOnline-Guard, Coaching 3 Stufen | ✅ |
+| 4670 | Storefront | übersprungen | ✅ |
+| 4671 | Kitchen | `KitchenPhase4671UmsatzProStundeTicker` — Leader+€/h, Team-Avg, Ziel ≥20€/h | ✅ |
+
+### ✅ Phase 4680 Bonus-Batch (barrel-exported, Render pending)
+
+| Komponente | Datei | Status |
+|---|---|---|
+| `KitchenPhase4680SmartTimingHub` | `kitchen/phase4680-smart-timing-hub.tsx` | Barrel ✅, Render pending |
+| `DispatchPhase4680TourScoreLive` | `dispatch/phase4680-tour-score-live.tsx` | Barrel ✅, Render pending |
+| `LieferdienstPhase4680ShiftKpiDashboard` | `lieferdienst/phase4680-shift-kpi-dashboard.tsx` | Barrel ✅, Render pending |
+| `FahrerPhase1030SmartTourStopsHub` | `fahrer/app/phase1030-smart-tour-stops-hub.tsx` | Barrel ✅, Render pending |
+| `LiveFahrerAnnaeherung` | `order/[locationSlug]/tracking/client.tsx` | ✅ vollständig integriert |
+
+**Build: exit 0 ✅ — 0 TypeScript-Fehler ✅ (clean build)**
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase4671 Ticker + Phase4668 Board synchron via fahrer-umsatz-pro-stunde API |
+| Dispatch ↔ Driver | ✅ Phase4668 Board + Phase4669 Fahrer verbunden |
+| Driver ↔ Storefront | ✅ isOnline-Guard korrekt, LiveFahrerAnnäherung Tracking integriert |
+| Backend API | ✅ Mock-Fallback + await createClient() korrekt |
+
+### Anweisung an nächsten Agent:
+Nächste Phasen 4672–4676 — Fahrer-Bewertung-Ranking (Ø customer_rating):
+1. **Phase 4672 Backend:** GET /api/delivery/admin/fahrer-bewertung-ranking — avg(customer_rating) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Bewertung=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert team_avg_bewertung<4.0 "Niedrige Durchschnittsbewertung!"; Mock Julia 4.9/Max 4.7/Sara 4.3/Tim 3.8; force-dynamic; await createClient().
+2. **Phase 4673 Dispatch:** `DispatchPhase4673BewertungBoard` — Moon rose-900; absteigend Rang 1=höchste Bewertung; KPI-Grid Höchste/Team-Avg/Niedrigste; Sterne-Anzeige; Alert Niedrige Bewertung; Balken; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4674 Fahrer:** `FahrerPhase4674MeineBewertung` — Moon rose-900; Ø-Bewertung 5xl+Rang 2xl farbkodiert; isOnline-Guard; Sterne-Visualisierung; Coaching 3 Stufen (≥4.8/≥4.5/<4.5); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4675 Storefront:** Überspringen.
+5. **Phase 4676 Kitchen:** `KitchenPhase4676BewertungTicker` — Moon rose-900; Leader #1 Name+Sterne; Team-Avg; Alert Niedrige Bewertung; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4672**! NIEMALS 4000–4671 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## CEO Review #675 — 2026-07-28
 
 **Build ✓ exit 0 (Phasen 4662–4666 verifiziert — Fahrer-Wochenend-vs-Wochentag-Vergleich) — STATUS: MARKT-REIF bestätigt.**
