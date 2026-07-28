@@ -12,7 +12,7 @@ Updated: 2026-07-28
 | T05 Recovery/Push/Offline | COMPLETE | G4 GREEN | `codex/driver-remediation` | `a1408ce2`, `0c90ba95` | Ownership-preserving recovery, wake-only push, snapshot-first ACK, strict offline replay and defensive database privileges verified. |
 | T06 GPS Transport/Native | LOCAL SOURCE/DB COMPLETE | G5 BLOCKED_EXTERNAL | main + native isolated branches | `e3ab3efa`, native `d38f19f` | Canonical device metadata, monotonic DB transport, encrypted native queues and T07 dispatch eligibility pass locally; compiled iOS/Android and real-device lifecycle evidence require external toolchains/devices. |
 | T07 Deterministic Dispatch Baseline | COMPLETE | G6 GREEN | `codex/driver-remediation` | `277b1094` | Independent review approved deterministic default-off/shadow/active behavior and Atomic-v2-only assignment after 400 green overlap races. |
-| T09 Operations/Security/Observability | SOURCE CANDIDATE COMPLETE | G8 RED (durable integration pending) | `codex/driver-remediation` | `596c7b52` | Independent review approved the default-off redaction/alert/policy contract; DB/RLS/API/dashboard/callsites remain unimplemented. |
+| T09 Operations/Security/Observability | COMPLETE | G8 GREEN (isolated server/PostgreSQL) | `codex/driver-remediation` | `3399cfad`, `426d5924` | Durable role/tenant/location authority, override CAS, alerts, retention, authenticated APIs and scheduler monitor pass locally. |
 | T08 Routing/Batching/Kitchen Hold | COMPLETE | G7 GREEN (isolated PostgreSQL + source contracts) | `codex/driver-remediation` | `5fa6b6f3`, `570d953e`, `c02e15e0` | Atomic route append, real Frank evaluation/RPC integration, read-only shadow, persistent hold watchdog and deterministic replay pass twice. |
 | T10 E2E Canary Release | NOT STARTED | G9 not evaluated | — | — | Remains last after G7/G8. |
 
@@ -111,18 +111,16 @@ event contract. Full Xcode, a Java/Android build toolchain and physical device
 matrices remain unavailable. Both source paths remain default-off candidates;
 no production action occurred.
 
-## G8 partial decision
+## G8 decision
 
-RED, with the safe additive source contract independently approved. The
-default-off candidate provides recursive PII/location/credential redaction,
-correlation-safe structured events, deterministic operational alerts,
-tenant-matched kill-switch and override evidence contracts, role/tenant read
-policy and bounded retention calculations. It is intentionally unwired.
-
-G8 still requires durable database/RLS enforcement, authenticated operations
-APIs, checked lifecycle callsites, scheduler/retention database tests,
-dashboards and alert delivery. No external telemetry, production flag or
-production system was changed.
+GREEN in the isolated server/PostgreSQL environment. The previously approved
+redaction contract is now backed by default-off tenant policy, durable
+tenant/location role scopes, CAS/idempotent emergency actions, before/after
+audit, alert episodes, heartbeat monitoring, tenant-scoped retention and
+authenticated operations APIs. The complete suite includes direct-write and
+cross-tenant denial plus a parallel override race. External paging and
+production dashboards remain rollout configuration; no production flag,
+telemetry destination or system was changed.
 
 ## G7 decision
 
