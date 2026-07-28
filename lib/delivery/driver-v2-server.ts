@@ -133,12 +133,15 @@ export async function executeDriverV2Action(
     if (!tenantRow) return { ok: false, reason_code: 'DRIVER_TENANT_FORBIDDEN', correlation_id: correlationId, snapshot: before };
     const result = checked(await client.rpc('fn_ingest_driver_gps_v2', {
       p_tenant_id: tenantRow.tenant_id, p_driver_id: driverId, p_action_id: envelope.action_id,
+      p_installation_id: gps.installation_id,
       p_session_id: gps.session_id, p_sequence: gps.sequence, p_captured_at: gps.captured_at,
       p_latitude: gps.latitude, p_longitude: gps.longitude, p_accuracy_m: gps.accuracy_m,
       p_speed_mps: gps.speed_mps ?? null, p_heading_deg: gps.heading_deg ?? null,
+      p_altitude_m: gps.altitude_m ?? null,
       p_app_version: gps.app_version, p_app_build: gps.app_build ?? null,
       p_platform: gps.platform, p_app_state: gps.app_state,
       p_permission_state: gps.permission_state, p_network_state: gps.network_state,
+      p_tracking_mode: gps.tracking_mode, p_battery_state: gps.battery_state ?? {},
       p_capability_flags: gps.capability_flags ?? {},
       p_expected_driver_version: envelope.expected_versions.driver, p_correlation_id: correlationId,
     }), 'GPS_INGEST') as any;

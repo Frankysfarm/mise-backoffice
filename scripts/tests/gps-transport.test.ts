@@ -5,13 +5,17 @@ import { gpsEligibleForNewAssignment } from '../../lib/delivery/gps-dispatch-eli
 const now = Date.parse('2026-07-27T12:00:00Z');
 const base = {
   action_id: '10000000-0000-4000-8000-000000000001',
+  installation_id: '15000000-0000-4000-8000-000000000001',
   session_id: '20000000-0000-4000-8000-000000000001', sequence: 1,
   captured_at: '2026-07-27T11:59:55Z', latitude: 52.5, longitude: 13.4,
   accuracy_m: 10, app_version: '1.0', platform: 'ios' as const,
   app_state: 'foreground' as const, permission_state: 'always' as const,
-  network_state: 'online' as const,
+  network_state: 'online' as const, tracking_mode: 'continuous' as const,
+  battery_state: { level: 0.75, charging: false, low_power_mode: false },
 };
 assert.equal(validateCanonicalGpsEvent(base, now).sequence, 1);
+assert.throws(() => validateCanonicalGpsEvent({ ...base, installation_id: 'device' }, now));
+assert.throws(() => validateCanonicalGpsEvent({ ...base, battery_state: { level: 2 } }, now));
 assert.throws(() => validateCanonicalGpsEvent({ ...base, captured_at: '2026-07-27T12:02:00Z' }, now));
 let queue = [] as typeof base[];
 for (let sequence=0; sequence<120; sequence++) queue = appendBoundedGpsEvent(queue, { ...base, action_id: `${sequence}`.padStart(8,'0')+'-0000-4000-8000-000000000001', sequence });
