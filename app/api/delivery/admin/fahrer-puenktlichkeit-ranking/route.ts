@@ -15,7 +15,9 @@ interface FahrerRow {
 
 interface ApiResponse {
   fahrer: FahrerRow[];
+  ranking: { driver_id: string; name: string; rang: number; puenktlichkeit_pct: number; ampel: string; rank_delta: number; balken_pct: number; alert: string | null }[];
   team_avg_pct: number;
+  team_avg: number;
   bester_name: string;
   letzter_name: string;
   alert_count: number;
@@ -29,7 +31,14 @@ const MOCK_DATA: ApiResponse = {
     { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 3, puenktlichkeit_pct: 82, rank_delta: -1, ampel: 'gelb',  alert_niedrig: false },
     { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, puenktlichkeit_pct: 71, rank_delta:  0, ampel: 'rot',   alert_niedrig: true  },
   ],
+  ranking: [
+    { driver_id: 'f1', name: 'Julia F.', rang: 1, puenktlichkeit_pct: 94, ampel: 'gruen', rank_delta:  1, balken_pct: 94, alert: null },
+    { driver_id: 'f3', name: 'Max M.',   rang: 2, puenktlichkeit_pct: 89, ampel: 'gruen', rank_delta:  0, balken_pct: 89, alert: null },
+    { driver_id: 'f2', name: 'Sara K.',  rang: 3, puenktlichkeit_pct: 82, ampel: 'gelb',  rank_delta: -1, balken_pct: 82, alert: null },
+    { driver_id: 'f4', name: 'Tim B.',   rang: 4, puenktlichkeit_pct: 71, ampel: 'rot',   rank_delta:  0, balken_pct: 71, alert: 'Niedrige Pünktlichkeit!' },
+  ],
   team_avg_pct: 84,
+  team_avg: 84,
   bester_name: 'Julia F.',
   letzter_name: 'Tim B.',
   alert_count: 0,
@@ -137,9 +146,22 @@ export async function GET(req: NextRequest) {
       sorted.reduce((s, f) => s + f.puenktlichkeit_pct, 0) / total
     );
 
+    const ranking = fahrer.map(f => ({
+      driver_id:          f.fahrer_id,
+      name:               f.fahrer_name,
+      rang:               f.rang,
+      puenktlichkeit_pct: f.puenktlichkeit_pct,
+      ampel:              f.ampel,
+      rank_delta:         f.rank_delta,
+      balken_pct:         f.puenktlichkeit_pct,
+      alert:              f.alert_niedrig ? 'Niedrige Pünktlichkeit!' : null,
+    }));
+
     return NextResponse.json({
       fahrer,
+      ranking,
       team_avg_pct:  teamAvg,
+      team_avg:      teamAvg,
       bester_name:   sorted[0]?.fahrer_name ?? '',
       letzter_name:  sorted[total - 1]?.fahrer_name ?? '',
       alert_count:   teamAvg < 80 ? 1 : 0,
