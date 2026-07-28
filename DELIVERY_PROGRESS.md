@@ -32297,3 +32297,44 @@ KRITISCH: Nächste freie Phase ist 4537! NIEMALS 4000–4536 verwenden. IMMER al
 ### Phasen-Nummern-Status
 - **Belegt:** 4000–4541 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540 übersprungen)
 - **Nächste freie Phase: 4542**
+
+---
+
+## Batch 4542–4546 — Fahrer-Problem-Reaktionszeit-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4542 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-problem-reaktionszeit-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-problem-reaktionszeit-ranking?location_id=...&driver_id=...
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, reaktionszeit_min, rank_delta, ampel, alert_langsam}], team_avg_min, schnellste_name, langsamste_name, alert_count, gesamt }`
+**Logik:** avg(minutes to resolve issue) je Fahrer letzte 30 Tage; aufsteigend INVERTED Rang 1=schnellste Reaktion=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert alert_langsam=true wenn >30min; Mock Julia 8min/Max 14min/Sara 22min/Tim 38min; force-dynamic ✅; await createClient() ✅
+
+### Phase 4543 — Reaktionszeit-Board (Dispatch)
+**Component:** `DispatchPhase4543ReaktionszeitBoard` — Zap yellow-500; INVERTED Rang 1=schnellste Reaktion; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Langsame Reaktion (>30min); Balken=(val/maxVal)*100%; rank_delta TrendingUp emerald; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4544 — Meine Reaktionszeit (Fahrer)
+**Component:** `FahrerPhase4544MeineReaktionszeit` — Zap yellow-500; reaktionszeit_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Coaching-Tipp 3 Stufen (≤10min/≤20min/>20min); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4545 — Storefront
+Übersprungen ✅
+
+### Phase 4546 — Reaktionszeit-Ticker (Kitchen)
+**Component:** `KitchenPhase4546ReaktionszeitTicker` — Zap yellow-500; Schnellste #1 Name+min; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≤15min; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Pre-existing-Errors identisch; Turbopack bekanntes Container-Problem)
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4546 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545 übersprungen)
+- **Nächste freie Phase: 4547**
+
+### Nächste Phasen 4547–4551 — Vorschlag: Fahrer-Lieferfenster-Genauigkeit-Ranking
+1. **Phase 4547 Backend:** GET /api/delivery/admin/fahrer-lieferfenster-ranking — pct(deliveries within promised window) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Fenstergenauigkeit=bester; Quartil-Ampel; Alert <80% "Schlechte Fenstereinhaltung!"; Mock Julia 94%/Max 87%/Sara 79%/Tim 67%; force-dynamic; await createClient().
+2. **Phase 4548 Dispatch:** `DispatchPhase4548LieferfensterBoard` — Clock teal-500; absteigend Rang 1=höchste Genauigkeit; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Schlechte Fenstereinhaltung; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4549 Fahrer:** `FahrerPhase4549MeineLieferfenster` — Clock teal-500; fenster_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen (≥90%/≥80%/<80%); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4550 Storefront:** Überspringen.
+5. **Phase 4551 Kitchen:** `KitchenPhase4551LieferfensterTicker` — Clock teal-500; Beste #1 Name+%; Ziel ≥88%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4547! NIEMALS 4000–4546 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
