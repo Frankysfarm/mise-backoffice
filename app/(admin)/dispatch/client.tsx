@@ -1226,6 +1226,7 @@ import { DispatchPhase4548LieferfensterBoard } from './phase4548-lieferfenster-b
 import { DispatchPhase4553MehrfachBoard } from './phase4553-mehrfach-board';
 import { DispatchPhase4558NachtAnteilBoard } from './phase4558-nacht-anteil-board';
 import { DispatchPhase4563KommentarRateBoard } from './phase4563-kommentar-rate-board';
+import { DispatchPhase4568FruehschichtAnteilBoard } from './phase4568-fruehschicht-anteil-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5108,6 +5109,8 @@ export function DispatchBoard({
           <DispatchPhase4558NachtAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4563: Kommentar-Rate-Board — MessageSquare indigo-500; absteigend Rang 1=höchste Kommentarrate; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Wenige Kommentare; 30-Min-Polling */}
           <DispatchPhase4563KommentarRateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4568: Frühschicht-Anteil-Board — Sun yellow-500; absteigend Rang 1=höchster Frühanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Frühschichten; 30-Min-Polling */}
+          <DispatchPhase4568FruehschichtAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13666,3 +13669,5 @@ export { DispatchPhase4553MehrfachBoard } from './phase4553-mehrfach-board';
 export { DispatchPhase4558NachtAnteilBoard } from './phase4558-nacht-anteil-board';
 // Phase 4563 — Kommentar-Rate-Board (MessageSquare indigo-500; absteigend Rang 1=höchste Kommentarrate; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Wenige Kommentare; 30-Min-Polling)
 export { DispatchPhase4563KommentarRateBoard } from './phase4563-kommentar-rate-board';
+// Phase 4568 — Frühschicht-Anteil-Board (Sun yellow-500; absteigend Rang 1=höchster Frühanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Frühschichten; 30-Min-Polling)
+export { DispatchPhase4568FruehschichtAnteilBoard } from './phase4568-fruehschicht-anteil-board';

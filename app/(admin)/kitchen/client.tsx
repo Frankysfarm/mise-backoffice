@@ -1169,6 +1169,7 @@ import { KitchenPhase4551LieferfensterTicker } from './phase4551-lieferfenster-t
 import { KitchenPhase4556MehrfachTicker } from './phase4556-mehrfach-ticker';
 import { KitchenPhase4561NachtAnteilTicker } from './phase4561-nacht-anteil-ticker';
 import { KitchenPhase4566KommentarRateTicker } from './phase4566-kommentar-rate-ticker';
+import { KitchenPhase4571FruehschichtAnteilTicker } from './phase4571-fruehschicht-anteil-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4693,6 +4694,8 @@ export function KitchenBoard({
       <KitchenPhase4561NachtAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4566: Kommentar-Rate-Ticker — MessageSquare indigo-500; Beste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥50%; 30-Min-Polling */}
       <KitchenPhase4566KommentarRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4571: Frühschicht-Anteil-Ticker — Sun yellow-500; Höchste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥45%; 30-Min-Polling */}
+      <KitchenPhase4571FruehschichtAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12236,3 +12239,5 @@ export { KitchenPhase4556MehrfachTicker } from './phase4556-mehrfach-ticker';
 export { KitchenPhase4561NachtAnteilTicker } from './phase4561-nacht-anteil-ticker';
 // Phase 4566 — Kommentar-Rate-Ticker (MessageSquare indigo-500; Beste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥50%; 30-Min-Polling)
 export { KitchenPhase4566KommentarRateTicker } from './phase4566-kommentar-rate-ticker';
+// Phase 4571 — Frühschicht-Anteil-Ticker (Sun yellow-500; Höchste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥45%; 30-Min-Polling)
+export { KitchenPhase4571FruehschichtAnteilTicker } from './phase4571-fruehschicht-anteil-ticker';
