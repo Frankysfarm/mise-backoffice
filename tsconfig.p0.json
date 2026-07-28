@@ -14,6 +14,7 @@
     "lib/delivery/gps-transport.ts",
     "lib/delivery/gps-dispatch-eligibility.ts",
     "lib/delivery/long-distance-batching.ts",
+    "lib/delivery/route-batching-hold.ts",
     "lib/frank.ts",
     "lib/apns-voip.ts",
     "app/api/driver/v1/internal/push-flush/route.ts",
@@ -29,7 +30,8 @@
     "app/fahrer/app/pick-dialog.tsx",
     "app/fahrer/app/client.tsx",
     "scripts/tests/canonical-state-contract.test.ts",
-    "scripts/tests/driver-v2-boundary.test.ts"
+    "scripts/tests/driver-v2-boundary.test.ts",
+    "scripts/tests/route-batching-hold.test.ts"
   ],
   "include": []
 }

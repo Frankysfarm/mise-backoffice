@@ -528,16 +528,19 @@ export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
     best = pickBest(nearby, loc);
   }
   const atomicMode = useAtomicV2 ? 'v2' : useAtomicV1 ? 'v1' : null;
-  const created =
+  const deterministicExecution =
     deterministicPolicy.mayInvokeAtomicWriter && deterministicDecision
-      ? (await executeDeterministicDecision(
+      ? await executeDeterministicDecision(
         'active',
         deterministicDecision,
         async () => createBundle(
           best, o, loc, atomicMode, deterministicActionId ?? undefined,
         ),
-      )).result
-      : await createBundle(
+      )
+      : null;
+  const created = deterministicExecution?.mode === 'active'
+    ? deterministicExecution.result
+    : await createBundle(
         best, o, loc, atomicMode, deterministicActionId ?? undefined,
       );
   if (!created) return finish('held', best.id, 'CANONICAL_WRITER_REJECTED');
