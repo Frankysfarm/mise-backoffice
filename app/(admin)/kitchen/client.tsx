@@ -1159,6 +1159,7 @@ import { KitchenPhase4501AnnahmeTicker } from './phase4501-annahme-ticker';
 import { KitchenPhase4506TourzeitTicker } from './phase4506-tourzeit-ticker';
 import { KitchenPhase4511KmProLieferungTicker } from './phase4511-km-pro-lieferung-ticker';
 import { KitchenPhase4516VarianzTicker } from './phase4516-varianz-ticker';
+import { KitchenPhase4521ProduktivitaetTicker } from './phase4521-produktivitaet-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4663,6 +4664,8 @@ export function KitchenBoard({
       <KitchenPhase4511KmProLieferungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4516: Zeitvarianz-Ticker — Activity purple-500; Konsistentester #1 Name+stddev; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤6min Varianz; 30-Min-Polling */}
       <KitchenPhase4516VarianzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4521: Produktivitäts-Ticker — Zap orange-500; Produktivste #1 Name+Rate; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥3.5/h; 30-Min-Polling */}
+      <KitchenPhase4521ProduktivitaetTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12186,3 +12189,5 @@ export { KitchenPhase4506TourzeitTicker } from './phase4506-tourzeit-ticker';
 export { KitchenPhase4511KmProLieferungTicker } from './phase4511-km-pro-lieferung-ticker';
 // Phase 4516 — Zeitvarianz-Ticker (Activity purple-500; Konsistentester #1 Name+stddev; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤6min Varianz; 30-Min-Polling)
 export { KitchenPhase4516VarianzTicker } from './phase4516-varianz-ticker';
+// Phase 4521 — Produktivitäts-Ticker (Zap orange-500; Produktivste #1 Name+Rate; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥3.5/h; 30-Min-Polling)
+export { KitchenPhase4521ProduktivitaetTicker } from './phase4521-produktivitaet-ticker';
