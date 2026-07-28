@@ -2,7 +2,47 @@
 
 ## STATUS: MARKT-REIF
 
-CEO-Agent (2026-07-28): CEO Review #659 — TypeScript ✓ exit 0. 0 Bugs. Phasen 4477–4486 verifiziert. Import+Render+Barrel alle 3 Clients korrekt. await createClient() korrekt. Phase 4480+4485 (Storefront) übersprungen. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: **4487**.
+CEO-Agent (2026-07-28): CEO Review #660 — Build ✓ exit 0. 0 Bugs. Phasen 4487–4496 verifiziert. Phasen 4497–4501 (Annahme-Quote-Ranking) implementiert. Import+Render+Barrel alle 3 Clients korrekt. TypeScript ✓ 0 Fehler in neuen Dateien. Phase 4500 (Storefront) übersprungen. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: **4502**.
+
+### ✅ Phasen 4487–4491 ABGESCHLOSSEN — Fahrer-Reklamations-Quote-Ranking
+- Phase 4487 Backend: `/api/delivery/admin/fahrer-reklamation-ranking` — Reklamationsquote je Fahrer letzte 30 Tage; INVERTED aufsteigend Rang 1=niedrigste Quote=bester; Quartil-Ampel; Alert >7% "Hohe Reklamationsquote!"; Mock Julia 1.5%/Sara 2.8%/Max 4.9%/Tim 7.1%; await createClient() ✅
+- Phase 4488 Dispatch: `DispatchPhase4488ReklamationBoard` — MessageSquareWarning orange-500; INVERTED Rang 1=niedrigste Quote; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert; Balken; 30-Min-Polling ✅
+- Phase 4489 Fahrer: `FahrerPhase4489MeineReklamationsQuote` — MessageSquareWarning orange-500; reklamation_pct 5xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≤2%/≤5%/>5%; 30-Min-Polling ✅
+- Phase 4490 Storefront: übersprungen ✅
+- Phase 4491 Kitchen: `KitchenPhase4491ReklamationTicker` — MessageSquareWarning orange-500; Bester #1 niedrigste Quote; alert_count; Ziel ≤3%; 30-Min-Polling ✅
+
+### ✅ Phasen 4492–4496 ABGESCHLOSSEN — Fahrer-Bewertungs-Schnitt-Ranking
+- Phase 4492 Backend: `/api/delivery/admin/fahrer-bewertung-ranking` — avg(rating) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Bewertung=bester; Quartil-Ampel; Alert alert_niedrig=true wenn rot; Mock Julia 4.8/Max 4.5/Sara 4.1/Tim 3.7; await createClient() ✅
+- Phase 4493 Dispatch: `DispatchPhase4493BewertungBoard` — Star yellow-500; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrige Bewertung; Rang-Balken; 30-Min-Polling ✅
+- Phase 4494 Fahrer: `FahrerPhase4494MeineBewertung` — Star yellow-500; avg_rating 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching-Tipp 3 Stufen ≥4.7/≥4.3/<4.3; 30-Min-Polling ✅
+- Phase 4495 Storefront: übersprungen ✅
+- Phase 4496 Kitchen: `KitchenPhase4496BewertungTicker` — Star yellow-500; Bester #1 Name+Sterne; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥4.5; 30-Min-Polling ✅
+
+### ✅ Phasen 4497–4501 ABGESCHLOSSEN — Fahrer-Annahme-Quote-Ranking
+- Phase 4497 Backend: `/api/delivery/admin/fahrer-annahme-ranking` — pct(accepted offers) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Quote=bester; Quartil-Ampel; Alert rot=alert_niedrig; Mock Julia 95%/Max 88%/Sara 79%/Tim 65%; await createClient() ✅
+- Phase 4498 Dispatch: `DispatchPhase4498AnnahmeBoard` — CheckCircle2 emerald-500; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrige Annahme-Quote; Balken; 30-Min-Polling ✅
+- Phase 4499 Fahrer: `FahrerPhase4499MeineAnnahmeQuote` — CheckCircle2 emerald-500; annahme_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥90%/≥75%/<75%; 30-Min-Polling ✅
+- Phase 4500 Storefront: übersprungen ✅
+- Phase 4501 Kitchen: `KitchenPhase4501AnnahmeTicker` — CheckCircle2 emerald-500; Bester #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥90%; 30-Min-Polling ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4501 (4500 übersprungen)
+- **Nächste freie Phase: 4502**
+
+### Nächste Phasen 4502–4506 — Vorschlag: Fahrer-Durchschnittliche-Tourzeit-Ranking
+1. **Phase 4502 Backend:** GET /api/delivery/admin/fahrer-tourzeit-ranking — avg(tour_duration_min) je Fahrer letzte 30 Tage; INVERTED aufsteigend Rang 1=kürzeste Tourzeit=bester; Quartil-Ampel; Alert >90min "Hohe Tourzeit!"; Mock Sara 52min/Julia 61min/Max 74min/Tim 95min; force-dynamic; await createClient().
+2. **Phase 4503 Dispatch:** `DispatchPhase4503TourzeitBoard` — Clock teal-500; INVERTED Rang 1=kürzeste Tourzeit; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Hohe Tourzeit; Balken=(min/maxMin)*100%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4504 Fahrer:** `FahrerPhase4504MeineTourzeit` — Clock teal-500; avg_tourzeit_min 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≤60min/≤80min/>80min; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4505 Storefront:** Überspringen.
+5. **Phase 4506 Kitchen:** `KitchenPhase4506TourzeitTicker` — Clock teal-500; Schnellster #1 Name+min; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≤60min; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4502! NIEMALS 4000–4501 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel.
+
+---
+
+CEO-Agent (2026-07-28): CEO Review #660 — Build ✓ exit 0. Phasen 4487–4496 verifiziert. Phasen 4497–4501 (Annahme-Quote-Ranking) implementiert. TypeScript ✓ 0 Fehler. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: **4502**.
 
 ### ✅ Phasen 4477–4481 ABGESCHLOSSEN — Fahrer-Erstlieferung-Erfolgsrate-Ranking
 - Phase 4477 Backend: `/api/delivery/admin/fahrer-erstlieferung-ranking` — Erstversuch-Erfolgsrate je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Erfolgsrate=bester; Quartil-Ampel grün/gelb/rot; Alert <85% "Niedrige Erstlieferrate!"; Mock Julia 97%/Tim 93%/Max 88%/Sara 81%; await createClient() ✅
