@@ -1217,6 +1217,7 @@ import { DispatchPhase4503TourzeitBoard } from './phase4503-tourzeit-board';
 import { DispatchPhase4508KmProLieferungBoard } from './phase4508-km-pro-lieferung-board';
 import { DispatchPhase4513VarianzBoard } from './phase4513-varianz-board';
 import { DispatchPhase4518ProduktivitaetBoard } from './phase4518-produktivitaet-board';
+import { DispatchPhase4523UmsatzProSchichtBoard } from './phase4523-umsatz-pro-schicht-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5081,6 +5082,8 @@ export function DispatchBoard({
           <DispatchPhase4513VarianzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4518: Produktivitäts-Board — Zap orange-500; absteigend Rang 1=meiste Lieferungen/h; KPI-Grid Produktivste/Team-Avg/Langsamste; Alert Niedrige Produktivität <2/h; 30-Min-Polling */}
           <DispatchPhase4518ProduktivitaetBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4523: Umsatz/Schicht-Board — Euro amber-500; absteigend Rang 1=höchster Umsatz/Schicht; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedriger Schichtumsatz; 30-Min-Polling */}
+          <DispatchPhase4523UmsatzProSchichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13621,3 +13624,5 @@ export { DispatchPhase4508KmProLieferungBoard } from './phase4508-km-pro-lieferu
 export { DispatchPhase4513VarianzBoard } from './phase4513-varianz-board';
 // Phase 4518 — Produktivitäts-Board (Zap orange-500; absteigend Rang 1=meiste Lieferungen/h; KPI-Grid Produktivste/Team-Avg/Langsamste; Alert Niedrige Produktivität <2/h; 30-Min-Polling)
 export { DispatchPhase4518ProduktivitaetBoard } from './phase4518-produktivitaet-board';
+// Phase 4523 — Umsatz/Schicht-Board (Euro amber-500; absteigend Rang 1=höchster Umsatz/Schicht; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedriger Schichtumsatz; 30-Min-Polling)
+export { DispatchPhase4523UmsatzProSchichtBoard } from './phase4523-umsatz-pro-schicht-board';
