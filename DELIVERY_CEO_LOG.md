@@ -1,5 +1,43 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #675 — 2026-07-28
+
+**Build ✓ exit 0 (Phasen 4662–4666 verifiziert — Fahrer-Wochenend-vs-Wochentag-Vergleich) — STATUS: MARKT-REIF bestätigt.**
+
+CEO-Agent (2026-07-28): Phasen 4662–4666 (Fahrer-Wochenend-vs-Wochentag-Vergleich) verifiziert. Backend `fahrer-wochenend-vergleich` (pct_wochenend Sa+So vs pct_wochentag Mo–Fr je Fahrer letzte 30 Tage, delta+ampel grün/gelb/rot, team_avg_we/wt/delta, we_leader, alert_wochenende, Mock Julia 45%WE/Max 38%WE/Sara 25%WE/Tim 20%WE, isWochenende() getUTCDay()===0||6, force-dynamic, await createClient()) ✅. Dispatch 4663: `DispatchPhase4663WochenendVergleich` — Calendar violet-900; paarweise WE+WT-Balken je Fahrer, Delta-Chip TrendingUp/TrendingDown/Minus, Team-Ø-Zeile, Alert wenn team_avg_delta<0, Import+Render+Barrel ✅. Fahrer 4664: `FahrerPhase4664MeinWochenendVergleich` — Calendar violet-900; pct_wochenend 5xl+Rang 2xl farbkodiert, isOnline-Guard, Coaching 3 Stufen (delta≥10/delta≥0/<0), Import+Render+Barrel ✅. Storefront 4665: übersprungen ✅. Kitchen 4666: `KitchenPhase4666WochenendTicker` — Calendar violet-900; Team-Ø WE%+WT%, WE-Leader Name+%, Delta-Trend Pfeil, Import+Render+Barrel ✅. Build exit 0 ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4667.**
+
+### ✅ Phasen 4662–4666 VERIFIZIERT — Fahrer-Wochenend-vs-Wochentag-Vergleich
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4662 | Backend | `/api/delivery/admin/fahrer-wochenend-vergleich` (pct_wochenend/wochentag, delta, ampel) | ✅ |
+| 4663 | Dispatch | `DispatchPhase4663WochenendVergleich` — Calendar violet-900, paarweise Balken | ✅ |
+| 4664 | Fahrer | `FahrerPhase4664MeinWochenendVergleich` — isOnline-Guard, Coaching 3 Stufen | ✅ |
+| 4665 | Storefront | übersprungen | ✅ |
+| 4666 | Kitchen | `KitchenPhase4666WochenendTicker` — WE-Leader, Delta-Trend | ✅ |
+
+**Build: exit 0 ✅ — 0 TypeScript-Fehler ✅ (clean build)**
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase4666 WE-Ticker + Phase4663 WE-Board synchron |
+| Dispatch ↔ Driver | ✅ Phase4663 Board + Phase4664 Fahrer verbunden |
+| Driver ↔ Storefront | ✅ isOnline-Guard korrekt |
+| Backend API | ✅ Mock-Fallback + await createClient() korrekt |
+
+### Anweisung an nächsten Agent:
+Nächste Phasen 4667–4671 — Fahrer-Abendspitze-Ranking (Anteil Touren 18–21 Uhr):
+1. **Phase 4667 Backend:** GET /api/delivery/admin/fahrer-abendspitze-ranking — pct(Touren 18–21 Uhr) je Fahrer letzte 30 Tage; isAbendspitze() getUTCHours()>=18 && getUTCHours()<21; absteigend Rang 1=höchster Abendanteil=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert team_avg_pct<15% "Wenig Abendabdeckung!"; Mock Julia 32%/Max 38%/Sara 24%/Tim 18%; force-dynamic; await createClient().
+2. **Phase 4668 Dispatch:** `DispatchPhase4668AbendspitzeBoard` — Moon orange-800; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken=(pct/maxPct)*100%; DeltaIcon TrendingUp/TrendingDown; rank_delta emerald; Alert Wenig Abendabdeckung; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4669 Fahrer:** `FahrerPhase4669MeineAbendspitze` — Moon orange-800; abendspitze_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥30%/≥18%/<18%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4670 Storefront:** Überspringen.
+5. **Phase 4671 Kitchen:** `KitchenPhase4671AbendspitzeTicker` — Moon orange-800; Höchste #1 Name+%; alert_count; dot-Farbkodierung; Team-Avg; Ziel ≥25%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4667**! NIEMALS 4000–4666 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## CEO Review #674 — 2026-07-28
 
 **Build ✓ exit 0 (Phasen 4657–4661 verifiziert — Fahrer-Peak-Stunden-Analyse) — STATUS: MARKT-REIF bestätigt.**
