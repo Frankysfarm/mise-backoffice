@@ -32469,3 +32469,44 @@ KRITISCH: Nächste freie Phase ist 4557! NIEMALS 4000–4556 verwenden. IMMER al
 ## STATUS: MARKT-REIF
 
 ---
+
+---
+
+## Batch 4562–4566 — Fahrer-Kommentar-Rate-Ranking (ABGESCHLOSSEN 2026-07-28)
+
+### Phase 4562 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-kommentar-rate-ranking/route.ts` *(neu)*
+**Endpoint:** GET /api/delivery/admin/fahrer-kommentar-rate-ranking?location_id=...&driver_id=...
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, kommentar_pct, rank_delta, ampel, alert_wenig}], team_avg_pct, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** pct(Lieferungen mit customer_note oder delivery_note) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Kommentarrate=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert alert_wenig=true wenn <30%; Mock Julia 65%/Max 52%/Sara 41%/Tim 28%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4563 — Kommentar-Rate-Board (Dispatch)
+**Component:** `DispatchPhase4563KommentarRateBoard` — MessageSquare indigo-500; absteigend Rang 1=höchste Kommentarrate; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Wenige Kommentare (<30%); Balken=(pct/maxPct)*100%; rank_delta TrendingUp emerald; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4564 — Meine Kommentar-Rate (Fahrer)
+**Component:** `FahrerPhase4564MeineKommentarRate` — MessageSquare indigo-500; kommentar_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Coaching-Tipp 3 Stufen (≥60%/≥40%/<40%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4565 — Storefront
+Übersprungen ✅
+
+### Phase 4566 — Kommentar-Rate-Ticker (Kitchen)
+**Component:** `KitchenPhase4566KommentarRateTicker` — MessageSquare indigo-500; Beste #1 Name+%; alert_count-Zähler; dot-Farbkodierung; Team-Avg; Ziel ≥50%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ 0 Fehler in neuen Dateien ✅ (Pre-existing-Errors identisch; Turbopack bekanntes Container-Problem)
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4566 (4455, 4460, 4465, 4470, 4475, 4480, 4485, 4490, 4495, 4500, 4505, 4510, 4515, 4520, 4525, 4530, 4535, 4540, 4545, 4550, 4555, 4560, 4565 übersprungen)
+- **Nächste freie Phase: 4567**
+
+### Nächste Phasen 4567–4571 — Vorschlag: Fahrer-Frühschicht-Anteil-Ranking
+1. **Phase 4567 Backend:** GET /api/delivery/admin/fahrer-fruehschicht-anteil-ranking — pct(Touren vor 11:00 Uhr) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Frühschicht-Anteil=bester; Quartil-Ampel; Alert <20% "Wenig Frühschichten!"; Mock Julia 71%/Max 58%/Sara 42%/Tim 23%; force-dynamic; await createClient().
+2. **Phase 4568 Dispatch:** `DispatchPhase4568FruehschichtAnteilBoard` — Sun yellow-500; absteigend Rang 1=höchster Frühanteil; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Wenig Frühschichten; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4569 Fahrer:** `FahrerPhase4569MeinFruehschichtAnteil` — Sun yellow-500; frueh_pct 5xl+Rang 2xl farbkodiert; isOnline-Guard; Coaching 3 Stufen ≥60%/≥35%/<35%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4570 Storefront:** Überspringen.
+5. **Phase 4571 Kitchen:** `KitchenPhase4571FruehschichtAnteilTicker` — Sun yellow-500; Höchste #1 Name+%; Ziel ≥45%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist 4567! NIEMALS 4000–4566 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
