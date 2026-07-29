@@ -1255,6 +1255,7 @@ import { DispatchPhase4698TrinkgeldBoard } from './phase4698-trinkgeld-board';
 import { DispatchPhase4703KmEffizienzBoard } from './phase4703-km-effizienz-board';
 import { DispatchPhase4708ErstkontaktBoard } from './phase4708-erstkontakt-board';
 import { DispatchPhase4713ZufriedenheitsBoard } from './phase4713-zufriedenheits-board';
+import { DispatchPhase4718StornoreaktionsBoard } from './phase4718-stornoreaktions-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5196,6 +5197,8 @@ export function DispatchBoard({
           <DispatchPhase4708ErstkontaktBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4713: Zufriedenheits-Index Ranking — Moon indigo-900; composite score avg_rating*0.5+pünktlichkeit*0.3+erstkontakt*0.2; KPI-Grid Höchster/Team-Avg/Niedrigster; Sub-KPIs; Alert team<60; 30-Min-Polling */}
           <DispatchPhase4713ZufriedenheitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4718: Storno-Reaktions-Score Ranking — Moon rose-900; composite (1-storno_quote)*0.6+reaktionszeit_score*0.4; KPI-Grid Höchster/Team-Avg/Niedrigster; Balken farbkodiert; DeltaIcon; Alert <60; 30-Min-Polling */}
+          <DispatchPhase4718StornoreaktionsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13826,3 +13829,5 @@ export { DispatchPhase4708ErstkontaktBoard } from './phase4708-erstkontakt-board
 export { DispatchPhase4710TourScoreVisualisierungMaster } from './phase4710-tour-score-visualisierung-master';
 // Phase 4713 — Zufriedenheits-Index Ranking (Moon indigo-900; composite score; KPI-Grid Höchster/Team-Avg/Niedrigster; Sub-KPIs Bewertung/Pünktlichkeit/Erstkontakt; Alert team_avg<60; 30-Min-Polling)
 export { DispatchPhase4713ZufriedenheitsBoard } from './phase4713-zufriedenheits-board';
+// Phase 4718 — Storno-Reaktions-Score Ranking (Moon rose-900; composite; KPI-Grid; Balken; DeltaIcon; Alert <60; 30-Min-Polling)
+export { DispatchPhase4718StornoreaktionsBoard } from './phase4718-stornoreaktions-board';

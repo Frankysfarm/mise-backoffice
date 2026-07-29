@@ -1175,6 +1175,7 @@ import { FahrerPhase4699MeinTrinkgeld } from './phase4699-mein-trinkgeld';
 import { FahrerPhase4704MeineKmEffizienz } from './phase4704-meine-km-effizienz';
 import { FahrerPhase4709MeineErstkontaktQuote } from './phase4709-meine-erstkontakt-quote';
 import { FahrerPhase4714MeinZufriedenheitsIndex } from './phase4714-mein-zufriedenheits-index';
+import { FahrerPhase4719MeinStornoreaktionsScore } from './phase4719-mein-stornoreaktions-score';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7348,6 +7349,8 @@ export function FahrerApp({
           <FahrerPhase4709MeineErstkontaktQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4714: Mein Zufriedenheits-Index — Moon indigo-900; Index 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Sub-KPIs Bewertung/Pünktlichkeit/Erstkontakt; Coaching 3 Stufen ≥85/≥65/<65; 30-Min-Polling */}
           <FahrerPhase4714MeinZufriedenheitsIndex driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4719: Mein Storno-Reaktions-Score — Moon rose-900; Score 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Sub-KPIs Storno-Quote/Reaktionszeit; Coaching 3 Stufen ≥80/≥60/<60; 30-Min-Polling */}
+          <FahrerPhase4719MeinStornoreaktionsScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11704,3 +11707,5 @@ export { FahrerPhase4709MeineErstkontaktQuote } from './phase4709-meine-erstkont
 export { FahrerPhase4710SmartTourNavigationMaster } from './phase4710-smart-tour-navigation-master';
 // Phase 4714 — Mein Zufriedenheits-Index (Moon indigo-900; Index 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Sub-KPIs Bewertung/Pünktlichkeit/Erstkontakt; Coaching 3 Stufen ≥85/≥65/<65; 30-Min-Polling)
 export { FahrerPhase4714MeinZufriedenheitsIndex } from './phase4714-mein-zufriedenheits-index';
+// Phase 4719 — Mein Storno-Reaktions-Score (Moon rose-900; Score 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Sub-KPIs; Coaching 3 Stufen; 30-Min-Polling)
+export { FahrerPhase4719MeinStornoreaktionsScore } from './phase4719-mein-stornoreaktions-score';

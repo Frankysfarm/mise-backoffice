@@ -1198,6 +1198,7 @@ import { KitchenPhase4701TrinkgeldTicker } from './phase4701-trinkgeld-ticker';
 import { KitchenPhase4706KmEffizienzTicker } from './phase4706-km-effizienz-ticker';
 import { KitchenPhase4711ErstkontaktTicker } from './phase4711-erstkontakt-ticker';
 import { KitchenPhase4716ZufriedenheitsTicker } from './phase4716-zufriedenheits-ticker';
+import { KitchenPhase4721StornoreaktionsTicker } from './phase4721-stornoreaktions-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4781,6 +4782,8 @@ export function KitchenBoard({
       <KitchenPhase4711ErstkontaktTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4716: Zufriedenheits-Index-Ticker — Moon indigo-900; Höchste #1 Name+Index; Team-Avg; Alert team<60; 30-Min-Polling */}
       <KitchenPhase4716ZufriedenheitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4721: Storno-Reaktions-Ticker — Moon rose-900; Höchster #1 Name+Score; Team-Avg; Alert <60; 30-Min-Polling */}
+      <KitchenPhase4721StornoreaktionsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12398,3 +12401,5 @@ export { KitchenPhase4711ErstkontaktTicker } from './phase4711-erstkontakt-ticke
 export { KitchenPhase4715SmartTimingCountdownFarbkodierungV13 } from './phase4715-smart-timing-countdown-farbkodierung-v13';
 // Phase 4716 — Zufriedenheits-Index-Ticker (Moon indigo-900; Höchste #1 Name+Index; Team-Avg; Alert team<60; 30-Min-Polling)
 export { KitchenPhase4716ZufriedenheitsTicker } from './phase4716-zufriedenheits-ticker';
+// Phase 4721 — Storno-Reaktions-Ticker (Moon rose-900; Höchster #1 Name+Score; Team-Avg; Alert <60; 30-Min-Polling)
+export { KitchenPhase4721StornoreaktionsTicker } from './phase4721-stornoreaktions-ticker';
