@@ -1200,6 +1200,7 @@ import { KitchenPhase4711ErstkontaktTicker } from './phase4711-erstkontakt-ticke
 import { KitchenPhase4716ZufriedenheitsTicker } from './phase4716-zufriedenheits-ticker';
 import { KitchenPhase4721StornoreaktionsTicker } from './phase4721-stornoreaktions-ticker';
 import { KitchenPhase4726SchichtEffizienzTicker } from './phase4726-schicht-effizienz-ticker';
+import { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4787,6 +4788,8 @@ export function KitchenBoard({
       <KitchenPhase4721StornoreaktionsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4726: Schicht-Effizienz-Ticker — Moon amber-900; Höchste #1 Name+€/h; Team-Avg; Alert <20€/h; 30-Min-Polling */}
       <KitchenPhase4726SchichtEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4731: Akzeptanz-Rate-Ticker — Moon teal-900; Höchste #1 Name+%; Team-Avg; Alert niedrige Rate; 30-Min-Polling */}
+      <KitchenPhase4731AkzeptanzRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12410,3 +12413,4 @@ export { KitchenPhase4720SmartTimingCountdownFarbkodierungV14 } from './phase472
 export { KitchenPhase4721StornoreaktionsTicker } from './phase4721-stornoreaktions-ticker';
 // Phase 4726 — Schicht-Effizienz-Ticker (Moon amber-900; Höchste #1 Name+€/h; Team-Avg; Alert <20€/h; 30-Min-Polling)
 export { KitchenPhase4726SchichtEffizienzTicker } from './phase4726-schicht-effizienz-ticker';
+export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';

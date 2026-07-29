@@ -1257,6 +1257,7 @@ import { DispatchPhase4708ErstkontaktBoard } from './phase4708-erstkontakt-board
 import { DispatchPhase4713ZufriedenheitsBoard } from './phase4713-zufriedenheits-board';
 import { DispatchPhase4718StornoreaktionsBoard } from './phase4718-stornoreaktions-board';
 import { DispatchPhase4723SchichtEffizienzBoard } from './phase4723-schicht-effizienz-board';
+import { DispatchPhase4728AkzeptanzRateBoard } from './phase4728-akzeptanz-rate-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5202,6 +5203,8 @@ export function DispatchBoard({
           <DispatchPhase4718StornoreaktionsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4723: Schicht-Effizienz Ranking — Moon amber-900; avg(€/Schicht-h) je Fahrer; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon; Alert <20€/h; 30-Min-Polling */}
           <DispatchPhase4723SchichtEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4728: Akzeptanz-Rate Ranking — Moon teal-900; absteigend Rang 1=höchste Rate; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon; Alert niedrige Rate; 30-Min-Polling */}
+          <DispatchPhase4728AkzeptanzRateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13840,3 +13843,4 @@ export { DispatchPhase4718TourScoreVisualisierungLive } from './phase4718-tour-s
 export { DispatchPhase4720ScoreAnzeigeCockpit } from './phase4720-score-anzeige-cockpit';
 // Phase 4723 — Schicht-Effizienz Ranking (Moon amber-900; avg(€/Schicht-h); KPI-Grid Höchste/Team-Avg/Niedrigste; Balken; DeltaIcon; Alert <20€/h; 30-Min-Polling)
 export { DispatchPhase4723SchichtEffizienzBoard } from './phase4723-schicht-effizienz-board';
+export { DispatchPhase4728AkzeptanzRateBoard } from './phase4728-akzeptanz-rate-board';
