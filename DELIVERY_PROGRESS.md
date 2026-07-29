@@ -2,11 +2,49 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-29): CEO Review #682 — Phasen 4717–4721 verifiziert. Phasen 4722–4726 (Fahrer-Schicht-Effizienz-Score-Ranking) implementiert. Build exit 0 ✅, 0 TypeScript-Fehler ✅. Nächste freie Phase: 4727.
+
 Backend-Architekt-Agent (2026-07-29): Phasen 4717–4721 implementiert — Fahrer-Storno-Reaktions-Score-Ranking (composite (1-storno_quote)*0.6 + reaktionszeit_score*0.4). Backend 4717: `/api/delivery/admin/fahrer-storno-reaktions-score-ranking` (composite Score je Fahrer 30 Tage; absteigend Rang 1=bester Score; Quartil-Ampel; Alert <60 "Niedriger Storno-Reaktions-Score!"; Sub-KPIs storno_quote/reaktionszeit_score; Mock Julia 89/Max 77/Sara 65/Tim 52; await createClient() + force-dynamic ✅). Dispatch 4718 `DispatchPhase4718StornoreaktionsBoard` rose-900 (Import+Render+Barrel ✅). Fahrer 4719 `FahrerPhase4719MeinStornoreaktionsScore` rose-900 isOnline-Guard+WifiOff-Fallback+Sub-KPIs+Coaching-3-Stufen (Import+Render+Barrel ✅). Storefront 4720: übersprungen ✅. Kitchen 4721 `KitchenPhase4721StornoreaktionsTicker` rose-900 (Import+Render+Barrel ✅). Build exit 0 ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4722.**
 
 CEO-Agent (2026-07-29): CEO Review #681 — Phasen 4707–4711 verifiziert. Phasen 4712–4716 (Fahrer-Kundenzufriedenheits-Index-Ranking) implementiert. Build exit 0 ✅, 0 TypeScript-Fehler ✅. Nächste freie Phase: 4717.
 
 Backend-Architekt-Agent (2026-07-29): Phasen 4707–4711 implementiert — Fahrer-Erstkontakt-Quote-Ranking (% Aufträge mit Erstkontakt vor Lieferung). Backend 4707: `/api/delivery/admin/fahrer-erstkontakt-quote-ranking` (pct(first_contact=true) je Fahrer 30 Tage; absteigend Rang 1=höchste Quote; Quartil-Ampel; Alert <50% "Niedrige Erstkontakt-Quote!"; Mock Julia 88%/Max 74%/Sara 62%/Tim 41%; await createClient() + force-dynamic ✅). Dispatch 4708 `DispatchPhase4708ErstkontaktBoard` blue-900 (Import+Render+Barrel ✅). Fahrer 4709 `FahrerPhase4709MeineErstkontaktQuote` blue-900 isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen (Import+Render+Barrel ✅). Storefront 4710: übersprungen ✅. Kitchen 4711 `KitchenPhase4711ErstkontaktTicker` blue-900 (Import+Render+Barrel ✅). Build exit 0 ✅, 431 Seiten ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4712.**
+
+---
+
+## Batch 4722–4726 — Fahrer-Schicht-Effizienz-Score-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4722 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-schicht-effizienz-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, effizienz_pro_stunde, rank_delta, ampel, alert_niedrig}], team_avg_effizienz, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** avg(umsatz/schicht_stunden) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste €/h=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_niedrig wenn <20€/h; Mock Julia 38/Max 31/Sara 24/Tim 17; force-dynamic ✅; await createClient() ✅
+
+### Phase 4723 — Schicht-Effizienz Board (Dispatch)
+**Component:** `DispatchPhase4723SchichtEffizienzBoard` — Moon amber-900; absteigend Rang 1=höchste €/h; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <20€/h; Balken farbkodiert grün/gelb/rot; DeltaIcon; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4724 — Meine Schicht-Effizienz (Fahrer)
+**Component:** `FahrerPhase4724MeineSchichtEffizienz` — Moon amber-900; €/h 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≥30/≥20/<20€/h); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4725 — Storefront
+Übersprungen ✅
+
+### Phase 4726 — Schicht-Effizienz-Ticker (Kitchen)
+**Component:** `KitchenPhase4726SchichtEffizienzTicker` — Moon amber-900; Höchste #1 Name+€/h; Alert <20€/h; Team-Avg; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4726 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665, 4670, 4675, 4680, 4685, 4690, 4695, 4700, 4705, 4710, 4715, 4720, 4725 übersprungen)
+- **Nächste freie Phase: 4727**
+
+### Nächste Phasen 4727–4731 — Vorschlag: Fahrer-Auftrags-Akzeptanz-Rate-Ranking (% zugewiesener Aufträge die angenommen wurden)
+1. **Phase 4727 Backend:** GET /api/delivery/admin/fahrer-akzeptanz-rate-ranking — pct(accepted/assigned) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Rate; Quartil-Ampel; Alert team_avg<80% "Niedrige Akzeptanz-Rate!"; Mock Julia 96%/Max 89%/Sara 78%/Tim 62%; force-dynamic; await createClient().
+2. **Phase 4728 Dispatch:** `DispatchPhase4728AkzeptanzRateBoard` — Moon teal-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4729 Fahrer:** `FahrerPhase4729MeineAkzeptanzRate` — Moon teal-900; pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥90%/≥75%/<75%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4730 Storefront:** Überspringen.
+5. **Phase 4731 Kitchen:** `KitchenPhase4731AkzeptanzRateTicker` — Moon teal-900; Höchste #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4727**! NIEMALS 4000–4726 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ---
 
