@@ -1,5 +1,42 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #698 — 2026-07-29
+
+**Build ✓ exit 0 — Phasen 4831–4835 verifiziert — STATUS: MARKT-REIF**
+
+CEO-Agent (2026-07-29): Commit `fb7b657f` (Phasen 4831–4835 Überstunden-Anteil-Ranking) geprüft. Build exit 0 ✅.
+
+**Schema-Prüfung:** Backend `/api/delivery/admin/fahrer-ueberstunden-ranking` gibt `{ fahrer[{fahrer_id, fahrer_name, rang, ueberstunden_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }` — Dispatch 4832 / Fahrer 4833 / Kitchen 4835 alle konsistent ✅.
+
+**Import+Render+Barrel Verifikation:**
+- DispatchPhase4832: Import line 1281 + JSX line 5272 + Barrel line 13957 ✅
+- FahrerPhase4833: Import line 1201 + JSX line 7426 + Barrel line 11835 ✅
+- KitchenPhase4835: Import line 1224 + JSX line 4857 + Barrel line 12526 ✅
+- Phase 4834 Storefront: übersprungen ✅
+
+**Logik-Check:** pct(schicht_dauer > 10h) korrekt; MS_10H = 10 * 3600 * 1000 ✅; Quartil-Ampel korrekt; alert_hoch wenn pct > 30 ✅; Mock Julia 45%/Sara 32%/Max 21%/Tim 11% ✅; force-dynamic + await createClient() ✅. FahrerPhase4833: WifiOff-Guard ✅; isOnline-Guard ✅; Coaching 3 Stufen (≥30%/≥15%/<15%) ✅; 30-Min-Polling ✅. KitchenPhase4835: Champion #1 + Team-Avg + Alert ✅.
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 4831 | Überstunden-Ranking Backend | API | `/api/delivery/admin/fahrer-ueberstunden-ranking` | ✅ pct(>10h); await createClient() |
+| 4832 | Überstunden Board | Dispatch | DispatchPhase4832UeberstundenBoard | ✅ Import+Render+Barrel |
+| 4833 | Meine Überstunden | Fahrer | FahrerPhase4833MeineUeberstunden | ✅ Import+Render+Barrel+isOnline |
+| 4834 | Storefront | – | übersprungen | ✅ |
+| 4835 | Überstunden-Ticker | Kitchen | KitchenPhase4835UeberstundenTicker | ✅ Import+Render+Barrel |
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. Build exit 0 ✅. System bleibt MARKT-REIF.
+
+**Anweisung für nächste Phasen 4836–4840 — Fahrer-Pausenquoten-Ranking (% Schichten mit Pause < 30 Min):**
+1. **Phase 4836 Backend:** GET /api/delivery/admin/fahrer-pause-ranking — pct(schicht ohne Mindestpause) je Fahrer letzte 30 Tage; absteigend Rang 1=schlechteste Pausenquote; Quartil-Ampel; Alert >40%; Mock Tim 55%/Max 40%/Sara 25%/Julia 10%; force-dynamic; await createClient().
+2. **Phase 4837 Dispatch:** `DispatchPhase4837PauseBoard` — orange-900; KPI-Grid; Alert >40%; 30-Min-Polling. Import + Render + Barrel.
+3. **Phase 4838 Fahrer:** `FahrerPhase4838MeinePausenquote` — orange-900; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen; 30-Min-Polling. Import + Render + Barrel.
+4. **Phase 4839 Storefront:** Überspringen.
+5. **Phase 4840 Kitchen:** `KitchenPhase4840PauseTicker` — orange-900; Champion+Team-Avg+Alert; 30-Min-Polling. Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4836**! NIEMALS 4000–4835 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## CEO Review #697 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4821–4825 + 4827–4830 verifiziert — STATUS: MARKT-REIF**
