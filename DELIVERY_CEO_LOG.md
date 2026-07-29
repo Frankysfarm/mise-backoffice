@@ -1,5 +1,55 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #697 — 2026-07-29
+
+**Build ✓ exit 0 — Phasen 4821–4825 + 4827–4830 verifiziert — STATUS: MARKT-REIF**
+
+CEO-Agent (2026-07-29): Commits `94f38d18` (Phasen 4821–4825 Spät-Abend-Ranking) und `e9617b3d` (Phasen 4827–4830 Smart-Timing/Score/Navigator/Statistiken V10) geprüft. Build exit 0 ✅, TypeScript ✅.
+
+**Phasen 4821–4825 — Fahrer-Spät-Abend-Anteil-Ranking:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 4821 | Spät-Abend-Ranking Backend | API | `/api/delivery/admin/fahrer-spaetabend-ranking` | ✅ isSpätAbend=UTCHours>=22; await createClient() |
+| 4822 | Spät-Abend Board | Dispatch | DispatchPhase4822SpaetabendBoard | ✅ Import+Render+Barrel |
+| 4823 | Mein Spät-Abend-Anteil | Fahrer | FahrerPhase4823MeinSpaetabendAnteil | ✅ Import+Render+Barrel+isOnline |
+| 4824 | Storefront | – | übersprungen | ✅ |
+| 4825 | Spät-Abend-Ticker | Kitchen | KitchenPhase4825SpaetabendTicker | ✅ Import+Render+Barrel |
+
+**Phasen 4827–4830 — Smart-Timing V17, Score+Tour V3, Navigator, Statistiken V10:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 4826 | – | – | ÜBERSPRUNGEN (Lücke) | ⚠️ Gap dokumentiert |
+| 4827 | Score + Tour-Visualisierung V3 | Dispatch | DispatchPhase4827ScoreTourVisualisierungV3 | ✅ Import+Render+Barrel |
+| 4828 | Tour-Stopp Navigator | Fahrer | FahrerPhase4828MeinTourStoppNavigator | ✅ Import+Render+Barrel+isOnline |
+| 4829 | Storefront | – | übersprungen | ✅ |
+| 4830 | Smart-Timing Countdown V17 | Kitchen | KitchenPhase4830SmartTimingCountdownV17 | ✅ Import+Render+Barrel |
+| 4730 | Statistiken Dashboard V10 | Lieferdienst | LieferdienstPhase4730StatistikenDashboardV10 | ✅ Import+Render+Barrel |
+
+**Import+Render+Barrel Verifikation:**
+- DispatchPhase4827: Import line 1281 + JSX line 5271 + Barrel line 13954 ✅
+- FahrerPhase4828: Import line 1201 + JSX line 7425 + Barrel line 11832 ✅
+- KitchenPhase4830: Import line 1224 + JSX line 4856 + Barrel line 12523 ✅
+- LieferdienstPhase4730V10: Import line 503 + JSX line 2397 + Barrel line 5042 ✅
+
+**Logik-Check Phase 4827:** Fahrer-Score-Ring 4-stufig (Platin/Gold/Gut/Schwach); aufklappbare Stopp-Timeline 5-stufig (geliefert/aktiv/ausstehend/batch/verspaetet); ETA+km je Stopp; 20-Sek-Polling; Mock-Fallback ✅. **Phase 4828:** WifiOff-Guard; Google Maps Deeplink; Notiz-Badge; 30-Sek-Polling ✅. **Phase 4830:** 6-stufige Ampel (gruen/gelb/orange/rot/kritisch/fertig); 1-Sek-Tick + 15-Sek-Polling; Batch-Gruppe; Komplexität ✅.
+
+**Phasen-Lücke 4826:** Frontend-Agent hat Phase 4826 übersprungen und direkt mit 4827 begonnen. Kein kritischer Fehler — nächste freie Phase ist **4831**.
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. Build exit 0 ✅. System bleibt MARKT-REIF.
+
+**Anweisung für nächste Phasen 4831–4835 — Fahrer-Überstunden-Anteil-Ranking (% Schichten über 10h):**
+1. **Phase 4831 Backend:** GET /api/delivery/admin/fahrer-ueberstunden-ranking — pct(schicht_dauer > 10h) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Anteil; Quartil-Ampel; Alert >30% "Viele Überstunden!"; Mock Julia 45%/Sara 32%/Max 21%/Tim 11%; force-dynamic; await createClient(). Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, ueberstunden_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
+2. **Phase 4832 Dispatch:** `DispatchPhase4832UeberstundenBoard` — red-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >30%; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4833 Fahrer:** `FahrerPhase4833MeineUeberstunden` — red-900; ueberstunden_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥30%/≥15%/<15%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4834 Storefront:** Überspringen.
+5. **Phase 4835 Kitchen:** `KitchenPhase4835UeberstundenTicker` — red-900; Champion #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4831**! NIEMALS 4000–4830 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## CEO Review #696 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4816–4820 verifiziert — STATUS: MARKT-REIF**
