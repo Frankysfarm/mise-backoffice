@@ -5023,3 +5023,5 @@ export { LieferdienstPhase4705StatistikenLiveBoardUltra } from './phase4705-stat
 export { LieferdienstStatistikenLiveCockpitPhase4010 } from './statistiken-live-cockpit-phase4010';
 // Phase 4710 — Statistiken Live Dashboard Ultimate (BarChart2 indigo; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Balken; Alert-Strip rot-KPIs; Stundenverlauf BarChart 2-Modi Bestellungen/Umsatz Jetzt-Stunde lila; Top-3-Fahrer Score+Trinkgeld; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4710StatistikenLiveDashboardUltimate } from './phase4710-statistiken-live-dashboard-ultimate';
+// Phase 4715 — Statistiken Tages-Performance Board (Anomalie-Erkennung; 4-KPI-Grid Umsatz/Touren/Pünktlichkeit/Bewertung+Δ%; Stundenverlauf BarChart mit Spike-Highlight; Pünktlichkeit-Trendlinie; Top-3-Fahrer Ranking; 5-Min-Polling; Mock-Fallback)
+export { LieferdienstPhase4715StatistikenTagesPerformanceBoard } from './phase4715-statistiken-tages-performance-board';

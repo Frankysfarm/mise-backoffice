@@ -4028,3 +4028,5 @@ export { StorefrontPhase1000DynamischeEtaLiveTrackingV2 } from './phase1000-dyna
 export { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-eta-live-v5';
 // Phase 4450 — Dynamische ETA + Live-Tracking Widget (ETA-Ring Min/Max-Korridor; Phasen-Timeline animiert; Fahrer-Nähe-Anzeige; Prep-Fortschrittsbalken; Verzögerungs-Alert; 15-Sek-Polling; Mock-Fallback)
 export { Phase4450DynamischeEtaLiveTracking } from './phase4450-dynamische-eta-live-tracking';
+// Phase 4465 — Dynamische ETA Live Tracking V4 (5-stufige Phasen-Timeline; Echtzeit-Countdown 4xl; Fortschrittsbalken mit Spät-Puls; Fahrer-Card mit Entfernung+ETA-Konfidenz; Wetter-Verzögerungs-Hinweis; 15-Sek-Polling; Mock-Fallback)
+export { Phase4465DynamischeEtaLiveTrackingV4 } from './phase4465-dynamische-eta-live-tracking-v4';

@@ -13831,3 +13831,7 @@ export { DispatchPhase4710TourScoreVisualisierungMaster } from './phase4710-tour
 export { DispatchPhase4713ZufriedenheitsBoard } from './phase4713-zufriedenheits-board';
 // Phase 4718 — Storno-Reaktions-Score Ranking (Moon rose-900; composite; KPI-Grid; Balken; DeltaIcon; Alert <60; 30-Min-Polling)
 export { DispatchPhase4718StornoreaktionsBoard } from './phase4718-stornoreaktions-board';
+// Phase 4718b — Tour-Score Visualisierung Live (Score-Arc 0-100; Fahrer-Ranking mit Delta; Tour-KPI-Grid Lieferzeit/Pünktlichkeit/Touren/Km-Eff; Top-Zone; 30-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4718TourScoreVisualisierungLive } from './phase4718-tour-score-visualisierung-live';
+// Phase 4720 — Score-Anzeige Cockpit (Team-Score Gauge; KPI-Strip Score>80/Zone-Match/Live-Touren; Fahrer-Score-Balken 3-stufig Ampel; Trend-Icon; Tour-Status; Alert <Schwellwert; 30-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4720ScoreAnzeigeCockpit } from './phase4720-score-anzeige-cockpit';

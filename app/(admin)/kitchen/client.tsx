@@ -12401,5 +12401,7 @@ export { KitchenPhase4711ErstkontaktTicker } from './phase4711-erstkontakt-ticke
 export { KitchenPhase4715SmartTimingCountdownFarbkodierungV13 } from './phase4715-smart-timing-countdown-farbkodierung-v13';
 // Phase 4716 — Zufriedenheits-Index-Ticker (Moon indigo-900; Höchste #1 Name+Index; Team-Avg; Alert team<60; 30-Min-Polling)
 export { KitchenPhase4716ZufriedenheitsTicker } from './phase4716-zufriedenheits-ticker';
+// Phase 4720 — Smart-Timing Countdown Farbkodierung V14 (7-stufige Ampel kritisch-dunkel/kritisch/hoch/mittel/niedrig/ok/fertig; Rush-Hour-Forecast; Batch-Gruppen-Erkennung; Score-Header; Fortschrittsbalken je Bestellung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4720SmartTimingCountdownFarbkodierungV14 } from './phase4720-smart-timing-countdown-farbkodierung-v14';
 // Phase 4721 — Storno-Reaktions-Ticker (Moon rose-900; Höchster #1 Name+Score; Team-Avg; Alert <60; 30-Min-Polling)
 export { KitchenPhase4721StornoreaktionsTicker } from './phase4721-stornoreaktions-ticker';

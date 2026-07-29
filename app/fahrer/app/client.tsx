@@ -11707,5 +11707,7 @@ export { FahrerPhase4709MeineErstkontaktQuote } from './phase4709-meine-erstkont
 export { FahrerPhase4710SmartTourNavigationMaster } from './phase4710-smart-tour-navigation-master';
 // Phase 4714 — Mein Zufriedenheits-Index (Moon indigo-900; Index 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Sub-KPIs Bewertung/Pünktlichkeit/Erstkontakt; Coaching 3 Stufen ≥85/≥65/<65; 30-Min-Polling)
 export { FahrerPhase4714MeinZufriedenheitsIndex } from './phase4714-mein-zufriedenheits-index';
+// Phase 4718 — Smart Tour-Stopp Navigation V2 (Navigation amber; Tour-KPI-Strip Restzeit/Effizienz/Stops; 7-stufige Stop-Timeline farbkodiert geliefert/aktiv/ausstehend/fehlgeschlagen; Batch-Badge; Kunden-Notiz-Alert; GPS-Deeplink Navi-Button; Storno-Risiko-Banner; isOnline-Guard; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4718SmartTourStoppNavigationV2 } from './phase4718-smart-tour-stopp-navigation-v2';
 // Phase 4719 — Mein Storno-Reaktions-Score (Moon rose-900; Score 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Sub-KPIs; Coaching 3 Stufen; 30-Min-Polling)
 export { FahrerPhase4719MeinStornoreaktionsScore } from './phase4719-mein-stornoreaktions-score';
