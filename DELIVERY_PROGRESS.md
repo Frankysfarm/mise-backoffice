@@ -34694,13 +34694,37 @@ KRITISCH: Nächste freie Phase ist **4811**! NIEMALS 4000–4810 verwenden. IMME
 - **Belegt:** 4000–4815 (4744, 4749, 4754, 4759, 4764, 4769, 4774, 4779, 4784, 4789, 4794, 4799, 4804, 4809, 4814 übersprungen)
 - **Nächste freie Phase: 4816**
 
-### Nächste Phasen 4816–4820 — Vorschlag: Fahrer-Feiertags-Anteil-Ranking
-1. **Phase 4816 Backend:** GET /api/delivery/admin/fahrer-feiertags-ranking — pct(Schichten an deutschen Feiertagen) je Fahrer letzte 12 Monate; absteigend Rang 1=höchster Feiertags-Anteil; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert >50%; Mock Sara 62%/Tim 45%/Julia 30%/Max 15%; force-dynamic; await createClient(). Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, feiertags_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
-2. **Phase 4817 Dispatch:** `DispatchPhase4817FeiertagsBoard` — rose-900; absteigend Rang 1=höchster Feiertags-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-3. **Phase 4818 Fahrer:** `FahrerPhase4818MeinFeiertagsAnteil` — rose-900; feiertags_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥50%/≥25%/<25%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-4. **Phase 4819 Storefront:** Überspringen.
-5. **Phase 4820 Kitchen:** `KitchenPhase4820FeiertagsTicker` — rose-900; Champion #1 Name+%; Team-Avg; Alert >50%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+## Batch 4816–4820 — Fahrer-Feiertags-Anteil-Ranking (ABGESCHLOSSEN 2026-07-29)
 
-KRITISCH: Nächste freie Phase ist **4816**! NIEMALS 4000–4815 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+### Phase 4816 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-feiertags-ranking/route.ts` (NEU)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, feiertags_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`; isFeiertag() = gesetzliche Feiertage DE (1.1, 1.5, 3.10, 25.12, 26.12); letzte 12 Monate; Quartil-Ampel; alert_hoch wenn pct > 50; Mock Sara 62%/Tim 45%/Julia 30%/Max 15%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4817 — Feiertags-Anteil-Board (Dispatch)
+**Component:** `DispatchPhase4817FeiertagsBoard` — Star rose-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ">X Fahrer mit hohem Feiertags-Anteil (>50%)"; Balken farbkodiert grün/gelb/rot; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4818 — Mein Feiertags-Anteil (Fahrer)
+**Component:** `FahrerPhase4818MeinFeiertagsAnteil` — Star rose-900; feiertags_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen (≥50%/≥25%/<25%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4819 — Storefront
+Übersprungen ✅
+
+### Phase 4820 — Feiertags-Ticker (Kitchen)
+**Component:** `KitchenPhase4820FeiertagsTicker` — Star rose-900; Champion #1 Name+%; Team-Avg; Alert >50%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4820 (4744, 4749, 4754, 4759, 4764, 4769, 4774, 4779, 4784, 4789, 4794, 4799, 4804, 4809, 4814, 4819 übersprungen)
+- **Nächste freie Phase: 4821**
+
+### Nächste Phasen 4821–4825 — Vorschlag: Fahrer-Regenzeit-Anteil-Ranking
+1. **Phase 4821 Backend:** GET /api/delivery/admin/fahrer-regenzeit-ranking — pct(Schichten bei Regen laut Wetterdaten) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Regenzeit-Anteil; Quartil-Ampel; Alert >40%; Mock Max 55%/Tim 42%/Sara 28%/Julia 15%; force-dynamic; await createClient(). Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, regenzeit_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
+2. **Phase 4822 Dispatch:** `DispatchPhase4822RegenzeitBoard` — sky-900; KPI-Grid; Alert >40%; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4823 Fahrer:** `FahrerPhase4823MeinRegenzeitAnteil` — sky-900; regenzeit_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥40%/≥20%/<20%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4824 Storefront:** Überspringen.
+5. **Phase 4825 Kitchen:** `KitchenPhase4825RegenzeitTicker` — sky-900; Champion #1 Name+%; Team-Avg; Alert >40%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4821**! NIEMALS 4000–4820 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF
