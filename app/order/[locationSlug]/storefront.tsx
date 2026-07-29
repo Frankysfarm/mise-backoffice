@@ -4030,3 +4030,5 @@ export { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-e
 export { Phase4450DynamischeEtaLiveTracking } from './phase4450-dynamische-eta-live-tracking';
 // Phase 4465 — Dynamische ETA Live Tracking V4 (5-stufige Phasen-Timeline; Echtzeit-Countdown 4xl; Fortschrittsbalken mit Spät-Puls; Fahrer-Card mit Entfernung+ETA-Konfidenz; Wetter-Verzögerungs-Hinweis; 15-Sek-Polling; Mock-Fallback)
 export { Phase4465DynamischeEtaLiveTrackingV4 } from './phase4465-dynamische-eta-live-tracking-v4';
+// Phase 1000 — Dynamische ETA Live Ultimate (matcha theme; Status-Label+Farbe; ETA-Countdown 1-Sek-Tick Min:Sek; KI-Konfidenz%; Fahrer-Info-Card Name+Distanz; 4-Phasen-Timeline animiert Dots+Verbindungslinien; Geliefert-Celebration; 20-Sek-Polling; Mock-Fallback)
+export { StorefrontPhase1000DynamischeEtaLiveUltimate } from './phase1000-dynamische-eta-live-ultimate';
