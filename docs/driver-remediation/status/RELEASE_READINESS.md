@@ -5,6 +5,9 @@ Decision: **NOT READY FOR PRODUCTION**
 The source and isolated PostgreSQL system is a strong release candidate:
 G0–G4 and G6–G8 are green locally; G5 and G9 remain externally blocked.
 
+The web production build and project-specific native source/config verifier are
+green. Remaining mobile work requires real platform toolchains and devices.
+
 Before release:
 
 - complete signed iOS/Android builds and the physical device matrix;

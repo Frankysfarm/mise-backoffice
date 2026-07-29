@@ -22,8 +22,10 @@ Focused TypeScript compilation exited `0`. The hermetic Next production build
 also exited `0` after build-time Google Font fetches were replaced by the same
 CSS-variable contract backed by native font stacks and the build received an
 explicit 8 GiB heap. It compiled and generated all 446 static pages. Native
-fast/full source verification exited `0` with the explicit limitation that no
-project-specific compiled mobile/device suite exists.
+full verification now invokes a project-specific suite covering the location
+contract, iOS/Android source integration, JSON/plist configuration and Android
+integration-script syntax; it exited `0`. Compiled mobile/device evidence
+remains unavailable.
 
 ## 26-step lifecycle coverage
 

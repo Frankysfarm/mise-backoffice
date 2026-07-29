@@ -78,8 +78,9 @@ deadline and worker health.
 
 `scripts/tests/run-t10-local-release-readiness.sh` passed all eight canonical
 system suites with exit `0`. Focused TypeScript compilation and the hermetic
-Next production build passed; all 446 static pages were generated. Native
-source verification passed with its explicit no-device limitation.
+Next production build passed; all 446 static pages were generated. The
+project-specific native contract/source/config verifier passed with its
+explicit no-compiled-device limitation.
 
 Test-scale performance evidence includes 100 concurrent writer cases, indexed
 due queues, bounded pages/caches/retries and locked workers. It does not claim
