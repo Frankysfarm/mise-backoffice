@@ -13804,3 +13804,5 @@ export { DispatchPhase4680TourScoreLive } from './phase4680-tour-score-live';
 export { DispatchPhase4700TourScoreVisualisierungUltimate } from './phase4700-tour-score-visualisierung-ultimate';
 // Phase 4698 — Trinkgeld/Tour Ranking (Moon emerald-900; absteigend Rang 1=höchstes Trinkgeld; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon; 30-Min-Polling)
 export { DispatchPhase4698TrinkgeldBoard } from './phase4698-trinkgeld-board';
+// Phase 4705 — Tour-Score Tour-Visualisierung Board (Team-Score Header+Delta; Score-Balken je Fahrer 4-stufig farbkodiert; Stopp-Sequenz-Timeline ETA+Status farbkodiert; Alert Fahrer unter Ziel; KPI-Row Pünktlichkeit+Lieferzeit; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4705TourScoreTourVisualisierungBoard } from './phase4705-tour-score-tour-visualisierung-board';

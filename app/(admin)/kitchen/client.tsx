@@ -12364,6 +12364,8 @@ export { KitchenPhase4686LieferzeitTicker } from './phase4686-lieferzeit-ticker'
 export { KitchenPhase4691PuenktlichkeitTicker } from './phase4691-puenktlichkeit-ticker';
 // Phase 4696 — Touren-Ticker (Route cyan-900; Meiste #1 Name+Touren; Team-Avg; 30-Min-Polling)
 export { KitchenPhase4696TourenTicker } from './phase4696-touren-ticker';
+// Phase 4710 — Smart-Timing Countdown Farbkodierung V12 (3-stufig grün/gelb/rot; Sekunden-Countdown je Bestellung; Prioritäts-Sort kritisch zuerst; Score-Badge; Alert-Banner; 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4710SmartTimingCountdownFarbkodierungV12 } from './phase4710-smart-timing-countdown-farbkodierung-v12';
 // Phase 4651 — Smart-Timing Countdown Live v9 (ChefHat indigo; Score-Anzeige; Alert-Banner rot; 4-KPI-Grid grün/gelb/rot; Countdown-Kacheln 4-stufig prioritätssortiert Farbkodierung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4651SmartTimingCountdownLiveV9 } from './phase4651-smart-timing-countdown-live-v9';
 // Phase 4586 — Smart-Timing Master Cockpit (Timer indigo; 4-KPI-Grid Score/On-Time/Prep/Queue+15min; Score-Balken; Countdown-Kacheln 5-stufig prioritätssortiert; Komplexitäts-Indikator; Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)

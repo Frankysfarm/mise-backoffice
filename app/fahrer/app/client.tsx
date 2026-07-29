@@ -11667,6 +11667,8 @@ export { FahrerPhase4689MeinePuenktlichkeit } from './phase4689-meine-puenktlich
 export { FahrerPhase4694MeineTourenAnzahl } from './phase4694-meine-touren-anzahl';
 // Phase 4649 — Smart Tour Navigation Hub (Navigation2 indigo; Aktiver-Stopp-Highlight blau+CTA; Stopp-Timeline Karten status-farbkodiert; ETA+km je Stopp; Score-Anzeige; 15-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4649SmartTourNavigationHub } from './phase4649-smart-tour-navigation-hub';
+// Phase 4705 — Smart Tour-Stopp Navigation Ultimate (Aktiver-Stopp Hero-Karte blau; GPS-Deeplink Waze/Google/Apple; Stopp-Timeline Kacheln status-farbkodiert; Score-Strip; Navi-Modal 3 Apps; 15-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4705SmartTourStoppNavigationUltimate } from './phase4705-smart-tour-stopp-navigation-ultimate';
 // Phase 4584 — Tour-Stopp Navigation Hub (MapPin blue; Tour-Header mit Fortschritts-Balken; Aktiver-Stopp hervorgehoben mit Navigation+Telefon CTAs; Alle-Stopps-Liste expandierbar; Notiz-Anzeige; Native-Maps-Integration iOS/Android; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4584TourStoppNavigationHub } from './phase4584-tour-stopp-navigation-hub';
 // Phase 4613 — Smart Tour-Stopp Navigator (Navigation indigo; Fortschritts-Header mit Score; Farbkodierte Stop-Timeline Karten; Aktiver Stopp blau+hervorgehoben; Aufklapp-Detail mit Notiz/Zahlung/Navigation-CTA; Google-Maps-Integration; 30-Sek-Polling; Mock-Fallback)
