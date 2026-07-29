@@ -33753,3 +33753,42 @@ KRITISCH: Nächste freie Phase ist **4697**! NIEMALS 4000–4696 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+---
+
+## Batch 4697–4701 — Fahrer-Trinkgeld-pro-Tour-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4697 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-trinkgeld-pro-tour-ranking/route.ts`
+**Status:** Bereits vorhanden. Reused. Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_trinkgeld, rank_delta, ampel, alert_niedrig}], team_avg_trinkgeld, beste_name, niedrigste_name, alert_count, gesamt }`; absteigend Rang 1=höchstes Trinkgeld=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_niedrig wenn avg<0.50€; Mock Julia 2.80€/Max 2.10€/Sara 1.50€/Tim 0.40€; force-dynamic ✅; await createClient() ✅
+
+### Phase 4698 — Trinkgeld/Tour Board (Dispatch)
+**Component:** `DispatchPhase4698TrinkgeldBoard` — Moon emerald-900; absteigend Rang 1=höchstes Trinkgeld; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert "X Fahrer mit niedrigem Trinkgeld" wenn alert_count>0; Balken farbkodiert grün/gelb/rot; DeltaIcon TrendingUp/Down/Minus je rank_delta; Bester-Name Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4699 — Mein Trinkgeld/Tour (Fahrer)
+**Component:** `FahrerPhase4699MeinTrinkgeld` — Moon emerald-900; avg_trinkgeld 4xl + Rang 2xl farbkodiert (grün/gelb/rot); isOnline-Guard; WifiOff-Fallback; driverId-Filter; Mini-Bar-Vergleich Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≥4€/≥2.50€/<2.50€); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4700 — Storefront
+Übersprungen ✅
+
+### Phase 4701 — Trinkgeld-Ticker (Kitchen)
+**Component:** `KitchenPhase4701TrinkgeldTicker` — Moon emerald-900; Leader #1 Name+avg_trinkgeld€; Alert "X Fahrer mit niedrigem Trinkgeld" wenn alert_count>0; Team-Avg; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4701 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665, 4670, 4675, 4680, 4685, 4690, 4695, 4700 übersprungen)
+- **Nächste freie Phase: 4702**
+
+### Nächste Phasen 4702–4706 — Vorschlag: Fahrer-Kilometer-pro-Tour-Ranking
+1. **Phase 4702 Backend:** GET /api/delivery/admin/fahrer-km-ranking — avg(distance_km) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste km/Tour=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert <5km "Geringe Reichweite"; Mock Max 18.2km/Julia 15.6km/Sara 11.3km/Tim 6.8km; force-dynamic; await createClient().
+2. **Phase 4703 Dispatch:** `DispatchPhase4703KmBoard` — Moon blue-900; absteigend Rang 1=meiste km; KPI-Grid Meiste/Team-Avg/Wenigste; Alert Geringe Reichweite; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4704 Fahrer:** `FahrerPhase4704MeineKm` — Moon blue-900; avg_km 4xl+Rang 2xl; isOnline-Guard; Balken Ich vs Team-Ø; Coaching 3 Stufen (≥15km/≥10km/<10km); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4705 Storefront:** Überspringen.
+5. **Phase 4706 Kitchen:** `KitchenPhase4706KmTicker` — Moon blue-900; Meiste #1 Name+km; Team-Avg; Alert Geringe Reichweite; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4702**! NIEMALS 4000–4701 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---

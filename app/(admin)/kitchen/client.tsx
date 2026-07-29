@@ -1194,6 +1194,7 @@ import { KitchenPhase4681StornoTicker } from './phase4681-storno-ticker';
 import { KitchenPhase4686LieferzeitTicker } from './phase4686-lieferzeit-ticker';
 import { KitchenPhase4691PuenktlichkeitTicker } from './phase4691-puenktlichkeit-ticker';
 import { KitchenPhase4696TourenTicker } from './phase4696-touren-ticker';
+import { KitchenPhase4701TrinkgeldTicker } from './phase4701-trinkgeld-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4768,6 +4769,8 @@ export function KitchenBoard({
       <KitchenPhase4691PuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4696: Touren-Ticker — Moon cyan-900; Meiste #1 Name+Touren; Team-Avg; 30-Min-Polling */}
       <KitchenPhase4696TourenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4701: Trinkgeld-Ticker — Moon emerald-900; Höchste #1 Name+€; Team-Avg; Alert niedrig; 30-Min-Polling */}
+      <KitchenPhase4701TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}

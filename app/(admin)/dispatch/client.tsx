@@ -1251,6 +1251,7 @@ import { DispatchPhase4678StornoBoard } from './phase4678-storno-board';
 import { DispatchPhase4683LieferzeitBoard } from './phase4683-lieferzeit-board';
 import { DispatchPhase4688PuenktlichkeitBoard } from './phase4688-puenktlichkeit-board';
 import { DispatchPhase4693TourenBoard } from './phase4693-touren-board';
+import { DispatchPhase4698TrinkgeldBoard } from './phase4698-trinkgeld-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5183,6 +5184,8 @@ export function DispatchBoard({
           <DispatchPhase4688PuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4693: Touren-Anzahl Ranking — Moon cyan-900; Rang 1=meiste Touren; KPI-Grid Meiste/Team-Avg/Wenigste; Balken farbkodiert; 30-Min-Polling */}
           <DispatchPhase4693TourenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4698: Trinkgeld/Tour Ranking — Moon emerald-900; absteigend Rang 1=höchstes Trinkgeld; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4698TrinkgeldBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
