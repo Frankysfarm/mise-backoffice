@@ -1265,6 +1265,7 @@ import { DispatchPhase4747LieferzeitZuverlaessigkeitBoard } from './phase4747-li
 import { DispatchPhase4752KmProTourBoard } from './phase4752-km-pro-tour-board';
 import { DispatchPhase4757ReaktionszeitBoard } from './phase4757-reaktionszeit-board';
 import { DispatchPhase4762AbholzeitBoard } from './phase4762-abholzeit-board';
+import { DispatchPhase4767NachtschichtEffizienzBoard } from './phase4767-nachtschicht-effizienz-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5226,6 +5227,8 @@ export function DispatchBoard({
           <DispatchPhase4757ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4762: Abholzeit-Ranking — Moon amber-900; INVERTED Rang 1=kürzeste Abholwartezeit; KPI-Grid Schnellste/Team-Avg/Längste; Alert >10min; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4762AbholzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4767: Nachtschicht-Ranking — Moon violet-900; Rang 1=höchster Nachtanteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >35%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4767NachtschichtEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13879,3 +13882,5 @@ export { DispatchPhase4752KmProTourBoard } from './phase4752-km-pro-tour-board';
 export { DispatchPhase4757ReaktionszeitBoard } from './phase4757-reaktionszeit-board';
 // Phase 4762 — Abholzeit-Ranking Board (Clock amber; INVERTED Rang 1=kürzeste Abholwartezeit; KPI-Grid Schnellste/Team-Avg/Längste; Alert >10min lange Abholwartezeit; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4762AbholzeitBoard } from './phase4762-abholzeit-board';
+// Phase 4767 — Nachtschicht-Ranking Board (Moon violet; Rang 1=höchster Nachtanteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >35% Nachtanteil; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4767NachtschichtEffizienzBoard } from './phase4767-nachtschicht-effizienz-board';

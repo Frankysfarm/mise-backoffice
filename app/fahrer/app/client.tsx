@@ -1185,6 +1185,7 @@ import { FahrerPhase4748MeineLieferzeitZuverlaessigkeit } from './phase4748-mein
 import { FahrerPhase4753MeineKmProTour } from './phase4753-meine-km-pro-tour';
 import { FahrerPhase4758MeineReaktionszeit } from './phase4758-meine-reaktionszeit';
 import { FahrerPhase4763MeineAbholzeit } from './phase4763-meine-abholzeit';
+import { FahrerPhase4768MeineNachtschichtEffizienz } from './phase4768-meine-nachtschicht-effizienz';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7378,6 +7379,8 @@ export function FahrerApp({
           <FahrerPhase4758MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4763: Meine Abholzeit — Moon amber-900; avg_abholzeit_min 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≤3min/≤7min/>7min; 30-Min-Polling */}
           <FahrerPhase4763MeineAbholzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4768: Mein Nachtschicht-Anteil — Moon violet-900; nacht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥35%/≥20%/<20%; 30-Min-Polling */}
+          <FahrerPhase4768MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11755,3 +11758,5 @@ export { FahrerPhase4753MeineKmProTour } from './phase4753-meine-km-pro-tour';
 export { FahrerPhase4758MeineReaktionszeit } from './phase4758-meine-reaktionszeit';
 // Phase 4763 — Meine Abholzeit (Clock amber; avg_abholzeit_min 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≤3min/≤7min/>7min; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase4763MeineAbholzeit } from './phase4763-meine-abholzeit';
+// Phase 4768 — Mein Nachtschicht-Anteil (Moon violet; nacht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥35%/≥20%/<20%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4768MeineNachtschichtEffizienz } from './phase4768-meine-nachtschicht-effizienz';
