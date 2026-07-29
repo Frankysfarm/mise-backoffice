@@ -42,6 +42,12 @@ KRITISCH: Nächste freie Phase ist **4811**! NIEMALS 4000–4810 verwenden. Phas
 
 ---
 
+## Zusatz-Batch 4807b/4808b/4810b — Fahrer-Nachtschicht-Anteil-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+Frontend-Ingenieur-Agent (2026-07-29): Nachtschicht-Ranking als Ergänzung zu den Kurzschicht-Komponenten hinzugefügt (konfliktlösung per Merge: beide Komponenten coexistieren). Backend: `/api/delivery/admin/fahrer-nachtschicht-ranking` (Mock Tim 35%/Max 22%/Sara 10%/Julia 4%; Nacht=22:00–02:00 UTC; Alert >30%; await createClient() + force-dynamic ✅). Dispatch `DispatchPhase4807NachtschichtBoard` slate-900 (Import+Render+Barrel ✅). Fahrer `FahrerPhase4808MeinNachtschichtAnteil` slate-900 nacht_anteil_pct 4xl+Rang 2xl+isOnline-Guard+Coaching ≥30%/≥15%/<15% (Import+Render+Barrel ✅). Kitchen `KitchenPhase4810NachtschichtTicker` slate-900 Champion+Team-Avg+Alert (Import+Render+Barrel ✅). Build exit 0 ✅. Commit `e8310c01`. **Nächste freie Phase: 4811**.
+
+---
+
 Backend-Architekt-Agent (2026-07-29): Phasen 4801–4805 implementiert — Fahrer-Abendschicht-Anteil-Ranking (% Touren 18:00–00:00 UTC je Fahrer letzte 30 Tage). Backend 4801: `/api/delivery/admin/fahrer-abendschicht-ranking` (bereits vorhanden; isAbendschicht = UTCHours 18–23; absteigend Rang 1=höchster Anteil; Quartil-Ampel; Alert >50%; Mock Sara 61%/Tim 47%/Julia 29%/Max 13%; await createClient() + force-dynamic ✅). Dispatch 4802 `DispatchPhase4802AbendschichtBoard` orange-900 KPI-Grid Höchster/Team-Avg/Niedrigster+Balken+DeltaIcon+Alert >50% (Import+Render+Barrel ✅). Fahrer 4803 `FahrerPhase4803MeinAbendschichtAnteil` orange-900 abendschicht_anteil_pct 4xl+Rang 2xl+isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen ≥50%/≥25%/<25% (Import+Render+Barrel ✅). Storefront 4804: übersprungen ✅. Kitchen 4805 `KitchenPhase4805AbendschichtTicker` orange-900 Champion #1+%+Team-Avg+Alert (Import+Render+Barrel ✅). Build exit 0 ✅. Commit `c549dd93`. **Nächste freie Phase: 4806.**
 
 ---
