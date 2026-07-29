@@ -1189,6 +1189,7 @@ import { FahrerPhase4768MeineNachtschichtEffizienz } from './phase4768-meine-nac
 import { FahrerPhase4773MeinWochenende } from './phase4773-mein-wochenende';
 import { FahrerPhase4778MeineSpitzenzeit } from './phase4778-meine-spitzenzeit';
 import { FahrerPhase4783MeineRueckgabeQuote } from './phase4783-meine-rueckgabe-quote';
+import { FahrerPhase4788MeinTrinkgeld } from './phase4788-mein-trinkgeld';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7390,6 +7391,8 @@ export function FahrerApp({
           <FahrerPhase4778MeineSpitzenzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4783: Meine Rückgabe-Quote — Moon amber-900; quote_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≤2%/≤5%/>5%; 30-Min-Polling */}
           <FahrerPhase4783MeineRueckgabeQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4788: Mein Ø-Trinkgeld — indigo-900; avg_trinkgeld_eur 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥3€/≥1,50€/<1,50€; 30-Min-Polling */}
+          <FahrerPhase4788MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11775,3 +11778,5 @@ export { FahrerPhase4773MeinWochenende } from './phase4773-mein-wochenende';
 export { FahrerPhase4778MeineSpitzenzeit } from './phase4778-meine-spitzenzeit';
 // Phase 4783 — Meine Rückgabe-Quote (PackageX amber; quote_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≤2%/≤5%/>5%; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase4783MeineRueckgabeQuote } from './phase4783-meine-rueckgabe-quote';
+// Phase 4788 — Mein Ø-Trinkgeld (Euro indigo; avg_trinkgeld_eur 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥3€/≥1,50€/<1,50€; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4788MeinTrinkgeld } from './phase4788-mein-trinkgeld';
