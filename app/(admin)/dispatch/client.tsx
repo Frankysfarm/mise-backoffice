@@ -1283,6 +1283,7 @@ import { DispatchPhase4837PauseBoard } from './phase4837-pause-board';
 import { DispatchPhase4842WochenendBoard } from './phase4842-wochenend-board';
 import { DispatchPhase4847FruehschichtBoard } from './phase4847-fruehschicht-board';
 import { DispatchPhase4852NachtBoard } from './phase4852-nacht-board';
+import { DispatchPhase4857MittagsschichtBoard } from './phase4857-mittagsschicht-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5285,6 +5286,8 @@ export function DispatchBoard({
           <DispatchPhase4847FruehschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4852: Nacht-Anteil-Ranking — slate-900; Rang 1=höchster nach-22:00-Anteil; KPI-Grid; Alert >40%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4852NachtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4857: Mittagsschicht-Anteil-Ranking — UtensilsCrossed yellow-900; Rang 1=höchster 11:00–14:00-Anteil; KPI-Grid; Alert >45%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4857MittagsschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4852ScoreTourVisualisierungV6 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4847: Tour-Score Live Board V5 — Trophy indigo; Team-Score+Ziel-Balken; Pünktlichkeit+Avg-Zeit; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Aufklappbare Stopp-Timeline; Alert-Strip; 20-Sek-Polling; Mock-Fallback */}
@@ -13984,6 +13987,8 @@ export { DispatchPhase4842WochenendBoard } from './phase4842-wochenend-board';
 export { DispatchPhase4847FruehschichtBoard } from './phase4847-fruehschicht-board';
 // Phase 4852 — Nacht-Anteil-Ranking Board (Moon slate-900; Rang 1=höchster nach-22:00-Anteil; KPI-Grid; Alert >40%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4852NachtBoard } from './phase4852-nacht-board';
+// Phase 4857 — Mittagsschicht-Anteil-Ranking Board (UtensilsCrossed yellow-900; Rang 1=höchster 11:00–14:00-Anteil; KPI-Grid; Alert >45%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4857MittagsschichtBoard } from './phase4857-mittagsschicht-board';
 // Phase 4827 — Score + Tour-Visualisierung V3 (Trophy indigo; Team-Score Arc+Ziel; 4-KPI-Strip; Fahrer-Score-Ring 4-stufig; Stopp-Timeline aufklappbar; ETA+Km; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 export { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
