@@ -14038,3 +14038,6 @@ export { DispatchPhase4847TourScoreLiveBoardV5 } from './phase4847-tour-score-li
 export { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 // Phase 4795 — Tour-Score Live Board V3 (Trophy indigo; Team-Score Arc+Delta+Ziel; Alert unter Ziel; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Score-Balken+Trend; Aufklappbare Stopp-Timeline geliefert/aktiv/ausstehend/verspaetet+ETA+km; KPI-Row Pünktlichkeit+Lieferzeit; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4795TourScoreBoardV3 } from './phase4795-tour-score-board-v3';
+
+// Phase 4897 — Score + Tour-Visualisierung V9 (Trophy indigo; Wellbeing-Score+CO2/kg je Fahrer; ETA-Accuracy KPI; Team-Score-Fortschrittsbalken; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach+Trend; Stopp-Timeline 4-stufig aufklappbar; Dual-Progress-Stopps+km; Leaf CO2-Strip; Verspätungs-Anzeige; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4897ScoreTourVisualisierungV9 } from './phase4897-score-tour-visualisierung-v9';

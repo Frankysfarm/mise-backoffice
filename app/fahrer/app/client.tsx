@@ -11914,3 +11914,6 @@ export { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-sto
 export { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
 // Phase 4848 — Meine Tour-Stopps Live (Navigation2 blue; Fortschrittsbalken Stopps+km; Stopp-Cards geliefert/aktiv/ausstehend/verspaetet; Notiz-Badge gelb; Zahlart-Badge; Anruf-Link; WifiOff-Guard; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4848MeineTourStopsLive } from './phase4848-meine-tour-stops-live';
+
+// Phase 4898 — Smart-Tour-Stopp-Navigator V8 (Navigation2 blue; Tempo-Profil schnell/normal/stau je Stopp; Geschätzte-Ankunft-Zeit; Dual-Fortschrittsbalken Stopps+km; Verdienst+Trinkgeld Strip; Aufklappbare Stopp-Details Zahlart+Anweisungen+Anruf; Routen-Effizienz-%; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4898SmartTourStoppNavV8 } from './phase4898-smart-tour-stopp-nav-v8';

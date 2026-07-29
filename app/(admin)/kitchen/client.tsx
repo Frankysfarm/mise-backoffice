@@ -12613,3 +12613,6 @@ export { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timin
 export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';
 // Phase 4800 — Smart-Timing Countdown Farbkodierung V16 (ChefHat indigo; 6-stufige Ampel; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Pünktl; Alert-Banner; Countdown-Kacheln Fortschrittsbalken+Batch-Gruppe+Komplexität+Fahrer-ETA; Prioritätssortierung kritisch→fertig; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4800SmartTimingCountdownV16 } from './phase4800-smart-timing-countdown-v16';
+
+// Phase 4900 — Smart-Timing Countdown V24 (ChefHat indigo; Station-Auslastung 3-Kacheln Grill/Friture/Kalt Eff%; Kochzeit-Trend TrendingUp/Down je Order; Fahrer-Nahe-Zap; KI-Empfehlung; 4-KPI-Grid; 7-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4900SmartTimingCountdownV24 } from './phase4900-smart-timing-countdown-v24';

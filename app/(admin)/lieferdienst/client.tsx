@@ -5064,3 +5064,6 @@ export { LieferdienstPhase4740StatistikenDashboardV13 } from './phase4740-statis
 export { LieferdienstPhase4870StatistikenDashboardV14 } from './phase4870-statistiken-dashboard-v14';
 // Phase 4879 — Statistiken Dashboard V15 (BarChart2 emerald; Zonen-Profitabilität Umsatz+Marge%-Ampel grün/gelb/rot; CO2-Gesamt-Banner lime; CO2/kg je Fahrer in Top-3; 6-KPI-Grid; Stundenverlauf BarChart; Schichtvergleich; Wochenvergleich LineChart; Zonen-SLA; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4879StatistikenDashboardV15 } from './phase4879-statistiken-dashboard-v15';
+
+// Phase 4885 — Statistiken-Dashboard V16 (BarChart2 indigo; Gesamt-Score+Ziel-Balken; Alert-Strip; 8-KPI-Grid 2-spaltig Status+Δ%+Ziel; Stundenverlauf BarChart 3-Modi Bestellungen/Umsatz/Pünktlichkeit; Schichtvergleich 3-Kacheln Mittag/Nachmittag/Abend Score+Touren+Umsatz; Top-Fahrer Score+Touren+Trinkgeld+Pünktl; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4885StatistikenDashboardV16 } from './phase4885-statistiken-dashboard-v16';
