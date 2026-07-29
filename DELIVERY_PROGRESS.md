@@ -35057,3 +35057,56 @@ KRITISCH: Nächste freie Phase ist **4836**! NIEMALS 4000–4835 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **4856**! NIEMALS 4000–4855 verwenden (4847/4848/4850 DOPPELT BELEGT). IMMER alle 3 Schritte: Import + Render + Barrel — RENDER IST PFLICHT! IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4871–4879 — Regenzeit-Anteil-Ranking + V8/V7/V22/V15/V5 (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4871 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-regenzeit-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, regenzeit_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`; absteigend Rang 1=höchster Anteil; isRegenzeit() = UTCHours 6-10 oder 16-20; Quartil-Ampel; alert_hoch wenn ampel=rot; Mock Tim 58%/Max 45%/Sara 32%/Julia 18%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4872 — Regenzeit-Anteil-Board (Dispatch)
+**Component:** `DispatchPhase4872RegenzeitBoard` — CloudRain sky-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert rot; Balken farbkodiert; DeltaIcon; Regenzeit-Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4873 — Mein Regenzeit-Anteil (Fahrer)
+**Component:** `FahrerPhase4873MeinRegenzeitAnteil` — CloudRain sky-900; regenzeit_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥45%/≥20%/<20%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4874 — Storefront
+Übersprungen ✅
+
+### Phase 4875 — Regenzeit-Ticker (Kitchen)
+**Component:** `KitchenPhase4875RegenzeitTicker` — CloudRain sky-900; Champion #1 Name+%; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4876 — Smart-Timing Countdown V22 (Kitchen)
+**Component:** `KitchenPhase4876SmartTimingCountdownV22` — ChefHat indigo; Station-Wettbewerb Leaderboard (abgeschlossen_heute, gold ring auf Gewinner); Durchsatz-pro-Std KPI; 9-stufige Ampel; KI-Empfehlung; Order-Kacheln; 1-Sek-Tick + 15-Sek-Polling; Import+Render+Barrel ✅
+
+### Phase 4877 — Score + Tour-Visualisierung V8 (Dispatch)
+**Component:** `DispatchPhase4877ScoreTourVisualisierungV8` — Trophy indigo; Wellbeing-Score je Fahrer (0-100 farbkodiert); CO2-Gesamt-Banner; Kundenwertung ⭐ je Stopp; CO2/kg je Fahrer; Eco+Wellbeing Badge (Leaf grün); Aufklappbare Stopp-Timeline; 20-Sek-Polling; Import+Render+Barrel ✅
+
+### Phase 4878 — Smart-Tour-Stopp-Navigator V7 (Fahrer)
+**Component:** `FahrerPhase4878SmartTourStoppNavV7` — Navigation2 blue; Kundenwertung ⭐ je Stopp; Anweisungen je Stopp; Aufklappbare Details (ChevronDown/Up Toggle); Dual-Fortschrittsbalken Stopps+km; Verdienst+Trinkgeld Strip; Traffic-Info; Google+Apple Deeplinks; 20-Sek-Polling; Import+Render+Barrel ✅
+
+### Phase 4879 — Statistiken Dashboard V15 (Lieferdienst)
+**Component:** `LieferdienstPhase4879StatistikenDashboardV15` — Zonen-Profitabilität Umsatz-BarChart+Marge%-Ampel grün≥50%/gelb≥35%/rot<35%; CO2-Gesamt-Banner lime; CO2/kg je Fahrer Leaf-Icon in Top-3; 6-KPI-Grid; Stundenverlauf BarChart; Schichtvergleich; Wochenvergleich LineChart; Zonen-SLA; 60-Sek-Polling; Import+Render+Barrel ✅
+
+### Storefront ETA V5 (Phase 4874/Storefront)
+**Component:** `BestDynamischeEtaV5` — fahrer_speed_kmh Anzeige; navi_live_url Live-Karte-Link; 5-stufiger Stepper (Bestätigt/Zubereitung/Abholung/Unterwegs/Geliefert); Erfolgs-Nachricht 🎉 bei Lieferung; 1-Sek ETA-Countdown; ETA-Confidence Badge; Verzögerungs-Alert; Küchen-Auslastungs-Warnung; 15-Sek-Polling ✅
+
+### Build: TypeScript ✓ Compiled successfully exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4879 (4849, 4854, 4859, 4864, 4869, 4874 Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 4880**
+
+### Nächste Phasen 4880–4885 — Vorschlag: Fahrer-Wetterbewertung-Ranking (% Touren bei schlechtem Wetter)
+1. **Phase 4880 Backend:** GET /api/delivery/admin/fahrer-wetter-ranking — Wetter-Score je Fahrer; Quartil-Ampel; Mock-Daten
+2. **Phase 4881 Dispatch:** `DispatchPhase4881WetterBoard`
+3. **Phase 4882 Fahrer:** `FahrerPhase4882MeinWetterAnteil`
+4. **Phase 4883 Storefront:** Überspringen
+5. **Phase 4884 Kitchen:** `KitchenPhase4884WetterTicker`
+6. **Phase 4885 V-Komponente:** nächste Versionsstufe für beste bestehende Komponente
+
+KRITISCH: Nächste freie Phase ist **4880**! NIEMALS 4000–4879 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF

@@ -1207,6 +1207,8 @@ import { FahrerPhase4858MeinMittagsschichtAnteil } from './phase4858-mein-mittag
 import { FahrerPhase4863MeinAbendschichtAnteil } from './phase4863-mein-abendschicht-anteil';
 import { FahrerPhase4873MeinNachmittagsschichtAnteil } from './phase4873-mein-nachmittagsschicht-anteil';
 import { FahrerPhase4868SmartTourStoppNavV6 } from './phase4868-smart-tour-stopp-nav-v6';
+import { FahrerPhase4873MeinRegenzeitAnteil } from './phase4873-mein-regenzeit-anteil';
+import { FahrerPhase4878SmartTourStoppNavV7 } from './phase4878-smart-tour-stopp-nav-v7';
 import { FahrerPhase4853SmartTourStoppNavV5 } from './phase4853-smart-tour-stopp-nav-v5';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 import { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
@@ -7451,6 +7453,10 @@ export function FahrerApp({
           <FahrerPhase4873MeinNachmittagsschichtAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4868: Smart-Tour-Stopp-Navigator V6 — Navigation2 blue; Geschwindigkeitsanzeige; Route-Effizienz-%; Traffic-Info je Stopp; Google+Apple-Deeplinks; Zahlart-Badge; Notiz-Alert; Aufklappbare Details; 20-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4868SmartTourStoppNavV6 />
+          {/* Phase 4873: Mein Regenzeit-Anteil — CloudRain sky-900; regenzeit_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥45%/≥20%/<20%; 30-Min-Polling */}
+          <FahrerPhase4873MeinRegenzeitAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4878: Smart-Tour-Stopp-Navigator V7 — Navigation2 blue; Kundenwertung je Stopp; Anweisungen; Aufklappbare Stopp-Details; Dual-Fortschrittsbalken Stopps+km; Verdienst+Trinkgeld Strip; Traffic-Info; 20-Sek-Polling; Mock-Fallback */}
+          <FahrerPhase4878SmartTourStoppNavV7 />
           {/* Phase 4853: Smart-Tour-Stopp-Navigator V5 — Navigation2 blue; mobile-first; Hero-Karte Aktiv-Stopp; Google+Apple-Deeplinks; Zahlart-Badge; Notiz-Alert; Aufklappbare Stopp-Details; 20-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4853SmartTourStoppNavV5 />
           {/* Phase 4848: Meine Tour-Stopps Live — Navigation2 blue; Fortschrittsbalken Stopps+km; Stopp-Cards geliefert/aktiv/ausstehend/verspaetet; Notiz-Badge; Zahlart-Badge; Anruf-Link; WifiOff-Guard; 20-Sek-Polling; Mock-Fallback */}
@@ -11882,6 +11888,10 @@ export { FahrerPhase4863MeinAbendschichtAnteil } from './phase4863-mein-abendsch
 export { FahrerPhase4873MeinNachmittagsschichtAnteil } from './phase4873-mein-nachmittagsschicht-anteil';
 // Phase 4868 — Smart-Tour-Stopp-Navigator V6 (Navigation2 blue; GPS-Geschwindigkeit km/h; Route-Effizienz-%; Traffic-Info je Stopp; mobile-first; Google+Apple-Deeplinks; Zahlart-Badge; Notiz-Alert; Aufklappbare Stopp-Details; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4868SmartTourStoppNavV6 } from './phase4868-smart-tour-stopp-nav-v6';
+// Phase 4873 — Mein Regenzeit-Anteil (CloudRain sky-900; regenzeit_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥45%/≥20%/<20%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4873MeinRegenzeitAnteil } from './phase4873-mein-regenzeit-anteil';
+// Phase 4878 — Smart-Tour-Stopp-Navigator V7 (Navigation2 blue; Kundenwertung je Stopp; Anweisungen je Stopp; Aufklappbare Stopp-Details mit ChevronToggle; Dual-Fortschrittsbalken Stopps+km; Verdienst+Trinkgeld Strip; Traffic-Info; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4878SmartTourStoppNavV7 } from './phase4878-smart-tour-stopp-nav-v7';
 // Phase 4853 — Smart-Tour-Stopp-Navigator V5 (Navigation2 blue; mobile-first Hero-Karte Aktiv-Stopp; Google+Apple-Deeplinks; Zahlart-Badge bar/karte/online; Notiz-Alert gelb; Aufklappbare Stopp-Details; Fortschrittsbalken Stopps+km; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4853SmartTourStoppNavV5 } from './phase4853-smart-tour-stopp-nav-v5';
 // Phase 4828 — Mein Tour-Stopp Navigator (Navigation2 blue; 3-KPI-Grid Stopps/ETA/km; Hero Aktiv-Stopp mit Navi-Deeplink+Anruf; Notiz-Badge gelb; Stopp-Sequenz Status-Icons; WifiOff-Guard; 30-Sek-Polling; Mock-Fallback)
