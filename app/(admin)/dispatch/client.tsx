@@ -1261,6 +1261,7 @@ import { DispatchPhase4728AkzeptanzRateBoard } from './phase4728-akzeptanz-rate-
 import { DispatchPhase4733ScoreTourVisualisierungV2 } from './phase4733-score-tour-visualisierung-v2';
 import { DispatchPhase4737WartezeitRestaurantBoard } from './phase4737-wartezeit-restaurant-board';
 import { DispatchPhase4742BestellwertBoard } from './phase4742-bestellwert-board';
+import { DispatchPhase4747LieferzeitZuverlaessigkeitBoard } from './phase4747-lieferzeit-zuverlaessigkeit-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5214,6 +5215,8 @@ export function DispatchBoard({
           <DispatchPhase4737WartezeitRestaurantBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4742: Bestellwert-Ranking — Moon purple-900; Rang 1=höchster Ø-Bestellwert; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert <15€; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4742BestellwertBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4747: Lieferzeit-Zuverlässigkeit-Ranking — Moon cyan-900; Rang 1=höchste Zuverlässigkeit; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <70%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4747LieferzeitZuverlaessigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13859,3 +13862,5 @@ export { DispatchPhase4733ScoreTourVisualisierungV2 } from './phase4733-score-to
 export { DispatchPhase4737WartezeitRestaurantBoard } from './phase4737-wartezeit-restaurant-board';
 // Phase 4742 — Bestellwert Ranking Board (ShoppingCart purple; Rang 1=höchster Ø-Bestellwert; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert <15€; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4742BestellwertBoard } from './phase4742-bestellwert-board';
+// Phase 4747 — Lieferzeit-Zuverlässigkeit Ranking Board (Timer cyan; Rang 1=höchste Zuverlässigkeit; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <70%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4747LieferzeitZuverlaessigkeitBoard } from './phase4747-lieferzeit-zuverlaessigkeit-board';

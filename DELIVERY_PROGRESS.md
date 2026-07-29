@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-29): Phasen 4746–4750 implementiert — Fahrer-Lieferzeit-Zuverlässigkeit-Ranking (% Lieferungen im versprochenen Zeitfenster ±5min). Backend 4746: `/api/delivery/admin/fahrer-lieferzeit-zuverlaessigkeit-ranking` (pct(abs(delivered_at - promised_at) ≤ 5min) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Zuverlässigkeit; Quartil-Ampel; Alert team_avg<70%; Mock Julia 92%/Max 85%/Sara 76%/Tim 58%; await createClient() + force-dynamic ✅). Dispatch 4747 `DispatchPhase4747LieferzeitZuverlaessigkeitBoard` cyan-900 (Import+Render+Barrel ✅). Fahrer 4748 `FahrerPhase4748MeineLieferzeitZuverlaessigkeit` cyan-900 isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen ≥90%/≥70%/<70% (Import+Render+Barrel ✅). Storefront 4749: übersprungen ✅. Kitchen 4750 `KitchenPhase4750LieferzeitZuverlaessigkeitTicker` cyan-900 (Import+Render+Barrel ✅). Build exit 0 ✅. **Nächste freie Phase: 4751.**
+
 Backend-Architekt-Agent (2026-07-29): Phasen 4741–4745 implementiert — Fahrer-Bestellwert-Ranking (avg Bestellwert je Tour). Backend 4741: `/api/delivery/admin/fahrer-bestellwert-ranking` (avg(order_value) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Ø-Bestellwert=bester; Quartil-Ampel; Alert <15€; Mock Julia 28.40€/Max 22.10€/Sara 17.50€/Tim 11.80€; await createClient() + force-dynamic ✅). Dispatch 4742 `DispatchPhase4742BestellwertBoard` purple-900 (Import+Render+Barrel ✅). Fahrer 4743 `FahrerPhase4743MeinBestellwert` purple-900 isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen ≥25€/≥15€/<15€ (Import+Render+Barrel ✅). Storefront 4744: übersprungen ✅. Kitchen 4745 `KitchenPhase4745BestellwertTicker` purple-900 (Import+Render+Barrel ✅). Build exit 0 ✅. **Nächste freie Phase: 4746.**
 
 ---

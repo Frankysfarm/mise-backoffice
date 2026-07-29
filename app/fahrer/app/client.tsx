@@ -1181,6 +1181,7 @@ import { FahrerPhase4729MeineAkzeptanzRate } from './phase4729-meine-akzeptanz-r
 import { FahrerPhase4734SmartTourStoppNavigationV3 } from './phase4734-smart-tour-stopp-navigation-v3';
 import { FahrerPhase4738MeineWartezeitRestaurant } from './phase4738-meine-wartezeit-restaurant';
 import { FahrerPhase4743MeinBestellwert } from './phase4743-mein-bestellwert';
+import { FahrerPhase4748MeineLieferzeitZuverlaessigkeit } from './phase4748-meine-lieferzeit-zuverlaessigkeit';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7366,6 +7367,8 @@ export function FahrerApp({
           <FahrerPhase4738MeineWartezeitRestaurant driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4743: Mein Bestellwert — Moon purple-900; avg_value 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥25€/≥15€/<15€; 30-Min-Polling */}
           <FahrerPhase4743MeinBestellwert driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4748: Meine Lieferzeit-Zuverlässigkeit — Moon cyan-900; pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥90%/≥70%/<70%; 30-Min-Polling */}
+          <FahrerPhase4748MeineLieferzeitZuverlaessigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11735,3 +11738,5 @@ export { FahrerPhase4734SmartTourStoppNavigationV3 } from './phase4734-smart-tou
 export { FahrerPhase4738MeineWartezeitRestaurant } from './phase4738-meine-wartezeit-restaurant';
 // Phase 4743 — Mein Bestellwert (ShoppingCart purple; avg_value 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥25€/≥15€/<15€; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase4743MeinBestellwert } from './phase4743-mein-bestellwert';
+// Phase 4748 — Meine Lieferzeit-Zuverlässigkeit (Timer cyan; pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥90%/≥70%/<70%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4748MeineLieferzeitZuverlaessigkeit } from './phase4748-meine-lieferzeit-zuverlaessigkeit';
