@@ -1200,6 +1200,7 @@ import { FahrerPhase4818MeinFeiertagsAnteil } from './phase4818-mein-feiertags-a
 import { FahrerPhase4823MeinSpaetabendAnteil } from './phase4823-mein-spaetabend-anteil';
 import { FahrerPhase4833MeineUeberstunden } from './phase4833-meine-ueberstunden';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
+import { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
 import { FahrerPhase4798SmartTourStoppNavV4 } from './phase4798-smart-tour-stopp-nav-v4';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
@@ -7426,6 +7427,8 @@ export function FahrerApp({
           <FahrerPhase4833MeineUeberstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4828: Mein Tour-Stopp Navigator — Navigation2 blue; Tour-Übersicht 3-KPI-Grid; Aktiv-Stopp Hero-Karte mit Navi-Deeplink+Anruf; Notiz-Badge; Vollständige Stopp-Sequenz mit Status-Icons; WifiOff-Guard; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4828MeinTourStoppNavigator driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4829: Tour-Stopp Smart-Navigator V2 — Fortschrittsbalken; Verdienst-Strip; Trinkgeld-Vorschlag; Navi-Deeplink+Anruf; WifiOff-Guard; 30-Sek-Polling; Mock-Fallback */}
+          <FahrerPhase4829TourStoppSmartNavigatorV2 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11835,3 +11838,4 @@ export { FahrerPhase4823MeinSpaetabendAnteil } from './phase4823-mein-spaetabend
 export { FahrerPhase4833MeineUeberstunden } from './phase4833-meine-ueberstunden';
 // Phase 4828 — Mein Tour-Stopp Navigator (Navigation2 blue; 3-KPI-Grid Stopps/ETA/km; Hero Aktiv-Stopp mit Navi-Deeplink+Anruf; Notiz-Badge gelb; Stopp-Sequenz Status-Icons; WifiOff-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
+export { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';

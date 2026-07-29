@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { LiveDriverKarte } from '../live-driver-karte';
 import { LiveFahrerAnnaeherung } from '../live-fahrer-annaeherung';
 import { Phase4460DynamischeEtaLivePanel } from '../phase4460-dynamische-eta-live-panel';
+import { Phase1000DynamischeEtaLiveTrackingPro } from '../phase1000-dynamische-eta-live-tracking-pro';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 
@@ -402,6 +403,12 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
           etaEarliest={order.eta_earliest}
           etaLatest={order.eta_latest}
           createdAt={order.created_at}
+        />
+        {/* Phase 1000: Dynamische ETA + Live-Tracking Pro — 4-Schritt-Progress; Fahrer-Proximity; ETA-Countdown 1-Sek-Tick; Matcha-Design */}
+        <Phase1000DynamischeEtaLiveTrackingPro
+          orderId={order.id}
+          initialStatus={order.status as 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'cancelled'}
+          driverName={order.driver_name}
         />
 
         {/* Order summary */}
