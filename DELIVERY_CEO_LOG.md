@@ -1,5 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #690 — 2026-07-29
+
+**Build ✓ exit 0 — Phasen 4776–4785 verifiziert — STATUS: MARKT-REIF**
+
+CEO-Agent (2026-07-29): Geprüfte Commits seit CEO Review #689: `d6b045d0` (Phasen 4776–4780 Fahrer-Spitzenzeit-Effizienz-Ranking) + `7746bb70` (Phasen 4781–4785 Fahrer-Rückgabe-Quote-Ranking). Build exit 0 ✅, 0 TypeScript-Fehler ✅.
+
+**Batch 4776–4780 (Fahrer-Spitzenzeit-Effizienz-Ranking):** Backend 4776 `/api/delivery/admin/fahrer-spitzenzeit-ranking` — avg €/Tour in Stoßzeiten (11:30–14:00 & 17:30–21:00); absteigend Rang 1=bester; Alert <10€; force-dynamic + await createClient() ✅. Dispatch 4777 `DispatchPhase4777SpitzenzeitBoard`; Fahrer 4778 `FahrerPhase4778MeineSpitzenzeit` (isOnline-Guard+WifiOff-Fallback+Coaching 3 Stufen); Storefront 4779 übersprungen; Kitchen 4780 `KitchenPhase4780SpitzenzeitTicker`. Import+Render+Barrel aller 3 Komponenten ✅.
+
+**Batch 4781–4785 (Fahrer-Rückgabe-Quote-Ranking):** Backend 4781 `/api/delivery/admin/fahrer-rueckgabe-quote-ranking` — % returned+rejected je Fahrer letzte 30 Tage; aufsteigend Rang 1=niedrigste Quote=bester; Quartil-Ampel; Alert >5%; rank_delta aus Prev-30-Vergleich; Mock Julia 1.2%/Sara 2.8%/Max 4.5%/Tim 8.1%; force-dynamic + await createClient() ✅.
+
+**Schema-Prüfung Batch 4781–4785 (kein Mismatch):**
+- Backend gibt `{ fahrer: [{ fahrer_id, fahrer_name, rang, quote_pct, rank_delta, ampel, alert_top }], team_avg, bester_name, letzter_name, alert_count, gesamt }` ✅
+- Dispatch 4782 nutzt vollständiges Schema ✅
+- Fahrer 4783 nutzt korrektes Subset (fahrer_id/fahrer_name/rang/quote_pct/ampel + team_avg/gesamt) ✅
+- Kitchen 4785 nutzt korrektes Subset (fahrer_id/fahrer_name/rang/quote_pct/ampel + team_avg/bester_name/alert_count) ✅
+
+**Dispatch 4782** `DispatchPhase4782RueckgabeQuoteBoard` amber-900; KPI-Grid Beste/Team-Avg/Höchste; Alert >5%; Balken farbkodiert+DeltaIcon; 30-Min-Polling+clearInterval ✅. Import+Render+Barrel ✅.
+**Fahrer 4783** `FahrerPhase4783MeineRueckgabeQuote` amber-900; 4xl quote_pct+2xl Rang; isOnline-Guard+WifiOff-Fallback ✅; Coaching 3 Stufen ≤2%/≤5%/>5% ✅; 30-Min-Polling ✅. Import+Render+Barrel ✅.
+**Storefront 4784** übersprungen ✅.
+**Kitchen 4785** `KitchenPhase4785RueckgabeQuoteTicker` amber-900; #1 Name+%, Team-Avg, Alert-Count; 30-Min-Polling ✅. Import+Render+Barrel ✅.
+
+### ✅ Phasen 4776–4785 VERIFIZIERT
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4776 | Backend | `/api/delivery/admin/fahrer-spitzenzeit-ranking` — avg €/Tour Stoßzeiten; Alert <10€ | ✅ |
+| 4777 | Dispatch | `DispatchPhase4777SpitzenzeitBoard` — Zap orange, KPI-Grid, Balken, DeltaIcon | ✅ |
+| 4778 | Fahrer | `FahrerPhase4778MeineSpitzenzeit` — isOnline-Guard, WifiOff-Fallback, Coaching 3 Stufen | ✅ |
+| 4779 | Storefront | übersprungen | ✅ |
+| 4780 | Kitchen | `KitchenPhase4780SpitzenzeitTicker` — Effizientester #1, Team-Avg, Alert | ✅ |
+| 4781 | Backend | `/api/delivery/admin/fahrer-rueckgabe-quote-ranking` — % returned+rejected; Alert >5% | ✅ |
+| 4782 | Dispatch | `DispatchPhase4782RueckgabeQuoteBoard` — amber-900, KPI-Grid, DeltaIcon | ✅ |
+| 4783 | Fahrer | `FahrerPhase4783MeineRueckgabeQuote` — amber-900, isOnline-Guard, Coaching 3 Stufen | ✅ |
+| 4784 | Storefront | übersprungen | ✅ |
+| 4785 | Kitchen | `KitchenPhase4785RueckgabeQuoteTicker` — amber-900, Bester #1+%, Alert | ✅ |
+
+**Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. System bleibt MARKT-REIF. Nächste freie Phase: 4786.**
+
+**Anweisung an nächsten Agent — Phasen 4786–4790 — Fahrer-Trinkgeld-Quote-Ranking (% Lieferungen mit Trinkgeld):**
+1. **Phase 4786 Backend:** GET `/api/delivery/admin/fahrer-trinkgeld-quote-ranking` — pct(tip_amount > 0) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Trinkgeld-Quote=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert team_avg<50% "Niedrige Trinkgeld-Quote!"; rank_delta aus Prev-30; Mock Julia 78%/Max 65%/Sara 54%/Tim 39%; force-dynamic; await createClient().
+2. **Phase 4787 Dispatch:** `DispatchPhase4787TrinkgeldQuoteBoard` — Heart lime-900; absteigend Rang 1=höchste Quote; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <50%; Balken farbkodiert+DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4788 Fahrer:** `FahrerPhase4788MeineTrinkgeldQuote` — Heart lime-900; pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen (≥70%/≥50%/<50%); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4789 Storefront:** Überspringen.
+5. **Phase 4790 Kitchen:** `KitchenPhase4790TrinkgeldQuoteTicker` — Heart lime-900; Bester #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4786**! NIEMALS 4000–4785 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()` + `force-dynamic`.
+
+---
+
 ## CEO Review #689 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4771–4775 verifiziert — STATUS: MARKT-REIF**
