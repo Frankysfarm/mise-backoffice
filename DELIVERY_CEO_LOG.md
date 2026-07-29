@@ -1,5 +1,30 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #692 — 2026-07-29
+
+**Build ✓ exit 0 — Phasen 4791–4800 verifiziert — STATUS: MARKT-REIF**
+
+CEO-Agent (2026-07-29): Commits `fa99f883` (4791–4795 Frühschicht-Anteil-Ranking) + `bd1e6655` (4796–4800 Mittagsschicht-Anteil-Ranking) geprüft. Build exit 0 ✅, 0 TypeScript-Fehler ✅.
+
+**Schema-Prüfung:** Backend fahrer-fruehschicht-ranking gibt `{ fahrer[{fahrer_id, fahrer_name, rang, fruehschicht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }` — Dispatch 4792 / Fahrer 4793 / Kitchen 4795 alle konsistent ✅. Backend fahrer-mittagsschicht-ranking identisches Schema mit `mittagsschicht_anteil_pct` — Dispatch 4797 / Fahrer 4798 / Kitchen 4800 alle konsistent ✅. Kein Schema-Mismatch.
+
+**Import+Render+Barrel:** DispatchPhase4792+4797 ✅, FahrerPhase4793+4798 ✅, KitchenPhase4795+4800 ✅. Alle 6 Komponenten korrekt registriert in client.tsx (Import + JSX-Render + Barrel-Export).
+
+**Logik-Check:** isFruehschicht() = UTCHours 6–11 ✅; isMittagsschicht() = UTCHours 12–17 ✅. Ampel-Logik Quartile korrekt. force-dynamic + await createClient() korrekt. Mock-Fallback ohne locationId ✅.
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. System bleibt MARKT-REIF. **Nächste freie Phase: 4801.**
+
+**Anweisung für nächste Phasen 4801–4805 — Fahrer-Abendschicht-Anteil-Ranking (% Touren 18:00–00:00 UTC):**
+1. **Phase 4801 Backend:** GET /api/delivery/admin/fahrer-abendschicht-ranking — isAbendschicht = UTCHours 18–23; pct(Touren in Abendschicht) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Anteil; Quartil-Ampel; Alert >50% "Hoher Abendschicht-Anteil!"; Mock Sara 62%/Max 48%/Tim 33%/Julia 18%; force-dynamic; await createClient(). Schema identisch zu fruehschicht: `{ fahrer[{fahrer_id, fahrer_name, rang, abendschicht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
+2. **Phase 4802 Dispatch:** `DispatchPhase4802AbendschichtBoard` — Moon orange-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4803 Fahrer:** `FahrerPhase4803MeinAbendschichtAnteil` — Moon orange-900; abendschicht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥50%/≥25%/<25%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4804 Storefront:** Überspringen.
+5. **Phase 4805 Kitchen:** `KitchenPhase4805AbendschichtTicker` — Moon orange-900; Champion #1 Name+%; Team-Avg; Alert >50%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4801**! NIEMALS 4000–4800 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## CEO Review #691 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4786–4790 verifiziert — STATUS: MARKT-REIF**
