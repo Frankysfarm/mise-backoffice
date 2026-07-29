@@ -1292,6 +1292,7 @@ import { DispatchPhase4877ScoreTourVisualisierungV8 } from './phase4877-score-to
 import { DispatchPhase4881WetterBoard } from './phase4881-wetter-board';
 import { DispatchPhase4887FruehprodBoard } from './phase4887-fruehprod-board';
 import { DispatchPhase4892MittagsprodBoard } from './phase4892-mittagsprod-board';
+import { DispatchPhase4897ScoreTourVisualisierungV9 } from './phase4897-score-tour-visualisierung-v9';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5312,6 +5313,8 @@ export function DispatchBoard({
           <DispatchPhase4887FruehprodBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4892: Mittagsschicht-Produktivität-Ranking — Sun lime-900; KPI-Grid; Alert >3,0 T/h; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4892MittagsprodBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4897: Score + Tour-Visualisierung V9 — Trophy indigo; Wellbeing-Score+CO2/kg je Fahrer; ETA-Accuracy KPI; Team-Score-Fortschrittsbalken; Fahrer-Score-Ring 4-stufig; Stopp-Timeline 4-stufig; Dual-Progress; Leaf CO2-Strip; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4897ScoreTourVisualisierungV9 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4852ScoreTourVisualisierungV6 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4847: Tour-Score Live Board V5 — Trophy indigo; Team-Score+Ziel-Balken; Pünktlichkeit+Avg-Zeit; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Aufklappbare Stopp-Timeline; Alert-Strip; 20-Sek-Polling; Mock-Fallback */}

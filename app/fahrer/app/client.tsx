@@ -1213,6 +1213,7 @@ import { FahrerPhase4882MeinWetterAnteil } from './phase4882-mein-wetter-anteil'
 import { FahrerPhase4888MeineFruehprod } from './phase4888-meine-fruehprod';
 import { FahrerPhase4893MeineMittagsprod } from './phase4893-meine-mittagsprod';
 import { FahrerPhase4853SmartTourStoppNavV5 } from './phase4853-smart-tour-stopp-nav-v5';
+import { FahrerPhase4898SmartTourStoppNavV8 } from './phase4898-smart-tour-stopp-nav-v8';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 import { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
 import { FahrerPhase4848MeineTourStopsLive } from './phase4848-meine-tour-stops-live';
@@ -7464,6 +7465,8 @@ export function FahrerApp({
           <FahrerPhase4888MeineFruehprod driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4893: Meine Mittagsschicht-Produktivität — Sun lime-900; touren_pro_std 4xl+Rang 2xl; isOnline-Guard; Coaching ≥3,0/≥1,5/<1,5; 30-Min-Polling */}
           <FahrerPhase4893MeineMittagsprod driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4898: Smart-Tour-Stopp-Navigator V8 — Navigation2 blue; Tempo-Profil schnell/normal/stau; Geschätzte-Ankunft-Zeit; Dual-Fortschrittsbalken; Verdienst+Trinkgeld Strip; Routen-Effizienz-%; 20-Sek-Polling; Mock-Fallback */}
+          <FahrerPhase4898SmartTourStoppNavV8 />
           {/* Phase 4878: Smart-Tour-Stopp-Navigator V7 — Navigation2 blue; Kundenwertung je Stopp; Anweisungen; Aufklappbare Stopp-Details; Dual-Fortschrittsbalken Stopps+km; Verdienst+Trinkgeld Strip; Traffic-Info; 20-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4878SmartTourStoppNavV7 />
           {/* Phase 4853: Smart-Tour-Stopp-Navigator V5 — Navigation2 blue; mobile-first; Hero-Karte Aktiv-Stopp; Google+Apple-Deeplinks; Zahlart-Badge; Notiz-Alert; Aufklappbare Stopp-Details; 20-Sek-Polling; Mock-Fallback */}

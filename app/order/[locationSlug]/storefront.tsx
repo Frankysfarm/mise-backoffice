@@ -482,6 +482,7 @@ import { StorefrontPhase1015LiveTrackingStatusPro } from './phase1015-live-track
 import { StorefrontPhase1020DynamischeEtaLiveV3 } from './phase1020-dynamische-eta-live-v3';
 import { StorefrontPhase1025DynamischeEtaLiveV4 } from './phase1025-dynamische-eta-live-v4';
 import { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-eta-live-v5';
+import { Phase4475DynamischeEtaLiveTrackingV6 } from './phase4475-dynamische-eta-live-tracking-v6';
 
 type Props = {
   location: Location;
@@ -2136,6 +2137,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           {/* Phase 2711: Dynamische ETA Live Ultimate Pro — Hero-Countdown 1-Sek-Tick; Konfidenz-Balken; 5-Phasen-Timeline Orange+Dots; Fahrer-Profil+Bewertung+Distanz; Delay-Alert; Geliefert-State; 15-Sek-Polling; Mock-Fallback */}
           <div className="mt-2">
             <StorefrontPhase2711DynamischeEtaLiveUltimatePro orderId={activeOrderId ?? null} locationSlug={location?.id} />
+          </div>
+          {/* Phase 4475: Dynamische ETA Live-Tracking V6 — Countdown 4xl; 5-stufige Phasen-Timeline; Fahrer-Proximity-Pulsbalken; Verzögerungs-Alert; Bewertungs-Sterne nach Zustellung; 15-Sek-Polling; Mock-Fallback */}
+          <div className="mt-2">
+            <Phase4475DynamischeEtaLiveTrackingV6 orderId={activeOrderId ?? ''} locationSlug={location?.id} />
           </div>
           {/* Phase 1000: Dynamische ETA Live-Tracking Master — Phasen-Timeline + Fahrer-Position + ETA-Countdown; 30-Sek-Polling */}
           <div className="mt-2">

@@ -506,6 +506,7 @@ import { LieferdienstPhase4735StatistikenDashboardV12 } from './phase4735-statis
 import { LieferdienstPhase4740StatistikenDashboardV13 } from './phase4740-statistiken-dashboard-v13';
 import { LieferdienstPhase4870StatistikenDashboardV14 } from './phase4870-statistiken-dashboard-v14';
 import { LieferdienstPhase4879StatistikenDashboardV15 } from './phase4879-statistiken-dashboard-v15';
+import { LieferdienstPhase4885StatistikenDashboardV16 } from './phase4885-statistiken-dashboard-v16';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2410,6 +2411,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4870StatistikenDashboardV14 locationId={locationId ?? null} />
                 {/* Phase 4879: Statistiken Dashboard V15 — Zonen-Profitabilität Umsatz+Marge% Ampel; CO2-Gesamt-Banner lime; CO2/kg je Fahrer in Top-3; 6-KPI-Grid; Stundenverlauf BarChart; Wochenvergleich LineChart; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase4879StatistikenDashboardV15 locationId={locationId ?? null} />
+                {/* Phase 4885: Statistiken Dashboard V16 — 8-KPI-Grid mit Δ%+Ziel; Stundenverlauf BarChart 3-Modi; Schichtvergleich Mittag/Nachmittag/Abend; Top-Fahrer Score+Touren+Trinkgeld+Pünktl; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4885StatistikenDashboardV16 locationId={locationId ?? null} />
               </>
             </div>
           )}
