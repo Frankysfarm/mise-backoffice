@@ -1206,6 +1206,7 @@ import { KitchenPhase4395SmartTimingCountdownV5 } from './phase4395-smart-timing
 import { KitchenPhase4410SmartTimingCountdownV6 } from './phase4410-smart-timing-countdown-v6';
 import { KitchenPhase4500SmartTimingV8FarbkodierungCountdown } from './phase4500-smart-timing-v8-farbkodierung-countdown';
 import { KitchenPhase1000SmartTimingDashboard } from './phase1000-smart-timing-dashboard';
+import { KitchenPhase4715SmartTimingCountdownFarbkodierungV13 } from './phase4715-smart-timing-countdown-farbkodierung-v13';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -4789,6 +4790,8 @@ export function KitchenBoard({
       <KitchenPhase4500SmartTimingV8FarbkodierungCountdown locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 1000: Smart-Timing-Dashboard — Unified Countdown+Farbkodierung+Schicht-Score; sekunden-genau; rot<5Min, amber<15Min, grün≥15Min */}
       <KitchenPhase1000SmartTimingDashboard orders={filtered as any} />
+      {/* Phase 4715: Smart-Timing Countdown Farbkodierung V13 — 6-stufige Ampel; Echtzeit-Countdown je Bestellung; Prioritätssortierung kritisch zuerst; Score-Header; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
+      <KitchenPhase4715SmartTimingCountdownFarbkodierungV13 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
     </div>
   );
 }
@@ -12388,3 +12391,5 @@ export { KitchenPhase4701TrinkgeldTicker } from './phase4701-trinkgeld-ticker';
 export { KitchenPhase4706KmEffizienzTicker } from './phase4706-km-effizienz-ticker';
 // Phase 4711 — Erstkontakt-Ticker (Moon blue-900; Höchste #1 Name+%; Team-Avg; Alert niedrige Quote; 30-Min-Polling)
 export { KitchenPhase4711ErstkontaktTicker } from './phase4711-erstkontakt-ticker';
+// Phase 4715 — Smart-Timing Countdown Farbkodierung V13 (6-stufige Ampel kritisch/hoch/mittel/niedrig/ok/fertig; Echtzeit-Countdown je Bestellung; Fahrer-wartet-Zap; Score-Header; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4715SmartTimingCountdownFarbkodierungV13 } from './phase4715-smart-timing-countdown-farbkodierung-v13';

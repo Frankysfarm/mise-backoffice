@@ -497,6 +497,7 @@ import { LieferdienstPhase4395StatistikDashboardV5 } from './phase4395-statistik
 import { LieferdienstPhase4410StatistikDashboardV6 } from './phase4410-statistiken-dashboard-v6';
 import { LieferdienstPhase4615StatistikenLiveDashboard } from './phase4615-statistiken-live-dashboard';
 import { LieferdienstPhase1000StatistikenGesamtHub } from './phase1000-statistiken-gesamt-hub';
+import { LieferdienstPhase4710StatistikenLiveDashboardUltimate } from './phase4710-statistiken-live-dashboard-ultimate';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2383,6 +2384,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4615StatistikenLiveDashboard locationId={locationId ?? null} />
                 {/* Phase 1000: Statistiken-Gesamt-Hub — Tages-KPIs Umsatz/Bestellungen/Fahrer/Lieferzeit; Pünktlichkeit+Storno+Gewinn; Umsatz-Ziel-Progress; Top-3-Fahrer; 30-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase1000StatistikenGesamtHub locationId={locationId ?? null} />
+                {/* Phase 4710: Statistiken Live Dashboard Ultimate — 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Balken; Alert-Strip rot; Stundenverlauf BarChart 2-Modi; Top-3-Fahrer Score+Trinkgeld; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4710StatistikenLiveDashboardUltimate locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -5018,3 +5021,5 @@ export { LieferdienstPhase4680ShiftKpiDashboard } from './phase4680-shift-kpi-da
 export { LieferdienstPhase4705StatistikenLiveBoardUltra } from './phase4705-statistiken-live-board-ultra';
 // Phase 4010 — Statistiken Live Cockpit Pro (BarChart3 emerald; Umsatz-Fortschrittsbalken; Tab-Nav KPIs/Fahrer/Zonen; 6-KPI-Grid Ampel grün/gelb je Ziel; Stundenverlauf-BarChart; Top-Fahrer-Ranking; Zonen-Ertrag-Balken; 30-Sek-Polling; Mock-Fallback)
 export { LieferdienstStatistikenLiveCockpitPhase4010 } from './statistiken-live-cockpit-phase4010';
+// Phase 4710 — Statistiken Live Dashboard Ultimate (BarChart2 indigo; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Balken; Alert-Strip rot-KPIs; Stundenverlauf BarChart 2-Modi Bestellungen/Umsatz Jetzt-Stunde lila; Top-3-Fahrer Score+Trinkgeld; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4710StatistikenLiveDashboardUltimate } from './phase4710-statistiken-live-dashboard-ultimate';

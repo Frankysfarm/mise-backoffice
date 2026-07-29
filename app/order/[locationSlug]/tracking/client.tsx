@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { LiveDriverKarte } from '../live-driver-karte';
 import { LiveFahrerAnnaeherung } from '../live-fahrer-annaeherung';
+import { Phase4460DynamischeEtaLivePanel } from '../phase4460-dynamische-eta-live-panel';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 
@@ -394,6 +395,14 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
             )}
           </div>
         )}
+
+        {/* Phase 4460: Dynamische ETA Live Panel — Status-Phasen-Anzeige; Live-Pulse-Dot; Echtzeit-Countdown ≤15 Min; Fortschrittsbalken farbkodiert; Spät-Warnung amber-Puls; Props-getrieben aus Eltern-State */}
+        <Phase4460DynamischeEtaLivePanel
+          status={order.status}
+          etaEarliest={order.eta_earliest}
+          etaLatest={order.eta_latest}
+          createdAt={order.created_at}
+        />
 
         {/* Order summary */}
         <div className="bg-white rounded-2xl border border-matcha-100 p-4 shadow-sm">

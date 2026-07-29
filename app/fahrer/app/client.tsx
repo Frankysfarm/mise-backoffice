@@ -1179,6 +1179,7 @@ import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-n
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
 import { FahrerPhase4395TourStoppNavigatorV4 } from './phase4395-tour-stopp-navigator-v4';
 import { FahrerPhase4410TourStoppNavigatorV5 } from './phase4410-tour-stopp-navigator-v5';
+import { FahrerPhase4710SmartTourNavigationMaster } from './phase4710-smart-tour-navigation-master';
 
 type Driver = {
   id: string;
@@ -8244,6 +8245,13 @@ export function FahrerApp({
         </div>
       )}
 
+      {/* Phase 4710: Smart Tour Navigation Master — Aktiver-Stopp Hero blau; GPS-Deeplinks Waze/Google/Apple; Stopp-Timeline farbkodiert; Score-Strip; Navi-Modal 3 Apps; 15-Sek-Polling; Mock-Fallback */}
+      {activeBatch && activeBatch.status === 'unterwegs' && (
+        <div className="px-4 pb-4">
+          <FahrerPhase4710SmartTourNavigationMaster driverId={driver.id} locationId={driver.location_id ?? null} />
+        </div>
+      )}
+
       {/* Schicht-Abschluss Modal */}
       {showShiftEnd && shiftSnapshot && (
         <SchichtAbschlussModal
@@ -11689,3 +11697,5 @@ export { FahrerPhase4699MeinTrinkgeld } from './phase4699-mein-trinkgeld';
 export { FahrerPhase4704MeineKmEffizienz } from './phase4704-meine-km-effizienz';
 // Phase 4709 — Meine Erstkontakt-Quote (Moon blue-900; pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥80%/≥60%/<60%; 30-Min-Polling)
 export { FahrerPhase4709MeineErstkontaktQuote } from './phase4709-meine-erstkontakt-quote';
+// Phase 4710 — Smart Tour Navigation Master (Navigation2 blue; Aktiver-Stopp Hero blau+GPS-Deeplink; Stopp-Timeline farbkodiert done/active/pending/late; Score-Strip; Navi-Modal Waze/Google/Apple; 15-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4710SmartTourNavigationMaster } from './phase4710-smart-tour-navigation-master';

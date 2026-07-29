@@ -1260,6 +1260,7 @@ import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-sco
 import { DispatchPhase4410TourScoreVisualisierungV6 } from './phase4410-tour-score-visualisierung-v6';
 import { DispatchPhase4500FahrerScoreTourVisualisierungV8 } from './phase4500-fahrer-score-tour-visualisierung-v8';
 import { DispatchPhase1000TourScoreLiveBoard } from './phase1000-tour-score-live-board';
+import { DispatchPhase4710TourScoreVisualisierungMaster } from './phase4710-tour-score-visualisierung-master';
 
 type Driver = {
   employee_id: string;
@@ -5208,6 +5209,8 @@ export function DispatchBoard({
           <DispatchPhase1000TourScoreLiveBoard batches={batches as any} drivers={drivers as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4201: Zonen-Kapazität Live-Grid — Auslastungs-Balken 3-stufig; KPI-Grid Fahrer/Touren/Auslastung; Alert-Zähler; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4201ZonenKapazitaetsLiveGrid locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4710: Tour-Score Visualisierung Master — Team-Score Header+Delta; Score-Ring je Fahrer 4-stufig; Stopp-Sequenz-Timeline farbkodiert; Alert unter Ziel; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4710TourScoreVisualisierungMaster locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -13816,3 +13819,5 @@ export { DispatchPhase4705TourScoreTourVisualisierungBoard } from './phase4705-t
 export { DispatchPhase4703KmEffizienzBoard } from './phase4703-km-effizienz-board';
 // Phase 4708 — Erstkontakt-Quote Ranking (Moon blue-900; absteigend Rang 1=höchste Quote; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon; Alert <50%; 30-Min-Polling)
 export { DispatchPhase4708ErstkontaktBoard } from './phase4708-erstkontakt-board';
+// Phase 4710 — Tour-Score Visualisierung Master (Team-Score Header+Delta; Score-Ring je Fahrer 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline farbkodiert done/active/late/pending; ETA je Stopp; Alert unter Ziel-Score; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4710TourScoreVisualisierungMaster } from './phase4710-tour-score-visualisierung-master';
