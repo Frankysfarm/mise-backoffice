@@ -13,6 +13,6 @@ Updated: 2026-07-29
 | G6 deterministic dispatch | GREEN | Default-off shadow/active contract and canonical writer races |
 | G7 routing/batching/hold | GREEN | Atomic append race, Frank integration, shadow snapshot, hold watchdog and replay |
 | G8 operations/security | GREEN | Durable override CAS, authz/RLS, alerts, retention and monitor integration |
-| G9 complete E2E/release | BLOCKED_EXTERNAL | Full local aggregate green; hosted services, networked build and hardware absent |
+| G9 complete E2E/release | BLOCKED_EXTERNAL | Full local aggregate and web build green; hosted services and hardware absent |
 
 No blocked external gate has been promoted from source/unit evidence.

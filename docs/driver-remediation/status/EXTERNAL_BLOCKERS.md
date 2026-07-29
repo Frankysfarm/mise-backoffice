@@ -19,13 +19,6 @@ Updated: 2026-07-29
 - Real Realtime loss/reconnect, provider push receipt and hosted RLS behavior
   cannot be inferred from local substitutes.
 
-## Networked web build
-
-The Next production build attempted to fetch Google Fonts. The restricted
-environment returned `ENOTFOUND fonts.googleapis.com` for every retry, so the
-network-dependent build cannot complete here. Focused TypeScript compilation
-is green.
-
 ## Required resolution
 
 Use the staging, device and rollout runbooks with synthetic data and explicit

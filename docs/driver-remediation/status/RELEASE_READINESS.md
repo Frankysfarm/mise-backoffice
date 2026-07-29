@@ -10,7 +10,6 @@ Before release:
 - complete signed iOS/Android builds and the physical device matrix;
 - run hosted isolated E2E with real PostgREST/RLS/Realtime and sandbox
   push/payment/routing;
-- complete a networked reproducible web build;
 - rehearse migration, canary, rollback, on-call and driver training;
 - approve thresholds and external alert destinations;
 - verify old/new app and backend compatibility;

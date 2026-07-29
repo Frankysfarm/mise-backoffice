@@ -18,11 +18,12 @@ It passed with exit `0`, including:
 - deterministic dispatch/replay, matrix fallback and worker restart;
 - cross-tenant/direct-write denial, alerts, audit and retention.
 
-Focused TypeScript compilation exited `0`. Native fast/full source verification
-exited `0` with the explicit limitation that no project-specific compiled
-mobile/device suite exists. The Next build reached source compilation but
-could not finish because the sandbox cannot resolve `fonts.googleapis.com`;
-it was terminated after all retries showed `ENOTFOUND`.
+Focused TypeScript compilation exited `0`. The hermetic Next production build
+also exited `0` after build-time Google Font fetches were replaced by the same
+CSS-variable contract backed by native font stacks and the build received an
+explicit 8 GiB heap. It compiled and generated all 446 static pages. Native
+fast/full source verification exited `0` with the explicit limitation that no
+project-specific compiled mobile/device suite exists.
 
 ## 26-step lifecycle coverage
 
@@ -47,6 +48,5 @@ watchdog recovery under 2 minutes and no sustained outbox backlog.
 
 T10 local work is complete, but G9 is **BLOCKED_EXTERNAL**. Required external
 evidence: isolated hosted Supabase/PostgREST/Realtime, sandbox push/routing and
-payment, successful networked web build, compiled signed iOS/Android builds,
-physical device matrix and TestFlight/pilot rehearsal. No production action
-was taken.
+payment, compiled signed iOS/Android builds, physical device matrix and
+TestFlight/pilot rehearsal. No production action was taken.

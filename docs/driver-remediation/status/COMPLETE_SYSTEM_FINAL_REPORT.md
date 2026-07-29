@@ -6,9 +6,9 @@ Updated: 2026-07-29
 
 The Driver and delivery-control remediation is locally complete through T10.
 G0–G4 and G6–G8 are green. G5 and G9 remain `BLOCKED_EXTERNAL` because compiled
-mobile apps, real devices, hosted isolated services and a networked web build
-are unavailable. The system is not authorized or ready for production until
-those external gates pass.
+mobile apps, real devices and hosted isolated services are unavailable. The
+system is not authorized or ready for production until those external gates
+pass.
 
 ## Final architecture
 
@@ -77,7 +77,8 @@ deadline and worker health.
 ## Verification and performance
 
 `scripts/tests/run-t10-local-release-readiness.sh` passed all eight canonical
-system suites with exit `0`. Focused TypeScript compilation passed. Native
+system suites with exit `0`. Focused TypeScript compilation and the hermetic
+Next production build passed; all 446 static pages were generated. Native
 source verification passed with its explicit no-device limitation.
 
 Test-scale performance evidence includes 100 concurrent writer cases, indexed
@@ -87,9 +88,9 @@ production percentiles. Proposed staging SLOs are recorded in the T10 report.
 ## Release, rollback and remaining risk
 
 Release readiness is `NOT READY FOR PRODUCTION`. Before release, complete
-hosted isolated E2E, real Realtime/push/payment/routing, a networked web build,
-signed mobile builds, physical device matrices, canary rehearsal, alert
-destinations and integrity/rollback exercises.
+hosted isolated E2E, real Realtime/push/payment/routing, signed mobile builds,
+physical device matrices, canary rehearsal, alert destinations and
+integrity/rollback exercises.
 
 Runbooks exist for staging, operations, security incidents, canary, rollback
 and TestFlight/device coverage. No production action was executed.
