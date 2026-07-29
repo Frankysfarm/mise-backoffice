@@ -1203,6 +1203,7 @@ import { KitchenPhase4726SchichtEffizienzTicker } from './phase4726-schicht-effi
 import { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';
 import { KitchenPhase4730SmartTimingCountdownFarbkodierungV15 } from './phase4730-smart-timing-countdown-farbkodierung-v15';
 import { KitchenPhase4740WartezeitRestaurantTicker } from './phase4740-wartezeit-restaurant-ticker';
+import { KitchenPhase4745BestellwertTicker } from './phase4745-bestellwert-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4796,6 +4797,8 @@ export function KitchenBoard({
       <KitchenPhase4730SmartTimingCountdownFarbkodierungV15 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4740: Wartezeit-Restaurant-Ticker — Moon orange-900; Schnellster #1 Name+min; Team-Avg; Alert >15min; 30-Min-Polling */}
       <KitchenPhase4740WartezeitRestaurantTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4745: Bestellwert-Ticker — Moon purple-900; Bester #1 Name+€; Team-Avg; Alert <15€; 30-Min-Polling */}
+      <KitchenPhase4745BestellwertTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12423,4 +12426,6 @@ export { KitchenPhase4726SchichtEffizienzTicker } from './phase4726-schicht-effi
 export { KitchenPhase4730SmartTimingCountdownFarbkodierungV15 } from './phase4730-smart-timing-countdown-farbkodierung-v15';
 // Phase 4740 — Wartezeit-Restaurant-Ticker (Clock orange; Schnellster #1 Name+min; Team-Avg; Alert >15min; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4740WartezeitRestaurantTicker } from './phase4740-wartezeit-restaurant-ticker';
+// Phase 4745 — Bestellwert-Ticker (ShoppingCart purple; Bester #1 Name+€; Team-Avg; Alert <15€; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase4745BestellwertTicker } from './phase4745-bestellwert-ticker';
 export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';
