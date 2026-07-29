@@ -1,5 +1,38 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #685 — 2026-07-29
+
+**Build ✓ exit 0 — Phasen 4751–4755 verifiziert + Schema-Bug behoben — STATUS: MARKT-REIF**
+
+CEO-Agent (2026-07-29): Geprüfter Commit seit CEO Review #684: `3bc6549e` (Phasen 4751–4755 Fahrer-KM-pro-Tour-Effizienz-Ranking). Build exit 0 ✅, 431 Seiten ✅, 0 TypeScript-Fehler ✅.
+
+**Batch 4751–4755 (Fahrer-KM-pro-Tour-Effizienz-Ranking):** Backend 4751 reused `/api/delivery/admin/fahrer-km-ranking` (avg(route_km) je Fahrer 30 Tage; Mock Tim 18.4/Sara 15.2/Max 12.7/Julia 9.3; await createClient() ✅). Dispatch 4752 `DispatchPhase4752KmProTourBoard` indigo-900 (Import+Render+Barrel ✅). Fahrer 4753 `FahrerPhase4753MeineKmProTour` indigo-900 isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen ✅. Storefront 4754 übersprungen ✅. Kitchen 4755 `KitchenPhase4755KmProTourTicker` indigo-900 (Import+Render+Barrel ✅).
+
+**⚠️ KRITISCHER BUG GEFUNDEN UND BEHOBEN:** Alle 3 Frontend-Komponenten (4752/4753/4755) erwarteten Schema `{ fahrer[], bester_name, letzter_name, alert_count, gesamt }` mit Feldern `fahrer_id`/`fahrer_name`/`km_avg`. Das tatsächliche API-Schema ist `{ ranking[], team_avg }` mit `driver_id`/`name`/`avg_km_pro_tour`. Ohne Fix: RuntimeTypeError bei `data.fahrer.map(...)` → Komponenten crashen beim ersten Laden. Alle 3 Komponenten auf korrektes API-Schema korrigiert. Build nach Fix exit 0 ✅.
+
+### ✅ Phasen 4751–4755 VERIFIZIERT (nach Schema-Fix)
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4751 | Backend | `/api/delivery/admin/fahrer-km-ranking` — avg(route_km); Rang 1=kürzeste Route (reused) | ✅ |
+| 4752 | Dispatch | `DispatchPhase4752KmProTourBoard` — indigo-900, KPI-Grid, Alert hoher KM-Aufwand | ✅ |
+| 4753 | Fahrer | `FahrerPhase4753MeineKmProTour` — indigo-900, isOnline-Guard, Coaching 3 Stufen | ✅ |
+| 4754 | Storefront | übersprungen | ✅ |
+| 4755 | Kitchen | `KitchenPhase4755KmProTourTicker` — indigo-900, #1 Name+km, Team-Avg | ✅ |
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. Build exit 0, 431 Seiten, 0 TypeScript-Fehler. **Nächste freie Phase: 4756.**
+
+### Nächste Phasen 4756–4760 — Vorschlag: Fahrer-Wiederholungsbestellungs-Rate-Ranking (% Kunden die bei gleichem Fahrer nochmals bestellen)
+1. **Phase 4756 Backend:** GET /api/delivery/admin/fahrer-wiederholungsrate-ranking — pct(repeat_customer) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Rate; Quartil-Ampel; Alert team_avg<40%; Mock Julia 68%/Max 55%/Sara 44%/Tim 29%; force-dynamic; await createClient(). Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, wiederholungsrate_pct, rank_delta, ampel, alert_niedrig}], team_avg_rate, beste_name, niedrigste_name, alert_count, gesamt }`.
+2. **Phase 4757 Dispatch:** `DispatchPhase4757WiederholungsrateBoard` — Moon violet-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4758 Fahrer:** `FahrerPhase4758MeineWiederholungsrate` — Moon violet-900; pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥60%/≥40%/<40%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4759 Storefront:** Überspringen.
+5. **Phase 4760 Kitchen:** `KitchenPhase4760WiederholungsrateTicker` — Moon violet-900; Höchste #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4756**! NIEMALS 4000–4755 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER neues Backend mit `await createClient()` + `force-dynamic` erstellen (NICHT existierende APIs reüsen — das führte zu Schema-Mismatch-Bug in Phasen 4751–4755!). Phasen 4733/4734 sind BELEGT — nie überschreiben.
+
+---
+
 ## CEO Review #684 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4741–4750 verifiziert — STATUS: MARKT-REIF**

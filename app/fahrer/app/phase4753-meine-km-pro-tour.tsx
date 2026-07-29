@@ -3,16 +3,17 @@
 import { useEffect, useState } from 'react';
 import { WifiOff, Navigation } from 'lucide-react';
 
+interface FahrerRow {
+  driver_id: string;
+  name: string;
+  rang: number;
+  avg_km_pro_tour: number;
+  ampel: 'gruen' | 'gelb' | 'rot';
+}
+
 interface ApiResponse {
-  fahrer: Array<{
-    fahrer_id: string;
-    fahrer_name: string;
-    rang: number;
-    km_avg: number;
-    ampel: 'gruen' | 'gelb' | 'rot';
-  }>;
+  ranking: FahrerRow[];
   team_avg: number;
-  gesamt: number;
 }
 
 function coachingTipp(km: number): { text: string; color: string } {
@@ -55,11 +56,12 @@ export function FahrerPhase4753MeineKmProTour({ driverId, locationId, isOnline }
 
   if (!data) return null;
 
-  const me = data.fahrer.find(f => f.fahrer_id === driverId) ?? data.fahrer[0];
+  const ranking = data.ranking ?? [];
+  const me = ranking.find(f => f.driver_id === driverId) ?? ranking[0];
   if (!me) return null;
 
-  const { text: tipp, color: tippColor } = coachingTipp(me.km_avg);
-  const maxKm = Math.max(me.km_avg, data.team_avg, 1);
+  const { text: tipp, color: tippColor } = coachingTipp(me.avg_km_pro_tour);
+  const maxKm = Math.max(me.avg_km_pro_tour, data.team_avg, 1);
 
   return (
     <div className="rounded-xl border border-indigo-800 bg-indigo-950/40 p-4 mb-3">
@@ -69,7 +71,7 @@ export function FahrerPhase4753MeineKmProTour({ driverId, locationId, isOnline }
       </div>
 
       <div className="text-center mb-4">
-        <div className={`text-4xl font-bold ${ampelColor(me.ampel)}`}>{me.km_avg.toFixed(1)} km</div>
+        <div className={`text-4xl font-bold ${ampelColor(me.ampel)}`}>{me.avg_km_pro_tour.toFixed(1)} km</div>
         <div className="text-xs text-gray-400 mt-1">Ø Kilometer pro Tour (30 Tage)</div>
         <div className={`text-xl font-semibold mt-1 ${ampelColor(me.ampel)}`}>Rang {me.rang}</div>
       </div>
@@ -78,10 +80,10 @@ export function FahrerPhase4753MeineKmProTour({ driverId, locationId, isOnline }
         <div>
           <div className="flex justify-between text-xs mb-1">
             <span className="text-gray-400">Ich</span>
-            <span className={ampelColor(me.ampel)}>{me.km_avg.toFixed(1)} km</span>
+            <span className={ampelColor(me.ampel)}>{me.avg_km_pro_tour.toFixed(1)} km</span>
           </div>
           <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${(me.km_avg / maxKm) * 100}%` }} />
+            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${(me.avg_km_pro_tour / maxKm) * 100}%` }} />
           </div>
         </div>
         <div>

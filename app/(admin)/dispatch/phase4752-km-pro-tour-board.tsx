@@ -4,22 +4,18 @@ import { useEffect, useState } from 'react';
 import { TrendingUp, TrendingDown, Minus, AlertTriangle, Navigation } from 'lucide-react';
 
 interface FahrerRow {
-  fahrer_id: string;
-  fahrer_name: string;
+  driver_id: string;
+  name: string;
   rang: number;
-  km_avg: number;
+  avg_km_pro_tour: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
-  alert_top: boolean;
+  alert: string | null;
 }
 
 interface ApiResponse {
-  fahrer: FahrerRow[];
+  ranking: FahrerRow[];
   team_avg: number;
-  bester_name: string;
-  letzter_name: string;
-  alert_count: number;
-  gesamt: number;
 }
 
 function DeltaIcon({ delta }: { delta: number }) {
@@ -59,7 +55,9 @@ export function DispatchPhase4752KmProTourBoard({ locationId }: { locationId: st
 
   if (!data) return null;
 
-  const maxKm = Math.max(...data.fahrer.map(f => f.km_avg), 1);
+  const ranking = data.ranking ?? [];
+  const alertCount = ranking.filter(f => f.alert !== null).length;
+  const maxKm = Math.max(...ranking.map(f => f.avg_km_pro_tour), 1);
 
   return (
     <div className="rounded-xl border border-indigo-800 bg-indigo-950/40 p-4 mb-3">
@@ -69,17 +67,17 @@ export function DispatchPhase4752KmProTourBoard({ locationId }: { locationId: st
         <span className="ml-auto text-xs text-gray-500">Rang 1 = kürzeste Route</span>
       </div>
 
-      {data.alert_count > 0 && (
+      {alertCount > 0 && (
         <div className="flex items-center gap-2 text-xs text-red-300 bg-red-900/30 rounded px-3 py-1.5 mb-3">
           <AlertTriangle className="w-3 h-3" />
-          {data.alert_count} Fahrer mit hohem KM-Aufwand pro Tour
+          {alertCount} Fahrer mit hohem KM-Aufwand pro Tour
         </div>
       )}
 
       <div className="grid grid-cols-3 gap-2 mb-3 text-center">
         <div className="bg-black/20 rounded p-2">
           <div className="text-xs text-gray-400">Effizienteste</div>
-          <div className="text-sm font-bold text-green-400">{data.fahrer[0]?.km_avg.toFixed(1)} km</div>
+          <div className="text-sm font-bold text-green-400">{ranking[0]?.avg_km_pro_tour.toFixed(1)} km</div>
         </div>
         <div className="bg-black/20 rounded p-2">
           <div className="text-xs text-gray-400">Team-Ø</div>
@@ -87,29 +85,29 @@ export function DispatchPhase4752KmProTourBoard({ locationId }: { locationId: st
         </div>
         <div className="bg-black/20 rounded p-2">
           <div className="text-xs text-gray-400">Längste Route</div>
-          <div className="text-sm font-bold text-red-400">{data.fahrer[data.fahrer.length - 1]?.km_avg.toFixed(1)} km</div>
+          <div className="text-sm font-bold text-red-400">{ranking[ranking.length - 1]?.avg_km_pro_tour.toFixed(1)} km</div>
         </div>
       </div>
 
       <div className="space-y-2">
-        {data.fahrer.map(f => (
-          <div key={f.fahrer_id} className="flex items-center gap-2">
+        {ranking.map(f => (
+          <div key={f.driver_id} className="flex items-center gap-2">
             <span className="text-xs w-4 text-gray-400">{f.rang}</span>
-            <span className={`text-xs w-14 truncate font-medium ${ampelColor(f.ampel)}`}>{f.fahrer_name}</span>
+            <span className={`text-xs w-14 truncate font-medium ${ampelColor(f.ampel)}`}>{f.name}</span>
             <div className="flex-1 h-1.5 bg-gray-800 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full ${barColor(f.ampel)}`}
-                style={{ width: `${(f.km_avg / maxKm) * 100}%` }}
+                style={{ width: `${(f.avg_km_pro_tour / maxKm) * 100}%` }}
               />
             </div>
-            <span className={`text-xs w-14 text-right ${ampelColor(f.ampel)}`}>{f.km_avg.toFixed(1)} km</span>
+            <span className={`text-xs w-14 text-right ${ampelColor(f.ampel)}`}>{f.avg_km_pro_tour.toFixed(1)} km</span>
             <DeltaIcon delta={f.rank_delta} />
           </div>
         ))}
       </div>
 
       <div className="mt-3 text-xs text-gray-500 text-center">
-        Effizienteste Route: {data.bester_name}
+        Effizienteste Route: {ranking[0]?.name}
       </div>
     </div>
   );
