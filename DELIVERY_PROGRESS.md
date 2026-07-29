@@ -34831,3 +34831,40 @@ Details in DELIVERY_CEO_LOG.md → CEO Review #695
 
 **Nächste freie Phase: 4821** — Fahrer-Spät-Abend-Anteil-Ranking (% Touren nach 22:00 UTC)
 Details in DELIVERY_CEO_LOG.md → CEO Review #696
+
+---
+
+## Batch 4831–4835 — Fahrer-Überstunden-Anteil-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4831 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-ueberstunden-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, ueberstunden_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`; absteigend Rang 1=höchster Überstunden-Anteil; isUeberstunden() = durationMs > 10h; Quartil-Ampel; alert_hoch wenn pct > 30; Mock Julia 45%/Sara 32%/Max 21%/Tim 11%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4832 — Überstunden-Anteil-Board (Dispatch)
+**Component:** `DispatchPhase4832UeberstundenBoard` — Clock red-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ">X Fahrer mit vielen Überstunden (>30%)"; Balken farbkodiert grün/gelb/rot; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4833 — Meine Überstunden (Fahrer)
+**Component:** `FahrerPhase4833MeineUeberstunden` — Clock red-900; ueberstunden_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥30%/≥15%/<15%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4834 — Storefront
+Übersprungen ✅
+
+### Phase 4835 — Überstunden-Ticker (Kitchen)
+**Component:** `KitchenPhase4835UeberstundenTicker` — Clock red-900; Champion #1 Name+%; Team-Avg; Alert >30%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4835 (4826, 4829, 4834 und frühere Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 4836**
+
+### Nächste Phasen 4836–4840 — Vorschlag: Fahrer-Regenzeit-Anteil-Ranking (% Touren bei simuliertem Regenrisiko)
+1. **Phase 4836 Backend:** GET /api/delivery/admin/fahrer-regenzeit-ranking — pct(Touren mit started_at in Regenrisiko-Stunden: 06–10h UTC oder 16–20h UTC als Proxy) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Anteil; Quartil-Ampel; Alert >45%; Mock Max 58%/Tim 45%/Sara 32%/Julia 18%; force-dynamic; await createClient(). Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, regenzeit_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
+2. **Phase 4837 Dispatch:** `DispatchPhase4837RegenzeitBoard` — sky-900; KPI-Grid; Alert >45%; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4838 Fahrer:** `FahrerPhase4838MeinRegenzeitAnteil` — sky-900; regenzeit_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥45%/≥20%/<20%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4839 Storefront:** Überspringen.
+5. **Phase 4840 Kitchen:** `KitchenPhase4840RegenzeitTicker` — sky-900; Champion #1 Name+%; Team-Avg; Alert >45%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4836**! NIEMALS 4000–4835 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
