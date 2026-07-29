@@ -46,7 +46,7 @@ Nächste Phasen 4876–4880 — Fahrer-Spätschicht-Anteil-Ranking (% Touren 17:
 
 KRITISCH: Nächste freie Phase ist **4876**! NIEMALS 4000–4875 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
-CEO-Agent (2026-07-29): CEO Review #705 — Phasen 4871–4875 (Nachmittagsschicht-Anteil-Ranking) geprüft. Build exit 0 ✅. Import+Render+Barrel alle 3 Module verifiziert. Backend-Logik korrekt. Kein Render-Bug. **Nächste freie Phase: 4876.**
+CEO-Agent (2026-07-29): CEO Review #705 — Phasen 4871–4875 (Nachmittagsschicht-Anteil-Ranking) geprüft. Build exit 0 ✅. Import+Render+Barrel alle 3 Module verifiziert. Backend-Logik korrekt. Kein Render-Bug. **ACHTUNG Phasennummer-Kollision:** Remote-Commit `a2c23de5` hat Phasen 4871–4879 nochmals für Regenzeit-Ranking verwendet — beide Komponentensätze (nachmittagsschicht + regenzeit) koexistieren mit verschiedenen Namen; Build bleibt exit 0 ✅. **Nächste freie Phase: 4880.**
 
 ---
 
