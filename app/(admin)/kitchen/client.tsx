@@ -1214,6 +1214,7 @@ import { KitchenPhase4780SpitzenzeitTicker } from './phase4780-spitzenzeit-ticke
 import { KitchenPhase4785RueckgabeQuoteTicker } from './phase4785-rueckgabe-quote-ticker';
 import { KitchenPhase4790TrinkgeldTicker } from './phase4790-trinkgeld-ticker';
 import { KitchenPhase4795FruehschichtAnteilTicker } from './phase4795-fruehschicht-anteil-ticker';
+import { KitchenPhase4800MittagsschichtTicker } from './phase4800-mittagsschicht-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4829,6 +4830,8 @@ export function KitchenBoard({
       <KitchenPhase4790TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4795: Frühschicht-Anteil-Ticker — Moon cyan-900; Champion #1 Name+%; Team-Avg; Alert hoher Anteil >50%; 30-Min-Polling */}
       <KitchenPhase4795FruehschichtAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4800: Mittagsschicht-Anteil-Ticker — Moon lime-900; Champion #1 Name+%; Team-Avg; Alert hoher Anteil >50%; 30-Min-Polling */}
+      <KitchenPhase4800MittagsschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12478,4 +12481,6 @@ export { KitchenPhase4785RueckgabeQuoteTicker } from './phase4785-rueckgabe-quot
 export { KitchenPhase4790TrinkgeldTicker } from './phase4790-trinkgeld-ticker';
 // Phase 4795 — Frühschicht-Anteil-Ticker (AlarmClock cyan; Champion #1 Name+%; Team-Avg; Alert hoher Anteil >50%; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4795FruehschichtAnteilTicker } from './phase4795-fruehschicht-anteil-ticker';
+// Phase 4800 — Mittagsschicht-Anteil-Ticker (Sun lime; Champion #1 Name+%; Team-Avg; Alert hoher Anteil >50%; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase4800MittagsschichtTicker } from './phase4800-mittagsschicht-ticker';
 export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';
