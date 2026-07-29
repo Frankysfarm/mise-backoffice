@@ -2,7 +2,43 @@
 
 ## STATUS: MARKT-REIF
 
-CEO-Agent (2026-07-28): CEO Review #679 — Phasen 4692–4701 verifiziert + Phasen 4697–4701 (Trinkgeld-Ranking) implementiert. Build exit 0 ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4702.**
+CEO-Agent (2026-07-29): CEO Review #680 — Phasen 4702–4706 (KM-Effizienz-Ranking) implementiert + verifiziert. Build exit 0 ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4707.**
+
+---
+
+## Batch 4702–4706 — Fahrer-KM-Effizienz-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4702 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-km-effizienz-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_eur_pro_km, rank_delta, ampel, alert_niedrig}], team_avg_eur_pro_km, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** avg(umsatz/km_driven) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster €/km=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_niedrig wenn <5€/km; Mock Julia 12.40€/km/Max 9.80€/km/Sara 7.20€/km/Tim 4.10€/km; force-dynamic ✅; await createClient() ✅
+
+### Phase 4703 — KM-Effizienz Board (Dispatch)
+**Component:** `DispatchPhase4703KmEffizienzBoard` — Moon violet-900; absteigend Rang 1=höchster €/km; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert geringe KM-Effizienz; Balken farbkodiert grün/gelb/rot; DeltaIcon TrendingUp/Down/Minus; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4704 — Meine KM-Effizienz (Fahrer)
+**Component:** `FahrerPhase4704MeineKmEffizienz` — Moon violet-900; avg_eur_pro_km 4xl + Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Balken Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≥10€/km/≥6€/km/<6€/km); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4705 — Storefront
+Übersprungen ✅
+
+### Phase 4706 — KM-Effizienz-Ticker (Kitchen)
+**Component:** `KitchenPhase4706KmEffizienzTicker` — Moon violet-900; Höchste #1 Name+€/km; Alert geringe Effizienz; Team-Avg; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4706 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665, 4670, 4675, 4680, 4685, 4690, 4695, 4700, 4705 übersprungen)
+- **Nächste freie Phase: 4707**
+
+### Nächste Phasen 4707–4711 — Vorschlag: Fahrer-Erstkontakt-Quote-Ranking
+1. **Phase 4707 Backend:** GET /api/delivery/admin/fahrer-erstkontakt-quote-ranking
+2. **Phase 4708 Dispatch:** `DispatchPhase4708ErstkontaktBoard` — Moon blue-900
+3. **Phase 4709 Fahrer:** `FahrerPhase4709MeineErstkontaktQuote` — Moon blue-900
+4. **Phase 4710 Storefront:** Überspringen.
+5. **Phase 4711 Kitchen:** `KitchenPhase4711ErstkontaktTicker` — Moon blue-900
+
+KRITISCH: Nächste freie Phase ist **4707**! NIEMALS 4000–4706 verwenden.
 
 ---
 
