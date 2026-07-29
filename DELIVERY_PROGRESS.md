@@ -33978,3 +33978,42 @@ KRITISCH: Nächste freie Phase ist **4702**! NIEMALS 4000–4701 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+---
+
+## Batch 4727–4731 — Fahrer-Auftrags-Akzeptanz-Rate-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4727 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-akzeptanz-rate-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, akzeptanz_rate, rank_delta, ampel, alert_niedrig}], team_avg_akzeptanz, beste_name, niedrigste_name, alert_count, gesamt }`; absteigend Rang 1=höchste Rate=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_niedrig wenn rate<75%; Mock Julia 96%/Max 89%/Sara 78%/Tim 62%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4728 — Akzeptanz-Rate Board (Dispatch)
+**Component:** `DispatchPhase4728AkzeptanzRateBoard` — Moon teal-900; absteigend Rang 1=höchste Rate; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert "X Fahrer mit niedriger Akzeptanz-Rate" wenn alert_count>0; Balken farbkodiert grün/gelb/rot; DeltaIcon TrendingUp/Down/Minus je rank_delta; Bester-Name Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4729 — Meine Akzeptanz-Rate (Fahrer)
+**Component:** `FahrerPhase4729MeineAkzeptanzRate` — Moon teal-900; akzeptanz_rate 4xl + Rang 2xl farbkodiert (grün/gelb/rot); isOnline-Guard; WifiOff-Fallback; driverId-Filter; Mini-Bar-Vergleich Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≥90%/≥75%/<75%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4730 — Storefront
+Übersprungen ✅
+
+### Phase 4731 — Akzeptanz-Ticker (Kitchen)
+**Component:** `KitchenPhase4731AkzeptanzRateTicker` — Moon teal-900; Leader #1 Name+akzeptanz_rate%; Alert "X Fahrer mit niedriger Akzeptanz-Rate" wenn alert_count>0; Team-Avg; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4731 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665, 4670, 4675, 4680, 4685, 4690, 4695, 4700, 4705, 4710, 4715, 4720, 4725, 4730 übersprungen)
+- **Nächste freie Phase: 4732**
+
+### Nächste Phasen 4732–4736 — Vorschlag: Fahrer-Durchschnittliche-Wartezeit-am-Restaurant-Ranking
+1. **Phase 4732 Backend:** GET /api/delivery/admin/fahrer-wartezeit-restaurant-ranking — avg(kitchen_wait_min) je Fahrer letzte 30 Tage; aufsteigend Rang 1=kürzeste Wartezeit=bester (INVERTED); Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert >15min "Lange Wartezeit!"; Mock Sara 4.2min/Julia 6.8min/Max 9.1min/Tim 18.3min; force-dynamic; await createClient().
+2. **Phase 4733 Dispatch:** `DispatchPhase4733WartezeitRestaurantBoard` — Moon orange-900; INVERTED aufsteigend Rang 1=kürzeste Wartezeit; KPI-Grid Kürzeste/Team-Avg/Längste; Alert Lange Wartezeit; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4734 Fahrer:** `FahrerPhase4734MeineWartezeitRestaurant` — Moon orange-900; avg_min 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≤5min/≤10min/>10min; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4735 Storefront:** Überspringen.
+5. **Phase 4736 Kitchen:** `KitchenPhase4736WartezeitRestaurantTicker` — Moon orange-900; Schnellste #1 Name+min; Team-Avg; Alert Lange Wartezeit; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4732**! NIEMALS 4000–4731 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
