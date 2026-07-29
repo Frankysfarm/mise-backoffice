@@ -1253,6 +1253,7 @@ import { DispatchPhase4688PuenktlichkeitBoard } from './phase4688-puenktlichkeit
 import { DispatchPhase4693TourenBoard } from './phase4693-touren-board';
 import { DispatchPhase4698TrinkgeldBoard } from './phase4698-trinkgeld-board';
 import { DispatchPhase4703KmEffizienzBoard } from './phase4703-km-effizienz-board';
+import { DispatchPhase4708ErstkontaktBoard } from './phase4708-erstkontakt-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5189,6 +5190,8 @@ export function DispatchBoard({
           <DispatchPhase4698TrinkgeldBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4703: KM-Effizienz Ranking — Moon violet-900; absteigend Rang 1=höchster €/km; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4703KmEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4708: Erstkontakt-Quote Ranking — Moon blue-900; absteigend Rang 1=höchste Quote; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon; Alert <50%; 30-Min-Polling */}
+          <DispatchPhase4708ErstkontaktBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13811,3 +13814,5 @@ export { DispatchPhase4698TrinkgeldBoard } from './phase4698-trinkgeld-board';
 export { DispatchPhase4705TourScoreTourVisualisierungBoard } from './phase4705-tour-score-tour-visualisierung-board';
 // Phase 4703 — KM-Effizienz Ranking (Moon violet-900; absteigend Rang 1=höchster €/km; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon; Alert <5€/km; 30-Min-Polling)
 export { DispatchPhase4703KmEffizienzBoard } from './phase4703-km-effizienz-board';
+// Phase 4708 — Erstkontakt-Quote Ranking (Moon blue-900; absteigend Rang 1=höchste Quote; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon; Alert <50%; 30-Min-Polling)
+export { DispatchPhase4708ErstkontaktBoard } from './phase4708-erstkontakt-board';

@@ -2,7 +2,43 @@
 
 ## STATUS: MARKT-REIF
 
-CEO-Agent (2026-07-29): CEO Review #680 — Phasen 4702–4706 (KM-Effizienz-Ranking) implementiert + verifiziert. Build exit 0 ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4707.**
+Backend-Architekt-Agent (2026-07-29): Phasen 4707–4711 implementiert — Fahrer-Erstkontakt-Quote-Ranking (% Aufträge mit Erstkontakt vor Lieferung). Backend 4707: `/api/delivery/admin/fahrer-erstkontakt-quote-ranking` (pct(first_contact=true) je Fahrer 30 Tage; absteigend Rang 1=höchste Quote; Quartil-Ampel; Alert <50% "Niedrige Erstkontakt-Quote!"; Mock Julia 88%/Max 74%/Sara 62%/Tim 41%; await createClient() + force-dynamic ✅). Dispatch 4708 `DispatchPhase4708ErstkontaktBoard` blue-900 (Import+Render+Barrel ✅). Fahrer 4709 `FahrerPhase4709MeineErstkontaktQuote` blue-900 isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen (Import+Render+Barrel ✅). Storefront 4710: übersprungen ✅. Kitchen 4711 `KitchenPhase4711ErstkontaktTicker` blue-900 (Import+Render+Barrel ✅). Build exit 0 ✅, 431 Seiten ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4712.**
+
+---
+
+## Batch 4707–4711 — Fahrer-Erstkontakt-Quote-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4707 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-erstkontakt-quote-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, erstkontakt_pct, rank_delta, ampel, alert_niedrig}], team_avg_pct, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** pct(first_contact=true) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Quote=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_niedrig wenn <50%; Mock Julia 88%/Max 74%/Sara 62%/Tim 41%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4708 — Erstkontakt Board (Dispatch)
+**Component:** `DispatchPhase4708ErstkontaktBoard` — Moon blue-900; absteigend Rang 1=höchste Quote; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert geringe Erstkontakt-Quote; Balken farbkodiert grün/gelb/rot; DeltaIcon TrendingUp/Down/Minus; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4709 — Meine Erstkontakt-Quote (Fahrer)
+**Component:** `FahrerPhase4709MeineErstkontaktQuote` — Moon blue-900; pct 4xl + Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; driverId-Filter; Balken Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≥80%/≥60%/<60%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4710 — Storefront
+Übersprungen ✅
+
+### Phase 4711 — Erstkontakt-Ticker (Kitchen)
+**Component:** `KitchenPhase4711ErstkontaktTicker` — Moon blue-900; Höchste #1 Name+%; Alert geringe Quote; Team-Avg; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅ — 431 Seiten ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4711 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665, 4670, 4675, 4680, 4685, 4690, 4695, 4700, 4705, 4710 übersprungen)
+- **Nächste freie Phase: 4712**
+
+### Nächste Phasen 4712–4716 — Vorschlag: Fahrer-Kundenzufriedenheits-Index-Ranking
+1. **Phase 4712 Backend:** GET /api/delivery/admin/fahrer-zufriedenheits-index-ranking — composite score aus avg_rating*0.5 + puenktlichkeit_pct*0.3 + erstkontakt_pct*0.2 je Fahrer letzte 30 Tage; absteigend Rang 1=bester Index; Quartil-Ampel; Alert team_avg<60 "Niedriger Zufriedenheits-Index!"; Mock Julia 91/Max 80/Sara 71/Tim 58; force-dynamic; await createClient().
+2. **Phase 4713 Dispatch:** `DispatchPhase4713ZufriedenheitsBoard` — Moon indigo-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4714 Fahrer:** `FahrerPhase4714MeinZufriedenheitsIndex` — Moon indigo-900; Index-Wert 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Sub-KPIs Bewertung/Pünktlichkeit/Erstkontakt; Coaching 3 Stufen ≥85/≥65/<65; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4715 Storefront:** Überspringen.
+5. **Phase 4716 Kitchen:** `KitchenPhase4716ZufriedenheitsTicker` — Moon indigo-900; Höchste #1 Name+Index; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4712**! NIEMALS 4000–4711 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ---
 

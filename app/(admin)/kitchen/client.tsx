@@ -1196,6 +1196,7 @@ import { KitchenPhase4691PuenktlichkeitTicker } from './phase4691-puenktlichkeit
 import { KitchenPhase4696TourenTicker } from './phase4696-touren-ticker';
 import { KitchenPhase4701TrinkgeldTicker } from './phase4701-trinkgeld-ticker';
 import { KitchenPhase4706KmEffizienzTicker } from './phase4706-km-effizienz-ticker';
+import { KitchenPhase4711ErstkontaktTicker } from './phase4711-erstkontakt-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4774,6 +4775,8 @@ export function KitchenBoard({
       <KitchenPhase4701TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4706: KM-Effizienz-Ticker — Moon violet-900; Höchste #1 Name+€/km; Team-Avg; Alert geringe Effizienz; 30-Min-Polling */}
       <KitchenPhase4706KmEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4711: Erstkontakt-Ticker — Moon blue-900; Höchste #1 Name+%; Team-Avg; Alert niedrige Quote; 30-Min-Polling */}
+      <KitchenPhase4711ErstkontaktTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12383,3 +12386,5 @@ export { KitchenPhase4680SmartTimingHub } from './phase4680-smart-timing-hub';
 export { KitchenPhase4701TrinkgeldTicker } from './phase4701-trinkgeld-ticker';
 // Phase 4706 — KM-Effizienz-Ticker (Moon violet-900; Höchste #1 Name+€/km; Team-Avg; Alert geringe Effizienz; 30-Min-Polling)
 export { KitchenPhase4706KmEffizienzTicker } from './phase4706-km-effizienz-ticker';
+// Phase 4711 — Erstkontakt-Ticker (Moon blue-900; Höchste #1 Name+%; Team-Avg; Alert niedrige Quote; 30-Min-Polling)
+export { KitchenPhase4711ErstkontaktTicker } from './phase4711-erstkontakt-ticker';
