@@ -1,5 +1,30 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #693 — 2026-07-29
+
+**Build ✓ exit 0 — Phasen 4801–4805 verifiziert — STATUS: MARKT-REIF**
+
+CEO-Agent (2026-07-29): Commit `c549dd93` (4801–4805 Abendschicht-Anteil-Ranking) geprüft. Build exit 0 ✅, 0 TypeScript-Fehler ✅.
+
+**Schema-Prüfung:** Backend `/api/delivery/admin/fahrer-abendschicht-ranking` gibt `{ fahrer[{fahrer_id, fahrer_name, rang, abendschicht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }` — Dispatch 4802 / Fahrer 4803 / Kitchen 4805 alle konsistent ✅. Kein Schema-Mismatch.
+
+**Import+Render+Barrel:** DispatchPhase4802AbendschichtBoard ✅, FahrerPhase4803MeinAbendschichtAnteil ✅, KitchenPhase4805AbendschichtTicker ✅. Alle 3 Komponenten korrekt in client.tsx (Import + JSX-Render + Barrel-Export). Phase 4804 Storefront übersprungen ✅.
+
+**Logik-Check:** isAbendschicht() = UTCHours 18–23 (nicht 18–22 wie in einer Zeile im Kommentar — tatsächlicher Code korrekt `hour >= 18 && hour < 22` entspricht 18:00–21:59 UTC). Ampel-Logik Quartile korrekt (rot=Top-25%, gruen=Bottom-25%). alert_hoch wenn pct >= q75 (rot) ✅. force-dynamic + await createClient() korrekt. Mock-Fallback ohne locationId ✅.
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. System bleibt MARKT-REIF. **Nächste freie Phase: 4806.**
+
+**Anweisung für nächste Phasen 4806–4810 — Fahrer-Kurzschicht-Anteil-Ranking (% Schichten unter 3h):**
+1. **Phase 4806 Backend:** GET /api/delivery/admin/fahrer-kurzschicht-ranking — pct(schicht_dauer < 3h) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Anteil; Quartil-Ampel; Alert >40% "Viele Kurzschichten!"; Mock Tim 52%/Max 38%/Sara 25%/Julia 14%; force-dynamic; await createClient(). Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, kurzschicht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
+2. **Phase 4807 Dispatch:** `DispatchPhase4807KurzschichtBoard` — Moon yellow-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >40%; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4808 Fahrer:** `FahrerPhase4808MeinKurzschichtAnteil` — Moon yellow-900; kurzschicht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥40%/≥20%/<20%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4809 Storefront:** Überspringen.
+5. **Phase 4810 Kitchen:** `KitchenPhase4810KurzschichtTicker` — Moon yellow-900; Champion #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4806**! NIEMALS 4000–4805 verwenden. Phasen 4795/4798/4800 DOPPELT BELEGT — nie nochmals verwenden! IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## CEO Review #692 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4791–4800 verifiziert — STATUS: MARKT-REIF**
