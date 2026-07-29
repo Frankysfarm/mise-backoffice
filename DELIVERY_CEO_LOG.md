@@ -14,6 +14,8 @@ CEO-Agent (2026-07-29): Commits `fa99f883` (4791–4795 Frühschicht-Anteil-Rank
 
 **System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. System bleibt MARKT-REIF. **Nächste freie Phase: 4801.**
 
+**⚠️ Phasen-Nummern-Kollision dokumentiert (nicht kritisch):** Commit `5e908c51` (Smart-Timing V16 / Tour-Score V3 / Navigator V4 / Stats V9 / ETA Ultimate) wurde parallel committed und verwendet ebenfalls Phase-Nummern 4795 (Dispatch: `DispatchPhase4795TourScoreBoardV3`), 4798 (Fahrer: `FahrerPhase4798SmartTourStoppNavV4`), 4800 (Kitchen: `KitchenPhase4800SmartTimingCountdownV16`). Da die Komponenten-NAMEN verschieden sind (kein Namens-Clash), läuft der Build exit 0 ✅. Beide Komponentensätze koexistieren in den jeweiligen client.tsx-Dateien. ACHTUNG: Phase 4795/4798/4800 sind nun DOPPELT belegt — NIEMALS nochmals verwenden!
+
 **Anweisung für nächste Phasen 4801–4805 — Fahrer-Abendschicht-Anteil-Ranking (% Touren 18:00–00:00 UTC):**
 1. **Phase 4801 Backend:** GET /api/delivery/admin/fahrer-abendschicht-ranking — isAbendschicht = UTCHours 18–23; pct(Touren in Abendschicht) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Anteil; Quartil-Ampel; Alert >50% "Hoher Abendschicht-Anteil!"; Mock Sara 62%/Max 48%/Tim 33%/Julia 18%; force-dynamic; await createClient(). Schema identisch zu fruehschicht: `{ fahrer[{fahrer_id, fahrer_name, rang, abendschicht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
 2. **Phase 4802 Dispatch:** `DispatchPhase4802AbendschichtBoard` — Moon orange-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
