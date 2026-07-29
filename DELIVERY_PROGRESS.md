@@ -34630,3 +34630,40 @@ KRITISCH: Nächste freie Phase ist **4801**! NIEMALS 4000–4800 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **4806**! NIEMALS 4000–4805 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4806–4810 — Fahrer-Kurzschicht-Anteil-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4806 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-kurzschicht-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, kurzschicht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`; absteigend Rang 1=höchster Kurzschicht-Anteil; isKurzschicht() = durationMs < 3h; Quartil-Ampel; alert_hoch wenn pct > 40; Mock Tim 52%/Max 38%/Sara 25%/Julia 14%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4807 — Kurzschicht-Anteil-Board (Dispatch)
+**Component:** `DispatchPhase4807KurzschichtBoard` — Moon yellow-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ">40% Kurzschichten"; Balken farbkodiert grün/gelb/rot; DeltaIcon; Meister-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4808 — Mein Kurzschicht-Anteil (Fahrer)
+**Component:** `FahrerPhase4808MeinKurzschichtAnteil` — Moon yellow-900; kurzschicht_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥40%/≥20%/<20%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4809 — Storefront
+Übersprungen ✅
+
+### Phase 4810 — Kurzschicht-Ticker (Kitchen)
+**Component:** `KitchenPhase4810KurzschichtTicker` — Moon yellow-900; Champion #1 Name+%; Team-Avg; Alert >40%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅ — CEO Review #694 verifiziert
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4810 (4744, 4749, 4754, 4759, 4764, 4769, 4774, 4779, 4784, 4789, 4794, 4799, 4804, 4809 übersprungen)
+- **Nächste freie Phase: 4811**
+
+### Nächste Phasen 4811–4815 — Vorschlag: Fahrer-Wochenend-Anteil-Ranking
+1. **Phase 4811 Backend:** GET /api/delivery/admin/fahrer-wochenend-ranking — pct(Schicht Sa/So UTC) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Wochenend-Anteil; Quartil-Ampel; Alert >60%; Mock Tim 75%/Max 58%/Sara 42%/Julia 23%; force-dynamic; await createClient(). Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, wochenend_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
+2. **Phase 4812 Dispatch:** `DispatchPhase4812WochenendbordBoard` — violet-900; KPI-Grid; Alert >60%; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4813 Fahrer:** `FahrerPhase4813MeinWochenenAnteil` — violet-900; wochenend_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥60%/≥30%/<30%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4814 Storefront:** Überspringen.
+5. **Phase 4815 Kitchen:** `KitchenPhase4815WochenenTicker` — violet-900; Champion #1 Name+%; Team-Avg; Alert >60%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4811**! NIEMALS 4000–4810 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
