@@ -2,6 +2,46 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-29): Phasen 4821–4825 implementiert — Fahrer-Spät-Abend-Anteil-Ranking (% Touren ab 22:00 UTC je Fahrer letzte 30 Tage). Backend 4821: `/api/delivery/admin/fahrer-spaetabend-ranking` (NEUES Backend; isSpätAbend = UTCHours >= 22; pct(Touren Spät-Abend) je Fahrer; absteigend Rang 1=höchster Anteil; Quartil-Ampel; Alert >35%; Mock Max 42%/Tim 28%/Sara 16%/Julia 8%; await createClient() + force-dynamic ✅; Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, spaetabend_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`). Dispatch 4822 `DispatchPhase4822SpaetabendBoard` slate-900 KPI-Grid Höchster/Team-Avg/Niedrigster+Balken+DeltaIcon+Alert >35% (Import+Render+Barrel ✅). Fahrer 4823 `FahrerPhase4823MeinSpaetabendAnteil` slate-900 spaetabend_anteil_pct 4xl+Rang 2xl+isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen ≥35%/≥15%/<15% (Import+Render+Barrel ✅). Storefront 4824: übersprungen ✅. Kitchen 4825 `KitchenPhase4825SpaetabendTicker` slate-900 Champion #1+%+Team-Avg+Alert (Import+Render+Barrel ✅). Build exit 0 ✅. **Nächste freie Phase: 4826.**
+
+---
+
+## Batch 4821–4825 — Fahrer-Spät-Abend-Anteil-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4821 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-spaetabend-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, spaetabend_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`
+**Logik:** isSpätAbend = UTCHours >= 22 (22:00–23:59); pct(Touren Spät-Abend) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Anteil; Quartil-Ampel; alert_hoch wenn >35%; Mock Max 42%/Tim 28%/Sara 16%/Julia 8%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4822 — Spät-Abend Board (Dispatch)
+**Component:** `DispatchPhase4822SpaetabendBoard` — slate-900; absteigend Rang 1=höchster Spät-Abend-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >35%; Balken farbkodiert grün/gelb/rot; DeltaIcon; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4823 — Mein Spät-Abend-Anteil (Fahrer)
+**Component:** `FahrerPhase4823MeinSpaetabendAnteil` — slate-900; spaetabend_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≥35%/≥15%/<15%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4824 — Storefront
+Übersprungen ✅
+
+### Phase 4825 — Spät-Abend-Ticker (Kitchen)
+**Component:** `KitchenPhase4825SpaetabendTicker` — slate-900; Champion #1 Name+%; Team-Avg; Alert >35%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4825 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665, 4670, 4675, 4680, 4685, 4690, 4695, 4700, 4705, 4710, 4715, 4720, 4725, 4730, 4735, 4736, 4739, 4744, 4749, 4754, 4759, 4764, 4769, 4774, 4779, 4784, 4789, 4794, 4800, 4804, 4809, 4814, 4819, 4824 übersprungen; 4733/4734 Enhancement-Komponenten; 4795/4798/4800 DOPPELT BELEGT; 4807/4808/4810 DOPPELT BELEGT)
+- **Nächste freie Phase: 4826**
+
+### Nächste Phasen 4826–4830 — Vorschlag: Fahrer-Überstunden-Anteil-Ranking (% Schichten über 10h)
+1. **Phase 4826 Backend:** GET /api/delivery/admin/fahrer-ueberstunden-ranking — pct(schicht_dauer > 10h) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Anteil; Quartil-Ampel; Alert >30% "Viele Überstunden!"; Mock Julia 45%/Sara 32%/Max 21%/Tim 11%; force-dynamic; await createClient(). Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, ueberstunden_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
+2. **Phase 4827 Dispatch:** `DispatchPhase4827UeberstundenBoard` — red-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >30%; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4828 Fahrer:** `FahrerPhase4828MeineUeberstunden` — red-900; ueberstunden_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥30%/≥15%/<15%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4829 Storefront:** Überspringen.
+5. **Phase 4830 Kitchen:** `KitchenPhase4830UeberstundenTicker` — red-900; Champion #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4826**! NIEMALS 4000–4825 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 Backend-Architekt-Agent (2026-07-29): Phasen 4806–4810 implementiert — Fahrer-Kurzschicht-Anteil-Ranking (% Schichten unter 3h je Fahrer letzte 30 Tage). Backend 4806: `/api/delivery/admin/fahrer-kurzschicht-ranking` (NEUES Backend; pct(schicht_dauer < 3h) je Fahrer; absteigend Rang 1=höchster Anteil; Quartil-Ampel; Alert >40%; Mock Tim 52%/Max 38%/Sara 25%/Julia 14%; await createClient() + force-dynamic ✅; Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, kurzschicht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`). Dispatch 4807 `DispatchPhase4807KurzschichtBoard` yellow-900 KPI-Grid Höchster/Team-Avg/Niedrigster+Balken+DeltaIcon+Alert >40% (Import+Render+Barrel ✅). Fahrer 4808 `FahrerPhase4808MeinKurzschichtAnteil` yellow-900 kurzschicht_anteil_pct 4xl+Rang 2xl+isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen ≥40%/≥20%/<20% (Import+Render+Barrel ✅). Storefront 4809: übersprungen ✅. Kitchen 4810 `KitchenPhase4810KurzschichtTicker` yellow-900 Champion #1+%+Team-Avg+Alert (Import+Render+Barrel ✅). Build exit 0 ✅. Commit `e954f757`. **Nächste freie Phase: 4811.**
 
 ---

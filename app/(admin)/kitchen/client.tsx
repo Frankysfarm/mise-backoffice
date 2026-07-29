@@ -1220,6 +1220,7 @@ import { KitchenPhase4810KurzschichtTicker } from './phase4810-kurzschicht-ticke
 import { KitchenPhase4810NachtschichtTicker } from './phase4810-nachtschicht-ticker';
 import { KitchenPhase4815WochenenTicker } from './phase4815-wochenend-ticker';
 import { KitchenPhase4820FeiertagsTicker } from './phase4820-feiertags-ticker';
+import { KitchenPhase4825SpaetabendTicker } from './phase4825-spaetabend-ticker';
 import { KitchenPhase4800SmartTimingCountdownV16 } from './phase4800-smart-timing-countdown-v16';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
@@ -4848,6 +4849,8 @@ export function KitchenBoard({
       <KitchenPhase4815WochenenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4820: Feiertags-Anteil-Ticker — rose-900; Champion #1 Name+%; Team-Avg; Alert >50%; 30-Min-Polling */}
       <KitchenPhase4820FeiertagsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4825: Spät-Abend-Anteil-Ticker — slate-900; Champion #1 Name+%; Team-Avg; Alert >35%; 30-Min-Polling */}
+      <KitchenPhase4825SpaetabendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4800: Smart-Timing Countdown V16 — 6-stufige Ampel; 5-KPI-Grid; Countdown-Kacheln Fortschrittsbalken+Batch+Komplexität+Fahrer-ETA; Prio-Sort; 1-Sek-Tick + 15-Sek-Polling */}
       <KitchenPhase4800SmartTimingCountdownV16 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
@@ -12511,6 +12514,8 @@ export { KitchenPhase4810NachtschichtTicker } from './phase4810-nachtschicht-tic
 export { KitchenPhase4815WochenenTicker } from './phase4815-wochenend-ticker';
 // Phase 4820 — Feiertags-Anteil-Ticker (Star rose; Champion #1 Name+%; Team-Avg; Alert >50%; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4820FeiertagsTicker } from './phase4820-feiertags-ticker';
+// Phase 4825 — Spät-Abend-Anteil-Ticker (Moon slate; Champion #1 Name+%; Team-Avg; Alert >35%; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase4825SpaetabendTicker } from './phase4825-spaetabend-ticker';
 export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';
 // Phase 4800 — Smart-Timing Countdown Farbkodierung V16 (ChefHat indigo; 6-stufige Ampel; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Pünktl; Alert-Banner; Countdown-Kacheln Fortschrittsbalken+Batch-Gruppe+Komplexität+Fahrer-ETA; Prioritätssortierung kritisch→fertig; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4800SmartTimingCountdownV16 } from './phase4800-smart-timing-countdown-v16';
