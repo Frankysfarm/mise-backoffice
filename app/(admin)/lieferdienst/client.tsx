@@ -502,6 +502,7 @@ import { LieferdienstPhase4720StatistikenDashboardV8 } from './phase4720-statist
 import { LieferdienstPhase4725StatistikenDashboardV9 } from './phase4725-statistiken-dashboard-v9';
 import { LieferdienstPhase4730StatistikenDashboardV10 } from './phase4730-statistiken-dashboard-v10';
 import { LieferdienstPhase4731StatistikenDashboardV11 } from './phase4731-statistiken-dashboard-v11';
+import { LieferdienstPhase4735StatistikenDashboardV12 } from './phase4735-statistiken-dashboard-v12';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -5044,3 +5045,5 @@ export { LieferdienstPhase4725StatistikenDashboardV9 } from './phase4725-statist
 // Phase 4730 — Statistiken Dashboard V10 (BarChart2 indigo; Score+Delta+Fortschrittsbalken; Alert-Strip; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel-Balken; Stundenverlauf 2-Modi umschaltbar Jetzt-Stunde lila; Top-3-Fahrer Score+Touren+Trinkgeld; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4730StatistikenDashboardV10 } from './phase4730-statistiken-dashboard-v10';
 export { LieferdienstPhase4731StatistikenDashboardV11 } from './phase4731-statistiken-dashboard-v11';
+// Phase 4735 — Statistiken Dashboard V12 (BarChart2 emerald; Score+Ziel-Balken; Alert-Strip; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel-Balken+Vw; Stundenverlauf 3-Modi Bestellungen/Umsatz/Pünktl Jetzt-Stunde dunkel; Wochenvergleich LineChart; Top-Fahrer Score+Touren+km+Trinkgeld; Zonen SLA+Avg+Umsatz; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4735StatistikenDashboardV12 } from './phase4735-statistiken-dashboard-v12';

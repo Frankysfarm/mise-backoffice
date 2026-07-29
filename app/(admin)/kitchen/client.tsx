@@ -1227,6 +1227,7 @@ import { KitchenPhase4845WochenendTicker } from './phase4845-wochenend-ticker';
 import { KitchenPhase4850FruehschichtTicker } from './phase4850-fruehschicht-ticker';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
+import { KitchenPhase4850SmartTimingCountdownV19 } from './phase4850-smart-timing-countdown-v19';
 import { KitchenPhase4800SmartTimingCountdownV16 } from './phase4800-smart-timing-countdown-v16';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
@@ -12545,6 +12546,8 @@ export { KitchenPhase4850FruehschichtTicker } from './phase4850-fruehschicht-tic
 // Phase 4830 — Smart-Timing Countdown V17 (ChefHat indigo; 6-stufige Ampel; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Pünktl; Countdown-Kacheln+Fortschrittsbalken+Batch+Komplexität+Fahrer-ETA; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 export { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
+// Phase 4850 — Smart-Timing Countdown V19 (ChefHat indigo; Stations-Auslastung 3-Kacheln Grill/Friture/Kalt; Effizienz-Anzeige je Order; 6-stufige Ampel; 5-KPI-Grid; Countdown-Kacheln+Fortschrittsbalken+Batch+Komplexität+Fahrer-ETA; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4850SmartTimingCountdownV19 } from './phase4850-smart-timing-countdown-v19';
 export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';
 // Phase 4800 — Smart-Timing Countdown Farbkodierung V16 (ChefHat indigo; 6-stufige Ampel; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Pünktl; Alert-Banner; Countdown-Kacheln Fortschrittsbalken+Batch-Gruppe+Komplexität+Fahrer-ETA; Prioritätssortierung kritisch→fertig; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4800SmartTimingCountdownV16 } from './phase4800-smart-timing-countdown-v16';

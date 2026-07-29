@@ -1284,6 +1284,7 @@ import { DispatchPhase4842WochenendBoard } from './phase4842-wochenend-board';
 import { DispatchPhase4847FruehschichtBoard } from './phase4847-fruehschicht-board';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
+import { DispatchPhase4847TourScoreLiveBoardV5 } from './phase4847-tour-score-live-board-v5';
 import { DispatchPhase4795TourScoreBoardV3 } from './phase4795-tour-score-board-v3';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
@@ -13976,5 +13977,7 @@ export { DispatchPhase4847FruehschichtBoard } from './phase4847-fruehschicht-boa
 // Phase 4827 — Score + Tour-Visualisierung V3 (Trophy indigo; Team-Score Arc+Ziel; 4-KPI-Strip; Fahrer-Score-Ring 4-stufig; Stopp-Timeline aufklappbar; ETA+Km; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 export { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
+// Phase 4847 — Tour-Score Live Board V5 (Trophy indigo; Team-Score+Ziel-Balken; Pünktlichkeit+Avg-Zeit; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Aufklappbare Stopp-Timeline geliefert/aktiv/ausstehend/verspaetet+ETA+km; Alert-Strip; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4847TourScoreLiveBoardV5 } from './phase4847-tour-score-live-board-v5';
 // Phase 4795 — Tour-Score Live Board V3 (Trophy indigo; Team-Score Arc+Delta+Ziel; Alert unter Ziel; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Score-Balken+Trend; Aufklappbare Stopp-Timeline geliefert/aktiv/ausstehend/verspaetet+ETA+km; KPI-Row Pünktlichkeit+Lieferzeit; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4795TourScoreBoardV3 } from './phase4795-tour-score-board-v3';

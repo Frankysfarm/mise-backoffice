@@ -1204,6 +1204,7 @@ import { FahrerPhase4843MeinWochenendAnteil } from './phase4843-mein-wochenend-a
 import { FahrerPhase4848MeinFruehschichtAnteil } from './phase4848-mein-fruehschicht-anteil';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 import { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
+import { FahrerPhase4848MeineTourStopsLive } from './phase4848-meine-tour-stops-live';
 import { FahrerPhase4798SmartTourStoppNavV4 } from './phase4798-smart-tour-stopp-nav-v4';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
@@ -11854,3 +11855,5 @@ export { FahrerPhase4848MeinFruehschichtAnteil } from './phase4848-mein-fruehsch
 // Phase 4828 — Mein Tour-Stopp Navigator (Navigation2 blue; 3-KPI-Grid Stopps/ETA/km; Hero Aktiv-Stopp mit Navi-Deeplink+Anruf; Notiz-Badge gelb; Stopp-Sequenz Status-Icons; WifiOff-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 export { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
+// Phase 4848 — Meine Tour-Stopps Live (Navigation2 blue; Fortschrittsbalken Stopps+km; Stopp-Cards geliefert/aktiv/ausstehend/verspaetet; Notiz-Badge gelb; Zahlart-Badge; Anruf-Link; WifiOff-Guard; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4848MeineTourStopsLive } from './phase4848-meine-tour-stops-live';
