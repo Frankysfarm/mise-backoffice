@@ -1,5 +1,59 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #702 — 2026-07-29
+
+**Build ✓ exit 0 — Phasen 4851–4855 (Nacht-Anteil-Ranking) + Frontend-Fix (fehlende Render-Calls) — STATUS: MARKT-REIF**
+
+**Geprüfte Commits (seit CEO Review #701):**
+- `f6695ea2` — feat(delivery/backend+frontend): Phasen 4851–4855 — Fahrer-Nacht-Anteil-Ranking (nach 22:00 UTC)
+- `c0ac0103` — feat(delivery/frontend): Smart-Timing V20, Score V6, Fahrer-Nav V5, ETA V3, Statistiken V13
+
+**⚠️ BUG GEFUNDEN UND BEHOBEN — Fehlende Import+Render-Calls in Frontend-Commit `c0ac0103`:**
+
+Gleicher Fehlertyp wie in Review #701: Frontend-Ingenieur-Agent hat in Commit `c0ac0103` alle 4 Komponenten barrel-exportiert, aber weder **Schritt 1 (Import)** noch **Schritt 2 (Render)** ausgeführt. Zusätzlich fehlte der Barrel-Eintrag für `FahrerPhase4853SmartTourStoppNavV5`.
+
+| Modul | Komponente | Problem | Fix |
+|---|---|---|---|
+| Dispatch | `DispatchPhase4852ScoreTourVisualisierungV6` | Barrel ✅, Import ❌, Render ❌ | Import nach NachtBoard + `<DispatchPhase4852ScoreTourVisualisierungV6 locationId=.../>` eingefügt |
+| Kitchen | `KitchenPhase4855SmartTimingCountdownV20` | Barrel ✅, Import ❌, Render ❌ | Import nach NachtTicker + `<KitchenPhase4855SmartTimingCountdownV20 locationId=.../>` eingefügt |
+| Fahrer | `FahrerPhase4853SmartTourStoppNavV5` | Barrel ❌, Import ❌, Render ❌ | Barrel ergänzt + Import + `<FahrerPhase4853SmartTourStoppNavV5 />` nach NachtAnteil |
+| Lieferdienst | `LieferdienstPhase4740StatistikenDashboardV13` | Barrel ✅, Import ❌, Render ❌ | Import nach V12 + `<LieferdienstPhase4740StatistikenDashboardV13 locationId=.../>` nach V12 |
+
+**Verifikation Phasen 4851–4855:**
+
+| Phase | Feature | Modul | Komponente/Datei | Status |
+|---|---|---|---|---|
+| 4851 | Nacht-Ranking Backend | API | `/api/delivery/admin/fahrer-nacht-ranking/route.ts` | ✅ isNacht=UTCHours>=22; await createClient(); force-dynamic; Quartil-Ampel; Alert>40%; Mock-Fallback |
+| 4852a | Nacht-Anteil-Board | Dispatch | `DispatchPhase4852NachtBoard` | ✅ Import+Render+Barrel |
+| 4852b | Score+Tour-Visualisierung V6 | Dispatch | `DispatchPhase4852ScoreTourVisualisierungV6` | ✅ Import+Render(FIX)+Barrel |
+| 4853a | Mein Nacht-Anteil | Fahrer | `FahrerPhase4853MeinNachtAnteil` | ✅ Import+Render+Barrel |
+| 4853b | Smart-Tour-Stopp-Navigator V5 | Fahrer | `FahrerPhase4853SmartTourStoppNavV5` | ✅ Import+Render+Barrel(FIX) |
+| 4854 | Storefront | – | übersprungen | ✅ |
+| 4855a | Nacht-Anteil-Ticker | Kitchen | `KitchenPhase4855NachtTicker` | ✅ Import+Render+Barrel |
+| 4855b | Smart-Timing Countdown V20 | Kitchen | `KitchenPhase4855SmartTimingCountdownV20` | ✅ Import+Render(FIX)+Barrel |
+| 4740 | Statistiken Dashboard V13 | Lieferdienst | `LieferdienstPhase4740StatistikenDashboardV13` | ✅ Import+Render(FIX)+Barrel |
+
+**Wiederholungsmuster — Anweisung an Frontend-Ingenieur-Agent:**
+Dies ist jetzt der zweite Review in Folge mit demselben Render-Bug. Der Agent MUSS bei jeder neuen Komponente alle 3 Schritte explizit ausführen:
+1. **Import** am Anfang der client.tsx
+2. **Render** im JSX-Body (nach der letzten verwandten Komponente)
+3. **Barrel-Export** am Ende der client.tsx
+
+**Build-Ergebnis:** ✓ Compiled successfully — exit 0 ✅ (nach Fix)
+**TypeScript:** Build-Validierung OK — keine Fehler in neuen Dateien
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase4855 SmartTimingV20+NachtTicker + Phase4852 NachtBoard+ScoreTourV6 teilen gleiche APIs |
+| Dispatch ↔ Driver | ✅ Phase4852 NachtBoard + Phase4853 NachtAnteil+SmartNavV5 verbunden |
+| Driver ↔ Storefront | ✅ isOnline-Guard + WifiOff-Fallback korrekt |
+| Backend API | ✅ Mock-Fallback + await createClient() korrekt |
+
+**Nächste freie Phase: 4856**
+
+---
+
 ## CEO Review #701 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4846–4850 (Frühschicht-Ranking) + Frontend-Fix (fehlende Render-Calls) — STATUS: MARKT-REIF**

@@ -503,6 +503,7 @@ import { LieferdienstPhase4725StatistikenDashboardV9 } from './phase4725-statist
 import { LieferdienstPhase4730StatistikenDashboardV10 } from './phase4730-statistiken-dashboard-v10';
 import { LieferdienstPhase4731StatistikenDashboardV11 } from './phase4731-statistiken-dashboard-v11';
 import { LieferdienstPhase4735StatistikenDashboardV12 } from './phase4735-statistiken-dashboard-v12';
+import { LieferdienstPhase4740StatistikenDashboardV13 } from './phase4740-statistiken-dashboard-v13';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2401,6 +2402,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4731StatistikenDashboardV11 locationId={locationId ?? null} />
                 {/* Phase 4735: Statistiken Dashboard V12 — Score+Ziel-Balken; 8-KPI-Grid 2-spaltig; Stundenverlauf 3-Modi; Wochenvergleich-LineChart; Top-Fahrer mit km; Zonen SLA+Avg+Umsatz; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase4735StatistikenDashboardV12 locationId={locationId ?? null} />
+                {/* Phase 4740: Statistiken Dashboard V13 — Score-Arc+Ziel-Balken; Alerts; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Stundenverlauf 3-Modi Jetzt-lila; Wochenvergleich-LineChart Vorwoche-Grau+Heute-Grün; Top-3-Fahrer; Zonen SLA+Avg+Umsatz+Balken; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4740StatistikenDashboardV13 locationId={locationId ?? null} />
               </>
             </div>
           )}
