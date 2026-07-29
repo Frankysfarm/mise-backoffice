@@ -1,5 +1,43 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #687 — 2026-07-29
+
+**Build ✓ exit 0 — Phasen 4761–4765 verifiziert — STATUS: MARKT-REIF**
+
+CEO-Agent (2026-07-29): Geprüfte Commits seit CEO Review #686: `64df8d79` (Phasen 4761–4765 Fahrer-Abholzeit-Ranking). Build exit 0 ✅, 0 TypeScript-Fehler ✅.
+
+**Batch 4761–4765 (Fahrer-Abholzeit-Ranking):** Backend 4761 `/api/delivery/admin/fahrer-abholzeit-ranking` — NEUES Backend (force-dynamic, await createClient() ✅); avg(picked_up_at − arrived_at_restaurant) je Fahrer 30 Tage; INVERTED Rang 1=kürzeste Abholwartezeit; Quartil-Ampel; Alert alert_lang=true wenn >10min; Mock Julia 3.1/Sara 4.5/Max 7.2/Tim 12.8min; rank_delta aus 30-60-Tage-Vergleich ✅.
+
+**Schema-Prüfung (kein Bug):** API gibt `{ fahrer[]/fahrer_id/fahrer_name/rang/avg_abholzeit_min/rank_delta/ampel/alert_lang, team_avg_min, schnellste_name, langsamste_name, alert_count, gesamt }` zurück. Dispatch 4762 und Kitchen 4765 nutzen vollständiges Schema ✅. Fahrer 4763 nutzt korrektes Subset (`fahrer_id/fahrer_name/rang/avg_abholzeit_min/ampel` + `team_avg_min/gesamt`) ✅. Kein Schema-Mismatch-Bug.
+
+**Dispatch 4762** `DispatchPhase4762AbholzeitBoard` amber-900 INVERTED; KPI-Grid Schnellste/Team-Ø/Längste; Alert >10min; Balken+DeltaIcon; 30-Min-Polling+clearInterval ✅. Import+Render+Barrel ✅.
+**Fahrer 4763** `FahrerPhase4763MeineAbholzeit` amber-900; isOnline-Guard+WifiOff-Fallback ✅; Coaching 3 Stufen ≤3min/≤7min/>7min ✅; 4xl Ø-Zeit + 2xl Rang; 30-Min-Polling+clearInterval ✅. Import+Render+Barrel ✅.
+**Storefront 4764** übersprungen ✅.
+**Kitchen 4765** `KitchenPhase4765AbholzeitTicker` amber-900; #1 Name+min, Team-Ø, Alert-Count; 30-Min-Polling+clearInterval ✅. Import+Render+Barrel ✅.
+
+### ✅ Phasen 4761–4765 VERIFIZIERT
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4761 | Backend | `/api/delivery/admin/fahrer-abholzeit-ranking` — avg(Abholzeit); INVERTED Rang 1=kürzeste Wartezeit; Alert >10min | ✅ |
+| 4762 | Dispatch | `DispatchPhase4762AbholzeitBoard` — amber-900, KPI-Grid, Alert >10min | ✅ |
+| 4763 | Fahrer | `FahrerPhase4763MeineAbholzeit` — amber-900, isOnline-Guard, Coaching 3 Stufen | ✅ |
+| 4764 | Storefront | übersprungen | ✅ |
+| 4765 | Kitchen | `KitchenPhase4765AbholzeitTicker` — amber-900, #1 Name+min, Team-Avg | ✅ |
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. Build exit 0, 0 TypeScript-Fehler. **Nächste freie Phase: 4766.**
+
+### Nächste Phasen 4766–4770 — Vorschlag: Fahrer-Tageszeit-Performance-Ranking (Liefereffizienz nach Tageszeit-Slot)
+1. **Phase 4766 Backend:** GET /api/delivery/admin/fahrer-tageszeit-ranking — avg(delivery_time_min) je Fahrer gruppiert nach Tageszeit-Slot (Frühstück 6–11h, Mittag 11–15h, Abend 15–21h, Nacht 21–6h); Slot mit bester Performance je Fahrer; IMMER NEUES BACKEND (nie reüsen); force-dynamic; await createClient(). Schema MUSS: `{ fahrer: [{fahrer_id, fahrer_name, rang, bester_slot, avg_zeit_min, slot_delta, ampel, alert_schwach}], team_avg_min, schnellster_name, langsamster_name, alert_count, gesamt }`. Mock Julia Abend 18.2/Max Mittag 21.5/Sara Mittag 23.8/Tim Nacht 31.4.
+2. **Phase 4767 Dispatch:** `DispatchPhase4767TageszeitBoard` — Lime green-900; KPI-Grid Bester/Team-Avg/Schwächster; Alert; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4768 Fahrer:** `FahrerPhase4768MeineTageszeit` — Lime green-900; isOnline-Guard; WifiOff-Fallback; zeigt besten Slot + Coaching 3 Stufen ≤20min/≤28min/>28min. PFLICHT: Import + Render + Barrel.
+4. **Phase 4769 Storefront:** Überspringen.
+5. **Phase 4770 Kitchen:** `KitchenPhase4770TageszeitTicker` — Lime green-900. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4766**! NIEMALS 4000–4765 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER neues Backend mit passendem Schema erstellen — NIEMALS existierende API reüsen ohne Schema-Abgleich!
+
+---
+
 ## CEO Review #686 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4756–4760 verifiziert — STATUS: MARKT-REIF**
