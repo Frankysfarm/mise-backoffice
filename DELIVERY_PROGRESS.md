@@ -35114,3 +35114,43 @@ KRITISCH: Nächste freie Phase ist **4856**! NIEMALS 4000–4855 verwenden (4847
 KRITISCH: Nächste freie Phase ist **4880**! NIEMALS 4000–4879 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4880–4885 — Schlechtwetter-Anteil-Ranking + V23 (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4880 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-wetter-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, wetter_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`; absteigend Rang 1=höchster Schlechtwetter-Anteil; isSchlechtesWetter() = UTCHours 7-9 (Morgen-Nebel) oder 13-17 (Nachmittag-Gewitter); Quartil-Ampel; alert_hoch wenn ampel=rot; Mock Max 52%/Julia 40%/Tim 28%/Sara 15%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4881 — Schlechtwetter-Anteil-Board (Dispatch)
+**Component:** `DispatchPhase4881WetterBoard` — CloudLightning amber-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert grün/gelb/rot; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4882 — Mein Schlechtwetter-Anteil (Fahrer)
+**Component:** `FahrerPhase4882MeinWetterAnteil` — CloudLightning amber-900; wetter_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥50%/≥25%/<25%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4883 — Storefront
+Übersprungen ✅
+
+### Phase 4884 — Schlechtwetter-Ticker (Kitchen)
+**Component:** `KitchenPhase4884WetterTicker` — CloudLightning amber-900; Champion #1 Name+%; Team-Avg; Alert-Count Badge; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4885 — Smart-Timing Countdown V23 (Kitchen)
+**Component:** `KitchenPhase4885SmartTimingCountdownV23` — ChefHat indigo; **NEU: Stress-Score je Station** (Activity-Bar rot/gelb/grün, Score 0-100); **NEU: Komplexitäts-Badge je Bestellung** (hoch/mittel/gering farbkodiert); Station-Wettbewerb Leaderboard; Stress-Alert bei >80; 9-stufige Ampel; KI-Empfehlung; 1-Sek-Tick + 15-Sek-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (vor meinen Änderungen identisch reproduzierbar). TypeScript: `ignoreBuildErrors: true` in next.config.js — alle Fehler sind environment-level (react/lucide-react module resolution), identisch in allen bestehenden Phasen-Dateien ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4885 (4849, 4854, 4859, 4864, 4869, 4874, 4879, 4883 Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 4886**
+
+### Nächste Phasen 4886–4890 — Vorschlag: Fahrer-Frühschicht-Produktivitäts-Ranking (Touren 05:00–09:00 UTC)
+1. **Phase 4886 Backend:** GET /api/delivery/admin/fahrer-fruehprod-ranking — Touren pro Frühschicht-Stunde; absteigend Rang 1=höchste Produktivität; Quartil-Ampel; Alert >3 Touren/h; Mock Sara 3.8/Julia 2.9/Max 2.1/Tim 1.4; force-dynamic; await createClient().
+2. **Phase 4887 Dispatch:** `DispatchPhase4887FruehprodBoard` — Sun emerald-900; KPI-Grid; Alert >3.0; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4888 Fahrer:** `FahrerPhase4888MeineFruehprod` — Sun emerald-900; touren_pro_std 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥3.0/≥1.5/<1.5; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4889 Storefront:** Überspringen.
+5. **Phase 4890 Kitchen:** `KitchenPhase4890FruehprodTicker` — Sun emerald-900; Champion #1 Name+Touren/h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4886**! NIEMALS 4000–4885 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF

@@ -1232,6 +1232,8 @@ import { KitchenPhase4875NachmittagsschichtTicker } from './phase4875-nachmittag
 import { KitchenPhase4866SmartTimingCountdownV21 } from './phase4866-smart-timing-countdown-v21';
 import { KitchenPhase4875RegenzeitTicker } from './phase4875-regenzeit-ticker';
 import { KitchenPhase4876SmartTimingCountdownV22 } from './phase4876-smart-timing-countdown-v22';
+import { KitchenPhase4884WetterTicker } from './phase4884-wetter-ticker';
+import { KitchenPhase4885SmartTimingCountdownV23 } from './phase4885-smart-timing-countdown-v23';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -4888,6 +4890,10 @@ export function KitchenBoard({
       <KitchenPhase4875RegenzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4876: Smart-Timing Countdown V22 — ChefHat indigo; Station-Wettbewerb Leaderboard; Durchsatz-pro-Std KPI; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4876SmartTimingCountdownV22 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4884: Schlechtwetter-Anteil-Ticker — CloudLightning amber-900; Champion #1 Name+%; Team-Avg; Alert-Count; 30-Min-Polling */}
+      <KitchenPhase4884WetterTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4885: Smart-Timing Countdown V23 — ChefHat indigo; Stress-Score je Station; Komplexitäts-Badge je Order; 1-Sek-Tick + 15-Sek-Polling */}
+      <KitchenPhase4885SmartTimingCountdownV23 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4855: Smart-Timing Countdown V20 — ChefHat indigo; 9-stufige Ampel super-kritisch→fertig; KI-Kochstart-Empfehlung je Bestellung+gesamt; Stations-Auslastungsbalken; Effizienz-Anzeige; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4855SmartTimingCountdownV20 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4850: Smart-Timing Countdown V19 — Stations-Auslastung 3-Kacheln Grill/Friture/Kalt; Effizienz-% je Bestellung; 6-stufige Ampel; 5-KPI-Grid; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
@@ -12583,6 +12589,10 @@ export { KitchenPhase4866SmartTimingCountdownV21 } from './phase4866-smart-timin
 export { KitchenPhase4875RegenzeitTicker } from './phase4875-regenzeit-ticker';
 // Phase 4876 — Smart-Timing Countdown V22 (ChefHat indigo; Station-Wettbewerb Leaderboard abgeschlossen_heute; Durchsatz-pro-Std KPI; 9-stufige Ampel; KI-Empfehlung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4876SmartTimingCountdownV22 } from './phase4876-smart-timing-countdown-v22';
+// Phase 4884 — Schlechtwetter-Anteil-Ticker (CloudLightning amber-900; Champion #1 Name+%; Team-Avg; Alert-Count Badge; 30-Min-Polling)
+export { KitchenPhase4884WetterTicker } from './phase4884-wetter-ticker';
+// Phase 4885 — Smart-Timing Countdown V23 (ChefHat indigo; Stress-Score je Station Activity-Bar; Komplexitäts-Badge je Order; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4885SmartTimingCountdownV23 } from './phase4885-smart-timing-countdown-v23';
 // Phase 4830 — Smart-Timing Countdown V17 (ChefHat indigo; 6-stufige Ampel; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Pünktl; Countdown-Kacheln+Fortschrittsbalken+Batch+Komplexität+Fahrer-ETA; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 export { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';

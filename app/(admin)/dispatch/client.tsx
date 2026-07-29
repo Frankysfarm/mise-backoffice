@@ -1289,6 +1289,7 @@ import { DispatchPhase4867ScoreTourVisualisierungV7 } from './phase4867-score-to
 import { DispatchPhase4872NachmittagsschichtBoard } from './phase4872-nachmittagsschicht-board';
 import { DispatchPhase4872RegenzeitBoard } from './phase4872-regenzeit-board';
 import { DispatchPhase4877ScoreTourVisualisierungV8 } from './phase4877-score-tour-visualisierung-v8';
+import { DispatchPhase4881WetterBoard } from './phase4881-wetter-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5303,6 +5304,8 @@ export function DispatchBoard({
           <DispatchPhase4872RegenzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4877: Score + Tour-Visualisierung V8 — Trophy indigo; Wellbeing-Score je Fahrer; CO2 Gesamt; Kundenwertung je Stopp; CO2/kg je Fahrer; Eco+Wellbeing Badge; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4877ScoreTourVisualisierungV8 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4881: Schlechtwetter-Anteil-Ranking — CloudLightning amber-900; KPI-Grid; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4881WetterBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4852ScoreTourVisualisierungV6 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4847: Tour-Score Live Board V5 — Trophy indigo; Team-Score+Ziel-Balken; Pünktlichkeit+Avg-Zeit; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Aufklappbare Stopp-Timeline; Alert-Strip; 20-Sek-Polling; Mock-Fallback */}
@@ -14014,6 +14017,8 @@ export { DispatchPhase4872NachmittagsschichtBoard } from './phase4872-nachmittag
 export { DispatchPhase4872RegenzeitBoard } from './phase4872-regenzeit-board';
 // Phase 4877 — Score + Tour-Visualisierung V8 (Trophy indigo; Wellbeing-Score je Fahrer; CO2 Gesamt; Kundenwertung je Stopp; CO2/kg je Fahrer; Eco+Wellbeing Badge Leaf; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4877ScoreTourVisualisierungV8 } from './phase4877-score-tour-visualisierung-v8';
+// Phase 4881 — Schlechtwetter-Anteil-Ranking (CloudLightning amber-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling)
+export { DispatchPhase4881WetterBoard } from './phase4881-wetter-board';
 // Phase 4827 — Score + Tour-Visualisierung V3 (Trophy indigo; Team-Score Arc+Ziel; 4-KPI-Strip; Fahrer-Score-Ring 4-stufig; Stopp-Timeline aufklappbar; ETA+Km; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 export { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
