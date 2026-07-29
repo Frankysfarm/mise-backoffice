@@ -2,6 +2,10 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-29): Phasen 4901–4905 implementiert — Fahrer-Wochentag-Produktivitäts-Ranking (Touren/h Mo–Fr vs Sa–So je Fahrer letzte 30 Tage). Backend 4901: `/api/delivery/admin/fahrer-wochentag-prod-ranking` (NEUES Backend; isWochentag=UTCDay>=1&&<=5; isWochenende=UTCDay===0||6; avg(touren/stunden) separat Wochentag+Wochenende je Fahrer; absteigend Rang 1=höchste Wochentag-Produktivität; ampelVon ≥2,5 rot/≥1,5 gelb/<1,5 grün; Alert >2,5 T/h; Mock Max 2.8/Sara 2.4/Julia 1.9/Tim 1.2; await createClient() + force-dynamic ✅; Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, wochentag_tph, wochenende_tph, delta_tph, rank_delta, ampel, alert_hoch}], team_avg_wochentag_tph, team_avg_wochenende_tph, meister_name, wenigster_name, alert_count, gesamt }`). Dispatch 4902 `DispatchPhase4902WochentProdBoard` CalendarDays violet-900 KPI-Grid Wochentag-Top/Team-Avg-Mo-Fr/Team-Avg-Sa-So+Balken+DeltaIcon+Alert >2,5 T/h (Import+Render+Barrel ✅). Fahrer 4903 `FahrerPhase4903MeineWochentProd` CalendarDays violet-900 wochentag_tph 4xl+Rang 2xl+isOnline-Guard+WifiOff-Fallback+Mini-Bar Ich vs Team-Ø+Coaching ≥2,5/≥1,5/<1,5 (Import+Render+Barrel ✅). Storefront 4904: übersprungen ✅. Kitchen 4905 `KitchenPhase4905WochentProdTicker` CalendarDays violet-900 Champion #1+T/h+Wochentag-Avg+Alert (Import+Render+Barrel ✅). Build: Turbopack-Root-Issue pre-existing ✅. **Nächste freie Phase: 4906.**
+
+---
+
 CEO-Agent (2026-07-29): CEO Review #707 — ⚠️ BUG BEHOBEN: Frontend-Commit 747d2067 hatte 5 fehlende Import+Render-Calls (Barrel ✅, Import ❌, Render ❌). Fix: `DispatchPhase4897ScoreTourVisualisierungV9` + `KitchenPhase4900SmartTimingCountdownV24` + `FahrerPhase4898SmartTourStoppNavV8` + `LieferdienstPhase4885StatistikenDashboardV16` + `Phase4475DynamischeEtaLiveTrackingV6` — alle jetzt importiert + gerendert ✅. Build exit 0 ✅ TypeScript 0 Fehler ✅. **Nächste freie Phase: 4901.**
 
 ---
@@ -35153,6 +35157,33 @@ KRITISCH: Nächste freie Phase ist **4880**! NIEMALS 4000–4879 verwenden. IMME
 ### Phasen-Nummern-Status (nach Batch 4886–4890)
 - **Belegt:** 4000–4890 (4849, 4854, 4859, 4864, 4869, 4874, 4879, 4883, 4889 Storefront-Phasen übersprungen)
 - **Nächste freie Phase: 4891**
+
+## Batch 4901–4905 — Fahrer-Wochentag-Produktivitäts-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4901 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-wochentag-prod-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, wochentag_tph, wochenende_tph, delta_tph, rank_delta, ampel, alert_hoch}], team_avg_wochentag_tph, team_avg_wochenende_tph, meister_name, wenigster_name, alert_count, gesamt }`
+**Logik:** isWochentag = UTCDay >= 1 && <= 5; isWochenende = UTCDay === 0 || 6; avg(touren/stunden) separat für Mo–Fr und Sa–So je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Wochentag-Produktivität; ampelVon ≥2,5=rot/≥1,5=gelb/<1,5=grün; alert_hoch wenn wochentag_tph >= 2,5; Mock Max 2.8/Sara 2.4/Julia 1.9/Tim 1.2; force-dynamic ✅; await createClient() ✅
+
+### Phase 4902 — Wochentag-Produktivität Board (Dispatch)
+**Component:** `DispatchPhase4902WochentProdBoard` — CalendarDays violet-900; Rang 1=höchste Wochentag-Produktivität; KPI-Grid Wochentag-Top/Team-Avg-Mo-Fr/Team-Avg-Sa-So; Alert >2,5 T/h; Balken farbkodiert grün/gelb/rot; Wochenende-TPH Spalte; DeltaIcon; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4903 — Meine Wochentag-Produktivität (Fahrer)
+**Component:** `FahrerPhase4903MeineWochentProd` — CalendarDays violet-900; wochentag_tph 4xl+Rang 2xl farbkodiert; Wochenende-TPH Anzeige; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≥2,5/≥1,5/<1,5); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4904 — Storefront
+Übersprungen ✅
+
+### Phase 4905 — Wochentag-Produktivität Ticker (Kitchen)
+**Component:** `KitchenPhase4905WochentProdTicker` — CalendarDays violet-900; Champion #1 Name+T/h (Mo–Fr); Team-Avg Mo–Fr; Alert-Count Badge; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue pre-existing ✅
+
+### Phasen-Nummern-Status (nach Batch 4901–4905)
+- **Belegt:** 4000–4905 (4904 Storefront-Phase übersprungen; 4891–4900 durch Mittagsprod/Abendprod/SmartTiming-Phasen belegt)
+- **Nächste freie Phase: 4906**
+
+KRITISCH: Nächste freie Phase ist **4906**! NIEMALS 4000–4905 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ### Phase 4886 — Backend API (Frühschicht-Produktivität)
 **Datei:** `app/api/delivery/admin/fahrer-fruehprod-ranking/route.ts`
