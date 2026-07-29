@@ -24,22 +24,17 @@ interface ApiResponse {
 
 const MOCK_DATA: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 1, nacht_anteil_pct: 52, rank_delta:  1, ampel: 'rot',   alert_hoch: true  },
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, nacht_anteil_pct: 41, rank_delta:  0, ampel: 'gelb',  alert_hoch: false },
-    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, nacht_anteil_pct: 25, rank_delta: -1, ampel: 'gelb',  alert_hoch: false },
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 4, nacht_anteil_pct: 12, rank_delta:  0, ampel: 'gruen', alert_hoch: false },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, nacht_anteil_pct: 55, rank_delta:  1, ampel: 'rot',   alert_hoch: true  },
+    { fahrer_id: 'f2', fahrer_name: 'Max M.',   rang: 2, nacht_anteil_pct: 38, rank_delta:  0, ampel: 'rot',   alert_hoch: false },
+    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, nacht_anteil_pct: 22, rank_delta: -1, ampel: 'gelb',  alert_hoch: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, nacht_anteil_pct: 10, rank_delta:  0, ampel: 'gruen', alert_hoch: false },
   ],
-  team_avg_pct: 32.5,
-  meister_name: 'Tim B.',
-  wenigster_name: 'Julia F.',
+  team_avg_pct: 31.3,
+  meister_name: 'Julia F.',
+  wenigster_name: 'Tim B.',
   alert_count: 1,
   gesamt: 4,
 };
-
-function isNachtschicht(startedAt: string): boolean {
-  const hour = new Date(startedAt).getUTCHours();
-  return hour >= 22 || hour < 6;
-}
 
 function ampelVon(pct: number, q25: number, q75: number): 'gruen' | 'gelb' | 'rot' {
   if (pct >= q75) return 'rot';
@@ -54,32 +49,34 @@ export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient();
 
-    const cur30Start  = new Date(Date.now() - 30 * 86400000).toISOString();
-    const prev30Start = new Date(Date.now() - 60 * 86400000).toISOString();
+    const since30 = new Date(Date.now() - 30 * 86400000).toISOString();
+    const since60 = new Date(Date.now() - 60 * 86400000).toISOString();
 
     const [curRes, prevRes] = await Promise.all([
       supabase
         .from('delivery_tours')
         .select('driver_id, driver_name, started_at')
         .eq('location_id', locationId)
-        .gte('started_at', cur30Start),
+        .gte('started_at', since30),
       supabase
         .from('delivery_tours')
         .select('driver_id, started_at')
         .eq('location_id', locationId)
-        .gte('started_at', prev30Start)
-        .lt('started_at', cur30Start),
+        .gte('started_at', since60)
+        .lt('started_at', since30),
     ]);
 
     const curData = curRes.data ?? [];
     if (!curData.length) return NextResponse.json(MOCK_DATA);
+
+    const isNacht = (startedAt: string) => new Date(startedAt).getUTCHours() >= 22;
 
     const groupCur = new Map<string, { name: string; nacht: number; total: number }>();
     for (const t of curData) {
       const prev = groupCur.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, nacht: 0, total: 0 };
       groupCur.set(t.driver_id, {
         name: prev.name,
-        nacht: prev.nacht + (t.started_at && isNachtschicht(t.started_at) ? 1 : 0),
+        nacht: prev.nacht + (isNacht(t.started_at) ? 1 : 0),
         total: prev.total + 1,
       });
     }
@@ -89,7 +86,7 @@ export async function GET(req: NextRequest) {
     for (const t of prevRes.data ?? []) {
       const prev = groupPrev.get(t.driver_id) ?? { nacht: 0, total: 0 };
       groupPrev.set(t.driver_id, {
-        nacht: prev.nacht + (t.started_at && isNachtschicht(t.started_at) ? 1 : 0),
+        nacht: prev.nacht + (isNacht(t.started_at) ? 1 : 0),
         total: prev.total + 1,
       });
     }
@@ -121,15 +118,14 @@ export async function GET(req: NextRequest) {
     const fahrer: FahrerRow[] = sorted.map((f, i) => {
       const rang     = i + 1;
       const prevRang = prevRanks.get(f.fahrer_id) ?? rang;
-      const ampel    = ampelVon(f.pct, q25, q75);
       return {
         fahrer_id: f.fahrer_id,
         fahrer_name: f.fahrer_name,
         rang,
         nacht_anteil_pct: f.pct,
         rank_delta: prevRang - rang,
-        ampel,
-        alert_hoch: ampel === 'rot',
+        ampel: ampelVon(f.pct, q25, q75),
+        alert_hoch: f.pct > 40,
       };
     });
 
