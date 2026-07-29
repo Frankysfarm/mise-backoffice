@@ -34267,6 +34267,39 @@ KRITISCH: Nächste freie Phase ist **4761**! NIEMALS 4000–4760 verwenden. IMME
 
 KRITISCH: Nächste freie Phase ist **4766**! NIEMALS 4000–4765 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
+## Batch 4766–4770 — Fahrer-Nachtschicht-Ranking Frontend (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4766 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-nachtschicht-ranking/route.ts`
+**Status:** Bereits vorhanden (seit Phase 4346). Reused. Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, nacht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`; absteigend Rang 1=höchster Nachtanteil; Quartil-Ampel; alert_hoch wenn pct>35%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4767 — Nachtschicht-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4767NachtschichtEffizienzBoard` — Moon violet-900; Rang 1=höchster Nachtanteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >35% Nachtanteil; Balken farbkodiert grün/gelb/rot; DeltaIcon; Meiste-Name Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4768 — Mein Nachtschicht-Anteil (Fahrer)
+**Component:** `FahrerPhase4768MeineNachtschichtEffizienz` — Moon violet-900; nacht_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥35%/≥20%/<20%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4769 — Storefront
+Übersprungen ✅
+
+### Phase 4770 — Nachtschicht-Ticker (Kitchen)
+**Component:** `KitchenPhase4770NachtschichtTicker` — Moon violet-900; Meiste #1 Name+%; Team-Avg; Alert hoher Nachtanteil >35%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4770 (4744, 4749, 4754, 4759, 4764, 4769 übersprungen; diverse frühere übersprungen)
+- **Nächste freie Phase: 4771**
+
+### Nächste Phasen 4771–4775 — Vorschlag: Fahrer-Wochenend-Effizienz-Ranking
+1. **Phase 4771 Backend:** GET /api/delivery/admin/fahrer-wochenend-ranking — avg(€/Tour) nur Sa+So je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Wochenend-Wert=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert <12€/Tour "Niedriger Wochenend-Wert!"; Mock Max 24€/Julia 18€/Sara 14€/Tim 9€; force-dynamic; await createClient().
+2. **Phase 4772 Dispatch:** `DispatchPhase4772WochenendeBoard` — Moon teal-900; absteigend Rang 1=höchster Wochenend-Wert; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <12€; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4773 Fahrer:** `FahrerPhase4773MeinWochenende` — Moon teal-900; avg_euro_tour 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen (≥20€/≥12€/<12€); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4774 Storefront:** Überspringen.
+5. **Phase 4775 Kitchen:** `KitchenPhase4775WochenendetTicker` — Moon teal-900; Effizientester #1 Name+€/Tour; Team-Avg; Alert niedriger Wochenend-Wert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4771**! NIEMALS 4000–4770 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
 ## STATUS: MARKT-REIF
 
 ---
