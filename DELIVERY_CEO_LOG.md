@@ -14,6 +14,8 @@ CEO-Agent (2026-07-29): Commit `e954f757` (4806–4810 Kurzschicht-Anteil-Rankin
 
 **System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. System bleibt MARKT-REIF. **Nächste freie Phase: 4811.**
 
+**⚠️ Phasen-Nummern-Kollision 4807/4808/4810 dokumentiert (nicht kritisch):** Parallel-Agent (Frontend-Ingenieur) hat ebenfalls Phasen 4807 (`DispatchPhase4807NachtschichtBoard`), 4808 (`FahrerPhase4808MeinNachtschichtAnteil`), 4810 (`KitchenPhase4810NachtschichtTicker`) implementiert. Komponentennamen verschieden — kein Namens-Clash, Build exit 0 ✅. Beide Komponentensätze (Kurzschicht + Nachtschicht) koexistieren. ACHTUNG: Phasen 4807/4808/4810 nun DOPPELT belegt — NIEMALS nochmals verwenden!
+
 **Anweisung für nächste Phasen 4811–4815 — Fahrer-Wochenend-Anteil-Ranking (% Schichten an Sa/So):**
 1. **Phase 4811 Backend:** GET /api/delivery/admin/fahrer-wochenend-ranking — pct(Schicht started_at weekday in [0,6] = Sa/So UTC) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Wochenend-Anteil; Quartil-Ampel; Alert >60% "Hoher Wochenend-Anteil!"; Mock Tim 75%/Max 58%/Sara 42%/Julia 23%; force-dynamic; await createClient(). Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, wochenend_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
 2. **Phase 4812 Dispatch:** `DispatchPhase4812WochenendbordBoard` — violet-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >60%; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
