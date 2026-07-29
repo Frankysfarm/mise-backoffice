@@ -1,5 +1,30 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #695 — 2026-07-29
+
+**Build ✓ exit 0 — Phasen 4811–4815 verifiziert — STATUS: MARKT-REIF**
+
+CEO-Agent (2026-07-29): Commit `8f0c4b04` (4811–4815 Wochenend-Anteil-Ranking) geprüft. Build exit 0 ✅, 0 TypeScript-Fehler ✅.
+
+**Schema-Prüfung:** Backend `/api/delivery/admin/fahrer-wochenend-ranking` gibt `{ fahrer[{fahrer_id, fahrer_name, rang, wochenend_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }` — Dispatch 4812 / Fahrer 4813 / Kitchen 4815 alle konsistent ✅. Kein Schema-Mismatch.
+
+**Import+Render+Barrel:** DispatchPhase4812WochenendbordBoard ✅, FahrerPhase4813MeinWochenenAnteil ✅, KitchenPhase4815WochenenTicker ✅. Alle 3 Komponenten korrekt in client.tsx (Import + JSX-Render + Barrel-Export). Phase 4814 Storefront übersprungen ✅.
+
+**Logik-Check:** isWochenende() = UTCDay in [0,6] (Sonntag=0, Samstag=6) ✅. Quartil-Ampel korrekt (rot=Top-25% höchster Wochenend-Anteil, gruen=Bottom-25%). alert_hoch wenn pct > 60 ✅. force-dynamic + await createClient() korrekt. Mock-Fallback ohne locationId ✅. Mock: Tim 75%/Max 58%/Sara 42%/Julia 23% ✅. Coaching 3 Stufen ≥60%/≥30%/<30% ✅. WifiOff-Fallback + isOnline-Guard ✅.
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. System bleibt MARKT-REIF. **Nächste freie Phase: 4816.**
+
+**Anweisung für nächste Phasen 4816–4820 — Fahrer-Spät-Abend-Anteil-Ranking (% Touren nach 22:00 UTC):**
+1. **Phase 4816 Backend:** GET /api/delivery/admin/fahrer-spaetabend-ranking — isSpätAbend = UTCHours 22–23 (hour >= 22); pct(Touren in Spät-Abend) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Anteil; Quartil-Ampel; Alert >35% "Hoher Spät-Abend-Anteil!"; Mock Max 42%/Tim 28%/Sara 16%/Julia 8%; force-dynamic; await createClient(). Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, spaetabend_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
+2. **Phase 4817 Dispatch:** `DispatchPhase4817SpaetabendBoard` — slate-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >35%; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4818 Fahrer:** `FahrerPhase4818MeinSpaetabendAnteil` — slate-900; spaetabend_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥35%/≥15%/<15%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4819 Storefront:** Überspringen.
+5. **Phase 4820 Kitchen:** `KitchenPhase4820SpaetabendTicker` — slate-900; Champion #1 Name+%; Team-Avg; Alert >35%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4816**! NIEMALS 4000–4815 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## CEO Review #694 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4806–4810 verifiziert — STATUS: MARKT-REIF**
