@@ -24,12 +24,12 @@ interface ApiResponse {
 
 const MOCK_DATA: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, fruehschicht_anteil_pct: 58, rank_delta:  1, ampel: 'rot',   alert_hoch: true  },
-    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 2, fruehschicht_anteil_pct: 42, rank_delta:  0, ampel: 'gelb',  alert_hoch: false },
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 3, fruehschicht_anteil_pct: 29, rank_delta: -1, ampel: 'gelb',  alert_hoch: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, fruehschicht_anteil_pct: 11, rank_delta:  0, ampel: 'gruen', alert_hoch: false },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, fruehschicht_anteil_pct: 62, rank_delta:  0, ampel: 'rot',   alert_hoch: true  },
+    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 2, fruehschicht_anteil_pct: 45, rank_delta:  1, ampel: 'gelb',  alert_hoch: false },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 3, fruehschicht_anteil_pct: 28, rank_delta: -1, ampel: 'gelb',  alert_hoch: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, fruehschicht_anteil_pct: 14, rank_delta:  0, ampel: 'gruen', alert_hoch: false },
   ],
-  team_avg_pct: 35,
+  team_avg_pct: 37.3,
   meister_name: 'Julia F.',
   wenigster_name: 'Tim B.',
   alert_count: 1,
@@ -37,8 +37,7 @@ const MOCK_DATA: ApiResponse = {
 };
 
 function isFruehschicht(startedAt: string): boolean {
-  const hour = new Date(startedAt).getUTCHours();
-  return hour >= 6 && hour < 12;
+  return new Date(startedAt).getUTCHours() < 8;
 }
 
 function ampelVon(pct: number, q25: number, q75: number): 'gruen' | 'gelb' | 'rot' {
@@ -100,7 +99,6 @@ export async function GET(req: NextRequest) {
       pct: v.total > 0 ? Math.round((v.frueh / v.total) * 1000) / 10 : 0,
     }));
 
-    // descending: Rang 1 = highest Frühschicht share
     const sorted = [...unsorted].sort((a, b) => b.pct - a.pct);
     const total = sorted.length;
 
@@ -130,7 +128,7 @@ export async function GET(req: NextRequest) {
         fruehschicht_anteil_pct: f.pct,
         rank_delta: prevRang - rang,
         ampel,
-        alert_hoch: ampel === 'rot',
+        alert_hoch: f.pct > 50,
       };
     });
 
