@@ -24,12 +24,12 @@ interface ApiResponse {
 
 const MOCK_DATA: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 1, abendschicht_anteil_pct: 61, rank_delta:  1, ampel: 'rot',   alert_hoch: true  },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 2, abendschicht_anteil_pct: 47, rank_delta:  0, ampel: 'gelb',  alert_hoch: false },
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 3, abendschicht_anteil_pct: 29, rank_delta: -1, ampel: 'gelb',  alert_hoch: false },
-    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 4, abendschicht_anteil_pct: 13, rank_delta:  0, ampel: 'gruen', alert_hoch: false },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 1, abendschicht_anteil_pct: 55, rank_delta:  1, ampel: 'rot',   alert_hoch: true  },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 2, abendschicht_anteil_pct: 40, rank_delta:  0, ampel: 'gelb',  alert_hoch: false },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 3, abendschicht_anteil_pct: 28, rank_delta: -1, ampel: 'gelb',  alert_hoch: false },
+    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 4, abendschicht_anteil_pct: 12, rank_delta:  0, ampel: 'gruen', alert_hoch: false },
   ],
-  team_avg_pct: 37.5,
+  team_avg_pct: 34,
   meister_name: 'Sara K.',
   wenigster_name: 'Max M.',
   alert_count: 1,
@@ -37,8 +37,10 @@ const MOCK_DATA: ApiResponse = {
 };
 
 function isAbendschicht(startedAt: string): boolean {
-  const hour = new Date(startedAt).getUTCHours();
-  return hour >= 18 && hour < 22;
+  const d = new Date(startedAt);
+  const hour = d.getUTCHours();
+  const min = d.getUTCMinutes();
+  return (hour === 17 && min >= 30) || (hour > 17 && hour < 22);
 }
 
 function ampelVon(pct: number, q25: number, q75: number): 'gruen' | 'gelb' | 'rot' {

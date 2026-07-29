@@ -62,10 +62,10 @@ export function DispatchPhase4802AbendschichtBoard({ locationId }: { locationId:
   const maxPct = Math.max(...data.fahrer.map(f => f.abendschicht_anteil_pct), 1);
 
   return (
-    <div className="rounded-xl border border-orange-800 bg-orange-950/40 p-4 mb-3">
+    <div className="rounded-xl border border-indigo-800 bg-indigo-950/40 p-4 mb-3">
       <div className="flex items-center gap-2 mb-3">
-        <Moon className="w-4 h-4 text-orange-400" />
-        <span className="text-sm font-semibold text-orange-300">Abendschicht-Anteil-Ranking</span>
+        <Moon className="w-4 h-4 text-indigo-400" />
+        <span className="text-sm font-semibold text-indigo-300">Abendschicht-Anteil-Ranking</span>
         <span className="ml-auto text-xs text-gray-500">Rang 1 = höchster Abendschicht-Anteil</span>
       </div>
 
@@ -79,11 +79,11 @@ export function DispatchPhase4802AbendschichtBoard({ locationId }: { locationId:
       <div className="grid grid-cols-3 gap-2 mb-3 text-center">
         <div className="bg-black/20 rounded p-2">
           <div className="text-xs text-gray-400">Höchster Anteil</div>
-          <div className="text-sm font-bold text-orange-300">{data.fahrer[0]?.abendschicht_anteil_pct.toFixed(1)}%</div>
+          <div className="text-sm font-bold text-indigo-300">{data.fahrer[0]?.abendschicht_anteil_pct.toFixed(1)}%</div>
         </div>
         <div className="bg-black/20 rounded p-2">
           <div className="text-xs text-gray-400">Team-Ø</div>
-          <div className="text-sm font-bold text-orange-200">{data.team_avg_pct.toFixed(1)}%</div>
+          <div className="text-sm font-bold text-indigo-200">{data.team_avg_pct.toFixed(1)}%</div>
         </div>
         <div className="bg-black/20 rounded p-2">
           <div className="text-xs text-gray-400">Niedrigster</div>

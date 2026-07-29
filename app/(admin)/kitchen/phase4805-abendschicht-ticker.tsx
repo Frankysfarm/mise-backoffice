@@ -37,11 +37,11 @@ export function KitchenPhase4805AbendschichtTicker({ locationId }: { locationId:
   const top = data.fahrer[0];
 
   return (
-    <div className="rounded-xl border border-orange-800 bg-orange-950/40 px-4 py-3 mb-3 flex items-center gap-3">
-      <Moon className="w-4 h-4 text-orange-400 shrink-0" />
+    <div className="rounded-xl border border-indigo-800 bg-indigo-950/40 px-4 py-3 mb-3 flex items-center gap-3">
+      <Moon className="w-4 h-4 text-indigo-400 shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="text-xs text-gray-400">Abendschicht-Anteil — Champion</div>
-        <div className="text-sm font-bold text-orange-300 truncate">
+        <div className="text-sm font-bold text-indigo-300 truncate">
           #{top?.rang} {top?.fahrer_name} — {top?.abendschicht_anteil_pct.toFixed(1)}% Abendschicht
         </div>
         <div className="text-xs text-gray-500">Team-Ø: {data.team_avg_pct.toFixed(1)}%</div>

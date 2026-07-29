@@ -5249,7 +5249,7 @@ export function DispatchBoard({
           <DispatchPhase4792FruehschichtAnteilRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4797: Mittagsschicht-Anteil-Ranking — Moon lime-900; Rang 1=höchster Mittagsschicht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4797MittagsschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
-          {/* Phase 4802: Abendschicht-Anteil-Ranking — Moon orange-900; Rang 1=höchster Abendschicht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          {/* Phase 4802: Abendschicht-Anteil-Ranking — Moon indigo-900; Rang 1=höchster Abendschicht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4802AbendschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4795: Tour-Score Live Board V3 — Team-Score Arc+Delta+Ziel; Fahrer-Score-Ring 4-stufig; Stopp-Timeline aufklappbar; 20-Sek-Polling */}
           <DispatchPhase4795TourScoreBoardV3 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
@@ -13920,7 +13920,7 @@ export { DispatchPhase4787TrinkgeldBoard } from './phase4787-trinkgeld-board';
 export { DispatchPhase4792FruehschichtAnteilRankingBoard } from './phase4792-fruehschicht-anteil-ranking-board';
 // Phase 4797 — Mittagsschicht-Anteil-Ranking Board (Sun lime; Rang 1=höchster Mittagsschicht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4797MittagsschichtBoard } from './phase4797-mittagsschicht-board';
-// Phase 4802 — Abendschicht-Anteil-Ranking Board (Moon orange; Rang 1=höchster Abendschicht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+// Phase 4802 — Abendschicht-Anteil-Ranking Board (Moon indigo; Rang 1=höchster Abendschicht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4802AbendschichtBoard } from './phase4802-abendschicht-board';
 // Phase 4795 — Tour-Score Live Board V3 (Trophy indigo; Team-Score Arc+Delta+Ziel; Alert unter Ziel; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Score-Balken+Trend; Aufklappbare Stopp-Timeline geliefert/aktiv/ausstehend/verspaetet+ETA+km; KPI-Row Pünktlichkeit+Lieferzeit; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4795TourScoreBoardV3 } from './phase4795-tour-score-board-v3';

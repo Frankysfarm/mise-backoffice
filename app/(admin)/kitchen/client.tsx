@@ -4834,7 +4834,7 @@ export function KitchenBoard({
       <KitchenPhase4795FruehschichtAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4800: Mittagsschicht-Anteil-Ticker — Moon lime-900; Champion #1 Name+%; Team-Avg; Alert hoher Anteil >50%; 30-Min-Polling */}
       <KitchenPhase4800MittagsschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
-      {/* Phase 4805: Abendschicht-Anteil-Ticker — Moon orange-900; Champion #1 Name+%; Team-Avg; Alert hoher Anteil >50%; 30-Min-Polling */}
+      {/* Phase 4805: Abendschicht-Anteil-Ticker — Moon indigo-900; Champion #1 Name+%; Team-Avg; Alert hoher Anteil >50%; 30-Min-Polling */}
       <KitchenPhase4805AbendschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4800: Smart-Timing Countdown V16 — 6-stufige Ampel; 5-KPI-Grid; Countdown-Kacheln Fortschrittsbalken+Batch+Komplexität+Fahrer-ETA; Prio-Sort; 1-Sek-Tick + 15-Sek-Polling */}
       <KitchenPhase4800SmartTimingCountdownV16 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -12489,7 +12489,7 @@ export { KitchenPhase4790TrinkgeldTicker } from './phase4790-trinkgeld-ticker';
 export { KitchenPhase4795FruehschichtAnteilTicker } from './phase4795-fruehschicht-anteil-ticker';
 // Phase 4800 — Mittagsschicht-Anteil-Ticker (Sun lime; Champion #1 Name+%; Team-Avg; Alert hoher Anteil >50%; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4800MittagsschichtTicker } from './phase4800-mittagsschicht-ticker';
-// Phase 4805 — Abendschicht-Anteil-Ticker (Moon orange; Champion #1 Name+%; Team-Avg; Alert hoher Anteil >50%; 30-Min-Polling; Mock-Fallback)
+// Phase 4805 — Abendschicht-Anteil-Ticker (Moon indigo; Champion #1 Name+%; Team-Avg; Alert hoher Anteil >50%; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4805AbendschichtTicker } from './phase4805-abendschicht-ticker';
 export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';
 // Phase 4800 — Smart-Timing Countdown Farbkodierung V16 (ChefHat indigo; 6-stufige Ampel; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Pünktl; Alert-Banner; Countdown-Kacheln Fortschrittsbalken+Batch-Gruppe+Komplexität+Fahrer-ETA; Prioritätssortierung kritisch→fertig; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)

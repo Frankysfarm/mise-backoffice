@@ -46,7 +46,7 @@ export function FahrerPhase4803MeinAbendschichtAnteil({ driverId, locationId, is
 
   if (!isOnline) {
     return (
-      <div className="rounded-xl border border-orange-800 bg-orange-950/40 p-4 mb-3 flex items-center gap-2 text-gray-400">
+      <div className="rounded-xl border border-indigo-800 bg-indigo-950/40 p-4 mb-3 flex items-center gap-2 text-gray-400">
         <WifiOff className="w-4 h-4" />
         <span className="text-xs">Offline — Abendschicht-Anteil nicht verfügbar</span>
       </div>
@@ -62,15 +62,15 @@ export function FahrerPhase4803MeinAbendschichtAnteil({ driverId, locationId, is
   const maxPct = Math.max(me.abendschicht_anteil_pct, data.team_avg_pct, 1);
 
   return (
-    <div className="rounded-xl border border-orange-800 bg-orange-950/40 p-4 mb-3">
+    <div className="rounded-xl border border-indigo-800 bg-indigo-950/40 p-4 mb-3">
       <div className="flex items-center gap-2 mb-3">
-        <Moon className="w-4 h-4 text-orange-400" />
-        <span className="text-sm font-semibold text-orange-300">Mein Abendschicht-Anteil</span>
+        <Moon className="w-4 h-4 text-indigo-400" />
+        <span className="text-sm font-semibold text-indigo-300">Mein Abendschicht-Anteil</span>
       </div>
 
       <div className="text-center mb-4">
         <div className={`text-4xl font-bold ${ampelColor(me.ampel)}`}>{me.abendschicht_anteil_pct.toFixed(1)}%</div>
-        <div className="text-xs text-gray-400 mt-1">Touren 18:00–00:00 Uhr (30 Tage)</div>
+        <div className="text-xs text-gray-400 mt-1">Touren 17:30–22:00 Uhr (30 Tage)</div>
         <div className={`text-xl font-semibold mt-1 ${ampelColor(me.ampel)}`}>Rang {me.rang}</div>
       </div>
 
@@ -81,7 +81,7 @@ export function FahrerPhase4803MeinAbendschichtAnteil({ driverId, locationId, is
             <span className={ampelColor(me.ampel)}>{me.abendschicht_anteil_pct.toFixed(1)}%</span>
           </div>
           <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
-            <div className="h-full bg-orange-500 rounded-full" style={{ width: `${(me.abendschicht_anteil_pct / maxPct) * 100}%` }} />
+            <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${(me.abendschicht_anteil_pct / maxPct) * 100}%` }} />
           </div>
         </div>
         <div>
