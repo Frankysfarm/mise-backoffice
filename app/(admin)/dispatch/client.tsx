@@ -1279,6 +1279,7 @@ import { DispatchPhase4812WochenendbordBoard } from './phase4812-wochenend-board
 import { DispatchPhase4817FeiertagsBoard } from './phase4817-feiertags-board';
 import { DispatchPhase4822SpaetabendBoard } from './phase4822-spaetabend-board';
 import { DispatchPhase4832UeberstundenBoard } from './phase4832-ueberstunden-board';
+import { DispatchPhase4837PauseBoard } from './phase4837-pause-board';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
 import { DispatchPhase4795TourScoreBoardV3 } from './phase4795-tour-score-board-v3';
@@ -5271,6 +5272,8 @@ export function DispatchBoard({
           <DispatchPhase4822SpaetabendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4832: Überstunden-Anteil-Ranking — red-900; Rang 1=höchster Überstunden-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >30%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4832UeberstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4837: Pausenquoten-Ranking — orange-900; Rang 1=höchster Pausenausfall-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >40%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4837PauseBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4827: Score + Tour-Visualisierung V3 — Trophy indigo; Team-Score Arc+Ziel; 4-KPI-Strip; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar 5-stufig geliefert/aktiv/ausstehend/batch/verspaetet; ETA+Km je Stopp; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4827ScoreTourVisualisierungV3 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4831: Score + Tour-Visualisierung V4 — Zonen-SLA-Übersicht; SLA je Fahrer; Zonen-Heatmap; V4 */}
@@ -13958,6 +13961,8 @@ export { DispatchPhase4817FeiertagsBoard } from './phase4817-feiertags-board';
 export { DispatchPhase4822SpaetabendBoard } from './phase4822-spaetabend-board';
 // Phase 4832 — Überstunden-Anteil-Ranking Board (Clock red-900; Rang 1=höchster Überstunden-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >30%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4832UeberstundenBoard } from './phase4832-ueberstunden-board';
+// Phase 4837 — Pausenquoten-Ranking Board (Coffee orange-900; Rang 1=höchster Pausenausfall-Anteil; KPI-Grid; Alert >40%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4837PauseBoard } from './phase4837-pause-board';
 // Phase 4827 — Score + Tour-Visualisierung V3 (Trophy indigo; Team-Score Arc+Ziel; 4-KPI-Strip; Fahrer-Score-Ring 4-stufig; Stopp-Timeline aufklappbar; ETA+Km; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 export { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
