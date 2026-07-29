@@ -1228,6 +1228,7 @@ import { KitchenPhase4850FruehschichtTicker } from './phase4850-fruehschicht-tic
 import { KitchenPhase4855NachtTicker } from './phase4855-nacht-ticker';
 import { KitchenPhase4860MittagsschichtTicker } from './phase4860-mittagsschicht-ticker';
 import { KitchenPhase4865AbendschichtTicker } from './phase4865-abendschicht-ticker';
+import { KitchenPhase4875NachmittagsschichtTicker } from './phase4875-nachmittagsschicht-ticker';
 import { KitchenPhase4866SmartTimingCountdownV21 } from './phase4866-smart-timing-countdown-v21';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
@@ -4877,6 +4878,8 @@ export function KitchenBoard({
       <KitchenPhase4860MittagsschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4865: Abend-Anteil-Ticker — Sunset indigo-900; Champion #1 Name+%; Team-Avg; Alert >45%; 30-Min-Polling */}
       <KitchenPhase4865AbendschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4875: Nachmittag-Anteil-Ticker — Sun teal-900; Champion #1 Name+%; Team-Avg; Alert >45%; 30-Min-Polling */}
+      <KitchenPhase4875NachmittagsschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4866: Smart-Timing Countdown V21 — ChefHat indigo; Wellen-Erkennung; Dringlichkeits-Score je Order; Batch-Effizienz je Station; 5-KPI-Grid; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4866SmartTimingCountdownV21 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4855: Smart-Timing Countdown V20 — ChefHat indigo; 9-stufige Ampel super-kritisch→fertig; KI-Kochstart-Empfehlung je Bestellung+gesamt; Stations-Auslastungsbalken; Effizienz-Anzeige; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
@@ -12566,6 +12569,8 @@ export { KitchenPhase4855NachtTicker } from './phase4855-nacht-ticker';
 export { KitchenPhase4860MittagsschichtTicker } from './phase4860-mittagsschicht-ticker';
 // Phase 4865 — Abendschicht-Anteil-Ticker (Sunset indigo-900; Champion #1 Name+%; Team-Avg; Alert >45%; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4865AbendschichtTicker } from './phase4865-abendschicht-ticker';
+// Phase 4875 — Nachmittagsschicht-Anteil-Ticker (Sun teal-900; Champion #1 Name+%; Team-Avg; Alert >45%; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase4875NachmittagsschichtTicker } from './phase4875-nachmittagsschicht-ticker';
 // Phase 4866 — Smart-Timing Countdown V21 (ChefHat indigo; Wellen-Erkennung Welle-Info; Dringlichkeits-Score je Order; Batch-Effizienz je Station; KI-Empfehlung; 5-KPI-Grid; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4866SmartTimingCountdownV21 } from './phase4866-smart-timing-countdown-v21';
 // Phase 4830 — Smart-Timing Countdown V17 (ChefHat indigo; 6-stufige Ampel; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Pünktl; Countdown-Kacheln+Fortschrittsbalken+Batch+Komplexität+Fahrer-ETA; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
