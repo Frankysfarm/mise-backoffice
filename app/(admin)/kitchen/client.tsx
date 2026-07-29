@@ -1206,6 +1206,7 @@ import { KitchenPhase4740WartezeitRestaurantTicker } from './phase4740-wartezeit
 import { KitchenPhase4745BestellwertTicker } from './phase4745-bestellwert-ticker';
 import { KitchenPhase4750LieferzeitZuverlaessigkeitTicker } from './phase4750-lieferzeit-zuverlaessigkeit-ticker';
 import { KitchenPhase4755KmProTourTicker } from './phase4755-km-pro-tour-ticker';
+import { KitchenPhase4760ReaktionszeitTicker } from './phase4760-reaktionszeit-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4805,6 +4806,8 @@ export function KitchenBoard({
       <KitchenPhase4750LieferzeitZuverlaessigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4755: KM-pro-Tour-Ticker — Moon indigo-900; Effizientester #1 Name+km; Team-Avg; Alert hoher KM-Aufwand; 30-Min-Polling */}
       <KitchenPhase4755KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4760: Reaktionszeit-Ticker — Moon rose-900; Schnellste #1 Name+min; Team-Avg; Alert langsame Reaktion; 30-Min-Polling */}
+      <KitchenPhase4760ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12438,4 +12441,6 @@ export { KitchenPhase4745BestellwertTicker } from './phase4745-bestellwert-ticke
 export { KitchenPhase4750LieferzeitZuverlaessigkeitTicker } from './phase4750-lieferzeit-zuverlaessigkeit-ticker';
 // Phase 4755 — KM-pro-Tour-Ticker (Navigation indigo; Effizientester #1 Name+km; Team-Avg; Alert hoher KM-Aufwand; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4755KmProTourTicker } from './phase4755-km-pro-tour-ticker';
+// Phase 4760 — Reaktionszeit-Ticker (Timer rose; Schnellste #1 Name+min; Team-Avg; Alert langsame Reaktion; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase4760ReaktionszeitTicker } from './phase4760-reaktionszeit-ticker';
 export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';

@@ -34191,6 +34191,41 @@ KRITISCH: Nächste freie Phase ist **4741**! NIEMALS 4000–4740 verwenden. IMME
 
 KRITISCH: Nächste freie Phase ist **4756**! NIEMALS 4000–4755 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
+---
+
+## Batch 4756–4760 — Fahrer-Reaktionszeit-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4756 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-reaktionszeit-ranking/route.ts`
+**Status:** Bereits vorhanden. Reused. Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_reaktionszeit_min, rank_delta, ampel, alert_hoch}], team_avg_min, schnellster_name, langsamster_name, alert_count, gesamt }`; INVERTED aufsteigend Rang 1=schnellste Reaktion=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_hoch wenn ampel=rot; Mock Julia 3.2min/Sara 4.1min/Max 6.3min/Tim 9.8min; force-dynamic ✅; await createClient() ✅
+
+### Phase 4757 — Reaktionszeit-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4757ReaktionszeitBoard` — Moon rose-900; INVERTED Rang 1=schnellste Reaktion; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert langsame Reaktion; Balken farbkodiert grün/gelb/rot; DeltaIcon; Schnellster-Name Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4758 — Meine Reaktionszeit (Fahrer)
+**Component:** `FahrerPhase4758MeineReaktionszeit` — Moon rose-900; avg_reaktionszeit_min 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≤2min/≤5min/>5min); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4759 — Storefront
+Übersprungen ✅
+
+### Phase 4760 — Reaktionszeit-Ticker (Kitchen)
+**Component:** `KitchenPhase4760ReaktionszeitTicker` — Moon rose-900; Schnellste #1 Name+min; Team-Avg; Alert langsame Reaktion; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4760 (4744, 4749, 4754, 4759 übersprungen; diverse frühere übersprungen)
+- **Nächste freie Phase: 4761**
+
+### Nächste Phasen 4761–4765 — Vorschlag: Fahrer-Abholzeit-Ranking
+1. **Phase 4761 Backend:** GET /api/delivery/admin/fahrer-abholzeit-ranking — avg(pickup_wait_min) je Fahrer letzte 30 Tage; aufsteigend Rang 1=kürzeste Abholwartezeit=bester (INVERTED); Quartil-Ampel grün/gelb/rot; Alert >10min "Lange Abholwartezeit!"; Mock Julia 3.1min/Sara 4.5min/Max 7.2min/Tim 12.8min; force-dynamic; await createClient().
+2. **Phase 4762 Dispatch:** `DispatchPhase4762AbholzeitBoard` — Moon amber-900; INVERTED Rang 1=kürzeste Abholwartezeit; KPI-Grid Schnellste/Team-Avg/Längste; Alert lange Abholwartezeit; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4763 Fahrer:** `FahrerPhase4763MeineAbholzeit` — Moon amber-900; avg_pickup_min 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen (≤3min/≤7min/>7min); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4764 Storefront:** Überspringen.
+5. **Phase 4765 Kitchen:** `KitchenPhase4765AbholzeitTicker` — Moon amber-900; Schnellste #1 Name+min; Team-Avg; Alert lange Abholwartezeit; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4761**! NIEMALS 4000–4760 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
 ## STATUS: MARKT-REIF
 
 ---
