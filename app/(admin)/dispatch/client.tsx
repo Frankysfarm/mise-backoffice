@@ -1294,6 +1294,7 @@ import { DispatchPhase4887FruehprodBoard } from './phase4887-fruehprod-board';
 import { DispatchPhase4892MittagsprodBoard } from './phase4892-mittagsprod-board';
 import { DispatchPhase4902WochentProdBoard } from './phase4902-wochentag-prod-board';
 import { DispatchPhase4897ScoreTourVisualisierungV9 } from './phase4897-score-tour-visualisierung-v9';
+import { DispatchPhase4910ScoreTourVisualisierungV10 } from './phase4910-score-tour-visualisierung-v10';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5318,6 +5319,8 @@ export function DispatchBoard({
           <DispatchPhase4902WochentProdBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4897: Score + Tour-Visualisierung V9 — Trophy indigo; Wellbeing-Score+CO2/kg je Fahrer; ETA-Accuracy KPI; Team-Score-Fortschrittsbalken; Fahrer-Score-Ring 4-stufig; Stopp-Timeline 4-stufig; Dual-Progress; Leaf CO2-Strip; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4897ScoreTourVisualisierungV9 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4910: Score + Tour-Visualisierung V10 — Team-Score-Fortschrittsbalken; KPI-Trend-Grid 4-Felder; Fahrer-Score-Ring 4-stufig; Stopp-Timeline aufklappbar Kundenwertung+Verspaetung+ETA; Dual-Progress; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4910ScoreTourVisualisierungV10 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4852ScoreTourVisualisierungV6 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4847: Tour-Score Live Board V5 — Trophy indigo; Team-Score+Ziel-Balken; Pünktlichkeit+Avg-Zeit; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Aufklappbare Stopp-Timeline; Alert-Strip; 20-Sek-Polling; Mock-Fallback */}
@@ -14049,3 +14052,6 @@ export { DispatchPhase4795TourScoreBoardV3 } from './phase4795-tour-score-board-
 
 // Phase 4897 — Score + Tour-Visualisierung V9 (Trophy indigo; Wellbeing-Score+CO2/kg je Fahrer; ETA-Accuracy KPI; Team-Score-Fortschrittsbalken; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach+Trend; Stopp-Timeline 4-stufig aufklappbar; Dual-Progress-Stopps+km; Leaf CO2-Strip; Verspätungs-Anzeige; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4897ScoreTourVisualisierungV9 } from './phase4897-score-tour-visualisierung-v9';
+
+// Phase 4910 — Score + Tour-Visualisierung V10 (Trophy indigo; Team-Score-Fortschrittsbalken; KPI-Trend 4-Grid; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar mit Kundenwertung+Verspätung+ETA; Dual-Progress Stopps+km; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4910ScoreTourVisualisierungV10 } from './phase4910-score-tour-visualisierung-v10';

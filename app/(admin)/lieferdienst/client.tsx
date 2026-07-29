@@ -507,6 +507,7 @@ import { LieferdienstPhase4740StatistikenDashboardV13 } from './phase4740-statis
 import { LieferdienstPhase4870StatistikenDashboardV14 } from './phase4870-statistiken-dashboard-v14';
 import { LieferdienstPhase4879StatistikenDashboardV15 } from './phase4879-statistiken-dashboard-v15';
 import { LieferdienstPhase4885StatistikenDashboardV16 } from './phase4885-statistiken-dashboard-v16';
+import { LieferdienstPhase4890StatistikenDashboardV17 } from './phase4890-statistiken-dashboard-v17';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2413,6 +2414,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4879StatistikenDashboardV15 locationId={locationId ?? null} />
                 {/* Phase 4885: Statistiken Dashboard V16 — 8-KPI-Grid mit Δ%+Ziel; Stundenverlauf BarChart 3-Modi; Schichtvergleich Mittag/Nachmittag/Abend; Top-Fahrer Score+Touren+Trinkgeld+Pünktl; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase4885StatistikenDashboardV16 locationId={locationId ?? null} />
+                {/* Phase 4890: Statistiken-Dashboard V17 — 6-KPI-Grid Trend+Ziel; Stunden-BarChart Pünktlichkeit-Farbe; Pünktlichkeits-LineChart; Zonen-Performance-Tabelle; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4890StatistikenDashboardV17 />
               </>
             </div>
           )}
@@ -5070,3 +5073,6 @@ export { LieferdienstPhase4879StatistikenDashboardV15 } from './phase4879-statis
 
 // Phase 4885 — Statistiken-Dashboard V16 (BarChart2 indigo; Gesamt-Score+Ziel-Balken; Alert-Strip; 8-KPI-Grid 2-spaltig Status+Δ%+Ziel; Stundenverlauf BarChart 3-Modi Bestellungen/Umsatz/Pünktlichkeit; Schichtvergleich 3-Kacheln Mittag/Nachmittag/Abend Score+Touren+Umsatz; Top-Fahrer Score+Touren+Trinkgeld+Pünktl; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4885StatistikenDashboardV16 } from './phase4885-statistiken-dashboard-v16';
+
+// Phase 4890 — Statistiken-Dashboard V17 (Activity orange; 6-KPI-Grid Bestellungen/Umsatz/Pünktlichkeit/Lieferzeit/Storno/Bewertung+Trend+Ziel; Stunden-BarChart farbkodiert; Pünktlichkeits-LineChart; Zonen-Performance-Tabelle; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4890StatistikenDashboardV17 } from './phase4890-statistiken-dashboard-v17';
