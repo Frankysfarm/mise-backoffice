@@ -24,14 +24,14 @@ interface ApiResponse {
 
 const MOCK_DATA: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, nacht_anteil_pct: 45, rank_delta:  1, ampel: 'rot',   alert_hoch: true  },
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, nacht_anteil_pct: 38, rank_delta:  0, ampel: 'gelb',  alert_hoch: false },
-    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, nacht_anteil_pct: 22, rank_delta: -1, ampel: 'gelb',  alert_hoch: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, nacht_anteil_pct:  8, rank_delta:  0, ampel: 'gruen', alert_hoch: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 1, nacht_anteil_pct: 35, rank_delta:  1, ampel: 'rot',   alert_hoch: true  },
+    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 2, nacht_anteil_pct: 22, rank_delta:  0, ampel: 'gelb',  alert_hoch: false },
+    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 3, nacht_anteil_pct: 10, rank_delta: -1, ampel: 'gruen', alert_hoch: false },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 4, nacht_anteil_pct:  4, rank_delta:  0, ampel: 'gruen', alert_hoch: false },
   ],
-  team_avg_pct: 28,
-  meister_name: 'Julia F.',
-  wenigster_name: 'Tim B.',
+  team_avg_pct: 18,
+  meister_name: 'Tim B.',
+  wenigster_name: 'Julia F.',
   alert_count: 1,
   gesamt: 4,
 };
@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
 
     function isNightShift(startedAt: string): boolean {
       const h = new Date(startedAt).getUTCHours();
-      return h >= 22 || h < 6;
+      return h >= 22 || h < 2;
     }
 
     const groupCur = new Map<string, { name: string; nacht: number; total: number }>();
