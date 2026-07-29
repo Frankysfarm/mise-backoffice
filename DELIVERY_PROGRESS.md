@@ -34109,3 +34109,88 @@ KRITISCH: Nächste freie Phase ist **4741**! NIEMALS 4000–4740 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+---
+
+## Batch 4741–4750 — Fahrer-Bestellwert-Ranking + Fahrer-Lieferzeit-Zuverlässigkeit-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4741 — Backend API (Bestellwert)
+**Datei:** `app/api/delivery/admin/fahrer-bestellwert-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_bestellwert, rank_delta, ampel, alert_niedrig}], team_avg_bestellwert, beste_name, niedrigste_name, alert_count, gesamt }`; absteigend Rang 1=höchster Ø-Bestellwert=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_niedrig wenn team_avg<15€; Mock Julia 28.40€/Max 22.10€/Sara 17.50€/Tim 11.80€; force-dynamic ✅; await createClient() ✅
+
+### Phase 4742 — Bestellwert Board (Dispatch)
+**Component:** `DispatchPhase4742BestellwertBoard` — Moon purple-900; absteigend Rang 1=höchster Bestellwert; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert; Balken farbkodiert grün/gelb/rot; DeltaIcon; Bester-Name Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4743 — Mein Bestellwert (Fahrer)
+**Component:** `FahrerPhase4743MeinBestellwert` — Moon purple-900; avg_value 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen ≥25€/≥15€/<15€; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4744 — Storefront
+Übersprungen ✅
+
+### Phase 4745 — Bestellwert-Ticker (Kitchen)
+**Component:** `KitchenPhase4745BestellwertTicker` — Moon purple-900; Höchster #1 Name+€; Alert; Team-Avg; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4746 — Backend API (Lieferzeit-Zuverlässigkeit)
+**Datei:** `app/api/delivery/admin/fahrer-lieferzeit-zuverlaessigkeit-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, zuverlaessigkeit_pct, rank_delta, ampel, alert_niedrig}], team_avg_pct, beste_name, niedrigste_name, alert_count, gesamt }`; absteigend Rang 1=höchste Zuverlässigkeit; pct(abs(delivered_at-promised_at)≤5min); Alert wenn <70%; Mock Julia 92%/Max 85%/Sara 76%/Tim 58%; force-dynamic ✅; await createClient() ✅
+
+### Phase 4747 — Lieferzeit-Zuverlässigkeit Board (Dispatch)
+**Component:** `DispatchPhase4747LieferzeitZuverlaessigkeitBoard` — Moon cyan-900; absteigend Rang 1=höchste Zuverlässigkeit; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <70%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4748 — Meine Lieferzeit-Zuverlässigkeit (Fahrer)
+**Component:** `FahrerPhase4748MeineLieferzeitZuverlaessigkeit` — Moon cyan-900; pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥90%/≥70%/<70%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4749 — Storefront
+Übersprungen ✅
+
+### Phase 4750 — Lieferzeit-Zuverlässigkeit-Ticker (Kitchen)
+**Component:** `KitchenPhase4750LieferzeitZuverlaessigkeitTicker` — Moon cyan-900; Bester #1 Name+%; Alert; Team-Avg; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4750 (diverse übersprungen inkl. 4744, 4749)
+- **Nächste freie Phase: 4751**
+
+## STATUS: MARKT-REIF
+
+---
+
+---
+
+## Batch 4751–4755 — Fahrer-KM-pro-Tour-Effizienz-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4751 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-km-ranking/route.ts`
+**Status:** Bereits vorhanden. Reused. Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, km_avg, rank_delta, ampel, alert_top}], team_avg, bester_name, letzter_name, alert_count, gesamt }`; INVERTED aufsteigend Rang 1=kürzeste Route=effizienter; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_top wenn ampel=rot; Mock Julia 4.2km/Sara 5.1km/Max 6.8km/Tim 9.3km; force-dynamic ✅; await createClient() ✅
+
+### Phase 4752 — KM-pro-Tour Board (Dispatch)
+**Component:** `DispatchPhase4752KmProTourBoard` — Moon indigo-900; INVERTED Rang 1=kürzeste Route; KPI-Grid Effizienteste/Team-Avg/Längste; Alert "X Fahrer mit hohem KM-Aufwand"; Balken farbkodiert grün/gelb/rot (Balkenbreite relativ zu max km); DeltaIcon; Effizienteste-Name Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4753 — Meine KM pro Tour (Fahrer)
+**Component:** `FahrerPhase4753MeineKmProTour` — Moon indigo-900; avg_km 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≤5km/≤8km/>8km); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4754 — Storefront
+Übersprungen ✅
+
+### Phase 4755 — KM-pro-Tour-Ticker (Kitchen)
+**Component:** `KitchenPhase4755KmProTourTicker` — Moon indigo-900; Effizientester #1 Name+km; Team-Avg; Alert hoher KM-Aufwand; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4755 (4744, 4749, 4754 übersprungen; diverse frühere übersprungen)
+- **Nächste freie Phase: 4756**
+
+### Nächste Phasen 4756–4760 — Vorschlag: Fahrer-Reaktionszeit-Ranking
+1. **Phase 4756 Backend:** GET /api/delivery/admin/fahrer-reaktionszeit-ranking — avg(time_from_assignment_to_accepted_sec) je Fahrer letzte 30 Tage; aufsteigend Rang 1=schnellste Reaktion=bester (INVERTED); Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert >120sec "Langsame Reaktion!"; Mock Sara 18s/Julia 24s/Max 45s/Tim 130s; force-dynamic; await createClient().
+2. **Phase 4757 Dispatch:** `DispatchPhase4757ReaktionszeitBoard` — Moon rose-900; INVERTED aufsteigend Rang 1=schnellste Reaktion; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert Langsame Reaktion; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4758 Fahrer:** `FahrerPhase4758MeineReaktionszeit` — Moon rose-900; avg_sek 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen (≤20s/≤60s/>60s); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4759 Storefront:** Überspringen.
+5. **Phase 4760 Kitchen:** `KitchenPhase4760ReaktionszeitTicker` — Moon rose-900; Schnellste #1 Name+sek; Team-Avg; Alert Langsame Reaktion; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4756**! NIEMALS 4000–4755 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
