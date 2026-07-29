@@ -14,7 +14,7 @@ Updated: 2026-07-28
 | T07 Deterministic Dispatch Baseline | COMPLETE | G6 GREEN | `codex/driver-remediation` | `277b1094` | Independent review approved deterministic default-off/shadow/active behavior and Atomic-v2-only assignment after 400 green overlap races. |
 | T09 Operations/Security/Observability | COMPLETE | G8 GREEN (isolated server/PostgreSQL) | `codex/driver-remediation` | `3399cfad`, `426d5924` | Durable role/tenant/location authority, override CAS, alerts, retention, authenticated APIs and scheduler monitor pass locally. |
 | T08 Routing/Batching/Kitchen Hold | COMPLETE | G7 GREEN (isolated PostgreSQL + source contracts) | `codex/driver-remediation` | `5fa6b6f3`, `570d953e`, `c02e15e0` | Atomic route append, real Frank evaluation/RPC integration, read-only shadow, persistent hold watchdog and deterministic replay pass twice. |
-| T10 E2E Canary Release | NOT STARTED | G9 not evaluated | — | — | Remains last after G7/G8. |
+| T10 E2E Canary Release | LOCAL COMPLETE | G9 BLOCKED_EXTERNAL | `codex/driver-remediation` | `a4460510` | Full isolated aggregate is green; hosted services, networked build, compiled mobile and physical devices remain unavailable. |
 
 ## Production safety
 

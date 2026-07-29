@@ -17,7 +17,9 @@ Updated: 2026-07-28
 | migration `279_*`, pick/item APIs/tests | none | released by T04 | protected | Atomic multi-order pickup contract frozen after G4. |
 | migration `280_*`, GPS API/transport/native files | none | released after T06 continuation | protected | Local source/DB candidate complete; G5 remains BLOCKED_EXTERNAL for compiled/device evidence. |
 | migration `281_*`, recovery/outbox/push tests | none | released by T05 | protected | Push is wake-up only; assignment authority unchanged. |
-| new T09 observability/security modules, tests and runbooks | none | released by T09 safe subset | protected | Default-off source candidate approved; durable integration awaits a separately owned T09 phase. |
+| T09 observability/security modules, tests and runbooks | none | released after T09 | protected | Redaction, alerts, durable authority and runbooks frozen after G8. |
+| migration `283_*`, operations APIs/monitor/tests | none | released after T09 | protected | Durable default-off operations/security authority frozen after G8. |
+| T10 aggregate runner and release/runbook evidence | none | released after T10 local work | protected | G9 remains externally blocked; no production authorization. |
 | `package.json`, `next.config.js`, ESLint config | none | released by T00 | protected | Tool configuration complete. |
 | native verification scripts in `/Users/eule/mise-driver-native-t00` | none | released by T00 | protected | Native T00 commit `0ec66de`; no app logic changed. |
 | `docs/driver-remediation/status/*` | program | lead orchestrator | exclusive | Baseline, status, gates and command evidence. |
