@@ -1267,6 +1267,7 @@ import { DispatchPhase4757ReaktionszeitBoard } from './phase4757-reaktionszeit-b
 import { DispatchPhase4762AbholzeitBoard } from './phase4762-abholzeit-board';
 import { DispatchPhase4767NachtschichtEffizienzBoard } from './phase4767-nachtschicht-effizienz-board';
 import { DispatchPhase4772WochenendeBoard } from './phase4772-wochenende-board';
+import { DispatchPhase4777SpitzenzeitBoard } from './phase4777-spitzenzeit-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5232,6 +5233,8 @@ export function DispatchBoard({
           <DispatchPhase4767NachtschichtEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4772: Wochenend-Effizienz-Ranking — Moon teal-900; Rang 1=höchster €/Tour Sa+So; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <12€; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4772WochenendeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4777: Spitzenzeit-Effizienz-Ranking — Moon orange-900; Rang 1=höchster €/Tour Stoßzeiten; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <10€; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4777SpitzenzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13889,3 +13892,5 @@ export { DispatchPhase4762AbholzeitBoard } from './phase4762-abholzeit-board';
 export { DispatchPhase4767NachtschichtEffizienzBoard } from './phase4767-nachtschicht-effizienz-board';
 // Phase 4772 — Wochenend-Effizienz-Ranking Board (CalendarDays teal; Rang 1=höchster €/Tour Sa+So; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <12€/Tour; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4772WochenendeBoard } from './phase4772-wochenende-board';
+// Phase 4777 — Spitzenzeit-Effizienz-Ranking Board (Zap orange; Rang 1=höchster €/Tour Stoßzeiten; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <10€/Tour; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4777SpitzenzeitBoard } from './phase4777-spitzenzeit-board';

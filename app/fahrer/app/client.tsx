@@ -1187,6 +1187,7 @@ import { FahrerPhase4758MeineReaktionszeit } from './phase4758-meine-reaktionsze
 import { FahrerPhase4763MeineAbholzeit } from './phase4763-meine-abholzeit';
 import { FahrerPhase4768MeineNachtschichtEffizienz } from './phase4768-meine-nachtschicht-effizienz';
 import { FahrerPhase4773MeinWochenende } from './phase4773-mein-wochenende';
+import { FahrerPhase4778MeineSpitzenzeit } from './phase4778-meine-spitzenzeit';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7384,6 +7385,8 @@ export function FahrerApp({
           <FahrerPhase4768MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4773: Mein Wochenende — Moon teal-900; avg_euro_tour 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥20€/≥12€/<12€; 30-Min-Polling */}
           <FahrerPhase4773MeinWochenende driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4778: Meine Spitzenzeit — Moon orange-900; avg_euro_tour 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥18€/≥10€/<10€; 30-Min-Polling */}
+          <FahrerPhase4778MeineSpitzenzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11765,3 +11768,5 @@ export { FahrerPhase4763MeineAbholzeit } from './phase4763-meine-abholzeit';
 export { FahrerPhase4768MeineNachtschichtEffizienz } from './phase4768-meine-nachtschicht-effizienz';
 // Phase 4773 — Mein Wochenende (CalendarDays teal; avg_euro_tour 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥20€/≥12€/<12€; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase4773MeinWochenende } from './phase4773-mein-wochenende';
+// Phase 4778 — Meine Spitzenzeit (Zap orange; avg_euro_tour 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥18€/≥10€/<10€; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4778MeineSpitzenzeit } from './phase4778-meine-spitzenzeit';
