@@ -13986,5 +13986,7 @@ export { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-to
 export { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
 // Phase 4847 — Tour-Score Live Board V5 (Trophy indigo; Team-Score+Ziel-Balken; Pünktlichkeit+Avg-Zeit; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Aufklappbare Stopp-Timeline geliefert/aktiv/ausstehend/verspaetet+ETA+km; Alert-Strip; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4847TourScoreLiveBoardV5 } from './phase4847-tour-score-live-board-v5';
+// Phase 4852 — Score + Tour-Visualisierung V6 (Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row Pünktlichkeit/Lieferzeit/ETA-Acc; Fahrer-Score-Ring 4-stufig mit Trend; Aufklappbare Stopp-Timeline 5-stufig geliefert/aktiv/ausstehend/verspaetet/batch; Verspätungs-Anzeige; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 // Phase 4795 — Tour-Score Live Board V3 (Trophy indigo; Team-Score Arc+Delta+Ziel; Alert unter Ziel; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Score-Balken+Trend; Aufklappbare Stopp-Timeline geliefert/aktiv/ausstehend/verspaetet+ETA+km; KPI-Row Pünktlichkeit+Lieferzeit; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4795TourScoreBoardV3 } from './phase4795-tour-score-board-v3';
