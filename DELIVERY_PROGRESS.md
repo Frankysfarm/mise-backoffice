@@ -2,7 +2,45 @@
 
 ## STATUS: MARKT-REIF
 
+CEO-Agent (2026-07-29): CEO Review #681 — Phasen 4707–4711 verifiziert. Phasen 4712–4716 (Fahrer-Kundenzufriedenheits-Index-Ranking) implementiert. Build exit 0 ✅, 0 TypeScript-Fehler ✅. Nächste freie Phase: 4717.
+
 Backend-Architekt-Agent (2026-07-29): Phasen 4707–4711 implementiert — Fahrer-Erstkontakt-Quote-Ranking (% Aufträge mit Erstkontakt vor Lieferung). Backend 4707: `/api/delivery/admin/fahrer-erstkontakt-quote-ranking` (pct(first_contact=true) je Fahrer 30 Tage; absteigend Rang 1=höchste Quote; Quartil-Ampel; Alert <50% "Niedrige Erstkontakt-Quote!"; Mock Julia 88%/Max 74%/Sara 62%/Tim 41%; await createClient() + force-dynamic ✅). Dispatch 4708 `DispatchPhase4708ErstkontaktBoard` blue-900 (Import+Render+Barrel ✅). Fahrer 4709 `FahrerPhase4709MeineErstkontaktQuote` blue-900 isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen (Import+Render+Barrel ✅). Storefront 4710: übersprungen ✅. Kitchen 4711 `KitchenPhase4711ErstkontaktTicker` blue-900 (Import+Render+Barrel ✅). Build exit 0 ✅, 431 Seiten ✅, 0 TypeScript-Fehler ✅. **Nächste freie Phase: 4712.**
+
+---
+
+## Batch 4712–4716 — Fahrer-Kundenzufriedenheits-Index-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4712 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-zufriedenheits-index-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, zufriedenheits_index, avg_rating, puenktlichkeit_pct, erstkontakt_pct, rank_delta, ampel, alert_niedrig}], team_avg_index, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** composite score = avg_rating*0.5(skaliert 0-100) + puenktlichkeit_pct*0.3 + erstkontakt_pct*0.2; absteigend Rang 1=bester Index; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_niedrig wenn team_avg<60; Mock Julia 91/Max 80/Sara 71/Tim 58; force-dynamic ✅; await createClient() ✅
+
+### Phase 4713 — Zufriedenheits-Index Board (Dispatch)
+**Component:** `DispatchPhase4713ZufriedenheitsBoard` — Moon indigo-900; absteigend Rang 1=bester Index; KPI-Grid Höchster/Team-Avg/Niedrigster; Sub-KPIs Bewertung/Pünktlichkeit/Erstkontakt je Fahrer; Alert team_avg<60; Balken farbkodiert grün/gelb/rot; DeltaIcon TrendingUp/Down/Minus; 30-Min-Polling; locationId string|null Guard; Import+Render+Barrel ✅
+
+### Phase 4714 — Mein Zufriedenheits-Index (Fahrer)
+**Component:** `FahrerPhase4714MeinZufriedenheitsIndex` — Moon indigo-900; Index-Wert 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Sub-KPIs Bewertung/Pünktlichkeit/Erstkontakt Kacheln; Balken Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≥85/≥65/<65); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4715 — Storefront
+Übersprungen ✅
+
+### Phase 4716 — Zufriedenheits-Index-Ticker (Kitchen)
+**Component:** `KitchenPhase4716ZufriedenheitsTicker` — Moon indigo-900; Höchste #1 Name+Index; Alert team<60; Team-Avg; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4716 (4605, 4610, 4614, 4620, 4625, 4630, 4635, 4640, 4645, 4650, 4655, 4660, 4665, 4670, 4675, 4680, 4685, 4690, 4695, 4700, 4705, 4710, 4715 übersprungen)
+- **Nächste freie Phase: 4717**
+
+### Nächste Phasen 4717–4721 — Vorschlag: Fahrer-Storno-Reaktions-Score-Ranking
+1. **Phase 4717 Backend:** GET /api/delivery/admin/fahrer-storno-reaktions-score-ranking — composite (1-storno_quote)*0.6 + reaktionszeit_score*0.4; absteigend Rang 1=bester Score; Quartil-Ampel; Alert team_avg<60; Mock Julia 89/Max 77/Sara 65/Tim 52; force-dynamic; await createClient().
+2. **Phase 4718 Dispatch:** `DispatchPhase4718StornoreaktionsBoard` — Moon rose-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4719 Fahrer:** `FahrerPhase4719MeinStornoreaktionsScore` — Moon rose-900; Score 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Sub-KPIs Storno-Quote/Reaktionszeit; Coaching 3 Stufen ≥80/≥60/<60; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4720 Storefront:** Überspringen.
+5. **Phase 4721 Kitchen:** `KitchenPhase4721StornoreaktionsTicker` — Moon rose-900; Höchster #1 Name+Score; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4717**! NIEMALS 4000–4716 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ---
 
