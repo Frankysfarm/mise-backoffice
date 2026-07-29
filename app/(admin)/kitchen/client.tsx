@@ -1207,6 +1207,7 @@ import { KitchenPhase4745BestellwertTicker } from './phase4745-bestellwert-ticke
 import { KitchenPhase4750LieferzeitZuverlaessigkeitTicker } from './phase4750-lieferzeit-zuverlaessigkeit-ticker';
 import { KitchenPhase4755KmProTourTicker } from './phase4755-km-pro-tour-ticker';
 import { KitchenPhase4760ReaktionszeitTicker } from './phase4760-reaktionszeit-ticker';
+import { KitchenPhase4765AbholzeitTicker } from './phase4765-abholzeit-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4808,6 +4809,8 @@ export function KitchenBoard({
       <KitchenPhase4755KmProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4760: Reaktionszeit-Ticker — Moon rose-900; Schnellste #1 Name+min; Team-Avg; Alert langsame Reaktion; 30-Min-Polling */}
       <KitchenPhase4760ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4765: Abholzeit-Ticker — Moon amber-900; Schnellste #1 Name+min; Team-Avg; Alert lange Abholwartezeit >10min; 30-Min-Polling */}
+      <KitchenPhase4765AbholzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12443,4 +12446,6 @@ export { KitchenPhase4750LieferzeitZuverlaessigkeitTicker } from './phase4750-li
 export { KitchenPhase4755KmProTourTicker } from './phase4755-km-pro-tour-ticker';
 // Phase 4760 — Reaktionszeit-Ticker (Timer rose; Schnellste #1 Name+min; Team-Avg; Alert langsame Reaktion; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4760ReaktionszeitTicker } from './phase4760-reaktionszeit-ticker';
+// Phase 4765 — Abholzeit-Ticker (Clock amber; Schnellste #1 Name+min; Team-Avg; Alert lange Abholwartezeit >10min; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase4765AbholzeitTicker } from './phase4765-abholzeit-ticker';
 export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';
