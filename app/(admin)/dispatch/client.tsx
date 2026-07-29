@@ -13844,3 +13844,5 @@ export { DispatchPhase4720ScoreAnzeigeCockpit } from './phase4720-score-anzeige-
 // Phase 4723 — Schicht-Effizienz Ranking (Moon amber-900; avg(€/Schicht-h); KPI-Grid Höchste/Team-Avg/Niedrigste; Balken; DeltaIcon; Alert <20€/h; 30-Min-Polling)
 export { DispatchPhase4723SchichtEffizienzBoard } from './phase4723-schicht-effizienz-board';
 export { DispatchPhase4728AkzeptanzRateBoard } from './phase4728-akzeptanz-rate-board';
+// Phase 4733 — Score + Tour-Visualisierung V2 (Trophy indigo; Team-Score+Tour-Score Header; 4-KPI-Strip; Fahrer-Score-Balken+Trend; Aufklappbare Stopp-Timeline 5-stufig geliefert/aktiv/ausstehend/batch/verspätet; ETA+Km je Stopp; Pünktlichkeit+Lieferzeit KPI; Alert Verspätung; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4733ScoreTourVisualisierungV2 } from './phase4733-score-tour-visualisierung-v2';

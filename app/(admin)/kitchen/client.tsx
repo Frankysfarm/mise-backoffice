@@ -12413,4 +12413,6 @@ export { KitchenPhase4720SmartTimingCountdownFarbkodierungV14 } from './phase472
 export { KitchenPhase4721StornoreaktionsTicker } from './phase4721-stornoreaktions-ticker';
 // Phase 4726 — Schicht-Effizienz-Ticker (Moon amber-900; Höchste #1 Name+€/h; Team-Avg; Alert <20€/h; 30-Min-Polling)
 export { KitchenPhase4726SchichtEffizienzTicker } from './phase4726-schicht-effizienz-ticker';
+// Phase 4730 — Smart-Timing Countdown Farbkodierung V15 (8-stufige Ampel super-kritisch→fertig; KI-Empfehlung je Bestellung + gesamt; Batch-Gruppen; Komplexitäts-Sterne; Fahrer-Sync-Zähler; 5-KPI-Strip; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4730SmartTimingCountdownFarbkodierungV15 } from './phase4730-smart-timing-countdown-farbkodierung-v15';
 export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';

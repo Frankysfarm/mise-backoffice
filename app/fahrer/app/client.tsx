@@ -11720,3 +11720,5 @@ export { FahrerPhase4719MeinStornoreaktionsScore } from './phase4719-mein-storno
 // Phase 4724 — Meine Schicht-Effizienz (Moon amber-900; €/h 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥30/≥20/<20€/h; 30-Min-Polling)
 export { FahrerPhase4724MeineSchichtEffizienz } from './phase4724-meine-schicht-effizienz';
 export { FahrerPhase4729MeineAkzeptanzRate } from './phase4729-meine-akzeptanz-rate';
+// Phase 4734 — Smart Tour-Stopp Navigation V3 (Navigation blue; Tour-Fortschrittsbalken+Effizienz+Score; Aktiver-Stopp-Hero mit ETA/Distanz/Notiz/Zahlung/Navi-CTA/Anruf; Nächster-Stopp-Preview; Stopp-Timeline 5-stufig geliefert/aktiv/ausstehend/fehlgeschlagen/batch; GPS-Deeplink iOS/Android; Storno-Risiko-Banner; isOnline-Guard; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4734SmartTourStoppNavigationV3 } from './phase4734-smart-tour-stopp-navigation-v3';
