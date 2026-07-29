@@ -1211,6 +1211,7 @@ import { KitchenPhase4765AbholzeitTicker } from './phase4765-abholzeit-ticker';
 import { KitchenPhase4770NachtschichtTicker } from './phase4770-nachtschicht-ticker';
 import { KitchenPhase4775WochenendetTicker } from './phase4775-wochenende-ticker';
 import { KitchenPhase4780SpitzenzeitTicker } from './phase4780-spitzenzeit-ticker';
+import { KitchenPhase4785RueckgabeQuoteTicker } from './phase4785-rueckgabe-quote-ticker';
 import { KitchenPhase4305SchichtstundenTicker } from './phase4305-schichtstunden-ticker';
 import { KitchenPhase4300SmartTimingCountdownFarbkodierungBoard } from './phase4300-smart-timing-countdown-farbkodierung-board';
 import { KitchenPhase4150SmartCountdownFarbkodierungLive } from './phase4150-smart-countdown-farbkodierung-live';
@@ -4820,6 +4821,8 @@ export function KitchenBoard({
       <KitchenPhase4775WochenendetTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4780: Spitzenzeit-Ticker — Moon orange-900; Effizientester #1 Name+€/Tour Stoßzeiten; Team-Avg; Alert niedriger Spitzenzeit-Wert <10€; 30-Min-Polling */}
       <KitchenPhase4780SpitzenzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4785: Rückgabe-Quote-Ticker — Moon amber-900; Bester Fahrer #1 Name+%; Team-Avg; Alert hohe Quote >5%; 30-Min-Polling */}
+      <KitchenPhase4785RueckgabeQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4380: Smart-Timing Countdown V4 — Fortschritts-Ring je Bestellung; 12-Sek-Polling; expandierbar; 4 KPIs; Effizienz-Balken; Mock-Fallback */}
@@ -12463,4 +12466,6 @@ export { KitchenPhase4770NachtschichtTicker } from './phase4770-nachtschicht-tic
 export { KitchenPhase4775WochenendetTicker } from './phase4775-wochenende-ticker';
 // Phase 4780 — Spitzenzeit-Ticker (Zap orange; Effizientester #1 Name+€/Tour Stoßzeiten; Team-Avg; Alert niedriger Spitzenzeit-Wert <10€/Tour; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4780SpitzenzeitTicker } from './phase4780-spitzenzeit-ticker';
+// Phase 4785 — Rückgabe-Quote-Ticker (PackageX amber; Bester Fahrer #1 Name+%; Team-Avg; Alert hohe Quote >5%; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase4785RueckgabeQuoteTicker } from './phase4785-rueckgabe-quote-ticker';
 export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';
