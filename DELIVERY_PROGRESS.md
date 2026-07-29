@@ -34233,3 +34233,40 @@ KRITISCH: Nächste freie Phase ist **4761**! NIEMALS 4000–4760 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+## Batch 4761–4765 — Fahrer-Abholzeit-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4761 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-abholzeit-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_abholzeit_min, rank_delta, ampel, alert_lang}], team_avg_min, schnellste_name, langsamste_name, alert_count, gesamt }`; INVERTED aufsteigend Rang 1=kürzeste Abholwartezeit=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); alert_lang wenn avg_abholzeit_min>10min; Mock Julia 3.1min/Sara 4.5min/Max 7.2min/Tim 12.8min; force-dynamic ✅; await createClient() ✅
+
+### Phase 4762 — Abholzeit-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4762AbholzeitBoard` — Moon amber-900; INVERTED Rang 1=kürzeste Abholwartezeit; KPI-Grid Schnellste/Team-Avg/Längste; Alert "X Fahrer mit langer Abholwartezeit (>10 min)"; Balken farbkodiert grün/gelb/rot; DeltaIcon; Schnellste-Name Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4763 — Meine Abholzeit (Fahrer)
+**Component:** `FahrerPhase4763MeineAbholzeit` — Moon amber-900; avg_abholzeit_min 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≤3min/≤7min/>7min); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4764 — Storefront
+Übersprungen ✅
+
+### Phase 4765 — Abholzeit-Ticker (Kitchen)
+**Component:** `KitchenPhase4765AbholzeitTicker` — Moon amber-900; Schnellste #1 Name+min; Team-Avg; Alert lange Abholwartezeit >10min; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ Compiled successfully exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4765 (4744, 4749, 4754, 4759, 4764 übersprungen; diverse frühere übersprungen)
+- **Nächste freie Phase: 4766**
+
+### Nächste Phasen 4766–4770 — Vorschlag: Fahrer-Nachtschicht-Effizienz-Ranking
+1. **Phase 4766 Backend:** GET /api/delivery/admin/fahrer-nachtschicht-ranking — avg(€/h) nur Touren zwischen 22:00-06:00 Uhr je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Nachtschicht-Effizienz=bester; Quartil-Ampel grün(Top-25%)/gelb/rot(Bottom-25%); Alert <15€/h "Niedrige Nachtschicht-Effizienz!"; Mock Max 28€/h/Julia 22€/h/Sara 16€/h/Tim 10€/h; force-dynamic; await createClient().
+2. **Phase 4767 Dispatch:** `DispatchPhase4767NachtschichtBoard` — Moon violet-900; absteigend Rang 1=höchste Nachtschicht-Effizienz; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <15€/h; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4768 Fahrer:** `FahrerPhase4768MeineNachtschicht` — Moon violet-900; avg_euro_h 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen (≥25€/h/≥15€/h/<15€/h); 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4769 Storefront:** Überspringen.
+5. **Phase 4770 Kitchen:** `KitchenPhase4770NachtschichtTicker` — Moon violet-900; Effizientester #1 Name+€/h; Team-Avg; Alert niedrige Nachtschicht-Effizienz; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4766**! NIEMALS 4000–4765 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---
