@@ -34017,3 +34017,51 @@ KRITISCH: Nächste freie Phase ist **4732**! NIEMALS 4000–4731 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ---
+
+---
+
+## Batch 4732/4737–4740 — Fahrer-Wartezeit-am-Restaurant-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+**Hinweis:** Phasen 4733 und 4734 wurden durch Enhancement-Komponenten aus Commit 7907a876 belegt (DispatchPhase4733ScoreTourVisualisierungV2 / FahrerPhase4734SmartTourStoppNavigationV3). Wartezeit-Ranking verwendet 4737–4740.
+
+### Phase 4732 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-wartezeit-restaurant-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_wartezeit_min, rank_delta, ampel, alert_lang}], team_avg_wartezeit, beste_name, laengste_name, alert_count, gesamt }`; INVERTED aufsteigend Rang 1=kürzeste Wartezeit=bester; Quartil-Ampel; alert_lang wenn >15min; Mock Sara 4.2/Julia 6.8/Max 9.1/Tim 18.3 min; force-dynamic ✅; await createClient() ✅
+
+### Phase 4737 — Wartezeit Board (Dispatch)
+**Component:** `DispatchPhase4737WartezeitRestaurantBoard` — Moon orange-900; INVERTED Rang 1=kürzeste Wartezeit; KPI-Grid Kürzeste/Team-Avg/Längste; Alert "X Fahrer mit langer Wartezeit (>15min)"; Balken farbkodiert grün/gelb/rot; DeltaIcon; Schnellster-Name Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4738 — Meine Wartezeit am Restaurant (Fahrer)
+**Component:** `FahrerPhase4738MeineWartezeitRestaurant` — Moon orange-900; avg_min 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar-Vergleich Ich vs Team-Ø; Coaching-Tipp 3 Stufen (≤5min/≤10min/>10min); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4739 — Storefront
+Übersprungen ✅
+
+### Phase 4740 — Wartezeit-Ticker (Kitchen)
+**Component:** `KitchenPhase4740WartezeitRestaurantTicker` — Moon orange-900; Schnellster #1 Name+min; Alert wenn alert_count>0; Team-Avg; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Render-Gap-Fix — Enhancement-Komponenten aus Commit 7907a876
+Alle 4 zuvor nur als Barrel-Export vorliegenden Komponenten wurden vollständig integriert (Import+Render):
+- `DispatchPhase4733ScoreTourVisualisierungV2` → dispatch/client.tsx ✅
+- `KitchenPhase4730SmartTimingCountdownFarbkodierungV15` → kitchen/client.tsx ✅
+- `FahrerPhase4734SmartTourStoppNavigationV3` → fahrer/app/client.tsx ✅
+- `LieferdienstPhase4720StatistikenDashboardV8` → lieferdienst/client.tsx ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status
+- **Belegt:** 4000–4740 (diverse übersprungen; 4733/4734 = Enhancement-Komponenten Score+Tour V2 / Smart-Tour-Nav V3)
+- **Nächste freie Phase: 4741**
+
+### Nächste Phasen 4741–4745 — Vorschlag: Fahrer-Bestellungs-Wert-Ranking
+1. **Phase 4741 Backend:** GET /api/delivery/admin/fahrer-bestellwert-ranking — avg(order_value) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Ø-Bestellwert=bester; Quartil-Ampel; Alert team_avg<15€; Mock Julia 28.40€/Max 22.10€/Sara 17.50€/Tim 11.80€; force-dynamic; await createClient().
+2. **Phase 4742 Dispatch:** `DispatchPhase4742BestellwertBoard` — Moon purple-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Balken; DeltaIcon; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4743 Fahrer:** `FahrerPhase4743MeinBestellwert` — Moon purple-900; avg_value 4xl+Rang 2xl; isOnline-Guard; Coaching 3 Stufen ≥25€/≥15€/<15€; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4744 Storefront:** Überspringen.
+5. **Phase 4745 Kitchen:** `KitchenPhase4745BestellwertTicker` — Moon purple-900; Höchster #1 Name+€; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4741**! NIEMALS 4000–4740 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
+
+---

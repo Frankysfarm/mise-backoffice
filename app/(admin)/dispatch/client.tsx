@@ -1258,6 +1258,8 @@ import { DispatchPhase4713ZufriedenheitsBoard } from './phase4713-zufriedenheits
 import { DispatchPhase4718StornoreaktionsBoard } from './phase4718-stornoreaktions-board';
 import { DispatchPhase4723SchichtEffizienzBoard } from './phase4723-schicht-effizienz-board';
 import { DispatchPhase4728AkzeptanzRateBoard } from './phase4728-akzeptanz-rate-board';
+import { DispatchPhase4733ScoreTourVisualisierungV2 } from './phase4733-score-tour-visualisierung-v2';
+import { DispatchPhase4737WartezeitRestaurantBoard } from './phase4737-wartezeit-restaurant-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5205,6 +5207,10 @@ export function DispatchBoard({
           <DispatchPhase4723SchichtEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4728: Akzeptanz-Rate Ranking — Moon teal-900; absteigend Rang 1=höchste Rate; KPI-Grid Höchste/Team-Avg/Niedrigste; Balken farbkodiert; DeltaIcon; Alert niedrige Rate; 30-Min-Polling */}
           <DispatchPhase4728AkzeptanzRateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4733: Score+Tour-Visualisierung V2 — Trophy indigo; Team-Score+Tour-Score Header; 4-KPI-Strip; Fahrer-Score-Balken+Trend; Stopp-Timeline 5-stufig; ETA+km je Stopp; Alert Verspätung; 20-Sek-Polling */}
+          <DispatchPhase4733ScoreTourVisualisierungV2 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4737: Wartezeit-Restaurant Ranking — Moon orange-900; INVERTED Rang 1=kürzeste Wartezeit; KPI-Grid Kürzeste/Team-Avg/Längste; Alert >15min; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4737WartezeitRestaurantBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13846,3 +13852,5 @@ export { DispatchPhase4723SchichtEffizienzBoard } from './phase4723-schicht-effi
 export { DispatchPhase4728AkzeptanzRateBoard } from './phase4728-akzeptanz-rate-board';
 // Phase 4733 — Score + Tour-Visualisierung V2 (Trophy indigo; Team-Score+Tour-Score Header; 4-KPI-Strip; Fahrer-Score-Balken+Trend; Aufklappbare Stopp-Timeline 5-stufig geliefert/aktiv/ausstehend/batch/verspätet; ETA+Km je Stopp; Pünktlichkeit+Lieferzeit KPI; Alert Verspätung; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4733ScoreTourVisualisierungV2 } from './phase4733-score-tour-visualisierung-v2';
+// Phase 4737 — Wartezeit-Restaurant Ranking Board (Clock orange; INVERTED Rang 1=kürzeste Wartezeit; KPI-Grid Kürzeste/Team-Avg/Längste; Balken farbkodiert; DeltaIcon; Alert >15min; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4737WartezeitRestaurantBoard } from './phase4737-wartezeit-restaurant-board';

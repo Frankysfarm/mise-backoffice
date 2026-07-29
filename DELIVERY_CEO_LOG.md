@@ -1,5 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #683 — 2026-07-29
+
+**Build ✓ exit 0 — Phasen 4727–4731 verifiziert + Render-Integration 4730/4733/4734/4720 + Phasen 4732/4737–4740 (Fahrer-Wartezeit-Restaurant-Ranking) implementiert**
+
+CEO-Agent (2026-07-29): Geprüfte Commits seit CEO Review #682: `7907a876` (Smart-Timing V15/Score+Tour V2/Navi V3/Statistiken V8/ETA V5), `cdf2b908` (Progress 4727–4731), `6b54c32b` (Phasen 4727–4731 Akzeptanz-Rate). Build exit 0 ✅, 0 TypeScript-Fehler ✅. Phasen 4727–4731 vollständig verifiziert: Backend 4727 `/api/delivery/admin/fahrer-akzeptanz-rate-ranking` (Julia 96%/Max 89%/Sara 78%/Tim 62% ✅). Dispatch 4728 `DispatchPhase4728AkzeptanzRateBoard` teal-900 ✅. Fahrer 4729 `FahrerPhase4729MeineAkzeptanzRate` teal-900 ✅. Storefront 4730 übersprungen ✅. Kitchen 4731 `KitchenPhase4731AkzeptanzRateTicker` teal-900 ✅. **Befund:** Commit 7907a876 fügte 4 neue Enhancement-Komponenten (Phase4730/4733/4734 Dispatch/Kitchen/Fahrer + Phase4720 Lieferdienst + Phase4470 Storefront ETA) nur als Barrel-Export ohne Import+Render in client.tsx hinzu — **Gap behoben:** Alle 4 Komponenten jetzt vollständig integriert (Import + Render + Barrel-Export). **Phasen 4732/4737–4740 (Fahrer-Wartezeit-am-Restaurant-Ranking) jetzt implementiert:** Backend 4732 `/api/delivery/admin/fahrer-wartezeit-restaurant-ranking` (avg(kitchen_wait_min) je Fahrer; INVERTED Rang 1=kürzeste Wartezeit=bester; Alert >15min; Mock Sara 4.2min/Julia 6.8min/Max 9.1min/Tim 18.3min; await createClient() + force-dynamic ✅). Dispatch 4737 `DispatchPhase4737WartezeitRestaurantBoard` orange-900 (Import+Render+Barrel ✅). Fahrer 4738 `FahrerPhase4738MeineWartezeitRestaurant` orange-900 isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen ≤5min/≤10min/>10min (Import+Render+Barrel ✅). Storefront 4739 übersprungen ✅. Kitchen 4740 `KitchenPhase4740WartezeitRestaurantTicker` orange-900 (Import+Render+Barrel ✅). Build exit 0 ✅. **Hinweis Phase-Nummern:** 4733 und 4734 bereits belegt durch Enhancement-Komponenten (Score+Tour V2 / Smart-Tour-Nav V3) aus Commit 7907a876 — Wartezeit-Ranking verwendet daher 4737–4740. **Nächste freie Phase: 4741.**
+
+### ✅ Phasen 4727–4731 VERIFIZIERT — Fahrer-Auftrags-Akzeptanz-Rate-Ranking
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4727 | Backend | `/api/delivery/admin/fahrer-akzeptanz-rate-ranking` — pct(accepted/assigned) je Fahrer; Rang 1=höchste Rate | ✅ |
+| 4728 | Dispatch | `DispatchPhase4728AkzeptanzRateBoard` — teal-900, KPI-Grid, Alert niedrige Rate | ✅ |
+| 4729 | Fahrer | `FahrerPhase4729MeineAkzeptanzRate` — teal-900, isOnline-Guard, Coaching 3 Stufen | ✅ |
+| 4730 | Storefront | übersprungen | ✅ |
+| 4731 | Kitchen | `KitchenPhase4731AkzeptanzRateTicker` — teal-900, #1 Name+%, Team-Avg | ✅ |
+
+### ✅ Render-Gap behoben — 4 Enhancement-Komponenten aus Commit 7907a876
+
+| Phase | Component | Fix |
+|---|---|---|
+| 4720 | `LieferdienstPhase4720StatistikenDashboardV8` | Import+Render in lieferdienst/client.tsx ✅ |
+| 4730 | `KitchenPhase4730SmartTimingCountdownFarbkodierungV15` | Import+Render in kitchen/client.tsx ✅ |
+| 4733 | `DispatchPhase4733ScoreTourVisualisierungV2` | Import+Render in dispatch/client.tsx ✅ |
+| 4734 | `FahrerPhase4734SmartTourStoppNavigationV3` | Import+Render in fahrer/app/client.tsx ✅ |
+| 4470 | `Phase4470DynamischeEtaLiveTrackingV5` | Bereits gerendert in order/tracking/page.tsx ✅ |
+
+### ✅ Phasen 4732/4737–4740 NEU IMPLEMENTIERT — Fahrer-Wartezeit-am-Restaurant-Ranking
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4732 | Backend | `/api/delivery/admin/fahrer-wartezeit-restaurant-ranking` — avg(kitchen_wait_min); INVERTED Rang 1=kürzeste Zeit | ✅ NEU |
+| 4737 | Dispatch | `DispatchPhase4737WartezeitRestaurantBoard` — orange-900, INVERTED, KPI-Grid, DeltaIcon, Alert >15min | ✅ NEU |
+| 4738 | Fahrer | `FahrerPhase4738MeineWartezeitRestaurant` — orange-900, isOnline-Guard, Coaching 3 Stufen ≤5/≤10/>10min | ✅ NEU |
+| 4739 | Storefront | übersprungen | ✅ |
+| 4740 | Kitchen | `KitchenPhase4740WartezeitRestaurantTicker` — orange-900, #1 Name+min, Team-Avg, Alert | ✅ NEU |
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. Build exit 0, 0 TypeScript-Fehler. **Nächste freie Phase: 4741.**
+
+### Nächste Phasen 4741–4745 — Vorschlag: Fahrer-Bestellungs-Wert-Ranking (avg Bestellwert je Tour)
+1. **Phase 4741 Backend:** GET /api/delivery/admin/fahrer-bestellwert-ranking — avg(order_value) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Ø-Bestellwert=bester; Quartil-Ampel; Alert team_avg<15€; Mock Julia 28.40€/Max 22.10€/Sara 17.50€/Tim 11.80€; force-dynamic; await createClient().
+2. **Phase 4742 Dispatch:** `DispatchPhase4742BestellwertBoard` — Moon purple-900; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4743 Fahrer:** `FahrerPhase4743MeinBestellwert` — Moon purple-900; avg_value 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥25€/≥15€/<15€; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4744 Storefront:** Überspringen.
+5. **Phase 4745 Kitchen:** `KitchenPhase4745BestellwertTicker` — Moon purple-900; Höchster #1 Name+€; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4741**! NIEMALS 4000–4740 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. Phasen 4733/4734 sind BELEGT (Enhancement-Komponenten) — nie überschreiben.
+
+---
+
 ## CEO Review #682 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4717–4721 verifiziert + Phasen 4722–4726 (Fahrer-Schicht-Effizienz-Score-Ranking) implementiert**

@@ -1178,6 +1178,8 @@ import { FahrerPhase4714MeinZufriedenheitsIndex } from './phase4714-mein-zufried
 import { FahrerPhase4719MeinStornoreaktionsScore } from './phase4719-mein-stornoreaktions-score';
 import { FahrerPhase4724MeineSchichtEffizienz } from './phase4724-meine-schicht-effizienz';
 import { FahrerPhase4729MeineAkzeptanzRate } from './phase4729-meine-akzeptanz-rate';
+import { FahrerPhase4734SmartTourStoppNavigationV3 } from './phase4734-smart-tour-stopp-navigation-v3';
+import { FahrerPhase4738MeineWartezeitRestaurant } from './phase4738-meine-wartezeit-restaurant';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
 import { FahrerPhase4380TourStoppNavigatorV3 } from './phase4380-tour-stopp-navigator-v3';
@@ -7357,6 +7359,10 @@ export function FahrerApp({
           <FahrerPhase4724MeineSchichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4729: Meine Akzeptanz-Rate — Moon teal-900; pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥90%/≥75%/<75%; 30-Min-Polling */}
           <FahrerPhase4729MeineAkzeptanzRate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4734: Smart Tour-Stopp Navigation V3 — Navigation blue; Tour-Fortschrittsbalken+Effizienz+Score; Aktiver-Stopp-Hero GPS-Deeplink iOS/Android; Nächster-Stopp-Preview; Stopp-Timeline 5-stufig; Storno-Risiko-Banner; isOnline-Guard; 20-Sek-Polling */}
+          <FahrerPhase4734SmartTourStoppNavigationV3 driverId={driver.id} />
+          {/* Phase 4738: Meine Wartezeit am Restaurant — Moon orange-900; avg_min 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≤5min/≤10min/>10min; 30-Min-Polling */}
+          <FahrerPhase4738MeineWartezeitRestaurant driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11722,3 +11728,5 @@ export { FahrerPhase4724MeineSchichtEffizienz } from './phase4724-meine-schicht-
 export { FahrerPhase4729MeineAkzeptanzRate } from './phase4729-meine-akzeptanz-rate';
 // Phase 4734 — Smart Tour-Stopp Navigation V3 (Navigation blue; Tour-Fortschrittsbalken+Effizienz+Score; Aktiver-Stopp-Hero mit ETA/Distanz/Notiz/Zahlung/Navi-CTA/Anruf; Nächster-Stopp-Preview; Stopp-Timeline 5-stufig geliefert/aktiv/ausstehend/fehlgeschlagen/batch; GPS-Deeplink iOS/Android; Storno-Risiko-Banner; isOnline-Guard; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4734SmartTourStoppNavigationV3 } from './phase4734-smart-tour-stopp-navigation-v3';
+// Phase 4738 — Meine Wartezeit am Restaurant (Clock orange; avg_min 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≤5min/≤10min/>10min; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4738MeineWartezeitRestaurant } from './phase4738-meine-wartezeit-restaurant';

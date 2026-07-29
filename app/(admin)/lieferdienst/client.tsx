@@ -498,6 +498,7 @@ import { LieferdienstPhase4410StatistikDashboardV6 } from './phase4410-statistik
 import { LieferdienstPhase4615StatistikenLiveDashboard } from './phase4615-statistiken-live-dashboard';
 import { LieferdienstPhase1000StatistikenGesamtHub } from './phase1000-statistiken-gesamt-hub';
 import { LieferdienstPhase4710StatistikenLiveDashboardUltimate } from './phase4710-statistiken-live-dashboard-ultimate';
+import { LieferdienstPhase4720StatistikenDashboardV8 } from './phase4720-statistiken-dashboard-v8';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2386,6 +2387,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase1000StatistikenGesamtHub locationId={locationId ?? null} />
                 {/* Phase 4710: Statistiken Live Dashboard Ultimate — 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel; Gesamt-Score-Balken; Alert-Strip rot; Stundenverlauf BarChart 2-Modi; Top-3-Fahrer Score+Trinkgeld; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase4710StatistikenLiveDashboardUltimate locationId={locationId ?? null} />
+                {/* Phase 4720: Statistiken Dashboard V8 — BarChart2 indigo; Score+Delta Header; 12-KPI-Grid 3-spaltig Ampel+Δ%+Ziel; Stundenverlauf 2-Modi umschaltbar; Top-3-Fahrer; Zonen-SLA-Balken; 60-Sek-Polling */}
+                <LieferdienstPhase4720StatistikenDashboardV8 locationId={locationId ?? null} />
               </>
             </div>
           )}
