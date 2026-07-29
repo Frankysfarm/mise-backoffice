@@ -500,6 +500,7 @@ import { LieferdienstPhase1000StatistikenGesamtHub } from './phase1000-statistik
 import { LieferdienstPhase4710StatistikenLiveDashboardUltimate } from './phase4710-statistiken-live-dashboard-ultimate';
 import { LieferdienstPhase4720StatistikenDashboardV8 } from './phase4720-statistiken-dashboard-v8';
 import { LieferdienstPhase4725StatistikenDashboardV9 } from './phase4725-statistiken-dashboard-v9';
+import { LieferdienstPhase4730StatistikenDashboardV10 } from './phase4730-statistiken-dashboard-v10';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2392,6 +2393,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4720StatistikenDashboardV8 locationId={locationId ?? null} />
                 {/* Phase 4725: Statistiken Dashboard V9 — BarChart2 emerald; Score+Ampel Header; 6-KPI-Grid Ampel+Δ+Ziel; Chart-Modus umschaltbar; Top-Fahrer Score+Touren+Trinkgeld; Zonen-KPI SLA+AvgMin+Umsatz; 60-Sek-Polling */}
                 <LieferdienstPhase4725StatistikenDashboardV9 locationId={locationId ?? null} />
+                {/* Phase 4730: Statistiken Dashboard V10 — BarChart2 indigo; Score+Delta+Fortschrittsbalken; Alert-Strip; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel-Balken; Stundenverlauf-BarChart 2-Modi umschaltbar Bestellungen/Umsatz Jetzt-Stunde lila; Top-3-Fahrer Score+Touren+Trinkgeld; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4730StatistikenDashboardV10 locationId={locationId ?? null} />
               </>
             </div>
           )}
@@ -5035,3 +5038,5 @@ export { LieferdienstPhase4715StatistikenTagesPerformanceBoard } from './phase47
 export { LieferdienstPhase4720StatistikenDashboardV8 } from './phase4720-statistiken-dashboard-v8';
 // Phase 4725 — Statistiken Dashboard V9 (BarChart2 emerald; Score+Ampel Header; Alerts; 6-KPI-Grid 3-spaltig Ampel+Δ+Ziel; Stundenverlauf-BarChart 2-Modi umschaltbar Bestellungen/Umsatz; Top-Fahrer Score+Touren+Trinkgeld; Zonen-KPI SLA-Balken+AvgMin+Umsatz; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4725StatistikenDashboardV9 } from './phase4725-statistiken-dashboard-v9';
+// Phase 4730 — Statistiken Dashboard V10 (BarChart2 indigo; Score+Delta+Fortschrittsbalken; Alert-Strip; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel-Balken; Stundenverlauf 2-Modi umschaltbar Jetzt-Stunde lila; Top-3-Fahrer Score+Touren+Trinkgeld; Zonen-SLA-Balken; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4730StatistikenDashboardV10 } from './phase4730-statistiken-dashboard-v10';
