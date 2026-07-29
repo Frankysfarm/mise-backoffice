@@ -4866,6 +4866,8 @@ export function KitchenBoard({
       <KitchenPhase4845WochenendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4850: Frühschicht-Anteil-Ticker — amber-900; Champion #1 Name+%; Team-Avg; Alert >50%; 30-Min-Polling */}
       <KitchenPhase4850FruehschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4850: Smart-Timing Countdown V19 — Stations-Auslastung 3-Kacheln Grill/Friture/Kalt; Effizienz-% je Bestellung; 6-stufige Ampel; 5-KPI-Grid; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
+      <KitchenPhase4850SmartTimingCountdownV19 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4830: Smart-Timing Countdown V17 — 6-stufige Ampel; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Pünktl; Alert-Banner; Countdown-Kacheln Fortschrittsbalken+Batch+Komplexität+Fahrer-ETA; Prio-Sort; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4830SmartTimingCountdownV17 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4831: Smart-Timing Countdown V18 — Batch-Sync-Bar; Fahrer-nah-Warnung; Wellen-Indikator; V18 */}

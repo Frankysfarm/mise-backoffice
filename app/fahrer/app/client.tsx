@@ -7435,6 +7435,8 @@ export function FahrerApp({
           <FahrerPhase4843MeinWochenendAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4848: Mein Frühschicht-Anteil — amber-900; fruehschicht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥50%/≥25%/<25%; 30-Min-Polling */}
           <FahrerPhase4848MeinFruehschichtAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4848: Meine Tour-Stopps Live — Navigation2 blue; Fortschrittsbalken Stopps+km; Stopp-Cards geliefert/aktiv/ausstehend/verspaetet; Notiz-Badge; Zahlart-Badge; Anruf-Link; WifiOff-Guard; 20-Sek-Polling; Mock-Fallback */}
+          <FahrerPhase4848MeineTourStopsLive driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4828: Mein Tour-Stopp Navigator — Navigation2 blue; Tour-Übersicht 3-KPI-Grid; Aktiv-Stopp Hero-Karte mit Navi-Deeplink+Anruf; Notiz-Badge; Vollständige Stopp-Sequenz mit Status-Icons; WifiOff-Guard; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4828MeinTourStoppNavigator driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4829: Tour-Stopp Smart-Navigator V2 — Fortschrittsbalken; Verdienst-Strip; Trinkgeld-Vorschlag; Navi-Deeplink+Anruf; WifiOff-Guard; 30-Sek-Polling; Mock-Fallback */}

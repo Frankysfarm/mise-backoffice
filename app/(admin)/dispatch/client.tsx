@@ -5281,6 +5281,8 @@ export function DispatchBoard({
           <DispatchPhase4842WochenendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4847: Frühschicht-Anteil-Ranking — amber-900; Rang 1=höchster vor-08:00-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4847FruehschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4847: Tour-Score Live Board V5 — Trophy indigo; Team-Score+Ziel-Balken; Pünktlichkeit+Avg-Zeit; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Aufklappbare Stopp-Timeline; Alert-Strip; 20-Sek-Polling; Mock-Fallback */}
+          <DispatchPhase4847TourScoreLiveBoardV5 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4827: Score + Tour-Visualisierung V3 — Trophy indigo; Team-Score Arc+Ziel; 4-KPI-Strip; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar 5-stufig geliefert/aktiv/ausstehend/batch/verspaetet; ETA+Km je Stopp; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4827ScoreTourVisualisierungV3 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4831: Score + Tour-Visualisierung V4 — Zonen-SLA-Übersicht; SLA je Fahrer; Zonen-Heatmap; V4 */}

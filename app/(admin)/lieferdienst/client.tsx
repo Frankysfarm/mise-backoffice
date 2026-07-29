@@ -2399,6 +2399,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4730StatistikenDashboardV10 locationId={locationId ?? null} />
                 {/* Phase 4731: Statistiken Dashboard V11 — Vorwoche-Vergleich; Zonen-Trend; Fahrer-Delta; SLA-Balken; V11 */}
                 <LieferdienstPhase4731StatistikenDashboardV11 locationId={locationId ?? null} />
+                {/* Phase 4735: Statistiken Dashboard V12 — Score+Ziel-Balken; 8-KPI-Grid 2-spaltig; Stundenverlauf 3-Modi; Wochenvergleich-LineChart; Top-Fahrer mit km; Zonen SLA+Avg+Umsatz; 60-Sek-Polling; Mock-Fallback */}
+                <LieferdienstPhase4735StatistikenDashboardV12 locationId={locationId ?? null} />
               </>
             </div>
           )}
