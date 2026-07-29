@@ -1270,6 +1270,7 @@ import { DispatchPhase4772WochenendeBoard } from './phase4772-wochenende-board';
 import { DispatchPhase4777SpitzenzeitBoard } from './phase4777-spitzenzeit-board';
 import { DispatchPhase4782RueckgabeQuoteBoard } from './phase4782-rueckgabe-quote-board';
 import { DispatchPhase4787TrinkgeldBoard } from './phase4787-trinkgeld-board';
+import { DispatchPhase4792FruehschichtAnteilRankingBoard } from './phase4792-fruehschicht-anteil-ranking-board';
 import { DispatchPhase4150TourScoreVisualisierung } from './phase4150-tour-score-visualisierung';
 import { DispatchPhase4380TourScoreVisualisierungV4 } from './phase4380-tour-score-visualisierung-v4';
 import { DispatchPhase4395TourScoreVisualisierungV5 } from './phase4395-tour-score-visualisierung-v5';
@@ -5241,6 +5242,8 @@ export function DispatchBoard({
           <DispatchPhase4782RueckgabeQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4787: Trinkgeld-Ranking — indigo-900; Rang 1=höchstes Ø-Trinkgeld=bester; KPI-Grid Höchstes/Team-Avg/Niedrigstes; Alert <1,50€; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4787TrinkgeldBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4792: Frühschicht-Anteil-Ranking — Moon cyan-900; Rang 1=höchster Frühschicht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4792FruehschichtAnteilRankingBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4172: Tour-Score Live-Visualisierung — Flotten-KPIs; Score-Ring+Delta je Fahrer; expandierbare Stopp-Sequenz farbkodiert; Sub-KPIs Pünktlichkeit/Lieferzeit/Bewertung; Alert Score<70; 20-Sek-Polling; Mock-Fallback */}
@@ -13904,3 +13907,5 @@ export { DispatchPhase4777SpitzenzeitBoard } from './phase4777-spitzenzeit-board
 export { DispatchPhase4782RueckgabeQuoteBoard } from './phase4782-rueckgabe-quote-board';
 // Phase 4787 — Trinkgeld-Ranking Board (Euro indigo; Rang 1=höchstes Ø-Trinkgeld=bester; KPI-Grid Höchstes/Team-Avg/Niedrigstes; Alert <1,50€; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4787TrinkgeldBoard } from './phase4787-trinkgeld-board';
+// Phase 4792 — Frühschicht-Anteil-Ranking Board (AlarmClock cyan; Rang 1=höchster Frühschicht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4792FruehschichtAnteilRankingBoard } from './phase4792-fruehschicht-anteil-ranking-board';
