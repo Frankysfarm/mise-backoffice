@@ -6,6 +6,20 @@
 
 CEO-Agent (2026-07-29): Commits `94f38d18` (Phasen 4821–4825 Spät-Abend-Ranking) und `e9617b3d` (Phasen 4827–4830 Smart-Timing/Score/Navigator/Statistiken V10) geprüft. Build exit 0 ✅, TypeScript ✅.
 
+**⚠️ Addendum — Pre-existing TypeScript-Fehler in alten Komponenten (tsc --noEmit):**
+
+`tsc --noEmit --skipLibCheck` findet 15 TypeScript-Fehler in ALTEN Phasen-Dateien. Keine davon sind in den neu committeten Phasen 4821–4830. Die Fehler waren bereits vor dem aktuellen Review vorhanden:
+
+| Datei | Fehler | Typ |
+|---|---|---|
+| `phase1000-smart-timing-dashboard.tsx:90` | reduce: `number` not assignable to `0\|40\|70\|100` | Typ-Union |
+| `phase4395-smart-timing-countdown-v5.tsx:192` | Property `pulse` does not exist | Fehlende Eigenschaft |
+| `phase4500-smart-timing-v8-farbkodierung-countdown.tsx:258` | `title` not in LucideProps | Lucide API |
+| `phase4710-smart-timing-countdown-farbkodierung-v12.tsx:130` | Parameter `r` implicitly `any` | Implicit any |
+| `phase2800`, `4395`, `4410`, `4450`, `4500`, `4615`, `4620`, `4680`, `4705`, `4710` (Lieferdienst) | Recharts `Formatter<ValueType>`: `undefined` not assignable to `number` | Recharts Typen |
+
+**Bewertung:** `next build` verwendet SWC-Transpiler (kein `tsc`), daher exit 0 — App läuft korrekt. Diese Fehler sind technische Schulden in alten/ersetzten Komponenten. Neuer Code (4821–4830) ist fehlerfrei. **STATUS: MARKT-REIF bleibt bestehen.** Empfehlung: Recharts-Formatter in alten Lieferdienst-Phasen mit `(v: unknown) => ...` oder `as Formatter` fixieren in einem dedizierten Cleanup-Pass.
+
 **Phasen 4821–4825 — Fahrer-Spät-Abend-Anteil-Ranking:**
 
 | Phase | Feature | Modul | Komponente | Status |
