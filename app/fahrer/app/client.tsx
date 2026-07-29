@@ -1211,6 +1211,7 @@ import { FahrerPhase4873MeinRegenzeitAnteil } from './phase4873-mein-regenzeit-a
 import { FahrerPhase4878SmartTourStoppNavV7 } from './phase4878-smart-tour-stopp-nav-v7';
 import { FahrerPhase4882MeinWetterAnteil } from './phase4882-mein-wetter-anteil';
 import { FahrerPhase4888MeineFruehprod } from './phase4888-meine-fruehprod';
+import { FahrerPhase4893MeineMittagsprod } from './phase4893-meine-mittagsprod';
 import { FahrerPhase4853SmartTourStoppNavV5 } from './phase4853-smart-tour-stopp-nav-v5';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 import { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
@@ -7461,6 +7462,8 @@ export function FahrerApp({
           <FahrerPhase4882MeinWetterAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4888: Meine Frühschicht-Produktivität — Sun emerald-900; touren_pro_std 4xl+Rang 2xl; isOnline-Guard; Coaching ≥3,0/≥1,5/<1,5; 30-Min-Polling */}
           <FahrerPhase4888MeineFruehprod driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4893: Meine Mittagsschicht-Produktivität — Sun lime-900; touren_pro_std 4xl+Rang 2xl; isOnline-Guard; Coaching ≥3,0/≥1,5/<1,5; 30-Min-Polling */}
+          <FahrerPhase4893MeineMittagsprod driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4878: Smart-Tour-Stopp-Navigator V7 — Navigation2 blue; Kundenwertung je Stopp; Anweisungen; Aufklappbare Stopp-Details; Dual-Fortschrittsbalken Stopps+km; Verdienst+Trinkgeld Strip; Traffic-Info; 20-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4878SmartTourStoppNavV7 />
           {/* Phase 4853: Smart-Tour-Stopp-Navigator V5 — Navigation2 blue; mobile-first; Hero-Karte Aktiv-Stopp; Google+Apple-Deeplinks; Zahlart-Badge; Notiz-Alert; Aufklappbare Stopp-Details; 20-Sek-Polling; Mock-Fallback */}
@@ -11901,6 +11904,8 @@ export { FahrerPhase4873MeinRegenzeitAnteil } from './phase4873-mein-regenzeit-a
 export { FahrerPhase4882MeinWetterAnteil } from './phase4882-mein-wetter-anteil';
 // Phase 4888 — Meine Frühschicht-Produktivität (Sun emerald-900; touren_pro_std 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen ≥3,0/≥1,5/<1,5; 30-Min-Polling)
 export { FahrerPhase4888MeineFruehprod } from './phase4888-meine-fruehprod';
+// Phase 4893 — Meine Mittagsschicht-Produktivität (Sun lime-900; touren_pro_std 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen ≥3,0/≥1,5/<1,5; 30-Min-Polling)
+export { FahrerPhase4893MeineMittagsprod } from './phase4893-meine-mittagsprod';
 export { FahrerPhase4878SmartTourStoppNavV7 } from './phase4878-smart-tour-stopp-nav-v7';
 // Phase 4853 — Smart-Tour-Stopp-Navigator V5 (Navigation2 blue; mobile-first Hero-Karte Aktiv-Stopp; Google+Apple-Deeplinks; Zahlart-Badge bar/karte/online; Notiz-Alert gelb; Aufklappbare Stopp-Details; Fortschrittsbalken Stopps+km; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4853SmartTourStoppNavV5 } from './phase4853-smart-tour-stopp-nav-v5';

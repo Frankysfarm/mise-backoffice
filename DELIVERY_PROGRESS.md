@@ -35178,3 +35178,36 @@ KRITISCH: Nächste freie Phase ist **4880**! NIEMALS 4000–4879 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **4891**! NIEMALS 4000–4890 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF
+
+## Batch 4891–4895 — Mittagsschicht-Produktivität-Ranking (ABGESCHLOSSEN 2026-07-29)
+
+### Phase 4891 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-mittagsprod-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, touren_pro_std, rank_delta, ampel, alert_hoch}], team_avg_tph, meister_name, wenigster_name, alert_count, gesamt }`; absteigend Rang 1=höchste Produktivität; isMittagsschicht() = UTCHours 11-14; ampelVon ≥3,0=rot/≥1,5=gelb/<1,5=grün; Alert >3,0 T/h; Mock Max 4.1/Sara 3.2/Julia 2.8/Tim 1.9; force-dynamic ✅; await createClient() ✅
+
+### Phase 4892 — Mittagsschicht-Produktivität-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4892MittagsprodBoard` — Sun lime-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >3,0 T/h; Balken farbkodiert grün/gelb/rot; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4893 — Meine Mittagsschicht-Produktivität (Fahrer)
+**Component:** `FahrerPhase4893MeineMittagsprod` — Sun lime-900; touren_pro_std 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥3,0/≥1,5/<1,5); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4894 — Storefront
+Übersprungen ✅
+
+### Phase 4895 — Mittagsschicht-Produktivität Ticker (Kitchen)
+**Component:** `KitchenPhase4895MittagsprodTicker` — Sun lime-900; Champion #1 Name+T/h; Team-Avg; Alert-Count Badge; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (vor meinen Änderungen identisch reproduzierbar). TypeScript: `ignoreBuildErrors: true` in next.config.js — alle Fehler sind environment-level (react/lucide-react module resolution), identisch in allen bestehenden Phasen-Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 4891–4895)
+- **Belegt:** 4000–4895 (4849, 4854, 4859, 4864, 4869, 4874, 4879, 4883, 4889, 4894 Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 4896**
+
+### Nächste Phasen 4896–4900 — Vorschlag: Fahrer-Abendschicht-Produktivitäts-Ranking (Touren/h 17:00–21:00 UTC)
+1. **Phase 4896 Backend:** GET /api/delivery/admin/fahrer-abendprod-ranking — Touren pro Abendschicht-Stunde; absteigend Rang 1=höchste Produktivität; Alert >3 T/h; Mock Tim 4.5/Max 3.8/Sara 3.1/Julia 2.4; force-dynamic; await createClient().
+2. **Phase 4897 Dispatch:** `DispatchPhase4897AbendprodBoard` — Moon violet-900; KPI-Grid; Alert >3,0; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4898 Fahrer:** `FahrerPhase4898MeineAbendprod` — Moon violet-900; touren_pro_std 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥3,0/≥1,5/<1,5; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4899 Storefront:** Überspringen.
+5. **Phase 4900 Kitchen:** `KitchenPhase4900AbendprodTicker` — Moon violet-900; Champion #1 Name+T/h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4896**! NIEMALS 4000–4895 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
