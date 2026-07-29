@@ -1193,6 +1193,7 @@ import { FahrerPhase4788MeinTrinkgeld } from './phase4788-mein-trinkgeld';
 import { FahrerPhase4793MeinFruehschichtAnteil } from './phase4793-mein-fruehschicht-anteil';
 import { FahrerPhase4798MeinMittagsschichtAnteil } from './phase4798-mein-mittagsschicht-anteil';
 import { FahrerPhase4803MeinAbendschichtAnteil } from './phase4803-mein-abendschicht-anteil';
+import { FahrerPhase4808MeinKurzschichtAnteil } from './phase4808-mein-kurzschicht-anteil';
 import { FahrerPhase4798SmartTourStoppNavV4 } from './phase4798-smart-tour-stopp-nav-v4';
 import { FahrerPhase4150TourStoppNavigationHub } from './phase4150-tour-stopp-navigation-hub';
 import { FahrerPhase4173TourStoppNavigationsHub } from './phase4173-tour-stopp-navigations-hub';
@@ -7405,6 +7406,8 @@ export function FahrerApp({
           <FahrerPhase4798SmartTourStoppNavV4 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4803: Mein Abendschicht-Anteil — Moon indigo-900; abendschicht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥50%/≥25%/<25%; 30-Min-Polling */}
           <FahrerPhase4803MeinAbendschichtAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4808: Mein Kurzschicht-Anteil — Moon yellow-900; kurzschicht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥40%/≥20%/<20%; 30-Min-Polling */}
+          <FahrerPhase4808MeinKurzschichtAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
           {/* Phase 4000: Tour-Stop Navigation Hub — alle Stopps mit ETA, Google Maps/Waze, Telefon-Schnellwahl; Aktiv-Stopp hervorgehoben; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback */}
@@ -11800,3 +11803,5 @@ export { FahrerPhase4798MeinMittagsschichtAnteil } from './phase4798-mein-mittag
 export { FahrerPhase4798SmartTourStoppNavV4 } from './phase4798-smart-tour-stopp-nav-v4';
 // Phase 4803 — Mein Abendschicht-Anteil (Moon indigo; abendschicht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥50%/≥25%/<25%; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase4803MeinAbendschichtAnteil } from './phase4803-mein-abendschicht-anteil';
+// Phase 4808 — Mein Kurzschicht-Anteil (Moon yellow; kurzschicht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥40%/≥20%/<20%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4808MeinKurzschichtAnteil } from './phase4808-mein-kurzschicht-anteil';
