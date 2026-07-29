@@ -4815,7 +4815,7 @@ export function KitchenBoard({
       <KitchenPhase4765AbholzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4770: Nachtschicht-Ticker — Moon violet-900; Meiste #1 Name+%; Team-Avg; Alert hoher Nachtanteil >35%; 30-Min-Polling */}
       <KitchenPhase4770NachtschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
-      {/* Phase 4775: Wochenend-Effizienz-Ticker — Moon teal-900; Effizientester #1 Name+€/Tour; Team-Avg; Alert niedriger Wochenend-Wert <12€; 30-Min-Polling */}
+      {/* Phase 4775: Wochenend-Ticker — Moon teal-900; Effizientester #1 Name+€/Tour; Team-Avg; Alert niedriger Wochenend-Wert <12€; 30-Min-Polling */}
       <KitchenPhase4775WochenendetTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4300: Smart-Timing Countdown Farbkodierung Board — 4-stufig grün/gelb/orange/rot; Timing-Score; Fahrer-wartet-Zap; 10-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4300SmartTimingCountdownFarbkodierungBoard locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -12456,6 +12456,6 @@ export { KitchenPhase4760ReaktionszeitTicker } from './phase4760-reaktionszeit-t
 export { KitchenPhase4765AbholzeitTicker } from './phase4765-abholzeit-ticker';
 // Phase 4770 — Nachtschicht-Ticker (Moon violet; Meiste #1 Name+%; Team-Avg; Alert hoher Nachtanteil >35%; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4770NachtschichtTicker } from './phase4770-nachtschicht-ticker';
-// Phase 4775 — Wochenend-Effizienz-Ticker (Moon teal; Effizientester #1 Name+€/Tour; Team-Avg; Alert niedriger Wochenend-Wert <12€; 30-Min-Polling; Mock-Fallback)
+// Phase 4775 — Wochenend-Ticker (CalendarDays teal; Effizientester #1 Name+€/Tour; Team-Avg; Alert niedriger Wochenend-Wert <12€/Tour; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4775WochenendetTicker } from './phase4775-wochenende-ticker';
 export { KitchenPhase4731AkzeptanzRateTicker } from './phase4731-akzeptanz-rate-ticker';

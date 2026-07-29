@@ -16,9 +16,9 @@ interface ApiResponse {
 }
 
 function coachingTipp(euro: number): { text: string; color: string } {
-  if (euro >= 20) return { text: 'Hervorragende Wochenend-Effizienz! Weiter so — dein Einsatz am Wochenende zahlt sich aus.', color: 'text-green-400' };
-  if (euro >= 12) return { text: 'Solider Wochenend-Wert. Mit mehr Touren pro Schicht kannst du noch höher kommen.', color: 'text-yellow-400' };
-  return { text: 'Niedriger Wochenend-Wert (<12 €/Tour). Versuche Stoßzeiten (Sa/So Mittag/Abend) zu nutzen.', color: 'text-red-400' };
+  if (euro >= 20) return { text: 'Exzellente Wochenend-Performance! Du gehörst zur Spitzengruppe.', color: 'text-green-400' };
+  if (euro >= 12) return { text: 'Gute Wochenend-Effizienz. Mit mehr Touren kannst du weiter steigen.', color: 'text-yellow-400' };
+  return { text: 'Niedriger Wochenend-Wert (<12€/Tour). Versuche, längere und wertvollere Touren am Wochenende anzunehmen.', color: 'text-red-400' };
 }
 
 function ampelColor(a: string) {
@@ -65,20 +65,20 @@ export function FahrerPhase4773MeinWochenende({ driverId, locationId, isOnline }
     <div className="rounded-xl border border-teal-800 bg-teal-950/40 p-4 mb-3">
       <div className="flex items-center gap-2 mb-3">
         <CalendarDays className="w-4 h-4 text-teal-400" />
-        <span className="text-sm font-semibold text-teal-300">Mein Wochenend-Wert</span>
+        <span className="text-sm font-semibold text-teal-300">Mein Wochenende</span>
       </div>
 
       <div className="text-center mb-4">
-        <div className={`text-4xl font-bold ${ampelColor(me.ampel)}`}>{me.avg_euro_tour.toFixed(2)} €</div>
-        <div className="text-xs text-gray-400 mt-1">Ø €/Tour am Wochenende (30 Tage)</div>
-        <div className={`text-2xl font-semibold mt-1 ${ampelColor(me.ampel)}`}>Rang {me.rang}</div>
+        <div className={`text-4xl font-bold ${ampelColor(me.ampel)}`}>{me.avg_euro_tour.toFixed(2)}€</div>
+        <div className="text-xs text-gray-400 mt-1">Ø €/Tour (Sa+So, 30 Tage)</div>
+        <div className={`text-xl font-semibold mt-1 ${ampelColor(me.ampel)}`}>Rang {me.rang}</div>
       </div>
 
       <div className="space-y-2 mb-3">
         <div>
           <div className="flex justify-between text-xs mb-1">
             <span className="text-gray-400">Ich</span>
-            <span className={ampelColor(me.ampel)}>{me.avg_euro_tour.toFixed(2)} €</span>
+            <span className={ampelColor(me.ampel)}>{me.avg_euro_tour.toFixed(2)}€</span>
           </div>
           <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
             <div className="h-full bg-teal-500 rounded-full" style={{ width: `${(me.avg_euro_tour / maxEuro) * 100}%` }} />
@@ -87,7 +87,7 @@ export function FahrerPhase4773MeinWochenende({ driverId, locationId, isOnline }
         <div>
           <div className="flex justify-between text-xs mb-1">
             <span className="text-gray-400">Team-Ø</span>
-            <span className="text-gray-300">{data.team_avg_euro.toFixed(2)} €</span>
+            <span className="text-gray-300">{data.team_avg_euro.toFixed(2)}€</span>
           </div>
           <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
             <div className="h-full bg-gray-500 rounded-full" style={{ width: `${(data.team_avg_euro / maxEuro) * 100}%` }} />

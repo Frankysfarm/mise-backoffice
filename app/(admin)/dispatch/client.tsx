@@ -5230,7 +5230,7 @@ export function DispatchBoard({
           <DispatchPhase4762AbholzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4767: Nachtschicht-Ranking — Moon violet-900; Rang 1=höchster Nachtanteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >35%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4767NachtschichtEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
-          {/* Phase 4772: Wochenend-Effizienz-Ranking — Moon teal-900; Rang 1=höchster Wochenend-Wert; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <12€; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          {/* Phase 4772: Wochenend-Effizienz-Ranking — Moon teal-900; Rang 1=höchster €/Tour Sa+So; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <12€; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4772WochenendeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4150: Tour-Score Visualisierung — Fleet-KPIs; expandierbare Tour-Karten mit Stopp-Sequenz; Score-Balken 4-stufig; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4150TourScoreVisualisierung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
@@ -13887,5 +13887,5 @@ export { DispatchPhase4757ReaktionszeitBoard } from './phase4757-reaktionszeit-b
 export { DispatchPhase4762AbholzeitBoard } from './phase4762-abholzeit-board';
 // Phase 4767 — Nachtschicht-Ranking Board (Moon violet; Rang 1=höchster Nachtanteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert >35% Nachtanteil; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4767NachtschichtEffizienzBoard } from './phase4767-nachtschicht-effizienz-board';
-// Phase 4772 — Wochenend-Effizienz-Ranking Board (Moon teal; Rang 1=höchster Wochenend-Wert; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <12€; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+// Phase 4772 — Wochenend-Effizienz-Ranking Board (CalendarDays teal; Rang 1=höchster €/Tour Sa+So; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <12€/Tour; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4772WochenendeBoard } from './phase4772-wochenende-board';

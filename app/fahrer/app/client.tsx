@@ -7382,7 +7382,7 @@ export function FahrerApp({
           <FahrerPhase4763MeineAbholzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4768: Mein Nachtschicht-Anteil — Moon violet-900; nacht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥35%/≥20%/<20%; 30-Min-Polling */}
           <FahrerPhase4768MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
-          {/* Phase 4773: Mein Wochenend-Wert — Moon teal-900; avg_euro_tour 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥20€/≥12€/<12€; 30-Min-Polling */}
+          {/* Phase 4773: Mein Wochenende — Moon teal-900; avg_euro_tour 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥20€/≥12€/<12€; 30-Min-Polling */}
           <FahrerPhase4773MeinWochenende driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4150: Tour-Stopp Navigation Hub — Fortschritts-Ring; Nächster-Stopp Fokus-Karte blau; Stopp-Sequenz expandierbar; Navi-Deeplink Android/iOS/Web; Telefon; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4150TourStoppNavigationHub fahrerToken={undefined} />
@@ -11763,5 +11763,5 @@ export { FahrerPhase4758MeineReaktionszeit } from './phase4758-meine-reaktionsze
 export { FahrerPhase4763MeineAbholzeit } from './phase4763-meine-abholzeit';
 // Phase 4768 — Mein Nachtschicht-Anteil (Moon violet; nacht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥35%/≥20%/<20%; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase4768MeineNachtschichtEffizienz } from './phase4768-meine-nachtschicht-effizienz';
-// Phase 4773 — Mein Wochenend-Wert (Moon teal; avg_euro_tour 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥20€/≥12€/<12€; 30-Min-Polling; Mock-Fallback)
+// Phase 4773 — Mein Wochenende (CalendarDays teal; avg_euro_tour 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥20€/≥12€/<12€; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase4773MeinWochenende } from './phase4773-mein-wochenende';

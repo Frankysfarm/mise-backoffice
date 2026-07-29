@@ -17,7 +17,7 @@ interface ApiResponse {
   fahrer: FahrerRow[];
   team_avg_euro: number;
   bester_name: string;
-  niedrigste_name: string;
+  schlechtester_name: string;
   alert_count: number;
   gesamt: number;
 }
@@ -66,28 +66,28 @@ export function DispatchPhase4772WochenendeBoard({ locationId }: { locationId: s
       <div className="flex items-center gap-2 mb-3">
         <CalendarDays className="w-4 h-4 text-teal-400" />
         <span className="text-sm font-semibold text-teal-300">Wochenend-Effizienz-Ranking</span>
-        <span className="ml-auto text-xs text-gray-500">Rang 1 = höchster Wert/Tour</span>
+        <span className="ml-auto text-xs text-gray-500">Rang 1 = höchster €/Tour (Sa+So)</span>
       </div>
 
       {data.alert_count > 0 && (
         <div className="flex items-center gap-2 text-xs text-red-300 bg-red-900/30 rounded px-3 py-1.5 mb-3">
           <AlertTriangle className="w-3 h-3" />
-          {data.alert_count} Fahrer mit niedrigem Wochenend-Wert (&lt;12 €/Tour)
+          {data.alert_count} Fahrer mit niedrigem Wochenend-Wert (&lt;12€/Tour)
         </div>
       )}
 
       <div className="grid grid-cols-3 gap-2 mb-3 text-center">
         <div className="bg-black/20 rounded p-2">
           <div className="text-xs text-gray-400">Höchste</div>
-          <div className="text-sm font-bold text-teal-400">{data.fahrer[0]?.avg_euro_tour.toFixed(2)} €</div>
+          <div className="text-sm font-bold text-teal-400">{data.fahrer[0]?.avg_euro_tour.toFixed(2)}€</div>
         </div>
         <div className="bg-black/20 rounded p-2">
           <div className="text-xs text-gray-400">Team-Ø</div>
-          <div className="text-sm font-bold text-teal-300">{data.team_avg_euro.toFixed(2)} €</div>
+          <div className="text-sm font-bold text-teal-300">{data.team_avg_euro.toFixed(2)}€</div>
         </div>
         <div className="bg-black/20 rounded p-2">
           <div className="text-xs text-gray-400">Niedrigste</div>
-          <div className="text-sm font-bold text-red-400">{data.fahrer[data.fahrer.length - 1]?.avg_euro_tour.toFixed(2)} €</div>
+          <div className="text-sm font-bold text-green-400">{data.fahrer[data.fahrer.length - 1]?.avg_euro_tour.toFixed(2)}€</div>
         </div>
       </div>
 
@@ -102,7 +102,7 @@ export function DispatchPhase4772WochenendeBoard({ locationId }: { locationId: s
                 style={{ width: `${(f.avg_euro_tour / maxEuro) * 100}%` }}
               />
             </div>
-            <span className={`text-xs w-12 text-right ${ampelColor(f.ampel)}`}>{f.avg_euro_tour.toFixed(1)} €</span>
+            <span className={`text-xs w-12 text-right ${ampelColor(f.ampel)}`}>{f.avg_euro_tour.toFixed(2)}€</span>
             <DeltaIcon delta={f.rank_delta} />
           </div>
         ))}

@@ -41,11 +41,11 @@ export function KitchenPhase4775WochenendetTicker({ locationId }: { locationId: 
     <div className="rounded-xl border border-teal-800 bg-teal-950/40 px-4 py-3 mb-3 flex items-center gap-3">
       <CalendarDays className="w-4 h-4 text-teal-400 shrink-0" />
       <div className="flex-1 min-w-0">
-        <div className="text-xs text-gray-400">Wochenend-Effizienz — Top-Fahrer</div>
+        <div className="text-xs text-gray-400">Wochenende — Effizientester Fahrer</div>
         <div className="text-sm font-bold text-teal-300 truncate">
-          #{top?.rang} {top?.fahrer_name} — {top?.avg_euro_tour.toFixed(2)} €/Tour
+          #{top?.rang} {top?.fahrer_name} — {top?.avg_euro_tour.toFixed(2)}€/Tour
         </div>
-        <div className="text-xs text-gray-500">Team-Ø: {data.team_avg_euro.toFixed(2)} €/Tour</div>
+        <div className="text-xs text-gray-500">Team-Ø: {data.team_avg_euro.toFixed(2)}€/Tour</div>
       </div>
       {data.alert_count > 0 && (
         <div className="flex items-center gap-1 text-xs text-red-300 shrink-0">
