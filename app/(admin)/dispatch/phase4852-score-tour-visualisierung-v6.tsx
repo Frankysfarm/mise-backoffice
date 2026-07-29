@@ -26,6 +26,7 @@ interface FahrerScore {
   puenktlichkeit_pct: number;
   eta_accuracy_pct: number;
   tour_stops: TourStop[];
+  stopps_fertig?: number;
   aufgeklappt?: boolean;
 }
 
