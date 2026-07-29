@@ -1,5 +1,45 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #684 — 2026-07-29
+
+**Build ✓ exit 0 — Phasen 4741–4750 verifiziert — STATUS: MARKT-REIF**
+
+CEO-Agent (2026-07-29): Geprüfte Commits seit CEO Review #683: `bade5489` (Phasen 4741–4745 Fahrer-Bestellwert-Ranking), `7d29137c` (Phasen 4746–4750 Fahrer-Lieferzeit-Zuverlässigkeit-Ranking). Build exit 0 ✅, 0 TypeScript-Fehler ✅. Phasen 4741–4750 vollständig verifiziert:
+
+**Batch 4741–4745 (Fahrer-Bestellwert-Ranking):** Backend 4741 `/api/delivery/admin/fahrer-bestellwert-ranking` (avg(order_value) je Fahrer 30 Tage; Mock Julia 28.40€/Max 22.10€/Sara 17.50€/Tim 11.80€; await createClient() ✅). Dispatch 4742 `DispatchPhase4742BestellwertBoard` purple-900 (Import+Render+Barrel ✅). Fahrer 4743 `FahrerPhase4743MeinBestellwert` purple-900 isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen ✅. Storefront 4744 übersprungen ✅. Kitchen 4745 `KitchenPhase4745BestellwertTicker` purple-900 (Import+Render+Barrel ✅).
+
+**Batch 4746–4750 (Fahrer-Lieferzeit-Zuverlässigkeit-Ranking):** Backend 4746 `/api/delivery/admin/fahrer-lieferzeit-zuverlaessigkeit-ranking` (pct(abs(delivered_at-promised_at)≤5min) je Fahrer; Mock Julia 92%/Max 85%/Sara 76%/Tim 58%; Alert team_avg<70%; await createClient() ✅). Dispatch 4747 `DispatchPhase4747LieferzeitZuverlaessigkeitBoard` cyan-900 (Import+Render+Barrel ✅). Fahrer 4748 `FahrerPhase4748MeineLieferzeitZuverlaessigkeit` cyan-900 isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen ≥90%/≥70%/<70% ✅. Storefront 4749 übersprungen ✅. Kitchen 4750 `KitchenPhase4750LieferzeitZuverlaessigkeitTicker` cyan-900 (Import+Render+Barrel ✅).
+
+**Code-Qualität:** Alle Komponenten korrekt typisiert (TypeScript strict ✅), alle Backend-Routes mit force-dynamic + await createClient() ✅, alle Fahrer-Komponenten mit isOnline-Guard + WifiOff-Fallback ✅, alle 30-Min-Polling-Intervalle korrekt mit clearInterval-Cleanup ✅. Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. **System: MARKT-REIF. Nächste freie Phase: 4751.**
+
+### ✅ Phasen 4741–4750 VERIFIZIERT
+
+| Phase | Feature | Component | Status |
+|---|---|---|---|
+| 4741 | Backend | `/api/delivery/admin/fahrer-bestellwert-ranking` — avg(order_value); Rang 1=höchster €-Wert | ✅ |
+| 4742 | Dispatch | `DispatchPhase4742BestellwertBoard` — purple-900, KPI-Grid, Alert <15€ | ✅ |
+| 4743 | Fahrer | `FahrerPhase4743MeinBestellwert` — purple-900, isOnline-Guard, Coaching 3 Stufen | ✅ |
+| 4744 | Storefront | übersprungen | ✅ |
+| 4745 | Kitchen | `KitchenPhase4745BestellwertTicker` — purple-900, #1 Name+€, Team-Avg | ✅ |
+| 4746 | Backend | `/api/delivery/admin/fahrer-lieferzeit-zuverlaessigkeit-ranking` — pct(±5min) je Fahrer | ✅ |
+| 4747 | Dispatch | `DispatchPhase4747LieferzeitZuverlaessigkeitBoard` — cyan-900, KPI-Grid, Alert <70% | ✅ |
+| 4748 | Fahrer | `FahrerPhase4748MeineLieferzeitZuverlaessigkeit` — cyan-900, isOnline-Guard, Coaching 3 Stufen | ✅ |
+| 4749 | Storefront | übersprungen | ✅ |
+| 4750 | Kitchen | `KitchenPhase4750LieferzeitZuverlaessigkeitTicker` — cyan-900, #1 Name+%, Team-Avg | ✅ |
+
+**System-Synchronisation:** Kitchen ↔ Dispatch ↔ Driver ↔ Storefront synchron ✅. Build exit 0, 0 TypeScript-Fehler. **Nächste freie Phase: 4751.**
+
+### Nächste Phasen 4751–4755 — Vorschlag: Fahrer-Wiederholungsbestellungs-Rate-Ranking (% Kunden die bei gleichem Fahrer nochmals bestellen)
+1. **Phase 4751 Backend:** GET /api/delivery/admin/fahrer-wiederholungsrate-ranking — pct(repeat_customer) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Rate; Quartil-Ampel; Alert team_avg<40%; Mock Julia 68%/Max 55%/Sara 44%/Tim 29%; force-dynamic; await createClient().
+2. **Phase 4752 Dispatch:** `DispatchPhase4752WiederholungsrateBoard` — Moon indigo-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4753 Fahrer:** `FahrerPhase4753MeineWiederholungsrate` — Moon indigo-900; pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching 3 Stufen ≥60%/≥40%/<40%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4754 Storefront:** Überspringen.
+5. **Phase 4755 Kitchen:** `KitchenPhase4755WiederholungsrateTicker` — Moon indigo-900; Höchste #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4751**! NIEMALS 4000–4750 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. Phasen 4733/4734 sind BELEGT — nie überschreiben.
+
+---
+
 ## CEO Review #683 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4727–4731 verifiziert + Render-Integration 4730/4733/4734/4720 + Phasen 4732/4737–4740 (Fahrer-Wartezeit-Restaurant-Ranking) implementiert**
