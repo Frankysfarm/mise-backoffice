@@ -1200,6 +1200,7 @@ import { FahrerPhase4818MeinFeiertagsAnteil } from './phase4818-mein-feiertags-a
 import { FahrerPhase4823MeinSpaetabendAnteil } from './phase4823-mein-spaetabend-anteil';
 import { FahrerPhase4833MeineUeberstunden } from './phase4833-meine-ueberstunden';
 import { FahrerPhase4838MeinePausenquote } from './phase4838-meine-pausenquote';
+import { FahrerPhase4843MeinWochenendAnteil } from './phase4843-mein-wochenend-anteil';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 import { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
 import { FahrerPhase4798SmartTourStoppNavV4 } from './phase4798-smart-tour-stopp-nav-v4';
@@ -7428,6 +7429,8 @@ export function FahrerApp({
           <FahrerPhase4833MeineUeberstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4838: Meine Pausenquote — orange-900; pause_fehlend_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥40%/≥20%/<20%; 30-Min-Polling */}
           <FahrerPhase4838MeinePausenquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4843: Mein Wochenend-Anteil — purple-900; wochenend_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥60%/≥35%/<35%; 30-Min-Polling */}
+          <FahrerPhase4843MeinWochenendAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4828: Mein Tour-Stopp Navigator — Navigation2 blue; Tour-Übersicht 3-KPI-Grid; Aktiv-Stopp Hero-Karte mit Navi-Deeplink+Anruf; Notiz-Badge; Vollständige Stopp-Sequenz mit Status-Icons; WifiOff-Guard; 30-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4828MeinTourStoppNavigator driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4829: Tour-Stopp Smart-Navigator V2 — Fortschrittsbalken; Verdienst-Strip; Trinkgeld-Vorschlag; Navi-Deeplink+Anruf; WifiOff-Guard; 30-Sek-Polling; Mock-Fallback */}
@@ -11841,6 +11844,8 @@ export { FahrerPhase4823MeinSpaetabendAnteil } from './phase4823-mein-spaetabend
 export { FahrerPhase4833MeineUeberstunden } from './phase4833-meine-ueberstunden';
 // Phase 4838 — Meine Pausenquote (Coffee orange-900; pause_fehlend_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥40%/≥20%/<20%; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase4838MeinePausenquote } from './phase4838-meine-pausenquote';
+// Phase 4843 — Mein Wochenend-Anteil (Calendar purple-900; wochenend_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching 3 Stufen ≥60%/≥35%/<35%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4843MeinWochenendAnteil } from './phase4843-mein-wochenend-anteil';
 // Phase 4828 — Mein Tour-Stopp Navigator (Navigation2 blue; 3-KPI-Grid Stopps/ETA/km; Hero Aktiv-Stopp mit Navi-Deeplink+Anruf; Notiz-Badge gelb; Stopp-Sequenz Status-Icons; WifiOff-Guard; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 export { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
