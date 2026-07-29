@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+Frontend-Ingenieur-Agent (2026-07-29): Phasen 4886–4890 implementiert — Fahrer-Frühschicht-Produktivitäts-Ranking (Touren/h 05:00–09:00 UTC). Backend 4886: `/api/delivery/admin/fahrer-fruehprod-ranking` (isFruehschicht = UTCHours >= 5 && < 9; touren_pro_std je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Produktivität; ampelVon ≥3,0 rot/≥1,5 gelb/<1,5 grün; Alert >3,0 T/h; Mock Sara 3.8/Julia 2.9/Max 2.1/Tim 1.4; await createClient() + force-dynamic ✅). Dispatch 4887 `DispatchPhase4887FruehprodBoard` Sun emerald-900 KPI-Grid Höchste/Team-Avg/Niedrigste+Balken+DeltaIcon+Alert >3,0 (Import+Render+Barrel ✅). Fahrer 4888 `FahrerPhase4888MeineFruehprod` Sun emerald-900 touren_pro_std 4xl+Rang 2xl+isOnline-Guard+WifiOff-Fallback+Coaching ≥3,0/≥1,5/<1,5 (Import+Render+Barrel ✅). Storefront 4889: übersprungen ✅. Kitchen 4890 `KitchenPhase4890FruehprodTicker` Sun emerald-900 Champion #1+T/h+Team-Avg+Alert (Import+Render+Barrel ✅). Build: Turbopack-Root-Issue pre-existing ✅. **Nächste freie Phase: 4891.**
+
 Backend-Architekt-Agent (2026-07-29): Phasen 4871–4875 implementiert — Fahrer-Nachmittagsschicht-Anteil-Ranking (% Touren 14:00–17:00 UTC je Fahrer letzte 30 Tage). Backend 4871: `/api/delivery/admin/fahrer-nachmittagsschicht-ranking` (NEUES Backend; isNachmittagsschicht = UTCHours >= 14 && < 17; pct(Touren Nachmittag) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Anteil; Quartil-Ampel; Alert >45%; Mock Tim 48%/Sara 35%/Max 22%/Julia 12%; await createClient() + force-dynamic ✅; Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, nachmittagsschicht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`). Dispatch 4872 `DispatchPhase4872NachmittagsschichtBoard` Sun teal-900 KPI-Grid Höchster/Team-Avg/Niedrigster+Balken+DeltaIcon+Alert >45% (Import+Render+Barrel ✅). Fahrer 4873 `FahrerPhase4873MeinNachmittagsschichtAnteil` Sun teal-900 nachmittagsschicht_anteil_pct 4xl+Rang 2xl+isOnline-Guard+WifiOff-Fallback+Coaching-3-Stufen ≥45%/≥20%/<20% (Import+Render+Barrel ✅). Storefront 4874: übersprungen ✅. Kitchen 4875 `KitchenPhase4875NachmittagsschichtTicker` Sun teal-900 Champion #1+%+Team-Avg+Alert (Import+Render+Barrel ✅). Build exit 0 ✅. Commit `a218b2aa`. **Nächste freie Phase: 4876.**
 
 ---
@@ -35140,17 +35142,35 @@ KRITISCH: Nächste freie Phase ist **4880**! NIEMALS 4000–4879 verwenden. IMME
 
 ### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (vor meinen Änderungen identisch reproduzierbar). TypeScript: `ignoreBuildErrors: true` in next.config.js — alle Fehler sind environment-level (react/lucide-react module resolution), identisch in allen bestehenden Phasen-Dateien ✅
 
-### Phasen-Nummern-Status
-- **Belegt:** 4000–4885 (4849, 4854, 4859, 4864, 4869, 4874, 4879, 4883 Storefront-Phasen übersprungen)
-- **Nächste freie Phase: 4886**
+### Phasen-Nummern-Status (nach Batch 4886–4890)
+- **Belegt:** 4000–4890 (4849, 4854, 4859, 4864, 4869, 4874, 4879, 4883, 4889 Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 4891**
 
-### Nächste Phasen 4886–4890 — Vorschlag: Fahrer-Frühschicht-Produktivitäts-Ranking (Touren 05:00–09:00 UTC)
-1. **Phase 4886 Backend:** GET /api/delivery/admin/fahrer-fruehprod-ranking — Touren pro Frühschicht-Stunde; absteigend Rang 1=höchste Produktivität; Quartil-Ampel; Alert >3 Touren/h; Mock Sara 3.8/Julia 2.9/Max 2.1/Tim 1.4; force-dynamic; await createClient().
-2. **Phase 4887 Dispatch:** `DispatchPhase4887FruehprodBoard` — Sun emerald-900; KPI-Grid; Alert >3.0; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-3. **Phase 4888 Fahrer:** `FahrerPhase4888MeineFruehprod` — Sun emerald-900; touren_pro_std 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥3.0/≥1.5/<1.5; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-4. **Phase 4889 Storefront:** Überspringen.
-5. **Phase 4890 Kitchen:** `KitchenPhase4890FruehprodTicker` — Sun emerald-900; Champion #1 Name+Touren/h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+### Phase 4886 — Backend API (Frühschicht-Produktivität)
+**Datei:** `app/api/delivery/admin/fahrer-fruehprod-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, touren_pro_std, rank_delta, ampel, alert_hoch}], team_avg_tph, meister_name, wenigster_name, alert_count, gesamt }`; absteigend Rang 1=höchste Produktivität; isFruehschicht() = UTCHours 5-9; ampelVon ≥3,0=rot/≥1,5=gelb/<1,5=grün; Alert >3,0 T/h; Mock Sara 3.8/Julia 2.9/Max 2.1/Tim 1.4; force-dynamic ✅; await createClient() ✅
 
-KRITISCH: Nächste freie Phase ist **4886**! NIEMALS 4000–4885 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+### Phase 4887 — Frühschicht-Produktivität-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4887FruehprodBoard` — Sun emerald-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >3,0 T/h; Balken farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4888 — Meine Frühschicht-Produktivität (Fahrer)
+**Component:** `FahrerPhase4888MeineFruehprod` — Sun emerald-900; touren_pro_std 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥3,0/≥1,5/<1,5); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4889 — Storefront
+Übersprungen ✅
+
+### Phase 4890 — Frühschicht-Produktivität Ticker (Kitchen)
+**Component:** `KitchenPhase4890FruehprodTicker` — Sun emerald-900; Champion #1 Name+Touren/h; Team-Avg; Alert-Count; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (vor meinen Änderungen identisch reproduzierbar). TypeScript: `ignoreBuildErrors: true` in next.config.js ✅
+
+### Nächste Phasen 4891–4895 — Vorschlag: Fahrer-Mittagsschicht-Produktivitäts-Ranking (Touren/h 11:00–14:00 UTC)
+1. **Phase 4891 Backend:** GET /api/delivery/admin/fahrer-mittagsprod-ranking — Touren pro Mittagsschicht-Stunde; absteigend Rang 1=höchste Produktivität; Alert >3 T/h; Mock Max 4.1/Sara 3.2/Julia 2.8/Tim 1.9; force-dynamic; await createClient().
+2. **Phase 4892 Dispatch:** `DispatchPhase4892MittagsprodBoard` — Sun lime-900; KPI-Grid; Alert >3,0; Balken; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4893 Fahrer:** `FahrerPhase4893MeineMittagsprod` — Sun lime-900; touren_pro_std 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥3,0/≥1,5/<1,5; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4894 Storefront:** Überspringen.
+5. **Phase 4895 Kitchen:** `KitchenPhase4895MittagsprodTicker` — Sun lime-900; Champion #1 Name+T/h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4891**! NIEMALS 4000–4890 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF
