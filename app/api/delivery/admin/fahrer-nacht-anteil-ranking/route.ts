@@ -7,51 +7,48 @@ interface FahrerRow {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
-  nacht_pct: number;
+  nacht_anteil_pct: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
-  alert_kein_nacht: boolean;
+  alert_hoch: boolean;
 }
 
 interface ApiResponse {
   fahrer: FahrerRow[];
-  team_avg: number;
-  hoechste_name: string;
-  niedrigste_name: string;
+  team_avg_pct: number;
+  meister_name: string;
+  wenigster_name: string;
   alert_count: number;
   gesamt: number;
 }
 
 const MOCK_DATA: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, nacht_pct: 45, rank_delta:  0, ampel: 'gruen', alert_kein_nacht: false },
-    { fahrer_id: 'f2', fahrer_name: 'Max M.',   rang: 2, nacht_pct: 38, rank_delta:  1, ampel: 'gruen', alert_kein_nacht: false },
-    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, nacht_pct: 22, rank_delta: -1, ampel: 'gelb',  alert_kein_nacht: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, nacht_pct:  8, rank_delta:  0, ampel: 'rot',   alert_kein_nacht: true  },
+    { fahrer_id: 'f1', fahrer_name: 'Tim B.',   rang: 1, nacht_anteil_pct: 51, rank_delta:  1, ampel: 'rot',   alert_hoch: true  },
+    { fahrer_id: 'f2', fahrer_name: 'Max M.',   rang: 2, nacht_anteil_pct: 38, rank_delta:  0, ampel: 'gelb',  alert_hoch: false },
+    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, nacht_anteil_pct: 22, rank_delta: -1, ampel: 'gelb',  alert_hoch: false },
+    { fahrer_id: 'f4', fahrer_name: 'Julia F.', rang: 4, nacht_anteil_pct: 11, rank_delta:  0, ampel: 'gruen', alert_hoch: false },
   ],
-  team_avg: 28,
-  hoechste_name: 'Julia F.',
-  niedrigste_name: 'Tim B.',
+  team_avg_pct: 31,
+  meister_name: 'Tim B.',
+  wenigster_name: 'Julia F.',
   alert_count: 1,
   gesamt: 4,
 };
 
-function ampelVon(rang: number, total: number): 'gruen' | 'gelb' | 'rot' {
-  const pct = rang / total;
-  if (pct <= 0.25) return 'gruen';
-  if (pct <= 0.75) return 'gelb';
-  return 'rot';
+function isNacht(startedAt: string): boolean {
+  const h = new Date(startedAt).getUTCHours();
+  return h >= 22 || h < 6;
 }
 
-function isNachtStunde(isoString: string): boolean {
-  const date = new Date(isoString);
-  const h = date.getUTCHours();
-  return h >= 22 || h < 6;
+function ampelVon(pct: number, q25: number, q75: number): 'gruen' | 'gelb' | 'rot' {
+  if (pct >= q75) return 'rot';
+  if (pct <= q25) return 'gruen';
+  return 'gelb';
 }
 
 export async function GET(req: NextRequest) {
   const locationId = req.nextUrl.searchParams.get('location_id');
-  const driverId   = req.nextUrl.searchParams.get('driver_id');
   if (!locationId) return NextResponse.json(MOCK_DATA);
 
   try {
@@ -62,79 +59,91 @@ export async function GET(req: NextRequest) {
 
     const [curRes, prevRes] = await Promise.all([
       supabase
-        .from('orders')
-        .select('driver_id, driver_name, created_at')
+        .from('delivery_tours')
+        .select('driver_id, driver_name, started_at')
         .eq('location_id', locationId)
-        .eq('status', 'delivered')
-        .gte('created_at', cur30Start)
-        .not('driver_id', 'is', null),
+        .gte('started_at', cur30Start),
       supabase
-        .from('orders')
-        .select('driver_id, created_at')
+        .from('delivery_tours')
+        .select('driver_id, started_at')
         .eq('location_id', locationId)
-        .eq('status', 'delivered')
-        .gte('created_at', prev30Start)
-        .lt('created_at', cur30Start)
-        .not('driver_id', 'is', null),
+        .gte('started_at', prev30Start)
+        .lt('started_at', cur30Start),
     ]);
 
     const curData = curRes.data ?? [];
     if (!curData.length) return NextResponse.json(MOCK_DATA);
 
-    type DriverAcc = { name: string; total: number; nacht: number };
-    const groupCur = new Map<string, DriverAcc>();
-    for (const o of curData) {
-      if (!groupCur.has(o.driver_id)) groupCur.set(o.driver_id, { name: o.driver_name ?? o.driver_id, total: 0, nacht: 0 });
-      const acc = groupCur.get(o.driver_id)!;
-      acc.total += 1;
-      if (isNachtStunde(o.created_at)) acc.nacht += 1;
+    const groupCur = new Map<string, { name: string; nacht: number; total: number }>();
+    for (const t of curData) {
+      const prev = groupCur.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, nacht: 0, total: 0 };
+      groupCur.set(t.driver_id, {
+        name: prev.name,
+        nacht: prev.nacht + (t.started_at && isNacht(t.started_at) ? 1 : 0),
+        total: prev.total + 1,
+      });
+    }
+    if (!groupCur.size) return NextResponse.json(MOCK_DATA);
+
+    const groupPrev = new Map<string, { nacht: number; total: number }>();
+    for (const t of prevRes.data ?? []) {
+      const prev = groupPrev.get(t.driver_id) ?? { nacht: 0, total: 0 };
+      groupPrev.set(t.driver_id, {
+        nacht: prev.nacht + (t.started_at && isNacht(t.started_at) ? 1 : 0),
+        total: prev.total + 1,
+      });
     }
 
-    const prevData = prevRes.data ?? [];
-    type PrevAcc = { total: number; nacht: number };
-    const groupPrev = new Map<string, PrevAcc>();
-    for (const o of prevData) {
-      if (!groupPrev.has(o.driver_id)) groupPrev.set(o.driver_id, { total: 0, nacht: 0 });
-      const acc = groupPrev.get(o.driver_id)!;
-      acc.total += 1;
-      if (isNachtStunde(o.created_at)) acc.nacht += 1;
-    }
+    const unsorted = Array.from(groupCur.entries()).map(([id, v]) => ({
+      fahrer_id: id,
+      fahrer_name: v.name || id.slice(0, 8),
+      pct: v.total > 0 ? Math.round((v.nacht / v.total) * 1000) / 10 : 0,
+    }));
 
-    type SortRow = { id: string; name: string; pct: number };
-    const sorted: SortRow[] = Array.from(groupCur.entries())
-      .map(([id, acc]) => ({ id, name: acc.name, pct: acc.total > 0 ? Math.round((acc.nacht / acc.total) * 100) : 0 }))
-      .sort((a, b) => b.pct - a.pct);
-
-    const prevRankMap = new Map<string, number>();
-    const prevSorted = Array.from(groupPrev.entries())
-      .map(([id, acc]) => ({ id, pct: acc.total > 0 ? acc.nacht / acc.total : 0 }))
-      .sort((a, b) => b.pct - a.pct);
-    prevSorted.forEach((r, i) => prevRankMap.set(r.id, i + 1));
-
+    // descending: Rang 1 = highest night share
+    const sorted = [...unsorted].sort((a, b) => b.pct - a.pct);
     const total = sorted.length;
-    const fahrerRows: FahrerRow[] = sorted.map((r, i) => {
+
+    const pcts = sorted.map(f => f.pct);
+    const q25 = pcts[Math.floor(total * 0.75)] ?? 0;
+    const q75 = pcts[Math.floor(total * 0.25)] ?? 100;
+
+    const prevPcts = new Map(
+      Array.from(groupPrev.entries()).map(([id, v]) => [
+        id,
+        v.total > 0 ? Math.round((v.nacht / v.total) * 1000) / 10 : 0,
+      ])
+    );
+    const prevSorted = [...unsorted]
+      .map(f => ({ ...f, pct: prevPcts.get(f.fahrer_id) ?? f.pct }))
+      .sort((a, b) => b.pct - a.pct);
+    const prevRanks = new Map(prevSorted.map((f, i) => [f.fahrer_id, i + 1]));
+
+    const fahrer: FahrerRow[] = sorted.map((f, i) => {
       const rang = i + 1;
-      const prevRang = prevRankMap.get(r.id) ?? rang;
+      const prevRang = prevRanks.get(f.fahrer_id) ?? rang;
+      const ampel = ampelVon(f.pct, q25, q75);
       return {
-        fahrer_id: r.id,
-        fahrer_name: r.name,
+        fahrer_id: f.fahrer_id,
+        fahrer_name: f.fahrer_name,
         rang,
-        nacht_pct: r.pct,
+        nacht_anteil_pct: f.pct,
         rank_delta: prevRang - rang,
-        ampel: ampelVon(rang, total),
-        alert_kein_nacht: r.pct < 10,
+        ampel,
+        alert_hoch: f.pct >= 40,
       };
     });
 
-    const filteredRows = driverId ? fahrerRows.filter(f => f.fahrer_id === driverId) : fahrerRows;
-    const teamAvg = Math.round(sorted.reduce((s, r) => s + r.pct, 0) / (sorted.length || 1));
+    const team_avg_pct = Math.round(
+      (fahrer.reduce((s, f) => s + f.nacht_anteil_pct, 0) / total) * 10
+    ) / 10;
 
     return NextResponse.json({
-      fahrer: filteredRows.length ? filteredRows : fahrerRows,
-      team_avg: teamAvg,
-      hoechste_name: sorted[0]?.name ?? '',
-      niedrigste_name: sorted[sorted.length - 1]?.name ?? '',
-      alert_count: fahrerRows.filter(f => f.alert_kein_nacht).length,
+      fahrer,
+      team_avg_pct,
+      meister_name: fahrer[0]?.fahrer_name ?? '',
+      wenigster_name: fahrer[total - 1]?.fahrer_name ?? '',
+      alert_count: fahrer.filter(f => f.alert_hoch).length,
       gesamt: total,
     } satisfies ApiResponse);
   } catch {

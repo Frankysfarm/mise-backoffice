@@ -1340,6 +1340,7 @@ import { DispatchPhase5076FahrerZonenAuslastungsBoard } from './phase5076-fahrer
 import { DispatchPhase5077LieferzeitVarianzBoard } from './phase5077-lieferzeit-varianz-board';
 import { DispatchPhase5081AuftragsdichteBoard } from './phase5081-auftragsdichte-board';
 import { DispatchPhase5086WochenendAnteilBoard } from './phase5086-wochenend-anteil-board';
+import { DispatchPhase5091NachtAnteilBoard } from './phase5091-nacht-anteil-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5444,6 +5445,8 @@ export function DispatchBoard({
           <DispatchPhase5081AuftragsdichteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5086: Wochenend-Anteil-Board — CalendarDays teal; ABSTEIGEND Rang 1=höchster WE-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Hoch rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5086WochenendAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5091: Nacht-Anteil-Board — Moon violet; ABSTEIGEND Rang 1=höchster Nacht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% violett; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5091NachtAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
@@ -14302,3 +14305,6 @@ export { DispatchPhase5081AuftragsdichteBoard } from './phase5081-auftragsdichte
 
 // Phase 5086 — Wochenend-Anteil-Board (CalendarDays teal-700; absteigend Rang 1=höchster WE-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Hoch rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5086WochenendAnteilBoard } from './phase5086-wochenend-anteil-board';
+
+// Phase 5091 — Nacht-Anteil-Board (Moon violet-700; absteigend Rang 1=höchster Nacht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% violett; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5091NachtAnteilBoard } from './phase5091-nacht-anteil-board';

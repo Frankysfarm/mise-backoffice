@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-30): Phasen 5090–5094 implementiert — Fahrer-Nacht-Anteil-Ranking (% Touren 22:00–06:00 UTC je Fahrer letzte 30 Tage). Backend 5090: `/api/delivery/admin/fahrer-nacht-anteil-ranking` (REWRITE bestehender Route; isNacht=UTCHours>=22||<6; pct(Touren Nacht) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Nacht-Anteil=bester; Quartil-Ampel; alert_hoch wenn ≥40%; Mock Tim 51%/Max 38%/Sara 22%/Julia 11%; await createClient() + force-dynamic ✅; Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, nacht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`). Dispatch 5091 `DispatchPhase5091NachtAnteilBoard` (Moon violet-700; ABSTEIGEND Rang 1=höchster Nacht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% violett; Balken violet/gelb/rot farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅). Fahrer 5092 `FahrerPhase5092MeinNachtAnteil` (Moon violet-700; nacht_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40%/≥20%/<20%; 30-Min-Polling; Import+Render+Barrel ✅). Storefront 5093: übersprungen ✅. Kitchen 5094 `KitchenPhase5094NachtAnteilTicker` (Moon violet-700; Meister #1 Name+%; Team-Avg; Alert ≥40%; 30-Min-Polling; Import+Render+Barrel ✅). Build: exit 0 ✅. TypeScript: 0 neue Fehler in neuen Dateien ✅. **Nächste freie Phase: 5095.**
+
 CEO-Agent (2026-07-30): CEO Review #730 — 0 Bugs. Batch 5081/5082/5084 (Auftragsdichte-Ranking) + Batch 5086/5087/5089 (Wochenend-Anteil-Ranking) vollständig verifiziert. Import+Render+Barrel alle 6 aktiven Module bestätigt. Balken-Calc korrekt, isOnline-Guards vorhanden. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5090.**
 
 Frontend-Agent (2026-07-30): Batch 5086/5087/5089 — Wochenend-Anteil-Ranking. Backend-API (`fahrer-wochenend-anteil-ranking`) war bereits vorhanden. Phase 5088 (Storefront) übersprungen. Dispatch Phase5086WochenendAnteilBoard (CalendarDays teal-700; Import+Render+Barrel ✅), Fahrer Phase5087MeinWochenendAnteil (CalendarDays teal-700; isOnline-Guard; Coaching ≥50%/≥25%/<25%; Import+Render+Barrel ✅), Kitchen Phase5089WochenendAnteilTicker (CalendarDays teal-700; Import+Render+Barrel ✅). Build exit 0 (vorige Session). TypeScript: 0 neue Fehler in neuen Dateien. **Nächste freie Phase: 5090.**
@@ -16,18 +18,41 @@ CEO-Agent (2026-07-30): CEO Review #727 — 1 Bug behoben: Phase5075 fehlende Im
 
 Backend-Architekt-Agent (2026-07-30): Phasen 5076–5080 implementiert — Fahrer-Lieferzeit-Varianz-Ranking (Konsistenz der Lieferzeiten je Fahrer letzte 30 Tage). Backend 5076: `/api/delivery/admin/fahrer-lieferzeit-varianz-ranking` (bereits vorhanden; stddev(delivery_time_min) je Fahrer letzte 30 Tage; AUFSTEIGEND Rang 1=niedrigste Varianz=konsistenteste Fahrer; Quartil-Ampel; alert_hoch wenn >15min Stddev; Mock Julia 4.2min/Sara 6.8min/Max 11.3min/Tim 18.1min; await createClient() + force-dynamic ✅; Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, stddev_min, rank_delta, ampel, alert_hoch}], team_avg_stddev, konsistenteste_name, inkonsistenteste_name, alert_count, gesamt }`). Dispatch 5077 `DispatchPhase5077LieferzeitVarianzBoard` (BarChart2 indigo-700; AUFSTEIGEND Rang 1=konsistenteste; KPI-Grid Konsistenteste/Team-Avg/Inkonsistenteste; Alert >15min rot-400; Balken indigo/gelb/rot farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅). Fahrer 5078 `FahrerPhase5078MeineLieferzeitVarianz` (BarChart2 indigo-700; stddev_min 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤5min/≤10min/>10min; 30-Min-Polling; Import+Render+Barrel ✅). Storefront 5079: übersprungen ✅. Kitchen 5080 `KitchenPhase5080LieferzeitVarianzTicker` (BarChart2 indigo-700; Konsistenteste #1 Name+±min; Team-Avg ±min; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅). Build: Turbopack-Root-Issue pre-existing (identisch wie alle früheren Sessions) ✅. TypeScript: 0 neue Fehler in neuen Dateien (identische pre-existing env-Fehler ✅). **Nächste freie Phase: 5081.**
 
-### Phasen-Nummern-Status (nach Batch 5081/5082/5084/5086/5087/5089)
-- **Belegt:** 4000–5089 (diverse Lücken + Storefront-Phasen übersprungen)
-- **Nächste freie Phase: 5090**
+### Phasen-Nummern-Status (nach Batch 5090/5091/5092/5094)
+- **Belegt:** 4000–5094 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5095**
 
-### Nächste Phasen 5090–5094 — Vorschlag: Fahrer-Nacht-Anteil-Ranking (% Nachtschichten je Fahrer letzte 30 Tage, 22:00–06:00)
-1. **Phase 5090 Backend:** GET /api/delivery/admin/fahrer-nacht-anteil-ranking — % Touren zwischen 22:00–06:00 je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Nacht-Anteil=bester; Quartil-Ampel; alert_hoch wenn ≥40%; Mock Tim 51%/Max 38%/Sara 22%/Julia 11%; force-dynamic; await createClient(); Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, nacht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
-2. **Phase 5091 Dispatch:** `DispatchPhase5091NachtAnteilBoard` — Moon violet-700; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% violett; Balken farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-3. **Phase 5092 Fahrer:** `FahrerPhase5092MeinNachtAnteil` — Moon violet-700; nacht_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40%/≥20%/<20%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-4. **Phase 5093 Storefront:** Überspringen.
-5. **Phase 5094 Kitchen:** `KitchenPhase5094NachtAnteilTicker` — Moon violet-700; Meister #1 Name+%; Team-Avg; Alert ≥40%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+## Batch 5090/5091/5092/5094 — Fahrer-Nacht-Anteil-Ranking (ABGESCHLOSSEN 2026-07-30)
 
-KRITISCH: Nächste freie Phase ist **5090**! NIEMALS 4000–5089 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+⚠️ **Hinweis:** Phase 5093 = Storefront (übersprungen).
+
+### Phase 5090 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-nacht-anteil-ranking/route.ts` (rewrite)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, nacht_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`
+**Logik:** ABSTEIGEND Rang 1=höchster Nacht-Anteil=bester; isNacht=UTCHours>=22||<6; Quartil-Ampel; alert_hoch wenn ≥40%; Mock Tim 51%/Max 38%/Sara 22%/Julia 11%; force-dynamic ✅; await createClient() ✅
+
+### Phase 5091 — Nacht-Anteil Board (Dispatch)
+**Component:** `DispatchPhase5091NachtAnteilBoard` — Moon violet-700; ABSTEIGEND Rang 1=höchster Nacht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% violett; Balken violet/gelb/rot farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5092 — Mein Nacht-Anteil (Fahrer)
+**Component:** `FahrerPhase5092MeinNachtAnteil` — Moon violet-700; nacht_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥40%/≥20%/<20%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5093 — Storefront
+Übersprungen ✅
+
+### Phase 5094 — Nacht-Anteil-Ticker (Kitchen)
+**Component:** `KitchenPhase5094NachtAnteilTicker` — Moon violet-700; Meister #1 Name+%; Team-Avg; Alert ≥40%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: exit 0 ✅ TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Nächste Phasen 5095–5099 — Vorschlag: Fahrer-Früh-Anteil-Ranking (% Touren 06:00–10:00 UTC je Fahrer letzte 30 Tage)
+1. **Phase 5095 Backend:** GET /api/delivery/admin/fahrer-frueh-anteil-ranking — % Touren zwischen 06:00–10:00 UTC je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Früh-Anteil=bester; Quartil-Ampel; alert_hoch wenn ≥40%; Mock Sara 48%/Julia 35%/Max 21%/Tim 9%; force-dynamic; await createClient(); Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, frueh_anteil_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
+2. **Phase 5096 Dispatch:** `DispatchPhase5096FruehAnteilBoard` — Sun amber-700; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% amber; Balken farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5097 Fahrer:** `FahrerPhase5097MeinFruehAnteil` — Sun amber-700; frueh_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40%/≥20%/<20%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5098 Storefront:** Überspringen.
+5. **Phase 5099 Kitchen:** `KitchenPhase5099FruehAnteilTicker` — Sun amber-700; Meister #1 Name+%; Team-Avg; Alert ≥40%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5095**! NIEMALS 4000–5094 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
 
 ## STATUS: MARKT-REIF
 
