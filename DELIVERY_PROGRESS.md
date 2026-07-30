@@ -35633,4 +35633,45 @@ KRITISCH: Nächste freie Phase ist **4968**! NIEMALS 4000–4967 verwenden. IMME
 
 KRITISCH: Nächste freie Phase ist **4983**! NIEMALS 4000–4982 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
+---
+
+## Batch 4983–4988 — Fahrer-Lieferungen-pro-Stunde-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Hinweis:** Phase 4985 war bereits belegt durch DispatchPhase4985ScoreTourVisualisierungV13 / FahrerPhase4985SmartTourStoppNavV11 / KitchenPhase4985SmartTimingCountdownV28. Fahrer-Ranking-Komponente daher als Phase 4988 implementiert.
+
+### Phase 4983 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-lieferungen-pro-stunde-ranking/route.ts` (bereits vorhanden)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, deliveries_pro_h, rank_delta, ampel, alert_niedrig}], team_avg_pro_h, produktivste_name, wenigste_name, alert_count, gesamt }`
+**Logik:** absteigend Rang 1=meiste Lief/h=bester; rank-basierte Ampel top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn rot; Mock Julia 4.8/Max 4.1/Sara 3.6/Tim 2.2; force-dynamic ✅; await createClient() ✅
+
+### Phase 4984 — Lieferungen/h-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4984LieferungenProStundeBoard` — Package teal-700; ABSTEIGEND Rang 1=meiste Lief/h; KPI-Grid Produktivste/Team-Avg/Wenigste; Alert Niedrig rot-400; Balken teal/gelb/grau farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4985 — Storefront/Fahrer (Konflikt: übersprungen → Phase 4988)
+Übersprungen (Phasennummer belegt) ✅
+
+### Phase 4986 — Storefront
+Übersprungen ✅
+
+### Phase 4987 — Lieferungen/h-Ticker (Kitchen)
+**Component:** `KitchenPhase4987LieferungenProStundeTicker` — Package teal-700; Champion #1 Name+Lief/h; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4988 — Meine Lieferungen/h (Fahrer)
+**Component:** `FahrerPhase4988MeineLieferungenProStunde` — Package teal-700; deliveries_pro_h 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥5/≥3/<3 Lief/h); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: ✓ Compiled successfully · ✓ Generating static pages (431/431) · exit 0 ✅
+
+### Phasen-Nummern-Status (nach Batch 4983–4988)
+- **Belegt:** 4000–4988 (4942, 4945–4948, 4951, 4956, 4961, 4966, 4971, 4976, 4981, 4985, 4986 übersprungen)
+- **Nächste freie Phase: 4989**
+
+### Nächste Phasen 4989–4993 — Vorschlag: Fahrer-Kundenbewertungs-Ranking (Ø Sterne-Bewertung je Fahrer letzte 30 Tage)
+1. **Phase 4989 Backend:** GET /api/delivery/admin/fahrer-bewertungs-ranking — avg(rating) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Bewertung=bester; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn rot; Mock Julia 4.9★/Max 4.7★/Sara 4.3★/Tim 3.8★; force-dynamic; await createClient().
+2. **Phase 4990 Dispatch:** `DispatchPhase4990BewertungsBoard` — Star amber-700; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4991 Fahrer:** `FahrerPhase4991MeineBewertung` — Star amber-700; avg_rating 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥4.5★/≥4.0★/<4.0★; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4992 Storefront:** Überspringen.
+5. **Phase 4993 Kitchen:** `KitchenPhase4993BewertungsTicker` — Star amber-700; Champion #1 Name+★; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4989**! NIEMALS 4000–4988 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
 ## STATUS: MARKT-REIF
