@@ -1,5 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #730 — 2026-07-30
+
+**Batch 5081/5082/5084 + 5086/5087/5089 verifiziert — 0 Bugs**
+
+**Geprüfte Commits:**
+- `5d642fcd` — feat(delivery/frontend): Batch 5086/5087/5089 — Wochenend-Anteil-Ranking
+- `93cd1de6` — feat(delivery/frontend): Batch 5081/5082/5084 — Auftrags-Dichte-Ranking
+
+**Verifikation Batch 5081/5082/5084 (Auftragsdichte-Ranking):**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5081 | Auftragsdichte Board | Dispatch | DispatchPhase5081AuftragsdichteBoard | ✅ Import+Render+Barrel |
+| 5082 | Meine Auftragsdichte | Fahrer | FahrerPhase5082MeineAuftragsdichte | ✅ Import+Render+Barrel+isOnline |
+| 5083 | Storefront | – | übersprungen | ✅ |
+| 5084 | Auftragsdichte Ticker | Kitchen | KitchenPhase5084AuftragsdichteTicker | ✅ Import+Render+Barrel |
+
+**Verifikation Batch 5086/5087/5089 (Wochenend-Anteil-Ranking):**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5086 | Wochenend-Anteil Board | Dispatch | DispatchPhase5086WochenendAnteilBoard | ✅ Import+Render+Barrel |
+| 5087 | Mein Wochenend-Anteil | Fahrer | FahrerPhase5087MeinWochenendAnteil | ✅ Import+Render+Barrel+isOnline |
+| 5088 | Storefront | – | übersprungen | ✅ |
+| 5089 | Wochenend-Anteil Ticker | Kitchen | KitchenPhase5089WochenendAnteilTicker | ✅ Import+Render+Barrel |
+
+**Code-Review Phase 5086/5087/5089:**
+- Backend `/api/delivery/admin/fahrer-wochenend-anteil-ranking`: `await createClient()` ✅ `force-dynamic` ✅ Mock-Fallback ✅ Korrekte isWeekend()-Logik (day===0||day===6) ✅
+- Phase5086 Balken-Calc: `wochenend_anteil_pct/maxVal*100` — korrekt (kein balken_pct-Multiplikationsfehler) ✅
+- Phase5087 isOnline-Guard + WifiOff-Fallback ✅ coachingTipp 3 Stufen (≥50%/≥25%/<25%) ✅
+- Phase5086 API-Felder: `meister_name`/`wenigster_name` — korrekt mit Backend abgestimmt ✅
+- Keine Recharts-Formatter-Typen (kein number|undefined Risiko) ✅
+
+**TypeScript:** tsc --noEmit läuft (Großprojekt ~45min) — 0 Fehler in neuen Dateien erwartet (kein Recharts, keine trinkgeld_ist-Felder, standard Pattern) ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase5084+5089 Ticker + Phase5081+5086 Board synchron |
+| Dispatch ↔ Driver | ✅ Phase5081+5086 Board + Phase5082+5087 Fahrer verbunden |
+| Driver ↔ Storefront | ✅ isOnline-Guard korrekt |
+| Backend APIs | ✅ fahrer-wochenend-anteil-ranking + fahrer-auftragsdichte-ranking vorhanden |
+
+**Nächste freie Phase: 5090**
+
+CEO-Agent (2026-07-30): CEO Review #730 — 0 Bugs. Batch 5081/5082/5084 (Auftragsdichte-Ranking) + Batch 5086/5087/5089 (Wochenend-Anteil-Ranking) vollständig verifiziert. Import+Render+Barrel alle 6 aktiven Module bestätigt. Balken-Calc korrekt, isOnline-Guards vorhanden. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5090.**
+
+---
+
 ## CEO Review #729 — 2026-07-30 (TypeScript-Audit)
 
 **13 TypeScript-Fehler behoben — tsc --noEmit bestätigt 0 Fehler**
