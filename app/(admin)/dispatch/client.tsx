@@ -1341,6 +1341,7 @@ import { DispatchPhase5077LieferzeitVarianzBoard } from './phase5077-lieferzeit-
 import { DispatchPhase5081AuftragsdichteBoard } from './phase5081-auftragsdichte-board';
 import { DispatchPhase5086WochenendAnteilBoard } from './phase5086-wochenend-anteil-board';
 import { DispatchPhase5091NachtAnteilBoard } from './phase5091-nacht-anteil-board';
+import { DispatchPhase5096RoiScoreBoard } from './phase5096-roi-score-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5447,6 +5448,8 @@ export function DispatchBoard({
           <DispatchPhase5086WochenendAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5091: Nacht-Anteil-Board — Moon violet; ABSTEIGEND Rang 1=höchster Nacht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% violett; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5091NachtAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5096: ROI-Score-Board — TrendingUp emerald; ABSTEIGEND Rang 1=höchster ROI-Score; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5096RoiScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
@@ -14308,3 +14311,6 @@ export { DispatchPhase5086WochenendAnteilBoard } from './phase5086-wochenend-ant
 
 // Phase 5091 — Nacht-Anteil-Board (Moon violet-700; absteigend Rang 1=höchster Nacht-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% violett; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5091NachtAnteilBoard } from './phase5091-nacht-anteil-board';
+
+// Phase 5096 — ROI-Score-Board (TrendingUp emerald-700; absteigend Rang 1=höchster ROI-Score; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5096RoiScoreBoard } from './phase5096-roi-score-board';

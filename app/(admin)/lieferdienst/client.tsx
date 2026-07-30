@@ -519,6 +519,7 @@ import { LieferdienstPhase5056StatistikenDashboardV27 } from './phase5056-statis
 import { LieferdienstPhase5062StatistikenDashboardV28 } from './phase5062-statistiken-dashboard-v28';
 import { LieferdienstPhase5075StatistikenPerformanceHub } from './phase5075-statistiken-performance-hub';
 import { LieferdienstPhase5076SchichtFahrerPerformanceRanking } from './phase5076-schicht-fahrer-performance-ranking';
+import { LieferdienstPhase5077RoiScorePanel } from './phase5077-roi-score-panel';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2437,6 +2438,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5075StatistikenPerformanceHub locationId={locationId ?? null} />
                 {/* Phase 5076: Schicht-Fahrer-Performance-Ranking — Fahrer-Rang Schicht-Auslastung+Pünktlichkeit; 45-Sek-Polling */}
                 <LieferdienstPhase5076SchichtFahrerPerformanceRanking locationId={locationId ?? null} />
+                {/* Phase 5077: ROI-Score-Panel — TrendingUp emerald; Fahrer-ROI-Ranking Einnahmen÷Kosten; Score-Bar farbkodiert; Alert Niedrig; 60-Sek-Polling */}
+                <LieferdienstPhase5077RoiScorePanel locationId={locationId ?? null} />
                 {/* Phase 5036: Statistiken-Dashboard V26 — Revenue-Velocity; Storno-Analyse; Profit-KPI; Velocity-Chart; Zonen-SLA; 45-Sek-Polling */}
                 <LieferdienstPhase5036StatistikenDashboardV26 locationId={locationId ?? null} />
                 {/* Phase 5035: Statistiken-Dashboard V25 — Monatsziel-Fortschritt; 8-KPI-Grid; Stunden/Woche-Chart; Top-Fahrer; Zonen-SLA; 30-Sek-Polling */}
@@ -5147,3 +5150,6 @@ export { LieferdienstPhase5075StatistikenPerformanceHub } from './phase5075-stat
 
 // Phase 5076 — Schicht-Fahrer-Performance-Ranking (Trophy yellow; Fahrer-Cards Score-Bar farbkodiert; Rang-Medaille Top-3; KPIs Lieferungen+Avg-Zeit+Pünktlichkeit+Umsatz; Delta-Score TrendingUp/Down; Alert <85% pünktlich; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5076SchichtFahrerPerformanceRanking } from './phase5076-schicht-fahrer-performance-ranking';
+
+// Phase 5077 — ROI-Score-Panel (TrendingUp emerald; Fahrer-ROI-Ranking Score+Einnahmen+Kosten; Score-Bar grün/gelb/rot; Rang-Medaille Top-3; Alert Niedrig <35; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5077RoiScorePanel } from './phase5077-roi-score-panel';
