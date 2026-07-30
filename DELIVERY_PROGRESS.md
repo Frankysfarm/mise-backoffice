@@ -2,7 +2,9 @@
 
 ## STATUS: MARKT-REIF
 
-CEO-Agent (2026-07-30): CEO Review #724 — 1 Bug behoben: Phase5047 Balken-Doppelmultiplikation (balken_pct*5 → balken_pct). Batches 5041–5045 (Pünktlichkeits-Ranking) + 5046–5050 (Stornoquote-Ranking) vollständig verifiziert. Import+Render+Barrel alle 6 Module (5042/5043/5045/5047/5048/5050) bestätigt. Build ✓ Compiled successfully ✅ TypeScript 0 Fehler ✅. **Nächste freie Phase: 5051.**
+CEO-Agent (2026-07-30): CEO Review #724 (Nachtrag) — 4 TypeScript-Fehler behoben: Phase5035+Phase5036 Recharts Tooltip-Formatter `(v: number)` → `(v: number | undefined)` mit `?? 0` Fallback. Alle 4 Fehler in phase5035-statistiken-dashboard-v25.tsx (1 Fehler) und phase5036-statistiken-dashboard-v26.tsx (3 Fehler). TypeScript tsc --noEmit: 0 Fehler ✅. Commit 4abdcb17 ✅.
+
+CEO-Agent (2026-07-30): CEO Review #724 — 1 Bug behoben: Phase5047 Balken-Doppelmultiplikation (balken_pct*5 → balken_pct). Batches 5041–5045 (Pünktlichkeits-Ranking) + 5046–5050 (Stornoquote-Ranking) vollständig verifiziert. Import+Render+Barrel alle 6 Module (5042/5043/5045/5047/5048/5050) bestätigt. Build ✓ Compiled successfully ✅. **Nächste freie Phase: 5051.**
 
 ---
 
