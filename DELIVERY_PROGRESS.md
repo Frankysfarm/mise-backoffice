@@ -35891,3 +35891,43 @@ KRITISCH: Nächste freie Phase ist **5010**! NIEMALS 4000–5009 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **5015**! NIEMALS 4000–5014 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5015/5016/5017/5019 — Fahrer-Kilometer-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Hinweis:** Phase 5018 = Storefront (übersprungen).
+
+### Phase 5015 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-kilometer-ranking/route.ts` (neu erstellt)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_km, balken_pct, ampel, rank_delta, alert_hoch}], team_avg_km, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** AUFSTEIGEND Rang 1=kürzeste Distanz=effizienteste; rank-basierte Ampel top25%=gruen/Mitte=gelb/unten25%=rot; alert_hoch wenn >15km; Mock Julia 6.1km/Sara 8.3km/Max 11.4km/Tim 16.2km; force-dynamic ✅; await createClient() ✅
+
+### Phase 5016 — km-Ranking Board (Dispatch)
+**Component:** `DispatchPhase5016KilometerBoard` — Map indigo-700; AUFSTEIGEND Rang 1=kürzeste Distanz; KPI-Grid Effizienteste/Team-Avg/Weiteste; Alert ≥15km rot-400; Balken indigo/gelb/rot farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5017 — Meine Kilometer (Fahrer)
+**Component:** `FahrerPhase5017MeineKilometer` — Map indigo-700; avg_km 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≤8km/≤15km/>15km); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5018 — Storefront
+Übersprungen ✅
+
+### Phase 5019 — km-Ticker (Kitchen)
+**Component:** `KitchenPhase5019KilometerTicker` — Map indigo-700; Effizienteste #1 Name+km; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (identisch wie frühere Sessions). exit 0 ✅ | TypeScript: 0 neue Fehler ✅
+
+### Phasen-Nummern-Status (nach Batch 5015/5016/5017/5019)
+- **Belegt:** 4000–5019 (diverse Lücken + 4992/4997/5000/5003/5005/5008/5010/5013/5018 übersprungen/vorhanden)
+- **Nächste freie Phase: 5020**
+
+### Nächste Phasen 5020–5024 — Vorschlag: Fahrer-Bestellwert-Ranking (Ø Bestellwert je Tour je Fahrer letzte 30 Tage)
+1. **Phase 5020 Backend:** GET /api/delivery/admin/fahrer-bestellwert-ranking — avg(order_value_eur) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Ø-Bestellwert=bester; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn rot; Mock Julia 42€/Sara 36€/Max 29€/Tim 21€; force-dynamic; await createClient().
+2. **Phase 5021 Dispatch:** `DispatchPhase5021BestellwertBoard` — ShoppingBag emerald-700; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5022 Fahrer:** `FahrerPhase5022MeinBestellwert` — ShoppingBag emerald-700; avg_bestellwert 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥40€/≥25€/<25€; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5023 Storefront:** Überspringen.
+5. **Phase 5024 Kitchen:** `KitchenPhase5024BestellwertTicker` — ShoppingBag emerald-700; Champion #1 Name+€; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5020**! NIEMALS 4000–5019 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
+
+## STATUS: MARKT-REIF
