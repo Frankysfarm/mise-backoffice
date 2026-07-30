@@ -1249,6 +1249,7 @@ import { KitchenPhase4938KmEffizienzTicker } from './phase4938-km-effizienz-tick
 import { KitchenPhase4936SmartTimingCountdownV26 } from './phase4936-smart-timing-countdown-v26';
 import { KitchenPhase5005SmartTimingCountdownV29 } from './phase5005-smart-timing-countdown-v29';
 import { KitchenPhase5023SmartTimingFarbkodierungV30 } from './phase5023-smart-timing-farbkodierung-v30';
+import { KitchenPhase5030SmartTimingCountdownV31 } from './phase5030-smart-timing-countdown-v31';
 import { KitchenPhase4943UmsatzKmTicker } from './phase4943-umsatz-km-ticker';
 import { KitchenPhase4952PuenktlichkeitTicker } from './phase4952-puenktlichkeit-ticker';
 import { KitchenPhase4957BewertungsTicker } from './phase4957-bewertungs-ticker';
@@ -4984,6 +4985,8 @@ export function KitchenBoard({
       <KitchenPhase5024BestellwertTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5029: Trinkgeld-Ticker — Heart rose; Champion #1 Name+€; Team-Avg; Alert Niedrig; 30-Min-Polling */}
       <KitchenPhase5029TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5030: Smart-Timing Countdown V31 — Stations-Heatmap Grill/Friture/Kalt/Pasta; Batch-Koordinations-Score; KI-Kochstart je Order; Fahrer-ETA-Sync; 9-stufige Ampel; 1s-Tick+15s-Polling */}
+      <KitchenPhase5030SmartTimingCountdownV31 />
       {/* Phase 5023: Smart-Timing Farbkodierung V30 — Stationsbasierte Ansicht Grill/Friture/Kalt/Pasta; Filter-Tabs; Nächstes-Fertig-Banner; Fortschrittsbalken farbkodiert; 6-KPI-Grid; 1s-Tick+15s-Polling */}
       <KitchenPhase5023SmartTimingFarbkodierungV30 />
       {/* Phase 5005: Smart-Timing Countdown V29 — Tab-Nav Orders/Batches; 6-KPI-Grid inkl. Batch-Effizienz; Rentabilitäts-Badge; Station-Labels; Batch-Koordination mit Fahrer; 1s-Tick+15s-Polling */}
@@ -12780,3 +12783,6 @@ export { KitchenPhase5005SmartTimingCountdownV29 } from './phase5005-smart-timin
 
 // Phase 5023 — Smart-Timing Farbkodierung V30 (Stationsbasierte Ansicht Grill/Friture/Kalt/Pasta; Filter-Tabs; Nächstes-Fertig-Banner; Fortschrittsbalken Farbkodierung; 6-KPI-Grid Score/Fertig/Kritisch/Pünktl/Durchsatz/Batch-Eff; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5023SmartTimingFarbkodierungV30 } from './phase5023-smart-timing-farbkodierung-v30';
+
+// Phase 5030 — Smart-Timing Countdown V31 (ChefHat indigo; Stations-Heatmap Grill/Friture/Kalt/Pasta kalt/warm/heiß/kritisch+Auslastungsbalken; Batch-Koordinations-Score; KI-Kochstart-Empfehlung je Order; Fahrer-ETA-Sync-Zap; 9-stufige Ampel; 6-KPI-Grid; Fortschrittsbalken farbkodiert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase5030SmartTimingCountdownV31 } from './phase5030-smart-timing-countdown-v31';

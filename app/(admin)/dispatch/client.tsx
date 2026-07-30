@@ -405,6 +405,7 @@ import { DispatchPhase988LiveTourKostenEffizienz } from './phase988-live-tour-ko
 import { DispatchPhase993FahrerStatusMatrix } from './phase993-fahrer-status-matrix';
 import { DispatchPhase998ZoneWartezeitLiveMatrix } from './phase998-zone-wartezeit-live-matrix';
 import { DispatchPhase999TourScoreVisualisierungProLive } from './phase999-tour-score-visualisierung-pro-live';
+import { DispatchPhase5030TourScoreVisualisierungV5 } from './phase5030-tour-score-visualisierung-v5';
 import { DispatchPhase1715FahrerAuslastungsMonitor } from './phase1715-fahrer-auslastungs-monitor';
 import { DispatchPhase1001TourScoreVisualisierungPro } from './phase1001-tour-score-visualisierung-pro';
 import { DispatchPhase1004FahrerRueckkehrPrognose } from './phase1004-fahrer-rueckkehr-prognose';
@@ -5430,6 +5431,8 @@ export function DispatchBoard({
           <DispatchPhase4201ZonenKapazitaetsLiveGrid locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4710: Tour-Score Visualisierung Master — Team-Score Header+Delta; Score-Ring je Fahrer 4-stufig; Stopp-Sequenz-Timeline farbkodiert; Alert unter Ziel; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4710TourScoreVisualisierungMaster locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5030: Tour-Score Visualisierung V5 — Fleet-Score+Delta; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta; Stopp-Dots farbkodiert; Profit je Tour; Zonen-SLA-Matrix; 20-Sek-Polling */}
+          <DispatchPhase5030TourScoreVisualisierungV5 />
         </div>
       </div>
     </div>
@@ -14204,3 +14207,6 @@ export { DispatchPhase5005TourScoreVisualisierungV3 } from './phase5005-tour-sco
 
 // Phase 5024 — Tour-Score-Visualisierung V4 (Route violet; Fahrer-Score-Rangliste sortiert+Delta+Score-Balken+Delay-Risiko; Tour-Visualisierung Stopp-Dotsequenz farbkodiert fertig/aktiv/verspaetet/ausstehend; Profit je Tour; KPI 6er Grid; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5024TourScoreVisualisierungV4 } from './phase5024-tour-score-visualisierung-v4';
+
+// Phase 5030 — Tour-Score-Visualisierung V5 (Trophy violet; Fleet-Score+Delta; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Stopp-Dot-Sequenz farbkodiert; Profit je Tour; Zonen-SLA-Matrix; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5030TourScoreVisualisierungV5 } from './phase5030-tour-score-visualisierung-v5';

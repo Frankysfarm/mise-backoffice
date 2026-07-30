@@ -512,6 +512,7 @@ import { LieferdienstPhase4895StatistikenDashboardV18 } from './phase4895-statis
 import { LieferdienstPhase4936StatistikenDashboardV19 } from './phase4936-statistiken-dashboard-v19';
 import { LieferdienstPhase5005StatistikenDashboardV22 } from './phase5005-statistiken-dashboard-v22';
 import { LieferdienstPhase5026StatistikenDashboardV23 } from './phase5026-statistiken-dashboard-v23';
+import { LieferdienstPhase5030StatistikenDashboardV24 } from './phase5030-statistiken-dashboard-v24';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2420,6 +2421,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4885StatistikenDashboardV16 locationId={locationId ?? null} />
                 {/* Phase 4890: Statistiken-Dashboard V17 — 6-KPI-Grid Trend+Ziel; Stunden-BarChart Pünktlichkeit-Farbe; Pünktlichkeits-LineChart; Zonen-Performance-Tabelle; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase4890StatistikenDashboardV17 />
+                {/* Phase 5030: Statistiken-Dashboard V24 — 8-KPI-Grid+Δ; Stunden-BarChart+Woche-LineChart; Top-3-Fahrer tier-farbkodiert+Trinkgeld; Zonen-SLA+Kapazitäts-Balken; Tab-Nav Heute/Woche; 30-Sek-Polling */}
+                <LieferdienstPhase5030StatistikenDashboardV24 locationId={locationId ?? null} />
                 {/* Phase 5026: Statistiken-Dashboard V23 — 8-KPI-Grid; Stundenverlauf BarChart+LineChart; Top-3-Fahrer mit Score-Balken; Zonen-Kapazitäts-Balken; Tab-Nav Umsatz/Fahrer/Zonen; 30-Sek-Polling */}
                 <LieferdienstPhase5026StatistikenDashboardV23 />
                 {/* Phase 5005: Statistiken-Dashboard V22 — CO₂-Tracking; 8-KPI-Grid; Wochenvergleich LineChart; Schichtvergleich 3-Kacheln; Top-3-Fahrer; 60-Sek-Polling */}
@@ -5106,3 +5109,6 @@ export { LieferdienstPhase5005StatistikenDashboardV22 } from './phase5005-statis
 
 // Phase 5026 — Statistiken-Dashboard V23 (Target teal; 8-KPI-Grid 4-spaltig Umsatz/Fahrer/Lieferzeit/Pünktl/Storno/Bewertung/Umsatz/Trend; Stundenverlauf BarChart Umsatz+Ziel+LineChart Bestellungen; Top-3-Fahrer Score-Balken+Stopps+Pünktl+Umsatz; Zonen-Matrix Kapazitäts-Balken; Tab-Nav Umsatz/Fahrer/Zonen; 30-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5026StatistikenDashboardV23 } from './phase5026-statistiken-dashboard-v23';
+
+// Phase 5030 — Statistiken Dashboard V24 (CheckCircle emerald; 8-KPI-Grid+Δ Umsatz/Bestellungen/Ø-Lieferzeit/Pünktl/Fahrer/Bewertung/Trinkgeld/Storno; Stunden-BarChart+7-Tage-LineChart Tab-Nav; Top-3-Fahrer tier-farbkodiert Platin/Gold/Gut+Trinkgeld; Zonen-Matrix SLA%+Avg+Kapazitäts-Balken; 30-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5030StatistikenDashboardV24 } from './phase5030-statistiken-dashboard-v24';

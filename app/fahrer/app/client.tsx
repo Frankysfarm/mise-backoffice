@@ -559,6 +559,7 @@ import { FahrerPhase1951TourStoppNavigatorUltra } from './phase1951-tour-stopp-n
 import { FahrerPhase1952TourFortschrittsRing } from './phase1952-tour-fortschritts-ring';
 import { FahrerPhase1953NaechsterStoppEtaCockpit } from './phase1953-naechster-stopp-eta-cockpit';
 import { FahrerPhase1954TourStoppLiveNavigator } from './phase1954-tour-stopp-live-navigator';
+import { FahrerPhase1955SmartTourStoppCockpit } from './phase1955-smart-tour-stopp-cockpit';
 import { FahrerPhase1870TourStoppSmartSequenzNav } from './phase1870-tour-stopp-smart-sequenz-nav';
 import { SmartTourNavigatorV2 } from './smart-tour-navigator-v2';
 import { FahrerPhase1851SmartTourStoppFinalKommando } from './phase1851-smart-tour-stopp-final-kommando';
@@ -6296,6 +6297,8 @@ export function FahrerApp({
             driverId={driver.id}
             isOnline={isOnline}
           />
+          {/* Phase 1955: Smart Tour-Stopp Cockpit — Alle Stopps mit Status-Dots + ETA-Countdown + Navigation-CTA + Notiz + Fahrer-Score; mobile-first; 15-Sek-Polling */}
+          <FahrerPhase1955SmartTourStoppCockpit driverId={driver.id} />
           {/* Phase 1954: Tour-Stopp Live-Navigator — Stopp-Liste mit Status-Dots + Aktiver-Stopp Quick-Nav + Google Maps je Stopp; 60-Sek-Polling */}
           <FahrerPhase1954TourStoppLiveNavigator
             locationId={driver.location_id}
@@ -12076,3 +12079,6 @@ export { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stop
 
 // Phase 5025 — Smart-Tour-Stopp-Navigator V13 (Navigation2 blue; Schicht-Rang-Badge amber; Trinkgeld-Erwartungs-Anzeige kumuliert; Entfernung je Stopp m/km; CO₂-KPI teal; 4er-Mini-Stats Score+Km+Tipp+CO₂; Stopp-Details erweitert Tipp+Telefon-Link; Dual-Progress Stopps+Schicht-Ziel; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
+
+// Phase 1955 — Smart Tour-Stopp Cockpit (Route indigo; Alle Stopps mit Status-Dots fertig/aktiv/ausstehend/verspaetet; ETA-Countdown je Stopp; Navigation-CTA Google/Apple Maps; Notiz-Alert; Telefon-Link; Tour-Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling; Mock-Fallback)
+export { FahrerPhase1955SmartTourStoppCockpit } from './phase1955-smart-tour-stopp-cockpit';
