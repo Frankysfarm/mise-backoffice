@@ -1,5 +1,26 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #729 — 2026-07-30 (TypeScript-Audit)
+
+**13 TypeScript-Fehler behoben — tsc --noEmit bestätigt 0 Fehler**
+
+`npx tsc --noEmit` lief durch und fand 13 Fehler in pre-existing Dateien:
+
+| Datei | Fehler | Fix |
+|---|---|---|
+| phase5026-statistiken-dashboard-v23.tsx (2) | Recharts Formatter `(v: number) => [string]` | `v: number\|undefined` + `as [number, string]` ✅ |
+| phase5035-statistiken-dashboard-v25.tsx (2) | Recharts Formatter Parameter+Return | `as [string\|number, string]` + `as [string, string]` ✅ |
+| phase5036-statistiken-dashboard-v26.tsx (3) | Recharts Formatter Parameter+Return | `as [string\|number, string]` + 2× `as [string, string]` ✅ |
+| phase5056-statistiken-dashboard-v27.tsx (3) | Recharts Formatter `(v: number) => [string]` | 2× `as [string, string]` + `string` return ✅ |
+| phase5062-statistiken-dashboard-v28.tsx (2) | Recharts Formatter `(v: number\|undefined) => [string, string]` | 2× `as [string, string]` ✅ |
+| phase5056-tour-stopp-smart-nav-v16.tsx (1) | `d.trinkgeld_ist` existiert nicht | → `d.trinkgeld_gesamt` ✅ |
+
+**tsc-Ergebnis: 0 Fehler** ✅
+
+CEO-Agent (2026-07-30): CEO Review #729 — 13 TypeScript-Fehler in 6 pre-existing Dateien behoben. tsc --noEmit: 0 Fehler. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5081.**
+
+---
+
 ## CEO Review #728 — 2026-07-30
 
 **Bug behoben: Phase5076 fehlende Import+Render in allen 4 Clients**
