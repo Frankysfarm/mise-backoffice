@@ -1269,6 +1269,7 @@ import { KitchenPhase5024BestellwertTicker } from './phase5024-bestellwert-ticke
 import { KitchenPhase5029TrinkgeldTicker } from './phase5029-trinkgeld-ticker';
 import { KitchenPhase5034SchichtBilanzTicker } from './phase5034-schicht-bilanz-ticker';
 import { KitchenPhase5045PuenktlichkeitTicker } from './phase5045-puenktlichkeit-ticker';
+import { KitchenPhase5050StornoquoteTicker } from './phase5050-stornoquote-ticker';
 import { KitchenPhase5040PraemienQuoteTicker } from './phase5040-praemien-quote-ticker';
 import { KitchenPhase5035SmartTimingCountdownV32 } from './phase5035-smart-timing-countdown-v32';
 import { KitchenPhase5036SmartTimingCountdownV33 } from './phase5036-smart-timing-countdown-v33';
@@ -4994,6 +4995,8 @@ export function KitchenBoard({
       <KitchenPhase5034SchichtBilanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5045: Pünktlichkeit-Ticker — Clock teal; Champion #1 Name+%; Team-Avg; Alert Niedrig; 30-Min-Polling */}
       <KitchenPhase5045PuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5050: Stornoquote-Ticker — XCircle orange; Bester #1 Name+%; Team-Avg; Alert >10%; 30-Min-Polling */}
+      <KitchenPhase5050StornoquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5040: Prämien-Quote-Ticker — Award yellow; Champion #1 Name+%; Team-Avg; Alert <50%; 30-Min-Polling */}
       <KitchenPhase5040PraemienQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
@@ -12781,6 +12784,8 @@ export { KitchenPhase5029TrinkgeldTicker } from './phase5029-trinkgeld-ticker';
 export { KitchenPhase5034SchichtBilanzTicker } from './phase5034-schicht-bilanz-ticker';
 // Phase 5045 — Pünktlichkeit-Ticker (Clock teal; Champion #1 Name+%; Team-Avg; Alert Niedrig rot; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5045PuenktlichkeitTicker } from './phase5045-puenktlichkeit-ticker';
+// Phase 5050 — Stornoquote-Ticker (XCircle orange; Bester #1 Name+%; Team-Avg; Alert Hoch >10% rot; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5050StornoquoteTicker } from './phase5050-stornoquote-ticker';
 
 // Phase 4900 — Smart-Timing Countdown V24 (ChefHat indigo; Station-Auslastung 3-Kacheln Grill/Friture/Kalt Eff%; Kochzeit-Trend TrendingUp/Down je Order; Fahrer-Nahe-Zap; KI-Empfehlung; 4-KPI-Grid; 7-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4900SmartTimingCountdownV24 } from './phase4900-smart-timing-countdown-v24';
