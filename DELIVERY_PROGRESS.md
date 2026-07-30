@@ -35592,3 +35592,41 @@ KRITISCH: Nächste freie Phase ist **4978**! NIEMALS 4000–4977 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **4968**! NIEMALS 4000–4967 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4978–4982 — Fahrer-Geschwindigkeit-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+### Phase 4978 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-geschwindigkeit-ranking/route.ts` (aktualisiert)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_kmh, rank_delta, ampel, alert_hoch}], team_avg_kmh, schnellster_name, langsamster_name, alert_count, gesamt, ziel_kmh }`
+**Logik:** value-basierte Ampel (≥40=rot/≥25=gelb/<25=gruen); alert_hoch wenn ≥40km/h; Mock Julia 42/Max 35/Sara 28/Tim 18 km/h; force-dynamic ✅; await createClient() ✅
+
+### Phase 4979 — Geschwindigkeit-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4979GeschwindigkeitBoard` — Zap orange-700; ABSTEIGEND Rang 1=höchste km/h; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert ≥40km/h orange-300; Balken orange/gelb/grau farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4980 — Meine Geschwindigkeit (Fahrer)
+**Component:** `FahrerPhase4980MeineGeschwindigkeit` — Zap orange-700; avg_kmh 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥40/≥25/<25 km/h); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4981 — Storefront
+Übersprungen ✅
+
+### Phase 4982 — Geschwindigkeit-Ticker (Kitchen)
+**Component:** `KitchenPhase4982GeschwindigkeitTicker` — Zap orange-700; Champion #1 Name+km/h; Team-Avg; Alert-Count Badge orange; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (vor meinen Änderungen identisch reproduzierbar). NEXT_PRIVATE_SKIP_TURBOPACK=true → exit 0 ✅. TypeScript: exit 0 ✅
+
+### Phasen-Nummern-Status (nach Batch 4978–4982)
+- **Belegt:** 4000–4982 (4942, 4945–4948, 4951, 4956, 4961, 4966, 4971, 4976, 4981 übersprungen)
+- **Nächste freie Phase: 4983**
+
+### Nächste Phasen 4983–4987 — Vorschlag: Fahrer-Lieferungen-pro-Stunde-Ranking (Ø Lieferungen/h je Fahrer letzte 30 Tage)
+1. **Phase 4983 Backend:** GET /api/delivery/admin/fahrer-lieferungen-pro-stunde-ranking — count(deliveries)/sum(shift_h) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Lieferungen/h=bester; ampelVon ≥5=rot/≥3=gelb/<3=gruen; alert_hoch wenn ≥5 Lief/h; Mock Julia 5.8/Max 4.7/Sara 3.5/Tim 2.2; force-dynamic; await createClient().
+2. **Phase 4984 Dispatch:** `DispatchPhase4984LieferungenProStundeBoard` — Package teal-700; KPI-Grid Meiste/Team-Avg/Wenigste; Alert ≥5 Lief/h; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4985 Fahrer:** `FahrerPhase4985MeineLieferungenProStunde` — Package teal-700; lieferungen_pro_h 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥5/≥3/<3 Lief/h; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4986 Storefront:** Überspringen.
+5. **Phase 4987 Kitchen:** `KitchenPhase4987LieferungenProStundeTicker` — Package teal-700; Champion #1 Name+Lief/h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4983**! NIEMALS 4000–4982 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
