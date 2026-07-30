@@ -1219,6 +1219,7 @@ import { FahrerPhase4898SmartTourStoppNavV8 } from './phase4898-smart-tour-stopp
 import { FahrerPhase4910SmartTourStoppNavV9 } from './phase4910-smart-tour-stopp-nav-v9';
 import { FahrerPhase4913MeineNachtprod } from './phase4913-meine-nachtprod';
 import { FahrerPhase4918MeineMittagsprod } from './phase4918-meine-mittagsprod';
+import { FahrerPhase4923MeineAbendprod } from './phase4923-meine-abendprod';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 import { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
 import { FahrerPhase4848MeineTourStopsLive } from './phase4848-meine-tour-stops-live';
@@ -7480,6 +7481,8 @@ export function FahrerApp({
           <FahrerPhase4913MeineNachtprod driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4918: Meine Mittagsschicht-Produktivität — Utensils orange; touren_pro_std 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥4,0/≥2,0/<2,0; 30-Min-Polling */}
           <FahrerPhase4918MeineMittagsprod driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4923: Meine Abendschicht-Produktivität — Sunset orange; touren_pro_std 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥3,0/≥1,5/<1,5; 30-Min-Polling */}
+          <FahrerPhase4923MeineAbendprod driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4898: Smart-Tour-Stopp-Navigator V8 — Navigation2 blue; Tempo-Profil schnell/normal/stau; Geschätzte-Ankunft-Zeit; Dual-Fortschrittsbalken; Verdienst+Trinkgeld Strip; Routen-Effizienz-%; 20-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4898SmartTourStoppNavV8 />
           {/* Phase 4878: Smart-Tour-Stopp-Navigator V7 — Navigation2 blue; Kundenwertung je Stopp; Anweisungen; Aufklappbare Stopp-Details; Dual-Fortschrittsbalken Stopps+km; Verdienst+Trinkgeld Strip; Traffic-Info; 20-Sek-Polling; Mock-Fallback */}
@@ -11946,3 +11949,4 @@ export { FahrerPhase4913MeineNachtprod } from './phase4913-meine-nachtprod';
 
 // Phase 4918 — Meine Mittagsschicht-Produktivität (Utensils orange-900; touren_pro_std 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen ≥4,0/≥2,0/<2,0; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase4918MeineMittagsprod } from './phase4918-meine-mittagsprod';
+export { FahrerPhase4923MeineAbendprod } from './phase4923-meine-abendprod';
