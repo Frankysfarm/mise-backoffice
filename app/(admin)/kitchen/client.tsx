@@ -12849,3 +12849,6 @@ export { KitchenPhase5062SmartTimingCountdownV35 } from './phase5062-smart-timin
 export { KitchenPhase5067SchichtAuslastungsTicker } from './phase5067-schicht-auslastungs-ticker';
 // Phase 5072 — Schicht-Pünktlichkeits-Ticker (Clock green-700; Höchste #1 Name+%; Team-Ø; Alert <80%; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5072SchichtPuenktlichkeitsTicker } from './phase5072-schicht-puenktlichkeits-ticker';
+
+// Phase 5075 — Smart Timing Delivery Hub (ChefHat indigo; Countdown je Bestellung farbkodiert 4-stufig; Fortschrittsbalken; Fahrer-Sync-Hinweis; KPI-Grid Aktiv/Kritisch/Fertig; Score-Badge; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase5075SmartTimingDeliveryHub } from './phase5075-smart-timing-delivery-hub';

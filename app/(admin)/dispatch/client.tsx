@@ -14273,3 +14273,6 @@ export { DispatchPhase5062ScoreTourVisualisierungV18 } from './phase5062-score-t
 export { DispatchPhase5064SchichtAuslastungsBoard } from './phase5064-schicht-auslastungs-board';
 // Phase 5069 — Schicht-Pünktlichkeit-Board (Clock green-700; KPI-Grid Höchste/Team-Ø/Niedrigste; Alert <80%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5069SchichtPuenktlichkeitBoard } from './phase5069-schicht-puenktlichkeit-board';
+
+// Phase 5075 — Tour Score Visualisierung Hub (Route blue; Score-Arc je Tour; Fortschrittsbalken; Pünktlichkeit+Avg-Stop+Umsatz; Status aktiv/verspaetet; Fahrer-Ranking; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5075TourScoreVisualisierungHub } from './phase5075-tour-score-visualisierung-hub';

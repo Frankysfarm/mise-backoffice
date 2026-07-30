@@ -12145,3 +12145,7 @@ export { FahrerPhase5062TourStoppSmartNavV17 } from './phase5062-tour-stopp-smar
 export { FahrerPhase5065MeineSchichtAuslastung } from './phase5065-meine-schicht-auslastung';
 // Phase 5070 — Meine Schicht-Pünktlichkeit (Clock green-700; puenktlichkeit_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥90%/≥80%/<80%; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5070MeineSchichtPuenktlichkeit } from './phase5070-meine-schicht-puenktlichkeit';
+
+// Phase 5075 — Tour Smart Navigation Hub (Navigation blue; Nächster-Stopp-Banner+Start-CTA; Stop-Liste aufklappbar Status-Dots; ETA-Ampel; Navigation Google Maps Deeplink; Anruf-Button; Abschließen-CTA; Prioritäts-Badge hoch/express; 15-Sek-Polling; Mock-Fallback)
+export { TourSmartNavigationHub } from './tour-smart-navigation-hub';
+export type { SmartTourStop } from './tour-smart-navigation-hub';

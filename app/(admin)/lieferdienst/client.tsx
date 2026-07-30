@@ -5135,3 +5135,6 @@ export { LieferdienstPhase5036StatistikenDashboardV26 } from './phase5036-statis
 export { LieferdienstPhase5056StatistikenDashboardV27 } from './phase5056-statistiken-dashboard-v27';
 // Phase 5062 — Statistiken Dashboard V28 (Schicht-Auslastung-Shield+%; Auslastungs-Verlauf-LineChart; Woche-Tab-Auslastung%; Zonen-Tab-ROI%; teal-700-Header; 8-KPI-Grid; 45-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5062StatistikenDashboardV28 } from './phase5062-statistiken-dashboard-v28';
+
+// Phase 5075 — Statistiken Performance Hub (BarChart3 indigo; 6-KPI-Grid Ampel+Δ%+Ziel-Balken; Gesamt-Score; Insight-Tipp; Stundenverlauf BarChart umschaltbar; Top-3-Fahrer; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5075StatistikenPerformanceHub } from './phase5075-statistiken-performance-hub';
