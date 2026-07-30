@@ -11,7 +11,7 @@ Confidence: **HIGH for local database/source contracts; NONE for unrun hardware/
 | Web build | Hermetic Next production build, 446 static pages | `npm run build` | 0 PASS | Requires configured 8 GiB heap |
 | Native source/config | native `verify-full.sh` with project verifier | native worktree | 0 PASS | Compiled/device suite still external |
 | Hosted E2E | Supabase/PostgREST/Realtime, push/payment/routing sandboxes | not available | BLOCKED_EXTERNAL | Credentials/services absent |
-| Physical apps | signed iOS/Android and device lifecycle | not available | BLOCKED_EXTERNAL | Xcode/Java/devices/signing absent |
+| Physical apps | signed iOS/Android and device lifecycle | Android reaches Gradle SDK discovery under OpenJDK 17 | BLOCKED_EXTERNAL | full Xcode, Android SDK, devices and signing absent |
 
 G9 cannot be GREEN without the blocked evidence and no claim is inferred from
 unit/source tests.

@@ -6,8 +6,9 @@ Updated: 2026-07-29
 
 - Full Xcode, signing profiles, CocoaPods integration and physical iPhones are
   unavailable.
-- Java/Android build toolchain and supported physical Android devices are
-  unavailable.
+- OpenJDK 17 is available and the generated Android project reaches Gradle's
+  SDK-location check. The Android SDK and supported physical Android devices
+  are unavailable.
 - Foreground/background/lock/relaunch/reboot, permission transition, long-trip
   and battery lifecycle evidence therefore remains unexecuted.
 

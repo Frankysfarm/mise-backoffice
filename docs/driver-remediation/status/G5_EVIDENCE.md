@@ -13,7 +13,7 @@ Updated: 2026-07-28
 | Tracking state policy | iOS/Android source and native contract | `npm run test:location` | 0 | GREEN source | real lifecycle pending |
 | Configurable retention | `mise_gps_transport_config`, cleanup RPC default-off | GPS SQL suite | 0 | GREEN | production privacy approval pending |
 | iOS compiled lifecycle matrix | source candidate | unavailable | — | BLOCKED_EXTERNAL | full Xcode, signing and devices required |
-| Android compiled lifecycle matrix | source candidate | unavailable | — | BLOCKED_EXTERNAL | Java/Android SDK build and devices required |
+| Android compiled lifecycle matrix | generated project and Gradle dependency integration | reaches SDK discovery | native `fe01226` | BLOCKED_EXTERNAL | Android SDK and devices required |
 
 ## Gate status
 
@@ -24,4 +24,3 @@ background behavior on supported physical devices: unverified until
 `GPS_DEVICE_TEST_PLAN.md` is executed.
 
 No production action occurred.
-

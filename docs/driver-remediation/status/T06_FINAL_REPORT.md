@@ -39,6 +39,8 @@ host and remains mandatory for overall G5.
 - Main: `e3ab3efa` — canonical device event metadata.
 - Native: `4d048c2` — native GPS lifecycle source candidate.
 - Native: `d38f19f` — installation/tracking/altitude/battery metadata.
+- Native: `fe01226` — idempotent Android Gradle integration and toolchain-aware
+  compiled-project verifier.
 
 ## Verification
 
@@ -55,7 +57,8 @@ host and remains mandatory for overall G5.
 
 - Full Xcode is not installed/selected; iOS compilation cannot run.
 - No real iPhone device matrix was executed.
-- Java runtime is unavailable; Android compilation cannot run.
+- OpenJDK 17 is installed and the generated Android project passes dependency
+  integration and Gradle parsing, then stops at the missing Android SDK.
 - No real Android device matrix was executed.
 - No signing or isolated external staging credentials were used.
 
@@ -63,4 +66,3 @@ host and remains mandatory for overall G5.
 
 No production GPS policy, retention, migration, deployment, push, order,
 TestFlight build or live tracking was changed.
-

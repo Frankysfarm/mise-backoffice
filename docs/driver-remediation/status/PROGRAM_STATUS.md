@@ -101,15 +101,16 @@ source tests prove authenticated policy gating, bounded encrypted queues,
 session rotation, terminal-head recovery and reproducible iOS/Android project
 integration.
 
-G5 cannot turn green in the current host environment: Android compilation
-requires a Java runtime, iOS compilation requires full Xcode/CocoaPods, and the
+G5 cannot turn green in the current host environment: the Android project now
+reaches Gradle's SDK-location boundary with OpenJDK 17 but the Android SDK is
+absent, iOS compilation requires full Xcode/CocoaPods, and the
 foreground/background/lock/relaunch/reboot matrix requires real devices.
 `gpsEligibleForNewAssignment` is wired into the deterministic T07 candidate
 filter and its stale/untrusted exclusions pass locally. Native installation,
 tracking-mode, altitude and battery metadata are now part of the canonical
-event contract. Full Xcode, a Java/Android build toolchain and physical device
-matrices remain unavailable. Both source paths remain default-off candidates;
-no production action occurred.
+event contract. Full Xcode, the Android SDK and physical device matrices remain
+unavailable. Both source paths remain default-off candidates; no production
+action occurred.
 
 ## G8 decision
 

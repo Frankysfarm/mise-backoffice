@@ -25,7 +25,10 @@ explicit 8 GiB heap. It compiled and generated all 446 static pages. Native
 full verification now invokes a project-specific suite covering the location
 contract, iOS/Android source integration, JSON/plist configuration and Android
 integration-script syntax; it exited `0`. Compiled mobile/device evidence
-remains unavailable.
+remains unavailable. The Android project was generated with the canonical
+templates; its dependency integration is idempotent and Gradle proceeds as far
+as SDK discovery under OpenJDK 17. The host has no Android SDK, so this is not
+claimed as a compiled Android build.
 
 ## 26-step lifecycle coverage
 
