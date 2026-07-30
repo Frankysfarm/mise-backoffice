@@ -108,7 +108,7 @@ export function DispatchPhase5047StornoquoteBoard({ locationId }: { locationId: 
             <div className="w-20 h-1.5 rounded-full bg-gray-800 overflow-hidden shrink-0">
               <div
                 className={`h-full rounded-full ${barColor(f.ampel)}`}
-                style={{ width: `${Math.min(100, f.balken_pct * 5)}%` }}
+                style={{ width: `${f.balken_pct}%` }}
               />
             </div>
             <span className={`text-xs font-semibold w-10 text-right shrink-0 ${ampelColor(f.ampel)}`}>
