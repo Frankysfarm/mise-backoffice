@@ -189,7 +189,7 @@ export function LieferdienstPhase5062StatistikenDashboardV28({ locationId }: { l
               <Line type="monotone" dataKey="auslastung" stroke="#0d9488" strokeWidth={2} dot={{ r: 3, fill: '#0d9488' }} />
               <XAxis dataKey="tag" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip
-                formatter={(v: number | undefined) => [`${v ?? 0}%`, 'Auslastung'] as [string, string]}
+                formatter={(v: unknown) => [`${(v as number) ?? 0}%`, 'Auslastung'] as [string, string]}
                 contentStyle={{ fontSize: 11, borderRadius: 8 }}
               />
             </LineChart>
@@ -237,7 +237,7 @@ export function LieferdienstPhase5062StatistikenDashboardV28({ locationId }: { l
               <BarChart data={d.stunden} barSize={16}>
                 <XAxis dataKey="stunde" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
                 <Tooltip
-                  formatter={(v: number | undefined) => [`${v ?? 0} €`, 'Umsatz'] as [string, string]}
+                  formatter={(v: unknown) => [`${(v as number) ?? 0} €`, 'Umsatz'] as [string, string]}
                   contentStyle={{ fontSize: 11, borderRadius: 8 }}
                 />
                 <Bar dataKey="umsatz" radius={[4, 4, 0, 0]}>

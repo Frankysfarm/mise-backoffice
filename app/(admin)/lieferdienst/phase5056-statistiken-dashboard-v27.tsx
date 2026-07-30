@@ -205,7 +205,7 @@ export function LieferdienstPhase5056StatistikenDashboardV27({ locationId }: { l
           <ResponsiveContainer width="100%" height={60}>
             <LineChart data={d.storno_trend}>
               <XAxis dataKey="tag" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
-              <Tooltip formatter={(v: number | undefined) => [`${v ?? 0}%`, 'Storno'] as [string, string]} contentStyle={{ fontSize: 11 }} />
+              <Tooltip formatter={(v: unknown) => [`${(v as number) ?? 0}%`, 'Storno'] as [string, string]} contentStyle={{ fontSize: 11 }} />
               <Line type="monotone" dataKey="storno_pct" stroke="#ef4444" strokeWidth={2} dot={{ r: 3, fill: '#ef4444' }} />
             </LineChart>
           </ResponsiveContainer>
@@ -219,7 +219,7 @@ export function LieferdienstPhase5056StatistikenDashboardV27({ locationId }: { l
           <ResponsiveContainer width="100%" height={60}>
             <LineChart data={d.sla_verlauf}>
               <XAxis dataKey="tag" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
-              <Tooltip formatter={(v: number | undefined) => [`${v ?? 0}%`, 'SLA'] as [string, string]} contentStyle={{ fontSize: 11 }} />
+              <Tooltip formatter={(v: unknown) => [`${(v as number) ?? 0}%`, 'SLA'] as [string, string]} contentStyle={{ fontSize: 11 }} />
               <Line type="monotone" dataKey="sla" stroke="#0d9488" strokeWidth={2} dot={{ r: 3, fill: '#0d9488' }} />
             </LineChart>
           </ResponsiveContainer>
@@ -233,7 +233,7 @@ export function LieferdienstPhase5056StatistikenDashboardV27({ locationId }: { l
           <ResponsiveContainer width="100%" height={80}>
             <BarChart data={d.stunden} barSize={10}>
               <XAxis dataKey="stunde" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
-              <Tooltip formatter={(v: number | undefined) => `${v ?? 0} €`} contentStyle={{ fontSize: 11 }} />
+              <Tooltip formatter={(v: unknown) => `${(v as number) ?? 0} €`} contentStyle={{ fontSize: 11 }} />
               <Bar dataKey="umsatz" fill="#0d9488" radius={[3, 3, 0, 0]}>
                 {d.stunden.map((h, i) => (
                   <Cell key={i} fill={h.umsatz >= h.ziel ? '#10b981' : '#f59e0b'} />
