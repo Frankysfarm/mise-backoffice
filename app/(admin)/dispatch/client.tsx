@@ -1299,6 +1299,7 @@ import { DispatchPhase4910ScoreTourVisualisierungV10 } from './phase4910-score-t
 import { DispatchPhase4912NachtprodBoard } from './phase4912-nachtprod-board';
 import { DispatchPhase4917MittagsprodBoard } from './phase4917-mittagsprod-board';
 import { DispatchPhase4922AbendprodBoard } from './phase4922-abendprod-board';
+import { DispatchPhase4927StoppEffizienzBoard } from './phase4927-stopp-effizienz-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5333,6 +5334,8 @@ export function DispatchBoard({
           <DispatchPhase4917MittagsprodBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4922: Abendschicht-Produktivitäts-Ranking Board — Sunset orange; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >3,0 T/h; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback */}
           <DispatchPhase4922AbendprodBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4927: Stopp-Effizienz-Ranking Board — Target fuchsia-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >2,5 T/Stopp; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback */}
+          <DispatchPhase4927StoppEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4852ScoreTourVisualisierungV6 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4847: Tour-Score Live Board V5 — Trophy indigo; Team-Score+Ziel-Balken; Pünktlichkeit+Avg-Zeit; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Aufklappbare Stopp-Timeline; Alert-Strip; 20-Sek-Polling; Mock-Fallback */}
@@ -14077,3 +14080,4 @@ export { DispatchPhase4912NachtprodBoard } from './phase4912-nachtprod-board';
 // Phase 4917 — Mittagsschicht-Produktivitäts-Ranking Board (Utensils orange-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >4,0 T/h; Balken farbkodiert grün/gelb/rot; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4917MittagsprodBoard } from './phase4917-mittagsprod-board';
 export { DispatchPhase4922AbendprodBoard } from './phase4922-abendprod-board';
+export { DispatchPhase4927StoppEffizienzBoard } from './phase4927-stopp-effizienz-board';
