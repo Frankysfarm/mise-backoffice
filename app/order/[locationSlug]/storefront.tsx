@@ -483,6 +483,7 @@ import { StorefrontPhase1020DynamischeEtaLiveV3 } from './phase1020-dynamische-e
 import { StorefrontPhase1025DynamischeEtaLiveV4 } from './phase1025-dynamische-eta-live-v4';
 import { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-eta-live-v5';
 import { Phase4475DynamischeEtaLiveTrackingV6 } from './phase4475-dynamische-eta-live-tracking-v6';
+import { Phase4500DynamischeEtaLiveHub } from './phase4500-dynamische-eta-live-hub';
 
 type Props = {
   location: Location;
@@ -2141,6 +2142,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           {/* Phase 4475: Dynamische ETA Live-Tracking V6 — Countdown 4xl; 5-stufige Phasen-Timeline; Fahrer-Proximity-Pulsbalken; Verzögerungs-Alert; Bewertungs-Sterne nach Zustellung; 15-Sek-Polling; Mock-Fallback */}
           <div className="mt-2">
             <Phase4475DynamischeEtaLiveTrackingV6 orderId={activeOrderId ?? ''} locationSlug={location?.id} />
+          </div>
+          {/* Phase 4500: Dynamische ETA Live Hub — 5-stufige Phasen-Timeline; Live-ETA-Countdown; Fahrer-Annäherungs-Indikator; Konfidenz-Balken; 20-Sek-Polling; Mock-Fallback */}
+          <div className="mt-2">
+            <Phase4500DynamischeEtaLiveHub orderId={activeOrderId ?? ''} locationId={location?.id} />
           </div>
           {/* Phase 1000: Dynamische ETA Live-Tracking Master — Phasen-Timeline + Fahrer-Position + ETA-Countdown; 30-Sek-Polling */}
           <div className="mt-2">

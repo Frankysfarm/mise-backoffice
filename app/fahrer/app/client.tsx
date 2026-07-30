@@ -1243,6 +1243,7 @@ import { FahrerPhase5017MeineKilometer } from './phase5017-meine-kilometer';
 import { FahrerPhase5022MeinBestellwert } from './phase5022-mein-bestellwert';
 import { FahrerPhase5027MeinTrinkgeld } from './phase5027-mein-trinkgeld';
 import { FahrerPhase5032MeineSchichtBilanz } from './phase5032-meine-schicht-bilanz';
+import { FahrerPhase5035TourStoppSmartNavV14 } from './phase5035-tour-stopp-smart-nav-v14';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7554,6 +7555,8 @@ export function FahrerApp({
           <FahrerPhase5032MeineSchichtBilanz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5025: Smart-Tour-Stopp-Navigator V13 — Schicht-Rang-Badge; Trinkgeld-Erwartungs-Anzeige; Entfernung je Stopp; CO₂-KPI; 4er-Mini-Stats; Erweiterte Stopp-Details mit Tipp+Telefon; 20-Sek-Polling */}
           <FahrerPhase5025SmartTourStoppNavV13 />
+          {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}
+          <FahrerPhase5035TourStoppSmartNavV14 driverId={driver.id} />
           {/* Phase 5022: Smart-Tour-Stopp-Navigator V12 — Dreifach-Fortschrittsbalken Stopps+km+Schicht-Ziel; Google+Waze-Deeplinks; Offline-Safe; Geliefert-Button; Zahlart-Badges; 20-Sek-Polling */}
           <FahrerPhase5022SmartTourStoppNavV12 />
           {/* Phase 4938: Smart-Tour-Stopp-Navigator V10 — Wetter-aware Routing; Verkehrslage je Stopp; Google/Waze-Deeplinks; Schicht-Ziel-Fortschrittsbalken; Verdienst+Trinkgeld-Strip; 20-Sek-Polling */}

@@ -1324,6 +1324,7 @@ import { DispatchPhase5016KilometerBoard } from './phase5016-kilometer-board';
 import { DispatchPhase5021BestellwertBoard } from './phase5021-bestellwert-board';
 import { DispatchPhase5026TrinkgeldBoard } from './phase5026-trinkgeld-board';
 import { DispatchPhase5031SchichtBilanzBoard } from './phase5031-schicht-bilanz-board';
+import { DispatchPhase5035ScoreTourVisualisierungV15 } from './phase5035-score-tour-visualisierung-v15';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5400,6 +5401,8 @@ export function DispatchBoard({
           <DispatchPhase5026TrinkgeldBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5031: Schicht-Bilanz Board — Wallet amber; Rang 1=höchster Ø-Netto-Verdienst; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5031SchichtBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
+          <DispatchPhase5035ScoreTourVisualisierungV15 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5024: Tour-Score-Visualisierung V4 — Fahrer-Score-Rangliste mit Delta; Tour-Visualisierung Stopp-Fortschrittsbalken; Delay-Risiko-Badge; Profit je Tour; Zonen-Matrix; 20-Sek-Polling */}
           <DispatchPhase5024TourScoreVisualisierungV4 />
           {/* Phase 5005: Tour-Score-Visualisierung V3 — Trophy violet; Fleet-Score+Delta; CO₂-Banner; Score-BarChart stündlich; Tab-Nav Fahrer/Zonen; Zonen-Matrix SLA%+Avg+Umsatz+CO₂; 20-Sek-Polling */}
