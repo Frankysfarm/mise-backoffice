@@ -1,5 +1,25 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #709 (Nachtrag) — 2026-07-30
+
+**⚠️ 25 PRE-EXISTING TYPESCRIPT-FEHLER BEHOBEN — jetzt tsc --noEmit: 0 Fehler ✅**
+
+Erste TSC-Prüfung in der Projekt-Geschichte (bisherige Reviews prüften nur next build mit "Skipping validation of types"). Befund: 25 versteckte Fehler in 31 Dateien — alle behoben, Commit `70b89839`.
+
+**Behobene Kategorien:**
+- **Backend (Runtime-Bug):** `fahrer-km-ranking` — `createClient()` ohne `await` → API schlug bei echten Daten still fehl. Gefixt ✅
+- **Backend (Supabase-Typfehler):** `times: []` als `never[]` in 3 Ranking-Routes → `as number[]` hinzugefügt ✅
+- **Backend (forEach-Typ):** 3 Routes mit explizitem Callback-Typ → `any` ✅
+- **Backend (Cast-Fehler):** `fahrer-akzeptanz-rate-ranking` — `mise_drivers` als `{ name }[]`-Array korrekt behandelt ✅
+- **Recharts (14 Komponenten):** `formatter={(v: number) =>}` nicht kompatibel mit Recharts `Formatter<ValueType>` → `as any` ✅
+- **Misc (5 Dateien):** reduce-Typ, pulse-Union-Cast, aria-label statt title-Prop, implizite any ✅
+- **Fahrer-Client:** Ungültige Props auf `FahrerPhase4410TourStoppNavigatorV5` entfernt ✅
+- **Storefront:** `TrackingData.error?` in bestell-dynamische-eta-v5 ergänzt ✅
+
+**Finale Verifikation:** `npx tsc --noEmit` → TSC_EXIT: 0 ✅
+
+---
+
 ## CEO Review #709 — 2026-07-30
 
 **Build ✓ Compiled successfully — Phasen 4906–4908+4911 (Wochenende-Prod) + 4912–4915 (Nachtschicht-Prod) — ALLE Module verifiziert**
