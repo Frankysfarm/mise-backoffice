@@ -1336,6 +1336,7 @@ import { DispatchPhase5062ScoreTourVisualisierungV18 } from './phase5062-score-t
 import { DispatchPhase5064SchichtAuslastungsBoard } from './phase5064-schicht-auslastungs-board';
 import { DispatchPhase5069SchichtPuenktlichkeitBoard } from './phase5069-schicht-puenktlichkeit-board';
 import { DispatchPhase5075TourScoreVisualisierungHub } from './phase5075-tour-score-visualisierung-hub';
+import { DispatchPhase5076FahrerZonenAuslastungsBoard } from './phase5076-fahrer-zonen-auslastungs-board';
 import { DispatchPhase5077LieferzeitVarianzBoard } from './phase5077-lieferzeit-varianz-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
@@ -5433,6 +5434,8 @@ export function DispatchBoard({
           <DispatchPhase5069SchichtPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5075: Tour-Score-Visualisierung Hub — Score-Arc je aktiver Tour; Stopp-Fortschritt; Pünktlichkeit/Avg-Stop/Umsatz KPIs; 20-Sek-Polling */}
           <DispatchPhase5075TourScoreVisualisierungHub locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5076: Fahrer-Zonen-Auslastungs-Board — Zone-Cards Score-Bar farbkodiert; Fahrer aktiv/gesamt; Avg-Lieferzeit; Empfehlung ok/mehr_fahrer/umleiten; Alert; 20-Sek-Polling */}
+          <DispatchPhase5076FahrerZonenAuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5077: Lieferzeit-Varianz-Board — BarChart2 indigo; AUFSTEIGEND Rang 1=niedrigste Varianz=konsistenteste; KPI-Grid Konsistenteste/Team-Avg/Inkonsistenteste; Alert >15min; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5077LieferzeitVarianzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}

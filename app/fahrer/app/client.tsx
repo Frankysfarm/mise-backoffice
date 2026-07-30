@@ -1254,6 +1254,7 @@ import { FahrerPhase5059MeineReaktionszeit } from './phase5059-meine-reaktionsze
 import { FahrerPhase5062TourStoppSmartNavV17 } from './phase5062-tour-stopp-smart-nav-v17';
 import { FahrerPhase5065MeineSchichtAuslastung } from './phase5065-meine-schicht-auslastung';
 import { FahrerPhase5070MeineSchichtPuenktlichkeit } from './phase5070-meine-schicht-puenktlichkeit';
+import { FahrerPhase5076TourNaviV18 } from './phase5076-tour-navi-v18';
 import { FahrerPhase5078MeineLieferzeitVarianz } from './phase5078-meine-lieferzeit-varianz';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7584,6 +7585,8 @@ export function FahrerApp({
           <FahrerPhase5065MeineSchichtAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5070: Meine Schicht-Pünktlichkeit — Clock green-700; puenktlichkeit_pct 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥90%/≥80%/<80%; 30-Min-Polling */}
           <FahrerPhase5070MeineSchichtPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5076: Tour-Navi V18 — Nächster-Stopp-Banner+Nav-CTA; Stop-Detail aufklappbar; Fortschrittsbalken; Anruf-Button; Zahlungsart-Icon; 15-Sek-Polling */}
+          <FahrerPhase5076TourNaviV18 isOnline={isOnline} />
           {/* Phase 5078: Meine Lieferzeit-Varianz — BarChart2 indigo; stddev_min 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤5min/≤10min/>10min; 30-Min-Polling */}
           <FahrerPhase5078MeineLieferzeitVarianz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
