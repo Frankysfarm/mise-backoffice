@@ -1275,6 +1275,7 @@ import { KitchenPhase5040PraemienQuoteTicker } from './phase5040-praemien-quote-
 import { KitchenPhase5035SmartTimingCountdownV32 } from './phase5035-smart-timing-countdown-v32';
 import { KitchenPhase5036SmartTimingCountdownV33 } from './phase5036-smart-timing-countdown-v33';
 import { KitchenPhase5056SmartTimingCountdownV34 } from './phase5056-smart-timing-countdown-v34';
+import { KitchenPhase5061ReaktionszeitTicker } from './phase5061-reaktionszeit-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -5005,6 +5006,8 @@ export function KitchenBoard({
       <KitchenPhase5040PraemienQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5056: Smart-Timing Countdown V34 — Batch-Queue-Prognose; Sync-Score; Cook-Dauer-Heatmap; Peak-Alarm; Kochstart-Empfehlung; 15s-Polling */}
       <KitchenPhase5056SmartTimingCountdownV34 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5061: Reaktionszeit-Ticker — Timer violet; Schnellste #1 Name+min; Team-Avg; Alert >10min; 30-Min-Polling */}
+      <KitchenPhase5061ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
       <KitchenPhase5036SmartTimingCountdownV33 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5035: Smart-Timing Countdown V32 — Farbkodierung rot<5min/gelb<10min/grün; Batch-Koordination; Prio-Ampel; 15s-Polling */}
@@ -12829,3 +12832,5 @@ export { KitchenPhase5036SmartTimingCountdownV33 } from './phase5036-smart-timin
 
 // Phase 5056 — Smart-Timing Countdown V34 (Batch-Queue-Prognose-Balken; Multi-Station Sync-Score; Cook-Duration-Heatmap; Peak-Alarm-Band; Kochstart-Empfehlung je Station; 5-KPI-Grid; 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5056SmartTimingCountdownV34 } from './phase5056-smart-timing-countdown-v34';
+// Phase 5061 — Reaktionszeit-Ticker (Timer violet; Schnellste #1 Name+min; Team-Avg; Alert >10min rot; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5061ReaktionszeitTicker } from './phase5061-reaktionszeit-ticker';

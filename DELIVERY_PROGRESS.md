@@ -36185,3 +36185,108 @@ KRITISCH: Nächste freie Phase ist **5035**! NIEMALS 4000–5034 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **5046**! NIEMALS 4000–5045 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5046/5047/5048/5050 — Fahrer-Stornoquote-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Hinweis:** Phase 5049 = Storefront (übersprungen). Bereits in vorheriger Session implementiert, hier dokumentiert.
+
+### Phase 5046 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-stornoquote-ranking/route.ts` (vorhanden)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, stornoquote_pct, balken_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** AUFSTEIGEND Rang 1=niedrigste Stornoquote=bester; rank-basierte Ampel; alert_hoch wenn >10%; Mock Julia 2%/Sara 5%/Max 8%/Tim 14%; force-dynamic ✅; await createClient() ✅
+
+### Phase 5047 — Stornoquote Board (Dispatch)
+**Component:** `DispatchPhase5047StornoquoteBoard` — XCircle orange-700; Rang 1=niedrigste Quote; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert >10%; Balken farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5048 — Meine Stornoquote (Fahrer)
+**Component:** `FahrerPhase5048MeineStornoquote` — XCircle orange-700; stornoquote_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤5%/≤10%/>10%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5049 — Storefront
+Übersprungen ✅
+
+### Phase 5050 — Stornoquote-Ticker (Kitchen)
+**Component:** `KitchenPhase5050StornoquoteTicker` — XCircle orange-700; Bester #1 Name+%; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung. TypeScript: 0 neue Fehler ✅
+
+---
+
+## Batch 5051/5052/5053/5055 — Fahrer-Express-Anteil-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Hinweis:** Phase 5054 = Storefront (übersprungen). Bereits in vorheriger Session implementiert.
+
+### Phase 5051 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-express-anteil-ranking/route.ts` (vorhanden)
+**Logik:** ABSTEIGEND Rang 1=höchster Express-Anteil=bester; ampelVon; alert wenn ≥40%; force-dynamic ✅; await createClient() ✅
+
+### Phase 5052 — Express-Anteil Board (Dispatch)
+**Component:** `DispatchPhase5052ExpressAnteilBoard` — Zap cyan-700; Rang 1=höchster Express-Anteil; Import+Render+Barrel ✅
+
+### Phase 5053 — Mein Express-Anteil (Fahrer)
+**Component:** `FahrerPhase5053MeinExpressAnteil` — Zap cyan-700; isOnline-Guard; WifiOff-Fallback; Import+Render+Barrel ✅
+
+### Phase 5054 — Storefront
+Übersprungen ✅
+
+### Phase 5055 — Express-Anteil-Ticker (Kitchen)
+**Component:** `KitchenPhase5055ExpressAnteilTicker` — Zap cyan-700; Top #1; Team-Avg; Import+Render+Barrel ✅
+
+---
+
+## Phase 5056 — Smart-Timing/Tour-Score/Tour-Stopp-Nav/Statistiken (ABGESCHLOSSEN 2026-07-30)
+
+Vier Multi-Client-Komponenten unter Phase 5056 — bereits implementiert.
+
+### Dispatch
+`DispatchPhase5056ScoreTourVisualisierungV17` — Trophy indigo; Verspätungs-Risiko-Band; ETA-Konfidenz-Heatmap; Routen-Sync-Score; Import+Render+Barrel ✅
+
+### Kitchen
+`KitchenPhase5056SmartTimingCountdownV34` — Batch-Queue-Prognose-Balken; Multi-Station Sync-Score; Cook-Duration-Heatmap; Peak-Alarm-Band; 5-KPI-Grid; Import+Render+Barrel ✅
+
+### Fahrer
+`FahrerPhase5056TourStoppSmartNavV16` — Distanz-Fortschrittsring; Trinkgeld-Hochrechnung; Kundenkontakt-Quick-Actions; Import+Render+Barrel ✅
+
+### Lieferdienst
+`LieferdienstPhase5056StatistikenDashboardV27` — Import+Render+Barrel ✅
+
+---
+
+## Batch 5057/5058/5059/5061 — Fahrer-Reaktionszeit-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Hinweis:** Phase 5060 = Storefront (übersprungen). Backend (Phase 5057) war bereits vorhanden.
+
+### Phase 5057 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-reaktionszeit-ranking/route.ts` (vorhanden)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_reaktionszeit_min, rank_delta, ampel, alert_hoch}], team_avg_min, schnellster_name, langsamster_name, alert_count, gesamt }`
+**Logik:** AUFSTEIGEND Rang 1=schnellste Reaktionszeit=bester; departure_time - assignment_time in Minuten; rank-basierte Ampel top25%=gruen/Mitte=gelb/unten25%=rot; alert_hoch wenn rot; Mock Julia 3.2min/Sara 4.1min/Max 6.3min/Tim 9.8min; force-dynamic ✅; await createClient() ✅
+
+### Phase 5058 — Reaktionszeit Board (Dispatch)
+**Component:** `DispatchPhase5058ReaktionszeitBoard` — Timer violet-700; AUFSTEIGEND Rang 1=schnellste Reaktion; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert >10min rot-400; Balken violet/gelb/rot farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5059 — Meine Reaktionszeit (Fahrer)
+**Component:** `FahrerPhase5059MeineReaktionszeit` — Timer violet-700; avg_reaktionszeit_min 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≤5min/≤10min/>10min); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5060 — Storefront
+Übersprungen ✅
+
+### Phase 5061 — Reaktionszeit-Ticker (Kitchen)
+**Component:** `KitchenPhase5061ReaktionszeitTicker` — Timer violet-700; Schnellste #1 Name+min; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (identisch wie alle früheren Sessions). TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5057/5058/5059/5061)
+- **Belegt:** 4000–5061 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5062**
+
+### Nächste Phasen 5062–5066 — Vorschlag: Fahrer-Auftragsdichte-Ranking (Aufträge je Stunde je Fahrer letzte 30 Tage)
+1. **Phase 5062 Backend:** GET /api/delivery/admin/fahrer-auftragsdichte-ranking — count(orders)/sum(shift_hours) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Auftragsdichte=bester; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn rot; Mock Julia 4.2/h Sara 3.6/h Max 2.9/h Tim 1.8/h; force-dynamic; await createClient().
+2. **Phase 5063 Dispatch:** `DispatchPhase5063AuftragsdichteBoard` — Activity purple-700; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5064 Fahrer:** `FahrerPhase5064MeineAuftragsdichte` — Activity purple-700; auftraege_pro_h 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥4/h / ≥2/h / <2/h; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5065 Storefront:** Überspringen.
+5. **Phase 5066 Kitchen:** `KitchenPhase5066AuftragsdichteTicker` — Activity purple-700; Champion #1 Name+/h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5062**! NIEMALS 4000–5061 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+
+## STATUS: MARKT-REIF

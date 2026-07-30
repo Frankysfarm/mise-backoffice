@@ -1250,6 +1250,7 @@ import { FahrerPhase5038MeinePraemienQuote } from './phase5038-meine-praemien-qu
 import { FahrerPhase5035TourStoppSmartNavV14 } from './phase5035-tour-stopp-smart-nav-v14';
 import { FahrerPhase5036TourStoppSmartNavV15 } from './phase5036-tour-stopp-smart-nav-v15';
 import { FahrerPhase5056TourStoppSmartNavV16 } from './phase5056-tour-stopp-smart-nav-v16';
+import { FahrerPhase5059MeineReaktionszeit } from './phase5059-meine-reaktionszeit';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7571,6 +7572,8 @@ export function FahrerApp({
           <FahrerPhase5025SmartTourStoppNavV13 />
           {/* Phase 5056: Tour-Stopp Smart Navigator V16 — Distanz-Fortschrittsring; Trinkgeld-Hochrechnung; Kundenkontakt-Quick-Actions; Effizienz-Ampel; Kunden-Kommentar; 20-Sek-Polling */}
           <FahrerPhase5056TourStoppSmartNavV16 driverId={driver.id} />
+          {/* Phase 5059: Meine Reaktionszeit — Timer violet; avg_reaktionszeit_min 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤5min/≤10min/>10min; 30-Min-Polling */}
+          <FahrerPhase5059MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
           <FahrerPhase5036TourStoppSmartNavV15 driverId={driver.id} />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}
@@ -12125,3 +12128,5 @@ export { FahrerPhase5036TourStoppSmartNavV15 } from './phase5036-tour-stopp-smar
 
 // Phase 5056 — Tour-Stopp Smart Navigator V16 (Route blue; Distanz-Fortschrittsring; Trinkgeld-Hochrechnung; Kundenkontakt-Quick-Actions Anrufen+Maps+Waze; Effizienz-Ampel grün/gelb/rot; Kunden-Kommentar-Vorschau; Fleet-Sync-Score; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5056TourStoppSmartNavV16 } from './phase5056-tour-stopp-smart-nav-v16';
+// Phase 5059 — Meine Reaktionszeit (Timer violet; avg_reaktionszeit_min 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤5min/≤10min/>10min; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5059MeineReaktionszeit } from './phase5059-meine-reaktionszeit';
