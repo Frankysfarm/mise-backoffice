@@ -5138,3 +5138,6 @@ export { LieferdienstPhase5062StatistikenDashboardV28 } from './phase5062-statis
 
 // Phase 5075 — Statistiken Performance Hub (BarChart3 indigo; 6-KPI-Grid Ampel+Δ%+Ziel-Balken; Gesamt-Score; Insight-Tipp; Stundenverlauf BarChart umschaltbar; Top-3-Fahrer; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5075StatistikenPerformanceHub } from './phase5075-statistiken-performance-hub';
+
+// Phase 5076 — Schicht-Fahrer-Performance-Ranking (Trophy yellow; Fahrer-Cards Score-Bar farbkodiert; Rang-Medaille Top-3; KPIs Lieferungen+Avg-Zeit+Pünktlichkeit+Umsatz; Delta-Score TrendingUp/Down; Alert <85% pünktlich; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5076SchichtFahrerPerformanceRanking } from './phase5076-schicht-fahrer-performance-ranking';

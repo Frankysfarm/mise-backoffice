@@ -12857,3 +12857,6 @@ export { KitchenPhase5080LieferzeitVarianzTicker } from './phase5080-lieferzeit-
 
 // Phase 5075 — Smart Timing Delivery Hub (ChefHat indigo; Countdown je Bestellung farbkodiert 4-stufig; Fortschrittsbalken; Fahrer-Sync-Hinweis; KPI-Grid Aktiv/Kritisch/Fertig; Score-Badge; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5075SmartTimingDeliveryHub } from './phase5075-smart-timing-delivery-hub';
+
+// Phase 5076 — Smart Timing V36 (Flame orange; Batch-Gruppen Ampel gruen/gelb/rot/fertig; Fahrer-Sync-Hinweis; Batch-Bestellungen-Chips; KPI-Grid Aktiv/Kritisch/Fertig; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase5076SmartTimingV36 } from './phase5076-smart-timing-v36';

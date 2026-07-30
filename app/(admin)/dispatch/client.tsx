@@ -14280,5 +14280,8 @@ export { DispatchPhase5069SchichtPuenktlichkeitBoard } from './phase5069-schicht
 // Phase 5075 — Tour Score Visualisierung Hub (Route blue; Score-Arc je Tour; Fortschrittsbalken; Pünktlichkeit+Avg-Stop+Umsatz; Status aktiv/verspaetet; Fahrer-Ranking; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5075TourScoreVisualisierungHub } from './phase5075-tour-score-visualisierung-hub';
 
+// Phase 5076 — Fahrer-Zonen-Auslastungs-Board (MapPin blue; Zone-Cards Score-Bar farbkodiert; Fahrer aktiv/gesamt; Avg-Lieferzeit; Offene-Bestellungen; Empfehlung ok/mehr_fahrer/umleiten; Alert Kritisch-Zonen; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5076FahrerZonenAuslastungsBoard } from './phase5076-fahrer-zonen-auslastungs-board';
+
 // Phase 5077 — Lieferzeit-Varianz-Board (BarChart2 indigo; aufsteigend Rang 1=konsistenteste; KPI-Grid Konsistenteste/Team-Avg/Inkonsistenteste; Alert >15min; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5077LieferzeitVarianzBoard } from './phase5077-lieferzeit-varianz-board';

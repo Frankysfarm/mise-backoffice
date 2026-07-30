@@ -12155,3 +12155,6 @@ export { FahrerPhase5078MeineLieferzeitVarianz } from './phase5078-meine-lieferz
 // Phase 5075 — Tour Smart Navigation Hub (Navigation blue; Nächster-Stopp-Banner+Start-CTA; Stop-Liste aufklappbar Status-Dots; ETA-Ampel; Navigation Google Maps Deeplink; Anruf-Button; Abschließen-CTA; Prioritäts-Badge hoch/express; 15-Sek-Polling; Mock-Fallback)
 export { TourSmartNavigationHub } from './tour-smart-navigation-hub';
 export type { SmartTourStop } from './tour-smart-navigation-hub';
+
+// Phase 5076 — Tour-Navi V18 (Navigation blue; Nächster-Stopp-Banner+Nav-CTA; Stop-Detail aufklappbar Adresse+Kunde+Betrag+Zahlungsart+Notiz; Fortschrittsbalken; Anruf-Button; Zahlungsart-Icon Bar/Karte; 15-Sek-Polling; Mock-Fallback)
+export { FahrerPhase5076TourNaviV18 } from './phase5076-tour-navi-v18';
