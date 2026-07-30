@@ -1240,6 +1240,7 @@ import { KitchenPhase4905WochentProdTicker } from './phase4905-wochentag-prod-ti
 import { KitchenPhase4911WochenendeProdTicker } from './phase4911-wochenende-prod-ticker';
 import { KitchenPhase4900SmartTimingCountdownV24 } from './phase4900-smart-timing-countdown-v24';
 import { KitchenPhase4910SmartTimingCountdownV25 } from './phase4910-smart-timing-countdown-v25';
+import { KitchenPhase4915NachtprodTicker } from './phase4915-nachtprod-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -4912,6 +4913,8 @@ export function KitchenBoard({
       <KitchenPhase4900SmartTimingCountdownV24 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4910: Smart-Timing Countdown V25 — Kochzeit-Trend; Batch-Sync-%; Prioritäts-Queue aufklappbar; Stationen+Trend; 9-stufige Ampel; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4910SmartTimingCountdownV25 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4915: Nachtschicht-Produktivitäts-Ticker — Moon indigo; Champion #1 Name+T/h; Team-Avg; Alert-Count; 30-Min-Polling */}
+      <KitchenPhase4915NachtprodTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4855: Smart-Timing Countdown V20 — ChefHat indigo; 9-stufige Ampel super-kritisch→fertig; KI-Kochstart-Empfehlung je Bestellung+gesamt; Stations-Auslastungsbalken; Effizienz-Anzeige; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4855SmartTimingCountdownV20 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4850: Smart-Timing Countdown V19 — Stations-Auslastung 3-Kacheln Grill/Friture/Kalt; Effizienz-% je Bestellung; 6-stufige Ampel; 5-KPI-Grid; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
@@ -12633,6 +12636,9 @@ export { KitchenPhase4910SmartTimingCountdownV25 } from './phase4910-smart-timin
 
 // Phase 4911 — Wochenende-Produktivität Ticker (CalendarDays cyan-900; Champion #1 Name+T/h; Team-Ø Sa–So; Alert >2,5 T/h; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4911WochenendeProdTicker } from './phase4911-wochenende-prod-ticker';
+
+// Phase 4915 — Nachtschicht-Produktivitäts-Ticker (Moon indigo; Champion #1 Name+T/h 21–02 Uhr; Team-Avg; Alert-Count Badge; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase4915NachtprodTicker } from './phase4915-nachtprod-ticker';
 
 // Phase 4900 — Smart-Timing Countdown V24 (ChefHat indigo; Station-Auslastung 3-Kacheln Grill/Friture/Kalt Eff%; Kochzeit-Trend TrendingUp/Down je Order; Fahrer-Nahe-Zap; KI-Empfehlung; 4-KPI-Grid; 7-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4900SmartTimingCountdownV24 } from './phase4900-smart-timing-countdown-v24';
