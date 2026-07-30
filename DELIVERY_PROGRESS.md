@@ -35813,3 +35813,43 @@ KRITISCH: Nächste freie Phase ist **4999**! NIEMALS 4000–4998 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **5005**! NIEMALS 4000–5004 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5005/5006/5007/5009 — Fahrer-Wartezeit-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Hinweis:** Phase 5008 = Storefront (übersprungen). Backend Phase 5005 war bereits vorhanden.
+
+### Phase 5005 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-wartezeit-ranking/route.ts` (bereits vorhanden)
+**Schema:** `{ ranking: [{rang, driver_id, name, avg_wartezeit_min, stopps, balken_pct, ampel, alert, rank_delta}], team_avg, generated_at }`
+**Logik:** AUFSTEIGEND Rang 1=kürzeste Wartezeit=bester; top25%=gruen/Mitte=gelb/unten25%=rot; alert wenn >5min; Mock Sara 2.1min/Julia 3.4min/Max 5.8min/Tim 8.2min; force-dynamic ✅; await createClient() ✅
+
+### Phase 5006 — Wartezeit-Ranking Board (Dispatch)
+**Component:** `DispatchPhase5006WartezeitBoard` — Timer purple-700; AUFSTEIGEND Rang 1=kürzeste Wartezeit; KPI-Grid Kürzeste/Team-Avg/Längste; Alert Hoch rot-400; Balken purple/gelb/rot farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5007 — Meine Wartezeit (Fahrer)
+**Component:** `FahrerPhase5007MeineWartezeit` — Timer purple-700; avg_wartezeit_min 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≤5min/≤15min/>15min); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5008 — Storefront
+Übersprungen ✅
+
+### Phase 5009 — Wartezeit-Ticker (Kitchen)
+**Component:** `KitchenPhase5009WartezeitTicker` — Timer purple-700; Kürzeste #1 Name+min; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: ✓ Compiled successfully · exit 0 ✅ | TypeScript: exit 0 ✅
+
+### Phasen-Nummern-Status (nach Batch 5005/5006/5007/5009)
+- **Belegt:** 4000–5009 (diverse Lücken + 4992/4997/5000/5003/5005/5008 übersprungen/vorhanden)
+- **Nächste freie Phase: 5010**
+
+### Nächste Phasen 5010–5014 — Vorschlag: Fahrer-Umsatz-pro-Stunde-Ranking (Ø Umsatz/h je Fahrer letzte 30 Tage)
+1. **Phase 5010 Backend:** GET /api/delivery/admin/fahrer-umsatz-pro-stunde-ranking — sum(revenue)/sum(shift_h) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Umsatz/h=bester; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn rot; Mock Julia 42€/h/Max 38€/h/Sara 31€/h/Tim 24€/h; force-dynamic; await createClient().
+2. **Phase 5011 Dispatch:** `DispatchPhase5011UmsatzProStundeBoard` — Euro cyan-700; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5012 Fahrer:** `FahrerPhase5012MeinUmsatzProStunde` — Euro cyan-700; umsatz_pro_h 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥40€/≥25€/<25€ pro h; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5013 Storefront:** Überspringen.
+5. **Phase 5014 Kitchen:** `KitchenPhase5014UmsatzProStundeTicker` — Euro cyan-700; Champion #1 Name+€/h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5010**! NIEMALS 4000–5009 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
+
+## STATUS: MARKT-REIF
