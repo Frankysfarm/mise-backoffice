@@ -1326,6 +1326,7 @@ import { DispatchPhase5026TrinkgeldBoard } from './phase5026-trinkgeld-board';
 import { DispatchPhase5031SchichtBilanzBoard } from './phase5031-schicht-bilanz-board';
 import { DispatchPhase5037PraemienQuoteBoard } from './phase5037-praemien-quote-board';
 import { DispatchPhase5035ScoreTourVisualisierungV15 } from './phase5035-score-tour-visualisierung-v15';
+import { DispatchPhase5036ScoreTourVisualisierungV16 } from './phase5036-score-tour-visualisierung-v16';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5404,6 +5405,8 @@ export function DispatchBoard({
           <DispatchPhase5031SchichtBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5037: Prämien-Quote Board — Award yellow; Rang 1=höchste Prämien-Quote; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5037PraemienQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
+          <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
           <DispatchPhase5035ScoreTourVisualisierungV15 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5024: Tour-Score-Visualisierung V4 — Fahrer-Score-Rangliste mit Delta; Tour-Visualisierung Stopp-Fortschrittsbalken; Delay-Risiko-Badge; Profit je Tour; Zonen-Matrix; 20-Sek-Polling */}
@@ -14226,3 +14229,6 @@ export { DispatchPhase5030TourScoreVisualisierungV5 } from './phase5030-tour-sco
 export { DispatchPhase5035ScoreTourVisualisierungV15 } from './phase5035-score-tour-visualisierung-v15';
 // Phase 5037 — Prämien-Quote Board (Award yellow-900; Rang 1=höchste Prämien-Quote=bester; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <50% rot; Balken farbkodiert grün/gelb/rot; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5037PraemienQuoteBoard } from './phase5037-praemien-quote-board';
+
+// Phase 5036 — Score + Tour-Visualisierung V16 (Trophy violet; Fleet-Score+Delta; ETA-Accuracy-Trend; 4-KPI-Strip; Zonen-Coverage-Grid 4-spaltig Fahrer+Auslastung; Fahrer-Rangliste tier-farbkodiert+Route-Effizienz-Balken+Zone; aufklappbare Stopp-Timeline; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5036ScoreTourVisualisierungV16 } from './phase5036-score-tour-visualisierung-v16';

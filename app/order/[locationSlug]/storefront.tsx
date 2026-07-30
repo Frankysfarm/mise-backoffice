@@ -484,6 +484,7 @@ import { StorefrontPhase1025DynamischeEtaLiveV4 } from './phase1025-dynamische-e
 import { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-eta-live-v5';
 import { Phase4475DynamischeEtaLiveTrackingV6 } from './phase4475-dynamische-eta-live-tracking-v6';
 import { Phase4500DynamischeEtaLiveHub } from './phase4500-dynamische-eta-live-hub';
+import { Phase5036DynamischeEtaLiveHubV2 } from './phase5036-dynamische-eta-live-hub-v2';
 
 type Props = {
   location: Location;
@@ -2142,6 +2143,10 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           {/* Phase 4475: Dynamische ETA Live-Tracking V6 — Countdown 4xl; 5-stufige Phasen-Timeline; Fahrer-Proximity-Pulsbalken; Verzögerungs-Alert; Bewertungs-Sterne nach Zustellung; 15-Sek-Polling; Mock-Fallback */}
           <div className="mt-2">
             <Phase4475DynamischeEtaLiveTrackingV6 orderId={activeOrderId ?? ''} locationSlug={location?.id} />
+          </div>
+          {/* Phase 5036: Dynamische ETA Live Hub V2 — Sekunden-Countdown; Proximity-Pulsbalken; Waze+Google-Links; Bewertungs-Sterne; 20-Sek-Polling; Mock-Fallback */}
+          <div className="mt-2">
+            <Phase5036DynamischeEtaLiveHubV2 orderId={activeOrderId ?? ''} locationId={location?.id} />
           </div>
           {/* Phase 4500: Dynamische ETA Live Hub — 5-stufige Phasen-Timeline; Live-ETA-Countdown; Fahrer-Annäherungs-Indikator; Konfidenz-Balken; 20-Sek-Polling; Mock-Fallback */}
           <div className="mt-2">
@@ -4048,3 +4053,6 @@ export { Phase4475DynamischeEtaLiveTrackingV6 } from './phase4475-dynamische-eta
 
 // Phase 4500 — Dynamische ETA Live Hub (Clock indigo; ETA-Hero-Countdown 4xl farbkodiert; ETA-Korridor Min/Max; Konfidenz-Balken; 5-stufige Phasen-Timeline Bestätigt→Küche→Abholung→Unterwegs→Geliefert animiert; Fahrer-Info-Card Name+Distanz; Küche-Fertig-In-Hinweis; Geliefert-Celebration; 20-Sek-Polling; Mock-Fallback)
 export { Phase4500DynamischeEtaLiveHub } from './phase4500-dynamische-eta-live-hub';
+
+// Phase 5036 — Dynamische ETA Live Hub V2 (Clock indigo; Sekunden-Countdown live 4xl farbkodiert; ETA-Korridor; Konfidenz-Balken; 5-stufige Phasen-Timeline animiert; Fahrer-Card Annäherungs-Pulsbalken; Google Maps+Waze Deeplinks; Bewertungs-Sterne nach Zustellung interaktiv; Geliefert-Celebration; 20-Sek-Polling; Mock-Fallback)
+export { Phase5036DynamischeEtaLiveHubV2 } from './phase5036-dynamische-eta-live-hub-v2';

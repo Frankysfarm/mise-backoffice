@@ -1270,6 +1270,7 @@ import { KitchenPhase5029TrinkgeldTicker } from './phase5029-trinkgeld-ticker';
 import { KitchenPhase5034SchichtBilanzTicker } from './phase5034-schicht-bilanz-ticker';
 import { KitchenPhase5040PraemienQuoteTicker } from './phase5040-praemien-quote-ticker';
 import { KitchenPhase5035SmartTimingCountdownV32 } from './phase5035-smart-timing-countdown-v32';
+import { KitchenPhase5036SmartTimingCountdownV33 } from './phase5036-smart-timing-countdown-v33';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -4992,6 +4993,8 @@ export function KitchenBoard({
       <KitchenPhase5034SchichtBilanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5040: Prämien-Quote-Ticker — Award yellow; Champion #1 Name+%; Team-Avg; Alert <50%; 30-Min-Polling */}
       <KitchenPhase5040PraemienQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
+      <KitchenPhase5036SmartTimingCountdownV33 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5035: Smart-Timing Countdown V32 — Farbkodierung rot<5min/gelb<10min/grün; Batch-Koordination; Prio-Ampel; 15s-Polling */}
       <KitchenPhase5035SmartTimingCountdownV32 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5030: Smart-Timing Countdown V31 — Stations-Heatmap Grill/Friture/Kalt/Pasta; Batch-Koordinations-Score; KI-Kochstart je Order; Fahrer-ETA-Sync; 9-stufige Ampel; 1s-Tick+15s-Polling */}
@@ -12802,3 +12805,6 @@ export { KitchenPhase5030SmartTimingCountdownV31 } from './phase5030-smart-timin
 export { KitchenPhase5035SmartTimingCountdownV32 } from './phase5035-smart-timing-countdown-v32';
 // Phase 5040 — Prämien-Quote-Ticker (Award yellow-900; Champion #1 Name+%; Team-Avg%; Alert <50% rot; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5040PraemienQuoteTicker } from './phase5040-praemien-quote-ticker';
+
+// Phase 5036 — Smart-Timing Countdown V33 (Clock amber; Stations-Workload-Balken Ofen/Grill/Kalt/Herd; Temperatur-Ampel kalt/warm/heiß/kritisch; Batch-Fertigstellungs-Prognose; Velocity-Ticker /h; Countdown-Wall 2-spaltig farbkodiert; Prio-Icon; Batch-ID-Badge; Fortschrittsbalken; 4-KPI-Grid; 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase5036SmartTimingCountdownV33 } from './phase5036-smart-timing-countdown-v33';
