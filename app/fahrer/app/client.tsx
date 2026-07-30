@@ -1240,6 +1240,7 @@ import { FahrerPhase5007MeineWartezeit } from './phase5007-meine-wartezeit';
 import { FahrerPhase5012MeinUmsatzProStunde } from './phase5012-mein-umsatz-pro-stunde';
 import { FahrerPhase5017MeineKilometer } from './phase5017-meine-kilometer';
 import { FahrerPhase5022MeinBestellwert } from './phase5022-mein-bestellwert';
+import { FahrerPhase5027MeinTrinkgeld } from './phase5027-mein-trinkgeld';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7543,6 +7544,8 @@ export function FahrerApp({
           <FahrerPhase5017MeineKilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5022b: Mein Bestellwert — ShoppingBag emerald; avg_bestellwert 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40€/≥25€/<25€; 30-Min-Polling */}
           <FahrerPhase5022MeinBestellwert driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5027: Mein Trinkgeld — Heart rose; avg_trinkgeld 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥3€/≥1.5€/<1.5€; 30-Min-Polling */}
+          <FahrerPhase5027MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5025: Smart-Tour-Stopp-Navigator V13 — Schicht-Rang-Badge; Trinkgeld-Erwartungs-Anzeige; Entfernung je Stopp; CO₂-KPI; 4er-Mini-Stats; Erweiterte Stopp-Details mit Tipp+Telefon; 20-Sek-Polling */}
           <FahrerPhase5025SmartTourStoppNavV13 />
           {/* Phase 5022: Smart-Tour-Stopp-Navigator V12 — Dreifach-Fortschrittsbalken Stopps+km+Schicht-Ziel; Google+Waze-Deeplinks; Offline-Safe; Geliefert-Button; Zahlart-Badges; 20-Sek-Polling */}
@@ -12053,6 +12056,8 @@ export { FahrerPhase5012MeinUmsatzProStunde } from './phase5012-mein-umsatz-pro-
 export { FahrerPhase5017MeineKilometer } from './phase5017-meine-kilometer';
 // Phase 5022b — Mein Bestellwert (ShoppingBag emerald; avg_bestellwert 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40€/≥25€/<25€; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5022MeinBestellwert } from './phase5022-mein-bestellwert';
+// Phase 5027 — Mein Trinkgeld (Heart rose; avg_trinkgeld 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥3€/≥1.5€/<1.5€; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5027MeinTrinkgeld } from './phase5027-mein-trinkgeld';
 
 // Phase 4938 — Smart-Tour-Stopp-Navigator V10 (Navigation2 blue; Wetter-aware Routing regen/sturm/klar/bewoelkt+Einfluss-Min; Verkehr-Info frei/mäßig/stau je Stopp; Hero-Karte Aktiv-Stopp+Google+Waze-Deeplinks; Notiz-Alert gelb; Telefon-Anruf-Button; ETA-Uhrzeit+Min; Schicht-Ziel-Fortschrittsbalken; Verdienst+Trinkgeld-Strip; Aufklappbare Stopp-Details Zahlart+ETA-Uhrzeit; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4938SmartTourStoppNavV10 } from './phase4938-smart-tour-stopp-nav-v10';

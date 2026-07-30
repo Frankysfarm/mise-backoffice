@@ -1321,6 +1321,7 @@ import { DispatchPhase5006WartezeitBoard } from './phase5006-wartezeit-board';
 import { DispatchPhase5011UmsatzProStundeBoard } from './phase5011-umsatz-pro-stunde-board';
 import { DispatchPhase5016KilometerBoard } from './phase5016-kilometer-board';
 import { DispatchPhase5021BestellwertBoard } from './phase5021-bestellwert-board';
+import { DispatchPhase5026TrinkgeldBoard } from './phase5026-trinkgeld-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5393,6 +5394,8 @@ export function DispatchBoard({
           <DispatchPhase5016KilometerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5021: Bestellwert-Ranking Board — ShoppingBag emerald; Rang 1=höchster Ø-Bestellwert; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5021BestellwertBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5026: Trinkgeld-Ranking Board — Heart rose; Rang 1=höchstes Ø-Trinkgeld; KPI-Grid Höchstes/Team-Avg/Niedrigstes; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5026TrinkgeldBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5024: Tour-Score-Visualisierung V4 — Fahrer-Score-Rangliste mit Delta; Tour-Visualisierung Stopp-Fortschrittsbalken; Delay-Risiko-Badge; Profit je Tour; Zonen-Matrix; 20-Sek-Polling */}
           <DispatchPhase5024TourScoreVisualisierungV4 />
           {/* Phase 5005: Tour-Score-Visualisierung V3 — Trophy violet; Fleet-Score+Delta; CO₂-Banner; Score-BarChart stündlich; Tab-Nav Fahrer/Zonen; Zonen-Matrix SLA%+Avg+Umsatz+CO₂; 20-Sek-Polling */}
@@ -14181,6 +14184,8 @@ export { DispatchPhase5011UmsatzProStundeBoard } from './phase5011-umsatz-pro-st
 export { DispatchPhase5016KilometerBoard } from './phase5016-kilometer-board';
 // Phase 5021 — Bestellwert-Ranking Board (ShoppingBag emerald; Rang 1=höchster Ø-Bestellwert=bester; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5021BestellwertBoard } from './phase5021-bestellwert-board';
+// Phase 5026 — Trinkgeld-Ranking Board (Heart rose; Rang 1=höchstes Ø-Trinkgeld=bester; KPI-Grid Höchstes/Team-Avg/Niedrigstes; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5026TrinkgeldBoard } from './phase5026-trinkgeld-board';
 
 // Phase 4935b — Score + Tour-Visualisierung V11 (Trophy indigo; Zonen-SLA-Matrix 3-Zonen Innenstadt/Nord/Süd SLA%+Avg+Umsatz; CO₂-kg je Fahrer+Gesamt Leaf grün; Team-Score-Fortschrittsbalken; 4-KPI-Grid ETA-Acc+CO₂/Tour; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar Kundenwertung+Verspätung+ETA; Dual-Progress Stopps+km; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-tour-visualisierung-v11';

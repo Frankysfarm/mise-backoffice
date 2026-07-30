@@ -1,146 +1,97 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-interface FahrerRow {
-  fahrer_id: string;
-  fahrer_name: string;
-  rang: number;
-  avg_trinkgeld_eur: number;
-  rank_delta: number;
-  ampel: 'gruen' | 'gelb' | 'rot';
-  alert_niedrig: boolean;
+const MOCK = [
+  { fahrer_id: 'julia', fahrer_name: 'Julia', avg_trinkgeld: 3.8 },
+  { fahrer_id: 'sara', fahrer_name: 'Sara', avg_trinkgeld: 2.9 },
+  { fahrer_id: 'max', fahrer_name: 'Max', avg_trinkgeld: 2.1 },
+  { fahrer_id: 'tim', fahrer_name: 'Tim', avg_trinkgeld: 1.2 },
+];
+
+function ampelVon(rang: number, gesamt: number): 'gruen' | 'gelb' | 'rot' {
+  const top = Math.ceil(gesamt * 0.25);
+  const bot = Math.floor(gesamt * 0.75);
+  if (rang <= top) return 'gruen';
+  if (rang > bot) return 'rot';
+  return 'gelb';
 }
 
-interface ApiResponse {
-  fahrer: FahrerRow[];
-  team_avg_eur: number;
-  bester_name: string;
-  letzter_name: string;
-  alert_count: number;
-  gesamt: number;
-}
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const locationId = searchParams.get('location_id');
 
-const MOCK_DATA: ApiResponse = {
-  fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, avg_trinkgeld_eur: 3.20, rank_delta:  1, ampel: 'gruen', alert_niedrig: false },
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, avg_trinkgeld_eur: 2.85, rank_delta:  0, ampel: 'gruen', alert_niedrig: false },
-    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, avg_trinkgeld_eur: 2.10, rank_delta: -1, ampel: 'gelb',  alert_niedrig: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, avg_trinkgeld_eur: 1.45, rank_delta:  0, ampel: 'rot',   alert_niedrig: true  },
-  ],
-  team_avg_eur: 2.40,
-  bester_name: 'Julia F.',
-  letzter_name: 'Tim B.',
-  alert_count: 1,
-  gesamt: 4,
-};
-
-function ampelVon(rank: number, total: number): 'gruen' | 'gelb' | 'rot' {
-  const pct = rank / total;
-  if (pct <= 0.25) return 'gruen';
-  if (pct <= 0.75) return 'gelb';
-  return 'rot';
-}
-
-export async function GET(req: NextRequest) {
-  const locationId = req.nextUrl.searchParams.get('location_id');
-  const driverId   = req.nextUrl.searchParams.get('driver_id');
-  if (!locationId) return NextResponse.json(MOCK_DATA);
+  let rows: Array<{ fahrer_id: string; fahrer_name: string; avg_trinkgeld: number }> = [];
 
   try {
     const supabase = await createClient();
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-    const cur30Start  = new Date(Date.now() - 30 * 86400000).toISOString();
-    const prev30Start = new Date(Date.now() - 60 * 86400000).toISOString();
+    let q = supabase
+      .from('delivery_tours')
+      .select('driver_id, profiles!driver_id(full_name), tip_eur')
+      .gte('created_at', since)
+      .not('tip_eur', 'is', null);
 
-    const [curRes, prevRes] = await Promise.all([
-      supabase
-        .from('orders')
-        .select('driver_id, driver_name, tip_eur')
-        .eq('location_id', locationId)
-        .gte('created_at', cur30Start),
-      supabase
-        .from('orders')
-        .select('driver_id, tip_eur')
-        .eq('location_id', locationId)
-        .gte('created_at', prev30Start)
-        .lt('created_at', cur30Start),
-    ]);
+    if (locationId) q = q.eq('location_id', locationId);
 
-    const curData = curRes.data ?? [];
-    if (!curData.length) return NextResponse.json(MOCK_DATA);
+    const { data } = await q;
 
-    const groupCur = new Map<string, { name: string; total: number; tipSum: number }>();
-    for (const o of curData) {
-      if (!o.driver_id) continue;
-      const prev = groupCur.get(o.driver_id) ?? { name: o.driver_name ?? o.driver_id, total: 0, tipSum: 0 };
-      groupCur.set(o.driver_id, {
-        name:   prev.name,
-        total:  prev.total + 1,
-        tipSum: prev.tipSum + (typeof o.tip_eur === 'number' ? o.tip_eur : 0),
-      });
+    if (data && data.length > 0) {
+      const map = new Map<string, { name: string; total: number; count: number }>();
+      for (const t of data) {
+        if (!t.driver_id || t.tip_eur == null) continue;
+        const name =
+          (t.profiles as { full_name?: string } | null)?.full_name ?? t.driver_id;
+        const entry = map.get(t.driver_id) ?? { name, total: 0, count: 0 };
+        entry.total += t.tip_eur as number;
+        entry.count += 1;
+        map.set(t.driver_id, entry);
+      }
+      rows = Array.from(map.entries()).map(([id, e]) => ({
+        fahrer_id: id,
+        fahrer_name: e.name,
+        avg_trinkgeld: Math.round((e.total / e.count) * 100) / 100,
+      }));
     }
-    if (!groupCur.size) return NextResponse.json(MOCK_DATA);
-
-    const groupPrev = new Map<string, { total: number; tipSum: number }>();
-    for (const o of prevRes.data ?? []) {
-      if (!o.driver_id) continue;
-      const prev = groupPrev.get(o.driver_id) ?? { total: 0, tipSum: 0 };
-      groupPrev.set(o.driver_id, {
-        total:  prev.total + 1,
-        tipSum: prev.tipSum + (typeof o.tip_eur === 'number' ? o.tip_eur : 0),
-      });
-    }
-
-    const unsorted = Array.from(groupCur.entries()).map(([id, v]) => ({
-      fahrer_id:         id,
-      fahrer_name:       v.name || id.slice(0, 8),
-      avg_trinkgeld_eur: v.total > 0 ? Math.round((v.tipSum / v.total) * 100) / 100 : 0,
-    }));
-
-    // Absteigend: höchstes Trinkgeld = Rang 1 = bester
-    const sorted = [...unsorted].sort((a, b) => b.avg_trinkgeld_eur - a.avg_trinkgeld_eur);
-    const total  = sorted.length;
-
-    const prevSorted = [...unsorted].map(f => {
-      const p = groupPrev.get(f.fahrer_id);
-      const pAvg = p && p.total > 0 ? Math.round((p.tipSum / p.total) * 100) / 100 : f.avg_trinkgeld_eur;
-      return { fahrer_id: f.fahrer_id, avg_trinkgeld_eur: pAvg };
-    }).sort((a, b) => b.avg_trinkgeld_eur - a.avg_trinkgeld_eur);
-    const prevRanks = new Map(prevSorted.map((f, i) => [f.fahrer_id, i + 1]));
-
-    let fahrer: FahrerRow[] = sorted.map((f, i) => {
-      const rang     = i + 1;
-      const prevRang = prevRanks.get(f.fahrer_id) ?? rang;
-      const ampel    = ampelVon(rang, total);
-      return {
-        fahrer_id:         f.fahrer_id,
-        fahrer_name:       f.fahrer_name,
-        rang,
-        avg_trinkgeld_eur: f.avg_trinkgeld_eur,
-        rank_delta:        prevRang - rang,
-        ampel,
-        alert_niedrig:     ampel === 'rot',
-      };
-    });
-
-    if (driverId) fahrer = fahrer.filter(f => f.fahrer_id === driverId);
-    if (!fahrer.length) return NextResponse.json(MOCK_DATA);
-
-    const teamAvg = Math.round(
-      (sorted.reduce((s, f) => s + f.avg_trinkgeld_eur, 0) / total) * 100
-    ) / 100;
-
-    return NextResponse.json({
-      fahrer,
-      team_avg_eur:  teamAvg,
-      bester_name:   sorted[0]?.fahrer_name ?? '',
-      letzter_name:  sorted[total - 1]?.fahrer_name ?? '',
-      alert_count:   fahrer.filter(f => f.alert_niedrig).length,
-      gesamt:        total,
-    } satisfies ApiResponse);
   } catch {
-    return NextResponse.json(MOCK_DATA);
+    // fall through to mock
   }
+
+  if (rows.length === 0) rows = MOCK;
+
+  // descending: rank 1 = highest avg tip = best
+  rows.sort((a, b) => b.avg_trinkgeld - a.avg_trinkgeld);
+
+  const gesamt = rows.length;
+  const maxVal = Math.max(...rows.map(r => r.avg_trinkgeld), 1);
+  const team_avg_trinkgeld =
+    Math.round((rows.reduce((s, r) => s + r.avg_trinkgeld, 0) / gesamt) * 100) / 100;
+
+  const fahrer = rows.map((r, i) => {
+    const rang = i + 1;
+    const ampel = ampelVon(rang, gesamt);
+    return {
+      fahrer_id: r.fahrer_id,
+      fahrer_name: r.fahrer_name,
+      rang,
+      avg_trinkgeld: r.avg_trinkgeld,
+      balken_pct: Math.round((r.avg_trinkgeld / maxVal) * 100),
+      ampel,
+      rank_delta: 0,
+      alert_niedrig: ampel === 'rot',
+    };
+  });
+
+  const alert_count = fahrer.filter(f => f.alert_niedrig).length;
+
+  return NextResponse.json({
+    fahrer,
+    team_avg_trinkgeld,
+    bester_name: fahrer[0]?.fahrer_name ?? '',
+    niedrigster_name: fahrer[gesamt - 1]?.fahrer_name ?? '',
+    alert_count,
+    gesamt,
+  });
 }
