@@ -1312,6 +1312,7 @@ import { DispatchPhase4969StundenBoard } from './phase4969-stunden-board';
 import { DispatchPhase4974DistanzBoard } from './phase4974-distanz-board';
 import { DispatchPhase4979GeschwindigkeitBoard } from './phase4979-geschwindigkeit-board';
 import { DispatchPhase4984LieferungenProStundeBoard } from './phase4984-lieferungen-pro-stunde-board';
+import { DispatchPhase4990BewertungsBoard } from './phase4990-bewertungs-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5370,6 +5371,8 @@ export function DispatchBoard({
           <DispatchPhase4979GeschwindigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4984: Lieferungen/h-Ranking Board — Package teal; Rang 1=meiste Lief/h; KPI-Grid Produktivste/Team-Avg/Wenigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4984LieferungenProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4990: Kundenbewertungs-Ranking Board — Star amber; Rang 1=beste Bewertung; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4990BewertungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4935: Score+Tour-Visualisierung V11 — Trophy; Zonen-SLA-Matrix 3 Zonen; CO₂-kg je Fahrer+Gesamt; Dual-Progress Stopps+km; Aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase4935ScoreTourVisualisierungV11 />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
@@ -14140,6 +14143,8 @@ export { DispatchPhase4974DistanzBoard } from './phase4974-distanz-board';
 export { DispatchPhase4979GeschwindigkeitBoard } from './phase4979-geschwindigkeit-board';
 // Phase 4984 — Lieferungen/h-Ranking Board (Package teal; Rang 1=meiste Lief/h; KPI-Grid Produktivste/Team-Avg/Wenigste; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4984LieferungenProStundeBoard } from './phase4984-lieferungen-pro-stunde-board';
+// Phase 4990 — Kundenbewertungs-Ranking Board (Star amber; Rang 1=beste Bewertung; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4990BewertungsBoard } from './phase4990-bewertungs-board';
 
 // Phase 4935b — Score + Tour-Visualisierung V11 (Trophy indigo; Zonen-SLA-Matrix 3-Zonen Innenstadt/Nord/Süd SLA%+Avg+Umsatz; CO₂-kg je Fahrer+Gesamt Leaf grün; Team-Score-Fortschrittsbalken; 4-KPI-Grid ETA-Acc+CO₂/Tour; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar Kundenwertung+Verspätung+ETA; Dual-Progress Stopps+km; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-tour-visualisierung-v11';

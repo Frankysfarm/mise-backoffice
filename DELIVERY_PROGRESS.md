@@ -35708,3 +35708,41 @@ KRITISCH: Nächste freie Phase ist **4989**! NIEMALS 4000–4988 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **4989**! NIEMALS 4000–4988 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4989–4993 — Fahrer-Kundenbewertungs-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+### Phase 4989 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-bewertungs-ranking/route.ts` (bereits vorhanden)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_rating, rank_delta, ampel, alert_niedrig}], team_avg_rating, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** absteigend Rang 1=höchste Bewertung=bester; rank-basierte Ampel top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn rot; Mock Julia 4.8★/Sara 4.6★/Max 4.2★/Tim 3.8★; force-dynamic ✅; await createClient() ✅
+
+### Phase 4990 — Kundenbewertungs-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4990BewertungsBoard` — Star amber-700; ABSTEIGEND Rang 1=höchste Bewertung; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig rot-400; Balken amber/gelb/grau farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4991 — Meine Kundenbewertung (Fahrer)
+**Component:** `FahrerPhase4991MeineBewertung` — Star amber-700; avg_rating 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥4.5★/≥4.0★/<4.0★); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4992 — Storefront
+Übersprungen ✅
+
+### Phase 4993 — Bewertungs-Ticker (Kitchen)
+**Component:** `KitchenPhase4993BewertungsTicker` — Star amber-700; Champion #1 Name+★; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (identisch wie frühere Sessions). TypeScript: exit 0 ✅
+
+### Phasen-Nummern-Status (nach Batch 4989–4993)
+- **Belegt:** 4000–4993 (4942, 4945–4948, 4951, 4956, 4961, 4966, 4971, 4976, 4981, 4985, 4986, 4992 übersprungen)
+- **Nächste freie Phase: 4994**
+
+### Nächste Phasen 4994–4998 — Vorschlag: Fahrer-Pünktlichkeits-Ranking (% pünktliche Lieferungen ≤ ETA je Fahrer letzte 30 Tage)
+1. **Phase 4994 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeits-ranking — count(delivered_at ≤ estimated_delivery_at)/count(*) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Pünktlichkeit=bester; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn rot; Mock Julia 96%/Max 91%/Sara 85%/Tim 72%; force-dynamic; await createClient().
+2. **Phase 4995 Dispatch:** `DispatchPhase4995PuenktlichkeitsBoard` — Clock green-700; KPI-Grid Pünktlichste/Team-Avg/Unpünktlichste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4996 Fahrer:** `FahrerPhase4996MeinePuenktlichkeit` — Clock green-700; puenktlichkeit_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥90%/≥75%/<75%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4997 Storefront:** Überspringen.
+5. **Phase 4998 Kitchen:** `KitchenPhase4998PuenktlichkeitsTicker` — Clock green-700; Champion #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4994**! NIEMALS 4000–4993 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
+
+## STATUS: MARKT-REIF
