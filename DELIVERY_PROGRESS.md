@@ -36400,3 +36400,43 @@ KRITISCH: Nächste freie Phase ist **5062**! NIEMALS 4000–5061 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **5085**! NIEMALS 4000–5084 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5102/5103/5105 — Fahrer-Zufriedenheits-Index-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Hinweis:** Phase 5101 Backend bereits vorhanden. Phase 5104 = Storefront (übersprungen). Phasen 5085–5100 wurden in vorherigen Sessions implementiert.
+
+### Phase 5101 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-zufriedenheits-index-ranking/route.ts` (bereits vorhanden ✅)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, zufriedenheits_index, avg_rating, puenktlichkeit_pct, erstkontakt_pct, rank_delta, ampel, alert_niedrig}], team_avg_index, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** ABSTEIGEND Rang 1=höchster Zufriedenheits-Index=bester; composite (rating*0.5 + pünktlichkeit*0.3 + erstkontakt*0.2); rank-basierte Ampel; alert_niedrig wenn rot; Mock Julia 91/Max 80/Sara 71/Tim 58; force-dynamic ✅; await createClient() ✅
+
+### Phase 5102 — Zufriedenheits-Index Board (Dispatch)
+**Component:** `DispatchPhase5102ZufriedenheitsIndexBoard` — Smile emerald-700; Rang 1=höchster Index; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig rot-400; Balken emerald/gelb/rot farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5103 — Mein Zufriedenheits-Index (Fahrer)
+**Component:** `FahrerPhase5103MeinZufriedenheitsIndex` — Smile emerald-700; zufriedenheits_index 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥80/≥60/<60); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5104 — Storefront
+Übersprungen ✅
+
+### Phase 5105 — Zufriedenheits-Index-Ticker (Kitchen)
+**Component:** `KitchenPhase5105ZufriedenheitsIndexTicker` — Smile emerald-700; Beste #1 Name+Score; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: exit 0 ✅ | TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5102/5103/5105)
+- **Belegt:** 4000–5105 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5106**
+
+### Nächste Phasen 5106–5110 — Vorschlag: Fahrer-Zuverlässigkeits-Score-Ranking (kombinierter Score aus Ausfallquote + Schichtpünktlichkeit + Annahme-Rate je Fahrer letzte 30 Tage)
+1. **Phase 5106 Backend:** GET /api/delivery/admin/fahrer-zuverlaessigkeits-score-ranking — bereits prüfen; absteigend Rang 1=höchster Zuverlässigkeits-Score=bester; ampelVon; alert_niedrig; force-dynamic; await createClient().
+2. **Phase 5107 Dispatch:** `DispatchPhase5107ZuverlaessigkeitBoard` — Shield violet-700; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5108 Fahrer:** `FahrerPhase5108MeineZuverlaessigkeit` — Shield violet-700; score 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥80/≥60/<60; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5109 Storefront:** Überspringen.
+5. **Phase 5110 Kitchen:** `KitchenPhase5110ZuverlaessigkeitTicker` — Shield violet-700; Zuverlässigste #1 Name+Score; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5106**! NIEMALS 4000–5105 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+
+## STATUS: MARKT-REIF
