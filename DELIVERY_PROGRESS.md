@@ -35852,4 +35852,38 @@ KRITISCH: Nächste freie Phase ist **5005**! NIEMALS 4000–5004 verwenden. IMME
 
 KRITISCH: Nächste freie Phase ist **5010**! NIEMALS 4000–5009 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
 
+---
+
+## Batch 5010/5011/5012/5014 — Fahrer-Umsatz-pro-Stunde-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+### Phase 5010 — Backend API
+**API:** `/api/delivery/admin/fahrer-umsatz-pro-stunde` — bereits vorhanden (Phase 3623), verwendet ✅
+
+### Phase 5011 — Umsatz/h-Ranking Board (Dispatch)
+**Component:** `DispatchPhase5011UmsatzProStundeBoard` — Euro cyan-700; Rang 1=höchster Umsatz/h=bester; KPI-Grid Bester/Team-Avg/Niedrigster; Alert Niedrig rot; Balken green/yellow/grau farbkodiert; DeltaIcon; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5012 — Mein Umsatz/h (Fahrer)
+**Component:** `FahrerPhase5012MeinUmsatzProStunde` — Euro cyan-700; umsatz_pro_stunde 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥40€/≥25€/<25€/h); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5013 — Storefront
+Übersprungen ✅
+
+### Phase 5014 — Umsatz/h-Ticker (Kitchen)
+**Component:** `KitchenPhase5014UmsatzProStundeTicker` — Euro cyan-700; Champion #1 Name+€/h; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: exit 0 ✅ — TypeScript: exit 0 ✅
+
+### Phasen-Nummern-Status (nach Batch 5010/5011/5012/5014)
+- **Belegt:** 4000–5014 (diverse Lücken + 4992/4997/5000/5003/5005/5008/5010/5013 übersprungen/vorhanden)
+- **Nächste freie Phase: 5015**
+
+### Nächste Phasen 5015–5019 — Vorschlag: Fahrer-Kilometer-Ranking (Ø km je Tour je Fahrer letzte 30 Tage)
+1. **Phase 5015 Backend:** GET /api/delivery/admin/fahrer-kilometer-ranking — avg(distance_km) je Fahrer letzte 30 Tage; AUFSTEIGEND Rang 1=kürzeste Distanz=effizienter; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_hoch wenn >15km; Mock Julia 6km/Sara 8km/Max 11km/Tim 16km; force-dynamic; await createClient().
+2. **Phase 5016 Dispatch:** `DispatchPhase5016KilometerBoard` — Map indigo-700; KPI-Grid Effizienteste/Team-Avg/Weiteste; Alert ≥15km; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5017 Fahrer:** `FahrerPhase5017MeineKilometer` — Map indigo-700; avg_km 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≤8km/≤15km/>15km; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5018 Storefront:** Überspringen.
+5. **Phase 5019 Kitchen:** `KitchenPhase5019KilometerTicker` — Map indigo-700; Effizienteste #1 Name+km; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5015**! NIEMALS 4000–5014 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
+
 ## STATUS: MARKT-REIF
