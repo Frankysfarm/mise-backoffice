@@ -40,7 +40,7 @@ function barColor(a: string) {
   return 'bg-gray-600';
 }
 
-export function DispatchPhase4945PuenktlichkeitBoard({ locationId }: { locationId: string | null }) {
+export function DispatchPhase4949PuenktlichkeitBoard({ locationId }: { locationId: string | null }) {
   const [data, setData] = useState<ApiResponse | null>(null);
 
   async function load() {

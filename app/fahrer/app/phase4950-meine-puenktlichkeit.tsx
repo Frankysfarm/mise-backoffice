@@ -36,7 +36,7 @@ function ampelColor(a: string) {
   return 'text-gray-400';
 }
 
-export function FahrerPhase4946MeinePuenktlichkeit({
+export function FahrerPhase4950MeinePuenktlichkeit({
   driverId,
   locationId,
   isOnline,

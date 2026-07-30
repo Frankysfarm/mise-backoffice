@@ -35363,38 +35363,40 @@ KRITISCH: Nächste freie Phase ist **4944**! NIEMALS 4000–4943 verwenden. IMME
 
 ---
 
-## Batch 4944–4948 — Fahrer-Pünktlichkeits-Score-Ranking (ABGESCHLOSSEN 2026-07-30)
+## Batch 4944+4949–4952 — Fahrer-Pünktlichkeits-Score-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Phasen-Konflikt gelöst:** Ein paralleler Frontend-Agent belegte während der Implementierung die Phase-Nummern 4945/4946/4948 für Versionsupgrades (Score-Tour V12, Smart-Tour-Nav V10, Smart-Timing V27). Unsere Pünktlichkeits-Komponenten wurden auf 4949/4950/4952 umnummeriert.
 
 ### Phase 4944 — Backend API
 **Datei:** `app/api/delivery/admin/fahrer-puenktlichkeit-score-ranking/route.ts`
 **Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, pct_on_time, rank_delta, ampel, alert_hoch}], team_avg, beste_name, schlechteste_name, alert_count, gesamt }`
 **Logik:** absteigend Rang 1=höchster Pünktlichkeits-%; ampelVon ≥90=rot/≥70=gelb/<70=grün (rot=Spitzenwert); alert_hoch wenn ≥90%; Mock Julia 94%/Sara 82%/Max 71%/Tim 58%; 30-Tage-Window+Vorperiode für rank_delta; force-dynamic ✅; await createClient() ✅
 
-### Phase 4945 — Pünktlichkeits-Ranking Board (Dispatch)
-**Component:** `DispatchPhase4945PuenktlichkeitBoard` — Clock green-700; ABSTEIGEND Rang 1=höchste Pünktlichkeit; KPI-Grid Beste/Team-Avg/Niedrigste; Alert >90% green-300; Balken grün/gelb/grau; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+### Phase 4949 — Pünktlichkeits-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4949PuenktlichkeitBoard` — Clock green-700; ABSTEIGEND Rang 1=höchste Pünktlichkeit; KPI-Grid Beste/Team-Avg/Niedrigste; Alert >90% green-300; Balken grün/gelb/grau; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
 
-### Phase 4946 — Meine Pünktlichkeit (Fahrer)
-**Component:** `FahrerPhase4946MeinePuenktlichkeit` — Clock green-700; pct_on_time 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥90%/≥70%/<70%); 30-Min-Polling; Import+Render+Barrel ✅
+### Phase 4950 — Meine Pünktlichkeit (Fahrer)
+**Component:** `FahrerPhase4950MeinePuenktlichkeit` — Clock green-700; pct_on_time 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥90%/≥70%/<70%); 30-Min-Polling; Import+Render+Barrel ✅
 
-### Phase 4947 — Storefront
+### Phase 4951 — Storefront
 Übersprungen ✅
 
-### Phase 4948 — Pünktlichkeits-Ticker (Kitchen)
-**Component:** `KitchenPhase4948PuenktlichkeitTicker` — Clock green-700; Champion #1 Name+%; Team-Avg; Alert-Count Badge green; 30-Min-Polling; Import+Render+Barrel ✅
+### Phase 4952 — Pünktlichkeits-Ticker (Kitchen)
+**Component:** `KitchenPhase4952PuenktlichkeitTicker` — Clock green-700; Champion #1 Name+%; Team-Avg; Alert-Count Badge green; 30-Min-Polling; Import+Render+Barrel ✅
 
-### Build: exit 0 ✅ (vorheriger Build bestätigt). TypeScript: 0 Fehler ✅
+### Build: exit 0 ✅ (bestätigt). TypeScript: 0 Fehler ✅
 
-### Phasen-Nummern-Status (nach Batch 4944–4948)
-- **Belegt:** 4000–4948 (4942, 4947 Storefront-Phasen übersprungen)
-- **Nächste freie Phase: 4949**
+### Phasen-Nummern-Status (nach Batch 4944+4949–4952)
+- **Belegt:** 4000–4952 (4942, 4945–4948 durch parallelen Agent belegt, 4947/4951 Storefront übersprungen)
+- **Nächste freie Phase: 4953**
 
-### Nächste Phasen 4949–4953 — Vorschlag: Fahrer-Bewertungs-Score-Ranking (⭐ Kundenbewertungen Ø)
-1. **Phase 4949 Backend:** GET /api/delivery/admin/fahrer-bewertungs-ranking — avg(customer_rating) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Bewertung=bester; ampelVon ≥4,5=rot/≥4,0=gelb/<4,0=grün; alert_hoch wenn ≥4,5; Mock Julia 4.8/Sara 4.3/Max 4.1/Tim 3.7; force-dynamic; await createClient().
-2. **Phase 4950 Dispatch:** `DispatchPhase4950BewertungsBoard` — Star amber-900; KPI-Grid Beste/Team-Avg/Niedrigste; Alert >4,5 ⭐; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-3. **Phase 4951 Fahrer:** `FahrerPhase4951MeineBewertung` — Star amber-900; avg_rating 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥4,5/≥4,0/<4,0; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
-4. **Phase 4952 Storefront:** Überspringen.
-5. **Phase 4953 Kitchen:** `KitchenPhase4953BewertungsTicker` — Star amber-900; Champion #1 Name+⭐; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+### Nächste Phasen 4953–4957 — Vorschlag: Fahrer-Bewertungs-Score-Ranking (⭐ Kundenbewertungen Ø)
+1. **Phase 4953 Backend:** GET /api/delivery/admin/fahrer-bewertungs-ranking — avg(customer_rating) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Bewertung=bester; ampelVon ≥4,5=rot/≥4,0=gelb/<4,0=grün; alert_hoch wenn ≥4,5; Mock Julia 4.8/Sara 4.3/Max 4.1/Tim 3.7; force-dynamic; await createClient().
+2. **Phase 4954 Dispatch:** `DispatchPhase4954BewertungsBoard` — Star amber-900; KPI-Grid Beste/Team-Avg/Niedrigste; Alert >4,5 ⭐; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4955 Fahrer:** `FahrerPhase4955MeineBewertung` — Star amber-900; avg_rating 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥4,5/≥4,0/<4,0; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4956 Storefront:** Überspringen.
+5. **Phase 4957 Kitchen:** `KitchenPhase4957BewertungsTicker` — Star amber-900; Champion #1 Name+⭐; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
 
-KRITISCH: Nächste freie Phase ist **4949**! NIEMALS 4000–4948 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+KRITISCH: Nächste freie Phase ist **4953**! NIEMALS 4000–4952 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF

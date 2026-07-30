@@ -15,7 +15,7 @@ interface ApiResponse {
   alert_count: number;
 }
 
-export function KitchenPhase4948PuenktlichkeitTicker({ locationId }: { locationId: string | null }) {
+export function KitchenPhase4952PuenktlichkeitTicker({ locationId }: { locationId: string | null }) {
   const [data, setData] = useState<ApiResponse | null>(null);
 
   async function load() {
