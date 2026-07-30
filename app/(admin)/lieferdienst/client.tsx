@@ -5085,3 +5085,6 @@ export { LieferdienstPhase4895StatistikenDashboardV18 } from './phase4895-statis
 
 // Phase 4936 — Statistiken-Dashboard V19 (BarChart2 violet; 6-KPI-Grid Bestellungen/Umsatz/Pünktlichkeit/Lieferzeit/Storno/Bewertung+Ziel-Balken; Stundenverlauf BarChart 3-Modi umschaltbar+Jetzt-Stunde violet; Zonen-Effizienz-Matrix SLA%+Avg+Umsatz+Marge%-Balken; Top-3-Fahrer 🥇🥈🥉+Score+Delta+Touren+Trinkgeld+Pünktl; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4936StatistikenDashboardV19 } from './phase4936-statistiken-dashboard-v19';
+
+// Phase 4941 — Statistiken Dashboard V20 (BarChart2 emerald; Score-Balken+Ziel; Alert-Strip; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel+Trend; Stundenverlauf BarChart 3-Modi Bestellungen/Umsatz/Pünktl Jetzt-Stunde grün; Wochenvergleich umschaltbar; Top-3-Fahrer 🥇🥈🥉+Score+Touren+Trinkgeld+Pünktl; Zonen-Effizienz SLA%+Avg+Umsatz+Balken; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4941StatistikDashboardV20 } from './phase4941-statistiken-dashboard-v20';

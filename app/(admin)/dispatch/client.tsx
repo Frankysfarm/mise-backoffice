@@ -14103,3 +14103,6 @@ export { DispatchPhase4940UmsatzKmBoard } from './phase4940-umsatz-km-board';
 
 // Phase 4935b — Score + Tour-Visualisierung V11 (Trophy indigo; Zonen-SLA-Matrix 3-Zonen Innenstadt/Nord/Süd SLA%+Avg+Umsatz; CO₂-kg je Fahrer+Gesamt Leaf grün; Team-Score-Fortschrittsbalken; 4-KPI-Grid ETA-Acc+CO₂/Tour; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar Kundenwertung+Verspätung+ETA; Dual-Progress Stopps+km; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-tour-visualisierung-v11';
+
+// Phase 4945 — Score + Tour-Visualisierung V12 (Trophy indigo; Team-Score-Fortschrittsbalken; 4-KPI-Grid Touren/Lieferzeit/Pünktl/ETA-Acc; Fahrer-Karten tier-farbkodiert Platin/Gold/Gut/Schwach; KPI-Mini-Grid Pünktl/Lief/Verdienst; Dual-Progress Stopps+km; Stopp-Timeline aufklappbar Betrag+ETA+★Bewertung; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4945ScoreTourVisualisierungV12 } from './phase4945-score-tour-visualisierung-v12';

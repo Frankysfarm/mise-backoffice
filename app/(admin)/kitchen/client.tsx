@@ -12679,3 +12679,6 @@ export { KitchenPhase4900SmartTimingCountdownV24 } from './phase4900-smart-timin
 
 // Phase 4936 — Smart-Timing Countdown V26 (ChefHat indigo; Hitze-Cockpit Gesamt-Hitze-Score; Stations-Hitze-Map 3-Kacheln Grill/Friture/Kalt Hitze-Level kalt/warm/heiß/kritisch+Auslastungsbalken; Kochzeit-Trend TrendingUp/Down; Fahrer-Nahe-Zap; KI-Empfehlung; 5-KPI-Grid; 9-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4936SmartTimingCountdownV26 } from './phase4936-smart-timing-countdown-v26';
+
+// Phase 4948 — Smart-Timing Countdown V27 (ChefHat indigo; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Pünktl; Stationsauslastung 3-Kacheln Grill/Fritteuse/Kalt+Balken; KI-Empfehlung; 9-stufige Ampel; Countdown-Kacheln Fortschrittsbalken+Batch+Komplexität+Fahrer-ETA; Prioritätssortierung; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4948SmartTimingCountdownV27 } from './phase4948-smart-timing-countdown-v27';

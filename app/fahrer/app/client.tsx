@@ -11975,3 +11975,6 @@ export { FahrerPhase4941MeinUmsatzKm } from './phase4941-mein-umsatz-km';
 
 // Phase 4938 — Smart-Tour-Stopp-Navigator V10 (Navigation2 blue; Wetter-aware Routing regen/sturm/klar/bewoelkt+Einfluss-Min; Verkehr-Info frei/mäßig/stau je Stopp; Hero-Karte Aktiv-Stopp+Google+Waze-Deeplinks; Notiz-Alert gelb; Telefon-Anruf-Button; ETA-Uhrzeit+Min; Schicht-Ziel-Fortschrittsbalken; Verdienst+Trinkgeld-Strip; Aufklappbare Stopp-Details Zahlart+ETA-Uhrzeit; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4938SmartTourStoppNavV10 } from './phase4938-smart-tour-stopp-nav-v10';
+
+// Phase 4946 — Smart-Tour-Stopp-Navigator V10 (Navigation2 blue; GPS-Live-Geschwindigkeit km/h; Dual-Fortschrittsbalken Stopps+km; Verdienst+Trinkgeld+Score Strip; Schicht-Ziel-Fortschrittsbalken; Hero-Karte Aktiv-Stopp+Google+Apple-Deeplinks+Anruf; Notiz-Alert gelb; Verkehr-Info frei/mäßig/stau; Stopp-Cards aufklappbar Zahlart+Betrag+Anweisungen+ETA; WifiOff-Guard; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4946SmartTourStoppNavV10 } from './phase4946-smart-tour-stopp-nav-v10';
