@@ -218,7 +218,7 @@ export function LieferdienstPhase5035StatistikenDashboardV25({ locationId }: { l
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="tag" tick={{ fontSize: 10 }} />
                   <YAxis tick={{ fontSize: 10 }} width={38} />
-                  <Tooltip formatter={(v: number) => [`${v} €`, 'Umsatz']} />
+                  <Tooltip formatter={(v: number | undefined) => [`${v ?? 0} €`, 'Umsatz']} />
                   <Line dataKey="umsatz" stroke="#059669" strokeWidth={2} dot={{ r: 3, fill: '#059669' }} />
                 </LineChart>
               </ResponsiveContainer>
