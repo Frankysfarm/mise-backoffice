@@ -158,13 +158,11 @@ export function LieferdienstPhase4946StatistikenDashboardV21({ locationId }: Pro
     return k.invertiert ? val > k.ziel : val < k.ziel * 0.9;
   });
 
-  const chartData = chartModus === 'woche'
-    ? data.woche.map(w => ({ name: w.tag, wert: w.bestellungen }))
-    : data.stunden.map(s => ({
-        name: `${s.stunde}h`,
-        wert: chartModus === 'bestellungen' ? s.bestellungen : chartModus === 'umsatz' ? s.umsatz : s.puenktlichkeit_pct,
-        ist_jetzt: s.ist_jetzt,
-      }));
+  const chartData = data.stunden.map(s => ({
+    name: `${s.stunde}h`,
+    wert: chartModus === 'bestellungen' ? s.bestellungen : chartModus === 'umsatz' ? s.umsatz : s.puenktlichkeit_pct,
+    ist_jetzt: s.ist_jetzt,
+  }));
 
   const RANG_BADGE = ['🥇', '🥈', '🥉'];
 

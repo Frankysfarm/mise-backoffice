@@ -250,7 +250,7 @@ export function KitchenPhase4936SmartTimingCountdownV26() {
                   {order.kochzeit_trend === 'besser' && <TrendingUp className="w-3 h-3 text-green-400" />}
                 </div>
                 <div className="flex items-center gap-2">
-                  {order.fahrer_nahe && <Zap className="w-3.5 h-3.5 text-yellow-400" title="Fahrer nah" />}
+                  {order.fahrer_nahe && <Zap className="w-3.5 h-3.5 text-yellow-400" />}
                   <span className={`text-lg font-mono font-bold tabular-nums ${ampelText(order.ampel)}`}>{fmt(restSek)}</span>
                 </div>
               </div>
