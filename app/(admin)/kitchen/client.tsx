@@ -4968,7 +4968,7 @@ export function KitchenBoard({
       <KitchenPhase4998PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5004: Storno-Quote-Ticker — XCircle red; Bester #1 Name+%; Team-Avg; Alert-Count; 30-Min-Polling */}
       <KitchenPhase5004StornoTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
-      {/* Phase 5009: Wartezeit-Ticker — Timer purple; Kürzeste #1 Name+min; Team-Avg; Alert-Count; 30-Min-Polling */}
+      {/* Phase 5009: Wartezeit-Ticker — Timer purple; Kürzeste Wartezeit #1 Name+min; Team-Avg; Alert-Count; 30-Min-Polling */}
       <KitchenPhase5009WartezeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4936: Smart-Timing Countdown V26 — Hitze-Cockpit Stations-Auslastungs-Heatmap; Kochzeit-Trend je Order; 9-stufige Ampel; 1s-Tick+15s-Polling */}
       <KitchenPhase4936SmartTimingCountdownV26 />
@@ -12731,7 +12731,7 @@ export { KitchenPhase4993BewertungsTicker } from './phase4993-bewertungs-ticker'
 export { KitchenPhase4998PuenktlichkeitsTicker } from './phase4998-puenktlichkeits-ticker';
 // Phase 5004 — Storno-Quote-Ticker (XCircle red; Bester #1 Name+%; Team-Avg; Alert-Count Badge red; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5004StornoTicker } from './phase5004-storno-ticker';
-// Phase 5009 — Wartezeit-Ticker (Timer purple; Kürzeste #1 Name+min; Team-Avg; Alert-Count Badge red; 30-Min-Polling; Mock-Fallback)
+// Phase 5009 — Wartezeit-Ticker (Timer purple; Kürzeste Wartezeit #1 Name+min; Team-Avg; Alert-Count Badge red; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5009WartezeitTicker } from './phase5009-wartezeit-ticker';
 
 // Phase 4900 — Smart-Timing Countdown V24 (ChefHat indigo; Station-Auslastung 3-Kacheln Grill/Friture/Kalt Eff%; Kochzeit-Trend TrendingUp/Down je Order; Fahrer-Nahe-Zap; KI-Empfehlung; 4-KPI-Grid; 7-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)

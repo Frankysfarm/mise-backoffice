@@ -5380,7 +5380,7 @@ export function DispatchBoard({
           <DispatchPhase4995PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5001: Storno-Quote-Ranking Board — XCircle red; Rang 1=niedrigste Storno-Quote; KPI-Grid Wenigste/Team-Avg/Meiste; Alert Hoch; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5001StornoBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
-          {/* Phase 5006: Wartezeit-Ranking Board — Timer purple; Rang 1=kürzeste Wartezeit; KPI-Grid Kürzeste/Team-Avg/Längste; Alert Hoch; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          {/* Phase 5006: Wartezeit-Ranking Board — Timer purple; Rang 1=kürzeste Wartezeit; KPI-Grid Kürzeste/Team-Avg/Längste; Alert ≥15min; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5006WartezeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4935: Score+Tour-Visualisierung V11 — Trophy; Zonen-SLA-Matrix 3 Zonen; CO₂-kg je Fahrer+Gesamt; Dual-Progress Stopps+km; Aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase4935ScoreTourVisualisierungV11 />
@@ -14158,7 +14158,7 @@ export { DispatchPhase4990BewertungsBoard } from './phase4990-bewertungs-board';
 export { DispatchPhase4995PuenktlichkeitsBoard } from './phase4995-puenktlichkeits-board';
 // Phase 5001 — Storno-Quote-Ranking Board (XCircle red; Rang 1=niedrigste Storno-Quote=bester; KPI-Grid Wenigste/Team-Avg/Meiste; Alert Hoch rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5001StornoBoard } from './phase5001-storno-board';
-// Phase 5006 — Wartezeit-Ranking Board (Timer purple; Rang 1=kürzeste Wartezeit=bester; KPI-Grid Kürzeste/Team-Avg/Längste; Alert Hoch rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+// Phase 5006 — Wartezeit-Ranking Board (Timer purple; Rang 1=kürzeste Wartezeit=bester; KPI-Grid Kürzeste/Team-Avg/Längste; Alert ≥15min rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5006WartezeitBoard } from './phase5006-wartezeit-board';
 
 // Phase 4935b — Score + Tour-Visualisierung V11 (Trophy indigo; Zonen-SLA-Matrix 3-Zonen Innenstadt/Nord/Süd SLA%+Avg+Umsatz; CO₂-kg je Fahrer+Gesamt Leaf grün; Team-Score-Fortschrittsbalken; 4-KPI-Grid ETA-Acc+CO₂/Tour; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar Kundenwertung+Verspätung+ETA; Dual-Progress Stopps+km; 20-Sek-Polling; Mock-Fallback)
