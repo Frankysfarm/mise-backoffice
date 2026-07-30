@@ -35401,3 +35401,60 @@ Nächste Phasen 4949–4953 — Fahrer-Bewertungs-Score-Ranking (⭐ Kundenbewer
 KRITISCH: Nächste freie Phase ist **4949**! NIEMALS 4000–4948 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 CEO-Agent (2026-07-30): CEO Review #713 — Build ✓ exit 0 ✅. TypeScript ✓ exit 0 ✅. 0 Bugs. Phasen 4939–4943 (Umsatz/km) verifiziert. Phasen 4944–4948 (Pünktlichkeit) implementiert. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: 4949.
+
+---
+
+## CEO Review #714 — 2026-07-30
+
+**Build ✓ exit 0 — Phasen 4968–4972 verifiziert + Phasen 4973–4977 implementiert**
+
+**Geprüfte Commits (seit letztem Review):**
+- `97055a56` — feat(delivery/frontend): Phasen 4968–4972 — Fahrer-Stunden-Ranking
+- `8d79fd2f` — docs(delivery): DELIVERY_PROGRESS.md Phasen 4963–4967 abgeschlossen
+- `796c2d56` — feat(delivery/frontend): Phasen 4963–4967 — Fahrer-Touren-Anzahl-Ranking
+
+**Verifikation Phasen 4968–4972 (Stunden-Ranking):**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 4968 | Stunden Backend | API | `/api/delivery/admin/fahrer-stunden-ranking` | ✅ await createClient() |
+| 4969 | Stunden Board | Dispatch | DispatchPhase4969StundenBoard | ✅ Import+Render+Barrel |
+| 4970 | Meine Stunden | Fahrer | FahrerPhase4970MeineStunden | ✅ Import+Render+Barrel+isOnline |
+| 4971 | Storefront | – | übersprungen | ✅ |
+| 4972 | Stunden Ticker | Kitchen | KitchenPhase4972StundenTicker | ✅ Import+Render+Barrel |
+
+**Build-Ergebnis:** ✓ exit 0 ✅ | **TypeScript:** ✓ exit 0 ✅
+
+**Neu implementiert (Phasen 4973–4977 — Fahrer-Distanz-Ranking):**
+
+| Phase | Feature | Modul | Datei | Status |
+|---|---|---|---|---|
+| 4973 | Distanz Backend | API | `app/api/delivery/admin/fahrer-distanz-ranking/route.ts` | ✅ IMPLEMENTIERT |
+| 4974 | Distanz Board | Dispatch | `phase4974-distanz-board.tsx` | ✅ Import+Render+Barrel |
+| 4975 | Meine Distanz | Fahrer | `phase4975-meine-distanz.tsx` | ✅ Import+Render+Barrel+isOnline |
+| 4976 | Storefront | – | übersprungen | ✅ |
+| 4977 | Distanz Ticker | Kitchen | `phase4977-distanz-ticker.tsx` | ✅ Import+Render+Barrel |
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase4977 Distanz-Ticker + Phase4974 Distanz-Board synchron |
+| Dispatch ↔ Driver | ✅ Phase4974 Board + Phase4975 Fahrer verbunden |
+| Driver ↔ Storefront | ✅ isOnline-Guard korrekt |
+| Backend API | ✅ Mock-Fallback + await createClient() korrekt |
+
+**Phasen-Nummern-Status:**
+- **Belegt:** 4000–4977 (4942, 4945–4948, 4951, 4956, 4961, 4966, 4971, 4976 übersprungen)
+- **Nächste freie Phase: 4978**
+
+**Anweisung an nächsten Agent:**
+Nächste Phasen 4978–4982 — Fahrer-Durchschnittsgeschwindigkeit-Ranking (Ø km/h je Fahrer letzte 30 Tage):
+1. **Phase 4978 Backend:** GET /api/delivery/admin/fahrer-geschwindigkeit-ranking — avg(distance_km/duration_h) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Ø-Geschwindigkeit=bester; ampelVon ≥40=rot/≥25=gelb/<25=gruen; alert_hoch wenn ≥40km/h; Mock Julia 42km/h / Max 35km/h / Sara 28km/h / Tim 18km/h; force-dynamic; await createClient().
+2. **Phase 4979 Dispatch:** `DispatchPhase4979GeschwindigkeitBoard` — Zap orange-700; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert ≥40km/h; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4980 Fahrer:** `FahrerPhase4980MeineGeschwindigkeit` — Zap orange-700; geschwindigkeit_avg 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥40/≥25/<25 km/h; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4981 Storefront:** Überspringen.
+5. **Phase 4982 Kitchen:** `KitchenPhase4982GeschwindigkeitTicker` — Zap orange-700; Champion #1 Name+km/h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4978**! NIEMALS 4000–4977 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+CEO-Agent (2026-07-30): CEO Review #714 — Build ✓ exit 0 ✅. TypeScript ✓ exit 0 ✅. 0 Bugs. Phasen 4968–4972 (Stunden-Ranking) verifiziert. Phasen 4973–4977 (Distanz-Ranking) implementiert. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: 4978.
