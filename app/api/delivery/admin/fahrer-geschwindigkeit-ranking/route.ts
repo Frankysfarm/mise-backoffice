@@ -10,7 +10,7 @@ interface FahrerRow {
   avg_kmh: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
-  alert_langsam: boolean;
+  alert_hoch: boolean;
 }
 
 interface ApiResponse {
@@ -25,12 +25,12 @@ interface ApiResponse {
 
 const MOCK: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, avg_kmh: 28, rank_delta:  1, ampel: 'gruen', alert_langsam: false },
-    { fahrer_id: 'f2', fahrer_name: 'Sara K.',  rang: 2, avg_kmh: 25, rank_delta:  0, ampel: 'gruen', alert_langsam: false },
-    { fahrer_id: 'f3', fahrer_name: 'Max M.',   rang: 3, avg_kmh: 21, rank_delta: -1, ampel: 'gelb',  alert_langsam: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, avg_kmh: 16, rank_delta:  0, ampel: 'rot',   alert_langsam: true  },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, avg_kmh: 42, rank_delta:  1, ampel: 'rot',  alert_hoch: true  },
+    { fahrer_id: 'f2', fahrer_name: 'Max M.',   rang: 2, avg_kmh: 35, rank_delta:  0, ampel: 'gelb', alert_hoch: false },
+    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, avg_kmh: 28, rank_delta: -1, ampel: 'gelb', alert_hoch: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, avg_kmh: 18, rank_delta:  0, ampel: 'gruen', alert_hoch: false },
   ],
-  team_avg_kmh: 22,
+  team_avg_kmh: 31,
   schnellster_name: 'Julia F.',
   langsamster_name: 'Tim B.',
   alert_count: 1,
@@ -38,17 +38,15 @@ const MOCK: ApiResponse = {
   ziel_kmh: 25,
 };
 
-function calcAmpel(rank: number, total: number): 'gruen' | 'gelb' | 'rot' {
-  const pct = rank / total;
-  if (pct <= 0.25) return 'gruen';
-  if (pct <= 0.75) return 'gelb';
-  return 'rot';
+function calcAmpel(kmh: number): 'gruen' | 'gelb' | 'rot' {
+  if (kmh >= 40) return 'rot';
+  if (kmh >= 25) return 'gelb';
+  return 'gruen';
 }
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const locationId = searchParams.get('location_id');
-  const driverId = searchParams.get('driver_id');
 
   if (!locationId) return NextResponse.json(MOCK);
 
@@ -73,7 +71,9 @@ export async function GET(req: NextRequest) {
           .gte('created_at', since)
           .not('distance_km', 'is', null)
           .not('duration_minutes', 'is', null);
-        const valid = (tours ?? []).filter(t => t.distance_km && t.duration_minutes && t.duration_minutes > 0);
+        const valid = (tours ?? []).filter(
+          t => t.distance_km && t.duration_minutes && t.duration_minutes > 0,
+        );
         const avg_kmh = valid.length
           ? Math.round(
               valid.reduce((s, t) => s + (t.distance_km / t.duration_minutes) * 60, 0) / valid.length,
@@ -86,13 +86,13 @@ export async function GET(req: NextRequest) {
     rows.sort((a, b) => b.avg_kmh - a.avg_kmh);
 
     const fahrer: FahrerRow[] = rows.map((r, i) => {
-      const ampel = calcAmpel(i + 1, rows.length);
+      const ampel = calcAmpel(r.avg_kmh);
       return {
         ...r,
         rang: i + 1,
         rank_delta: 0,
         ampel,
-        alert_langsam: ampel === 'rot',
+        alert_hoch: ampel === 'rot',
       };
     });
 
@@ -100,17 +100,12 @@ export async function GET(req: NextRequest) {
       ? Math.round(fahrer.reduce((s, f) => s + f.avg_kmh, 0) / fahrer.length)
       : 0;
 
-    if (driverId) {
-      const me = fahrer.find(f => f.fahrer_id === driverId) ?? fahrer[0];
-      return NextResponse.json({ fahrer_single: me, team_avg_kmh, gesamt: fahrer.length, ziel_kmh: 25 });
-    }
-
     return NextResponse.json({
       fahrer,
       team_avg_kmh,
       schnellster_name: fahrer[0]?.fahrer_name ?? '',
       langsamster_name: fahrer[fahrer.length - 1]?.fahrer_name ?? '',
-      alert_count: fahrer.filter(f => f.alert_langsam).length,
+      alert_count: fahrer.filter(f => f.alert_hoch).length,
       gesamt: fahrer.length,
       ziel_kmh: 25,
     } satisfies ApiResponse);

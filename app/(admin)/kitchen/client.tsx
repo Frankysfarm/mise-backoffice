@@ -1254,6 +1254,7 @@ import { KitchenPhase4962TrinkgeldTicker } from './phase4962-trinkgeld-ticker';
 import { KitchenPhase4967TourenTicker } from './phase4967-touren-ticker';
 import { KitchenPhase4972StundenTicker } from './phase4972-stunden-ticker';
 import { KitchenPhase4977DistanzTicker } from './phase4977-distanz-ticker';
+import { KitchenPhase4982GeschwindigkeitTicker } from './phase4982-geschwindigkeit-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -4952,6 +4953,8 @@ export function KitchenBoard({
       <KitchenPhase4972StundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4977: Distanz-Ticker — MapPin emerald; Champion #1 Name+km; Team-Avg; Alert-Count; 30-Min-Polling */}
       <KitchenPhase4977DistanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4982: Geschwindigkeit-Ticker — Zap orange; Champion #1 Name+km/h; Team-Avg; Alert-Count; 30-Min-Polling */}
+      <KitchenPhase4982GeschwindigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4936: Smart-Timing Countdown V26 — Hitze-Cockpit Stations-Auslastungs-Heatmap; Kochzeit-Trend je Order; 9-stufige Ampel; 1s-Tick+15s-Polling */}
       <KitchenPhase4936SmartTimingCountdownV26 />
       {/* Phase 4855: Smart-Timing Countdown V20 — ChefHat indigo; 9-stufige Ampel super-kritisch→fertig; KI-Kochstart-Empfehlung je Bestellung+gesamt; Stations-Auslastungsbalken; Effizienz-Anzeige; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
@@ -12703,6 +12706,8 @@ export { KitchenPhase4967TourenTicker } from './phase4967-touren-ticker';
 export { KitchenPhase4972StundenTicker } from './phase4972-stunden-ticker';
 // Phase 4977 — Distanz-Ticker (MapPin emerald; Champion #1 Name+km; Team-Avg; Alert-Count Badge emerald; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4977DistanzTicker } from './phase4977-distanz-ticker';
+// Phase 4982 — Geschwindigkeit-Ticker (Zap orange; Champion #1 Name+km/h; Team-Avg; Alert-Count Badge orange; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase4982GeschwindigkeitTicker } from './phase4982-geschwindigkeit-ticker';
 
 // Phase 4900 — Smart-Timing Countdown V24 (ChefHat indigo; Station-Auslastung 3-Kacheln Grill/Friture/Kalt Eff%; Kochzeit-Trend TrendingUp/Down je Order; Fahrer-Nahe-Zap; KI-Empfehlung; 4-KPI-Grid; 7-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4900SmartTimingCountdownV24 } from './phase4900-smart-timing-countdown-v24';

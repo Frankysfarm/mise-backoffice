@@ -1231,6 +1231,7 @@ import { FahrerPhase4960MeinTrinkgeld } from './phase4960-mein-trinkgeld';
 import { FahrerPhase4965MeineTouren } from './phase4965-meine-touren';
 import { FahrerPhase4970MeineStunden } from './phase4970-meine-stunden';
 import { FahrerPhase4975MeineDistanz } from './phase4975-meine-distanz';
+import { FahrerPhase4980MeineGeschwindigkeit } from './phase4980-meine-geschwindigkeit';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 import { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
 import { FahrerPhase4848MeineTourStopsLive } from './phase4848-meine-tour-stops-live';
@@ -7514,6 +7515,8 @@ export function FahrerApp({
           <FahrerPhase4970MeineStunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4975: Meine Distanz — MapPin emerald; distanz_gesamt 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥1000km/≥500km/<500km; 30-Min-Polling */}
           <FahrerPhase4975MeineDistanz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4980: Meine Geschwindigkeit — Zap orange; avg_kmh 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40/≥25/<25km/h; 30-Min-Polling */}
+          <FahrerPhase4980MeineGeschwindigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4938: Smart-Tour-Stopp-Navigator V10 — Wetter-aware Routing; Verkehrslage je Stopp; Google/Waze-Deeplinks; Schicht-Ziel-Fortschrittsbalken; Verdienst+Trinkgeld-Strip; 20-Sek-Polling */}
           <FahrerPhase4938SmartTourStoppNavV10 />
           {/* Phase 4898: Smart-Tour-Stopp-Navigator V8 — Navigation2 blue; Tempo-Profil schnell/normal/stau; Geschätzte-Ankunft-Zeit; Dual-Fortschrittsbalken; Verdienst+Trinkgeld Strip; Routen-Effizienz-%; 20-Sek-Polling; Mock-Fallback */}
@@ -12002,6 +12005,8 @@ export { FahrerPhase4965MeineTouren } from './phase4965-meine-touren';
 export { FahrerPhase4970MeineStunden } from './phase4970-meine-stunden';
 // Phase 4975 — Meine Distanz (MapPin emerald; distanz_gesamt 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen ≥1000km/≥500km/<500km; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase4975MeineDistanz } from './phase4975-meine-distanz';
+// Phase 4980 — Meine Geschwindigkeit (Zap orange; avg_kmh 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen ≥40/≥25/<25km/h; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4980MeineGeschwindigkeit } from './phase4980-meine-geschwindigkeit';
 
 // Phase 4938 — Smart-Tour-Stopp-Navigator V10 (Navigation2 blue; Wetter-aware Routing regen/sturm/klar/bewoelkt+Einfluss-Min; Verkehr-Info frei/mäßig/stau je Stopp; Hero-Karte Aktiv-Stopp+Google+Waze-Deeplinks; Notiz-Alert gelb; Telefon-Anruf-Button; ETA-Uhrzeit+Min; Schicht-Ziel-Fortschrittsbalken; Verdienst+Trinkgeld-Strip; Aufklappbare Stopp-Details Zahlart+ETA-Uhrzeit; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4938SmartTourStoppNavV10 } from './phase4938-smart-tour-stopp-nav-v10';

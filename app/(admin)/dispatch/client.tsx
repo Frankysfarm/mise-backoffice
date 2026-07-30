@@ -1310,6 +1310,7 @@ import { DispatchPhase4959TrinkgeldBoard } from './phase4959-trinkgeld-board';
 import { DispatchPhase4964TourenBoard } from './phase4964-touren-board';
 import { DispatchPhase4969StundenBoard } from './phase4969-stunden-board';
 import { DispatchPhase4974DistanzBoard } from './phase4974-distanz-board';
+import { DispatchPhase4979GeschwindigkeitBoard } from './phase4979-geschwindigkeit-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5364,6 +5365,8 @@ export function DispatchBoard({
           <DispatchPhase4969StundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4974: Distanz-Ranking Board — MapPin emerald; Rang 1=meiste km; KPI-Grid Meiste/Team-Avg/Wenigste; Alert ≥1000km; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4974DistanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4979: Geschwindigkeit-Ranking Board — Zap orange; Rang 1=höchste km/h; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert ≥40km/h; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4979GeschwindigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4935: Score+Tour-Visualisierung V11 — Trophy; Zonen-SLA-Matrix 3 Zonen; CO₂-kg je Fahrer+Gesamt; Dual-Progress Stopps+km; Aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase4935ScoreTourVisualisierungV11 />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
@@ -14130,6 +14133,8 @@ export { DispatchPhase4964TourenBoard } from './phase4964-touren-board';
 export { DispatchPhase4969StundenBoard } from './phase4969-stunden-board';
 // Phase 4974 — Distanz-Ranking Board (MapPin emerald; Rang 1=meiste km; KPI-Grid Meiste/Team-Avg/Wenigste; Alert ≥1000km; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4974DistanzBoard } from './phase4974-distanz-board';
+// Phase 4979 — Geschwindigkeit-Ranking Board (Zap orange; Rang 1=höchste Ø-km/h; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert ≥40km/h; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4979GeschwindigkeitBoard } from './phase4979-geschwindigkeit-board';
 
 // Phase 4935b — Score + Tour-Visualisierung V11 (Trophy indigo; Zonen-SLA-Matrix 3-Zonen Innenstadt/Nord/Süd SLA%+Avg+Umsatz; CO₂-kg je Fahrer+Gesamt Leaf grün; Team-Score-Fortschrittsbalken; 4-KPI-Grid ETA-Acc+CO₂/Tour; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar Kundenwertung+Verspätung+ETA; Dual-Progress Stopps+km; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-tour-visualisierung-v11';
