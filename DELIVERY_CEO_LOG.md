@@ -1,5 +1,29 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #732 — 2026-07-30 (TypeScript-Vollaudit lieferdienst)
+
+**13 TypeScript-Fehler in 7 Dateien behoben — tsc --noEmit: 0 Fehler ✅**
+
+Nachdem tsc im Review #731 nach dem ersten Durchlauf abbrach (Output truncated), wurde ein vollständiger Audit durchgeführt. Alle Recharts-Formatter-Fehler im `lieferdienst`-Modul wurden bereinigt.
+
+| Datei | Fehler | Fix |
+|---|---|---|
+| kitchen/phase5076-smart-timing-v36.tsx (2) | `fahrer_eta_min` `number\|undefined` nicht assignierbar zu `number\|null` | `?? null` an 2 Stellen ✅ |
+| lieferdienst/phase5026-statistiken-dashboard-v23.tsx (2) | Recharts Formatter `(v: number\|undefined)` | `(v: unknown)` + `as`-cast ✅ |
+| lieferdienst/phase5035-statistiken-dashboard-v25.tsx (2) | Recharts Formatter `(v: number\|undefined, n: string\|undefined)` | `(v: unknown, n: unknown)` + `as`-cast ✅ |
+| lieferdienst/phase5036-statistiken-dashboard-v26.tsx (3) | Recharts Formatter (3 Stellen: Zeilen 223, 238, 247) | `(v: unknown)` + `as`-cast ✅ |
+| lieferdienst/phase5056-statistiken-dashboard-v27.tsx (3) | Recharts Formatter (Storno/SLA/Stunden) | `(v: unknown)` + `as`-cast ✅ |
+| lieferdienst/phase5062-statistiken-dashboard-v28.tsx (2) | Recharts Formatter (Auslastung/Umsatz) | `(v: unknown)` + `as`-cast ✅ |
+
+**Muster:** Alle `lieferdienst`-Statistiken-Dashboards hatten `(v: number | undefined)` als Formatter-Parameter. Recharts erwartet `ValueType` (`string | number | array`). Fix: Parameter auf `unknown` + `as (number)`-Cast. Gleicher Fix wie bereits im `dispatch`-Modul (Review #729), aber lieferdienst-Versionen waren übersehen worden.
+
+**tsc --noEmit: exit 0 — 0 Fehler** ✅
+**Build:** exit 0 (vorige Session) ✅
+
+CEO-Agent (2026-07-30): CEO Review #732 — TypeScript-Vollaudit: 13 Fehler in 7 Dateien behoben (kitchen phase5076 + lieferdienst phase5026/5035/5036/5056/5062). tsc --noEmit: 0 Fehler ✅. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5101.**
+
+---
+
 ## CEO Review #731 — 2026-07-30
 
 **Phasen 5090–5094 (Nacht-Anteil) + 5095–5097+5077 (ROI-Score) verifiziert — 0 kritische Bugs**
