@@ -220,7 +220,7 @@ export function LieferdienstPhase5036StatistikenDashboardV26({ locationId }: { l
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={d.stunden} barGap={2}>
                   <XAxis dataKey="stunde" tick={{ fontSize: 10 }} />
-                  <Tooltip formatter={(v: number | undefined, n: string) => [n === 'umsatz' ? `${v ?? 0} €` : (v ?? 0), n === 'umsatz' ? 'Umsatz' : 'Bestellungen']} />
+                  <Tooltip formatter={(v: number | undefined, n: string | undefined) => [(n === 'umsatz' ? `${v ?? 0} €` : v ?? 0), n === 'umsatz' ? 'Umsatz' : 'Bestellungen'] as [string | number, string]} />
                   <Bar dataKey="umsatz" radius={[3, 3, 0, 0]}>
                     {d.stunden.map((s, i) => (
                       <Cell key={i} fill={s.umsatz >= s.ziel ? '#0d9488' : '#f59e0b'} />
@@ -235,7 +235,7 @@ export function LieferdienstPhase5036StatistikenDashboardV26({ locationId }: { l
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis dataKey="tag" tick={{ fontSize: 10 }} />
                   <YAxis tick={{ fontSize: 10 }} width={38} />
-                  <Tooltip formatter={(v: number | undefined) => [`${v ?? 0} €`, 'Umsatz']} />
+                  <Tooltip formatter={(v: number | undefined) => [`${v ?? 0} €`, 'Umsatz'] as [string, string]} />
                   <Line dataKey="umsatz" stroke="#0d9488" strokeWidth={2} dot={{ r: 3, fill: '#0d9488' }} />
                 </LineChart>
               </ResponsiveContainer>
@@ -244,7 +244,7 @@ export function LieferdienstPhase5036StatistikenDashboardV26({ locationId }: { l
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={d.velocity} barGap={2}>
                   <XAxis dataKey="label" tick={{ fontSize: 10 }} />
-                  <Tooltip formatter={(v: number | undefined) => [`${v ?? 0} €/h`, 'Velocity']} />
+                  <Tooltip formatter={(v: number | undefined) => [`${v ?? 0} €/h`, 'Velocity'] as [string, string]} />
                   <Bar dataKey="umsatz_pro_h" radius={[3, 3, 0, 0]}>
                     {d.velocity.map((v, i) => (
                       <Cell key={i} fill={v.umsatz_pro_h >= v.ziel ? '#8b5cf6' : '#d1d5db'} />

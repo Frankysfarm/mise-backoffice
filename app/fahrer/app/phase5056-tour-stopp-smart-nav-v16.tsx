@@ -143,7 +143,7 @@ export function FahrerPhase5056TourStoppSmartNavV16({ driverId }: { driverId?: s
             <div className="text-[10px] text-muted-foreground">Fleet-Sync</div>
           </div>
           <div className="rounded-xl border border-border bg-muted/20 p-2.5 text-center">
-            <div className="text-base font-black text-emerald-600">{d.trinkgeld_ist !== undefined ? d.trinkgeld_gesamt.toFixed(2) : '—'} €</div>
+            <div className="text-base font-black text-emerald-600">{d.trinkgeld_gesamt !== undefined ? d.trinkgeld_gesamt.toFixed(2) : '—'} €</div>
             <div className="text-[10px] text-muted-foreground">Trinkgeld</div>
           </div>
           <div className="rounded-xl border border-border bg-muted/20 p-2.5 text-center">
