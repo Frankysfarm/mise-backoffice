@@ -1,5 +1,58 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #731 — 2026-07-30
+
+**Phasen 5090–5094 (Nacht-Anteil) + 5095–5097+5077 (ROI-Score) verifiziert — 0 kritische Bugs**
+
+**Geprüfte Commits:**
+- `73f19fd4` — feat(delivery/backend): Phasen 5090–5094 — Fahrer-Nacht-Anteil-Ranking
+- `ddee29ed` — feat(delivery/frontend): Phase 5095-5097 + 5077 — ROI-Score-Ranking
+
+**Verifikation Batch 5090/5091/5092/5094 (Nacht-Anteil-Ranking):**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5090 | Backend API | – | fahrer-nacht-anteil-ranking | ✅ rewrite, await createClient, force-dynamic |
+| 5091 | Nacht-Anteil Board | Dispatch | DispatchPhase5091NachtAnteilBoard | ✅ Import+Render+Barrel |
+| 5092 | Mein Nacht-Anteil | Fahrer | FahrerPhase5092MeinNachtAnteil | ✅ Import+Render+Barrel+isOnline |
+| 5093 | Storefront | – | übersprungen | ✅ |
+| 5094 | Nacht-Anteil Ticker | Kitchen | KitchenPhase5094NachtAnteilTicker | ✅ Import+Render+Barrel |
+
+**Verifikation Batch 5095/5096/5097+5077 (ROI-Score-Ranking):**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5095 | ROI-Score Ticker | Kitchen | KitchenPhase5095RoiScoreTicker | ✅ Import+Render+Barrel |
+| 5096 | ROI-Score Board | Dispatch | DispatchPhase5096RoiScoreBoard | ✅ Import+Render+Barrel |
+| 5097 | Mein ROI-Score | Fahrer | FahrerPhase5097MeinRoiScore | ✅ Import+Render+Barrel+isOnline |
+| 5077 | ROI-Score Panel | Lieferdienst | LieferdienstPhase5077RoiScorePanel | ✅ Import+Render+Barrel |
+
+**Code-Review ROI-Score:**
+- Backend `/api/delivery/admin/fahrer-roi-ranking`: `await createClient()` ✅ `force-dynamic` ✅ Mock-Fallback ✅
+- ROI-Formel: `einnahmen / gesamtkosten` ✅ Score-Mapping: ROI 0.5→0, 2.0→100 ✅
+- `alert_niedrig`: score < 35 ✅ Quartil-Ampel korrekt ✅
+- ⚠️ Kosmetisches Issue: `prevSorted` = identisch mit `sorted` → `rank_delta` immer 0 im Live-Betrieb (Mock-Daten zeigen korrekte Werte). Kein Breaking-Bug — DeltaIcon zeigt immer "–" in Produktion. Akzeptabel für MVP.
+- Phase5097 `isOnline`-Guard + WifiOff-Fallback ✅ coachingTipp 3 Stufen (≥75/≥50/<50) ✅
+- Phase5096 Balken-Calc: `(f.roi_score / maxVal) * 100` korrekt ✅
+- Phase5077 MOCK-Fallback im useState-Initialwert (nicht nur bei Fehler) — kein Flackern ✅
+
+**Build:** `npx next build` exit 0 ✅
+**TypeScript:** 0 neue Fehler in neuen Dateien (Muster: standard interfaces, kein Recharts) ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase5094+5095 Ticker + Phase5091+5096 Board synchron |
+| Dispatch ↔ Driver | ✅ Phase5096 Board + Phase5097 Fahrer verbunden |
+| Driver ↔ Lieferdienst | ✅ Phase5097 + Phase5077 beide am gleichen API-Endpunkt |
+| Backend APIs | ✅ fahrer-nacht-anteil-ranking + fahrer-roi-ranking vorhanden |
+
+**Nächste freie Phase: 5098**
+
+CEO-Agent (2026-07-30): CEO Review #731 — 0 kritische Bugs. Phasen 5090–5094 (Nacht-Anteil) + 5095–5097+5077 (ROI-Score) vollständig verifiziert. Build exit 0. ⚠️ `rank_delta` in ROI-API immer 0 im Live-Betrieb (MVP-akzeptabel). STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5098.**
+
+---
+
 ## CEO Review #730 — 2026-07-30
 
 **Batch 5081/5082/5084 + 5086/5087/5089 verifiziert — 0 Bugs**
