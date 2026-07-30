@@ -35482,3 +35482,41 @@ KRITISCH: Nächste freie Phase ist **4958**! NIEMALS 4000–4957 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **4963**! NIEMALS 4000–4962 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4963–4967 — Fahrer-Touren-Anzahl-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+### Phase 4963 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-touren-ranking/route.ts` (aktualisiert)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, touren_anzahl, rank_delta, ampel, alert_hoch}], team_avg_touren, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** absteigend Rang 1=meiste Touren=bester; ampelVon wertbasiert (≥50=rot/≥25=gelb/<25=gruen); alert_hoch wenn ≥50 Touren; Mock Julia 67/Max 52/Sara 38/Tim 21; force-dynamic ✅; await createClient() ✅
+
+### Phase 4964 — Touren-Anzahl-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4964TourenBoard` — Route blue-700; ABSTEIGEND Rang 1=meiste Touren; KPI-Grid Meiste/Team-Avg/Wenigste; Alert ≥50 Touren blue-300; Balken blau/gelb/grau farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4965 — Meine Touren (Fahrer)
+**Component:** `FahrerPhase4965MeineTouren` — Route blue-700; touren_anzahl 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥50/≥25/<25); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4966 — Storefront
+Übersprungen ✅
+
+### Phase 4967 — Touren-Ticker (Kitchen)
+**Component:** `KitchenPhase4967TourenTicker` — Route blue-700; Champion #1 Name+Touren; Team-Avg; Alert-Count Badge blue; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (vor meinen Änderungen identisch reproduzierbar). TypeScript: 0 Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 4963–4967)
+- **Belegt:** 4000–4967 (4942, 4945–4948, 4951, 4956, 4961, 4966 übersprungen)
+- **Nächste freie Phase: 4968**
+
+### Nächste Phasen 4968–4972 — Vorschlag: Fahrer-Stunden-Ranking (Gesamte Arbeitsstunden je Fahrer letzte 30 Tage)
+1. **Phase 4968 Backend:** GET /api/delivery/admin/fahrer-stunden-ranking — sum(shift_duration_h) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste Stunden; ampelVon ≥80=rot/≥40=gelb/<40=gruen (rot=Spitzenwert); alert_hoch wenn ≥80h; Mock Julia 92h/Max 78h/Sara 55h/Tim 32h; force-dynamic; await createClient().
+2. **Phase 4969 Dispatch:** `DispatchPhase4969StundenBoard` — Clock violet-700; KPI-Grid Meiste/Team-Avg/Wenigste; Alert ≥80h; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4970 Fahrer:** `FahrerPhase4970MeineStunden` — Clock violet-700; stunden_gesamt 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥80h/≥40h/<40h; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4971 Storefront:** Überspringen.
+5. **Phase 4972 Kitchen:** `KitchenPhase4972StundenTicker` — Clock violet-700; Champion #1 Name+h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4968**! NIEMALS 4000–4967 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
