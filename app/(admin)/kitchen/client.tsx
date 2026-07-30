@@ -1279,6 +1279,7 @@ import { KitchenPhase5061ReaktionszeitTicker } from './phase5061-reaktionszeit-t
 import { KitchenPhase5062SmartTimingCountdownV35 } from './phase5062-smart-timing-countdown-v35';
 import { KitchenPhase5067SchichtAuslastungsTicker } from './phase5067-schicht-auslastungs-ticker';
 import { KitchenPhase5072SchichtPuenktlichkeitsTicker } from './phase5072-schicht-puenktlichkeits-ticker';
+import { KitchenPhase5075SmartTimingDeliveryHub } from './phase5075-smart-timing-delivery-hub';
 import { KitchenPhase5080LieferzeitVarianzTicker } from './phase5080-lieferzeit-varianz-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
@@ -5018,6 +5019,8 @@ export function KitchenBoard({
       <KitchenPhase5067SchichtAuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5072: Schicht-Pünktlichkeits-Ticker — Clock green-700; Höchste #1 Name+%; Team-Avg; Alert <80%; 30-Min-Polling */}
       <KitchenPhase5072SchichtPuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5075: Smart-Timing Delivery Hub — Echtzeit-Countdown je Bestellung; 4-stufige Farbkodierung; KPI-Grid; Score-Badge; 15-Sek-Polling */}
+      <KitchenPhase5075SmartTimingDeliveryHub locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5080: Lieferzeit-Varianz-Ticker — BarChart2 indigo; Konsistenteste #1 Name+±min; Team-Avg ±min; Alert >15min; 30-Min-Polling */}
       <KitchenPhase5080LieferzeitVarianzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
