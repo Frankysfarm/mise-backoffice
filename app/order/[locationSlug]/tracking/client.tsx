@@ -13,6 +13,7 @@ import { LiveDriverKarte } from '../live-driver-karte';
 import { LiveFahrerAnnaeherung } from '../live-fahrer-annaeherung';
 import { Phase4460DynamischeEtaLivePanel } from '../phase4460-dynamische-eta-live-panel';
 import { Phase1000DynamischeEtaLiveTrackingPro } from '../phase1000-dynamische-eta-live-tracking-pro';
+import { Phase4480DynamischeEtaLiveTrackingV7 } from '../phase4480-dynamische-eta-live-tracking-v7';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 
@@ -410,6 +411,8 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
           initialStatus={order.status as 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'cancelled'}
           driverName={order.driver_name}
         />
+        {/* Phase 4480: Dynamische ETA Live-Tracking V7 — 5-Schritt-Timeline; ETA-Fenster; Küchen-Fortschritt; 30-Sek-Polling */}
+        <Phase4480DynamischeEtaLiveTrackingV7 orderId={order.id} />
 
         {/* Order summary */}
         <div className="bg-white rounded-2xl border border-matcha-100 p-4 shadow-sm">

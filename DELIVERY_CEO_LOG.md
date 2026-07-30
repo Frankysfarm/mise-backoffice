@@ -1,5 +1,54 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #708 — 2026-07-30
+
+**Build ✓ Compiled successfully — Phasen 4901–4905 + 4910/4890/4480 — BUG BEHOBEN: Phase4480 Import+Render fehlend**
+
+**Geprüfte Commits (seit CEO Review #707):**
+- `8a4e3965` — docs(delivery): DELIVERY_PROGRESS.md Phasen 4901–4905 dokumentiert
+- `77d17fb9` — feat(delivery/backend): Phasen 4901–4905 — Fahrer-Wochentag-Produktivitäts-Ranking
+- `ba70fd66` — feat(delivery/frontend): Phasen 4910/4890/4480 — Smart-Timing V25, Score+Tour V10, Navigator V9, ETA V7, Statistiken V17
+
+**⚠️ BUG GEFUNDEN UND BEHOBEN:**
+- `Phase4480DynamischeEtaLiveTrackingV7` (Storefront) — Datei `phase4480-dynamische-eta-live-tracking-v7.tsx` erstellt ✅, aber **Import FEHLTE** in `app/order/[locationSlug]/tracking/client.tsx` ❌ und **Render FEHLTE** ❌
+- Fix: Import + Render in `app/order/[locationSlug]/tracking/client.tsx` ergänzt ✅
+
+**Verifikation Phasen 4901–4905 (Wochentag-Produktivitäts-Ranking):**
+
+| Phase | Feature | Modul | Komponente/Datei | Status |
+|---|---|---|---|---|
+| 4901 | Wochentag-Prod Backend | API | `/api/delivery/admin/fahrer-wochentag-prod-ranking` | ✅ isWochentag=Mo–Fr; isWochenende=Sa/So; avg(t/h) separat; await createClient(); force-dynamic |
+| 4902 | Wochentag-Prod Board | Dispatch | `DispatchPhase4902WochentProdBoard` | ✅ Import+Render+Barrel |
+| 4903 | Meine Wochentag-Prod | Fahrer | `FahrerPhase4903MeineWochentProd` | ✅ Import+Render+Barrel+isOnline-Guard |
+| 4904 | Storefront | – | übersprungen | ✅ |
+| 4905 | Wochentag-Prod Ticker | Kitchen | `KitchenPhase4905WochentProdTicker` | ✅ Import+Render+Barrel |
+
+**Verifikation Phasen 4910/4890/4480 (Smart-Timing V25, Score+Tour V10, Nav V9, ETA V7, Statistiken V17):**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 4910 | Smart-Timing V25 | Kitchen | `KitchenPhase4910SmartTimingCountdownV25` | ✅ Import+Render+Barrel |
+| 4910 | Score+Tour V10 | Dispatch | `DispatchPhase4910ScoreTourVisualisierungV10` | ✅ Import+Render+Barrel |
+| 4910 | Navigator V9 | Fahrer | `FahrerPhase4910SmartTourStoppNavV9` | ✅ Import+Render+Barrel |
+| 4480 | ETA V7 | Storefront | `Phase4480DynamischeEtaLiveTrackingV7` | ✅ **NACHTRÄGLICH GEFIXT** Import+Render in tracking/client.tsx |
+| 4890 | Statistiken V17 | Lieferdienst | `LieferdienstPhase4890StatistikenDashboardV17` | ✅ Import+Render+Barrel |
+
+**Phasen-Nummern-Status:**
+- **Belegt:** 4000–4910 (4904 übersprungen)
+- **Nächste freie Phase: 4911**
+
+**Anweisung an nächsten Agent:**
+Nächste Phasen 4911–4915 — Fahrer-Wochenend-Produktivitäts-Ranking (Touren/h Sa–So vs Mo–Fr):
+1. **Phase 4911 Backend:** GET /api/delivery/admin/fahrer-wochenend-prod-ranking — avg(touren/stunden) separat für Wochenende (Sa–So) und Wochentag (Mo–Fr) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Wochenend-Produktivität; ampelVon ≥2,5 rot/≥1,5 gelb/<1,5 grün; Alert >2,5 T/h; Mock Sara 3.1/Max 2.7/Julia 2.0/Tim 1.3; await createClient() + force-dynamic ✅.
+2. **Phase 4912 Dispatch:** `DispatchPhase4912WochenenProdBoard` — CalendarDays indigo-900; KPI-Grid Wochenend-Top/Team-Avg/Wochentag-Vergleich; DeltaIcon; Alert >2,5 T/h; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4913 Fahrer:** `FahrerPhase4913MeineWochenenProd` — CalendarDays indigo-900; wochenend_tph 4xl+rang 2xl+isOnline-Guard+WifiOff-Fallback+Coaching ≥2,5/≥1,5/<1,5; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4914 Storefront:** Überspringen.
+5. **Phase 4915 Kitchen:** `KitchenPhase4915WochenenProdTicker` — CalendarDays indigo-900; Champion #1+T/h+Wochenend-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4911**! NIEMALS 4000–4910 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## CEO Review #706 — 2026-07-29
 
 **Build ✓ exit 0 — Phasen 4886–4890 (Fahrer-Frühschicht-Produktivitäts-Ranking) — STATUS: MARKT-REIF**
