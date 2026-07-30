@@ -1332,6 +1332,8 @@ import { DispatchPhase5035ScoreTourVisualisierungV15 } from './phase5035-score-t
 import { DispatchPhase5036ScoreTourVisualisierungV16 } from './phase5036-score-tour-visualisierung-v16';
 import { DispatchPhase5056ScoreTourVisualisierungV17 } from './phase5056-score-tour-visualisierung-v17';
 import { DispatchPhase5058ReaktionszeitBoard } from './phase5058-reaktionszeit-board';
+import { DispatchPhase5062ScoreTourVisualisierungV18 } from './phase5062-score-tour-visualisierung-v18';
+import { DispatchPhase5064SchichtAuslastungsBoard } from './phase5064-schicht-auslastungs-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5420,6 +5422,10 @@ export function DispatchBoard({
           <DispatchPhase5056ScoreTourVisualisierungV17 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5058: Reaktionszeit Board — Timer violet; Rang 1=schnellste Reaktion; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert >10min; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5058ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5062: Score-Tour-Visualisierung V18 — Schicht-Auslastung Fleet-Metrik; Zone Rentabilität%; Fahrer Auslastung-Bar; Shield emerald; 20s-Polling */}
+          <DispatchPhase5062ScoreTourVisualisierungV18 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5064: Schicht-Auslastungs-Board — Activity emerald; 3-KPI Höchste/Team-Ø/Niedrigste; Rang-Balken farbkodiert; DeltaIcon; Alert; 30-Min-Polling */}
+          <DispatchPhase5064SchichtAuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
@@ -14258,3 +14264,7 @@ export { DispatchPhase5036ScoreTourVisualisierungV16 } from './phase5036-score-t
 export { DispatchPhase5056ScoreTourVisualisierungV17 } from './phase5056-score-tour-visualisierung-v17';
 // Phase 5058 — Reaktionszeit Board (Timer violet; Rang 1=schnellste Reaktion=bester; KPI-Grid Schnellste/Team-Avg/Langsamste; Alert >10min rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5058ReaktionszeitBoard } from './phase5058-reaktionszeit-board';
+// Phase 5062 — Score-Tour-Visualisierung V18 (4-Fleet-Metriken inkl. Schicht-Auslastung Shield emerald; Zone-Rentabilität%; Fahrer-Auslastung-Activity-Bar; 20s-Polling; Mock-Fallback)
+export { DispatchPhase5062ScoreTourVisualisierungV18 } from './phase5062-score-tour-visualisierung-v18';
+// Phase 5064 — Schicht-Auslastungs-Board (Activity emerald; 3-KPI Höchste/Team-Ø/Niedrigste; Rang-Balken emerald/yellow/red; DeltaIcon; Alert-Bottom; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5064SchichtAuslastungsBoard } from './phase5064-schicht-auslastungs-board';

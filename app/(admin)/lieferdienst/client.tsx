@@ -516,6 +516,7 @@ import { LieferdienstPhase5030StatistikenDashboardV24 } from './phase5030-statis
 import { LieferdienstPhase5035StatistikenDashboardV25 } from './phase5035-statistiken-dashboard-v25';
 import { LieferdienstPhase5036StatistikenDashboardV26 } from './phase5036-statistiken-dashboard-v26';
 import { LieferdienstPhase5056StatistikenDashboardV27 } from './phase5056-statistiken-dashboard-v27';
+import { LieferdienstPhase5062StatistikenDashboardV28 } from './phase5062-statistiken-dashboard-v28';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2428,6 +2429,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5030StatistikenDashboardV24 locationId={locationId ?? null} />
                 {/* Phase 5056: Statistiken-Dashboard V27 — Storno-Trend 7-Tage; SLA-Verlauf; Fahrer-Vergleich-Matrix; Kunden-Treue-Rate; Profit-Margin; Top-3-Stunden; 45-Sek-Polling */}
                 <LieferdienstPhase5056StatistikenDashboardV27 locationId={locationId ?? null} />
+                {/* Phase 5062: Statistiken-Dashboard V28 — Schicht-Auslastung Shield+%; Auslastungs-Verlauf LineChart; Woche-Tab Auslastung%; Zonen-Tab ROI%; teal-Header; 45-Sek-Polling */}
+                <LieferdienstPhase5062StatistikenDashboardV28 locationId={locationId ?? null} />
                 {/* Phase 5036: Statistiken-Dashboard V26 — Revenue-Velocity; Storno-Analyse; Profit-KPI; Velocity-Chart; Zonen-SLA; 45-Sek-Polling */}
                 <LieferdienstPhase5036StatistikenDashboardV26 locationId={locationId ?? null} />
                 {/* Phase 5035: Statistiken-Dashboard V25 — Monatsziel-Fortschritt; 8-KPI-Grid; Stunden/Woche-Chart; Top-Fahrer; Zonen-SLA; 30-Sek-Polling */}
@@ -5130,3 +5133,5 @@ export { LieferdienstPhase5036StatistikenDashboardV26 } from './phase5036-statis
 
 // Phase 5056 — Statistiken Dashboard V27 (BarChart3 teal; Storno-Trend-7-Tage LineChart; SLA-Verlauf-Sparkline; Fahrer-Vergleich-Matrix; Top-3-Stunden-Umsatz; Kunden-Treue-Rate; Profit-Margin+Delta; 45-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5056StatistikenDashboardV27 } from './phase5056-statistiken-dashboard-v27';
+// Phase 5062 — Statistiken Dashboard V28 (Schicht-Auslastung-Shield+%; Auslastungs-Verlauf-LineChart; Woche-Tab-Auslastung%; Zonen-Tab-ROI%; teal-700-Header; 8-KPI-Grid; 45-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5062StatistikenDashboardV28 } from './phase5062-statistiken-dashboard-v28';

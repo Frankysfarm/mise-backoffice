@@ -1276,6 +1276,8 @@ import { KitchenPhase5035SmartTimingCountdownV32 } from './phase5035-smart-timin
 import { KitchenPhase5036SmartTimingCountdownV33 } from './phase5036-smart-timing-countdown-v33';
 import { KitchenPhase5056SmartTimingCountdownV34 } from './phase5056-smart-timing-countdown-v34';
 import { KitchenPhase5061ReaktionszeitTicker } from './phase5061-reaktionszeit-ticker';
+import { KitchenPhase5062SmartTimingCountdownV35 } from './phase5062-smart-timing-countdown-v35';
+import { KitchenPhase5067SchichtAuslastungsTicker } from './phase5067-schicht-auslastungs-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -5008,6 +5010,10 @@ export function KitchenBoard({
       <KitchenPhase5056SmartTimingCountdownV34 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5061: Reaktionszeit-Ticker — Timer violet; Schnellste #1 Name+min; Team-Avg; Alert >10min; 30-Min-Polling */}
       <KitchenPhase5061ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5062: Smart-Timing Countdown V35 — Schicht-Auslastungs-KPI; Fahrer-Sync-Warnung; 6-KPI-Grid; Temp-Verlauf; 15s-Polling */}
+      <KitchenPhase5062SmartTimingCountdownV35 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5067: Schicht-Auslastungs-Ticker — Activity emerald; Höchste #1; Team-Avg; Alert; 30-Min-Polling */}
+      <KitchenPhase5067SchichtAuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
       <KitchenPhase5036SmartTimingCountdownV33 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5035: Smart-Timing Countdown V32 — Farbkodierung rot<5min/gelb<10min/grün; Batch-Koordination; Prio-Ampel; 15s-Polling */}
@@ -12834,3 +12840,7 @@ export { KitchenPhase5036SmartTimingCountdownV33 } from './phase5036-smart-timin
 export { KitchenPhase5056SmartTimingCountdownV34 } from './phase5056-smart-timing-countdown-v34';
 // Phase 5061 — Reaktionszeit-Ticker (Timer violet; Schnellste #1 Name+min; Team-Avg; Alert >10min rot; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5061ReaktionszeitTicker } from './phase5061-reaktionszeit-ticker';
+// Phase 5062 — Smart-Timing Countdown V35 (6-KPI-Grid inkl. Auslastung+Effizienz; Temp-Verlauf-Bars; Fahrer-Sync-Warnung; 15s-Polling; Mock-Fallback)
+export { KitchenPhase5062SmartTimingCountdownV35 } from './phase5062-smart-timing-countdown-v35';
+// Phase 5067 — Schicht-Auslastungs-Ticker (Activity emerald; Höchste #1 Name+%; Team-Ø; Alert-Count; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5067SchichtAuslastungsTicker } from './phase5067-schicht-auslastungs-ticker';
