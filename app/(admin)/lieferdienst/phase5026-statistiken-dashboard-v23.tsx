@@ -178,7 +178,7 @@ export function LieferdienstPhase5026StatistikenDashboardV23() {
                 <XAxis dataKey="stunde" tick={{ fill: '#64748b', fontSize: 9 }} axisLine={false} tickLine={false} />
                 <Tooltip
                   contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 6, fontSize: 11 }}
-                  formatter={(v: number | undefined) => `${v ?? 0}€`}
+                  formatter={(v: unknown) => `${(v as number) ?? 0}€`}
                 />
                 <Bar dataKey="ziel" fill="#1e3a2a" radius={2} />
                 <Bar dataKey="umsatz" radius={2}>
@@ -196,7 +196,7 @@ export function LieferdienstPhase5026StatistikenDashboardV23() {
                 <YAxis tick={{ fill: '#64748b', fontSize: 9 }} axisLine={false} tickLine={false} width={24} />
                 <Tooltip
                   contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: 6, fontSize: 11 }}
-                  formatter={(v: number | undefined) => [v ?? 0, 'Bestellungen'] as [number, string]}
+                  formatter={(v: unknown) => [(v as number) ?? 0, 'Bestellungen'] as [number, string]}
                 />
                 <Line type="monotone" dataKey="bestellungen" stroke="#60a5fa" strokeWidth={1.5} dot={false} />
               </LineChart>

@@ -111,7 +111,7 @@ export function KitchenPhase5076SmartTimingV36({ locationId }: Props) {
     return () => clearInterval(iv);
   }, [locationId]);
 
-  const kritisch = batches.filter(b => getAmpel(b.estimated_ready_min, b.fahrer_eta_min) === 'rot').length;
+  const kritisch = batches.filter(b => getAmpel(b.estimated_ready_min, b.fahrer_eta_min ?? null) === 'rot').length;
   const fertig = batches.filter(b => b.estimated_ready_min <= 0).length;
   const aktiv = batches.length - fertig;
 
@@ -159,7 +159,7 @@ export function KitchenPhase5076SmartTimingV36({ locationId }: Props) {
           <div className="text-center py-4 text-slate-500 text-sm">Keine aktiven Batches</div>
         ) : (
           batches.map(batch => {
-            const ampel = getAmpel(batch.estimated_ready_min, batch.fahrer_eta_min);
+            const ampel = getAmpel(batch.estimated_ready_min, batch.fahrer_eta_min ?? null);
             const styles = AMPEL_STYLES[ampel];
             return (
               <div key={batch.batch_id} className={cn('rounded-lg border p-2.5 space-y-1.5', styles.bg, 'border-white/5')}>
