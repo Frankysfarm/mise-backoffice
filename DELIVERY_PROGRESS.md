@@ -36081,3 +36081,43 @@ KRITISCH: Nächste freie Phase ist **5035**! NIEMALS 4000–5034 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5041/5042/5043/5045 — Fahrer-Pünktlichkeits-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Hinweis:** Phasen 5035–5040 bereits durch SmartTiming/TourScore/TourNav/Statistiken/ETA/Prämien belegt. Nächste freie Phasen waren 5041+. Phase 5044 = Storefront (übersprungen).
+
+### Phase 5041 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-puenktlichkeit-ranking/route.ts` (bereits vorhanden ✅)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, puenktlichkeit_pct, balken_pct, ampel, rank_delta, alert_niedrig}], team_avg_pct, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** ABSTEIGEND Rang 1=höchste Pünktlichkeit=bester; rank-basierte Ampel top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn <80%; Mock Julia 94%/Max 89%/Sara 82%/Tim 71%; force-dynamic ✅; await createClient() ✅
+
+### Phase 5042 — Pünktlichkeit Board (Dispatch)
+**Component:** `DispatchPhase5042PuenktlichkeitBoard` — Clock teal-700; ABSTEIGEND Rang 1=höchste Pünktlichkeit; KPI-Grid Pünktlichste/Team-Avg/Unzuverlässigste; Alert Niedrig rot-400; Balken teal/gelb/rot farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5043 — Meine Pünktlichkeit (Fahrer)
+**Component:** `FahrerPhase5043MeinePuenktlichkeit` — Clock teal-700; puenktlichkeit_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥90%/≥75%/<75%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5044 — Storefront
+Übersprungen ✅
+
+### Phase 5045 — Pünktlichkeit-Ticker (Kitchen)
+**Component:** `KitchenPhase5045PuenktlichkeitTicker` — Clock teal-700; Champion #1 Name+%; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (identisch wie frühere Sessions). TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5041/5042/5043/5045)
+- **Belegt:** 4000–5045 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5046**
+
+### Nächste Phasen 5046–5050 — Vorschlag: Fahrer-Stornoquote-Ranking (Anteil stornierter Bestellungen je Fahrer letzte 30 Tage)
+1. **Phase 5046 Backend:** GET /api/delivery/admin/fahrer-stornoquote-ranking — count(status='cancelled')/count(*) je Fahrer letzte 30 Tage; AUFSTEIGEND Rang 1=niedrigste Stornoquote=bester; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_hoch wenn >10%; Mock Julia 2%/Sara 5%/Max 8%/Tim 14%; force-dynamic; await createClient().
+2. **Phase 5047 Dispatch:** `DispatchPhase5047StornoquoteBoard` — XCircle orange-700; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert Hoch; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5048 Fahrer:** `FahrerPhase5048MeineStornoquote` — XCircle orange-700; stornoquote_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≤5%/≤10%/>10%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5049 Storefront:** Überspringen.
+5. **Phase 5050 Kitchen:** `KitchenPhase5050StornoquoteTicker` — XCircle orange-700; Bester #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5046**! NIEMALS 4000–5045 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
+
+## STATUS: MARKT-REIF
