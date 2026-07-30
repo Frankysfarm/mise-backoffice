@@ -12054,3 +12054,6 @@ export { FahrerPhase4985SmartTourStoppNavV11 } from './phase4985-smart-tour-stop
 
 // Phase 5000 — Smart-Tour-Stopp-Navigator V11b (Navigation2 blue; Dual-Fortschrittsbalken Stopps+km; Verdienst+Trinkgeld+Schicht-Strip; Hero-Karte Aktiv-Stopp Google-Deeplink+Anruf; Notiz-Alert gelb; Anweisungen; Zahlart-Badge bar/karte/online; Ausstehende Stopps aufklappbar+Navi-Link; Fertige Stopps kompakt; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5000SmartTourStoppNavV11 } from './phase5000-smart-tour-stopp-nav-v11';
+
+// Phase 5022 — Smart-Tour-Stopp-Navigator V12 (Navigation2 blue; Dreifach-Fortschrittsbalken Stopps+km+Schicht-Ziel; Hero-Karte Aktiv-Stopp Google+Waze-Deeplinks+Anruf; Notiz-Alert gelb; Etage+Türcode-Badges; Zahlart-Badge bar/karte/online+Betrag; Geliefert-Bestätigen-Button; Offline-Safe; Bewertungs-Star nach Lieferung; Ausstehende Stopps aufklappbar Navi-Vorschau; Verspätete Stopps rot+pulse; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';

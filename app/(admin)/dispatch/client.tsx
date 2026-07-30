@@ -14182,3 +14182,6 @@ export { DispatchPhase4985ScoreTourVisualisierungV13 } from './phase4985-score-t
 
 // Phase 5000 — Tour-Score-Visualisierung V2 (Route violet; Fleet-Score+Delta; Stunden-Score-BarChart farbkodiert; Tour-Karten aufklappbar Fahrer+Score+Pünktl+Zeit+Umsatz; Stopp-Details geliefert/aktiv/ausstehend/verspaetet; Google-Maps Deeplink; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5000TourScoreVisualisierungV2 } from './phase5000-tour-score-visualisierung-v2';
+
+// Phase 5005 — Tour-Score-Visualisierung V3 (Trophy violet; Fleet-Score+Delta+TrendIcon; CO₂-Banner lime Schicht-Gesamt+Ziel-Balken; Score-BarChart stundlich farbkodiert grün/gelb/rot; Tab-Nav Fahrer/Zonen; Fahrer-Karten tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+CO₂/kg; Stopp-Fortschrittsbalken; Zonen-Matrix SLA%+Avg+Umsatz+CO₂+Balken; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5005TourScoreVisualisierungV3 } from './phase5005-tour-score-visualisierung-v3';
