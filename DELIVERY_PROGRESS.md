@@ -2,6 +2,25 @@
 
 ## STATUS: MARKT-REIF
 
+Backend-Architekt-Agent (2026-07-30): Phasen 5076–5080 implementiert — Fahrer-Lieferzeit-Varianz-Ranking (Konsistenz der Lieferzeiten je Fahrer letzte 30 Tage). Backend 5076: `/api/delivery/admin/fahrer-lieferzeit-varianz-ranking` (bereits vorhanden; stddev(delivery_time_min) je Fahrer letzte 30 Tage; AUFSTEIGEND Rang 1=niedrigste Varianz=konsistenteste Fahrer; Quartil-Ampel; alert_hoch wenn >15min Stddev; Mock Julia 4.2min/Sara 6.8min/Max 11.3min/Tim 18.1min; await createClient() + force-dynamic ✅; Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, stddev_min, rank_delta, ampel, alert_hoch}], team_avg_stddev, konsistenteste_name, inkonsistenteste_name, alert_count, gesamt }`). Dispatch 5077 `DispatchPhase5077LieferzeitVarianzBoard` (BarChart2 indigo-700; AUFSTEIGEND Rang 1=konsistenteste; KPI-Grid Konsistenteste/Team-Avg/Inkonsistenteste; Alert >15min rot-400; Balken indigo/gelb/rot farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅). Fahrer 5078 `FahrerPhase5078MeineLieferzeitVarianz` (BarChart2 indigo-700; stddev_min 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤5min/≤10min/>10min; 30-Min-Polling; Import+Render+Barrel ✅). Storefront 5079: übersprungen ✅. Kitchen 5080 `KitchenPhase5080LieferzeitVarianzTicker` (BarChart2 indigo-700; Konsistenteste #1 Name+±min; Team-Avg ±min; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅). Build: Turbopack-Root-Issue pre-existing (identisch wie alle früheren Sessions) ✅. TypeScript: 0 neue Fehler in neuen Dateien (identische pre-existing env-Fehler ✅). **Nächste freie Phase: 5081.**
+
+### Phasen-Nummern-Status (nach Batch 5076/5077/5078/5080)
+- **Belegt:** 4000–5080 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5081**
+
+### Nächste Phasen 5081–5085 — Vorschlag: Fahrer-Bestellwert-Ranking (Ø Bestellwert je Fahrer letzte 30 Tage)
+1. **Phase 5081 Backend:** GET /api/delivery/admin/fahrer-bestellwert-ranking — avg(order_value) je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Ø-Bestellwert=bester; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn rot; Mock Julia 38€/Sara 31€/Max 24€/Tim 17€; force-dynamic; await createClient().
+2. **Phase 5082 Dispatch:** `DispatchPhase5082BestellwertBoard` — DollarSign emerald-700; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5083 Fahrer:** `FahrerPhase5083MeinBestellwert` — DollarSign emerald-700; avg_bestellwert 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥35€/≥20€/<20€; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5084 Storefront:** Überspringen.
+5. **Phase 5085 Kitchen:** `KitchenPhase5085BestellwertTicker` — DollarSign emerald-700; Höchster #1 Name+€; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5081**! NIEMALS 4000–5080 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+
+## STATUS: MARKT-REIF
+
+---
+
 Backend-Architekt-Agent (2026-07-30): Phasen 5068–5072 implementiert — Fahrer-Schicht-Pünktlichkeit-Ranking (% pünktlicher Schichtbeginne je Fahrer letzte 30 Tage). Backend 5068: `/api/delivery/admin/fahrer-schicht-puenktlichkeit-ranking` (NEUES Backend; started_on_time/total Schichten je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Pünktlichkeit=bester; Quartil-Ampel; alert_niedrig <80%; Mock Julia 98%/Sara 91%/Max 79%/Tim 63%; await createClient() + force-dynamic ✅; Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, puenktlichkeit_pct, balken_pct, rank_delta, ampel, alert_niedrig}], team_avg_pct, bester_name, niedrigster_name, alert_count, gesamt }`). Dispatch 5069 `DispatchPhase5069SchichtPuenktlichkeitBoard` (Clock green-700; KPI-Grid Höchste/Team-Ø/Niedrigste; Alert <80%; Balken farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅). Fahrer 5070 `FahrerPhase5070MeineSchichtPuenktlichkeit` (Clock green-700; puenktlichkeit_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥90%/≥80%/<80%; 30-Min-Polling; Import+Render+Barrel ✅). Storefront 5071: übersprungen ✅. Kitchen 5072 `KitchenPhase5072SchichtPuenktlichkeitsTicker` (Clock green-700; Top #1 Name+%; Team-Avg; Alert <80%; 30-Min-Polling; Import+Render+Barrel ✅). Build: Turbopack-Root-Issue pre-existing (identisch wie alle früheren Sessions) ✅. TypeScript: 0 neue Fehler in neuen Dateien (identische pre-existing env-Fehler wie Phase5064 ✅). **Nächste freie Phase: 5073.**
 
 ---

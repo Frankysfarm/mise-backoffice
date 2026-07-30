@@ -1335,6 +1335,7 @@ import { DispatchPhase5058ReaktionszeitBoard } from './phase5058-reaktionszeit-b
 import { DispatchPhase5062ScoreTourVisualisierungV18 } from './phase5062-score-tour-visualisierung-v18';
 import { DispatchPhase5064SchichtAuslastungsBoard } from './phase5064-schicht-auslastungs-board';
 import { DispatchPhase5069SchichtPuenktlichkeitBoard } from './phase5069-schicht-puenktlichkeit-board';
+import { DispatchPhase5077LieferzeitVarianzBoard } from './phase5077-lieferzeit-varianz-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5429,6 +5430,8 @@ export function DispatchBoard({
           <DispatchPhase5064SchichtAuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5069: Schicht-Pünktlichkeit-Board — Clock green-700; KPI-Grid Höchste/Team-Ø/Niedrigste; Alert <80%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5069SchichtPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5077: Lieferzeit-Varianz-Board — BarChart2 indigo; AUFSTEIGEND Rang 1=niedrigste Varianz=konsistenteste; KPI-Grid Konsistenteste/Team-Avg/Inkonsistenteste; Alert >15min; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5077LieferzeitVarianzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
@@ -14276,3 +14279,6 @@ export { DispatchPhase5069SchichtPuenktlichkeitBoard } from './phase5069-schicht
 
 // Phase 5075 — Tour Score Visualisierung Hub (Route blue; Score-Arc je Tour; Fortschrittsbalken; Pünktlichkeit+Avg-Stop+Umsatz; Status aktiv/verspaetet; Fahrer-Ranking; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5075TourScoreVisualisierungHub } from './phase5075-tour-score-visualisierung-hub';
+
+// Phase 5077 — Lieferzeit-Varianz-Board (BarChart2 indigo; aufsteigend Rang 1=konsistenteste; KPI-Grid Konsistenteste/Team-Avg/Inkonsistenteste; Alert >15min; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5077LieferzeitVarianzBoard } from './phase5077-lieferzeit-varianz-board';
