@@ -1247,6 +1247,7 @@ import { KitchenPhase4930StoppEffizienzTicker } from './phase4930-stopp-effizien
 import { KitchenPhase4931FruehprodTicker } from './phase4931-fruehprod-ticker';
 import { KitchenPhase4938KmEffizienzTicker } from './phase4938-km-effizienz-ticker';
 import { KitchenPhase4936SmartTimingCountdownV26 } from './phase4936-smart-timing-countdown-v26';
+import { KitchenPhase5005SmartTimingCountdownV29 } from './phase5005-smart-timing-countdown-v29';
 import { KitchenPhase4943UmsatzKmTicker } from './phase4943-umsatz-km-ticker';
 import { KitchenPhase4952PuenktlichkeitTicker } from './phase4952-puenktlichkeit-ticker';
 import { KitchenPhase4957BewertungsTicker } from './phase4957-bewertungs-ticker';
@@ -4976,6 +4977,8 @@ export function KitchenBoard({
       <KitchenPhase5014UmsatzProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5019: km-Ticker — Map indigo; Effizienteste #1 Name+km; Team-Avg; Alert ≥15km; 30-Min-Polling */}
       <KitchenPhase5019KilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5005: Smart-Timing Countdown V29 — Tab-Nav Orders/Batches; 6-KPI-Grid inkl. Batch-Effizienz; Rentabilitäts-Badge; Station-Labels; Batch-Koordination mit Fahrer; 1s-Tick+15s-Polling */}
+      <KitchenPhase5005SmartTimingCountdownV29 />
       {/* Phase 4936: Smart-Timing Countdown V26 — Hitze-Cockpit Stations-Auslastungs-Heatmap; Kochzeit-Trend je Order; 9-stufige Ampel; 1s-Tick+15s-Polling */}
       <KitchenPhase4936SmartTimingCountdownV26 />
       {/* Phase 4855: Smart-Timing Countdown V20 — ChefHat indigo; 9-stufige Ampel super-kritisch→fertig; KI-Kochstart-Empfehlung je Bestellung+gesamt; Stations-Auslastungsbalken; Effizienz-Anzeige; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}

@@ -1239,6 +1239,7 @@ import { FahrerPhase5002MeineStorno } from './phase5002-meine-storno';
 import { FahrerPhase5007MeineWartezeit } from './phase5007-meine-wartezeit';
 import { FahrerPhase5012MeinUmsatzProStunde } from './phase5012-mein-umsatz-pro-stunde';
 import { FahrerPhase5017MeineKilometer } from './phase5017-meine-kilometer';
+import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 import { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
 import { FahrerPhase4848MeineTourStopsLive } from './phase4848-meine-tour-stops-live';
@@ -7538,6 +7539,8 @@ export function FahrerApp({
           <FahrerPhase5012MeinUmsatzProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5017: Meine Kilometer — Map indigo; avg_km 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤8km/≤15km/>15km; 30-Min-Polling */}
           <FahrerPhase5017MeineKilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5022: Smart-Tour-Stopp-Navigator V12 — Dreifach-Fortschrittsbalken Stopps+km+Schicht-Ziel; Google+Waze-Deeplinks; Offline-Safe; Geliefert-Button; Zahlart-Badges; 20-Sek-Polling */}
+          <FahrerPhase5022SmartTourStoppNavV12 />
           {/* Phase 4938: Smart-Tour-Stopp-Navigator V10 — Wetter-aware Routing; Verkehrslage je Stopp; Google/Waze-Deeplinks; Schicht-Ziel-Fortschrittsbalken; Verdienst+Trinkgeld-Strip; 20-Sek-Polling */}
           <FahrerPhase4938SmartTourStoppNavV10 />
           {/* Phase 4898: Smart-Tour-Stopp-Navigator V8 — Navigation2 blue; Tempo-Profil schnell/normal/stau; Geschätzte-Ankunft-Zeit; Dual-Fortschrittsbalken; Verdienst+Trinkgeld Strip; Routen-Effizienz-%; 20-Sek-Polling; Mock-Fallback */}

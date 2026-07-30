@@ -510,6 +510,7 @@ import { LieferdienstPhase4885StatistikenDashboardV16 } from './phase4885-statis
 import { LieferdienstPhase4890StatistikenDashboardV17 } from './phase4890-statistiken-dashboard-v17';
 import { LieferdienstPhase4895StatistikenDashboardV18 } from './phase4895-statistiken-dashboard-v18';
 import { LieferdienstPhase4936StatistikenDashboardV19 } from './phase4936-statistiken-dashboard-v19';
+import { LieferdienstPhase5005StatistikenDashboardV22 } from './phase5005-statistiken-dashboard-v22';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2418,6 +2419,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4885StatistikenDashboardV16 locationId={locationId ?? null} />
                 {/* Phase 4890: Statistiken-Dashboard V17 — 6-KPI-Grid Trend+Ziel; Stunden-BarChart Pünktlichkeit-Farbe; Pünktlichkeits-LineChart; Zonen-Performance-Tabelle; 60-Sek-Polling; Mock-Fallback */}
                 <LieferdienstPhase4890StatistikenDashboardV17 />
+                {/* Phase 5005: Statistiken-Dashboard V22 — CO₂-Tracking; 8-KPI-Grid; Wochenvergleich LineChart; Schichtvergleich 3-Kacheln; Top-3-Fahrer; 60-Sek-Polling */}
+                <LieferdienstPhase5005StatistikenDashboardV22 />
                 {/* Phase 4936: Statistiken-Dashboard V19 — Zonen-Effizienz-Matrix SLA+Avg+Umsatz+Marge%; 3-Modi-Stundenverlauf; Top-3-Fahrer; 60-Sek-Polling */}
                 <LieferdienstPhase4936StatistikenDashboardV19 />
               </>

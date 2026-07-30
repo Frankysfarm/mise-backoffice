@@ -1303,6 +1303,7 @@ import { DispatchPhase4927StoppEffizienzBoard } from './phase4927-stopp-effizien
 import { DispatchPhase4932FruehprodBoard } from './phase4932-fruehprod-board';
 import { DispatchPhase4935KmEffizienzBoard } from './phase4935-km-effizienz-board';
 import { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-tour-visualisierung-v11';
+import { DispatchPhase5005TourScoreVisualisierungV3 } from './phase5005-tour-score-visualisierung-v3';
 import { DispatchPhase4940UmsatzKmBoard } from './phase4940-umsatz-km-board';
 import { DispatchPhase4949PuenktlichkeitBoard } from './phase4949-puenktlichkeit-board';
 import { DispatchPhase4954BewertungsBoard } from './phase4954-bewertungs-board';
@@ -5388,6 +5389,8 @@ export function DispatchBoard({
           <DispatchPhase5011UmsatzProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5016: km-Ranking Board — Map indigo; Rang 1=kürzeste Distanz=effizienteste; KPI-Grid Effizienteste/Team-Avg/Weiteste; Alert ≥15km; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5016KilometerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5005: Tour-Score-Visualisierung V3 — Trophy violet; Fleet-Score+Delta; CO₂-Banner; Score-BarChart stündlich; Tab-Nav Fahrer/Zonen; Zonen-Matrix SLA%+Avg+Umsatz+CO₂; 20-Sek-Polling */}
+          <DispatchPhase5005TourScoreVisualisierungV3 />
           {/* Phase 4935: Score+Tour-Visualisierung V11 — Trophy; Zonen-SLA-Matrix 3 Zonen; CO₂-kg je Fahrer+Gesamt; Dual-Progress Stopps+km; Aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase4935ScoreTourVisualisierungV11 />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
