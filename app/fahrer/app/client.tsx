@@ -1221,6 +1221,7 @@ import { FahrerPhase4913MeineNachtprod } from './phase4913-meine-nachtprod';
 import { FahrerPhase4918MeineMittagsprod } from './phase4918-meine-mittagsprod';
 import { FahrerPhase4923MeineAbendprod } from './phase4923-meine-abendprod';
 import { FahrerPhase4928MeineStoppEffizienz } from './phase4928-meine-stopp-effizienz';
+import { FahrerPhase4933MeineFruehprod } from './phase4933-meine-fruehprod';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 import { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
 import { FahrerPhase4848MeineTourStopsLive } from './phase4848-meine-tour-stops-live';
@@ -11954,3 +11955,5 @@ export { FahrerPhase4913MeineNachtprod } from './phase4913-meine-nachtprod';
 export { FahrerPhase4918MeineMittagsprod } from './phase4918-meine-mittagsprod';
 export { FahrerPhase4923MeineAbendprod } from './phase4923-meine-abendprod';
 export { FahrerPhase4928MeineStoppEffizienz } from './phase4928-meine-stopp-effizienz';
+// Phase 4933 — Meine Frühschicht-Produktivität (Sunrise sky; touren_pro_std 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen ≥3,0/≥1,5/<1,5; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4933MeineFruehprod } from './phase4933-meine-fruehprod';

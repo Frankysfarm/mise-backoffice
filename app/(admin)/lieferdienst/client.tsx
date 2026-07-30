@@ -508,6 +508,7 @@ import { LieferdienstPhase4870StatistikenDashboardV14 } from './phase4870-statis
 import { LieferdienstPhase4879StatistikenDashboardV15 } from './phase4879-statistiken-dashboard-v15';
 import { LieferdienstPhase4885StatistikenDashboardV16 } from './phase4885-statistiken-dashboard-v16';
 import { LieferdienstPhase4890StatistikenDashboardV17 } from './phase4890-statistiken-dashboard-v17';
+import { LieferdienstPhase4895StatistikenDashboardV18 } from './phase4895-statistiken-dashboard-v18';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -5076,3 +5077,5 @@ export { LieferdienstPhase4885StatistikenDashboardV16 } from './phase4885-statis
 
 // Phase 4890 — Statistiken-Dashboard V17 (Activity orange; 6-KPI-Grid Bestellungen/Umsatz/Pünktlichkeit/Lieferzeit/Storno/Bewertung+Trend+Ziel; Stunden-BarChart farbkodiert; Pünktlichkeits-LineChart; Zonen-Performance-Tabelle; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase4890StatistikenDashboardV17 } from './phase4890-statistiken-dashboard-v17';
+// Phase 4895 — Statistiken-Dashboard V18 (Sunrise sky; 6-KPI-Grid Bestellungen/Umsatz/Pünktlichkeit/Lieferzeit/Storno/Bewertung+Trend+Ziel; Stunden-BarChart sky-farbkodiert; Top-3-Fahrer Score+Touren+Trinkgeld-Balken; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase4895StatistikenDashboardV18 } from './phase4895-statistiken-dashboard-v18';

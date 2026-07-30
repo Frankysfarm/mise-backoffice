@@ -1300,6 +1300,7 @@ import { DispatchPhase4912NachtprodBoard } from './phase4912-nachtprod-board';
 import { DispatchPhase4917MittagsprodBoard } from './phase4917-mittagsprod-board';
 import { DispatchPhase4922AbendprodBoard } from './phase4922-abendprod-board';
 import { DispatchPhase4927StoppEffizienzBoard } from './phase4927-stopp-effizienz-board';
+import { DispatchPhase4932FruehprodBoard } from './phase4932-fruehprod-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -14079,5 +14080,8 @@ export { DispatchPhase4912NachtprodBoard } from './phase4912-nachtprod-board';
 
 // Phase 4917 — Mittagsschicht-Produktivitäts-Ranking Board (Utensils orange-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >4,0 T/h; Balken farbkodiert grün/gelb/rot; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4917MittagsprodBoard } from './phase4917-mittagsprod-board';
+// Phase 4922 — Abendschicht-Produktivitäts-Ranking Board (Sunset orange; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >3,0 T/h; Balken farbkodiert grün/gelb/rot; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4922AbendprodBoard } from './phase4922-abendprod-board';
 export { DispatchPhase4927StoppEffizienzBoard } from './phase4927-stopp-effizienz-board';
+// Phase 4932 — Frühschicht-Produktivitäts-Ranking Board (Sunrise sky; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >3,0 T/h; Balken farbkodiert sky/gelb/grün; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4932FruehprodBoard } from './phase4932-fruehprod-board';
