@@ -1263,6 +1263,7 @@ import { KitchenPhase5004StornoTicker } from './phase5004-storno-ticker';
 import { KitchenPhase5009WartezeitTicker } from './phase5009-wartezeit-ticker';
 import { KitchenPhase5014UmsatzProStundeTicker } from './phase5014-umsatz-pro-stunde-ticker';
 import { KitchenPhase5019KilometerTicker } from './phase5019-kilometer-ticker';
+import { KitchenPhase5024BestellwertTicker } from './phase5024-bestellwert-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -4977,6 +4978,8 @@ export function KitchenBoard({
       <KitchenPhase5014UmsatzProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5019: km-Ticker — Map indigo; Effizienteste #1 Name+km; Team-Avg; Alert ≥15km; 30-Min-Polling */}
       <KitchenPhase5019KilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5024: Bestellwert-Ticker — ShoppingBag emerald; Champion #1 Name+€; Team-Avg; Alert Niedrig; 30-Min-Polling */}
+      <KitchenPhase5024BestellwertTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5005: Smart-Timing Countdown V29 — Tab-Nav Orders/Batches; 6-KPI-Grid inkl. Batch-Effizienz; Rentabilitäts-Badge; Station-Labels; Batch-Koordination mit Fahrer; 1s-Tick+15s-Polling */}
       <KitchenPhase5005SmartTimingCountdownV29 />
       {/* Phase 4936: Smart-Timing Countdown V26 — Hitze-Cockpit Stations-Auslastungs-Heatmap; Kochzeit-Trend je Order; 9-stufige Ampel; 1s-Tick+15s-Polling */}
@@ -12746,6 +12749,8 @@ export { KitchenPhase5009WartezeitTicker } from './phase5009-wartezeit-ticker';
 export { KitchenPhase5014UmsatzProStundeTicker } from './phase5014-umsatz-pro-stunde-ticker';
 // Phase 5019 — km-Ticker (Map indigo; Effizienteste #1 Name+km; Team-Avg; Alert-Count Badge red; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5019KilometerTicker } from './phase5019-kilometer-ticker';
+// Phase 5024 — Bestellwert-Ticker (ShoppingBag emerald; Champion #1 Name+€; Team-Avg; Alert Niedrig rot; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5024BestellwertTicker } from './phase5024-bestellwert-ticker';
 
 // Phase 4900 — Smart-Timing Countdown V24 (ChefHat indigo; Station-Auslastung 3-Kacheln Grill/Friture/Kalt Eff%; Kochzeit-Trend TrendingUp/Down je Order; Fahrer-Nahe-Zap; KI-Empfehlung; 4-KPI-Grid; 7-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4900SmartTimingCountdownV24 } from './phase4900-smart-timing-countdown-v24';

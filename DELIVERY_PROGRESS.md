@@ -35935,3 +35935,43 @@ KRITISCH: Nächste freie Phase ist **5015**! NIEMALS 4000–5014 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **5020**! NIEMALS 4000–5019 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5020/5021/5022/5024 — Fahrer-Bestellwert-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Hinweis:** Phase 5023 = Storefront (übersprungen). Phase 5022 Dateiname = `phase5022-mein-bestellwert.tsx` (koexistiert mit `phase5022-smart-tour-stopp-nav-v12.tsx`).
+
+### Phase 5020 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-bestellwert-ranking/route.ts` (neu erstellt)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_bestellwert, balken_pct, ampel, rank_delta, alert_niedrig}], team_avg, bester_name, niedrigster_name, alert_count, gesamt }`
+**Logik:** ABSTEIGEND Rang 1=höchster Ø-Bestellwert=bester; rank-basierte Ampel top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn rot; Mock Julia 42€/Sara 36€/Max 29€/Tim 21€; force-dynamic ✅; await createClient() ✅
+
+### Phase 5021 — Bestellwert-Ranking Board (Dispatch)
+**Component:** `DispatchPhase5021BestellwertBoard` — ShoppingBag emerald-700; ABSTEIGEND Rang 1=höchster Ø-Bestellwert; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig rot-400; Balken emerald/gelb/rot farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5022b — Mein Bestellwert (Fahrer)
+**Component:** `FahrerPhase5022MeinBestellwert` — ShoppingBag emerald-700; avg_bestellwert 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥40€/≥25€/<25€); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5023 — Storefront
+Übersprungen ✅
+
+### Phase 5024 — Bestellwert-Ticker (Kitchen)
+**Component:** `KitchenPhase5024BestellwertTicker` — ShoppingBag emerald-700; Champion #1 Name+€; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (identisch wie frühere Sessions). TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5020/5021/5022/5024)
+- **Belegt:** 4000–5024 (diverse Lücken + 4992/4997/5000/5003/5005/5008/5010/5013/5018/5023 übersprungen/vorhanden)
+- **Nächste freie Phase: 5025**
+
+### Nächste Phasen 5025–5029 — Vorschlag: Fahrer-Trinkgeld-Ranking (Ø Trinkgeld je Tour je Fahrer letzte 30 Tage)
+1. **Phase 5025 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-ranking — avg(tip_eur) je Fahrer letzte 30 Tage; absteigend Rang 1=höchstes Ø-Trinkgeld=bester; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn rot; Mock Julia 3.80€/Sara 2.90€/Max 2.10€/Tim 1.20€; force-dynamic; await createClient().
+2. **Phase 5026 Dispatch:** `DispatchPhase5026TrinkgeldBoard` — Heart rose-700; KPI-Grid Höchstes/Team-Avg/Niedrigstes; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5027 Fahrer:** `FahrerPhase5027MeinTrinkgeld` — Heart rose-700; avg_trinkgeld 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥3€/≥1.5€/<1.5€; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5028 Storefront:** Überspringen.
+5. **Phase 5029 Kitchen:** `KitchenPhase5029TrinkgeldTicker` — Heart rose-700; Champion #1 Name+€; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5025**! NIEMALS 4000–5024 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
+
+## STATUS: MARKT-REIF

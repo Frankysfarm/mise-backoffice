@@ -3,33 +3,94 @@ import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
-const MOCK_DATA = {
-  fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Julia', rang: 1, avg_bestellwert: 28.40, rank_delta: 0, ampel: 'gruen' as const, alert_niedrig: false },
-    { fahrer_id: 'f2', fahrer_name: 'Max', rang: 2, avg_bestellwert: 22.10, rank_delta: 1, ampel: 'gruen' as const, alert_niedrig: false },
-    { fahrer_id: 'f3', fahrer_name: 'Sara', rang: 3, avg_bestellwert: 17.50, rank_delta: -1, ampel: 'gelb' as const, alert_niedrig: false },
-    { fahrer_id: 'f4', fahrer_name: 'Tim', rang: 4, avg_bestellwert: 11.80, rank_delta: 0, ampel: 'rot' as const, alert_niedrig: true },
-  ],
-  team_avg_bestellwert: 19.95,
-  beste_name: 'Julia',
-  niedrigste_name: 'Tim',
-  alert_count: 1,
-  gesamt: 4,
-};
+const MOCK = [
+  { fahrer_id: 'julia', fahrer_name: 'Julia', avg_bestellwert: 42.0 },
+  { fahrer_id: 'sara', fahrer_name: 'Sara', avg_bestellwert: 36.0 },
+  { fahrer_id: 'max', fahrer_name: 'Max', avg_bestellwert: 29.0 },
+  { fahrer_id: 'tim', fahrer_name: 'Tim', avg_bestellwert: 21.0 },
+];
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+function ampelVon(rang: number, gesamt: number): 'gruen' | 'gelb' | 'rot' {
+  const top = Math.ceil(gesamt * 0.25);
+  const bot = Math.floor(gesamt * 0.75);
+  if (rang <= top) return 'gruen';
+  if (rang > bot) return 'rot';
+  return 'gelb';
+}
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
   const locationId = searchParams.get('location_id');
 
+  let rows: Array<{ fahrer_id: string; fahrer_name: string; avg_bestellwert: number }> = [];
+
   try {
-    await createClient();
+    const supabase = await createClient();
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    let q = supabase
+      .from('delivery_tours')
+      .select('driver_id, profiles!driver_id(full_name), order_value_eur')
+      .gte('created_at', since)
+      .not('order_value_eur', 'is', null);
+
+    if (locationId) q = q.eq('location_id', locationId);
+
+    const { data } = await q;
+
+    if (data && data.length > 0) {
+      const map = new Map<string, { name: string; total: number; count: number }>();
+      for (const t of data) {
+        if (!t.driver_id || !t.order_value_eur) continue;
+        const name =
+          (t.profiles as { full_name?: string } | null)?.full_name ?? t.driver_id;
+        const entry = map.get(t.driver_id) ?? { name, total: 0, count: 0 };
+        entry.total += t.order_value_eur as number;
+        entry.count += 1;
+        map.set(t.driver_id, entry);
+      }
+      rows = Array.from(map.entries()).map(([id, e]) => ({
+        fahrer_id: id,
+        fahrer_name: e.name,
+        avg_bestellwert: Math.round((e.total / e.count) * 100) / 100,
+      }));
+    }
   } catch {
-    return NextResponse.json(MOCK_DATA);
+    // fall through to mock
   }
 
-  if (!locationId) {
-    return NextResponse.json(MOCK_DATA);
-  }
+  if (rows.length === 0) rows = MOCK;
 
-  return NextResponse.json(MOCK_DATA);
+  // descending: rank 1 = highest avg order value = best
+  rows.sort((a, b) => b.avg_bestellwert - a.avg_bestellwert);
+
+  const gesamt = rows.length;
+  const maxVal = Math.max(...rows.map(r => r.avg_bestellwert), 1);
+  const team_avg_bestellwert = Math.round((rows.reduce((s, r) => s + r.avg_bestellwert, 0) / gesamt) * 100) / 100;
+
+  const fahrer = rows.map((r, i) => {
+    const rang = i + 1;
+    const ampel = ampelVon(rang, gesamt);
+    return {
+      fahrer_id: r.fahrer_id,
+      fahrer_name: r.fahrer_name,
+      rang,
+      avg_bestellwert: r.avg_bestellwert,
+      balken_pct: Math.round((r.avg_bestellwert / maxVal) * 100),
+      ampel,
+      rank_delta: 0,
+      alert_niedrig: ampel === 'rot',
+    };
+  });
+
+  const alert_count = fahrer.filter(f => f.alert_niedrig).length;
+
+  return NextResponse.json({
+    fahrer,
+    team_avg_bestellwert,
+    bester_name: fahrer[0]?.fahrer_name ?? '',
+    niedrigster_name: fahrer[gesamt - 1]?.fahrer_name ?? '',
+    alert_count,
+    gesamt,
+  });
 }
