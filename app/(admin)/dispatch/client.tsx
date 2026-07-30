@@ -1324,6 +1324,7 @@ import { DispatchPhase5016KilometerBoard } from './phase5016-kilometer-board';
 import { DispatchPhase5021BestellwertBoard } from './phase5021-bestellwert-board';
 import { DispatchPhase5026TrinkgeldBoard } from './phase5026-trinkgeld-board';
 import { DispatchPhase5031SchichtBilanzBoard } from './phase5031-schicht-bilanz-board';
+import { DispatchPhase5042PuenktlichkeitBoard } from './phase5042-puenktlichkeit-board';
 import { DispatchPhase5037PraemienQuoteBoard } from './phase5037-praemien-quote-board';
 import { DispatchPhase5035ScoreTourVisualisierungV15 } from './phase5035-score-tour-visualisierung-v15';
 import { DispatchPhase5036ScoreTourVisualisierungV16 } from './phase5036-score-tour-visualisierung-v16';
@@ -5403,6 +5404,8 @@ export function DispatchBoard({
           <DispatchPhase5026TrinkgeldBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5031: Schicht-Bilanz Board — Wallet amber; Rang 1=höchster Ø-Netto-Verdienst; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5031SchichtBilanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5042: Pünktlichkeit Board — Clock teal; Rang 1=höchste Pünktlichkeit; KPI-Grid Pünktlichste/Team-Avg/Unzuverlässigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5042PuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5037: Prämien-Quote Board — Award yellow; Rang 1=höchste Prämien-Quote; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5037PraemienQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
@@ -14203,6 +14206,8 @@ export { DispatchPhase5021BestellwertBoard } from './phase5021-bestellwert-board
 export { DispatchPhase5026TrinkgeldBoard } from './phase5026-trinkgeld-board';
 // Phase 5031 — Schicht-Bilanz Board (Wallet amber; Rang 1=höchster Ø-Netto-Verdienst=bester; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5031SchichtBilanzBoard } from './phase5031-schicht-bilanz-board';
+// Phase 5042 — Pünktlichkeit Board (Clock teal; Rang 1=höchste Pünktlichkeit=bester; KPI-Grid Pünktlichste/Team-Avg/Unzuverlässigste; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5042PuenktlichkeitBoard } from './phase5042-puenktlichkeit-board';
 
 // Phase 4935b — Score + Tour-Visualisierung V11 (Trophy indigo; Zonen-SLA-Matrix 3-Zonen Innenstadt/Nord/Süd SLA%+Avg+Umsatz; CO₂-kg je Fahrer+Gesamt Leaf grün; Team-Score-Fortschrittsbalken; 4-KPI-Grid ETA-Acc+CO₂/Tour; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar Kundenwertung+Verspätung+ETA; Dual-Progress Stopps+km; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-tour-visualisierung-v11';
