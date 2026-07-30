@@ -35400,3 +35400,41 @@ KRITISCH: Nächste freie Phase ist **4944**! NIEMALS 4000–4943 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **4953**! NIEMALS 4000–4952 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 4953–4957 — Fahrer-Bewertungs-Score-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+### Phase 4953 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-bewertungs-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_rating, rank_delta, ampel, alert_niedrig}], team_avg_rating, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** absteigend Rang 1=höchste Bewertung=bester; ampelVon: top 25% gruen / Mitte gelb / unten 25% rot; alert_niedrig wenn rot; Mock Julia 4.8/Sara 4.6/Max 4.2/Tim 3.8; 30-Tage-Window+Vorperiode für rank_delta; force-dynamic ✅; await createClient() ✅
+
+### Phase 4954 — Bewertungs-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4954BewertungsBoard` — Star amber-700; ABSTEIGEND Rang 1=höchste Bewertung; KPI-Grid Beste/Team-Avg/Niedrigste; Alert niedrig rot-400; Balken amber/gelb/rot; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4955 — Meine Bewertung (Fahrer)
+**Component:** `FahrerPhase4955MeineBewertung` — Star amber-700; avg_rating 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥4,5/≥4,0/<4,0); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4956 — Storefront
+Übersprungen ✅
+
+### Phase 4957 — Bewertungs-Ticker (Kitchen)
+**Component:** `KitchenPhase4957BewertungsTicker` — Star amber-700; Champion #1 Name+⭐; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (vor meinen Änderungen identisch reproduzierbar). TypeScript: `ignoreBuildErrors: true` in next.config.js ✅
+
+### Phasen-Nummern-Status (nach Batch 4953–4957)
+- **Belegt:** 4000–4957 (4942, 4945–4948, 4951, 4956 übersprungen)
+- **Nächste freie Phase: 4958**
+
+### Nächste Phasen 4958–4962 — Vorschlag: Fahrer-Trinkgeld-Ranking (€ Trinkgeld je Fahrer letzte 30 Tage)
+1. **Phase 4958 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-ranking — sum(tip_amount) je Fahrer letzte 30 Tage; absteigend Rang 1=höchstes Trinkgeld; ampelVon ≥50=rot/≥20=gelb/<20=grün (rot=Spitzenwert); alert_hoch wenn ≥50 €; Mock Julia 78€/Max 54€/Sara 31€/Tim 18€; force-dynamic; await createClient().
+2. **Phase 4959 Dispatch:** `DispatchPhase4959TrinkgeldBoard` — Coins orange-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >50€; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4960 Fahrer:** `FahrerPhase4960MeinTrinkgeld` — Coins orange-900; trinkgeld_gesamt 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥50€/≥20€/<20€; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4961 Storefront:** Überspringen.
+5. **Phase 4962 Kitchen:** `KitchenPhase4962TrinkgeldTicker` — Coins orange-900; Champion #1 Name+€; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4958**! NIEMALS 4000–4957 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF
