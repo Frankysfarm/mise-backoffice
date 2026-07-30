@@ -1243,6 +1243,7 @@ import { FahrerPhase5017MeineKilometer } from './phase5017-meine-kilometer';
 import { FahrerPhase5022MeinBestellwert } from './phase5022-mein-bestellwert';
 import { FahrerPhase5027MeinTrinkgeld } from './phase5027-mein-trinkgeld';
 import { FahrerPhase5032MeineSchichtBilanz } from './phase5032-meine-schicht-bilanz';
+import { FahrerPhase5038MeinePraemienQuote } from './phase5038-meine-praemien-quote';
 import { FahrerPhase5035TourStoppSmartNavV14 } from './phase5035-tour-stopp-smart-nav-v14';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7553,6 +7554,8 @@ export function FahrerApp({
           <FahrerPhase5027MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5032: Meine Schicht-Bilanz — Wallet amber; avg_netto 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥80€/≥60€/<60€; 30-Min-Polling */}
           <FahrerPhase5032MeineSchichtBilanz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5038: Meine Prämien-Quote — Award yellow; praemien_quote 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥75%/≥50%/<50%; 30-Min-Polling */}
+          <FahrerPhase5038MeinePraemienQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5025: Smart-Tour-Stopp-Navigator V13 — Schicht-Rang-Badge; Trinkgeld-Erwartungs-Anzeige; Entfernung je Stopp; CO₂-KPI; 4er-Mini-Stats; Erweiterte Stopp-Details mit Tipp+Telefon; 20-Sek-Polling */}
           <FahrerPhase5025SmartTourStoppNavV13 />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}
@@ -12093,3 +12096,5 @@ export { FahrerPhase1955SmartTourStoppCockpit } from './phase1955-smart-tour-sto
 
 // Phase 5035 — Tour-Stopp Smart Navigator V14 (Route blue; Schicht-KPI-Grid Verdienst/Trinkgeld/km; Stopp-Liste mit Status-Badge geliefert/aktiv/ausstehend; ETA-Ampel rot<5min/gelb<10min/grün; aufklappbare Detail-Ansicht Notiz-Alert+Betrag+Barzahlung-Badge; Navigation-CTA Google Maps; Telefon-Link; Bewertungs-Vorschau; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5035TourStoppSmartNavV14 } from './phase5035-tour-stopp-smart-nav-v14';
+// Phase 5038 — Meine Prämien-Quote (Award yellow-900; praemien_quote 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥75%/≥50%/<50%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5038MeinePraemienQuote } from './phase5038-meine-praemien-quote';
