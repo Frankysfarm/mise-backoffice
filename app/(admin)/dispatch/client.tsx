@@ -1302,6 +1302,7 @@ import { DispatchPhase4922AbendprodBoard } from './phase4922-abendprod-board';
 import { DispatchPhase4927StoppEffizienzBoard } from './phase4927-stopp-effizienz-board';
 import { DispatchPhase4932FruehprodBoard } from './phase4932-fruehprod-board';
 import { DispatchPhase4935KmEffizienzBoard } from './phase4935-km-effizienz-board';
+import { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-tour-visualisierung-v11';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5342,6 +5343,8 @@ export function DispatchBoard({
           <DispatchPhase4932FruehprodBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4935: km-Effizienz-Ranking Board — Route emerald-900; INVERTED Rang 1=wenigste km/Tour; KPI-Grid Effizienteste/Team-Avg/Höchste; Alert >8 km; Balken rot/gelb/grün; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4935KmEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4935: Score+Tour-Visualisierung V11 — Trophy; Zonen-SLA-Matrix 3 Zonen; CO₂-kg je Fahrer+Gesamt; Dual-Progress Stopps+km; Aufklappbare Stopp-Timeline; 20-Sek-Polling */}
+          <DispatchPhase4935ScoreTourVisualisierungV11 />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4852ScoreTourVisualisierungV6 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4847: Tour-Score Live Board V5 — Trophy indigo; Team-Score+Ziel-Balken; Pünktlichkeit+Avg-Zeit; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Aufklappbare Stopp-Timeline; Alert-Strip; 20-Sek-Polling; Mock-Fallback */}
