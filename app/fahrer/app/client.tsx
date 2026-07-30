@@ -1213,6 +1213,7 @@ import { FahrerPhase4882MeinWetterAnteil } from './phase4882-mein-wetter-anteil'
 import { FahrerPhase4888MeineFruehprod } from './phase4888-meine-fruehprod';
 import { FahrerPhase4893MeineMittagsprod } from './phase4893-meine-mittagsprod';
 import { FahrerPhase4903MeineWochentProd } from './phase4903-meine-wochentag-prod';
+import { FahrerPhase4908MeineWochenendeProd } from './phase4908-meine-wochenende-prod';
 import { FahrerPhase4853SmartTourStoppNavV5 } from './phase4853-smart-tour-stopp-nav-v5';
 import { FahrerPhase4898SmartTourStoppNavV8 } from './phase4898-smart-tour-stopp-nav-v8';
 import { FahrerPhase4910SmartTourStoppNavV9 } from './phase4910-smart-tour-stopp-nav-v9';
@@ -7469,6 +7470,8 @@ export function FahrerApp({
           <FahrerPhase4893MeineMittagsprod driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4903: Meine Wochentag-Produktivität — CalendarDays violet-900; wochentag_tph 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥2,5/≥1,5/<1,5; 30-Min-Polling */}
           <FahrerPhase4903MeineWochentProd driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 4908: Meine Wochenende-Produktivität — CalendarDays cyan-900; wochenende_tph 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥2,5/≥1,5/<1,5; 30-Min-Polling */}
+          <FahrerPhase4908MeineWochenendeProd driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 4910: Smart-Tour-Stopp-Navigator V9 — Navigation2 blue; Verkehr-Info je Stopp frei/mäßig/stau; Prognose-ETA; Schicht-Ziel-Fortschrittsbalken; Hero-Karte Aktiv-Stopp; Google+Apple-Deeplinks; Notiz-Alert gelb; Aufklappbare Stopp-Details; 20-Sek-Polling; Mock-Fallback */}
           <FahrerPhase4910SmartTourStoppNavV9 driverId={driver.id} locationId={driver.location_id ?? null} />
           {/* Phase 4898: Smart-Tour-Stopp-Navigator V8 — Navigation2 blue; Tempo-Profil schnell/normal/stau; Geschätzte-Ankunft-Zeit; Dual-Fortschrittsbalken; Verdienst+Trinkgeld Strip; Routen-Effizienz-%; 20-Sek-Polling; Mock-Fallback */}
@@ -11931,3 +11934,6 @@ export { FahrerPhase4898SmartTourStoppNavV8 } from './phase4898-smart-tour-stopp
 
 // Phase 4910 — Smart-Tour-Stopp-Navigator V9 (Navigation2 blue; Verkehr-Info je Stopp frei/mäßig/stau; Prognose-ETA; Schicht-Ziel-Fortschrittsbalken; Hero-Karte Aktiv-Stopp+Google+Apple-Deeplinks; Notiz-Alert gelb; Zahlart-Badge; Aufklappbare Stopp-Details; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4910SmartTourStoppNavV9 } from './phase4910-smart-tour-stopp-nav-v9';
+
+// Phase 4908 — Meine Wochenende-Produktivität (CalendarDays cyan-900; wochenende_tph 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Balken Ich vs Team-Ø; Coaching-Tipp 3 Stufen ≥2,5/≥1,5/<1,5; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase4908MeineWochenendeProd } from './phase4908-meine-wochenende-prod';

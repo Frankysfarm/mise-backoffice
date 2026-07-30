@@ -1293,6 +1293,7 @@ import { DispatchPhase4881WetterBoard } from './phase4881-wetter-board';
 import { DispatchPhase4887FruehprodBoard } from './phase4887-fruehprod-board';
 import { DispatchPhase4892MittagsprodBoard } from './phase4892-mittagsprod-board';
 import { DispatchPhase4902WochentProdBoard } from './phase4902-wochentag-prod-board';
+import { DispatchPhase4907WochenendeProdBoard } from './phase4907-wochenende-prod-board';
 import { DispatchPhase4897ScoreTourVisualisierungV9 } from './phase4897-score-tour-visualisierung-v9';
 import { DispatchPhase4910ScoreTourVisualisierungV10 } from './phase4910-score-tour-visualisierung-v10';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
@@ -5317,6 +5318,8 @@ export function DispatchBoard({
           <DispatchPhase4892MittagsprodBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4902: Wochentag-Produktivität-Ranking — CalendarDays violet-900; KPI-Grid Wochentag-Top/Team-Avg/Wochenende-Vergleich; DeltaIcon; Alert >2,5 T/h; 30-Min-Polling */}
           <DispatchPhase4902WochentProdBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4907: Wochenende-Produktivität-Ranking — CalendarDays cyan-900; KPI-Grid WE-Top/Team-Avg/Niedrigster; Alert >2,5 T/h; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4907WochenendeProdBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4897: Score + Tour-Visualisierung V9 — Trophy indigo; Wellbeing-Score+CO2/kg je Fahrer; ETA-Accuracy KPI; Team-Score-Fortschrittsbalken; Fahrer-Score-Ring 4-stufig; Stopp-Timeline 4-stufig; Dual-Progress; Leaf CO2-Strip; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4897ScoreTourVisualisierungV9 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4910: Score + Tour-Visualisierung V10 — Team-Score-Fortschrittsbalken; KPI-Trend-Grid 4-Felder; Fahrer-Score-Ring 4-stufig; Stopp-Timeline aufklappbar Kundenwertung+Verspaetung+ETA; Dual-Progress; 20-Sek-Polling; Mock-Fallback */}
@@ -14055,3 +14058,6 @@ export { DispatchPhase4897ScoreTourVisualisierungV9 } from './phase4897-score-to
 
 // Phase 4910 — Score + Tour-Visualisierung V10 (Trophy indigo; Team-Score-Fortschrittsbalken; KPI-Trend 4-Grid; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar mit Kundenwertung+Verspätung+ETA; Dual-Progress Stopps+km; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4910ScoreTourVisualisierungV10 } from './phase4910-score-tour-visualisierung-v10';
+
+// Phase 4907 — Wochenende-Produktivität-Ranking (CalendarDays cyan-900; Rang 1=höchste Touren/h Sa–So; KPI-Grid WE-Top/Team-Avg/Niedrigster; Alert >2,5 T/h; Balken farbkodiert grün/gelb/rot; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4907WochenendeProdBoard } from './phase4907-wochenende-prod-board';
