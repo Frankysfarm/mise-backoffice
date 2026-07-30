@@ -1253,6 +1253,7 @@ import { FahrerPhase5056TourStoppSmartNavV16 } from './phase5056-tour-stopp-smar
 import { FahrerPhase5059MeineReaktionszeit } from './phase5059-meine-reaktionszeit';
 import { FahrerPhase5062TourStoppSmartNavV17 } from './phase5062-tour-stopp-smart-nav-v17';
 import { FahrerPhase5065MeineSchichtAuslastung } from './phase5065-meine-schicht-auslastung';
+import { FahrerPhase5070MeineSchichtPuenktlichkeit } from './phase5070-meine-schicht-puenktlichkeit';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7580,6 +7581,8 @@ export function FahrerApp({
           <FahrerPhase5062TourStoppSmartNavV17 driverId={driver.id} />
           {/* Phase 5065: Meine Schicht-Auslastung — Activity emerald; auslastung_pct 4xl+Rang; isOnline-Guard; Mini-Bar Ich vs Team-Ø; Coaching ≥75%/≥50%/<50%; 30-Min-Polling */}
           <FahrerPhase5065MeineSchichtAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5070: Meine Schicht-Pünktlichkeit — Clock green-700; puenktlichkeit_pct 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥90%/≥80%/<80%; 30-Min-Polling */}
+          <FahrerPhase5070MeineSchichtPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
           <FahrerPhase5036TourStoppSmartNavV15 driverId={driver.id} />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}
@@ -12140,3 +12143,5 @@ export { FahrerPhase5059MeineReaktionszeit } from './phase5059-meine-reaktionsze
 export { FahrerPhase5062TourStoppSmartNavV17 } from './phase5062-tour-stopp-smart-nav-v17';
 // Phase 5065 — Meine Schicht-Auslastung (Activity emerald; auslastung_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥75%/≥50%/<50%; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5065MeineSchichtAuslastung } from './phase5065-meine-schicht-auslastung';
+// Phase 5070 — Meine Schicht-Pünktlichkeit (Clock green-700; puenktlichkeit_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥90%/≥80%/<80%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5070MeineSchichtPuenktlichkeit } from './phase5070-meine-schicht-puenktlichkeit';

@@ -1278,6 +1278,7 @@ import { KitchenPhase5056SmartTimingCountdownV34 } from './phase5056-smart-timin
 import { KitchenPhase5061ReaktionszeitTicker } from './phase5061-reaktionszeit-ticker';
 import { KitchenPhase5062SmartTimingCountdownV35 } from './phase5062-smart-timing-countdown-v35';
 import { KitchenPhase5067SchichtAuslastungsTicker } from './phase5067-schicht-auslastungs-ticker';
+import { KitchenPhase5072SchichtPuenktlichkeitsTicker } from './phase5072-schicht-puenktlichkeits-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -5014,6 +5015,8 @@ export function KitchenBoard({
       <KitchenPhase5062SmartTimingCountdownV35 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5067: Schicht-Auslastungs-Ticker — Activity emerald; Höchste #1; Team-Avg; Alert; 30-Min-Polling */}
       <KitchenPhase5067SchichtAuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5072: Schicht-Pünktlichkeits-Ticker — Clock green-700; Höchste #1 Name+%; Team-Avg; Alert <80%; 30-Min-Polling */}
+      <KitchenPhase5072SchichtPuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
       <KitchenPhase5036SmartTimingCountdownV33 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5035: Smart-Timing Countdown V32 — Farbkodierung rot<5min/gelb<10min/grün; Batch-Koordination; Prio-Ampel; 15s-Polling */}
@@ -12844,3 +12847,5 @@ export { KitchenPhase5061ReaktionszeitTicker } from './phase5061-reaktionszeit-t
 export { KitchenPhase5062SmartTimingCountdownV35 } from './phase5062-smart-timing-countdown-v35';
 // Phase 5067 — Schicht-Auslastungs-Ticker (Activity emerald; Höchste #1 Name+%; Team-Ø; Alert-Count; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5067SchichtAuslastungsTicker } from './phase5067-schicht-auslastungs-ticker';
+// Phase 5072 — Schicht-Pünktlichkeits-Ticker (Clock green-700; Höchste #1 Name+%; Team-Ø; Alert <80%; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5072SchichtPuenktlichkeitsTicker } from './phase5072-schicht-puenktlichkeits-ticker';

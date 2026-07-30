@@ -1334,6 +1334,7 @@ import { DispatchPhase5056ScoreTourVisualisierungV17 } from './phase5056-score-t
 import { DispatchPhase5058ReaktionszeitBoard } from './phase5058-reaktionszeit-board';
 import { DispatchPhase5062ScoreTourVisualisierungV18 } from './phase5062-score-tour-visualisierung-v18';
 import { DispatchPhase5064SchichtAuslastungsBoard } from './phase5064-schicht-auslastungs-board';
+import { DispatchPhase5069SchichtPuenktlichkeitBoard } from './phase5069-schicht-puenktlichkeit-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5426,6 +5427,8 @@ export function DispatchBoard({
           <DispatchPhase5062ScoreTourVisualisierungV18 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5064: Schicht-Auslastungs-Board — Activity emerald; 3-KPI Höchste/Team-Ø/Niedrigste; Rang-Balken farbkodiert; DeltaIcon; Alert; 30-Min-Polling */}
           <DispatchPhase5064SchichtAuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5069: Schicht-Pünktlichkeit-Board — Clock green-700; KPI-Grid Höchste/Team-Ø/Niedrigste; Alert <80%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5069SchichtPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
@@ -14268,3 +14271,5 @@ export { DispatchPhase5058ReaktionszeitBoard } from './phase5058-reaktionszeit-b
 export { DispatchPhase5062ScoreTourVisualisierungV18 } from './phase5062-score-tour-visualisierung-v18';
 // Phase 5064 — Schicht-Auslastungs-Board (Activity emerald; 3-KPI Höchste/Team-Ø/Niedrigste; Rang-Balken emerald/yellow/red; DeltaIcon; Alert-Bottom; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5064SchichtAuslastungsBoard } from './phase5064-schicht-auslastungs-board';
+// Phase 5069 — Schicht-Pünktlichkeit-Board (Clock green-700; KPI-Grid Höchste/Team-Ø/Niedrigste; Alert <80%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5069SchichtPuenktlichkeitBoard } from './phase5069-schicht-puenktlichkeit-board';
