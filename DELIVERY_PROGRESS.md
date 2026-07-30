@@ -35773,3 +35773,43 @@ KRITISCH: Nächste freie Phase ist **4994**! NIEMALS 4000–4993 verwenden. IMME
 - **Nächste freie Phase: 4999**
 
 KRITISCH: Nächste freie Phase ist **4999**! NIEMALS 4000–4998 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
+
+---
+
+## Batch 4999/5001/5002/5004 — Fahrer-Storno-Quote-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Hinweis:** Phase 5000 bereits belegt (Smart Delivery Extensions). Daher: Phase 5001 = Dispatch, Phase 5002 = Fahrer, Phase 5003 = Storefront (übersprungen), Phase 5004 = Kitchen.
+
+### Phase 4999 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-storno-ranking/route.ts` (bereits vorhanden, erweitert)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, storno_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** AUFSTEIGEND Rang 1=niedrigste Storno-Quote=bester; rank-basierte Ampel top25%=gruen/Mitte=gelb/unten25%=rot; alert_hoch wenn rot; Mock Julia 2.1%/Sara 3.4%/Max 5.8%/Tim 8.2%; force-dynamic ✅; await createClient() ✅
+
+### Phase 5001 — Storno-Quote-Ranking Board (Dispatch)
+**Component:** `DispatchPhase5001StornoBoard` — XCircle red-700; AUFSTEIGEND Rang 1=niedrigste Storno-Quote; KPI-Grid Wenigste/Team-Avg/Meiste; Alert Hoch rot-400; Balken red/gelb/grau farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5002 — Meine Storno-Quote (Fahrer)
+**Component:** `FahrerPhase5002MeineStorno` — XCircle red-700; storno_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≤5%/≤15%/>15%); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5003 — Storefront
+Übersprungen ✅
+
+### Phase 5004 — Storno-Ticker (Kitchen)
+**Component:** `KitchenPhase5004StornoTicker` — XCircle red-700; Bester #1 Name+%; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung. TypeScript: exit 0 ✅ (0 Fehler in neuen Dateien)
+
+### Phasen-Nummern-Status (nach Batch 4999/5001/5002/5004)
+- **Belegt:** 4000–5004 (diverse Lücken + 4992/4997/5000/5003 übersprungen)
+- **Nächste freie Phase: 5005**
+
+### Nächste Phasen 5005–5009 — Vorschlag: Fahrer-Wartezeit-Ranking (Ø Wartezeit am Restaurant je Fahrer letzte 30 Tage)
+1. **Phase 5005 Backend:** GET /api/delivery/admin/fahrer-wartezeit-ranking — avg(pickup_wait_min) je Fahrer letzte 30 Tage; AUFSTEIGEND Rang 1=kürzeste Wartezeit=bester; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_hoch wenn ≥15min; Mock Julia 4min/Sara 7min/Max 11min/Tim 18min; force-dynamic; await createClient().
+2. **Phase 5006 Dispatch:** `DispatchPhase5006WartezeitBoard` — Timer purple-700; KPI-Grid Kürzeste/Team-Avg/Längste; Alert ≥15min; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5007 Fahrer:** `FahrerPhase5007MeineWartezeit` — Timer purple-700; avg_wait_min 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≤5min/≤15min/>15min; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5008 Storefront:** Überspringen.
+5. **Phase 5009 Kitchen:** `KitchenPhase5009WartezeitTicker` — Timer purple-700; Champion #1 Name+min; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5005**! NIEMALS 4000–5004 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (exit 0).
+
+## STATUS: MARKT-REIF

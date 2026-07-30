@@ -1258,6 +1258,7 @@ import { KitchenPhase4982GeschwindigkeitTicker } from './phase4982-geschwindigke
 import { KitchenPhase4987LieferungenProStundeTicker } from './phase4987-lieferungen-pro-stunde-ticker';
 import { KitchenPhase4993BewertungsTicker } from './phase4993-bewertungs-ticker';
 import { KitchenPhase4998PuenktlichkeitsTicker } from './phase4998-puenktlichkeits-ticker';
+import { KitchenPhase5004StornoTicker } from './phase5004-storno-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -4964,6 +4965,8 @@ export function KitchenBoard({
       <KitchenPhase4993BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4998: Pünktlichkeits-Ticker — Clock green; Champion #1 Name+%; Team-Avg; Alert-Count; 30-Min-Polling */}
       <KitchenPhase4998PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5004: Storno-Quote-Ticker — XCircle red; Bester #1 Name+%; Team-Avg; Alert-Count; 30-Min-Polling */}
+      <KitchenPhase5004StornoTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4936: Smart-Timing Countdown V26 — Hitze-Cockpit Stations-Auslastungs-Heatmap; Kochzeit-Trend je Order; 9-stufige Ampel; 1s-Tick+15s-Polling */}
       <KitchenPhase4936SmartTimingCountdownV26 />
       {/* Phase 4855: Smart-Timing Countdown V20 — ChefHat indigo; 9-stufige Ampel super-kritisch→fertig; KI-Kochstart-Empfehlung je Bestellung+gesamt; Stations-Auslastungsbalken; Effizienz-Anzeige; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
@@ -12723,6 +12726,8 @@ export { KitchenPhase4987LieferungenProStundeTicker } from './phase4987-lieferun
 export { KitchenPhase4993BewertungsTicker } from './phase4993-bewertungs-ticker';
 // Phase 4998 — Pünktlichkeits-Ticker (Clock green; Champion #1 Name+%; Team-Avg; Alert-Count Badge red; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4998PuenktlichkeitsTicker } from './phase4998-puenktlichkeits-ticker';
+// Phase 5004 — Storno-Quote-Ticker (XCircle red; Bester #1 Name+%; Team-Avg; Alert-Count Badge red; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5004StornoTicker } from './phase5004-storno-ticker';
 
 // Phase 4900 — Smart-Timing Countdown V24 (ChefHat indigo; Station-Auslastung 3-Kacheln Grill/Friture/Kalt Eff%; Kochzeit-Trend TrendingUp/Down je Order; Fahrer-Nahe-Zap; KI-Empfehlung; 4-KPI-Grid; 7-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4900SmartTimingCountdownV24 } from './phase4900-smart-timing-countdown-v24';
