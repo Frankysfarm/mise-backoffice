@@ -35274,3 +35274,47 @@ KRITISCH: Nächste freie Phase ist **4891**! NIEMALS 4000–4890 verwenden. IMME
 5. **Phase 4900 Kitchen:** `KitchenPhase4900AbendprodTicker` — Moon violet-900; Champion #1 Name+T/h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
 
 KRITISCH: Nächste freie Phase ist **4896**! NIEMALS 4000–4895 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
+## Batch 4931–4938 — Render-Fix + km-Effizienz-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+### Render-Fix Phase 4931 / 4932 / 4933 (Frühschicht-Produktivität)
+Vorgänger-Agent hatte Import + Barrel korrekt, aber **Render fehlte** in allen drei Modulen.
+- **Kitchen Phase 4931:** `<KitchenPhase4931FruehprodTicker>` nach Phase 4930 eingefügt ✅
+- **Dispatch Phase 4932:** `<DispatchPhase4932FruehprodBoard>` nach Phase 4927 eingefügt ✅
+- **Fahrer Phase 4933:** `<FahrerPhase4933MeineFruehprod>` nach Phase 4928 eingefügt ✅
+
+### Phase 4934 — Backend API (km-Effizienz-Ranking)
+**Datei:** `app/api/delivery/admin/fahrer-km-effizienz-ranking/route.ts`
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, km_pro_tour, rank_delta, ampel, alert_hoch}], team_avg_km, meister_name, wenigster_name, alert_count, gesamt }`
+**Logik:** INVERTED aufsteigend — wenigste km/Tour = Rang 1 (effizientester Fahrer); ampelVon ≥8,0=rot/≥5,5=gelb/<5,5=grün; alert_hoch bei ≥8,0 km; Mock Sara 3.2/Max 4.8/Julia 6.5/Tim 9.1; 30-Tage-Window + Vorperiode für rank_delta; force-dynamic ✅; await createClient() ✅
+
+### Phase 4935 — km-Effizienz-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4935KmEffizienzBoard` — Route emerald-900; INVERTED Rang 1=wenigste km/Tour; KPI-Grid Effizienteste/Team-Avg/Höchste; Alert >8 km rot; Balken grün/gelb/rot; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4936 — Meine Kilometer-Effizienz (Fahrer)
+**Component:** `FahrerPhase4936MeineKmEffizienz` — Route emerald-900; km_pro_tour 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (<5,5/<8,0/≥8,0); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4937 — Storefront
+Übersprungen ✅
+
+### Phase 4938 — km-Effizienz-Ticker (Kitchen)
+**Component:** `KitchenPhase4938KmEffizienzTicker` — Route emerald-900; Effizientester #1 Name+km/Tour; Team-Avg; Alert-Count Badge rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: TypeScript ✓ exit 0 ✅
+
+### Phasen-Nummern-Status (nach Batch 4934–4938)
+- **Belegt:** 4000–4938 (4937 Storefront-Phase übersprungen)
+- **Nächste freie Phase: 4939**
+
+### Nächste Phasen 4939–4943 — Vorschlag: Fahrer-Umsatz-pro-km-Ranking (€/km; Effizienz-Metrik)
+1. **Phase 4939 Backend:** GET /api/delivery/admin/fahrer-umsatz-km-ranking — total_revenue/total_km je Fahrer letzte 30 Tage; absteigend Rang 1=höchster Umsatz/km=bester; ampelVon ≥4,0=rot/≥2,0=gelb/<2,0=grün; alert_hoch bei ≥4,0 €/km; Mock Julia 4.8/Max 3.5/Sara 2.9/Tim 1.8; force-dynamic; await createClient().
+2. **Phase 4940 Dispatch:** `DispatchPhase4940UmsatzKmBoard` — Coins teal-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >4,0 €/km; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4941 Fahrer:** `FahrerPhase4941MeinUmsatzKm` — Coins teal-900; umsatz_pro_km 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥4,0/≥2,0/<2,0; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4942 Storefront:** Überspringen.
+5. **Phase 4943 Kitchen:** `KitchenPhase4943UmsatzKmTicker` — Coins teal-900; Champion #1 Name+€/km; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4939**! NIEMALS 4000–4938 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+## STATUS: MARKT-REIF

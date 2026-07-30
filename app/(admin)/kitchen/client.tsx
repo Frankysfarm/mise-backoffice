@@ -1245,6 +1245,7 @@ import { KitchenPhase4920MittagsprodTicker } from './phase4920-mittagsprod-ticke
 import { KitchenPhase4925AbendprodTicker } from './phase4925-abendprod-ticker';
 import { KitchenPhase4930StoppEffizienzTicker } from './phase4930-stopp-effizienz-ticker';
 import { KitchenPhase4931FruehprodTicker } from './phase4931-fruehprod-ticker';
+import { KitchenPhase4938KmEffizienzTicker } from './phase4938-km-effizienz-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -4925,6 +4926,10 @@ export function KitchenBoard({
       <KitchenPhase4925AbendprodTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4930: Stopp-Effizienz-Ticker — Target fuchsia; Champion #1 Name+T/Stopp; Team-Avg; Alert-Badge; 30-Min-Polling */}
       <KitchenPhase4930StoppEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4931: Frühschicht-Produktivitäts-Ticker — Sunrise sky; Champion #1 Name+T/h 06–11 Uhr; Team-Avg; Alert-Count; 30-Min-Polling */}
+      <KitchenPhase4931FruehprodTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 4938: km-Effizienz-Ticker — Route emerald; Effizientester #1 Name+km/Tour; Team-Avg; Alert-Count; 30-Min-Polling */}
+      <KitchenPhase4938KmEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4855: Smart-Timing Countdown V20 — ChefHat indigo; 9-stufige Ampel super-kritisch→fertig; KI-Kochstart-Empfehlung je Bestellung+gesamt; Stations-Auslastungsbalken; Effizienz-Anzeige; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4855SmartTimingCountdownV20 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 4850: Smart-Timing Countdown V19 — Stations-Auslastung 3-Kacheln Grill/Friture/Kalt; Effizienz-% je Bestellung; 6-stufige Ampel; 5-KPI-Grid; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
@@ -12658,6 +12663,8 @@ export { KitchenPhase4925AbendprodTicker } from './phase4925-abendprod-ticker';
 export { KitchenPhase4930StoppEffizienzTicker } from './phase4930-stopp-effizienz-ticker';
 // Phase 4931 — Frühschicht-Produktivitäts-Ticker (Sunrise sky; Champion #1 Name+T/h 06–11 Uhr; Team-Avg; Alert-Count Badge; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase4931FruehprodTicker } from './phase4931-fruehprod-ticker';
+// Phase 4938 — km-Effizienz-Ticker (Route emerald; Effizientester #1 Name+km/Tour; Team-Avg; Alert-Count Badge; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase4938KmEffizienzTicker } from './phase4938-km-effizienz-ticker';
 
 // Phase 4900 — Smart-Timing Countdown V24 (ChefHat indigo; Station-Auslastung 3-Kacheln Grill/Friture/Kalt Eff%; Kochzeit-Trend TrendingUp/Down je Order; Fahrer-Nahe-Zap; KI-Empfehlung; 4-KPI-Grid; 7-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4900SmartTimingCountdownV24 } from './phase4900-smart-timing-countdown-v24';

@@ -1301,6 +1301,7 @@ import { DispatchPhase4917MittagsprodBoard } from './phase4917-mittagsprod-board
 import { DispatchPhase4922AbendprodBoard } from './phase4922-abendprod-board';
 import { DispatchPhase4927StoppEffizienzBoard } from './phase4927-stopp-effizienz-board';
 import { DispatchPhase4932FruehprodBoard } from './phase4932-fruehprod-board';
+import { DispatchPhase4935KmEffizienzBoard } from './phase4935-km-effizienz-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5337,6 +5338,10 @@ export function DispatchBoard({
           <DispatchPhase4922AbendprodBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4927: Stopp-Effizienz-Ranking Board — Target fuchsia-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >2,5 T/Stopp; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback */}
           <DispatchPhase4927StoppEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4932: Frühschicht-Produktivitäts-Ranking Board — Sunrise sky-900; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >3,0 T/h; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback */}
+          <DispatchPhase4932FruehprodBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4935: km-Effizienz-Ranking Board — Route emerald-900; INVERTED Rang 1=wenigste km/Tour; KPI-Grid Effizienteste/Team-Avg/Höchste; Alert >8 km; Balken rot/gelb/grün; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4935KmEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
           <DispatchPhase4852ScoreTourVisualisierungV6 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4847: Tour-Score Live Board V5 — Trophy indigo; Team-Score+Ziel-Balken; Pünktlichkeit+Avg-Zeit; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Aufklappbare Stopp-Timeline; Alert-Strip; 20-Sek-Polling; Mock-Fallback */}
@@ -14085,3 +14090,5 @@ export { DispatchPhase4922AbendprodBoard } from './phase4922-abendprod-board';
 export { DispatchPhase4927StoppEffizienzBoard } from './phase4927-stopp-effizienz-board';
 // Phase 4932 — Frühschicht-Produktivitäts-Ranking Board (Sunrise sky; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >3,0 T/h; Balken farbkodiert sky/gelb/grün; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4932FruehprodBoard } from './phase4932-fruehprod-board';
+// Phase 4935 — km-Effizienz-Ranking Board (Route emerald; INVERTED Rang 1=wenigste km/Tour; KPI-Grid Effizienteste/Team-Avg/Höchste; Alert >8,0 km; Balken rot/gelb/grün; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4935KmEffizienzBoard } from './phase4935-km-effizienz-board';
