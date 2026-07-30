@@ -167,7 +167,7 @@ export function DispatchPhase5000TourScoreVisualisierungV2({ locationId }: { loc
               <XAxis dataKey="stunde" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: 8, fontSize: 11 }}
-                formatter={(v: number | undefined) => [`Score: ${v ?? 0}`, '']}
+                formatter={(v) => [`Score: ${Number(v) || 0}`, '']}
               />
               <Bar dataKey="score" radius={[3, 3, 0, 0]}>
                 {data.chart.map((entry, i) => (
