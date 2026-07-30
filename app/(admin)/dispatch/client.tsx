@@ -1307,6 +1307,7 @@ import { DispatchPhase4940UmsatzKmBoard } from './phase4940-umsatz-km-board';
 import { DispatchPhase4949PuenktlichkeitBoard } from './phase4949-puenktlichkeit-board';
 import { DispatchPhase4954BewertungsBoard } from './phase4954-bewertungs-board';
 import { DispatchPhase4959TrinkgeldBoard } from './phase4959-trinkgeld-board';
+import { DispatchPhase4964TourenBoard } from './phase4964-touren-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5355,6 +5356,8 @@ export function DispatchBoard({
           <DispatchPhase4954BewertungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4959: Trinkgeld-Ranking Board — Coins orange; Rang 1=höchstes Trinkgeld; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4959TrinkgeldBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4964: Touren-Anzahl-Ranking Board — Route blue; Rang 1=meiste Touren; KPI-Grid Meiste/Team-Avg/Wenigste; Alert ≥50 Touren; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4964TourenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4935: Score+Tour-Visualisierung V11 — Trophy; Zonen-SLA-Matrix 3 Zonen; CO₂-kg je Fahrer+Gesamt; Dual-Progress Stopps+km; Aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase4935ScoreTourVisualisierungV11 />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
@@ -14115,6 +14118,8 @@ export { DispatchPhase4949PuenktlichkeitBoard } from './phase4949-puenktlichkeit
 export { DispatchPhase4954BewertungsBoard } from './phase4954-bewertungs-board';
 // Phase 4959 — Trinkgeld-Ranking Board (Coins orange; Rang 1=höchstes Trinkgeld; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4959TrinkgeldBoard } from './phase4959-trinkgeld-board';
+// Phase 4964 — Touren-Anzahl-Ranking Board (Route blue; Rang 1=meiste Touren; KPI-Grid Meiste/Team-Avg/Wenigste; Alert ≥50 Touren; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4964TourenBoard } from './phase4964-touren-board';
 
 // Phase 4935b — Score + Tour-Visualisierung V11 (Trophy indigo; Zonen-SLA-Matrix 3-Zonen Innenstadt/Nord/Süd SLA%+Avg+Umsatz; CO₂-kg je Fahrer+Gesamt Leaf grün; Team-Score-Fortschrittsbalken; 4-KPI-Grid ETA-Acc+CO₂/Tour; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar Kundenwertung+Verspätung+ETA; Dual-Progress Stopps+km; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-tour-visualisierung-v11';

@@ -10,6 +10,7 @@ interface FahrerRow {
   touren_anzahl: number;
   rank_delta: number;
   ampel: 'gruen' | 'gelb' | 'rot';
+  alert_hoch: boolean;
 }
 
 interface ApiResponse {
@@ -17,27 +18,28 @@ interface ApiResponse {
   team_avg_touren: number;
   bester_name: string;
   letzter_name: string;
+  alert_count: number;
   gesamt: number;
 }
 
 const MOCK_DATA: ApiResponse = {
   fahrer: [
-    { fahrer_id: 'f1', fahrer_name: 'Max M.',   rang: 1, touren_anzahl: 148, rank_delta:  1, ampel: 'gruen' },
-    { fahrer_id: 'f2', fahrer_name: 'Julia F.', rang: 2, touren_anzahl: 132, rank_delta:  0, ampel: 'gruen' },
-    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, touren_anzahl:  98, rank_delta: -1, ampel: 'gelb'  },
-    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, touren_anzahl:  71, rank_delta:  0, ampel: 'rot'   },
+    { fahrer_id: 'f1', fahrer_name: 'Julia F.', rang: 1, touren_anzahl: 67, rank_delta:  1, ampel: 'rot',  alert_hoch: true  },
+    { fahrer_id: 'f2', fahrer_name: 'Max M.',   rang: 2, touren_anzahl: 52, rank_delta:  0, ampel: 'rot',  alert_hoch: true  },
+    { fahrer_id: 'f3', fahrer_name: 'Sara K.',  rang: 3, touren_anzahl: 38, rank_delta: -1, ampel: 'gelb', alert_hoch: false },
+    { fahrer_id: 'f4', fahrer_name: 'Tim B.',   rang: 4, touren_anzahl: 21, rank_delta:  0, ampel: 'gruen',alert_hoch: false },
   ],
-  team_avg_touren: 112.25,
-  bester_name:  'Max M.',
+  team_avg_touren: 44.5,
+  bester_name:  'Julia F.',
   letzter_name: 'Tim B.',
+  alert_count: 2,
   gesamt: 4,
 };
 
-function ampelVon(rank: number, total: number): 'gruen' | 'gelb' | 'rot' {
-  const pct = rank / total;
-  if (pct <= 0.25) return 'gruen';
-  if (pct <= 0.75) return 'gelb';
-  return 'rot';
+function ampelVon(touren: number): 'gruen' | 'gelb' | 'rot' {
+  if (touren >= 50) return 'rot';
+  if (touren >= 25) return 'gelb';
+  return 'gruen';
 }
 
 export async function GET(req: NextRequest) {
@@ -83,8 +85,8 @@ export async function GET(req: NextRequest) {
     }
 
     const unsorted = Array.from(groupCur.entries()).map(([id, v]) => ({
-      fahrer_id:   id,
-      fahrer_name: v.name || id.slice(0, 8),
+      fahrer_id:     id,
+      fahrer_name:   v.name || id.slice(0, 8),
       touren_anzahl: v.count,
     }));
 
@@ -99,16 +101,18 @@ export async function GET(req: NextRequest) {
     const prevRanks = new Map(prevSorted.map((f, i) => [f.fahrer_id, i + 1]));
 
     let fahrer: FahrerRow[] = sorted.map((f, i) => {
-      const rang     = i + 1;
-      const prevRang = prevRanks.get(f.fahrer_id) ?? rang;
-      const ampel    = ampelVon(rang, total);
+      const rang       = i + 1;
+      const prevRang   = prevRanks.get(f.fahrer_id) ?? rang;
+      const ampel      = ampelVon(f.touren_anzahl);
+      const alert_hoch = f.touren_anzahl >= 50;
       return {
-        fahrer_id:    f.fahrer_id,
-        fahrer_name:  f.fahrer_name,
+        fahrer_id:     f.fahrer_id,
+        fahrer_name:   f.fahrer_name,
         rang,
         touren_anzahl: f.touren_anzahl,
-        rank_delta:   prevRang - rang,
+        rank_delta:    prevRang - rang,
         ampel,
+        alert_hoch,
       };
     });
 
@@ -124,6 +128,7 @@ export async function GET(req: NextRequest) {
       team_avg_touren: teamAvg,
       bester_name:   sorted[0]?.fahrer_name ?? '',
       letzter_name:  sorted[total - 1]?.fahrer_name ?? '',
+      alert_count:   fahrer.filter(f => f.alert_hoch).length,
       gesamt:        total,
     } satisfies ApiResponse);
   } catch {
