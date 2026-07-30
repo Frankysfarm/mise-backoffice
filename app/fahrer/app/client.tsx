@@ -11964,3 +11964,6 @@ export { FahrerPhase4928MeineStoppEffizienz } from './phase4928-meine-stopp-effi
 export { FahrerPhase4933MeineFruehprod } from './phase4933-meine-fruehprod';
 // Phase 4936 — Meine Kilometer-Effizienz (Route emerald; km_pro_tour 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen <5,5/<8,0/≥8,0; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase4936MeineKmEffizienz } from './phase4936-meine-km-effizienz';
+
+// Phase 4938 — Smart-Tour-Stopp-Navigator V10 (Navigation2 blue; Wetter-aware Routing regen/sturm/klar/bewoelkt+Einfluss-Min; Verkehr-Info frei/mäßig/stau je Stopp; Hero-Karte Aktiv-Stopp+Google+Waze-Deeplinks; Notiz-Alert gelb; Telefon-Anruf-Button; ETA-Uhrzeit+Min; Schicht-Ziel-Fortschrittsbalken; Verdienst+Trinkgeld-Strip; Aufklappbare Stopp-Details Zahlart+ETA-Uhrzeit; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase4938SmartTourStoppNavV10 } from './phase4938-smart-tour-stopp-nav-v10';

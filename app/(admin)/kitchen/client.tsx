@@ -12668,3 +12668,6 @@ export { KitchenPhase4938KmEffizienzTicker } from './phase4938-km-effizienz-tick
 
 // Phase 4900 — Smart-Timing Countdown V24 (ChefHat indigo; Station-Auslastung 3-Kacheln Grill/Friture/Kalt Eff%; Kochzeit-Trend TrendingUp/Down je Order; Fahrer-Nahe-Zap; KI-Empfehlung; 4-KPI-Grid; 7-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4900SmartTimingCountdownV24 } from './phase4900-smart-timing-countdown-v24';
+
+// Phase 4936 — Smart-Timing Countdown V26 (ChefHat indigo; Hitze-Cockpit Gesamt-Hitze-Score; Stations-Hitze-Map 3-Kacheln Grill/Friture/Kalt Hitze-Level kalt/warm/heiß/kritisch+Auslastungsbalken; Kochzeit-Trend TrendingUp/Down; Fahrer-Nahe-Zap; KI-Empfehlung; 5-KPI-Grid; 9-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase4936SmartTimingCountdownV26 } from './phase4936-smart-timing-countdown-v26';
