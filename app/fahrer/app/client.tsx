@@ -1245,6 +1245,7 @@ import { FahrerPhase5027MeinTrinkgeld } from './phase5027-mein-trinkgeld';
 import { FahrerPhase5032MeineSchichtBilanz } from './phase5032-meine-schicht-bilanz';
 import { FahrerPhase5043MeinePuenktlichkeit } from './phase5043-meine-puenktlichkeit';
 import { FahrerPhase5048MeineStornoquote } from './phase5048-meine-stornoquote';
+import { FahrerPhase5053MeinExpressAnteil } from './phase5053-mein-express-anteil';
 import { FahrerPhase5038MeinePraemienQuote } from './phase5038-meine-praemien-quote';
 import { FahrerPhase5035TourStoppSmartNavV14 } from './phase5035-tour-stopp-smart-nav-v14';
 import { FahrerPhase5036TourStoppSmartNavV15 } from './phase5036-tour-stopp-smart-nav-v15';
@@ -7561,6 +7562,8 @@ export function FahrerApp({
           <FahrerPhase5043MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5048: Meine Stornoquote — XCircle orange; stornoquote_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤5%/≤10%/>10%; 30-Min-Polling */}
           <FahrerPhase5048MeineStornoquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5053: Mein Express-Anteil — Zap cyan; express_anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥35%/≥15%/<15%; 30-Min-Polling */}
+          <FahrerPhase5053MeinExpressAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5038: Meine Prämien-Quote — Award yellow; praemien_quote 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥75%/≥50%/<50%; 30-Min-Polling */}
           <FahrerPhase5038MeinePraemienQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5025: Smart-Tour-Stopp-Navigator V13 — Schicht-Rang-Badge; Trinkgeld-Erwartungs-Anzeige; Entfernung je Stopp; CO₂-KPI; 4er-Mini-Stats; Erweiterte Stopp-Details mit Tipp+Telefon; 20-Sek-Polling */}
@@ -12085,6 +12088,8 @@ export { FahrerPhase5032MeineSchichtBilanz } from './phase5032-meine-schicht-bil
 export { FahrerPhase5043MeinePuenktlichkeit } from './phase5043-meine-puenktlichkeit';
 // Phase 5048 — Meine Stornoquote (XCircle orange; stornoquote_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤5%/≤10%/>10%; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5048MeineStornoquote } from './phase5048-meine-stornoquote';
+// Phase 5053 — Mein Express-Anteil (Zap cyan; express_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥35%/≥15%/<15%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5053MeinExpressAnteil } from './phase5053-mein-express-anteil';
 
 // Phase 4938 — Smart-Tour-Stopp-Navigator V10 (Navigation2 blue; Wetter-aware Routing regen/sturm/klar/bewoelkt+Einfluss-Min; Verkehr-Info frei/mäßig/stau je Stopp; Hero-Karte Aktiv-Stopp+Google+Waze-Deeplinks; Notiz-Alert gelb; Telefon-Anruf-Button; ETA-Uhrzeit+Min; Schicht-Ziel-Fortschrittsbalken; Verdienst+Trinkgeld-Strip; Aufklappbare Stopp-Details Zahlart+ETA-Uhrzeit; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase4938SmartTourStoppNavV10 } from './phase4938-smart-tour-stopp-nav-v10';
