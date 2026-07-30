@@ -169,7 +169,7 @@ export function LieferdienstPhase4450StatistikenDashboardV7({ locationId }: Prop
               <YAxis hide />
               <Tooltip
                 contentStyle={{ fontSize: 10, borderRadius: 8, border: '1px solid #e5e7eb', padding: '4px 8px' }}
-                formatter={(v: number) => [`${euro(v)}`, 'Umsatz']}
+                formatter={((v: number) => [`${euro(v)}`, 'Umsatz']) as any}
               />
               <Bar dataKey="umsatz" radius={[3, 3, 0, 0]}>
                 {data.stunden_umsatz.map((s, i) => (

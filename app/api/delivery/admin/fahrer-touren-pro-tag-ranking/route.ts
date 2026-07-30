@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     type DriverRow = { driver_id: string; created_at: string; drivers?: { name: string } | null };
     const driverMap = new Map<string, { name: string; days: Set<string>; tours: number }>();
 
-    (data ?? []).forEach((row: DriverRow) => {
+    (data ?? []).forEach((row: any) => {
       if (!row.driver_id) return;
       const name = (row.drivers as { name: string } | null)?.name ?? row.driver_id;
       const day = row.created_at ? row.created_at.slice(0, 10) : '';

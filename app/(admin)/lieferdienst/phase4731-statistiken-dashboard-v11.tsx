@@ -205,7 +205,7 @@ export function LieferdienstPhase4731StatistikenDashboardV11({ locationId }: { l
               contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 6, fontSize: 11 }}
               labelStyle={{ color: '#94a3b8' }}
               itemStyle={{ color: '#a5b4fc' }}
-              formatter={(v: number) => modus === 'umsatz' ? [`${v} €`, 'Umsatz'] : [v, 'Bestellungen']}
+              formatter={((v: number) => modus === 'umsatz' ? [`${v} €`, 'Umsatz'] : [v, 'Bestellungen']) as any}
             />
             <Bar dataKey="wert" radius={[3, 3, 0, 0]}>
               {chartData.map((d, i) => (

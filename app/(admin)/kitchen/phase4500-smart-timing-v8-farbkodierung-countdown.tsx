@@ -255,7 +255,7 @@ export function KitchenPhase4500SmartTimingV8FarbkodierungCountdown({ locationId
                   <span className="text-[10px] text-muted-foreground truncate max-w-[80px]">{o.kunde_name}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  {o.fahrer_wartet && <Zap className="h-3 w-3 text-orange-500" title="Fahrer wartet" />}
+                  {o.fahrer_wartet && <Zap className="h-3 w-3 text-orange-500" aria-label="Fahrer wartet" />}
                   <span className={`text-sm font-bold tabular-nums ${cfg.text}`}>{fmtSec(sec)}</span>
                 </div>
               </div>

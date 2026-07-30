@@ -262,7 +262,7 @@ export function LieferdienstPhase4680ShiftKpiDashboard() {
                 tickLine={false}
               />
               <Tooltip
-                formatter={(v: number) => [`${v} Bestellungen`, '']}
+                formatter={((v: number) => [`${v} Bestellungen`, '']) as any}
                 contentStyle={{ fontSize: 10, padding: '4px 8px', borderRadius: 8, border: '1px solid #e5e7eb' }}
               />
               <Bar dataKey="orders" radius={[3, 3, 0, 0]}>

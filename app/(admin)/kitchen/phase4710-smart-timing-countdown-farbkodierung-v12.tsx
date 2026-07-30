@@ -127,7 +127,7 @@ export function KitchenPhase4710SmartTimingCountdownFarbkodierungV12({
       if (locationId) q.eq('location_id', locationId);
       const { data: rows } = await q;
       if (rows && rows.length > 0) {
-        const mapped: OrderTiming[] = rows.map(r => ({
+        const mapped: OrderTiming[] = rows.map((r: any) => ({
           id: r.id,
           bestellnummer: r.bestellnummer ?? r.id.slice(-4),
           artikel_name: 'Bestellung',

@@ -242,11 +242,11 @@ export function LieferdienstPhase4735StatistikenDashboardV12({ locationId }: { l
               contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 6, fontSize: 11 }}
               labelStyle={{ color: '#94a3b8' }}
               itemStyle={{ color: '#6ee7b7' }}
-              formatter={(v: number) => {
+              formatter={((v: number) => {
                 if (modus === 'umsatz') return [`${v} €`, 'Umsatz'];
                 if (modus === 'puenktlichkeit') return [`${v}%`, 'Pünktlichkeit'];
                 return [v, 'Bestellungen'];
-              }}
+              }) as any}
             />
             <Bar dataKey="wert" radius={[3, 3, 0, 0]}>
               {chartData.map((d, i) => (

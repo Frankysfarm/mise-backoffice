@@ -159,7 +159,7 @@ export function LieferdienstPhase4500StatistikIntelligenceMaster({ locationId }:
               </div>
               <div className="flex items-end justify-between">
                 <span className={`text-lg font-black ${AMPEL_TEXT[kpi.ampel]}`}>
-                  {kpi.einheit === '€' && kpi.wert >= 1000
+                  {kpi.einheit === '€' && (kpi.wert as number) >= 1000
                     ? `${(Number(kpi.wert) / 1000).toFixed(1)}k`
                     : kpi.wert}
                   <span className="text-[10px] font-normal ml-0.5">{kpi.einheit}</span>
@@ -207,7 +207,7 @@ export function LieferdienstPhase4500StatistikIntelligenceMaster({ locationId }:
               <YAxis tick={{ fontSize: 8, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={30} />
               <Tooltip
                 contentStyle={{ fontSize: 10, borderRadius: 8, border: '1px solid #e5e7eb' }}
-                formatter={(v: number) => chartMode === 'umsatz' ? [`${v}€`, 'Umsatz'] : [v, 'Bestellungen']}
+                formatter={((v: number) => chartMode === 'umsatz' ? [`${v}€`, 'Umsatz'] : [v, 'Bestellungen']) as any}
               />
               <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>
                 {data.stunden_verlauf.map((_, i) => (

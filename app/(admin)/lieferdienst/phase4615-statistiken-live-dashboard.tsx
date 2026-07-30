@@ -188,7 +188,7 @@ export function LieferdienstPhase4615StatistikenLiveDashboard({ locationId }: Pr
               <XAxis dataKey="name" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={{ fontSize: 11, padding: '4px 8px' }}
-                formatter={(v: number) => chartMode === 'umsatz' ? [`${v} €`, 'Umsatz'] : [`${v}`, 'Bestellungen']}
+                formatter={((v: number) => chartMode === 'umsatz' ? [`${v} €`, 'Umsatz'] : [`${v}`, 'Bestellungen']) as any}
               />
               <Bar dataKey="wert" radius={[3, 3, 0, 0]}>
                 {chartData.map((_, i) => (

@@ -218,10 +218,10 @@ export function LieferdienstPhase4410StatistikDashboardV6() {
             <XAxis dataKey="stunde" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
             <Tooltip
               contentStyle={{ fontSize: 11, padding: '4px 8px' }}
-              formatter={(val: number) => [
+              formatter={((val: number) => [
                 chartMode === 'umsatz' ? `${val} €` : chartMode === 'sla' ? `${val}%` : val,
                 chartMode === 'bestellungen' ? 'Bestellungen' : chartMode === 'umsatz' ? 'Umsatz' : 'SLA'
-              ]}
+              ]) as any}
             />
             <Bar dataKey={chartKey} radius={[3, 3, 0, 0]}>
               {chartData.map((d, i) => (

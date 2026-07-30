@@ -83,8 +83,8 @@ export async function GET(req: NextRequest) {
     const groupCur = new Map<string, { name: string; times: number[] }>();
     for (const d of curData) {
       if (!d.driver_id || typeof d.delivery_time_min !== 'number' || d.delivery_time_min <= 0) continue;
-      const prev = groupCur.get(d.driver_id) ?? { name: d.driver_name ?? d.driver_id, times: [] };
-      prev.times.push(d.delivery_time_min);
+      const prev = groupCur.get(d.driver_id) ?? { name: d.driver_name ?? d.driver_id, times: [] as number[] };
+      prev.times.push(d.delivery_time_min as number);
       groupCur.set(d.driver_id, prev);
     }
 

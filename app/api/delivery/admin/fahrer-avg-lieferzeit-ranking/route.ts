@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
     const groupCur = new Map<string, { name: string; times: number[] }>();
     for (const o of curData) {
       if (!o.driver_id) continue;
-      const prev = groupCur.get(o.driver_id) ?? { name: o.driver_name ?? o.driver_id, times: [] };
+      const prev = groupCur.get(o.driver_id) ?? { name: o.driver_name ?? o.driver_id, times: [] as number[] };
       prev.times.push(o.delivery_minutes ?? 0);
       groupCur.set(o.driver_id, prev);
     }

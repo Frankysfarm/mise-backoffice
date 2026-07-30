@@ -239,7 +239,7 @@ export function LieferdienstPhase2800StatistikenExecutiveDashboard() {
           <BarChart data={chartData} barSize={20}>
             <XAxis dataKey="h" tick={{ fontSize: 9 }} axisLine={false} tickLine={false} />
             <Tooltip
-              formatter={(val: number) => [chartMode === 'umsatz' ? `€${val.toFixed(0)}` : val, '']}
+              formatter={((val: number) => [chartMode === 'umsatz' ? `€${val.toFixed(0)}` : val, '']) as any}
               contentStyle={{ fontSize: 10, padding: '2px 6px' }}
             />
             <Bar dataKey="wert" radius={[3, 3, 0, 0]}>

@@ -155,7 +155,7 @@ export function LieferdienstPhase4620StatistikenLiveDashboardV2({ locationId }: 
         <ResponsiveContainer width="100%" height={80}>
           <BarChart data={data.stunden_verlauf} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
             <XAxis dataKey="stunde" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
-            <Tooltip formatter={(v: number) => chartMode === 'umsatz' ? `${v} €` : String(v)} contentStyle={{ fontSize: 11 }} />
+            <Tooltip formatter={((v: number) => chartMode === 'umsatz' ? `${v} €` : String(v)) as any} contentStyle={{ fontSize: 11 }} />
             <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>
               {data.stunden_verlauf.map((_, i) => (
                 <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />

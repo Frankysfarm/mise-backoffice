@@ -37,7 +37,7 @@ export async function GET(request: Request) {
 
     const driverMap = new Map<string, { name: string; total: number; first_success: number }>();
 
-    (data ?? []).forEach((row: OrderRow) => {
+    (data ?? []).forEach((row: any) => {
       if (!row.driver_id) return;
       const name = (row.drivers as { name: string } | null)?.name ?? row.driver_id;
       const existing = driverMap.get(row.driver_id) ?? { name, total: 0, first_success: 0 };

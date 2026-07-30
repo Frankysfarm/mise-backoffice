@@ -8382,10 +8382,7 @@ export function FahrerApp({
       {/* Phase 4410: Tour-Stopp-Navigator V5 — Sticky-NavBar blau; Notiz-Alert amber; Bar-Kassierhilfe; Verdienst-Live-Strip mit Trinkgeld; Score+Pünktlichkeit Strip; Artikel-Liste expandierbar; 1-Tap-Navigation; 20-Sek-Polling; Mock-Fallback */}
       {activeBatch && activeBatch.status === 'unterwegs' && (
         <div className="px-4 pb-4">
-          <FahrerPhase4410TourStoppNavigatorV5
-            driverId={driver.id}
-            activeBatchId={activeBatch.id}
-          />
+          <FahrerPhase4410TourStoppNavigatorV5 />
         </div>
       )}
 

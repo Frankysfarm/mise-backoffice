@@ -87,7 +87,7 @@ function shiftScore(orders: Order[], now: number): number {
     if (diff < 15 * 60_000) return 70;
     return 100;
   });
-  return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  return Math.round(scores.reduce((a: number, b) => a + b, 0 as number) / scores.length);
 }
 
 export function KitchenPhase1000SmartTimingDashboard({ orders }: Props) {

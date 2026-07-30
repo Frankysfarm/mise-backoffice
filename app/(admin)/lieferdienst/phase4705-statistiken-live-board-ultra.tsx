@@ -250,7 +250,7 @@ export function LieferdienstPhase4705StatistikenLiveBoardUltra({
             <BarChart data={data.stunden} barSize={14}>
               <XAxis dataKey="hour" tick={{ fontSize: 10 }} axisLine={false} tickLine={false} />
               <Tooltip
-                formatter={(v: number) => chartMode === 'umsatz' ? `${v}€` : `${v}`}
+                formatter={((v: number) => chartMode === 'umsatz' ? `${v}€` : `${v}`) as any}
                 contentStyle={{ fontSize: 10, borderRadius: 8 }}
               />
               <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>

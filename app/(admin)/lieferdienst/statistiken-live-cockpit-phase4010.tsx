@@ -116,7 +116,7 @@ export function LieferdienstStatistikenLiveCockpitPhase4010() {
           .in('status', ['geliefert', 'abgeschlossen']),
       ]);
 
-      const totalUmsatz = (umsatzData ?? []).reduce((s, o) => s + (o.gesamtbetrag ?? 0), 0);
+      const totalUmsatz = (umsatzData ?? []).reduce((s: any, o: any) => s + (o.gesamtbetrag ?? 0), 0);
 
       setData(prev => ({
         ...prev,

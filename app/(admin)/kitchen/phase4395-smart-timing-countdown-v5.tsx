@@ -189,7 +189,7 @@ export function KitchenPhase4395SmartTimingCountdownV5({ locationId }: Props) {
             <div key={b.order_id}>
               <button
                 onClick={() => setExpanded((prev) => { const n = new Set(prev); n.has(b.order_id) ? n.delete(b.order_id) : n.add(b.order_id); return n; })}
-                className={`w-full flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-left border ${isCritical ? 'border-red-200 ' + st.ring : 'border-transparent ' + st.ring} ${st.pulse ? 'animate-pulse' : ''}`}
+                className={`w-full flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-left border ${isCritical ? 'border-red-200 ' + st.ring : 'border-transparent ' + st.ring} ${(st as any).pulse ? 'animate-pulse' : ''}`}
               >
                 <span className={`w-2 h-2 rounded-full flex-shrink-0 ${st.dot}`} />
                 <span className="text-[10px] font-semibold text-gray-500 w-9 flex-shrink-0">#{b.bestellnummer}</span>

@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const locationId = searchParams.get('location_id');
 
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
 
     const driverMap = new Map<string, { name: string; total_km: number; count: number }>();
 
-    (data ?? []).forEach((row: { driver_id: string; route_km: number; drivers?: { name: string } | null }) => {
+    (data ?? []).forEach((row: any) => {
       if (!row.driver_id) return;
       const name = (row.drivers as { name: string } | null)?.name ?? row.driver_id;
       const existing = driverMap.get(row.driver_id) ?? { name, total_km: 0, count: 0 };

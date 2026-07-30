@@ -148,7 +148,7 @@ export function LieferdienstPhase4715StatistikenTagesPerformanceBoard({ location
               <XAxis dataKey="stunde" tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={h => `${h}h`} />
               <Tooltip
                 contentStyle={{ background: '#1e293b', border: 'none', borderRadius: 8, fontSize: 11 }}
-                formatter={(v: number) => [`€${v}`, 'Umsatz']}
+                formatter={((v: number) => [`€${v}`, 'Umsatz']) as any}
                 labelFormatter={l => `${l}:00`}
               />
               <Bar dataKey="umsatz" radius={[3, 3, 0, 0]}>
@@ -169,7 +169,7 @@ export function LieferdienstPhase4715StatistikenTagesPerformanceBoard({ location
             <LineChart data={data.stunden_verlauf}>
               <YAxis domain={[60, 100]} hide />
               <XAxis dataKey="stunde" tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={h => `${h}h`} />
-              <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: 8, fontSize: 11 }} formatter={(v: number) => [`${v}%`, 'Pünktlichkeit']} />
+              <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: 8, fontSize: 11 }} formatter={((v: number) => [`${v}%`, 'Pünktlichkeit']) as any} />
               <Line type="monotone" dataKey="puenktlichkeit" stroke="#34d399" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>

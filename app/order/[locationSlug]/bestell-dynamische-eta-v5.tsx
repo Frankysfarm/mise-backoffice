@@ -22,6 +22,7 @@ interface TrackingData {
   verzoegerung_min: number | null;
   kuechen_auslastung: 'normal' | 'hoch' | 'kritisch';
   navi_live_url: string | null;
+  error?: string;
 }
 
 const MOCK: TrackingData = {

@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
     const groupCur = new Map<string, Acc>();
     for (const row of curData) {
       if (!row.driver_id) continue;
-      const name = (row.mise_drivers as { name: string } | null)?.name ?? row.driver_id.slice(0, 8);
+      const name = (Array.isArray(row.mise_drivers) ? row.mise_drivers[0] : (row.mise_drivers as { name: string } | null))?.name ?? row.driver_id.slice(0, 8);
       const prev = groupCur.get(row.driver_id) ?? { name, total: 0, accepted: 0 };
       groupCur.set(row.driver_id, {
         name:     prev.name,

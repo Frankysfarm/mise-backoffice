@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
       if (!t.driver_id || !t.arrived_at_restaurant || !t.picked_up_at) continue;
       const diffMin = (new Date(t.picked_up_at).getTime() - new Date(t.arrived_at_restaurant).getTime()) / 60000;
       if (diffMin < 0 || diffMin > 60) continue;
-      const prev = groupCur.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, times: [] };
+      const prev = groupCur.get(t.driver_id) ?? { name: t.driver_name ?? t.driver_id, times: [] as number[] };
       prev.times.push(diffMin);
       groupCur.set(t.driver_id, prev);
     }
