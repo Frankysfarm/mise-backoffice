@@ -16,6 +16,7 @@ import { Phase1000DynamischeEtaLiveTrackingPro } from '../phase1000-dynamische-e
 import { Phase4480DynamischeEtaLiveTrackingV7 } from '../phase4480-dynamische-eta-live-tracking-v7';
 import { Phase4485DynamischeEtaLiveTrackingV8 } from '../phase4485-dynamische-eta-live-tracking-v8';
 import { StorefrontPhase4490DynamischeEtaLiveV9 } from '../phase4490-dynamische-eta-live-v9';
+import { StorefrontPhase4495DynamischeEtaLiveV10 } from '../phase4495-dynamische-eta-live-v10';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 

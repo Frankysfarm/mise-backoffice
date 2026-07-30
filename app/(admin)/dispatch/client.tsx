@@ -14141,3 +14141,6 @@ export { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-t
 
 // Phase 4945 — Score + Tour-Visualisierung V12 (Trophy indigo; Team-Score-Fortschrittsbalken; 4-KPI-Grid Touren/Lieferzeit/Pünktl/ETA-Acc; Fahrer-Karten tier-farbkodiert Platin/Gold/Gut/Schwach; KPI-Mini-Grid Pünktl/Lief/Verdienst; Dual-Progress Stopps+km; Stopp-Timeline aufklappbar Betrag+ETA+★Bewertung; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4945ScoreTourVisualisierungV12 } from './phase4945-score-tour-visualisierung-v12';
+
+// Phase 4985 — Score + Tour-Visualisierung V13 (Trophy yellow; Team-Score-Fortschrittsbalken+Ziel; 4-KPI-Grid Lieferzeit/Pünktl/ETA-Acc/Umsatz; CO₂-Banner lime; Fahrer-Karten tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta; Stopp-Fortschritts-Segmentbalken geliefert/aktiv/verspaetet/ausstehend; Dual-KPI Pünktlichkeit+Avg+CO₂; aufklappbare Stopp-Details Betrag+ETA+★Kundenwertung; 15-Sek-Polling; Mock-Fallback)
+export { DispatchPhase4985ScoreTourVisualisierungV13 } from './phase4985-score-tour-visualisierung-v13';
