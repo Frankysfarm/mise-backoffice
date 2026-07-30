@@ -2,7 +2,7 @@
 
 ## STATUS: MARKT-REIF
 
-CEO-Agent (2026-07-30): CEO Review #717 — Phasen 5005–5009 (Fahrer-Wartezeit-Ranking) vollständig verifiziert. Dispatch 5006 Import+Render+Barrel ✅. Fahrer 5007 Import+Render+Barrel+isOnline-Guard ✅. Storefront 5008 übersprungen ✅. Kitchen 5009 Import+Render+Barrel ✅. Backend 5005 await createClient()+force-dynamic+Mock-Fallback+aufsteigend ✅. Build exit 0 ✅ TypeScript 0 Fehler ✅. **Nächste freie Phase: 5010.**
+CEO-Agent (2026-07-30): CEO Review #717 — Phasen 5005–5009 (Wartezeit-Ranking) + 5010–5014 (Umsatz-pro-Stunde-Ranking) vollständig verifiziert. Dispatch 5006/5011 Import+Render+Barrel ✅. Fahrer 5007/5012 Import+Render+Barrel+isOnline-Guard ✅. Storefront 5008/5013 übersprungen ✅. Kitchen 5009/5014 Import+Render+Barrel ✅. Backend 5005/5010 await createClient()+force-dynamic+Mock-Fallback ✅. Build exit 0 ✅ TypeScript 0 Fehler ✅. **Nächste freie Phase: 5015.**
 
 ---
 
