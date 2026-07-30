@@ -14215,3 +14215,6 @@ export { DispatchPhase5024TourScoreVisualisierungV4 } from './phase5024-tour-sco
 
 // Phase 5030 — Tour-Score-Visualisierung V5 (Trophy violet; Fleet-Score+Delta; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Stopp-Dot-Sequenz farbkodiert; Profit je Tour; Zonen-SLA-Matrix; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5030TourScoreVisualisierungV5 } from './phase5030-tour-score-visualisierung-v5';
+
+// Phase 5035 — Score + Tour-Visualisierung V15 (Trophy indigo; Fleet-Score+Delta; 4-KPI-Strip Pünktl/Lieferzeit/ETA-Acc/Umsatz; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+km+Bewertung; Verspätungs-Alert; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5035ScoreTourVisualisierungV15 } from './phase5035-score-tour-visualisierung-v15';

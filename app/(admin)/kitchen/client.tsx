@@ -12791,3 +12791,6 @@ export { KitchenPhase5023SmartTimingFarbkodierungV30 } from './phase5023-smart-t
 
 // Phase 5030 — Smart-Timing Countdown V31 (ChefHat indigo; Stations-Heatmap Grill/Friture/Kalt/Pasta kalt/warm/heiß/kritisch+Auslastungsbalken; Batch-Koordinations-Score; KI-Kochstart-Empfehlung je Order; Fahrer-ETA-Sync-Zap; 9-stufige Ampel; 6-KPI-Grid; Fortschrittsbalken farbkodiert; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5030SmartTimingCountdownV31 } from './phase5030-smart-timing-countdown-v31';
+
+// Phase 5035 — Smart-Timing Countdown V32 (Clock amber; Bestellungen-Countdown-Wall 2-spaltig farbkodiert rot<5min/gelb<10min/grün≥10min; Prio-Icon Flame/Zap/ChefHat; Batch-ID-Badge; Fortschrittsbalken je Bestellung; Schicht-Score; Aktive-Batches KPI; Warnsignal Kritisch-Anzahl; 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase5035SmartTimingCountdownV32 } from './phase5035-smart-timing-countdown-v32';

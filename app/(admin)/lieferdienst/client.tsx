@@ -5112,3 +5112,6 @@ export { LieferdienstPhase5026StatistikenDashboardV23 } from './phase5026-statis
 
 // Phase 5030 — Statistiken Dashboard V24 (CheckCircle emerald; 8-KPI-Grid+Δ Umsatz/Bestellungen/Ø-Lieferzeit/Pünktl/Fahrer/Bewertung/Trinkgeld/Storno; Stunden-BarChart+7-Tage-LineChart Tab-Nav; Top-3-Fahrer tier-farbkodiert Platin/Gold/Gut+Trinkgeld; Zonen-Matrix SLA%+Avg+Kapazitäts-Balken; 30-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5030StatistikenDashboardV24 } from './phase5030-statistiken-dashboard-v24';
+
+// Phase 5035 — Statistiken Dashboard V25 (Activity emerald; Monatsziel-Fortschrittsbalken; 8-KPI-Grid 4-spaltig Ampel+Δ%+Ziel; Stunden-BarChart+7-Tage-LineChart Tab-Nav; Top-3-Fahrer tier-farbkodiert Platin/Gold/Gut/Schwach; Zonen-SLA-Matrix 4-spaltig; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5035StatistikenDashboardV25 } from './phase5035-statistiken-dashboard-v25';

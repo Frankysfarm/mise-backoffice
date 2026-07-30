@@ -12087,3 +12087,6 @@ export { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stop
 
 // Phase 1955 — Smart Tour-Stopp Cockpit (Route indigo; Alle Stopps mit Status-Dots fertig/aktiv/ausstehend/verspaetet; ETA-Countdown je Stopp; Navigation-CTA Google/Apple Maps; Notiz-Alert; Telefon-Link; Tour-Fortschrittsbalken; Score-Badge; mobile-first; 15-Sek-Polling; Mock-Fallback)
 export { FahrerPhase1955SmartTourStoppCockpit } from './phase1955-smart-tour-stopp-cockpit';
+
+// Phase 5035 — Tour-Stopp Smart Navigator V14 (Route blue; Schicht-KPI-Grid Verdienst/Trinkgeld/km; Stopp-Liste mit Status-Badge geliefert/aktiv/ausstehend; ETA-Ampel rot<5min/gelb<10min/grün; aufklappbare Detail-Ansicht Notiz-Alert+Betrag+Barzahlung-Badge; Navigation-CTA Google Maps; Telefon-Link; Bewertungs-Vorschau; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase5035TourStoppSmartNavV14 } from './phase5035-tour-stopp-smart-nav-v14';

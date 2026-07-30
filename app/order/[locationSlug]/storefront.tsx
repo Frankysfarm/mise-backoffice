@@ -4040,3 +4040,6 @@ export { StorefrontPhase1000DynamischeEtaLiveUltimate } from './phase1000-dynami
 
 // Phase 4475 — Dynamische ETA Live-Tracking V6 (Truck blue; Sekunden-Countdown 4xl farbkodiert Grün/Gelb/Rot; ETA-Min/Max-Korridor; 5-stufige Phasen-Timeline Bestellt→Küche→Bereit→Unterwegs→Geliefert; Fortschrittsbalken; Fahrer-Card Name+Distanz+ETA-Konfidenz+Proximity-Pulsbalken; Verzögerungs-Alert; Bewertungs-Sterne nach Zustellung; 15-Sek-Polling; Mock-Fallback)
 export { Phase4475DynamischeEtaLiveTrackingV6 } from './phase4475-dynamische-eta-live-tracking-v6';
+
+// Phase 4500 — Dynamische ETA Live Hub (Clock indigo; ETA-Hero-Countdown 4xl farbkodiert; ETA-Korridor Min/Max; Konfidenz-Balken; 5-stufige Phasen-Timeline Bestätigt→Küche→Abholung→Unterwegs→Geliefert animiert; Fahrer-Info-Card Name+Distanz; Küche-Fertig-In-Hinweis; Geliefert-Celebration; 20-Sek-Polling; Mock-Fallback)
+export { Phase4500DynamischeEtaLiveHub } from './phase4500-dynamische-eta-live-hub';
