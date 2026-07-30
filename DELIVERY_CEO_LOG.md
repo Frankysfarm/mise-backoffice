@@ -19,7 +19,7 @@
 | 4925 | Abendprod Ticker | Kitchen | `KitchenPhase4925AbendprodTicker` | ✅ Import+Render+Barrel; Champion #1 + T/h; Team-Avg; Alert-Badge |
 
 **Build-Ergebnis:** ✓ Compiled successfully (exit 0) ✅
-**TypeScript:** Build sauber ✅ (tsc --noEmit timeout bei Projektgröße — Build-Exit-0 ist maßgeblich)
+**TypeScript:** `tsc --noEmit` → Exit 0 ✅ — 0 Fehler bestätigt
 
 **System-Synchronisation:**
 | System | Status |
