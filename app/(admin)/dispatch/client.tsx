@@ -1304,6 +1304,7 @@ import { DispatchPhase4932FruehprodBoard } from './phase4932-fruehprod-board';
 import { DispatchPhase4935KmEffizienzBoard } from './phase4935-km-effizienz-board';
 import { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-tour-visualisierung-v11';
 import { DispatchPhase5005TourScoreVisualisierungV3 } from './phase5005-tour-score-visualisierung-v3';
+import { DispatchPhase5024TourScoreVisualisierungV4 } from './phase5024-tour-score-visualisierung-v4';
 import { DispatchPhase4940UmsatzKmBoard } from './phase4940-umsatz-km-board';
 import { DispatchPhase4949PuenktlichkeitBoard } from './phase4949-puenktlichkeit-board';
 import { DispatchPhase4954BewertungsBoard } from './phase4954-bewertungs-board';
@@ -5392,6 +5393,8 @@ export function DispatchBoard({
           <DispatchPhase5016KilometerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5021: Bestellwert-Ranking Board — ShoppingBag emerald; Rang 1=höchster Ø-Bestellwert; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5021BestellwertBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5024: Tour-Score-Visualisierung V4 — Fahrer-Score-Rangliste mit Delta; Tour-Visualisierung Stopp-Fortschrittsbalken; Delay-Risiko-Badge; Profit je Tour; Zonen-Matrix; 20-Sek-Polling */}
+          <DispatchPhase5024TourScoreVisualisierungV4 />
           {/* Phase 5005: Tour-Score-Visualisierung V3 — Trophy violet; Fleet-Score+Delta; CO₂-Banner; Score-BarChart stündlich; Tab-Nav Fahrer/Zonen; Zonen-Matrix SLA%+Avg+Umsatz+CO₂; 20-Sek-Polling */}
           <DispatchPhase5005TourScoreVisualisierungV3 />
           {/* Phase 4935: Score+Tour-Visualisierung V11 — Trophy; Zonen-SLA-Matrix 3 Zonen; CO₂-kg je Fahrer+Gesamt; Dual-Progress Stopps+km; Aufklappbare Stopp-Timeline; 20-Sek-Polling */}
@@ -14193,3 +14196,6 @@ export { DispatchPhase5000TourScoreVisualisierungV2 } from './phase5000-tour-sco
 
 // Phase 5005 — Tour-Score-Visualisierung V3 (Trophy violet; Fleet-Score+Delta+TrendIcon; CO₂-Banner lime Schicht-Gesamt+Ziel-Balken; Score-BarChart stundlich farbkodiert grün/gelb/rot; Tab-Nav Fahrer/Zonen; Fahrer-Karten tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+CO₂/kg; Stopp-Fortschrittsbalken; Zonen-Matrix SLA%+Avg+Umsatz+CO₂+Balken; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5005TourScoreVisualisierungV3 } from './phase5005-tour-score-visualisierung-v3';
+
+// Phase 5024 — Tour-Score-Visualisierung V4 (Route violet; Fahrer-Score-Rangliste sortiert+Delta+Score-Balken+Delay-Risiko; Tour-Visualisierung Stopp-Dotsequenz farbkodiert fertig/aktiv/verspaetet/ausstehend; Profit je Tour; KPI 6er Grid; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5024TourScoreVisualisierungV4 } from './phase5024-tour-score-visualisierung-v4';

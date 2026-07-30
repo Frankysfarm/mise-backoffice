@@ -1241,6 +1241,7 @@ import { FahrerPhase5012MeinUmsatzProStunde } from './phase5012-mein-umsatz-pro-
 import { FahrerPhase5017MeineKilometer } from './phase5017-meine-kilometer';
 import { FahrerPhase5022MeinBestellwert } from './phase5022-mein-bestellwert';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
+import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
 import { FahrerPhase4829TourStoppSmartNavigatorV2 } from './phase4829-tour-stopp-smart-navigator-v2';
 import { FahrerPhase4848MeineTourStopsLive } from './phase4848-meine-tour-stops-live';
@@ -7542,6 +7543,8 @@ export function FahrerApp({
           <FahrerPhase5017MeineKilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5022b: Mein Bestellwert — ShoppingBag emerald; avg_bestellwert 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40€/≥25€/<25€; 30-Min-Polling */}
           <FahrerPhase5022MeinBestellwert driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5025: Smart-Tour-Stopp-Navigator V13 — Schicht-Rang-Badge; Trinkgeld-Erwartungs-Anzeige; Entfernung je Stopp; CO₂-KPI; 4er-Mini-Stats; Erweiterte Stopp-Details mit Tipp+Telefon; 20-Sek-Polling */}
+          <FahrerPhase5025SmartTourStoppNavV13 />
           {/* Phase 5022: Smart-Tour-Stopp-Navigator V12 — Dreifach-Fortschrittsbalken Stopps+km+Schicht-Ziel; Google+Waze-Deeplinks; Offline-Safe; Geliefert-Button; Zahlart-Badges; 20-Sek-Polling */}
           <FahrerPhase5022SmartTourStoppNavV12 />
           {/* Phase 4938: Smart-Tour-Stopp-Navigator V10 — Wetter-aware Routing; Verkehrslage je Stopp; Google/Waze-Deeplinks; Schicht-Ziel-Fortschrittsbalken; Verdienst+Trinkgeld-Strip; 20-Sek-Polling */}
@@ -12065,3 +12068,6 @@ export { FahrerPhase5000SmartTourStoppNavV11 } from './phase5000-smart-tour-stop
 
 // Phase 5022 — Smart-Tour-Stopp-Navigator V12 (Navigation2 blue; Dreifach-Fortschrittsbalken Stopps+km+Schicht-Ziel; Hero-Karte Aktiv-Stopp Google+Waze-Deeplinks+Anruf; Notiz-Alert gelb; Etage+Türcode-Badges; Zahlart-Badge bar/karte/online+Betrag; Geliefert-Bestätigen-Button; Offline-Safe; Bewertungs-Star nach Lieferung; Ausstehende Stopps aufklappbar Navi-Vorschau; Verspätete Stopps rot+pulse; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
+
+// Phase 5025 — Smart-Tour-Stopp-Navigator V13 (Navigation2 blue; Schicht-Rang-Badge amber; Trinkgeld-Erwartungs-Anzeige kumuliert; Entfernung je Stopp m/km; CO₂-KPI teal; 4er-Mini-Stats Score+Km+Tipp+CO₂; Stopp-Details erweitert Tipp+Telefon-Link; Dual-Progress Stopps+Schicht-Ziel; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
