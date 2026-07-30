@@ -14326,3 +14326,6 @@ export { DispatchPhase5099ProduktivitaetsBoard } from './phase5099-produktivitae
 
 // Phase 5102 — Zufriedenheits-Index-Board (Smile emerald-700; absteigend Rang 1=höchster Zufriedenheits-Index; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5102ZufriedenheitsIndexBoard } from './phase5102-zufriedenheits-index-board';
+
+// Phase 5110 — Score + Tour-Visualisierung V19 (Trophy violet; Fleet-Score+Delta+KPI-Grid; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+Betrag+Bewertung; Score-Balken; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5110ScoreTourVisualisierungV19 } from './phase5110-score-tour-visualisierung-v19';

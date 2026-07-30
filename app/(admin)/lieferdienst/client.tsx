@@ -5159,3 +5159,6 @@ export { LieferdienstPhase5077RoiScorePanel } from './phase5077-roi-score-panel'
 
 // Phase 5078 — Produktivitäts-Panel (Zap amber; Ranking Gesamtscore Pünktlichkeit+Stopps/h+Bewertung; Score-Bar grün/gelb/rot; Medaille Top-3; TrendIcon; Alert <50 rot; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5078ProduktivitaetsPanel } from './phase5078-produktivitaets-panel';
+
+// Phase 5110 — Statistiken-Dashboard V29 (BarChart3 teal; Monatsziel-Fortschrittsbalken; 8-KPI-Grid 4-spaltig Umsatz+Bestellungen+Lieferzeit+Pünktl+Fahrer+Bewertung+Storno+Marge; Tab-Nav Stunden/Fahrer/Zonen; Stunden-BarChart farbkodiert; Top-3-Fahrer Score-Balken; Zonen-SLA-Matrix Kapazitäts-Balken; 30-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5110StatistikenDashboardV29 } from './phase5110-statistiken-dashboard-v29';

@@ -12901,3 +12901,6 @@ export { KitchenPhase5075SmartTimingDeliveryHub } from './phase5075-smart-timing
 
 // Phase 5076 — Smart Timing V36 (Flame orange; Batch-Gruppen Ampel gruen/gelb/rot/fertig; Fahrer-Sync-Hinweis; Batch-Bestellungen-Chips; KPI-Grid Aktiv/Kritisch/Fertig; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5076SmartTimingV36 } from './phase5076-smart-timing-v36';
+
+// Phase 5110 — Smart-Timing Countdown V37 (Timer indigo; 4-stufige Farbkodierung ok/warn/critical/overdue; Station-Filter-Tabs Grill/Friture/Kalt/Pasta/Ofen; 4-KPI-Grid Aktiv/Kritisch/Bereit/Score; Countdown-Wall 2-spaltig Fortschrittsbalken+Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase5110SmartTimingCountdownV37 } from './phase5110-smart-timing-countdown-v37';

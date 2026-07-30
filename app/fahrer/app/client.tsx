@@ -12196,3 +12196,6 @@ export type { SmartTourStop } from './tour-smart-navigation-hub';
 
 // Phase 5076 — Tour-Navi V18 (Navigation blue; Nächster-Stopp-Banner+Nav-CTA; Stop-Detail aufklappbar Adresse+Kunde+Betrag+Zahlungsart+Notiz; Fortschrittsbalken; Anruf-Button; Zahlungsart-Icon Bar/Karte; 15-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5076TourNaviV18 } from './phase5076-tour-navi-v18';
+
+// Phase 5110 — Tour-Stops & Navigation Hub (Route blue; Nächster-Stopp-Banner+Prio-Badge express/hoch+Nav-CTA; Stop-Liste aufklappbar Status-Dots fertig/unterwegs/ausstehend/problem; Fortschrittsbalken; Anruf-Button; Zahlungsart Bar/Karte; Notiz-Warnung; Distanz-km; Google-Maps-Deeplink; 15-Sek-Polling; Mock-Fallback)
+export { FahrerPhase5110TourStopsNavigationHub } from './phase5110-tour-stops-navigation-hub';
