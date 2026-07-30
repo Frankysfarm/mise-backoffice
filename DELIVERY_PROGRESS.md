@@ -35485,6 +35485,42 @@ KRITISCH: Nächste freie Phase ist **4963**! NIEMALS 4000–4962 verwenden. IMME
 
 ---
 
+## Batch 4968–4972 — Fahrer-Stunden-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+### Phase 4968 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-stunden-ranking/route.ts` (neu)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, stunden_gesamt, rank_delta, ampel, alert_hoch}], team_avg_stunden, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** sum(duration_hours) je Fahrer aus driver_shifts letzte 30 Tage; absteigend Rang 1=meiste Stunden=bester; ampelVon ≥80=rot/≥40=gelb/<40=gruen; alert_hoch wenn ≥80h; Mock Julia 92h/Max 78h/Sara 55h/Tim 32h; force-dynamic ✅; await createClient() ✅
+
+### Phase 4969 — Stunden-Ranking Board (Dispatch)
+**Component:** `DispatchPhase4969StundenBoard` — Clock violet-700; ABSTEIGEND Rang 1=meiste Stunden; KPI-Grid Meiste/Team-Avg/Wenigste; Alert ≥80h violet-300; Balken violet/gelb/grau farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4970 — Meine Stunden (Fahrer)
+**Component:** `FahrerPhase4970MeineStunden` — Clock violet-700; stunden_gesamt 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching 3 Stufen (≥80h/≥40h/<40h); 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 4971 — Storefront
+Übersprungen ✅
+
+### Phase 4972 — Stunden-Ticker (Kitchen)
+**Component:** `KitchenPhase4972StundenTicker` — Clock violet-700; Champion #1 Name+h; Team-Avg; Alert-Count Badge violet; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (vor meinen Änderungen identisch reproduzierbar). TypeScript: 0 Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 4968–4972)
+- **Belegt:** 4000–4972 (4942, 4945–4948, 4951, 4956, 4961, 4966, 4971 übersprungen)
+- **Nächste freie Phase: 4973**
+
+### Nächste Phasen 4973–4977 — Vorschlag: Fahrer-Distanz-Ranking (Gesamte gefahrene km je Fahrer letzte 30 Tage)
+1. **Phase 4973 Backend:** GET /api/delivery/admin/fahrer-distanz-ranking — sum(distance_km) je Fahrer letzte 30 Tage; absteigend Rang 1=meiste km; ampelVon ≥1000=rot/≥500=gelb/<500=gruen; alert_hoch wenn ≥1000km; Mock Julia 1240km/Max 980km/Sara 720km/Tim 410km; force-dynamic; await createClient().
+2. **Phase 4974 Dispatch:** `DispatchPhase4974DistanzBoard` — MapPin emerald-700; KPI-Grid Meiste/Team-Avg/Wenigste; Alert ≥1000km; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 4975 Fahrer:** `FahrerPhase4975MeineDistanz` — MapPin emerald-700; distanz_gesamt 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥1000km/≥500km/<500km; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 4976 Storefront:** Überspringen.
+5. **Phase 4977 Kitchen:** `KitchenPhase4977DistanzTicker` — MapPin emerald-700; Champion #1 Name+km; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **4973**! NIEMALS 4000–4972 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+---
+
 ## Batch 4963–4967 — Fahrer-Touren-Anzahl-Ranking (ABGESCHLOSSEN 2026-07-30)
 
 ### Phase 4963 — Backend API
