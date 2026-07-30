@@ -1267,6 +1267,7 @@ import { KitchenPhase5014UmsatzProStundeTicker } from './phase5014-umsatz-pro-st
 import { KitchenPhase5019KilometerTicker } from './phase5019-kilometer-ticker';
 import { KitchenPhase5024BestellwertTicker } from './phase5024-bestellwert-ticker';
 import { KitchenPhase5029TrinkgeldTicker } from './phase5029-trinkgeld-ticker';
+import { KitchenPhase5034SchichtBilanzTicker } from './phase5034-schicht-bilanz-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -4985,6 +4986,8 @@ export function KitchenBoard({
       <KitchenPhase5024BestellwertTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5029: Trinkgeld-Ticker — Heart rose; Champion #1 Name+€; Team-Avg; Alert Niedrig; 30-Min-Polling */}
       <KitchenPhase5029TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5034: Schicht-Bilanz-Ticker — Wallet amber; Champion #1 Name+€; Team-Avg; Alert Niedrig; 30-Min-Polling */}
+      <KitchenPhase5034SchichtBilanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5030: Smart-Timing Countdown V31 — Stations-Heatmap Grill/Friture/Kalt/Pasta; Batch-Koordinations-Score; KI-Kochstart je Order; Fahrer-ETA-Sync; 9-stufige Ampel; 1s-Tick+15s-Polling */}
       <KitchenPhase5030SmartTimingCountdownV31 />
       {/* Phase 5023: Smart-Timing Farbkodierung V30 — Stationsbasierte Ansicht Grill/Friture/Kalt/Pasta; Filter-Tabs; Nächstes-Fertig-Banner; Fortschrittsbalken farbkodiert; 6-KPI-Grid; 1s-Tick+15s-Polling */}
@@ -12762,6 +12765,8 @@ export { KitchenPhase5019KilometerTicker } from './phase5019-kilometer-ticker';
 export { KitchenPhase5024BestellwertTicker } from './phase5024-bestellwert-ticker';
 // Phase 5029 — Trinkgeld-Ticker (Heart rose; Champion #1 Name+€; Team-Avg; Alert Niedrig rot; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5029TrinkgeldTicker } from './phase5029-trinkgeld-ticker';
+// Phase 5034 — Schicht-Bilanz-Ticker (Wallet amber; Champion #1 Name+€; Team-Avg; Alert Niedrig rot; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5034SchichtBilanzTicker } from './phase5034-schicht-bilanz-ticker';
 
 // Phase 4900 — Smart-Timing Countdown V24 (ChefHat indigo; Station-Auslastung 3-Kacheln Grill/Friture/Kalt Eff%; Kochzeit-Trend TrendingUp/Down je Order; Fahrer-Nahe-Zap; KI-Empfehlung; 4-KPI-Grid; 7-stufige Ampel; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase4900SmartTimingCountdownV24 } from './phase4900-smart-timing-countdown-v24';
