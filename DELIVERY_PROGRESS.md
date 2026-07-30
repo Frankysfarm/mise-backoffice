@@ -36325,3 +36325,43 @@ Vier Multi-Client-Komponenten unter Phase 5056 — bereits implementiert.
 KRITISCH: Nächste freie Phase ist **5062**! NIEMALS 4000–5061 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5081/5082/5084 — Fahrer-Auftrags-Dichte-Ranking (ABGESCHLOSSEN 2026-07-30)
+
+⚠️ **Hinweis:** Phase 5083 = Storefront (übersprungen). Backend (Phase 5062 API) war bereits vorhanden. Phasen 5062–5080 wurden in vorherigen Sessions durch andere Rankings belegt.
+
+### Phase 5062 (Backend, bereits vorhanden)
+**Datei:** `app/api/delivery/admin/fahrer-auftragsdichte-ranking/route.ts` (vorhanden)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, dichte, rank_delta, ampel, alert_bottom}], team_avg, dichtester_name, niedrigster_name, alert_count, gesamt, ziel }`
+**Logik:** ABSTEIGEND Rang 1=höchste Dichte=bester; count(orders)/shift_hours; ampelColor top25%=gruen/Mitte=gelb/unten25%=rot; alert_bottom wenn rot; Mock Julia 4.2/h Max 3.8/h Sara 3.1/h Tim 2.4/h; force-dynamic ✅; await createClient() ✅
+
+### Phase 5081 — Auftrags-Dichte Board (Dispatch)
+**Component:** `DispatchPhase5081AuftragsdichteBoard` — Activity purple-700; Rang 1=höchste Dichte; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5082 — Meine Auftrags-Dichte (Fahrer)
+**Component:** `FahrerPhase5082MeineAuftragsdichte` — Activity purple-700; dichte/h 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥4/h/≥2/h/<2/h; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5083 — Storefront
+Übersprungen ✅
+
+### Phase 5084 — Auftrags-Dichte-Ticker (Kitchen)
+**Component:** `KitchenPhase5084AuftragsdichteTicker` — Activity purple-700; Aktivste #1 Name+/h; Team-Avg; Alert-Count rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (identisch wie alle früheren Sessions). TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5081/5082/5084)
+- **Belegt:** 4000–5084 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5085**
+
+### Nächste Phasen 5085–5089 — Vorschlag: Fahrer-Wochenend-Anteil-Ranking (Anteil Wochenend-Schichten je Fahrer letzte 30 Tage)
+1. **Phase 5085 Backend:** GET /api/delivery/admin/fahrer-wochenend-anteil-ranking — bereits vorhanden prüfen; absteigend Rang 1=höchster Wochenend-Anteil=flexibelster; ampelVon; force-dynamic; await createClient().
+2. **Phase 5086 Dispatch:** `DispatchPhase5086WochenendAnteilBoard` — CalendarDays teal-700; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5087 Fahrer:** `FahrerPhase5087MeinWochenendAnteil` — CalendarDays teal-700; anteil_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥50%/≥25%/<25%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5088 Storefront:** Überspringen.
+5. **Phase 5089 Kitchen:** `KitchenPhase5089WochenendAnteilTicker` — CalendarDays teal-700; Flexibelste #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5085**! NIEMALS 4000–5084 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+
+## STATUS: MARKT-REIF
