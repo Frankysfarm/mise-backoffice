@@ -1344,6 +1344,7 @@ import { DispatchPhase5091NachtAnteilBoard } from './phase5091-nacht-anteil-boar
 import { DispatchPhase5096RoiScoreBoard } from './phase5096-roi-score-board';
 import { DispatchPhase5099ProduktivitaetsBoard } from './phase5099-produktivitaets-board';
 import { DispatchPhase5102ZufriedenheitsIndexBoard } from './phase5102-zufriedenheits-index-board';
+import { DispatchPhase5110ScoreTourVisualisierungV19 } from './phase5110-score-tour-visualisierung-v19';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5456,6 +5457,8 @@ export function DispatchBoard({
           <DispatchPhase5099ProduktivitaetsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5102: Zufriedenheits-Index-Board — Smile emerald; ABSTEIGEND Rang 1=höchster Zufriedenheits-Index; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5102ZufriedenheitsIndexBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5110: Score + Tour-Visualisierung V19 — Trophy violet; Fleet-Score+Delta; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+Betrag+Bewertung; Score-Balken; 20-Sek-Polling */}
+          <DispatchPhase5110ScoreTourVisualisierungV19 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}

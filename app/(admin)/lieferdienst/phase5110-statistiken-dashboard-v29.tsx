@@ -155,7 +155,7 @@ export function LieferdienstPhase5110StatistikenDashboardV29({ locationId }: { l
               <XAxis dataKey="stunde" tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.4)' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, fontSize: 10 }}
-                formatter={(v: number) => [euro(v), 'Umsatz']}
+                formatter={(v: unknown) => [euro(v as number), 'Umsatz']}
               />
               <Bar dataKey="umsatz" radius={[2, 2, 0, 0]}>
                 {stunden.map((s, i) => (

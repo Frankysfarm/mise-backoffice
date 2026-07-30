@@ -482,6 +482,7 @@ import { StorefrontPhase1015LiveTrackingStatusPro } from './phase1015-live-track
 import { StorefrontPhase1020DynamischeEtaLiveV3 } from './phase1020-dynamische-eta-live-v3';
 import { StorefrontPhase1025DynamischeEtaLiveV4 } from './phase1025-dynamische-eta-live-v4';
 import { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-eta-live-v5';
+import { StorefrontPhase5110DynamischeEtaLiveHubV4 } from './phase5110-dynamische-eta-live-hub-v4';
 import { Phase4475DynamischeEtaLiveTrackingV6 } from './phase4475-dynamische-eta-live-tracking-v6';
 import { Phase4500DynamischeEtaLiveHub } from './phase4500-dynamische-eta-live-hub';
 import { Phase5036DynamischeEtaLiveHubV2 } from './phase5036-dynamische-eta-live-hub-v2';
@@ -3385,6 +3386,13 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           locationId={locationId}
         />
       )}
+      {/* Phase 5110 V4: Dynamische ETA Live Hub V4 — Phasen-Timeline 4-stufig; Zubereitung-Fortschrittsbalken; Fahrer-Info-Banner; ETA-Konfidenz hoch/mittel/niedrig; 30s-Polling */}
+      {order.isDelivery && order.orderId && (
+        <StorefrontPhase5110DynamischeEtaLiveHubV4
+          orderId={order.orderId}
+          locationId={locationId}
+        />
+      )}
       {/* Phase 985: Live-ETA-Tracking-Banner — Farbcodierter Phasen-Fortschritt + Sekunden-Countdown + Live-Tracking-Dot */}
       {order.isDelivery && (
         <Phase985LiveEtaTrackingBanner
@@ -4064,3 +4072,6 @@ export { Phase5036DynamischeEtaLiveHubV2 } from './phase5036-dynamische-eta-live
 
 // Phase 5056 — Dynamische ETA Live Hub V3 (Bike blue; Konfidenz-Farbring; ETA-Countdown+Fenster-Balken; Fahrer-Annäherungs-Pulsbalken; 5-stufige Phasen-Timeline; Küche-Countdown; Bestellungs-Info; Bewertungs-Sterne interaktiv nach Zustellung; 20-Sek-Polling; Mock-Fallback)
 export { Phase5056DynamischeEtaLiveHubV3 } from './phase5056-dynamische-eta-live-hub-v3';
+
+// Phase 5110 — Dynamische ETA Live Hub V4 (Phasen-Timeline 4-stufig; Zubereitung-Fortschrittsbalken; Fahrer-Info-Banner; ETA-Konfidenz hoch/mittel/niedrig; 30s-Polling; Mock-Fallback)
+export { StorefrontPhase5110DynamischeEtaLiveHubV4 } from './phase5110-dynamische-eta-live-hub-v4';

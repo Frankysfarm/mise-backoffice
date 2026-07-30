@@ -1288,6 +1288,7 @@ import { KitchenPhase5094NachtAnteilTicker } from './phase5094-nacht-anteil-tick
 import { KitchenPhase5095RoiScoreTicker } from './phase5095-roi-score-ticker';
 import { KitchenPhase5098ProduktivitaetsTicker } from './phase5098-produktivitaets-ticker';
 import { KitchenPhase5105ZufriedenheitsIndexTicker } from './phase5105-zufriedenheits-index-ticker';
+import { KitchenPhase5110SmartTimingCountdownV37 } from './phase5110-smart-timing-countdown-v37';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -5044,6 +5045,8 @@ export function KitchenBoard({
       <KitchenPhase5098ProduktivitaetsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5105: Zufriedenheits-Index-Ticker — Smile emerald; Beste #1 Name+Score; Team-Avg; Alert-Count rot; 30-Min-Polling */}
       <KitchenPhase5105ZufriedenheitsIndexTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5110: Smart-Timing Countdown V37 — 5-stufige Farbkodierung ok/warn/critical/overdue/done; Station-Filter Grill/Friture/Kalt/Pasta/Ofen; 4-KPI-Grid Aktiv/Kritisch/Bereit/Score; Countdown-Wall 2-spaltig Fortschrittsbalken+Fahrer-ETA-Sync; 1s-Tick+15s-Polling */}
+      <KitchenPhase5110SmartTimingCountdownV37 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
       <KitchenPhase5036SmartTimingCountdownV33 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5035: Smart-Timing Countdown V32 — Farbkodierung rot<5min/gelb<10min/grün; Batch-Koordination; Prio-Ampel; 15s-Polling */}

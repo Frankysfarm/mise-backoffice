@@ -1262,6 +1262,7 @@ import { FahrerPhase5092MeinNachtAnteil } from './phase5092-mein-nacht-anteil';
 import { FahrerPhase5097MeinRoiScore } from './phase5097-mein-roi-score';
 import { FahrerPhase5100MeineProduktivitaet } from './phase5100-meine-produktivitaet';
 import { FahrerPhase5103MeinZufriedenheitsIndex } from './phase5103-mein-zufriedenheits-index';
+import { FahrerPhase5110TourStopsNavigationHub } from './phase5110-tour-stops-navigation-hub';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7607,6 +7608,8 @@ export function FahrerApp({
           <FahrerPhase5100MeineProduktivitaet driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5103: Mein Zufriedenheits-Index — Smile emerald; zufriedenheits_index 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥80/≥60/<60; 30-Min-Polling */}
           <FahrerPhase5103MeinZufriedenheitsIndex driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5110: Tour-Stops Navigation Hub — Nächster-Stopp-Banner+Prio-Badge express/hoch; Stop-Liste aufklappbar Status-Dots; Fortschrittsbalken; Anruf-Button; Google-Maps-Deeplink; Distanz-km; 15s-Polling */}
+          <FahrerPhase5110TourStopsNavigationHub isOnline={isOnline} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
           <FahrerPhase5036TourStoppSmartNavV15 driverId={driver.id} />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}

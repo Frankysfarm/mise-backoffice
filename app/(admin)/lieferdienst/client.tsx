@@ -521,6 +521,7 @@ import { LieferdienstPhase5075StatistikenPerformanceHub } from './phase5075-stat
 import { LieferdienstPhase5076SchichtFahrerPerformanceRanking } from './phase5076-schicht-fahrer-performance-ranking';
 import { LieferdienstPhase5077RoiScorePanel } from './phase5077-roi-score-panel';
 import { LieferdienstPhase5078ProduktivitaetsPanel } from './phase5078-produktivitaets-panel';
+import { LieferdienstPhase5110StatistikenDashboardV29 } from './phase5110-statistiken-dashboard-v29';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2443,6 +2444,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5077RoiScorePanel locationId={locationId ?? null} />
                 {/* Phase 5078: Produktivitäts-Panel — Zap amber; Ranking Pünktlichkeit+Stopps/h+Bewertung; Score-Bar farbkodiert; TrendIcon; Alert <50; 60-Sek-Polling */}
                 <LieferdienstPhase5078ProduktivitaetsPanel locationId={locationId ?? null} />
+                {/* Phase 5110: Statistiken-Dashboard V29 — Monatsziel-Fortschrittsbalken; 8-KPI-Grid Umsatz/Bestellungen/Lieferzeit/Pünktl/Fahrer/Bewertung/Storno/Marge; Tab-Nav Stunden-BarChart/Fahrer-Ranking/Zonen-SLA-Matrix; 30-Sek-Polling */}
+                <LieferdienstPhase5110StatistikenDashboardV29 locationId={locationId ?? null} />
                 {/* Phase 5036: Statistiken-Dashboard V26 — Revenue-Velocity; Storno-Analyse; Profit-KPI; Velocity-Chart; Zonen-SLA; 45-Sek-Polling */}
                 <LieferdienstPhase5036StatistikenDashboardV26 locationId={locationId ?? null} />
                 {/* Phase 5035: Statistiken-Dashboard V25 — Monatsziel-Fortschritt; 8-KPI-Grid; Stunden/Woche-Chart; Top-Fahrer; Zonen-SLA; 30-Sek-Polling */}
