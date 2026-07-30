@@ -1304,6 +1304,7 @@ import { DispatchPhase4932FruehprodBoard } from './phase4932-fruehprod-board';
 import { DispatchPhase4935KmEffizienzBoard } from './phase4935-km-effizienz-board';
 import { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-tour-visualisierung-v11';
 import { DispatchPhase4940UmsatzKmBoard } from './phase4940-umsatz-km-board';
+import { DispatchPhase4945PuenktlichkeitBoard } from './phase4945-puenktlichkeit-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5346,6 +5347,8 @@ export function DispatchBoard({
           <DispatchPhase4935KmEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4940: Umsatz-pro-km-Ranking Board — Euro teal; Rang 1=höchster €/km; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >4,0 €/km; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase4940UmsatzKmBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 4945: Pünktlichkeits-Score-Ranking Board — Clock green; Rang 1=höchste Pünktlichkeit; KPI-Grid Beste/Team-Avg/Niedrigste; Alert >90%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase4945PuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 4935: Score+Tour-Visualisierung V11 — Trophy; Zonen-SLA-Matrix 3 Zonen; CO₂-kg je Fahrer+Gesamt; Dual-Progress Stopps+km; Aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase4935ScoreTourVisualisierungV11 />
           {/* Phase 4852: Score + Tour-Visualisierung V6 — Trophy indigo; Team-Score-Arc+Ziel-Marker; ETA-Accuracy KPI; 3-KPI-Row; Fahrer-Score-Ring 4-stufig; Aufklappbare Stopp-Timeline 5-stufig; 20-Sek-Polling; Mock-Fallback */}
@@ -14100,6 +14103,8 @@ export { DispatchPhase4932FruehprodBoard } from './phase4932-fruehprod-board';
 export { DispatchPhase4935KmEffizienzBoard } from './phase4935-km-effizienz-board';
 // Phase 4940 — Umsatz-pro-km-Ranking Board (Euro teal; Rang 1=höchster €/km; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert >4,0 €/km; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase4940UmsatzKmBoard } from './phase4940-umsatz-km-board';
+// Phase 4945 — Pünktlichkeits-Score-Ranking Board (Clock green; Rang 1=höchste Pünktlichkeit; KPI-Grid Beste/Team-Avg/Niedrigste; Alert >90%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase4945PuenktlichkeitBoard } from './phase4945-puenktlichkeit-board';
 
 // Phase 4935b — Score + Tour-Visualisierung V11 (Trophy indigo; Zonen-SLA-Matrix 3-Zonen Innenstadt/Nord/Süd SLA%+Avg+Umsatz; CO₂-kg je Fahrer+Gesamt Leaf grün; Team-Score-Fortschrittsbalken; 4-KPI-Grid ETA-Acc+CO₂/Tour; Fahrer-Score-Ring 4-stufig Platin/Gold/Gut/Schwach; Stopp-Timeline aufklappbar Kundenwertung+Verspätung+ETA; Dual-Progress Stopps+km; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase4935ScoreTourVisualisierungV11 } from './phase4935-score-tour-visualisierung-v11';
