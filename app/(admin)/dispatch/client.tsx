@@ -1330,6 +1330,7 @@ import { DispatchPhase5052ExpressAnteilBoard } from './phase5052-express-anteil-
 import { DispatchPhase5037PraemienQuoteBoard } from './phase5037-praemien-quote-board';
 import { DispatchPhase5035ScoreTourVisualisierungV15 } from './phase5035-score-tour-visualisierung-v15';
 import { DispatchPhase5036ScoreTourVisualisierungV16 } from './phase5036-score-tour-visualisierung-v16';
+import { DispatchPhase5056ScoreTourVisualisierungV17 } from './phase5056-score-tour-visualisierung-v17';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5414,6 +5415,8 @@ export function DispatchBoard({
           <DispatchPhase5052ExpressAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5037: Prämien-Quote Board — Award yellow; Rang 1=höchste Prämien-Quote; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <50%; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5037PraemienQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5056: Tour-Score-Visualisierung V17 — Verspätungs-Risiko-Band; ETA-Konfidenz-Heatmap; Routen-Sync-Score; Zonen-Kapazitäts-Warnung; 20-Sek-Polling */}
+          <DispatchPhase5056ScoreTourVisualisierungV17 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
@@ -14247,3 +14250,6 @@ export { DispatchPhase5037PraemienQuoteBoard } from './phase5037-praemien-quote-
 
 // Phase 5036 — Score + Tour-Visualisierung V16 (Trophy violet; Fleet-Score+Delta; ETA-Accuracy-Trend; 4-KPI-Strip; Zonen-Coverage-Grid 4-spaltig Fahrer+Auslastung; Fahrer-Rangliste tier-farbkodiert+Route-Effizienz-Balken+Zone; aufklappbare Stopp-Timeline; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5036ScoreTourVisualisierungV16 } from './phase5036-score-tour-visualisierung-v16';
+
+// Phase 5056 — Score + Tour-Visualisierung V17 (Trophy indigo; Verspätungs-Risiko-Band; ETA-Konfidenz-Avg; Routen-Sync-Score; Zonen-Kapazitäts-Warnung; Delay-Risiko-Grund; ETA-Confidence je Stopp; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5056ScoreTourVisualisierungV17 } from './phase5056-score-tour-visualisierung-v17';

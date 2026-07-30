@@ -515,6 +515,7 @@ import { LieferdienstPhase5026StatistikenDashboardV23 } from './phase5026-statis
 import { LieferdienstPhase5030StatistikenDashboardV24 } from './phase5030-statistiken-dashboard-v24';
 import { LieferdienstPhase5035StatistikenDashboardV25 } from './phase5035-statistiken-dashboard-v25';
 import { LieferdienstPhase5036StatistikenDashboardV26 } from './phase5036-statistiken-dashboard-v26';
+import { LieferdienstPhase5056StatistikenDashboardV27 } from './phase5056-statistiken-dashboard-v27';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2425,6 +2426,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase4890StatistikenDashboardV17 />
                 {/* Phase 5030: Statistiken-Dashboard V24 — 8-KPI-Grid+Δ; Stunden-BarChart+Woche-LineChart; Top-3-Fahrer tier-farbkodiert+Trinkgeld; Zonen-SLA+Kapazitäts-Balken; Tab-Nav Heute/Woche; 30-Sek-Polling */}
                 <LieferdienstPhase5030StatistikenDashboardV24 locationId={locationId ?? null} />
+                {/* Phase 5056: Statistiken-Dashboard V27 — Storno-Trend 7-Tage; SLA-Verlauf; Fahrer-Vergleich-Matrix; Kunden-Treue-Rate; Profit-Margin; Top-3-Stunden; 45-Sek-Polling */}
+                <LieferdienstPhase5056StatistikenDashboardV27 locationId={locationId ?? null} />
                 {/* Phase 5036: Statistiken-Dashboard V26 — Revenue-Velocity; Storno-Analyse; Profit-KPI; Velocity-Chart; Zonen-SLA; 45-Sek-Polling */}
                 <LieferdienstPhase5036StatistikenDashboardV26 locationId={locationId ?? null} />
                 {/* Phase 5035: Statistiken-Dashboard V25 — Monatsziel-Fortschritt; 8-KPI-Grid; Stunden/Woche-Chart; Top-Fahrer; Zonen-SLA; 30-Sek-Polling */}
@@ -5124,3 +5127,6 @@ export { LieferdienstPhase5035StatistikenDashboardV25 } from './phase5035-statis
 
 // Phase 5036 — Statistiken Dashboard V26 (Activity teal; Monatsziel-Fortschrittsbalken; 8-KPI-Grid Umsatz+Bestellungen+Profit+Lieferzeit+Pünktl+Fahrer+Bewertung+Storno; Tab-Nav Heute/7Tage/Velocity; Velocity-BarChart lila; Storno-Gründe Tags; Top-3-Fahrer tier-farbkodiert; Zonen-SLA-Matrix; 45-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5036StatistikenDashboardV26 } from './phase5036-statistiken-dashboard-v26';
+
+// Phase 5056 — Statistiken Dashboard V27 (BarChart3 teal; Storno-Trend-7-Tage LineChart; SLA-Verlauf-Sparkline; Fahrer-Vergleich-Matrix; Top-3-Stunden-Umsatz; Kunden-Treue-Rate; Profit-Margin+Delta; 45-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5056StatistikenDashboardV27 } from './phase5056-statistiken-dashboard-v27';

@@ -1249,6 +1249,7 @@ import { FahrerPhase5053MeinExpressAnteil } from './phase5053-mein-express-antei
 import { FahrerPhase5038MeinePraemienQuote } from './phase5038-meine-praemien-quote';
 import { FahrerPhase5035TourStoppSmartNavV14 } from './phase5035-tour-stopp-smart-nav-v14';
 import { FahrerPhase5036TourStoppSmartNavV15 } from './phase5036-tour-stopp-smart-nav-v15';
+import { FahrerPhase5056TourStoppSmartNavV16 } from './phase5056-tour-stopp-smart-nav-v16';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7568,6 +7569,8 @@ export function FahrerApp({
           <FahrerPhase5038MeinePraemienQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5025: Smart-Tour-Stopp-Navigator V13 — Schicht-Rang-Badge; Trinkgeld-Erwartungs-Anzeige; Entfernung je Stopp; CO₂-KPI; 4er-Mini-Stats; Erweiterte Stopp-Details mit Tipp+Telefon; 20-Sek-Polling */}
           <FahrerPhase5025SmartTourStoppNavV13 />
+          {/* Phase 5056: Tour-Stopp Smart Navigator V16 — Distanz-Fortschrittsring; Trinkgeld-Hochrechnung; Kundenkontakt-Quick-Actions; Effizienz-Ampel; Kunden-Kommentar; 20-Sek-Polling */}
+          <FahrerPhase5056TourStoppSmartNavV16 driverId={driver.id} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
           <FahrerPhase5036TourStoppSmartNavV15 driverId={driver.id} />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}
@@ -12119,3 +12122,6 @@ export { FahrerPhase5038MeinePraemienQuote } from './phase5038-meine-praemien-qu
 
 // Phase 5036 — Tour-Stopp Smart Navigator V15 (Route blue; 4-KPI-Grid Verdienst/Trinkgeld/km/Effizienz; Trinkgeld-Prognose-Banner je Schicht; Stopp-Liste ETA-Ampel+Live-Distanz-km; aufklappbare Detail-Ansicht Notiz+Betrag+Bar-Badge+Trinkgeld-Prognose; Navigation Google Maps; Telefon-Link; 5 Stopps; 20-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5036TourStoppSmartNavV15 } from './phase5036-tour-stopp-smart-nav-v15';
+
+// Phase 5056 — Tour-Stopp Smart Navigator V16 (Route blue; Distanz-Fortschrittsring; Trinkgeld-Hochrechnung; Kundenkontakt-Quick-Actions Anrufen+Maps+Waze; Effizienz-Ampel grün/gelb/rot; Kunden-Kommentar-Vorschau; Fleet-Sync-Score; 20-Sek-Polling; Mock-Fallback)
+export { FahrerPhase5056TourStoppSmartNavV16 } from './phase5056-tour-stopp-smart-nav-v16';
