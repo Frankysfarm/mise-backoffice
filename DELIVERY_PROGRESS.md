@@ -37408,3 +37408,24 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5236: Fahrer `FahrerPhase5236MeinePuenktlichkeit` — Clock sky-400; Coaching ≥95%/≥85%/<85%
 - Phase 5237: Storefront — skip
 - Phase 5238: Kitchen `KitchenPhase5238PuenktlichkeitsTicker` — Clock sky-400
+
+---
+
+## Batch 20 — Pünktlichkeits-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5235 / 5236 / (5237 Storefront skip) / 5238
+
+**API:** `fahrer-puenktlichkeits-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, rate_pct, rank_delta, ampel, alert_niedrig}], team_avg_pct, bester_name, letzter_name, alert_count, gesamt }`
+
+### Implementiert:
+- **phase5235** `DispatchPhase5235PuenktlichkeitsBoard` — Clock sky-400; KPI-Grid Pünktlichste/Team-Ø/Letzte; Balken via rate_pct; DeltaIcons; Niedrig-Alert; Reuse `fahrer-puenktlichkeits-ranking`; ABSTEIGEND (höchste = Rang 1 = bester)
+- **phase5236** `FahrerPhase5236MeinePuenktlichkeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≥95%/≥85%/<85%; Mini-Balken; Ampel-Border; Clock sky-400
+- **phase5238** `KitchenPhase5238PuenktlichkeitsTicker` — Clock sky-400; Beste Rang+%; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5239!**
+
+**Vorschlag Batch 21:** Fahrer-Storno-Quote-Ranking (% Stornierungen am Gesamtauftragvolumen — AUFSTEIGEND, niedrigste = bester)
+- Phase 5239: Dispatch `DispatchPhase5239StornoQuoteBoard` — XCircle rose-400; AUFSTEIGEND (niedrigste = Rang 1 = bester)
+- Phase 5240: Fahrer `FahrerPhase5240MeineStornoQuote` — XCircle rose-400; Coaching ≤2%/≤5%/>5%
+- Phase 5241: Storefront — skip
+- Phase 5242: Kitchen `KitchenPhase5242StornoQuoteTicker` — XCircle rose-400
