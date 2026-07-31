@@ -37471,3 +37471,24 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5248: Fahrer `FahrerPhase5248MeinTrinkgeldProLieferung` — Banknote green-400; Coaching ≥2€/≥1€/<1€
 - Phase 5249: Storefront — skip
 - Phase 5250: Kitchen `KitchenPhase5250TrinkgeldProLieferungTicker` — Banknote green-400
+
+---
+
+## Batch 23 — Trinkgeld-pro-Lieferung-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5247 / 5248 / (5249 Storefront skip) / 5250
+
+**API:** `fahrer-trinkgeld-pro-tour-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_trinkgeld, rank_delta, ampel, alert_niedrig}], team_avg_trinkgeld, beste_name, niedrigste_name, alert_count, gesamt }`
+
+### Implementiert:
+- **phase5247** `DispatchPhase5247TrinkgeldProLieferungBoard` — Banknote green-400; KPI-Grid Meiste/Team-Ø/Wenigste; Balken via (avg_trinkgeld/maxVal)×100; DeltaIcons; Niedrig-Alert; ABSTEIGEND
+- **phase5248** `FahrerPhase5248MeinTrinkgeldProLieferung` — isOnline-Guard; WifiOff-Fallback; Coaching ≥2€/≥1€/<1€; Mini-Balken; Ampel-Border; Banknote green-400
+- **phase5250** `KitchenPhase5250TrinkgeldProLieferungTicker` — Banknote green-400; Beste Rang+€; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5251!**
+
+**Vorschlag Batch 24:** Fahrer-Umsatz-pro-Stunde-Ranking (Ø Umsatz € je Schichtstunde — ABSTEIGEND, höchste = bester)
+- Phase 5251: Dispatch `DispatchPhase5251UmsatzProStundeBoard` — TrendingUp violet-400; ABSTEIGEND
+- Phase 5252: Fahrer `FahrerPhase5252MeinUmsatzProStunde` — TrendingUp violet-400; Coaching ≥20€/≥12€/<12€
+- Phase 5253: Storefront — skip
+- Phase 5254: Kitchen `KitchenPhase5254UmsatzProStundeTicker` — TrendingUp violet-400
