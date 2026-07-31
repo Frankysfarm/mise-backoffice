@@ -198,7 +198,7 @@ export function LieferdienstPhase5147StatistikenDashboardV40({ locationId }: { l
               </linearGradient>
             </defs>
             <Area type="monotone" dataKey="score" stroke="#6366f1" strokeWidth={1.5} fill="url(#scoreFill)" dot={false} />
-            <Tooltip contentStyle={{ background: '#1f2937', border: 'none', fontSize: 11 }} formatter={(v: number) => [`${v}`, 'Score']} />
+            <Tooltip contentStyle={{ background: '#1f2937', border: 'none', fontSize: 11 }} formatter={(v: unknown) => [`${v}`, 'Score']} />
           </AreaChart>
         </ResponsiveContainer>
       </div>

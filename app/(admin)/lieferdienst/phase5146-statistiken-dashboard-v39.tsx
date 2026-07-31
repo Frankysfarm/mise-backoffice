@@ -198,7 +198,7 @@ export function LieferdienstPhase5146StatistikenDashboardV39({ locationId }: { l
                 <XAxis dataKey="h" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
                 <Tooltip
                   contentStyle={{ background: '#1f2937', border: '1px solid #374151', borderRadius: 8, fontSize: 11 }}
-                  formatter={(v: number, name: string) => [`€ ${v}`, name === 'ertrag' ? 'Ertrag' : 'Kosten']}
+                  formatter={(v: unknown, name: unknown) => [`€ ${v}`, name === 'ertrag' ? 'Ertrag' : 'Kosten']}
                 />
                 <Bar dataKey="ertrag" fill="#10b981" radius={[3,3,0,0]} />
                 <Bar dataKey="kosten" fill="#ef4444" radius={[3,3,0,0]} />

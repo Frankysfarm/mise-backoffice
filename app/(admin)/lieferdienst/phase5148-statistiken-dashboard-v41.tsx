@@ -213,7 +213,7 @@ export function LieferdienstPhase5148StatistikenDashboardV41() {
               <Line type="monotone" dataKey="score" stroke="#14b8a6" strokeWidth={2} dot={false} />
               <Tooltip
                 contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: '8px', fontSize: '11px' }}
-                formatter={(v: number) => [`${v}`, 'Score']}
+                formatter={(v: unknown) => [`${v}`, 'Score']}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -265,7 +265,7 @@ export function LieferdienstPhase5148StatistikenDashboardV41() {
               <XAxis dataKey="h" tick={{ fontSize: 10, fill: '#9ca3af' }} />
               <Tooltip
                 contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: '8px', fontSize: '11px' }}
-                formatter={(v: number, name: string) => [v, name === 'bestellungen' ? 'Bestellungen' : 'Stammk.%']}
+                formatter={(v: unknown, name: unknown) => [v as string | number, name === 'bestellungen' ? 'Bestellungen' : 'Stammk.%']}
               />
               <Bar dataKey="bestellungen" radius={[3,3,0,0]}>
                 {data.stunden.map((s, i) => (

@@ -197,7 +197,7 @@ export function LieferdienstPhase5145StatistikenDashboardV38({ locationId }: { l
               <Tooltip
                 contentStyle={{ background: '#1f2937', border: 'none', borderRadius: 8, fontSize: 11 }}
                 labelStyle={{ color: '#9ca3af' }}
-                formatter={(v: number | string) => [`${v} Bestell.`]}
+                formatter={(v: unknown) => [`${String(v ?? "")} Bestell.`]}
               />
               <Bar dataKey="bestellungen" radius={[3, 3, 0, 0]}>
                 {data.stunden.map((h, i) => (
@@ -263,7 +263,7 @@ export function LieferdienstPhase5145StatistikenDashboardV38({ locationId }: { l
               <YAxis tick={{ fill: '#9ca3af', fontSize: 9 }} axisLine={false} tickLine={false} width={24} />
               <Tooltip
                 contentStyle={{ background: '#1f2937', border: 'none', borderRadius: 8, fontSize: 11 }}
-                formatter={(v: number | string, name: string) => [v, name === 'prognose' ? 'Prognose' : 'Kapazität']}
+                formatter={(v: unknown, name: unknown) => [v as string | number, name === 'prognose' ? 'Prognose' : 'Kapazität']}
               />
               <Bar dataKey="kapazitaet" fill="#374151" radius={[3, 3, 0, 0]} />
               <Bar dataKey="prognose"   fill="#10b981" radius={[3, 3, 0, 0]} />
