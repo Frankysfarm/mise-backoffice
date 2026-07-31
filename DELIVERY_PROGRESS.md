@@ -37620,3 +37620,25 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5276: Fahrer `FahrerPhase5276MeinAktivitaetsScore` — Activity violet-400; Coaching API-abhängig
 - Phase 5277: Storefront — skip
 - Phase 5278: Kitchen `KitchenPhase5278AktivitaetsScoreTicker` — Activity violet-400
+
+---
+
+## Batch 30 — Aktivitäts-Score-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5275 / 5276 / (5277 Storefront skip) / 5278
+
+**API:** `fahrer-aktivitaets-score` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, aktivitaets_score, rank_delta, ampel, alert_bottom}], team_avg, bester_name, niedrigster_name, alert_count, gesamt }`
+**Hinweis:** API gibt 400 wenn kein location_id → `if (!locationId) return` vor fetch-Aufruf
+
+### Implementiert:
+- **phase5275** `DispatchPhase5275AktivitaetsScoreBoard` — Activity violet-400; KPI-Grid Aktivste/Team-Ø/Niedrigste; Balken via aktivitaets_score% (0-100); DeltaIcons; Niedrig-Alert via alert_bottom; ABSTEIGEND
+- **phase5276** `FahrerPhase5276MeinAktivitaetsScore` — isOnline-Guard; WifiOff-Fallback; Coaching ≥80/≥60/<60; Balken via aktivitaets_score%; Ampel-Border; Activity violet-400; "/ 100" Suffix
+- **phase5278** `KitchenPhase5278AktivitaetsScoreTicker` — Activity violet-400; Aktivste Rang+Score; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5279!**
+
+**Vorschlag Batch 31:** Fahrer-Abend-Anteil-Ranking (Anteil Abendschicht-Touren — ABSTEIGEND, höchster = bester)
+- Phase 5279: Dispatch `DispatchPhase5279AbendAnteilBoard` — Moon amber-400; ABSTEIGEND
+- Phase 5280: Fahrer `FahrerPhase5280MeinAbendAnteil` — Moon amber-400; Coaching API-abhängig
+- Phase 5281: Storefront — skip
+- Phase 5282: Kitchen `KitchenPhase5282AbendAnteilTicker` — Moon amber-400
