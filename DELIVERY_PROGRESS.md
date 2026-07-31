@@ -2,6 +2,46 @@
 
 ## STATUS: MARKT-REIF
 
+## Batch 5283/5284/5286 — Fahrer-Bonus-Quote-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+⚠️ **Hinweis:** Phase 5285 = Storefront (übersprungen).
+
+### Phase 5283 — Backend API + Dispatch
+**Datei:** `app/api/delivery/admin/fahrer-bonus-quote-ranking/route.ts` ✅
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, bonus_quote_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`
+**Logik:** ABSTEIGEND Rang 1=höchste Bonus-Quote=bester; % Touren mit Bonus je Fahrer letzte 30 Tage; Quartil-Ampel; alert_hoch wenn ≥50%; Mock Max 67%/Julia 52%/Sara 38%/Tim 24%; force-dynamic ✅; await createClient() ✅
+
+**Component:** `DispatchPhase5283BonusQuoteBoard` — Gift green-500; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥50% grün; Balken farbkodiert; DeltaIcon; Meister-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5284 — Meine Bonus-Quote (Fahrer)
+**Component:** `FahrerPhase5284MeineBonusQuote` — Gift green-500; bonus_quote_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥50%/≥25%/<25%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5285 — Storefront
+Übersprungen ✅
+
+### Phase 5286 — Bonus-Quote-Ticker (Kitchen)
+**Component:** `KitchenPhase5286BonusQuoteTicker` — Gift green-500; Spitzenreiter #1 Name+%; Team-Avg; Alert ≥50% grün; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phasen-Nummern-Status (nach Batch 5283/5284/5286)
+- **Belegt:** 4000–5286 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5287**
+
+### Nächste Phasen 5287–5291 — Vorschlag: Fahrer-Wochenend-Bonus-Ranking (% Touren am Wochenende Sa/So mit Bonus je Fahrer letzte 30 Tage)
+1. **Phase 5287 Backend+Dispatch:** GET /api/delivery/admin/fahrer-wochenend-bonus-ranking — % Touren Sa/So mit Bonus je Fahrer letzte 30 Tage; ABSTEIGEND Rang 1=höchste Quote=bester; CalendarDays purple-600; alert_hoch wenn ≥40%; force-dynamic; await createClient().
+2. **Phase 5288 Fahrer:** `FahrerPhase5288MeinWochenendBonus` — CalendarDays purple-600; wochenend_bonus_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5289 Storefront:** Überspringen.
+4. **Phase 5290 Kitchen:** `KitchenPhase5290WochenendBonusTicker` — CalendarDays purple-600; Spitzenreiter #1 Name+%; Team-Avg; Alert ≥40%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5287**! NIEMALS 4000–5286 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS exit 0 ergeben.
+
+## STATUS: MARKT-REIF
+
+---
+
+Backend-Architekt-Agent (2026-07-31): Phasen 5283–5286 implementiert — Fahrer-Bonus-Quote-Ranking (% Touren mit Bonus je Fahrer letzte 30 Tage). Backend 5283: NEU `/api/delivery/admin/fahrer-bonus-quote-ranking` (await createClient() + force-dynamic; delivery_tours.bonus > 0 letzte 30 Tage; ABSTEIGEND Rang 1=höchste Bonus-Quote=bester; Quartil-Ampel; alert_hoch wenn ≥50%; Mock Max 67%/Julia 52%/Sara 38%/Tim 24%; Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, bonus_quote_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`). Dispatch 5283 `DispatchPhase5283BonusQuoteBoard` (Gift green-500; ABSTEIGEND Rang 1=höchste Bonus-Quote; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥50% grün; Balken farbkodiert; DeltaIcon; Meister-Footer; 30-Min-Polling; Import+Render+Barrel ✅). Fahrer 5284 `FahrerPhase5284MeineBonusQuote` (Gift green-500; bonus_quote_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥50%/≥25%/<25%; 30-Min-Polling; Import+Render+Barrel ✅). Storefront 5285: übersprungen ✅. Kitchen 5286 `KitchenPhase5286BonusQuoteTicker` (Gift green-500; Spitzenreiter #1 Name+%; Team-Avg; Alert ≥50% grün; 30-Min-Polling; Import+Render+Barrel ✅). **Nächste freie Phase: 5287.**
+
+---
+
 ## CEO Review #745 — 2026-07-31 — KRITISCHER BUG GEFIXT
 
 **Bug:** Commit `569bc980` hat bei schlechter Merge-Auflösung 6 Batches (Phasen 5239–5262) aus allen 3 client.tsx-Dateien gelöscht. Komponenten-Dateien waren vorhanden, aber nirgends gerendert.
