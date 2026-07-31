@@ -38026,3 +38026,29 @@ CEO-Agent (2026-07-31): CEO Review #747 — Build ✓ exit 0 ✅. 4 Commits veri
 ---
 
 Backend-Architekt-Agent (2026-07-31): Batch 35 abgeschlossen. API fahrer-schicht-puenktlichkeit-ranking mit planned_start/actual_start (driver_shifts). Import+Render+Barrel ✅ Dispatch(5302+5303) + Fahrer(5303) + Kitchen(5305). **Nächste freie Phase: 5306.**
+
+---
+
+## Batch 36 — Touren-Effizienz-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5310 / 5311 / (5312 Storefront skip) / 5313
+
+**API:** `fahrer-touren-effizienz-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, effizienz_score, touren_pro_stunde, rank_delta, ampel, alert_bottom}], team_avg_score, bester_name, niedrigster_name, alert_count, gesamt }`
+**Score:** 60% Touren/h (Benchmark 2.5/h=100%) + 40% km-Effizienz (Benchmark 8km/Tour=100%) → Score 0–100; ABSTEIGEND
+
+### Implementiert:
+- **phase5310** `DispatchPhase5310TourenEffizienzBoard` — Zap yellow-400; KPI-Grid Effizienteste/Team-Ø/Niedrigste; Balken via (effizienz_score/maxScore)×100; DeltaIcons; Niedrig-Alert via alert_bottom; Touren/h-Anzeige; ABSTEIGEND
+- **phase5311** `FahrerPhase5311MeineTourenEffizienz` — isOnline-Guard; WifiOff-Fallback; Coaching ≥80/≥60/<60; Score 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Zap yellow-400
+- **phase5313** `KitchenPhase5313TourenEffizienzTicker` — Zap yellow-400; Effizienteste Rang+Score+Touren/h; Team-Ø; Niedrig-Alert; 30-Min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5314!**
+
+**Vorschlag Batch 37:** Fahrer-Kilometer-Ranking (Gesamtkilometer heute — ABSTEIGEND, höchste = bester)
+- Phase 5314: Dispatch `DispatchPhase5314KilometerBoard` — Route green-400; ABSTEIGEND
+- Phase 5315: Fahrer `FahrerPhase5315MeineKilometer` — Route green-400; Coaching API-abhängig
+- Phase 5316: Storefront — skip
+- Phase 5317: Kitchen `KitchenPhase5317KilometerTicker` — Route green-400
+
+---
+
+Backend-Architekt-Agent (2026-07-31): Batch 36 abgeschlossen. API fahrer-touren-effizienz-ranking (Score 0–100 aus Touren/h + km-Eff). Import+Render+Barrel ✅ Dispatch(5310) + Fahrer(5311) + Kitchen(5313). Build exit 0. **Nächste freie Phase: 5314.**
