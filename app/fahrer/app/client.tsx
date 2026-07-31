@@ -1265,6 +1265,7 @@ import { FahrerPhase5103MeinZufriedenheitsIndex } from './phase5103-mein-zufried
 import { FahrerPhase5108MeineZuverlaessigkeit } from './phase5108-meine-zuverlaessigkeit';
 import { FahrerPhase5110TourStopsNavigationHub } from './phase5110-tour-stops-navigation-hub';
 import { FahrerPhase5111TourStopsNavigationHubV2 } from './phase5111-tour-stops-navigation-hub-v2';
+import { FahrerPhase5114MeinErreichbarkeitsIndex } from './phase5114-mein-erreichbarkeits-index';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7616,6 +7617,8 @@ export function FahrerApp({
           <FahrerPhase5110TourStopsNavigationHub isOnline={isOnline} />
           {/* Phase 5111: Tour-Stops Navigation Hub V2 — 3-KPI-Grid Eingenommen/Restzeit/Offen; Nächster-Stopp-Banner+Prio-Badge+Nav-CTA+Anruf-Button; Notiz-Warnung; Stop-Liste aufklappbar Distanz/Zahlungsart/ETA; Fortschrittsbalken; 15s-Polling */}
           <FahrerPhase5111TourStopsNavigationHubV2 isOnline={isOnline} />
+          {/* Phase 5114: Mein Erreichbarkeits-Index — Phone blue; index 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥80/≥60/<60; 30-Min-Polling */}
+          <FahrerPhase5114MeinErreichbarkeitsIndex driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
           <FahrerPhase5036TourStoppSmartNavV15 driverId={driver.id} />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}
@@ -12213,3 +12216,6 @@ export { FahrerPhase5076TourNaviV18 } from './phase5076-tour-navi-v18';
 export { FahrerPhase5110TourStopsNavigationHub } from './phase5110-tour-stops-navigation-hub';
 // Phase 5111 — Tour-Stops & Navigation Hub V2 (Route blue; 3-KPI-Grid Eingenommen/Restzeit/Offen; Nächster-Stopp-Banner+Prio-Badge express/hoch+Nav-CTA+Anruf-Button; Notiz-Warnung; Stop-Liste aufklappbar Distanz-km/Zahlungsart/ETA/Notiz+Nav-Button; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5111TourStopsNavigationHubV2 } from './phase5111-tour-stops-navigation-hub-v2';
+
+// Phase 5114 — Mein Erreichbarkeits-Index (Phone blue-700; index 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥80/≥60/<60; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5114MeinErreichbarkeitsIndex } from './phase5114-mein-erreichbarkeits-index';
