@@ -21,15 +21,15 @@ interface ApiResponse {
 
 function coachingTipp(val: number): { text: string; color: string } {
   if (val >= 95) return {
-    text: 'Hervorragende Pünktlichkeit! Nahezu alle Lieferungen kommen rechtzeitig an — Kunden schätzen das.',
+    text: 'Hervorragende Pünktlichkeit! Nahezu alle Lieferungen innerhalb des ETA-Fensters — Top-Zuverlässigkeit.',
     color: 'text-green-300',
   };
   if (val >= 85) return {
-    text: 'Gute Pünktlichkeitsrate. Mit optimierten Routen und schnellerer Abholung lässt sich 95%+ erreichen.',
+    text: 'Gute Pünktlichkeit. Kleine Optimierungen bei der Routenplanung können 95%+ erreichen.',
     color: 'text-yellow-400',
   };
   return {
-    text: 'Zu viele Lieferungen sind zu spät. Routenplanung und Abholzeiten am Restaurant überprüfen.',
+    text: 'Niedrige Pünktlichkeit. Analysiere Verzögerungsursachen — häufige Gründe: Verkehr, Parken, Übergabezeit.',
     color: 'text-red-400',
   };
 }
@@ -105,6 +105,9 @@ export function FahrerPhase5236MeinePuenktlichkeit({
         <div className={`text-2xl font-bold mt-1 ${ampelColor(mein.ampel)}`}>
           Rang #{mein.rang} <span className="text-sm text-gray-500">von {data.gesamt}</span>
         </div>
+        <div className="text-xs text-gray-500 mt-1">
+          Lieferungen pünktlich (±5 Min. ETA)
+        </div>
       </div>
 
       <div className="px-4 pb-3">
@@ -115,7 +118,7 @@ export function FahrerPhase5236MeinePuenktlichkeit({
         <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
           <div
             className={`h-full rounded-full ${
-              mein.ampel === 'gruen' ? 'bg-green-500' :
+              mein.ampel === 'gruen' ? 'bg-sky-500' :
               mein.ampel === 'gelb'  ? 'bg-yellow-500' : 'bg-red-500'
             }`}
             style={{ width: `${mein.rate_pct}%` }}
