@@ -7,7 +7,7 @@ interface FahrerRow {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
-  km_heute: number;
+  km_gesamt: number;
   ampel: 'gruen' | 'gelb' | 'rot';
 }
 
@@ -17,17 +17,17 @@ interface ApiResponse {
   gesamt: number;
 }
 
-function coachingTipp(km: number, teamAvg: number): { text: string; color: string } {
-  if (km >= teamAvg * 1.2) return {
-    text: 'Starke Leistung heute! Du fährst deutlich mehr als deine Kollegen — perfekte Abdeckung.',
+function coachingTipp(km: number): { text: string; color: string } {
+  if (km >= 150) return {
+    text: 'Rekord-Strecke! Über 150 km gefahren — absoluter Spitzenwert im Team.',
     color: 'text-green-300',
   };
-  if (km >= teamAvg * 0.8) return {
-    text: 'Solide Kilometer heute. Noch eine Tour drauf und du liegst über dem Team-Durchschnitt.',
+  if (km >= 80) return {
+    text: 'Solide Kilometerzahl. Noch ein paar Touren und du erreichst die Top-Marke.',
     color: 'text-yellow-400',
   };
   return {
-    text: 'Noch wenige Kilometer heute. Nimm aktiv Touren an, um deinen Beitrag zu steigern.',
+    text: 'Noch wenige Kilometer erfasst. Nimm aktiv Touren an, um deinen Beitrag zu steigern.',
     color: 'text-orange-400',
   };
 }
@@ -72,9 +72,9 @@ export function FahrerPhase5315MeineKilometer({
   const mein = data.fahrer.find((f: FahrerRow) => f.fahrer_id === driverId) ?? data.fahrer[0];
   if (!mein) return null;
 
-  const tipp = coachingTipp(mein.km_heute, data.team_avg_km);
-  const maxKm = Math.max(...data.fahrer.map(f => f.km_heute), 1);
-  const barWidth = Math.min(100, (mein.km_heute / maxKm) * 100);
+  const tipp = coachingTipp(mein.km_gesamt);
+  const maxKm = Math.max(...data.fahrer.map(f => f.km_gesamt), 1);
+  const barWidth = Math.min(100, (mein.km_gesamt / maxKm) * 100);
   const teamBarWidth = Math.min(100, (data.team_avg_km / maxKm) * 100);
 
   const borderColor =
@@ -90,12 +90,12 @@ export function FahrerPhase5315MeineKilometer({
     <div className={`rounded-2xl border mb-3 overflow-hidden ${borderColor}`}>
       <div className={`px-4 py-3 flex items-center gap-2 border-b ${headerBg}`}>
         <Route className="w-4 h-4 text-green-400 shrink-0" />
-        <span className="text-sm font-semibold text-gray-200">Meine Kilometer heute</span>
+        <span className="text-sm font-semibold text-gray-200">Meine Kilometer (30 Tage)</span>
       </div>
 
       <div className="px-4 py-4 text-center">
         <div className="text-4xl font-black tabular-nums text-green-300">
-          {mein.km_heute}
+          {mein.km_gesamt}
           <span className="text-xl font-semibold text-gray-400"> km</span>
         </div>
         <div className="text-2xl font-bold mt-1 text-green-300">
