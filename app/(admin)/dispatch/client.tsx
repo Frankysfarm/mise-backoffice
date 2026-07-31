@@ -1350,6 +1350,7 @@ import { DispatchPhase5111ScoreTourVisualisierungV20 } from './phase5111-score-t
 import { DispatchPhase5120ScoreTourVisualisierungV21 } from './phase5120-score-tour-visualisierung-v21';
 import { DispatchPhase5113ErreichbarkeitsIndexBoard } from './phase5113-erreichbarkeits-index-board';
 import { DispatchPhase5118DistanzJeSchichtBoard } from './phase5118-distanz-je-schicht-board';
+import { DispatchPhase5123AbschlussquoteBoard } from './phase5123-abschlussquote-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5474,6 +5475,8 @@ export function DispatchBoard({
           <DispatchPhase5113ErreichbarkeitsIndexBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5118: Distanz-je-Schicht-Board — MapPin amber; ABSTEIGEND Rang 1=höchste Distanz je Schicht; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5118DistanzJeSchichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5123: Abschlussquote-Board — CheckCircle green; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5123AbschlussquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
@@ -14357,6 +14360,8 @@ export { DispatchPhase5111ScoreTourVisualisierungV20 } from './phase5111-score-t
 export { DispatchPhase5113ErreichbarkeitsIndexBoard } from './phase5113-erreichbarkeits-index-board';
 // Phase 5118 — Distanz-je-Schicht-Board (MapPin amber-700; absteigend Rang 1=höchste Distanz je Schicht; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5118DistanzJeSchichtBoard } from './phase5118-distanz-je-schicht-board';
+// Phase 5123 — Abschlussquote-Board (CheckCircle green-700; absteigend Rang 1=höchste Quote=bester; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig <80%; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5123AbschlussquoteBoard } from './phase5123-abschlussquote-board';
 
 // Phase 5120 — Score + Tour-Visualisierung V21 (Trophy purple; Fleet-Score+Aktiv+Risiko KPI; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Route-Effizienz-Balken; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+km+Betrag; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5120ScoreTourVisualisierungV21 } from './phase5120-score-tour-visualisierung-v21';

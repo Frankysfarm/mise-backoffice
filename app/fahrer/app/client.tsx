@@ -1268,6 +1268,7 @@ import { FahrerPhase5111TourStopsNavigationHubV2 } from './phase5111-tour-stops-
 import { FahrerPhase5120TourStoppNavigatorPro } from './phase5120-tour-stopp-navigator-pro';
 import { FahrerPhase5114MeinErreichbarkeitsIndex } from './phase5114-mein-erreichbarkeits-index';
 import { FahrerPhase5119MeineDistanzJeSchicht } from './phase5119-meine-distanz-je-schicht';
+import { FahrerPhase5124MeineAbschlussquote } from './phase5124-meine-abschlussquote';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7625,6 +7626,8 @@ export function FahrerApp({
           <FahrerPhase5114MeinErreichbarkeitsIndex driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5119: Meine Distanz je Schicht — MapPin amber; km 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥30km/≥15km/<15km; 30-Min-Polling */}
           <FahrerPhase5119MeineDistanzJeSchicht driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5124: Meine Abschlussquote — CheckCircle green; quote_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥90%/≥80%/<80%; 30-Min-Polling */}
+          <FahrerPhase5124MeineAbschlussquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
           <FahrerPhase5036TourStoppSmartNavV15 driverId={driver.id} />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}
@@ -12227,6 +12230,8 @@ export { FahrerPhase5111TourStopsNavigationHubV2 } from './phase5111-tour-stops-
 export { FahrerPhase5114MeinErreichbarkeitsIndex } from './phase5114-mein-erreichbarkeits-index';
 // Phase 5119 — Meine Distanz je Schicht (MapPin amber-700; km_je_schicht 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥30km/≥15km/<15km; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5119MeineDistanzJeSchicht } from './phase5119-meine-distanz-je-schicht';
+// Phase 5124 — Meine Abschlussquote (CheckCircle green-700; quote_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥90%/≥80%/<80%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5124MeineAbschlussquote } from './phase5124-meine-abschlussquote';
 
 // Phase 5120 — Tour-Stopp Navigator Pro (Route blue; CountdownRing ETA-Ring 64px farbkodiert blau/gelb/rot; aktueller Stopp: Kunde+Adresse+Notiz+Zahlungsart; CTA Navigieren+Anruf+Geliefert; nächste Stopps-Liste mit ETA; erledigte Stopps; Fortschrittsbalken; mobile-first; Mock-Fallback)
 export { FahrerPhase5120TourStoppNavigatorPro } from './phase5120-tour-stopp-navigator-pro';

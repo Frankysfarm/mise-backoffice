@@ -1294,6 +1294,7 @@ import { KitchenPhase5111SmartTimingCountdownV38 } from './phase5111-smart-timin
 import { KitchenPhase5120SmartTimingCountdownV38 } from './phase5120-smart-timing-countdown-v38';
 import { KitchenPhase5116ErreichbarkeitsTicker } from './phase5116-erreichbarkeits-ticker';
 import { KitchenPhase5121DistanzJeSchichtTicker } from './phase5121-distanz-je-schicht-ticker';
+import { KitchenPhase5126AbschlussquoteTicker } from './phase5126-abschlussquote-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -5062,6 +5063,8 @@ export function KitchenBoard({
       <KitchenPhase5116ErreichbarkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5121: Distanz-je-Schicht-Ticker — MapPin amber; Aktivste #1 Name+km; Team-Avg; Alert-Count rot; 30-Min-Polling */}
       <KitchenPhase5121DistanzJeSchichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5126: Abschlussquote-Ticker — CheckCircle green; Beste #1 Name+%; Team-Avg; Alert-Count rot; 30-Min-Polling */}
+      <KitchenPhase5126AbschlussquoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
       <KitchenPhase5036SmartTimingCountdownV33 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5035: Smart-Timing Countdown V32 — Farbkodierung rot<5min/gelb<10min/grün; Batch-Koordination; Prio-Ampel; 15s-Polling */}
@@ -12921,6 +12924,8 @@ export { KitchenPhase5111ZuverlaessigkeitTicker } from './phase5111-zuverlaessig
 export { KitchenPhase5116ErreichbarkeitsTicker } from './phase5116-erreichbarkeits-ticker';
 // Phase 5121 — Distanz-je-Schicht-Ticker (MapPin amber-700; Aktivste #1 Name+km; Team-Ø; Alert-Count rot; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5121DistanzJeSchichtTicker } from './phase5121-distanz-je-schicht-ticker';
+// Phase 5126 — Abschlussquote-Ticker (CheckCircle green-700; Beste #1 Name+%; Team-Ø; Alert-Count rot; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5126AbschlussquoteTicker } from './phase5126-abschlussquote-ticker';
 
 // Phase 5075 — Smart Timing Delivery Hub (ChefHat indigo; Countdown je Bestellung farbkodiert 4-stufig; Fortschrittsbalken; Fahrer-Sync-Hinweis; KPI-Grid Aktiv/Kritisch/Fertig; Score-Badge; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5075SmartTimingDeliveryHub } from './phase5075-smart-timing-delivery-hub';
