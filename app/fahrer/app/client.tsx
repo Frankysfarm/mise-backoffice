@@ -1278,6 +1278,7 @@ import { FahrerPhase5137MeineKundenbewertung } from './phase5137-meine-kundenbew
 import { FahrerPhase5140TourStopsNavigationHubV4 } from './phase5140-tour-stops-navigation-hub-v4';
 import { FahrerPhase5141TourStopsNavigationHubV5 } from './phase5141-tour-stops-navigation-hub-v5';
 import { FahrerPhase5144MeinFruehAnteil } from './phase5144-mein-frueh-anteil';
+import { FahrerPhase5149MeinAbendAnteil } from './phase5149-mein-abend-anteil';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7656,6 +7657,8 @@ export function FahrerApp({
           <FahrerPhase5141TourStopsNavigationHubV5 />
           {/* Phase 5144: Mein Früh-Anteil — Sun amber; frueh_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40%/≥20%/<20%; 30-Min-Polling */}
           <FahrerPhase5144MeinFruehAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5149: Mein Abend-Anteil — Moon indigo; abend_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40%/≥20%/<20%; 30-Min-Polling */}
+          <FahrerPhase5149MeinAbendAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12284,5 +12287,7 @@ export { FahrerPhase5140TourStopsNavigationHubV4 } from './phase5140-tour-stops-
 export { FahrerPhase5141TourStopsNavigationHubV5 } from './phase5141-tour-stops-navigation-hub-v5';
 // Phase 5144 — Mein Früh-Anteil (Sun amber-400; frueh_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40%/≥20%/<20%; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5144MeinFruehAnteil } from './phase5144-mein-frueh-anteil';
+// Phase 5149 — Mein Abend-Anteil (Moon indigo-400; abend_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40%/≥20%/<20%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5149MeinAbendAnteil } from './phase5149-mein-abend-anteil';
 // Phase 5142 — Tour-Stops & Navigation Hub V6 (Route blue; Tour-Fortschritts-Balken Fertig/Gesamt; Verdienst-Ziel-Tracker Fortschrittsbalken; 4-KPI-Grid Fertig/Offen/Eingenommen/Trinkgeld-Prognose; Dispatch-Nachricht Banner; 2-Tab Stopp-Liste/Übersicht; Nächster-Stopp-Badge; Trinkgeld-Prognose je Stopp; Prioritäts-Stopp-Highlight Express/Hoch; Zahlungsarten-Auswertung in Übersicht; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';

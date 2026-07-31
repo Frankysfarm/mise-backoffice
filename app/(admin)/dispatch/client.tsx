@@ -1360,6 +1360,7 @@ import { DispatchPhase5137KundenbewertungBoard } from './phase5137-kundenbewertu
 import { DispatchPhase5140ScoreTourVisualisierungV23 } from './phase5140-score-tour-visualisierung-v23';
 import { DispatchPhase5141ScoreTourVisualisierungV24 } from './phase5141-score-tour-visualisierung-v24';
 import { DispatchPhase5143FruehAnteilBoard } from './phase5143-frueh-anteil-board';
+import { DispatchPhase5148AbendAnteilBoard } from './phase5148-abend-anteil-board';
 import { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
@@ -5505,6 +5506,8 @@ export function DispatchBoard({
           <DispatchPhase5141ScoreTourVisualisierungV24 />
           {/* Phase 5143: Früh-Anteil-Board — Sun amber; ABSTEIGEND Rang 1=höchster Früh-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% amber; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5143FruehAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5148: Abend-Anteil-Board — Moon indigo; ABSTEIGEND Rang 1=höchster Abend-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert <25% indigo; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5148AbendAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5142: Score+Tour Visualisierung V25 — 7-KPI-Grid inkl. €/Stopp; 3-Tab Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln; Profit/Stopp je Fahrer; 20-Sek-Polling */}
           <DispatchPhase5142ScoreTourVisualisierungV25 />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
@@ -14414,5 +14417,7 @@ export { DispatchPhase5140ScoreTourVisualisierungV23 } from './phase5140-score-t
 export { DispatchPhase5141ScoreTourVisualisierungV24 } from './phase5141-score-tour-visualisierung-v24';
 // Phase 5143 — Früh-Anteil-Board (Sun amber-400; ABSTEIGEND Rang 1=höchster Früh-Anteil=bester; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% amber; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5143FruehAnteilBoard } from './phase5143-frueh-anteil-board';
+// Phase 5148 — Abend-Anteil-Board (Moon indigo-400; ABSTEIGEND Rang 1=höchster Abend-Anteil=bester; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert <25% indigo; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5148AbendAnteilBoard } from './phase5148-abend-anteil-board';
 // Phase 5142 — Score + Tour-Visualisierung V25 (Trophy violet; 7-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€Stopp/€gesamt; 3-Tab-Nav Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln mit SLA+Fahrer+Umsatz; Profit-per-Stopp je Fahrer; Fertig/Gesamt-Stopps-Anzeige; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
