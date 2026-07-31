@@ -37555,3 +37555,25 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5264: Fahrer `FahrerPhase5264MeineAblehnungsquote` — XOctagon rose-400; Coaching ≤5%/≤15%/>15%
 - Phase 5265: Storefront — skip
 - Phase 5266: Kitchen `KitchenPhase5266AblehnungsquoteTicker` — XOctagon rose-400
+
+---
+
+## Batch 27 — Ablehnungsquote-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5263 / 5264 / (5265 Storefront skip) / 5266
+
+**API:** `fahrer-ablehnungsquote` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, ablehnungsquote_pct, rank_delta, ampel, alert}], team_avg_ablehnungsquote_pct, alert_count, ziel_pct }`
+**Hinweis:** Kein `beste_name`/`niedrigste_name` → `data.fahrer[0]` / `data.fahrer[last]`; kein `gesamt` → `data.fahrer.length`; `alert` ist string|null (nicht boolean)
+
+### Implementiert:
+- **phase5263** `DispatchPhase5263AblehnungsquoteBoard` — XOctagon rose-400; KPI-Grid Niedrigste/Team-Ø/Höchste; Balken via (ablehnungsquote_pct/maxVal)×100; DeltaIcons; Hoch-Alert via alert≠null; AUFSTEIGEND (niedrigste = Rang 1 = bester)
+- **phase5264** `FahrerPhase5264MeineAblehnungsquote` — isOnline-Guard; WifiOff-Fallback; Coaching ≤2%/≤5%/>5%; Mini-Balken; Ampel-Border; XOctagon rose-400; zeigt `data.ziel_pct` im Label
+- **phase5266** `KitchenPhase5266AblehnungsquoteTicker` — XOctagon rose-400; Niedrigste Rang+%; Team-Ø; Ziel; Hoch-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5267!**
+
+**Vorschlag Batch 28:** Fahrer-Abendproduktivitäts-Ranking (Produktivität in Abendschicht — ABSTEIGEND, höchste = bester)
+- Phase 5267: Dispatch `DispatchPhase5267AbendprodBoard` — Moon indigo-400; ABSTEIGEND
+- Phase 5268: Fahrer `FahrerPhase5268MeineAbendprod` — Moon indigo-400; Coaching-Schwellen API-abhängig
+- Phase 5269: Storefront — skip
+- Phase 5270: Kitchen `KitchenPhase5270AbendprodTicker` — Moon indigo-400
