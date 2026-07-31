@@ -37450,3 +37450,24 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5244: Fahrer `FahrerPhase5244MeineBewertung` — Star yellow-400; Coaching ≥4.5/≥4.0/<4.0
 - Phase 5245: Storefront — skip
 - Phase 5246: Kitchen `KitchenPhase5246BewertungsTicker` — Star yellow-400
+
+---
+
+## Batch 22 — Bewertungs-Score-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5243 / 5244 / (5245 Storefront skip) / 5246
+
+**API:** `fahrer-bewertungs-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_rating, rank_delta, ampel, alert_niedrig}], team_avg_rating, bester_name, letzter_name, alert_count, gesamt }`
+
+### Implementiert:
+- **phase5243** `DispatchPhase5243BewertungsBoard` — Star yellow-400; KPI-Grid Beste/Team-Ø/Letzte; Balken via (avg_rating/5)×100; DeltaIcons; Niedrig-Alert; Reuse `fahrer-bewertungs-ranking`; ABSTEIGEND (höchste = Rang 1 = bester)
+- **phase5244** `FahrerPhase5244MeineBewertung` — isOnline-Guard; WifiOff-Fallback; Coaching ≥4.5/≥4.0/<4.0; Mini-Balken; Ampel-Border; Star yellow-400
+- **phase5246** `KitchenPhase5246BewertungsTicker` — Star yellow-400; Beste Rang+★; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5247!**
+
+**Vorschlag Batch 23:** Fahrer-Trinkgeld-pro-Lieferung-Ranking (Ø Trinkgeld € je Lieferung — ABSTEIGEND, höchste = bester)
+- Phase 5247: Dispatch `DispatchPhase5247TrinkgeldProLieferungBoard` — Banknote green-400; ABSTEIGEND
+- Phase 5248: Fahrer `FahrerPhase5248MeinTrinkgeldProLieferung` — Banknote green-400; Coaching ≥2€/≥1€/<1€
+- Phase 5249: Storefront — skip
+- Phase 5250: Kitchen `KitchenPhase5250TrinkgeldProLieferungTicker` — Banknote green-400
