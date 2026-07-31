@@ -37824,3 +37824,25 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5284: Fahrer `FahrerPhase5284MeineAbwesenheit` — UserMinus red-400; Coaching API-abhängig
 - Phase 5285: Storefront — skip
 - Phase 5286: Kitchen `KitchenPhase5286AbwesenheitTicker` — UserMinus red-400
+
+---
+
+## Batch 33 — Abwesenheits-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5287 / 5288 / (5289 Storefront skip) / 5290
+
+**API:** `fahrer-abwesenheit-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, abwesenheit_tage, rank_delta, ampel, alert_hoch}], team_avg, beste_name, schlechteste_name, alert_count, gesamt }`
+**Hinweis:** Mock-Fallback wenn API nicht verfügbar; AUFSTEIGEND (niedrigste Abwesenheit = Rang 1)
+
+### Implementiert:
+- **phase5287** `DispatchPhase5287AbwesenheitBoard` — UserMinus red-400; KPI-Grid Wenigste/Team-Ø/Meiste; Balken via abwesenheit_tage; DeltaIcons; Hoch-Alert; Mock-Fallback
+- **phase5288** `FahrerPhase5288MeineAbwesenheit` — isOnline-Guard; WifiOff-Fallback; Coaching ≤2/≤5/>5 Tage; Balken Ich vs Team-Ø; Ampel-Border; UserMinus red-400; Mock-Fallback
+- **phase5290** `KitchenPhase5290AbwesenheitTicker` — UserMinus red-400; Wenigste Rang+Tage; Team-Ø; Hoch-Alert; Mock-Fallback
+
+**KRITISCH: Nächste freie Phase ist 5291!**
+
+**Vorschlag Batch 34:** Fahrer-Schicht-Dichte-Ranking (Schichten pro Woche — ABSTEIGEND, höchste = bester)
+- Phase 5291: Dispatch `DispatchPhase5291SchichtDichteBoard` — Calendar blue-400; ABSTEIGEND
+- Phase 5292: Fahrer `FahrerPhase5292MeineSchichtDichte` — Calendar blue-400; Coaching API-abhängig
+- Phase 5293: Storefront — skip
+- Phase 5294: Kitchen `KitchenPhase5294SchichtDichteTicker` — Calendar blue-400

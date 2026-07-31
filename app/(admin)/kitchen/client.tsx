@@ -1337,6 +1337,7 @@ import { KitchenPhase5274AbholwartezeitTicker } from './phase5274-abholwartezeit
 import { KitchenPhase5278AktivitaetsScoreTicker } from './phase5278-aktivitaets-score-ticker';
 import { KitchenPhase5282AbendAnteilTicker } from './phase5282-abend-anteil-ticker';
 import { KitchenPhase5286BonusQuoteTicker } from './phase5286-bonus-quote-ticker';
+import { KitchenPhase5290AbwesenheitTicker } from './phase5290-abwesenheit-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5161,6 +5162,7 @@ export function KitchenBoard({
       <KitchenPhase5278AktivitaetsScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase5282AbendAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase5286BonusQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase5290AbwesenheitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5142: Smart-Timing Countdown V42 — Überfällig-Alert-Banner; 7-KPI-Grid inkl. Batch+Überfällig; 3-Tab Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1s-Tick+15s-Polling */}
       <KitchenPhase5142SmartTimingCountdownV42 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5163: Smart-Timing Countdown V43 — 8-KPI-Grid inkl. Velocity; Multi-Station-Workload; Queue-Prognose +5/+10 Min; Auto-Sort Urgency; 3-Tab Countdown/Stationen/Queue; 1s-Tick+15s-Polling */}
@@ -13093,6 +13095,7 @@ export { KitchenPhase5274AbholwartezeitTicker } from './phase5274-abholwartezeit
 export { KitchenPhase5278AktivitaetsScoreTicker } from './phase5278-aktivitaets-score-ticker';
 export { KitchenPhase5282AbendAnteilTicker } from './phase5282-abend-anteil-ticker';
 export { KitchenPhase5286BonusQuoteTicker } from './phase5286-bonus-quote-ticker';
+export { KitchenPhase5290AbwesenheitTicker } from './phase5290-abwesenheit-ticker';
 // Phase 5142 — Smart-Timing Countdown V42 (Timer indigo; Überfällig-Alert-Banner+Fahrer-Alert; 7-KPI-Grid Aktiv/Kritisch/Überfällig/Fahrer↑/Fertig/Batch//h; 3-Tab-Nav Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 // Phase 5163 — Smart-Timing Countdown V43 (Timer indigo; 8-KPI-Grid Aktiv/Kritisch/Überfällig/Fahrer↑/Fertig/Batch/Score/Velocity; Multi-Station-Workload-Balken; Queue-Prognose +5/+10 Min; Auto-Sort Urgency; 3-Tab Countdown/Stationen/Queue; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
