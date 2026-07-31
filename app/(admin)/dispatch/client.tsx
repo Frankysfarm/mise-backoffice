@@ -1426,6 +1426,7 @@ import { DispatchPhase5330StoppQuoteBoard } from './phase5330-stoppquote-board';
 import { DispatchPhase5334BewertungsBoard } from './phase5334-bewertungs-board';
 import { DispatchPhase5338TriinkgeldBoard } from './phase5338-trinkgeld-board';
 import { DispatchPhase5342UmsatzBoard } from './phase5342-umsatz-board';
+import { DispatchPhase5346PuenktlichkeitsBoard } from './phase5346-puenktlichkeits-board';
 
 type Driver = {
   employee_id: string;
@@ -5671,6 +5672,8 @@ export function DispatchBoard({
           <DispatchPhase5338TriinkgeldBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5342: Umsatz-Board — Euro green-400; Beste/Team-Ø/Letzte; Balken farbkodiert; DeltaIcons; Niedrig-Alert; ABSTEIGEND; 30-Min-Polling */}
           <DispatchPhase5342UmsatzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5346: Pünktlichkeits-Board — Clock green-400; Pünktlichste/Team-Ø/Unpünktlichste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; ABSTEIGEND; 30-Min-Polling */}
+          <DispatchPhase5346PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14606,6 +14609,8 @@ export { DispatchPhase5334BewertungsBoard } from './phase5334-bewertungs-board';
 export { DispatchPhase5338TriinkgeldBoard } from './phase5338-trinkgeld-board';
 // Phase 5342 — Umsatz-Board (Euro green-400; Beste/Team-Ø/Letzte; Balken farbkodiert; DeltaIcons; Niedrig-Alert; ABSTEIGEND; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5342UmsatzBoard } from './phase5342-umsatz-board';
+// Phase 5346 — Pünktlichkeits-Board (Clock green-400; Pünktlichste/Team-Ø/Unpünktlichste; Balken farbkodiert; DeltaIcons; Niedrig-Alert <75%; ABSTEIGEND; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5346PuenktlichkeitsBoard } from './phase5346-puenktlichkeits-board';
 // Phase 5142 — Score + Tour-Visualisierung V25 (Trophy violet; 7-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€Stopp/€gesamt; 3-Tab-Nav Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln mit SLA+Fahrer+Umsatz; Profit-per-Stopp je Fahrer; Fertig/Gesamt-Stopps-Anzeige; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 // Phase 5163 — Score + Tour-Visualisierung V26 (Trophy purple; 8-KPI-Grid inkl. Zonen-Count; 3-Tab-Nav Rangliste/Fleet/Zonen-Profit; Tier-Fortschrittsbalken; Route-Abweichungs-Alert; Zonen-Profitabilitäts-Index; 20-Sek-Polling; Mock-Fallback)

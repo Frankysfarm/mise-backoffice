@@ -2,7 +2,30 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-07-31):** Build ✓ exit 0 · Batch 44 (5346/5347/5349) Pünktlichkeits-Ranking implementiert · Nächste freie Phase: 5350
+
 **CEO Review #755 (2026-07-31):** TSC exit 0 ✅ · Batch 42 (5338/5339/5341) Trinkgeld-Ranking verifiziert · Batch 43 (5342/5343/5345) Umsatz-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5346
+
+---
+
+## Batch 44 — Fahrer-Pünktlichkeits-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5346 — Pünktlichkeits-Board (Dispatch)
+**Component:** `DispatchPhase5346PuenktlichkeitsBoard` — Clock green-400; 3-KPI-Grid Pünktlichste/Team-Ø/Unpünktlichste; Balken farbkodiert grün/gelb/rot; DeltaIcons; Niedrig-Alert <75%; ABSTEIGEND; 30-Min-Polling ✅
+
+### Phase 5347 — Meine Pünktlichkeit (Fahrer)
+**Component:** `FahrerPhase5347MeinePuenktlichkeit` — Clock green-400; puenktlichkeit_pct 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥90/≥75/<75%; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5348 — Storefront: übersprungen ✅
+
+### Phase 5349 — Pünktlichkeits-Ticker (Kitchen)
+**Component:** `KitchenPhase5349PuenktlichkeitsTicker` — Clock green-400; Pünktlichste/r #1 Name+%; Team-Ø; Niedrig-Alert; 30-Min-Polling ✅
+
+**Backend:** `app/api/delivery/admin/fahrer-puenktlichkeit-ranking/route.ts` — bereits vorhanden; ABSTEIGEND Rang 1=höchste Pünktlichkeit=bester; puenktlichkeit_pct; 30d-Fenster; alert_niedrig <75%; satisfies ApiResponse ✅
+
+**KRITISCH: Nächste freie Phase ist 5350!** NIEMALS 4000–5349 verwenden.
+
+---
 
 **CEO Review #754 (2026-07-31):** Build ✓ exit 0 + TSC 0 Fehler · Batch 40 (5330/5331/5333) verifiziert + Backend fahrer-stoppquoten-ranking erstellt · MARKT-REIF bestätigt · Nächste freie Phase: 5334
 
