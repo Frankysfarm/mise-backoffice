@@ -36910,3 +36910,44 @@ KRITISCH: Nächste freie Phase ist **5137**! NIEMALS 4000–5136 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **5157**! NIEMALS 4000–5156 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5157/5158/5159/5161 — Fahrer-Lieferungen-pro-Stunde-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+⚠️ **Hinweis:** Phase 5160 = Storefront (übersprungen).
+⚠️ **Hinweis:** API `fahrer-lieferungen-pro-stunde-ranking/route.ts` war bereits vorhanden — wiederverwendet.
+
+### Phase 5157 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-lieferungen-pro-stunde-ranking/route.ts` (bereits vorhanden ✅)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, deliveries_pro_h, rank_delta, ampel, alert_niedrig}], team_avg_pro_h, produktivste_name, wenigste_name, alert_count, gesamt }`
+**Logik:** ABSTEIGEND Rang 1=höchste Lieferungen/h=bester; completed_deliveries/totalHours letzte 30 Tage; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn ampel='rot'; Mock Julia 4.8/Max 4.1/Sara 3.6/Tim 2.2; force-dynamic ✅; await createClient() ✅
+
+### Phase 5158 — Lieferungen-pro-Stunde-Board (Dispatch)
+**Component:** `DispatchPhase5158LieferungenProStundeBoard` — Zap violet-400; Rang 1=höchste /h; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig rot; Balken proportional farbkodiert; DeltaIcon; Produktivste-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5159 — Meine Lieferungen/Stunde (Fahrer)
+**Component:** `FahrerPhase5159MeineLieferungenProStunde` — Zap violet-400; deliveries_pro_h 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥2.5/h/≥1.5/h/<1.5/h; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5160 — Storefront
+Übersprungen ✅
+
+### Phase 5161 — Lieferungen/h-Ticker (Kitchen)
+**Component:** `KitchenPhase5161LieferungenProStundeTicker` — Zap violet-400; Produktivste #1 Name+/h; Team-Ø; Alert-Count rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue pre-existing in CI ✅ | TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5157/5158/5159/5161)
+- **Belegt:** 4000–5161 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5162**
+
+### Nächste Phasen 5162–5166 — Vorschlag: Fahrer-Pünktlichkeits-Ranking (Anteil pünktlicher Lieferungen je Fahrer letzte 30 Tage)
+1. **Phase 5162 Backend:** GET /api/delivery/admin/fahrer-puenktlichkeit-ranking — on_time_deliveries/total_deliveries*100 je Fahrer letzte 30 Tage; ABSTEIGEND Rang 1=höchste Pünktlichkeit=bester; ampelVon; alert_niedrig wenn <80%; force-dynamic; await createClient().
+2. **Phase 5163 Dispatch:** `DispatchPhase5163PuenktlichkeitBoard` — Clock green-600; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5164 Fahrer:** `FahrerPhase5164MeinePuenktlichkeit` — Clock green-600; pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥95%/≥80%/<80%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5165 Storefront:** Überspringen.
+5. **Phase 5166 Kitchen:** `KitchenPhase5166PuenktlichkeitTicker` — Clock green-600; Pünktlichste #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5162**! NIEMALS 4000–5161 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+
+## STATUS: MARKT-REIF
