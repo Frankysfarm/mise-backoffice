@@ -1335,6 +1335,7 @@ import { FahrerPhase5355MeineProduktivitaet } from './phase5355-meine-produktivi
 import { FahrerPhase5359MeineZuverlaessigkeit } from './phase5359-meine-zuverlaessigkeit';
 import { FahrerPhase5363MeineReaktionszeit } from './phase5363-meine-reaktionszeit';
 import { FahrerPhase5367MeineStornoquote } from './phase5367-meine-stornoquote';
+import { FahrerPhase5371MeineAuslastung } from './phase5371-meine-auslastung';
 import { FahrerPhase5304TourStoppNavigatorV4 } from './phase5304-tour-stopp-navigator-v4';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
@@ -7796,6 +7797,8 @@ export function FahrerApp({
           <FahrerPhase5363MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5367: Meine Stornoquote — XCircle orange-400; rate_pct 4xl+Rang; Coaching ≤3/≤7/>7%; Dual-Balken Ich+Team-Ø; isOnline-Guard */}
           <FahrerPhase5367MeineStornoquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5371: Meine Auslastung — BarChart2 blue-400; auslastung_pct 4xl+Rang; Coaching ≥80/≥60/<60%; Dual-Balken Ich+Team-Ø; isOnline-Guard */}
+          <FahrerPhase5371MeineAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12502,6 +12505,8 @@ export { FahrerPhase5359MeineZuverlaessigkeit } from './phase5359-meine-zuverlae
 // Phase 5363 — Meine Reaktionszeit (Timer violet-400; avg_reaktionszeit_min 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≤4/≤7/>7min; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
 export { FahrerPhase5363MeineReaktionszeit } from './phase5363-meine-reaktionszeit';
 export { FahrerPhase5367MeineStornoquote } from './phase5367-meine-stornoquote';
+// Phase 5371 — Meine Auslastung (BarChart2 blue-400; auslastung_pct 4xl+Rang; Coaching ≥80/≥60/<60%; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
+export { FahrerPhase5371MeineAuslastung } from './phase5371-meine-auslastung';
 // Phase 5142 — Tour-Stops & Navigation Hub V6 (Route blue; Tour-Fortschritts-Balken Fertig/Gesamt; Verdienst-Ziel-Tracker Fortschrittsbalken; 4-KPI-Grid Fertig/Offen/Eingenommen/Trinkgeld-Prognose; Dispatch-Nachricht Banner; 2-Tab Stopp-Liste/Übersicht; Nächster-Stopp-Badge; Trinkgeld-Prognose je Stopp; Prioritäts-Stopp-Highlight Express/Hoch; Zahlungsarten-Auswertung in Übersicht; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 // Phase 5304 — Tour-Stopp-Navigator V4 (Navigation indigo; Schritt-für-Schritt Navi-Hinweise; Warte-Warnung Delay-Risiko hoch/mittel; Tour-Fortschritts-Balken Fertig/Gesamt+Effizienz%; Stopp-Position-Badge+Priority-Zap; Dual-Countdown Küche+Fahrer; Delay-Alert je Stopp; expandierbare Stopp-Karten; Offline-Banner; 20s-Polling; Mock-Fallback)

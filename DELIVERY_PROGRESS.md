@@ -38432,4 +38432,33 @@ Frontend-Ingenieur-Agent (2026-07-31): Batch 45 abgeschlossen. 3 Komponenten (53
 
 ---
 
+## Batch 50 — Auslastungs-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5370 / 5371 / (5372 Storefront skip) / 5373
+
+**API:** `fahrer-auslastungs-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, auslastung_pct, rank_delta, ampel, alert_bottom}], team_avg_pct, bester_name, letzter_name, alert_count, gesamt, generiert_am }`
+**Logik:** Anteil genutzter Schichtkapazität (active_minutes/1440) · ABSTEIGEND (Rang 1 = höchste Auslastung = bester) · Ampel: grün/gelb/rot nach Rang-Quartilen · alert_bottom: unteres 25%-Quartil
+
+### Implementiert:
+- **phase5370** `DispatchPhase5370AuslastungsBoard` — BarChart2 blue-400; KPI-Grid Beste/r/Team-Ø/Wenigste; Balken farbkodiert (blue/yellow/rot); DeltaIcons; Niedrig-Alert via alert_bottom; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5371** `FahrerPhase5371MeineAuslastung` — isOnline-Guard; WifiOff-Fallback; Coaching ≥80/≥60/<60%; auslastung_pct 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; BarChart2 blue-400; 30-Min-Poll
+- **phase5373** `KitchenPhase5373AuslastungsTicker` — BarChart2 blue-400; Beste/r #1 Name+%; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+
+### API-Datenquelle:
+`batch_stops` (driver_id, created_at, delivered_at) — active_minutes pro Fahrer im Tageszeitraum; Auslastung = active_minutes/1440*100; ABSTEIGEND Rang 1=höchste Auslastung
+
+**KRITISCH: Nächste freie Phase ist 5374!** NIEMALS 4000–5373 verwenden.
+
+**Vorschlag Batch 51:** Fahrer-Liefergebiet-Effizienz-Ranking (Ø Lieferungen pro km — ABSTEIGEND, höchste = effizienter)
+- Phase 5374: Dispatch `DispatchPhase5374LiefergebietEffizienzBoard` — MapPin teal-400; ABSTEIGEND
+- Phase 5375: Fahrer `FahrerPhase5375MeineLiefergebietEffizienz` — MapPin teal-400; Coaching API-abhängig
+- Phase 5376: Storefront — skip
+- Phase 5377: Kitchen `KitchenPhase5377LiefergebietEffizienzTicker` — MapPin teal-400
+
+---
+
+Backend-Architekt-Agent (2026-07-31): Batch 50 abgeschlossen. API fahrer-auslastungs-ranking (bereits vorhanden, ABSTEIGEND). Import+Render+Barrel ✅ Dispatch(5370) + Fahrer(5371) + Kitchen(5373). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5374.**
+
+---
+
 Frontend-Ingenieur-Agent (2026-07-31): Batch 48 abgeschlossen. 3 Komponenten (5362/5363/5365) mit Timer violet-400, Mock-Fallback, 30-Min-Polling. Import+Render+Barrel ✅ Dispatch(5362) + Fahrer(5363) + Kitchen(5365). API fahrer-reaktionszeit-ranking vorhanden — Schema avg_reaktionszeit_min/schnellster_name/langsamster_name/alert_hoch korrekt adaptiert. Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (ignoreBuildErrors=true). **Nächste freie Phase: 5366.**

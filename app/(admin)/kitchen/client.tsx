@@ -1361,6 +1361,7 @@ import { KitchenPhase5357ProduktivitaetsTicker } from './phase5357-produktivitae
 import { KitchenPhase5361ZuverlaessigkeitsTicker } from './phase5361-zuverlaessigkeits-ticker';
 import { KitchenPhase5365ReaktionszeitTicker } from './phase5365-reaktionszeit-ticker';
 import { KitchenPhase5369StornoquotenTicker } from './phase5369-stornoquoten-ticker';
+import { KitchenPhase5373AuslastungsTicker } from './phase5373-auslastungs-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5227,6 +5228,8 @@ export function KitchenBoard({
       <KitchenPhase5365ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5369: Stornoquoten-Ticker — XCircle orange-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert >10%; 30-Min-Poll */}
       <KitchenPhase5369StornoquotenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5373: Auslastungs-Ticker — BarChart2 blue-400; Beste/r #1 Name+%; Team-Ø; Niedrig-Alert; 30-Min-Poll */}
+      <KitchenPhase5373AuslastungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5310: Smart-Timing Countdown V46 — KI-Kochstart-Empfehlung; Peak-Stationen-Alert; Effizienz-Wachstums-Balken; 7-KPI-Grid Score/Aktiv/Kritisch/Fertig/Velocity/Effizienz/KI-Tips; 1s-Tick+15s-Polling */}
       <KitchenPhase5310SmartTimingCountdownV46 />
       {/* Phase 5325: Smart-Timing Countdown V47 — Kochzeit-Präzisions-Score; Stationstemperatur-Ampel kalt/warm/heiß/überhitzt; Batch-Abschluss-Forecast; 8-KPI-Grid; Farbkodierung 6-stufig; Δ-Präzision je Order; 1s-Tick+15s-Polling */}
@@ -13215,3 +13218,5 @@ export { KitchenPhase5361ZuverlaessigkeitsTicker } from './phase5361-zuverlaessi
 // Phase 5365 — Reaktionszeit-Ticker (Timer violet-400; Schnellste/r #1 Name+min; Team-Ø; Hoch-Alert >10min; 30-Min-Poll; Mock-Fallback)
 export { KitchenPhase5369StornoquotenTicker } from './phase5369-stornoquoten-ticker';
 export { KitchenPhase5365ReaktionszeitTicker } from './phase5365-reaktionszeit-ticker';
+// Phase 5373 — Auslastungs-Ticker (BarChart2 blue-400; Beste/r #1 Name+%; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback)
+export { KitchenPhase5373AuslastungsTicker } from './phase5373-auslastungs-ticker';
