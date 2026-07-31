@@ -1310,6 +1310,7 @@ import { KitchenPhase5161LieferungenProStundeTicker } from './phase5161-lieferun
 import { KitchenPhase5166PuenktlichkeitTicker } from './phase5166-puenktlichkeit-ticker';
 import { KitchenPhase5171LieferdistanzTicker } from './phase5171-lieferdistanz-ticker';
 import { KitchenPhase5176AvgLieferzeitTicker } from './phase5176-avg-lieferzeit-ticker';
+import { KitchenPhase5181SchichtDauerTicker } from './phase5181-schicht-dauer-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
@@ -5106,6 +5107,7 @@ export function KitchenBoard({
       <KitchenPhase5166PuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase5171LieferdistanzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase5176AvgLieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase5181SchichtDauerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5142: Smart-Timing Countdown V42 — Überfällig-Alert-Banner; 7-KPI-Grid inkl. Batch+Überfällig; 3-Tab Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1s-Tick+15s-Polling */}
       <KitchenPhase5142SmartTimingCountdownV42 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
@@ -13009,5 +13011,6 @@ export { KitchenPhase5161LieferungenProStundeTicker } from './phase5161-lieferun
 export { KitchenPhase5166PuenktlichkeitTicker } from './phase5166-puenktlichkeit-ticker';
 export { KitchenPhase5171LieferdistanzTicker } from './phase5171-lieferdistanz-ticker';
 export { KitchenPhase5176AvgLieferzeitTicker } from './phase5176-avg-lieferzeit-ticker';
+export { KitchenPhase5181SchichtDauerTicker } from './phase5181-schicht-dauer-ticker';
 // Phase 5142 — Smart-Timing Countdown V42 (Timer indigo; Überfällig-Alert-Banner+Fahrer-Alert; 7-KPI-Grid Aktiv/Kritisch/Überfällig/Fahrer↑/Fertig/Batch//h; 3-Tab-Nav Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';

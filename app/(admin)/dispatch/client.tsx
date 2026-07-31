@@ -1366,6 +1366,7 @@ import { DispatchPhase5158LieferungenProStundeBoard } from './phase5158-lieferun
 import { DispatchPhase5163PuenktlichkeitBoard } from './phase5163-puenktlichkeit-board';
 import { DispatchPhase5168LieferdistanzBoard } from './phase5168-lieferdistanz-board';
 import { DispatchPhase5173AvgLieferzeitBoard } from './phase5173-avg-lieferzeit-board';
+import { DispatchPhase5178SchichtDauerBoard } from './phase5178-schicht-dauer-board';
 import { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
@@ -5518,6 +5519,7 @@ export function DispatchBoard({
           <DispatchPhase5163PuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase5168LieferdistanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           <DispatchPhase5173AvgLieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          <DispatchPhase5178SchichtDauerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5142: Score+Tour Visualisierung V25 — 7-KPI-Grid inkl. €/Stopp; 3-Tab Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln; Profit/Stopp je Fahrer; 20-Sek-Polling */}
           <DispatchPhase5142ScoreTourVisualisierungV25 />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
@@ -14434,5 +14436,6 @@ export { DispatchPhase5158LieferungenProStundeBoard } from './phase5158-lieferun
 export { DispatchPhase5163PuenktlichkeitBoard } from './phase5163-puenktlichkeit-board';
 export { DispatchPhase5168LieferdistanzBoard } from './phase5168-lieferdistanz-board';
 export { DispatchPhase5173AvgLieferzeitBoard } from './phase5173-avg-lieferzeit-board';
+export { DispatchPhase5178SchichtDauerBoard } from './phase5178-schicht-dauer-board';
 // Phase 5142 — Score + Tour-Visualisierung V25 (Trophy violet; 7-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€Stopp/€gesamt; 3-Tab-Nav Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln mit SLA+Fahrer+Umsatz; Profit-per-Stopp je Fahrer; Fertig/Gesamt-Stopps-Anzeige; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
