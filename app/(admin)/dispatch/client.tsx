@@ -14349,3 +14349,6 @@ export { DispatchPhase5111ScoreTourVisualisierungV20 } from './phase5111-score-t
 
 // Phase 5113 — Erreichbarkeits-Index-Board (Phone blue-700; absteigend Rang 1=höchster Index; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5113ErreichbarkeitsIndexBoard } from './phase5113-erreichbarkeits-index-board';
+
+// Phase 5120 — Score + Tour-Visualisierung V21 (Trophy purple; Fleet-Score+Aktiv+Risiko KPI; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Route-Effizienz-Balken; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+km+Betrag; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5120ScoreTourVisualisierungV21 } from './phase5120-score-tour-visualisierung-v21';

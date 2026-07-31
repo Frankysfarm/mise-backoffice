@@ -12219,3 +12219,6 @@ export { FahrerPhase5111TourStopsNavigationHubV2 } from './phase5111-tour-stops-
 
 // Phase 5114 — Mein Erreichbarkeits-Index (Phone blue-700; index 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥80/≥60/<60; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5114MeinErreichbarkeitsIndex } from './phase5114-mein-erreichbarkeits-index';
+
+// Phase 5120 — Tour-Stopp Navigator Pro (Route blue; CountdownRing ETA-Ring 64px farbkodiert blau/gelb/rot; aktueller Stopp: Kunde+Adresse+Notiz+Zahlungsart; CTA Navigieren+Anruf+Geliefert; nächste Stopps-Liste mit ETA; erledigte Stopps; Fortschrittsbalken; mobile-first; Mock-Fallback)
+export { FahrerPhase5120TourStoppNavigatorPro } from './phase5120-tour-stopp-navigator-pro';

@@ -12924,3 +12924,6 @@ export { KitchenPhase5076SmartTimingV36 } from './phase5076-smart-timing-v36';
 export { KitchenPhase5110SmartTimingCountdownV37 } from './phase5110-smart-timing-countdown-v37';
 // Phase 5111 — Smart-Timing Countdown V38 (Timer indigo; 5-KPI-Grid Score/Aktiv/Kritisch/Bereit/Gesamt; Station-Filter Alle+Grill/Friture/Kalt/Pasta/Ofen; Batch-ID-Badge; Fahrer-ETA-Sync-Zap; Schicht-Score-Trend TrendingUp/Down; Schicht-Effizienz-Balken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5111SmartTimingCountdownV38 } from './phase5111-smart-timing-countdown-v38';
+
+// Phase 5120 — Smart-Timing Countdown V38b (Timer indigo; 4-stufige Farbkodierung ok/warn/critical/overdue; Prio-Sort Flame/Zap/ChefHat; Schicht-Score+TrendUp/Down; 4-KPI-Grid Aktiv/Kritisch/Fertig/Gesamt; Countdown-Wall 2-spaltig Fortschrittsbalken+Fahrer-ETA-Zap; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase5120SmartTimingCountdownV38 } from './phase5120-smart-timing-countdown-v38';
