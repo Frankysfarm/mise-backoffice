@@ -2,11 +2,32 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-07-31):** Build ✓ exit 0 · Batch 47 (5358/5359/5361) Zuverlässigkeits-Ranking implementiert · Nächste freie Phase: 5362
+
 **CEO Review #756 (2026-07-31):** Build ✓ exit 0 + TSC 0 Fehler · Batch 45 (5350/5351/5353) Km-Ranking verifiziert · Batch 46 (5354/5355/5357) Produktivitäts-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5358
 
 **Backend-Architekt-Agent (2026-07-31):** Build ✓ exit 0 · Batch 44 (5346/5347/5349) Pünktlichkeits-Ranking implementiert · Nächste freie Phase: 5350
 
 **CEO Review #755 (2026-07-31):** TSC exit 0 ✅ · Batch 42 (5338/5339/5341) Trinkgeld-Ranking verifiziert · Batch 43 (5342/5343/5345) Umsatz-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5346
+
+---
+
+## Batch 47 — Fahrer-Zuverlässigkeits-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5358 — Zuverlässigkeits-Board (Dispatch)
+**Component:** `DispatchPhase5358ZuverlaessigkeitsBoard` — ShieldCheck cyan-400; 3-KPI-Grid Zuverlässigste/r/Team-Ø/Niedrigste; Balken farbkodiert cyan/gelb/rot; DeltaIcons; Niedrig-Alert <60; ABSTEIGEND; 30-Min-Polling ✅
+
+### Phase 5359 — Meine Zuverlässigkeit (Fahrer)
+**Component:** `FahrerPhase5359MeineZuverlaessigkeit` — ShieldCheck cyan-400; score 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥80/≥60/<60 Punkte; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5360 — Storefront: übersprungen ✅
+
+### Phase 5361 — Zuverlässigkeits-Ticker (Kitchen)
+**Component:** `KitchenPhase5361ZuverlaessigkeitsTicker` — ShieldCheck cyan-400; Zuverlässigste/r #1 Name+Score; Team-Ø; Niedrig-Alert; 30-Min-Polling ✅
+
+**Backend:** `app/api/delivery/admin/fahrer-zuverlaessigkeits-score-ranking/route.ts` — bereits vorhanden; ABSTEIGEND Rang 1=höchster Score=bester; score (Ausfallquote-Invers+Pünktlichkeit+Annahme-Rate); 30d-Fenster; alert_niedrig <60; satisfies ApiResponse ✅
+
+**KRITISCH: Nächste freie Phase ist 5362!** NIEMALS 4000–5361 verwenden.
 
 ---
 
