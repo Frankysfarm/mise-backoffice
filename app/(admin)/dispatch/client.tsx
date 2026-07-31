@@ -1430,6 +1430,7 @@ import { DispatchPhase5346PuenktlichkeitsBoard } from './phase5346-puenktlichkei
 import { DispatchPhase5350KmBoard } from './phase5350-km-board';
 import { DispatchPhase5354ProduktivitaetsBoard } from './phase5354-produktivitaets-board';
 import { DispatchPhase5358ZuverlaessigkeitsBoard } from './phase5358-zuverlaessigkeits-board';
+import { DispatchPhase5362ReaktionszeitBoard } from './phase5362-reaktionszeit-board';
 
 type Driver = {
   employee_id: string;
@@ -5683,6 +5684,8 @@ export function DispatchBoard({
           <DispatchPhase5354ProduktivitaetsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5358: Zuverlässigkeits-Board — ShieldCheck cyan-400; Zuverlässigste/r/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert <60; ABSTEIGEND; 30-Min-Polling */}
           <DispatchPhase5358ZuverlaessigkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5362: Reaktionszeit-Board — Timer violet-400; Schnellste/r/Team-Ø/Langsamste; Balken farbkodiert; DeltaIcons; Hoch-Alert >10min; AUFSTEIGEND; 30-Min-Polling */}
+          <DispatchPhase5362ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14626,6 +14629,8 @@ export { DispatchPhase5350KmBoard } from './phase5350-km-board';
 export { DispatchPhase5354ProduktivitaetsBoard } from './phase5354-produktivitaets-board';
 // Phase 5358 — Zuverlässigkeits-Board (ShieldCheck cyan-400; Zuverlässigste/r/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert <60; ABSTEIGEND; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5358ZuverlaessigkeitsBoard } from './phase5358-zuverlaessigkeits-board';
+// Phase 5362 — Reaktionszeit-Board (Timer violet-400; Schnellste/r/Team-Ø/Langsamste; Balken farbkodiert; DeltaIcons; Hoch-Alert >10min; AUFSTEIGEND; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5362ReaktionszeitBoard } from './phase5362-reaktionszeit-board';
 // Phase 5142 — Score + Tour-Visualisierung V25 (Trophy violet; 7-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€Stopp/€gesamt; 3-Tab-Nav Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln mit SLA+Fahrer+Umsatz; Profit-per-Stopp je Fahrer; Fertig/Gesamt-Stopps-Anzeige; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 // Phase 5163 — Score + Tour-Visualisierung V26 (Trophy purple; 8-KPI-Grid inkl. Zonen-Count; 3-Tab-Nav Rangliste/Fleet/Zonen-Profit; Tier-Fortschrittsbalken; Route-Abweichungs-Alert; Zonen-Profitabilitäts-Index; 20-Sek-Polling; Mock-Fallback)
