@@ -8,6 +8,7 @@ import { Phase4201LiefervertrauenStatusKarte } from '@/app/order/[locationSlug]/
 import { Phase4210DynamischeEtaLiveTrackingBoard } from '@/app/order/[locationSlug]/phase4210-dynamische-eta-live-tracking-board';
 import { Phase4470DynamischeEtaLiveTrackingV5 } from '@/app/order/[locationSlug]/phase4470-dynamische-eta-live-tracking-v5';
 import { Phase5142DynamischeEtaLiveTrackingV6 } from '@/app/order/[locationSlug]/phase5142-dynamische-eta-live-tracking-v6';
+import { Phase5163LiveTrackingHubV8 } from '@/app/order/[locationSlug]/phase5163-live-tracking-hub-v8';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -60,6 +61,9 @@ export default function TrackingPage({
 
         {/* Phase 5142: Dynamische ETA Live-Tracking V6 — SVG-ETA-Ring mit Konfidenz%; Fahrer-Distanz-Anzeige; ETA-Bereich-Balken; Phasen-Timeline animiert mit je Phase Konfidenz; Geliefert-State; 1-Sek-Countdown + 20-Sek-Polling; Mock-Fallback */}
         <Phase5142DynamischeEtaLiveTrackingV6 orderId={orderId} />
+
+        {/* Phase 5163: Live-Tracking-Hub V8 — ETA-Konfidenz-Dual-Arc-Ring; Fahrer-Distanz-Animations-Balken; Phasen-Timeline mit aktivem Indikator; Bewertungs-Prompt nach Lieferung; 20-Sek-Polling; Mock-Fallback */}
+        <Phase5163LiveTrackingHubV8 orderId={orderId} />
 
         {/* ETA-Karte (kompakt, als Ergänzung) */}
         <SmartDeliveryLiveEta orderId={orderId} />

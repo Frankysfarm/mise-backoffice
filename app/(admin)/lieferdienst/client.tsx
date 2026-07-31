@@ -528,6 +528,7 @@ import { LieferdienstPhase5137StatistikenDashboardV32 } from './phase5137-statis
 import { LieferdienstPhase5140StatistikenDashboardV33 } from './phase5140-statistiken-dashboard-v33';
 import { LieferdienstPhase5141StatistikenDashboardV34 } from './phase5141-statistiken-dashboard-v34';
 import { LieferdienstPhase5142StatistikenDashboardV35 } from './phase5142-statistiken-dashboard-v35';
+import { LieferdienstPhase5143StatistikenDashboardV36 } from './phase5143-statistiken-dashboard-v36';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2464,6 +2465,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5141StatistikenDashboardV34 />
                 {/* Phase 5142: Statistiken-Dashboard V35 — Qualitäts-Score+Fortschrittsbalken; 9-KPI inkl. Qualität; 5-Tab-Nav Stunden/Fahrer/Zonen/Woche/Alerts; Live-Alerts-Tab mit kritisch/warn/info; km-Anzeige Fahrer; 60-Sek-Polling */}
                 <LieferdienstPhase5142StatistikenDashboardV35 />
+                {/* Phase 5143: Statistiken-Dashboard V36 — Tri-Score-Rings Gesamt+Qualität+Prognose; Revenue-Velocity-Prognose-BarChart; Spitze-ETA+Fahrer-Bedarf; Prognose-Tab; Zonen-SLA+Kapazitäts-Balken; 60-Sek-Polling */}
+                <LieferdienstPhase5143StatistikenDashboardV36 locationId={locationId ?? null} />
                 {/* Phase 5036: Statistiken-Dashboard V26 — Revenue-Velocity; Storno-Analyse; Profit-KPI; Velocity-Chart; Zonen-SLA; 45-Sek-Polling */}
                 <LieferdienstPhase5036StatistikenDashboardV26 locationId={locationId ?? null} />
                 {/* Phase 5035: Statistiken-Dashboard V25 — Monatsziel-Fortschritt; 8-KPI-Grid; Stunden/Woche-Chart; Top-Fahrer; Zonen-SLA; 30-Sek-Polling */}
@@ -5197,3 +5200,5 @@ export { LieferdienstPhase5140StatistikenDashboardV33 } from './phase5140-statis
 export { LieferdienstPhase5141StatistikenDashboardV34 } from './phase5141-statistiken-dashboard-v34';
 // Phase 5142 — Statistiken-Dashboard V35 (Activity teal; Gesamt-Score + Qualitäts-Score Dual-Fortschrittsbalken; 9-KPI-Grid 3-spaltig inkl. Qualitäts-Score; 5-Tab-Nav Stunden/Fahrer/Zonen/Woche/Alerts; Live-Alerts-Tab kritisch/warn/info mit Zeitstempel; km-heute je Fahrer; Wochen-LineChart; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5142StatistikenDashboardV35 } from './phase5142-statistiken-dashboard-v35';
+// Phase 5143 — Statistiken-Dashboard V36 (Activity teal; Tri-Score-Rings Gesamt+Qualität+Prognose; Alert-Strip; 9-KPI-Grid 3-spaltig Ampel+Δ+Ziel-Balken; 5-Tab-Nav Stunden/Fahrer/Zonen/Woche/Prognose; Revenue-Velocity-Prognose-BarChart; Spitze-ETA+Fahrer-Bedarf; Zonen-SLA+Kapazitäts-Balken; Wochen-LineChart; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5143StatistikenDashboardV36 } from './phase5143-statistiken-dashboard-v36';
