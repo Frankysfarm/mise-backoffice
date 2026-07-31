@@ -14580,6 +14580,8 @@ export { DispatchPhase5310TourenEffizienzBoard } from './phase5310-touren-effizi
 export { DispatchPhase5314KilometerBoard } from './phase5314-kilometer-board';
 // Phase 5318 — Lieferzeit-Board (Timer orange-400; Schnellste/Team-Ø/Langsamste; Balken farbkodiert; DeltaIcons; zu-langsam-Alert; AUFSTEIGEND; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5318LieferzeitBoard } from './phase5318-lieferzeit-board';
+// Phase 5322 — Tour-Effizienz-Score-Board (Fleet-Score-Ring; €/km-Profitabilität je Tour; Fahrer-Score-Delta vs. Durchschnitt; SLA-Ampel; Stopp-Fortschrittsbalken; Verspätungsrisiko-Badge; 20-Sek-Polling)
+export { DispatchPhase5322TourEffizienzScoreBoard } from './phase5322-tour-effizienz-score-board';
 // Phase 5142 — Score + Tour-Visualisierung V25 (Trophy violet; 7-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€Stopp/€gesamt; 3-Tab-Nav Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln mit SLA+Fahrer+Umsatz; Profit-per-Stopp je Fahrer; Fertig/Gesamt-Stopps-Anzeige; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 // Phase 5163 — Score + Tour-Visualisierung V26 (Trophy purple; 8-KPI-Grid inkl. Zonen-Count; 3-Tab-Nav Rangliste/Fleet/Zonen-Profit; Tier-Fortschrittsbalken; Route-Abweichungs-Alert; Zonen-Profitabilitäts-Index; 20-Sek-Polling; Mock-Fallback)
