@@ -37642,3 +37642,24 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5280: Fahrer `FahrerPhase5280MeinAbendAnteil` — Moon amber-400; Coaching API-abhängig
 - Phase 5281: Storefront — skip
 - Phase 5282: Kitchen `KitchenPhase5282AbendAnteilTicker` — Moon amber-400
+
+---
+
+## Batch 31 — Abendanteil-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5279 / 5280 / (5281 Storefront skip) / 5282
+
+**API:** `fahrer-abend-anteil-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, abend_pct, rank_delta, ampel, alert_wenig}], team_avg, hoechste_name, niedrigste_name, alert_count, gesamt }`
+
+### Implementiert:
+- **phase5279** `DispatchPhase5279AbendAnteilBoard` — Moon amber-400; KPI-Grid Höchste/Team-Ø/Niedrigste; Balken via abend_pct% (0-100); DeltaIcons; Wenig-Alert via alert_wenig; ABSTEIGEND; Footer mit "18–22 Uhr"
+- **phase5280** `FahrerPhase5280MeinAbendAnteil` — isOnline-Guard; WifiOff-Fallback; Coaching ≥50%/≥30%/<30%; Balken via abend_pct%; Ampel-Border; Moon amber-400; Header "18–22 Uhr"
+- **phase5282** `KitchenPhase5282AbendAnteilTicker` — Moon amber-400; Höchste Rang+%; Team-Ø; Wenig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5283!**
+
+**Vorschlag Batch 32:** Fahrer-Abwesenheits-Ranking (Abwesenheitstage oder -quote — AUFSTEIGEND, niedrigste = bester)
+- Phase 5283: Dispatch `DispatchPhase5283AbwesenheitBoard` — UserMinus red-400; AUFSTEIGEND
+- Phase 5284: Fahrer `FahrerPhase5284MeineAbwesenheit` — UserMinus red-400; Coaching API-abhängig
+- Phase 5285: Storefront — skip
+- Phase 5286: Kitchen `KitchenPhase5286AbwesenheitTicker` — UserMinus red-400
