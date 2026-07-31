@@ -1302,6 +1302,7 @@ import { KitchenPhase5136PausenComplianceTicker } from './phase5136-pausen-compl
 import { KitchenPhase5137SmartTimingCountdownV39 } from './phase5137-smart-timing-countdown-v39';
 import { KitchenPhase5137KundenbewertungTicker } from './phase5137-kundenbewertung-ticker';
 import { KitchenPhase5140SmartTimingCountdownV40 } from './phase5140-smart-timing-countdown-v40';
+import { KitchenPhase5141SmartTimingCountdownV41 } from './phase5141-smart-timing-countdown-v41';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -5086,6 +5087,8 @@ export function KitchenBoard({
       <KitchenPhase5137KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5140: Smart-Timing Countdown V40 — Tab-Nav Bestellungen/Stations-Sync; 5-KPI-Grid; Station-Filter-Tabs; Countdown-Wall 5-stufig; Batch-Koordination; 1s-Tick+15s-Polling */}
       <KitchenPhase5140SmartTimingCountdownV40 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5141: Smart-Timing Countdown V41 — Dual-Countdown Küche+Fahrer-ETA; KI-Fahrer-Alert Banner; 6-KPI-Grid; Tab-Nav Countdown-Wall/Stations-Heatmap; 6-stufige Farbkodierung; 1s-Tick+15s-Polling */}
+      <KitchenPhase5141SmartTimingCountdownV41 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
       <KitchenPhase5036SmartTimingCountdownV33 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5035: Smart-Timing Countdown V32 — Farbkodierung rot<5min/gelb<10min/grün; Batch-Koordination; Prio-Ampel; 15s-Polling */}

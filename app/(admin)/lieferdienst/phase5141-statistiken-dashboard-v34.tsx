@@ -6,7 +6,7 @@ import {
   Activity, TrendingUp, TrendingDown, BarChart3, CheckCircle2,
   AlertTriangle, Users, Clock, Euro, Star, Target, Zap,
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, YAxis } from 'recharts';
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, LineChart, Line, YAxis, Cell } from 'recharts';
 
 interface KPI {
   key: string;
@@ -263,10 +263,11 @@ export function LieferdienstPhase5141StatistikenDashboardV34() {
                 contentStyle={{ background: '#1e293b', border: '1px solid #334155', fontSize: 10, borderRadius: 6 }}
                 labelStyle={{ color: '#94a3b8' }}
               />
-              <Bar dataKey={chartMode} fill="#14b8a6" radius={[2, 2, 0, 0]}
-                label={false}
-                cell={(entry: { jetzt?: boolean }) => entry.jetzt ? '#0f766e' : '#14b8a6'}
-              />
+              <Bar dataKey={chartMode} fill="#14b8a6" radius={[2, 2, 0, 0]} label={false}>
+                {data.stunden.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.jetzt ? '#0f766e' : '#14b8a6'} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
