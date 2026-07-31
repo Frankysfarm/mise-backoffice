@@ -37268,3 +37268,45 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5207: Fahrer `FahrerPhase5207MeineWartezeit` — Hourglass purple-400; Coaching ≤5min/≤10min/>10min
 - Phase 5208: Storefront — skip
 - Phase 5209: Kitchen `KitchenPhase5209WartezeitTicker` — Hourglass purple-400
+
+---
+
+## Batch 13 — Wartezeit-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5206 / 5210 (umbenannt von 5207 wegen Kollision) / (5208 Storefront skip) / 5209
+
+**Commit:** 0ee3c2c2
+
+**HINWEIS:** Phase 5207 war Kollision mit Remote-Commit 525d327b (`FahrerPhase5207MeinSmartNavigationHub`). Fahrer-Wartezeit-Komponente wurde nach Phase 5210 verschoben.
+
+### Implementiert:
+- **phase5206** `DispatchPhase5206WartezeitBoard` — Hourglass purple-400; KPI-Grid Schnellste/Team-Ø/Längste; Balken via avg_wartezeit_min; DeltaIcons; Reuse `fahrer-wartezeit-restaurant-ranking`; AUFSTEIGEND (niedrigste = Rang 1 = bester)
+- **phase5210** `FahrerPhase5210MeineWartezeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≤5min/≤10min/>10min; Mini-Balken; Ampel-Border
+- **phase5209** `KitchenPhase5209WartezeitTicker` — Hourglass purple-400; Schnellste Rang+min; Team-Ø; Lang-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5215!** (5211=Dispatch, 5212=Fahrer, 5213=Storefront skip, 5214=Kitchen — Batch 14)
+
+**Vorschlag Batch 14:** Fahrer-km-pro-Lieferung-Ranking (Ø km je Lieferung letzte 30 Tage — AUFSTEIGEND)
+- Phase 5211: Dispatch `DispatchPhase5211KmProLieferungBoard` — Route green-400
+- Phase 5212: Fahrer `FahrerPhase5212MeineKmProLieferung` — Route green-400; Coaching ≤4km/≤6km/>6km
+- Phase 5213: Storefront — skip
+- Phase 5214: Kitchen `KitchenPhase5214KmProLieferungTicker` — Route green-400
+
+---
+
+## Batch 14 — KM-pro-Lieferung-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5211 / 5212 / (5213 Storefront skip) / 5214
+
+### Implementiert:
+- **phase5211** `DispatchPhase5211KmProLieferungBoard` — Route green-400; KPI-Grid Effizienteste/Team-Ø/Ineffizienteste; Balken via avg_km_pro_lieferung; DeltaIcons; Hoch-Alert >8 km; Reuse `fahrer-km-pro-lieferung-ranking`; AUFSTEIGEND (niedrigste km = Rang 1 = bester)
+- **phase5212** `FahrerPhase5212MeineKmProLieferung` — isOnline-Guard; WifiOff-Fallback; Coaching ≤4km/≤6km/>6km; Mini-Balken; Ampel-Border
+- **phase5214** `KitchenPhase5214KmProLieferungTicker` — Route green-400; Effizienteste Rang+km; Team-Ø; Hoch-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5215!**
+
+**Vorschlag Batch 15:** Fahrer-Stopps-pro-Stunde-Ranking (Durchsatz: Stopps je Stunde im Einsatz, letzte 30 Tage — ABSTEIGEND, höchster = bester)
+- Phase 5215: Dispatch `DispatchPhase5215StoppsProStundeBoard` — Zap amber-400
+- Phase 5216: Fahrer `FahrerPhase5216MeineStoppsProStunde` — Zap amber-400; Coaching ≥3/h/≥2/h/<2/h
+- Phase 5217: Storefront — skip
+- Phase 5218: Kitchen `KitchenPhase5218StoppsProStundeTicker` — Zap amber-400
