@@ -37577,3 +37577,24 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5268: Fahrer `FahrerPhase5268MeineAbendprod` — Moon indigo-400; Coaching-Schwellen API-abhängig
 - Phase 5269: Storefront — skip
 - Phase 5270: Kitchen `KitchenPhase5270AbendprodTicker` — Moon indigo-400
+
+---
+
+## Batch 28 — Abendproduktivität-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5267 / 5268 / (5269 Storefront skip) / 5270
+
+**API:** `fahrer-abendprod-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, touren_pro_std, rank_delta, ampel, alert_hoch}], team_avg_tph, meister_name, wenigster_name, alert_count, gesamt }`
+
+### Implementiert:
+- **phase5267** `DispatchPhase5267AbendprodBoard` — Moon indigo-400; KPI-Grid Meister/Team-Ø/Wenigste; Balken via (touren_pro_std/maxVal)×100; DeltaIcons; Hoch-Alert; ABSTEIGEND (höchste T/h = Rang 1 = bester)
+- **phase5268** `FahrerPhase5268MeineAbendprod` — isOnline-Guard; WifiOff-Fallback; Coaching ≥3.5/≥2.0/<2.0 T/h; Mini-Balken vs teamAvg×2; Indigo-Border; Moon indigo-400
+- **phase5270** `KitchenPhase5270AbendprodTicker` — Moon indigo-400; Meister Rang+T/h; Team-Ø; Hoch-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5271!**
+
+**Vorschlag Batch 29:** Fahrer-Abholwartezeit-Ranking (Ø Wartezeit beim Restaurant — AUFSTEIGEND, niedrigste = bester)
+- Phase 5271: Dispatch `DispatchPhase5271AbholwartezeitBoard` — Timer orange-400; AUFSTEIGEND (niedrigste = Rang 1 = bester)
+- Phase 5272: Fahrer `FahrerPhase5272MeineAbholwartezeit` — Timer orange-400; Coaching API-abhängig
+- Phase 5273: Storefront — skip
+- Phase 5274: Kitchen `KitchenPhase5274AbholwartezeitTicker` — Timer orange-400
