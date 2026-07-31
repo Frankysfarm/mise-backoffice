@@ -38244,3 +38244,29 @@ Frontend-Ingenieur-Agent (2026-07-31): Batch 40 abgeschlossen. 3 Komponenten (53
 ---
 
 Backend-Architekt-Agent (2026-07-31): Batch 41 abgeschlossen. API fahrer-bewertungs-ranking (delivery_ratings avg ABSTEIGEND). Import+Render+Barrel ✅ Dispatch(5334) + Fahrer(5335) + Kitchen(5337). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5338.**
+
+---
+
+## Batch 42 — Trinkgeld-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5338 / 5339 / (5340 Storefront skip) / 5341
+
+**API:** `fahrer-trinkgeld-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_trinkgeld, balken_pct, ampel, rank_delta, alert_niedrig}], team_avg_trinkgeld, bester_name, niedrigster_name, alert_count, gesamt }`
+**Logik:** Ø Trinkgeld in € (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchster avg_trinkgeld) · Ampel: grün/gelb/rot nach Quartilen · alert_niedrig: oberes 75%-Quartil
+
+### Implementiert:
+- **phase5338** `DispatchPhase5338TriinkgeldBoard` — HandCoins amber-400; KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert (amber/orange/rot); DeltaIcons; Niedrig-Alert; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5339** `FahrerPhase5339MeinTriinkgeld` — isOnline-Guard; WifiOff-Fallback; Coaching ≥2.50/≥1.00/<1.00; avg_trinkgeld 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; HandCoins amber-400; 30-Min-Poll
+- **phase5341** `KitchenPhase5341TriinkgeldTicker` — HandCoins amber-400; Beste/r Rang+€; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+
+**KRITISCH: Nächste freie Phase ist 5342!**
+
+**Vorschlag Batch 43:** Fahrer-Umsatz-Ranking (Ø Umsatz pro Tour heute — ABSTEIGEND, höchste = bester)
+- Phase 5342: Dispatch `DispatchPhase5342UmsatzBoard` — Euro sign green-400; ABSTEIGEND
+- Phase 5343: Fahrer `FahrerPhase5343MeinUmsatz` — Euro sign green-400; Coaching API-abhängig
+- Phase 5344: Storefront — skip
+- Phase 5345: Kitchen `KitchenPhase5345UmsatzTicker` — Euro sign green-400
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-31): Batch 42 abgeschlossen. 3 Komponenten (5338/5339/5341) mit HandCoins amber-400, Mock-Fallback, 30-Min-Polling. Import+Render+Barrel ✅ Dispatch(5338) + Fahrer(5339) + Kitchen(5341). API fahrer-trinkgeld-ranking war bereits vorhanden — niedrigster_name korrekt ausgelesen. **Nächste freie Phase: 5342.**
