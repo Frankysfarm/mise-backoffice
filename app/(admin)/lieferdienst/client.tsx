@@ -5176,3 +5176,5 @@ export { LieferdienstPhase5111StatistikenDashboardV30 } from './phase5111-statis
 
 // Phase 5120 — Statistiken-Dashboard V31 (Activity teal; Gesamt-Score+Ziel-Balken; Alert-Strip; 8-KPI-Grid 4-spaltig Ampel+Δ+Ziel; 4-Tab-Nav Stunden/Fahrer/Zonen/Woche; Stunden-BarChart farbkodiert; Top-3-Fahrer 🥇🥈🥉+Score-Balken+Touren+Trinkgeld+Pünktl; Zonen-SLA-Kapazitäts-Balken+Avg+Umsatz; Wochen-LineChart; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5120StatistikenDashboardV31 } from './phase5120-statistiken-dashboard-v31';
+// Phase 5137 — Statistiken-Dashboard V32 (Activity teal; Gesamt-Score+Ziel-Balken; Alert-Strip; 9-KPI-Grid 3-spaltig Ampel+Icon+Δ+Ziel; 4-Tab-Nav Stunden/Fahrer/Zonen/Woche; Stunden-BarChart farbkodiert; Top-3-Fahrer 🥇🥈🥉+Score-Balken+Touren+Trinkgeld+Pünktl; Zonen-SLA-Kapazitäts-Balken+Avg+Umsatz; Wochen-LineChart; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5137StatistikenDashboardV32 } from './phase5137-statistiken-dashboard-v32';

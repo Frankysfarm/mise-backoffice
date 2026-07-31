@@ -14380,3 +14380,7 @@ export { DispatchPhase5133StornoRateBoard } from './phase5133-storno-rate-board'
 
 // Phase 5120 — Score + Tour-Visualisierung V21 (Trophy purple; Fleet-Score+Aktiv+Risiko KPI; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Route-Effizienz-Balken; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+km+Betrag; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5120ScoreTourVisualisierungV21 } from './phase5120-score-tour-visualisierung-v21';
+// Phase 5137 — Score + Tour-Visualisierung V22 (Trophy purple; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Route-Eff/Umsatz; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Route-Effizienz-Balken; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+km+Betrag+Kunde; Zone-Tags+Umsatz; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5137ScoreTourVisualisierungV22 } from './phase5137-score-tour-visualisierung-v22';
+// Phase 5137 — Kundenbewertungs-Board (Star amber-500; absteigend Rang 1=höchste Bewertung=bester; KPI-Grid Höchste/Team-Ø/Niedrigste; Alert <4.0★ rot; Balken farbkodiert grün/gelb/rot; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5137KundenbewertungBoard } from './phase5137-kundenbewertung-board';

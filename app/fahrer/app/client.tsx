@@ -12250,3 +12250,7 @@ export { FahrerPhase5134MeineStornoRate } from './phase5134-meine-storno-rate';
 
 // Phase 5120 — Tour-Stopp Navigator Pro (Route blue; CountdownRing ETA-Ring 64px farbkodiert blau/gelb/rot; aktueller Stopp: Kunde+Adresse+Notiz+Zahlungsart; CTA Navigieren+Anruf+Geliefert; nächste Stopps-Liste mit ETA; erledigte Stopps; Fortschrittsbalken; mobile-first; Mock-Fallback)
 export { FahrerPhase5120TourStoppNavigatorPro } from './phase5120-tour-stopp-navigator-pro';
+// Phase 5137 — Tour-Stops & Navigation Hub V3 (Route blue; 4-KPI-Grid Eingenommen/Trinkgeld/Restzeit/Offen; Fortschrittsbalken; Aktiv-Stopp Hero Nav-CTA+Anruf+Prio-Badge+Notiz-Warnung+Zahlungsart; Ausstehende Stopps aufklappbar Distanz+ETA+Betrag+Nav; Fertige Stopps Chips; 15-Sek-Polling; Mock-Fallback)
+export { FahrerPhase5137TourStopsNavigationHubV3 } from './phase5137-tour-stops-navigation-hub-v3';
+// Phase 5137 — Meine Kundenbewertung (Star amber-700; avg_rating 4xl+Rang 2xl farbkodiert; Stars-Row; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø+Delta; Coaching ≥4.5/≥4.0/<4.0; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5137MeineKundenbewertung } from './phase5137-meine-kundenbewertung';
