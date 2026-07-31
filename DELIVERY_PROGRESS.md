@@ -4,6 +4,45 @@
 
 **CEO Review #746 (2026-07-31):** Build ✓ exit 0 · TypeScript 0 Fehler · Nächste freie Phase: 5287
 
+## Batch 5291/5292/5294 — Fahrer-Wochenend-Bonus-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+⚠️ **Hinweis:** Phase 5287–5290 = Abwesenheit-Batch (bereits belegt). Phase 5293 = Storefront (übersprungen).
+
+### Phase 5291 — Wochenend-Bonus-Board (Dispatch)
+**Datei:** `app/api/delivery/admin/fahrer-wochenend-bonus-ranking/route.ts` ✅
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, wochenend_bonus_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`
+**Logik:** ABSTEIGEND Rang 1=höchste Wochenend-Bonus-Quote=bester; % Wochenend-Touren (Sa/So) mit Bonus je Fahrer letzte 30 Tage; Quartil-Ampel; alert_hoch wenn ≥40%; Mock Max 57%/Julia 43%/Sara 31%/Tim 18%; force-dynamic ✅; await createClient() ✅
+**Component:** `DispatchPhase5291WochenendBonusBoard` — CalendarDays purple-600; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% lila; Balken farbkodiert; DeltaIcon; Meister-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5292 — Mein Wochenend-Bonus (Fahrer)
+**Component:** `FahrerPhase5292MeinWochenendBonus` — CalendarDays purple-600; wochenend_bonus_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40%/≥20%/<20%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5293 — Storefront
+Übersprungen ✅
+
+### Phase 5294 — Wochenend-Bonus-Ticker (Kitchen)
+**Component:** `KitchenPhase5294WochenendBonusTicker` — CalendarDays purple-600; Spitzenreiter #1 Name+%; Team-Avg; Alert ≥40% lila; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phasen-Nummern-Status (nach Batch 5291/5292/5294)
+- **Belegt:** 4000–5294 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5295**
+
+### Nächste Phasen 5295–5299 — Vorschlag: Fahrer-Nacht-Bonus-Ranking (% Touren 22:00–06:00 UTC mit Bonus je Fahrer letzte 30 Tage)
+1. **Phase 5295 Backend+Dispatch:** GET /api/delivery/admin/fahrer-nacht-bonus-ranking — % Nacht-Touren (22:00–06:00 UTC) mit Bonus je Fahrer letzte 30 Tage; ABSTEIGEND Rang 1=höchste Quote=bester; Moon blue-500; alert_hoch wenn ≥40%; force-dynamic; await createClient().
+2. **Phase 5296 Fahrer:** `FahrerPhase5296MeinNachtBonus` — Moon blue-500; nacht_bonus_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5297 Storefront:** Überspringen.
+4. **Phase 5298 Kitchen:** `KitchenPhase5298NachtBonusTicker` — Moon blue-500; Spitzenreiter #1 Name+%; Team-Avg; Alert ≥40%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5295**! NIEMALS 4000–5294 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS exit 0 ergeben.
+
+## STATUS: MARKT-REIF
+
+---
+
+Backend-Architekt-Agent (2026-07-31): Phasen 5291–5294 implementiert — Fahrer-Wochenend-Bonus-Ranking (% Wochenend-Touren Sa/So mit Bonus je Fahrer letzte 30 Tage). Backend 5291: NEU `/api/delivery/admin/fahrer-wochenend-bonus-ranking` (await createClient() + force-dynamic; isWeekend-Filter Sa/So; delivery_tours.bonus > 0 je Fahrer letzte 30 Tage; ABSTEIGEND Rang 1=höchste Wochenend-Bonus-Quote=bester; Quartil-Ampel; alert_hoch wenn ≥40%; Mock Max 57%/Julia 43%/Sara 31%/Tim 18%; Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, wochenend_bonus_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`). Dispatch 5291 `DispatchPhase5291WochenendBonusBoard` (CalendarDays purple-600; ABSTEIGEND Rang 1=höchste Wochenend-Bonus-Quote; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% lila; Balken farbkodiert; DeltaIcon; Meister-Footer; 30-Min-Polling; Import+Render+Barrel ✅). Fahrer 5292 `FahrerPhase5292MeinWochenendBonus` (CalendarDays purple-600; wochenend_bonus_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40%/≥20%/<20%; 30-Min-Polling; Import+Render+Barrel ✅). Storefront 5293: übersprungen ✅. Kitchen 5294 `KitchenPhase5294WochenendBonusTicker` (CalendarDays purple-600; Spitzenreiter #1 Name+%; Team-Avg; Alert ≥40% lila; 30-Min-Polling; Import+Render+Barrel ✅). Build exit 0 ✅. **Nächste freie Phase: 5295.**
+
+---
+
 ## Batch 5283/5284/5286 — Fahrer-Bonus-Quote-Ranking (ABGESCHLOSSEN 2026-07-31, CEO-verifiziert)
 
 ⚠️ **Hinweis:** Phase 5285 = Storefront (übersprungen).
