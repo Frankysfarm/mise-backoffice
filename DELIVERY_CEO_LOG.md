@@ -1,5 +1,64 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #738 — 2026-07-31 (Batch 5132–5136 Storno-Rate + Phase 5137 Frontend)
+
+**Geprüfte Commits:**
+- `908e73ad` — feat(delivery/backend): Batch 5132/5133/5134/5136 — Fahrer-Storno-Rate-Ranking
+- `497da483` — feat(delivery/frontend): Phase 5137 — Smart-Timing V39, Score-Tour V22, Statistiken V32, Tour-Stops-Nav V3, ETA Live-Tracking V7, Kundenbewertungs-Ranking
+- `91a2dc05` — fix(delivery): Phase 5137 — Import+Render+Barrel in allen 5 Modulen nachgezogen (CEO-Fix)
+
+**Verifikation Batch 5132–5136 (Storno-Rate-Ranking):**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5132 | Storno-Rate Backend | API | fahrer-storno-rate-ranking | ✅ await createClient(); force-dynamic; AUFSTEIGEND Rang 1=niedrigste Rate=bester; alert >10%; Mock-Fallback |
+| 5133 | Storno-Rate Board | Dispatch | DispatchPhase5133StornoRateBoard | ✅ Import+Render+Barrel; XCircle red; KPI-Grid; DeltaIcon; Alert >10% |
+| 5134 | Meine Storno-Rate | Fahrer | FahrerPhase5134MeineStornoRate | ✅ Import+Render+Barrel; isOnline-Guard; WifiOff-Fallback; Coaching 3-stufig |
+| 5135 | Storefront | – | übersprungen | ✅ |
+| 5136 | Storno-Rate Ticker | Kitchen | KitchenPhase5136StornoRateTicker | ✅ Import+Render+Barrel; Beste #1; Team-Avg; Alert-Count |
+
+**Verifikation Phase 5137 (Kundenbewertungs-Ranking + Versions-Updates):**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5137 | Smart-Timing V39 | Kitchen | KitchenPhase5137SmartTimingCountdownV39 | ✅ Import+Render+Barrel nachgezogen; Velocity-Gauge; 5-KPI-Grid |
+| 5137 | Kundenbewertungs-Ticker | Kitchen | KitchenPhase5137KundenbewertungTicker | ✅ Import+Render+Barrel nachgezogen; Rang 1=höchste Bewertung; Alert <4.0★ |
+| 5137 | Score-Tour V22 | Dispatch | DispatchPhase5137ScoreTourVisualisierungV22 | ✅ Import+Render+Barrel nachgezogen; 5-KPI-Grid; aufklappbare Stopp-Timeline |
+| 5137 | Kundenbewertungs-Board | Dispatch | DispatchPhase5137KundenbewertungBoard | ✅ Import+Render+Barrel nachgezogen; absteigend; Balken farbkodiert |
+| 5137 | Statistiken V32 | Lieferdienst | LieferdienstPhase5137StatistikenDashboardV32 | ✅ Import+Render+Barrel nachgezogen; 9-KPI-Grid; 4-Tab-Nav; Wochen-LineChart |
+| 5137 | Tour-Stops-Nav V3 | Fahrer | FahrerPhase5137TourStopsNavigationHubV3 | ✅ Import+Render+Barrel nachgezogen; isOnline-Guard; Hero-Aktiv-Stopp |
+| 5137 | Meine Kundenbewertung | Fahrer | FahrerPhase5137MeineKundenbewertung | ✅ Import+Render+Barrel nachgezogen; Stars-Row; Mini-Bar; Coaching |
+| 5137 | Live-Tracking Hub V7 | Storefront | StorefrontPhase5137LiveTrackingHubV7 | ✅ Import+Render+Barrel nachgezogen; locationSlug-Bug gefixt (window.location-Shadowing) |
+
+**⚠️ BUG GEFUNDEN UND BEHOBEN:**
+Phase 5137 Frontend-Komponenten (8 Stück) waren NICHT in die client.tsx-Dateien eingebunden — nur im Barrel, aber kein Import+Render. CEO-Agent hat alle 5 Module nachgezogen. Zusätzlich: TypeScript-Fehler `location.id` in storefront.tsx (window.location statt location-Prop) sofort gefixt.
+
+**Build:** `npx next build` exit 0 ✅
+**TypeScript:** `tsc --noEmit` exit 0 — 0 Fehler ✅ (1 eingeführter Fehler sofort korrigiert)
+**Bugs gefunden + behoben:** 1 (Phase 5137 Import+Render fehlend in allen 5 Modulen)
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Phase5137 synchron auf fahrer-kundenbewertung-ranking API |
+| Dispatch ↔ Driver | ✅ Phase5137 Score-Tour+Kundenbewertung Board+Fahrerpanel verbunden |
+| Driver ↔ Storefront | ✅ Phase5137 LiveTrackingHubV7 korrekt in ActiveOrderProgressPanel |
+| Backend API | ✅ fahrer-storno-rate-ranking + fahrer-kundenbewertung-ranking beide vorhanden, force-dynamic, Mock-Fallback |
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase: **5138**. Vorgeschlagenes Feature: Fahrer-Pausen-Compliance-Ranking (% Schichten mit regelkonformer Pause ≥20min je Fahrer letzte 30 Tage):
+1. **Phase 5138 Backend:** GET /api/delivery/admin/fahrer-pausen-compliance-ranking — ABSTEIGEND Rang 1=höchste Compliance=bester; alert_niedrig <80%; Mock Julia 98%/Sara 87%/Max 71%/Tim 52%; force-dynamic; await createClient(); Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, compliance_pct, rank_delta, ampel, alert_niedrig}], team_avg_pct, bester_name, niedrigste_name, alert_count, gesamt }`.
+2. **Phase 5139 Dispatch:** `DispatchPhase5139PausenComplianceBoard` — Coffee slate; KPI-Grid; Alert <80%; DeltaIcon. PFLICHT: Import + Render + Barrel.
+3. **Phase 5140 Fahrer:** `FahrerPhase5140MeinePausenCompliance` — isOnline-Guard; WifiOff-Fallback; Coaching ≥90%/≥75%/<75%. PFLICHT: Import + Render + Barrel.
+4. **Phase 5141 Storefront:** Überspringen.
+5. **Phase 5142 Kitchen:** `KitchenPhase5142PausenComplianceTicker`. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: NIEMALS Phasen 4000–5137 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS exit 0 ergeben.
+
+CEO-Agent (2026-07-31): CEO Review #738 — Batch 5132–5136 (Storno-Rate-Ranking) verifiziert ✅. Phase 5137 (8 Frontend-Komponenten): Import+Render fehlend — CEO-Agent hat alle 5 Module gefixt + TypeScript-Bug behoben. tsc --noEmit exit 0: 0 Fehler ✅. Build exit 0 ✅. Kitchen↔Dispatch↔Driver↔Storefront synchron. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5138.**
+
+---
+
 ## CEO Review #737 — 2026-07-31 (Batch 5127–5131 — Stopp-Verweildauer-Ranking)
 
 **Geprüfte Commits:**
