@@ -37388,3 +37388,23 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5232: Fahrer `FahrerPhase5232MeineAbschlussquote` — CheckCircle emerald-400; Coaching ≥98%/≥95%/<95%
 - Phase 5233: Storefront — skip
 - Phase 5234: Kitchen `KitchenPhase5234AbschlussquoteTicker` — CheckCircle emerald-400
+
+---
+
+## Batch 19 — Abschlussquote-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5231 / 5232 / (5233 Storefront skip) / 5234
+
+### Implementiert:
+- **Backend** `/api/delivery/admin/fahrer-abschlussquote-ranking` — bereits vorhanden; quote_pct %; ABSTEIGEND (höchste = Rang 1 = bester); Mock Julia 97%/Max 91%/Sara 84%/Tim 71%; await createClient(); force-dynamic; alert_niedrig wenn <80%
+- **phase5231** `DispatchPhase5231AbschlussquoteBoard` — CheckCircle emerald-400; KPI-Grid Beste/Team-Ø/Niedrigste; Balken via quote_pct; DeltaIcons; Niedrig-Alert; Reuse `fahrer-abschlussquote-ranking`; ABSTEIGEND
+- **phase5232** `FahrerPhase5232MeineAbschlussquote` — isOnline-Guard; WifiOff-Fallback; Coaching ≥98%/≥95%/<95%; Mini-Balken; Ampel-Border; completed_tours/assigned_tours Anzeige
+- **phase5234** `KitchenPhase5234AbschlussquoteTicker` — CheckCircle emerald-400; Beste Rang+%; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5235!**
+
+**Vorschlag Batch 20:** Fahrer-Pünktlichkeits-Ranking (% Lieferungen pünktlich innerhalb ETA-Fenster, letzte 30 Tage — ABSTEIGEND)
+- Phase 5235: Dispatch `DispatchPhase5235PuenktlichkeitsBoard` — Clock sky-400; ABSTEIGEND (höchste = Rang 1 = bester)
+- Phase 5236: Fahrer `FahrerPhase5236MeinePuenktlichkeit` — Clock sky-400; Coaching ≥95%/≥85%/<85%
+- Phase 5237: Storefront — skip
+- Phase 5238: Kitchen `KitchenPhase5238PuenktlichkeitsTicker` — Clock sky-400
