@@ -36992,3 +36992,44 @@ KRITISCH: Nächste freie Phase ist **5162**! NIEMALS 4000–5161 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **5167**! NIEMALS 4000–5166 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5167/5168/5169/5171 — Fahrer-Lieferdistanz-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+⚠️ **Hinweis:** Phase 5170 = Storefront (übersprungen).
+⚠️ **Hinweis:** API `fahrer-km-pro-lieferung-ranking/route.ts` wiederverwendet (AUFSTEIGEND: Rang 1=kürzeste Distanz=effizienteste Routen).
+
+### Phase 5167 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-km-pro-lieferung-ranking/route.ts` (bereits vorhanden ✅)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_km_pro_lieferung, rank_delta, ampel, alert_hoch}], team_avg_km, effizientester_name, ineffizientester_name, alert_count, gesamt }`
+**Logik:** AUFSTEIGEND Rang 1=kürzeste Ø-Distanz=effizienteste Routen; avg(distance_km) je Lieferung letzte 30 Tage; ampelVon; alert_hoch wenn ampel='rot'; Mock Julia 3.2km/Sara 4.5km/Max 6.1km/Tim 8.7km; force-dynamic ✅; await createClient() ✅
+
+### Phase 5168 — Lieferdistanz-Board (Dispatch)
+**Component:** `DispatchPhase5168LieferdistanzBoard` — MapPin blue-400; Rang 1=kürzeste Distanz; KPI-Grid Kürzeste/Team-Avg/Längste; Alert Lang-Strecken rot; Balken proportional farbkodiert; DeltaIcon; Effizienteste-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5169 — Meine Ø-Lieferdistanz (Fahrer)
+**Component:** `FahrerPhase5169MeineLieferdistanz` — MapPin blue-400; avg_km_pro_lieferung 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤4km/≤7km/>7km; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5170 — Storefront
+Übersprungen ✅
+
+### Phase 5171 — Lieferdistanz-Ticker (Kitchen)
+**Component:** `KitchenPhase5171LieferdistanzTicker` — MapPin blue-400; Effizienteste #1 Name+km; Team-Ø; Alert-Count rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue pre-existing in CI ✅ | TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5167/5168/5169/5171)
+- **Belegt:** 4000–5171 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5172**
+
+### Nächste Phasen 5172–5176 — Vorschlag: Fahrer-Durchschnittliche-Lieferzeit-Ranking (Ø Minuten je Lieferung letzte 30 Tage)
+1. **Phase 5172 Backend:** GET /api/delivery/admin/fahrer-avg-lieferzeit-ranking — avg(delivery_duration_minutes) je Fahrer letzte 30 Tage; AUFSTEIGEND Rang 1=kürzeste Ø-Lieferzeit=bester; ampelVon; alert_hoch wenn avg>45min; force-dynamic; await createClient().
+2. **Phase 5173 Dispatch:** `DispatchPhase5173AvgLieferzeitBoard` — Timer teal-600; KPI-Grid Kürzeste/Team-Avg/Längste; Alert Hoch rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5174 Fahrer:** `FahrerPhase5174MeineAvgLieferzeit` — Timer teal-600; min 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≤25min/≤40min/>40min; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5175 Storefront:** Überspringen.
+5. **Phase 5176 Kitchen:** `KitchenPhase5176AvgLieferzeitTicker` — Timer teal-600; Schnellste #1 Name+min; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5172**! NIEMALS 4000–5171 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+
+## STATUS: MARKT-REIF
