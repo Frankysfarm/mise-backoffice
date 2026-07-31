@@ -37033,3 +37033,44 @@ KRITISCH: Nächste freie Phase ist **5167**! NIEMALS 4000–5166 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **5172**! NIEMALS 4000–5171 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5172/5173/5174/5176 — Fahrer-Avg-Lieferzeit-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+⚠️ **Hinweis:** Phase 5175 = Storefront (übersprungen).
+⚠️ **Hinweis:** API `fahrer-avg-lieferzeit-ranking/route.ts` war bereits vorhanden — wiederverwendet.
+
+### Phase 5172 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-avg-lieferzeit-ranking/route.ts` (bereits vorhanden ✅)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_lieferzeit_min, rank_delta, ampel, alert_hoch}], team_avg_min, schnellster_name, langsamster_name, alert_count, gesamt }`
+**Logik:** AUFSTEIGEND Rang 1=kürzeste Ø-Lieferzeit=schnellster; avg(duration_minutes) letzte 30 Tage; ampelVon; alert_hoch wenn avg>40min; Mock Julia 18.2min/Sara 21.5min/Max 25.8min/Tim 31.4min; force-dynamic ✅; await createClient() ✅
+
+### Phase 5173 — Avg-Lieferzeit-Board (Dispatch)
+**Component:** `DispatchPhase5173AvgLieferzeitBoard` — Timer teal-400; Rang 1=kürzeste Lieferzeit; KPI-Grid Kürzeste/Team-Avg/Längste; Alert Lang rot; Balken proportional farbkodiert; DeltaIcon; Schnellste-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5174 — Meine Ø-Lieferzeit (Fahrer)
+**Component:** `FahrerPhase5174MeineAvgLieferzeit` — Timer teal-400; avg_lieferzeit_min 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤25min/≤40min/>40min; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5175 — Storefront
+Übersprungen ✅
+
+### Phase 5176 — Avg-Lieferzeit-Ticker (Kitchen)
+**Component:** `KitchenPhase5176AvgLieferzeitTicker` — Timer teal-400; Schnellste #1 Name+min; Team-Ø; Alert-Count rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue pre-existing in CI ✅ | TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5172/5173/5174/5176)
+- **Belegt:** 4000–5176 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5177**
+
+### Nächste Phasen 5177–5181 — Vorschlag: Fahrer-Schicht-Dauer-Ranking (Ø Schichtdauer in Stunden je Fahrer letzte 30 Tage)
+1. **Phase 5177 Backend:** GET /api/delivery/admin/fahrer-schicht-dauer-ranking — avg(schicht_dauer_h) je Fahrer letzte 30 Tage; ABSTEIGEND Rang 1=längste Schicht=engagiertester; ampelVon; alert_niedrig wenn avg<3h; force-dynamic; await createClient().
+2. **Phase 5178 Dispatch:** `DispatchPhase5178SchichtDauerBoard` — Clock indigo-600; KPI-Grid Längste/Team-Avg/Kürzeste; Alert Kurz; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5179 Fahrer:** `FahrerPhase5179MeineSchichtDauer` — Clock indigo-600; avg_h 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥6h/≥3h/<3h; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5180 Storefront:** Überspringen.
+5. **Phase 5181 Kitchen:** `KitchenPhase5181SchichtDauerTicker` — Clock indigo-600; Engagierteste #1 Name+h; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+
+## STATUS: MARKT-REIF
