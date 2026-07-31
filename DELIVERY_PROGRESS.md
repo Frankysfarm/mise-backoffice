@@ -37598,3 +37598,25 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5272: Fahrer `FahrerPhase5272MeineAbholwartezeit` — Timer orange-400; Coaching API-abhängig
 - Phase 5273: Storefront — skip
 - Phase 5274: Kitchen `KitchenPhase5274AbholwartezeitTicker` — Timer orange-400
+
+---
+
+## Batch 29 — Abholwartezeit-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5271 / 5272 / (5273 Storefront skip) / 5274
+
+**API:** `fahrer-abholwartezeit` — Schema: `{ location_id, fahrer: [{fahrer_id, fahrer_name, rang, avg_min, touren_heute, touren_ueber8min, trend, trend_delta, ampel}], team_avg_min, alert_count, generiert_am }`
+**Hinweis:** Kein `gesamt` → `data.fahrer.length`; kein `beste_name` → `data.fahrer[0]?.fahrer_name`; `trend` ersetzt `rank_delta` (steigend=schlecht, fallend=gut)
+
+### Implementiert:
+- **phase5271** `DispatchPhase5271AbholwartezeitBoard` — Timer orange-400; KPI-Grid Kürzeste/Team-Ø/Längste; Balken via (avg_min/maxVal)×100; TrendIcons (fallend=grün/steigend=rot); touren_ueber8min Alert; AUFSTEIGEND
+- **phase5272** `FahrerPhase5272MeineAbholwartezeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≤4min/≤8min/>8min; zeigt touren_heute+touren_ueber8min; Mini-Balken; Ampel-Border; Timer orange-400
+- **phase5274** `KitchenPhase5274AbholwartezeitTicker` — Timer orange-400; Kürzeste Rang+min; Team-Ø; data.fahrer.length; Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5275!**
+
+**Vorschlag Batch 30:** Fahrer-Aktivitäts-Score-Ranking (Gesamtaktivitätsscore — ABSTEIGEND, höchster = bester)
+- Phase 5275: Dispatch `DispatchPhase5275AktivitaetsScoreBoard` — Activity violet-400; ABSTEIGEND
+- Phase 5276: Fahrer `FahrerPhase5276MeinAktivitaetsScore` — Activity violet-400; Coaching API-abhängig
+- Phase 5277: Storefront — skip
+- Phase 5278: Kitchen `KitchenPhase5278AktivitaetsScoreTicker` — Activity violet-400
