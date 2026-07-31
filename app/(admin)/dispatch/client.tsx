@@ -1357,6 +1357,7 @@ import { DispatchPhase5133StornoRateBoard } from './phase5133-storno-rate-board'
 import { DispatchPhase5133PausenComplianceBoard } from './phase5133-pausen-compliance-board';
 import { DispatchPhase5137ScoreTourVisualisierungV22 } from './phase5137-score-tour-visualisierung-v22';
 import { DispatchPhase5137KundenbewertungBoard } from './phase5137-kundenbewertung-board';
+import { DispatchPhase5140ScoreTourVisualisierungV23 } from './phase5140-score-tour-visualisierung-v23';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5495,6 +5496,8 @@ export function DispatchBoard({
           <DispatchPhase5137ScoreTourVisualisierungV22 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5137: Kundenbewertungs-Board — absteigend; KPI-Grid; Balken farbkodiert; Alert <4.0★ */}
           <DispatchPhase5137KundenbewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5140: Score+Tour Visualisierung V23 — 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/€; aufklappbare Stopp-Timeline+Nav-CTA; Zone-Tag; 20-Sek-Polling */}
+          <DispatchPhase5140ScoreTourVisualisierungV23 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}

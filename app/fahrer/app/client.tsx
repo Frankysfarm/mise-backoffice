@@ -1275,6 +1275,7 @@ import { FahrerPhase5134MeineStornoRate } from './phase5134-meine-storno-rate';
 import { FahrerPhase5134MeinePausenCompliance } from './phase5134-meine-pausen-compliance';
 import { FahrerPhase5137TourStopsNavigationHubV3 } from './phase5137-tour-stops-navigation-hub-v3';
 import { FahrerPhase5137MeineKundenbewertung } from './phase5137-meine-kundenbewertung';
+import { FahrerPhase5140TourStopsNavigationHubV4 } from './phase5140-tour-stops-navigation-hub-v4';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7646,6 +7647,8 @@ export function FahrerApp({
           <FahrerPhase5137TourStopsNavigationHubV3 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5137: Meine Kundenbewertung — Stars-Row; Mini-Bar Ich vs Team-Ø; Coaching ≥4.5/≥4.0/<4.0; 30-Min-Polling */}
           <FahrerPhase5137MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5140: Tour-Stops & Navigation Hub V4 — Navi-Wahl Google/Waze; 4-KPI-Grid; Aktiv-Stopp Hero+ETA+Anruf; aufklappbare Stops; 15s-Polling */}
+          <FahrerPhase5140TourStopsNavigationHubV4 driverId={driver.id} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
           <FahrerPhase5036TourStoppSmartNavV15 driverId={driver.id} />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}

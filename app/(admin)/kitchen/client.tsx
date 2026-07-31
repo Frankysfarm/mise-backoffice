@@ -1301,6 +1301,7 @@ import { KitchenPhase5136StornoRateTicker } from './phase5136-storno-rate-ticker
 import { KitchenPhase5136PausenComplianceTicker } from './phase5136-pausen-compliance-ticker';
 import { KitchenPhase5137SmartTimingCountdownV39 } from './phase5137-smart-timing-countdown-v39';
 import { KitchenPhase5137KundenbewertungTicker } from './phase5137-kundenbewertung-ticker';
+import { KitchenPhase5140SmartTimingCountdownV40 } from './phase5140-smart-timing-countdown-v40';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -5083,6 +5084,8 @@ export function KitchenBoard({
       <KitchenPhase5137SmartTimingCountdownV39 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5137: Kundenbewertungs-Ticker — Rang 1=höchste Bewertung; Alert <4.0★; 30-Min-Polling */}
       <KitchenPhase5137KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5140: Smart-Timing Countdown V40 — Tab-Nav Bestellungen/Stations-Sync; 5-KPI-Grid; Station-Filter-Tabs; Countdown-Wall 5-stufig; Batch-Koordination; 1s-Tick+15s-Polling */}
+      <KitchenPhase5140SmartTimingCountdownV40 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
       <KitchenPhase5036SmartTimingCountdownV33 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5035: Smart-Timing Countdown V32 — Farbkodierung rot<5min/gelb<10min/grün; Batch-Koordination; Prio-Ampel; 15s-Polling */}

@@ -174,7 +174,7 @@ export function LieferdienstPhase5140StatistikenDashboardV33({ locationId }: Pro
               <BarChart data={stunden} margin={{ top:0, right:0, bottom:0, left:0 }}>
                 <XAxis dataKey="h" tick={{ fontSize:9, fill:'#64748b' }} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ background:'#1e293b', border:'1px solid #334155', fontSize:10, borderRadius:6 }}
-                  formatter={(v: number) => [v, chartMode]} />
+                  formatter={(v) => [typeof v === 'number' ? v : 0, chartMode]} />
                 <Bar dataKey="value" radius={[3,3,0,0]}>
                   {stunden.map(entry => (
                     <Cell key={entry.h} fill={entry.h === nowH ? '#14b8a6' : '#334155'} />
