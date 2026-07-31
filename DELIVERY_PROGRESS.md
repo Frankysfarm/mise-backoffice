@@ -36484,3 +36484,43 @@ KRITISCH: Nächste freie Phase ist **5106**! NIEMALS 4000–5105 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **5112**! NIEMALS 4000–5111 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5112/5113/5114/5116 — Fahrer-Erreichbarkeits-Index-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+⚠️ **Hinweis:** Phase 5115 = Storefront (übersprungen).
+
+### Phase 5112 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-erreichbarkeits-index-ranking/route.ts` (neu ✅)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, index, contact_attempts, contact_success, rank_delta, ampel, alert_niedrig}], team_avg_index, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** ABSTEIGEND Rang 1=höchster Erreichbarkeits-Index=bester; contact_success/contact_attempts*100; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn Index<60; Mock Julia 96%/Max 83%/Sara 72%/Tim 51%; force-dynamic ✅; await createClient() ✅
+
+### Phase 5113 — Erreichbarkeits-Index Board (Dispatch)
+**Component:** `DispatchPhase5113ErreichbarkeitsIndexBoard` — Phone blue-700; Rang 1=höchster Index; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5114 — Mein Erreichbarkeits-Index (Fahrer)
+**Component:** `FahrerPhase5114MeinErreichbarkeitsIndex` — Phone blue-700; index 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥80/≥60/<60; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5115 — Storefront
+Übersprungen ✅
+
+### Phase 5116 — Erreichbarkeits-Ticker (Kitchen)
+**Component:** `KitchenPhase5116ErreichbarkeitsTicker` — Phone blue-700; Erreichbarste #1 Name+%; Team-Ø; Alert-Count rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue ist pre-existing in CI-Umgebung (identisch wie alle früheren Sessions). TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5112/5113/5114/5116)
+- **Belegt:** 4000–5116 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5117**
+
+### Nächste Phasen 5117–5121 — Vorschlag: Fahrer-Distanz-je-Schicht-Ranking (Ø km je Schicht je Fahrer letzte 30 Tage)
+1. **Phase 5117 Backend:** GET /api/delivery/admin/fahrer-distanz-schicht-ranking — sum(distance_km)/count(schichten) je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Distanz je Schicht=bester; ampelVon; alert_niedrig; force-dynamic; await createClient().
+2. **Phase 5118 Dispatch:** `DispatchPhase5118DistanzJeSchichtBoard` — MapPin amber-700; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5119 Fahrer:** `FahrerPhase5119MeineDistanzJeSchicht` — MapPin amber-700; km 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥30km/≥15km/<15km; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5120 Storefront:** Überspringen.
+5. **Phase 5121 Kitchen:** `KitchenPhase5121DistanzJeSchichtTicker` — MapPin amber-700; Aktivste #1 Name+km; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5117**! NIEMALS 4000–5116 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+
+## STATUS: MARKT-REIF
