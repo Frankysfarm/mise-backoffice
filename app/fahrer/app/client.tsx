@@ -1315,6 +1315,7 @@ import { FahrerPhase5284MeineBonusQuote } from './phase5284-meine-bonus-quote';
 import { FahrerPhase5288MeineAbwesenheit } from './phase5288-meine-abwesenheit';
 import { FahrerPhase5292MeinWochenendBonus } from './phase5292-mein-wochenend-bonus';
 import { FahrerPhase5293TourStoppNavigatorV2 } from './phase5293-tour-stopp-navigator-v2';
+import { FahrerPhase5296MeineSchichtDichte } from './phase5296-meine-schicht-dichte';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7733,6 +7734,8 @@ export function FahrerApp({
           <FahrerPhase5292MeinWochenendBonus driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5293: Tour-Stopp-Navigator V2 — Stopp-Liste mit Status-Chips; Navigation-Button Google Maps; Anruf-Button; Nächster-Stopp hervorgehoben; Notiz-Anzeige; 30s-Polling */}
           <FahrerPhase5293TourStoppNavigatorV2 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5296: Meine Schicht-Dichte — Calendar blue-400; schichten_pro_woche 4xl; Rang; isOnline-Guard; WifiOff-Fallback; Coaching ≥5/≥3/<3/Wo; Mini-Balken vs Team-Ø; Ampel-Border; 30-Min-Polling */}
+          <FahrerPhase5296MeineSchichtDichte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12401,5 +12404,7 @@ export { FahrerPhase5288MeineAbwesenheit } from './phase5288-meine-abwesenheit';
 export { FahrerPhase5292MeinWochenendBonus } from './phase5292-mein-wochenend-bonus';
 // Phase 5293 — Tour-Stopp-Navigator V2 (MapPin matcha; Stopp-Liste Status-Chips; Nächster-Stopp-Card hervorgehoben; Google-Maps-Nav+Anruf-Button; Notiz-Anzeige; Fortschrittsbalken; 30s-Polling; Mock-Fallback)
 export { FahrerPhase5293TourStoppNavigatorV2 } from './phase5293-tour-stopp-navigator-v2';
+// Phase 5296 — Meine Schicht-Dichte (Calendar blue; schichten_pro_woche 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching ≥5/≥3/<3/Wo; Mini-Balken vs Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5296MeineSchichtDichte } from './phase5296-meine-schicht-dichte';
 // Phase 5142 — Tour-Stops & Navigation Hub V6 (Route blue; Tour-Fortschritts-Balken Fertig/Gesamt; Verdienst-Ziel-Tracker Fortschrittsbalken; 4-KPI-Grid Fertig/Offen/Eingenommen/Trinkgeld-Prognose; Dispatch-Nachricht Banner; 2-Tab Stopp-Liste/Übersicht; Nächster-Stopp-Badge; Trinkgeld-Prognose je Stopp; Prioritäts-Stopp-Highlight Express/Hoch; Zahlungsarten-Auswertung in Übersicht; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';

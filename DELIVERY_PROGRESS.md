@@ -37887,3 +37887,27 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5292: Fahrer `FahrerPhase5292MeineSchichtDichte` — Calendar blue-400; Coaching API-abhängig
 - Phase 5293: Storefront — skip
 - Phase 5294: Kitchen `KitchenPhase5294SchichtDichteTicker` — Calendar blue-400
+
+---
+
+## Batch 34 — Schicht-Dichte-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5295 / 5296 / (5297 Storefront skip) / 5298
+**Hinweis:** Batch-34-Vorschlag verwendete Phasen 5291–5294, die bereits belegt waren. Neu vergeben: 5295–5298.
+
+**API:** `fahrer-schicht-dichte-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, schichten_pro_woche, rank_delta, ampel, alert_wenig}], team_avg, fleissigster_name, wenigste_name, alert_count, gesamt }`
+
+### Implementiert:
+- **phase5295** `DispatchPhase5295SchichtDichteBoard` — Calendar blue-400; KPI-Grid Fleißigste/Team-Ø/Wenigste; Balken via (schichten_pro_woche/maxVal)×100; DeltaIcons; Wenig-Alert <3/Woche; ABSTEIGEND
+- **phase5296** `FahrerPhase5296MeineSchichtDichte` — isOnline-Guard; WifiOff-Fallback; Coaching ≥5/≥3/<3/Wo; Mini-Balken vs Team-Ø; Ampel-Border; Calendar blue-400
+- **phase5298** `KitchenPhase5298SchichtDichteTicker` — Calendar blue-400; Fleißigste Rang+Schichten/Wo; Team-Ø; Wenig-Alert; 30-Min-Poll
+
+**Fix:** `next.config.js` — `turbopack.root: __dirname` ergänzt (Turbopack-Workspace-Root-Fehler in CI-Umgebung behoben)
+
+**KRITISCH: Nächste freie Phase ist 5299!**
+
+**Vorschlag Batch 35:** Fahrer-Schicht-Pünktlichkeit-Ranking (% pünktliche Schichtbeginne — ABSTEIGEND, höchste = bester)
+- Phase 5299: Dispatch `DispatchPhase5299SchichtPuenktlichkeitBoard` — Clock green-400; ABSTEIGEND
+- Phase 5300: Fahrer `FahrerPhase5300MeineSchichtPuenktlichkeit` — Clock green-400; Coaching ≥95%/≥80%/<80%
+- Phase 5301: Storefront — skip
+- Phase 5302: Kitchen `KitchenPhase5302SchichtPuenktlichkeitTicker` — Clock green-400

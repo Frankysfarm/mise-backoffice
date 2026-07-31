@@ -8,6 +8,9 @@ const nextConfig = {
       '*': ['**/@swc/**', '**/node_modules/**'],
     },
   },
+  turbopack: {
+    root: __dirname,
+  },
   // Standalone-Output für minimale Docker-Images (deaktiviert wegen EMFILE in CI)
   // output: 'standalone',
   // Bereits installierte Native-App lädt /pos/terminal → leite zur neuen Auswahl
