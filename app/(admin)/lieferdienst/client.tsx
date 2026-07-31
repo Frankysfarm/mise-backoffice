@@ -531,6 +531,7 @@ import { LieferdienstPhase5142StatistikenDashboardV35 } from './phase5142-statis
 import { LieferdienstPhase5143StatistikenDashboardV36 } from './phase5143-statistiken-dashboard-v36';
 import { LieferdienstPhase5144StatistikenDashboardV37 } from './phase5144-statistiken-dashboard-v37';
 import { LieferdienstPhase5145StatistikenDashboardV38 } from './phase5145-statistiken-dashboard-v38';
+import { LieferdienstPhase5146StatistikenDashboardV39 } from './phase5146-statistiken-dashboard-v39';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2473,6 +2474,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5144StatistikenDashboardV37 locationId={locationId ?? null} />
                 {/* Phase 5145: Statistiken-Dashboard V38 — Dual-Gauge Effizienz+Qualität; 9-KPI-Grid; 5-Tab Überblick/Stunden/Fahrer/Zonen/Prognose; Kapazitäts-Prognose-Chart; Fahrer-Tier+Trend; 60-Sek-Polling */}
                 <LieferdienstPhase5145StatistikenDashboardV38 locationId={locationId ?? null} />
+                {/* Phase 5146: Statistiken-Dashboard V39 — Dual-Score Effizienz+Pünktlichkeit; Rentabilitäts-Trend-Chart Ertrag vs Kosten; Schicht-Pünktlichkeit-Tab; Zonen-SLA; Alert-Ampel; 60-Sek-Polling */}
+                <LieferdienstPhase5146StatistikenDashboardV39 locationId={locationId ?? null} />
                 {/* Phase 5036: Statistiken-Dashboard V26 — Revenue-Velocity; Storno-Analyse; Profit-KPI; Velocity-Chart; Zonen-SLA; 45-Sek-Polling */}
                 <LieferdienstPhase5036StatistikenDashboardV26 locationId={locationId ?? null} />
                 {/* Phase 5035: Statistiken-Dashboard V25 — Monatsziel-Fortschritt; 8-KPI-Grid; Stunden/Woche-Chart; Top-Fahrer; Zonen-SLA; 30-Sek-Polling */}
@@ -5212,3 +5215,5 @@ export { LieferdienstPhase5143StatistikenDashboardV36 } from './phase5143-statis
 export { LieferdienstPhase5144StatistikenDashboardV37 } from './phase5144-statistiken-dashboard-v37';
 // Phase 5145 — Statistiken-Dashboard V38 (Activity emerald; Dual-Gauge Effizienz+Qualität; 9-KPI-Grid 3-spaltig Ampel+Icon+Δ; 5-Tab-Nav Überblick/Stunden/Fahrer/Zonen/Prognose; Kapazitäts-Prognose vs. Bedarf BarChart; Fahrer-Tier+Trend-Icon; Zonen-SLA+Avg+Umsatz; Live-Alert-Feed; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5145StatistikenDashboardV38 } from './phase5145-statistiken-dashboard-v38';
+// Phase 5146 — Statistiken-Dashboard V39 (Activity emerald; Dual-Score Effizienz+Pünktlichkeit-Header; 9-KPI-Grid 3-spaltig Ampel+Δ; 5-Tab-Nav Überblick/Rentabilität/Fahrer/Zonen/Pünktlichkeit; Rentabilitäts-Trend-BarChart Ertrag vs. Kosten; Schicht-Pünktlichkeit-Tab je Fahrer; Zonen-SLA+Avg+Umsatz; Alert-Ampel; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5146StatistikenDashboardV39 } from './phase5146-statistiken-dashboard-v39';
