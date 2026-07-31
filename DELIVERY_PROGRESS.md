@@ -37534,3 +37534,24 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5260: Fahrer `FahrerPhase5260MeineDistanzProLieferung` — MapPin orange-400; Coaching ≤4km/≤7km/>7km
 - Phase 5261: Storefront — skip
 - Phase 5262: Kitchen `KitchenPhase5262DistanzProLieferungTicker` — MapPin orange-400
+
+---
+
+## Batch 26 — Akzeptanzrate-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5259 / 5260 / (5261 Storefront skip) / 5262
+
+**API:** `fahrer-akzeptanz-rate-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, akzeptanz_rate, rank_delta, ampel, alert_niedrig}], team_avg_akzeptanz, beste_name, niedrigste_name, alert_count, gesamt }`
+
+### Implementiert:
+- **phase5259** `DispatchPhase5259AkzeptanzrateBoard` — ThumbsUp sky-400; KPI-Grid Beste/Team-Ø/Niedrigste; Balken via akzeptanz_rate%; DeltaIcons; Niedrig-Alert; ABSTEIGEND (höchste = Rang 1 = bester)
+- **phase5260** `FahrerPhase5260MeineAkzeptanzrate` — isOnline-Guard; WifiOff-Fallback; Coaching ≥95%/≥80%/<80%; Mini-Balken; Ampel-Border; ThumbsUp sky-400
+- **phase5262** `KitchenPhase5262AkzeptanzrateTicker` — ThumbsUp sky-400; Beste Rang+%; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5263!**
+
+**Vorschlag Batch 27:** Fahrer-Ablehnungsquote-Ranking (% abgelehnte Aufträge — AUFSTEIGEND, niedrigste = bester)
+- Phase 5263: Dispatch `DispatchPhase5263AblehnungsquoteBoard` — XOctagon rose-400; AUFSTEIGEND
+- Phase 5264: Fahrer `FahrerPhase5264MeineAblehnungsquote` — XOctagon rose-400; Coaching ≤5%/≤15%/>15%
+- Phase 5265: Storefront — skip
+- Phase 5266: Kitchen `KitchenPhase5266AblehnungsquoteTicker` — XOctagon rose-400
