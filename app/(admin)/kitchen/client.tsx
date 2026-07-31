@@ -1350,6 +1350,7 @@ import { KitchenPhase5317KilometerTicker } from './phase5317-kilometer-ticker';
 import { KitchenPhase5321LieferzeitTicker } from './phase5321-lieferzeit-ticker';
 import { KitchenPhase5310SmartTimingCountdownV46 } from './phase5310-smart-timing-countdown-v46';
 import { KitchenPhase5325SmartTimingCountdownV47 } from './phase5325-smart-timing-countdown-v47';
+import { KitchenPhase5329RueckkehrzeitTicker } from './phase5329-rueckkehrzeit-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5194,6 +5195,8 @@ export function KitchenBoard({
       <KitchenPhase5317KilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5321: Lieferzeit-Ticker — Timer orange-400; Schnellste/r Rang+avg_min; Team-Ø; zu-langsam-Alert; 30-Min-Polling */}
       <KitchenPhase5321LieferzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5329: Rückkehrzeit-Ticker — Home blue-400; Schnellste/r Rang+min; Team-Ø; Zu-langsam-Alert; 30-Min-Poll */}
+      <KitchenPhase5329RueckkehrzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5310: Smart-Timing Countdown V46 — KI-Kochstart-Empfehlung; Peak-Stationen-Alert; Effizienz-Wachstums-Balken; 7-KPI-Grid Score/Aktiv/Kritisch/Fertig/Velocity/Effizienz/KI-Tips; 1s-Tick+15s-Polling */}
       <KitchenPhase5310SmartTimingCountdownV46 />
       {/* Phase 5325: Smart-Timing Countdown V47 — Kochzeit-Präzisions-Score; Stationstemperatur-Ampel kalt/warm/heiß/überhitzt; Batch-Abschluss-Forecast; 8-KPI-Grid; Farbkodierung 6-stufig; Δ-Präzision je Order; 1s-Tick+15s-Polling */}
@@ -13161,3 +13164,5 @@ export { KitchenPhase5306SmartTimingCountdownV45 } from './phase5306-smart-timin
 export { KitchenPhase5310SmartTimingCountdownV46 } from './phase5310-smart-timing-countdown-v46';
 // Phase 5325 — Smart-Timing Countdown V47 (Timer indigo; Kochzeit-Präzisions-Score Ist vs. Ziel; Stationstemperatur-Ampel kalt/warm/heiß/überhitzt; Batch-Abschluss-Forecast; Δ-Präzision je Order; 4-KPI-Grid; Heatmap 5-Stationen; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5325SmartTimingCountdownV47 } from './phase5325-smart-timing-countdown-v47';
+// Phase 5329 — Rückkehrzeit-Ticker (Home blue-400; Schnellste/r Rang+Ø-min; Team-Ø; Zu-langsam-Alert; 30-Min-Poll; Mock-Fallback)
+export { KitchenPhase5329RueckkehrzeitTicker } from './phase5329-rueckkehrzeit-ticker';
