@@ -1277,6 +1277,7 @@ import { FahrerPhase5137TourStopsNavigationHubV3 } from './phase5137-tour-stops-
 import { FahrerPhase5137MeineKundenbewertung } from './phase5137-meine-kundenbewertung';
 import { FahrerPhase5140TourStopsNavigationHubV4 } from './phase5140-tour-stops-navigation-hub-v4';
 import { FahrerPhase5141TourStopsNavigationHubV5 } from './phase5141-tour-stops-navigation-hub-v5';
+import { FahrerPhase5144MeinFruehAnteil } from './phase5144-mein-frueh-anteil';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7652,6 +7653,8 @@ export function FahrerApp({
           <FahrerPhase5140TourStopsNavigationHubV4 driverId={driver.id} />
           {/* Phase 5141: Tour-Stops & Navigation Hub V5 — Navi-Toggle Google/Waze; Dispatch-Nachricht Banner; Geliefert-Button; Bewertungs-CTA; 15s-Polling */}
           <FahrerPhase5141TourStopsNavigationHubV5 />
+          {/* Phase 5144: Mein Früh-Anteil — Sun amber; frueh_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40%/≥20%/<20%; 30-Min-Polling */}
+          <FahrerPhase5144MeinFruehAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
           <FahrerPhase5036TourStoppSmartNavV15 driverId={driver.id} />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}
@@ -12276,3 +12279,5 @@ export { FahrerPhase5137MeineKundenbewertung } from './phase5137-meine-kundenbew
 export { FahrerPhase5140TourStopsNavigationHubV4 } from './phase5140-tour-stops-navigation-hub-v4';
 // Phase 5141 — Tour-Stops & Navigation Hub V5 (Route blue; Navi-Wahl Google/Waze Header-Toggle; 4-KPI-Grid Eingenommen/Trinkgeld/Restzeit/Offen; Fortschrittsbalken; Dispatch-Nachricht Banner schließbar; Aktiv-Stopp Hero Nav-CTA+Anruf+Geliefert+Prio-Badge+Notiz-Warnung+Zahlungsart+ETA+km; Ausstehende Stopps aufklappbar Adresse+ETA+km+Betrag+Nav+Anruf; Fertige Stopps Chips+Bewertungs-CTA ausstehend ★; 15-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5141TourStopsNavigationHubV5 } from './phase5141-tour-stops-navigation-hub-v5';
+// Phase 5144 — Mein Früh-Anteil (Sun amber-400; frueh_anteil_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥40%/≥20%/<20%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5144MeinFruehAnteil } from './phase5144-mein-frueh-anteil';

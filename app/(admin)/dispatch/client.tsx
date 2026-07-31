@@ -1359,6 +1359,7 @@ import { DispatchPhase5137ScoreTourVisualisierungV22 } from './phase5137-score-t
 import { DispatchPhase5137KundenbewertungBoard } from './phase5137-kundenbewertung-board';
 import { DispatchPhase5140ScoreTourVisualisierungV23 } from './phase5140-score-tour-visualisierung-v23';
 import { DispatchPhase5141ScoreTourVisualisierungV24 } from './phase5141-score-tour-visualisierung-v24';
+import { DispatchPhase5143FruehAnteilBoard } from './phase5143-frueh-anteil-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5501,6 +5502,8 @@ export function DispatchBoard({
           <DispatchPhase5140ScoreTourVisualisierungV23 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5141: Score+Tour Visualisierung V24 — 6-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€; Tab-Nav Ranking/Fleet; High-Risk-Alert-Banner; Bewertung★ in Rangliste; 20-Sek-Polling */}
           <DispatchPhase5141ScoreTourVisualisierungV24 />
+          {/* Phase 5143: Früh-Anteil-Board — Sun amber; ABSTEIGEND Rang 1=höchster Früh-Anteil; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% amber; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5143FruehAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
@@ -14406,3 +14409,5 @@ export { DispatchPhase5137KundenbewertungBoard } from './phase5137-kundenbewertu
 export { DispatchPhase5140ScoreTourVisualisierungV23 } from './phase5140-score-tour-visualisierung-v23';
 // Phase 5141 — Score + Tour-Visualisierung V24 (Trophy violet; 6-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko+Bewertung★; Route-Effizienz-Balken; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+km+Betrag+Nav-CTA+Anruf; Fleet-Übersicht 2-spaltig; Tab-Nav Ranking/Fleet; High-Risk-Alert-Banner; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5141ScoreTourVisualisierungV24 } from './phase5141-score-tour-visualisierung-v24';
+// Phase 5143 — Früh-Anteil-Board (Sun amber-400; ABSTEIGEND Rang 1=höchster Früh-Anteil=bester; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥40% amber; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5143FruehAnteilBoard } from './phase5143-frueh-anteil-board';
