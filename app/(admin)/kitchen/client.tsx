@@ -1338,6 +1338,7 @@ import { KitchenPhase5278AktivitaetsScoreTicker } from './phase5278-aktivitaets-
 import { KitchenPhase5282AbendAnteilTicker } from './phase5282-abend-anteil-ticker';
 import { KitchenPhase5286BonusQuoteTicker } from './phase5286-bonus-quote-ticker';
 import { KitchenPhase5290AbwesenheitTicker } from './phase5290-abwesenheit-ticker';
+import { KitchenPhase5291SmartTimingCountdownFarbkodierung } from './phase5291-smart-timing-countdown-farbkodierung';
 import { KitchenPhase5294WochenendBonusTicker } from './phase5294-wochenend-bonus-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
@@ -5164,6 +5165,8 @@ export function KitchenBoard({
       <KitchenPhase5282AbendAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase5286BonusQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase5290AbwesenheitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5291: Smart-Timing Countdown Farbkodierung — Echtzeit-Countdown je Bestellung; grün >10Min / gelb 5–10Min / rot <5Min; Überfällig-Alert; Batch-Fortschrittsbalken; 1s-Tick+15s-Polling */}
+      <KitchenPhase5291SmartTimingCountdownFarbkodierung locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       <KitchenPhase5294WochenendBonusTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5142: Smart-Timing Countdown V42 — Überfällig-Alert-Banner; 7-KPI-Grid inkl. Batch+Überfällig; 3-Tab Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1s-Tick+15s-Polling */}
       <KitchenPhase5142SmartTimingCountdownV42 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -13098,6 +13101,8 @@ export { KitchenPhase5278AktivitaetsScoreTicker } from './phase5278-aktivitaets-
 export { KitchenPhase5282AbendAnteilTicker } from './phase5282-abend-anteil-ticker';
 export { KitchenPhase5286BonusQuoteTicker } from './phase5286-bonus-quote-ticker';
 export { KitchenPhase5290AbwesenheitTicker } from './phase5290-abwesenheit-ticker';
+// Phase 5291 — Smart-Timing Countdown Farbkodierung (Clock indigo; grün>10Min/gelb 5–10Min/rot<5Min; Überfällig-Alert; Fertig-Zähler; Fortschrittsbalken; 1s-Tick+15s-Polling; Mock-Fallback)
+export { KitchenPhase5291SmartTimingCountdownFarbkodierung } from './phase5291-smart-timing-countdown-farbkodierung';
 export { KitchenPhase5294WochenendBonusTicker } from './phase5294-wochenend-bonus-ticker';
 // Phase 5142 — Smart-Timing Countdown V42 (Timer indigo; Überfällig-Alert-Banner+Fahrer-Alert; 7-KPI-Grid Aktiv/Kritisch/Überfällig/Fahrer↑/Fertig/Batch//h; 3-Tab-Nav Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
