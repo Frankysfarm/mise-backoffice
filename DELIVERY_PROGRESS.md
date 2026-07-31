@@ -37513,3 +37513,24 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5256: Fahrer `FahrerPhase5256MeineDistanzProLieferung` — MapPin orange-400; Coaching ≤4km/≤7km/>7km
 - Phase 5257: Storefront — skip
 - Phase 5258: Kitchen `KitchenPhase5258DistanzProLieferungTicker` — MapPin orange-400
+
+---
+
+## Batch 25 — Reaktionszeit-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5255 / 5256 / (5257 Storefront skip) / 5258
+
+**API:** `fahrer-reaktionszeit-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_reaktionszeit_min, rank_delta, ampel, alert_hoch}], team_avg_min, schnellster_name, langsamster_name, alert_count, gesamt }`
+
+### Implementiert:
+- **phase5255** `DispatchPhase5255ReaktionszeitBoard` — Zap amber-400; KPI-Grid Schnellste/Team-Ø/Langsamste; Balken via (avg_reaktionszeit_min/maxVal)×100; DeltaIcons; Hoch-Alert; AUFSTEIGEND (niedrigste = Rang 1 = bester)
+- **phase5256** `FahrerPhase5256MeineReaktionszeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≤3min/≤6min/>6min; Mini-Balken; Ampel-Border; Zap amber-400
+- **phase5258** `KitchenPhase5258ReaktionszeitTicker` — Zap amber-400; Schnellste Rang+min; Team-Ø; Hoch-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5259!**
+
+**Vorschlag Batch 26:** Fahrer-Distanz-pro-Lieferung-Ranking (Ø km je Lieferung — AUFSTEIGEND, niedrigste = bester)
+- Phase 5259: Dispatch `DispatchPhase5259DistanzProLieferungBoard` — MapPin orange-400; AUFSTEIGEND (niedrigste = Rang 1 = bester)
+- Phase 5260: Fahrer `FahrerPhase5260MeineDistanzProLieferung` — MapPin orange-400; Coaching ≤4km/≤7km/>7km
+- Phase 5261: Storefront — skip
+- Phase 5262: Kitchen `KitchenPhase5262DistanzProLieferungTicker` — MapPin orange-400
