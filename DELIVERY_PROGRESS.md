@@ -2,6 +2,127 @@
 
 ## STATUS: MARKT-REIF
 
+## CEO Review #745 — 2026-07-31 — KRITISCHER BUG GEFIXT
+
+**Bug:** Commit `569bc980` hat bei schlechter Merge-Auflösung 6 Batches (Phasen 5239–5262) aus allen 3 client.tsx-Dateien gelöscht. Komponenten-Dateien waren vorhanden, aber nirgends gerendert.
+**Fix:** Alle 42 Zeilen (Import+Render+Export je 3 Dateien) wiederhergestellt.
+**Build:** ✓ Compiled successfully | TypeScript: 0 Fehler | 431 Seiten
+**Nächste freie Phase: 5263**
+
+---
+
+## Batch 5259/5260/5262 — Akzeptanzrate-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5259 — Akzeptanzrate-Board (Dispatch)
+**Component:** `DispatchPhase5259AkzeptanzrateBoard` — Import+Render+Barrel ✅
+
+### Phase 5260 — Meine Akzeptanzrate (Fahrer)
+**Component:** `FahrerPhase5260MeineAkzeptanzrate` — Import+Render+Barrel ✅; Props `{ driverId, locationId, isOnline }` ✅
+
+### Phase 5261 — Storefront
+Übersprungen ✅
+
+### Phase 5262 — Akzeptanzrate-Ticker (Kitchen)
+**Component:** `KitchenPhase5262AkzeptanzrateTicker` — Import+Render+Barrel ✅
+
+---
+
+## Batch 5255/5256/5258 — Reaktionszeit-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5255 — Reaktionszeit-Board (Dispatch)
+**Component:** `DispatchPhase5255ReaktionszeitBoard` — Import+Render+Barrel ✅
+
+### Phase 5256 — Meine Reaktionszeit (Fahrer)
+**Component:** `FahrerPhase5256MeineReaktionszeit` — Import+Render+Barrel ✅
+
+### Phase 5257 — Storefront
+Übersprungen ✅
+
+### Phase 5258 — Reaktionszeit-Ticker (Kitchen)
+**Component:** `KitchenPhase5258ReaktionszeitTicker` — Import+Render+Barrel ✅
+
+---
+
+## Batch 5251/5252/5254 — Umsatz-pro-Stunde-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5251 — Umsatz-pro-Stunde-Board (Dispatch)
+**Component:** `DispatchPhase5251UmsatzProStundeBoard` — Import+Render+Barrel ✅
+
+### Phase 5252 — Mein Umsatz pro Stunde (Fahrer)
+**Component:** `FahrerPhase5252MeinUmsatzProStunde` — Import+Render+Barrel ✅
+
+### Phase 5253 — Storefront
+Übersprungen ✅
+
+### Phase 5254 — Umsatz-pro-Stunde-Ticker (Kitchen)
+**Component:** `KitchenPhase5254UmsatzProStundeTicker` — Import+Render+Barrel ✅
+
+---
+
+## Batch 5247/5248/5250 — Trinkgeld-pro-Lieferung-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5247 — Trinkgeld-pro-Lieferung-Board (Dispatch)
+**Component:** `DispatchPhase5247TrinkgeldProLieferungBoard` — Import+Render+Barrel ✅
+
+### Phase 5248 — Mein Trinkgeld pro Lieferung (Fahrer)
+**Component:** `FahrerPhase5248MeinTrinkgeldProLieferung` — Import+Render+Barrel ✅
+
+### Phase 5249 — Storefront
+Übersprungen ✅
+
+### Phase 5250 — Trinkgeld-pro-Lieferung-Ticker (Kitchen)
+**Component:** `KitchenPhase5250TrinkgeldProLieferungTicker` — Import+Render+Barrel ✅
+
+---
+
+## Batch 5243/5244/5246 — Bewertungs-Score-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5243 — Bewertungs-Board (Dispatch)
+**Component:** `DispatchPhase5243BewertungsBoard` — Import+Render+Barrel ✅
+
+### Phase 5244 — Meine Bewertung (Fahrer)
+**Component:** `FahrerPhase5244MeineBewertung` — Import+Render+Barrel ✅
+
+### Phase 5245 — Storefront
+Übersprungen ✅
+
+### Phase 5246 — Bewertungs-Ticker (Kitchen)
+**Component:** `KitchenPhase5246BewertungsTicker` — Import+Render+Barrel ✅
+
+---
+
+## Batch 5239/5240/5242 — Storno-Quote-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5239 — Storno-Quote-Board (Dispatch)
+**Component:** `DispatchPhase5239StornoQuoteBoard` — Import+Render+Barrel ✅
+
+### Phase 5240 — Meine Storno-Quote (Fahrer)
+**Component:** `FahrerPhase5240MeineStornoQuote` — Import+Render+Barrel ✅
+
+### Phase 5241 — Storefront
+Übersprungen ✅
+
+### Phase 5242 — Storno-Quote-Ticker (Kitchen)
+**Component:** `KitchenPhase5242StornoQuoteTicker` — Import+Render+Barrel ✅
+
+---
+
+## Batch 5235/5236/5238 — Pünktlichkeits-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5235 — Pünktlichkeits-Board (Dispatch)
+**Component:** `DispatchPhase5235PuenktlichkeitsBoard` — Import+Render+Barrel ✅
+
+### Phase 5236 — Meine Pünktlichkeit (Fahrer)
+**Component:** `FahrerPhase5236MeinePuenktlichkeit` — Import+Render+Barrel ✅
+
+### Phase 5237 — Storefront
+Übersprungen ✅
+
+### Phase 5238 — Pünktlichkeits-Ticker (Kitchen)
+**Component:** `KitchenPhase5238PuenktlichkeitsTicker` — Import+Render+Barrel ✅
+
+---
+
 ## Batch 5186/5187/5189 — Umsatz-pro-Lieferung-Ranking (ABGESCHLOSSEN 2026-07-31)
 
 ### Phase 5186 — Umsatz-pro-Lieferung-Board (Dispatch)
