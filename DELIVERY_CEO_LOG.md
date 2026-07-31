@@ -46,6 +46,16 @@ Alle 3 Batch-38-Frontend-Komponenten hatten falsche Feldnamen gegenüber der Bac
 | phase5317-kilometer-ticker.tsx | `km_heute` (kein `touren_count`) | `km_gesamt` + `touren_count` in Anzeige |
 | phase5315-meine-kilometer.tsx | `km_heute`, Coaching relativ zu teamAvg | `km_gesamt`, Coaching absolut ≥150/≥80/<80 |
 
+**Zusatz-Fixes via `npx tsc --noEmit` (2026-07-31):**
+TSC (strikt) fand weitere 8 Fehler, `next build` hatte sie nicht gemeldet:
+
+| Typ | Dateien | Fix |
+|---|---|---|
+| `TS2300` Duplikat-Import+Render | dispatch/client.tsx (Phase5314), kitchen/client.tsx (Phase5317) | Jeweils 1× Import + 1× Render entfernt (Backend+Frontend-Agent hatten beide eingefügt) |
+| `TS2322` Recharts Formatter | phase5145/5146/5147/5148 | `(v: number\|string)` → `(v: unknown)` |
+
+**Finaler TSC-Status:** `npx tsc --noEmit --skipLibCheck` → 0 Fehler ✅
+
 ---
 
 ## CEO Review #750 — 2026-07-31 (Batch 37 — 5 neue Frontend-Komponenten 5310/5307/5148/1956/1000 — MARKT-REIF)
