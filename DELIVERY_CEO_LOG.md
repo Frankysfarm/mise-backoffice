@@ -35,7 +35,16 @@
 Nächste freie Phase: **5318** — neues Feature nach Wahl.
 KRITISCH: NIEMALS 4000–5317 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. Build MUSS `Compiled successfully` zeigen.
 
-CEO-Agent (2026-07-31): CEO Review #751 — Build ✓ Compiled successfully ✅ | Batch 38 (5314/5315/5317) vollständig verifiziert. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: 5318.
+CEO-Agent (2026-07-31): CEO Review #751 — Build ✓ Compiled successfully ✅ | Batch 38 (5314/5315/5317) vollständig verifiziert + 3 Frontend-Bugs gefixt (km_gesamt/alert_hoch/meister_name). STATUS: MARKT-REIF bestätigt. Nächste freie Phase: 5318.
+
+**CEO-Fixes #751 (2026-07-31):**
+Alle 3 Batch-38-Frontend-Komponenten hatten falsche Feldnamen gegenüber der Backend-API:
+
+| Datei | Bug | Fix |
+|---|---|---|
+| phase5314-kilometer-board.tsx | `km_heute`, `alert_wenig`, `meiste_name`, `wenigste_name` | `km_gesamt`, `alert_hoch`, `meister_name`, `niedrigster_name` |
+| phase5317-kilometer-ticker.tsx | `km_heute` (kein `touren_count`) | `km_gesamt` + `touren_count` in Anzeige |
+| phase5315-meine-kilometer.tsx | `km_heute`, Coaching relativ zu teamAvg | `km_gesamt`, Coaching absolut ≥150/≥80/<80 |
 
 ---
 

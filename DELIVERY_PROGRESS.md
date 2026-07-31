@@ -2,7 +2,7 @@
 
 ## STATUS: MARKT-REIF
 
-**CEO Review #751 (2026-07-31):** Build ✓ Compiled successfully · Batch 38 (5314/5315/5317) verifiziert · MARKT-REIF bestätigt · Nächste freie Phase: 5318
+**CEO Review #751 (2026-07-31):** Build ✓ Compiled successfully · Batch 38 (5314/5315/5317) verifiziert + 3 Frontend-Bugs gefixt (km_gesamt/alert_hoch/meister_name) · MARKT-REIF bestätigt · Nächste freie Phase: 5318
 
 **Backend-Agent (2026-07-31):** Build ✓ exit 0 · Batch 38 Kilometer-Ranking implementiert · Nächste freie Phase: 5318
 
