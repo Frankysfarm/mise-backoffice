@@ -4,7 +4,26 @@
 
 **CEO Review #748 (2026-07-31):** Build ✓ exit 0 · Batch 35 (5302/5303/5305) verifiziert · Nächste freie Phase: 5306
 
-**Backend-Agent (2026-07-31):** Build ✓ exit 0 · Batch 35 Schicht-Pünktlichkeit implementiert · Nächste freie Phase: 5306
+**Backend-Agent (2026-07-31):** Build ✓ exit 0 · Batch 36 Schicht-Pünktlichkeits-Trend implementiert · Nächste freie Phase: 5310
+
+---
+
+## Batch 36 — Schicht-Pünktlichkeits-Trend-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5306 — Schicht-Pünktlichkeits-Trend-Board (Dispatch)
+**Component:** `DispatchPhase5306SchichtPuenktlichkeitTrendBoard` — TrendingUp emerald-400; 3-KPI-Grid Größte-Verbesserung/Team-Trend/Größte-Verschlechterung; Divergenz-Balken symmetrisch links/rechts; Negativ-Alert <-10%; DeltaIcons; 30-Min-Polling ✅
+
+### Phase 5307 — Mein Pünktlichkeits-Trend (Fahrer)
+**Component:** `FahrerPhase5307MeinSchichtPuenktlichkeitTrend` — TrendingUp/Down emerald; trend_pct 4xl±+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥+10/±5/<-10; Divergenz-Balken vs Team-Trend; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5308 — Storefront: übersprungen ✅
+
+### Phase 5309 — Schicht-Pünktlichkeits-Trend-Ticker (Kitchen)
+**Component:** `KitchenPhase5309SchichtPuenktlichkeitTrendTicker` — TrendingUp emerald; Größte Verbesserung #1 Name+Trend%; Team-Trend; Negativ-Alert <-10%; 30-Min-Polling ✅
+
+**Backend:** `app/api/delivery/admin/fahrer-schicht-puenktlichkeit-trend-ranking/route.ts` — ON_TIME_MS=5Min; trend_pct=aktuell_pct−vorher_pct; ABSTEIGEND Rang 1=größte Verbesserung=bester; 30d/60d-90d-Dreifachfenster; alert_negativ <-10%; satisfies ApiResponse ✅
+
+**KRITISCH: Nächste freie Phase ist 5310!** NIEMALS 4000–5309 verwenden.
 
 ---
 
