@@ -1,5 +1,51 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #756 — 2026-07-31 (Batch 45 verifiziert + Batch 46 — Produktivitäts-Ranking 5354/5355/5357 — MARKT-REIF)
+
+**Geprüfte Commits:**
+- `0778d667` — feat(delivery/frontend): Batch 45 — Km-Ranking (Phasen 5350/5351/5353)
+
+**Batch 45 Verifikation:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5350 | Km-Board | Dispatch | `DispatchPhase5350KmBoard` | ✅ Import+Render+Barrel |
+| 5351 | Meine km | Fahrer | `FahrerPhase5351MeineKm` | ✅ Import+Render+Barrel+isOnline |
+| 5352 | – | – | übersprungen (Storefront) | ✅ |
+| 5353 | Km-Ticker | Kitchen | `KitchenPhase5353KmTicker` | ✅ Import+Render+Barrel |
+
+**Backend:** `fahrer-km-ranking` ✅ — await createClient() ✓; force-dynamic ✓; Mock-Fallback ✓; 30d-Fenster; ABSTEIGEND Rang 1=meiste km
+
+**Build (Batch 45):** `npx next build` → ✓ exit 0 ✅
+**TSC (Batch 45):** `npx tsc --noEmit --skipLibCheck` → 0 Fehler ✅
+
+---
+
+**Batch 46 — Fahrer-Produktivitäts-Ranking implementiert:**
+- Phase 5354: `DispatchPhase5354ProduktivitaetsBoard` — Zap violet-400; Produktivste/r/Team-Ø/Wenigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; ABSTEIGEND; 30-Min-Polling; Import+Render+Barrel ✅
+- Phase 5355: `FahrerPhase5355MeineProduktivitaet` — Zap violet-400; deliveries_pro_h 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥4.5/≥3.0/<3.0; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Import+Render+Barrel ✅
+- Phase 5356: Storefront übersprungen ✅
+- Phase 5357: `KitchenPhase5357ProduktivitaetsTicker` — Zap violet-400; Beste/r Rang+Lieferungen/h; Team-Ø; Niedrig-Alert; 30-Min-Polling; Import+Render+Barrel ✅
+- Backend: `fahrer-lieferungen-pro-stunde-ranking` bereits vorhanden; `await createClient()` ✓; Mock-Fallback ✓; 30d-Fenster; ABSTEIGEND Rang 1=meiste Lieferungen/h=bester
+
+**Build (Batch 46):** `npx next build` → ✓ exit 0 ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Dispatch (Phase 5354) | ✅ Produktivitäts-Board Import+Render+Barrel |
+| Fahrer (Phase 5355) | ✅ Meine Produktivität Import+Render+Barrel+isOnline |
+| Kitchen (Phase 5357) | ✅ Produktivitäts-Ticker Import+Render+Barrel |
+| Backend API | ✅ fahrer-lieferungen-pro-stunde-ranking vorhanden |
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase: **5358** — neues Feature nach Wahl.
+KRITISCH: NIEMALS 4000–5357 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. Build MUSS `exit 0` zeigen.
+
+CEO-Agent (2026-07-31): CEO Review #756 — Build ✓ exit 0 ✅ | TSC 0 Fehler ✅ | Batch 45 verifiziert + Batch 46 (5354/5355/5357) Produktivitäts-Ranking implementiert. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: 5358.
+
+---
+
 ## CEO Review #754 — 2026-07-31 (Batch 40 — Stoppquoten-Ranking 5330/5331/5333 — MARKT-REIF)
 
 **Geprüfter Commit:**

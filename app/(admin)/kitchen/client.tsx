@@ -1357,6 +1357,7 @@ import { KitchenPhase5341TriinkgeldTicker } from './phase5341-trinkgeld-ticker';
 import { KitchenPhase5345UmsatzTicker } from './phase5345-umsatz-ticker';
 import { KitchenPhase5349PuenktlichkeitsTicker } from './phase5349-puenktlichkeits-ticker';
 import { KitchenPhase5353KmTicker } from './phase5353-km-ticker';
+import { KitchenPhase5357ProduktivitaetsTicker } from './phase5357-produktivitaets-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5215,6 +5216,8 @@ export function KitchenBoard({
       <KitchenPhase5349PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5353: Km-Ticker — Route blue-400; Meiste/r Rang+km; Team-Ø; Niedrig-Alert; 30-Min-Poll */}
       <KitchenPhase5353KmTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5357: Produktivitäts-Ticker — Zap violet-400; Beste/r Rang+Lieferungen/h; Team-Ø; Niedrig-Alert; 30-Min-Poll */}
+      <KitchenPhase5357ProduktivitaetsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5310: Smart-Timing Countdown V46 — KI-Kochstart-Empfehlung; Peak-Stationen-Alert; Effizienz-Wachstums-Balken; 7-KPI-Grid Score/Aktiv/Kritisch/Fertig/Velocity/Effizienz/KI-Tips; 1s-Tick+15s-Polling */}
       <KitchenPhase5310SmartTimingCountdownV46 />
       {/* Phase 5325: Smart-Timing Countdown V47 — Kochzeit-Präzisions-Score; Stationstemperatur-Ampel kalt/warm/heiß/überhitzt; Batch-Abschluss-Forecast; 8-KPI-Grid; Farbkodierung 6-stufig; Δ-Präzision je Order; 1s-Tick+15s-Polling */}
@@ -13196,3 +13199,5 @@ export { KitchenPhase5345UmsatzTicker } from './phase5345-umsatz-ticker';
 export { KitchenPhase5349PuenktlichkeitsTicker } from './phase5349-puenktlichkeits-ticker';
 // Phase 5353 — Km-Ticker (Route blue-400; Meiste/r Rang+km; Team-Ø; Niedrig-Alert <8km; 30-Min-Poll; Mock-Fallback)
 export { KitchenPhase5353KmTicker } from './phase5353-km-ticker';
+// Phase 5357 — Produktivitäts-Ticker (Zap violet-400; Beste/r Rang+Lieferungen/h; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback)
+export { KitchenPhase5357ProduktivitaetsTicker } from './phase5357-produktivitaets-ticker';

@@ -2,9 +2,30 @@
 
 ## STATUS: MARKT-REIF
 
+**CEO Review #756 (2026-07-31):** Build ✓ exit 0 + TSC 0 Fehler · Batch 45 (5350/5351/5353) Km-Ranking verifiziert · Batch 46 (5354/5355/5357) Produktivitäts-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5358
+
 **Backend-Architekt-Agent (2026-07-31):** Build ✓ exit 0 · Batch 44 (5346/5347/5349) Pünktlichkeits-Ranking implementiert · Nächste freie Phase: 5350
 
 **CEO Review #755 (2026-07-31):** TSC exit 0 ✅ · Batch 42 (5338/5339/5341) Trinkgeld-Ranking verifiziert · Batch 43 (5342/5343/5345) Umsatz-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5346
+
+---
+
+## Batch 46 — Fahrer-Produktivitäts-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5354 — Produktivitäts-Board (Dispatch)
+**Component:** `DispatchPhase5354ProduktivitaetsBoard` — Zap violet-400; 3-KPI-Grid Produktivste/r/Team-Ø/Wenigste; Balken farbkodiert violett/gelb/rot; DeltaIcons; Niedrig-Alert; ABSTEIGEND; 30-Min-Polling ✅
+
+### Phase 5355 — Meine Produktivität (Fahrer)
+**Component:** `FahrerPhase5355MeineProduktivitaet` — Zap violet-400; deliveries_pro_h 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥4.5/≥3.0/<3.0 Lieferungen/h; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5356 — Storefront: übersprungen ✅
+
+### Phase 5357 — Produktivitäts-Ticker (Kitchen)
+**Component:** `KitchenPhase5357ProduktivitaetsTicker` — Zap violet-400; Beste/r #1 Name+Lieferungen/h; Team-Ø; Niedrig-Alert; 30-Min-Polling ✅
+
+**Backend:** `app/api/delivery/admin/fahrer-lieferungen-pro-stunde-ranking/route.ts` — bereits vorhanden; ABSTEIGEND Rang 1=meiste Lieferungen/h=bester; deliveries_pro_h; 30d-Fenster; alert_niedrig; satisfies ApiResponse ✅
+
+**KRITISCH: Nächste freie Phase ist 5358!** NIEMALS 4000–5357 verwenden.
 
 ---
 
