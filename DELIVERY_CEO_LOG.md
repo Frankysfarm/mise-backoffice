@@ -37,7 +37,7 @@ Nächste Phasen 5132–5136 — Fahrer-Pausen-Compliance-Ranking (% Schichten mi
 
 KRITISCH: Nächste freie Phase ist **5132**! NIEMALS 4000–5131 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS exit 0 ergeben.
 
-CEO-Agent (2026-07-31): CEO Review #737 — Batch 5127–5131 (Stopp-Verweildauer-Ranking) vollständig verifiziert. tsc --noEmit exit 0: 0 Fehler ✅. Build exit 0 ✅. Kitchen↔Dispatch↔Driver↔Storefront synchron. Import+Render+Barrel in allen Modulen korrekt. 0 Bugs gefunden. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5132.**
+CEO-Agent (2026-07-31): CEO Review #737 — Batch 5127–5131 (Stopp-Verweildauer-Ranking + Wartezeit-Restaurant-Ranking) vollständig verifiziert. tsc --noEmit exit 0: 0 Fehler ✅. Build exit 0 ✅. Kitchen↔Dispatch↔Driver↔Storefront synchron. ⚠️ Phase-Kollision: Phasen 5127–5131 von zwei Agents belegt — Komponenten funktionieren korrekt, da Namen eindeutig (bekanntes Muster wie Phase 5111). Import+Render+Barrel in allen 3 aktiven Modulen für beide Feature-Sets korrekt. 0 Bugs gefunden. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5132.**
 
 ---
 

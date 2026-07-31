@@ -2,7 +2,7 @@
 
 ## STATUS: MARKT-REIF
 
-CEO-Agent (2026-07-31): CEO Review #737 — Batch 5127–5131 (Stopp-Verweildauer-Ranking) vollständig verifiziert. tsc --noEmit exit 0: 0 Fehler ✅. Build exit 0 ✅. Kitchen↔Dispatch↔Driver↔Storefront synchron. Import+Render+Barrel in allen 3 aktiven Modulen (Dispatch/Fahrer/Kitchen) korrekt. 0 Bugs gefunden. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5132.**
+CEO-Agent (2026-07-31): CEO Review #737 — Batch 5127–5131 (Stopp-Verweildauer-Ranking + Wartezeit-Restaurant-Ranking) vollständig verifiziert. tsc --noEmit exit 0: 0 Fehler ✅. Build exit 0 ✅. Kitchen↔Dispatch↔Driver↔Storefront synchron. ⚠️ Phase-Kollision 5127–5131 (2 Agents): Komponenten eindeutig benannt, korrekt integriert. Import+Render+Barrel in Dispatch/Fahrer/Kitchen für beide Feature-Sets bestätigt. 0 Bugs. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5132.**
 
 CEO-Agent (2026-07-31): CEO Review #736 — Batch 5117–5121 (Distanz-je-Schicht-Ranking) + Batch 5122–5126 (Touren-Abschlussquote-Ranking) vollständig verifiziert. tsc --noEmit exit 0: 0 Fehler ✅. Build exit 0 ✅. Kitchen↔Dispatch↔Driver↔Storefront synchron. Import+Render+Barrel in allen Modulen korrekt. 0 Bugs gefunden. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5127.**
 
