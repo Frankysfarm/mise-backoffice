@@ -38096,3 +38096,29 @@ Backend-Architekt-Agent (2026-07-31): Batch 35 abgeschlossen. API fahrer-schicht
 ---
 
 Backend-Architekt-Agent (2026-07-31): Batch 36 abgeschlossen. API fahrer-touren-effizienz-ranking (Score 0–100 aus Touren/h + km-Eff). Import+Render+Barrel ✅ Dispatch(5310) + Fahrer(5311) + Kitchen(5313). Build exit 0. **Nächste freie Phase: 5314.**
+
+---
+
+## Batch 37 — Kilometer-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5314 / 5315 / (5316 Storefront skip) / 5317
+
+**API:** `fahrer-kilometer-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, km_heute, rank_delta, ampel, alert_wenig}], team_avg_km, meiste_name, wenigste_name, alert_count, gesamt }`
+**Logik:** Gesamtkilometer heute · ABSTEIGEND (Rang 1 = meiste km) · Ampel: grün/gelb/rot nach Quartilen · alert_wenig: km_heute unterdurchschnittlich niedrig
+
+### Implementiert:
+- **phase5314** `DispatchPhase5314KilometerBoard` — Route green-400; KPI-Grid Meiste/Team-Ø/Wenigste; Balken via (km_heute/maxKm)×100; DeltaIcons; Wenig-Alert; ABSTEIGEND; Mock-Fallback
+- **phase5315** `FahrerPhase5315MeineKilometer` — isOnline-Guard; WifiOff-Fallback; Coaching relativ zu Team-Ø (≥120%/≥80%/<80%); km 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Route green-400; 30-Min-Poll
+- **phase5317** `KitchenPhase5317KilometerTicker` — Route green-400; Meiste/r Rang+km heute; Team-Ø km; Wenig-Alert; 30-Min-Polling; Mock-Fallback
+
+**KRITISCH: Nächste freie Phase ist 5318!**
+
+**Vorschlag Batch 38:** Fahrer-Durchschnitts-Lieferzeit-Ranking (Ø Minuten pro Lieferung heute — AUFSTEIGEND, niedrigste = bester)
+- Phase 5318: Dispatch `DispatchPhase5318LieferzeitBoard` — Timer orange-400; AUFSTEIGEND
+- Phase 5319: Fahrer `FahrerPhase5319MeineLieferzeit` — Timer orange-400; Coaching API-abhängig
+- Phase 5320: Storefront — skip
+- Phase 5321: Kitchen `KitchenPhase5321LieferzeitTicker` — Timer orange-400
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-31): Batch 37 abgeschlossen. 3 Komponenten (5314/5315/5317) mit Route green-400, Mock-Fallback, 30-Min-Polling. Import+Render+Barrel ✅ Dispatch(5314) + Fahrer(5315) + Kitchen(5317). Build exit 0. **Nächste freie Phase: 5318.**
