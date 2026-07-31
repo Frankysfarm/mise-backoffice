@@ -36869,3 +36869,44 @@ KRITISCH: Nächste freie Phase ist **5132**! NIEMALS 4000–5131 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **5137**! NIEMALS 4000–5136 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5152/5153/5154/5156 — Fahrer-Durchschnitts-Trinkgeld-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+⚠️ **Hinweis:** Phase 5155 = Storefront (übersprungen).
+⚠️ **Hinweis:** API `fahrer-trinkgeld-ranking/route.ts` war bereits vorhanden — wiederverwendet.
+
+### Phase 5152 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-trinkgeld-ranking/route.ts` (bereits vorhanden ✅)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_trinkgeld, balken_pct, ampel, rank_delta, alert_niedrig}], team_avg_trinkgeld, bester_name, niedrigster_name, alert_count, gesamt }`
+**Logik:** ABSTEIGEND Rang 1=höchstes Ø-Trinkgeld=bester; avg(tip_eur) letzte 30 Tage; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn ampel='rot'; Mock Julia 3.80€/Sara 2.90€/Max 2.10€/Tim 1.20€; force-dynamic ✅; await createClient() ✅
+
+### Phase 5153 — Trinkgeld-Board (Dispatch)
+**Component:** `DispatchPhase5153TrinkgeldBoard` — Coins yellow-400; Rang 1=höchstes Ø-Trinkgeld; KPI-Grid Höchstes/Team-Avg/Niedrigstes; Alert Niedrig rot; Balken farbkodiert (balken_pct aus API); DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5154 — Mein Ø-Trinkgeld (Fahrer)
+**Component:** `FahrerPhase5154MeinTrinkgeld` — Coins yellow-400; avg_trinkgeld 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥2€/≥1€/<1€; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5155 — Storefront
+Übersprungen ✅
+
+### Phase 5156 — Trinkgeld-Ticker (Kitchen)
+**Component:** `KitchenPhase5156TrinkgeldTicker` — Coins yellow-400; Champion #1 Name+€; Team-Ø; Alert-Count rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue pre-existing in CI ✅ | TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5152/5153/5154/5156)
+- **Belegt:** 4000–5156 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5157**
+
+### Nächste Phasen 5157–5161 — Vorschlag: Fahrer-Lieferungen-pro-Stunde-Ranking (Ø Lieferungen je Schichtstunde letzte 30 Tage)
+1. **Phase 5157 Backend:** GET /api/delivery/admin/fahrer-lieferungen-pro-stunde-ranking — completed_deliveries/schicht_stunden je Fahrer letzte 30 Tage; ABSTEIGEND Rang 1=höchste Lieferungen/h=bester; ampelVon; alert_niedrig wenn <1.5/h; force-dynamic; await createClient().
+2. **Phase 5158 Dispatch:** `DispatchPhase5158LieferungenProStundeBoard` — Zap violet-600; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5159 Fahrer:** `FahrerPhase5159MeineLieferungenProStunde` — Zap violet-600; lph 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥2.5/h/≥1.5/h/<1.5/h; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5160 Storefront:** Überspringen.
+5. **Phase 5161 Kitchen:** `KitchenPhase5161LieferungenProStundeTicker` — Zap violet-600; Aktivste #1 Name+lph; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5157**! NIEMALS 4000–5156 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+
+## STATUS: MARKT-REIF

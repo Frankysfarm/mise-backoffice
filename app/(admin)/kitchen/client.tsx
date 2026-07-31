@@ -1305,6 +1305,7 @@ import { KitchenPhase5140SmartTimingCountdownV40 } from './phase5140-smart-timin
 import { KitchenPhase5141SmartTimingCountdownV41 } from './phase5141-smart-timing-countdown-v41';
 import { KitchenPhase5146FruehAnteilTicker } from './phase5146-frueh-anteil-ticker';
 import { KitchenPhase5151AbendAnteilTicker } from './phase5151-abend-anteil-ticker';
+import { KitchenPhase5156TrinkgeldTicker } from './phase5156-trinkgeld-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
@@ -5096,6 +5097,7 @@ export function KitchenBoard({
       <KitchenPhase5146FruehAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5151: Abend-Anteil-Ticker — Moon indigo; Spitzenreiter #1 Name+%; Team-Avg; Alert <25%; 30-Min-Polling */}
       <KitchenPhase5151AbendAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      <KitchenPhase5156TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5142: Smart-Timing Countdown V42 — Überfällig-Alert-Banner; 7-KPI-Grid inkl. Batch+Überfällig; 3-Tab Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1s-Tick+15s-Polling */}
       <KitchenPhase5142SmartTimingCountdownV42 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
@@ -12994,5 +12996,6 @@ export { KitchenPhase5141SmartTimingCountdownV41 } from './phase5141-smart-timin
 export { KitchenPhase5146FruehAnteilTicker } from './phase5146-frueh-anteil-ticker';
 // Phase 5151 — Abend-Anteil-Ticker (Moon indigo-400; Spitzenreiter #1 Name+%; Team-Avg; Alert <25% indigo; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5151AbendAnteilTicker } from './phase5151-abend-anteil-ticker';
+export { KitchenPhase5156TrinkgeldTicker } from './phase5156-trinkgeld-ticker';
 // Phase 5142 — Smart-Timing Countdown V42 (Timer indigo; Überfällig-Alert-Banner+Fahrer-Alert; 7-KPI-Grid Aktiv/Kritisch/Überfällig/Fahrer↑/Fertig/Batch//h; 3-Tab-Nav Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
