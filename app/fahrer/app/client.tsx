@@ -1323,6 +1323,7 @@ import { FahrerPhase5307MeinSchichtPuenktlichkeitTrend } from './phase5307-mein-
 import { FahrerPhase1956TourStoppCockpitV2 } from './phase1956-tour-stopp-cockpit-v2';
 import { FahrerPhase5311MeineTourenEffizienz } from './phase5311-meine-touren-effizienz';
 import { FahrerPhase5315MeineKilometer } from './phase5315-meine-kilometer';
+import { FahrerPhase5319MeineLieferzeit } from './phase5319-meine-lieferzeit';
 import { FahrerPhase5304TourStoppNavigatorV4 } from './phase5304-tour-stopp-navigator-v4';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
@@ -7760,6 +7761,8 @@ export function FahrerApp({
           <FahrerPhase5311MeineTourenEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5315: Meine Kilometer heute — Route green-400; km 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching relativ zu Team-Ø; Mini-Balken vs Team-Ø; Ampel-Border; 30-Min-Polling */}
           <FahrerPhase5315MeineKilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5319: Meine Lieferzeit — Timer orange-400; avg_min 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching ≤20/≤30/>30 min; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling */}
+          <FahrerPhase5319MeineLieferzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12443,6 +12446,8 @@ export { FahrerPhase1956TourStoppCockpitV2 } from './phase1956-tour-stopp-cockpi
 export { FahrerPhase5311MeineTourenEffizienz } from './phase5311-meine-touren-effizienz';
 // Phase 5315 — Meine Kilometer heute (Route green-400; km 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching relativ zu Team-Ø; Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5315MeineKilometer } from './phase5315-meine-kilometer';
+// Phase 5319 — Meine Lieferzeit (Timer orange-400; avg_min 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching ≤20/≤30/>30 min; Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5319MeineLieferzeit } from './phase5319-meine-lieferzeit';
 // Phase 5142 — Tour-Stops & Navigation Hub V6 (Route blue; Tour-Fortschritts-Balken Fertig/Gesamt; Verdienst-Ziel-Tracker Fortschrittsbalken; 4-KPI-Grid Fertig/Offen/Eingenommen/Trinkgeld-Prognose; Dispatch-Nachricht Banner; 2-Tab Stopp-Liste/Übersicht; Nächster-Stopp-Badge; Trinkgeld-Prognose je Stopp; Prioritäts-Stopp-Highlight Express/Hoch; Zahlungsarten-Auswertung in Übersicht; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 // Phase 5304 — Tour-Stopp-Navigator V4 (Navigation indigo; Schritt-für-Schritt Navi-Hinweise; Warte-Warnung Delay-Risiko hoch/mittel; Tour-Fortschritts-Balken Fertig/Gesamt+Effizienz%; Stopp-Position-Badge+Priority-Zap; Dual-Countdown Küche+Fahrer; Delay-Alert je Stopp; expandierbare Stopp-Karten; Offline-Banner; 20s-Polling; Mock-Fallback)
