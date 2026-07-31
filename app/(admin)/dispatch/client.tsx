@@ -1354,6 +1354,7 @@ import { DispatchPhase5123AbschlussquoteBoard } from './phase5123-abschlussquote
 import { DispatchPhase5128StoppVerweildauerBoard } from './phase5128-stopp-verweildauer-board';
 import { DispatchPhase5128WartezeitRestaurantBoard } from './phase5128-wartezeit-restaurant-board';
 import { DispatchPhase5133StornoRateBoard } from './phase5133-storno-rate-board';
+import { DispatchPhase5133PausenComplianceBoard } from './phase5133-pausen-compliance-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5486,6 +5487,8 @@ export function DispatchBoard({
           <DispatchPhase5128WartezeitRestaurantBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5133: Storno-Rate-Board — XCircle red; AUFSTEIGEND Rang 1=niedrigste Storno-Rate=bester; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert Hoch >10% rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5133StornoRateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5133: Pausen-Compliance-Board — Coffee slate-700; ABSTEIGEND Rang 1=höchste Compliance=bester; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <80% rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5133PausenComplianceBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
@@ -14377,6 +14380,8 @@ export { DispatchPhase5128StoppVerweildauerBoard } from './phase5128-stopp-verwe
 export { DispatchPhase5128WartezeitRestaurantBoard } from './phase5128-wartezeit-restaurant-board';
 // Phase 5133 — Storno-Rate-Board (XCircle red-700; aufsteigend Rang 1=niedrigste Storno-Rate=bester; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert Hoch >10% rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5133StornoRateBoard } from './phase5133-storno-rate-board';
+// Phase 5133 — Pausen-Compliance-Board (Coffee slate-700; absteigend Rang 1=höchste Compliance=bester; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <80% rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5133PausenComplianceBoard } from './phase5133-pausen-compliance-board';
 
 // Phase 5120 — Score + Tour-Visualisierung V21 (Trophy purple; Fleet-Score+Aktiv+Risiko KPI; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Route-Effizienz-Balken; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+km+Betrag; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5120ScoreTourVisualisierungV21 } from './phase5120-score-tour-visualisierung-v21';

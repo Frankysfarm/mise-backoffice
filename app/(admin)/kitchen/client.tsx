@@ -1298,6 +1298,7 @@ import { KitchenPhase5126AbschlussquoteTicker } from './phase5126-abschlussquote
 import { KitchenPhase5131StoppVerweildauerTicker } from './phase5131-stopp-verweildauer-ticker';
 import { KitchenPhase5131WartezeitRestaurantTicker } from './phase5131-wartezeit-restaurant-ticker';
 import { KitchenPhase5136StornoRateTicker } from './phase5136-storno-rate-ticker';
+import { KitchenPhase5136PausenComplianceTicker } from './phase5136-pausen-compliance-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -5074,6 +5075,8 @@ export function KitchenBoard({
       <KitchenPhase5131WartezeitRestaurantTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5136: Storno-Rate-Ticker — XCircle red; Beste #1 Name+%; Team-Avg; Alert-Count rot; 30-Min-Polling */}
       <KitchenPhase5136StornoRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5136: Pausen-Compliance-Ticker — Coffee slate-700; Beste #1 Name+%; Team-Avg; Alert-Count rot; 30-Min-Polling */}
+      <KitchenPhase5136PausenComplianceTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
       <KitchenPhase5036SmartTimingCountdownV33 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5035: Smart-Timing Countdown V32 — Farbkodierung rot<5min/gelb<10min/grün; Batch-Koordination; Prio-Ampel; 15s-Polling */}
@@ -12941,6 +12944,8 @@ export { KitchenPhase5131StoppVerweildauerTicker } from './phase5131-stopp-verwe
 export { KitchenPhase5131WartezeitRestaurantTicker } from './phase5131-wartezeit-restaurant-ticker';
 // Phase 5136 — Storno-Rate-Ticker (XCircle red-700; Beste #1 Name+%; Team-Ø; Alert-Count rot; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5136StornoRateTicker } from './phase5136-storno-rate-ticker';
+// Phase 5136 — Pausen-Compliance-Ticker (Coffee slate-700; Beste #1 Name+%; Team-Ø; Alert-Count rot; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5136PausenComplianceTicker } from './phase5136-pausen-compliance-ticker';
 
 // Phase 5075 — Smart Timing Delivery Hub (ChefHat indigo; Countdown je Bestellung farbkodiert 4-stufig; Fortschrittsbalken; Fahrer-Sync-Hinweis; KPI-Grid Aktiv/Kritisch/Fertig; Score-Badge; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5075SmartTimingDeliveryHub } from './phase5075-smart-timing-delivery-hub';
