@@ -12265,3 +12265,6 @@ export { FahrerPhase5120TourStoppNavigatorPro } from './phase5120-tour-stopp-nav
 export { FahrerPhase5137TourStopsNavigationHubV3 } from './phase5137-tour-stops-navigation-hub-v3';
 // Phase 5137 — Meine Kundenbewertung (Star amber-700; avg_rating 4xl+Rang 2xl farbkodiert; Stars-Row; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø+Delta; Coaching ≥4.5/≥4.0/<4.0; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5137MeineKundenbewertung } from './phase5137-meine-kundenbewertung';
+
+// Phase 5140 — Tour-Stops & Navigation Hub V4 (Route blue; Navi-Wahl Google/Waze; 4-KPI-Grid Eingenommen/Trinkgeld/Restzeit/Offen; Fortschrittsbalken; Aktiv-Stopp Hero Nav-CTA+Anruf+Prio-Badge+Notiz-Warnung+Zahlungsart+ETA; Ausstehende Stopps aufklappbar Adresse+ETA+km+Betrag+Nav+Anruf; Fertige Stopps Chips; 15-Sek-Polling; Mock-Fallback)
+export { FahrerPhase5140TourStopsNavigationHubV4 } from './phase5140-tour-stops-navigation-hub-v4';

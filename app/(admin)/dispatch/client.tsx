@@ -14395,3 +14395,6 @@ export { DispatchPhase5120ScoreTourVisualisierungV21 } from './phase5120-score-t
 export { DispatchPhase5137ScoreTourVisualisierungV22 } from './phase5137-score-tour-visualisierung-v22';
 // Phase 5137 — Kundenbewertungs-Board (Star amber-500; absteigend Rang 1=höchste Bewertung=bester; KPI-Grid Höchste/Team-Ø/Niedrigste; Alert <4.0★ rot; Balken farbkodiert grün/gelb/rot; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5137KundenbewertungBoard } from './phase5137-kundenbewertung-board';
+
+// Phase 5140 — Score + Tour-Visualisierung V23 (Trophy violet; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/€; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Route-Effizienz-Balken; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+km+Betrag+Nav-CTA; Zone-Tag; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5140ScoreTourVisualisierungV23 } from './phase5140-score-tour-visualisierung-v23';
