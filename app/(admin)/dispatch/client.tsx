@@ -1352,6 +1352,7 @@ import { DispatchPhase5113ErreichbarkeitsIndexBoard } from './phase5113-erreichb
 import { DispatchPhase5118DistanzJeSchichtBoard } from './phase5118-distanz-je-schicht-board';
 import { DispatchPhase5123AbschlussquoteBoard } from './phase5123-abschlussquote-board';
 import { DispatchPhase5128StoppVerweildauerBoard } from './phase5128-stopp-verweildauer-board';
+import { DispatchPhase5128WartezeitRestaurantBoard } from './phase5128-wartezeit-restaurant-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5480,6 +5481,8 @@ export function DispatchBoard({
           <DispatchPhase5123AbschlussquoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5128: Stopp-Verweildauer-Board — Timer orange; AUFSTEIGEND Rang 1=effizienteste; KPI-Grid; Alert >8min; Balken; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5128StoppVerweildauerBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5128: Wartezeit-Restaurant-Board — Clock orange; AUFSTEIGEND Rang 1=niedrigste Wartezeit=bester; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert Lang >10min; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5128WartezeitRestaurantBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
@@ -14367,6 +14370,8 @@ export { DispatchPhase5118DistanzJeSchichtBoard } from './phase5118-distanz-je-s
 export { DispatchPhase5123AbschlussquoteBoard } from './phase5123-abschlussquote-board';
 // Phase 5128 — Stopp-Verweildauer-Board (Timer orange-700; AUFSTEIGEND Rang 1=effizienteste; KPI-Grid Kürzeste/Team-Ø/Längste; Alert >8min; Balken farbkodiert; DeltaIcon; 30-Min-Polling)
 export { DispatchPhase5128StoppVerweildauerBoard } from './phase5128-stopp-verweildauer-board';
+// Phase 5128 — Wartezeit-Restaurant-Board (Clock orange-700; aufsteigend Rang 1=niedrigste Wartezeit=bester; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert Lang >10min; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5128WartezeitRestaurantBoard } from './phase5128-wartezeit-restaurant-board';
 
 // Phase 5120 — Score + Tour-Visualisierung V21 (Trophy purple; Fleet-Score+Aktiv+Risiko KPI; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Route-Effizienz-Balken; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+km+Betrag; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5120ScoreTourVisualisierungV21 } from './phase5120-score-tour-visualisierung-v21';
