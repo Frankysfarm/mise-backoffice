@@ -1273,6 +1273,8 @@ import { FahrerPhase5129MeineStoppVerweildauer } from './phase5129-meine-stopp-v
 import { FahrerPhase5129MeineWartezeitRestaurant } from './phase5129-meine-wartezeit-restaurant';
 import { FahrerPhase5134MeineStornoRate } from './phase5134-meine-storno-rate';
 import { FahrerPhase5134MeinePausenCompliance } from './phase5134-meine-pausen-compliance';
+import { FahrerPhase5137TourStopsNavigationHubV3 } from './phase5137-tour-stops-navigation-hub-v3';
+import { FahrerPhase5137MeineKundenbewertung } from './phase5137-meine-kundenbewertung';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7640,6 +7642,10 @@ export function FahrerApp({
           <FahrerPhase5134MeineStornoRate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5134: Meine Pausen-Compliance — Coffee slate-700; compliance_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥90%/≥75%/<75%; 30-Min-Polling */}
           <FahrerPhase5134MeinePausenCompliance driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5137: Tour-Stops & Navigation Hub V3 — Hero-Aktiv-Stopp; 4-KPI-Grid; Fortschrittsbalken; isOnline-Guard; 20-Sek-Polling */}
+          <FahrerPhase5137TourStopsNavigationHubV3 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5137: Meine Kundenbewertung — Stars-Row; Mini-Bar Ich vs Team-Ø; Coaching ≥4.5/≥4.0/<4.0; 30-Min-Polling */}
+          <FahrerPhase5137MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
           <FahrerPhase5036TourStoppSmartNavV15 driverId={driver.id} />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}

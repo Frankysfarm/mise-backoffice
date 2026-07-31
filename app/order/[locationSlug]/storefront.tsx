@@ -485,6 +485,7 @@ import { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-e
 import { StorefrontPhase5110DynamischeEtaLiveHubV4 } from './phase5110-dynamische-eta-live-hub-v4';
 import { StorefrontPhase5111DynamischeEtaLiveHubV5 } from './phase5111-dynamische-eta-live-hub-v5';
 import { StorefrontPhase5120LiveTrackingHubV6 } from './phase5120-live-tracking-hub-v6';
+import { StorefrontPhase5137LiveTrackingHubV7 } from './phase5137-live-tracking-hub-v7';
 import { Phase4475DynamischeEtaLiveTrackingV6 } from './phase4475-dynamische-eta-live-tracking-v6';
 import { Phase4500DynamischeEtaLiveHub } from './phase4500-dynamische-eta-live-hub';
 import { Phase5036DynamischeEtaLiveHubV2 } from './phase5036-dynamische-eta-live-hub-v2';
@@ -3407,6 +3408,13 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
         <StorefrontPhase5120LiveTrackingHubV6
           orderId={order.orderId}
           bestellnummer={order.bestellnummer ?? null}
+        />
+      )}
+      {/* Phase 5137: Live-Tracking Hub V7 — Phasen-Timeline; ETA-Ring; Fahrer-Info; Status-Nachricht; 30-Sek-Polling */}
+      {order.isDelivery && (
+        <StorefrontPhase5137LiveTrackingHubV7
+          orderId={order.orderId ?? null}
+          locationSlug={locationId}
         />
       )}
       {/* Phase 985: Live-ETA-Tracking-Banner — Farbcodierter Phasen-Fortschritt + Sekunden-Countdown + Live-Tracking-Dot */}

@@ -1355,6 +1355,8 @@ import { DispatchPhase5128StoppVerweildauerBoard } from './phase5128-stopp-verwe
 import { DispatchPhase5128WartezeitRestaurantBoard } from './phase5128-wartezeit-restaurant-board';
 import { DispatchPhase5133StornoRateBoard } from './phase5133-storno-rate-board';
 import { DispatchPhase5133PausenComplianceBoard } from './phase5133-pausen-compliance-board';
+import { DispatchPhase5137ScoreTourVisualisierungV22 } from './phase5137-score-tour-visualisierung-v22';
+import { DispatchPhase5137KundenbewertungBoard } from './phase5137-kundenbewertung-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5489,6 +5491,10 @@ export function DispatchBoard({
           <DispatchPhase5133StornoRateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5133: Pausen-Compliance-Board — Coffee slate-700; ABSTEIGEND Rang 1=höchste Compliance=bester; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert <80% rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5133PausenComplianceBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5137: Score+Tour Visualisierung V22 — 5-KPI-Grid Fleet-Score/Route-Eff/Umsatz; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
+          <DispatchPhase5137ScoreTourVisualisierungV22 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5137: Kundenbewertungs-Board — absteigend; KPI-Grid; Balken farbkodiert; Alert <4.0★ */}
+          <DispatchPhase5137KundenbewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
