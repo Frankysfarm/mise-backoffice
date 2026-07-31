@@ -37369,3 +37369,22 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5228: Fahrer `FahrerPhase5228MeineTourenProSchicht` — Layers indigo-400; Coaching ≥4/Schicht/≥2.5/Schicht/<2.5/Schicht
 - Phase 5229: Storefront — skip
 - Phase 5230: Kitchen `KitchenPhase5230TourenProSchichtTicker` — Layers indigo-400
+
+---
+
+## Batch 18 — Touren-pro-Schicht-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5227 / 5228 / (5229 Storefront skip) / 5230
+
+### Implementiert:
+- **phase5227** `DispatchPhase5227TourenProSchichtBoard` — Layers indigo-400; KPI-Grid Meiste/Team-Ø/Wenigste; Balken via touren_pro_schicht; DeltaIcons; Wenig-Alert; Ziel-Linie im Footer; Reuse `fahrer-touren-pro-schicht-ranking`; ABSTEIGEND
+- **phase5228** `FahrerPhase5228MeineTourenProSchicht` — isOnline-Guard; WifiOff-Fallback; Coaching ≥4/Schicht/≥2.5/Schicht/<2.5/Schicht mit Ziel-Referenz; Mini-Balken; Ampel-Border
+- **phase5230** `KitchenPhase5230TourenProSchichtTicker` — Layers indigo-400; Meiste Rang+/Schicht; Team-Ø+Ziel; Wenig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5231!**
+
+**Vorschlag Batch 19:** Fahrer-Abschlussquote-Ranking (% Touren vollständig abgeschlossen vs. abgebrochen, letzte 30 Tage — ABSTEIGEND, höchste = bester)
+- Phase 5231: Dispatch `DispatchPhase5231AbschlussquoteBoard` — CheckCircle emerald-400
+- Phase 5232: Fahrer `FahrerPhase5232MeineAbschlussquote` — CheckCircle emerald-400; Coaching ≥98%/≥95%/<95%
+- Phase 5233: Storefront — skip
+- Phase 5234: Kitchen `KitchenPhase5234AbschlussquoteTicker` — CheckCircle emerald-400
