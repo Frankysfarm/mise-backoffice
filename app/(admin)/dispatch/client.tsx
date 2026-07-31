@@ -1397,6 +1397,8 @@ import { DispatchPhase5287AbwesenheitBoard } from './phase5287-abwesenheit-board
 import { DispatchPhase5291WochenendBonusBoard } from './phase5291-wochenend-bonus-board';
 import { DispatchPhase5292TourScoreVisualisierungV27 } from './phase5292-tour-score-visualisierung-v27';
 import { DispatchPhase5295SchichtDichteBoard } from './phase5295-schicht-dichte-board';
+import { DispatchPhase5296SchichtDichteBoard } from './phase5296-schicht-dichte-board';
+import { DispatchPhase5300TourScoreVisualisierungV28 } from './phase5300-tour-score-visualisierung-v28';
 import { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 import { DispatchPhase5163ScoreTourVisualisierungV26 } from './phase5163-score-tour-visualisierung-v26';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
@@ -5583,6 +5585,10 @@ export function DispatchBoard({
           <DispatchPhase5292TourScoreVisualisierungV27 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5295: Schicht-Dichte-Ranking — Calendar blue-400; Fleißigste/Team-Ø/Wenigste; Balken farbkodiert; DeltaIcons; Wenig-Alert <3/Woche; ABSTEIGEND; 30-Min-Polling */}
           <DispatchPhase5295SchichtDichteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5296: Schicht-Dichte-Board — CalendarDays blue; Häufigste/Team-Ø/Seltenste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5296SchichtDichteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5300: Tour-Score-Visualisierung V28 — Route indigo; Score-Balken grün/gelb/rot; Stopp-Progress-Chips; Distanz-km; Pünktlichkeits-Badge; ETA; Trend-Icons; 4-KPI-Header inkl. km; 20-Sek-Polling */}
+          <DispatchPhase5300TourScoreVisualisierungV28 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5142: Score+Tour Visualisierung V25 — 7-KPI-Grid inkl. €/Stopp; 3-Tab Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln; Profit/Stopp je Fahrer; 20-Sek-Polling */}
           <DispatchPhase5142ScoreTourVisualisierungV25 />
           {/* Phase 5163: Score+Tour Visualisierung V26 — 8-KPI-Grid inkl. Zonen-Count; 3-Tab Rangliste/Fleet/Zonen-Profit; Tier-Fortschrittsbalken; Route-Abweichungs-Alert; Zonen-Profitabilitäts-Index; 20-Sek-Polling */}
@@ -14534,6 +14540,10 @@ export { DispatchPhase5291WochenendBonusBoard } from './phase5291-wochenend-bonu
 export { DispatchPhase5292TourScoreVisualisierungV27 } from './phase5292-tour-score-visualisierung-v27';
 // Phase 5295 — Schicht-Dichte-Ranking (Calendar blue; Fleißigste/Team-Ø/Wenigste; Balken farbkodiert; DeltaIcons; Wenig-Alert; ABSTEIGEND; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5295SchichtDichteBoard } from './phase5295-schicht-dichte-board';
+// Phase 5296 — Schicht-Dichte-Board (CalendarDays blue-400; KPI-Grid Häufigste/Team-Ø/Seltenste; Balken via schichten_pro_woche; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5296SchichtDichteBoard } from './phase5296-schicht-dichte-board';
+// Phase 5300 — Tour-Score-Visualisierung V28 (Route indigo; Score-Balken farbkodiert; Stopp-Progress-Chips; Distanz-km; Pünktlichkeits-Badge; ETA; Trend-Icons; 4-KPI-Header; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5300TourScoreVisualisierungV28 } from './phase5300-tour-score-visualisierung-v28';
 // Phase 5142 — Score + Tour-Visualisierung V25 (Trophy violet; 7-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€Stopp/€gesamt; 3-Tab-Nav Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln mit SLA+Fahrer+Umsatz; Profit-per-Stopp je Fahrer; Fertig/Gesamt-Stopps-Anzeige; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 // Phase 5163 — Score + Tour-Visualisierung V26 (Trophy purple; 8-KPI-Grid inkl. Zonen-Count; 3-Tab-Nav Rangliste/Fleet/Zonen-Profit; Tier-Fortschrittsbalken; Route-Abweichungs-Alert; Zonen-Profitabilitäts-Index; 20-Sek-Polling; Mock-Fallback)

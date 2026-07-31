@@ -487,6 +487,7 @@ import { StorefrontPhase5111DynamischeEtaLiveHubV5 } from './phase5111-dynamisch
 import { StorefrontPhase5120LiveTrackingHubV6 } from './phase5120-live-tracking-hub-v6';
 import { StorefrontPhase5137LiveTrackingHubV7 } from './phase5137-live-tracking-hub-v7';
 import { Phase5164DynamischeEtaLiveTrackingV9 } from './phase5164-dynamische-eta-live-tracking-v9';
+import { Phase5165DynamischeEtaLiveTrackingV10 } from './phase5165-dynamische-eta-live-tracking-v10';
 import { Phase4475DynamischeEtaLiveTrackingV6 } from './phase4475-dynamische-eta-live-tracking-v6';
 import { Phase4500DynamischeEtaLiveHub } from './phase4500-dynamische-eta-live-hub';
 import { Phase5036DynamischeEtaLiveHubV2 } from './phase5036-dynamische-eta-live-hub-v2';
@@ -3424,6 +3425,12 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           bestellnummer={order.bestellnummer ?? null}
         />
       )}
+      {/* Phase 5165: Dynamische ETA Live-Tracking V10 — ETA-Countdown-Hero+Sekundentick; Distanz-Fortschrittsbalken Puls-Dot; Geschwindigkeits-Badge; Fahrer-Alert Verspätung; Phasen-Timeline 5-stufig; Fast-da-Alert; Geliefert-Celebration+Sternbewertung; 20s-Polling; Mock-Fallback */}
+      {order.isDelivery && (
+        <Phase5165DynamischeEtaLiveTrackingV10
+          bestellnummer={order.bestellnummer ?? null}
+        />
+      )}
       {/* Phase 985: Live-ETA-Tracking-Banner — Farbcodierter Phasen-Fortschritt + Sekunden-Countdown + Live-Tracking-Dot */}
       {order.isDelivery && (
         <Phase985LiveEtaTrackingBanner
@@ -4112,3 +4119,5 @@ export { StorefrontPhase5111DynamischeEtaLiveHubV5 } from './phase5111-dynamisch
 export { StorefrontPhase5120LiveTrackingHubV6 } from './phase5120-live-tracking-hub-v6';
 // Phase 5164 — Dynamische ETA Live-Tracking V9 (ETA-Countdown-Hero; Fahrer-Annäherungs-Balken+Puls-Dot; Phasen-Timeline 5-stufig animiert; Fast-da-Alert; Geliefert-Celebration+Sternbewertung; 20-Sek-Polling; Mock-Fallback)
 export { Phase5164DynamischeEtaLiveTrackingV9 } from './phase5164-dynamische-eta-live-tracking-v9';
+// Phase 5165 — Dynamische ETA Live-Tracking V10 (Navigation2 matcha; ETA-Countdown-Hero Sekundentick; Distanz-Fortschrittsbalken+Puls-Dot; Geschwindigkeits-Gauge-Badge; Fahrer-Alert Verspätung; Phasen-Timeline 5-stufig; Fast-da-Pulse; Geliefert-Celebration+Sternbewertung; 20-Sek-Polling; Mock-Fallback)
+export { Phase5165DynamischeEtaLiveTrackingV10 } from './phase5165-dynamische-eta-live-tracking-v10';
