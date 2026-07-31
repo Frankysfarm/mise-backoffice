@@ -1326,6 +1326,7 @@ import { FahrerPhase5315MeineKilometer } from './phase5315-meine-kilometer';
 import { FahrerPhase5319MeineLieferzeit } from './phase5319-meine-lieferzeit';
 import { FahrerPhase5327MeineRueckkehrzeit } from './phase5327-meine-rueckkehrzeit';
 import { FahrerPhase5331MeineStoppQuote } from './phase5331-meine-stoppquote';
+import { FahrerPhase5335MeineBewertung } from './phase5335-meine-bewertung';
 import { FahrerPhase5304TourStoppNavigatorV4 } from './phase5304-tour-stopp-navigator-v4';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
@@ -7769,6 +7770,8 @@ export function FahrerApp({
           <FahrerPhase5327MeineRueckkehrzeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5331: Meine Stoppquote — CheckCircle emerald-400; quote_pct 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≥97/≥90/<90%; isOnline-Guard */}
           <FahrerPhase5331MeineStoppQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5335: Meine Bewertung — Star yellow-400; avg_rating 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≥4.7/≥4.0/<4.0; isOnline-Guard */}
+          <FahrerPhase5335MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12458,6 +12461,8 @@ export { FahrerPhase5319MeineLieferzeit } from './phase5319-meine-lieferzeit';
 export { FahrerPhase5327MeineRueckkehrzeit } from './phase5327-meine-rueckkehrzeit';
 // Phase 5331 — Meine Stoppquote (CheckCircle emerald-400; quote_pct 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≥97/≥90/<90%; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
 export { FahrerPhase5331MeineStoppQuote } from './phase5331-meine-stoppquote';
+// Phase 5335 — Meine Bewertung (Star yellow-400; avg_rating 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≥4.7/≥4.0/<4.0; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
+export { FahrerPhase5335MeineBewertung } from './phase5335-meine-bewertung';
 // Phase 5142 — Tour-Stops & Navigation Hub V6 (Route blue; Tour-Fortschritts-Balken Fertig/Gesamt; Verdienst-Ziel-Tracker Fortschrittsbalken; 4-KPI-Grid Fertig/Offen/Eingenommen/Trinkgeld-Prognose; Dispatch-Nachricht Banner; 2-Tab Stopp-Liste/Übersicht; Nächster-Stopp-Badge; Trinkgeld-Prognose je Stopp; Prioritäts-Stopp-Highlight Express/Hoch; Zahlungsarten-Auswertung in Übersicht; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 // Phase 5304 — Tour-Stopp-Navigator V4 (Navigation indigo; Schritt-für-Schritt Navi-Hinweise; Warte-Warnung Delay-Risiko hoch/mittel; Tour-Fortschritts-Balken Fertig/Gesamt+Effizienz%; Stopp-Position-Badge+Priority-Zap; Dual-Countdown Küche+Fahrer; Delay-Alert je Stopp; expandierbare Stopp-Karten; Offline-Banner; 20s-Polling; Mock-Fallback)

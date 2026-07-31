@@ -1352,6 +1352,7 @@ import { KitchenPhase5310SmartTimingCountdownV46 } from './phase5310-smart-timin
 import { KitchenPhase5325SmartTimingCountdownV47 } from './phase5325-smart-timing-countdown-v47';
 import { KitchenPhase5329RueckkehrzeitTicker } from './phase5329-rueckkehrzeit-ticker';
 import { KitchenPhase5333StoppQuoteTicker } from './phase5333-stoppquote-ticker';
+import { KitchenPhase5337BewertungsTicker } from './phase5337-bewertungs-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5200,6 +5201,8 @@ export function KitchenBoard({
       <KitchenPhase5329RueckkehrzeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5333: Stoppquoten-Ticker — CheckCircle emerald-400; Beste/r Rang+%; Team-Ø; Niedrig-Alert; 30-Min-Poll */}
       <KitchenPhase5333StoppQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5337: Bewertungs-Ticker — Star yellow-400; Beste/r Rang+★; Team-Ø; Niedrig-Alert; 30-Min-Poll */}
+      <KitchenPhase5337BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5310: Smart-Timing Countdown V46 — KI-Kochstart-Empfehlung; Peak-Stationen-Alert; Effizienz-Wachstums-Balken; 7-KPI-Grid Score/Aktiv/Kritisch/Fertig/Velocity/Effizienz/KI-Tips; 1s-Tick+15s-Polling */}
       <KitchenPhase5310SmartTimingCountdownV46 />
       {/* Phase 5325: Smart-Timing Countdown V47 — Kochzeit-Präzisions-Score; Stationstemperatur-Ampel kalt/warm/heiß/überhitzt; Batch-Abschluss-Forecast; 8-KPI-Grid; Farbkodierung 6-stufig; Δ-Präzision je Order; 1s-Tick+15s-Polling */}
@@ -13171,3 +13174,5 @@ export { KitchenPhase5325SmartTimingCountdownV47 } from './phase5325-smart-timin
 export { KitchenPhase5329RueckkehrzeitTicker } from './phase5329-rueckkehrzeit-ticker';
 // Phase 5333 — Stoppquoten-Ticker (CheckCircle emerald-400; Beste/r Rang+%; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback)
 export { KitchenPhase5333StoppQuoteTicker } from './phase5333-stoppquote-ticker';
+// Phase 5337 — Bewertungs-Ticker (Star yellow-400; Beste/r Rang+★; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback)
+export { KitchenPhase5337BewertungsTicker } from './phase5337-bewertungs-ticker';

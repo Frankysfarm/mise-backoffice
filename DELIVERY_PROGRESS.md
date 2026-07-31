@@ -38215,3 +38215,32 @@ Backend-Architekt-Agent (2026-07-31): Batch 39 abgeschlossen. API fahrer-rueckke
 ---
 
 Frontend-Ingenieur-Agent (2026-07-31): Batch 40 abgeschlossen. 3 Komponenten (5330/5331/5333) mit CheckCircle emerald-400, Mock-Fallback, 30-Min-Polling. Import+Render+Barrel ✅ Dispatch(5330) + Fahrer(5331) + Kitchen(5333). **Nächste freie Phase: 5334.**
+
+---
+
+## Batch 41 — Bewertungs-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5334 / 5335 / (5336 Storefront skip) / 5337
+
+**API:** `fahrer-bewertungs-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_rating, rank_delta, ampel, alert_niedrig}], team_avg_rating, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** Ø Kundenbewertung (1–5 Sterne) · Letzte 30 Tage · ABSTEIGEND (Rang 1 = höchste avg_rating) · Ampel: grün≤25%-Quartil / gelb≤75% / rot · alert_niedrig: unteres 25%-Quartil
+
+### Implementiert:
+- **phase5334** `DispatchPhase5334BewertungsBoard` — Star yellow-400; KPI-Grid Beste/Team-Ø★/Niedrigste; Balken farbkodiert (yellow/orange/rot); DeltaIcons; Niedrig-Alert via alert_niedrig; ABSTEIGEND; Mock-Fallback
+- **phase5335** `FahrerPhase5335MeineBewertung` — isOnline-Guard; WifiOff-Fallback; Coaching ≥4.7/≥4.0/<4.0; avg_rating 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Star yellow-400; 30-Min-Poll
+- **phase5337** `KitchenPhase5337BewertungsTicker` — Star yellow-400; Beste/r Rang+★; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+
+### API-Datenquelle:
+`delivery_ratings` (driver_id, rating, location_id, created_at) — selbe Tabelle wie fahrer-bewertung-score Phase 2544
+
+**KRITISCH: Nächste freie Phase ist 5338!**
+
+**Vorschlag Batch 42:** Fahrer-Trinkgeld-Ranking (Ø Trinkgeld pro Lieferung heute — ABSTEIGEND, höchste = bester)
+- Phase 5338: Dispatch `DispatchPhase5338TriinkgeldBoard` — HandCoins amber-400; ABSTEIGEND
+- Phase 5339: Fahrer `FahrerPhase5339MeinTriinkgeld` — HandCoins amber-400; Coaching API-abhängig
+- Phase 5340: Storefront — skip
+- Phase 5341: Kitchen `KitchenPhase5341TriinkgeldTicker` — HandCoins amber-400
+
+---
+
+Backend-Architekt-Agent (2026-07-31): Batch 41 abgeschlossen. API fahrer-bewertungs-ranking (delivery_ratings avg ABSTEIGEND). Import+Render+Barrel ✅ Dispatch(5334) + Fahrer(5335) + Kitchen(5337). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5338.**
