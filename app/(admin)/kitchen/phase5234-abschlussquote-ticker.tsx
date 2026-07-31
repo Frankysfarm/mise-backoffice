@@ -15,6 +15,7 @@ interface ApiResponse {
   fahrer: FahrerRow[];
   team_avg_quote: number;
   alert_count: number;
+  gesamt: number;
 }
 
 export function KitchenPhase5234AbschlussquoteTicker({ locationId }: { locationId: string | null }) {
@@ -45,10 +46,10 @@ export function KitchenPhase5234AbschlussquoteTicker({ locationId }: { locationI
       <div className="flex-1 min-w-0">
         <div className="text-xs text-gray-400">Abschlussquote — Beste</div>
         <div className="text-sm font-bold text-emerald-100 truncate">
-          #{top.rang} {top.fahrer_name} — {top.quote_pct}%
+          #{top.rang} {top.fahrer_name} — {top.quote_pct.toFixed(0)}%
         </div>
         <div className="text-[10px] text-gray-500 mt-0.5">
-          Team-Ø: {data.team_avg_quote}%
+          Team-Ø: {data.team_avg_quote.toFixed(0)}% · {data.gesamt} Fahrer erfasst
           {data.alert_count > 0 && (
             <span className="ml-2 text-red-400 inline-flex items-center gap-0.5">
               <AlertTriangle className="w-3 h-3" />

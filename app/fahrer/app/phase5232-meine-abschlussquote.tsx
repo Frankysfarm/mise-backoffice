@@ -82,7 +82,7 @@ export function FahrerPhase5232MeineAbschlussquote({
   const mein = data.fahrer.find((f: FahrerRow) => f.fahrer_id === driverId) ?? data.fahrer[0];
   if (!mein) return null;
 
-  const tipp    = coachingTipp(mein.quote_pct);
+  const tipp = coachingTipp(mein.quote_pct);
   const teamAvg = data.team_avg_quote;
 
   return (
@@ -102,7 +102,7 @@ export function FahrerPhase5232MeineAbschlussquote({
 
       <div className="px-4 py-4 text-center">
         <div className={`text-4xl font-black tabular-nums ${ampelColor(mein.ampel)}`}>
-          {mein.quote_pct}<span className="text-xl font-semibold">%</span>
+          {mein.quote_pct.toFixed(0)}<span className="text-xl font-semibold">%</span>
         </div>
         <div className={`text-2xl font-bold mt-1 ${ampelColor(mein.ampel)}`}>
           Rang #{mein.rang} <span className="text-sm text-gray-500">von {data.gesamt}</span>
@@ -127,8 +127,8 @@ export function FahrerPhase5232MeineAbschlussquote({
           />
         </div>
         <div className="flex items-center justify-between text-[10px] mt-0.5 text-gray-500">
-          <span>{mein.quote_pct}%</span>
-          <span>{teamAvg}%</span>
+          <span>{mein.quote_pct.toFixed(0)}%</span>
+          <span>{teamAvg.toFixed(0)}%</span>
         </div>
       </div>
 

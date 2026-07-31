@@ -70,7 +70,7 @@ export function DispatchPhase5231AbschlussquoteBoard({ locationId }: { locationI
         </div>
         <div className="rounded-lg bg-gray-800/50 px-3 py-2 text-center">
           <div className="text-[10px] text-gray-500">Team-Ø</div>
-          <div className="text-xs font-bold text-gray-200">{data.team_avg_quote}%</div>
+          <div className="text-xs font-bold text-gray-200">{data.team_avg_quote.toFixed(0)}%</div>
         </div>
         <div className="rounded-lg bg-gray-800/50 px-3 py-2 text-center">
           <div className="text-[10px] text-gray-500 truncate">Niedrigste</div>
@@ -93,7 +93,7 @@ export function DispatchPhase5231AbschlussquoteBoard({ locationId }: { locationI
               />
             </div>
             <span className="text-xs text-gray-400 w-10 text-right tabular-nums">
-              {f.quote_pct}%
+              {f.quote_pct.toFixed(0)}%
             </span>
             <DeltaIcon delta={f.rank_delta} />
             {f.alert_niedrig && <AlertTriangle className="w-3 h-3 text-red-400 shrink-0" />}
@@ -103,7 +103,7 @@ export function DispatchPhase5231AbschlussquoteBoard({ locationId }: { locationI
 
       {data.beste_name && (
         <div className="mt-3 text-[10px] text-emerald-400 border-t border-emerald-800/40 pt-2">
-          Beste: {data.beste_name} — {data.fahrer[0]?.quote_pct}% Abschlussquote
+          Beste: {data.beste_name} — {data.fahrer[0]?.quote_pct.toFixed(0)}% Abschlussquote
         </div>
       )}
     </div>
