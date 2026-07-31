@@ -37348,3 +37348,24 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5224: Fahrer `FahrerPhase5224MeineTourenProTag` — BarChart2 cyan-400; Coaching ≥3/Tag/≥2/Tag/<2/Tag
 - Phase 5225: Storefront — skip
 - Phase 5226: Kitchen `KitchenPhase5226TourenProTagTicker` — BarChart2 cyan-400
+
+---
+
+## Batch 17 — Touren-pro-Tag-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5223 / 5224 / (5225 Storefront skip) / 5226
+
+**HINWEIS:** API `fahrer-touren-pro-tag-ranking` hat abweichendes Schema: `ranking` statt `fahrer`, `name` statt `fahrer_name`, `driver_id` statt `fahrer_id`, `alert` als string|null statt bool, `balken_pct` vorberechnet.
+
+### Implementiert:
+- **phase5223** `DispatchPhase5223TourenProTagBoard` — BarChart2 cyan-400; KPI-Grid Meiste/Team-Ø/Wenigste; Balken via balken_pct; DeltaIcons; Alert-Check; Reuse `fahrer-touren-pro-tag-ranking`; ABSTEIGEND
+- **phase5224** `FahrerPhase5224MeineTourenProTag` — isOnline-Guard; WifiOff-Fallback; Coaching ≥3/Tag/≥2/Tag/<2/Tag; Mini-Balken; Ampel-Border; driver_id lookup
+- **phase5226** `KitchenPhase5226TourenProTagTicker` — BarChart2 cyan-400; Meiste Rang+/Tag; Team-Ø; Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5227!**
+
+**Vorschlag Batch 18:** Fahrer-Touren-pro-Schicht-Ranking (Ø Touren je Schicht — ABSTEIGEND)
+- Phase 5227: Dispatch `DispatchPhase5227TourenProSchichtBoard` — Layers indigo-400
+- Phase 5228: Fahrer `FahrerPhase5228MeineTourenProSchicht` — Layers indigo-400; Coaching ≥4/Schicht/≥2.5/Schicht/<2.5/Schicht
+- Phase 5229: Storefront — skip
+- Phase 5230: Kitchen `KitchenPhase5230TourenProSchichtTicker` — Layers indigo-400
