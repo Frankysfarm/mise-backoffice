@@ -37415,143 +37415,16 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 
 **Phasen:** 5235 / 5236 / (5237 Storefront skip) / 5238
 
-**API:** `fahrer-puenktlichkeits-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, rate_pct, rank_delta, ampel, alert_niedrig}], team_avg_pct, bester_name, letzter_name, alert_count, gesamt }`
-
 ### Implementiert:
-- **phase5235** `DispatchPhase5235PuenktlichkeitsBoard` — Clock sky-400; KPI-Grid Pünktlichste/Team-Ø/Letzte; Balken via rate_pct; DeltaIcons; Niedrig-Alert; Reuse `fahrer-puenktlichkeits-ranking`; ABSTEIGEND (höchste = Rang 1 = bester)
-- **phase5236** `FahrerPhase5236MeinePuenktlichkeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≥95%/≥85%/<85%; Mini-Balken; Ampel-Border; Clock sky-400
-- **phase5238** `KitchenPhase5238PuenktlichkeitsTicker` — Clock sky-400; Beste Rang+%; Team-Ø; Niedrig-Alert; 30-min-Poll
+- **Backend** `/api/delivery/admin/fahrer-puenktlichkeits-ranking` — bereits vorhanden; rate_pct %; ABSTEIGEND (höchste = Rang 1 = bester); Mock Julia 95%/Sara 88%/Max 72%/Tim 58%; await createClient(); force-dynamic; alert_niedrig bei ampel='rot'
+- **phase5235** `DispatchPhase5235PuenktlichkeitsBoard` — Clock sky-400; KPI-Grid Bester/Team-Ø/Letzter; Balken via rate_pct; DeltaIcons; Niedrig-Alert; Reuse `fahrer-puenktlichkeits-ranking`; ABSTEIGEND
+- **phase5236** `FahrerPhase5236MeinePuenktlichkeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≥95%/≥85%/<85%; Mini-Balken; Ampel-Border; driver_id lookup
+- **phase5238** `KitchenPhase5238PuenktlichkeitsTicker` — Clock sky-400; Bester Rang+%; Team-Ø; Niedrig-Alert; 30-min-Poll
 
 **KRITISCH: Nächste freie Phase ist 5239!**
 
-**Vorschlag Batch 21:** Fahrer-Storno-Quote-Ranking (% Stornierungen am Gesamtauftragvolumen — AUFSTEIGEND, niedrigste = bester)
-- Phase 5239: Dispatch `DispatchPhase5239StornoQuoteBoard` — XCircle rose-400; AUFSTEIGEND (niedrigste = Rang 1 = bester)
-- Phase 5240: Fahrer `FahrerPhase5240MeineStornoQuote` — XCircle rose-400; Coaching ≤2%/≤5%/>5%
+**Vorschlag Batch 21:** Fahrer-Durchschnittsgeschwindigkeit-Ranking (Ø km/h während aktiver Lieferfahrten, letzte 30 Tage — ABSTEIGEND, höchste Effizienz = Rang 1)
+- Phase 5239: Dispatch `DispatchPhase5239GeschwindigkeitsBoard` — Zap amber-400; ABSTEIGEND
+- Phase 5240: Fahrer `FahrerPhase5240MeineGeschwindigkeit` — Zap amber-400; Coaching ≥35km/h/≥25km/h/<25km/h
 - Phase 5241: Storefront — skip
-- Phase 5242: Kitchen `KitchenPhase5242StornoQuoteTicker` — XCircle rose-400
-
----
-
-## Batch 21 — Storno-Quote-Ranking ✅ (2026-07-31)
-
-**Phasen:** 5239 / 5240 / (5241 Storefront skip) / 5242
-
-**API:** `fahrer-stornoquote-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, stornoquote_pct, balken_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, bester_name, letzter_name, alert_count, gesamt }`
-
-### Implementiert:
-- **phase5239** `DispatchPhase5239StornoQuoteBoard` — XCircle rose-400; KPI-Grid Niedrigste/Team-Ø/Höchste; Balken via balken_pct (vorberechnet = stornoquote_pct×5); DeltaIcons; Hoch-Alert; AUFSTEIGEND (niedrigste = Rang 1 = bester)
-- **phase5240** `FahrerPhase5240MeineStornoQuote` — isOnline-Guard; WifiOff-Fallback; Coaching ≤2%/≤5%/>5%; Mini-Balken via balken_pct; Ampel-Border; XCircle rose-400
-- **phase5242** `KitchenPhase5242StornoQuoteTicker` — XCircle rose-400; Beste Rang+%; Team-Ø; Hoch-Alert; 30-min-Poll
-
-**KRITISCH: Nächste freie Phase ist 5243!**
-
-**Vorschlag Batch 22:** Fahrer-Bewertungs-Score-Ranking (Ø Kundenbewertung 1-5 Sterne — ABSTEIGEND, höchste = bester)
-- Phase 5243: Dispatch `DispatchPhase5243BewertungsBoard` — Star yellow-400; ABSTEIGEND
-- Phase 5244: Fahrer `FahrerPhase5244MeineBewertung` — Star yellow-400; Coaching ≥4.5/≥4.0/<4.0
-- Phase 5245: Storefront — skip
-- Phase 5246: Kitchen `KitchenPhase5246BewertungsTicker` — Star yellow-400
-
----
-
-## Batch 22 — Bewertungs-Score-Ranking ✅ (2026-07-31)
-
-**Phasen:** 5243 / 5244 / (5245 Storefront skip) / 5246
-
-**API:** `fahrer-bewertungs-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_rating, rank_delta, ampel, alert_niedrig}], team_avg_rating, bester_name, letzter_name, alert_count, gesamt }`
-
-### Implementiert:
-- **phase5243** `DispatchPhase5243BewertungsBoard` — Star yellow-400; KPI-Grid Beste/Team-Ø/Letzte; Balken via (avg_rating/5)×100; DeltaIcons; Niedrig-Alert; Reuse `fahrer-bewertungs-ranking`; ABSTEIGEND (höchste = Rang 1 = bester)
-- **phase5244** `FahrerPhase5244MeineBewertung` — isOnline-Guard; WifiOff-Fallback; Coaching ≥4.5/≥4.0/<4.0; Mini-Balken; Ampel-Border; Star yellow-400
-- **phase5246** `KitchenPhase5246BewertungsTicker` — Star yellow-400; Beste Rang+★; Team-Ø; Niedrig-Alert; 30-min-Poll
-
-**KRITISCH: Nächste freie Phase ist 5247!**
-
-**Vorschlag Batch 23:** Fahrer-Trinkgeld-pro-Lieferung-Ranking (Ø Trinkgeld € je Lieferung — ABSTEIGEND, höchste = bester)
-- Phase 5247: Dispatch `DispatchPhase5247TrinkgeldProLieferungBoard` — Banknote green-400; ABSTEIGEND
-- Phase 5248: Fahrer `FahrerPhase5248MeinTrinkgeldProLieferung` — Banknote green-400; Coaching ≥2€/≥1€/<1€
-- Phase 5249: Storefront — skip
-- Phase 5250: Kitchen `KitchenPhase5250TrinkgeldProLieferungTicker` — Banknote green-400
-
----
-
-## Batch 23 — Trinkgeld-pro-Lieferung-Ranking ✅ (2026-07-31)
-
-**Phasen:** 5247 / 5248 / (5249 Storefront skip) / 5250
-
-**API:** `fahrer-trinkgeld-pro-tour-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_trinkgeld, rank_delta, ampel, alert_niedrig}], team_avg_trinkgeld, beste_name, niedrigste_name, alert_count, gesamt }`
-
-### Implementiert:
-- **phase5247** `DispatchPhase5247TrinkgeldProLieferungBoard` — Banknote green-400; KPI-Grid Meiste/Team-Ø/Wenigste; Balken via (avg_trinkgeld/maxVal)×100; DeltaIcons; Niedrig-Alert; ABSTEIGEND
-- **phase5248** `FahrerPhase5248MeinTrinkgeldProLieferung` — isOnline-Guard; WifiOff-Fallback; Coaching ≥2€/≥1€/<1€; Mini-Balken; Ampel-Border; Banknote green-400
-- **phase5250** `KitchenPhase5250TrinkgeldProLieferungTicker` — Banknote green-400; Beste Rang+€; Team-Ø; Niedrig-Alert; 30-min-Poll
-
-**KRITISCH: Nächste freie Phase ist 5251!**
-
-**Vorschlag Batch 24:** Fahrer-Umsatz-pro-Stunde-Ranking (Ø Umsatz € je Schichtstunde — ABSTEIGEND, höchste = bester)
-- Phase 5251: Dispatch `DispatchPhase5251UmsatzProStundeBoard` — TrendingUp violet-400; ABSTEIGEND
-- Phase 5252: Fahrer `FahrerPhase5252MeinUmsatzProStunde` — TrendingUp violet-400; Coaching ≥20€/≥12€/<12€
-- Phase 5253: Storefront — skip
-- Phase 5254: Kitchen `KitchenPhase5254UmsatzProStundeTicker` — TrendingUp violet-400
-
----
-
-## Batch 24 — Umsatz-pro-Stunde-Ranking ✅ (2026-07-31)
-
-**Phasen:** 5251 / 5252 / (5253 Storefront skip) / 5254
-
-**API:** `fahrer-umsatz-pro-stunde` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, umsatz_pro_stunde, gesamt_umsatz, schicht_stunden, rank_delta, ampel}], team_avg_umsatz, alert_count, location_id, generiert_am }`
-
-### Implementiert:
-- **phase5251** `DispatchPhase5251UmsatzProStundeBoard` — TrendingUp violet-400; KPI-Grid Meiste/Team-Ø/Wenigste; Balken via (umsatz_pro_stunde/maxVal)×100; DeltaIcons; Niedrig-Alert; ABSTEIGEND
-- **phase5252** `FahrerPhase5252MeinUmsatzProStunde` — isOnline-Guard; WifiOff-Fallback; Coaching ≥35€/≥20€/<20€; Mini-Balken; Ampel-Border; TrendingUp violet-400
-- **phase5254** `KitchenPhase5254UmsatzProStundeTicker` — TrendingUp violet-400; Beste Rang+€/h; Team-Ø; Niedrig-Alert; 30-min-Poll
-
-**KRITISCH: Nächste freie Phase ist 5255!**
-
-**Vorschlag Batch 25:** Fahrer-Distanz-pro-Lieferung-Ranking (Ø km je Lieferung — AUFSTEIGEND, niedrigste = bester)
-- Phase 5255: Dispatch `DispatchPhase5255DistanzProLieferungBoard` — MapPin orange-400; AUFSTEIGEND (niedrigste = Rang 1 = bester)
-- Phase 5256: Fahrer `FahrerPhase5256MeineDistanzProLieferung` — MapPin orange-400; Coaching ≤4km/≤7km/>7km
-- Phase 5257: Storefront — skip
-- Phase 5258: Kitchen `KitchenPhase5258DistanzProLieferungTicker` — MapPin orange-400
-
----
-
-## Batch 25 — Reaktionszeit-Ranking ✅ (2026-07-31)
-
-**Phasen:** 5255 / 5256 / (5257 Storefront skip) / 5258
-
-**API:** `fahrer-reaktionszeit-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_reaktionszeit_min, rank_delta, ampel, alert_hoch}], team_avg_min, schnellster_name, langsamster_name, alert_count, gesamt }`
-
-### Implementiert:
-- **phase5255** `DispatchPhase5255ReaktionszeitBoard` — Zap amber-400; KPI-Grid Schnellste/Team-Ø/Langsamste; Balken via (avg_reaktionszeit_min/maxVal)×100; DeltaIcons; Hoch-Alert; AUFSTEIGEND (niedrigste = Rang 1 = bester)
-- **phase5256** `FahrerPhase5256MeineReaktionszeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≤3min/≤6min/>6min; Mini-Balken; Ampel-Border; Zap amber-400
-- **phase5258** `KitchenPhase5258ReaktionszeitTicker` — Zap amber-400; Schnellste Rang+min; Team-Ø; Hoch-Alert; 30-min-Poll
-
-**KRITISCH: Nächste freie Phase ist 5259!**
-
-**Vorschlag Batch 26:** Fahrer-Distanz-pro-Lieferung-Ranking (Ø km je Lieferung — AUFSTEIGEND, niedrigste = bester)
-- Phase 5259: Dispatch `DispatchPhase5259DistanzProLieferungBoard` — MapPin orange-400; AUFSTEIGEND (niedrigste = Rang 1 = bester)
-- Phase 5260: Fahrer `FahrerPhase5260MeineDistanzProLieferung` — MapPin orange-400; Coaching ≤4km/≤7km/>7km
-- Phase 5261: Storefront — skip
-- Phase 5262: Kitchen `KitchenPhase5262DistanzProLieferungTicker` — MapPin orange-400
-
----
-
-## Batch 26 — Akzeptanzrate-Ranking ✅ (2026-07-31)
-
-**Phasen:** 5259 / 5260 / (5261 Storefront skip) / 5262
-
-**API:** `fahrer-akzeptanz-rate-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, akzeptanz_rate, rank_delta, ampel, alert_niedrig}], team_avg_akzeptanz, beste_name, niedrigste_name, alert_count, gesamt }`
-
-### Implementiert:
-- **phase5259** `DispatchPhase5259AkzeptanzrateBoard` — ThumbsUp sky-400; KPI-Grid Beste/Team-Ø/Niedrigste; Balken via akzeptanz_rate%; DeltaIcons; Niedrig-Alert; ABSTEIGEND (höchste = Rang 1 = bester)
-- **phase5260** `FahrerPhase5260MeineAkzeptanzrate` — isOnline-Guard; WifiOff-Fallback; Coaching ≥95%/≥80%/<80%; Mini-Balken; Ampel-Border; ThumbsUp sky-400
-- **phase5262** `KitchenPhase5262AkzeptanzrateTicker` — ThumbsUp sky-400; Beste Rang+%; Team-Ø; Niedrig-Alert; 30-min-Poll
-
-**KRITISCH: Nächste freie Phase ist 5263!**
-
-**Vorschlag Batch 27:** Fahrer-Ablehnungsquote-Ranking (% abgelehnte Aufträge — AUFSTEIGEND, niedrigste = bester)
-- Phase 5263: Dispatch `DispatchPhase5263AblehnungsquoteBoard` — XOctagon rose-400; AUFSTEIGEND
-- Phase 5264: Fahrer `FahrerPhase5264MeineAblehnungsquote` — XOctagon rose-400; Coaching ≤5%/≤15%/>15%
-- Phase 5265: Storefront — skip
-- Phase 5266: Kitchen `KitchenPhase5266AblehnungsquoteTicker` — XOctagon rose-400
+- Phase 5242: Kitchen `KitchenPhase5242GeschwindigkeitsTicker` — Zap amber-400

@@ -44,7 +44,7 @@ export function KitchenPhase5238PuenktlichkeitsTicker({ locationId }: { location
     <div className="rounded-xl border border-sky-700 bg-sky-900/60 px-4 py-3 mb-3 flex items-center gap-3">
       <Clock className="w-4 h-4 text-sky-400 shrink-0" />
       <div className="flex-1 min-w-0">
-        <div className="text-xs text-gray-400">Pünktlichkeit — Pünktlichste</div>
+        <div className="text-xs text-gray-400">Pünktlichkeit — Bester</div>
         <div className="text-sm font-bold text-sky-100 truncate">
           #{top.rang} {top.fahrer_name} — {top.rate_pct.toFixed(0)}%
         </div>

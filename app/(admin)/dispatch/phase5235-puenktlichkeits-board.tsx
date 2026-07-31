@@ -63,7 +63,7 @@ export function DispatchPhase5235PuenktlichkeitsBoard({ locationId }: { location
 
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="rounded-lg bg-sky-900/50 px-3 py-2 text-center">
-          <div className="text-[10px] text-gray-500 truncate">Pünktlichste</div>
+          <div className="text-[10px] text-gray-500 truncate">Bester</div>
           <div className="text-xs font-bold text-sky-300 truncate">{data.bester_name}</div>
         </div>
         <div className="rounded-lg bg-gray-800/50 px-3 py-2 text-center">
@@ -71,7 +71,7 @@ export function DispatchPhase5235PuenktlichkeitsBoard({ locationId }: { location
           <div className="text-xs font-bold text-gray-200">{data.team_avg_pct.toFixed(0)}%</div>
         </div>
         <div className="rounded-lg bg-gray-800/50 px-3 py-2 text-center">
-          <div className="text-[10px] text-gray-500 truncate">Letzte</div>
+          <div className="text-[10px] text-gray-500 truncate">Letzter</div>
           <div className="text-xs font-bold text-red-400 truncate">{data.letzter_name}</div>
         </div>
       </div>
@@ -101,7 +101,7 @@ export function DispatchPhase5235PuenktlichkeitsBoard({ locationId }: { location
 
       {data.bester_name && (
         <div className="mt-3 text-[10px] text-sky-400 border-t border-sky-800/40 pt-2">
-          Pünktlichste: {data.bester_name} — {data.fahrer[0]?.rate_pct.toFixed(0)}% pünktliche Lieferungen
+          Bester: {data.bester_name} — {data.fahrer[0]?.rate_pct.toFixed(0)}% Pünktlichkeit
         </div>
       )}
     </div>
