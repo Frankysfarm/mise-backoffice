@@ -36525,4 +36525,46 @@ KRITISCH: Nächste freie Phase ist **5112**! NIEMALS 4000–5111 verwenden. IMME
 
 KRITISCH: Nächste freie Phase ist **5117**! NIEMALS 4000–5116 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
 
+---
+
+## Batch 5117/5118/5119/5121 — Fahrer-Distanz-je-Schicht-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+⚠️ **Hinweis:** Phase 5120 = Storefront (übersprungen).
+
+### Phase 5117 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-distanz-schicht-ranking/route.ts` (neu ✅)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, km_je_schicht, total_km, schicht_count, rank_delta, ampel, alert_niedrig}], team_avg_km, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** ABSTEIGEND Rang 1=höchste Distanz je Schicht=aktivster; sum(distance_km)/count(schichten) letzte 30 Tage; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_niedrig wenn km_je_schicht<15; Mock Julia 42km/Max 31km/Sara 19km/Tim 11km; force-dynamic ✅; await createClient() ✅
+
+### Phase 5118 — Distanz-je-Schicht Board (Dispatch)
+**Component:** `DispatchPhase5118DistanzJeSchichtBoard` — MapPin amber-700; Rang 1=höchste Distanz je Schicht; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5119 — Meine Distanz je Schicht (Fahrer)
+**Component:** `FahrerPhase5119MeineDistanzJeSchicht` — MapPin amber-700; km_je_schicht 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥30km/≥15km/<15km; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5120 — Storefront
+Übersprungen ✅
+
+### Phase 5121 — Distanz-je-Schicht-Ticker (Kitchen)
+**Component:** `KitchenPhase5121DistanzJeSchichtTicker` — MapPin amber-700; Aktivste #1 Name+km; Team-Ø; Alert-Count rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: exit 0 ✅ | TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5117/5118/5119/5121)
+- **Belegt:** 4000–5121 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5122**
+
+### Nächste Phasen 5122–5126 — Vorschlag: Fahrer-Touren-Abschlussquote-Ranking (Anteil erfolgreich abgeschlossener Touren je Fahrer letzte 30 Tage)
+1. **Phase 5122 Backend:** GET /api/delivery/admin/fahrer-abschlussquote-ranking — completed_tours/assigned_tours*100 je Fahrer letzte 30 Tage; absteigend Rang 1=höchste Abschlussquote=bester; ampelVon; alert_niedrig wenn <80%; force-dynamic; await createClient().
+2. **Phase 5123 Dispatch:** `DispatchPhase5123AbschlussquoteBoard` — CheckCircle green-700; KPI-Grid Höchste/Team-Avg/Niedrigste; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5124 Fahrer:** `FahrerPhase5124MeineAbschlussquote` — CheckCircle green-700; quote_pct 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥90%/≥80%/<80%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5125 Storefront:** Überspringen.
+5. **Phase 5126 Kitchen:** `KitchenPhase5126AbschlussquoteTicker` — CheckCircle green-700; Beste #1 Name+%; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5122**! NIEMALS 4000–5121 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+
+## STATUS: MARKT-REIF
+
+---
+
 ## STATUS: MARKT-REIF
