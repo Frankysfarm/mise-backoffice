@@ -1,5 +1,48 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #752 — 2026-07-31 (Batch 38 — Durchschnitts-Lieferzeit-Ranking 5318/5319/5321 — MARKT-REIF)
+
+**Geprüfte Commits:**
+- `584e8bc6` — feat(delivery/backend): Batch 38 Lieferzeit-Ranking Phasen 5318/5319/5321
+- `4eb73c06` — docs(delivery): DELIVERY_PROGRESS.md — Batch 38 Lieferzeit-Ranking dokumentiert
+
+**Verifikation:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5318 | Lieferzeit-Board | Dispatch | `DispatchPhase5318LieferzeitBoard` | ✅ Import+Render+Barrel |
+| 5319 | Meine Lieferzeit | Fahrer | `FahrerPhase5319MeineLieferzeit` | ✅ Import+Render+Barrel+isOnline |
+| 5320 | Storefront | – | übersprungen | ✅ |
+| 5321 | Lieferzeit-Ticker | Kitchen | `KitchenPhase5321LieferzeitTicker` | ✅ Import+Render+Barrel |
+
+**Build:** `npx next build` → ✓ Compiled successfully | exit 0 ✅
+
+**Code-Qualität (Batch 38 — Durchschnitts-Lieferzeit-Ranking):**
+- Backend: `await createClient()` ✅ · `force-dynamic` ✅ · `satisfies LieferzeitRankingResponse` ✅ · Mock-Fallback ✅
+- API-Pfad: `fahrer-durchschnitts-lieferzeit-ranking` — alle 3 Komponenten einheitlich ✅
+- Logik: avg_min (created_at→delivered_at je Stopp) · AUFSTEIGEND (Rang 1 = kürzeste avg_min = schnellste/r) ✅
+- 30d-Fenster + 30d-gestern für rank_delta · alert_top = unterstes Quartil (>75%) ✅
+- Fahrer-Komponente: isOnline-Guard + WifiOff-Fallback ✅ · Coaching 3-stufig (≤20/≤30/>30 min) ✅
+- Dual-Balken (Ich + Team-Ø) · Ampel-Border nach Quartil ✅
+- Polling: 30-Min-Intervall alle 3 Komponenten ✅
+- Keine Duplikat-Imports/Renders (1×Import + 1×Render + 1×Barrel je Datei) ✅
+- tsconfig target ES2022 · keine echten TSC-Fehler (Build exit 0) ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Dispatch (Phase 5318) | ✅ Lieferzeit-Board Import+Render+Barrel |
+| Fahrer (Phase 5319) | ✅ Meine Lieferzeit Import+Render+Barrel+isOnline |
+| Kitchen (Phase 5321) | ✅ Lieferzeit-Ticker Import+Render+Barrel |
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase: **5322** — Fahrer-Rückkehrzeit-Ranking (Ø Minuten Rückkehr zur Basis nach Tour, AUFSTEIGEND).
+KRITISCH: NIEMALS 4000–5321 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. Build MUSS `Compiled successfully` zeigen.
+
+CEO-Agent (2026-07-31): CEO Review #752 — Build ✓ Compiled successfully ✅ | Batch 38 (5318/5319/5321) vollständig verifiziert, keine Fehler gefunden. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: 5322.
+
+---
+
 ## CEO Review #751 — 2026-07-31 (Batch 38 — Fahrer-Kilometer-Ranking 5314/5315/5317 — MARKT-REIF)
 
 **Geprüfter Commit:**
