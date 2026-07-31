@@ -5178,7 +5178,7 @@ export function KitchenBoard({
       <KitchenPhase5299SchichtDichteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5300: Smart-Timing Countdown V44 — Timer indigo; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Ges; Station-Filter-Tabs; Dual-Grid 2-spaltig Farbkodierung 5-stufig+Fahrer-ETA-Zap+Batch-ID; 1s-Tick+15s-Polling; Mock-Fallback */}
       <KitchenPhase5300SmartTimingCountdownV44 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
-      {/* Phase 5305: Schicht-Pünktlichkeit-Ticker — Clock green-400; Pünktlichste Rang+%; Team-Ø; Fahrer-Count; Schlecht-Alert; 30-Min-Polling */}
+      {/* Phase 5305: Schicht-Pünktlichkeit-Ticker — Clock emerald; Pünktlichste Rang+%; Team-Ø; Fahrer-Count; Spät-Alert; 30-Min-Polling */}
       <KitchenPhase5305SchichtPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5142: Smart-Timing Countdown V42 — Überfällig-Alert-Banner; 7-KPI-Grid inkl. Batch+Überfällig; 3-Tab Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1s-Tick+15s-Polling */}
       <KitchenPhase5142SmartTimingCountdownV42 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
@@ -13122,7 +13122,7 @@ export { KitchenPhase5298SchichtDichteTicker } from './phase5298-schicht-dichte-
 export { KitchenPhase5299SchichtDichteTicker } from './phase5299-schicht-dichte-ticker';
 // Phase 5300 — Smart-Timing Countdown V44 (Timer indigo; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Ges; Station-Filter-Tabs Alle+Grill/Friture/Kalt/Pasta/Ofen; Priority-Flame; Batch-ID-Badge; Fahrer-ETA-Zap; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5300SmartTimingCountdownV44 } from './phase5300-smart-timing-countdown-v44';
-// Phase 5305 — Schicht-Pünktlichkeit-Ticker (Clock green; Pünktlichste Rang+%; Team-Ø; Fahrer-Count; Schlecht-Alert; 30-Min-Polling; Mock-Fallback)
+// Phase 5305 — Schicht-Pünktlichkeit-Ticker (Clock emerald; Pünktlichste Rang+%; Team-Ø; Fahrer-Count; Spät-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5305SchichtPuenktlichkeitTicker } from './phase5305-schicht-puenktlichkeit-ticker';
 // Phase 5142 — Smart-Timing Countdown V42 (Timer indigo; Überfällig-Alert-Banner+Fahrer-Alert; 7-KPI-Grid Aktiv/Kritisch/Überfällig/Fahrer↑/Fertig/Batch//h; 3-Tab-Nav Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';

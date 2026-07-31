@@ -8,36 +8,30 @@ interface FahrerRow {
   fahrer_name: string;
   rang: number;
   puenktlichkeit_pct: number;
-  rank_delta: number;
+  schichten_gesamt: number;
   ampel: 'gruen' | 'gelb' | 'rot';
-  alert_schlecht: boolean;
+  alert_spaet: boolean;
 }
 
 interface ApiResponse {
   fahrer: FahrerRow[];
-  team_avg: number;
+  team_avg_pct: number;
   gesamt: number;
 }
 
 function coachingTipp(pct: number): { text: string; color: string } {
-  if (pct >= 95) return {
-    text: 'Ausgezeichnete Pünktlichkeit! Du startest zuverlässig in den Dienst — das sichert Bonuschancen und Vertrauen.',
+  if (pct >= 90) return {
+    text: 'Ausgezeichnete Pünktlichkeit! Du startest deine Schichten fast immer pünktlich — ein Zeichen echter Professionalität.',
     color: 'text-green-300',
   };
-  if (pct >= 80) return {
-    text: 'Gute Pünktlichkeit. Über 95% pünktliche Schichtbeginne verbessern dein Ranking und erhöhen Bonuschancen.',
+  if (pct >= 75) return {
+    text: 'Gute Pünktlichkeit. Noch etwas früher starten sichert dir einen besseren Rang und stärkt das Teamvertrauen.',
     color: 'text-yellow-400',
   };
   return {
-    text: 'Pünktlichkeit verbessern: Versuche, Schichten mindestens 5 Min vor Beginn zu starten — das erhöht deinen Rang.',
+    text: 'Deine Pünktlichkeit liegt unter dem Teamschnitt. Pünktliches Starten verbessert deinen Score und sichert Boni.',
     color: 'text-red-400',
   };
-}
-
-function ampelColor(a: string) {
-  if (a === 'gruen') return 'text-green-300';
-  if (a === 'gelb') return 'text-yellow-400';
-  return 'text-red-400';
 }
 
 export function FahrerPhase5303MeineSchichtPuenktlichkeit({
@@ -81,50 +75,55 @@ export function FahrerPhase5303MeineSchichtPuenktlichkeit({
   if (!mein) return null;
 
   const tipp = coachingTipp(mein.puenktlichkeit_pct);
-  const teamAvg = data.team_avg;
+  const teamAvg = data.team_avg_pct;
   const maxBar = Math.max(mein.puenktlichkeit_pct, teamAvg, 1) * 1.1;
 
+  const borderColor =
+    mein.ampel === 'gruen' ? 'border-green-700 bg-green-950/40' :
+    mein.ampel === 'gelb'  ? 'border-yellow-700 bg-yellow-950/30' :
+                             'border-red-700 bg-red-950/40';
+  const headerBg =
+    mein.ampel === 'gruen' ? 'border-green-800/40 bg-green-900/20' :
+    mein.ampel === 'gelb'  ? 'border-yellow-800/40 bg-yellow-900/20' :
+                             'border-red-800/40 bg-red-900/20';
+  const valColor =
+    mein.ampel === 'gruen' ? 'text-green-300' :
+    mein.ampel === 'gelb'  ? 'text-yellow-400' : 'text-red-400';
+  const barColor =
+    mein.ampel === 'gruen' ? 'bg-green-500' :
+    mein.ampel === 'gelb'  ? 'bg-yellow-500' : 'bg-red-500';
+
   return (
-    <div className={`rounded-2xl border mb-3 overflow-hidden ${
-      mein.ampel === 'gruen' ? 'border-green-700 bg-green-950/40' :
-      mein.ampel === 'gelb'  ? 'border-yellow-700 bg-yellow-950/30' :
-                               'border-red-700 bg-red-950/40'
-    }`}>
-      <div className={`px-4 py-3 flex items-center gap-2 border-b ${
-        mein.ampel === 'gruen' ? 'border-green-800/40 bg-green-900/20' :
-        mein.ampel === 'gelb'  ? 'border-yellow-800/40 bg-yellow-900/20' :
-                                 'border-red-800/40 bg-red-900/20'
-      }`}>
-        <Clock className="w-4 h-4 text-green-400 shrink-0" />
+    <div className={`rounded-2xl border mb-3 overflow-hidden ${borderColor}`}>
+      <div className={`px-4 py-3 flex items-center gap-2 border-b ${headerBg}`}>
+        <Clock className="w-4 h-4 text-emerald-400 shrink-0" />
         <span className="text-sm font-semibold text-gray-200">Meine Schicht-Pünktlichkeit</span>
       </div>
 
       <div className="px-4 py-4 text-center">
-        <div className={`text-4xl font-black tabular-nums ${ampelColor(mein.ampel)}`}>
-          {mein.puenktlichkeit_pct.toFixed(1)}<span className="text-xl font-semibold text-gray-400">%</span>
+        <div className={`text-4xl font-black tabular-nums ${valColor}`}>
+          {mein.puenktlichkeit_pct}<span className="text-xl font-semibold text-gray-400">%</span>
         </div>
-        <div className={`text-2xl font-bold mt-1 ${ampelColor(mein.ampel)}`}>
+        <div className={`text-2xl font-bold mt-1 ${valColor}`}>
           Rang #{mein.rang} <span className="text-sm text-gray-500">von {data.gesamt}</span>
         </div>
+        <div className="text-[10px] text-gray-500 mt-1">{mein.schichten_gesamt} Schichten analysiert</div>
       </div>
 
       <div className="px-4 pb-3">
         <div className="flex items-center justify-between text-xs mb-1">
           <span className="text-gray-500">Ich</span>
-          <span className="text-gray-500">Team-Ø {teamAvg.toFixed(1)}%</span>
+          <span className="text-gray-500">Team-Ø</span>
         </div>
         <div className="relative h-2 rounded-full bg-gray-800 overflow-hidden">
           <div
-            className={`h-full rounded-full ${
-              mein.ampel === 'gruen' ? 'bg-green-500' :
-              mein.ampel === 'gelb'  ? 'bg-yellow-500' : 'bg-red-500'
-            }`}
+            className={`h-full rounded-full ${barColor}`}
             style={{ width: `${Math.min((mein.puenktlichkeit_pct / maxBar) * 100, 100)}%` }}
           />
         </div>
         <div className="flex items-center justify-between text-[10px] mt-0.5 text-gray-500">
-          <span>{mein.puenktlichkeit_pct.toFixed(1)}%</span>
-          <span>{teamAvg.toFixed(1)}%</span>
+          <span>{mein.puenktlichkeit_pct}%</span>
+          <span>{teamAvg}%</span>
         </div>
       </div>
 
