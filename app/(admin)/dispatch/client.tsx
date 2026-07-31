@@ -1420,6 +1420,7 @@ import { DispatchPhase4410TourScoreVisualisierungV6 } from './phase4410-tour-sco
 import { DispatchPhase4500FahrerScoreTourVisualisierungV8 } from './phase4500-fahrer-score-tour-visualisierung-v8';
 import { DispatchPhase1000TourScoreLiveBoard } from './phase1000-tour-score-live-board';
 import { DispatchPhase4710TourScoreVisualisierungMaster } from './phase4710-tour-score-visualisierung-master';
+import { DispatchPhase5322TourEffizienzScoreBoard } from './phase5322-tour-effizienz-score-board';
 
 type Driver = {
   employee_id: string;
@@ -5654,6 +5655,8 @@ export function DispatchBoard({
           <DispatchPhase4710TourScoreVisualisierungMaster locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5030: Tour-Score Visualisierung V5 — Fleet-Score+Delta; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta; Stopp-Dots farbkodiert; Profit je Tour; Zonen-SLA-Matrix; 20-Sek-Polling */}
           <DispatchPhase5030TourScoreVisualisierungV5 />
+          {/* Phase 5322: Tour-Effizienz-Score-Board — Fleet-Score-Ring; €/km-Profitabilität je Tour; Fahrer-Score-Delta vs. Durchschnitt; SLA-Ampel; Stopp-Fortschrittsbalken; Verspätungsrisiko-Badge; 20-Sek-Polling */}
+          <DispatchPhase5322TourEffizienzScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>

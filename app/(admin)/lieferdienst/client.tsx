@@ -533,6 +533,7 @@ import { LieferdienstPhase5144StatistikenDashboardV37 } from './phase5144-statis
 import { LieferdienstPhase5145StatistikenDashboardV38 } from './phase5145-statistiken-dashboard-v38';
 import { LieferdienstPhase5146StatistikenDashboardV39 } from './phase5146-statistiken-dashboard-v39';
 import { LieferdienstPhase5148StatistikenDashboardV41 } from './phase5148-statistiken-dashboard-v41';
+import { LieferdienstPhase5149StatistikenDashboardV42 } from './phase5149-statistiken-dashboard-v42';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2479,6 +2480,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5146StatistikenDashboardV39 locationId={locationId ?? null} />
                 {/* Phase 5148: Statistiken-Dashboard V41 — Kundenbindungs-Analyse; Wiederkauf-Rate; LTV; Churn-Alert; Stammkunden/Neukunden-Segmente; 5-Tab-Nav; 60-Sek-Polling */}
                 <LieferdienstPhase5148StatistikenDashboardV41 />
+                {/* Phase 5149: Statistiken-Dashboard V42 — Peak-Time-Prognose nächste 2h+Fahrer-Bedarf; SLA-Compliance-Matrix; Umsatz-Forecast Ist vs. Prognose AreaChart; Lieferzeit-Effizienz-Score; 9-KPI-Grid; 5-Tab-Nav Überblick/Prognose/SLA/Fahrer/Zonen; 60-Sek-Polling */}
+                <LieferdienstPhase5149StatistikenDashboardV42 />
                 {/* Phase 5036: Statistiken-Dashboard V26 — Revenue-Velocity; Storno-Analyse; Profit-KPI; Velocity-Chart; Zonen-SLA; 45-Sek-Polling */}
                 <LieferdienstPhase5036StatistikenDashboardV26 locationId={locationId ?? null} />
                 {/* Phase 5035: Statistiken-Dashboard V25 — Monatsziel-Fortschritt; 8-KPI-Grid; Stunden/Woche-Chart; Top-Fahrer; Zonen-SLA; 30-Sek-Polling */}
@@ -5225,3 +5228,5 @@ export { LieferdienstPhase5147StatistikenDashboardV40 } from './phase5147-statis
 
 // Phase 5148 — Statistiken-Dashboard V41 (Activity teal; Kundenbindungs-Analyse Wiederkauf-Rate+LTV+Churn-Alert; Dual-Score Effizienz+Kundenbindung Header; Stammkunden/Gelegenheits/Neukunden-Segmente; 9-KPI-Grid 3-spaltig inkl. Wiederkauf+LTV; 5-Tab-Nav Überblick/Kunden/Zonen/Stunden/Alerts; LTV-Balken je Segment; Stunden-BarChart Stammkunden%; Score-Trend-LineChart; 60s-Polling; Mock-Fallback)
 export { LieferdienstPhase5148StatistikenDashboardV41 } from './phase5148-statistiken-dashboard-v41';
+// Phase 5149 — Statistiken-Dashboard V42 (Activity teal; Peak-Time-Prognose nächste 6h Umsatz Ist vs. Prognose AreaChart+Fahrer-Bedarf-Balken; SLA-Verlauf-LineChart+Zonen-SLA-Matrix; 9-KPI-Grid 3-spaltig Ampel+Δ+Ziel; 5-Tab-Nav Überblick/Prognose/SLA/Fahrer/Zonen; Fahrer-Tier-Ranking; Zonen-Effizienz-Matrix; Peak-Warnung-Banner; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5149StatistikenDashboardV42 } from './phase5149-statistiken-dashboard-v42';
