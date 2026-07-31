@@ -19,7 +19,7 @@
 | 5333 | Stoppquoten-Ticker | Kitchen | `KitchenPhase5333StoppQuoteTicker` | ✅ Import+Render+Barrel |
 
 **Build:** `npx next build` → ✓ exit 0 ✅
-**TSC:** läuft / wird verifiziert
+**TSC:** `npx tsc --noEmit --skipLibCheck` → 0 Fehler ✅
 
 **Code-Qualität (Batch 40):**
 - Phase 5330 Dispatch: CheckCircle emerald-400; 3-KPI-Grid Beste/Team-Ø/Schlechteste; Balken farbkodiert; DeltaIcons; Niedrig-Alert <90%; ABSTEIGEND; 30-Min-Polling; Mock-Fallback ✅
