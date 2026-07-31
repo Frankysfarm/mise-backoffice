@@ -24,6 +24,7 @@ export interface AlertPayload {
   body: string;
   sound?: string | null;
   badge?: number;
+  interruptionLevel?: 'active' | 'time-sensitive';
   /** beliebige Zusatzdaten (z.B. batch_id) — landen unter aps-fremden Keys */
   data?: Record<string, unknown>;
 }
@@ -91,6 +92,7 @@ export async function sendAlertPush(deviceToken: string, payload: AlertPayload):
     sound: payload.sound ?? 'default',
   };
   if (typeof payload.badge === 'number') aps.badge = payload.badge;
+  if (payload.interruptionLevel) aps['interruption-level'] = payload.interruptionLevel;
   const body = JSON.stringify({ aps, ...(payload.data ?? {}) });
 
   let lastErr: AlertSendResult | null = null;

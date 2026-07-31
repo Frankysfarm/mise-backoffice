@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
   // Bestellungen für diesen Fahrer (zugewiesen oder verfügbar)
   const { data: orders } = await svc.from('customer_orders')
-    .select('id, bestellnummer, typ, status, kunde_name, kunde_telefon, kunde_adresse, kunde_plz, kunde_stadt, kunde_lat, kunde_lng, kunde_notiz, gesamtbetrag, bestellt_am, location_id, mise_driver_id')
+    .select('id, bestellnummer, typ, status, kunde_name, kunde_telefon, kunde_adresse, kunde_plz, kunde_stadt, kunde_lat, kunde_lng, kunde_notiz, gesamtbetrag, bestellt_am, location_id, mise_driver_id, items:order_items(id, name, menge, einzelpreis)')
     .eq('typ', 'lieferung')
     .eq('mise_driver_id', driverId)
     .in('status', ['fertig', 'unterwegs'])
@@ -61,14 +61,20 @@ function mapDriverOrder(o: any) {
     customerPhone: o.kunde_telefon ?? '',
     customerLat: o.kunde_lat ?? 50.7753,
     customerLng: o.kunde_lng ?? 6.0839,
-    items: [],
+    items: (o.items ?? []).map((i: any) => ({
+      id: i.id,
+      name: i.name,
+      quantity: Number(i.menge ?? 0),
+      price: Number(i.einzelpreis ?? 0),
+      checked: false,
+    })),
     distance: '?',
     estimatedTime: '15 min',
     payout: Math.round(Number(o.gesamtbetrag) * 0.15 * 100) / 100,
     tip: 0,
     totalAmount: Number(o.gesamtbetrag),
     paymentMethod: 'card',
-    status: o.status === 'unterwegs' ? 'delivering' : 'picked',
+    status: o.status === 'unterwegs' ? 'delivering' : 'accepted',
     createdAt: o.bestellt_am,
   };
 }

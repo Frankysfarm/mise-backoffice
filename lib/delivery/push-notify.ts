@@ -4,7 +4,7 @@
  * Benachrichtigt Fahrer via mise_push_outbox wenn eine neue Tour
  * per Smart-Dispatch zugewiesen oder gebündelt wurde.
  *
- * Schreibt in mise_push_outbox → push-flush-Cron sendet VoIP/Expo-Push.
+ * Schreibt in mise_push_outbox → push-flush-Cron sendet Standard-APNs/Expo-Push.
  */
 import 'server-only';
 import { createClient as createSupabaseClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -34,7 +34,7 @@ export interface BatchPushParams {
 
 /**
  * Schreibt eine Push-Nachricht in mise_push_outbox.
- * Der push-flush-Cron sendet sie via VoIP (iOS) oder Expo.
+ * Der push-flush-Cron sendet sie via Standard-APNs (iOS) oder Expo.
  * Fire-and-forget — Fehler werden geloggt aber nicht geworfen.
  */
 export async function enqueueBatchPush(params: BatchPushParams): Promise<void> {

@@ -15,6 +15,9 @@ assert.doesNotMatch(recovery, /dispatchSingleOrder|state:\s*'cancelled'|mise_dri
 assert.match(recovery, /STALE_GPS_ACTIVE_WORK/);
 assert.match(push, /wake_only:\s*true/);
 assert.doesNotMatch(push, /reason_text:\s*row\.body|title:\s*row\.title|body:\s*row\.body/);
+assert.doesNotMatch(push, /sendVoipPush|voip_push_token|apns-voip/);
+assert.match(push, /sound:\s*isAssign\s*\?\s*'alarm\.caf'/);
+assert.match(push, /interruptionLevel:\s*isAssign\s*\?\s*'time-sensitive'/);
 assert.match(register, /pushNotificationReceived/);
 assert.match(register, /pushNotificationActionPerformed/);
 assert.ok(register.indexOf('/api/driver/v2/snapshot') < register.indexOf('/api/driver/v2/notifications/ack'));

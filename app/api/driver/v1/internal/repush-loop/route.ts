@@ -8,8 +8,8 @@ export const dynamic = 'force-dynamic';
  * POST /api/driver/v1/internal/repush-loop
  *
  * Cron-Endpoint, wird jede Minute gerufen.
- *  1. Re-enqueue Push für alle pending_acceptance-Batches die seit > 50s
- *     keinen Push bekommen haben → Driver wird permanent erinnert
+ *  1. Re-enqueue Push für pending_acceptance-Batches. Die DB-Funktion begrenzt
+ *     die Zahl der Alarmversuche; Annahme/ACK beendet weitere Erinnerungen.
  *  2. Auto-Cancel von Batches die seit > 15 Min nicht angenommen wurden
  *
  * Sicher per BISS_INTERNAL_TOKEN.

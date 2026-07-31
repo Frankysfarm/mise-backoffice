@@ -3,17 +3,10 @@
  *
  * Cron-Endpoint (jede Minute aus mise_cron Container).
  *
- * Phase 4 (2026-05-06): VoIP-First Push-Strategy.
- *  - Bei Bundle-Assignment-Pushes (type='assign'):
- *      → Wenn Driver iOS-VoIP-Token hat: APNs VoIP-Push senden (klingelt durch wie Uber)
- *      → Fallback zu Expo-Push wenn VoIP fehlschlägt oder Token tot
- *  - Bei allen anderen Pushes: Expo-Push wie bisher.
- *
- * Token-Hygiene: APNs-Response 410/Unregistered → voip_push_token wird genullt.
+ * Standard APNs/Expo delivery. PushKit/VoIP is intentionally not used for orders.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { sb } from '../../_lib/driver-auth';
-import { sendVoipPush } from '@/lib/apns-voip';
 import { sendAlertPush, isApnsAlertConfigured } from '@/lib/apns-alert';
 import { randomUUID } from 'node:crypto';
 
@@ -34,7 +27,6 @@ interface OutboxRow {
 
 interface DriverShortRow {
   expo_push_token: string | null;
-  voip_push_token: string | null;
   push_enabled: boolean;
 }
 
@@ -63,13 +55,13 @@ export async function POST(req: NextRequest) {
   const pending: Row[] = [];
   for (const row of (claimed ?? []) as OutboxRow[]) {
     const { data: drivers, error: driverError } = await c.from('mise_drivers')
-      .select('expo_push_token,voip_push_token,push_enabled').eq('id', row.driver_id).maybeSingle();
+      .select('expo_push_token,push_enabled').eq('id', row.driver_id).maybeSingle();
     if (driverError) return NextResponse.json({ ok: false, reason_code: 'PUSH_DRIVER_LOOKUP_FAILED' }, { status: 500 });
     pending.push({ ...row, drivers: drivers as DriverShortRow | null });
   }
 
   if (!pending || pending.length === 0) {
-    return NextResponse.json({ ok: true, sent: 0, failed: 0, skipped: 0, voip: 0, expo: 0 });
+    return NextResponse.json({ ok: true, sent: 0, failed: 0, skipped: 0, apns: 0, expo: 0 });
   }
 
   const expoBatch: Array<{
@@ -87,7 +79,7 @@ export async function POST(req: NextRequest) {
   let sent = 0;
   let failed = 0;
   let skipped = 0;
-  let voipCount = 0;
+  let apnsCount = 0;
   let expoCount = 0;
 
   const finish = async (id: string, accepted: boolean, providerMessageId: string | null, error: string | null) => {
@@ -111,50 +103,24 @@ export async function POST(req: NextRequest) {
       continue;
     }
 
-    // 1) VoIP-First für Bundle-Assignments
     const isAssign = row.type === 'order_assigned' || row.type === 'assign';
-    if (isAssign && drv?.voip_push_token) {
-      const data = wakeData(row);
-      const r = await sendVoipPush(drv.voip_push_token, {
-        batch_id: '',
-        order_count: 1,
-        restaurant_name: 'Aktualisierung',
-        distance_km: null,
-        payout_eur: null,
-        reason_text: 'App öffnen und aktuellen Stand laden.',
-        decision_id: data.notification_id,
-      });
-      if (r.ok) {
-        await finish(row.id, true, null, null);
-        sent++;
-        voipCount++;
-        continue;
-      }
-      // Token tot? -> in DB nullen
-      if (r.tokenDead) {
-        const { error: tokenError } = await c
-          .from('mise_drivers')
-          .update({ voip_push_token: null, voip_push_token_updated_at: new Date().toISOString() })
-          .eq('id', row.driver_id);
-        if (tokenError) throw new Error('DEAD_VOIP_TOKEN_CLEAR_FAILED');
-      }
-      // Egal welcher Fehler — fall back auf Expo wenn vorhanden
-      // (kein continue → es geht in den Expo-Block unten)
-    }
-
-    // 1b) APNs-Alert fuer rohe Device-Tokens (Capacitor-App, 64-Hex statt Expo-Token)
+    // APNs alert for raw Capacitor device tokens.
     const rawTok = drv?.expo_push_token;
     const isExpoTok = typeof rawTok === 'string' && /^Expo(nent)?PushToken\[/.test(rawTok);
     if (rawTok && !isExpoTok && /^[0-9a-fA-F]{64}$/.test(rawTok) && isApnsAlertConfigured()) {
       const r = await sendAlertPush(rawTok, {
-        title: 'Aktualisierung',
-        body: 'Bitte App öffnen und aktuellen Stand laden.',
-        sound: 'default',
+        title: isAssign ? 'Neue Lieferung' : 'Aktualisierung',
+        body: isAssign
+          ? 'Bitte App öffnen und Lieferung jetzt annehmen.'
+          : 'Bitte App öffnen und aktuellen Stand laden.',
+        sound: isAssign ? 'alarm.caf' : (row.sound ?? 'default'),
+        interruptionLevel: isAssign ? 'time-sensitive' : 'active',
         data: wakeData(row),
       });
       if (r.ok) {
         await finish(row.id, true, null, null);
         sent++;
+        apnsCount++;
         continue;
       }
       if (r.tokenDead) {
@@ -177,10 +143,12 @@ export async function POST(req: NextRequest) {
       outboxId: row.id,
       message: {
         to: expoToken,
-        title: 'Aktualisierung',
-        body: 'Bitte App öffnen und aktuellen Stand laden.',
+        title: isAssign ? 'Neue Lieferung' : 'Aktualisierung',
+        body: isAssign
+          ? 'Bitte App öffnen und Lieferung jetzt annehmen.'
+          : 'Bitte App öffnen und aktuellen Stand laden.',
         data: wakeData(row),
-        sound: row.sound ?? 'default',
+        sound: isAssign ? 'alarm.caf' : (row.sound ?? 'default'),
         priority: row.priority ?? 'high',
         channelId: 'orders',
       },
@@ -222,5 +190,5 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ ok: true, sent, failed, skipped, voip: voipCount, expo: expoCount });
+  return NextResponse.json({ ok: true, sent, failed, skipped, apns: apnsCount, expo: expoCount });
 }

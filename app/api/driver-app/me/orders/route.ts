@@ -21,7 +21,7 @@ export async function GET(_req: NextRequest) {
       lieferadresse_plz, lieferadresse_ort, lieferadresse_lat, lieferadresse_lng,
       geschaetzte_zubereitung_min, bestaetigt_am, fertig_am, abgeholt_am,
       tenants(name, logo_url),
-      customer_order_items(id, name, quantity, einzelpreis)
+      items:order_items(id, name, menge, einzelpreis)
     `)
     .eq('mise_driver_id', DEV_DRIVER_ID)
     .in('status', ['bestätigt', 'in_zubereitung', 'fertig', 'unterwegs'])
@@ -39,10 +39,10 @@ export async function GET(_req: NextRequest) {
     customerPhone: o.kunde_telefon ?? '',
     customerLat: Number(o.lieferadresse_lat) || 50.7754,
     customerLng: Number(o.lieferadresse_lng) || 6.0838,
-    items: (o.customer_order_items ?? []).map((i: any) => ({
+    items: (o.items ?? []).map((i: any) => ({
       id: i.id,
       name: i.name,
-      quantity: i.quantity,
+      quantity: Number(i.menge ?? 0),
       price: Number(i.einzelpreis ?? 0),
       checked: false,
     })),
@@ -52,8 +52,7 @@ export async function GET(_req: NextRequest) {
     tip: 0,
     totalAmount: Number(o.gesamt_summe ?? 0),
     paymentMethod: (o.zahlungsart === 'bar' ? 'cash' : 'card') as 'cash' | 'card',
-    status: o.status === 'fertig' ? 'picked' :
-            o.status === 'unterwegs' ? 'delivering' : 'accepted',
+    status: o.status === 'unterwegs' ? 'delivering' : 'accepted',
     createdAt: new Date(o.bestaetigt_am ?? Date.now()),
   }));
 

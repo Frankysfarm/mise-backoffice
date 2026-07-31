@@ -12,7 +12,7 @@ interface Body {
 
 /**
  * POST /api/driver/v1/me/push-token
- * Body: { expo_push_token: "ExponentPushToken[xxx]" | null, push_enabled? }
+ * Body: { expo_push_token: "ExponentPushToken[xxx]" | raw APNs token | null, push_enabled? }
  *
  * Driver registriert das Push-Token vom Device. Wird nach Login + bei
  * jedem App-Start aufgerufen (Token kann sich ändern).
