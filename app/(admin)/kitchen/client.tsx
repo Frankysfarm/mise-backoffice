@@ -1347,6 +1347,7 @@ import { KitchenPhase5305SchichtPuenktlichkeitTicker } from './phase5305-schicht
 import { KitchenPhase5309SchichtPuenktlichkeitTrendTicker } from './phase5309-schicht-puenktlichkeit-trend-ticker';
 import { KitchenPhase5313TourenEffizienzTicker } from './phase5313-touren-effizienz-ticker';
 import { KitchenPhase5310SmartTimingCountdownV46 } from './phase5310-smart-timing-countdown-v46';
+import { KitchenPhase5317KilometerTicker } from './phase5317-kilometer-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5189,6 +5190,8 @@ export function KitchenBoard({
       <KitchenPhase5313TourenEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5310: Smart-Timing Countdown V46 — KI-Kochstart-Empfehlung; Peak-Stationen-Alert; Effizienz-Wachstums-Balken; 7-KPI-Grid Score/Aktiv/Kritisch/Fertig/Velocity/Effizienz/KI-Tips; 1s-Tick+15s-Polling */}
       <KitchenPhase5310SmartTimingCountdownV46 />
+      {/* Phase 5317: Kilometer-Ticker — Route green-400; Meiste Strecke Rang+km; Touren; Team-Ø; Rekord-Alert; 30-Min-Polling */}
+      <KitchenPhase5317KilometerTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5142: Smart-Timing Countdown V42 — Überfällig-Alert-Banner; 7-KPI-Grid inkl. Batch+Überfällig; 3-Tab Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1s-Tick+15s-Polling */}
       <KitchenPhase5142SmartTimingCountdownV42 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5163: Smart-Timing Countdown V43 — 8-KPI-Grid inkl. Velocity; Multi-Station-Workload; Queue-Prognose +5/+10 Min; Auto-Sort Urgency; 3-Tab Countdown/Stationen/Queue; 1s-Tick+15s-Polling */}
@@ -13137,6 +13140,8 @@ export { KitchenPhase5305SchichtPuenktlichkeitTicker } from './phase5305-schicht
 export { KitchenPhase5309SchichtPuenktlichkeitTrendTicker } from './phase5309-schicht-puenktlichkeit-trend-ticker';
 // Phase 5313 — Touren-Effizienz-Ticker (Zap yellow-400; Effizienteste Rang+Score; Touren/h; Team-Ø Score; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5313TourenEffizienzTicker } from './phase5313-touren-effizienz-ticker';
+// Phase 5317 — Kilometer-Ticker (Route green-400; Meiste Strecke Rang+km; Touren; Team-Ø; Rekord-Alert; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5317KilometerTicker } from './phase5317-kilometer-ticker';
 // Phase 5142 — Smart-Timing Countdown V42 (Timer indigo; Überfällig-Alert-Banner+Fahrer-Alert; 7-KPI-Grid Aktiv/Kritisch/Überfällig/Fahrer↑/Fertig/Batch//h; 3-Tab-Nav Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 // Phase 5163 — Smart-Timing Countdown V43 (Timer indigo; 8-KPI-Grid Aktiv/Kritisch/Überfällig/Fahrer↑/Fertig/Batch/Score/Velocity; Multi-Station-Workload-Balken; Queue-Prognose +5/+10 Min; Auto-Sort Urgency; 3-Tab Countdown/Stationen/Queue; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)

@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Agent (2026-07-31):** Build ✓ exit 0 · Batch 38 Kilometer-Ranking implementiert · Nächste freie Phase: 5318
+
 **CEO Review #750 (2026-07-31):** Build ✓ Compiled successfully · Batch 37 (5310/5307/5148/1956/1000) verifiziert + alle 5 fehlenden Import+Render+Barrel nachgezogen · MARKT-REIF bestätigt · Nächste freie Phase: 5314
 
 **CEO Review #749 (2026-07-31):** Build ✓ exit 0 · Batch 36 (5306/5307/5309) verifiziert · MARKT-REIF bestätigt · Nächste freie Phase: 5310
@@ -9,6 +11,25 @@
 **CEO Review #748 (2026-07-31):** Build ✓ exit 0 · Batch 35 (5302/5303/5305) verifiziert · Nächste freie Phase: 5306
 
 **Backend-Agent (2026-07-31):** Build ✓ exit 0 · Batch 36 Schicht-Pünktlichkeits-Trend implementiert · Nächste freie Phase: 5310
+
+---
+
+## Batch 38 — Fahrer-Kilometer-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5314 — Kilometer-Board (Dispatch)
+**Component:** `DispatchPhase5314KilometerBoard` — Route green-400; 3-KPI-Grid Meiste/Team-Ø/Niedrigste; Balken ampelkodiert grün/gelb/rot; DeltaIcons; Rekord-Alert >150km; ABSTEIGEND; 30-Min-Polling ✅
+
+### Phase 5315 — Meine Kilometer (Fahrer)
+**Component:** `FahrerPhase5315MeineKilometer` — Route green-400; km_gesamt 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥150/≥80/<80; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5316 — Storefront: übersprungen ✅
+
+### Phase 5317 — Kilometer-Ticker (Kitchen)
+**Component:** `KitchenPhase5317KilometerTicker` — Route green-400; Meiste Strecke #1 Name+km+Touren; Team-Ø; Rekord-Alert; 30-Min-Polling ✅
+
+**Backend:** `app/api/delivery/admin/fahrer-kilometer-ranking/route.ts` — ABSTEIGEND Rang 1=meiste km=bester; km_gesamt+touren_count+km_pro_tour; 30d/60d-Doppelfenster für rank_delta; alert_hoch >150km; satisfies ApiResponse ✅
+
+**KRITISCH: Nächste freie Phase ist 5318!** NIEMALS 4000–5317 verwenden.
 
 ---
 
@@ -30,7 +51,6 @@
 **Component:** `StorefrontPhase1000DynamischeEtaLiveV10` — Bike; Fahrer-Tracking Stopp-Dot-Sequenz; SLA-Pünktlichkeits-Badge; Wetter-Einfluss-Banner; Liefer-Phasen-Leiste; 20s-Polling ✅ Import+Render
 
 **KRITISCH: Nächste freie Phase ist 5314!** NIEMALS 4000–5313 verwenden.
-
 
 ---
 
