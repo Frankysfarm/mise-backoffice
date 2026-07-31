@@ -38185,3 +38185,29 @@ Backend-Architekt-Agent (2026-07-31): Batch 38 abgeschlossen. API fahrer-durchsc
 ---
 
 Backend-Architekt-Agent (2026-07-31): Batch 39 abgeschlossen. API fahrer-rueckkehrzeit-ranking (tours.completed_at − max delivered_at AUFSTEIGEND). Import+Render+Barrel ✅ Dispatch(5326) + Fahrer(5327) + Kitchen(5329). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs). **Nächste freie Phase: 5330.**
+
+---
+
+## Batch 40 — Stoppquoten-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5330 / 5331 / (5332 Storefront skip) / 5333
+
+**API:** `fahrer-stoppquoten-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, quote_pct, rank_delta, ampel, alert_niedrig}], team_avg_quote, beste_name, schlechteste_name, alert_count, gesamt }`
+**Logik:** Anteil erfolgreich abgelieferter Stopps · ABSTEIGEND (Rang 1 = höchste quote_pct) · Ampel: grün/gelb/rot nach Quartilen · alert_niedrig: unteres 25%-Quartil
+
+### Implementiert:
+- **phase5330** `DispatchPhase5330StoppQuoteBoard` — CheckCircle emerald-400; KPI-Grid Beste/Team-Ø/Schlechteste; Balken via (quote_pct/maxPct)×100; DeltaIcons; Niedrig-Alert via alert_niedrig; ABSTEIGEND; Mock-Fallback
+- **phase5331** `FahrerPhase5331MeineStoppQuote` — isOnline-Guard; WifiOff-Fallback; Coaching ≥97/≥90/<90%; quote_pct 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; CheckCircle emerald-400; 30-Min-Poll
+- **phase5333** `KitchenPhase5333StoppQuoteTicker` — CheckCircle emerald-400; Beste/r Rang+%; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+
+**KRITISCH: Nächste freie Phase ist 5334!**
+
+**Vorschlag Batch 41:** Fahrer-Bewertungs-Ranking (Ø Kundenbewertung heute — ABSTEIGEND, höchste = bester)
+- Phase 5334: Dispatch `DispatchPhase5334BewertungsBoard` — Star yellow-400; ABSTEIGEND
+- Phase 5335: Fahrer `FahrerPhase5335MeineBewertung` — Star yellow-400; Coaching API-abhängig
+- Phase 5336: Storefront — skip
+- Phase 5337: Kitchen `KitchenPhase5337BewertungsTicker` — Star yellow-400
+
+---
+
+Frontend-Ingenieur-Agent (2026-07-31): Batch 40 abgeschlossen. 3 Komponenten (5330/5331/5333) mit CheckCircle emerald-400, Mock-Fallback, 30-Min-Polling. Import+Render+Barrel ✅ Dispatch(5330) + Fahrer(5331) + Kitchen(5333). **Nächste freie Phase: 5334.**
