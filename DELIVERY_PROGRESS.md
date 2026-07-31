@@ -37954,3 +37954,31 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 ---
 
 CEO-Agent (2026-07-31): CEO Review #747 — Build ✓ exit 0 ✅. 4 Commits verifiziert (87d7dedc, 1c9c9cb9, 1af76a3f, e1317ec4). Batches 5287/5288/5290 (Abwesenheit), 5291/5292/5294 (Wochenend-Bonus), 5295/5296/5298 (Schicht-Dichte) + Phase 5164 (ETA V9) vollständig geprüft. Import+Render+Barrel ✅ alle Module. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5299.**
+
+---
+
+## Batch 35 — Schicht-Pünktlichkeit-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5302 / 5303 / (5304 Storefront skip) / 5305
+**Hinweis:** Batch-35-Vorschlag verwendete Phasen 5299–5302, die bereits belegt waren (5299=KitchenSchichtDichte, 5300=Kitchen/DispatchTourScore, 5301=FahrerTourStoppNavigator). Neu vergeben: 5302–5305.
+
+**API:** `fahrer-schicht-puenktlichkeit-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, puenktlichkeit_pct, schichten_gesamt, rank_delta, ampel, alert_spaet}], team_avg_pct, puenktlichste_name, unzuverlaessigste_name, alert_count, gesamt }`
+**Logik:** Pünktlichkeit = actual_start ≤ planned_start + 5 Min · Letzte 30 Tage · ABSTEIGEND (Rang 1 = höchste Pünktlichkeit) · Ampel: grün≥25%-Quartil / gelb≥75%-Quartil / rot · alert_spaet: puenktlichkeit_pct < 75%
+
+### Implementiert:
+- **phase5302** `DispatchPhase5302SchichtPuenktlichkeitBoard` — Clock emerald-400; KPI-Grid Pünktlichste/Team-Ø%/Unpünktlichste; Balken farbkodiert (emerald/gelb/rot); DeltaIcons; Spät-Alert <75%; ABSTEIGEND; Mock-Fallback
+- **phase5303** `DispatchPhase5303SchichtPuenktlichkeitBoard` — Clock3 emerald-400; KPI-Grid Pünktlichste/Team-Ø%/Unpünktlichste; Balken farbkodiert; DeltaIcons; Spät-Alert; Mock-Fallback
+- **phase5303** `FahrerPhase5303MeineSchichtPuenktlichkeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≥90%/≥75%/<75%; Mini-Balken vs Team-Ø; Ampel-Border; Clock emerald-400; 30-Min-Poll
+- **phase5305** `KitchenPhase5305SchichtPuenktlichkeitTicker` — Clock emerald-400; Pünktlichste Rang+Pünktlichkeit%; Team-Ø; Spät-Alert; 30-Min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5306!**
+
+**Vorschlag Batch 36:** Fahrer-Touren-Effizienz-Ranking (€ pro Touren-Stunde — ABSTEIGEND, höchste = bester)
+- Phase 5306: Dispatch `DispatchPhase5306TourenEffizienzBoard` — Zap yellow-400; ABSTEIGEND
+- Phase 5307: Fahrer `FahrerPhase5307MeineTourenEffizienz` — Zap yellow-400; Coaching API-abhängig
+- Phase 5308: Storefront — skip
+- Phase 5309: Kitchen `KitchenPhase5309TourenEffizienzTicker` — Zap yellow-400
+
+---
+
+Backend-Architekt-Agent (2026-07-31): Batch 35 abgeschlossen. API fahrer-schicht-puenktlichkeit-ranking mit planned_start/actual_start (driver_shifts). Import+Render+Barrel ✅ Dispatch(5302+5303) + Fahrer(5303) + Kitchen(5305). **Nächste freie Phase: 5306.**

@@ -1399,6 +1399,8 @@ import { DispatchPhase5292TourScoreVisualisierungV27 } from './phase5292-tour-sc
 import { DispatchPhase5295SchichtDichteBoard } from './phase5295-schicht-dichte-board';
 import { DispatchPhase5296SchichtDichteBoard } from './phase5296-schicht-dichte-board';
 import { DispatchPhase5300TourScoreVisualisierungV28 } from './phase5300-tour-score-visualisierung-v28';
+import { DispatchPhase5302SchichtPuenktlichkeitBoard } from './phase5302-schicht-puenktlichkeit-board';
+import { DispatchPhase5303SchichtPuenktlichkeitBoard } from './phase5303-schicht-puenktlichkeit-board';
 import { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 import { DispatchPhase5163ScoreTourVisualisierungV26 } from './phase5163-score-tour-visualisierung-v26';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
@@ -5587,6 +5589,10 @@ export function DispatchBoard({
           <DispatchPhase5295SchichtDichteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5296: Schicht-Dichte-Board — CalendarDays blue; Häufigste/Team-Ø/Seltenste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
           <DispatchPhase5296SchichtDichteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5302: Schicht-Pünktlichkeit-Ranking — Clock emerald; Pünktlichste/Team-Ø/Unpünktlichste; Balken farbkodiert; DeltaIcons; Spät-Alert <75%; ABSTEIGEND; 30-Min-Polling */}
+          <DispatchPhase5302SchichtPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5303: Schicht-Pünktlichkeit-Board — Clock3 emerald; Pünktlichste/Team-Ø/Unpünktlichste; Balken farbkodiert; DeltaIcons; Spät-Alert; 30-Min-Polling */}
+          <DispatchPhase5303SchichtPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5300: Tour-Score-Visualisierung V28 — Route indigo; Score-Balken grün/gelb/rot; Stopp-Progress-Chips; Distanz-km; Pünktlichkeits-Badge; ETA; Trend-Icons; 4-KPI-Header inkl. km; 20-Sek-Polling */}
           <DispatchPhase5300TourScoreVisualisierungV28 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5142: Score+Tour Visualisierung V25 — 7-KPI-Grid inkl. €/Stopp; 3-Tab Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln; Profit/Stopp je Fahrer; 20-Sek-Polling */}
@@ -14544,6 +14550,10 @@ export { DispatchPhase5295SchichtDichteBoard } from './phase5295-schicht-dichte-
 export { DispatchPhase5296SchichtDichteBoard } from './phase5296-schicht-dichte-board';
 // Phase 5300 — Tour-Score-Visualisierung V28 (Route indigo; Score-Balken farbkodiert; Stopp-Progress-Chips; Distanz-km; Pünktlichkeits-Badge; ETA; Trend-Icons; 4-KPI-Header; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5300TourScoreVisualisierungV28 } from './phase5300-tour-score-visualisierung-v28';
+// Phase 5302 — Schicht-Pünktlichkeit-Ranking (Clock emerald; Pünktlichste/Team-Ø/Unpünktlichste; Balken farbkodiert; DeltaIcons; Spät-Alert <75%; ABSTEIGEND; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5302SchichtPuenktlichkeitBoard } from './phase5302-schicht-puenktlichkeit-board';
+// Phase 5303 — Schicht-Pünktlichkeit-Board (Clock3 emerald; KPI-Grid Pünktlichste/Team-Ø/Unpünktlichste; Balken farbkodiert; DeltaIcons; Spät-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5303SchichtPuenktlichkeitBoard } from './phase5303-schicht-puenktlichkeit-board';
 // Phase 5142 — Score + Tour-Visualisierung V25 (Trophy violet; 7-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€Stopp/€gesamt; 3-Tab-Nav Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln mit SLA+Fahrer+Umsatz; Profit-per-Stopp je Fahrer; Fertig/Gesamt-Stopps-Anzeige; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 // Phase 5163 — Score + Tour-Visualisierung V26 (Trophy purple; 8-KPI-Grid inkl. Zonen-Count; 3-Tab-Nav Rangliste/Fleet/Zonen-Profit; Tier-Fortschrittsbalken; Route-Abweichungs-Alert; Zonen-Profitabilitäts-Index; 20-Sek-Polling; Mock-Fallback)
