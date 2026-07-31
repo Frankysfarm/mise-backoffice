@@ -37429,3 +37429,24 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5240: Fahrer `FahrerPhase5240MeineStornoQuote` — XCircle rose-400; Coaching ≤2%/≤5%/>5%
 - Phase 5241: Storefront — skip
 - Phase 5242: Kitchen `KitchenPhase5242StornoQuoteTicker` — XCircle rose-400
+
+---
+
+## Batch 21 — Storno-Quote-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5239 / 5240 / (5241 Storefront skip) / 5242
+
+**API:** `fahrer-stornoquote-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, stornoquote_pct, balken_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, bester_name, letzter_name, alert_count, gesamt }`
+
+### Implementiert:
+- **phase5239** `DispatchPhase5239StornoQuoteBoard` — XCircle rose-400; KPI-Grid Niedrigste/Team-Ø/Höchste; Balken via balken_pct (vorberechnet = stornoquote_pct×5); DeltaIcons; Hoch-Alert; AUFSTEIGEND (niedrigste = Rang 1 = bester)
+- **phase5240** `FahrerPhase5240MeineStornoQuote` — isOnline-Guard; WifiOff-Fallback; Coaching ≤2%/≤5%/>5%; Mini-Balken via balken_pct; Ampel-Border; XCircle rose-400
+- **phase5242** `KitchenPhase5242StornoQuoteTicker` — XCircle rose-400; Beste Rang+%; Team-Ø; Hoch-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5243!**
+
+**Vorschlag Batch 22:** Fahrer-Bewertungs-Score-Ranking (Ø Kundenbewertung 1-5 Sterne — ABSTEIGEND, höchste = bester)
+- Phase 5243: Dispatch `DispatchPhase5243BewertungsBoard` — Star yellow-400; ABSTEIGEND
+- Phase 5244: Fahrer `FahrerPhase5244MeineBewertung` — Star yellow-400; Coaching ≥4.5/≥4.0/<4.0
+- Phase 5245: Storefront — skip
+- Phase 5246: Kitchen `KitchenPhase5246BewertungsTicker` — Star yellow-400
