@@ -1271,6 +1271,7 @@ import { FahrerPhase5119MeineDistanzJeSchicht } from './phase5119-meine-distanz-
 import { FahrerPhase5124MeineAbschlussquote } from './phase5124-meine-abschlussquote';
 import { FahrerPhase5129MeineStoppVerweildauer } from './phase5129-meine-stopp-verweildauer';
 import { FahrerPhase5129MeineWartezeitRestaurant } from './phase5129-meine-wartezeit-restaurant';
+import { FahrerPhase5134MeineStornoRate } from './phase5134-meine-storno-rate';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7634,6 +7635,8 @@ export function FahrerApp({
           <FahrerPhase5129MeineStoppVerweildauer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5129: Meine Wartezeit Restaurant — Clock orange; avg_wartezeit_min 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤5min/≤10min/>10min; 30-Min-Polling */}
           <FahrerPhase5129MeineWartezeitRestaurant driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5134: Meine Storno-Rate — XCircle red; rate_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤3%/≤10%/>10%; 30-Min-Polling */}
+          <FahrerPhase5134MeineStornoRate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
           <FahrerPhase5036TourStoppSmartNavV15 driverId={driver.id} />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}
@@ -12242,6 +12245,8 @@ export { FahrerPhase5124MeineAbschlussquote } from './phase5124-meine-abschlussq
 export { FahrerPhase5129MeineStoppVerweildauer } from './phase5129-meine-stopp-verweildauer';
 // Phase 5129 — Meine Wartezeit Restaurant (Clock orange-700; avg_wartezeit_min 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤5min/≤10min/>10min; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5129MeineWartezeitRestaurant } from './phase5129-meine-wartezeit-restaurant';
+// Phase 5134 — Meine Storno-Rate (XCircle red-700; rate_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤3%/≤10%/>10%; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5134MeineStornoRate } from './phase5134-meine-storno-rate';
 
 // Phase 5120 — Tour-Stopp Navigator Pro (Route blue; CountdownRing ETA-Ring 64px farbkodiert blau/gelb/rot; aktueller Stopp: Kunde+Adresse+Notiz+Zahlungsart; CTA Navigieren+Anruf+Geliefert; nächste Stopps-Liste mit ETA; erledigte Stopps; Fortschrittsbalken; mobile-first; Mock-Fallback)
 export { FahrerPhase5120TourStoppNavigatorPro } from './phase5120-tour-stopp-navigator-pro';

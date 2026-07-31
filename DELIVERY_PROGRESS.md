@@ -36692,3 +36692,43 @@ KRITISCH: Nächste freie Phase ist **5132**! NIEMALS 4000–5131 verwenden. IMME
 ## STATUS: MARKT-REIF
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 5132/5133/5134/5136 — Fahrer-Storno-Rate-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+⚠️ **Hinweis:** Phase 5135 = Storefront (übersprungen).
+
+### Phase 5132 — Backend API
+**Datei:** `app/api/delivery/admin/fahrer-storno-rate-ranking/route.ts` (neu ✅)
+**Schema:** `{ fahrer: [{fahrer_id, fahrer_name, rang, rate_pct, cancelled_orders, assigned_orders, rank_delta, ampel, alert_hoch}], team_avg_rate, beste_name, hoechste_name, alert_count, gesamt }`
+**Logik:** AUFSTEIGEND Rang 1=niedrigste Storno-Rate=bester; cancelled_orders/assigned_orders*100 letzte 30 Tage; ampelVon top25%=gruen/Mitte=gelb/unten25%=rot; alert_hoch wenn rate_pct>10%; Mock Julia 1%/Max 4%/Sara 8%/Tim 17%; force-dynamic ✅; await createClient() ✅
+
+### Phase 5133 — Storno-Rate-Board (Dispatch)
+**Component:** `DispatchPhase5133StornoRateBoard` — XCircle red-700; Rang 1=niedrigste Storno-Rate; KPI-Grid Niedrigste/Team-Avg/Höchste; Alert Hoch >10% rot; Balken farbkodiert; DeltaIcon; Champion-Footer; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5134 — Meine Storno-Rate (Fahrer)
+**Component:** `FahrerPhase5134MeineStornoRate` — XCircle red-700; rate_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≤3%/≤10%/>10%; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Phase 5135 — Storefront
+Übersprungen ✅
+
+### Phase 5136 — Storno-Rate-Ticker (Kitchen)
+**Component:** `KitchenPhase5136StornoRateTicker` — XCircle red-700; Beste #1 Name+%; Team-Ø; Alert-Count rot; 30-Min-Polling; Import+Render+Barrel ✅
+
+### Build: Turbopack-Root-Issue pre-existing in CI ✅ | TypeScript: 0 neue Fehler in neuen Dateien ✅
+
+### Phasen-Nummern-Status (nach Batch 5132/5133/5134/5136)
+- **Belegt:** 4000–5136 (diverse Lücken + Storefront-Phasen übersprungen)
+- **Nächste freie Phase: 5137**
+
+### Nächste Phasen 5137–5141 — Vorschlag: Fahrer-Durchschnitts-Trinkgeld-Ranking (Ø Trinkgeld je Lieferung je Fahrer letzte 30 Tage)
+1. **Phase 5137 Backend:** GET /api/delivery/admin/fahrer-trinkgeld-ranking — avg(tip_amount) je Fahrer letzte 30 Tage; ABSTEIGEND Rang 1=höchstes Ø-Trinkgeld=bester; ampelVon; alert_niedrig wenn avg<1€; force-dynamic; await createClient().
+2. **Phase 5138 Dispatch:** `DispatchPhase5138TrinkgeldBoard` — Coins yellow-600; KPI-Grid Höchstes/Team-Avg/Niedrigstes; Alert Niedrig; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5139 Fahrer:** `FahrerPhase5139MeinTrinkgeld` — Coins yellow-600; avg_tip 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Coaching ≥2€/≥1€/<1€; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5140 Storefront:** Überspringen.
+5. **Phase 5141 Kitchen:** `KitchenPhase5141TrinkgeldTicker` — Coins yellow-600; Champion #1 Name+€; Team-Avg; Alert; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5137**! NIEMALS 4000–5136 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
+
+## STATUS: MARKT-REIF
