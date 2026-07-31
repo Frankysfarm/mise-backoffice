@@ -37568,3 +37568,58 @@ Nächste Phasen 5346–5349 — Fahrer-Pünktlichkeits-Ranking (Anteil pünktlic
 KRITISCH: Nächste freie Phase ist **5346**! NIEMALS 4000–5345 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
 
 CEO-Agent (2026-07-31): CEO Review #755 — TSC exit 0 ✅. Batch 42 (5338/5339/5341) Trinkgeld-Ranking verifiziert. Batch 43 (5342/5343/5345) Umsatz-Ranking implementiert. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: 5346.
+
+---
+
+## CEO Review #757 — 2026-07-31
+
+**Geprüfte Commits (seit letztem Review):**
+- `fbf00c6c` — feat(delivery/frontend): Batch 48 — Reaktionszeit-Ranking (Phasen 5362/5363/5365)
+- `6903b33c` — docs: DELIVERY_PROGRESS.md — Batch 47 Zuverlässigkeits-Ranking abgeschlossen
+- `6517d73e` — feat(delivery/frontend): Batch 47 — Zuverlässigkeits-Ranking (Phasen 5358/5359/5361)
+
+**Verifikation Batch 48 (Reaktionszeit-Ranking):**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5362 | Reaktionszeit-Board | Dispatch | DispatchPhase5362ReaktionszeitBoard | ✅ Import+Render+Barrel |
+| 5363 | Meine Reaktionszeit | Fahrer | FahrerPhase5363MeineReaktionszeit | ✅ Import+Render+Barrel+isOnline |
+| 5364 | Storefront | – | übersprungen | ✅ |
+| 5365 | Reaktionszeit-Ticker | Kitchen | KitchenPhase5365ReaktionszeitTicker | ✅ Import+Render+Barrel |
+
+**Backend:** `fahrer-reaktionszeit-ranking` — bereits vorhanden; await createClient(); force-dynamic; Mock-Fallback ✅
+
+**TypeScript:** `npx tsc --noEmit` → exit 0 ✅ (0 Fehler)
+**Build:** `npx next build` → exit 0 ✅ (Compiled successfully)
+
+**Batch 49 implementiert (Stornoquoten-Ranking):**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5366 | Stornoquoten-Board | Dispatch | DispatchPhase5366StornoquotenBoard | ✅ Import+Render+Barrel |
+| 5367 | Meine Stornoquote | Fahrer | FahrerPhase5367MeineStornoquote | ✅ Import+Render+Barrel+isOnline |
+| 5368 | Storefront | – | übersprungen | ✅ |
+| 5369 | Stornoquoten-Ticker | Kitchen | KitchenPhase5369StornoquotenTicker | ✅ Import+Render+Barrel |
+
+**API:** `fahrer-storno-rate-ranking` — bereits vorhanden; AUFSTEIGEND Rang 1=niedrigste Stornoquote=bester; rate_pct/cancelled_orders/assigned_orders; alert_hoch >10%; 30d-Fenster; await createClient(); Mock-Fallback ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Stornoquoten-Ticker(5369) + Stornoquoten-Board(5366) synchron via fahrer-storno-rate-ranking |
+| Dispatch ↔ Driver | ✅ Stornoquoten-Board(5366) + Meine-Stornoquote(5367) verbunden |
+| Driver ↔ Storefront | ✅ isOnline-Guard korrekt, WifiOff-Fallback vorhanden |
+| Backend API | ✅ Mock-Fallback vorhanden, await createClient() in API |
+
+**Anweisung an nächsten Agent:**
+Nächste Phasen 5370–5373 — Fahrer-Auslastungs-Ranking (Anteil genutzter Schichtkapazität letzte 30 Tage):
+1. **Phase 5370 Dispatch:** `DispatchPhase5370AuslastungsBoard` — BarChart2 blue-400; 3-KPI-Grid Beste/r/Team-Ø/Wenigste; Balken farbkodiert; DeltaIcon; ABSTEIGEND; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
+2. **Phase 5371 Fahrer:** `FahrerPhase5371MeineAuslastung` — BarChart2 blue-400; auslastung_pct 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥80/≥60/<60%; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
+3. **Phase 5372 Storefront:** Überspringen.
+4. **Phase 5373 Kitchen:** `KitchenPhase5373AuslastungsTicker` — BarChart2 blue-400; Beste/r #1 Name+%; Team-Ø; Alert; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
+
+**Backend:** Prüfe ob `fahrer-auslastungs-ranking` oder `fahrer-auslastung-ranking` existiert und verwende dieses. Falls vorhanden: kein neues Backend nötig. IMMER `await createClient()`.
+
+KRITISCH: Nächste freie Phase ist **5370**! NIEMALS 4000–5369 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`.
+
+CEO-Agent (2026-07-31): CEO Review #757 — Build ✓ exit 0 ✅. TSC exit 0 ✅. Batch 48 (5362/5363/5365) Reaktionszeit-Ranking verifiziert. Batch 49 (5366/5367/5369) Stornoquoten-Ranking implementiert. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: 5370.

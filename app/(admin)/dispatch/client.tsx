@@ -1431,6 +1431,7 @@ import { DispatchPhase5350KmBoard } from './phase5350-km-board';
 import { DispatchPhase5354ProduktivitaetsBoard } from './phase5354-produktivitaets-board';
 import { DispatchPhase5358ZuverlaessigkeitsBoard } from './phase5358-zuverlaessigkeits-board';
 import { DispatchPhase5362ReaktionszeitBoard } from './phase5362-reaktionszeit-board';
+import { DispatchPhase5366StornoquotenBoard } from './phase5366-stornoquoten-board';
 
 type Driver = {
   employee_id: string;
@@ -5686,6 +5687,8 @@ export function DispatchBoard({
           <DispatchPhase5358ZuverlaessigkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5362: Reaktionszeit-Board — Timer violet-400; Schnellste/r/Team-Ø/Langsamste; Balken farbkodiert; DeltaIcons; Hoch-Alert >10min; AUFSTEIGEND; 30-Min-Polling */}
           <DispatchPhase5362ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5366: Stornoquoten-Board — XCircle orange-400; Beste/Team-Ø/Höchste; Balken farbkodiert; DeltaIcons; Hoch-Alert >10%; AUFSTEIGEND; 30-Min-Polling */}
+          <DispatchPhase5366StornoquotenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14631,6 +14634,7 @@ export { DispatchPhase5354ProduktivitaetsBoard } from './phase5354-produktivitae
 export { DispatchPhase5358ZuverlaessigkeitsBoard } from './phase5358-zuverlaessigkeits-board';
 // Phase 5362 — Reaktionszeit-Board (Timer violet-400; Schnellste/r/Team-Ø/Langsamste; Balken farbkodiert; DeltaIcons; Hoch-Alert >10min; AUFSTEIGEND; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5362ReaktionszeitBoard } from './phase5362-reaktionszeit-board';
+export { DispatchPhase5366StornoquotenBoard } from './phase5366-stornoquoten-board';
 // Phase 5142 — Score + Tour-Visualisierung V25 (Trophy violet; 7-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€Stopp/€gesamt; 3-Tab-Nav Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln mit SLA+Fahrer+Umsatz; Profit-per-Stopp je Fahrer; Fertig/Gesamt-Stopps-Anzeige; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 // Phase 5163 — Score + Tour-Visualisierung V26 (Trophy purple; 8-KPI-Grid inkl. Zonen-Count; 3-Tab-Nav Rangliste/Fleet/Zonen-Profit; Tier-Fortschrittsbalken; Route-Abweichungs-Alert; Zonen-Profitabilitäts-Index; 20-Sek-Polling; Mock-Fallback)

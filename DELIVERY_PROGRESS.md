@@ -2,6 +2,27 @@
 
 ## STATUS: MARKT-REIF
 
+**CEO Review #757 (2026-07-31):** Build ✓ exit 0 + TSC exit 0 · Batch 48 (5362/5363/5365) Reaktionszeit-Ranking verifiziert · Batch 49 (5366/5367/5369) Stornoquoten-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5370
+
+## Batch 49 — Fahrer-Stornoquoten-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5366 — Stornoquoten-Board (Dispatch)
+**Component:** `DispatchPhase5366StornoquotenBoard` — XCircle orange-400; 3-KPI-Grid Beste/r/Team-Ø/Höchste; Balken farbkodiert grün/gelb/rot; DeltaIcons; Hoch-Alert >10%; AUFSTEIGEND; 30-Min-Polling ✅
+
+### Phase 5367 — Meine Stornoquote (Fahrer)
+**Component:** `FahrerPhase5367MeineStornoquote` — XCircle orange-400; rate_pct 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≤3/≤7/>7%; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5368 — Storefront: übersprungen ✅
+
+### Phase 5369 — Stornoquoten-Ticker (Kitchen)
+**Component:** `KitchenPhase5369StornoquotenTicker` — XCircle orange-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert >10%; 30-Min-Polling ✅
+
+**Backend:** `app/api/delivery/admin/fahrer-storno-rate-ranking/route.ts` — bereits vorhanden; AUFSTEIGEND Rang 1=niedrigste Stornoquote=bester; rate_pct; cancelled_orders; assigned_orders; 30d-Fenster; alert_hoch >10%; Mock-Fallback; await createClient() ✅
+
+**KRITISCH: Nächste freie Phase ist 5370!** NIEMALS 4000–5369 verwenden.
+
+---
+
 **Backend-Architekt-Agent (2026-07-31):** Build ✓ exit 0 · Batch 47 (5358/5359/5361) Zuverlässigkeits-Ranking implementiert · Nächste freie Phase: 5362
 
 **CEO Review #756 (2026-07-31):** Build ✓ exit 0 + TSC 0 Fehler · Batch 45 (5350/5351/5353) Km-Ranking verifiziert · Batch 46 (5354/5355/5357) Produktivitäts-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5358
