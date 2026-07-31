@@ -13220,3 +13220,6 @@ export { KitchenPhase5369StornoquotenTicker } from './phase5369-stornoquoten-tic
 export { KitchenPhase5365ReaktionszeitTicker } from './phase5365-reaktionszeit-ticker';
 // Phase 5373 — Auslastungs-Ticker (BarChart2 blue-400; Beste/r #1 Name+%; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback)
 export { KitchenPhase5373AuslastungsTicker } from './phase5373-auslastungs-ticker';
+
+// Phase 5374 — Smart-Timing Countdown V48 (Timer indigo; Stationsauslastungs-Heatmap 3×2 farbkodiert; 5-KPI-Grid Aktiv/Kritisch/Überfällig/Fertig/Velocity; Farbkodierung 5-stufig; Batch-Fertigstellungs-Prognose; Fahrer-ETA-Sync; 1s-Tick+15s-Polling; Mock-Fallback)
+export { KitchenPhase5374SmartTimingCountdownV48 } from './phase5374-smart-timing-countdown-v48';

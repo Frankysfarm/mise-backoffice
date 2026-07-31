@@ -14649,3 +14649,6 @@ export { DispatchPhase5306ScoreTourVisualisierungV29 } from './phase5306-score-t
 
 // Phase 5307 — Score + Tour-Visualisierung V30 (Trophy violet; Profit-per-km je Fahrer; Cluster-Analyse Zonen-Gruppen; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Umsatz/€-km; Live-Risikograd-Ampel; 3-Tab-Nav Rangliste/Cluster/Zonen; aufklappbare Stopp-Timeline+Risiko-Dots; Stopp-Dichte-Balken; 20s-Polling; Mock-Fallback)
 export { DispatchPhase5307ScoreTourVisualisierungV30 } from './phase5307-score-tour-visualisierung-v30';
+
+// Phase 5374 — Tour-Score-Visualisierung V30 (Trophy violet; Tier-Farbkodierung Platin/Gold/Gut/Schwach; Score-Ring+Delta; Stopp-Fortschrittsbalken; ETA-Abweichungs-Ampel; Fahrer-Rangliste; aufklappbare Stopp-Timeline; 4-KPI-Fleet-Grid; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5374TourScoreVisualisierungV30 } from './phase5374-tour-score-visualisierung-v30';

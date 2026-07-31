@@ -5230,3 +5230,6 @@ export { LieferdienstPhase5147StatistikenDashboardV40 } from './phase5147-statis
 export { LieferdienstPhase5148StatistikenDashboardV41 } from './phase5148-statistiken-dashboard-v41';
 // Phase 5149 — Statistiken-Dashboard V42 (Activity teal; Peak-Time-Prognose nächste 6h Umsatz Ist vs. Prognose AreaChart+Fahrer-Bedarf-Balken; SLA-Verlauf-LineChart+Zonen-SLA-Matrix; 9-KPI-Grid 3-spaltig Ampel+Δ+Ziel; 5-Tab-Nav Überblick/Prognose/SLA/Fahrer/Zonen; Fahrer-Tier-Ranking; Zonen-Effizienz-Matrix; Peak-Warnung-Banner; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5149StatistikenDashboardV42 } from './phase5149-statistiken-dashboard-v42';
+
+// Phase 5150 — Statistiken-Dashboard V43 (Activity teal; Tages-Ziel-Fortschrittsring; 9-KPI-Grid 3-spaltig Ampel+Δ+Ziel; 5-Tab-Nav Überblick/Stunden/Fahrer/Storno/Ziele; Stunden-BarChart Ist-vs-Ziel farbkodiert; Fahrer-Score-Ranking 🥇🥈🥉+Score-Balken; Storno-Gründe-Balken; Ziel-Cockpit Erreichungsampel; 45-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5150StatistikenDashboardV43 } from './phase5150-statistiken-dashboard-v43';
