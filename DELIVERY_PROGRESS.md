@@ -37310,3 +37310,22 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5216: Fahrer `FahrerPhase5216MeineStoppsProStunde` — Zap amber-400; Coaching ≥3/h/≥2/h/<2/h
 - Phase 5217: Storefront — skip
 - Phase 5218: Kitchen `KitchenPhase5218StoppsProStundeTicker` — Zap amber-400
+
+---
+
+## Batch 15 — Stopps-pro-Stunde-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5215 / 5216 / (5217 Storefront skip) / 5218
+
+### Implementiert:
+- **phase5215** `DispatchPhase5215StoppsProStundeBoard` — Zap amber-400; KPI-Grid Schnellste/Team-Ø/Langsamste; Balken via stopps_pro_stunde; DeltaIcons; Niedrig-Alert; Reuse `fahrer-stopps-pro-stunde-ranking`; ABSTEIGEND (höchste = Rang 1 = bester)
+- **phase5216** `FahrerPhase5216MeineStoppsProStunde` — isOnline-Guard; WifiOff-Fallback; Coaching ≥3/h/≥2/h/<2/h; Mini-Balken; Ampel-Border
+- **phase5218** `KitchenPhase5218StoppsProStundeTicker` — Zap amber-400; Schnellste Rang+/h; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5219!**
+
+**Vorschlag Batch 16:** Fahrer-Lieferungen-pro-Stunde-Ranking (Ø Lieferungen je Stunde im Einsatz, letzte 30 Tage — ABSTEIGEND)
+- Phase 5219: Dispatch `DispatchPhase5219LieferungenProStundeBoard` — Activity teal-400
+- Phase 5220: Fahrer `FahrerPhase5220MeineLieferungenProStunde` — Activity teal-400; Coaching ≥4/h/≥2.5/h/<2.5/h
+- Phase 5221: Storefront — skip
+- Phase 5222: Kitchen `KitchenPhase5222LieferungenProStundeTicker` — Activity teal-400
