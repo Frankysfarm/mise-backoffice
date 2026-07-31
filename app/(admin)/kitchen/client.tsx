@@ -1291,6 +1291,7 @@ import { KitchenPhase5105ZufriedenheitsIndexTicker } from './phase5105-zufrieden
 import { KitchenPhase5111ZuverlaessigkeitTicker } from './phase5111-zuverlaessigkeit-ticker';
 import { KitchenPhase5110SmartTimingCountdownV37 } from './phase5110-smart-timing-countdown-v37';
 import { KitchenPhase5111SmartTimingCountdownV38 } from './phase5111-smart-timing-countdown-v38';
+import { KitchenPhase5120SmartTimingCountdownV38 } from './phase5120-smart-timing-countdown-v38';
 import { KitchenPhase5116ErreichbarkeitsTicker } from './phase5116-erreichbarkeits-ticker';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
@@ -5054,6 +5055,8 @@ export function KitchenBoard({
       <KitchenPhase5110SmartTimingCountdownV37 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5111: Smart-Timing Countdown V38 — 5-KPI-Grid inkl. Schicht-Effizienz; Station-Filter Alle/Grill/Friture/Kalt/Pasta/Ofen; Batch-ID-Badge; Fahrer-ETA-Sync-Zap; Schicht-Score-Trend TrendingUp/Down; Schicht-Effizienz-Balken; 1s-Tick+15s-Polling */}
       <KitchenPhase5111SmartTimingCountdownV38 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5120: Smart-Timing Countdown V38b — 4-stufige Farbkodierung ok/warn/critical/overdue; Prio-Sortierung; Schicht-Score-Trend; Fortschrittsbalken je Bestellung; 1s-Tick+15s-Polling */}
+      <KitchenPhase5120SmartTimingCountdownV38 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5116: Erreichbarkeits-Ticker — Phone blue; Erreichbarste #1 Name+%; Team-Avg; Alert-Count rot; 30-Min-Polling */}
       <KitchenPhase5116ErreichbarkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}

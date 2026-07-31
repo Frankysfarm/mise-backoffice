@@ -484,6 +484,7 @@ import { StorefrontPhase1025DynamischeEtaLiveV4 } from './phase1025-dynamische-e
 import { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-eta-live-v5';
 import { StorefrontPhase5110DynamischeEtaLiveHubV4 } from './phase5110-dynamische-eta-live-hub-v4';
 import { StorefrontPhase5111DynamischeEtaLiveHubV5 } from './phase5111-dynamische-eta-live-hub-v5';
+import { StorefrontPhase5120LiveTrackingHubV6 } from './phase5120-live-tracking-hub-v6';
 import { Phase4475DynamischeEtaLiveTrackingV6 } from './phase4475-dynamische-eta-live-tracking-v6';
 import { Phase4500DynamischeEtaLiveHub } from './phase4500-dynamische-eta-live-hub';
 import { Phase5036DynamischeEtaLiveHubV2 } from './phase5036-dynamische-eta-live-hub-v2';
@@ -3401,6 +3402,13 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           locationId={locationId}
         />
       )}
+      {/* Phase 5120: Live-Tracking Hub V6 — Schritt-Progress-Anzeige; ETA-Hero; Fahrer-Nähe-Info; 30-Sek-Polling */}
+      {order.isDelivery && order.orderId && (
+        <StorefrontPhase5120LiveTrackingHubV6
+          orderId={order.orderId}
+          bestellnummer={order.bestellnummer ?? null}
+        />
+      )}
       {/* Phase 985: Live-ETA-Tracking-Banner — Farbcodierter Phasen-Fortschritt + Sekunden-Countdown + Live-Tracking-Dot */}
       {order.isDelivery && (
         <Phase985LiveEtaTrackingBanner
@@ -4085,3 +4093,5 @@ export { Phase5056DynamischeEtaLiveHubV3 } from './phase5056-dynamische-eta-live
 export { StorefrontPhase5110DynamischeEtaLiveHubV4 } from './phase5110-dynamische-eta-live-hub-v4';
 // Phase 5111 — Dynamische ETA Live Hub V5 (Activity indigo; ETA-Konfidenz-Banner hoch/mittel/niedrig; 4-Step-Phasen-Timeline Bestellt/Zubereitung/Abgeholt/Geliefert; Zubereitung-Fortschrittsbalken; Fahrer-Proximity-Pulse+Distanz-km+Annäherungs-Balken; Geliefert-Bestätigung; 30s-Polling; Mock-Fallback)
 export { StorefrontPhase5111DynamischeEtaLiveHubV5 } from './phase5111-dynamische-eta-live-hub-v5';
+// Phase 5120 — Live-Tracking Hub V6 (Schritt-Progress-Anzeige; ETA-Hero; Fahrer-Nähe-Info; 30s-Polling; Mock-Fallback)
+export { StorefrontPhase5120LiveTrackingHubV6 } from './phase5120-live-tracking-hub-v6';

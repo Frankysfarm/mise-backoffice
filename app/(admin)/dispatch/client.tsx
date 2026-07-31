@@ -1347,6 +1347,7 @@ import { DispatchPhase5102ZufriedenheitsIndexBoard } from './phase5102-zufrieden
 import { DispatchPhase5107ZuverlaessigkeitBoard } from './phase5107-zuverlaessigkeit-board';
 import { DispatchPhase5110ScoreTourVisualisierungV19 } from './phase5110-score-tour-visualisierung-v19';
 import { DispatchPhase5111ScoreTourVisualisierungV20 } from './phase5111-score-tour-visualisierung-v20';
+import { DispatchPhase5120ScoreTourVisualisierungV21 } from './phase5120-score-tour-visualisierung-v21';
 import { DispatchPhase5113ErreichbarkeitsIndexBoard } from './phase5113-erreichbarkeits-index-board';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
@@ -5466,6 +5467,8 @@ export function DispatchBoard({
           <DispatchPhase5110ScoreTourVisualisierungV19 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5111: Score + Tour-Visualisierung V20 — Fleet-Score+Delta; Route-Effizienz-Balken je Fahrer; 4-KPI-Grid Touren/Aktiv/Risiko/Route-Eff; Fahrer-Rangliste tier+Delay-Risiko+Score-Delta; Stopp-Dot-Sequenz; aufklappbare Stopp-Timeline ETA+Betrag+Bewertung; 20-Sek-Polling */}
           <DispatchPhase5111ScoreTourVisualisierungV20 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5120: Score + Tour-Visualisierung V21 — Fleet-Score-KPI; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach; Route-Effizienz-Balken; aufklappbare Stopp-Timeline ETA/km/Betrag; 20-Sek-Polling */}
+          <DispatchPhase5120ScoreTourVisualisierungV21 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5113: Erreichbarkeits-Index-Board — Phone blue; ABSTEIGEND Rang 1=höchster Index; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5113ErreichbarkeitsIndexBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
