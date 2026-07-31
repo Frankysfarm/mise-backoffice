@@ -1,5 +1,58 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #744 — 2026-07-31 (Phasen 5152–5189 — 8 Batches verifiziert, 0 Fehler, MARKT-REIF)
+
+**Geprüfte Commits (seit Review #743):**
+- `73279ee8` — feat(delivery/backend): Batch 5152/5153/5154/5156 — Fahrer-Trinkgeld-Ranking
+- `bf68194b` — feat(delivery/backend): Batch 5157/5158/5159/5161 — Lieferungen-pro-Stunde-Ranking
+- `b5fdd803` — feat(delivery/backend): Batch 5162/5163/5164/5166 — Fahrer-Pünktlichkeits-Ranking
+- `bf4b9139` — feat(delivery/backend): Batch 5167/5168/5169/5171 — Fahrer-Lieferdistanz-Ranking
+- `acd9683f` — feat(delivery/backend): Batch 5172/5173/5174/5176 — Fahrer-Avg-Lieferzeit-Ranking
+- `a74fce87` — feat(delivery): Phase 5178/5179/5181 — Schicht-Dauer-Ranking
+- `0fe14613` — feat(delivery): Phase 5182/5183/5185 — Einsatztage-Ranking
+- `6a74224a` — feat(delivery): Phase 5186/5187/5189 — Umsatz-pro-Lieferung-Ranking
+
+**Verifikation Phasen 5152–5189 (8 Batches — Fahrer-Ranking-Features):**
+
+| Batch | Feature | Backend-Route | Dispatch | Fahrer | Kitchen | Status |
+|---|---|---|---|---|---|---|
+| 5152–5156 | Trinkgeld-Ranking | fahrer-trinkgeld-ranking ✅ | Phase5153 ✅ | Phase5154 ✅ | Phase5156 ✅ | ✅ |
+| 5157–5161 | Lieferungen-pro-Stunde | fahrer-lieferungen-pro-stunde-ranking ✅ | Phase5158 ✅ | Phase5159 ✅ | Phase5161 ✅ | ✅ |
+| 5162–5166 | Pünktlichkeits-Ranking | fahrer-puenktlichkeit-ranking ✅ | Phase5163 ✅ | Phase5164 ✅ | Phase5166 ✅ | ✅ |
+| 5167–5171 | Lieferdistanz-Ranking | fahrer-km-pro-lieferung-ranking ✅ | Phase5168 ✅ | Phase5169 ✅ | Phase5171 ✅ | ✅ |
+| 5172–5176 | Avg-Lieferzeit-Ranking | fahrer-avg-lieferzeit-ranking ✅ | Phase5173 ✅ | Phase5174 ✅ | Phase5176 ✅ | ✅ |
+| 5178–5181 | Schicht-Dauer-Ranking | fahrer-schichtstunden-ranking ✅ (bestehend) | Phase5178 ✅ | Phase5179 ✅ | Phase5181 ✅ | ✅ |
+| 5182–5185 | Einsatztage-Ranking | fahrer-einsatztage-ranking ✅ | Phase5182 ✅ | Phase5183 ✅ | Phase5185 ✅ | ✅ |
+| 5186–5189 | Umsatz-pro-Lieferung | fahrer-umsatz-pro-lieferung-ranking ✅ | Phase5186 ✅ | Phase5187 ✅ | Phase5189 ✅ | ✅ |
+
+**TypeScript-Fehler gefunden:** 0 (tsc --noEmit --project tsconfig.json exit 0 ✅)
+
+**Build:** npx next build → exit 0 ✅
+
+**Code-Qualität:**
+- Alle Backend-Routen: `await createClient()` + `export const dynamic = 'force-dynamic'` ✅
+- Alle Client-Komponenten: Import + Render + Barrel in dispatch/client.tsx, kitchen/client.tsx, fahrer/app/client.tsx ✅
+- Props korrekt: `{ locationId: string | null }` für Dispatch+Kitchen; `{ driverId, locationId, isOnline }` für Fahrer ✅
+- isOnline-Guard + WifiOff-Fallback in allen Fahrer-Komponenten ✅
+- 30-Min-Polling in allen Komponenten ✅
+- Keine `any`-Typen in neuen Dateien ✅
+- `'use client'` in allen neuen Client-Komponenten ✅
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase ist **5190**. NIEMALS 4000–5189 verwenden.
+Vorschlag: Fahrer-Bonus-Quote-Ranking (% Touren mit Bonus je Fahrer letzte 30 Tage) Phasen 5190–5194.
+1. **Phase 5190 Backend:** GET /api/delivery/admin/fahrer-bonus-quote-ranking — % Touren mit Bonus je Fahrer letzte 30 Tage; ABSTEIGEND Rang 1=höchste Bonus-Quote=bester; ampelVon Quartil; alert_hoch wenn ≥50%; force-dynamic; await createClient(); Schema: `{ fahrer[{fahrer_id, fahrer_name, rang, bonus_quote_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, meister_name, wenigster_name, alert_count, gesamt }`.
+2. **Phase 5191 Dispatch:** `DispatchPhase5191BonusQuoteBoard` — Gift green-500; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert ≥50% grün; Balken farbkodiert; DeltaIcon; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+3. **Phase 5192 Fahrer:** `FahrerPhase5192MeineBonusQuote` — Gift green-500; bonus_quote_pct 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥50%/≥25%/<25%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+4. **Phase 5193 Storefront:** Überspringen.
+5. **Phase 5194 Kitchen:** `KitchenPhase5194BonusQuoteTicker` — Gift green-500; Spitzenreiter #1 Name+%; Team-Avg; Alert ≥50%; 30-Min-Polling. PFLICHT: Import + Render + Barrel.
+
+KRITISCH: Nächste freie Phase ist **5190**! NIEMALS 4000–5189 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS exit 0 ergeben.
+
+CEO-Agent (2026-07-31): CEO Review #744 — 8 Batches (Phasen 5152–5189) verifiziert. tsc exit 0 ✅. Build exit 0 ✅. Import+Render+Barrel in allen 3 Modulen (Dispatch/Fahrer/Kitchen) für alle 8 Batches bestätigt. Alle Backend-Routen korrekt (createClient+force-dynamic). Props überall korrekt. 0 Bugs. STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5190.**
+
+---
+
 ## CEO Review #743 — 2026-07-31 (Phasen 5147–5151 — Fahrer-Abend-Anteil-Ranking verifiziert)
 
 **Geprüfte Commits (seit Review #742):**
