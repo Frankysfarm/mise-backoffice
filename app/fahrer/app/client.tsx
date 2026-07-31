@@ -1320,6 +1320,7 @@ import { FahrerPhase5297MeineSchichtDichte } from './phase5297-meine-schicht-dic
 import { FahrerPhase5301TourStoppNavigatorV3 } from './phase5301-tour-stopp-navigator-v3';
 import { FahrerPhase5303MeineSchichtPuenktlichkeit } from './phase5303-meine-schicht-puenktlichkeit';
 import { FahrerPhase5307MeinSchichtPuenktlichkeitTrend } from './phase5307-mein-schicht-puenktlichkeit-trend';
+import { FahrerPhase5304TourStoppNavigatorV4 } from './phase5304-tour-stopp-navigator-v4';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7744,6 +7745,8 @@ export function FahrerApp({
           <FahrerPhase5297MeineSchichtDichte driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5301: Tour-Stopp-Navigator V3 — EXPRESS-Prio-Badge; Items+Betrag je Stopp; AlertCircle Notiz; Package-Icon; Distanz-Fortschrittsbalken mit Gesamtumsatz; 30s-Polling */}
           <FahrerPhase5301TourStoppNavigatorV3 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5304: Tour-Stopp-Navigator V4 — Schritt-für-Schritt Navi-Hinweise; Delay-Risiko-Warnung hoch/mittel; Fortschritts-Balken Fertig/Gesamt+Effizienz%; expandierbare Karten; Offline-Banner; 20s-Polling */}
+          <FahrerPhase5304TourStoppNavigatorV4 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5303: Meine Schicht-Pünktlichkeit — Clock emerald; Pünktlichkeit% 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching ≥90%/≥75%/<75%; Mini-Balken vs Team-Ø; Ampel-Border; 30-Min-Polling */}
           <FahrerPhase5303MeineSchichtPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5307: Mein Pünktlichkeits-Trend — TrendingUp emerald; Trend% 4xl±; isOnline-Guard; WifiOff-Fallback; Coaching ≥+10/±5/<-10; Divergenz-Balken vs Team-Trend; 30-Min-Polling */}
@@ -12428,3 +12431,5 @@ export { FahrerPhase5303MeineSchichtPuenktlichkeit } from './phase5303-meine-sch
 export { FahrerPhase5307MeinSchichtPuenktlichkeitTrend } from './phase5307-mein-schicht-puenktlichkeit-trend';
 // Phase 5142 — Tour-Stops & Navigation Hub V6 (Route blue; Tour-Fortschritts-Balken Fertig/Gesamt; Verdienst-Ziel-Tracker Fortschrittsbalken; 4-KPI-Grid Fertig/Offen/Eingenommen/Trinkgeld-Prognose; Dispatch-Nachricht Banner; 2-Tab Stopp-Liste/Übersicht; Nächster-Stopp-Badge; Trinkgeld-Prognose je Stopp; Prioritäts-Stopp-Highlight Express/Hoch; Zahlungsarten-Auswertung in Übersicht; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
+// Phase 5304 — Tour-Stopp-Navigator V4 (Navigation indigo; Schritt-für-Schritt Navi-Hinweise; Warte-Warnung Delay-Risiko hoch/mittel; Tour-Fortschritts-Balken Fertig/Gesamt+Effizienz%; Stopp-Position-Badge+Priority-Zap; Dual-Countdown Küche+Fahrer; Delay-Alert je Stopp; expandierbare Stopp-Karten; Offline-Banner; 20s-Polling; Mock-Fallback)
+export { FahrerPhase5304TourStoppNavigatorV4 } from './phase5304-tour-stopp-navigator-v4';

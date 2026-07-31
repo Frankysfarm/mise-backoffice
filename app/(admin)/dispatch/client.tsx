@@ -14563,3 +14563,5 @@ export { DispatchPhase5306SchichtPuenktlichkeitTrendBoard } from './phase5306-sc
 export { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 // Phase 5163 — Score + Tour-Visualisierung V26 (Trophy purple; 8-KPI-Grid inkl. Zonen-Count; 3-Tab-Nav Rangliste/Fleet/Zonen-Profit; Tier-Fortschrittsbalken; Route-Abweichungs-Alert; Zonen-Profitabilitäts-Index; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5163ScoreTourVisualisierungV26 } from './phase5163-score-tour-visualisierung-v26';
+// Phase 5306 — Score + Tour-Visualisierung V29 (Trophy violet; Zonen-Heatmap-Overlay; Warte-Prognose je Stopp; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/€; High-Risk-Alert-Banner; 2-Tab-Nav Rangliste/Zonen; Tier-farbkodiert Platin/Gold/Gut/Schwach; Route-Effizienz-Balken+ETA-Abweichung; Stopp-Dot-Sequenz+aufklappbare Timeline; Zonen-SLA+AvgMin+Fahrer; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5306ScoreTourVisualisierungV29 } from './phase5306-score-tour-visualisierung-v29';

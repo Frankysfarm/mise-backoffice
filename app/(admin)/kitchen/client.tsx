@@ -13133,3 +13133,5 @@ export { KitchenPhase5309SchichtPuenktlichkeitTrendTicker } from './phase5309-sc
 export { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 // Phase 5163 — Smart-Timing Countdown V43 (Timer indigo; 8-KPI-Grid Aktiv/Kritisch/Überfällig/Fahrer↑/Fertig/Batch/Score/Velocity; Multi-Station-Workload-Balken; Queue-Prognose +5/+10 Min; Auto-Sort Urgency; 3-Tab Countdown/Stationen/Queue; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
+// Phase 5306 — Smart-Timing Countdown V45 (Timer indigo; Dual-Countdown Küche+Fahrer nebeneinander; Fahrer-Alert-Banner wenn Fahrer früher; 4-KPI-Grid Aktiv/Kritisch/Fahrer↑/Fertig; Batch-Effizienz-Score; Station-Filter; Fortschrittsbalken; 1s-Tick+15s-Polling; Mock-Fallback)
+export { KitchenPhase5306SmartTimingCountdownV45 } from './phase5306-smart-timing-countdown-v45';

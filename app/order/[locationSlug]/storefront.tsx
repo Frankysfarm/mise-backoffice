@@ -4121,3 +4121,5 @@ export { StorefrontPhase5120LiveTrackingHubV6 } from './phase5120-live-tracking-
 export { Phase5164DynamischeEtaLiveTrackingV9 } from './phase5164-dynamische-eta-live-tracking-v9';
 // Phase 5165 — Dynamische ETA Live-Tracking V10 (Navigation2 matcha; ETA-Countdown-Hero Sekundentick; Distanz-Fortschrittsbalken+Puls-Dot; Geschwindigkeits-Gauge-Badge; Fahrer-Alert Verspätung; Phasen-Timeline 5-stufig; Fast-da-Pulse; Geliefert-Celebration+Sternbewertung; 20-Sek-Polling; Mock-Fallback)
 export { Phase5165DynamischeEtaLiveTrackingV10 } from './phase5165-dynamische-eta-live-tracking-v10';
+// Phase 5166 — Dynamische ETA Live-Tracking V11 (Bike indigo; Schritt-für-Schritt Status-Timeline 5-stufig animiert; Puls-Ring Fahrer-Avatar; Wetter-Einfluss-Hinweis; Stop-Count-Countdown; Bewertungs-Snippet nach Lieferung; Delay-Alert+Wetter-Hinweis; Geschwindigkeits+Distanz; Geliefert-Celebration+Bewertungs-Stars; 15-Sek-Polling; Mock-Fallback)
+export { StorefrontPhase5166DynamischeEtaLiveTrackingV11 } from './phase5166-dynamische-eta-live-tracking-v11';

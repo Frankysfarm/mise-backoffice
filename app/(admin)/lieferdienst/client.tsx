@@ -5217,3 +5217,5 @@ export { LieferdienstPhase5144StatistikenDashboardV37 } from './phase5144-statis
 export { LieferdienstPhase5145StatistikenDashboardV38 } from './phase5145-statistiken-dashboard-v38';
 // Phase 5146 — Statistiken-Dashboard V39 (Activity emerald; Dual-Score Effizienz+Pünktlichkeit-Header; 9-KPI-Grid 3-spaltig Ampel+Δ; 5-Tab-Nav Überblick/Rentabilität/Fahrer/Zonen/Pünktlichkeit; Rentabilitäts-Trend-BarChart Ertrag vs. Kosten; Schicht-Pünktlichkeit-Tab je Fahrer; Zonen-SLA+Avg+Umsatz; Alert-Ampel; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5146StatistikenDashboardV39 } from './phase5146-statistiken-dashboard-v39';
+// Phase 5147 — Statistiken-Dashboard V40 (BarChart3 indigo; Score-Trend-AreaChart-Mini; Alert-Strip; 9-KPI-Grid 3-spaltig Ampel+Δ; 5-Tab-Nav Überblick/Fahrzeuge/Wetter/Tageszeit/Zonen; Fahrzeugtyp-SLA+AvgMin+Umsatz+Effizienz-Balken; Wetter-Einfluss-BarChart+Stunden-Grid Temp+Regen+SLA; Tageszeit-BarChart farbkodiert Effizienz-Ampel; Zonen-SLA+AvgMin+Umsatz+Balken; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5147StatistikenDashboardV40 } from './phase5147-statistiken-dashboard-v40';
