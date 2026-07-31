@@ -198,7 +198,7 @@ export function LieferdienstPhase5111StatistikenDashboardV30({ locationId }: { l
               <YAxis tick={{ fontSize: 9, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8, fontSize: 11 }}
-                formatter={(v: unknown) => [typeof v === 'number' ? euro(v) : v, 'Umsatz']}
+                formatter={(v: unknown) => [typeof v === 'number' ? euro(v) : String(v), 'Umsatz']}
               />
               <Bar dataKey="umsatz" radius={[3, 3, 0, 0]}>
                 {stunden.map((_, i) => (
@@ -277,7 +277,7 @@ export function LieferdienstPhase5111StatistikenDashboardV30({ locationId }: { l
               <YAxis tick={{ fontSize: 9, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8, fontSize: 11 }}
-                formatter={(v: unknown) => [typeof v === 'number' ? euro(v) : v, 'Umsatz']}
+                formatter={(v: unknown) => [typeof v === 'number' ? euro(v) : String(v), 'Umsatz']}
               />
               <Line type="monotone" dataKey="umsatz" stroke="#2dd4bf" strokeWidth={2} dot={{ r: 3, fill: '#2dd4bf' }} />
             </LineChart>

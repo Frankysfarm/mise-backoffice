@@ -205,7 +205,7 @@ export function KitchenPhase5111SmartTimingCountdownV38({ locationId }: Props) {
                     <span className={cn('text-base font-mono font-bold', c.text)}>{fmtSec(o.restSec)}</span>
                     <div className="flex items-center gap-1">
                       {o.station && <span className="text-[10px] text-slate-400">{o.station}</span>}
-                      {o.syncWarning && <Zap className="h-3 w-3 text-yellow-400" title="Fahrer früher da" />}
+                      {o.syncWarning && <Zap className="h-3 w-3 text-yellow-400" />}
                     </div>
                   </div>
                   {/* Progress bar */}
