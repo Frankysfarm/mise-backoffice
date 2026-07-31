@@ -13140,3 +13140,6 @@ export { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timin
 export { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 // Phase 5306 — Smart-Timing Countdown V45 (Timer indigo; Dual-Countdown Küche+Fahrer nebeneinander; Fahrer-Alert-Banner wenn Fahrer früher; 4-KPI-Grid Aktiv/Kritisch/Fahrer↑/Fertig; Batch-Effizienz-Score; Station-Filter; Fortschrittsbalken; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5306SmartTimingCountdownV45 } from './phase5306-smart-timing-countdown-v45';
+
+// Phase 5310 — Smart-Timing Countdown V46 (Timer indigo; KI-Kochstart-Empfehlung optimale Startzeit je Fahrer-ETA; Peak-Stationen-Alert orange; Effizienz-Wachstums-Balken; 4-KPI-Grid Aktiv/Kritisch/Fertig/Velocity; Station-Filter-Tabs; ki_start-Status violet; 1s-Tick + 15s-Polling; Mock-Fallback)
+export { KitchenPhase5310SmartTimingCountdownV46 } from './phase5310-smart-timing-countdown-v46';

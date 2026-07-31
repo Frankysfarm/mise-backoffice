@@ -5219,3 +5219,6 @@ export { LieferdienstPhase5145StatistikenDashboardV38 } from './phase5145-statis
 export { LieferdienstPhase5146StatistikenDashboardV39 } from './phase5146-statistiken-dashboard-v39';
 // Phase 5147 — Statistiken-Dashboard V40 (BarChart3 indigo; Score-Trend-AreaChart-Mini; Alert-Strip; 9-KPI-Grid 3-spaltig Ampel+Δ; 5-Tab-Nav Überblick/Fahrzeuge/Wetter/Tageszeit/Zonen; Fahrzeugtyp-SLA+AvgMin+Umsatz+Effizienz-Balken; Wetter-Einfluss-BarChart+Stunden-Grid Temp+Regen+SLA; Tageszeit-BarChart farbkodiert Effizienz-Ampel; Zonen-SLA+AvgMin+Umsatz+Balken; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5147StatistikenDashboardV40 } from './phase5147-statistiken-dashboard-v40';
+
+// Phase 5148 — Statistiken-Dashboard V41 (Activity teal; Kundenbindungs-Analyse Wiederkauf-Rate+LTV+Churn-Alert; Dual-Score Effizienz+Kundenbindung Header; Stammkunden/Gelegenheits/Neukunden-Segmente; 9-KPI-Grid 3-spaltig inkl. Wiederkauf+LTV; 5-Tab-Nav Überblick/Kunden/Zonen/Stunden/Alerts; LTV-Balken je Segment; Stunden-BarChart Stammkunden%; Score-Trend-LineChart; 60s-Polling; Mock-Fallback)
+export { LieferdienstPhase5148StatistikenDashboardV41 } from './phase5148-statistiken-dashboard-v41';
