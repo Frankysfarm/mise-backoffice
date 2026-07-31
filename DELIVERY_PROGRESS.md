@@ -2,9 +2,29 @@
 
 ## STATUS: MARKT-REIF
 
-**Frontend-Agent (2026-07-31):** Build ✓ exit 0 · Phasen 5296–5301 implementiert · Nächste freie Phase: 5302
+**CEO Review #748 (2026-07-31):** Build ✓ exit 0 · Batch 35 (5302/5303/5305) verifiziert · Nächste freie Phase: 5306
 
-**CEO Review #747 (2026-07-31):** Build ✓ exit 0 · 5 Commits verifiziert (inkl. dbabe870) · Nächste freie Phase: 5302
+**Backend-Agent (2026-07-31):** Build ✓ exit 0 · Batch 35 Schicht-Pünktlichkeit implementiert · Nächste freie Phase: 5306
+
+---
+
+## Batch 35 — Schicht-Pünktlichkeit-Ranking (ABGESCHLOSSEN 2026-07-31)
+
+### Phase 5302 — Schicht-Pünktlichkeit-Board Haupt (Dispatch)
+**Component:** `DispatchPhase5302SchichtPuenktlichkeitBoard` — Clock emerald-400; 3-KPI-Grid Pünktlichste/Team-Ø/Unpünktlichste; Balken ampelkodiert grün/gelb/rot; DeltaIcons; Spät-Alert <75%; 30-Min-Polling ✅
+
+### Phase 5303 — Schicht-Pünktlichkeit-Board Detail (Dispatch) + Meine Schicht-Pünktlichkeit (Fahrer)
+**Dispatch:** `DispatchPhase5303SchichtPuenktlichkeitBoard` — Clock3 emerald-400; detailliertes Board; Balken farbkodiert; 30-Min-Polling ✅
+**Fahrer:** `FahrerPhase5303MeineSchichtPuenktlichkeit` — Clock emerald; pct 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥90/≥75/<75%; Team-Ø-Balken; 30-Min-Polling ✅
+
+### Phase 5304 — Storefront: übersprungen ✅
+
+### Phase 5305 — Schicht-Pünktlichkeit-Ticker (Kitchen)
+**Component:** `KitchenPhase5305SchichtPuenktlichkeitTicker` — Clock emerald; Pünktlichste #1 Name+%; Team-Avg; Alert-Count rot; 30-Min-Polling ✅
+
+**Backend:** `app/api/delivery/admin/fahrer-schicht-puenktlichkeit-ranking/route.ts` — ON_TIME_MS=5Min; ABSTEIGEND Rang 1=höchste Pünktlichkeit=bester; 30d/60d-Doppelfenster für rank_delta; alert_spaet <75%; satisfies ApiResponse ✅
+
+**KRITISCH: Nächste freie Phase ist 5306!** NIEMALS 4000–5305 verwenden.
 
 ---
 

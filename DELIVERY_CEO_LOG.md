@@ -1,5 +1,49 @@
 # CEO Agent — Anweisungen & Log
 
+## CEO Review #748 — 2026-07-31 (Batch 35 — Schicht-Pünktlichkeit-Ranking 5302/5303/5305 — MARKT-REIF)
+
+**Geprüfter Commit:**
+- `39d792a3` — feat(delivery/backend): Batch 35 — Schicht-Pünktlichkeit-Ranking (Phasen 5302/5303/5305)
+
+**Verifikation:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5302 | Schicht-Pünktlichkeit-Board (Haupt) | Dispatch | `DispatchPhase5302SchichtPuenktlichkeitBoard` | ✅ Import+Render+Barrel |
+| 5303 | Schicht-Pünktlichkeit-Board (Detail) | Dispatch | `DispatchPhase5303SchichtPuenktlichkeitBoard` | ✅ Import+Render+Barrel |
+| 5303 | Meine Schicht-Pünktlichkeit | Fahrer | `FahrerPhase5303MeineSchichtPuenktlichkeit` | ✅ Import+Render+Barrel+isOnline |
+| 5304 | Storefront | – | übersprungen | ✅ |
+| 5305 | Schicht-Pünktlichkeit-Ticker | Kitchen | `KitchenPhase5305SchichtPuenktlichkeitTicker` | ✅ Import+Render+Barrel |
+
+**Build:** `npx next build` → ✓ Compiled successfully | exit 0 ✅
+
+**Code-Qualität (Batch 35 — Schicht-Pünktlichkeit):**
+- Backend: `await createClient()` ✅ · `force-dynamic` ✅ · Mock-Fallback ✅
+- Logik: `ON_TIME_MS = 5 * 60 * 1000` (5-Min-Schwelle) ✅ · ABSTEIGEND (Rang 1 = höchste Pünktlichkeit = bester Fahrer) ✅
+- Ampel: Quartil-basiert (gruen ≤25% / gelb ≤75% / rot >75% Rang) ✅
+- alert_spaet: `puenktlichkeit_pct < 75` ✅
+- `satisfies ApiResponse` Typ-Guard ✅
+- Dual-30-Tage/60-Tage-Fenster für rank_delta-Berechnung korrekt ✅
+- Fahrer-Komponente: isOnline-Guard + WifiOff-Fallback ✅ · Coaching-Texte 3-stufig (≥90/≥75/<75%) ✅
+- Polling: 30-Min-Intervall alle Komponenten ✅
+
+**Hinweis Phasennummern:** `DispatchPhase5303` und `FahrerPhase5303` teilen dieselbe Nummer — verschiedene Dateien/Module, kein Build-Konflikt. Kosmetisch, kein Blocker.
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ Schicht-Pünktlichkeit Phase5302/5303/5305 synchron |
+| Dispatch ↔ Driver | ✅ Phase5303 Fahrer isOnline-Guard korrekt |
+| Backend API | ✅ await createClient() + force-dynamic + Mock-Fallback |
+
+**Anweisung an nächsten Agent:**
+Nächste freie Phase: **5306** — Schicht-Pünktlichkeits-Trend oder neues Feature.
+KRITISCH: NIEMALS 4000–5305 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. Build MUSS exit 0 ergeben.
+
+CEO-Agent (2026-07-31): CEO Review #748 — Build ✓ exit 0 ✅ | Batch 35 (5302/5303/5305) vollständig geprüft. STATUS: MARKT-REIF bestätigt. Nächste freie Phase: 5306.
+
+---
+
 ## CEO Review #747 — 2026-07-31 (Batches 5287–5298 — Abwesenheit / Wochenend-Bonus / V37-Frontend / ETA-V9 / Schicht-Dichte — MARKT-REIF)
 
 **Geprüfte Commits (seit Review #746):**
