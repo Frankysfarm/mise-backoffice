@@ -37492,3 +37492,24 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5252: Fahrer `FahrerPhase5252MeinUmsatzProStunde` — TrendingUp violet-400; Coaching ≥20€/≥12€/<12€
 - Phase 5253: Storefront — skip
 - Phase 5254: Kitchen `KitchenPhase5254UmsatzProStundeTicker` — TrendingUp violet-400
+
+---
+
+## Batch 24 — Umsatz-pro-Stunde-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5251 / 5252 / (5253 Storefront skip) / 5254
+
+**API:** `fahrer-umsatz-pro-stunde` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, umsatz_pro_stunde, gesamt_umsatz, schicht_stunden, rank_delta, ampel}], team_avg_umsatz, alert_count, location_id, generiert_am }`
+
+### Implementiert:
+- **phase5251** `DispatchPhase5251UmsatzProStundeBoard` — TrendingUp violet-400; KPI-Grid Meiste/Team-Ø/Wenigste; Balken via (umsatz_pro_stunde/maxVal)×100; DeltaIcons; Niedrig-Alert; ABSTEIGEND
+- **phase5252** `FahrerPhase5252MeinUmsatzProStunde` — isOnline-Guard; WifiOff-Fallback; Coaching ≥35€/≥20€/<20€; Mini-Balken; Ampel-Border; TrendingUp violet-400
+- **phase5254** `KitchenPhase5254UmsatzProStundeTicker` — TrendingUp violet-400; Beste Rang+€/h; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5255!**
+
+**Vorschlag Batch 25:** Fahrer-Distanz-pro-Lieferung-Ranking (Ø km je Lieferung — AUFSTEIGEND, niedrigste = bester)
+- Phase 5255: Dispatch `DispatchPhase5255DistanzProLieferungBoard` — MapPin orange-400; AUFSTEIGEND (niedrigste = Rang 1 = bester)
+- Phase 5256: Fahrer `FahrerPhase5256MeineDistanzProLieferung` — MapPin orange-400; Coaching ≤4km/≤7km/>7km
+- Phase 5257: Storefront — skip
+- Phase 5258: Kitchen `KitchenPhase5258DistanzProLieferungTicker` — MapPin orange-400
