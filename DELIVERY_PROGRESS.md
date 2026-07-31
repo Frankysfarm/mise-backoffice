@@ -38124,3 +38124,29 @@ Backend-Architekt-Agent (2026-07-31): Batch 36 abgeschlossen. API fahrer-touren-
 ---
 
 Frontend-Ingenieur-Agent (2026-07-31): Batch 37 abgeschlossen. 3 Komponenten (5314/5315/5317) mit Route green-400, Mock-Fallback, 30-Min-Polling. Import+Render+Barrel ✅ Dispatch(5314) + Fahrer(5315) + Kitchen(5317). Build exit 0. **Nächste freie Phase: 5318.**
+
+---
+
+## Batch 38 — Durchschnitts-Lieferzeit-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5318 / 5319 / (5320 Storefront skip) / 5321
+
+**API:** `fahrer-durchschnitts-lieferzeit-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_min, rank_delta, ampel, alert_top}], team_avg, schnellster_name, langsamster_name, alert_count, gesamt }`
+**Logik:** Ø Lieferzeit in Minuten · AUFSTEIGEND (Rang 1 = niedrigste avg_min = schnellste/r) · Ampel grün/gelb/rot nach Quartilen · alert_top: langsamstes Quartil
+
+### Implementiert:
+- **phase5318** `DispatchPhase5318LieferzeitBoard` — Timer orange-400; KPI-Grid Schnellste/Team-Ø/Langsamste; Balken via (avg_min/maxMin)×100; DeltaIcons; zu-langsam-Alert via alert_top; AUFSTEIGEND; Mock-Fallback
+- **phase5319** `FahrerPhase5319MeineLieferzeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≤20min/≤30min/>30min; avg_min 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Timer orange-400; 30-Min-Poll
+- **phase5321** `KitchenPhase5321LieferzeitTicker` — Timer orange-400; Schnellste/r Rang+avg_min; Team-Ø; zu-langsam-Alert; 30-Min-Poll; Mock-Fallback
+
+**KRITISCH: Nächste freie Phase ist 5322!**
+
+**Vorschlag Batch 39:** Fahrer-Rückkehrzeit-Ranking (Ø Minuten Rückkehr zur Basis nach Tour — AUFSTEIGEND, niedrigste = bester)
+- Phase 5322: Dispatch `DispatchPhase5322RueckkehrzeitBoard` — Home blue-400; AUFSTEIGEND
+- Phase 5323: Fahrer `FahrerPhase5323MeineRueckkehrzeit` — Home blue-400; Coaching API-abhängig
+- Phase 5324: Storefront — skip
+- Phase 5325: Kitchen `KitchenPhase5325RueckkehrzeitTicker` — Home blue-400
+
+---
+
+Backend-Architekt-Agent (2026-07-31): Batch 38 abgeschlossen. API fahrer-durchschnitts-lieferzeit-ranking (avg_min AUFSTEIGEND). Import+Render+Barrel ✅ Dispatch(5318) + Fahrer(5319) + Kitchen(5321). Build exit 0. **Nächste freie Phase: 5322.**
