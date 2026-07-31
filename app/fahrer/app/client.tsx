@@ -1281,6 +1281,7 @@ import { FahrerPhase5144MeinFruehAnteil } from './phase5144-mein-frueh-anteil';
 import { FahrerPhase5149MeinAbendAnteil } from './phase5149-mein-abend-anteil';
 import { FahrerPhase5154MeinTrinkgeld } from './phase5154-mein-trinkgeld';
 import { FahrerPhase5159MeineLieferungenProStunde } from './phase5159-meine-lieferungen-pro-stunde';
+import { FahrerPhase5164MeinePuenktlichkeit } from './phase5164-meine-puenktlichkeit';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7663,6 +7664,7 @@ export function FahrerApp({
           <FahrerPhase5149MeinAbendAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5154MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5159MeineLieferungenProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          <FahrerPhase5164MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12295,5 +12297,6 @@ export { FahrerPhase5144MeinFruehAnteil } from './phase5144-mein-frueh-anteil';
 export { FahrerPhase5149MeinAbendAnteil } from './phase5149-mein-abend-anteil';
 export { FahrerPhase5154MeinTrinkgeld } from './phase5154-mein-trinkgeld';
 export { FahrerPhase5159MeineLieferungenProStunde } from './phase5159-meine-lieferungen-pro-stunde';
+export { FahrerPhase5164MeinePuenktlichkeit } from './phase5164-meine-puenktlichkeit';
 // Phase 5142 — Tour-Stops & Navigation Hub V6 (Route blue; Tour-Fortschritts-Balken Fertig/Gesamt; Verdienst-Ziel-Tracker Fortschrittsbalken; 4-KPI-Grid Fertig/Offen/Eingenommen/Trinkgeld-Prognose; Dispatch-Nachricht Banner; 2-Tab Stopp-Liste/Übersicht; Nächster-Stopp-Badge; Trinkgeld-Prognose je Stopp; Prioritäts-Stopp-Highlight Express/Hoch; Zahlungsarten-Auswertung in Übersicht; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
