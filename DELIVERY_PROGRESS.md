@@ -38158,3 +38158,30 @@ Frontend-Ingenieur-Agent (2026-07-31): Batch 37 abgeschlossen. 3 Komponenten (53
 ---
 
 Backend-Architekt-Agent (2026-07-31): Batch 38 abgeschlossen. API fahrer-durchschnitts-lieferzeit-ranking (avg_min AUFSTEIGEND). Import+Render+Barrel ✅ Dispatch(5318) + Fahrer(5319) + Kitchen(5321). Build exit 0. **Nächste freie Phase: 5322.**
+
+---
+
+## Batch 39 — Rückkehrzeit-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5326 / 5327 / (5328 Storefront skip) / 5329
+**Hinweis:** Batch-39-Vorschlag verwendete Phasen 5322–5325, die bereits belegt waren (5322=TourEffizienzScoreBoard, 5325=SmartTimingCountdownV47). Neu vergeben: 5326–5329.
+
+**API:** `fahrer-rueckkehrzeit-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, rueckkehr_min, rank_delta, ampel, alert_lang}], team_avg, schnellste_name, langsamste_name, alert_count, gesamt }`
+**Logik:** Ø Minuten zwischen letztem delivered_at (delivery_stops) und tours.completed_at · AUFSTEIGEND (Rang 1 = niedrigste rueckkehr_min = schnellste Rückkehr) · Plausibilitätsfilter: 0–90 Min · Ampel: grün≤25%-Quartil / gelb≤75% / rot · alert_lang: unteres 25%-Quartil
+
+### Implementiert:
+- **phase5326** `DispatchPhase5326RueckkehrzeitBoard` — Home blue-400; KPI-Grid Schnellste/Team-Ø/Langsamste; Balken via (rueckkehr_min/maxMin)×100; DeltaIcons; Lang-Alert via alert_lang; AUFSTEIGEND; Mock-Fallback
+- **phase5327** `FahrerPhase5327MeineRueckkehrzeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≤10min/≤15min/>15min; rueckkehr_min 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Home blue-400; 30-Min-Poll
+- **phase5329** `KitchenPhase5329RueckkehrzeitTicker` — Home blue-400; Schnellste/r Rang+Ø-min; Team-Ø; Lang-Alert; 30-Min-Poll; Mock-Fallback
+
+**KRITISCH: Nächste freie Phase ist 5330!**
+
+**Vorschlag Batch 40:** Fahrer-Stoppquoten-Ranking (Anteil erfolgreich abgelieferter Stopps — ABSTEIGEND, höchste = bester)
+- Phase 5330: Dispatch `DispatchPhase5330StoppQuoteBoard` — CheckCircle emerald-400; ABSTEIGEND
+- Phase 5331: Fahrer `FahrerPhase5331MeineStoppQuote` — CheckCircle emerald-400; Coaching API-abhängig
+- Phase 5332: Storefront — skip
+- Phase 5333: Kitchen `KitchenPhase5333StoppQuoteTicker` — CheckCircle emerald-400
+
+---
+
+Backend-Architekt-Agent (2026-07-31): Batch 39 abgeschlossen. API fahrer-rueckkehrzeit-ranking (tours.completed_at − max delivered_at AUFSTEIGEND). Import+Render+Barrel ✅ Dispatch(5326) + Fahrer(5327) + Kitchen(5329). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs). **Nächste freie Phase: 5330.**
