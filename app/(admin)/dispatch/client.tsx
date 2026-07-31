@@ -1344,6 +1344,7 @@ import { DispatchPhase5091NachtAnteilBoard } from './phase5091-nacht-anteil-boar
 import { DispatchPhase5096RoiScoreBoard } from './phase5096-roi-score-board';
 import { DispatchPhase5099ProduktivitaetsBoard } from './phase5099-produktivitaets-board';
 import { DispatchPhase5102ZufriedenheitsIndexBoard } from './phase5102-zufriedenheits-index-board';
+import { DispatchPhase5107ZuverlaessigkeitBoard } from './phase5107-zuverlaessigkeit-board';
 import { DispatchPhase5110ScoreTourVisualisierungV19 } from './phase5110-score-tour-visualisierung-v19';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
@@ -5457,6 +5458,8 @@ export function DispatchBoard({
           <DispatchPhase5099ProduktivitaetsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5102: Zufriedenheits-Index-Board — Smile emerald; ABSTEIGEND Rang 1=höchster Zufriedenheits-Index; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
           <DispatchPhase5102ZufriedenheitsIndexBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5107: Zuverlässigkeits-Score-Board — Shield violet; ABSTEIGEND Rang 1=höchster Score; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling */}
+          <DispatchPhase5107ZuverlaessigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5110: Score + Tour-Visualisierung V19 — Trophy violet; Fleet-Score+Delta; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+Betrag+Bewertung; Score-Balken; 20-Sek-Polling */}
           <DispatchPhase5110ScoreTourVisualisierungV19 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
@@ -14329,6 +14332,9 @@ export { DispatchPhase5099ProduktivitaetsBoard } from './phase5099-produktivitae
 
 // Phase 5102 — Zufriedenheits-Index-Board (Smile emerald-700; absteigend Rang 1=höchster Zufriedenheits-Index; KPI-Grid Beste/Team-Avg/Niedrigste; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5102ZufriedenheitsIndexBoard } from './phase5102-zufriedenheits-index-board';
+
+// Phase 5107 — Zuverlässigkeits-Score-Board (Shield violet-700; absteigend Rang 1=höchster Score; KPI-Grid Höchster/Team-Avg/Niedrigster; Alert Niedrig rot; Balken farbkodiert; DeltaIcon; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5107ZuverlaessigkeitBoard } from './phase5107-zuverlaessigkeit-board';
 
 // Phase 5110 — Score + Tour-Visualisierung V19 (Trophy violet; Fleet-Score+Delta+KPI-Grid; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+Betrag+Bewertung; Score-Balken; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5110ScoreTourVisualisierungV19 } from './phase5110-score-tour-visualisierung-v19';

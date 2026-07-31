@@ -1288,6 +1288,7 @@ import { KitchenPhase5094NachtAnteilTicker } from './phase5094-nacht-anteil-tick
 import { KitchenPhase5095RoiScoreTicker } from './phase5095-roi-score-ticker';
 import { KitchenPhase5098ProduktivitaetsTicker } from './phase5098-produktivitaets-ticker';
 import { KitchenPhase5105ZufriedenheitsIndexTicker } from './phase5105-zufriedenheits-index-ticker';
+import { KitchenPhase5111ZuverlaessigkeitTicker } from './phase5111-zuverlaessigkeit-ticker';
 import { KitchenPhase5110SmartTimingCountdownV37 } from './phase5110-smart-timing-countdown-v37';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
@@ -5045,6 +5046,8 @@ export function KitchenBoard({
       <KitchenPhase5098ProduktivitaetsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5105: Zufriedenheits-Index-Ticker — Smile emerald; Beste #1 Name+Score; Team-Avg; Alert-Count rot; 30-Min-Polling */}
       <KitchenPhase5105ZufriedenheitsIndexTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5111: Zuverlässigkeits-Ticker — Shield violet; Zuverlässigste #1 Name+Score; Team-Avg; Alert-Count rot; 30-Min-Polling */}
+      <KitchenPhase5111ZuverlaessigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5110: Smart-Timing Countdown V37 — 5-stufige Farbkodierung ok/warn/critical/overdue/done; Station-Filter Grill/Friture/Kalt/Pasta/Ofen; 4-KPI-Grid Aktiv/Kritisch/Bereit/Score; Countdown-Wall 2-spaltig Fortschrittsbalken+Fahrer-ETA-Sync; 1s-Tick+15s-Polling */}
       <KitchenPhase5110SmartTimingCountdownV37 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
@@ -12898,6 +12901,9 @@ export { KitchenPhase5098ProduktivitaetsTicker } from './phase5098-produktivitae
 
 // Phase 5105 — Zufriedenheits-Index-Ticker (Smile emerald-700; Beste #1 Name+Score; Team-Ø; Alert-Count rot; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5105ZufriedenheitsIndexTicker } from './phase5105-zufriedenheits-index-ticker';
+
+// Phase 5111 — Zuverlässigkeits-Ticker (Shield violet-700; Zuverlässigste #1 Name+Score; Team-Ø; Alert-Count rot; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5111ZuverlaessigkeitTicker } from './phase5111-zuverlaessigkeit-ticker';
 
 // Phase 5075 — Smart Timing Delivery Hub (ChefHat indigo; Countdown je Bestellung farbkodiert 4-stufig; Fortschrittsbalken; Fahrer-Sync-Hinweis; KPI-Grid Aktiv/Kritisch/Fertig; Score-Badge; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5075SmartTimingDeliveryHub } from './phase5075-smart-timing-delivery-hub';

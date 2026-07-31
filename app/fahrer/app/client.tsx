@@ -1262,6 +1262,7 @@ import { FahrerPhase5092MeinNachtAnteil } from './phase5092-mein-nacht-anteil';
 import { FahrerPhase5097MeinRoiScore } from './phase5097-mein-roi-score';
 import { FahrerPhase5100MeineProduktivitaet } from './phase5100-meine-produktivitaet';
 import { FahrerPhase5103MeinZufriedenheitsIndex } from './phase5103-mein-zufriedenheits-index';
+import { FahrerPhase5108MeineZuverlaessigkeit } from './phase5108-meine-zuverlaessigkeit';
 import { FahrerPhase5110TourStopsNavigationHub } from './phase5110-tour-stops-navigation-hub';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7608,6 +7609,8 @@ export function FahrerApp({
           <FahrerPhase5100MeineProduktivitaet driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5103: Mein Zufriedenheits-Index — Smile emerald; zufriedenheits_index 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥80/≥60/<60; 30-Min-Polling */}
           <FahrerPhase5103MeinZufriedenheitsIndex driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5108: Meine Zuverlässigkeit — Shield violet; score 4xl+Rang 2xl; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥80/≥60/<60; 30-Min-Polling */}
+          <FahrerPhase5108MeineZuverlaessigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5110: Tour-Stops Navigation Hub — Nächster-Stopp-Banner+Prio-Badge express/hoch; Stop-Liste aufklappbar Status-Dots; Fortschrittsbalken; Anruf-Button; Google-Maps-Deeplink; Distanz-km; 15s-Polling */}
           <FahrerPhase5110TourStopsNavigationHub isOnline={isOnline} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12192,6 +12195,9 @@ export { FahrerPhase5100MeineProduktivitaet } from './phase5100-meine-produktivi
 
 // Phase 5103 — Mein Zufriedenheits-Index (Smile emerald-700; zufriedenheits_index 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥80/≥60/<60; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5103MeinZufriedenheitsIndex } from './phase5103-mein-zufriedenheits-index';
+
+// Phase 5108 — Meine Zuverlässigkeit (Shield violet-700; score 4xl+Rang 2xl farbkodiert; isOnline-Guard; WifiOff-Fallback; Mini-Bar Ich vs Team-Ø; Coaching ≥80/≥60/<60; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5108MeineZuverlaessigkeit } from './phase5108-meine-zuverlaessigkeit';
 
 // Phase 5075 — Tour Smart Navigation Hub (Navigation blue; Nächster-Stopp-Banner+Start-CTA; Stop-Liste aufklappbar Status-Dots; ETA-Ampel; Navigation Google Maps Deeplink; Anruf-Button; Abschließen-CTA; Prioritäts-Badge hoch/express; 15-Sek-Polling; Mock-Fallback)
 export { TourSmartNavigationHub } from './tour-smart-navigation-hub';
