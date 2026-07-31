@@ -37329,3 +37329,22 @@ KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMME
 - Phase 5220: Fahrer `FahrerPhase5220MeineLieferungenProStunde` — Activity teal-400; Coaching ≥4/h/≥2.5/h/<2.5/h
 - Phase 5221: Storefront — skip
 - Phase 5222: Kitchen `KitchenPhase5222LieferungenProStundeTicker` — Activity teal-400
+
+---
+
+## Batch 16 — Lieferungen-pro-Stunde-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5219 / 5220 / (5221 Storefront skip) / 5222
+
+### Implementiert:
+- **phase5219** `DispatchPhase5219LieferungenProStundeBoard` — Activity teal-400; KPI-Grid Produktivste/Team-Ø/Wenigste; Balken via deliveries_pro_h; DeltaIcons; Niedrig-Alert; Reuse `fahrer-lieferungen-pro-stunde-ranking`; ABSTEIGEND
+- **phase5220** `FahrerPhase5220MeineLieferungenProStunde` — isOnline-Guard; WifiOff-Fallback; Coaching ≥4/h/≥2.5/h/<2.5/h; Mini-Balken; Ampel-Border
+- **phase5222** `KitchenPhase5222LieferungenProStundeTicker` — Activity teal-400; Produktivste Rang+/h; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5223!**
+
+**Vorschlag Batch 17:** Fahrer-Touren-pro-Tag-Ranking (Ø Touren je Arbeitstag, letzte 30 Tage — ABSTEIGEND, höchste = bester)
+- Phase 5223: Dispatch `DispatchPhase5223TourenProTagBoard` — BarChart2 cyan-400
+- Phase 5224: Fahrer `FahrerPhase5224MeineTourenProTag` — BarChart2 cyan-400; Coaching ≥3/Tag/≥2/Tag/<2/Tag
+- Phase 5225: Storefront — skip
+- Phase 5226: Kitchen `KitchenPhase5226TourenProTagTicker` — BarChart2 cyan-400
