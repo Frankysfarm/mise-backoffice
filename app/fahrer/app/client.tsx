@@ -7758,7 +7758,7 @@ export function FahrerApp({
           <FahrerPhase1956TourStoppCockpitV2 />
           {/* Phase 5311: Meine Touren-Effizienz — Zap yellow-400; Score 0–100 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching ≥80/≥60/<60; Mini-Balken vs Team-Ø; Ampel-Border; 30-Min-Polling */}
           <FahrerPhase5311MeineTourenEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
-          {/* Phase 5315: Meine Kilometer — Route green-400; km_gesamt 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching ≥150/≥80/<80; Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling */}
+          {/* Phase 5315: Meine Kilometer heute — Route green-400; km 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching relativ zu Team-Ø; Mini-Balken vs Team-Ø; Ampel-Border; 30-Min-Polling */}
           <FahrerPhase5315MeineKilometer driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
@@ -12441,7 +12441,7 @@ export { FahrerPhase5307MeinSchichtPuenktlichkeitTrend } from './phase5307-mein-
 export { FahrerPhase1956TourStoppCockpitV2 } from './phase1956-tour-stopp-cockpit-v2';
 // Phase 5311 — Meine Touren-Effizienz (Zap yellow-400; Score 0–100 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching ≥80/≥60/<60; Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5311MeineTourenEffizienz } from './phase5311-meine-touren-effizienz';
-// Phase 5315 — Meine Kilometer (Route green-400; km_gesamt 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching ≥150/≥80/<80; Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback)
+// Phase 5315 — Meine Kilometer heute (Route green-400; km 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching relativ zu Team-Ø; Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5315MeineKilometer } from './phase5315-meine-kilometer';
 // Phase 5142 — Tour-Stops & Navigation Hub V6 (Route blue; Tour-Fortschritts-Balken Fertig/Gesamt; Verdienst-Ziel-Tracker Fortschrittsbalken; 4-KPI-Grid Fertig/Offen/Eingenommen/Trinkgeld-Prognose; Dispatch-Nachricht Banner; 2-Tab Stopp-Liste/Übersicht; Nächster-Stopp-Badge; Trinkgeld-Prognose je Stopp; Prioritäts-Stopp-Highlight Express/Hoch; Zahlungsarten-Auswertung in Übersicht; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';

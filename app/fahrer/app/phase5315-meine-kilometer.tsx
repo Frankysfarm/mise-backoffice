@@ -7,9 +7,7 @@ interface FahrerRow {
   fahrer_id: string;
   fahrer_name: string;
   rang: number;
-  km_gesamt: number;
-  touren_count: number;
-  km_pro_tour: number;
+  km_heute: number;
   ampel: 'gruen' | 'gelb' | 'rot';
 }
 
@@ -19,17 +17,17 @@ interface ApiResponse {
   gesamt: number;
 }
 
-function coachingTipp(km: number): { text: string; color: string } {
-  if (km >= 150) return {
-    text: 'Kilometermeister! Du lieferst mehr als alle — dein Einsatz trägt das Team.',
+function coachingTipp(km: number, teamAvg: number): { text: string; color: string } {
+  if (km >= teamAvg * 1.2) return {
+    text: 'Starke Leistung heute! Du fährst deutlich mehr als deine Kollegen — perfekte Abdeckung.',
     color: 'text-green-300',
   };
-  if (km >= 80) return {
-    text: 'Solide Strecke. Mit einem Tour mehr pro Schicht erreichst du die Spitze.',
+  if (km >= teamAvg * 0.8) return {
+    text: 'Solide Kilometer heute. Noch eine Tour drauf und du liegst über dem Team-Durchschnitt.',
     color: 'text-yellow-400',
   };
   return {
-    text: 'Noch Luft nach oben. Mehr Touren annehmen und aktive Schichten verlängern.',
+    text: 'Noch wenige Kilometer heute. Nimm aktiv Touren an, um deinen Beitrag zu steigern.',
     color: 'text-orange-400',
   };
 }
@@ -74,36 +72,35 @@ export function FahrerPhase5315MeineKilometer({
   const mein = data.fahrer.find((f: FahrerRow) => f.fahrer_id === driverId) ?? data.fahrer[0];
   if (!mein) return null;
 
-  const tipp = coachingTipp(mein.km_gesamt);
-  const maxKm = Math.max(...data.fahrer.map(f => f.km_gesamt), 1);
-  const barWidth    = Math.round((mein.km_gesamt / maxKm) * 100);
-  const teamBarWidth = Math.round((data.team_avg_km  / maxKm) * 100);
+  const tipp = coachingTipp(mein.km_heute, data.team_avg_km);
+  const maxKm = Math.max(...data.fahrer.map(f => f.km_heute), 1);
+  const barWidth = Math.min(100, (mein.km_heute / maxKm) * 100);
+  const teamBarWidth = Math.min(100, (data.team_avg_km / maxKm) * 100);
 
   const borderColor =
     mein.ampel === 'gruen' ? 'border-green-700 bg-green-950/30' :
-    mein.ampel === 'gelb'  ? 'border-yellow-800 bg-yellow-950/20' :
+    mein.ampel === 'gelb'  ? 'border-green-800 bg-green-950/20' :
                              'border-red-700 bg-red-950/30';
   const headerBg =
     mein.ampel === 'gruen' ? 'border-green-800/40 bg-green-900/20' :
-    mein.ampel === 'gelb'  ? 'border-yellow-900/40 bg-yellow-900/10' :
+    mein.ampel === 'gelb'  ? 'border-green-900/40 bg-green-900/10' :
                              'border-red-800/40 bg-red-900/20';
 
   return (
     <div className={`rounded-2xl border mb-3 overflow-hidden ${borderColor}`}>
       <div className={`px-4 py-3 flex items-center gap-2 border-b ${headerBg}`}>
         <Route className="w-4 h-4 text-green-400 shrink-0" />
-        <span className="text-sm font-semibold text-gray-200">Meine Kilometer</span>
+        <span className="text-sm font-semibold text-gray-200">Meine Kilometer heute</span>
       </div>
 
       <div className="px-4 py-4 text-center">
         <div className="text-4xl font-black tabular-nums text-green-300">
-          {mein.km_gesamt}
+          {mein.km_heute}
           <span className="text-xl font-semibold text-gray-400"> km</span>
         </div>
         <div className="text-2xl font-bold mt-1 text-green-300">
           Rang #{mein.rang} <span className="text-sm text-gray-500">von {data.gesamt}</span>
         </div>
-        <div className="text-[10px] text-gray-500 mt-1">{mein.touren_count} Touren · Ø {mein.km_pro_tour} km/Tour</div>
       </div>
 
       <div className="px-4 pb-3">
