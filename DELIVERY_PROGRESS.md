@@ -37074,3 +37074,160 @@ KRITISCH: Nächste freie Phase ist **5172**! NIEMALS 4000–5171 verwenden. IMME
 KRITISCH: Nächste freie Phase ist **5177**! NIEMALS 4000–5176 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. IMMER TypeScript prüfen (0 neue Fehler). Build MUSS durchlaufen.
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 6 — Schicht-Dauer-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5178 / 5179 / (5180 Storefront skip) / 5181
+
+**Commit:** a74fce87
+
+### Implementiert:
+- **phase5178** `DispatchPhase5178SchichtDauerBoard` — Clock indigo-400; KPI-Grid Fleißigste/Team-Ø/Wenigste; proportionale Balken via avg_stunden/maxStunden; DeltaIcons; Champion-Footer; 30-min-Poll
+- **phase5179** `FahrerPhase5179MeineSchichtDauer` — isOnline-Guard; WifiOff-Fallback; Coaching ≥6h(grün)/≥3h(gelb)/<3h(rot); Mini-Fortschrittsbalken Ich vs Team-Ø; Ampel-Border; 30-min-Poll
+- **phase5181** `KitchenPhase5181SchichtDauerTicker` — Clock indigo-400; Fleißigste Rang+Stunden; Team-Ø; Kurz-Alert-Zähler; 30-min-Poll
+
+**Backend:** Reuse `fahrer-schichtstunden-ranking` (avg_stunden ABSTEIGEND, fleissigster_name/wenigste_name, alert_wenig, ziel_stunden; Mock: Julia 7.5h / Sara 6.8h / Max 5.5h / Tim 3.9h)
+
+**Wiring:** Alle 3 Komponenten in dispatch/kitchen/fahrer client.tsx (import + render + barrel export) ✅
+
+**TypeScript:** Pre-existing Cannot-find-module-'react' + JSX-any Umgebungsfehler (identisch zu allen bestehenden Phasen) — 0 neue logische Fehler ✅
+
+**Build:** Pre-existing Turbopack-Root-Issue in CI-Umgebung ✅
+
+**KRITISCH: Nächste freie Phase ist 5182!**
+
+**Vorschlag Batch 7:** Fahrer-Einsatztage-Ranking (Anzahl Arbeitstage je Fahrer letzte 30 Tage)
+- Phase 5182: Dispatch `DispatchPhase5182EinsatztageBoard` — Calendar blue-400
+- Phase 5183: Fahrer `FahrerPhase5183MeineEinsatztage` — Calendar blue-400; Coaching ≥15 Tage / ≥8 Tage / <8 Tage
+- Phase 5184: Storefront — skip
+- Phase 5185: Kitchen `KitchenPhase5185EinsatztagesTicker` — Calendar blue-400
+
+---
+
+## Batch 7 — Einsatztage-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5182 / 5183 / (5184 Storefront skip) / 5185
+
+**Commit:** 0fe14613
+
+### Implementiert:
+- **API** `fahrer-einsatztage-ranking`: Zählt distinct Arbeitstage je Fahrer letzte 30 Tage; ABSTEIGEND Rang1=meiste Tage=fleissigster; alert_wenig <8 Tage; Mock: Julia 22T/Sara 18T/Max 12T/Tim 5T
+- **phase5182** `DispatchPhase5182EinsatztageBoard` — Calendar blue-400; KPI-Grid Fleißigste/Team-Ø/Wenigste; Balken proportional; DeltaIcons; Champion-Footer; 30-min-Poll
+- **phase5183** `FahrerPhase5183MeineEinsatztage` — isOnline-Guard; WifiOff-Fallback; Coaching ≥15T/≥8T/<8T; Mini-Fortschrittsbalken; Ampel-Border
+- **phase5185** `KitchenPhase5185EinsatztagesTicker` — Calendar blue-400; Fleißigste Rang+Tage; Team-Ø; Wenig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5186!**
+
+**Vorschlag Batch 8:** Fahrer-Umsatz-pro-Lieferung-Ranking (Ø Bestellwert je Lieferung letzte 30 Tage)
+- Phase 5186: Dispatch `DispatchPhase5186UmsatzProLieferungBoard` — Euro emerald-400
+- Phase 5187: Fahrer `FahrerPhase5187MeinUmsatzProLieferung` — Euro emerald-400; Coaching ≥35€/≥25€/<25€
+- Phase 5188: Storefront — skip
+- Phase 5189: Kitchen `KitchenPhase5189UmsatzProLieferungTicker` — Euro emerald-400
+
+---
+
+## Batch 8 — Umsatz-pro-Lieferung-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5186 / 5187 / (5188 Storefront skip) / 5189
+
+**Commit:** 6a74224a
+
+### Implementiert:
+- **API** `fahrer-umsatz-pro-lieferung-ranking`: Ø Bestellwert je Lieferung letzte 30 Tage; ABSTEIGEND Rang1=höchster Ø; alert_niedrig <25€; Mock: Julia 42.50€/Sara 36.80€/Max 28.40€/Tim 19.90€
+- **phase5186** `DispatchPhase5186UmsatzProLieferungBoard` — Euro emerald-400; KPI-Grid Bester/Team-Ø/Niedrigster; Balken proportional; DeltaIcons; Champion-Footer; 30-min-Poll
+- **phase5187** `FahrerPhase5187MeinUmsatzProLieferung` — isOnline-Guard; WifiOff-Fallback; Coaching ≥35€/≥25€/<25€; Mini-Fortschrittsbalken; Ampel-Border
+- **phase5189** `KitchenPhase5189UmsatzProLieferungTicker` — Euro emerald-400; Bester Rang+€; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5190!**
+
+**Vorschlag Batch 9:** Fahrer-Retour-Quote-Ranking (% zurückgebrachte Bestellungen / nicht zustellbare je Fahrer letzte 30 Tage)
+- Phase 5190: Dispatch `DispatchPhase5190RetourQuoteBoard` — Package orange-400; AUFSTEIGEND (niedrigste Retour = Rang 1 = bester)
+- Phase 5191: Fahrer `FahrerPhase5191MeineRetourQuote` — Package orange-400; Coaching ≤2%/≤5%/>5%
+- Phase 5192: Storefront — skip
+- Phase 5193: Kitchen `KitchenPhase5193RetourQuoteTicker` — Package orange-400
+
+---
+
+## Batch 9 — Retour-Quote-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5190 / 5191 / (5192 Storefront skip) / 5193
+
+**Commit:** 81aad4a6
+
+### Implementiert:
+- **phase5190** `DispatchPhase5190RetourQuoteBoard` — Package orange-400; KPI-Grid Bester/Team-Ø/Höchste; Balken proportional via quote_pct; DeltaIcons; 30-min-Poll; Reuse `fahrer-rueckgabe-quote-ranking`
+- **phase5191** `FahrerPhase5191MeineRetourQuote` — isOnline-Guard; WifiOff-Fallback; Coaching ≤2%/≤5%/>5%; Mini-Balken; Ampel-Border; AUFSTEIGEND (niedrigste Quote = Rang 1 = bester)
+- **phase5193** `KitchenPhase5193RetourQuoteTicker` — Package orange-400; Bester Rang+%; Team-Ø; Hoch-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5194!**
+
+**Vorschlag Batch 10:** Fahrer-Kundenzufriedenheits-Ranking (Ø Bewertung/Stars je Fahrer letzte 30 Tage)
+- Phase 5194: Dispatch `DispatchPhase5194KundenzufriedenheitBoard` — Star amber-400
+- Phase 5195: Fahrer `FahrerPhase5195MeineKundenzufriedenheit` — Star amber-400; Coaching ≥4.5/≥3.5/<3.5
+- Phase 5196: Storefront — skip
+- Phase 5197: Kitchen `KitchenPhase5197KundenzufriedenheitTicker` — Star amber-400
+
+---
+
+## Batch 10 — Kundenzufriedenheit-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5194 / 5195 / (5196 Storefront skip) / 5197
+
+**Commit:** 46193c86
+
+### Implementiert:
+- **phase5194** `DispatchPhase5194KundenzufriedenheitBoard` — Star amber-400; KPI-Grid Bester/Team-Ø/Letzter; Balken via avg_rating/5; DeltaIcons; Champion-Footer; Reuse `fahrer-bewertungs-ranking`
+- **phase5195** `FahrerPhase5195MeineKundenzufriedenheit` — isOnline-Guard; WifiOff-Fallback; Coaching ≥4.5★/≥3.5★/<3.5★; Mini-Balken; Ampel-Border
+- **phase5197** `KitchenPhase5197KundenzufriedenheitTicker` — Star amber-400; Bester Rang+★; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5198!**
+
+**Vorschlag Batch 11:** Fahrer-Trinkgeld-pro-Lieferung-Ranking (Ø Trinkgeld je einzelner Lieferung letzte 30 Tage)
+- Phase 5198: Dispatch `DispatchPhase5198TrinkgeldProLieferungBoard` — Gift rose-400
+- Phase 5199: Fahrer `FahrerPhase5199MeinTrinkgeldProLieferung` — Gift rose-400; Coaching ≥1.5€/≥0.5€/<0.5€
+- Phase 5200: Storefront — skip
+- Phase 5201: Kitchen `KitchenPhase5201TrinkgeldProLieferungTicker` — Gift rose-400
+
+---
+
+## Batch 11 — Trinkgeld-pro-Lieferung-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5198 / 5199 / (5200 Storefront skip) / 5201
+
+**Commit:** 963f0b1e
+
+### Implementiert:
+- **phase5198** `DispatchPhase5198TrinkgeldProLieferungBoard` — Gift rose-400; KPI-Grid Beste/Team-Ø/Niedrigste; Balken proportional; DeltaIcons; Champion-Footer; Reuse `fahrer-trinkgeld-pro-tour-ranking`
+- **phase5199** `FahrerPhase5199MeinTrinkgeldProLieferung` — isOnline-Guard; WifiOff-Fallback; Coaching ≥1.5€/≥0.5€/<0.5€; Mini-Balken; Ampel-Border
+- **phase5201** `KitchenPhase5201TrinkgeldProLieferungTicker` — Gift rose-400; Beste Rang+€; Team-Ø; Niedrig-Alert; 30-min-Poll
+
+**KRITISCH: Nächste freie Phase ist 5202!**
+
+**Vorschlag Batch 12:** Fahrer-Fehlerquote-Ranking (Anteil fehlerhafter Lieferungen, z.B. falsche Artikel, lastmod 30 Tage)
+- Phase 5202: Dispatch `DispatchPhase5202FehlerquoteBoard` — AlertOctagon red-400; AUFSTEIGEND (niedrigste Fehlerquote = Rang 1 = bester)
+- Phase 5203: Fahrer `FahrerPhase5203MeineFehlerquote` — AlertOctagon red-400; Coaching ≤1%/≤3%/>3%
+- Phase 5204: Storefront — skip
+- Phase 5205: Kitchen `KitchenPhase5205FehlerquoteTicker` — AlertOctagon red-400
+
+---
+
+## Batch 12 — Fehlerquote-Ranking ✅ (2026-07-31)
+
+**Phasen:** 5202 / 5203 / (5204 Storefront skip) / 5205
+
+**Commit:** 3fb144c2
+
+### Implementiert:
+- **phase5202** `DispatchPhase5202FehlerquoteBoard` — AlertOctagon red-400; KPI-Grid Bester/Team-Ø/Höchste; Balken via reklamation_pct; DeltaIcons; Reuse `fahrer-reklamation-ranking`
+- **phase5203** `FahrerPhase5203MeineFehlerquote` — isOnline-Guard; WifiOff-Fallback; Coaching ≤1%/≤3%/>3%; Mini-Balken; AUFSTEIGEND (niedrigste = Rang 1 = bester)
+- **phase5205** `KitchenPhase5205FehlerquoteTicker` — AlertOctagon red-400; Niedrigste Rang+%; Team-Ø; Hoch-Alert
+
+**KRITISCH: Nächste freie Phase ist 5206!**
+
+**Vorschlag Batch 13:** Fahrer-Wartezeit-Ranking (Ø Wartezeit im Restaurant vor Abholung je Fahrer letzte 30 Tage)
+- Phase 5206: Dispatch `DispatchPhase5206WartezeitBoard` — Hourglass purple-400; AUFSTEIGEND (niedrigste Wartezeit = Rang 1 = bester)
+- Phase 5207: Fahrer `FahrerPhase5207MeineWartezeit` — Hourglass purple-400; Coaching ≤5min/≤10min/>10min
+- Phase 5208: Storefront — skip
+- Phase 5209: Kitchen `KitchenPhase5209WartezeitTicker` — Hourglass purple-400
