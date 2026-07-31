@@ -1346,6 +1346,7 @@ import { DispatchPhase5099ProduktivitaetsBoard } from './phase5099-produktivitae
 import { DispatchPhase5102ZufriedenheitsIndexBoard } from './phase5102-zufriedenheits-index-board';
 import { DispatchPhase5107ZuverlaessigkeitBoard } from './phase5107-zuverlaessigkeit-board';
 import { DispatchPhase5110ScoreTourVisualisierungV19 } from './phase5110-score-tour-visualisierung-v19';
+import { DispatchPhase5111ScoreTourVisualisierungV20 } from './phase5111-score-tour-visualisierung-v20';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
 import { DispatchPhase4827ScoreTourVisualisierungV3 } from './phase4827-score-tour-visualisierung-v3';
 import { DispatchPhase4831ScoreTourVisualisierungV4 } from './phase4831-score-tour-visualisierung-v4';
@@ -5462,6 +5463,8 @@ export function DispatchBoard({
           <DispatchPhase5107ZuverlaessigkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5110: Score + Tour-Visualisierung V19 — Trophy violet; Fleet-Score+Delta; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+Betrag+Bewertung; Score-Balken; 20-Sek-Polling */}
           <DispatchPhase5110ScoreTourVisualisierungV19 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5111: Score + Tour-Visualisierung V20 — Fleet-Score+Delta; Route-Effizienz-Balken je Fahrer; 4-KPI-Grid Touren/Aktiv/Risiko/Route-Eff; Fahrer-Rangliste tier+Delay-Risiko+Score-Delta; Stopp-Dot-Sequenz; aufklappbare Stopp-Timeline ETA+Betrag+Bewertung; 20-Sek-Polling */}
+          <DispatchPhase5111ScoreTourVisualisierungV20 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5036: Tour-Score-Visualisierung V16 — Route-Effizienz-Score; Zonen-Coverage; ETA-Accuracy-Trend; aufklappbare Stopp-Timeline; 20-Sek-Polling */}
           <DispatchPhase5036ScoreTourVisualisierungV16 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5035: Tour-Score-Visualisierung V15 — Fleet-Score; Fahrer-Rangliste tier-farbkodiert; aufklappbare Stopp-Timeline; Delay-Risiko-Badge; 20-Sek-Polling */}
@@ -14338,3 +14341,5 @@ export { DispatchPhase5107ZuverlaessigkeitBoard } from './phase5107-zuverlaessig
 
 // Phase 5110 — Score + Tour-Visualisierung V19 (Trophy violet; Fleet-Score+Delta+KPI-Grid; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+Betrag+Bewertung; Score-Balken; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5110ScoreTourVisualisierungV19 } from './phase5110-score-tour-visualisierung-v19';
+// Phase 5111 — Score + Tour-Visualisierung V20 (Trophy violet; Fleet-Score+Delta; Route-Effizienz-Balken je Fahrer; 4-KPI-Grid Touren/Aktiv/Risiko/Route-Eff; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Stopp-Dot-Sequenz; aufklappbare Stopp-Timeline ETA+Betrag+Bewertung; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5111ScoreTourVisualisierungV20 } from './phase5111-score-tour-visualisierung-v20';

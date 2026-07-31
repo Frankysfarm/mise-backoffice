@@ -1290,6 +1290,7 @@ import { KitchenPhase5098ProduktivitaetsTicker } from './phase5098-produktivitae
 import { KitchenPhase5105ZufriedenheitsIndexTicker } from './phase5105-zufriedenheits-index-ticker';
 import { KitchenPhase5111ZuverlaessigkeitTicker } from './phase5111-zuverlaessigkeit-ticker';
 import { KitchenPhase5110SmartTimingCountdownV37 } from './phase5110-smart-timing-countdown-v37';
+import { KitchenPhase5111SmartTimingCountdownV38 } from './phase5111-smart-timing-countdown-v38';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
 import { KitchenPhase4830SmartTimingCountdownV17 } from './phase4830-smart-timing-countdown-v17';
 import { KitchenPhase4831SmartTimingCountdownV18 } from './phase4831-smart-timing-countdown-v18';
@@ -5050,6 +5051,8 @@ export function KitchenBoard({
       <KitchenPhase5111ZuverlaessigkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5110: Smart-Timing Countdown V37 — 5-stufige Farbkodierung ok/warn/critical/overdue/done; Station-Filter Grill/Friture/Kalt/Pasta/Ofen; 4-KPI-Grid Aktiv/Kritisch/Bereit/Score; Countdown-Wall 2-spaltig Fortschrittsbalken+Fahrer-ETA-Sync; 1s-Tick+15s-Polling */}
       <KitchenPhase5110SmartTimingCountdownV37 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5111: Smart-Timing Countdown V38 — 5-KPI-Grid inkl. Schicht-Effizienz; Station-Filter Alle/Grill/Friture/Kalt/Pasta/Ofen; Batch-ID-Badge; Fahrer-ETA-Sync-Zap; Schicht-Score-Trend TrendingUp/Down; Schicht-Effizienz-Balken; 1s-Tick+15s-Polling */}
+      <KitchenPhase5111SmartTimingCountdownV38 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5036: Smart-Timing Countdown V33 — Stations-Workload-Balken; Temperatur-Ampel; Batch-Prognose; Velocity-Ticker; 15s-Polling */}
       <KitchenPhase5036SmartTimingCountdownV33 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5035: Smart-Timing Countdown V32 — Farbkodierung rot<5min/gelb<10min/grün; Batch-Koordination; Prio-Ampel; 15s-Polling */}
@@ -12913,3 +12916,5 @@ export { KitchenPhase5076SmartTimingV36 } from './phase5076-smart-timing-v36';
 
 // Phase 5110 — Smart-Timing Countdown V37 (Timer indigo; 4-stufige Farbkodierung ok/warn/critical/overdue; Station-Filter-Tabs Grill/Friture/Kalt/Pasta/Ofen; 4-KPI-Grid Aktiv/Kritisch/Bereit/Score; Countdown-Wall 2-spaltig Fortschrittsbalken+Fahrer-ETA-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5110SmartTimingCountdownV37 } from './phase5110-smart-timing-countdown-v37';
+// Phase 5111 — Smart-Timing Countdown V38 (Timer indigo; 5-KPI-Grid Score/Aktiv/Kritisch/Bereit/Gesamt; Station-Filter Alle+Grill/Friture/Kalt/Pasta/Ofen; Batch-ID-Badge; Fahrer-ETA-Sync-Zap; Schicht-Score-Trend TrendingUp/Down; Schicht-Effizienz-Balken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase5111SmartTimingCountdownV38 } from './phase5111-smart-timing-countdown-v38';

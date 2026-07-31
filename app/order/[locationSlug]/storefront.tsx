@@ -483,6 +483,7 @@ import { StorefrontPhase1020DynamischeEtaLiveV3 } from './phase1020-dynamische-e
 import { StorefrontPhase1025DynamischeEtaLiveV4 } from './phase1025-dynamische-eta-live-v4';
 import { StorefrontPhase1030DynamischeEtaLiveV5 } from './phase1030-dynamische-eta-live-v5';
 import { StorefrontPhase5110DynamischeEtaLiveHubV4 } from './phase5110-dynamische-eta-live-hub-v4';
+import { StorefrontPhase5111DynamischeEtaLiveHubV5 } from './phase5111-dynamische-eta-live-hub-v5';
 import { Phase4475DynamischeEtaLiveTrackingV6 } from './phase4475-dynamische-eta-live-tracking-v6';
 import { Phase4500DynamischeEtaLiveHub } from './phase4500-dynamische-eta-live-hub';
 import { Phase5036DynamischeEtaLiveHubV2 } from './phase5036-dynamische-eta-live-hub-v2';
@@ -3393,6 +3394,13 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           locationId={locationId}
         />
       )}
+      {/* Phase 5111 V5: Dynamische ETA Live Hub V5 — ETA-Konfidenz-Banner; 4-Step-Timeline; Zubereitung-Fortschrittsbalken; Fahrer-Proximity-Pulse+Distanz; Geliefert-Konfetti; 30s-Polling */}
+      {order.isDelivery && order.orderId && (
+        <StorefrontPhase5111DynamischeEtaLiveHubV5
+          orderId={order.orderId}
+          locationId={locationId}
+        />
+      )}
       {/* Phase 985: Live-ETA-Tracking-Banner — Farbcodierter Phasen-Fortschritt + Sekunden-Countdown + Live-Tracking-Dot */}
       {order.isDelivery && (
         <Phase985LiveEtaTrackingBanner
@@ -4075,3 +4083,5 @@ export { Phase5056DynamischeEtaLiveHubV3 } from './phase5056-dynamische-eta-live
 
 // Phase 5110 — Dynamische ETA Live Hub V4 (Phasen-Timeline 4-stufig; Zubereitung-Fortschrittsbalken; Fahrer-Info-Banner; ETA-Konfidenz hoch/mittel/niedrig; 30s-Polling; Mock-Fallback)
 export { StorefrontPhase5110DynamischeEtaLiveHubV4 } from './phase5110-dynamische-eta-live-hub-v4';
+// Phase 5111 — Dynamische ETA Live Hub V5 (Activity indigo; ETA-Konfidenz-Banner hoch/mittel/niedrig; 4-Step-Phasen-Timeline Bestellt/Zubereitung/Abgeholt/Geliefert; Zubereitung-Fortschrittsbalken; Fahrer-Proximity-Pulse+Distanz-km+Annäherungs-Balken; Geliefert-Bestätigung; 30s-Polling; Mock-Fallback)
+export { StorefrontPhase5111DynamischeEtaLiveHubV5 } from './phase5111-dynamische-eta-live-hub-v5';

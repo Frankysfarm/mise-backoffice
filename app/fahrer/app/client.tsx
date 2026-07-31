@@ -1264,6 +1264,7 @@ import { FahrerPhase5100MeineProduktivitaet } from './phase5100-meine-produktivi
 import { FahrerPhase5103MeinZufriedenheitsIndex } from './phase5103-mein-zufriedenheits-index';
 import { FahrerPhase5108MeineZuverlaessigkeit } from './phase5108-meine-zuverlaessigkeit';
 import { FahrerPhase5110TourStopsNavigationHub } from './phase5110-tour-stops-navigation-hub';
+import { FahrerPhase5111TourStopsNavigationHubV2 } from './phase5111-tour-stops-navigation-hub-v2';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
 import { FahrerPhase4828MeinTourStoppNavigator } from './phase4828-mein-tour-stopp-navigator';
@@ -7613,6 +7614,8 @@ export function FahrerApp({
           <FahrerPhase5108MeineZuverlaessigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5110: Tour-Stops Navigation Hub — Nächster-Stopp-Banner+Prio-Badge express/hoch; Stop-Liste aufklappbar Status-Dots; Fortschrittsbalken; Anruf-Button; Google-Maps-Deeplink; Distanz-km; 15s-Polling */}
           <FahrerPhase5110TourStopsNavigationHub isOnline={isOnline} />
+          {/* Phase 5111: Tour-Stops Navigation Hub V2 — 3-KPI-Grid Eingenommen/Restzeit/Offen; Nächster-Stopp-Banner+Prio-Badge+Nav-CTA+Anruf-Button; Notiz-Warnung; Stop-Liste aufklappbar Distanz/Zahlungsart/ETA; Fortschrittsbalken; 15s-Polling */}
+          <FahrerPhase5111TourStopsNavigationHubV2 isOnline={isOnline} />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
           <FahrerPhase5036TourStoppSmartNavV15 driverId={driver.id} />
           {/* Phase 5035: Tour-Stopp Smart Navigator V14 — ETA-Ampel; Navigation-CTA; Kundenkontakt-Schnell; Barzahlung-Badge; 20-Sek-Polling */}
@@ -12208,3 +12211,5 @@ export { FahrerPhase5076TourNaviV18 } from './phase5076-tour-navi-v18';
 
 // Phase 5110 — Tour-Stops & Navigation Hub (Route blue; Nächster-Stopp-Banner+Prio-Badge express/hoch+Nav-CTA; Stop-Liste aufklappbar Status-Dots fertig/unterwegs/ausstehend/problem; Fortschrittsbalken; Anruf-Button; Zahlungsart Bar/Karte; Notiz-Warnung; Distanz-km; Google-Maps-Deeplink; 15-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5110TourStopsNavigationHub } from './phase5110-tour-stops-navigation-hub';
+// Phase 5111 — Tour-Stops & Navigation Hub V2 (Route blue; 3-KPI-Grid Eingenommen/Restzeit/Offen; Nächster-Stopp-Banner+Prio-Badge express/hoch+Nav-CTA+Anruf-Button; Notiz-Warnung; Stop-Liste aufklappbar Distanz-km/Zahlungsart/ETA/Notiz+Nav-Button; Fortschrittsbalken; 15-Sek-Polling; Mock-Fallback)
+export { FahrerPhase5111TourStopsNavigationHubV2 } from './phase5111-tour-stops-navigation-hub-v2';
