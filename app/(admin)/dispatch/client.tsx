@@ -1402,6 +1402,7 @@ import { DispatchPhase5300TourScoreVisualisierungV28 } from './phase5300-tour-sc
 import { DispatchPhase5302SchichtPuenktlichkeitBoard } from './phase5302-schicht-puenktlichkeit-board';
 import { DispatchPhase5303SchichtPuenktlichkeitBoard } from './phase5303-schicht-puenktlichkeit-board';
 import { DispatchPhase5306SchichtPuenktlichkeitTrendBoard } from './phase5306-schicht-puenktlichkeit-trend-board';
+import { DispatchPhase5310TourenEffizienzBoard } from './phase5310-touren-effizienz-board';
 import { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 import { DispatchPhase5163ScoreTourVisualisierungV26 } from './phase5163-score-tour-visualisierung-v26';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
@@ -5596,6 +5597,8 @@ export function DispatchBoard({
           <DispatchPhase5303SchichtPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5306: Schicht-Pünktlichkeits-Trend-Board — TrendingUp emerald; Trend 30d vs. Vorperiode; Verbessert/Team-Trend/Verschlechtert; Divergenz-Balken; Negativ-Alert <-10%; 30-Min-Polling */}
           <DispatchPhase5306SchichtPuenktlichkeitTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5310: Touren-Effizienz-Board — Zap yellow-400; Effizienteste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; ABSTEIGEND; 30-Min-Polling */}
+          <DispatchPhase5310TourenEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5300: Tour-Score-Visualisierung V28 — Route indigo; Score-Balken grün/gelb/rot; Stopp-Progress-Chips; Distanz-km; Pünktlichkeits-Badge; ETA; Trend-Icons; 4-KPI-Header inkl. km; 20-Sek-Polling */}
           <DispatchPhase5300TourScoreVisualisierungV28 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5142: Score+Tour Visualisierung V25 — 7-KPI-Grid inkl. €/Stopp; 3-Tab Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln; Profit/Stopp je Fahrer; 20-Sek-Polling */}
@@ -14559,6 +14562,8 @@ export { DispatchPhase5302SchichtPuenktlichkeitBoard } from './phase5302-schicht
 export { DispatchPhase5303SchichtPuenktlichkeitBoard } from './phase5303-schicht-puenktlichkeit-board';
 // Phase 5306 — Schicht-Pünktlichkeits-Trend-Board (TrendingUp emerald; Trend 30d vs. Vorperiode; Verbessert/Team-Trend/Verschlechtert; Divergenz-Balken; Negativ-Alert <-10%; ABSTEIGEND Rang 1=größte Verbesserung; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5306SchichtPuenktlichkeitTrendBoard } from './phase5306-schicht-puenktlichkeit-trend-board';
+// Phase 5310 — Touren-Effizienz-Board (Zap yellow-400; Effizienteste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; ABSTEIGEND; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5310TourenEffizienzBoard } from './phase5310-touren-effizienz-board';
 // Phase 5142 — Score + Tour-Visualisierung V25 (Trophy violet; 7-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€Stopp/€gesamt; 3-Tab-Nav Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln mit SLA+Fahrer+Umsatz; Profit-per-Stopp je Fahrer; Fertig/Gesamt-Stopps-Anzeige; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 // Phase 5163 — Score + Tour-Visualisierung V26 (Trophy purple; 8-KPI-Grid inkl. Zonen-Count; 3-Tab-Nav Rangliste/Fleet/Zonen-Profit; Tier-Fortschrittsbalken; Route-Abweichungs-Alert; Zonen-Profitabilitäts-Index; 20-Sek-Polling; Mock-Fallback)
