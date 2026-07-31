@@ -17,6 +17,7 @@ import { Phase4480DynamischeEtaLiveTrackingV7 } from '../phase4480-dynamische-et
 import { Phase4485DynamischeEtaLiveTrackingV8 } from '../phase4485-dynamische-eta-live-tracking-v8';
 import { StorefrontPhase4490DynamischeEtaLiveV9 } from '../phase4490-dynamische-eta-live-v9';
 import { StorefrontPhase4495DynamischeEtaLiveV10 } from '../phase4495-dynamische-eta-live-v10';
+import { StorefrontPhase1000DynamischeEtaLiveV10 } from '../phase1000-dynamische-eta-live-v10';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 
@@ -420,6 +421,8 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
         <Phase4485DynamischeEtaLiveTrackingV8 orderId={order.id} />
         {/* Phase 4490: Dynamische ETA Live V9 — KI-angepasste ETA; Fahrer-Annäherungsbalken mit GPS-Speed; 5-Phasen-Timeline; Konfidenz-Ampel; Verspätungswarnung; 30s-Polling */}
         <StorefrontPhase4490DynamischeEtaLiveV9 orderId={order.id} />
+        {/* Phase 1000 V10: Dynamische ETA Live V10 — Fahrer-Tracking Stopp-Dot-Sequenz; SLA-Pünktlichkeits-Badge; Wetter-Einfluss-Banner; Liefer-Phasen-Leiste; 20s-Polling */}
+        <StorefrontPhase1000DynamischeEtaLiveV10 orderId={order.id} />
 
         {/* Order summary */}
         <div className="bg-white rounded-2xl border border-matcha-100 p-4 shadow-sm">

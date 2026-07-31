@@ -1346,6 +1346,7 @@ import { KitchenPhase5300SmartTimingCountdownV44 } from './phase5300-smart-timin
 import { KitchenPhase5305SchichtPuenktlichkeitTicker } from './phase5305-schicht-puenktlichkeit-ticker';
 import { KitchenPhase5309SchichtPuenktlichkeitTrendTicker } from './phase5309-schicht-puenktlichkeit-trend-ticker';
 import { KitchenPhase5313TourenEffizienzTicker } from './phase5313-touren-effizienz-ticker';
+import { KitchenPhase5310SmartTimingCountdownV46 } from './phase5310-smart-timing-countdown-v46';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5186,6 +5187,8 @@ export function KitchenBoard({
       <KitchenPhase5309SchichtPuenktlichkeitTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5313: Touren-Effizienz-Ticker — Zap yellow-400; Effizienteste Rang+Score; Touren/h; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
       <KitchenPhase5313TourenEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5310: Smart-Timing Countdown V46 — KI-Kochstart-Empfehlung; Peak-Stationen-Alert; Effizienz-Wachstums-Balken; 7-KPI-Grid Score/Aktiv/Kritisch/Fertig/Velocity/Effizienz/KI-Tips; 1s-Tick+15s-Polling */}
+      <KitchenPhase5310SmartTimingCountdownV46 />
       {/* Phase 5142: Smart-Timing Countdown V42 — Überfällig-Alert-Banner; 7-KPI-Grid inkl. Batch+Überfällig; 3-Tab Countdown/Effizienz/Batches; Stations-Effizienz-Balken; Batch-Übergabe-Prognose; 1s-Tick+15s-Polling */}
       <KitchenPhase5142SmartTimingCountdownV42 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5163: Smart-Timing Countdown V43 — 8-KPI-Grid inkl. Velocity; Multi-Station-Workload; Queue-Prognose +5/+10 Min; Auto-Sort Urgency; 3-Tab Countdown/Stationen/Queue; 1s-Tick+15s-Polling */}

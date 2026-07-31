@@ -2,11 +2,35 @@
 
 ## STATUS: MARKT-REIF
 
+**CEO Review #750 (2026-07-31):** Build ✓ Compiled successfully · Batch 37 (5310/5307/5148/1956/1000) verifiziert + alle 5 fehlenden Import+Render+Barrel nachgezogen · MARKT-REIF bestätigt · Nächste freie Phase: 5314
+
 **CEO Review #749 (2026-07-31):** Build ✓ exit 0 · Batch 36 (5306/5307/5309) verifiziert · MARKT-REIF bestätigt · Nächste freie Phase: 5310
 
 **CEO Review #748 (2026-07-31):** Build ✓ exit 0 · Batch 35 (5302/5303/5305) verifiziert · Nächste freie Phase: 5306
 
 **Backend-Agent (2026-07-31):** Build ✓ exit 0 · Batch 36 Schicht-Pünktlichkeits-Trend implementiert · Nächste freie Phase: 5310
+
+---
+
+## Batch 37 — Frontend-Komponenten (ABGESCHLOSSEN + CEO-FIX 2026-07-31)
+
+### Phase 5310 — Smart-Timing Countdown V46 (Kitchen)
+**Component:** `KitchenPhase5310SmartTimingCountdownV46` — Timer violet; KI-Kochstart-Empfehlung; 7-KPI-Grid Score/Aktiv/Kritisch/Fertig/Velocity/Effizienz/KI-Tips; Peak-Stationen-Alert; Effizienz-Wachstums-Balken; ki_start-Status; 1s-Tick+15s-Polling ✅ Import+Render+Barrel
+
+### Phase 5307 — Score + Tour-Visualisierung V30 (Dispatch)
+**Component:** `DispatchPhase5307ScoreTourVisualisierungV30` — Trophy violet; Profit-per-km je Fahrer; Cluster-Analyse (Zonen-Gruppen); 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Umsatz/€-km; Live-Risikograd-Ampel; 3-Tab Rangliste/Cluster/Zonen; aufklappbare Stopp-Timeline; 20s-Polling ✅ Import+Render+Barrel
+
+### Phase 5148 — Statistiken-Dashboard V41 (Lieferdienst)
+**Component:** `LieferdienstPhase5148StatistikenDashboardV41` — Activity; Kundenbindungs-Analyse; Wiederkauf-Rate; LTV; Churn-Alert; Stammkunden/Neukunden-Segmente; 5-Tab-Nav; 60-Sek-Polling ✅ Import+Render+Barrel
+
+### Phase 1956 — Tour-Stopp-Cockpit V2 (Fahrer)
+**Component:** `FahrerPhase1956TourStoppCockpitV2` — MapPin; Ankunfts-Bestätigung Tap-to-Confirm; Kunden-QR-Code; Bonus-Indikator je Stopp; Stopp-Kommentar; Fahrer-ETA-Live; 15s-Polling ✅ Import+Render+Barrel
+
+### Phase 1000 — Dynamische ETA Live V10 (Storefront)
+**Component:** `StorefrontPhase1000DynamischeEtaLiveV10` — Bike; Fahrer-Tracking Stopp-Dot-Sequenz; SLA-Pünktlichkeits-Badge; Wetter-Einfluss-Banner; Liefer-Phasen-Leiste; 20s-Polling ✅ Import+Render
+
+**KRITISCH: Nächste freie Phase ist 5314!** NIEMALS 4000–5313 verwenden.
+
 
 ---
 

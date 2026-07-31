@@ -1403,6 +1403,7 @@ import { DispatchPhase5302SchichtPuenktlichkeitBoard } from './phase5302-schicht
 import { DispatchPhase5303SchichtPuenktlichkeitBoard } from './phase5303-schicht-puenktlichkeit-board';
 import { DispatchPhase5306SchichtPuenktlichkeitTrendBoard } from './phase5306-schicht-puenktlichkeit-trend-board';
 import { DispatchPhase5310TourenEffizienzBoard } from './phase5310-touren-effizienz-board';
+import { DispatchPhase5307ScoreTourVisualisierungV30 } from './phase5307-score-tour-visualisierung-v30';
 import { DispatchPhase5142ScoreTourVisualisierungV25 } from './phase5142-score-tour-visualisierung-v25';
 import { DispatchPhase5163ScoreTourVisualisierungV26 } from './phase5163-score-tour-visualisierung-v26';
 import { DispatchPhase4852ScoreTourVisualisierungV6 } from './phase4852-score-tour-visualisierung-v6';
@@ -5599,6 +5600,8 @@ export function DispatchBoard({
           <DispatchPhase5306SchichtPuenktlichkeitTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5310: Touren-Effizienz-Board — Zap yellow-400; Effizienteste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; ABSTEIGEND; 30-Min-Polling */}
           <DispatchPhase5310TourenEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5307: Score + Tour-Visualisierung V30 — Trophy violet; Profit-per-km je Fahrer; Cluster-Analyse; 5-KPI-Grid; Live-Risikograd-Ampel; 3-Tab Rangliste/Cluster/Zonen; 20s-Polling */}
+          <DispatchPhase5307ScoreTourVisualisierungV30 />
           {/* Phase 5300: Tour-Score-Visualisierung V28 — Route indigo; Score-Balken grün/gelb/rot; Stopp-Progress-Chips; Distanz-km; Pünktlichkeits-Badge; ETA; Trend-Icons; 4-KPI-Header inkl. km; 20-Sek-Polling */}
           <DispatchPhase5300TourScoreVisualisierungV28 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5142: Score+Tour Visualisierung V25 — 7-KPI-Grid inkl. €/Stopp; 3-Tab Rangliste/Fleet/Zonen; Zonen-Kapazitäts-Kacheln; Profit/Stopp je Fahrer; 20-Sek-Polling */}
