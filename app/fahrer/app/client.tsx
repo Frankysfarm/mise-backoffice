@@ -12271,3 +12271,5 @@ export { FahrerPhase5137MeineKundenbewertung } from './phase5137-meine-kundenbew
 
 // Phase 5140 — Tour-Stops & Navigation Hub V4 (Route blue; Navi-Wahl Google/Waze; 4-KPI-Grid Eingenommen/Trinkgeld/Restzeit/Offen; Fortschrittsbalken; Aktiv-Stopp Hero Nav-CTA+Anruf+Prio-Badge+Notiz-Warnung+Zahlungsart+ETA; Ausstehende Stopps aufklappbar Adresse+ETA+km+Betrag+Nav+Anruf; Fertige Stopps Chips; 15-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5140TourStopsNavigationHubV4 } from './phase5140-tour-stops-navigation-hub-v4';
+// Phase 5141 — Tour-Stops & Navigation Hub V5 (Route blue; Navi-Wahl Google/Waze Header-Toggle; 4-KPI-Grid Eingenommen/Trinkgeld/Restzeit/Offen; Fortschrittsbalken; Dispatch-Nachricht Banner schließbar; Aktiv-Stopp Hero Nav-CTA+Anruf+Geliefert+Prio-Badge+Notiz-Warnung+Zahlungsart+ETA+km; Ausstehende Stopps aufklappbar Adresse+ETA+km+Betrag+Nav+Anruf; Fertige Stopps Chips+Bewertungs-CTA ausstehend ★; 15-Sek-Polling; Mock-Fallback)
+export { FahrerPhase5141TourStopsNavigationHubV5 } from './phase5141-tour-stops-navigation-hub-v5';

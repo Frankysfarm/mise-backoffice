@@ -12976,3 +12976,5 @@ export { KitchenPhase5137KundenbewertungTicker } from './phase5137-kundenbewertu
 
 // Phase 5140 — Smart-Timing Countdown V40 (Timer indigo; Tab-Nav Bestellungen/Stations-Sync; 5-KPI-Grid Score/Aktiv/Kritisch/Fertig/Velocity; Station-Filter-Tabs Alle+Grill/Friture/Kalt/Pasta/Ofen; Countdown-Wall 2-spaltig Farbkodierung 5-stufig+Fortschrittsbalken+Fahrer-ETA-Zap+Batch-ID; Stations-Auslastungs-Balken; Batch-Koordination-Sync; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5140SmartTimingCountdownV40 } from './phase5140-smart-timing-countdown-v40';
+// Phase 5141 — Smart-Timing Countdown V41 (Timer indigo; Dual-Countdown Küche+Fahrer-ETA je Bestellung; KI-Fahrer-Alert Banner wenn Fahrer früher als Küche; 6-KPI-Grid Aktiv/Kritisch/Fahrer↑/Fertig/Score/Velocity; Tab-Nav Countdown-Wall/Stations-Heatmap; Farbkodierung 6-stufig inkl. fahrer_alert blau; Velocity-Trend; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase5141SmartTimingCountdownV41 } from './phase5141-smart-timing-countdown-v41';

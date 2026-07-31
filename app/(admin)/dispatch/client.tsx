@@ -14401,3 +14401,5 @@ export { DispatchPhase5137KundenbewertungBoard } from './phase5137-kundenbewertu
 
 // Phase 5140 — Score + Tour-Visualisierung V23 (Trophy violet; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/€; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Route-Effizienz-Balken; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+km+Betrag+Nav-CTA; Zone-Tag; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5140ScoreTourVisualisierungV23 } from './phase5140-score-tour-visualisierung-v23';
+// Phase 5141 — Score + Tour-Visualisierung V24 (Trophy violet; 6-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/★/€; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko+Bewertung★; Route-Effizienz-Balken; Stopp-Dot-Sequenz farbkodiert; aufklappbare Stopp-Timeline ETA+km+Betrag+Nav-CTA+Anruf; Fleet-Übersicht 2-spaltig; Tab-Nav Ranking/Fleet; High-Risk-Alert-Banner; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5141ScoreTourVisualisierungV24 } from './phase5141-score-tour-visualisierung-v24';
