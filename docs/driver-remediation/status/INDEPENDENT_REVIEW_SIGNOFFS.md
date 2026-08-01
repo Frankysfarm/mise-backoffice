@@ -9,3 +9,9 @@
 
 No release sign-off is claimed. Re-review, two independent P0/P1 approvals and
 the final release judge remain required.
+
+## Re-review of `8106a757`
+
+- Architecture/Security: **APPROVE** the prior P0 central isolation/guard findings (15/15 at that commit); remaining dashboard authentication and route-level integration were explicitly excluded.
+- Adversarial/SRE: **APPROVE** the corrupt-snapshot invariant subgate (16/16), but **REJECT** isolation because an unqualified `NODE_ENV=production` was accepted and **REJECT** the TCP-only DB healthcheck.
+- Follow-up: unqualified production Node now fails; production-compiled staging requires explicit staging markers. The healthcheck now uses `psql`, verifies a real query and exact database identity. These latest changes are not yet independently signed.

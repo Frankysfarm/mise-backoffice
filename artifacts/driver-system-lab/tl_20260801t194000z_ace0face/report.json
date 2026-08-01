@@ -1,0 +1,51 @@
+{
+  "runId": "tl_20260801t194000z_ace0face",
+  "seed": 42,
+  "suite": "full",
+  "status": "passed",
+  "startedAt": "2026-08-01T19:35:34.017Z",
+  "finishedAt": "2026-08-01T19:35:34.464Z",
+  "events": [
+    {
+      "sequence": 1,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/chaos/controller.test.ts"
+    },
+    {
+      "sequence": 2,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/invariants/monitor.test.ts"
+    },
+    {
+      "sequence": 3,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/oracle/dispatch-oracle.test.ts"
+    },
+    {
+      "sequence": 4,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/orchestrator/single-order.test.ts"
+    },
+    {
+      "sequence": 5,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/scenarios/catalog.test.ts"
+    },
+    {
+      "sequence": 6,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/scenarios/schema.test.ts"
+    },
+    {
+      "sequence": 7,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/support/environment.test.ts"
+    },
+    {
+      "sequence": 8,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/ui/ui-actor.test.ts"
+    }
+  ],
+  "limitations": []
+}

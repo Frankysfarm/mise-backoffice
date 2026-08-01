@@ -36,6 +36,7 @@ for (const [name, change] of [
   ["production backend URL", { NEXT_PUBLIC_BACKEND_URL: "https://mise-gastro.de" }],
   ["real APNs credential", { APNS_KEY_ID: "REALKEY123" }],
   ["real email credential", { RESEND_API_KEY: "re_live_forbidden" }],
+  ["unqualified production Node runtime", { NODE_ENV: "production" }],
 ] as const) {
   test(`fails closed for ${name}`, () => {
     assert.throws(() => assertTestLabEnvironment({ ...safe, ...change }), TestLabSafetyError)
@@ -46,4 +47,8 @@ test("cleanup cannot target another run", () => {
   const environment = assertTestLabEnvironment(safe)
   assert.doesNotThrow(() => assertRunOwnedResource(environment.runId, environment))
   assert.throws(() => assertRunOwnedResource("tl_20260801t120000z_deadbeef", environment), TestLabSafetyError)
+})
+
+test("allows a production-compiled staging server only with explicit staging deployment markers", () => {
+  assert.doesNotThrow(() => assertTestLabEnvironment({ ...safe, MISE_TEST_LAB_ENV: "staging", MISE_DEPLOYMENT_TIER: "staging", NODE_ENV: "production", VERCEL_ENV: "preview" }))
 })

@@ -91,6 +91,9 @@ export function assertTestLabEnvironment(env: NodeJS.ProcessEnv = process.env): 
   for (const key of REAL_PROVIDER_CREDENTIAL_KEYS) if (env[key]) reasons.push(`${key} must be absent; the lab uses provider sinks`)
   if (env.APNS_PRODUCTION === "true" || env.APNS_VOIP_PRODUCTION === "true") reasons.push("production APNs mode is forbidden")
   if (env.VERCEL_ENV === "production" || env.MISE_DEPLOYMENT_TIER === "production") reasons.push("production runtime is forbidden")
+  if (env.NODE_ENV === "production" && !(validEnvironment === "staging" && env.MISE_DEPLOYMENT_TIER === "staging" && env.VERCEL_ENV !== "production")) {
+    reasons.push("NODE_ENV=production requires explicit non-production staging markers")
+  }
 
   if (reasons.length > 0 || !databaseUrl || !validEnvironment) throw new TestLabSafetyError(reasons)
   return Object.freeze({

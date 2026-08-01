@@ -1,7 +1,6 @@
 import { spawn } from "node:child_process"
 import { readdir } from "node:fs/promises"
 import { join } from "node:path"
-import { Socket } from "node:net"
 import { assertTestLabEnvironment } from "../support/environment"
 import { writeReport } from "../reports/writer"
 
@@ -37,11 +36,27 @@ async function selectTests(suite: string): Promise<string[]> {
 
 function assertDatabaseReachable(url: URL): Promise<void> {
   return new Promise((resolve, reject) => {
-    const socket = new Socket()
-    const finish = (error?: Error) => { socket.destroy(); error ? reject(error) : resolve() }
-    socket.setTimeout(1500, () => finish(new Error("isolated PostgreSQL healthcheck timed out")))
-    socket.once("error", () => finish(new Error("isolated PostgreSQL is unreachable")))
-    socket.connect(Number(url.port || 5432), url.hostname, () => finish())
+    const expectedDatabase = url.pathname.slice(1)
+    const child = spawn("psql", ["-X", "-A", "-t", "-q", "-c", "SELECT current_database()"], {
+      stdio: ["ignore", "pipe", "ignore"],
+      env: {
+        ...process.env,
+        PGHOST: url.hostname,
+        PGPORT: url.port || "5432",
+        PGDATABASE: expectedDatabase,
+        PGUSER: decodeURIComponent(url.username),
+        PGPASSWORD: decodeURIComponent(url.password),
+        PGCONNECT_TIMEOUT: "2",
+      },
+    })
+    let output = ""
+    child.stdout.on("data", (chunk) => { output += String(chunk) })
+    child.once("error", () => reject(new Error("psql is unavailable for the isolated database healthcheck")))
+    child.once("exit", (code) => {
+      if (code !== 0) reject(new Error("isolated PostgreSQL query healthcheck failed"))
+      else if (output.trim() !== expectedDatabase) reject(new Error("isolated PostgreSQL identity mismatch"))
+      else resolve()
+    })
   })
 }
 
