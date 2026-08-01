@@ -14758,3 +14758,6 @@ export { DispatchPhase5458WochenendAnteilBoard } from './phase5458-wochenend-ant
 export { DispatchPhase5462SchichtstundenBoard } from './phase5462-schichtstunden-board';
 // Phase 5420 — Score + Tour-Visualisierung V34 (Trophy violet; Fahrer-Cluster-Karte Hotspot-Dichte; Profit/km je Fahrer; ETA-Drift-Alarm; Fleet-Fitness-Score; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/€-km; 3-Tab Rangliste/Cluster/Profit; Tier-farbkodiert Platin/Gold/Gut/Schwach; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5420ScoreTourVisualisierungV34 } from './phase5420-score-tour-visualisierung-v34';
+
+// Phase 5467 — Score + Tour-Visualisierung V35 (Trophy violet; ETA-Abweichungs-Heatmap-Balken je Fahrer; Profit/Stop-Index Tier-farbkodiert; Aktive-Tour-Zeitfortschritts-Balken; Fleet-Gesundheits-Score; 6-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Profit-Stop/ETA-Drift; 4-Tab Rangliste/Profit/Tour-Fortschritt/ETA-Drift; Tier: Platin/Gold/Gut/Schwach; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5467ScoreTourVisualisierungV35 } from './phase5467-score-tour-visualisierung-v35';

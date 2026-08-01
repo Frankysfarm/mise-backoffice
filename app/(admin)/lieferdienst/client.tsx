@@ -5247,3 +5247,6 @@ export { LieferdienstPhase5397StatistikenDashboardV45 } from './phase5397-statis
 export { LieferdienstPhase5410StatistikenDashboardV46 } from './phase5410-statistiken-dashboard-v46';
 // Phase 5420 — Statistiken-Dashboard V47 (Activity teal; Wochen-Bilanz Einnahmen/Kosten/Gewinn BarChart; Fahrer-Effizienz-Matrix Stopps/h+Pünktl.+Bewertung; Zonen-Rentabilitäts-Rangliste; KI-Prognose nächste Schicht; 11-KPI-Grid 5-spaltig inkl. Effizienz-Ratio+Netto-Marge; 7-Tab-Nav Überblick/Stunden/Fahrer/Zonen/Bilanz/Prognose/Woche; 45-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5420StatistikenDashboardV47 } from './phase5420-statistiken-dashboard-v47';
+
+// Phase 5468 — Statistiken-Dashboard V48 (Activity teal; Echtzeit-Umsatz-Velocity-AreaChart letzte 15 Min; Storno-Trend-LineChart Alarmgrenze 5%; Fahrer-Belastungs-Heatmap-Balken voll/mittel/frei; Spitzenzeit-Countdown; Ø-Wartezeit-Monitor; 12-KPI-Grid 4-spaltig inkl. Velocity/Storno-Trend/Wartezeit/Peak-Countdown; 7-Tab-Nav Überblick/Velocity/Storno/Fahrer/Zonen/Bilanz/Peak; 45-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5468StatistikenDashboardV48 } from './phase5468-statistiken-dashboard-v48';

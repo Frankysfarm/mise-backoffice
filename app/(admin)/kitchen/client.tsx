@@ -13332,3 +13332,6 @@ export { KitchenPhase5465SchichtstundenTicker } from './phase5465-schichtstunden
 export { KitchenPhase5408SmartTimingCountdownV51 } from './phase5408-smart-timing-countdown-v51';
 // Phase 5420 — Smart-Timing Countdown V52 (Timer indigo; SLA-Ampel Küche→Fahrer-Sync; Durchsatz-Prognose +30 Min; Fahrer-Nähe-Indikator je Bestellung; Batch-Übergabe-Score; 8-KPI-Grid Aktiv/Kritisch/Überfällig/Fertig/Fahrer↑/Batch-Score/SLA/Velocity; 3-Tab Countdown/SLA/Prognose; 6-stufig; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5420SmartTimingCountdownV52 } from './phase5420-smart-timing-countdown-v52';
+
+// Phase 5466 — Smart-Timing Countdown V53 (Brain indigo; Batch-Sync-Score je Gruppe 0-100 farbkodiert; ETA-Fahrer-Abgleich-Matrix; KI-Kochstart-Korrektur-Vorschlag ±min; Überfälligkeits-Eskalations-Alarm; 9-KPI-Grid Aktiv/Kritisch/Überfällig/KI-Empf./Batch-Score/Sync-Score/Fahrer↑/Fertig/Velocity; 3-Tab Countdown/Batch-Sync/ETA-Matrix; 1s-Tick+15s-Polling; Mock-Fallback)
+export { KitchenPhase5466SmartTimingCountdownV53 } from './phase5466-smart-timing-countdown-v53';

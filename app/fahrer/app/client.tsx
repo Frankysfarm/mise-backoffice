@@ -12620,3 +12620,6 @@ export { FahrerPhase5463MeineSchichtstunden } from './phase5463-meine-schichtstu
 
 // Phase 5420 — Tour-Stopp-Navigations-Hub V2 (Navigation blue; ETA-Präzisions-Score je Stopp; Optimale-Reihenfolge-Indikator; Waypoint Distanz-Ampel; Fahrer-Wartezeit-Hinweis; Zahlungsart-Badge; Nächster-Stopp-CTA GPS-Deep-Link; Stopp-Status grün/gelb/rot/grau; Mock-Fallback)
 export { FahrerPhase5420TourNavHub } from './phase5420-tour-nav-hub';
+
+// Phase 5469 — Tour-Stops & Navigation Hub V10 (Route blue; ETA-Genauigkeits-Score je Stopp 0-100; Stopp-Reihenfolge-Optimierungs-Badge KI-empfohlen; Zahlung-Status-Badge Karte/Bar/Digital; Live-Distanz-Ampel grün/gelb/rot; 6-KPI-Grid Stops/Fertig/Offen/km/ETA-Score/Profit; GPS-Multi-App-Deeplinks Maps+Waze; expand/collapse; Offline-Guard; 30-Sek-Poll; Mock-Fallback)
+export { FahrerPhase5469TourStopsNavHubV10 } from './phase5469-tour-stops-nav-hub-v10';
