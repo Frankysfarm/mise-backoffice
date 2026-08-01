@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process"
 import type { TestLabEnvironment } from "../support/environment"
-import { assertRunOwnedResource } from "../support/environment"
+import { assertRunOwnedResource, assertTestLabEnvironment } from "../support/environment"
 
 function schemaName(runId: string): string {
   return `lab_${runId.replaceAll("-", "_")}`
@@ -8,6 +8,16 @@ function schemaName(runId: string): string {
 
 function literal(value: string): string {
   return `'${value.replaceAll("'", "''")}'`
+}
+
+function revalidate(environment: TestLabEnvironment): TestLabEnvironment {
+  return assertTestLabEnvironment({
+    MISE_TEST_LAB_ENABLED: "true", MISE_TEST_LAB_ENV: environment.environment,
+    MISE_TEST_LAB_DATABASE_URL: environment.databaseUrl.toString(), MISE_TEST_LAB_TENANT_ID: environment.tenantId,
+    MISE_TEST_LAB_RUN_ID: environment.runId, MISE_TEST_LAB_SEED: String(environment.seed),
+    MISE_TEST_LAB_PUSH_MODE: "sink", MISE_TEST_LAB_EMAIL_MODE: "sink", MISE_TEST_LAB_SMS_MODE: "sink",
+    MISE_TEST_LAB_WHATSAPP_MODE: "sink", MISE_TEST_LAB_ROUTING_MODE: "fixture",
+  })
 }
 
 function psql(environment: TestLabEnvironment, sql: string): Promise<string> {
@@ -27,6 +37,7 @@ function psql(environment: TestLabEnvironment, sql: string): Promise<string> {
 }
 
 export async function createRunData(environment: TestLabEnvironment): Promise<{ schema: string; actors: number }> {
+  environment = revalidate(environment)
   const schema = schemaName(environment.runId)
   const run = literal(environment.runId); const tenant = literal(environment.tenantId)
   await psql(environment, `
@@ -48,11 +59,22 @@ export async function createRunData(environment: TestLabEnvironment): Promise<{ 
 }
 
 export async function cleanupRunData(environment: TestLabEnvironment, targetRunId: string): Promise<void> {
+  environment = revalidate(environment)
   assertRunOwnedResource(targetRunId, environment)
-  const schema = schemaName(targetRunId); const run = literal(targetRunId)
-  const owner = await psql(environment, `SELECT test_run_id FROM "${schema}".test_runs LIMIT 1;`)
-  if (owner !== targetRunId) throw new Error("refusing cleanup: schema ownership metadata mismatch")
-  await psql(environment, `BEGIN; DROP SCHEMA "${schema}" CASCADE; COMMIT;`)
+  const schema = schemaName(targetRunId); const run = literal(targetRunId); const tenant = literal(environment.tenantId)
+  await psql(environment, `
+    BEGIN;
+    SELECT pg_advisory_xact_lock(hashtextextended(${literal(`test-lab-cleanup:${schema}`)}, 0));
+    DO $cleanup$
+    DECLARE owned boolean;
+    BEGIN
+      SELECT EXISTS(SELECT 1 FROM "${schema}".test_runs WHERE test_run_id=${run} AND tenant_id=${tenant}) INTO owned;
+      IF NOT owned THEN RAISE EXCEPTION 'refusing cleanup: run/tenant ownership metadata mismatch'; END IF;
+      EXECUTE 'DROP SCHEMA "${schema}" CASCADE';
+    END
+    $cleanup$;
+    COMMIT;
+  `)
   const remaining = await psql(environment, `SELECT count(*) FROM pg_namespace WHERE nspname=${literal(schema)};`)
   if (remaining !== "0") throw new Error("test-lab cleanup verification failed")
 }
