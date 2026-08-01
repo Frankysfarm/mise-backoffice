@@ -1438,6 +1438,8 @@ import { DispatchPhase5387LeerfahrtenBoard } from './phase5387-leerfahrten-board
 import { DispatchPhase5391VollstaendigkeitsBoard } from './phase5391-vollstaendigkeits-board';
 import { DispatchPhase5400LiefergebietEffizienzBoard } from './phase5400-liefergebiet-effizienz-board';
 import { DispatchPhase5396ScoreTourVisualisierungV32 } from './phase5396-score-tour-visualisierung-v32';
+import { DispatchPhase5404TrinkgeldBoard } from './phase5404-trinkgeld-board';
+import { DispatchPhase5409ScoreTourVisualisierungV33 } from './phase5409-score-tour-visualisierung-v33';
 
 type Driver = {
   employee_id: string;
@@ -5705,8 +5707,12 @@ export function DispatchBoard({
           <DispatchPhase5391VollstaendigkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5400: Liefergebiet-Effizienz-Board — MapPin teal-400; Lieferungen/km; Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; ABSTEIGEND; 30-Min-Polling */}
           <DispatchPhase5400LiefergebietEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5404: Trinkgeld-Board — Coins orange-400; avg_trinkgeld ABSTEIGEND; 3-KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert <0.80€; 30-Min-Polling */}
+          <DispatchPhase5404TrinkgeldBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5396: Score + Tour-Visualisierung V32 — Radar-Chart Fahrerprofil; Touren-Heatmap; Fleet-Fitness-Index; 5-KPI-Grid; 3-Tab Rangliste/Radar/Heatmap; 20-Sek-Polling */}
           <DispatchPhase5396ScoreTourVisualisierungV32 />
+          {/* Phase 5409: Score + Tour-Visualisierung V33 — Radar-Chart 6 Dimensionen inkl. Trinkgeld; Fleet-Trinkgeld-Index; Tip-Top-Fahrer Highlight; 5-KPI-Grid; 3-Tab; 20-Sek-Polling */}
+          <DispatchPhase5409ScoreTourVisualisierungV33 />
         </div>
       </div>
     </div>
@@ -14681,3 +14687,7 @@ export { DispatchPhase5391VollstaendigkeitsBoard } from './phase5391-vollstaendi
 export { DispatchPhase5400LiefergebietEffizienzBoard } from './phase5400-liefergebiet-effizienz-board';
 // Phase 5396 — Score + Tour-Visualisierung V32 (Trophy violet; Radar-Chart Fahrerprofil Score/Pünktlichkeit/Vollständigkeit/Reaktion/Zufriedenheit; Live-Touren-Heatmap-BarChart; Fleet-Fitness-Index; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Vollst./Fitness; 3-Tab Rangliste/Radar/Heatmap; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5396ScoreTourVisualisierungV32 } from './phase5396-score-tour-visualisierung-v32';
+// Phase 5404 — Trinkgeld-Board (Coins orange-400; avg_trinkgeld ABSTEIGEND; 3-KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert <0.80€; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5404TrinkgeldBoard } from './phase5404-trinkgeld-board';
+// Phase 5409 — Score + Tour-Visualisierung V33 (Trophy violet; Radar-Chart 6 Dim. inkl. Trinkgeld; Fleet-Trinkgeld-Index; Tip-Top Highlight; 5-KPI-Grid; 3-Tab Rangliste/Radar/Heatmap; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5409ScoreTourVisualisierungV33 } from './phase5409-score-tour-visualisierung-v33';

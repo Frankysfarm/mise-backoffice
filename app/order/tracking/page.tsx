@@ -9,6 +9,7 @@ import { Phase4210DynamischeEtaLiveTrackingBoard } from '@/app/order/[locationSl
 import { Phase4470DynamischeEtaLiveTrackingV5 } from '@/app/order/[locationSlug]/phase4470-dynamische-eta-live-tracking-v5';
 import { Phase5142DynamischeEtaLiveTrackingV6 } from '@/app/order/[locationSlug]/phase5142-dynamische-eta-live-tracking-v6';
 import { Phase5163LiveTrackingHubV8 } from '@/app/order/[locationSlug]/phase5163-live-tracking-hub-v8';
+import { Phase5412LiveEtaTrinkgeldCockpit } from '@/app/order/[locationSlug]/phase5412-live-eta-trinkgeld-cockpit';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -64,6 +65,9 @@ export default function TrackingPage({
 
         {/* Phase 5163: Live-Tracking-Hub V8 — ETA-Konfidenz-Dual-Arc-Ring; Fahrer-Distanz-Animations-Balken; Phasen-Timeline mit aktivem Indikator; Bewertungs-Prompt nach Lieferung; 20-Sek-Polling; Mock-Fallback */}
         <Phase5163LiveTrackingHubV8 orderId={orderId} />
+
+        {/* Phase 5412: Live-ETA + Trinkgeld-Cockpit — SVG ETA-Konfidenz-Ring; Fahrer-Trinkgeld-Score-Badge; Trinkgeld-Potential-Indikator; 4-Phasen-Timeline; Geliefert+Bewertungs-Prompt; 30-Sek-Polling; Mock-Fallback */}
+        <Phase5412LiveEtaTrinkgeldCockpit orderId={orderId} />
 
         {/* ETA-Karte (kompakt, als Ergänzung) */}
         <SmartDeliveryLiveEta orderId={orderId} />

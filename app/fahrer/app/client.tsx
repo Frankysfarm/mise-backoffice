@@ -1342,6 +1342,8 @@ import { FahrerPhase5388MeineLeerfahrten } from './phase5388-meine-leerfahrten';
 import { FahrerPhase5392MeineVollstaendigkeit } from './phase5392-meine-vollstaendigkeit';
 import { FahrerPhase5401MeineLiefergebietEffizienz } from './phase5401-meine-liefergebiet-effizienz';
 import { FahrerPhase5398TourStopsNavHubV8 } from './phase5398-tour-stops-navigation-hub-v8';
+import { FahrerPhase5405MeinTrinkgeld } from './phase5405-mein-trinkgeld';
+import { FahrerPhase5411TourStopsNavHubV9 } from './phase5411-tour-stops-navigation-hub-v9';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7812,8 +7814,12 @@ export function FahrerApp({
           <FahrerPhase5392MeineVollstaendigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5401: Meine Liefergebiet-Effizienz — MapPin teal-400; lieferungen_pro_km 4xl+Rang; Coaching ≥1.0/≥0.6/<0.6; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5401MeineLiefergebietEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5405: Mein Trinkgeld — Coins orange-400; avg_trinkgeld_eur 4xl+Rang; Coaching ≥2.00/≥1.00/<0.80; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5405MeinTrinkgeld driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5398: Tour-Stops & Navigation Hub V8 — Vollständigkeit+Leerfahrten-KPIs; ETA-Konfidenz-Balken; GPS-Deeplinks; Leerfahrten-Warnung; ki_routen_qualitaet Badge; 30-Sek-Polling */}
           <FahrerPhase5398TourStopsNavHubV8 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5411: Tour-Stops & Navigation Hub V9 — Trinkgeld-Erwartung je Stop; Trinkgeld-Prognose-Gesamt; 6-KPI-Grid inkl. Tip-Score+Prognose; GPS-Multi-App-Deeplinks; ETA-Konfidenz-Balken; Offline-Guard; 30-Sek-Polling */}
+          <FahrerPhase5411TourStopsNavHubV9 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12542,3 +12548,7 @@ export { FahrerPhase5392MeineVollstaendigkeit } from './phase5392-meine-vollstae
 export { FahrerPhase5401MeineLiefergebietEffizienz } from './phase5401-meine-liefergebiet-effizienz';
 // Phase 5398 — Tour-Stops & Navigation Hub V8 (Route blue; Vollständigkeit+Leerfahrten-KPIs in 5-KPI-Grid; Leerfahrten-Warnung >15%; ki_routen_qualitaet Badge; ETA-Konfidenz-Balken je Stopp; GPS-Deeplinks Maps+Waze; expand/collapse; Offline-Guard; 30-Sek-Poll; Mock-Fallback)
 export { FahrerPhase5398TourStopsNavHubV8 } from './phase5398-tour-stops-navigation-hub-v8';
+// Phase 5405 — Mein Trinkgeld (Coins orange-400; avg_trinkgeld_eur 4xl+Rang; Coaching ≥2.00/≥1.00/<0.80; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
+export { FahrerPhase5405MeinTrinkgeld } from './phase5405-mein-trinkgeld';
+// Phase 5411 — Tour-Stops & Navigation Hub V9 (Route blue; Trinkgeld-Erwartung je Stop; Tip-Prognose-Gesamt; 6-KPI-Grid inkl. Tip-Score+Prognose; GPS-Multi-App-Deeplinks; ETA-Konfidenz-Balken; expand/collapse; Offline-Guard; 30-Sek-Poll; Mock-Fallback)
+export { FahrerPhase5411TourStopsNavHubV9 } from './phase5411-tour-stops-navigation-hub-v9';

@@ -19,6 +19,7 @@ import { StorefrontPhase4490DynamischeEtaLiveV9 } from '../phase4490-dynamische-
 import { StorefrontPhase4495DynamischeEtaLiveV10 } from '../phase4495-dynamische-eta-live-v10';
 import { StorefrontPhase1000DynamischeEtaLiveV10 } from '../phase1000-dynamische-eta-live-v10';
 import { Phase5399LiveEtaVollstaendigkeitsCockpit } from '../phase5399-live-eta-vollstaendigkeit-cockpit';
+import { Phase5412LiveEtaTrinkgeldCockpit } from '../phase5412-live-eta-trinkgeld-cockpit';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 
@@ -426,6 +427,8 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
         <StorefrontPhase1000DynamischeEtaLiveV10 orderId={order.id} />
         {/* Phase 5399: Live-ETA + Vollständigkeits-Cockpit — SVG ETA-Konfidenz-Ring animiert; 1s-Countdown-Tick; Fahrer-Vollständigkeits-Score Badge; 4-Phasen-Timeline; Geliefert-State+Bewertungs-Prompt; 30-Sek-Polling */}
         <Phase5399LiveEtaVollstaendigkeitsCockpit orderId={order.id} />
+        {/* Phase 5412: Live-ETA + Trinkgeld-Cockpit — SVG ETA-Konfidenz-Ring; Fahrer-Trinkgeld-Score-Badge; Trinkgeld-Potential-Indikator; 4-Phasen-Timeline; Geliefert+Bewertungs-Prompt; 30-Sek-Polling */}
+        <Phase5412LiveEtaTrinkgeldCockpit orderId={order.id} />
 
         {/* Order summary */}
         <div className="bg-white rounded-2xl border border-matcha-100 p-4 shadow-sm">

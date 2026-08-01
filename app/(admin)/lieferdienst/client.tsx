@@ -535,6 +535,7 @@ import { LieferdienstPhase5146StatistikenDashboardV39 } from './phase5146-statis
 import { LieferdienstPhase5148StatistikenDashboardV41 } from './phase5148-statistiken-dashboard-v41';
 import { LieferdienstPhase5149StatistikenDashboardV42 } from './phase5149-statistiken-dashboard-v42';
 import { LieferdienstPhase5397StatistikenDashboardV45 } from './phase5397-statistiken-dashboard-v45';
+import { LieferdienstPhase5410StatistikenDashboardV46 } from './phase5410-statistiken-dashboard-v46';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2485,6 +2486,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5149StatistikenDashboardV42 />
                 {/* Phase 5397: Statistiken-Dashboard V45 — 10-KPI-Grid 5-spaltig Vollständigkeit+Leerfahrten+Fitness-Index; 6-Tab-Nav Überblick/Stunden/Fahrer/Vollständigkeit/Leerfahrten/Bilanz; Vollständigkeit-LineChart+Ziel-Linie; Leerfahrten-BarChart Wochentrend; Fahrer-Tabelle vollstaendigkeit_pct+leerfahrten_pct; 45-Sek-Polling */}
                 <LieferdienstPhase5397StatistikenDashboardV45 />
+                {/* Phase 5410: Statistiken-Dashboard V46 — 11-KPI-Grid inkl. Trinkgeld-Score; Trinkgeld-Wochen-Trend-LineChart; Fahrer-Tabelle+trinkgeld_avg; 7-Tab-Nav inkl. Trinkgeld; Fleet-Trinkgeld-Index; 45-Sek-Polling */}
+                <LieferdienstPhase5410StatistikenDashboardV46 />
                 {/* Phase 5036: Statistiken-Dashboard V26 — Revenue-Velocity; Storno-Analyse; Profit-KPI; Velocity-Chart; Zonen-SLA; 45-Sek-Polling */}
                 <LieferdienstPhase5036StatistikenDashboardV26 locationId={locationId ?? null} />
                 {/* Phase 5035: Statistiken-Dashboard V25 — Monatsziel-Fortschritt; 8-KPI-Grid; Stunden/Woche-Chart; Top-Fahrer; Zonen-SLA; 30-Sek-Polling */}
@@ -5240,3 +5243,5 @@ export { LieferdienstPhase5150StatistikenDashboardV43 } from './phase5150-statis
 export { LieferdienstPhase5151StatistikenDashboardV44 } from './phase5151-statistiken-dashboard-v44';
 // Phase 5397 — Statistiken-Dashboard V45 (Activity teal; 10-KPI-Grid 5-spaltig inkl. Vollständigkeit+Leerfahrten+Fitness-Index; 6-Tab-Nav Überblick/Stunden/Fahrer/Vollständigkeit/Leerfahrten/Bilanz; Vollständigkeit-LineChart+Ziel-Linie; Leerfahrten-BarChart Wochentrend; Fahrer-Tabelle vollstaendigkeit_pct+leerfahrten_pct; Bilanz-Panel; 45-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5397StatistikenDashboardV45 } from './phase5397-statistiken-dashboard-v45';
+// Phase 5410 — Statistiken-Dashboard V46 (Activity teal; 11-KPI-Grid 5-spaltig inkl. Trinkgeld-Score+Fleet-Ø; Trinkgeld-Wochen-Trend-LineChart; Fahrer-Tabelle+trinkgeld_avg; 7-Tab-Nav Überblick/Stunden/Fahrer/Vollst./Leerfahrt/Trinkgeld/Bilanz; Fleet-Trinkgeld-Index; 45-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5410StatistikenDashboardV46 } from './phase5410-statistiken-dashboard-v46';
