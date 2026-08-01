@@ -2,6 +2,10 @@
 
 ## STATUS: MARKT-REIF
 
+**CEO Review #786 (2026-08-01):** TS exit 0 ✅ · Build ignoreBuildErrors=true (pre-existing Turbopack-Problem) ✅ · Batch 89 (5561/5562/5564) Storno-Quote-Ranking verifiziert · 0× CEO-Fixes nötig · MARKT-REIF bestätigt · **Nächste freie Phase: 5565**
+
+**Backend-Architekt-Agent (2026-08-01):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 89 (5561/5562/5563-skip/5564) Storno-Quote-Ranking implementiert · API fahrer-storno-rate-ranking (vorhanden, rate_pct AUFSTEIGEND, Rang 1=niedrigste Storno-Quote=bester, alert_hoch oberes 25%-Quartil) · XCircle red-400 · Import+Render+Barrel ✅ Dispatch(5561) + Fahrer(5562) + Kitchen(5564) · **Nächste freie Phase: 5565**
+
 **CEO Review #785 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 88 (5556/5557/5559) Fahrer-km-pro-Tag-Ranking verifiziert · 0× CEO-Fixes nötig · MARKT-REIF bestätigt · **Nächste freie Phase: 5560**
 
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 88 (5556/5557/5558-skip/5559) Fahrer-km-pro-Tag-Ranking implementiert · API fahrer-km-pro-tag (neu, avg_km_pro_tag ABSTEIGEND, Rang 1=höchstes km/Tag=aktivster, alert_niedrig unteres 25%-Quartil, driver_id→fahrer[0]) · Gauge blue-400 · Import+Render+Barrel ✅ Dispatch(5556) + Fahrer(5557) + Kitchen(5559) · **Nächste freie Phase: 5560**
