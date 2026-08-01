@@ -14657,5 +14657,7 @@ export { DispatchPhase5307ScoreTourVisualisierungV30 } from './phase5307-score-t
 export { DispatchPhase5374TourScoreVisualisierungV30 } from './phase5374-tour-score-visualisierung-v30';
 // Phase 5375 — Wartezeit-Restaurant-Board (Clock orange-400; 3-KPI-Grid Kürzeste/Team-Ø/Längste; Balken farbkodiert; DeltaIcons; Lang-Alert >10min; AUFSTEIGEND; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5375WartezeitRestaurantBoard } from './phase5375-wartezeit-restaurant-board';
+// Phase 5376 — Score + Tour-Visualisierung V31 (Trophy violet; ETA-Drift-Alert Abweichung Ist-vs-Geplant; Profit-per-Stopp-Heatmap; Live-Score-Ring+Delta; Fleet-Effizienz-BarChart+Drift-BarChart; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Ø-Drift/€-Stopp; 3-Tab-Nav Rangliste/Fleet/Profit; aufklappbare Stopp-Timeline; Tier-farbkodiert Platin/Gold/Gut/Schwach; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5376ScoreTourVisualisierungV31 } from './phase5376-score-tour-visualisierung-v31';
 // Phase 5379 — Kundenzufriedenheits-Board (Star amber-400; 3-KPI-Grid Bester/Team-Ø/Niedrigster; Balken farbkodiert; DeltaIcons; Niedrig-Alert <4.0; ABSTEIGEND; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5379KundenzufriedenheitsBoard } from './phase5379-kundenzufriedenheits-board';

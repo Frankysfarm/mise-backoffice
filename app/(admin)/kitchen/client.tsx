@@ -13230,3 +13230,5 @@ export { KitchenPhase5374SmartTimingCountdownV48 } from './phase5374-smart-timin
 export { KitchenPhase5378WartezeitRestaurantTicker } from './phase5378-wartezeit-restaurant-ticker';
 // Phase 5382 — Kundenzufriedenheits-Ticker (Star amber-400; Bester/r Rang+Sterne; Team-Ø; Niedrig-Alert <4.0; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5382KundenzufriedenheitsTicker } from './phase5382-kundenzufriedenheits-ticker';
+// Phase 5386 — Smart-Timing Countdown V49 (Brain indigo; KI-Kochstart-Priorisierung optimaler Startzeit je Fahrer-ETA; Multi-Station-Batch-Sync-Ampel; Urgency-Score 0-100 farbkodiert; 6-KPI-Grid Aktiv/Kritisch/Überfällig/KI-Empfohlen/Fertig/Score; 3-Tab-Nav Countdown/KI-Tipps/Batches; Farbkodierung 5-stufig; 1s-Tick+15s-Polling; Mock-Fallback)
+export { KitchenPhase5386SmartTimingCountdownV49 } from './phase5386-smart-timing-countdown-v49';

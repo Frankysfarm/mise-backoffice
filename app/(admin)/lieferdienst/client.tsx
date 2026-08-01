@@ -5233,3 +5233,5 @@ export { LieferdienstPhase5149StatistikenDashboardV42 } from './phase5149-statis
 
 // Phase 5150 — Statistiken-Dashboard V43 (Activity teal; Tages-Ziel-Fortschrittsring; 9-KPI-Grid 3-spaltig Ampel+Δ+Ziel; 5-Tab-Nav Überblick/Stunden/Fahrer/Storno/Ziele; Stunden-BarChart Ist-vs-Ziel farbkodiert; Fahrer-Score-Ranking 🥇🥈🥉+Score-Balken; Storno-Gründe-Balken; Ziel-Cockpit Erreichungsampel; 45-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5150StatistikenDashboardV43 } from './phase5150-statistiken-dashboard-v43';
+// Phase 5151 — Statistiken-Dashboard V44 (Activity teal; Live-Kunden-Zufriedenheits-Trend NPS+Rating+Sentiment; Schicht-Bilanz-Panel Kosten-vs-Einnahmen-vs-Gewinn; KI-Prognose-Score; 9-KPI-Grid 3-spaltig Ampel+Δ+Ziel; 5-Tab-Nav Überblick/Stunden/Fahrer/Zufriedenheit/Bilanz; Stunden-BarChart 3-Modi farbkodiert; Fahrer-Tier-Ranking Platin/Gold/Gut/Schwach; NPS-Trend-LineChart; 45-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5151StatistikenDashboardV44 } from './phase5151-statistiken-dashboard-v44';

@@ -12518,5 +12518,7 @@ export { FahrerPhase5304TourStoppNavigatorV4 } from './phase5304-tour-stopp-navi
 export { Phase1097TourStoppNavigationHubV2 } from './phase1097-tour-stopp-navigation-hub-v2';
 // Phase 5376 — Meine Wartezeit Restaurant (Clock orange-400; avg_wartezeit_min 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≤5/≤10/>10min; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
 export { FahrerPhase5376MeineWartezeitRestaurant } from './phase5376-meine-wartezeit-restaurant';
+// Phase 5377 — Tour-Stops & Navigation Hub V7 (Route blue; Smart-Route KI-Optimierungs-Badge; Nächster-Stopp-Live-Countdown; Verdienst-Tracker je Stopp; ETA-Präzisions-Anzeige; GPS-Deeplink-Buttons Maps/Waze/Apple; 4-KPI-Grid Fertig/Offen/Eingenommen/KI-Score; aufklappbare Stopp-Timeline; Offline-Guard; 30-Sek-Polling; Mock-Fallback)
+export { FahrerPhase5377TourStopsNavigationHubV7 } from './phase5377-tour-stops-navigation-hub-v7';
 // Phase 5380 — Meine Kundenzufriedenheit (Star amber-400; avg_sterne 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≥4.5/≥4.0/<4.0; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
 export { FahrerPhase5380MeineKundenzufriedenheit } from './phase5380-meine-kundenzufriedenheit';
