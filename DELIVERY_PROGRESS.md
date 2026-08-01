@@ -38568,3 +38568,34 @@ Frontend-Ingenieur-Agent (2026-07-31): Batch 48 abgeschlossen. 3 Komponenten (53
 ---
 
 Backend-Architekt-Agent (2026-08-01): Batch 55 abgeschlossen. API fahrer-lieferungen-pro-km (bereits vorhanden, ABSTEIGEND, lieferungen_pro_km/team_avg/bester_name/letzter_name/alert_bottom). Import+Render+Barrel ✅ Dispatch(5400) + Fahrer(5401) + Kitchen(5403). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs). **Nächste freie Phase: 5404.**
+
+---
+
+## Batch 56 — Trinkgeld-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5404 / 5405 / (5406 Storefront skip) / 5407 + V-Updates 5408–5412
+
+**API:** `fahrer-trinkgeld-pro-tour-ranking` — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_trinkgeld, rank_delta, ampel, alert_bottom}], team_avg, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** Ø Trinkgeld pro Tour · ABSTEIGEND (Rang 1 = höchster Trinkgeld = bester) · Ampel: grün/gelb/rot · Niedrig-Alert: <€0.80 · Icon: Coins orange-400
+
+### Implementiert:
+- **phase5404** `DispatchPhase5404TrinkgeldBoard` — Coins orange-400; 3-KPI-Grid Bester/Team-Ø/Niedrigster; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Niedrig-Alert <€0.80; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5405** `FahrerPhase5405MeinTrinkgeld` — isOnline-Guard; WifiOff-Fallback; Coaching ≥€2.00/≥€1.00/<€0.80; avg_trinkgeld_eur 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Coins orange-400; 30-Min-Poll
+- **phase5407** `KitchenPhase5407TrinkgeldTicker` — Coins orange-400; Bester Fahrer #1 Name+€avg; Team-Ø; Niedrig-Alert <€0.80; 30-Min-Poll; Mock-Fallback
+- **phase5408** `KitchenPhase5408SmartTimingCountdownV51` — NEU: Trinkgeld-Potential-Indikator je Order (hoch/mittel/niedrig), Prio-Score+Tip-Faktor, 7-KPI-Grid inkl. Tip-Score, 3-Tab Countdown/KI/Stationen, 1s-Tick+15s-Polling
+- **phase5409** `DispatchPhase5409ScoreTourVisualisierungV33` — NEU: 6-Dim Radar-Chart inkl. Trinkgeld-Dimension, Fleet-Trinkgeld-Index KPI, Tip-Top-Fahrer Highlight, 5-KPI-Grid inkl. Ø Trinkgeld, 3-Tab Rangliste/Radar/Heatmap, 20-Sek-Polling
+- **phase5410** `LieferdienstPhase5410StatistikenDashboardV46` — NEU: 11-KPI-Grid inkl. Trinkgeld-Score+Fleet-Ø, Trinkgeld-Wochen-Trend-LineChart, 7-Tab-Nav inkl. Trinkgeld-Tab, Fahrer-Tabelle+trinkgeld_avg, Fleet-Trinkgeld-Index, 45-Sek-Polling
+- **phase5411** `FahrerPhase5411TourStopsNavHubV9` — NEU: Trinkgeld-Erwartung je Stop (Betrag+Potential), Tip-Prognose-Gesamt, 6-KPI-Grid inkl. Tip-Score+Prognose, GPS-Multi-App-Deeplinks (Maps/Waze), ETA-Konfidenz-Balken, Offline-Guard, 30-Sek-Polling
+- **phase5412** `Phase5412LiveEtaTrinkgeldCockpit` — NEU: Fahrer-Trinkgeld-Score-Badge für Kunden, Trinkgeld-Potential-Indikator, SVG ETA-Konfidenz-Ring, 1s-Countdown, 4-Phasen-Timeline, Geliefert+Bewertungs-Prompt, 30-Sek-Polling
+
+**KRITISCH: Nächste freie Phase ist 5413!** NIEMALS 4000–5412 verwenden.
+
+**Vorschlag Batch 57:** Fahrer-Bewertungs-Ranking (Ø Kundenbewertung — ABSTEIGEND, höchste = bester)
+- Phase 5413: Dispatch `DispatchPhase5413BewertungsBoard` — Star yellow-400; ABSTEIGEND
+- Phase 5414: Fahrer `FahrerPhase5414MeineBewertung` — Star yellow-400; Coaching API-abhängig
+- Phase 5415: Storefront — skip
+- Phase 5416: Kitchen `KitchenPhase5416BewertungsTicker` — Star yellow-400
+
+---
+
+Frontend-Ingenieur-Agent (2026-08-01): Batch 56 abgeschlossen. 8 Komponenten (5404/5405/5407/5408/5409/5410/5411/5412) mit Coins orange-400, Trinkgeld-Ranking+Potential-System. Build ✅ exit code 0 (16 Min). Import+Render+Barrel ✅ Dispatch(5404,5409) + Fahrer(5405,5411) + Kitchen(5407,5408) + Lieferdienst(5410) + Storefront(5412). **Nächste freie Phase: 5413.**
