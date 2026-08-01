@@ -22,6 +22,18 @@ async function discoverTests(directory: string): Promise<string[]> {
   return nested.flat().sort()
 }
 
+async function selectTests(suite: string): Promise<string[]> {
+  const roots: Record<string, readonly string[]> = {
+    security: ["support"], smoke: ["support", "scenarios", "orchestrator", "invariants"],
+    ui: ["ui"], dispatch: ["oracle", "scenarios"], kitchen: ["orchestrator", "invariants"],
+    routing: ["oracle", "invariants"], push: ["support", "invariants"], offline: ["support", "invariants"],
+    race: ["chaos", "invariants"], chaos: ["chaos"],
+  }
+  const selected = roots[suite]
+  if (!selected || ["full", "nightly", "soak"].includes(suite)) return discoverTests("tests/driver-system-lab")
+  return (await Promise.all(selected.map((root) => discoverTests(`tests/driver-system-lab/${root}`)))).flat().sort()
+}
+
 async function main(): Promise<void> {
   // This must remain the first stateful boundary in the CLI.
   const environment = assertTestLabEnvironment()
@@ -38,9 +50,7 @@ async function main(): Promise<void> {
     status = "blocked"
     exitCode = 2
   } else {
-    const patterns = suite === "security"
-      ? await discoverTests("tests/driver-system-lab/support")
-      : await discoverTests("tests/driver-system-lab")
+    const patterns = await selectTests(suite)
     exitCode = await runTests(patterns)
     status = exitCode === 0 ? "passed" : "failed"
   }
@@ -52,7 +62,7 @@ async function main(): Promise<void> {
     status,
     startedAt,
     finishedAt: new Date().toISOString(),
-    events: [],
+    events: command === "suite" ? (await selectTests(suite)).map((testFile, index) => ({ sequence: index + 1, kind: "test-file", testFile })) : [],
     limitations: status === "blocked" ? ["replay requires a retained run artifact"] : [],
   })
   console.log(JSON.stringify({ event: "test-lab-finish", runId: environment.runId, status, artifacts: directory }))

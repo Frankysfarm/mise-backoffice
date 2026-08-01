@@ -30,7 +30,8 @@ for (const [name, change] of [
   ["live payments", { STRIPE_SECRET_KEY: "sk_live_forbidden" }],
   ["real push", { MISE_TEST_LAB_PUSH_MODE: "apns" }],
   ["live routing", { MISE_TEST_LAB_ROUTING_MODE: "google" }],
-  ["production runtime", { VERCEL_ENV: "production" }],
+  ["Vercel production runtime", { VERCEL_ENV: "production" }],
+  ["self-hosted production runtime", { MISE_DEPLOYMENT_TIER: "production" }],
 ] as const) {
   test(`fails closed for ${name}`, () => {
     assert.throws(() => assertTestLabEnvironment({ ...safe, ...change }), TestLabSafetyError)

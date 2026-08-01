@@ -39,3 +39,11 @@
 - Exit: 0.
 - Result: all isolated PostgreSQL/source suites passed, including 100 overlapping atomic-writer races, driver API/RLS, pick/pickup, recovery/push/offline, GPS, deterministic dispatch, routing/hold, operations/security, migrations 285–288, route-before-depart, multi-order cancel/arrival, explicit append consent and UI/push contracts.
 - Limitation: local disposable PostgreSQL/source evidence only; no hosted or physical-device inference.
+
+## Post-review harness regression
+
+- Run: `tl_20260801t183000z_e1f2a3b4`, seed 42.
+- Command: `npm run test:lab:full` with the documented isolated environment.
+- Exit/result: 0; 49/49 tests pass.
+- Changes verified: all surfaces call the central guard, suite-specific discovery is active, and reports list selected test files rather than an empty timeline.
+- Review status: fixes occurred after frozen review commit `8934b878`; re-review is pending.

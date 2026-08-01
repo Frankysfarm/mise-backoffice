@@ -1,9 +1,14 @@
 import { notFound } from "next/navigation"
 import { TestLabDashboard } from "./test-lab-dashboard"
+import { assertTestLabEnvironment } from "../../tests/driver-system-lab/support/environment"
 
 export const dynamic = "force-dynamic"
 
 export default function TestLabPage() {
-  if (process.env.MISE_TEST_LAB_ENABLED !== "true" || process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production") notFound()
+  try {
+    assertTestLabEnvironment()
+  } catch {
+    notFound()
+  }
   return <TestLabDashboard />
 }

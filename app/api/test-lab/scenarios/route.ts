@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server"
 import { scenarioCatalog } from "../../../../tests/driver-system-lab/scenarios/catalog"
+import { assertTestLabEnvironment } from "../../../../tests/driver-system-lab/support/environment"
 
 export const dynamic = "force-dynamic"
 
 function enabled(): boolean {
-  return process.env.MISE_TEST_LAB_ENABLED === "true" && process.env.NODE_ENV !== "production" && process.env.VERCEL_ENV !== "production"
+  try {
+    assertTestLabEnvironment()
+    return true
+  } catch {
+    return false
+  }
 }
 
 export async function GET() {

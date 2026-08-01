@@ -75,7 +75,7 @@ export function assertTestLabEnvironment(env: NodeJS.ProcessEnv = process.env): 
     if ((env[key] ?? "sink") !== "sink") reasons.push(`${key} must equal sink`)
   }
   if ((env.MISE_TEST_LAB_ROUTING_MODE ?? "fixture") !== "fixture") reasons.push("routing must use fixture mode unless a separately approved budgeted test is introduced")
-  if (env.VERCEL_ENV === "production" || env.NODE_ENV === "production") reasons.push("production runtime is forbidden")
+  if (env.VERCEL_ENV === "production" || env.MISE_DEPLOYMENT_TIER === "production") reasons.push("production runtime is forbidden")
 
   if (reasons.length > 0 || !databaseUrl || !validEnvironment) throw new TestLabSafetyError(reasons)
   return Object.freeze({

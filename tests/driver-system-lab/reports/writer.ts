@@ -23,7 +23,8 @@ export async function writeReport(environment: TestLabEnvironment, result: LabRe
   await mkdir(directory, { recursive: true })
   const json = JSON.stringify(result, null, 2)
   const html = `<!doctype html><meta charset="utf-8"><title>${xml(result.runId)}</title><h1>${xml(result.suite)}: ${result.status}</h1><pre>${xml(json)}</pre>`
-  const junit = `<?xml version="1.0"?><testsuite name="${xml(result.suite)}" tests="1" failures="${result.status === "failed" ? 1 : 0}" skipped="${result.status === "blocked" ? 1 : 0}"><testcase name="${xml(result.runId)}"/></testsuite>`
+  const cases = result.events.length || 1
+  const junit = `<?xml version="1.0"?><testsuite name="${xml(result.suite)}" tests="${cases}" failures="${result.status === "failed" ? 1 : 0}" skipped="${result.status === "blocked" ? 1 : 0}">${result.events.length ? result.events.map((_, index) => `<testcase name="evidence-${index + 1}"/>`).join("") : `<testcase name="${xml(result.runId)}"/>`}</testsuite>`
   await Promise.all([
     writeFile(join(directory, "report.json"), json),
     writeFile(join(directory, "report.html"), html),

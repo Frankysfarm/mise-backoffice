@@ -1,0 +1,36 @@
+{
+  "runId": "tl_20260801t180000z_d1e2f3a4",
+  "seed": 42,
+  "suite": "smoke",
+  "status": "passed",
+  "startedAt": "2026-08-01T19:25:46.855Z",
+  "finishedAt": "2026-08-01T19:25:47.147Z",
+  "events": [
+    {
+      "sequence": 1,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/invariants/monitor.test.ts"
+    },
+    {
+      "sequence": 2,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/orchestrator/single-order.test.ts"
+    },
+    {
+      "sequence": 3,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/scenarios/catalog.test.ts"
+    },
+    {
+      "sequence": 4,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/scenarios/schema.test.ts"
+    },
+    {
+      "sequence": 5,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/support/environment.test.ts"
+    }
+  ],
+  "limitations": []
+}
