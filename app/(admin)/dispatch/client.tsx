@@ -1440,6 +1440,7 @@ import { DispatchPhase5400LiefergebietEffizienzBoard } from './phase5400-lieferg
 import { DispatchPhase5396ScoreTourVisualisierungV32 } from './phase5396-score-tour-visualisierung-v32';
 import { DispatchPhase5404TrinkgeldBoard } from './phase5404-trinkgeld-board';
 import { DispatchPhase5409ScoreTourVisualisierungV33 } from './phase5409-score-tour-visualisierung-v33';
+import { DispatchPhase5413BewertungsBoard } from './phase5413-bewertungs-board';
 
 type Driver = {
   employee_id: string;
@@ -5713,6 +5714,8 @@ export function DispatchBoard({
           <DispatchPhase5396ScoreTourVisualisierungV32 />
           {/* Phase 5409: Score + Tour-Visualisierung V33 — Radar-Chart 6 Dimensionen inkl. Trinkgeld; Fleet-Trinkgeld-Index; Tip-Top-Fahrer Highlight; 5-KPI-Grid; 3-Tab; 20-Sek-Polling */}
           <DispatchPhase5409ScoreTourVisualisierungV33 />
+          {/* Phase 5413: Bewertungs-Board — Star yellow-400; avg_rating ABSTEIGEND; 3-KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5413BewertungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14691,3 +14694,5 @@ export { DispatchPhase5396ScoreTourVisualisierungV32 } from './phase5396-score-t
 export { DispatchPhase5404TrinkgeldBoard } from './phase5404-trinkgeld-board';
 // Phase 5409 — Score + Tour-Visualisierung V33 (Trophy violet; Radar-Chart 6 Dim. inkl. Trinkgeld; Fleet-Trinkgeld-Index; Tip-Top Highlight; 5-KPI-Grid; 3-Tab Rangliste/Radar/Heatmap; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5409ScoreTourVisualisierungV33 } from './phase5409-score-tour-visualisierung-v33';
+// Phase 5413 — Bewertungs-Board (Star yellow-400; avg_rating ABSTEIGEND; 3-KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5413BewertungsBoard } from './phase5413-bewertungs-board';

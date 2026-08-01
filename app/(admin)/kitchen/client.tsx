@@ -1369,6 +1369,7 @@ import { KitchenPhase5403LiefergebietEffizienzTicker } from './phase5403-lieferg
 import { KitchenPhase5395SmartTimingCountdownV50 } from './phase5395-smart-timing-countdown-v50';
 import { KitchenPhase5407TrinkgeldTicker } from './phase5407-trinkgeld-ticker';
 import { KitchenPhase5408SmartTimingCountdownV51 } from './phase5408-smart-timing-countdown-v51';
+import { KitchenPhase5416BewertungsTicker } from './phase5416-bewertungs-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5247,6 +5248,8 @@ export function KitchenBoard({
       <KitchenPhase5403LiefergebietEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5407: Trinkgeld-Ticker — Coins orange-400; Bester/r Name+€avg; Team-Ø; Niedrig-Alert <0.80€; 30-Min-Polling */}
       <KitchenPhase5407TrinkgeldTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5416: Bewertungs-Ticker — Star yellow-400; Beste/r Name+★avg; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
+      <KitchenPhase5416BewertungsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5395: Smart-Timing Countdown V50 — Live-Priorisierungs-Score; Stations-Überlast-Alert; Fahrer-Ankunfts-Prognose Ampel; Batch-Effizienz-Index; 7-KPI-Grid; 3-Tab; 1s-Tick+15s-Polling */}
       <KitchenPhase5395SmartTimingCountdownV50 />
       {/* Phase 5408: Smart-Timing Countdown V51 — Trinkgeld-Potential-Indikator je Order; Priorisierungs-Score+Trinkgeld-Faktor; Stations-Überlast-Alert; 7-KPI-Grid inkl. Tip-Score; 3-Tab; 1s-Tick+15s-Polling */}
@@ -13260,5 +13263,7 @@ export { KitchenPhase5403LiefergebietEffizienzTicker } from './phase5403-lieferg
 export { KitchenPhase5395SmartTimingCountdownV50 } from './phase5395-smart-timing-countdown-v50';
 // Phase 5407 — Trinkgeld-Ticker (Coins orange-400; Bester/r #1 Name+€avg; Team-Ø; Niedrig-Alert <0.80€; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5407TrinkgeldTicker } from './phase5407-trinkgeld-ticker';
+// Phase 5416 — Bewertungs-Ticker (Star yellow-400; Beste/r #1 Name+★avg; Team-Ø; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5416BewertungsTicker } from './phase5416-bewertungs-ticker';
 // Phase 5408 — Smart-Timing Countdown V51 (Brain indigo; Trinkgeld-Potential-Indikator je Order; Prio-Score+Trinkgeld-Faktor; Stations-Überlast-Alert; 7-KPI-Grid inkl. Tip-Score; 3-Tab Countdown/KI/Stationen; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5408SmartTimingCountdownV51 } from './phase5408-smart-timing-countdown-v51';
