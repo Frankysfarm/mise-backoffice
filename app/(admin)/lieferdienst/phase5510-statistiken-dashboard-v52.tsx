@@ -130,7 +130,7 @@ export function LieferdienstPhase5510StatistikenDashboardV52({ locationId, class
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={REVENUE_TREND} margin={{ top: 4, right: 4, left: -30, bottom: 0 }}>
             <Line type="monotone" dataKey="umsatz" stroke="#14b8a6" strokeWidth={2} dot={false} />
-            <Tooltip contentStyle={{ background: '#18181b', border: 'none', fontSize: 11 }} formatter={(v: number) => [`${v}€`, 'Umsatz']} />
+            <Tooltip contentStyle={{ background: '#18181b', border: 'none', fontSize: 11 }} formatter={(v) => [`${(v as number)}€`, 'Umsatz']} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -277,7 +277,7 @@ export function LieferdienstPhase5510StatistikenDashboardV52({ locationId, class
                 <XAxis dataKey="h" tick={{ fontSize: 10, fill: '#71717a' }} tickFormatter={v => `${v}h`} />
                 <YAxis tick={{ fontSize: 10, fill: '#71717a' }} />
                 <Tooltip contentStyle={{ background: '#18181b', border: 'none', fontSize: 11 }}
-                  formatter={(v: number) => [stundeMode === 'umsatz' ? `${v}€` : `${v}`, stundeMode === 'bestellungen' ? 'Bestellungen' : 'Umsatz']} />
+                  formatter={(v) => [stundeMode === 'umsatz' ? `${(v as number)}€` : `${(v as number)}`, stundeMode === 'bestellungen' ? 'Bestellungen' : 'Umsatz']} />
                 <Bar dataKey={stundeMode} fill="#14b8a6" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

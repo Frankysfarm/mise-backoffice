@@ -140,7 +140,7 @@ export function LieferdienstPhase5502StatistikenDashboardV51({ locationId, class
               <Line type="monotone" dataKey="umsatz" stroke="#818cf8" strokeWidth={2} dot={false} />
               <Tooltip
                 contentStyle={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: 8, fontSize: 10 }}
-                formatter={(value: unknown) => [`${value} €`, 'Umsatz']}
+                formatter={(v) => [`${(v as number)} €`, 'Umsatz']}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -200,7 +200,7 @@ export function LieferdienstPhase5502StatistikenDashboardV51({ locationId, class
               <XAxis dataKey="label" tick={{ fontSize: 9, fill: '#71717a' }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: 8, fontSize: 10 }}
-                formatter={(value: unknown) => [value, chartMode === 'bestellungen' ? 'Bestellungen' : 'Umsatz (€)']}
+                formatter={(v) => [(v as number), chartMode === 'bestellungen' ? 'Bestellungen' : 'Umsatz (€)']}
               />
               <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>
                 {data.hourly.map(b => (

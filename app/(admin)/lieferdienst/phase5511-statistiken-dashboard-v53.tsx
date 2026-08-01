@@ -232,7 +232,7 @@ export function LieferdienstPhase5511StatistikenDashboardV53({ locationId, class
               </defs>
               <XAxis dataKey="h" tick={{ fill: '#52525b', fontSize: 9 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: '#52525b', fontSize: 9 }} axisLine={false} tickLine={false} domain={[1.5, 3.8]} />
-              <Tooltip contentStyle={{ background: '#18181b', border: 'none', borderRadius: 8, fontSize: 10 }} formatter={(v: number) => [`${v.toFixed(2)}€`, 'Ertrag/km']} />
+              <Tooltip contentStyle={{ background: '#18181b', border: 'none', borderRadius: 8, fontSize: 10 }} formatter={(v) => [`${(v as number).toFixed(2)}€`, 'Ertrag/km']} />
               <Area type="monotone" dataKey="ertrag" stroke="#14b8a6" fill="url(#ertragGrad)" strokeWidth={2} dot={false} />
             </AreaChart>
           </ResponsiveContainer>
