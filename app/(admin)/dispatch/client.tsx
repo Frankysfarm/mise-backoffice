@@ -1470,6 +1470,7 @@ import { DispatchPhase5517AbholpuenktlichkeitBoard } from './phase5517-abholpuen
 import { DispatchPhase5521ScoreTourVisualisierungV41 } from './phase5521-score-tour-visualisierung-v41';
 import { DispatchPhase5525MehrfachlieferungenBoard } from './phase5525-mehrfachlieferungen-board';
 import { DispatchPhase5530ScoreTourVisualisierungV42 } from './phase5530-score-tour-visualisierung-v42';
+import { DispatchPhase5529PauseneffizienzBoard } from './phase5529-pauseneffizienz-board';
 
 type Driver = {
   employee_id: string;
@@ -5803,6 +5804,8 @@ export function DispatchBoard({
           <DispatchPhase5521ScoreTourVisualisierungV41 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5525: Mehrfachlieferungen-Board — Layers sky-400; avg_lieferungen ABSTEIGEND Rang 1=meiste Lieferungen pro Tour=bester; 3-KPI-Grid Höchste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
           <DispatchPhase5525MehrfachlieferungenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5529: Pauseneffizienz-Board — Coffee cyan-400; pausenquote_pct AUFSTEIGEND Rang 1=niedrigste Pausenquote=effizientester; 3-KPI-Grid Effizienteste/Team-Ø/Meiste-Pausen; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
+          <DispatchPhase5529PauseneffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14847,3 +14850,5 @@ export { DispatchPhase5521ScoreTourVisualisierungV41 } from './phase5521-score-t
 export { DispatchPhase5525MehrfachlieferungenBoard } from './phase5525-mehrfachlieferungen-board';
 // Phase 5530 — Score + Tour-Visualisierung V42 (Trophy yellow; V41+: Echtzeit-Profit-per-Stop-Matrix €/Stopp je Fahrer; Fahrer-Energie-Level-Indikator Schichtdauer-basiert grün/gelb/rot; Zone-Überdeckungs-Gap-Analyse; Tour-Abschluss-Prognose ±min; 10-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/CO₂/Ertrag/Energie/Gap/Profit; 6-Tab Rangliste/Profit/Energie/Lücken/CO₂/Prognose; 20s-Polling; Mock-Fallback)
 export { DispatchPhase5530ScoreTourVisualisierungV42 } from './phase5530-score-tour-visualisierung-v42';
+// Phase 5529 — Pauseneffizienz-Board (Coffee cyan-400; pausenquote_pct AUFSTEIGEND Rang 1=niedrigste Pausenquote=effizientester; 3-KPI-Grid Effizienteste/Team-Ø/Meiste-Pausen; Balken farbkodiert; DeltaIcons; Hoch-Alert alert_hoch >10%; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5529PauseneffizienzBoard } from './phase5529-pauseneffizienz-board';
