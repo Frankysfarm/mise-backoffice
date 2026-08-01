@@ -1452,6 +1452,7 @@ import { DispatchPhase5446LieferzeitVarianzBoard } from './phase5446-lieferzeit-
 import { DispatchPhase5450FruehbucherBoard } from './phase5450-fruehbucher-board';
 import { DispatchPhase5454PuenktlichkeitsBoard } from './phase5454-puenktlichkeits-board';
 import { DispatchPhase5458WochenendAnteilBoard } from './phase5458-wochenend-anteil-board';
+import { DispatchPhase5462SchichtstundenBoard } from './phase5462-schichtstunden-board';
 
 type Driver = {
   employee_id: string;
@@ -5749,6 +5750,8 @@ export function DispatchBoard({
           <DispatchPhase5454PuenktlichkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5458: Wochenend-Anteil-Board — Calendar violet-400; ABSTEIGEND; 3-KPI-Grid Meister/Team-Ø/Wenigster; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
           <DispatchPhase5458WochenendAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5462: Schichtstunden-Board — Clock teal-400; ABSTEIGEND; 3-KPI-Grid Fleißigste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Wenig-Alert; 30-Min-Polling */}
+          <DispatchPhase5462SchichtstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14751,5 +14754,7 @@ export { DispatchPhase5450FruehbucherBoard } from './phase5450-fruehbucher-board
 export { DispatchPhase5454PuenktlichkeitsBoard } from './phase5454-puenktlichkeits-board';
 // Phase 5458 — Wochenend-Anteil-Board (Calendar violet-400; ABSTEIGEND; 3-KPI-Grid Meister/Team-Ø/Wenigster; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5458WochenendAnteilBoard } from './phase5458-wochenend-anteil-board';
+// Phase 5462 — Schichtstunden-Board (Clock teal-400; ABSTEIGEND; 3-KPI-Grid Fleißigste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Wenig-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5462SchichtstundenBoard } from './phase5462-schichtstunden-board';
 // Phase 5420 — Score + Tour-Visualisierung V34 (Trophy violet; Fahrer-Cluster-Karte Hotspot-Dichte; Profit/km je Fahrer; ETA-Drift-Alarm; Fleet-Fitness-Score; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/€-km; 3-Tab Rangliste/Cluster/Profit; Tier-farbkodiert Platin/Gold/Gut/Schwach; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5420ScoreTourVisualisierungV34 } from './phase5420-score-tour-visualisierung-v34';

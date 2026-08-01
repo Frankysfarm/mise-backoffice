@@ -1356,6 +1356,7 @@ import { FahrerPhase5447MeineLieferzeitVarianz } from './phase5447-meine-lieferz
 import { FahrerPhase5451MeinFruehbucherScore } from './phase5451-mein-fruehbucher-score';
 import { FahrerPhase5455MeinePuenktlichkeit } from './phase5455-meine-puenktlichkeit';
 import { FahrerPhase5459MeinWochenendAnteil } from './phase5459-mein-wochenend-anteil';
+import { FahrerPhase5463MeineSchichtstunden } from './phase5463-meine-schichtstunden';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7856,6 +7857,8 @@ export function FahrerApp({
           <FahrerPhase5455MeinePuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5459: Mein Wochenend-Anteil — Calendar violet-400; wochenend_anteil_pct 4xl+Rang; Coaching >55%/≥33%/<33%; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5459MeinWochenendAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5463: Meine Schichtstunden — Clock teal-400; avg_stunden 4xl+Rang; Coaching ≥6h/≥4h/<4h; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5463MeineSchichtstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12612,6 +12615,8 @@ export { FahrerPhase5451MeinFruehbucherScore } from './phase5451-mein-fruehbuche
 export { FahrerPhase5455MeinePuenktlichkeit } from './phase5455-meine-puenktlichkeit';
 // Phase 5459 — Mein Wochenend-Anteil (Calendar violet-400; wochenend_anteil_pct 4xl+Rang; Coaching >55%/≥33%/<33%; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5459MeinWochenendAnteil } from './phase5459-mein-wochenend-anteil';
+// Phase 5463 — Meine Schichtstunden (Clock teal-400; avg_stunden 4xl+Rang; Coaching ≥6h/≥4h/<4h; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5463MeineSchichtstunden } from './phase5463-meine-schichtstunden';
 
 // Phase 5420 — Tour-Stopp-Navigations-Hub V2 (Navigation blue; ETA-Präzisions-Score je Stopp; Optimale-Reihenfolge-Indikator; Waypoint Distanz-Ampel; Fahrer-Wartezeit-Hinweis; Zahlungsart-Badge; Nächster-Stopp-CTA GPS-Deep-Link; Stopp-Status grün/gelb/rot/grau; Mock-Fallback)
 export { FahrerPhase5420TourNavHub } from './phase5420-tour-nav-hub';

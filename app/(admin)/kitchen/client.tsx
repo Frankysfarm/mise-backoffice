@@ -1381,6 +1381,7 @@ import { KitchenPhase5449LieferzeitVarianzTicker } from './phase5449-lieferzeit-
 import { KitchenPhase5453FruehbucherTicker } from './phase5453-fruehbucher-ticker';
 import { KitchenPhase5457PuenktlichkeitsTicker } from './phase5457-puenktlichkeits-ticker';
 import { KitchenPhase5461WochenendAnteilTicker } from './phase5461-wochenend-anteil-ticker';
+import { KitchenPhase5465SchichtstundenTicker } from './phase5465-schichtstunden-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5284,6 +5285,8 @@ export function KitchenBoard({
       <KitchenPhase5457PuenktlichkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5461: Wochenend-Anteil-Ticker — Calendar violet-400; Meister #1 Name+%; Team-Ø; Hoch-Alert; 30-Min-Polling */}
       <KitchenPhase5461WochenendAnteilTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5465: Schichtstunden-Ticker — Clock teal-400; Fleißigste/r #1 Name+h; Team-Ø; Wenig-Alert; 30-Min-Polling */}
+      <KitchenPhase5465SchichtstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5395: Smart-Timing Countdown V50 — Live-Priorisierungs-Score; Stations-Überlast-Alert; Fahrer-Ankunfts-Prognose Ampel; Batch-Effizienz-Index; 7-KPI-Grid; 3-Tab; 1s-Tick+15s-Polling */}
       <KitchenPhase5395SmartTimingCountdownV50 />
       {/* Phase 5408: Smart-Timing Countdown V51 — Trinkgeld-Potential-Indikator je Order; Priorisierungs-Score+Trinkgeld-Faktor; Stations-Überlast-Alert; 7-KPI-Grid inkl. Tip-Score; 3-Tab; 1s-Tick+15s-Polling */}
@@ -13323,6 +13326,8 @@ export { KitchenPhase5453FruehbucherTicker } from './phase5453-fruehbucher-ticke
 export { KitchenPhase5457PuenktlichkeitsTicker } from './phase5457-puenktlichkeits-ticker';
 // Phase 5461 — Wochenend-Anteil-Ticker (Calendar violet-400; Meister #1 Name+%; Team-Ø; Hoch-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5461WochenendAnteilTicker } from './phase5461-wochenend-anteil-ticker';
+// Phase 5465 — Schichtstunden-Ticker (Clock teal-400; Fleißigste/r #1 Name+h; Team-Ø; Wenig-Alert; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5465SchichtstundenTicker } from './phase5465-schichtstunden-ticker';
 // Phase 5408 — Smart-Timing Countdown V51 (Brain indigo; Trinkgeld-Potential-Indikator je Order; Prio-Score+Trinkgeld-Faktor; Stations-Überlast-Alert; 7-KPI-Grid inkl. Tip-Score; 3-Tab Countdown/KI/Stationen; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5408SmartTimingCountdownV51 } from './phase5408-smart-timing-countdown-v51';
 // Phase 5420 — Smart-Timing Countdown V52 (Timer indigo; SLA-Ampel Küche→Fahrer-Sync; Durchsatz-Prognose +30 Min; Fahrer-Nähe-Indikator je Bestellung; Batch-Übergabe-Score; 8-KPI-Grid Aktiv/Kritisch/Überfällig/Fertig/Fahrer↑/Batch-Score/SLA/Velocity; 3-Tab Countdown/SLA/Prognose; 6-stufig; 1s-Tick+15s-Polling; Mock-Fallback)
