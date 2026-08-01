@@ -13223,3 +13223,5 @@ export { KitchenPhase5373AuslastungsTicker } from './phase5373-auslastungs-ticke
 
 // Phase 5374 — Smart-Timing Countdown V48 (Timer indigo; Stationsauslastungs-Heatmap 3×2 farbkodiert; 5-KPI-Grid Aktiv/Kritisch/Überfällig/Fertig/Velocity; Farbkodierung 5-stufig; Batch-Fertigstellungs-Prognose; Fahrer-ETA-Sync; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5374SmartTimingCountdownV48 } from './phase5374-smart-timing-countdown-v48';
+// Phase 5378 — Wartezeit-Restaurant-Ticker (Clock orange-400; Kürzeste/r Rang+min; Team-Ø; Lang-Alert >10min; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5378WartezeitRestaurantTicker } from './phase5378-wartezeit-restaurant-ticker';

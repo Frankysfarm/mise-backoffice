@@ -12511,3 +12511,7 @@ export { FahrerPhase5371MeineAuslastung } from './phase5371-meine-auslastung';
 export { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 // Phase 5304 — Tour-Stopp-Navigator V4 (Navigation indigo; Schritt-für-Schritt Navi-Hinweise; Warte-Warnung Delay-Risiko hoch/mittel; Tour-Fortschritts-Balken Fertig/Gesamt+Effizienz%; Stopp-Position-Badge+Priority-Zap; Dual-Countdown Küche+Fahrer; Delay-Alert je Stopp; expandierbare Stopp-Karten; Offline-Banner; 20s-Polling; Mock-Fallback)
 export { FahrerPhase5304TourStoppNavigatorV4 } from './phase5304-tour-stopp-navigator-v4';
+// Phase 1097 — Tour-Stopp-Navigations-Hub V2 (GPS-Deeplinks Maps/Apple; Stopp-Status abgeschlossen/aktiv/ausstehend; Kundentelefon-Schnellzugriff; Lieferungsbestätigung; Fortschrittsbalken; 15s-Polling; Mock-Fallback)
+export { Phase1097TourStoppNavigationHubV2 } from './phase1097-tour-stopp-navigation-hub-v2';
+// Phase 5376 — Meine Wartezeit Restaurant (Clock orange-400; avg_wartezeit_min 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≤5/≤10/>10min; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
+export { FahrerPhase5376MeineWartezeitRestaurant } from './phase5376-meine-wartezeit-restaurant';
