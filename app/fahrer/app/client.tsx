@@ -1368,6 +1368,7 @@ import { FahrerPhase5493TourStopsNavHubV12 } from './phase5493-tour-stops-nav-hu
 import { FahrerPhase5497MeineKundenbewertung } from './phase5497-meine-kundenbewertung';
 import { FahrerPhase5545MeinTrinkgeldProTour } from './phase5545-mein-trinkgeld-pro-tour';
 import { FahrerPhase5549MeineLeerfahrtenQuote } from './phase5549-meine-leerfahrten-quote';
+import { FahrerPhase5553MeinUmsatzProKm } from './phase5553-mein-umsatz-pro-km';
 import { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
 import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
@@ -7913,6 +7914,8 @@ export function FahrerApp({
           <FahrerPhase5545MeinTrinkgeldProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5549: Meine Leerfahrten-Quote — Navigation red-400; leerfahrten_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; Coaching ≤10/≤25/>25 %; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5549MeineLeerfahrtenQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5553: Mein Umsatz pro km — TrendingUp emerald-400; umsatz_pro_km ABSTEIGEND Rang 1=höchster €/km=bester; Coaching ≥3.00/≥2.00/<2.00 €/km; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5553MeinUmsatzProKm driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />
@@ -12712,6 +12715,8 @@ export { FahrerPhase5497MeineKundenbewertung } from './phase5497-meine-kundenbew
 export { FahrerPhase5545MeinTrinkgeldProTour } from './phase5545-mein-trinkgeld-pro-tour';
 // Phase 5549 — Meine Leerfahrten-Quote (Navigation red-400; leerfahrten_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 4xl+Rang; Coaching ≤10/≤25/>25 %; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5549MeineLeerfahrtenQuote } from './phase5549-meine-leerfahrten-quote';
+// Phase 5553 — Mein Umsatz pro km (TrendingUp emerald-400; umsatz_pro_km ABSTEIGEND Rang 1=höchster €/km=bester; 4xl+Rang; Coaching ≥3.00/≥2.00/<2.00 €/km; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5553MeinUmsatzProKm } from './phase5553-mein-umsatz-pro-km';
 // Phase 5501 — Tour-Stops Nav Hub V13 (V13: Stopp-Bestätigung via API+POST; Gesamtfortschritts-Ring SVG violett; Verkehrsampel Live Leicht/Mittel/Schwer; CountdownRing SVG farbkodiert; Google Maps Deep-Link; Geliefert-CTA; Next-Stops-Liste; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
 // Phase 5505 — Tour-Stops Nav Hub V14 (Navigation blue; V14: Hold-to-Confirm 800ms Geste; Kunden-Kontakt tel+WhatsApp; Live-Kundendistanz-Ring SVG farbkodiert; Paketübergabe-Checkliste 2-Klick; Gesamtfortschritts-Balken; 30-Sek-Poll; Mock-Fallback)

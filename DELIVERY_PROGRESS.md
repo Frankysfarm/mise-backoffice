@@ -39348,3 +39348,33 @@ Import+Render+Barrel ✅ Dispatch(5548) + Fahrer(5549) + Kitchen(5551). Phase 55
 Backend-Architekt-Agent (2026-08-01): Batch 86 abgeschlossen. API fahrer-leerfahrten-ranking (VORHANDEN, leerfahrten_pct/team_avg_leerfahrten_pct/bester_name/letzter_name/alert_bottom). Import+Render+Barrel ✅ Dispatch(5548) + Fahrer(5549) + Kitchen(5551). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5552.**
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 87 — Umsatz-pro-km-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5552 / 5553 / (5554 Storefront skip) / 5555
+
+**API:** `fahrer-umsatz-pro-km` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, umsatz_pro_km, rank_delta, ampel, alert_niedrig}], team_avg_umsatz_pro_km, bester_name, niedrigster_name, alert_count, gesamt, ziel_umsatz_pro_km }`
+**Logik:** Ø Umsatz / gefahrene km (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchster €/km = bester) · Ampel: grün Top-25%/gelb Mitte/rot untere 25% · alert_niedrig: Ampel === 'rot'
+
+### Implementiert:
+- **phase5552** `DispatchPhase5552UmsatzProKmBoard` — TrendingUp emerald-400; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert (emerald/amber/rot); DeltaIcons; Niedrig-Alert via alert_niedrig; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5553** `FahrerPhase5553MeinUmsatzProKm` — isOnline-Guard; WifiOff-Fallback; Coaching ≥3.00/≥2.00/<2.00 €/km; umsatz_pro_km 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; TrendingUp emerald-400; 30-Min-Poll
+- **phase5555** `KitchenPhase5555UmsatzProKmTicker` — TrendingUp emerald-400; Beste/r #1 Name+€/km; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+
+Import+Render+Barrel ✅ Dispatch(5552) + Fahrer(5553) + Kitchen(5555). Phase 5554 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5556!** NIEMALS 4000–5555 verwenden.
+
+**Vorschlag Batch 88:** Fahrer-Storno-Quote-Ranking (Anteil stornierter Touren — AUFSTEIGEND, niedrigste Quote = bester)
+- Phase 5556: Dispatch `DispatchPhase5556StornoQuoteBoard` — XCircle red-400; AUFSTEIGEND
+- Phase 5557: Fahrer `FahrerPhase5557MeineStornoQuote` — XCircle red-400; Coaching API-abhängig
+- Phase 5558: Storefront — skip
+- Phase 5559: Kitchen `KitchenPhase5559StornoQuoteTicker` — XCircle red-400
+
+---
+
+Frontend-Ingenieur-Agent (2026-08-01): Batch 87 abgeschlossen. API fahrer-umsatz-pro-km (VORHANDEN, umsatz_pro_km/team_avg_umsatz_pro_km/bester_name/niedrigster_name/alert_niedrig). Import+Render+Barrel ✅ Dispatch(5552) + Fahrer(5553) + Kitchen(5555). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs). **Nächste freie Phase: 5556.**
+
+## STATUS: MARKT-REIF

@@ -1479,6 +1479,7 @@ import { DispatchPhase5540KundenbindungsRateBoard } from './phase5540-kundenbind
 import { DispatchPhase5543ScoreTourVisualisierungV43 } from './phase5543-score-tour-visualisierung-v43';
 import { DispatchPhase5547ScoreTourVisualisierungV44 } from './phase5547-score-tour-visualisierung-v44';
 import { DispatchPhase5548LeerfahrtenBoard } from './phase5548-leerfahrten-board';
+import { DispatchPhase5552UmsatzProKmBoard } from './phase5552-umsatz-pro-km-board';
 
 type Driver = {
   employee_id: string;
@@ -5828,6 +5829,8 @@ export function DispatchBoard({
           <DispatchPhase5547ScoreTourVisualisierungV44 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5548: Leerfahrten-Board — Navigation red-400; leerfahrten_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
           <DispatchPhase5548LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5552: Umsatz-pro-km-Board — TrendingUp emerald-400; umsatz_pro_km ABSTEIGEND Rang 1=höchster €/km=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5552UmsatzProKmBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14892,3 +14895,5 @@ export { DispatchPhase5543ScoreTourVisualisierungV43 } from './phase5543-score-t
 export { DispatchPhase5547ScoreTourVisualisierungV44 } from './phase5547-score-tour-visualisierung-v44';
 // Phase 5548 — Leerfahrten-Board (Navigation red-400; leerfahrten_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5548LeerfahrtenBoard } from './phase5548-leerfahrten-board';
+// Phase 5552 — Umsatz-pro-km-Board (TrendingUp emerald-400; umsatz_pro_km ABSTEIGEND Rang 1=höchster €/km=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_niedrig; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5552UmsatzProKmBoard } from './phase5552-umsatz-pro-km-board';
