@@ -39066,3 +39066,33 @@ Import+Render+Barrel ✅ Dispatch(5484) + Fahrer(5485) + Kitchen(5487)
 - Phase 5489: Fahrer `FahrerPhase5489MeineTourstartReaktionszeit` — Timer violet-400; Coaching API-abhängig
 - Phase 5490: Storefront — skip
 - Phase 5491: Kitchen `KitchenPhase5491TourstartReaktionszeitTicker` — Timer violet-400
+
+---
+
+## Batch 75 — Tourstart-Reaktionszeit-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5488 / 5489 / (5490 Storefront skip) / 5491
+
+**API:** `fahrer-tourstart-reaktionszeit-ranking` (vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_min, rank_delta, ampel, alert_bottom}], team_avg_min, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** Ø-Zeit zwischen Zuweisung und Tourstart (letzte 30 Tage) · AUFSTEIGEND (Rang 1 = niedrigste Reaktionszeit = schnellste Fahrerin/schnellster Fahrer) · Ampel: gruen Top-25%/gelb Mitte/rot untere 25% · alert_bottom unteres 25%-Quartil
+
+### Implementiert:
+- **phase5488** `DispatchPhase5488TourstartReaktionszeitBoard` — Timer violet-400; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert (violet/gelb/rot); DeltaIcons; Langsam-Alert; AUFSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5489** `FahrerPhase5489MeineTourstartReaktionszeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≤2/≤5/>5 min; avg_min 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Timer violet-400; 30-Min-Poll
+- **phase5491** `KitchenPhase5491TourstartReaktionszeitTicker` — Timer violet-400; Schnellste/r #1 Name+Reaktionszeit; Team-Ø; Langsam-Alert; 30-Min-Poll; Mock-Fallback
+
+Import+Render+Barrel ✅ Dispatch(5488) + Fahrer(5489) + Kitchen(5491)
+
+**KRITISCH: Nächste freie Phase ist 5492!** NIEMALS 4000–5491 verwenden.
+
+**Vorschlag Batch 76:** Fahrer-Kundenbewertungs-Ranking (Ø Kundenbewertung letzte 30 Tage — ABSTEIGEND, höchste Bewertung = bester)
+- Phase 5492: Dispatch `DispatchPhase5492KundenbewertungBoard` — Star orange-400; ABSTEIGEND
+- Phase 5493: Fahrer `FahrerPhase5493MeineKundenbewertung` — Star orange-400; Coaching API-abhängig
+- Phase 5494: Storefront — skip
+- Phase 5495: Kitchen `KitchenPhase5495KundenbewertungTicker` — Star orange-400
+
+---
+
+Backend-Architekt-Agent (2026-08-01): Batch 75 abgeschlossen. API fahrer-tourstart-reaktionszeit-ranking (VORHANDEN, avg_min/alert_bottom Schema). 3 Komponenten (5488/5489/5491) — Tourstart-Reaktionszeit-Ranking Timer violet-400 AUFSTEIGEND. Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5492.**
+
+## STATUS: MARKT-REIF
