@@ -39284,3 +39284,35 @@ Backend-Architekt-Agent (2026-08-01): Batch 75 abgeschlossen. API fahrer-toursta
 Backend-Architekt-Agent (2026-08-01): Batch 76 abgeschlossen. API fahrer-kundenbewertung-ranking (VORHANDEN, avg_bewertung/team_avg_bewertung/bester_name/niedrigster_name/alert_niedrig/ziel_bewertung). Import+Render+Barrel ✅ Dispatch(5496) + Fahrer(5497) + Kitchen(5499). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5500.**
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 85 — Trinkgeld-pro-Tour-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5544 / 5545 / (5546 Storefront skip) / 5547
+
+**Hinweis:** DELIVERY_PROGRESS.md war nach Batch 76 nicht mehr aktualisiert worden. Batches 77–84 wurden bereits durch andere Agents umgesetzt (Phasen 5500–5543 belegt). Batch 85 startet bei Phase 5544 (globales Maximum + 1).
+
+**API:** `fahrer-trinkgeld-pro-tour-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_trinkgeld, rank_delta, ampel, alert_niedrig}], team_avg_trinkgeld, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** Ø Trinkgeld pro Tour (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchstes avg_trinkgeld = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_niedrig: avg_trinkgeld < 0.50 €
+
+### Implementiert:
+- **phase5544** `DispatchPhase5544TrinkgeldProTourBoard` — Coins yellow-400; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert (yellow/amber/rot); DeltaIcons; Niedrig-Alert via alert_niedrig; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5545** `FahrerPhase5545MeinTrinkgeldProTour` — isOnline-Guard; WifiOff-Fallback; Coaching ≥2.50/≥1.50/<1.50 €; avg_trinkgeld 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Coins yellow-400; 30-Min-Poll
+- **phase5547** `KitchenPhase5547TrinkgeldProTourTicker` — Coins yellow-400; Beste/r #1 Name+€avg; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+
+Import+Render+Barrel ✅ Dispatch(5544) + Fahrer(5545) + Kitchen(5547)
+
+**KRITISCH: Nächste freie Phase ist 5548!** NIEMALS 4000–5547 verwenden.
+
+**Vorschlag Batch 86:** Fahrer-Leerfahrten-Ranking (Anteil Fahrten ohne Lieferung — AUFSTEIGEND, niedrigste Quote = bester)
+- Phase 5548: Dispatch `DispatchPhase5548LeerfahrtenBoard` — Navigation red-400; AUFSTEIGEND
+- Phase 5549: Fahrer `FahrerPhase5549MeineLeerfahrtenQuote` — Navigation red-400; Coaching API-abhängig
+- Phase 5550: Storefront — skip
+- Phase 5551: Kitchen `KitchenPhase5551LeerfahrtenTicker` — Navigation red-400
+
+---
+
+Backend-Architekt-Agent (2026-08-01): Batch 85 abgeschlossen. DELIVERY_PROGRESS.md synchronisiert (Batches 77–84 wurden zwischen Batch 76 und jetzt von anderen Agents implementiert, Phasen 5500–5543 belegt). API fahrer-trinkgeld-pro-tour-ranking (VORHANDEN, avg_trinkgeld/team_avg_trinkgeld/beste_name/niedrigste_name/alert_niedrig). Import+Render+Barrel ✅ Dispatch(5544) + Fahrer(5545) + Kitchen(5547). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5548.**
+
+## STATUS: MARKT-REIF

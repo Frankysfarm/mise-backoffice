@@ -1461,6 +1461,7 @@ import { DispatchPhase5484TourstartPuenktlichkeitBoard } from './phase5484-tours
 import { DispatchPhase5488TourstartReaktionszeitBoard } from './phase5488-tourstart-reaktionszeit-board';
 import { DispatchPhase5492ScoreTourVisualisierungV37 } from './phase5492-score-tour-visualisierung-v37';
 import { DispatchPhase5496KundenbewertungBoard } from './phase5496-kundenbewertung-board';
+import { DispatchPhase5544TrinkgeldProTourBoard } from './phase5544-trinkgeld-pro-tour-board';
 import { DispatchPhase5500ScoreTourVisualisierungV38 } from './phase5500-score-tour-visualisierung-v38';
 import { DispatchPhase5510ScoreTourVisualisierungV39 } from './phase5510-score-tour-visualisierung-v39';
 import { DispatchPhase5505ProblemReaktionszeitBoard } from './phase5505-problem-reaktionszeit-board';
@@ -14845,6 +14846,8 @@ export { DispatchPhase5488TourstartReaktionszeitBoard } from './phase5488-tourst
 export { DispatchPhase5492ScoreTourVisualisierungV37 } from './phase5492-score-tour-visualisierung-v37';
 // Phase 5496 — Kundenbewertungs-Board (Star orange-400; avg_bewertung ABSTEIGEND Rang 1=höchste Bewertung=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5496KundenbewertungBoard } from './phase5496-kundenbewertung-board';
+// Phase 5544 — Trinkgeld-pro-Tour-Board (Coins yellow-400; avg_trinkgeld ABSTEIGEND Rang 1=höchstes Trinkgeld=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5544TrinkgeldProTourBoard } from './phase5544-trinkgeld-pro-tour-board';
 // Phase 5500 — Score + Tour-Visualisierung V38 (Trophy violet; V38: Eco-Score-Badge+Leaf; Gesamttouren-Zielpfad-Balken; Batch-Indikator; Fleet-Score+Delta; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/Eco; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach; Route-Effizienz+Eco-Balken; Stopp-Dot-Sequenz; aufklappbare Timeline; High-Risk-Alert-Banner; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5500ScoreTourVisualisierungV38 } from './phase5500-score-tour-visualisierung-v38';
 // Phase 5505 — Problem-Reaktionszeit-Board (Zap yellow-400; reaktionszeit_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Langsam-Alert; 30-Min-Polling; Mock-Fallback)

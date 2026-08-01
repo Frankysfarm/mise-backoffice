@@ -1390,6 +1390,7 @@ import { KitchenPhase5487TourstartPuenktlichkeitTicker } from './phase5487-tours
 import { KitchenPhase5491TourstartReaktionszeitTicker } from './phase5491-tourstart-reaktionszeit-ticker';
 import { KitchenPhase5495SmartTimingCountdownV55 } from './phase5495-smart-timing-countdown-v55';
 import { KitchenPhase5499KundenbewertungTicker } from './phase5499-kundenbewertung-ticker';
+import { KitchenPhase5547TrinkgeldProTourTicker } from './phase5547-trinkgeld-pro-tour-ticker';
 import { KitchenPhase5503SmartTimingCountdownV56 } from './phase5503-smart-timing-countdown-v56';
 import { KitchenPhase5510SmartTimingCountdownV57 } from './phase5510-smart-timing-countdown-v57';
 import { KitchenPhase5508ProblemReaktionszeitTicker } from './phase5508-problem-reaktionszeit-ticker';
@@ -13419,6 +13420,8 @@ export { KitchenPhase5491TourstartReaktionszeitTicker } from './phase5491-tourst
 export { KitchenPhase5495SmartTimingCountdownV55 } from './phase5495-smart-timing-countdown-v55';
 // Phase 5499 — Kundenbewertungs-Ticker (Star orange-400; Beste/r #1 Name+★avg; Team-Ø; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5499KundenbewertungTicker } from './phase5499-kundenbewertung-ticker';
+// Phase 5547 — Trinkgeld-pro-Tour-Ticker (Coins yellow-400; Beste/r #1 Name+€avg; Team-Ø; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5547TrinkgeldProTourTicker } from './phase5547-trinkgeld-pro-tour-ticker';
 // Phase 5503 — Smart-Timing Countdown V56 (Timer amber; V56: Batch-Gruppen-Anzeige+Users-Icon; Kochstart-Offset-Indikator ±min farbkodiert; 4-stufige Farbkodierung ok/warn/critical/overdue; Station-Filter-Tabs; 5-KPI-Grid Aktiv/Kritisch/Überfällig/Fertig/Batches; Dual-Countdown Küche+Fahrer-ETA-Sync; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
 export { KitchenPhase5503SmartTimingCountdownV56 } from './phase5503-smart-timing-countdown-v56';
 // Phase 5508 — Problem-Reaktionszeit-Ticker (Zap yellow-400; Schnellste/r #1 Name+Reaktionszeit; Team-Ø; Langsam-Alert; 30-Min-Polling; Mock-Fallback)
