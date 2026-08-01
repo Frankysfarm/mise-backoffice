@@ -1462,6 +1462,7 @@ import { DispatchPhase5488TourstartReaktionszeitBoard } from './phase5488-tourst
 import { DispatchPhase5492ScoreTourVisualisierungV37 } from './phase5492-score-tour-visualisierung-v37';
 import { DispatchPhase5496KundenbewertungBoard } from './phase5496-kundenbewertung-board';
 import { DispatchPhase5500ScoreTourVisualisierungV38 } from './phase5500-score-tour-visualisierung-v38';
+import { DispatchPhase5510ScoreTourVisualisierungV39 } from './phase5510-score-tour-visualisierung-v39';
 import { DispatchPhase5505ProblemReaktionszeitBoard } from './phase5505-problem-reaktionszeit-board';
 import { DispatchPhase5509ZuverlaessigkeitsScoreBoard } from './phase5509-zuverlaessigkeits-score-board';
 
@@ -5785,6 +5786,8 @@ export function DispatchBoard({
           <DispatchPhase5505ProblemReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5509: Zuverlässigkeits-Score-Board — ShieldCheck emerald-400; score ABSTEIGEND Rang 1=höchster Score=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
           <DispatchPhase5509ZuverlaessigkeitsScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5510: Score + Tour-Visualisierung V39 — V38+Fahrer-Compliance-Score; Tour-Profit-per-km-Heatmap; Gesamttour-Bilanz-Panel; ETA-Drift-Warnung; 3-Tab Rangliste/Compliance/Profit; 20-Sek-Polling */}
+          <DispatchPhase5510ScoreTourVisualisierungV39 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>

@@ -541,6 +541,7 @@ import { LieferdienstPhase5468StatistikenDashboardV48 } from './phase5468-statis
 import { LieferdienstPhase5477StatistikenDashboardV49 } from './phase5477-statistiken-dashboard-v49';
 import { LieferdienstPhase5480StatistikenDashboardV50 } from './phase5480-statistiken-dashboard-v50';
 import { LieferdienstPhase5502StatistikenDashboardV51 } from './phase5502-statistiken-dashboard-v51';
+import { LieferdienstPhase5510StatistikenDashboardV52 } from './phase5510-statistiken-dashboard-v52';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2499,6 +2500,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5477StatistikenDashboardV49 />
                 {/* Phase 5480: Statistiken-Dashboard V50 — Alert-Strip; Gesamt-Score-Balken; 8-KPI-Grid Ampel+Δ%+Ziel-Balken; Stundenverlauf BarChart; Top-3-Fahrer; Zonen-SLA-Balken; 60-Sek-Polling */}
                 <LieferdienstPhase5480StatistikenDashboardV50 locationId={locationId ?? null} />
+                {/* Phase 5510: Statistiken-Dashboard V52 — V51+Wochentag-Muster-Heatmap; Fahrer-Kohortenanalyse Einsteiger/Erfahren/Veteran+Retention; Storno-Ursachen-Breakdown; 13-KPI-Grid; 8-Tab-Nav; 60-Sek-Polling */}
+                <LieferdienstPhase5510StatistikenDashboardV52 locationId={locationId ?? null} />
                 {/* Phase 5502: Statistiken-Dashboard V51 — V50+Revenue-Trend-SparkLine 7h; Zonen-Fahrer-Anzeige; Alert-Strip; Gesamt-Score-Balken; 8-KPI-Grid; Stundenverlauf BarChart; Top-3-Fahrer Vergleichs-Balken; Zonen-SLA; 60-Sek-Polling */}
                 <LieferdienstPhase5502StatistikenDashboardV51 locationId={locationId ?? null} />
                 {/* Phase 5468: Statistiken-Dashboard V48 — Echtzeit-Umsatz-Velocity-AreaChart (letzte 15 Min); Storno-Trend-LineChart mit Alarmgrenze 5%; Fahrer-Belastungs-Heatmap; Spitzenzeit-Countdown; Ø-Wartezeit-Monitor; 12-KPI-Grid; 7-Tab-Nav; 45-Sek-Polling */}

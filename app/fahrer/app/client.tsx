@@ -1366,6 +1366,7 @@ import { FahrerPhase5489MeineTourstartReaktionszeit } from './phase5489-meine-to
 import { FahrerPhase5493TourStopsNavHubV12 } from './phase5493-tour-stops-nav-hub-v12';
 import { FahrerPhase5497MeineKundenbewertung } from './phase5497-meine-kundenbewertung';
 import { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
+import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
 import { FahrerPhase5510MeineZuverlaessigkeit } from './phase5510-meine-zuverlaessigkeit';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
@@ -7886,6 +7887,8 @@ export function FahrerApp({
           <FahrerPhase5506MeineProblemReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5510: Meine Zuverlässigkeit — ShieldCheck emerald-400; score 4xl+Rang; Coaching ≥80/≥60/<60; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5510MeineZuverlaessigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5505: Tour-Stops Nav Hub V14 — V13+Hold-to-Confirm 800ms; Kunden-Kontakt tel+WhatsApp; Live-Kundendistanz-Ring SVG; Paketübergabe-Checkliste; 30-Sek-Polling */}
+          <FahrerPhase5505TourStopsNavHubV14 driverId={driver.id} locationId={driver.location_id ?? null} />
           {/* Phase 5501: Tour-Stops Nav Hub V13 — V12+Stopp-Bestätigung via API; Gesamtfortschritts-Ring SVG; Verkehrsampel Live; CountdownRing; Google Maps Deep-Link; Geliefert-CTA; Next-Stops-Liste; 30-Sek-Polling */}
           <FahrerPhase5501TourStopsNavHubV13 driverId={driver.id} locationId={driver.location_id ?? null} />
           {/* Phase 5478: Tour-Stops & Navigation Hub V11 — Multi-App-Navigation-Wähler; Sprach-Navigations-Hinweis; Distanz-Fortschritts-Ring SVG; Kunden-Kontakt-Direktaktionen Anruf/SMS; Stopp-Bewertungs-Prompt; ETA-Genauigkeits-Badge; 7-KPI-Grid */}

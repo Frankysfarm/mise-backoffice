@@ -1391,6 +1391,7 @@ import { KitchenPhase5491TourstartReaktionszeitTicker } from './phase5491-tourst
 import { KitchenPhase5495SmartTimingCountdownV55 } from './phase5495-smart-timing-countdown-v55';
 import { KitchenPhase5499KundenbewertungTicker } from './phase5499-kundenbewertung-ticker';
 import { KitchenPhase5503SmartTimingCountdownV56 } from './phase5503-smart-timing-countdown-v56';
+import { KitchenPhase5510SmartTimingCountdownV57 } from './phase5510-smart-timing-countdown-v57';
 import { KitchenPhase5508ProblemReaktionszeitTicker } from './phase5508-problem-reaktionszeit-ticker';
 import { KitchenPhase5512ZuverlaessigkeitsScoreTicker } from './phase5512-zuverlaessigkeits-score-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
@@ -5314,6 +5315,8 @@ export function KitchenBoard({
       <KitchenPhase5508ProblemReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5512: Zuverlässigkeits-Score-Ticker — ShieldCheck emerald-400; Beste/r #1 Name+Score; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
       <KitchenPhase5512ZuverlaessigkeitsScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
+      <KitchenPhase5510SmartTimingCountdownV57 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5503: Smart-Timing Countdown V56 — V55+Batch-Gruppen-Anzeige; Kochstart-Offset-Indikator; Abholer-Timing-Badge; 4-stufige Farbkodierung; Station-Filter; Dual-Countdown; 1s-Tick+15s-Polling */}
       <KitchenPhase5503SmartTimingCountdownV56 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5475: Smart-Timing Countdown V54 — KI-Stapel-Prognose; Multi-Station-Farbkodierung; Übergabe-Zeit-Optimierer; Burn-Rate-Indikator; 10-KPI-Grid; 4-Tab; 1s-Tick+15s-Polling */}
