@@ -1345,6 +1345,7 @@ import { FahrerPhase5398TourStopsNavHubV8 } from './phase5398-tour-stops-navigat
 import { FahrerPhase5405MeinTrinkgeld } from './phase5405-mein-trinkgeld';
 import { FahrerPhase5411TourStopsNavHubV9 } from './phase5411-tour-stops-navigation-hub-v9';
 import { FahrerPhase5414MeineBewertung } from './phase5414-meine-bewertung';
+import { FahrerPhase5418MeineAkzeptanzrate } from './phase5418-meine-akzeptanzrate';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7823,6 +7824,8 @@ export function FahrerApp({
           <FahrerPhase5411TourStopsNavHubV9 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5414: Meine Bewertung — Star yellow-400; avg_rating 4xl+Rang; Coaching ≥4.5/≥4.0/<4.0; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5414MeineBewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5418: Meine Akzeptanzrate — ThumbsUp green-400; akzeptanz_rate 4xl+Rang; Coaching ≥90/≥80/<80%; Dual-Balken; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5418MeineAkzeptanzrate driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12557,6 +12560,8 @@ export { FahrerPhase5405MeinTrinkgeld } from './phase5405-mein-trinkgeld';
 export { FahrerPhase5411TourStopsNavHubV9 } from './phase5411-tour-stops-navigation-hub-v9';
 // Phase 5414 — Meine Bewertung (Star yellow-400; avg_rating 4xl+Rang; Coaching ≥4.5/≥4.0/<4.0; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
 export { FahrerPhase5414MeineBewertung } from './phase5414-meine-bewertung';
+// Phase 5418 — Meine Akzeptanzrate (ThumbsUp green-400; akzeptanz_rate 4xl+Rang; Coaching ≥90/≥80/<80%; Dual-Balken; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
+export { FahrerPhase5418MeineAkzeptanzrate } from './phase5418-meine-akzeptanzrate';
 
 // Phase 5420 — Tour-Stopp-Navigations-Hub V2 (Navigation blue; ETA-Präzisions-Score je Stopp; Optimale-Reihenfolge-Indikator; Waypoint Distanz-Ampel; Fahrer-Wartezeit-Hinweis; Zahlungsart-Badge; Nächster-Stopp-CTA GPS-Deep-Link; Stopp-Status grün/gelb/rot/grau; Mock-Fallback)
 export { FahrerPhase5420TourNavHub } from './phase5420-tour-nav-hub';

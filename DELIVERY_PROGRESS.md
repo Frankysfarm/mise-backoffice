@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**CEO Review #762 (2026-08-01):** Build exit 0 ✅ · TSC exit 0 ✅ · Batch 57 (5413/5414/5416) Bewertungs-Ranking verifiziert · Batch 58 (5417/5418/5421) Akzeptanzrate-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5422
+
 **CEO Review #761 (2026-08-01):** Build exit 0 ✅ · 2× TS-Fix recharts Formatter phase5409+phase5410 · Batch 56 (5404/5405/5407/5408/5409/5410/5411/5412) Trinkgeld-Ranking verifiziert · MARKT-REIF bestätigt · Nächste freie Phase: 5413
 
 **CEO Review #760 (2026-08-01):** Build exit 0 ✅ · TSC 0 Fehler ✅ · TS-Fix phase5398 trinkgeld_eur null→0 · Batch 55 (5400/5401/5403) Liefergebiet-Effizienz-Ranking verifiziert · MARKT-REIF bestätigt · Nächste freie Phase: 5404
@@ -17,6 +19,43 @@
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 58 — Akzeptanzrate-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5417 — Akzeptanzrate-Board (Dispatch)
+**Component:** `DispatchPhase5417AkzeptanzBoard` — ThumbsUp green-400; 3-KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert grün/gelb/rot; DeltaIcons (TrendingUp/Down/Minus); Niedrig-Alert alert_niedrig; ABSTEIGEND; 30-Min-Polling ✅
+
+### Phase 5418 — Meine Akzeptanzrate (Fahrer)
+**Component:** `FahrerPhase5418MeineAkzeptanzrate` — ThumbsUp green-400; akzeptanz_rate 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥90/≥80/<80%; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5419 — Storefront: übersprungen ✅
+
+### Phase 5421 — Akzeptanzrate-Ticker (Kitchen)
+**Component:** `KitchenPhase5421AkzeptanzTicker` — ThumbsUp green-400; Beste/r #1 Name+%; Team-Ø; Niedrig-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-akzeptanz-rate-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, akzeptanz_rate, rank_delta, ampel, alert_niedrig}], team_avg_akzeptanz, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** Auftrags-Akzeptanzrate (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchste Rate = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_niedrig: unteres 25%-Quartil
+
+**KRITISCH: Nächste freie Phase ist 5422!** NIEMALS 4000–5421 verwenden. (Phase 5420 bereits durch Smart-Timing V52/Tour-Nav V34/Stats V47 belegt)
+
+---
+
+## Batch 57 — Bewertungs-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5413 — Bewertungs-Board (Dispatch)
+**Component:** `DispatchPhase5413BewertungsBoard` — Star yellow-400; avg_rating ABSTEIGEND Rang 1=höchste Bewertung=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert grün/gelb/rot; DeltaIcons; Niedrig-Alert; 30-Min-Polling ✅
+
+### Phase 5414 — Meine Bewertung (Fahrer)
+**Component:** `FahrerPhase5414MeineBewertung` — Star yellow-400; avg_rating 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥4.5/≥4.0/<4.0; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5415 — Storefront: übersprungen ✅
+
+### Phase 5416 — Bewertungs-Ticker (Kitchen)
+**Component:** `KitchenPhase5416BewertungsTicker` — Star yellow-400; Beste/r #1 Name+★avg; Team-Ø; Niedrig-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-bewertungs-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_rating, rank_delta, ampel, alert_niedrig}], team_avg_rating, bester_name, letzter_name, alert_count, gesamt }`
+
+---
 
 ## Batch 54 — Vollständigkeits-Ranking + V-Updates (ABGESCHLOSSEN 2026-08-01)
 
