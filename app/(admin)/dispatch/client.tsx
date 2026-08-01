@@ -1471,6 +1471,7 @@ import { DispatchPhase5521ScoreTourVisualisierungV41 } from './phase5521-score-t
 import { DispatchPhase5525MehrfachlieferungenBoard } from './phase5525-mehrfachlieferungen-board';
 import { DispatchPhase5530ScoreTourVisualisierungV42 } from './phase5530-score-tour-visualisierung-v42';
 import { DispatchPhase5529PauseneffizienzBoard } from './phase5529-pauseneffizienz-board';
+import { DispatchPhase5531UmsatzProTourBoard } from './phase5531-umsatz-pro-tour-board';
 
 type Driver = {
   employee_id: string;
@@ -5806,6 +5807,8 @@ export function DispatchBoard({
           <DispatchPhase5525MehrfachlieferungenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5529: Pauseneffizienz-Board — Coffee cyan-400; pausenquote_pct AUFSTEIGEND Rang 1=niedrigste Pausenquote=effizientester; 3-KPI-Grid Effizienteste/Team-Ø/Meiste-Pausen; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
           <DispatchPhase5529PauseneffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5531: Umsatz-pro-Tour-Board — Euro green-400; avg_umsatz ABSTEIGEND Rang 1=höchster Umsatz=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5531UmsatzProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14852,3 +14855,5 @@ export { DispatchPhase5525MehrfachlieferungenBoard } from './phase5525-mehrfachl
 export { DispatchPhase5530ScoreTourVisualisierungV42 } from './phase5530-score-tour-visualisierung-v42';
 // Phase 5529 — Pauseneffizienz-Board (Coffee cyan-400; pausenquote_pct AUFSTEIGEND Rang 1=niedrigste Pausenquote=effizientester; 3-KPI-Grid Effizienteste/Team-Ø/Meiste-Pausen; Balken farbkodiert; DeltaIcons; Hoch-Alert alert_hoch >10%; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5529PauseneffizienzBoard } from './phase5529-pauseneffizienz-board';
+// Phase 5531 — Umsatz-pro-Tour-Board (Euro green-400; avg_umsatz ABSTEIGEND Rang 1=höchster Umsatz=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5531UmsatzProTourBoard } from './phase5531-umsatz-pro-tour-board';
