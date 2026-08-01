@@ -217,7 +217,7 @@ export function LieferdienstPhase5420StatistikenDashboardV47() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stundeData} margin={{ top: 2, right: 2, left: -30, bottom: 0 }}>
                 <XAxis dataKey="label" tick={{ fontSize: 8 }} interval={2} />
-                <Tooltip contentStyle={{ fontSize: 10 }} formatter={(v: number) => stundeMode === 'umsatz' ? `€${v}` : `${v}${stundeMode === 'pktl' ? '%' : ''}`} />
+                <Tooltip contentStyle={{ fontSize: 10 }} formatter={(v: number | string | undefined) => { const n = Number(v ?? 0); return stundeMode === 'umsatz' ? `€${n}` : `${n}${stundeMode === 'pktl' ? '%' : ''}`; }} />
                 <Bar dataKey="value" radius={[2, 2, 0, 0]}>
                   {stundeData.map(s => (
                     <Cell key={s.h} fill={s.h === nowH ? '#14b8a6' : s.value >= maxStunde * 0.7 ? '#6366f1' : '#e5e7eb'} />
@@ -311,7 +311,7 @@ export function LieferdienstPhase5420StatistikenDashboardV47() {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.woche} margin={{ top: 2, right: 2, left: -30, bottom: 0 }}>
               <XAxis dataKey="tag" tick={{ fontSize: 9 }} />
-              <Tooltip contentStyle={{ fontSize: 10 }} formatter={(v: number) => `€${v}`} />
+              <Tooltip contentStyle={{ fontSize: 10 }} formatter={(v: number | string | undefined) => `€${Number(v ?? 0)}`} />
               <Bar dataKey="umsatz" fill="#d1fae5" name="Einnahmen" radius={[2, 2, 0, 0]} />
               <Bar dataKey="gewinn" fill="#14b8a6" name="Gewinn" radius={[2, 2, 0, 0]} />
             </BarChart>

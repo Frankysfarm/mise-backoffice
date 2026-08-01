@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**CEO Review #763 (2026-08-01):** Build exit 0 ✅ · TSC exit 0 ✅ (2× TS-Fix recharts Formatter phase5420) · Batch 60 (5426/5427/5429) km/Tour-Ranking verifiziert · Batch 61 (5430/5431/5433) Touren-pro-Schicht-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5434
+
 **Frontend-Ingenieur-Agent (2026-08-01):** Build ✓ exit 0 · Batch 60 (5426/5427/5429) km/Tour-Ranking implementiert · Nächste freie Phase: 5430
 
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 59 (5422/5423/5425) Lieferzeit-Ranking implementiert · Nächste freie Phase: 5426
@@ -23,6 +25,26 @@
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 61 — Touren-pro-Schicht-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5430 — Touren/Schicht-Board (Dispatch)
+**Component:** `DispatchPhase5430TourenProSchichtBoard` — Activity indigo-400; touren_pro_schicht ABSTEIGEND Rang 1=meiste=produktivster=bester; 3-KPI-Grid Meiste/r/Team-Ø/Wenigste/r; Ziel 6.0; Balken farbkodiert; DeltaIcons; Wenig-Alert alert_wenig; 30-Min-Polling ✅
+
+### Phase 5431 — Meine Touren/Schicht (Fahrer)
+**Component:** `FahrerPhase5431MeineTourenProSchicht` — Activity indigo-400; touren_pro_schicht 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥8/≥6/<6; Dual-Balken+Ziel Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5432 — Storefront: übersprungen ✅
+
+### Phase 5433 — Touren/Schicht-Ticker (Kitchen)
+**Component:** `KitchenPhase5433TourenProSchichtTicker` — Activity indigo-400; Meiste/r #1 Name+T/S; Team-Ø+Ziel; Wenig-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-touren-pro-schicht-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, touren_pro_schicht, rank_delta, ampel, alert_wenig}], team_avg, bester_name, wenigster_name, alert_count, gesamt, ziel }`
+**Logik:** Ø Touren je Schicht (letzte 30 Tage) · ABSTEIGEND (Rang 1 = meiste Touren = produktivster = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_wenig: unteres 25%-Quartil · Ziel: 6.0
+
+**KRITISCH: Nächste freie Phase ist 5434!** NIEMALS 4000–5433 verwenden.
+
+---
 
 ## Batch 60 — km/Tour-Ranking (ABGESCHLOSSEN 2026-08-01)
 
