@@ -126,17 +126,21 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    const filteredRows = driverId ? fahrerRows.filter(f => f.fahrer_id === driverId) : fahrerRows;
     const teamAvg = sorted.reduce((s, r) => s + r.avg, 0) / (sorted.length || 1);
 
-    return NextResponse.json({
-      fahrer: filteredRows.length ? filteredRows : fahrerRows,
+    const result: ApiResponse = {
+      fahrer: fahrerRows,
       team_avg_min: Math.round(teamAvg * 10) / 10,
       schnellste_name: sorted[0]?.name ?? '',
       langsamste_name: sorted[sorted.length - 1]?.name ?? '',
       alert_count: fahrerRows.filter(f => f.alert_langsam).length,
       gesamt: total,
-    } satisfies ApiResponse);
+    };
+    if (driverId) {
+      const me = fahrerRows.find(f => f.fahrer_id === driverId);
+      return NextResponse.json({ ...result, fahrer_single: me ?? null });
+    }
+    return NextResponse.json(result);
   } catch {
     return NextResponse.json(MOCK_DATA);
   }

@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 78 (5505/5506/5508) Problem-Reaktionszeit-Ranking implementiert · API fahrer-problem-reaktionszeit-ranking (vorhanden, driver_id+fahrer_single nachgerüstet, reaktionszeit_min AUFSTEIGEND, alert_langsam) · Zap yellow-400 · Import+Render+Barrel ✅ Dispatch(5505) + Fahrer(5506) + Kitchen(5508) · **Nächste freie Phase: 5509**
+
 **CEO Review #772 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 76 (5496/5497/5499) Kundenbewertungs-Ranking verifiziert · CEO-Fix: driver_id+fahrer_single in fahrer-kundenbewertung-ranking API nachgetragen · Batch 77 V-Updates (5500–5504) parallel implementiert ✅ · MARKT-REIF bestätigt · Nächste freie Phase: 5505
 
 **Frontend-Ingenieur-Agent (2026-08-01):** Build ✓ exit 0 (npm ci + ./node_modules/.bin/next build, Next.js 14.2.18) · Batch 77 V-Update-Batch (5500/5501/5502/5503/5504) implementiert · Phase 5500: Dispatch Score-Tour V38 (Eco-Score-Badge, Zielpfad-Balken, 5-KPI-Grid Fleet/Aktiv/Risiko/Eff/Eco, 20s-Polling) · Phase 5501: Fahrer Tour-Nav V13 (SVG ProgressRing+CountdownRing, Stop-Bestätigung POST, Traffic-Strip, 3-Button-Grid, 30s-Polling) · Phase 5502: Lieferdienst Statistiken V51 (Revenue-Trend-SparkLine 7h, Alert-Strip, 8-KPI-Grid 2-spaltig, Zonen-SLA, 60s-Polling) · Phase 5503: Kitchen Smart-Timing V56 (Batch-Gruppen-Anzeige, Kochstart-Offset-Indikator, Abholer-Timing-Badge, Station-Filter-Tabs, 1s-Tick+15s-Polling) · Phase 5504: Storefront ETA-Tracking V16 (Pulsierender Fahrer-Punkt, Step-by-Step 7 Phasen, ETA-Countdown farbkodiert, Supabase-Subscription+30s-Polling) · Import+Render+Barrel ✅ alle 5 Clients · **Nächste freie Phase: 5505**
@@ -63,6 +65,26 @@
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 78 — Problem-Reaktionszeit-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5505 — Problem-Reaktionszeit-Board (Dispatch)
+**Component:** `DispatchPhase5505ProblemReaktionszeitBoard` — Zap yellow-400; reaktionszeit_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Langsam-Alert alert_langsam; 30-Min-Polling ✅
+
+### Phase 5506 — Meine Problem-Reaktionszeit (Fahrer)
+**Component:** `FahrerPhase5506MeineProblemReaktionszeit` — Zap yellow-400; reaktionszeit_min 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≤10/≤20/>20 min; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5507 — Storefront: übersprungen ✅
+
+### Phase 5508 — Problem-Reaktionszeit-Ticker (Kitchen)
+**Component:** `KitchenPhase5508ProblemReaktionszeitTicker` — Zap yellow-400; Schnellste/r #1 Name+Reaktionszeit; Team-Ø; Langsam-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-problem-reaktionszeit-ranking` (vorhanden + driver_id+fahrer_single nachgerüstet) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, reaktionszeit_min, rank_delta, ampel, alert_langsam}], team_avg_min, schnellste_name, langsamste_name, alert_count, gesamt }`
+**Logik:** Avg Diff issue_resolved_at − issue_reported_at (letzte 30 Tage) · AUFSTEIGEND (Rang 1 = niedrigste Zeit = schnellster) · alert_langsam: > 30 min
+
+**KRITISCH: Nächste freie Phase ist 5509!** NIEMALS 4000–5508 verwenden.
+
+---
 
 ## Batch 71 — Retour-Quote-Ranking (ABGESCHLOSSEN 2026-08-01)
 
