@@ -1458,6 +1458,7 @@ import { DispatchPhase5471RetourQuoteBoard } from './phase5471-retour-quote-boar
 import { DispatchPhase5476ScoreTourVisualisierungV36 } from './phase5476-score-tour-visualisierung-v36';
 import { DispatchPhase5480GesamtlieferungenBoard } from './phase5480-gesamtlieferungen-board';
 import { DispatchPhase5484TourstartPuenktlichkeitBoard } from './phase5484-tourstart-puenktlichkeit-board';
+import { DispatchPhase5488TourstartReaktionszeitBoard } from './phase5488-tourstart-reaktionszeit-board';
 
 type Driver = {
   employee_id: string;
@@ -5767,6 +5768,8 @@ export function DispatchBoard({
           <DispatchPhase5480GesamtlieferungenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5484: Tourstart-Pünktlichkeit-Board — Clock3 blue-400; AUFSTEIGEND; 3-KPI-Grid Pünktlichste/r/Team-Ø/Verspätetste/r; Balken farbkodiert; DeltaIcons; Verspätet-Alert; 30-Min-Polling */}
           <DispatchPhase5484TourstartPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5488: Tourstart-Reaktionszeit-Board — Timer violet-400; AUFSTEIGEND; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Langsam-Alert; 30-Min-Polling */}
+          <DispatchPhase5488TourstartReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14784,3 +14787,5 @@ export { DispatchPhase5476ScoreTourVisualisierungV36 } from './phase5476-score-t
 export { DispatchPhase5480GesamtlieferungenBoard } from './phase5480-gesamtlieferungen-board';
 // Phase 5484 — Tourstart-Pünktlichkeit-Board (Clock3 blue-400; avg_verzoegerung_min AUFSTEIGEND Rang 1=kürzeste Verzögerung=bester; 3-KPI-Grid Pünktlichste/r/Team-Ø/Verspätetste/r; Balken farbkodiert; DeltaIcons; Verspätet-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5484TourstartPuenktlichkeitBoard } from './phase5484-tourstart-puenktlichkeit-board';
+// Phase 5488 — Tourstart-Reaktionszeit-Board (Timer violet-400; avg_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Langsam-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5488TourstartReaktionszeitBoard } from './phase5488-tourstart-reaktionszeit-board';
