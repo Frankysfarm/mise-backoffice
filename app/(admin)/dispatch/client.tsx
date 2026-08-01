@@ -1443,6 +1443,7 @@ import { DispatchPhase5409ScoreTourVisualisierungV33 } from './phase5409-score-t
 import { DispatchPhase5413BewertungsBoard } from './phase5413-bewertungs-board';
 import { DispatchPhase5417AkzeptanzBoard } from './phase5417-akzeptanz-board';
 import { DispatchPhase5422LieferzeitBoard } from './phase5422-lieferzeit-board';
+import { DispatchPhase5426KmProTourBoard } from './phase5426-km-pro-tour-board';
 
 type Driver = {
   employee_id: string;
@@ -5722,6 +5723,8 @@ export function DispatchBoard({
           <DispatchPhase5417AkzeptanzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5422: Lieferzeit-Board — Clock blue-400; AUFSTEIGEND; 3-KPI-Grid Schnellste/Team-Ø/Langsamste; DeltaIcons; Langsam-Alert; 30-Min-Polling */}
           <DispatchPhase5422LieferzeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5426: km/Tour-Board — Route green-400; AUFSTEIGEND; 3-KPI-Grid Kürzeste/Team-Ø/Längste; DeltaIcons; Lange-Route-Alert; 30-Min-Polling */}
+          <DispatchPhase5426KmProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14706,5 +14709,7 @@ export { DispatchPhase5413BewertungsBoard } from './phase5413-bewertungs-board';
 export { DispatchPhase5417AkzeptanzBoard } from './phase5417-akzeptanz-board';
 // Phase 5422 — Lieferzeit-Board (Clock blue-400; AUFSTEIGEND; 3-KPI-Grid Schnellste/Team-Ø/Langsamste; DeltaIcons; Langsam-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5422LieferzeitBoard } from './phase5422-lieferzeit-board';
+// Phase 5426 — km/Tour-Board (Route green-400; AUFSTEIGEND; 3-KPI-Grid Kürzeste/Team-Ø/Längste; DeltaIcons; Lange-Route-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5426KmProTourBoard } from './phase5426-km-pro-tour-board';
 // Phase 5420 — Score + Tour-Visualisierung V34 (Trophy violet; Fahrer-Cluster-Karte Hotspot-Dichte; Profit/km je Fahrer; ETA-Drift-Alarm; Fleet-Fitness-Score; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/€-km; 3-Tab Rangliste/Cluster/Profit; Tier-farbkodiert Platin/Gold/Gut/Schwach; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5420ScoreTourVisualisierungV34 } from './phase5420-score-tour-visualisierung-v34';
