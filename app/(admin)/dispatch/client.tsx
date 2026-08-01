@@ -14862,3 +14862,9 @@ export { DispatchPhase5529PauseneffizienzBoard } from './phase5529-pauseneffizie
 export { DispatchPhase5531UmsatzProTourBoard } from './phase5531-umsatz-pro-tour-board';
 // Phase 5535 — Nachtschicht-Effizienz-Board (Moon indigo-400; avg_nacht_lieferungen ABSTEIGEND Rang 1=meiste Nachtlieferungen=bester; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5535NachtschichtBoard } from './phase5535-nachtschicht-board';
+// Phase 5536 — Schichtstart-Pünktlichkeit-Board (Clock3 sky-400; avg_verzoegerung_min AUFSTEIGEND Rang 1=kürzeste Verzögerung=bester; 3-KPI-Grid Pünktlichste/r/Team-Ø/Verspätetste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert >3min; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5536SchichtstartPuenktlichkeitBoard } from './phase5536-schichtstart-puenktlichkeit-board';
+// Phase 5540 — Kundenbindungs-Rate-Board (Heart rose-400; kundenbindungs_pct ABSTEIGEND Rang 1=höchste Rate=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert <60%; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5540KundenbindungsRateBoard } from './phase5540-kundenbindungs-rate-board';
+// Phase 5543 — Score + Tour-Visualisierung V43 (Trophy violet; V42+: Schichtstart-Pünktlichkeit-Ampel je Fahrer; Kundenbindungs-Score Stammkunden-Anteil %; Echtzeit-Schicht-Balance-Indikator Fairness-Score; Tour-Qualitäts-Composite-Index; 11-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/CO₂/Ertrag/Energie/Bindung/Pünktl/Qualität; 7-Tab Rangliste/Profit/Energie/Lücken/CO₂/Bindung/Pünktlichkeit; 20s-Polling; Mock-Fallback)
+export { DispatchPhase5543ScoreTourVisualisierungV43 } from './phase5543-score-tour-visualisierung-v43';

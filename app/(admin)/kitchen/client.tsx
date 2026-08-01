@@ -13435,3 +13435,9 @@ export { KitchenPhase5533PauseneffizienzTicker } from './phase5533-pauseneffizie
 export { KitchenPhase5534UmsatzProTourTicker } from './phase5534-umsatz-pro-tour-ticker';
 // Phase 5538 — Nachtschicht-Effizienz-Ticker (Moon indigo-400; Aktivste/r #1 Name+Lieferungen; Team-Ø; Niedrig-Alert alert_niedrig unteres 25%-Quartil; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5538NachtschichtTicker } from './phase5538-nachtschicht-ticker';
+// Phase 5539 — Schichtstart-Pünktlichkeit-Ticker (Clock3 sky-400; Pünktlichste/r #1 Name+Ø-Verzögerung min; Team-Ø; Hoch-Alert >3min; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5539SchichtstartPuenktlichkeitTicker } from './phase5539-schichtstart-puenktlichkeit-ticker';
+// Phase 5540 — Kundenbindungs-Rate-Ticker (Heart rose-400; Beste/r #1 Name+Wiederkehrer-%; Team-Ø; Niedrig-Alert <60%; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5540KundenbindungsRateTicker } from './phase5540-kundenbindungs-rate-ticker';
+// Phase 5543 — Smart-Timing Countdown V61 (Timer indigo; V60+: Schichtstart-Pünktlichkeit-Indikator je Fahrer Ampel; Kundenbindungs-Potential-Score Stammkunde-Badge; Stations-Kapazitäts-Prognose +20min Engpass-Alert; Optimaler-Übergabe-Zeitfenster-Indikator ±min; 11-KPI-Grid Score/Aktiv/Kritisch/Überfällig/Fertig/Varianz/Stationen/SLA/Bereit/Drift/Bind; 6-Tab Countdown/Prognose/Übergabe/Items/Stationen/Kunden; 1s-Tick+15s-Polling; Mock-Fallback)
+export { KitchenPhase5543SmartTimingCountdownV61 } from './phase5543-smart-timing-countdown-v61';
