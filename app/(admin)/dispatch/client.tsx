@@ -1480,6 +1480,7 @@ import { DispatchPhase5543ScoreTourVisualisierungV43 } from './phase5543-score-t
 import { DispatchPhase5547ScoreTourVisualisierungV44 } from './phase5547-score-tour-visualisierung-v44';
 import { DispatchPhase5548LeerfahrtenBoard } from './phase5548-leerfahrten-board';
 import { DispatchPhase5552UmsatzProKmBoard } from './phase5552-umsatz-pro-km-board';
+import { DispatchPhase5556KmProTagBoard } from './phase5556-km-pro-tag-board';
 
 type Driver = {
   employee_id: string;
@@ -5831,6 +5832,8 @@ export function DispatchBoard({
           <DispatchPhase5548LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5552: Umsatz-pro-km-Board — TrendingUp emerald-400; umsatz_pro_km ABSTEIGEND Rang 1=höchster €/km=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
           <DispatchPhase5552UmsatzProKmBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5556: km-pro-Tag-Board — Gauge blue-400; avg_km_pro_tag ABSTEIGEND Rang 1=höchstes km/Tag=aktivster; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5556KmProTagBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14897,3 +14900,5 @@ export { DispatchPhase5547ScoreTourVisualisierungV44 } from './phase5547-score-t
 export { DispatchPhase5548LeerfahrtenBoard } from './phase5548-leerfahrten-board';
 // Phase 5552 — Umsatz-pro-km-Board (TrendingUp emerald-400; umsatz_pro_km ABSTEIGEND Rang 1=höchster €/km=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_niedrig; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5552UmsatzProKmBoard } from './phase5552-umsatz-pro-km-board';
+// Phase 5556 — km-pro-Tag-Board (Gauge blue-400; avg_km_pro_tag ABSTEIGEND Rang 1=höchstes km/Tag=aktivster; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_niedrig; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5556KmProTagBoard } from './phase5556-km-pro-tag-board';

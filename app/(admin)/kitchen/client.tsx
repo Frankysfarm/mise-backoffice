@@ -1409,6 +1409,7 @@ import { KitchenPhase5543SmartTimingCountdownV61 } from './phase5543-smart-timin
 import { KitchenPhase5547SmartTimingCountdownV62 } from './phase5547-smart-timing-countdown-v62';
 import { KitchenPhase5551LeerfahrtenTicker } from './phase5551-leerfahrten-ticker';
 import { KitchenPhase5555UmsatzProKmTicker } from './phase5555-umsatz-pro-km-ticker';
+import { KitchenPhase5559KmProTagTicker } from './phase5559-km-pro-tag-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5352,6 +5353,8 @@ export function KitchenBoard({
       <KitchenPhase5551LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5555: Umsatz-pro-km-Ticker — TrendingUp emerald-400; Beste/r #1 Name+€/km; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
       <KitchenPhase5555UmsatzProKmTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5559: km-pro-Tag-Ticker — Gauge blue-400; Aktivste/r #1 Name+km/Tag; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
+      <KitchenPhase5559KmProTagTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}
       <KitchenPhase5543SmartTimingCountdownV61 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
@@ -13470,3 +13473,5 @@ export { KitchenPhase5547SmartTimingCountdownV62 } from './phase5547-smart-timin
 export { KitchenPhase5551LeerfahrtenTicker } from './phase5551-leerfahrten-ticker';
 // Phase 5555 — Umsatz-pro-km-Ticker (TrendingUp emerald-400; Beste/r #1 Name+€/km; Team-Ø; Niedrig-Alert alert_niedrig; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5555UmsatzProKmTicker } from './phase5555-umsatz-pro-km-ticker';
+// Phase 5559 — km-pro-Tag-Ticker (Gauge blue-400; Aktivste/r #1 Name+km/Tag; Team-Ø; Niedrig-Alert alert_niedrig; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5559KmProTagTicker } from './phase5559-km-pro-tag-ticker';
