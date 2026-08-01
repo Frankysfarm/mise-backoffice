@@ -262,7 +262,7 @@ export function LieferdienstPhase5477StatistikenDashboardV49() {
             <div className="grid grid-cols-4 gap-1 text-center">
               {['h8','h12','h18','h20'].map((key, i) => {
                 const labels = ['8h','12h','18h','20h'];
-                const avg = data.storno_muster.reduce((s, d) => s + (d as Record<string, number>)[key], 0) / data.storno_muster.length;
+                const avg = data.storno_muster.reduce((s, d) => s + (d as unknown as Record<string, number>)[key], 0) / data.storno_muster.length;
                 return (
                   <div key={key} className="rounded bg-gray-800 px-1 py-1">
                     <div className="text-[9px] text-gray-500">{labels[i]}</div>
@@ -361,7 +361,7 @@ export function LieferdienstPhase5477StatistikenDashboardV49() {
               <XAxis dataKey="monat" tick={{ fontSize: 9, fill: '#6b7280' }} />
               <YAxis tick={{ fontSize: 8, fill: '#6b7280' }} width={28} tickFormatter={(v: number) => `${Math.round(v / 1000)}k`} />
               <Tooltip contentStyle={{ background: '#1f2937', border: 'none', fontSize: 9 }}
-                formatter={(v: number) => [euro(v), '']} />
+                formatter={(v) => [euro((v as number | undefined) ?? 0), '']} />
               <Bar dataKey="umsatz" name="Umsatz" fill="#34d399" radius={[2,2,0,0]} />
               <Bar dataKey="kosten" name="Kosten" fill="#f87171" radius={[2,2,0,0]} />
             </BarChart>

@@ -274,7 +274,7 @@ export function KitchenPhase5475SmartTimingCountdownV54() {
               <XAxis dataKey="min_label" tick={{ fontSize: 9, fill: '#6b7280' }} />
               <Tooltip
                 contentStyle={{ background: '#1f2937', border: 'none', fontSize: 10 }}
-                formatter={(v: number) => [`${v}`, '']}
+                formatter={(v) => [`${(v as number | undefined) ?? 0}`, '']}
               />
               <Bar dataKey="bestellungen" fill="#818cf8" name="Bestellungen" radius={[2,2,0,0]} />
               <Bar dataKey="ki_kapazitaet" fill="#34d399" name="KI-Kapazität" radius={[2,2,0,0]} />

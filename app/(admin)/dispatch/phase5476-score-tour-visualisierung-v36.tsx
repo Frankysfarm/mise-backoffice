@@ -233,7 +233,7 @@ export function DispatchPhase5476ScoreTourVisualisierungV36() {
           <ResponsiveContainer width="100%" height={70}>
             <AreaChart data={data.score_stream}>
               <XAxis dataKey="t" tick={{ fontSize: 8, fill: '#6b7280' }} />
-              <Tooltip contentStyle={{ background: '#1f2937', border: 'none', fontSize: 9 }} formatter={(v: number) => [v, 'Score']} />
+              <Tooltip contentStyle={{ background: '#1f2937', border: 'none', fontSize: 9 }} formatter={(v) => [(v as number | undefined) ?? 0, 'Score']} />
               <Area type="monotone" dataKey="score" stroke="#a78bfa" fill="#a78bfa33" strokeWidth={1.5} dot={false} />
             </AreaChart>
           </ResponsiveContainer>

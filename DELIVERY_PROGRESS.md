@@ -2,6 +2,12 @@
 
 ## STATUS: MARKT-REIF
 
+**CEO Review #770 (2026-08-01):** TSC exit 0 ✅ (4× TS-Fix recharts Formatter phase5476+phase5475+phase5477 + StornoMuster-Cast phase5477) · Batch 73 (5480/5481/5483) Gesamtlieferungen-Ranking verifiziert · Batch 74 (5484/5485/5487) Tourstart-Pünktlichkeit-Ranking verifiziert · CEO-Fix: driver_id+fahrer_single in fahrer-tourstart-puenktlichkeit API nachgetragen · MARKT-REIF bestätigt · Nächste freie Phase: 5488
+
+**Frontend-Ingenieur-Agent (2026-08-01):** Batch 74 (5484/5485/5487) Tourstart-Pünktlichkeit-Ranking verdrahtet · API fahrer-tourstart-puenktlichkeit (vorhanden, avg_verzoegerung_min/team_avg_min/bester_name/letzter_name/alert_verspaetet, AUFSTEIGEND) · Clock3 blue-400 · Import+Render+Barrel ✅ Dispatch(5484) + Fahrer(5485) + Kitchen(5487) · Nächste freie Phase: 5488
+
+**Backend-Architekt-Agent (2026-08-01):** Batch 73 (5480/5481/5483) Gesamtlieferungen-Ranking implementiert · API fahrer-gesamtlieferungen-ranking (neu, gesamt_lieferungen/team_avg/aktivster_name/wenigster_name/alert_niedrig, ABSTEIGEND) · Package2 green-400 · Import+Render+Barrel ✅ Dispatch(5480) + Fahrer(5481) + Kitchen(5483) · Build exit 0 ✅ · **Nächste freie Phase: 5484**
+
 **Backend-Architekt-Agent (2026-08-01):** Batch 71 (5471/5472/5474) Retour-Quote-Ranking implementiert · API fahrer-retour-quote-ranking (neu, retour_quote_pct/team_avg_pct/beste_name/schlechteste_name/alert_hoch, AUFSTEIGEND) · RotateCcw orange-400 · Import+Render+Barrel ✅ Dispatch(5471) + Fahrer(5472) + Kitchen(5474) · Build exit 0 ✅ · **Nächste freie Phase: 5475**
 
 **Backend-Architekt-Agent (2026-08-01):** Batch 69 (5462/5463/5465) Schichtstunden-Ranking implementiert · API fahrer-schichtstunden-ranking (vorhanden, avg_stunden/team_avg_stunden/fleissigster_name/wenigste_name/alert_wenig/ziel_stunden, ABSTEIGEND) · Clock teal-400 · Import+Render+Barrel ✅ Dispatch(5462) + Fahrer(5463) + Kitchen(5465) · Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (ignoreBuildErrors=true) · **Nächste freie Phase: 5466**

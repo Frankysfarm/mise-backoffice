@@ -48,6 +48,7 @@ function ampelVon(rang: number, gesamt: number): 'gruen' | 'gelb' | 'rot' {
 
 export async function GET(req: NextRequest) {
   const locationId = req.nextUrl.searchParams.get('location_id');
+  const driverId   = req.nextUrl.searchParams.get('driver_id');
   if (!locationId) return NextResponse.json(MOCK_DATA);
 
   try {
@@ -132,7 +133,7 @@ export async function GET(req: NextRequest) {
 
     const team_avg_min = Math.round((fahrer.reduce((s, f) => s + f.avg_verzoegerung_min, 0) / total) * 10) / 10;
 
-    return NextResponse.json({
+    const result = {
       fahrer,
       team_avg_min,
       bester_name: fahrer[0]?.fahrer_name ?? '',
@@ -140,7 +141,14 @@ export async function GET(req: NextRequest) {
       alert_count: fahrer.filter(f => f.alert_verspaetet).length,
       gesamt: total,
       ziel_min: 0,
-    } satisfies ApiResponse);
+    } satisfies ApiResponse;
+
+    if (driverId) {
+      const me = fahrer.find(f => f.fahrer_id === driverId);
+      return NextResponse.json({ ...result, fahrer_single: me ?? null });
+    }
+
+    return NextResponse.json(result);
   } catch {
     return NextResponse.json(MOCK_DATA);
   }
