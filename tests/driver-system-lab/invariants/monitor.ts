@@ -178,6 +178,16 @@ export function assertSnapshotInvariants(snapshot: LabSnapshot): void {
     const assignments = snapshot.assignments.filter((item) => item.batchId === batch.id && active(item.status))
     const stops = snapshot.stops.filter((item) => item.batchId === batch.id && item.status === "open")
     tenantMatch(snapshot, [...assignments, ...stops], batch.tenantId, [batch.id])
+    const unexpectedStop = stops.find((stop) => !assignments.some((assignment) => assignment.id === stop.assignmentId))
+    if (unexpectedStop) {
+      fail(snapshot, {
+        invariantId: "ROUTE.OPEN_STOP_WITHOUT_ACTIVE_ASSIGNMENT",
+        severity: "P0",
+        message: "Active route contains a stop outside its active assignment set",
+        entityIds: [batch.id, unexpectedStop.id, unexpectedStop.assignmentId],
+        facts: {},
+      })
+    }
     const sequences = stops.map((item) => String(item.sequence))
     const duplicateSequence = duplicate(sequences)
     if (duplicateSequence) {
@@ -248,6 +258,18 @@ export function assertSnapshotInvariants(snapshot: LabSnapshot): void {
       entityIds: [sentTerminal.id],
       facts: { providerSendCount: sentTerminal.providerSendCount },
     })
+  }
+
+  for (const audit of snapshot.audits) {
+    if (!audit.correlationId.trim()) {
+      fail(snapshot, {
+        invariantId: "AUDIT.MISSING_CORRELATION_ID",
+        severity: "P1",
+        message: "Critical mutation audit has no correlation ID",
+        entityIds: [audit.id, audit.entityId],
+        facts: { mutation: audit.mutation },
+      })
+    }
   }
 }
 

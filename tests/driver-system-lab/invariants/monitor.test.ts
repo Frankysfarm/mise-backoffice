@@ -83,6 +83,18 @@ test("detects terminal push provider send", () => {
   expectViolation(snapshot, "PUSH.PROVIDER_SEND_AFTER_TERMINAL_CLAIM")
 })
 
+test("detects an open stop outside the active assignment set", () => {
+  const snapshot = validSnapshot()
+  snapshot.stops.push({ ...snapshot.stops[1], id: "dropoff-stale", assignmentId: "assignment-completed", orderId: "order-old", sequence: 3 })
+  expectViolation(snapshot, "ROUTE.OPEN_STOP_WITHOUT_ACTIVE_ASSIGNMENT")
+})
+
+test("detects missing mutation correlation", () => {
+  const snapshot = validSnapshot()
+  snapshot.audits[0].correlationId = ""
+  expectViolation(snapshot, "AUDIT.MISSING_CORRELATION_ID")
+})
+
 test("redacts idempotency keys from duplicate evidence", () => {
   const snapshot = validSnapshot()
   snapshot.assignments.push({ ...snapshot.assignments[0], id: "assignment-old", status: "completed" })
