@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import { assertSnapshotInvariants, InvariantViolationError } from "./monitor"
+import { assertSnapshotInvariants, InvariantViolationError, routeStopFingerprint } from "./monitor"
 import type { LabSnapshot } from "./types"
 
 const runId = "tl_invariant_0001"
@@ -8,7 +8,7 @@ const tenantId = "tl_tenant_a"
 const base = { testRunId: runId, tenantId }
 
 function validSnapshot(): LabSnapshot {
-  return {
+  const snapshot: LabSnapshot = {
     testRunId: runId,
     observedAt: "2026-08-01T12:00:00.000Z",
     orders: [{ ...base, id: "order-1", status: "assigned" }],
@@ -19,11 +19,13 @@ function validSnapshot(): LabSnapshot {
       { ...base, id: "pickup-1", batchId: "batch-1", assignmentId: "assignment-1", orderId: "order-1", kind: "pickup", sequence: 1, status: "open" },
       { ...base, id: "dropoff-1", batchId: "batch-1", assignmentId: "assignment-1", orderId: "order-1", kind: "dropoff", sequence: 2, status: "open" },
     ],
-    routePlans: [{ ...base, id: "route-1", batchId: "batch-1", routeVersion: 3, provider: "fixture-google", stopFingerprint: "sha256:abc" }],
+    routePlans: [],
     picks: [{ ...base, id: "pick-1", assignmentId: "assignment-1", requiredItems: 2, pickedItems: 2, missingItems: 0, clarifiedMissingItems: 0 }],
     pushes: [{ ...base, id: "push-1", notificationId: "notification-1", assignmentId: "assignment-1", assignmentVersion: 1, logicalEventKey: "assignment-1:offer:1", status: "sent", providerSendCount: 1 }],
     audits: [{ ...base, id: "audit-1", entityId: "assignment-1", mutation: "assignment.activate", correlationId: "corr-1" }],
   }
+  snapshot.routePlans.push({ ...base, id: "route-1", batchId: "batch-1", routeVersion: 3, provider: "fixture-google", stopFingerprint: routeStopFingerprint(snapshot.stops) })
+  return snapshot
 }
 
 function expectViolation(snapshot: LabSnapshot, invariantId: string): InvariantViolationError {
@@ -80,7 +82,40 @@ test("detects departure without current Google-contract plan", () => {
 test("detects terminal push provider send", () => {
   const snapshot = validSnapshot()
   snapshot.pushes[0].status = "terminal"
+  snapshot.pushes[0].terminalClaimedAt = "2026-08-01T12:00:00.000Z"
+  snapshot.pushes[0].providerSentAt = "2026-08-01T12:00:01.000Z"
   expectViolation(snapshot, "PUSH.PROVIDER_SEND_AFTER_TERMINAL_CLAIM")
+})
+
+test("accepts historical send before terminal claim", () => {
+  const snapshot = validSnapshot()
+  snapshot.pushes[0] = { ...snapshot.pushes[0], status: "terminal", providerSentAt: "2026-08-01T11:59:59.000Z", terminalClaimedAt: "2026-08-01T12:00:00.000Z" }
+  assert.doesNotThrow(() => assertSnapshotInvariants(snapshot))
+})
+
+test("rejects assignment/batch driver mismatch", () => {
+  const snapshot = validSnapshot(); snapshot.batches[0].driverId = "driver-other"
+  expectViolation(snapshot, "ASSIGNMENT.BATCH_DRIVER_MISMATCH")
+})
+
+test("rejects cross-tenant route plan", () => {
+  const snapshot = validSnapshot(); snapshot.routePlans[0].tenantId = "tl_tenant_other"
+  expectViolation(snapshot, "SECURITY.CROSS_TENANT_REFERENCE")
+})
+
+test("rejects stop order mismatch", () => {
+  const snapshot = validSnapshot(); snapshot.stops[0].orderId = "wrong-order"; snapshot.routePlans[0].stopFingerprint = routeStopFingerprint(snapshot.stops)
+  expectViolation(snapshot, "ROUTE.STOP_ORDER_MISMATCH")
+})
+
+test("rejects negative pick counters", () => {
+  const snapshot = validSnapshot(); snapshot.picks[0].missingItems = -1
+  expectViolation(snapshot, "PICKING.INVALID_COUNTS")
+})
+
+test("rejects stale route fingerprint", () => {
+  const snapshot = validSnapshot(); snapshot.routePlans[0].stopFingerprint = "sha256:stale"
+  expectViolation(snapshot, "ROUTE.FINGERPRINT_MISMATCH")
 })
 
 test("detects an open stop outside the active assignment set", () => {

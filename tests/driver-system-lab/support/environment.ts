@@ -18,6 +18,8 @@ const ALLOWED_DATABASE_HOSTS = new Set([
   "db.staging.mise.internal",
 ])
 const FORBIDDEN_HOST_PARTS = ["supabase.co", "mise-gastro.de", "vercel.app"]
+const EXTERNAL_URL_KEYS = ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_URL", "NEXT_PUBLIC_BACKEND_URL", "BACKEND_URL"] as const
+const REAL_PROVIDER_CREDENTIAL_KEYS = ["APNS_KEY_P8_PATH", "APNS_KEY_ID", "APNS_TEAM_ID", "APNS_VOIP_P12_PATH", "APNS_VOIP_P12_PASS", "RESEND_API_KEY", "TWILIO_AUTH_TOKEN", "WHATSAPP_ACCESS_TOKEN"] as const
 const TEST_TENANT_PREFIX = "testlab_"
 const RUN_ID = /^tl_[0-9]{8}t[0-9]{6}z_[a-f0-9]{8}$/
 
@@ -75,6 +77,19 @@ export function assertTestLabEnvironment(env: NodeJS.ProcessEnv = process.env): 
     if ((env[key] ?? "sink") !== "sink") reasons.push(`${key} must equal sink`)
   }
   if ((env.MISE_TEST_LAB_ROUTING_MODE ?? "fixture") !== "fixture") reasons.push("routing must use fixture mode unless a separately approved budgeted test is introduced")
+  for (const key of EXTERNAL_URL_KEYS) {
+    const value = env[key]
+    if (!value) continue
+    try {
+      const hostname = new URL(value).hostname.toLowerCase()
+      if (FORBIDDEN_HOST_PARTS.some((part) => hostname === part || hostname.endsWith(`.${part}`))) reasons.push(`${key} points to a forbidden hosted/production domain`)
+      else if (!ALLOWED_DATABASE_HOSTS.has(hostname) && hostname !== "test.mise.internal" && hostname !== "staging.mise.internal") reasons.push(`${key} host is not statically allowlisted`)
+    } catch {
+      reasons.push(`${key} must be a valid allowlisted URL when present`)
+    }
+  }
+  for (const key of REAL_PROVIDER_CREDENTIAL_KEYS) if (env[key]) reasons.push(`${key} must be absent; the lab uses provider sinks`)
+  if (env.APNS_PRODUCTION === "true" || env.APNS_VOIP_PRODUCTION === "true") reasons.push("production APNs mode is forbidden")
   if (env.VERCEL_ENV === "production" || env.MISE_DEPLOYMENT_TIER === "production") reasons.push("production runtime is forbidden")
 
   if (reasons.length > 0 || !databaseUrl || !validEnvironment) throw new TestLabSafetyError(reasons)

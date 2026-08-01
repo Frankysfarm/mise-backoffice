@@ -32,6 +32,10 @@ for (const [name, change] of [
   ["live routing", { MISE_TEST_LAB_ROUTING_MODE: "google" }],
   ["Vercel production runtime", { VERCEL_ENV: "production" }],
   ["self-hosted production runtime", { MISE_DEPLOYMENT_TIER: "production" }],
+  ["production Supabase URL", { NEXT_PUBLIC_SUPABASE_URL: "https://production-project.supabase.co" }],
+  ["production backend URL", { NEXT_PUBLIC_BACKEND_URL: "https://mise-gastro.de" }],
+  ["real APNs credential", { APNS_KEY_ID: "REALKEY123" }],
+  ["real email credential", { RESEND_API_KEY: "re_live_forbidden" }],
 ] as const) {
   test(`fails closed for ${name}`, () => {
     assert.throws(() => assertTestLabEnvironment({ ...safe, ...change }), TestLabSafetyError)

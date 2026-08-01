@@ -11,6 +11,11 @@ export class InvariantViolationError extends Error {
   }
 }
 
+export function routeStopFingerprint(stops: LabSnapshot["stops"]): string {
+  const canonical = [...stops].filter((stop) => stop.status === "open").sort((a, b) => a.sequence - b.sequence || a.id.localeCompare(b.id)).map((stop) => `${stop.sequence}:${stop.kind}:${stop.orderId}:${stop.assignmentId}`).join("|")
+  return `sha256:${createHash("sha256").update(canonical).digest("hex")}`
+}
+
 type Finding = Omit<InvariantEvidence, "schemaVersion" | "testRunId" | "observedAt" | "reproduction">
 
 function fail(snapshot: LabSnapshot, finding: Finding): never {
@@ -140,6 +145,9 @@ export function assertSnapshotInvariants(snapshot: LabSnapshot): void {
       })
     }
     tenantMatch(snapshot, [order, batch, driver], assignment.tenantId, [assignment.id])
+    if (assignment.driverId !== batch.driverId) {
+      fail(snapshot, { invariantId: "ASSIGNMENT.BATCH_DRIVER_MISMATCH", severity: "P0", message: "Assignment driver differs from batch owner", entityIds: [assignment.id, batch.id], facts: { assignmentDriver: assignment.driverId, batchDriver: batch.driverId } })
+    }
     if (driver.status === "offline") {
       fail(snapshot, {
         invariantId: "DRIVER.OFFLINE_ACTIVE_ASSIGNMENT",
@@ -188,6 +196,10 @@ export function assertSnapshotInvariants(snapshot: LabSnapshot): void {
         facts: {},
       })
     }
+    const mismatchedStop = stops.find((stop) => assignments.some((assignment) => assignment.id === stop.assignmentId && assignment.orderId !== stop.orderId))
+    if (mismatchedStop) fail(snapshot, { invariantId: "ROUTE.STOP_ORDER_MISMATCH", severity: "P0", message: "Stop order does not match its assignment", entityIds: [mismatchedStop.id, mismatchedStop.assignmentId], facts: { stopOrderId: mismatchedStop.orderId } })
+    const invalidSequence = stops.find((stop) => !Number.isSafeInteger(stop.sequence) || stop.sequence < 1)
+    if (invalidSequence) fail(snapshot, { invariantId: "ROUTE.INVALID_SEQUENCE", severity: "P0", message: "Open stop sequence must be a positive safe integer", entityIds: [invalidSequence.id], facts: { sequence: invalidSequence.sequence } })
     const sequences = stops.map((item) => String(item.sequence))
     const duplicateSequence = duplicate(sequences)
     if (duplicateSequence) {
@@ -214,6 +226,11 @@ export function assertSnapshotInvariants(snapshot: LabSnapshot): void {
       }
     }
     const plan = snapshot.routePlans.find((item) => item.batchId === batch.id && item.routeVersion === batch.routeVersion)
+    if (plan) {
+      tenantMatch(snapshot, [plan], batch.tenantId, [batch.id])
+      const expectedFingerprint = routeStopFingerprint(stops)
+      if (plan.stopFingerprint !== expectedFingerprint) fail(snapshot, { invariantId: "ROUTE.FINGERPRINT_MISMATCH", severity: "P0", message: "Persisted route fingerprint differs from active stop set", entityIds: [batch.id, plan.id], facts: { expectedFingerprint, actualFingerprint: plan.stopFingerprint } })
+    }
     if (batch.departed && (!plan || !["google", "fixture-google"].includes(plan.provider))) {
       fail(snapshot, {
         invariantId: "ROUTE.DEPARTED_WITHOUT_CURRENT_GOOGLE_PLAN",
@@ -226,6 +243,10 @@ export function assertSnapshotInvariants(snapshot: LabSnapshot): void {
     if (batch.departed) {
       for (const assignment of assignments) {
         const pick = snapshot.picks.find((item) => item.assignmentId === assignment.id)
+        if (pick) tenantMatch(snapshot, [pick], assignment.tenantId, [assignment.id])
+        if (pick && [pick.requiredItems, pick.pickedItems, pick.missingItems, pick.clarifiedMissingItems].some((value) => !Number.isSafeInteger(value) || value < 0)) {
+          fail(snapshot, { invariantId: "PICKING.INVALID_COUNTS", severity: "P0", message: "Pick counters must be non-negative safe integers", entityIds: [pick.id], facts: { pick } })
+        }
         if (!pick || pick.pickedItems < pick.requiredItems || pick.missingItems !== pick.clarifiedMissingItems) {
           fail(snapshot, {
             invariantId: "PICKING.DEPARTED_INCOMPLETE",
@@ -249,7 +270,7 @@ export function assertSnapshotInvariants(snapshot: LabSnapshot): void {
       facts: { eventKeyHash: createHash("sha256").update(duplicatePush).digest("hex") },
     })
   }
-  const sentTerminal = snapshot.pushes.find((item) => item.status === "terminal" && item.providerSendCount > 0)
+  const sentTerminal = snapshot.pushes.find((item) => item.status === "terminal" && item.providerSentAt && item.terminalClaimedAt && Date.parse(item.providerSentAt) > Date.parse(item.terminalClaimedAt))
   if (sentTerminal) {
     fail(snapshot, {
       invariantId: "PUSH.PROVIDER_SEND_AFTER_TERMINAL_CLAIM",

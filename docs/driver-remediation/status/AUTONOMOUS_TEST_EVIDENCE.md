@@ -47,3 +47,12 @@
 - Exit/result: 0; 49/49 tests pass.
 - Changes verified: all surfaces call the central guard, suite-specific discovery is active, and reports list selected test files rather than an empty timeline.
 - Review status: fixes occurred after frozen review commit `8934b878`; re-review is pending.
+
+## Adversarial P0 hardening
+
+- Run: `tl_20260801t190000z_f1a2b3c4`, seed 42.
+- Command/result: `npm run test:lab:full`, exit 0, 59/59.
+- Isolation: production Supabase/backend URLs and real APNs/email credentials now fail closed; guard matrix is 15/15.
+- Invariants: cross-tenant route plans/picks, batch-driver mismatch, stop-order mismatch, invalid counters/sequences, stale fingerprints and provider-send-after-terminal ordering are checked.
+- Healthcheck negative control: run `tl_20260801t190100z_deadbeef` against PostgreSQL port 1 exited 1 and wrote a failed report; `lab:up` no longer claims success for an unreachable service.
+- Limitation: these post-review fixes need independent re-review; integrated DB/process chaos remains absent.

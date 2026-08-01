@@ -64,6 +64,8 @@ export interface PushRow extends LabRow {
   logicalEventKey: string
   status: "pending" | "claimed" | "sent" | "terminal"
   providerSendCount: number
+  providerSentAt?: string
+  terminalClaimedAt?: string
 }
 
 export interface AuditRow extends LabRow {

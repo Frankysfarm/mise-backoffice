@@ -59,7 +59,7 @@ compatible UI harness, an invariant monitor, deterministic chaos controller,
 an independently implemented enumerating dispatch oracle with 500 seeds, a
 100+ case catalog, CLI/report formats, a six-step invariant-safe model timeline
 and a production-hidden dashboard preview. Aggregate test-lab evidence is
-49/49 green after review hardening. This is not equivalent to browser, database-backed, native,
+59/59 green after adversarial review hardening. This is not equivalent to browser, database-backed, native,
 independent-review or human-acceptance evidence, so the release is `BLOCKED`.
 
 The pre-existing aggregate release-readiness runner also passed after these

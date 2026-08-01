@@ -37,7 +37,10 @@ Releaseentscheidung: **BLOCKED für Produktion; SHADOW-ONLY lokal/isoliert.**
 - TL-G6: deterministic in-process chaos is green; real multi-session DB races, process kills and restart recovery remain to be wired into the lab.
 - TL-G7: physical iOS/Android background, lock, terminated-app, push and GPS evidence needs devices/toolchains.
 - TL-G8: authenticated dashboard execution/pause/abort, CI, nightly retention and bounded soak are open.
-- TL-G9/TL-G10: fixed-commit independent review board and employee acceptance have not run.
+- TL-G9/TL-G10: three fixed-commit reviews rejected the current maturity; post-fix double sign-offs, final judge and employee acceptance have not run.
 - The first Next build attempt exhausted the initially available disk space and was stopped safely. After removing only its reproducible `.next` output, a clean retry completed successfully (447 pages, including production-hidden `/test-lab`).
 
 These blockers keep the decision `BLOCKED`. None authorizes production.
+
+Three independent reviews of `8934b878` all returned `REJECT/BLOCKED`. Several
+harness defects were subsequently fixed, but no post-fix sign-off is inferred.

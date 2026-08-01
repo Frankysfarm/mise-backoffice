@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process"
 import { readdir } from "node:fs/promises"
 import { join } from "node:path"
+import { Socket } from "node:net"
 import { assertTestLabEnvironment } from "../support/environment"
 import { writeReport } from "../reports/writer"
 
@@ -34,6 +35,16 @@ async function selectTests(suite: string): Promise<string[]> {
   return (await Promise.all(selected.map((root) => discoverTests(`tests/driver-system-lab/${root}`)))).flat().sort()
 }
 
+function assertDatabaseReachable(url: URL): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const socket = new Socket()
+    const finish = (error?: Error) => { socket.destroy(); error ? reject(error) : resolve() }
+    socket.setTimeout(1500, () => finish(new Error("isolated PostgreSQL healthcheck timed out")))
+    socket.once("error", () => finish(new Error("isolated PostgreSQL is unreachable")))
+    socket.connect(Number(url.port || 5432), url.hostname, () => finish())
+  })
+}
+
 async function main(): Promise<void> {
   // This must remain the first stateful boundary in the CLI.
   const environment = assertTestLabEnvironment()
@@ -44,8 +55,17 @@ async function main(): Promise<void> {
 
   let status: "passed" | "failed" | "blocked" = "passed"
   let exitCode = 0
-  if (command === "up" || command === "down") {
-    console.log(JSON.stringify({ event: command, detail: "environment guard passed; service lifecycle is locally managed by the database harness" }))
+  if (command === "up") {
+    try {
+      await assertDatabaseReachable(environment.databaseUrl)
+      console.log(JSON.stringify({ event: "up", detail: "isolated PostgreSQL healthcheck passed" }))
+    } catch (error) {
+      status = "failed"; exitCode = 1
+      console.error(error instanceof Error ? error.message : error)
+    }
+  } else if (command === "down") {
+    status = "blocked"; exitCode = 2
+    console.error("No run-owned service/cleanup lease exists; refusing to claim shutdown")
   } else if (command === "replay") {
     status = "blocked"
     exitCode = 2

@@ -1,4 +1,4 @@
-import { assertSnapshotInvariants } from "../invariants/monitor"
+import { assertSnapshotInvariants, routeStopFingerprint } from "../invariants/monitor"
 import type { LabSnapshot } from "../invariants/types"
 import type { TestLabEnvironment } from "../support/environment"
 
@@ -37,7 +37,7 @@ export function runSingleOrderModel(environment: TestLabEnvironment, start = new
   record("dispatcher-1", "dispatch")
   snapshot.picks.push({ ...row, id: "pick-1", assignmentId: "assignment-1", requiredItems: 2, pickedItems: 2, missingItems: 0, clarifiedMissingItems: 0 })
   record("kitchen-1", "release-and-driver-pick")
-  snapshot.routePlans.push({ ...row, id: "route-1", batchId: "batch-1", routeVersion: 1, provider: "fixture-google", stopFingerprint: "pickup-1|dropoff-1" })
+  snapshot.routePlans.push({ ...row, id: "route-1", batchId: "batch-1", routeVersion: 1, provider: "fixture-google", stopFingerprint: routeStopFingerprint(snapshot.stops) })
   record("system-1", "persist-google-contract-route")
   snapshot.batches[0] = { ...snapshot.batches[0], departed: true }
   record("driver-1", "depart")
