@@ -213,7 +213,7 @@ export function LieferdienstPhase5530StatistikenDashboardV55({ locationId, class
                 <XAxis dataKey="label" tick={{ fontSize: 9, fill: '#71717a' }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 9, fill: '#71717a' }} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: 8, fontSize: 11 }}
-                  formatter={(v: number) => [`${v > 0 ? '+' : ''}${v}€/h`, 'Momentum']} />
+                  formatter={(v) => [`${(v as number) > 0 ? '+' : ''}${v as number}€/h`, 'Momentum']} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -277,7 +277,7 @@ export function LieferdienstPhase5530StatistikenDashboardV55({ locationId, class
                 <XAxis dataKey="stunde" tickFormatter={v => `${v}h`} tick={{ fontSize: 9, fill: '#71717a' }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 9, fill: '#71717a' }} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: 8, fontSize: 11 }}
-                  formatter={(v: number, name: string) => [`${v}min`, name]} />
+                  formatter={(v, name) => [`${v as number}min`, name as string]} />
               </LineChart>
             </ResponsiveContainer>
             <div className="flex justify-center gap-4 mt-1">
