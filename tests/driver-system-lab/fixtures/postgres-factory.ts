@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process"
 import type { TestLabEnvironment } from "../support/environment"
 import { assertRunOwnedResource, assertTestLabEnvironment } from "../support/environment"
+import { createCanonicalActorProfiles } from "../actors/profiles"
 
 function schemaName(runId: string): string {
   return `lab_${runId.replaceAll("-", "_")}`
@@ -40,21 +41,21 @@ export async function createRunData(environment: TestLabEnvironment): Promise<{ 
   environment = revalidate(environment)
   const schema = schemaName(environment.runId)
   const run = literal(environment.runId); const tenant = literal(environment.tenantId)
+  const profiles = createCanonicalActorProfiles(environment.runId, environment.tenantId)
+  const actorValues = Object.values(profiles).flat().map((actor) => `(${literal(actor.id)}, ${run}, ${tenant}, ${literal(actor.kind)}, ${literal(actor.behavior)}, ${literal(actor.displayName)}, ${literal(JSON.stringify(actor.metadata))}::jsonb)`).join(",\n")
   await psql(environment, `
     BEGIN;
     CREATE SCHEMA "${schema}";
     CREATE TABLE "${schema}".test_runs(test_run_id text PRIMARY KEY, tenant_id text NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
-    CREATE TABLE "${schema}".synthetic_actors(id text PRIMARY KEY, test_run_id text NOT NULL, tenant_id text NOT NULL, kind text NOT NULL);
+    CREATE TABLE "${schema}".synthetic_actors(id text PRIMARY KEY, test_run_id text NOT NULL, tenant_id text NOT NULL, kind text NOT NULL, behavior text NOT NULL, display_name text NOT NULL, metadata jsonb NOT NULL);
     CREATE TABLE "${schema}".synthetic_orders(id text PRIMARY KEY, test_run_id text NOT NULL, tenant_id text NOT NULL, status text NOT NULL);
     INSERT INTO "${schema}".test_runs VALUES (${run}, ${tenant}, now());
-    INSERT INTO "${schema}".synthetic_actors VALUES
-      ('customer-1', ${run}, ${tenant}, 'customer'), ('kitchen-1', ${run}, ${tenant}, 'kitchen'),
-      ('driver-1', ${run}, ${tenant}, 'driver'), ('dispatcher-1', ${run}, ${tenant}, 'dispatcher');
+    INSERT INTO "${schema}".synthetic_actors VALUES ${actorValues};
     INSERT INTO "${schema}".synthetic_orders VALUES ('order-1', ${run}, ${tenant}, 'pending');
     COMMIT;
   `)
   const actors = Number(await psql(environment, `SELECT count(*) FROM "${schema}".synthetic_actors WHERE test_run_id=${run} AND tenant_id=${tenant};`))
-  if (actors !== 4) throw new Error("test-lab data factory verification failed")
+  if (actors !== 65) throw new Error("test-lab data factory verification failed")
   return { schema, actors }
 }
 

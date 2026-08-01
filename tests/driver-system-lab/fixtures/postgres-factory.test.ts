@@ -10,7 +10,7 @@ test("creates run-bound synthetic data and cleans only its own schema", async (c
   const second = assertTestLabEnvironment({ MISE_TEST_LAB_ENABLED: "true", MISE_TEST_LAB_ENV: "local", MISE_TEST_LAB_DATABASE_URL: databaseUrl, MISE_TEST_LAB_TENANT_ID: "testlab_factory", MISE_TEST_LAB_RUN_ID: "tl_20260801t200001z_fac7abce", MISE_TEST_LAB_SEED: "2" })
   const created = await createRunData(environment)
   await createRunData(second)
-  assert.equal(created.actors, 4)
+  assert.equal(created.actors, 65)
   await assert.rejects(() => cleanupRunData(environment, "tl_20260801t200000z_deadbeef"))
   await assert.rejects(() => cleanupRunData({ ...environment, tenantId: "testlab_wrong_tenant" }, environment.runId))
   await cleanupRunData(environment, environment.runId)

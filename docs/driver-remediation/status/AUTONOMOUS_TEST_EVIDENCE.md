@@ -72,3 +72,10 @@
 - Proof: creates a dedicated run schema, inserts run/tenant-marked synthetic actors/order, rejects cleanup for another run, cleans the exact owned schema and verifies zero remaining namespace rows.
 - Limitation: minimal factory only; canonical application APIs/tables and full profile set are not yet exercised.
 - Hardening/review: commit `003b2c53` checks run and tenant atomically in the drop transaction, revalidates inputs at runtime, serializes compliant cleanup and proves a second run survives. Two independent reviewers approved this TL-G0 subgate.
+- Extension: all 65 canonical profiles are materialized. Factory plus real simultaneous create/cleanup races pass 3/3; each race has exactly one winner and preserves a foreign run schema.
+
+## Executable registry and comparison seam
+
+- Registry: all 115 catalog descriptors are bound exactly once; 6/6 validation tests pass. Unknown/unbound IDs and substituted metadata fail closed. Every current handler is explicitly `audit-only`, and the CLI returns exit 2 rather than pretending an E2E pass.
+- Oracle adapter: adapter plus oracle tests pass 17/17 including 500 seeds. Hard-constraint violations, exact match, tolerance and quality-gap verdicts are recorded without importing production scoring into the oracle.
+- Limitations: no actual production decision capture or concrete production route sequence is connected; catalog handlers do not yet drive application APIs/UI.

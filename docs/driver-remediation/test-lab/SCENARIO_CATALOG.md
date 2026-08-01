@@ -8,3 +8,8 @@ and duplicate IDs. Commit smoke selects five fast cases; full/nightly select
 the entire catalog, with nightly additionally owning the 500-seed property
 run. Device cases remain evidence-blocked until the matching physical platform
 is available; their presence is not represented as a pass.
+
+Every descriptor has a deterministic registry binding. Current bindings are
+marked `audit-only`; invoking one produces blocked exit status until that ID is
+backed by a real model/API/UI handler. This prevents catalog coverage from being
+misreported as functional coverage.

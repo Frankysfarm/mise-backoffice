@@ -3,6 +3,7 @@ import { readdir } from "node:fs/promises"
 import { join } from "node:path"
 import { assertTestLabEnvironment } from "../support/environment"
 import { writeReport } from "../reports/writer"
+import { executableScenarioRegistry } from "../scenarios/executable/catalog-registry"
 
 function runTests(patterns: string[]): Promise<number> {
   return new Promise((resolve, reject) => {
@@ -70,6 +71,7 @@ async function main(): Promise<void> {
 
   let status: "passed" | "failed" | "blocked" = "passed"
   let exitCode = 0
+  let reportEvents: readonly unknown[] = []
   if (command === "up") {
     try {
       await assertDatabaseReachable(environment.databaseUrl)
@@ -84,10 +86,20 @@ async function main(): Promise<void> {
   } else if (command === "replay") {
     status = "blocked"
     exitCode = 2
+  } else if (command === "scenario") {
+    const idIndex = process.argv.indexOf("--id")
+    const scenarioId = idIndex >= 0 ? process.argv[idIndex + 1] : undefined
+    if (!scenarioId) throw new Error("scenario requires --id <scenario-id>")
+    const result = await executableScenarioRegistry.execute(scenarioId, { runId: environment.runId, seed: environment.seed })
+    reportEvents = result.events
+    status = result.mode === "audit-only" ? "blocked" : "passed"
+    exitCode = result.mode === "audit-only" ? 2 : 0
+    console.log(JSON.stringify({ event: "scenario-result", ...result }))
   } else {
     const patterns = await selectTests(suite)
     exitCode = await runTests(patterns)
     status = exitCode === 0 ? "passed" : "failed"
+    reportEvents = patterns.map((testFile, index) => ({ sequence: index + 1, kind: "test-file", testFile }))
   }
 
   const directory = await writeReport(environment, {
@@ -97,8 +109,8 @@ async function main(): Promise<void> {
     status,
     startedAt,
     finishedAt: new Date().toISOString(),
-    events: command === "suite" ? (await selectTests(suite)).map((testFile, index) => ({ sequence: index + 1, kind: "test-file", testFile })) : [],
-    limitations: status === "blocked" ? ["replay requires a retained run artifact"] : [],
+    events: reportEvents,
+    limitations: status === "blocked" ? [command === "scenario" ? "scenario is registered but has no system-executing handler" : "replay requires a retained run artifact"] : [],
   })
   console.log(JSON.stringify({ event: "test-lab-finish", runId: environment.runId, status, artifacts: directory }))
   process.exitCode = exitCode

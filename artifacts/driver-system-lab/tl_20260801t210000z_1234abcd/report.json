@@ -1,0 +1,18 @@
+{
+  "runId": "tl_20260801t210000z_1234abcd",
+  "seed": 42,
+  "suite": "scenario",
+  "status": "blocked",
+  "startedAt": "2026-08-01T21:55:12.404Z",
+  "finishedAt": "2026-08-01T21:55:12.406Z",
+  "events": [
+    {
+      "sequence": 1,
+      "kind": "scenario-audit",
+      "detail": "descriptor smoke-single-order-single-driver is bound for deterministic orchestration audit"
+    }
+  ],
+  "limitations": [
+    "scenario is registered but has no system-executing handler"
+  ]
+}

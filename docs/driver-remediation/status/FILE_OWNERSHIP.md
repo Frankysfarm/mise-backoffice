@@ -38,5 +38,8 @@ Updated: 2026-08-01
 | `tests/driver-system-lab/invariants/**`, `tests/driver-system-lab/chaos/**`, invariant/chaos tests/docs | autonomous test lab | invariant_chaos_lab | exclusive | Read-only invariant checks and deterministic test-only failpoints. |
 | `tests/driver-system-lab/{cli,orchestrator,fixtures,scenarios,reports}/**`, lab package scripts, test-lab status/docs | autonomous test lab | lead orchestrator | exclusive | DSL, execution, evidence, dashboard/API safety, aggregate commands and gate decisions. |
 | `app/test-lab/**`, `app/api/test-lab/**` | autonomous test lab | lead orchestrator | exclusive | Local/test/staging-only dashboard; hard 404 in production and no direct business writer. |
+| `tests/driver-system-lab/adapters/**` | TL-G4 comparison | review_dispatch_or | exclusive | Normalized production-vs-oracle adapter only; oracle remains independently implemented. |
+| `tests/driver-system-lab/scenarios/executable/**` | TL-G1 executable registry | review_arch_security | exclusive | Descriptor-to-handler binding and deterministic execution metadata; no production calls. |
+| `tests/driver-system-lab/fixtures/*concurrency*` | TL-G0/TL-G1 DB adversarial evidence | review_adversarial_sre | exclusive | Disposable PostgreSQL two-session/collision/cleanup tests only. |
 
 Ownership must be updated before another task edits a listed scope.

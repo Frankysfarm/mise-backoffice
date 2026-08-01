@@ -30,9 +30,9 @@
 Releaseentscheidung: **BLOCKED für Produktion; SHADOW-ONLY lokal/isoliert.**
 # Autonomous test-lab blockers — 2026-08-01
 
-- TL-G1: minimal per-run PostgreSQL factory/cleanup is integrated; canonical storefront/API data creation and all actor profiles are not.
+- TL-G1: all profiles and descriptors exist, but the 115 handlers are deliberately `audit-only`; canonical storefront/API/UI execution is not connected.
 - TL-G2: Playwright/browser binaries, stable app selectors, authentication fixtures and a real click-through trace are absent.
-- TL-G4: the independent oracle is green, but a production-decision comparison adapter and stored optimality gaps are open.
+- TL-G4: a comparison adapter exists, but actual production decision capture, production route sequence and retained real optimality gaps are open.
 - TL-G5: the required categories and over 75 names exist; most are not yet executable full-stack cases.
 - TL-G6: deterministic in-process chaos is green; real multi-session DB races, process kills and restart recovery remain to be wired into the lab.
 - TL-G7: physical iOS/Android background, lock, terminated-app, push and GPS evidence needs devices/toolchains.

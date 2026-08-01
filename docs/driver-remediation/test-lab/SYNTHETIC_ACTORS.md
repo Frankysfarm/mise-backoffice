@@ -6,6 +6,6 @@ machine uses explicit expected-state transitions and records a monotonic event
 sequence. UI actors operate through locator clicks/fills and server
 preconditions; they do not receive a business-table writer.
 
-The PostgreSQL factory currently materializes a minimal customer, kitchen,
-driver, dispatcher and order set inside the run-owned schema. Expanding all
-profiles into canonical API/UI fixtures remains part of TL-G1/TL-G2.
+The PostgreSQL factory materializes all 65 profiles with behavior, display
+identity and metadata inside the run-owned schema. Binding them to canonical
+application API/UI fixtures remains part of TL-G1/TL-G2.
