@@ -4125,3 +4125,5 @@ export { Phase5165DynamischeEtaLiveTrackingV10 } from './phase5165-dynamische-et
 export { StorefrontPhase5166DynamischeEtaLiveTrackingV11 } from './phase5166-dynamische-eta-live-tracking-v11';
 // Phase 5167 — Dynamische ETA Live-Tracking V12 (ETA-Ring; Phasen-Timeline; Fahrer-Annäherungs-Balken; Konfidenz-Indikator; 15-Sek-Polling; Mock-Fallback)
 export { Phase5167DynamischeEtaLiveTrackingV12 } from './phase5167-dynamische-eta-live-tracking-v12';
+// Phase 1000 — Dynamische ETA + Live-Tracking Ultimate (Dual-Source Küche+Fahrer+KI ETA; Vertrauens-Score-Ring; Animated Phasen-Timeline 5-stufig; Traffic-basierte Anpassung; Verzögerungs-Alert mit Grund; Proaktiver Annäherungs-Banner ≤5min; 15-Sek-Polling; Mock-Fallback)
+export { Phase1000DynamischeEtaLiveTrackingUltimate } from './phase1000-dynamische-eta-live-tracking-ultimate';

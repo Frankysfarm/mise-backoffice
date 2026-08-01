@@ -246,7 +246,7 @@ export function DispatchPhase5376ScoreTourVisualisierungV31() {
               <Tooltip
                 contentStyle={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: 6, fontSize: 10 }}
                 labelStyle={{ color: '#e4e4e7' }}
-                formatter={(v: number) => [v, 'Score']}
+                formatter={(v) => [v as number, 'Score']}
               />
               <Bar dataKey="score" radius={[3, 3, 0, 0]}>
                 {chartData.map((d, i) => (
@@ -261,7 +261,7 @@ export function DispatchPhase5376ScoreTourVisualisierungV31() {
               <XAxis dataKey="name" tick={{ fill: '#71717a', fontSize: 9 }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: 6, fontSize: 10 }}
-                formatter={(v: number) => [v.toFixed(1) + 'min', 'Drift']}
+                formatter={(v) => [(v as number).toFixed(1) + 'min', 'Drift']}
               />
               <Bar dataKey="drift" radius={[3, 3, 0, 0]}>
                 {chartData.map((d, i) => (

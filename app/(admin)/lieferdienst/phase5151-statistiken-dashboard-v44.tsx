@@ -238,7 +238,7 @@ export function LieferdienstPhase5151StatistikenDashboardV44() {
               <XAxis dataKey="stunde" tick={{ fill: '#71717a', fontSize: 9 }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: 6, fontSize: 10 }}
-                formatter={(v: number) => [stundenMode === 'umsatz' ? `${v}€` : stundenMode === 'puenktlichkeit' ? `${v}%` : v, stundenMode]}
+                formatter={(v) => { const n = v as number; return [stundenMode === 'umsatz' ? `${n}€` : stundenMode === 'puenktlichkeit' ? `${n}%` : n, stundenMode]; }}
               />
               <Bar dataKey={stundenMode} radius={[3, 3, 0, 0]}>
                 {data.stunden.map((s, i) => {
@@ -308,7 +308,7 @@ export function LieferdienstPhase5151StatistikenDashboardV44() {
               <XAxis dataKey="stunde" tick={{ fill: '#71717a', fontSize: 9 }} axisLine={false} tickLine={false} />
               <Tooltip
                 contentStyle={{ background: '#18181b', border: '1px solid #3f3f46', borderRadius: 6, fontSize: 10 }}
-                formatter={(v: number) => [v, 'NPS']}
+                formatter={(v) => [v as number, 'NPS']}
               />
               <Line type="monotone" dataKey="nps" stroke="#14b8a6" strokeWidth={2} dot={{ fill: '#14b8a6', r: 2 }} />
             </LineChart>
