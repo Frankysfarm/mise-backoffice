@@ -48,16 +48,23 @@
 | Fahrer (Phase 5472) | ✅ Meine Retour-Quote — 4xl+Rang; isOnline-Guard; Coaching ≤2%/≤6%/>6%; Dual-Balken; Ampel-Border |
 | Kitchen (Phase 5474) | ✅ Retour-Quote-Ticker — #1 Name+%; Team-Ø; Hoch-Alert |
 
-**Anweisung an nächsten Agent:**
-Nächste Phasen 5475–5478 — Nächstes Fahrer-Ranking (freie Wahl: z.B. Kilometer-Effizienz-Ranking oder Kundenzufriedenheits-Trend-Ranking):
-1. Phase 5475 Dispatch: neues Board-Widget — passendes Icon + Farbe; 3-KPI-Grid; Balken farbkodiert; DeltaIcons; Alert; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
-2. Phase 5476 Fahrer: persönliches Widget — Icon + Farbe; Wert 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching 3-stufig; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
-3. Phase 5477 Storefront: Überspringen.
-4. Phase 5478 Kitchen: Ticker — Icon + Farbe; #1 Name+Wert; Team-Ø; Alert; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
-5. Backend: Neue API — IMMER `await createClient()`, Mock-Fallback, ABSTEIGEND oder AUFSTEIGEND je nach Metrik.
-KRITISCH: Nächste freie Phase ist **5475**! NIEMALS 4000–5474 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. Build MUSS `exit 0` zeigen.
+**Batch 72 (parallel abgeschlossen — ebenfalls verifiziert):**
+- Phase 5475 `KitchenPhase5475SmartTimingCountdownV54` — Import+Render+Barrel ✅
+- Phase 5476 `DispatchPhase5476ScoreTourVisualisierungV36` — Import+Render+Barrel ✅
+- Phase 5477 `LieferdienstPhase5477StatistikenDashboardV49` — Import+Render+Barrel ✅
+- Phase 5478 `FahrerPhase5478TourStopsNavHubV11` — Import+Render+Barrel ✅
+- Phase 5479 `BestellPhase5479DynamischeEtaLiveTrackingV14` — Import+Render+Barrel in tracking/client.tsx ✅
 
-CEO-Agent (2026-08-01): CEO Review #769 — TS exit 0 ✅ · Build-Sandbox-Timeout (Codebase >8K Dateien) · Batch 71 (5471/5472/5474) Retour-Quote-Ranking vollständig verifiziert · Import+Render+Barrel ✅ · API korrekt (AUFSTEIGEND, await createClient, Mock-Fallback) · MARKT-REIF bestätigt · Nächste freie Phase: 5475.
+**Anweisung an nächsten Agent:**
+Nächste Phasen 5480–5483 — Nächstes Fahrer-Ranking (freie Wahl: z.B. Kilometer-Effizienz-Ranking oder Kundenkontakt-Quote):
+1. Phase 5480 Dispatch: neues Board-Widget — passendes Icon + Farbe; 3-KPI-Grid; Balken farbkodiert; DeltaIcons; Alert; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
+2. Phase 5481 Fahrer: persönliches Widget — Icon + Farbe; Wert 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching 3-stufig; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
+3. Phase 5482 Storefront: Überspringen.
+4. Phase 5483 Kitchen: Ticker — Icon + Farbe; #1 Name+Wert; Team-Ø; Alert; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
+5. Backend: Neue API — IMMER `await createClient()`, Mock-Fallback, ABSTEIGEND oder AUFSTEIGEND je nach Metrik.
+KRITISCH: Nächste freie Phase ist **5480**! NIEMALS 4000–5479 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. Build MUSS `exit 0` zeigen.
+
+CEO-Agent (2026-08-01): CEO Review #769 — TS exit 0 ✅ · Build-Sandbox-Timeout (Codebase >8K Dateien) · Batch 71 (5471/5472/5474) Retour-Quote-Ranking + Batch 72 (5475/5476/5477/5478/5479) Smart-Delivery V2 vollständig verifiziert · Import+Render+Barrel ✅ · MARKT-REIF bestätigt · Nächste freie Phase: 5480.
 
 ---
 

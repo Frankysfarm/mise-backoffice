@@ -21,6 +21,7 @@ import { StorefrontPhase1000DynamischeEtaLiveV10 } from '../phase1000-dynamische
 import { Phase5399LiveEtaVollstaendigkeitsCockpit } from '../phase5399-live-eta-vollstaendigkeit-cockpit';
 import { Phase5412LiveEtaTrinkgeldCockpit } from '../phase5412-live-eta-trinkgeld-cockpit';
 import { BestellPhase5470DynamischeEtaLiveTrackingV13 } from '../phase5470-dynamische-eta-live-tracking-v13';
+import { BestellPhase5479DynamischeEtaLiveTrackingV14 } from '../phase5479-dynamische-eta-live-tracking-v14';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 
@@ -430,6 +431,8 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
         <Phase5399LiveEtaVollstaendigkeitsCockpit orderId={order.id} />
         {/* Phase 5412: Live-ETA + Trinkgeld-Cockpit — SVG ETA-Konfidenz-Ring; Fahrer-Trinkgeld-Score-Badge; Trinkgeld-Potential-Indikator; 4-Phasen-Timeline; Geliefert+Bewertungs-Prompt; 30-Sek-Polling */}
         <Phase5412LiveEtaTrinkgeldCockpit orderId={order.id} />
+        {/* Phase 5479: Dynamische ETA Live-Tracking V14 — Fahrer-Annäherungs-Indikator pulsierend; Küchen-Transparenz-Badge; Zonen-Lieferzeit-Vergleich; Social-Proof Geliefert-Zähler; Konfetti-State+Bewertungs-Aufforderung; 5-Phasen-Statuslinie; 30-Sek-Polling */}
+        <BestellPhase5479DynamischeEtaLiveTrackingV14 orderId={order.id} locationSlug={locationSlug} />
         {/* Phase 5470: Dynamische ETA Live-Tracking V13 — 4-Phasen-Statuslinie Eingang→Küche→Fahrer→Lieferung; Live-Countdown Sekunden-Präzision; ETA-Konfidenz hoch/mittel/niedrig; Fahrer-Name + Küchen-Fortschritts-Balken; Wetter-Einfluss-Badge; 30-Sek-Polling */}
         <BestellPhase5470DynamischeEtaLiveTrackingV13 orderId={order.id} locationSlug={locationSlug} />
 

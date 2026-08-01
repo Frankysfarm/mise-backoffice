@@ -1455,6 +1455,7 @@ import { DispatchPhase5458WochenendAnteilBoard } from './phase5458-wochenend-ant
 import { DispatchPhase5462SchichtstundenBoard } from './phase5462-schichtstunden-board';
 import { DispatchPhase5467ScoreTourVisualisierungV35 } from './phase5467-score-tour-visualisierung-v35';
 import { DispatchPhase5471RetourQuoteBoard } from './phase5471-retour-quote-board';
+import { DispatchPhase5476ScoreTourVisualisierungV36 } from './phase5476-score-tour-visualisierung-v36';
 
 type Driver = {
   employee_id: string;
@@ -5754,6 +5755,8 @@ export function DispatchBoard({
           <DispatchPhase5458WochenendAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5462: Schichtstunden-Board — Clock teal-400; ABSTEIGEND; 3-KPI-Grid Fleißigste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Wenig-Alert; 30-Min-Polling */}
           <DispatchPhase5462SchichtstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5476: Score + Tour-Visualisierung V36 — Zonen-Profit-Matrix; Echtzeit-Effizienz-Score-Stream; Fahrer-Kapazitäts-Prognose +60Min; Eskalations-Alert; 7-KPI-Grid; 5-Tab; 20-Sek-Polling */}
+          <DispatchPhase5476ScoreTourVisualisierungV36 />
           {/* Phase 5467: Score + Tour-Visualisierung V35 — ETA-Abweichungs-Heatmap-Balken; Profit/Stop-Index Tier-farbkodiert; Aktive-Tour-Zeitfortschritts-Balken; Fleet-Gesundheits-Score; 6-KPI-Grid; 4-Tab; 20-Sek-Polling */}
           <DispatchPhase5467ScoreTourVisualisierungV35 />
           {/* Phase 5471: Retour-Quote-Board — RotateCcw orange-400; AUFSTEIGEND; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
@@ -14769,3 +14772,5 @@ export { DispatchPhase5420ScoreTourVisualisierungV34 } from './phase5420-score-t
 export { DispatchPhase5467ScoreTourVisualisierungV35 } from './phase5467-score-tour-visualisierung-v35';
 // Phase 5471 — Retour-Quote-Board (RotateCcw orange-400; retour_quote_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5471RetourQuoteBoard } from './phase5471-retour-quote-board';
+// Phase 5476 — Score + Tour-Visualisierung V36 (Trophy violet; Zonen-Profit-Matrix Heatmap-Grid; Echtzeit-Effizienz-Score-Stream AreaChart 30s; Fahrer-Kapazitäts-Prognose +60Min; Kritische-Lieferung-Eskalations-Alert; 7-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Profit-Stop/ETA-Drift/Kapazität; 5-Tab Rangliste/Profit/Tour-Fortschritt/Zonen-Matrix/Kapazität; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5476ScoreTourVisualisierungV36 } from './phase5476-score-tour-visualisierung-v36';
