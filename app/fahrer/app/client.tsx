@@ -1374,6 +1374,7 @@ import { FahrerPhase5510MeineZuverlaessigkeit } from './phase5510-meine-zuverlae
 import { FahrerPhase5511TourStopsNavHubV15 } from './phase5511-tour-stops-nav-hub-v15';
 import { FahrerPhase5518MeineAbholpuenktlichkeit } from './phase5518-meine-abholpuenktlichkeit';
 import { FahrerPhase5521TourStopsNavHubV16 } from './phase5521-tour-stops-nav-hub-v16';
+import { FahrerPhase5525TourStopsNavHubV17 } from './phase5525-tour-stops-nav-hub-v17';
 import { FahrerPhase5526MeineMehrfachlieferungen } from './phase5526-meine-mehrfachlieferungen';
 import { FahrerPhase5531MeinePauseneffizienz } from './phase5531-meine-pauseneffizienz';
 import { FahrerPhase5532MeinUmsatzProTour } from './phase5532-mein-umsatz-pro-tour';
@@ -7910,6 +7911,8 @@ export function FahrerApp({
           <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />
+          {/* Phase 5525: Tour-Stops Nav Hub V17 — V16+: Trinkgeld-Prognose je Stopp; Kundennotiz-Kurzansicht; Schicht-Ende-Countdown; SLA-Bonus-Alert; 9-KPI-Grid; Offline-Guard; 30s-Poll */}
+          <FahrerPhase5525TourStopsNavHubV17 driverId={driver.id} />
           {/* Phase 5521: Tour-Stops Nav Hub V16 — V15+: Wetter-Einfluss auf ETA Regen-Faktor; Stopp-Optimierungs-KI-Reihenfolge Toggle; Einnahmen-Tracker Bar/Karte/Digital live; Pause-Empfehlung nach Schichtdauer; 8-KPI-Grid; Chat-Bubble; Offline-Guard; 30s-Poll */}
           <FahrerPhase5521TourStopsNavHubV16 driverId={driver.id} />
           {/* Phase 5505: Tour-Stops Nav Hub V14 — V13+Hold-to-Confirm 800ms; Kunden-Kontakt tel+WhatsApp; Live-Kundendistanz-Ring SVG; Paketübergabe-Checkliste; 30-Sek-Polling */}
@@ -12717,6 +12720,8 @@ export { FahrerPhase5511TourStopsNavHubV15 } from './phase5511-tour-stops-nav-hu
 export { FahrerPhase5518MeineAbholpuenktlichkeit } from './phase5518-meine-abholpuenktlichkeit';
 // Phase 5521 — Tour-Stops Nav Hub V16 (Navigation indigo; V15+: Wetter-Einfluss auf ETA Regen-Faktor; Stopp-Optimierungs-KI-Reihenfolge Toggle; Einnahmen-Tracker Bar/Karte/Digital live; Pause-Empfehlung nach Schichtdauer; Chat-Bubble Mock; 8-KPI-Grid Stops/Fertig/Offen/km/ETA/Einnahmen/Bewertung/Pause; Offline-Guard; 30s-Poll; Mock-Fallback)
 export { FahrerPhase5521TourStopsNavHubV16 } from './phase5521-tour-stops-nav-hub-v16';
+// Phase 5525 — Tour-Stops Nav Hub V17 (Navigation2 violet; V16+: Trinkgeld-Prognose Stammkunden+Uhrzeit+Wetter; Kundennotiz-Kurzansicht CRM 40 Zeichen; Schicht-Ende-Countdown Warnung <30min; SLA-Bonus-Alert ≥2min früh; 9-KPI-Grid; Offline-Guard; 30s-Poll; Mock-Fallback)
+export { FahrerPhase5525TourStopsNavHubV17 } from './phase5525-tour-stops-nav-hub-v17';
 // Phase 5526 — Meine Mehrfachlieferungen (Layers sky-400; avg_lieferungen ABSTEIGEND Rang 1=meiste Lieferungen pro Tour=bester; 4xl+Rang; Coaching ≥3.5/≥2.5/<2.5; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5526MeineMehrfachlieferungen } from './phase5526-meine-mehrfachlieferungen';
 // Phase 5531 — Meine Pauseneffizienz (Coffee cyan-400; pausenquote_pct AUFSTEIGEND Rang 1=niedrigste Pausenquote=effizientester; 4xl+Rang; Coaching ≤5%/≤10%/>10%; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)

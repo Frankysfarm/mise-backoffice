@@ -1477,6 +1477,7 @@ import { DispatchPhase5535NachtschichtBoard } from './phase5535-nachtschicht-boa
 import { DispatchPhase5536SchichtstartPuenktlichkeitBoard } from './phase5536-schichtstart-puenktlichkeit-board';
 import { DispatchPhase5540KundenbindungsRateBoard } from './phase5540-kundenbindungs-rate-board';
 import { DispatchPhase5543ScoreTourVisualisierungV43 } from './phase5543-score-tour-visualisierung-v43';
+import { DispatchPhase5547ScoreTourVisualisierungV44 } from './phase5547-score-tour-visualisierung-v44';
 
 type Driver = {
   employee_id: string;
@@ -5820,6 +5821,8 @@ export function DispatchBoard({
           <DispatchPhase5536SchichtstartPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5540: Kundenbindungs-Rate-Board — Heart rose-400; kundenbindungs_pct ABSTEIGEND Rang 1=höchste Rate=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert <60%; 30-Min-Polling */}
           <DispatchPhase5540KundenbindungsRateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5547: Score + Tour-Visualisierung V44 — Tour-Abschluss-Zeitfenster, Schicht-Wellbeing-Score, Zonen-Fairness-Index, Übergabe-Erfolgsquote Fleet-Ø, 12-KPI-Grid, 8-Tab */}
+          <DispatchPhase5547ScoreTourVisualisierungV44 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14880,3 +14883,5 @@ export { DispatchPhase5536SchichtstartPuenktlichkeitBoard } from './phase5536-sc
 export { DispatchPhase5540KundenbindungsRateBoard } from './phase5540-kundenbindungs-rate-board';
 // Phase 5543 — Score + Tour-Visualisierung V43 (Trophy violet; V42+: Schichtstart-Pünktlichkeit-Ampel je Fahrer; Kundenbindungs-Score Stammkunden-Anteil %; Echtzeit-Schicht-Balance-Indikator Fairness-Score; Tour-Qualitäts-Composite-Index; 11-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/CO₂/Ertrag/Energie/Bindung/Pünktl/Qualität; 7-Tab Rangliste/Profit/Energie/Lücken/CO₂/Bindung/Pünktlichkeit; 20s-Polling; Mock-Fallback)
 export { DispatchPhase5543ScoreTourVisualisierungV43 } from './phase5543-score-tour-visualisierung-v43';
+// Phase 5547 — Score + Tour-Visualisierung V44 (Trophy violet; V43+: Tour-Abschluss-Zeitfenster ±min; Schicht-Wellbeing-Score Müdigkeit+Pausen+Bewertung; Zonen-Fairness-Index Gini; Übergabe-Erfolgsquote Fleet-Ø; 12-KPI-Grid; 8-Tab Rangliste/Profit/Energie/Lücken/CO₂/Bindung/Abschluss/Wellbeing; 20s-Polling; Mock-Fallback)
+export { DispatchPhase5547ScoreTourVisualisierungV44 } from './phase5547-score-tour-visualisierung-v44';
