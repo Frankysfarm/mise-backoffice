@@ -1397,6 +1397,7 @@ import { KitchenPhase5512ZuverlaessigkeitsScoreTicker } from './phase5512-zuverl
 import { KitchenPhase5513SmartTimingCountdownV58 } from './phase5513-smart-timing-countdown-v58';
 import { KitchenPhase5520AbholpuenktlichkeitTicker } from './phase5520-abholpuenktlichkeit-ticker';
 import { KitchenPhase5521SmartTimingCountdownV59 } from './phase5521-smart-timing-countdown-v59';
+import { KitchenPhase5528MehrfachlieferungenTicker } from './phase5528-mehrfachlieferungen-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5320,6 +5321,8 @@ export function KitchenBoard({
       <KitchenPhase5512ZuverlaessigkeitsScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5520: Abholpünktlichkeit-Ticker — Timer violet-400; Schnellste/r #1 Name+min; Team-Ø; Langsam-Alert; 30-Min-Polling */}
       <KitchenPhase5520AbholpuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5528: Mehrfachlieferungen-Ticker — Layers sky-400; Höchste/r #1 Name+Wert; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
+      <KitchenPhase5528MehrfachlieferungenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
       <KitchenPhase5510SmartTimingCountdownV57 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5513: Smart-Timing Countdown V58 — V57+: Küchen↔Dispatch Bridge Score Sync/Drift/Lost; Dual-ETA-Sync-Ring Küche vs. Fahrer SVG; SLA-Commitment-Band Überfälligkeits-Prognose; Item-Level-Countdown mit Kategorie-Icon; 8-KPI-Grid; 4-Tab; 1s-Tick+15s-Polling */}
@@ -13410,3 +13413,5 @@ export { KitchenPhase5513SmartTimingCountdownV58 } from './phase5513-smart-timin
 export { KitchenPhase5520AbholpuenktlichkeitTicker } from './phase5520-abholpuenktlichkeit-ticker';
 // Phase 5521 — Smart-Timing Countdown V59 (Timer indigo; V58+: Kochzeit-Varianz-Analyse σ je Bestelltyp; Parallele Stations-Auslastungs-Matrix Wok/Grill/Fritteur/Salat; Priorisierungs-Log Prio-Grund je Order; Eskalations-Timer SLA<5min; 9-KPI-Grid Score/Aktiv/Kritisch/Überfällig/Fertig/Varianz/Stationen/SLA/Velocity; 5-Tab Countdown/Bridge/SLA/Items/Stationen; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5521SmartTimingCountdownV59 } from './phase5521-smart-timing-countdown-v59';
+// Phase 5528 — Mehrfachlieferungen-Ticker (Layers sky-400; Höchste/r #1 Name+avg_lieferungen; Team-Ø; Niedrig-Alert alert_niedrig <2.0; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5528MehrfachlieferungenTicker } from './phase5528-mehrfachlieferungen-ticker';

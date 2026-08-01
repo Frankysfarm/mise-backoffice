@@ -20,6 +20,7 @@ interface ApiResponse {
   niedrigste_name: string;
   alert_count: number;
   gesamt: number;
+  fahrer_single?: FahrerRow & { team_avg: number; gesamt: number };
 }
 
 const MOCK_DATA: ApiResponse = {
@@ -126,17 +127,30 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    const filteredRows = driverId ? fahrerRows.filter(f => f.fahrer_id === driverId) : fahrerRows;
     const teamAvg = sorted.reduce((s, r) => s + r.avg, 0) / (sorted.length || 1);
+    const teamAvgRounded = Math.round(teamAvg * 10) / 10;
 
-    return NextResponse.json({
-      fahrer: filteredRows.length ? filteredRows : fahrerRows,
-      team_avg: Math.round(teamAvg * 10) / 10,
+    const response: ApiResponse = {
+      fahrer: fahrerRows,
+      team_avg: teamAvgRounded,
       hoechste_name: sorted[0]?.name ?? '',
       niedrigste_name: sorted[sorted.length - 1]?.name ?? '',
       alert_count: fahrerRows.filter(f => f.alert_niedrig).length,
       gesamt: total,
-    } satisfies ApiResponse);
+    };
+
+    if (driverId) {
+      const me = fahrerRows.find(f => f.fahrer_id === driverId);
+      if (me) {
+        (response as ApiResponse & { fahrer_single: unknown }).fahrer_single = {
+          ...me,
+          team_avg: teamAvgRounded,
+          gesamt: total,
+        };
+      }
+    }
+
+    return NextResponse.json(response satisfies ApiResponse);
   } catch {
     return NextResponse.json(MOCK_DATA);
   }

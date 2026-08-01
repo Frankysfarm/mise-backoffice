@@ -1468,6 +1468,7 @@ import { DispatchPhase5509ZuverlaessigkeitsScoreBoard } from './phase5509-zuverl
 import { DispatchPhase5511ScoreTourVisualisierungV40 } from './phase5511-score-tour-visualisierung-v40';
 import { DispatchPhase5517AbholpuenktlichkeitBoard } from './phase5517-abholpuenktlichkeit-board';
 import { DispatchPhase5521ScoreTourVisualisierungV41 } from './phase5521-score-tour-visualisierung-v41';
+import { DispatchPhase5525MehrfachlieferungenBoard } from './phase5525-mehrfachlieferungen-board';
 
 type Driver = {
   employee_id: string;
@@ -5797,6 +5798,8 @@ export function DispatchBoard({
           <DispatchPhase5517AbholpuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5521: Score + Tour-Visualisierung V41 — V40+: Flottenauslastungs-Heatmap Uhrzeiten×Fahrer; CO₂-Effizienz-Score g/Lieferung; Optimal-Route-Simulation Zeitersparnis; Zone-Demand-vs-Supply-Balance; 9-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/CO₂/Demand/Supply/Profit; 5-Tab Rangliste/Heatmap/CO₂/Balance/Simulation; 20s-Polling */}
           <DispatchPhase5521ScoreTourVisualisierungV41 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5525: Mehrfachlieferungen-Board — Layers sky-400; avg_lieferungen ABSTEIGEND Rang 1=meiste Lieferungen pro Tour=bester; 3-KPI-Grid Höchste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5525MehrfachlieferungenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14837,3 +14840,5 @@ export { DispatchPhase5511ScoreTourVisualisierungV40 } from './phase5511-score-t
 export { DispatchPhase5517AbholpuenktlichkeitBoard } from './phase5517-abholpuenktlichkeit-board';
 // Phase 5521 — Score + Tour-Visualisierung V41 (Trophy yellow; V40+: Flottenauslastungs-Heatmap Uhrzeiten×Fahrer-Last; CO₂-Effizienz-Score g CO₂/Lieferung; Optimal-Route-Simulation Zeitersparnis; Zone-Demand-vs-Supply-Balance-Gauge; 9-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/CO₂/Demand/Supply/Profit; 5-Tab Rangliste/Heatmap/CO₂/Balance/Simulation; 20s-Polling; Mock-Fallback)
 export { DispatchPhase5521ScoreTourVisualisierungV41 } from './phase5521-score-tour-visualisierung-v41';
+// Phase 5525 — Mehrfachlieferungen-Board (Layers sky-400; avg_lieferungen ABSTEIGEND Rang 1=meiste Lieferungen pro Tour=bester; 3-KPI-Grid Höchste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_niedrig <2.0; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5525MehrfachlieferungenBoard } from './phase5525-mehrfachlieferungen-board';
