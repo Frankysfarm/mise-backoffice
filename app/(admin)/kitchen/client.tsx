@@ -1384,6 +1384,7 @@ import { KitchenPhase5461WochenendAnteilTicker } from './phase5461-wochenend-ant
 import { KitchenPhase5465SchichtstundenTicker } from './phase5465-schichtstunden-ticker';
 import { KitchenPhase5466SmartTimingCountdownV53 } from './phase5466-smart-timing-countdown-v53';
 import { KitchenPhase5474RetourQuoteTicker } from './phase5474-retour-quote-ticker';
+import { KitchenPhase5475SmartTimingCountdownV54 } from './phase5475-smart-timing-countdown-v54';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5291,6 +5292,8 @@ export function KitchenBoard({
       <KitchenPhase5465SchichtstundenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5474: Retour-Quote-Ticker — RotateCcw orange-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert; 30-Min-Polling */}
       <KitchenPhase5474RetourQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5475: Smart-Timing Countdown V54 — KI-Stapel-Prognose; Multi-Station-Farbkodierung; Übergabe-Zeit-Optimierer; Burn-Rate-Indikator; 10-KPI-Grid; 4-Tab; 1s-Tick+15s-Polling */}
+      <KitchenPhase5475SmartTimingCountdownV54 />
       {/* Phase 5466: Smart-Timing Countdown V53 — Batch-Sync-Score je Gruppe; ETA-Fahrer-Abgleich-Matrix; KI-Kochstart-Korrektur-Vorschlag; Überfälligkeits-Eskalations-Alarm; 9-KPI-Grid; 3-Tab; 1s-Tick+15s-Polling */}
       <KitchenPhase5466SmartTimingCountdownV53 />
       {/* Phase 5395: Smart-Timing Countdown V50 — Live-Priorisierungs-Score; Stations-Überlast-Alert; Fahrer-Ankunfts-Prognose Ampel; Batch-Effizienz-Index; 7-KPI-Grid; 3-Tab; 1s-Tick+15s-Polling */}
@@ -13343,3 +13346,5 @@ export { KitchenPhase5420SmartTimingCountdownV52 } from './phase5420-smart-timin
 export { KitchenPhase5466SmartTimingCountdownV53 } from './phase5466-smart-timing-countdown-v53';
 // Phase 5474 — Retour-Quote-Ticker (RotateCcw orange-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5474RetourQuoteTicker } from './phase5474-retour-quote-ticker';
+// Phase 5475 — Smart-Timing Countdown V54 (Brain indigo; KI-Stapel-Prognose 15-Min-Forecast; Multi-Station-Farbkodierung Warm/Kalt/Backen/Fritteuse; Übergabe-Zeit-Optimierer Δmin; Burn-Rate-Indikator /h; 10-KPI-Grid; 4-Tab Countdown/Stationen/Prognose/Übergabe; 1s-Tick+15s-Polling; Mock-Fallback)
+export { KitchenPhase5475SmartTimingCountdownV54 } from './phase5475-smart-timing-countdown-v54';
