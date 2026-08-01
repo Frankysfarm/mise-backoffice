@@ -8,6 +8,10 @@ every step. An independently implemented enumerating dispatch oracle compares
 small decisions. Every run emits JSON, HTML, JUnit and replay metadata under a
 unique run ID.
 
+The PostgreSQL data factory creates a dedicated schema derived from the guarded
+run ID. Every synthetic row repeats both run and tenant identity. Cleanup first
+checks exact in-schema ownership, drops only that schema, and verifies removal.
+
 The CLI and future local/staging-only dashboard are adapters over the same
 orchestrator. Neither owns a business-state writer. Database changes, when a
 scenario needs them, must travel through canonical server contracts and every

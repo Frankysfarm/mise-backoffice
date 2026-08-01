@@ -30,7 +30,7 @@
 Releaseentscheidung: **BLOCKED für Produktion; SHADOW-ONLY lokal/isoliert.**
 # Autonomous test-lab blockers — 2026-08-01
 
-- TL-G1: per-run database factory and executable cleanup are not integrated.
+- TL-G1: minimal per-run PostgreSQL factory/cleanup is integrated; canonical storefront/API data creation and all actor profiles are not.
 - TL-G2: Playwright/browser binaries, stable app selectors, authentication fixtures and a real click-through trace are absent.
 - TL-G4: the independent oracle is green, but a production-decision comparison adapter and stored optimality gaps are open.
 - TL-G5: the required categories and over 75 names exist; most are not yet executable full-stack cases.
