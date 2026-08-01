@@ -8,21 +8,21 @@ import { CalendarCheck, AlertTriangle } from 'lucide-react';
 
 interface ApiResponse {
   bester_name: string;
-  fahrer: Array<{ rang: number; fruehbucher_quote_pct: number; alert_niedrig: boolean }>;
-  team_avg_pct: number;
+  fahrer: Array<{ rang: number; fruehbucher_quote: number; alert_niedrig: boolean }>;
+  team_avg: number;
   alert_count: number;
   gesamt: number;
 }
 
 const MOCK: ApiResponse = {
-  bester_name: 'Julia F.',
+  bester_name: 'Sara K.',
   fahrer: [
-    { rang: 1, fruehbucher_quote_pct: 87, alert_niedrig: false },
-    { rang: 2, fruehbucher_quote_pct: 74, alert_niedrig: false },
-    { rang: 3, fruehbucher_quote_pct: 55, alert_niedrig: false },
-    { rang: 4, fruehbucher_quote_pct: 31, alert_niedrig: true  },
+    { rang: 1, fruehbucher_quote: 95, alert_niedrig: false },
+    { rang: 2, fruehbucher_quote: 80, alert_niedrig: false },
+    { rang: 3, fruehbucher_quote: 55, alert_niedrig: false },
+    { rang: 4, fruehbucher_quote: 20, alert_niedrig: true  },
   ],
-  team_avg_pct: 62,
+  team_avg: 62.5,
   alert_count: 1,
   gesamt: 4,
 };
@@ -34,7 +34,7 @@ export function KitchenPhase5453FruehbucherTicker({ locationId }: { locationId: 
   const load = async () => {
     if (!locationId) return;
     try {
-      const r = await fetch(`/api/delivery/admin/fahrer-fruehbucher-score?location_id=${locationId}`);
+      const r = await fetch(`/api/delivery/admin/fahrer-fruehbucher-score-ranking?location_id=${locationId}`);
       if (r.ok) setData(await r.json());
     } catch { /* use mock */ }
   };
@@ -57,11 +57,11 @@ export function KitchenPhase5453FruehbucherTicker({ locationId }: { locationId: 
             #1 {data.bester_name}
           </span>
           {best && (
-            <span className="text-xs font-mono text-green-400">{best.fruehbucher_quote_pct}%</span>
+            <span className="text-xs font-mono text-green-400">{best.fruehbucher_quote.toFixed(0)}%</span>
           )}
         </div>
         <div className="text-[10px] text-gray-500">
-          Team-Ø {data.team_avg_pct}% · Frühbucher-Score
+          Team-Ø {data.team_avg.toFixed(0)}% · Frühbucher-Score
         </div>
       </div>
       {data.alert_count > 0 && (

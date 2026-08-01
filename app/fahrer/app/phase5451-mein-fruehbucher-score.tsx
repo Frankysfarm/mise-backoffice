@@ -4,15 +4,15 @@ import { useEffect, useRef, useState } from 'react';
 import { CalendarCheck, TrendingUp, TrendingDown, Minus, WifiOff, AlertTriangle } from 'lucide-react';
 
 // Phase 5451 — Mein Frühbucher-Score (Fahrer)
-// CalendarCheck green-400; fruehbucher_quote_pct 4xl+Rang; isOnline-Guard+WifiOff-Fallback;
-// Coaching ≥80%/≥60%/<60%; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback
+// CalendarCheck green-400; fruehbucher_quote 4xl+Rang; isOnline-Guard+WifiOff-Fallback;
+// Coaching ≥80%/≥50%/<50%; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback
 
 type Ampel = 'gruen' | 'gelb' | 'rot';
 
 interface MyData {
   rang: number;
-  fruehbucher_quote_pct: number;
-  team_avg_pct: number;
+  fruehbucher_quote: number;
+  team_avg: number;
   rank_delta: number;
   ampel: Ampel;
   alert_niedrig: boolean;
@@ -21,8 +21,8 @@ interface MyData {
 
 const MOCK: MyData = {
   rang: 2,
-  fruehbucher_quote_pct: 74,
-  team_avg_pct: 62,
+  fruehbucher_quote: 80,
+  team_avg: 62.5,
   rank_delta: 1,
   ampel: 'gruen',
   alert_niedrig: false,
@@ -41,10 +41,10 @@ function DeltaIcon({ d }: { d: number }) {
   return <Minus className="h-3.5 w-3.5 text-gray-500" />;
 }
 
-function coaching(pct: number): { text: string; color: string } {
-  if (pct >= 80) return { text: 'Top-Planer! Du buchst Schichten meist weit im Voraus.', color: 'text-green-400' };
-  if (pct >= 60) return { text: 'Gute Vorausplanung — versuche noch früher zu buchen!', color: 'text-yellow-400' };
-  return { text: 'Bitte Schichten ≥24h im Voraus annehmen — Team-Planung verbessern!', color: 'text-red-400' };
+function coaching(q: number): { text: string; color: string } {
+  if (q >= 80) return { text: 'Top-Planer! Du buchst deine Schichten sehr früh — das hilft dem Team enorm!', color: 'text-green-400' };
+  if (q >= 50) return { text: 'Gute Planung — versuche noch mehr Schichten ≥24h im Voraus zu buchen!', color: 'text-yellow-400' };
+  return { text: 'Frühzeitig buchen lohnt sich — du sicherst dir bessere Schichten und Boni!', color: 'text-red-400' };
 }
 
 export function FahrerPhase5451MeinFruehbucherScore({
@@ -63,15 +63,15 @@ export function FahrerPhase5451MeinFruehbucherScore({
     if (!isOnline || !driverId) return;
     try {
       const r = await fetch(
-        `/api/delivery/admin/fahrer-fruehbucher-score?driver_id=${driverId}${locationId ? `&location_id=${locationId}` : ''}`,
+        `/api/delivery/admin/fahrer-fruehbucher-score-ranking?driver_id=${driverId}${locationId ? `&location_id=${locationId}` : ''}`,
       );
       if (r.ok) {
         const json = await r.json();
         if (json.fahrer_single) {
           setData({
             rang: json.fahrer_single.rang,
-            fruehbucher_quote_pct: json.fahrer_single.fruehbucher_quote_pct,
-            team_avg_pct: json.team_avg_pct,
+            fruehbucher_quote: json.fahrer_single.fruehbucher_quote,
+            team_avg: json.team_avg,
             rank_delta: json.fahrer_single.rank_delta ?? 0,
             ampel: json.fahrer_single.ampel,
             alert_niedrig: json.fahrer_single.alert_niedrig,
@@ -81,8 +81,8 @@ export function FahrerPhase5451MeinFruehbucherScore({
           const me = json.fahrer.find((f: { fahrer_id: string }) => f.fahrer_id === driverId);
           if (me) setData({
             rang: me.rang,
-            fruehbucher_quote_pct: me.fruehbucher_quote_pct,
-            team_avg_pct: json.team_avg_pct,
+            fruehbucher_quote: me.fruehbucher_quote,
+            team_avg: json.team_avg,
             rank_delta: me.rank_delta,
             ampel: me.ampel,
             alert_niedrig: me.alert_niedrig,
@@ -109,8 +109,8 @@ export function FahrerPhase5451MeinFruehbucherScore({
     );
   }
 
-  const maxVal = Math.max(data.fruehbucher_quote_pct, data.team_avg_pct, 1);
-  const c = coaching(data.fruehbucher_quote_pct);
+  const maxVal = Math.max(data.fruehbucher_quote, data.team_avg, 1);
+  const c = coaching(data.fruehbucher_quote);
 
   return (
     <div className={`rounded-lg bg-gray-900 border ${BORDER[data.ampel]} p-3 space-y-2`}>
@@ -123,7 +123,7 @@ export function FahrerPhase5451MeinFruehbucherScore({
 
       {/* Hauptwert */}
       <div className="flex items-end gap-2">
-        <span className="text-4xl font-black text-green-400">{data.fruehbucher_quote_pct}</span>
+        <span className="text-4xl font-black text-green-400">{data.fruehbucher_quote.toFixed(0)}</span>
         <span className="text-lg text-green-300 mb-0.5">%</span>
         <div className="ml-auto flex items-center gap-1 text-xs text-gray-400">
           <span>Rang {data.rang}/{data.gesamt}</span>
@@ -138,20 +138,20 @@ export function FahrerPhase5451MeinFruehbucherScore({
           <div className="flex-1 h-2 rounded-full bg-gray-800">
             <div
               className="h-2 rounded-full bg-green-400 transition-all duration-500"
-              style={{ width: `${(data.fruehbucher_quote_pct / maxVal) * 100}%` }}
+              style={{ width: `${(data.fruehbucher_quote / maxVal) * 100}%` }}
             />
           </div>
-          <span className="text-[10px] font-mono text-green-300 w-10 text-right">{data.fruehbucher_quote_pct}%</span>
+          <span className="text-[10px] font-mono text-green-300 w-10 text-right">{data.fruehbucher_quote.toFixed(0)}%</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-gray-400 w-8">Ø</span>
           <div className="flex-1 h-2 rounded-full bg-gray-800">
             <div
               className="h-2 rounded-full bg-gray-500 transition-all duration-500"
-              style={{ width: `${(data.team_avg_pct / maxVal) * 100}%` }}
+              style={{ width: `${(data.team_avg / maxVal) * 100}%` }}
             />
           </div>
-          <span className="text-[10px] font-mono text-gray-400 w-10 text-right">{data.team_avg_pct}%</span>
+          <span className="text-[10px] font-mono text-gray-400 w-10 text-right">{data.team_avg.toFixed(0)}%</span>
         </div>
       </div>
 
