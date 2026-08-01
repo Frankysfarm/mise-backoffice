@@ -4127,3 +4127,5 @@ export { StorefrontPhase5166DynamischeEtaLiveTrackingV11 } from './phase5166-dyn
 export { Phase5167DynamischeEtaLiveTrackingV12 } from './phase5167-dynamische-eta-live-tracking-v12';
 // Phase 1000 — Dynamische ETA + Live-Tracking Ultimate (Dual-Source Küche+Fahrer+KI ETA; Vertrauens-Score-Ring; Animated Phasen-Timeline 5-stufig; Traffic-basierte Anpassung; Verzögerungs-Alert mit Grund; Proaktiver Annäherungs-Banner ≤5min; 15-Sek-Polling; Mock-Fallback)
 export { Phase1000DynamischeEtaLiveTrackingUltimate } from './phase1000-dynamische-eta-live-tracking-ultimate';
+// Phase 5420 — Dynamische ETA Live Cockpit V2 (Countdown Sekundentick; Fahrer-Echtzeit-Annäherung Distanz-Indikator; SLA-Vertrauens-Ring; Bestellphasen-Timeline 5-stufig; Fahrer-Nähe-Puls-Banner; 4-stufige Farbkodierung; Push-Opt-In; 20-Sek-Polling; Mock-Fallback)
+export { Phase5420EtaLiveCockpit } from './phase5420-eta-live-cockpit';

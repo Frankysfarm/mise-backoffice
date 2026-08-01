@@ -12557,3 +12557,6 @@ export { FahrerPhase5405MeinTrinkgeld } from './phase5405-mein-trinkgeld';
 export { FahrerPhase5411TourStopsNavHubV9 } from './phase5411-tour-stops-navigation-hub-v9';
 // Phase 5414 — Meine Bewertung (Star yellow-400; avg_rating 4xl+Rang; Coaching ≥4.5/≥4.0/<4.0; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
 export { FahrerPhase5414MeineBewertung } from './phase5414-meine-bewertung';
+
+// Phase 5420 — Tour-Stopp-Navigations-Hub V2 (Navigation blue; ETA-Präzisions-Score je Stopp; Optimale-Reihenfolge-Indikator; Waypoint Distanz-Ampel; Fahrer-Wartezeit-Hinweis; Zahlungsart-Badge; Nächster-Stopp-CTA GPS-Deep-Link; Stopp-Status grün/gelb/rot/grau; Mock-Fallback)
+export { FahrerPhase5420TourNavHub } from './phase5420-tour-nav-hub';

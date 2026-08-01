@@ -1387,6 +1387,7 @@ import { KitchenPhase4410SmartTimingCountdownV6 } from './phase4410-smart-timing
 import { KitchenPhase4500SmartTimingV8FarbkodierungCountdown } from './phase4500-smart-timing-v8-farbkodierung-countdown';
 import { KitchenPhase1000SmartTimingDashboard } from './phase1000-smart-timing-dashboard';
 import { KitchenPhase4715SmartTimingCountdownFarbkodierungV13 } from './phase4715-smart-timing-countdown-farbkodierung-v13';
+import { KitchenPhase5420SmartTimingCountdownV52 } from './phase5420-smart-timing-countdown-v52';
 
 /* ------------------------------ Types ------------------------------ */
 
@@ -5298,6 +5299,8 @@ export function KitchenBoard({
       <KitchenPhase1000SmartTimingDashboard orders={filtered as any} />
       {/* Phase 4715: Smart-Timing Countdown Farbkodierung V13 — 6-stufige Ampel; Echtzeit-Countdown je Bestellung; Prioritätssortierung kritisch zuerst; Score-Header; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback */}
       <KitchenPhase4715SmartTimingCountdownFarbkodierungV13 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5420: Smart-Timing Countdown V52 — SLA-Ampel Küche→Fahrer-Sync; Durchsatz-Prognose +30 Min; Fahrer-Nähe je Bestellung; Batch-Übergabe-Score; 8-KPI-Grid; 3-Tab Countdown/SLA/Prognose; 1s-Tick+15s-Polling */}
+      <KitchenPhase5420SmartTimingCountdownV52 />
     </div>
   );
 }
@@ -13267,3 +13270,5 @@ export { KitchenPhase5407TrinkgeldTicker } from './phase5407-trinkgeld-ticker';
 export { KitchenPhase5416BewertungsTicker } from './phase5416-bewertungs-ticker';
 // Phase 5408 — Smart-Timing Countdown V51 (Brain indigo; Trinkgeld-Potential-Indikator je Order; Prio-Score+Trinkgeld-Faktor; Stations-Überlast-Alert; 7-KPI-Grid inkl. Tip-Score; 3-Tab Countdown/KI/Stationen; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5408SmartTimingCountdownV51 } from './phase5408-smart-timing-countdown-v51';
+// Phase 5420 — Smart-Timing Countdown V52 (Timer indigo; SLA-Ampel Küche→Fahrer-Sync; Durchsatz-Prognose +30 Min; Fahrer-Nähe-Indikator je Bestellung; Batch-Übergabe-Score; 8-KPI-Grid Aktiv/Kritisch/Überfällig/Fertig/Fahrer↑/Batch-Score/SLA/Velocity; 3-Tab Countdown/SLA/Prognose; 6-stufig; 1s-Tick+15s-Polling; Mock-Fallback)
+export { KitchenPhase5420SmartTimingCountdownV52 } from './phase5420-smart-timing-countdown-v52';

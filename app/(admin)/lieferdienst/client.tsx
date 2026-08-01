@@ -5245,3 +5245,5 @@ export { LieferdienstPhase5151StatistikenDashboardV44 } from './phase5151-statis
 export { LieferdienstPhase5397StatistikenDashboardV45 } from './phase5397-statistiken-dashboard-v45';
 // Phase 5410 — Statistiken-Dashboard V46 (Activity teal; 11-KPI-Grid 5-spaltig inkl. Trinkgeld-Score+Fleet-Ø; Trinkgeld-Wochen-Trend-LineChart; Fahrer-Tabelle+trinkgeld_avg; 7-Tab-Nav Überblick/Stunden/Fahrer/Vollst./Leerfahrt/Trinkgeld/Bilanz; Fleet-Trinkgeld-Index; 45-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5410StatistikenDashboardV46 } from './phase5410-statistiken-dashboard-v46';
+// Phase 5420 — Statistiken-Dashboard V47 (Activity teal; Wochen-Bilanz Einnahmen/Kosten/Gewinn BarChart; Fahrer-Effizienz-Matrix Stopps/h+Pünktl.+Bewertung; Zonen-Rentabilitäts-Rangliste; KI-Prognose nächste Schicht; 11-KPI-Grid 5-spaltig inkl. Effizienz-Ratio+Netto-Marge; 7-Tab-Nav Überblick/Stunden/Fahrer/Zonen/Bilanz/Prognose/Woche; 45-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5420StatistikenDashboardV47 } from './phase5420-statistiken-dashboard-v47';
