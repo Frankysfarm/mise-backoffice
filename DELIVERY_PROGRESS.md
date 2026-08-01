@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**CEO Review #784 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 86 (5548/5549/5551) Leerfahrten-Ranking + Batch 87 (5552/5553/5555) Umsatz-pro-km-Ranking verifiziert · 0× CEO-Fixes nötig · MARKT-REIF bestätigt · **Nächste freie Phase: 5556**
+
 **CEO Review #783 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 85 (5544/5545/5547 + V62/V44/V17/V57) Trinkgeld-pro-Tour-Ranking + Smart-Delivery-Erweiterungen verifiziert · 3× CEO-Fixes: Dispatch(5544)+Kitchen(5547)+Fahrer(5545) Render nachgetragen · MARKT-REIF bestätigt · **Nächste freie Phase: 5548**
 
 **CEO Review #782 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 84 (5536/5539/5540/5543/5531) Schichtstart-Pünktlichkeit + Kundenbindung + V61/V43/V56 verifiziert · 7× CEO-Fixes: Import+Render für alle 7 Komponenten + Recharts-Formatter V56 · MARKT-REIF bestätigt · **Nächste freie Phase: 5544**
