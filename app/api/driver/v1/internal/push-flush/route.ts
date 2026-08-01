@@ -28,6 +28,8 @@ interface OutboxRow {
 interface DriverShortRow {
   expo_push_token: string | null;
   push_enabled: boolean;
+  active: boolean;
+  state: string;
 }
 
 export async function POST(req: NextRequest) {
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
   const pending: Row[] = [];
   for (const row of (claimed ?? []) as OutboxRow[]) {
     const { data: drivers, error: driverError } = await c.from('mise_drivers')
-      .select('expo_push_token,push_enabled').eq('id', row.driver_id).maybeSingle();
+      .select('expo_push_token,push_enabled,active,state').eq('id', row.driver_id).maybeSingle();
     if (driverError) return NextResponse.json({ ok: false, reason_code: 'PUSH_DRIVER_LOOKUP_FAILED' }, { status: 500 });
     pending.push({ ...row, drivers: drivers as DriverShortRow | null });
   }
@@ -82,10 +84,12 @@ export async function POST(req: NextRequest) {
   let apnsCount = 0;
   let expoCount = 0;
 
-  const finish = async (id: string, accepted: boolean, providerMessageId: string | null, error: string | null) => {
+  const finish = async (id: string, accepted: boolean, providerMessageId: string | null, error: string | null,
+    retryable = true) => {
     const result = await c.rpc('fn_finish_wake_notification', {
       p_notification_id: id, p_worker_id: workerId, p_provider_accepted: accepted,
       p_provider_message_id: providerMessageId, p_error: error,
+      p_retryable: retryable,
     });
     if (result.error || !(result.data as { ok?: boolean } | null)?.ok) throw new Error('PUSH_LEDGER_UPDATE_FAILED');
   };
@@ -98,12 +102,17 @@ export async function POST(req: NextRequest) {
     const drv = row.drivers;
     const enabled = drv?.push_enabled ?? true;
     if (!enabled) {
-      await finish(row.id, false, null, 'PUSH_DISABLED');
+      await finish(row.id, false, null, 'PUSH_DISABLED', false);
       skipped++;
       continue;
     }
 
     const isAssign = row.type === 'order_assigned' || row.type === 'assign';
+    if (isAssign && (!drv?.active || drv.state === 'offline')) {
+      await finish(row.id, false, null, 'DRIVER_OFF_DUTY', false);
+      skipped++;
+      continue;
+    }
     // APNs alert for raw Capacitor device tokens.
     const rawTok = drv?.expo_push_token;
     const isExpoTok = typeof rawTok === 'string' && /^Expo(nent)?PushToken\[/.test(rawTok);
@@ -116,9 +125,12 @@ export async function POST(req: NextRequest) {
         sound: isAssign ? 'alarm.caf' : (row.sound ?? 'default'),
         interruptionLevel: isAssign ? 'time-sensitive' : 'active',
         data: wakeData(row),
+        collapseId: typeof row.data?.assignment_id === 'string'
+          ? `assignment:${row.data.assignment_id}`
+          : `notification:${row.id}`,
       });
       if (r.ok) {
-        await finish(row.id, true, null, null);
+        await finish(row.id, true, r.apnsId ?? null, null);
         sent++;
         apnsCount++;
         continue;
@@ -127,7 +139,7 @@ export async function POST(req: NextRequest) {
         const { error: tokenError } = await c.from('mise_drivers').update({ expo_push_token: null, push_token_updated_at: new Date().toISOString() }).eq('id', row.driver_id);
         if (tokenError) throw new Error('DEAD_ALERT_TOKEN_CLEAR_FAILED');
       }
-      await finish(row.id, false, null, r.error ?? 'APNS_ALERT_REJECTED');
+        await finish(row.id, false, null, r.error ?? 'APNS_ALERT_REJECTED', !r.tokenDead);
       skipped++;
       continue;
     }
@@ -135,7 +147,7 @@ export async function POST(req: NextRequest) {
     // 2) Expo-Push (Standard oder Fallback)
     const expoToken = drv?.expo_push_token;
     if (!expoToken) {
-      await finish(row.id, false, null, 'NO_EXPO_TOKEN');
+      await finish(row.id, false, null, 'NO_EXPO_TOKEN', false);
       skipped++;
       continue;
     }
@@ -168,14 +180,19 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify(expoBatch.map((b) => b.message)),
       });
-      const json = (await res.json()) as { data?: Array<{ status: string; message?: string }> };
+      if (!res.ok) throw new Error(`EXPO_HTTP_${res.status}`);
+      const json = (await res.json()) as { data?: Array<{ status: string; id?: string; message?: string }> };
       const tickets = Array.isArray(json.data) ? json.data : [];
       for (let i = 0; i < expoBatch.length; i++) {
         const ticket = tickets[i];
         const outboxId = expoBatch[i].outboxId;
-        if (!ticket) continue;
+        if (!ticket) {
+          await finish(outboxId, false, null, 'EXPO_MISSING_TICKET');
+          failed++;
+          continue;
+        }
         if (ticket.status === 'ok') {
-          await finish(outboxId, true, null, null);
+          await finish(outboxId, true, ticket.id ?? null, null);
           sent++;
         } else {
           await finish(outboxId, false, null, ticket.message ?? 'EXPO_REJECTED');

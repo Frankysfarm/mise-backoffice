@@ -16,15 +16,17 @@ import { useEffect, useRef } from 'react';
 export function AlarmRinger({
   openBatchIds,
   assignedBatchId,
+  enabled,
 }: {
   openBatchIds: string[];
   assignedBatchId: string | null;
+  enabled: boolean;
 }) {
   const ctxRef = useRef<AudioContext | null>(null);
   const intervalRef = useRef<any>(null);
 
-  const pendingCount = openBatchIds.length + (assignedBatchId ? 1 : 0);
-  const shouldRing = pendingCount > 0;
+  const pendingCount = new Set([...openBatchIds, ...(assignedBatchId ? [assignedBatchId] : [])]).size;
+  const shouldRing = enabled && pendingCount > 0;
 
   // AudioContext einmalig bei erster User-Interaktion entsperren (iOS-Autoplay-Policy).
   // Stoppt den Alarm NICHT — entsperrt nur den Ton.

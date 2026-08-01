@@ -27,6 +27,8 @@ export interface AlertPayload {
   interruptionLevel?: 'active' | 'time-sensitive';
   /** beliebige Zusatzdaten (z.B. batch_id) — landen unter aps-fremden Keys */
   data?: Record<string, unknown>;
+  /** Stable logical event key. APNs replaces an older undelivered copy. */
+  collapseId?: string;
 }
 
 export interface AlertSendResult {
@@ -97,7 +99,7 @@ export async function sendAlertPush(deviceToken: string, payload: AlertPayload):
 
   let lastErr: AlertSendResult | null = null;
   for (let attempt = 1; attempt <= 3; attempt++) {
-    const r = await sendOnce(deviceToken, body);
+    const r = await sendOnce(deviceToken, body, payload.collapseId);
     if (r.ok) return r;
     if (r.tokenDead) return r;
     if (r.status && r.status >= 400 && r.status < 500) return r;
@@ -107,7 +109,7 @@ export async function sendAlertPush(deviceToken: string, payload: AlertPayload):
   return lastErr ?? { ok: false, error: 'unknown' };
 }
 
-function sendOnce(deviceToken: string, body: string): Promise<AlertSendResult> {
+function sendOnce(deviceToken: string, body: string, collapseId?: string): Promise<AlertSendResult> {
   return new Promise((resolve) => {
     let resolved = false;
     const finish = (r: AlertSendResult) => {
@@ -120,7 +122,7 @@ function sendOnce(deviceToken: string, body: string): Promise<AlertSendResult> {
     const client = http2.connect(host());
     client.on('error', (e: NodeJS.ErrnoException) => finish({ ok: false, error: `connect: ${e.message}` }));
 
-    const req = client.request({
+    const headers: http2.OutgoingHttpHeaders = {
       ':method': 'POST',
       ':path': `/3/device/${deviceToken}`,
       authorization: `bearer ${getJwt()}`,
@@ -129,7 +131,9 @@ function sendOnce(deviceToken: string, body: string): Promise<AlertSendResult> {
       'apns-priority': '10',
       'content-type': 'application/json',
       'content-length': Buffer.byteLength(body).toString(),
-    });
+    };
+    if (collapseId) headers['apns-collapse-id'] = collapseId.slice(0, 64);
+    const req = client.request(headers);
 
     req.setTimeout(8000, () => { req.close(); finish({ ok: false, error: 'timeout' }); });
 

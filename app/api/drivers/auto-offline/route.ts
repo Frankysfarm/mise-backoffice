@@ -1,11 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET() { return run(); }
-export async function POST() { return run(); }
+export async function POST(req: NextRequest) {
+  const expected = process.env.BISS_INTERNAL_TOKEN;
+  const provided = req.headers.get('x-internal-token');
+  if (!expected || expected.length < 16 || provided !== expected) {
+    return NextResponse.json({ ok: false, reason_code: 'UNAUTHORIZED' }, { status: 401 });
+  }
+  return run();
+}
 
 async function run() {
   const svc = createServiceClient();

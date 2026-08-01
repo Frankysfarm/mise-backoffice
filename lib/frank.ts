@@ -168,14 +168,26 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
     throw new Error(`FRANK_ORDER_SNAPSHOT_FAILED:${ordersError.code ?? 'unknown'}`);
   }
 
+  // Defensive legacy guard: a completed drop-off is delivery evidence even if
+  // an older writer failed to advance customer_orders.status. Such an order
+  // must never be offered again.
+  const candidateIds = (orders ?? []).map((row) => row.id);
+  const { data: completedDropoffs, error: completionGuardError } = candidateIds.length
+    ? await c.from('mise_delivery_batch_stops').select('order_id')
+      .in('order_id', candidateIds).eq('type', 'dropoff').not('completed_at', 'is', null)
+    : { data: [], error: null };
+  if (completionGuardError) throw new Error('DISPATCH_COMPLETION_GUARD_FAILED');
+  const completedOrderIds = new Set((completedDropoffs ?? []).map((row) => row.order_id));
+  const eligibleOrders = (orders ?? []).filter((row) => !completedOrderIds.has(row.id));
+
   const result: DispatchTickResult = {
-    scanned_orders: orders?.length ?? 0,
+    scanned_orders: eligibleOrders.length,
     bundled: 0,
     assigned: 0,
     held: 0,
   };
 
-  for (const o of orders ?? []) {
+  for (const o of eligibleOrders) {
     try {
       const outcome = await dispatchOrder(o as OrderRow);
       if (outcome === 'bundled') result.bundled++;
@@ -200,6 +212,21 @@ type Outcome = 'bundled' | 'assigned' | 'held';
 
 export async function dispatchOrder(o: OrderRow): Promise<Outcome> {
   const c = sb();
+
+  // Revalidate at the write boundary. This closes the race between the tick
+  // snapshot and a delivery/assignment committed by another worker.
+  const [{ data: currentOrder, error: currentOrderError }, { data: deliveredStop, error: deliveredStopError }] =
+    await Promise.all([
+      c.from('customer_orders').select('status,mise_driver_id,mise_batch_id')
+        .eq('id', o.id).maybeSingle(),
+      c.from('mise_delivery_batch_stops').select('id').eq('order_id', o.id)
+        .eq('type', 'dropoff').not('completed_at', 'is', null).limit(1).maybeSingle(),
+    ]);
+  if (currentOrderError || deliveredStopError) throw new Error('DISPATCH_ORDER_REVALIDATION_FAILED');
+  if (!currentOrder || deliveredStop || currentOrder.mise_driver_id || currentOrder.mise_batch_id
+    || !['fertig', 'ready'].includes(String(currentOrder.status))) {
+    return 'held';
+  }
 
   // 1) Pickup-Location (Restaurant) laden
   if (!o.location_id) return 'held';
@@ -1113,8 +1140,8 @@ async function addOrderToBundle(
  * Fallback wenn Google nicht antwortet: Stops bleiben in DB-Reihenfolge,
  * polyline bleibt null, distance/eta via Haversine geschätzt.
  */
-export async function rerouteBundle(batchId: string): Promise<void> {
-  const c = sb();
+export async function rerouteBundle(batchId: string, client?: SupabaseClient): Promise<void> {
+  const c = client ?? sb();
   const { data: stops } = await c
     .from('mise_delivery_batch_stops')
     .select('id, type, sequence, lat, lng')

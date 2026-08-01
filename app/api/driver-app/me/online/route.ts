@@ -1,45 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createServiceClient } from '@/lib/supabase/server';
+import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /**
- * POST /api/driver-app/me/online
- * Body: { driverId: string, online: boolean, lat?: number, lng?: number }
- *
- * Schaltet Driver Online/Offline. Setzt mise_drivers.state + active.
- * DEV-Modus: Auth via driverId-Param (später JWT).
+ * Removed legacy service-role writer. Driver identity and expected versions are
+ * mandatory on the authenticated v2 session endpoints.
  */
-export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => ({}));
-  const driverId = String(body?.driverId ?? '').trim();
-  const online = !!body?.online;
-  const lat = typeof body?.lat === 'number' ? body.lat : null;
-  const lng = typeof body?.lng === 'number' ? body.lng : null;
-
-  if (!driverId) {
-    return NextResponse.json({ error: 'driverId fehlt' }, { status: 400 });
-  }
-
-  const svc = createServiceClient();
-  // mise_drivers.state-CHECK: offline | idle | assigned | at_restaurant | en_route | returning
-  const patch: Record<string, unknown> = {
-    state: online ? 'idle' : 'offline',
-    active: true,
-  };
-  if (lat !== null && lng !== null) {
-    patch.last_lat = lat;
-    patch.last_lng = lng;
-    patch.last_position_at = new Date().toISOString();
-  }
-
-  const { data, error } = await svc.from('mise_drivers')
-    .update(patch)
-    .eq('id', driverId)
-    .select('id, name, state, active')
-    .single();
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ ok: true, driver: data });
+export async function POST() {
+  return NextResponse.json({
+    ok: false,
+    reason_code: 'LEGACY_DRIVER_STATUS_WRITER_DISABLED',
+    start: '/api/driver/v2/session/start',
+    end: '/api/driver/v2/session/end',
+  }, { status: 410 });
 }
