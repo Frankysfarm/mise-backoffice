@@ -71,3 +71,4 @@
 - Exit/result: 0; 1/1 integration test passes against a fresh disposable PostgreSQL cluster.
 - Proof: creates a dedicated run schema, inserts run/tenant-marked synthetic actors/order, rejects cleanup for another run, cleans the exact owned schema and verifies zero remaining namespace rows.
 - Limitation: minimal factory only; canonical application APIs/tables and full profile set are not yet exercised.
+- Hardening/review: commit `003b2c53` checks run and tenant atomically in the drop transaction, revalidates inputs at runtime, serializes compliant cleanup and proves a second run survives. Two independent reviewers approved this TL-G0 subgate.

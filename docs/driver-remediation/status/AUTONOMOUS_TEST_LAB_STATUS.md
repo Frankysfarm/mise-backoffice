@@ -4,7 +4,7 @@ Updated: 2026-08-01
 
 | Gate | Current decision | Evidence / blocker |
 |---|---|---|
-| TL-G0 Isolation | PARTIAL | Central guard received two independent scoped P0 approvals at `8dd1eb2e`; a disposable PostgreSQL test proves exact run-owned schema cleanup, but that new factory still needs independent review. |
+| TL-G0 Isolation | GREEN | Central guard received two independent P0 approvals at `8dd1eb2e`; atomic run+tenant cleanup received two independent approvals at `003b2c53`. Disposable PostgreSQL integration passes. |
 | TL-G1 Data Factory / DSL | PARTIAL | DSL, catalog, profiles and a disposable PostgreSQL per-run schema factory/cleanup pass; canonical storefront/API materialization and catalog-wide execution remain open. |
 | TL-G2 UI actors | BLOCKED | Click harness and role flows exist; Playwright browser, selectors/auth fixtures and real browser E2E are not installed/proven. |
 | TL-G3 Invariant monitor | PARTIAL / REVIEW REJECT | Post-review hardening adds cross-tenant route/pick, batch-driver, stop-order, numeric, sequence, fingerprint and temporal push checks; focused tests pass, but canonical DB-snapshot integration and re-review are open. |
@@ -17,6 +17,10 @@ Updated: 2026-08-01
 | TL-G10 Human acceptance | BLOCKED_EXTERNAL | Runbook exists; employees/devices/sign-offs not executed. |
 
 Current release decision: `BLOCKED` (confirmed independently). No production action occurred.
+
+First incomplete gate: **TL-G1 Data Factory / Scenario DSL**. The minimal
+run-owned factory is real, but the 115 catalog descriptors are not yet bound to
+canonical Storefront/Kitchen/Driver/Dispatcher API/UI execution.
 
 Build status: GREEN on a clean retry (`npm run build`, 447 pages). The generated
 `.next` directory was removed afterward to recover local disk capacity.

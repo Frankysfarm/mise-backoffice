@@ -29,3 +29,9 @@ Before release:
 
 No production flag, migration, deployment, push, order or TestFlight upload is
 authorized by this document.
+# Autonomous test-lab release decision — 2026-08-01
+
+Decision: **BLOCKED**. TL-G0 is green with double independent P0 review, but
+TL-G1 is the first incomplete gate. TL-G2, TL-G4–TL-G10 also contain explicit
+local or external blockers. No production deployment, migration, data change,
+real push/order, provider charge or TestFlight operation was performed.
