@@ -1371,6 +1371,7 @@ import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-prob
 import { FahrerPhase5510MeineZuverlaessigkeit } from './phase5510-meine-zuverlaessigkeit';
 import { FahrerPhase5511TourStopsNavHubV15 } from './phase5511-tour-stops-nav-hub-v15';
 import { FahrerPhase5518MeineAbholpuenktlichkeit } from './phase5518-meine-abholpuenktlichkeit';
+import { FahrerPhase5521TourStopsNavHubV16 } from './phase5521-tour-stops-nav-hub-v16';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7893,6 +7894,8 @@ export function FahrerApp({
           <FahrerPhase5518MeineAbholpuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />
+          {/* Phase 5521: Tour-Stops Nav Hub V16 — V15+: Wetter-Einfluss auf ETA Regen-Faktor; Stopp-Optimierungs-KI-Reihenfolge Toggle; Einnahmen-Tracker Bar/Karte/Digital live; Pause-Empfehlung nach Schichtdauer; 8-KPI-Grid; Chat-Bubble; Offline-Guard; 30s-Poll */}
+          <FahrerPhase5521TourStopsNavHubV16 driverId={driver.id} />
           {/* Phase 5505: Tour-Stops Nav Hub V14 — V13+Hold-to-Confirm 800ms; Kunden-Kontakt tel+WhatsApp; Live-Kundendistanz-Ring SVG; Paketübergabe-Checkliste; 30-Sek-Polling */}
           <FahrerPhase5505TourStopsNavHubV14 driverId={driver.id} locationId={driver.location_id ?? null} />
           {/* Phase 5501: Tour-Stops Nav Hub V13 — V12+Stopp-Bestätigung via API; Gesamtfortschritts-Ring SVG; Verkehrsampel Live; CountdownRing; Google Maps Deep-Link; Geliefert-CTA; Next-Stops-Liste; 30-Sek-Polling */}
@@ -12692,3 +12695,5 @@ export { FahrerPhase5510MeineZuverlaessigkeit } from './phase5510-meine-zuverlae
 export { FahrerPhase5511TourStopsNavHubV15 } from './phase5511-tour-stops-nav-hub-v15';
 // Phase 5518 — Meine Abholpünktlichkeit (Timer violet-400; avg_minuten AUFSTEIGEND Rang 1=schnellste Abholung=bester; 4xl+Rang; Coaching ≤3/≤5/>5 min; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5518MeineAbholpuenktlichkeit } from './phase5518-meine-abholpuenktlichkeit';
+// Phase 5521 — Tour-Stops Nav Hub V16 (Navigation indigo; V15+: Wetter-Einfluss auf ETA Regen-Faktor; Stopp-Optimierungs-KI-Reihenfolge Toggle; Einnahmen-Tracker Bar/Karte/Digital live; Pause-Empfehlung nach Schichtdauer; Chat-Bubble Mock; 8-KPI-Grid Stops/Fertig/Offen/km/ETA/Einnahmen/Bewertung/Pause; Offline-Guard; 30s-Poll; Mock-Fallback)
+export { FahrerPhase5521TourStopsNavHubV16 } from './phase5521-tour-stops-nav-hub-v16';

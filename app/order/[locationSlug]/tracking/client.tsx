@@ -24,6 +24,7 @@ import { BestellPhase5470DynamischeEtaLiveTrackingV13 } from '../phase5470-dynam
 import { BestellPhase5479DynamischeEtaLiveTrackingV14 } from '../phase5479-dynamische-eta-live-tracking-v14';
 import { StorefrontPhase5483DynamischeEtaLiveTrackingV15 } from '../phase5483-dynamische-eta-live-tracking-v15';
 import { StorefrontPhase5504DynamischeEtaLiveTrackingV16 } from '../phase5504-dynamische-eta-live-tracking-v16';
+import { StorefrontPhase5521DynamischeEtaLiveTrackingV18 } from '../phase5521-dynamische-eta-live-tracking-v18';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 
@@ -441,6 +442,8 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
         <StorefrontPhase5483DynamischeEtaLiveTrackingV15 orderId={order.id} locationSlug={locationSlug} initialStatus={order.status} initialEta={order.eta_earliest} />
         {/* Phase 5504: Dynamische ETA Live-Tracking V16 — Pulsierender Fahrer-Punkt auf Fortschritts-Linie; Lieferfortschritts-%-Balken; Step-by-Step Statuslinie; ETA-Countdown Sekunden-genau farbkodiert; Fahrer-Info-Card+Anruf-Button; Supabase-Subscription+30s-Polling */}
         <StorefrontPhase5504DynamischeEtaLiveTrackingV16 orderId={order.id} locationSlug={locationSlug} initialStatus={order.status} initialEta={order.eta_earliest} />
+        {/* Phase 5521: Dynamische ETA Live-Tracking V18 — V17+: Geofence-Alarm 500m/200m/50m pulsierend; Push-Benachrichtigungs-Opt-in; Freigabe-Konfetti-Animation Lieferung; Warme-Mahlzeit-Countdown optimal servieren; Kurier-Chat-Bubble Mock; 1s-Tick+20s-Polling */}
+        <StorefrontPhase5521DynamischeEtaLiveTrackingV18 orderId={order.id} locationSlug={locationSlug} initialStatus={order.status} initialEta={order.eta_earliest} />
 
         {/* Order summary */}
         <div className="bg-white rounded-2xl border border-matcha-100 p-4 shadow-sm">
