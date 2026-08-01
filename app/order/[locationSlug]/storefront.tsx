@@ -4129,3 +4129,5 @@ export { Phase5167DynamischeEtaLiveTrackingV12 } from './phase5167-dynamische-et
 export { Phase1000DynamischeEtaLiveTrackingUltimate } from './phase1000-dynamische-eta-live-tracking-ultimate';
 // Phase 5420 — Dynamische ETA Live Cockpit V2 (Countdown Sekundentick; Fahrer-Echtzeit-Annäherung Distanz-Indikator; SLA-Vertrauens-Ring; Bestellphasen-Timeline 5-stufig; Fahrer-Nähe-Puls-Banner; 4-stufige Farbkodierung; Push-Opt-In; 20-Sek-Polling; Mock-Fallback)
 export { Phase5420EtaLiveCockpit } from './phase5420-eta-live-cockpit';
+// Phase 5470 — Dynamische ETA Live-Tracking V13 (4-Phasen-Statuslinie; Live-Countdown Sekunden-Präzision; ETA-Konfidenz hoch/mittel/niedrig; Fahrer-Name + Küchen-Fortschritts-Balken; Wetter-Einfluss-Badge; 30-Sek-Polling)
+export { BestellPhase5470DynamischeEtaLiveTrackingV13 } from './phase5470-dynamische-eta-live-tracking-v13';

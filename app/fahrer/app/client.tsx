@@ -1357,6 +1357,7 @@ import { FahrerPhase5451MeinFruehbucherScore } from './phase5451-mein-fruehbuche
 import { FahrerPhase5455MeinePuenktlichkeit } from './phase5455-meine-puenktlichkeit';
 import { FahrerPhase5459MeinWochenendAnteil } from './phase5459-mein-wochenend-anteil';
 import { FahrerPhase5463MeineSchichtstunden } from './phase5463-meine-schichtstunden';
+import { FahrerPhase5469TourStopsNavHubV10 } from './phase5469-tour-stops-nav-hub-v10';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7859,6 +7860,8 @@ export function FahrerApp({
           <FahrerPhase5459MeinWochenendAnteil driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5463: Meine Schichtstunden — Clock teal-400; avg_stunden 4xl+Rang; Coaching ≥6h/≥4h/<4h; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5463MeineSchichtstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5469: Tour-Stops & Navigation Hub V10 — ETA-Genauigkeits-Score je Stopp; KI-Reihenfolge-Badge; Zahlung-Status-Badge; Live-Distanz-Ampel; 6-KPI-Grid; GPS-Multi-App-Deeplinks; expand/collapse */}
+          <FahrerPhase5469TourStopsNavHubV10 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}

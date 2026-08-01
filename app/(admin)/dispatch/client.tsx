@@ -1453,6 +1453,7 @@ import { DispatchPhase5450FruehbucherBoard } from './phase5450-fruehbucher-board
 import { DispatchPhase5454PuenktlichkeitsBoard } from './phase5454-puenktlichkeits-board';
 import { DispatchPhase5458WochenendAnteilBoard } from './phase5458-wochenend-anteil-board';
 import { DispatchPhase5462SchichtstundenBoard } from './phase5462-schichtstunden-board';
+import { DispatchPhase5467ScoreTourVisualisierungV35 } from './phase5467-score-tour-visualisierung-v35';
 
 type Driver = {
   employee_id: string;
@@ -5752,6 +5753,8 @@ export function DispatchBoard({
           <DispatchPhase5458WochenendAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5462: Schichtstunden-Board — Clock teal-400; ABSTEIGEND; 3-KPI-Grid Fleißigste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Wenig-Alert; 30-Min-Polling */}
           <DispatchPhase5462SchichtstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5467: Score + Tour-Visualisierung V35 — ETA-Abweichungs-Heatmap-Balken; Profit/Stop-Index Tier-farbkodiert; Aktive-Tour-Zeitfortschritts-Balken; Fleet-Gesundheits-Score; 6-KPI-Grid; 4-Tab; 20-Sek-Polling */}
+          <DispatchPhase5467ScoreTourVisualisierungV35 />
         </div>
       </div>
     </div>

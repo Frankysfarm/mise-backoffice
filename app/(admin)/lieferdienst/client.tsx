@@ -536,6 +536,8 @@ import { LieferdienstPhase5148StatistikenDashboardV41 } from './phase5148-statis
 import { LieferdienstPhase5149StatistikenDashboardV42 } from './phase5149-statistiken-dashboard-v42';
 import { LieferdienstPhase5397StatistikenDashboardV45 } from './phase5397-statistiken-dashboard-v45';
 import { LieferdienstPhase5410StatistikenDashboardV46 } from './phase5410-statistiken-dashboard-v46';
+import { LieferdienstPhase5420StatistikenDashboardV47 } from './phase5420-statistiken-dashboard-v47';
+import { LieferdienstPhase5468StatistikenDashboardV48 } from './phase5468-statistiken-dashboard-v48';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2488,6 +2490,10 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5397StatistikenDashboardV45 />
                 {/* Phase 5410: Statistiken-Dashboard V46 — 11-KPI-Grid inkl. Trinkgeld-Score; Trinkgeld-Wochen-Trend-LineChart; Fahrer-Tabelle+trinkgeld_avg; 7-Tab-Nav inkl. Trinkgeld; Fleet-Trinkgeld-Index; 45-Sek-Polling */}
                 <LieferdienstPhase5410StatistikenDashboardV46 />
+                {/* Phase 5420: Statistiken-Dashboard V47 — Echtzeit-Umsatz-Velocity-AreaChart; Storno-Trend-LineChart; Fahrer-Belastungs-Heatmap; Spitzenzeit-Countdown; Ø-Wartezeit-Monitor; 12-KPI-Grid; 7-Tab-Nav; 45-Sek-Polling */}
+                <LieferdienstPhase5420StatistikenDashboardV47 />
+                {/* Phase 5468: Statistiken-Dashboard V48 — Echtzeit-Umsatz-Velocity-AreaChart (letzte 15 Min); Storno-Trend-LineChart mit Alarmgrenze 5%; Fahrer-Belastungs-Heatmap; Spitzenzeit-Countdown; Ø-Wartezeit-Monitor; 12-KPI-Grid; 7-Tab-Nav; 45-Sek-Polling */}
+                <LieferdienstPhase5468StatistikenDashboardV48 />
                 {/* Phase 5036: Statistiken-Dashboard V26 — Revenue-Velocity; Storno-Analyse; Profit-KPI; Velocity-Chart; Zonen-SLA; 45-Sek-Polling */}
                 <LieferdienstPhase5036StatistikenDashboardV26 locationId={locationId ?? null} />
                 {/* Phase 5035: Statistiken-Dashboard V25 — Monatsziel-Fortschritt; 8-KPI-Grid; Stunden/Woche-Chart; Top-Fahrer; Zonen-SLA; 30-Sek-Polling */}
