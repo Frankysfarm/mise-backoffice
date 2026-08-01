@@ -17,3 +17,6 @@ Updated: 2026-08-01
 | TL-G10 Human acceptance | BLOCKED_EXTERNAL | Runbook exists; employees/devices/sign-offs not executed. |
 
 Current release decision: `BLOCKED`. No production action occurred.
+
+Build status: GREEN on a clean retry (`npm run build`, 447 pages). The generated
+`.next` directory was removed afterward to recover local disk capacity.

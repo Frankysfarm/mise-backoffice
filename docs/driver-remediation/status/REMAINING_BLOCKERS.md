@@ -38,6 +38,6 @@ Releaseentscheidung: **BLOCKED für Produktion; SHADOW-ONLY lokal/isoliert.**
 - TL-G7: physical iOS/Android background, lock, terminated-app, push and GPS evidence needs devices/toolchains.
 - TL-G8: authenticated dashboard execution/pause/abort, CI, nightly retention and bounded soak are open.
 - TL-G9/TL-G10: fixed-commit independent review board and employee acceptance have not run.
-- Full Next build retry exhausted the initially available disk space while compiling and was stopped; `.next` only was removed. A clean retry is required before any release decision.
+- The first Next build attempt exhausted the initially available disk space and was stopped safely. After removing only its reproducible `.next` output, a clean retry completed successfully (447 pages, including production-hidden `/test-lab`).
 
 These blockers keep the decision `BLOCKED`. None authorizes production.

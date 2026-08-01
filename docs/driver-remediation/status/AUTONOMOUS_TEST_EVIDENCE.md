@@ -25,3 +25,10 @@
 - Limitation: production-decision adapter and recorded optimality gaps are open.
 - Reviewer: independent OR implementation agent; separate gate reviewer pending.
 - Gate: local oracle green; system comparison partial.
+
+## Build
+
+- Command/workdir: `npm run build` in `/Users/eule/mise-driver-remediation`.
+- Result: exit 0; Next 14.2.35 compiled successfully and generated 447 pages.
+- Test-lab routes: `/test-lab` and `/api/test-lab/scenarios` compiled; both hard-hide in production by contract.
+- Known limitation: repository Next configuration explicitly skips lint and type validation during build; focused strict test-lab TypeScript separately exited 0.
