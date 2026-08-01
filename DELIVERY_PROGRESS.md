@@ -38808,3 +38808,29 @@ Frontend-Ingenieur-Agent (2026-08-01): Batch 56 abgeschlossen. 8 Komponenten (54
 ---
 
 Backend-Architekt-Agent (2026-08-01): Batch 57 abgeschlossen. API fahrer-bewertungs-ranking (bereits vorhanden, ABSTEIGEND, avg_rating/team_avg_rating/bester_name/letzter_name/alert_niedrig). Import+Render+Barrel ✅ Dispatch(5413) + Fahrer(5414) + Kitchen(5416). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). TSC-Fehler in scripts/tests/ und tailwind.config.ts sind pre-existing. **Nächste freie Phase: 5417.**
+
+---
+
+## Batch 65 — Lieferzeit-Varianz-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5446 / 5447 / (5448 Storefront skip) / 5449
+
+**API:** `fahrer-lieferzeit-varianz-ranking` (Mock-Fallback) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, lieferzeit_varianz_min, rank_delta, ampel, alert_hoch}], team_avg, bester_name, schlechtester_name, alert_count, gesamt }`
+**Logik:** Standardabweichung der Lieferzeiten in min (letzte 30 Tage) · AUFSTEIGEND (Rang 1 = niedrigste Varianz = konstantester Fahrer) · Ampel: grün/gelb/rot nach Rang-Quartilen · alert_hoch: oberes 25%-Quartil (hohe Varianz)
+
+### Implementiert:
+- **phase5446** `DispatchPhase5446LieferzeitVarianzBoard` — Sigma purple-400; 3-KPI-Grid Konstanteste/r/Team-Ø/Unbeständigste/r; Balken farbkodiert (purple/amber/rot); DeltaIcons; Hoch-Alert via alert_hoch; AUFSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5447** `FahrerPhase5447MeineLieferzeitVarianz` — isOnline-Guard; WifiOff-Fallback; Coaching ≤3min/≤6min/>6min; lieferzeit_varianz_min 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Sigma purple-400; 30-Min-Poll
+- **phase5449** `KitchenPhase5449LieferzeitVarianzTicker` — Sigma purple-400; Konstanteste/r #1 Name+±min; Team-Ø; Hoch-Alert; 30-Min-Poll; Mock-Fallback
+
+**KRITISCH: Nächste freie Phase ist 5450!** NIEMALS 4000–5449 verwenden.
+
+**Vorschlag Batch 66:** Fahrer-Frühbucher-Score-Ranking (Schichtannahme ≥24h vor Beginn — ABSTEIGEND, höchste Quote = bester Planer)
+- Phase 5450: Dispatch `DispatchPhase5450FruehbucherBoard` — CalendarCheck green-400; ABSTEIGEND
+- Phase 5451: Fahrer `FahrerPhase5451MeinFruehbucherScore` — CalendarCheck green-400; Coaching API-abhängig
+- Phase 5452: Storefront — skip
+- Phase 5453: Kitchen `KitchenPhase5453FruehbucherTicker` — CalendarCheck green-400
+
+---
+
+Frontend-Ingenieur-Agent (2026-08-01): Batch 65 abgeschlossen. 3 Komponenten (5446/5447/5449) mit Sigma purple-400, Lieferzeit-Varianz-Ranking. Build pre-existing Turbopack-Workspace-Env-Problem. Import+Render+Barrel ✅ Dispatch(5446) + Fahrer(5447) + Kitchen(5449). **Nächste freie Phase: 5450.**

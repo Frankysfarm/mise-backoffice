@@ -1377,6 +1377,7 @@ import { KitchenPhase5433TourenProSchichtTicker } from './phase5433-touren-pro-s
 import { KitchenPhase5437UmsatzProSchichtTicker } from './phase5437-umsatz-pro-schicht-ticker';
 import { KitchenPhase5441StoppquotenTicker } from './phase5441-stoppquoten-ticker';
 import { KitchenPhase5445StoppEffizienzTicker } from './phase5445-stopp-effizienz-ticker';
+import { KitchenPhase5449LieferzeitVarianzTicker } from './phase5449-lieferzeit-varianz-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5272,6 +5273,8 @@ export function KitchenBoard({
       <KitchenPhase5441StoppquotenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5445: Stopp-Effizienz-Ticker — Zap amber-400; Schnellste/r #1 Name+/h; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
       <KitchenPhase5445StoppEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5449: Lieferzeit-Varianz-Ticker — Sigma purple-400; Konstanteste/r #1 Name+±min; Team-Ø; Hoch-Alert; 30-Min-Polling */}
+      <KitchenPhase5449LieferzeitVarianzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5395: Smart-Timing Countdown V50 — Live-Priorisierungs-Score; Stations-Überlast-Alert; Fahrer-Ankunfts-Prognose Ampel; Batch-Effizienz-Index; 7-KPI-Grid; 3-Tab; 1s-Tick+15s-Polling */}
       <KitchenPhase5395SmartTimingCountdownV50 />
       {/* Phase 5408: Smart-Timing Countdown V51 — Trinkgeld-Potential-Indikator je Order; Priorisierungs-Score+Trinkgeld-Faktor; Stations-Überlast-Alert; 7-KPI-Grid inkl. Tip-Score; 3-Tab; 1s-Tick+15s-Polling */}
@@ -13303,6 +13306,8 @@ export { KitchenPhase5437UmsatzProSchichtTicker } from './phase5437-umsatz-pro-s
 export { KitchenPhase5441StoppquotenTicker } from './phase5441-stoppquoten-ticker';
 // Phase 5445 — Stopp-Effizienz-Ticker (Zap amber-400; Schnellste/r #1 Name+/h; Team-Ø; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5445StoppEffizienzTicker } from './phase5445-stopp-effizienz-ticker';
+// Phase 5449 — Lieferzeit-Varianz-Ticker (Sigma purple-400; Konstanteste/r #1 Name+±min; Team-Ø; Hoch-Alert; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5449LieferzeitVarianzTicker } from './phase5449-lieferzeit-varianz-ticker';
 // Phase 5408 — Smart-Timing Countdown V51 (Brain indigo; Trinkgeld-Potential-Indikator je Order; Prio-Score+Trinkgeld-Faktor; Stations-Überlast-Alert; 7-KPI-Grid inkl. Tip-Score; 3-Tab Countdown/KI/Stationen; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5408SmartTimingCountdownV51 } from './phase5408-smart-timing-countdown-v51';
 // Phase 5420 — Smart-Timing Countdown V52 (Timer indigo; SLA-Ampel Küche→Fahrer-Sync; Durchsatz-Prognose +30 Min; Fahrer-Nähe-Indikator je Bestellung; Batch-Übergabe-Score; 8-KPI-Grid Aktiv/Kritisch/Überfällig/Fertig/Fahrer↑/Batch-Score/SLA/Velocity; 3-Tab Countdown/SLA/Prognose; 6-stufig; 1s-Tick+15s-Polling; Mock-Fallback)
