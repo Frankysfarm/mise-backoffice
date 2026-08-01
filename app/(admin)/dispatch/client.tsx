@@ -1454,6 +1454,7 @@ import { DispatchPhase5454PuenktlichkeitsBoard } from './phase5454-puenktlichkei
 import { DispatchPhase5458WochenendAnteilBoard } from './phase5458-wochenend-anteil-board';
 import { DispatchPhase5462SchichtstundenBoard } from './phase5462-schichtstunden-board';
 import { DispatchPhase5467ScoreTourVisualisierungV35 } from './phase5467-score-tour-visualisierung-v35';
+import { DispatchPhase5471RetourQuoteBoard } from './phase5471-retour-quote-board';
 
 type Driver = {
   employee_id: string;
@@ -5755,6 +5756,8 @@ export function DispatchBoard({
           <DispatchPhase5462SchichtstundenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5467: Score + Tour-Visualisierung V35 — ETA-Abweichungs-Heatmap-Balken; Profit/Stop-Index Tier-farbkodiert; Aktive-Tour-Zeitfortschritts-Balken; Fleet-Gesundheits-Score; 6-KPI-Grid; 4-Tab; 20-Sek-Polling */}
           <DispatchPhase5467ScoreTourVisualisierungV35 />
+          {/* Phase 5471: Retour-Quote-Board — RotateCcw orange-400; AUFSTEIGEND; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
+          <DispatchPhase5471RetourQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14764,3 +14767,5 @@ export { DispatchPhase5420ScoreTourVisualisierungV34 } from './phase5420-score-t
 
 // Phase 5467 — Score + Tour-Visualisierung V35 (Trophy violet; ETA-Abweichungs-Heatmap-Balken je Fahrer; Profit/Stop-Index Tier-farbkodiert; Aktive-Tour-Zeitfortschritts-Balken; Fleet-Gesundheits-Score; 6-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Profit-Stop/ETA-Drift; 4-Tab Rangliste/Profit/Tour-Fortschritt/ETA-Drift; Tier: Platin/Gold/Gut/Schwach; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5467ScoreTourVisualisierungV35 } from './phase5467-score-tour-visualisierung-v35';
+// Phase 5471 — Retour-Quote-Board (RotateCcw orange-400; retour_quote_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5471RetourQuoteBoard } from './phase5471-retour-quote-board';

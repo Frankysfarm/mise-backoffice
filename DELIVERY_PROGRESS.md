@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-01):** Batch 71 (5471/5472/5474) Retour-Quote-Ranking implementiert · API fahrer-retour-quote-ranking (neu, retour_quote_pct/team_avg_pct/beste_name/schlechteste_name/alert_hoch, AUFSTEIGEND) · RotateCcw orange-400 · Import+Render+Barrel ✅ Dispatch(5471) + Fahrer(5472) + Kitchen(5474) · Build exit 0 ✅ · **Nächste freie Phase: 5475**
+
 **Backend-Architekt-Agent (2026-08-01):** Batch 69 (5462/5463/5465) Schichtstunden-Ranking implementiert · API fahrer-schichtstunden-ranking (vorhanden, avg_stunden/team_avg_stunden/fleissigster_name/wenigste_name/alert_wenig/ziel_stunden, ABSTEIGEND) · Clock teal-400 · Import+Render+Barrel ✅ Dispatch(5462) + Fahrer(5463) + Kitchen(5465) · Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (ignoreBuildErrors=true) · **Nächste freie Phase: 5466**
 
 **CEO Review #767 (2026-08-01):** Build exit 0 ✅ (Agent-bestätigt) · Batch 67 (5454/5455/5457) Pünktlichkeits-Ranking verifiziert · Batch 68 (5458/5459/5461) Wochenend-Anteil-Ranking verifiziert · Alle 6 Komponenten Import+Render+Barrel ✅ · APIs fahrer-puenktlichkeits-ranking + fahrer-wochenend-anteil-ranking korrekt implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5462
@@ -49,6 +51,26 @@
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 71 — Retour-Quote-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5471 — Retour-Quote-Board (Dispatch)
+**Component:** `DispatchPhase5471RetourQuoteBoard` — RotateCcw orange-400; retour_quote_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert (grün/gelb/orange); DeltaIcons; Hoch-Alert alert_hoch; 30-Min-Polling ✅
+
+### Phase 5472 — Meine Retour-Quote (Fahrer)
+**Component:** `FahrerPhase5472MeineRetourQuote` — RotateCcw orange-400; retour_quote_pct 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≤2%/≤6%/>6%; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5473 — Storefront: übersprungen ✅
+
+### Phase 5474 — Retour-Quote-Ticker (Kitchen)
+**Component:** `KitchenPhase5474RetourQuoteTicker` — RotateCcw orange-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-retour-quote-ranking` (neu) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, retour_quote_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, beste_name, schlechteste_name, alert_count, gesamt }`
+**Logik:** Anteil Lieferungen mit Status returned/undeliverable/failed (letzte 30 Tage, mind. 3 Lieferungen) · AUFSTEIGEND (Rang 1 = niedrigste Quote = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_hoch: unteres 25%-Quartil (höchste Retourquote)
+
+**KRITISCH: Nächste freie Phase ist 5475!** NIEMALS 4000–5474 verwenden.
+
+---
 
 ## Batch 66 — Frühbucher-Score-Ranking (ABGESCHLOSSEN 2026-08-01)
 
