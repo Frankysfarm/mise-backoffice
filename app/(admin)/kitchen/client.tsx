@@ -1386,6 +1386,7 @@ import { KitchenPhase5466SmartTimingCountdownV53 } from './phase5466-smart-timin
 import { KitchenPhase5474RetourQuoteTicker } from './phase5474-retour-quote-ticker';
 import { KitchenPhase5475SmartTimingCountdownV54 } from './phase5475-smart-timing-countdown-v54';
 import { KitchenPhase5483GesamtlieferungenTicker } from './phase5483-gesamtlieferungen-ticker';
+import { KitchenPhase5487TourstartPuenktlichkeitTicker } from './phase5487-tourstart-puenktlichkeit-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5295,6 +5296,8 @@ export function KitchenBoard({
       <KitchenPhase5474RetourQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5483: Gesamtlieferungen-Ticker — Package2 green-400; Aktivste/r #1 Name+Anzahl; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
       <KitchenPhase5483GesamtlieferungenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5487: Tourstart-Pünktlichkeit-Ticker — Clock3 blue-400; Pünktlichste/r #1 Name+Verzögerung; Team-Ø; Verspätet-Alert; 30-Min-Polling */}
+      <KitchenPhase5487TourstartPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5475: Smart-Timing Countdown V54 — KI-Stapel-Prognose; Multi-Station-Farbkodierung; Übergabe-Zeit-Optimierer; Burn-Rate-Indikator; 10-KPI-Grid; 4-Tab; 1s-Tick+15s-Polling */}
       <KitchenPhase5475SmartTimingCountdownV54 />
       {/* Phase 5466: Smart-Timing Countdown V53 — Batch-Sync-Score je Gruppe; ETA-Fahrer-Abgleich-Matrix; KI-Kochstart-Korrektur-Vorschlag; Überfälligkeits-Eskalations-Alarm; 9-KPI-Grid; 3-Tab; 1s-Tick+15s-Polling */}
@@ -13353,3 +13356,5 @@ export { KitchenPhase5474RetourQuoteTicker } from './phase5474-retour-quote-tick
 export { KitchenPhase5475SmartTimingCountdownV54 } from './phase5475-smart-timing-countdown-v54';
 // Phase 5483 — Gesamtlieferungen-Ticker (Package2 green-400; Aktivste/r #1 Name+Anzahl; Team-Ø; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5483GesamtlieferungenTicker } from './phase5483-gesamtlieferungen-ticker';
+// Phase 5487 — Tourstart-Pünktlichkeit-Ticker (Clock3 blue-400; Pünktlichste/r #1 Name+Verzögerung; Team-Ø; Verspätet-Alert; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5487TourstartPuenktlichkeitTicker } from './phase5487-tourstart-puenktlichkeit-ticker';

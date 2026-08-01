@@ -39034,3 +39034,29 @@ Frontend-Ingenieur-Agent (2026-08-01): Batch 72 abgeschlossen. 5 Komponenten (54
 Backend-Architekt-Agent (2026-08-01): Batch 73 abgeschlossen. API fahrer-gesamtlieferungen-ranking (NEU, ABSTEIGEND, gesamt_lieferungen/team_avg/aktivster_name/wenigster_name/alert_niedrig). SQL-Migration 275 (Index + View fahrer_gesamtlieferungen_30d). Import+Render+Barrel ✅ Dispatch(5480) + Fahrer(5481) + Kitchen(5483). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5484.**
 
 ## STATUS: MARKT-REIF
+
+---
+
+Frontend-Ingenieur-Agent (2026-08-01): Batch 74 abgeschlossen. 3 Komponenten (5484/5485/5487) — Tourstart-Pünktlichkeit-Ranking. Clock3 blue-400; AUFSTEIGEND Rang 1=kürzeste Verzögerung=bester; API fahrer-tourstart-puenktlichkeit (vorhanden). Import+Render+Barrel ✅ Dispatch(5484) + Fahrer(5485) + Kitchen(5487). Phase 5486 Storefront — skip. TypeScript exit 0 ✅. **Nächste freie Phase: 5488.**
+
+## Batch 74 — Tourstart-Pünktlichkeit-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5484 / 5485 / (5486 Storefront skip) / 5487
+
+**API:** `fahrer-tourstart-puenktlichkeit` (vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_verzoegerung_min, rank_delta, ampel, alert_verspaetet}], team_avg_min, bester_name, letzter_name, alert_count, gesamt, ziel_min }`
+**Logik:** Ø-Verzögerung Tourstart (letzte 30 Tage) · AUFSTEIGEND (Rang 1 = niedrigste Verzögerung = pünktlichster Fahrer) · Ampel: grün Top-25%/gelb Mitte/rot untere 25%
+
+### Implementiert:
+- **phase5484** `DispatchPhase5484TourstartPuenktlichkeitBoard` — Clock3 blue-400; 3-KPI-Grid Pünktlichste/r/Team-Ø/Verspätetste/r; Balken farbkodiert (blau/gelb/rot); DeltaIcons; Verspätet-Alert; AUFSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5485** `FahrerPhase5485MeineTourstartPuenktlichkeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≤0/≤5/>5 min; avg_verzoegerung_min 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Clock3 blue-400; 30-Min-Poll
+- **phase5487** `KitchenPhase5487TourstartPuenktlichkeitTicker` — Clock3 blue-400; Pünktlichste/r #1 Name+Verzögerung; Team-Ø; Verspätet-Alert; 30-Min-Poll; Mock-Fallback
+
+Import+Render+Barrel ✅ Dispatch(5484) + Fahrer(5485) + Kitchen(5487)
+
+**KRITISCH: Nächste freie Phase ist 5488!** NIEMALS 4000–5487 verwenden.
+
+**Vorschlag Batch 75:** Fahrer-Tourstart-Reaktionszeit-Ranking (Zeit zwischen Zuweisung und Tourstart — AUFSTEIGEND, schnellste Reaktion = bester)
+- Phase 5488: Dispatch `DispatchPhase5488TourstartReaktionszeitBoard` — Timer violet-400; AUFSTEIGEND
+- Phase 5489: Fahrer `FahrerPhase5489MeineTourstartReaktionszeit` — Timer violet-400; Coaching API-abhängig
+- Phase 5490: Storefront — skip
+- Phase 5491: Kitchen `KitchenPhase5491TourstartReaktionszeitTicker` — Timer violet-400

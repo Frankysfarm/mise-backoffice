@@ -1457,6 +1457,7 @@ import { DispatchPhase5467ScoreTourVisualisierungV35 } from './phase5467-score-t
 import { DispatchPhase5471RetourQuoteBoard } from './phase5471-retour-quote-board';
 import { DispatchPhase5476ScoreTourVisualisierungV36 } from './phase5476-score-tour-visualisierung-v36';
 import { DispatchPhase5480GesamtlieferungenBoard } from './phase5480-gesamtlieferungen-board';
+import { DispatchPhase5484TourstartPuenktlichkeitBoard } from './phase5484-tourstart-puenktlichkeit-board';
 
 type Driver = {
   employee_id: string;
@@ -5764,6 +5765,8 @@ export function DispatchBoard({
           <DispatchPhase5471RetourQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5480: Gesamtlieferungen-Board — Package2 green-400; ABSTEIGEND; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
           <DispatchPhase5480GesamtlieferungenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5484: Tourstart-Pünktlichkeit-Board — Clock3 blue-400; AUFSTEIGEND; 3-KPI-Grid Pünktlichste/r/Team-Ø/Verspätetste/r; Balken farbkodiert; DeltaIcons; Verspätet-Alert; 30-Min-Polling */}
+          <DispatchPhase5484TourstartPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14779,3 +14782,5 @@ export { DispatchPhase5471RetourQuoteBoard } from './phase5471-retour-quote-boar
 export { DispatchPhase5476ScoreTourVisualisierungV36 } from './phase5476-score-tour-visualisierung-v36';
 // Phase 5480 — Gesamtlieferungen-Board (Package2 green-400; gesamt_lieferungen ABSTEIGEND Rang 1=meiste=aktivster; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5480GesamtlieferungenBoard } from './phase5480-gesamtlieferungen-board';
+// Phase 5484 — Tourstart-Pünktlichkeit-Board (Clock3 blue-400; avg_verzoegerung_min AUFSTEIGEND Rang 1=kürzeste Verzögerung=bester; 3-KPI-Grid Pünktlichste/r/Team-Ø/Verspätetste/r; Balken farbkodiert; DeltaIcons; Verspätet-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5484TourstartPuenktlichkeitBoard } from './phase5484-tourstart-puenktlichkeit-board';
