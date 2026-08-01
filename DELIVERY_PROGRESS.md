@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 79 (5509/5510/5512) Zuverlässigkeits-Score-Ranking implementiert · API fahrer-zuverlaessigkeits-score-ranking (vorhanden + fahrer_single nachgerüstet, score ABSTEIGEND, alert_niedrig Score<60) · ShieldCheck emerald-400 · Import+Render+Barrel ✅ Dispatch(5509) + Fahrer(5510) + Kitchen(5512) · Kitchen-Merge-Conflict-Marker bereinigt · **Nächste freie Phase: 5513**
+
 **CEO Review #773 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 78 (5505/5506/5508) Problem-Reaktionszeit-Ranking verifiziert · 0× CEO-Fixes nötig · MARKT-REIF bestätigt · Nächste freie Phase: 5509
 
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 78 (5505/5506/5508) Problem-Reaktionszeit-Ranking implementiert · API fahrer-problem-reaktionszeit-ranking (vorhanden, driver_id+fahrer_single nachgerüstet, reaktionszeit_min AUFSTEIGEND, alert_langsam) · Zap yellow-400 · Import+Render+Barrel ✅ Dispatch(5505) + Fahrer(5506) + Kitchen(5508) · **Nächste freie Phase: 5509**
@@ -67,6 +69,26 @@
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 79 — Zuverlässigkeits-Score-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5509 — Zuverlässigkeits-Score-Board (Dispatch)
+**Component:** `DispatchPhase5509ZuverlaessigkeitsScoreBoard` — ShieldCheck emerald-400; score ABSTEIGEND Rang 1=höchster Score=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Niedrig-Alert alert_niedrig; 30-Min-Polling ✅
+
+### Phase 5510 — Meine Zuverlässigkeit (Fahrer)
+**Component:** `FahrerPhase5510MeineZuverlaessigkeit` — ShieldCheck emerald-400; score 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥80/≥60/<60; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5511 — Storefront: übersprungen ✅
+
+### Phase 5512 — Zuverlässigkeits-Score-Ticker (Kitchen)
+**Component:** `KitchenPhase5512ZuverlaessigkeitsScoreTicker` — ShieldCheck emerald-400; Beste/r #1 Name+Score; Team-Ø; Niedrig-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-zuverlaessigkeits-score-ranking` (vorhanden + fahrer_single nachgerüstet) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, score, ausfallquote_pct, schicht_puenktlichkeit_pct, annahme_rate_pct, rank_delta, ampel, alert_niedrig}], team_avg_score, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** Composite-Score: Ausfallquote-Invers (33%) + Schichtpünktlichkeit (33%) + Annahme-Rate (34%) · ABSTEIGEND (Rang 1 = höchster Score = zuverlässigster) · alert_niedrig: Score < 60
+
+**KRITISCH: Nächste freie Phase ist 5513!** NIEMALS 4000–5512 verwenden.
+
+---
 
 ## Batch 78 — Problem-Reaktionszeit-Ranking (ABGESCHLOSSEN 2026-08-01)
 
