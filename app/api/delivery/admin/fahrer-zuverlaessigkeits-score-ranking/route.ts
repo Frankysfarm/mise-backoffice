@@ -172,17 +172,20 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    if (driverId) fahrer = fahrer.filter(f => f.fahrer_id === driverId);
-    if (!fahrer.length) return NextResponse.json(MOCK_DATA);
-
-    return NextResponse.json({
+    const result: ApiResponse = {
       fahrer,
       team_avg_score:  teamAvgScore,
       beste_name:      sorted[0]?.fahrer_name ?? '',
       niedrigste_name: sorted[gesamt - 1]?.fahrer_name ?? '',
       alert_count:     fahrer.filter(f => f.alert_niedrig).length,
       gesamt,
-    } satisfies ApiResponse);
+    };
+
+    if (driverId) {
+      const me = fahrer.find(f => f.fahrer_id === driverId);
+      return NextResponse.json({ ...result, fahrer_single: me ?? null });
+    }
+    return NextResponse.json(result satisfies ApiResponse);
   } catch {
     return NextResponse.json(MOCK_DATA);
   }

@@ -1392,6 +1392,7 @@ import { KitchenPhase5495SmartTimingCountdownV55 } from './phase5495-smart-timin
 import { KitchenPhase5499KundenbewertungTicker } from './phase5499-kundenbewertung-ticker';
 import { KitchenPhase5503SmartTimingCountdownV56 } from './phase5503-smart-timing-countdown-v56';
 import { KitchenPhase5508ProblemReaktionszeitTicker } from './phase5508-problem-reaktionszeit-ticker';
+import { KitchenPhase5512ZuverlaessigkeitsScoreTicker } from './phase5512-zuverlaessigkeits-score-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5311,6 +5312,8 @@ export function KitchenBoard({
       <KitchenPhase5499KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5508: Problem-Reaktionszeit-Ticker — Zap yellow-400; Schnellste/r #1 Name+Reaktionszeit; Team-Ø; Langsam-Alert; 30-Min-Polling */}
       <KitchenPhase5508ProblemReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5512: Zuverlässigkeits-Score-Ticker — ShieldCheck emerald-400; Beste/r #1 Name+Score; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
+      <KitchenPhase5512ZuverlaessigkeitsScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5503: Smart-Timing Countdown V56 — V55+Batch-Gruppen-Anzeige; Kochstart-Offset-Indikator; Abholer-Timing-Badge; 4-stufige Farbkodierung; Station-Filter; Dual-Countdown; 1s-Tick+15s-Polling */}
       <KitchenPhase5503SmartTimingCountdownV56 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5475: Smart-Timing Countdown V54 — KI-Stapel-Prognose; Multi-Station-Farbkodierung; Übergabe-Zeit-Optimierer; Burn-Rate-Indikator; 10-KPI-Grid; 4-Tab; 1s-Tick+15s-Polling */}
@@ -13386,4 +13389,5 @@ export { KitchenPhase5503SmartTimingCountdownV56 } from './phase5503-smart-timin
 export { KitchenPhase5508ProblemReaktionszeitTicker } from './phase5508-problem-reaktionszeit-ticker';
 // Phase 5510 — Smart-Timing Countdown V57 (Timer amber; V57: Kategorie-Filter Vorspeisen/Hauptgang/Nachtisch/Getränke; Warmhalte-Indikator je Bestellung; Batch-Score-Ring; 6-KPI-Grid Score/Aktiv/Kritisch/Fertig/Warm/Velocity; Kochstart-Offset-Badge; Dual-Countdown Küche+Fahrer-ETA-Sync; Fortschrittsbalken; 1s-Tick + 15s-Polling; Mock-Fallback)
 export { KitchenPhase5510SmartTimingCountdownV57 } from './phase5510-smart-timing-countdown-v57';
->>>>>>> 67a29c8c (feat(delivery/frontend): extend all 5 Smart Delivery System modules)
+// Phase 5512 — Zuverlässigkeits-Score-Ticker (ShieldCheck emerald-400; Beste/r #1 Name+Score; Team-Ø; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5512ZuverlaessigkeitsScoreTicker } from './phase5512-zuverlaessigkeits-score-ticker';

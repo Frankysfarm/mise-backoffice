@@ -1463,6 +1463,7 @@ import { DispatchPhase5492ScoreTourVisualisierungV37 } from './phase5492-score-t
 import { DispatchPhase5496KundenbewertungBoard } from './phase5496-kundenbewertung-board';
 import { DispatchPhase5500ScoreTourVisualisierungV38 } from './phase5500-score-tour-visualisierung-v38';
 import { DispatchPhase5505ProblemReaktionszeitBoard } from './phase5505-problem-reaktionszeit-board';
+import { DispatchPhase5509ZuverlaessigkeitsScoreBoard } from './phase5509-zuverlaessigkeits-score-board';
 
 type Driver = {
   employee_id: string;
@@ -5782,6 +5783,8 @@ export function DispatchBoard({
           <DispatchPhase5500ScoreTourVisualisierungV38 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5505: Problem-Reaktionszeit-Board — Zap yellow-400; reaktionszeit_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Langsam-Alert; 30-Min-Polling */}
           <DispatchPhase5505ProblemReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5509: Zuverlässigkeits-Score-Board — ShieldCheck emerald-400; score ABSTEIGEND Rang 1=höchster Score=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5509ZuverlaessigkeitsScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14810,5 +14813,7 @@ export { DispatchPhase5496KundenbewertungBoard } from './phase5496-kundenbewertu
 export { DispatchPhase5500ScoreTourVisualisierungV38 } from './phase5500-score-tour-visualisierung-v38';
 // Phase 5505 — Problem-Reaktionszeit-Board (Zap yellow-400; reaktionszeit_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Langsam-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5505ProblemReaktionszeitBoard } from './phase5505-problem-reaktionszeit-board';
+// Phase 5509 — Zuverlässigkeits-Score-Board (ShieldCheck emerald-400; score ABSTEIGEND Rang 1=höchster Score=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5509ZuverlaessigkeitsScoreBoard } from './phase5509-zuverlaessigkeits-score-board';
 // Phase 5510 — Score + Tour-Visualisierung V39 (Trophy violet; Fahrer-Compliance-Score; Tour-Profit-per-km-Heatmap-Balken; Gesamttour-Bilanz-Panel Einnahmen vs. Kosten; ETA-Drift-Warnung; 6-KPI-Grid Fleet-Score/Aktiv/Risiko/Compliance/Profit-km/ETA-Drift; 3-Tab Rangliste/Compliance/Profit; Tier Platin/Gold/Gut/Schwach; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5510ScoreTourVisualisierungV39 } from './phase5510-score-tour-visualisierung-v39';
