@@ -1436,6 +1436,7 @@ import { DispatchPhase5370AuslastungsBoard } from './phase5370-auslastungs-board
 import { DispatchPhase5379KundenzufriedenheitsBoard } from './phase5379-kundenzufriedenheits-board';
 import { DispatchPhase5387LeerfahrtenBoard } from './phase5387-leerfahrten-board';
 import { DispatchPhase5391VollstaendigkeitsBoard } from './phase5391-vollstaendigkeits-board';
+import { DispatchPhase5400LiefergebietEffizienzBoard } from './phase5400-liefergebiet-effizienz-board';
 import { DispatchPhase5396ScoreTourVisualisierungV32 } from './phase5396-score-tour-visualisierung-v32';
 
 type Driver = {
@@ -5702,6 +5703,8 @@ export function DispatchBoard({
           <DispatchPhase5387LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5391: Vollständigkeits-Board — CheckCircle2 emerald-400; Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert <88%; ABSTEIGEND; 30-Min-Polling */}
           <DispatchPhase5391VollstaendigkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5400: Liefergebiet-Effizienz-Board — MapPin teal-400; Lieferungen/km; Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; ABSTEIGEND; 30-Min-Polling */}
+          <DispatchPhase5400LiefergebietEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5396: Score + Tour-Visualisierung V32 — Radar-Chart Fahrerprofil; Touren-Heatmap; Fleet-Fitness-Index; 5-KPI-Grid; 3-Tab Rangliste/Radar/Heatmap; 20-Sek-Polling */}
           <DispatchPhase5396ScoreTourVisualisierungV32 />
         </div>
@@ -14674,5 +14677,7 @@ export { DispatchPhase5379KundenzufriedenheitsBoard } from './phase5379-kundenzu
 export { DispatchPhase5387LeerfahrtenBoard } from './phase5387-leerfahrten-board';
 // Phase 5391 — Vollständigkeits-Board (CheckCircle2 emerald-400; 3-KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert <88%; ABSTEIGEND; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5391VollstaendigkeitsBoard } from './phase5391-vollstaendigkeits-board';
+// Phase 5400 — Liefergebiet-Effizienz-Board (MapPin teal-400; Lieferungen/km ABSTEIGEND; 3-KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_bottom; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5400LiefergebietEffizienzBoard } from './phase5400-liefergebiet-effizienz-board';
 // Phase 5396 — Score + Tour-Visualisierung V32 (Trophy violet; Radar-Chart Fahrerprofil Score/Pünktlichkeit/Vollständigkeit/Reaktion/Zufriedenheit; Live-Touren-Heatmap-BarChart; Fleet-Fitness-Index; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Vollst./Fitness; 3-Tab Rangliste/Radar/Heatmap; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5396ScoreTourVisualisierungV32 } from './phase5396-score-tour-visualisierung-v32';

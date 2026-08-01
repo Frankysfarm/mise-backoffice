@@ -1365,6 +1365,7 @@ import { KitchenPhase5373AuslastungsTicker } from './phase5373-auslastungs-ticke
 import { KitchenPhase5382KundenzufriedenheitsTicker } from './phase5382-kundenzufriedenheits-ticker';
 import { KitchenPhase5390LeerfahrtenTicker } from './phase5390-leerfahrten-ticker';
 import { KitchenPhase5394VollstaendigkeitsTicker } from './phase5394-vollstaendigkeits-ticker';
+import { KitchenPhase5403LiefergebietEffizienzTicker } from './phase5403-liefergebiet-effizienz-ticker';
 import { KitchenPhase5395SmartTimingCountdownV50 } from './phase5395-smart-timing-countdown-v50';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
@@ -5240,6 +5241,8 @@ export function KitchenBoard({
       <KitchenPhase5390LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5394: Vollständigkeits-Ticker — CheckCircle2 emerald-400; Beste/r Name+%; Team-Ø; Niedrig-Alert <88%; 30-Min-Polling */}
       <KitchenPhase5394VollstaendigkeitsTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5403: Liefergebiet-Effizienz-Ticker — MapPin teal-400; Beste/r Name+L/km; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
+      <KitchenPhase5403LiefergebietEffizienzTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5395: Smart-Timing Countdown V50 — Live-Priorisierungs-Score; Stations-Überlast-Alert; Fahrer-Ankunfts-Prognose Ampel; Batch-Effizienz-Index; 7-KPI-Grid; 3-Tab; 1s-Tick+15s-Polling */}
       <KitchenPhase5395SmartTimingCountdownV50 />
       {/* Phase 5310: Smart-Timing Countdown V46 — KI-Kochstart-Empfehlung; Peak-Stationen-Alert; Effizienz-Wachstums-Balken; 7-KPI-Grid Score/Aktiv/Kritisch/Fertig/Velocity/Effizienz/KI-Tips; 1s-Tick+15s-Polling */}
@@ -13245,5 +13248,7 @@ export { KitchenPhase5386SmartTimingCountdownV49 } from './phase5386-smart-timin
 export { KitchenPhase5390LeerfahrtenTicker } from './phase5390-leerfahrten-ticker';
 // Phase 5394 — Vollständigkeits-Ticker (CheckCircle2 emerald-400; Beste/r Rang+%; Team-Ø; Niedrig-Alert <88%; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5394VollstaendigkeitsTicker } from './phase5394-vollstaendigkeits-ticker';
+// Phase 5403 — Liefergebiet-Effizienz-Ticker (MapPin teal-400; Beste/r Rang+L/km; Team-Ø; Niedrig-Alert alert_bottom; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5403LiefergebietEffizienzTicker } from './phase5403-liefergebiet-effizienz-ticker';
 // Phase 5395 — Smart-Timing Countdown V50 (Brain indigo; Live-Priorisierungs-Score 0-100; Stations-Überlast-Alert; Fahrer-Ankunfts-Prognose Ampel grün/gelb/rot; Batch-Effizienz-Index; 7-KPI-Grid Aktiv/Kritisch/Überfällig/Fertig+KI-Empf./Velocity/KI-Score; 3-Tab Countdown/KI/Stationen; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5395SmartTimingCountdownV50 } from './phase5395-smart-timing-countdown-v50';

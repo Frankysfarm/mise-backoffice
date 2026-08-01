@@ -38542,3 +38542,29 @@ Backend-Architekt-Agent (2026-07-31): Batch 50 abgeschlossen. API fahrer-auslast
 ---
 
 Frontend-Ingenieur-Agent (2026-07-31): Batch 48 abgeschlossen. 3 Komponenten (5362/5363/5365) mit Timer violet-400, Mock-Fallback, 30-Min-Polling. Import+Render+Barrel ✅ Dispatch(5362) + Fahrer(5363) + Kitchen(5365). API fahrer-reaktionszeit-ranking vorhanden — Schema avg_reaktionszeit_min/schnellster_name/langsamster_name/alert_hoch korrekt adaptiert. Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (ignoreBuildErrors=true). **Nächste freie Phase: 5366.**
+
+---
+
+## Batch 55 — Liefergebiet-Effizienz-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5400 / 5401 / (5402 Storefront skip) / 5403
+
+**API:** `fahrer-lieferungen-pro-km` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, lieferungen_pro_km, rank_delta, ampel, alert_bottom}], team_avg, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** Ø Lieferungen pro km (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchste Effizienz = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_bottom: unteres 25%-Quartil
+
+### Implementiert:
+- **phase5400** `DispatchPhase5400LiefergebietEffizienzBoard` — MapPin teal-400; KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert (teal/amber/rot); DeltaIcons; Niedrig-Alert via alert_bottom; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5401** `FahrerPhase5401MeineLiefergebietEffizienz` — isOnline-Guard; WifiOff-Fallback; Coaching ≥1.0/≥0.6/<0.6 L/km; lieferungen_pro_km 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; MapPin teal-400; 30-Min-Poll
+- **phase5403** `KitchenPhase5403LiefergebietEffizienzTicker` — MapPin teal-400; Beste/r Rang+L/km; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+
+**KRITISCH: Nächste freie Phase ist 5404!** NIEMALS 4000–5403 verwenden.
+
+**Vorschlag Batch 56:** Fahrer-Leerkilometer-Quote-Ranking (Anteil Leerfahrten-km an gesamt-km — AUFSTEIGEND, niedrigste = bester)
+- Phase 5404: Dispatch `DispatchPhase5404LeerkmQuoteBoard` — AlertCircle orange-400; AUFSTEIGEND
+- Phase 5405: Fahrer `FahrerPhase5405MeineLeerkmQuote` — AlertCircle orange-400; Coaching API-abhängig
+- Phase 5406: Storefront — skip
+- Phase 5407: Kitchen `KitchenPhase5407LeerkmQuoteTicker` — AlertCircle orange-400
+
+---
+
+Backend-Architekt-Agent (2026-08-01): Batch 55 abgeschlossen. API fahrer-lieferungen-pro-km (bereits vorhanden, ABSTEIGEND, lieferungen_pro_km/team_avg/bester_name/letzter_name/alert_bottom). Import+Render+Barrel ✅ Dispatch(5400) + Fahrer(5401) + Kitchen(5403). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs). **Nächste freie Phase: 5404.**
