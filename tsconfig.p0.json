@@ -6,6 +6,7 @@
   },
   "files": [
     "lib/delivery/atomic-offer.ts",
+    "lib/delivery/adaptive-dispatch-optimizer.ts",
     "lib/delivery/atomic-lifecycle-contract.ts",
     "lib/delivery/atomic-lifecycle.ts",
     "lib/delivery/canonical-state-contract.ts",
