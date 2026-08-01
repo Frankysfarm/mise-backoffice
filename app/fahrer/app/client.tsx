@@ -12681,3 +12681,6 @@ export { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hu
 export { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
 // Phase 5510 — Meine Zuverlässigkeit (ShieldCheck emerald-400; score ABSTEIGEND Rang 1=höchster Score=bester; 4xl+Rang; Coaching ≥80/≥60/<60; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5510MeineZuverlaessigkeit } from './phase5510-meine-zuverlaessigkeit';
+
+// Phase 5511 — Tour-Stops Nav Hub V15 (Navigation blue; V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; QR-Scan-Prompt; Gesamtfortschritts-Ring SVG; 7-KPI-Grid Stops/Fertig/Offen/km/ETA-Score/Einnahmen/Kontakte; Offline-Guard; 30s-Poll; Mock-Fallback)
+export { FahrerPhase5511TourStopsNavHubV15 } from './phase5511-tour-stops-nav-hub-v15';

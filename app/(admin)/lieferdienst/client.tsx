@@ -5277,3 +5277,6 @@ export { LieferdienstPhase5480StatistikenDashboardV50 } from './phase5480-statis
 export { LieferdienstPhase5502StatistikenDashboardV51 } from './phase5502-statistiken-dashboard-v51';
 // Phase 5510 — Statistiken-Dashboard V52 (Activity teal; Wochentag-Muster-Heatmap Bestellungen je Tag×Stunde; Fahrer-Kohortenanalyse Einsteiger/Erfahren/Veteran inkl. Retention-Rate; Storno-Ursachen-Breakdown Balken; Revenue-Trend-SparkLine; 13-KPI-Grid; 8-Tab-Nav Überblick/Wochenmuster/Storno/Kohorten/Stunden/Fahrer/Zonen/Bilanz; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5510StatistikenDashboardV52 } from './phase5510-statistiken-dashboard-v52';
+
+// Phase 5511 — Statistiken-Dashboard V53 (Activity teal; V52+: Echtzeit-Kapazitätsmanagement Fahrer-Slots; KI-Prognose-Score nächste 2h+Konfidenz; Ertrag-pro-km-Entwicklung AreaChart; Zonen-SLA-Matrix mit Trend-Icons; Revenue-Breakdown Zahlungsart; 14-KPI-Grid 4-spaltig; 9-Tab-Nav Überblick/Kapazität/Prognose/Ertrag/Zonen/Zahlungen/Stunden/Fahrer/Bilanz; 60s-Polling; Mock-Fallback)
+export { LieferdienstPhase5511StatistikenDashboardV53 } from './phase5511-statistiken-dashboard-v53';

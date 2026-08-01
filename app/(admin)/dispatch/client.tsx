@@ -14820,3 +14820,7 @@ export { DispatchPhase5505ProblemReaktionszeitBoard } from './phase5505-problem-
 export { DispatchPhase5509ZuverlaessigkeitsScoreBoard } from './phase5509-zuverlaessigkeits-score-board';
 // Phase 5510 — Score + Tour-Visualisierung V39 (Trophy violet; Fahrer-Compliance-Score; Tour-Profit-per-km-Heatmap-Balken; Gesamttour-Bilanz-Panel Einnahmen vs. Kosten; ETA-Drift-Warnung; 6-KPI-Grid Fleet-Score/Aktiv/Risiko/Compliance/Profit-km/ETA-Drift; 3-Tab Rangliste/Compliance/Profit; Tier Platin/Gold/Gut/Schwach; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5510ScoreTourVisualisierungV39 } from './phase5510-score-tour-visualisierung-v39';
+
+// Phase 5511 — Score + Tour-Visualisierung V40 (Trophy violet; V39+: KI-Zuweisung-Score je Bestellung; Real-time Fleet ETA Sync Panel; Multi-Fahrer Tour-Status Matrix; Stop-Dot-Zeitlinie animiert; 8-KPI-Grid Fleet/Aktiv/Risiko/Eff
+// Phase 5511 — Score + Tour-Visualisierung V40 (Trophy violet; V39+: KI-Zuweisung-Score je Bestellung; Real-time Fleet ETA Sync Panel; Multi-Fahrer Tour-Status Matrix; Stop-Dot-Zeitlinie animiert; 8-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/ETA-Drift/Profit/Touren; 4-Tab Rangliste/Matrix/Zuweisung/Fleet-ETA; Tier Platin/Gold/Gut/Schwach; 20s-Polling; Mock-Fallback)
+export { DispatchPhase5511ScoreTourVisualisierungV40 } from './phase5511-score-tour-visualisierung-v40';

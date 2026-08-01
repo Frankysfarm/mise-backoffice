@@ -13394,3 +13394,6 @@ export { KitchenPhase5508ProblemReaktionszeitTicker } from './phase5508-problem-
 export { KitchenPhase5510SmartTimingCountdownV57 } from './phase5510-smart-timing-countdown-v57';
 // Phase 5512 — Zuverlässigkeits-Score-Ticker (ShieldCheck emerald-400; Beste/r #1 Name+Score; Team-Ø; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5512ZuverlaessigkeitsScoreTicker } from './phase5512-zuverlaessigkeits-score-ticker';
+
+// Phase 5513 — Smart-Timing Countdown V58 (Timer indigo; V57+: Küchen↔Dispatch Bridge Score Sync/Drift/Lost; Dual-ETA-Sync-Ring Küche vs. Fahrer SVG; SLA-Commitment-Band Überfälligkeits-Prognose; Item-Level-Countdown mit Kategorie-Icon; 8-KPI-Grid Bridge/Aktiv/Kritisch/Überfällig/Fertig/SLA-Risiko/Sync/Velocity; 4-Tab Countdown/Bridge/SLA/Items; 1s-Tick + 15s-Polling; Mock-Fallback)
+export { KitchenPhase5513SmartTimingCountdownV58 } from './phase5513-smart-timing-countdown-v58';

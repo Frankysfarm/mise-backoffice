@@ -1,5 +1,6 @@
 import { SmartDeliveryLiveEta } from '@/app/order/[locationSlug]/smart-delivery-live-eta';
 import { SmartLiveTrackingExtended } from '@/app/order/[locationSlug]/smart-live-tracking-extended';
+import { Phase5505DynamischeEtaLiveTrackingV17 } from '@/app/order/[locationSlug]/phase5505-dynamische-eta-live-tracking-v17';
 import { Phase2720DynamischeEtaLiveTrackingCockpit } from '@/app/order/[locationSlug]/phase2720-dynamische-eta-live-tracking-cockpit';
 import { Phase4000EtaLiveTracker } from '@/app/order/[locationSlug]/phase4000-eta-live-tracker';
 import { Phase4150DynamischeEtaLiveTracking } from '@/app/order/[locationSlug]/phase4150-dynamische-eta-live-tracking';
@@ -36,6 +37,9 @@ export default function TrackingPage({
           <span className="text-2xl font-black text-stone-900">mise</span>
           <p className="text-sm text-stone-500 mt-0.5">Deine Lieferung im Blick</p>
         </div>
+
+        {/* Phase 5505: Dynamische ETA Live-Tracking V17 — Animated Driver Approach pulsing dot+Ring; Committed ETA Konfidenz-Ring dual-arc; Kunden-Phasen-Kacheln animiert; Spontanes Bewertungs-CTA; Traffic-Ampel; 1s-Tick+20s-Polling; Mock-Fallback */}
+        <Phase5505DynamischeEtaLiveTrackingV17 orderId={orderId} />
 
         {/* Extended Live Tracking (Hauptansicht) */}
         <SmartLiveTrackingExtended orderId={orderId} />
