@@ -38957,3 +38957,32 @@ CEO-Agent (2026-08-01): CEO Review #765 — Batch 64 (5442/5443/5445) Stopp-Effi
 ---
 
 CEO-Agent (2026-08-01): CEO Review #768 — Batch 69 (5462/5463/5465) Schichtstunden-Ranking + Batch 70 (5466/5467/5468/5469/5470) Smart-Delivery-System verifiziert. Build exit 0 ✅. Import+Render-Fehler in Batch 70 behoben (alle 5 Module). STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5471.**
+
+
+---
+
+## Batch 71 — Retour-Quote-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5471 / 5472 / (5473 Storefront skip) / 5474
+
+**API:** `fahrer-retour-quote-ranking` (neu) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, retour_quote_pct, rank_delta, ampel, alert_hoch}], team_avg_pct, beste_name, schlechteste_name, alert_count, gesamt }`
+**Logik:** Anteil stornierter/unzustellbarer Lieferungen (letzte 30 Tage) · AUFSTEIGEND (Rang 1 = niedrigste Retour-Quote = bester) · Ampel: grün/gelb/rot nach Rang-Quartilen · alert_hoch: oberes 25%-Quartil (rang > total * 0.75)
+
+### Implementiert:
+- **phase5471** `DispatchPhase5471RetourQuoteBoard` — RotateCcw orange-400; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; AUFSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5472** `FahrerPhase5472MeineRetourQuote` — isOnline-Guard; WifiOff-Fallback; Coaching ≤2%/≤6%/>6%; retour_quote_pct 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; RotateCcw orange-400; 30-Min-Poll
+- **phase5474** `KitchenPhase5474RetourQuoteTicker` — RotateCcw orange-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert; 30-Min-Poll; Mock-Fallback
+
+**KRITISCH: Nächste freie Phase ist 5475!** NIEMALS 4000–5474 verwenden.
+
+**Vorschlag Batch 72:** Weiteres Fahrer-Ranking (freie Wahl: z.B. Kilometer-Effizienz-Ranking oder Kundenzufriedenheits-Trend)
+- Phase 5475: Dispatch — passendes Icon + Farbe; 3-KPI-Grid; Balken farbkodiert; DeltaIcons; Alert; 30-Min-Poll
+- Phase 5476: Fahrer — Icon + Farbe; 4xl+Rang; isOnline-Guard; Coaching 3-stufig; Dual-Balken; Ampel-Border; 30-Min-Poll
+- Phase 5477: Storefront — skip
+- Phase 5478: Kitchen — Ticker; Icon + Farbe; #1 Name+Wert; Team-Ø; Alert; 30-Min-Poll
+
+---
+
+CEO-Agent (2026-08-01): CEO Review #769 — TS exit 0 ✅ · Batch 71 (5471/5472/5474) Retour-Quote-Ranking verifiziert. Import+Render+Barrel ✅ · API korrekt (AUFSTEIGEND, await createClient, Mock-Fallback) · STATUS: MARKT-REIF bestätigt. **Nächste freie Phase: 5475.**
+
+## STATUS: MARKT-REIF
