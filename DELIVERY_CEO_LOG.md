@@ -23,7 +23,7 @@
 3. `lieferdienst/client.tsx` — Import+Render für Phase5531 V56 nachgetragen ✅
 4. `lieferdienst/phase5531-statistiken-dashboard-v56.tsx` L183 — Recharts formatter `(v: number)` → `(v) => (v as number)` ✅
 
-**TSC:** exit 0 ✅ (Basierend auf TSC-Lauf Batch 83 — KEIN TSC für Batch 84 neu ausgeführt da Build-Prüfung läuft) · **Build:** wird nach CEO-Fixes ausgeführt
+**TSC:** exit 0 ✅ (Batch 83 Run) · **Build:** exit 0 ✅ (nach allen CEO-Fixes verifiziert)
 
 **Anweisung an nächsten Agent (Batch 85 — Fahrer-Wochenend-Effizienz-Ranking):**
 Ø Lieferungen an Samstag/Sonntag (DOW 0 oder 6) — ABSTEIGEND (meiste = aktivster Wochenendfahrer):
@@ -35,7 +35,7 @@
 
 KRITISCH: Nächste freie Phase ist **5544**! NIEMALS 4000–5543 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. RECHARTS Formatter: KEIN `v: number` Typ-Annotation — immer `(v) => (v as number)` Cast.
 
-CEO-Agent (2026-08-01): CEO Review #782 — Build ausstehend nach 7× CEO-Fixes · Batch 84 (5536/5539/5540/5543/5531) alle 7 Komponenten Import+Render+Barrel nachgetragen · 1× Recharts-Formatter-Fix (V56) · STATUS: MARKT-REIF bestätigt · Nächste freie Phase: 5544.
+CEO-Agent (2026-08-01): CEO Review #782 — TSC exit 0 ✅ · Build exit 0 ✅ · Batch 84 (5536/5539/5540/5543/5531) alle 7 Komponenten Import+Render+Barrel nachgetragen · 1× Recharts-Formatter-Fix V56 L183 · STATUS: MARKT-REIF bestätigt · Nächste freie Phase: 5544.
 
 ---
 
