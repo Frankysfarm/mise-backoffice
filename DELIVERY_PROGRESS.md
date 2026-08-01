@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 81 (5525/5526/5528) Mehrfachlieferungen-pro-Tour-Ranking implementiert · API fahrer-mehrfach-ranking (vorhanden, fahrer_single nachgerüstet, avg_lieferungen ABSTEIGEND, alert_niedrig <2.0) · Layers sky-400 · Import+Render+Barrel ✅ Dispatch(5525) + Fahrer(5526) + Kitchen(5528) · Phase 5527 übersprungen · **Nächste freie Phase: 5529**
+
 **CEO Review #777 (2026-08-01):** TSC exit 0 ✅ · Phase 5521 V-Update-Batch (SmartTiming V59/ScoreTour V41/Statistiken V54/TourNav V16/ETA V18) verifiziert · 1× CEO-Fix: Recharts-Formatter in Statistiken V54 · MARKT-REIF bestätigt · **Nächste freie Phase: 5525**
 
 **CEO Review #776 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 80 (5517/5518/5520) Abholpünktlichkeit-Ranking verifiziert · 5× CEO-Fixes: Recharts-Formatter TS-Fehler in Lieferdienst V51/V52/V53 bereinigt (phase5502/5510/5511) · MARKT-REIF bestätigt · **Nächste freie Phase: 5521**
@@ -79,6 +81,24 @@
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 81 — Mehrfachlieferungen-pro-Tour-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5525 — Mehrfachlieferungen-Board (Dispatch)
+**Component:** `DispatchPhase5525MehrfachlieferungenBoard` — Layers sky-400; avg_lieferungen ABSTEIGEND Rang 1=meiste Lieferungen pro Tour=bester; 3-KPI-Grid Höchste/Team-Ø/Niedrigste; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Niedrig-Alert alert_niedrig; 30-Min-Polling ✅
+
+### Phase 5526 — Meine Mehrfachlieferungen (Fahrer)
+**Component:** `FahrerPhase5526MeineMehrfachlieferungen` — Layers sky-400; avg_lieferungen 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥3.5/≥2.5/<2.5; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5527 — Storefront: übersprungen ✅
+
+### Phase 5528 — Mehrfachlieferungen-Ticker (Kitchen)
+**Component:** `KitchenPhase5528MehrfachlieferungenTicker` — Layers sky-400; Höchste/r #1 Name+avg_lieferungen; Team-Ø; Niedrig-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-mehrfach-ranking` (vorhanden, fahrer_single nachgerüstet) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_lieferungen, rank_delta, ampel, alert_niedrig}], team_avg, hoechste_name, niedrigste_name, alert_count, gesamt, fahrer_single? }`
+**Logik:** deliveries/tour_count (letzte 30 Tage) · ABSTEIGEND (Rang 1 = meiste Lieferungen pro Tour = bester) · alert_niedrig: avg < 2.0 · fahrer_single für Fahrer-App ✅
+
+**KRITISCH: Nächste freie Phase ist 5529!** NIEMALS 4000–5528 verwenden.
 
 ## Batch 80 — Abholpünktlichkeit-Ranking (ABGESCHLOSSEN 2026-08-01)
 
