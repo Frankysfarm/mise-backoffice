@@ -1433,6 +1433,7 @@ import { DispatchPhase5358ZuverlaessigkeitsBoard } from './phase5358-zuverlaessi
 import { DispatchPhase5362ReaktionszeitBoard } from './phase5362-reaktionszeit-board';
 import { DispatchPhase5366StornoquotenBoard } from './phase5366-stornoquoten-board';
 import { DispatchPhase5370AuslastungsBoard } from './phase5370-auslastungs-board';
+import { DispatchPhase5379KundenzufriedenheitsBoard } from './phase5379-kundenzufriedenheits-board';
 
 type Driver = {
   employee_id: string;
@@ -5692,6 +5693,8 @@ export function DispatchBoard({
           <DispatchPhase5366StornoquotenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5370: Auslastungs-Board — BarChart2 blue-400; Beste/Team-Ø/Wenigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; ABSTEIGEND; 30-Min-Polling */}
           <DispatchPhase5370AuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5379: Kundenzufriedenheits-Board — Star amber-400; Bester/Team-Ø/Niedrigster; Balken farbkodiert; DeltaIcons; Niedrig-Alert <4.0; ABSTEIGEND; 30-Min-Polling */}
+          <DispatchPhase5379KundenzufriedenheitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14654,3 +14657,5 @@ export { DispatchPhase5307ScoreTourVisualisierungV30 } from './phase5307-score-t
 export { DispatchPhase5374TourScoreVisualisierungV30 } from './phase5374-tour-score-visualisierung-v30';
 // Phase 5375 — Wartezeit-Restaurant-Board (Clock orange-400; 3-KPI-Grid Kürzeste/Team-Ø/Längste; Balken farbkodiert; DeltaIcons; Lang-Alert >10min; AUFSTEIGEND; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5375WartezeitRestaurantBoard } from './phase5375-wartezeit-restaurant-board';
+// Phase 5379 — Kundenzufriedenheits-Board (Star amber-400; 3-KPI-Grid Bester/Team-Ø/Niedrigster; Balken farbkodiert; DeltaIcons; Niedrig-Alert <4.0; ABSTEIGEND; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5379KundenzufriedenheitsBoard } from './phase5379-kundenzufriedenheits-board';

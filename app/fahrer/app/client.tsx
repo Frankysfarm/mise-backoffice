@@ -1336,6 +1336,7 @@ import { FahrerPhase5359MeineZuverlaessigkeit } from './phase5359-meine-zuverlae
 import { FahrerPhase5363MeineReaktionszeit } from './phase5363-meine-reaktionszeit';
 import { FahrerPhase5367MeineStornoquote } from './phase5367-meine-stornoquote';
 import { FahrerPhase5371MeineAuslastung } from './phase5371-meine-auslastung';
+import { FahrerPhase5380MeineKundenzufriedenheit } from './phase5380-meine-kundenzufriedenheit';
 import { FahrerPhase5304TourStoppNavigatorV4 } from './phase5304-tour-stopp-navigator-v4';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
@@ -7799,6 +7800,8 @@ export function FahrerApp({
           <FahrerPhase5367MeineStornoquote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5371: Meine Auslastung — BarChart2 blue-400; auslastung_pct 4xl+Rang; Coaching ≥80/≥60/<60%; Dual-Balken Ich+Team-Ø; isOnline-Guard */}
           <FahrerPhase5371MeineAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5380: Meine Kundenzufriedenheit — Star amber-400; avg_sterne 4xl+Rang; Coaching ≥4.5/≥4.0/<4.0; Dual-Balken Ich+Team-Ø; isOnline-Guard */}
+          <FahrerPhase5380MeineKundenzufriedenheit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12515,3 +12518,5 @@ export { FahrerPhase5304TourStoppNavigatorV4 } from './phase5304-tour-stopp-navi
 export { Phase1097TourStoppNavigationHubV2 } from './phase1097-tour-stopp-navigation-hub-v2';
 // Phase 5376 — Meine Wartezeit Restaurant (Clock orange-400; avg_wartezeit_min 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≤5/≤10/>10min; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
 export { FahrerPhase5376MeineWartezeitRestaurant } from './phase5376-meine-wartezeit-restaurant';
+// Phase 5380 — Meine Kundenzufriedenheit (Star amber-400; avg_sterne 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≥4.5/≥4.0/<4.0; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
+export { FahrerPhase5380MeineKundenzufriedenheit } from './phase5380-meine-kundenzufriedenheit';
