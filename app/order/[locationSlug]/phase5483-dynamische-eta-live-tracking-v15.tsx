@@ -91,13 +91,13 @@ export function StorefrontPhase5483DynamischeEtaLiveTrackingV15({
       const ch = supabase
         .channel(`order-tracking-${orderId}`)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` },
-          payload => {
+          (payload: { new: Record<string, unknown> }) => {
             if (payload.new) {
               setData(prev => ({
                 ...prev,
                 status: payload.new.status as OrderPhase ?? prev.status,
                 etaSeconds: typeof payload.new.eta_seconds === 'number' ? payload.new.eta_seconds : prev.etaSeconds,
-                estimatedTime: payload.new.estimated_time ?? prev.estimatedTime,
+                estimatedTime: typeof payload.new.estimated_time === 'string' ? payload.new.estimated_time : prev.estimatedTime,
               }))
               setElapsed(0)
             }

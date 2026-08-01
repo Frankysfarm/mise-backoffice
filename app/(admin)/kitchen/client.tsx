@@ -1388,6 +1388,7 @@ import { KitchenPhase5475SmartTimingCountdownV54 } from './phase5475-smart-timin
 import { KitchenPhase5483GesamtlieferungenTicker } from './phase5483-gesamtlieferungen-ticker';
 import { KitchenPhase5487TourstartPuenktlichkeitTicker } from './phase5487-tourstart-puenktlichkeit-ticker';
 import { KitchenPhase5491TourstartReaktionszeitTicker } from './phase5491-tourstart-reaktionszeit-ticker';
+import { KitchenPhase5495SmartTimingCountdownV55 } from './phase5495-smart-timing-countdown-v55';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5301,6 +5302,8 @@ export function KitchenBoard({
       <KitchenPhase5487TourstartPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5491: Tourstart-Reaktionszeit-Ticker — Timer violet-400; Schnellste/r #1 Name+Reaktionszeit; Team-Ø; Langsam-Alert; 30-Min-Polling */}
       <KitchenPhase5491TourstartReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5495: Smart-Timing Countdown V55 — 4-stufige Farbkodierung ok/warn/critical/overdue; Station-Filter-Tabs; 5-KPI-Grid; Dual-Countdown Küche+Fahrer-ETA-Sync; 1s-Tick+15s-Polling */}
+      <KitchenPhase5495SmartTimingCountdownV55 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5475: Smart-Timing Countdown V54 — KI-Stapel-Prognose; Multi-Station-Farbkodierung; Übergabe-Zeit-Optimierer; Burn-Rate-Indikator; 10-KPI-Grid; 4-Tab; 1s-Tick+15s-Polling */}
       <KitchenPhase5475SmartTimingCountdownV54 />
       {/* Phase 5466: Smart-Timing Countdown V53 — Batch-Sync-Score je Gruppe; ETA-Fahrer-Abgleich-Matrix; KI-Kochstart-Korrektur-Vorschlag; Überfälligkeits-Eskalations-Alarm; 9-KPI-Grid; 3-Tab; 1s-Tick+15s-Polling */}

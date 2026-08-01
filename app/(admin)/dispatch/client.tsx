@@ -1459,6 +1459,7 @@ import { DispatchPhase5476ScoreTourVisualisierungV36 } from './phase5476-score-t
 import { DispatchPhase5480GesamtlieferungenBoard } from './phase5480-gesamtlieferungen-board';
 import { DispatchPhase5484TourstartPuenktlichkeitBoard } from './phase5484-tourstart-puenktlichkeit-board';
 import { DispatchPhase5488TourstartReaktionszeitBoard } from './phase5488-tourstart-reaktionszeit-board';
+import { DispatchPhase5492ScoreTourVisualisierungV37 } from './phase5492-score-tour-visualisierung-v37';
 
 type Driver = {
   employee_id: string;
@@ -5770,6 +5771,8 @@ export function DispatchBoard({
           <DispatchPhase5484TourstartPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5488: Tourstart-Reaktionszeit-Board — Timer violet-400; AUFSTEIGEND; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Langsam-Alert; 30-Min-Polling */}
           <DispatchPhase5488TourstartReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5492: Score + Tour-Visualisierung V37 — Fleet-Score+Delta; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach; aufklappbare Stopp-Timeline; High-Risk-Alert-Banner; 20-Sek-Polling */}
+          <DispatchPhase5492ScoreTourVisualisierungV37 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>

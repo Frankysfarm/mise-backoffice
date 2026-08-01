@@ -172,7 +172,7 @@ export function LieferdienstPhase5480StatistikenDashboardV50({ locationId, class
         <ResponsiveContainer width="100%" height={80}>
           <BarChart data={data.hourly} margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
             <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
-            <Tooltip formatter={(v: number) => chartMode === 'umsatz' ? [euro(v * 100), 'Umsatz'] : [v, 'Bestellungen']} />
+            <Tooltip formatter={(v) => chartMode === 'umsatz' ? [euro((v as number) * 100), 'Umsatz'] : [v as number, 'Bestellungen']} />
             <Bar dataKey={chartMode} radius={[3, 3, 0, 0]}>
               {data.hourly.map(e => (
                 <Cell key={e.h} fill={e.h === nowH ? '#7c3aed' : '#e0e7ff'} />
