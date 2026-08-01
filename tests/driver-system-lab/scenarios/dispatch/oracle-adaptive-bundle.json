@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "oracle-adaptive-bundle-small-n",
+  "seed": 42017,
+  "tags": ["dispatch", "oracle", "adaptive-bundle", "same-store"],
+  "description": "Independent full-enumeration reference case for four same-store orders and two drivers.",
+  "expect": {
+    "noHardConstraintViolation": true,
+    "deterministicTieBreak": true,
+    "pickupBeforeDropoffs": true,
+    "productionScoringImported": false
+  }
+}
