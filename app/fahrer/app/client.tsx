@@ -1360,6 +1360,7 @@ import { FahrerPhase5463MeineSchichtstunden } from './phase5463-meine-schichtstu
 import { FahrerPhase5469TourStopsNavHubV10 } from './phase5469-tour-stops-nav-hub-v10';
 import { FahrerPhase5472MeineRetourQuote } from './phase5472-meine-retour-quote';
 import { FahrerPhase5478TourStopsNavHubV11 } from './phase5478-tour-stops-nav-hub-v11';
+import { FahrerPhase5481MeineGesamtlieferungen } from './phase5481-meine-gesamtlieferungen';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7864,6 +7865,8 @@ export function FahrerApp({
           <FahrerPhase5463MeineSchichtstunden driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5472: Meine Retour-Quote — RotateCcw orange-400; retour_quote_pct 4xl+Rang; Coaching ≤2%/≤6%/>6%; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5472MeineRetourQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5481: Meine Gesamtlieferungen — Package2 green-400; gesamt_lieferungen 4xl+Rang; Coaching ≥280/≥180/<180; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5481MeineGesamtlieferungen driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5478: Tour-Stops & Navigation Hub V11 — Multi-App-Navigation-Wähler; Sprach-Navigations-Hinweis; Distanz-Fortschritts-Ring SVG; Kunden-Kontakt-Direktaktionen Anruf/SMS; Stopp-Bewertungs-Prompt; ETA-Genauigkeits-Badge; 7-KPI-Grid */}
           <FahrerPhase5478TourStopsNavHubV11 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5469: Tour-Stops & Navigation Hub V10 — ETA-Genauigkeits-Score je Stopp; KI-Reihenfolge-Badge; Zahlung-Status-Badge; Live-Distanz-Ampel; 6-KPI-Grid; GPS-Multi-App-Deeplinks; expand/collapse */}
@@ -12636,3 +12639,5 @@ export { FahrerPhase5469TourStopsNavHubV10 } from './phase5469-tour-stops-nav-hu
 export { FahrerPhase5472MeineRetourQuote } from './phase5472-meine-retour-quote';
 // Phase 5478 — Tour-Stops & Navigation Hub V11 (Route blue; Multi-App-Navigation-Wähler Google/Waze/Apple; Sprach-Navigations-Hinweis; Distanz-Fortschritts-Ring SVG animiert; Kunden-Kontakt-Direktaktionen tel+sms; Stopp-Bewertungs-Prompt; ETA-Genauigkeits-Badge; 7-KPI-Grid Stops/Fertig/Offen/km/ETA-Score/Profit/Kontakte; expand/collapse; Offline-Guard; 30-Sek-Poll; Mock-Fallback)
 export { FahrerPhase5478TourStopsNavHubV11 } from './phase5478-tour-stops-nav-hub-v11';
+// Phase 5481 — Meine Gesamtlieferungen (Package2 green-400; gesamt_lieferungen 4xl+Rang; Coaching ≥280/≥180/<180; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5481MeineGesamtlieferungen } from './phase5481-meine-gesamtlieferungen';

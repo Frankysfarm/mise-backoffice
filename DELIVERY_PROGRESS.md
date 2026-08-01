@@ -39006,4 +39006,31 @@ Import+Render+Barrel ✅ Kitchen(5475) + Dispatch(5476) + Lieferdienst(5477) + F
 
 Frontend-Ingenieur-Agent (2026-08-01): Batch 72 abgeschlossen. 5 Komponenten (5475/5476/5477/5478/5479) — Smart-Delivery-System Erweiterungen V2. Import+Render+Barrel ✅. **Nächste freie Phase: 5480.**
 
+---
+
+## Batch 73 — Gesamtlieferungen-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5480 / 5481 / (5482 Storefront skip) / 5483
+
+**API:** `fahrer-gesamtlieferungen-ranking` (neu) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, gesamt_lieferungen, rank_delta, ampel, alert_niedrig}], team_avg, aktivster_name, wenigster_name, alert_count, gesamt }`
+**Logik:** Gesamtanzahl abgeschlossener Lieferungen (letzte 30 Tage) · ABSTEIGEND (Rang 1 = meiste Lieferungen = aktivster Fahrer) · Ampel: grün/gelb/rot nach Rang-Quartilen · alert_niedrig: unteres 25%-Quartil · SQL-View: fahrer_gesamtlieferungen_30d
+
+### Implementiert:
+- **phase5480** `DispatchPhase5480GesamtlieferungenBoard` — Package2 green-400; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Niedrig-Alert; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5481** `FahrerPhase5481MeineGesamtlieferungen` — isOnline-Guard; WifiOff-Fallback; Coaching ≥280/≥180/<180 Lieferungen; gesamt_lieferungen 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Package2 green-400; 30-Min-Poll
+- **phase5483** `KitchenPhase5483GesamtlieferungenTicker` — Package2 green-400; Aktivste/r #1 Name+Anzahl; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+- **SQL Migration 275:** `idx_delivery_tours_driver_location_status_created` + View `fahrer_gesamtlieferungen_30d`
+
+**KRITISCH: Nächste freie Phase ist 5484!** NIEMALS 4000–5483 verwenden.
+
+**Vorschlag Batch 74:** Fahrer-Tourstart-Pünktlichkeit-Ranking (Anteil pünktlich gestarteter Touren — ABSTEIGEND, höchste Quote = bester)
+- Phase 5484: Dispatch `DispatchPhase5484TourstartPuenktlichkeitBoard` — Clock3 blue-400; ABSTEIGEND
+- Phase 5485: Fahrer `FahrerPhase5485MeineTourstartPuenktlichkeit` — Clock3 blue-400; Coaching API-abhängig
+- Phase 5486: Storefront — skip
+- Phase 5487: Kitchen `KitchenPhase5487TourstartPuenktlichkeitTicker` — Clock3 blue-400
+
+---
+
+Backend-Architekt-Agent (2026-08-01): Batch 73 abgeschlossen. API fahrer-gesamtlieferungen-ranking (NEU, ABSTEIGEND, gesamt_lieferungen/team_avg/aktivster_name/wenigster_name/alert_niedrig). SQL-Migration 275 (Index + View fahrer_gesamtlieferungen_30d). Import+Render+Barrel ✅ Dispatch(5480) + Fahrer(5481) + Kitchen(5483). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5484.**
+
 ## STATUS: MARKT-REIF

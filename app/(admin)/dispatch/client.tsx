@@ -1456,6 +1456,7 @@ import { DispatchPhase5462SchichtstundenBoard } from './phase5462-schichtstunden
 import { DispatchPhase5467ScoreTourVisualisierungV35 } from './phase5467-score-tour-visualisierung-v35';
 import { DispatchPhase5471RetourQuoteBoard } from './phase5471-retour-quote-board';
 import { DispatchPhase5476ScoreTourVisualisierungV36 } from './phase5476-score-tour-visualisierung-v36';
+import { DispatchPhase5480GesamtlieferungenBoard } from './phase5480-gesamtlieferungen-board';
 
 type Driver = {
   employee_id: string;
@@ -5761,6 +5762,8 @@ export function DispatchBoard({
           <DispatchPhase5467ScoreTourVisualisierungV35 />
           {/* Phase 5471: Retour-Quote-Board — RotateCcw orange-400; AUFSTEIGEND; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
           <DispatchPhase5471RetourQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5480: Gesamtlieferungen-Board — Package2 green-400; ABSTEIGEND; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5480GesamtlieferungenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14774,3 +14777,5 @@ export { DispatchPhase5467ScoreTourVisualisierungV35 } from './phase5467-score-t
 export { DispatchPhase5471RetourQuoteBoard } from './phase5471-retour-quote-board';
 // Phase 5476 — Score + Tour-Visualisierung V36 (Trophy violet; Zonen-Profit-Matrix Heatmap-Grid; Echtzeit-Effizienz-Score-Stream AreaChart 30s; Fahrer-Kapazitäts-Prognose +60Min; Kritische-Lieferung-Eskalations-Alert; 7-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Profit-Stop/ETA-Drift/Kapazität; 5-Tab Rangliste/Profit/Tour-Fortschritt/Zonen-Matrix/Kapazität; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5476ScoreTourVisualisierungV36 } from './phase5476-score-tour-visualisierung-v36';
+// Phase 5480 — Gesamtlieferungen-Board (Package2 green-400; gesamt_lieferungen ABSTEIGEND Rang 1=meiste=aktivster; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5480GesamtlieferungenBoard } from './phase5480-gesamtlieferungen-board';
