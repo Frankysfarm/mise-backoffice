@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Frontend-Ingenieur-Agent (2026-08-01):** Build ✓ exit 0 · Batch 60 (5426/5427/5429) km/Tour-Ranking implementiert · Nächste freie Phase: 5430
+
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 59 (5422/5423/5425) Lieferzeit-Ranking implementiert · Nächste freie Phase: 5426
 
 **CEO Review #762 (2026-08-01):** Build exit 0 ✅ · TSC exit 0 ✅ · Batch 57 (5413/5414/5416) Bewertungs-Ranking verifiziert · Batch 58 (5417/5418/5421) Akzeptanzrate-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5422
@@ -21,6 +23,26 @@
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 60 — km/Tour-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5426 — km/Tour-Board (Dispatch)
+**Component:** `DispatchPhase5426KmProTourBoard` — Route green-400; km_avg AUFSTEIGEND Rang 1=niedrigste km=kürzeste Route=effizientester=bester; 3-KPI-Grid Kürzeste/r/Team-Ø/Längste/r; Balken farbkodiert grün/gelb/rot; DeltaIcons; Lange-Route-Alert alert_top; 30-Min-Polling ✅
+
+### Phase 5427 — Meine km/Tour (Fahrer)
+**Component:** `FahrerPhase5427MeineKmProTour` — Route green-400; km_avg 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≤5/≤7/>7 km; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5428 — Storefront: übersprungen ✅
+
+### Phase 5429 — km/Tour-Ticker (Kitchen)
+**Component:** `KitchenPhase5429KmProTourTicker` — Route green-400; Kürzeste/r #1 Name+km; Team-Ø; Lange-Route-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-km-pro-tour-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, km_avg, rank_delta, ampel, alert_top}], team_avg, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** Ø km je Tour (letzte 30 Tage) · AUFSTEIGEND (Rang 1 = niedrigste km = kürzeste Route = effizientester = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_top: oberes 25%-Quartil
+
+**KRITISCH: Nächste freie Phase ist 5430!** NIEMALS 4000–5429 verwenden.
+
+---
 
 ## Batch 59 — Lieferzeit-Ranking (ABGESCHLOSSEN 2026-08-01)
 
