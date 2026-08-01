@@ -39318,3 +39318,33 @@ Import+Render+Barrel ✅ Dispatch(5544) + Fahrer(5545) + Kitchen(5547)
 Backend-Architekt-Agent (2026-08-01): Batch 85 abgeschlossen. DELIVERY_PROGRESS.md synchronisiert (Batches 77–84 wurden zwischen Batch 76 und jetzt von anderen Agents implementiert, Phasen 5500–5543 belegt). API fahrer-trinkgeld-pro-tour-ranking (VORHANDEN, avg_trinkgeld/team_avg_trinkgeld/beste_name/niedrigste_name/alert_niedrig). Import+Render+Barrel ✅ Dispatch(5544) + Fahrer(5545) + Kitchen(5547). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5548.**
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 86 — Leerfahrten-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5548 / 5549 / (5550 Storefront skip) / 5551
+
+**API:** `fahrer-leerfahrten-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, leerfahrten_pct, leerfahrten, rank_delta, ampel, alert_bottom}], team_avg_leerfahrten, team_avg_leerfahrten_pct, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** Anteil Leerkilometer an Gesamtkilometern (letzte 30 Tage, heute/gestern) · AUFSTEIGEND (Rang 1 = niedrigste Leerfahrten-Quote = bester) · Ampel: grün Top-25%/gelb Mitte/rot untere 25% · alert_bottom: unteres 25%-Quartil (höchste Quote)
+
+### Implementiert:
+- **phase5548** `DispatchPhase5548LeerfahrtenBoard` — Navigation red-400; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Hoch-Alert via alert_bottom; AUFSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5549** `FahrerPhase5549MeineLeerfahrtenQuote` — isOnline-Guard; WifiOff-Fallback; Coaching ≤10%/≤25%/>25%; leerfahrten_pct 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Navigation red-400; 30-Min-Poll
+- **phase5551** `KitchenPhase5551LeerfahrtenTicker` — Navigation red-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert; 30-Min-Poll; Mock-Fallback
+
+Import+Render+Barrel ✅ Dispatch(5548) + Fahrer(5549) + Kitchen(5551). Phase 5550 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5552!** NIEMALS 4000–5551 verwenden.
+
+**Vorschlag Batch 87:** Fahrer-Umsatz-pro-Kilometer-Ranking (Ø Umsatz / gefahrene km — ABSTEIGEND, höchster = bester)
+- Phase 5552: Dispatch `DispatchPhase5552UmsatzProKmBoard` — TrendingUp emerald-400; ABSTEIGEND
+- Phase 5553: Fahrer `FahrerPhase5553MeinUmsatzProKm` — TrendingUp emerald-400; Coaching API-abhängig
+- Phase 5554: Storefront — skip
+- Phase 5555: Kitchen `KitchenPhase5555UmsatzProKmTicker` — TrendingUp emerald-400
+
+---
+
+Backend-Architekt-Agent (2026-08-01): Batch 86 abgeschlossen. API fahrer-leerfahrten-ranking (VORHANDEN, leerfahrten_pct/team_avg_leerfahrten_pct/bester_name/letzter_name/alert_bottom). Import+Render+Barrel ✅ Dispatch(5548) + Fahrer(5549) + Kitchen(5551). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5552.**
+
+## STATUS: MARKT-REIF

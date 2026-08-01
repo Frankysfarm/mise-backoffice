@@ -1478,6 +1478,7 @@ import { DispatchPhase5536SchichtstartPuenktlichkeitBoard } from './phase5536-sc
 import { DispatchPhase5540KundenbindungsRateBoard } from './phase5540-kundenbindungs-rate-board';
 import { DispatchPhase5543ScoreTourVisualisierungV43 } from './phase5543-score-tour-visualisierung-v43';
 import { DispatchPhase5547ScoreTourVisualisierungV44 } from './phase5547-score-tour-visualisierung-v44';
+import { DispatchPhase5548LeerfahrtenBoard } from './phase5548-leerfahrten-board';
 
 type Driver = {
   employee_id: string;
@@ -5825,6 +5826,8 @@ export function DispatchBoard({
           <DispatchPhase5544TrinkgeldProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5547: Score + Tour-Visualisierung V44 — Tour-Abschluss-Zeitfenster, Schicht-Wellbeing-Score, Zonen-Fairness-Index, Übergabe-Erfolgsquote Fleet-Ø, 12-KPI-Grid, 8-Tab */}
           <DispatchPhase5547ScoreTourVisualisierungV44 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5548: Leerfahrten-Board — Navigation red-400; leerfahrten_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
+          <DispatchPhase5548LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14887,3 +14890,5 @@ export { DispatchPhase5540KundenbindungsRateBoard } from './phase5540-kundenbind
 export { DispatchPhase5543ScoreTourVisualisierungV43 } from './phase5543-score-tour-visualisierung-v43';
 // Phase 5547 — Score + Tour-Visualisierung V44 (Trophy violet; V43+: Tour-Abschluss-Zeitfenster ±min; Schicht-Wellbeing-Score Müdigkeit+Pausen+Bewertung; Zonen-Fairness-Index Gini; Übergabe-Erfolgsquote Fleet-Ø; 12-KPI-Grid; 8-Tab Rangliste/Profit/Energie/Lücken/CO₂/Bindung/Abschluss/Wellbeing; 20s-Polling; Mock-Fallback)
 export { DispatchPhase5547ScoreTourVisualisierungV44 } from './phase5547-score-tour-visualisierung-v44';
+// Phase 5548 — Leerfahrten-Board (Navigation red-400; leerfahrten_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Schlechteste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5548LeerfahrtenBoard } from './phase5548-leerfahrten-board';

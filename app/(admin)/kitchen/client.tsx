@@ -1407,6 +1407,7 @@ import { KitchenPhase5539SchichtstartPuenktlichkeitTicker } from './phase5539-sc
 import { KitchenPhase5540KundenbindungsRateTicker } from './phase5540-kundenbindungs-rate-ticker';
 import { KitchenPhase5543SmartTimingCountdownV61 } from './phase5543-smart-timing-countdown-v61';
 import { KitchenPhase5547SmartTimingCountdownV62 } from './phase5547-smart-timing-countdown-v62';
+import { KitchenPhase5551LeerfahrtenTicker } from './phase5551-leerfahrten-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5346,6 +5347,8 @@ export function KitchenBoard({
       <KitchenPhase5547TrinkgeldProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5547: Smart-Timing Countdown V62 — Schichtende-Prognose, Bestellrückstand-Ampel, Multi-Stations-Sync-Score, Übergabe-Erfolgsquote live, 12-KPI-Grid, 7-Tab */}
       <KitchenPhase5547SmartTimingCountdownV62 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5551: Leerfahrten-Ticker — Navigation red-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert; 30-Min-Polling */}
+      <KitchenPhase5551LeerfahrtenTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}
       <KitchenPhase5543SmartTimingCountdownV61 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
@@ -13460,3 +13463,5 @@ export { KitchenPhase5540KundenbindungsRateTicker } from './phase5540-kundenbind
 export { KitchenPhase5543SmartTimingCountdownV61 } from './phase5543-smart-timing-countdown-v61';
 // Phase 5547 — Smart-Timing Countdown V62 (Timer violet; V61+: Schichtende-Prognose; Bestellrückstand-Ampel grün/gelb/rot; Multi-Stations-Sync-Score 0–100; Übergabe-Erfolgsquote live %; 12-KPI-Grid Score/Aktiv/Kritisch/Überfällig/Fertig/Varianz/Stationen/SLA/Bereit/Drift/Bind/Sync; 7-Tab Countdown/Prognose/Übergabe/Items/Stationen/Kunden/Schicht; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5547SmartTimingCountdownV62 } from './phase5547-smart-timing-countdown-v62';
+// Phase 5551 — Leerfahrten-Ticker (Navigation red-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5551LeerfahrtenTicker } from './phase5551-leerfahrten-ticker';
