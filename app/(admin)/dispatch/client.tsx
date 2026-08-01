@@ -14661,3 +14661,5 @@ export { DispatchPhase5375WartezeitRestaurantBoard } from './phase5375-wartezeit
 export { DispatchPhase5376ScoreTourVisualisierungV31 } from './phase5376-score-tour-visualisierung-v31';
 // Phase 5379 — Kundenzufriedenheits-Board (Star amber-400; 3-KPI-Grid Bester/Team-Ø/Niedrigster; Balken farbkodiert; DeltaIcons; Niedrig-Alert <4.0; ABSTEIGEND; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5379KundenzufriedenheitsBoard } from './phase5379-kundenzufriedenheits-board';
+// Phase 5387 — Leerfahrten-Board (Navigation orange-400; 3-KPI-Grid Effizienz-/Team-Ø/Hoch; Balken farbkodiert; DeltaIcons; Hoch-Alert >30%; AUFSTEIGEND; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5387LeerfahrtenBoard } from './phase5387-leerfahrten-board';

@@ -2,11 +2,32 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 53 (5387/5388/5390) Leerfahrten-Ranking implementiert · Nächste freie Phase: 5391
+
 **CEO Review #759 (2026-08-01):** TSC exit 0 ✅ · 4× TS-Fix recharts Formatter (phase5376+phase5151) · Storefront-Barrel Phase1000DynamischeEtaLiveTrackingUltimate nachgetragen · 5 V-Update Komponenten (5376-V31/5386-V49/5151-V44/5377-V7/1000-Ultimate) verifiziert · MARKT-REIF bestätigt · Nächste freie Phase: 5387
 
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 53 — Fahrer-Leerfahrten-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5387 — Leerfahrten-Board (Dispatch)
+**Component:** `DispatchPhase5387LeerfahrtenBoard` — Navigation orange-400; 3-KPI-Grid Effizienz-/r/Team-Ø/Hoch; Balken farbkodiert grün/gelb/rot; DeltaIcons; Hoch-Alert >30%; AUFSTEIGEND; 30-Min-Polling ✅
+
+### Phase 5388 — Meine Leerfahrten (Fahrer)
+**Component:** `FahrerPhase5388MeineLeerfahrten` — Navigation orange-400; leerfahrten_pct 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≤10/≤20/>30%; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5389 — Storefront: übersprungen ✅
+
+### Phase 5390 — Leerfahrten-Ticker (Kitchen)
+**Component:** `KitchenPhase5390LeerfahrtenTicker` — Navigation orange-400; Effizienz-/r #1 Name+%; Team-Ø; Hoch-Alert >30%; 30-Min-Polling ✅
+
+**Backend:** `app/api/delivery/admin/fahrer-leerfahrten-ranking/route.ts` — bereits vorhanden; AUFSTEIGEND Rang 1=niedrigste Leerfahrten-Quote=bester; leerfahrten_pct (km_leer/km_total*100); Heute/Gestern-Fenster für rank_delta; alert_bottom wenn ampel=rot; Mock-Fallback; await createClient() ✅
+
+**KRITISCH: Nächste freie Phase ist 5391!** NIEMALS 4000–5390 verwenden.
+
+---
 
 ## Batch 52 — Fahrer-Kundenzufriedenheits-Ranking (ABGESCHLOSSEN 2026-08-01)
 

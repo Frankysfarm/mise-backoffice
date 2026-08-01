@@ -12522,3 +12522,5 @@ export { FahrerPhase5376MeineWartezeitRestaurant } from './phase5376-meine-warte
 export { FahrerPhase5377TourStopsNavigationHubV7 } from './phase5377-tour-stops-navigation-hub-v7';
 // Phase 5380 — Meine Kundenzufriedenheit (Star amber-400; avg_sterne 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≥4.5/≥4.0/<4.0; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
 export { FahrerPhase5380MeineKundenzufriedenheit } from './phase5380-meine-kundenzufriedenheit';
+// Phase 5388 — Meine Leerfahrten (Navigation orange-400; leerfahrten_pct 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≤10/≤20/>30%; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
+export { FahrerPhase5388MeineLeerfahrten } from './phase5388-meine-leerfahrten';
