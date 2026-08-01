@@ -1371,6 +1371,7 @@ import { FahrerPhase5549MeineLeerfahrtenQuote } from './phase5549-meine-leerfahr
 import { FahrerPhase5553MeinUmsatzProKm } from './phase5553-mein-umsatz-pro-km';
 import { FahrerPhase5557MeineKmProTag } from './phase5557-meine-km-pro-tag';
 import { FahrerPhase5562MeineStornoQuote } from './phase5562-meine-storno-quote';
+import { FahrerPhase5566TourStopsNavHubV19 } from './phase5566-tour-stops-nav-hub-v19';
 import { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
 import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
@@ -7922,6 +7923,8 @@ export function FahrerApp({
           <FahrerPhase5557MeineKmProTag driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5562: Meine Storno-Quote — XCircle red-400; rate_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; Coaching ≤2/≤10/>10 %; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5562MeineStornoQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5566: Tour-Stops Nav Hub V19 — KI-Reihenfolge-Optimierung, Stopp-Timer-Ring, Kunden-Kontakt-Panel, 5-Tab-Nav */}
+          <FahrerPhase5566TourStopsNavHubV19 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />

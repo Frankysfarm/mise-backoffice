@@ -1482,6 +1482,7 @@ import { DispatchPhase5548LeerfahrtenBoard } from './phase5548-leerfahrten-board
 import { DispatchPhase5552UmsatzProKmBoard } from './phase5552-umsatz-pro-km-board';
 import { DispatchPhase5556KmProTagBoard } from './phase5556-km-pro-tag-board';
 import { DispatchPhase5561StornoQuoteBoard } from './phase5561-storno-quote-board';
+import { DispatchPhase5565ScoreTourVisualisierungV46 } from './phase5565-score-tour-visualisierung-v46';
 
 type Driver = {
   employee_id: string;
@@ -5837,6 +5838,8 @@ export function DispatchBoard({
           <DispatchPhase5556KmProTagBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5561: Storno-Quote-Board — XCircle red-400; rate_pct AUFSTEIGEND Rang 1=niedrigste Storno-Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Hoechste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
           <DispatchPhase5561StornoQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5565: Score + Tour-Visualisierung V46 — Fleet-Energie-Matrix, KI-Entscheidungs-Log, 14-KPI-Grid, 20s-Polling */}
+          <DispatchPhase5565ScoreTourVisualisierungV46 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
