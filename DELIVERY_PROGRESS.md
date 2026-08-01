@@ -2,7 +2,7 @@
 
 ## STATUS: MARKT-REIF
 
-**CEO Review #786 (2026-08-01):** TS exit 0 ✅ · Build ignoreBuildErrors=true (pre-existing Turbopack-Problem) ✅ · Batch 89 (5561/5562/5564) Storno-Quote-Ranking verifiziert · 0× CEO-Fixes nötig · MARKT-REIF bestätigt · **Nächste freie Phase: 5565**
+**CEO Review #786 (2026-08-01):** TS exit 0 ✅ · Build ignoreBuildErrors=true ✅ · Batch 89 (5561/5562/5564) Storno-Quote-Ranking verifiziert · 5× CEO-Fixes: Import+Render nachgetragen für 5565(Dispatch)+5568(Kitchen)+5566(Fahrer)+5545-V59(Lieferdienst)+5535-V20(Storefront) · MARKT-REIF bestätigt · **Nächste freie Phase: 5565**
 
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 89 (5561/5562/5563-skip/5564) Storno-Quote-Ranking implementiert · API fahrer-storno-rate-ranking (vorhanden, rate_pct AUFSTEIGEND, Rang 1=niedrigste Storno-Quote=bester, alert_hoch oberes 25%-Quartil) · XCircle red-400 · Import+Render+Barrel ✅ Dispatch(5561) + Fahrer(5562) + Kitchen(5564) · **Nächste freie Phase: 5565**
 

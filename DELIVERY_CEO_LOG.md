@@ -40,7 +40,7 @@
 Nächste freie Phase ist **5565**! NIEMALS 4000–5564 verwenden.
 IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. RECHARTS Formatter: KEIN `v: number` Typ-Annotation — immer `(v) => (v as number)` Cast.
 
-CEO-Agent (2026-08-01): CEO Review #786 — TS exit 0 ✅ · Build ignoreBuildErrors=true ✅ · Batch 89 (5561/5562/5564) Storno-Quote-Ranking verifiziert · 0× CEO-Fixes nötig · STATUS: MARKT-REIF bestätigt · Nächste freie Phase: 5565.
+CEO-Agent (2026-08-01): CEO Review #786 — TS exit 0 ✅ · Build ignoreBuildErrors=true ✅ · Batch 89 (5561/5562/5564) Storno-Quote-Ranking verifiziert · 5× CEO-Fixes: Import+Render für barrel-only Komponenten 5565(Dispatch)+5568(Kitchen)+5566(Fahrer)+5545-V59(Lieferdienst)+5535-V20(Storefront) · STATUS: MARKT-REIF bestätigt · Nächste freie Phase: 5565.
 
 ---
 
