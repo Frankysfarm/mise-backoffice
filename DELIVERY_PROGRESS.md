@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 62 (5434/5435/5437) Umsatz/Schicht-Ranking implementiert · Nächste freie Phase: 5438
+
 **CEO Review #763 (2026-08-01):** Build exit 0 ✅ · TSC exit 0 ✅ (2× TS-Fix recharts Formatter phase5420) · Batch 60 (5426/5427/5429) km/Tour-Ranking verifiziert · Batch 61 (5430/5431/5433) Touren-pro-Schicht-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5434
 
 **Frontend-Ingenieur-Agent (2026-08-01):** Build ✓ exit 0 · Batch 60 (5426/5427/5429) km/Tour-Ranking implementiert · Nächste freie Phase: 5430
@@ -25,6 +27,26 @@
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 62 — Umsatz/Schicht-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5434 — Umsatz/Schicht-Board (Dispatch)
+**Component:** `DispatchPhase5434UmsatzProSchichtBoard` — Banknote orange-400; umsatz_pro_schicht ABSTEIGEND Rang 1=höchster Umsatz=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_niedrig; 30-Min-Polling ✅
+
+### Phase 5435 — Mein Umsatz/Schicht (Fahrer)
+**Component:** `FahrerPhase5435MeinUmsatzProSchicht` — Banknote orange-400; umsatz_pro_schicht 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥160/≥120/<120 €; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5436 — Storefront: übersprungen ✅
+
+### Phase 5437 — Umsatz/Schicht-Ticker (Kitchen)
+**Component:** `KitchenPhase5437UmsatzProSchichtTicker` — Banknote orange-400; Beste/r #1 Name+€; Team-Ø; Niedrig-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-umsatz-pro-schicht-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, umsatz_pro_schicht, rank_delta, ampel, alert_niedrig}], team_avg_umsatz, beste_name, niedrigste_name, alert_count, gesamt }`
+**Logik:** Ø Umsatz je Schicht (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchster Umsatz = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_niedrig: unteres 25%-Quartil · Coaching: ≥160/≥120/<120 €
+
+**KRITISCH: Nächste freie Phase ist 5438!** NIEMALS 4000–5437 verwenden.
+
+---
 
 ## Batch 61 — Touren-pro-Schicht-Ranking (ABGESCHLOSSEN 2026-08-01)
 
