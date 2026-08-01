@@ -1398,6 +1398,7 @@ import { KitchenPhase5513SmartTimingCountdownV58 } from './phase5513-smart-timin
 import { KitchenPhase5520AbholpuenktlichkeitTicker } from './phase5520-abholpuenktlichkeit-ticker';
 import { KitchenPhase5521SmartTimingCountdownV59 } from './phase5521-smart-timing-countdown-v59';
 import { KitchenPhase5528MehrfachlieferungenTicker } from './phase5528-mehrfachlieferungen-ticker';
+import { KitchenPhase5530SmartTimingCountdownV60 } from './phase5530-smart-timing-countdown-v60';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5327,6 +5328,8 @@ export function KitchenBoard({
       <KitchenPhase5510SmartTimingCountdownV57 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5513: Smart-Timing Countdown V58 — V57+: Küchen↔Dispatch Bridge Score Sync/Drift/Lost; Dual-ETA-Sync-Ring Küche vs. Fahrer SVG; SLA-Commitment-Band Überfälligkeits-Prognose; Item-Level-Countdown mit Kategorie-Icon; 8-KPI-Grid; 4-Tab; 1s-Tick+15s-Polling */}
       <KitchenPhase5513SmartTimingCountdownV58 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5530: Smart-Timing Countdown V60 — V59+: Echtzeit-Kochauslastungs-Prognose +15Min; Übergabe-Bereitschafts-Score 0–100; KI-Kochstart-Korrekturfenster Δmin; Reale-vs-Geplante-Kochzeit σ-Drift; 10-KPI-Grid Score/Aktiv/Kritisch/Überfällig/Fertig/Varianz/Stationen/SLA/Bereit/Drift; 5-Tab Countdown/Prognose/Übergabe/Items/Stationen; 1s-Tick+15s-Polling */}
+      <KitchenPhase5530SmartTimingCountdownV60 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5521: Smart-Timing Countdown V59 — V58+: Kochzeit-Varianz-Analyse σ je Bestelltyp; Parallele Stations-Auslastungs-Matrix Wok/Grill/Fritteur/Salat; Priorisierungs-Log Prio-Grund je Order; Eskalations-Timer SLA<5min; 9-KPI-Grid; 5-Tab Countdown/Bridge/SLA/Items/Stationen; 1s-Tick+15s-Polling */}
       <KitchenPhase5521SmartTimingCountdownV59 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5503: Smart-Timing Countdown V56 — V55+Batch-Gruppen-Anzeige; Kochstart-Offset-Indikator; Abholer-Timing-Badge; 4-stufige Farbkodierung; Station-Filter; Dual-Countdown; 1s-Tick+15s-Polling */}
@@ -13415,3 +13418,5 @@ export { KitchenPhase5520AbholpuenktlichkeitTicker } from './phase5520-abholpuen
 export { KitchenPhase5521SmartTimingCountdownV59 } from './phase5521-smart-timing-countdown-v59';
 // Phase 5528 — Mehrfachlieferungen-Ticker (Layers sky-400; Höchste/r #1 Name+avg_lieferungen; Team-Ø; Niedrig-Alert alert_niedrig <2.0; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5528MehrfachlieferungenTicker } from './phase5528-mehrfachlieferungen-ticker';
+// Phase 5530 — Smart-Timing Countdown V60 (Timer indigo; V59+: Echtzeit-Kochauslastungs-Prognose +15Min je Station; Übergabe-Bereitschafts-Score 0–100 farbkodiert; KI-Kochstart-Korrekturfenster Δmin je Typ; Reale-vs-Geplante-Kochzeit σ-Drift-Anzeige; 10-KPI-Grid Score/Aktiv/Kritisch/Überfällig/Fertig/Varianz/Stationen/SLA/Bereit/Drift; 5-Tab Countdown/Prognose/Übergabe/Items/Stationen; 1s-Tick+15s-Polling; Mock-Fallback)
+export { KitchenPhase5530SmartTimingCountdownV60 } from './phase5530-smart-timing-countdown-v60';

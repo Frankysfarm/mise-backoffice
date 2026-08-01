@@ -1321,6 +1321,7 @@ import { FahrerPhase5301TourStoppNavigatorV3 } from './phase5301-tour-stopp-navi
 import { FahrerPhase5303MeineSchichtPuenktlichkeit } from './phase5303-meine-schicht-puenktlichkeit';
 import { FahrerPhase5307MeinSchichtPuenktlichkeitTrend } from './phase5307-mein-schicht-puenktlichkeit-trend';
 import { FahrerPhase1956TourStoppCockpitV2 } from './phase1956-tour-stopp-cockpit-v2';
+import { FahrerPhase1957TourStoppCockpitV3 } from './phase1957-tour-stopp-cockpit-v3';
 import { FahrerPhase5311MeineTourenEffizienz } from './phase5311-meine-touren-effizienz';
 import { FahrerPhase5315MeineKilometer } from './phase5315-meine-kilometer';
 import { FahrerPhase5319MeineLieferzeit } from './phase5319-meine-lieferzeit';
@@ -7803,6 +7804,8 @@ export function FahrerApp({
           <FahrerPhase5303MeineSchichtPuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5307: Mein Pünktlichkeits-Trend — TrendingUp emerald; Trend% 4xl±; isOnline-Guard; WifiOff-Fallback; Coaching ≥+10/±5/<-10; Divergenz-Balken vs Team-Trend; 30-Min-Polling */}
           <FahrerPhase5307MeinSchichtPuenktlichkeitTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 1957: Tour-Stopp-Cockpit V3 — V2+: Multi-Stop-Übersicht alle Stopps+ETA; Live-Bonus-Akkumulator Pünktlichkeit+Bewertung+Strecke; Stopp-Vergleich Heute vs. Letzte Schicht; Schnellkontakt-Panel 1-Tap Anrufen/Navigieren; Score-Ring live; 15s-Polling */}
+          <FahrerPhase1957TourStoppCockpitV3 />
           {/* Phase 1956: Tour-Stopp-Cockpit V2 — Ankunfts-Bestätigung Tap-to-Confirm; Kunden-QR-Code; Bonus-Indikator je Stopp; Stopp-Kommentar; 15s-Polling */}
           <FahrerPhase1956TourStoppCockpitV2 />
           {/* Phase 5311: Meine Touren-Effizienz — Zap yellow-400; Score 0–100 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching ≥80/≥60/<60; Mini-Balken vs Team-Ø; Ampel-Border; 30-Min-Polling */}
@@ -12586,6 +12589,8 @@ export { FahrerPhase5303MeineSchichtPuenktlichkeit } from './phase5303-meine-sch
 // Phase 5307 — Mein Pünktlichkeits-Trend (TrendingUp emerald; Trend% 4xl±; isOnline-Guard; WifiOff-Fallback; Coaching ≥+10/±5/<-10; Divergenz-Balken; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5307MeinSchichtPuenktlichkeitTrend } from './phase5307-mein-schicht-puenktlichkeit-trend';
 export { FahrerPhase1956TourStoppCockpitV2 } from './phase1956-tour-stopp-cockpit-v2';
+// Phase 1957 — Tour-Stopp-Cockpit V3 (V2+: Multi-Stop-Übersicht alle Stopps+ETA-Prognose; Live-Bonus-Akkumulator Pünktlichkeit+Bewertung+Strecke; Stopp-Vergleich Heute vs. Letzte Schicht; Schnellkontakt-Panel 1-Tap Anrufen/Navigieren; Score-Fortschritts-Ring live; 15s-Polling; Mock-Fallback)
+export { FahrerPhase1957TourStoppCockpitV3 } from './phase1957-tour-stopp-cockpit-v3';
 // Phase 5311 — Meine Touren-Effizienz (Zap yellow-400; Score 0–100 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching ≥80/≥60/<60; Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5311MeineTourenEffizienz } from './phase5311-meine-touren-effizienz';
 // Phase 5315 — Meine Kilometer heute (Route green-400; km 4xl+Rang; isOnline-Guard; WifiOff-Fallback; Coaching relativ zu Team-Ø; Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback)

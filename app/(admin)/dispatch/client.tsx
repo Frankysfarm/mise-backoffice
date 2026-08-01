@@ -1469,6 +1469,7 @@ import { DispatchPhase5511ScoreTourVisualisierungV40 } from './phase5511-score-t
 import { DispatchPhase5517AbholpuenktlichkeitBoard } from './phase5517-abholpuenktlichkeit-board';
 import { DispatchPhase5521ScoreTourVisualisierungV41 } from './phase5521-score-tour-visualisierung-v41';
 import { DispatchPhase5525MehrfachlieferungenBoard } from './phase5525-mehrfachlieferungen-board';
+import { DispatchPhase5530ScoreTourVisualisierungV42 } from './phase5530-score-tour-visualisierung-v42';
 
 type Driver = {
   employee_id: string;
@@ -5796,6 +5797,8 @@ export function DispatchBoard({
           <DispatchPhase5511ScoreTourVisualisierungV40 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5517: Abholpünktlichkeit-Board — Timer violet-400; avg_minuten AUFSTEIGEND Rang 1=schnellste Abholung=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Langsam-Alert; 30-Min-Polling */}
           <DispatchPhase5517AbholpuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5530: Score + Tour-Visualisierung V42 — V41+: Echtzeit-Profit-per-Stop-Matrix €/Stopp; Fahrer-Energie-Level-Indikator Schichtdauer-basiert; Zone-Überdeckungs-Gap-Analyse; Tour-Abschluss-Prognose ±min; 10-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/CO₂/Ertrag/Energie/Gap/Profit; 6-Tab Rangliste/Profit/Energie/Lücken/CO₂/Prognose; 20s-Polling */}
+          <DispatchPhase5530ScoreTourVisualisierungV42 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5521: Score + Tour-Visualisierung V41 — V40+: Flottenauslastungs-Heatmap Uhrzeiten×Fahrer; CO₂-Effizienz-Score g/Lieferung; Optimal-Route-Simulation Zeitersparnis; Zone-Demand-vs-Supply-Balance; 9-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/CO₂/Demand/Supply/Profit; 5-Tab Rangliste/Heatmap/CO₂/Balance/Simulation; 20s-Polling */}
           <DispatchPhase5521ScoreTourVisualisierungV41 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5525: Mehrfachlieferungen-Board — Layers sky-400; avg_lieferungen ABSTEIGEND Rang 1=meiste Lieferungen pro Tour=bester; 3-KPI-Grid Höchste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
@@ -14842,3 +14845,5 @@ export { DispatchPhase5517AbholpuenktlichkeitBoard } from './phase5517-abholpuen
 export { DispatchPhase5521ScoreTourVisualisierungV41 } from './phase5521-score-tour-visualisierung-v41';
 // Phase 5525 — Mehrfachlieferungen-Board (Layers sky-400; avg_lieferungen ABSTEIGEND Rang 1=meiste Lieferungen pro Tour=bester; 3-KPI-Grid Höchste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_niedrig <2.0; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5525MehrfachlieferungenBoard } from './phase5525-mehrfachlieferungen-board';
+// Phase 5530 — Score + Tour-Visualisierung V42 (Trophy yellow; V41+: Echtzeit-Profit-per-Stop-Matrix €/Stopp je Fahrer; Fahrer-Energie-Level-Indikator Schichtdauer-basiert grün/gelb/rot; Zone-Überdeckungs-Gap-Analyse; Tour-Abschluss-Prognose ±min; 10-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/CO₂/Ertrag/Energie/Gap/Profit; 6-Tab Rangliste/Profit/Energie/Lücken/CO₂/Prognose; 20s-Polling; Mock-Fallback)
+export { DispatchPhase5530ScoreTourVisualisierungV42 } from './phase5530-score-tour-visualisierung-v42';

@@ -544,6 +544,7 @@ import { LieferdienstPhase5502StatistikenDashboardV51 } from './phase5502-statis
 import { LieferdienstPhase5510StatistikenDashboardV52 } from './phase5510-statistiken-dashboard-v52';
 import { LieferdienstPhase5511StatistikenDashboardV53 } from './phase5511-statistiken-dashboard-v53';
 import { LieferdienstPhase5521StatistikenDashboardV54 } from './phase5521-statistiken-dashboard-v54';
+import { LieferdienstPhase5530StatistikenDashboardV55 } from './phase5530-statistiken-dashboard-v55';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2506,6 +2507,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5510StatistikenDashboardV52 locationId={locationId ?? null} />
                 {/* Phase 5511: Statistiken-Dashboard V53 — V52+: Echtzeit-Kapazitätsmanagement Fahrer-Slots; KI-Prognose nächste 2h+Konfidenz; Ertrag/km-Entwicklung AreaChart; Zonen-SLA-Matrix mit Trend-Icons; Revenue-Breakdown Zahlungsart; 14-KPI-Grid; 9-Tab-Nav; 60-Sek-Polling */}
                 <LieferdienstPhase5511StatistikenDashboardV53 locationId={locationId ?? null} />
+                {/* Phase 5530: Statistiken-Dashboard V55 — V54+: KI-Schicht-Score-Prognose +1h+Konfidenz; Fahrer-Moral-Index Bewertung+Trinkgeld+Pünktlichkeit Composite; Umsatz-Momentum Δ€/h AreaChart; Lieferzeit-Perzentil-Analyse P50/P75/P90 LineChart; 16-KPI-Grid 4-spaltig; 11-Tab-Nav; 60-Sek-Polling */}
+                <LieferdienstPhase5530StatistikenDashboardV55 locationId={locationId ?? null} />
                 {/* Phase 5521: Statistiken-Dashboard V54 — V53+: Kosten-Nutzen-Analyse je Zone Einsatz-vs-Ertrag-Ratio; Fahrer-Auslastungs-Kalender Woche×Stunde Heatgrid; Peak-Hour-Effizienz-Vergleich letzte 4 Wochen LineChart; Kundentreue-Kohorte Radar; 15-KPI-Grid; 10-Tab-Nav; 60-Sek-Polling */}
                 <LieferdienstPhase5521StatistikenDashboardV54 locationId={locationId ?? null} />
                 {/* Phase 5502: Statistiken-Dashboard V51 — V50+Revenue-Trend-SparkLine 7h; Zonen-Fahrer-Anzeige; Alert-Strip; Gesamt-Score-Balken; 8-KPI-Grid; Stundenverlauf BarChart; Top-3-Fahrer Vergleichs-Balken; Zonen-SLA; 60-Sek-Polling */}
@@ -5288,3 +5291,5 @@ export { LieferdienstPhase5510StatistikenDashboardV52 } from './phase5510-statis
 export { LieferdienstPhase5511StatistikenDashboardV53 } from './phase5511-statistiken-dashboard-v53';
 // Phase 5521 — Statistiken-Dashboard V54 (BarChart2 indigo; V53+: Kosten-Nutzen-Analyse je Zone Einsatz-vs-Ertrag-Ratio; Fahrer-Auslastungs-Kalender Woche×Stunde HeatGrid; Peak-Hour-Effizienz-Vergleich 4 Wochen LineChart; Kundentreue-Kohorte Neukunden/Stammkunden/VIP Radar; 15-KPI-Grid 5-spaltig; 10-Tab-Nav Überblick/Kapazität/Prognose/Ertrag/Zonen/Kosten/Kunden/Kalender/Peak/Bilanz; 60s-Polling; Mock-Fallback)
 export { LieferdienstPhase5521StatistikenDashboardV54 } from './phase5521-statistiken-dashboard-v54';
+// Phase 5530 — Statistiken-Dashboard V55 (Activity teal; V54+: KI-Schicht-Score-Prognose nächste Stunde+Konfidenz; Fahrer-Moral-Index Bewertung+Trinkgeld+Pünktlichkeit Composite 0–100; Umsatz-Momentum-Indikator Δ€/h AreaChart; Lieferzeit-Perzentil-Analyse P50/P75/P90 LineChart; 16-KPI-Grid 4-spaltig; 11-Tab-Nav Überblick/Kapazität/Prognose/Ertrag/Zonen/Kosten/Kunden/Moral/Momentum/Perzentil/Bilanz; 60s-Polling; Mock-Fallback)
+export { LieferdienstPhase5530StatistikenDashboardV55 } from './phase5530-statistiken-dashboard-v55';

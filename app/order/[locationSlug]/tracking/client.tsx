@@ -25,6 +25,7 @@ import { BestellPhase5479DynamischeEtaLiveTrackingV14 } from '../phase5479-dynam
 import { StorefrontPhase5483DynamischeEtaLiveTrackingV15 } from '../phase5483-dynamische-eta-live-tracking-v15';
 import { StorefrontPhase5504DynamischeEtaLiveTrackingV16 } from '../phase5504-dynamische-eta-live-tracking-v16';
 import { StorefrontPhase5521DynamischeEtaLiveTrackingV18 } from '../phase5521-dynamische-eta-live-tracking-v18';
+import { StorefrontPhase5530DynamischeEtaLiveTrackingV19 } from '../phase5530-dynamische-eta-live-tracking-v19';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 
@@ -442,6 +443,8 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
         <StorefrontPhase5483DynamischeEtaLiveTrackingV15 orderId={order.id} locationSlug={locationSlug} initialStatus={order.status} initialEta={order.eta_earliest} />
         {/* Phase 5504: Dynamische ETA Live-Tracking V16 — Pulsierender Fahrer-Punkt auf Fortschritts-Linie; Lieferfortschritts-%-Balken; Step-by-Step Statuslinie; ETA-Countdown Sekunden-genau farbkodiert; Fahrer-Info-Card+Anruf-Button; Supabase-Subscription+30s-Polling */}
         <StorefrontPhase5504DynamischeEtaLiveTrackingV16 orderId={order.id} locationSlug={locationSlug} initialStatus={order.status} initialEta={order.eta_earliest} />
+        {/* Phase 5530: Dynamische ETA Live-Tracking V19 — V18+: Community-Lieferzeit-Vergleich Ampel grün/gelb/rot; Restaurant-Qualitäts-Badge Schicht-Bewertung★ live; Fahrer-Energie-Anzeige Schichtdauer-Fitness; Bestellhistorie-Schnellhinweis letztes Gericht+Nachbestellungs-CTA; Fahrer-Nähe-Puls-Wellen SVG 3-Zonen; 1s-Tick+20s-Polling */}
+        <StorefrontPhase5530DynamischeEtaLiveTrackingV19 orderId={order.id} locationSlug={locationSlug} initialStatus={order.status} initialEta={order.eta_earliest} />
         {/* Phase 5521: Dynamische ETA Live-Tracking V18 — V17+: Geofence-Alarm 500m/200m/50m pulsierend; Push-Benachrichtigungs-Opt-in; Freigabe-Konfetti-Animation Lieferung; Warme-Mahlzeit-Countdown optimal servieren; Kurier-Chat-Bubble Mock; 1s-Tick+20s-Polling */}
         <StorefrontPhase5521DynamischeEtaLiveTrackingV18 orderId={order.id} locationSlug={locationSlug} initialStatus={order.status} initialEta={order.eta_earliest} />
 
