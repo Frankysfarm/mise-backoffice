@@ -2,6 +2,10 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 66 (5450/5451/5453) Frühbucher-Score-Ranking implementiert · API fahrer-fruehbucher-score (neu, ABSTEIGEND, fruehbucher_quote_pct/team_avg_pct/bester_name/schlechteste_name/alert_niedrig, Schichtannahme ≥24h-Kriterium) · Import+Render+Barrel ✅ Dispatch(5450) + Fahrer(5451) + Kitchen(5453) · Nächste freie Phase: 5454
+
+**CEO Review #765 (2026-08-01):** Build exit 0 ✅ · Batch 64 (5442/5443/5445) Stopp-Effizienz-Ranking verifiziert · Batch 65 (5446/5447/5449) Lieferzeit-Varianz-Ranking verifiziert · MARKT-REIF bestätigt · Nächste freie Phase: 5450
+
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 (pre-existing Turbopack-Workspace-Env-Problem) · Batch 64 (5442/5443/5445) Stopp-Effizienz-Ranking implementiert · API fahrer-stopps-pro-stunde-ranking (bereits vorhanden, ABSTEIGEND, stopps_pro_stunde/team_avg/bester_name/langsamster_name/alert_bottom) · Import+Render+Barrel ✅ Dispatch(5442) + Fahrer(5443) + Kitchen(5445) · Nächste freie Phase: 5446
 
 **CEO Review #764 (2026-08-01):** Build exit 0 ✅ · TSC exit 0 ✅ · Batch 62 (5434/5435/5437) Umsatz/Schicht-Ranking verifiziert · Batch 63 (5438/5439/5441) Stoppquoten-Ranking verifiziert · MARKT-REIF bestätigt · Nächste freie Phase: 5442
@@ -33,6 +37,44 @@
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 66 — Frühbucher-Score-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5450 — Frühbucher-Board (Dispatch)
+**Component:** `DispatchPhase5450FruehbucherBoard` — CalendarCheck green-400; fruehbucher_quote_pct ABSTEIGEND Rang 1=höchste Quote=bester Planer; 3-KPI-Grid Bester/r/Team-Ø/Schlechteste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Niedrig-Alert alert_niedrig; 30-Min-Polling ✅
+
+### Phase 5451 — Mein Frühbucher-Score (Fahrer)
+**Component:** `FahrerPhase5451MeinFruehbucherScore` — CalendarCheck green-400; fruehbucher_quote_pct 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥80%/≥60%/<60%; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5452 — Storefront: übersprungen ✅
+
+### Phase 5453 — Frühbucher-Ticker (Kitchen)
+**Component:** `KitchenPhase5453FruehbucherTicker` — CalendarCheck green-400; Bester/r #1 Name+%; Team-Ø; Niedrig-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-fruehbucher-score` (neu) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, fruehbucher_quote_pct, rank_delta, ampel, alert_niedrig}], team_avg_pct, bester_name, schlechteste_name, alert_count, gesamt }`
+**Logik:** Anteil Schichten ≥24h vor Beginn angenommen (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchste Quote = bester Planer) · Ampel: grün/gelb/rot nach Quartilen · alert_niedrig: unteres 25%-Quartil · Coaching: ≥80%/≥60%/<60%
+
+**KRITISCH: Nächste freie Phase ist 5454!** NIEMALS 4000–5453 verwenden.
+
+---
+
+## Batch 65 — Lieferzeit-Varianz-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5446 — Lieferzeit-Varianz-Board (Dispatch)
+**Component:** `DispatchPhase5446LieferzeitVarianzBoard` — Sigma purple-400; stddev_min AUFSTEIGEND Rang 1=niedrigste Varianz=konstantester=bester; 3-KPI-Grid Konstanteste/r/Team-Ø/Unbeständigste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert alert_hoch; 30-Min-Polling ✅
+
+### Phase 5447 — Meine Lieferzeit-Varianz (Fahrer)
+**Component:** `FahrerPhase5447MeineLieferzeitVarianz` — Sigma purple-400; stddev_min 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≤3/≤6/>6 min Varianz; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5448 — Storefront: übersprungen ✅
+
+### Phase 5449 — Lieferzeit-Varianz-Ticker (Kitchen)
+**Component:** `KitchenPhase5449LieferzeitVarianzTicker` — Sigma purple-400; Konstanteste/r #1 Name+±min; Team-Ø; Hoch-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-lieferzeit-varianz-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, stddev_min, rank_delta, ampel, alert_hoch}], team_avg_stddev, konsistenteste_name, inkonsistenteste_name, alert_count, gesamt }`
+**Logik:** Standardabweichung Lieferzeit in Minuten (letzte 30 Tage) · AUFSTEIGEND (Rang 1 = niedrigste Varianz = konstantester = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_hoch: stddev_min > 15min
+
+---
 
 ## Batch 63 — Stoppquoten-Ranking (ABGESCHLOSSEN 2026-08-01)
 

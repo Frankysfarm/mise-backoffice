@@ -1353,6 +1353,7 @@ import { FahrerPhase5435MeinUmsatzProSchicht } from './phase5435-mein-umsatz-pro
 import { FahrerPhase5439MeineStoppquote } from './phase5439-meine-stoppquote';
 import { FahrerPhase5443MeineStoppEffizienz } from './phase5443-meine-stopp-effizienz';
 import { FahrerPhase5447MeineLieferzeitVarianz } from './phase5447-meine-lieferzeit-varianz';
+import { FahrerPhase5451MeinFruehbucherScore } from './phase5451-mein-fruehbucher-score';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7847,6 +7848,8 @@ export function FahrerApp({
           <FahrerPhase5443MeineStoppEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5447: Meine Lieferzeit-Varianz — Sigma purple-400; lieferzeit_varianz_min 4xl+Rang; Coaching ≤3min/≤6min/>6min; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5447MeineLieferzeitVarianz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5451: Mein Frühbucher-Score — CalendarCheck green-400; fruehbucher_quote_pct 4xl+Rang; Coaching ≥80%/≥60%/<60%; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5451MeinFruehbucherScore driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12597,6 +12600,8 @@ export { FahrerPhase5439MeineStoppquote } from './phase5439-meine-stoppquote';
 export { FahrerPhase5443MeineStoppEffizienz } from './phase5443-meine-stopp-effizienz';
 // Phase 5447 — Meine Lieferzeit-Varianz (Sigma purple-400; lieferzeit_varianz_min 4xl+Rang; Coaching ≤3min/≤6min/>6min; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
 export { FahrerPhase5447MeineLieferzeitVarianz } from './phase5447-meine-lieferzeit-varianz';
+// Phase 5451 — Mein Frühbucher-Score (CalendarCheck green-400; fruehbucher_quote_pct 4xl+Rang; Coaching ≥80%/≥60%/<60%; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5451MeinFruehbucherScore } from './phase5451-mein-fruehbucher-score';
 
 // Phase 5420 — Tour-Stopp-Navigations-Hub V2 (Navigation blue; ETA-Präzisions-Score je Stopp; Optimale-Reihenfolge-Indikator; Waypoint Distanz-Ampel; Fahrer-Wartezeit-Hinweis; Zahlungsart-Badge; Nächster-Stopp-CTA GPS-Deep-Link; Stopp-Status grün/gelb/rot/grau; Mock-Fallback)
 export { FahrerPhase5420TourNavHub } from './phase5420-tour-nav-hub';

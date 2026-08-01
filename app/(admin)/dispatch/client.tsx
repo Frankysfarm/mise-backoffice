@@ -1449,6 +1449,7 @@ import { DispatchPhase5434UmsatzProSchichtBoard } from './phase5434-umsatz-pro-s
 import { DispatchPhase5438StoppquotenBoard } from './phase5438-stoppquoten-board';
 import { DispatchPhase5442StoppEffizienzBoard } from './phase5442-stopp-effizienz-board';
 import { DispatchPhase5446LieferzeitVarianzBoard } from './phase5446-lieferzeit-varianz-board';
+import { DispatchPhase5450FruehbucherBoard } from './phase5450-fruehbucher-board';
 
 type Driver = {
   employee_id: string;
@@ -5740,6 +5741,8 @@ export function DispatchBoard({
           <DispatchPhase5442StoppEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5446: Lieferzeit-Varianz-Board — Sigma purple-400; AUFSTEIGEND; 3-KPI-Grid Konstanteste/Team-Ø/Unbeständigste; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
           <DispatchPhase5446LieferzeitVarianzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5450: Frühbucher-Board — CalendarCheck green-400; ABSTEIGEND; 3-KPI-Grid Bester/Team-Ø/Schlechtester; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5450FruehbucherBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14736,5 +14739,7 @@ export { DispatchPhase5438StoppquotenBoard } from './phase5438-stoppquoten-board
 export { DispatchPhase5442StoppEffizienzBoard } from './phase5442-stopp-effizienz-board';
 // Phase 5446 — Lieferzeit-Varianz-Board (Sigma purple-400; AUFSTEIGEND; 3-KPI-Grid Konstanteste/Team-Ø/Unbeständigste; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5446LieferzeitVarianzBoard } from './phase5446-lieferzeit-varianz-board';
+// Phase 5450 — Frühbucher-Board (CalendarCheck green-400; ABSTEIGEND; 3-KPI-Grid Bester/Team-Ø/Schlechtester; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5450FruehbucherBoard } from './phase5450-fruehbucher-board';
 // Phase 5420 — Score + Tour-Visualisierung V34 (Trophy violet; Fahrer-Cluster-Karte Hotspot-Dichte; Profit/km je Fahrer; ETA-Drift-Alarm; Fleet-Fitness-Score; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/€-km; 3-Tab Rangliste/Cluster/Profit; Tier-farbkodiert Platin/Gold/Gut/Schwach; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5420ScoreTourVisualisierungV34 } from './phase5420-score-tour-visualisierung-v34';
