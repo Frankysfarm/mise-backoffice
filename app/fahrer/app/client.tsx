@@ -1376,6 +1376,7 @@ import { FahrerPhase5521TourStopsNavHubV16 } from './phase5521-tour-stops-nav-hu
 import { FahrerPhase5526MeineMehrfachlieferungen } from './phase5526-meine-mehrfachlieferungen';
 import { FahrerPhase5531MeinePauseneffizienz } from './phase5531-meine-pauseneffizienz';
 import { FahrerPhase5532MeinUmsatzProTour } from './phase5532-mein-umsatz-pro-tour';
+import { FahrerPhase5536MeineNachtschichtEffizienz } from './phase5536-meine-nachtschicht-effizienz';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7904,6 +7905,8 @@ export function FahrerApp({
           <FahrerPhase5531MeinePauseneffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5532: Mein Umsatz pro Tour — Euro green-400; avg_umsatz ABSTEIGEND Rang 1=höchster Umsatz=bester; Coaching ≥40€/≥30€/<30€; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5532MeinUmsatzProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5536: Meine Nachtschicht-Effizienz — Moon indigo-400; avg_nacht_lieferungen ABSTEIGEND Rang 1=meiste=bester; Coaching ≥15/≥10/<10; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />
           {/* Phase 5521: Tour-Stops Nav Hub V16 — V15+: Wetter-Einfluss auf ETA Regen-Faktor; Stopp-Optimierungs-KI-Reihenfolge Toggle; Einnahmen-Tracker Bar/Karte/Digital live; Pause-Empfehlung nach Schichtdauer; 8-KPI-Grid; Chat-Bubble; Offline-Guard; 30s-Poll */}
@@ -12717,3 +12720,5 @@ export { FahrerPhase5526MeineMehrfachlieferungen } from './phase5526-meine-mehrf
 export { FahrerPhase5531MeinePauseneffizienz } from './phase5531-meine-pauseneffizienz';
 // Phase 5532 — Mein Umsatz pro Tour (Euro green-400; avg_umsatz ABSTEIGEND Rang 1=höchster Umsatz=bester; Coaching ≥40€/≥30€/<30€; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5532MeinUmsatzProTour } from './phase5532-mein-umsatz-pro-tour';
+// Phase 5536 — Meine Nachtschicht-Effizienz (Moon indigo-400; avg_nacht_lieferungen ABSTEIGEND Rang 1=meiste Nachtlieferungen=bester; Coaching ≥15/≥10/<10; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5536MeineNachtschichtEffizienz } from './phase5536-meine-nachtschicht-effizienz';

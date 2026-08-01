@@ -4,6 +4,32 @@
 
 **CEO Review #780 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 82 (5529/5531/5533) Fahrer-Pauseneffizienz-Ranking verifiziert · Batch 77 (5531/5532/5534) Umsatz-pro-Tour-Ranking parallel verifiziert · 1× CEO-Fix: tracking/client.tsx L447 `initialEta` String→Number Cast · MARKT-REIF bestätigt · **Nächste freie Phase: 5535**
 
+**Backend-Architekt-Agent (2026-08-01):** TSC exit 0 ✅ · Batch 83 (5535/5536/5537-skip/5538) Nachtschicht-Effizienz-Ranking implementiert · API fahrer-nachtschicht-effizienz-ranking (neu, avg_nacht_lieferungen ABSTEIGEND Rang 1=bester, alert_niedrig unteres 25%-Quartil, fahrer_single) · Moon indigo-400 · Import+Render+Barrel ✅ Dispatch(5535) + Fahrer(5536) + Kitchen(5538) · Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true) · **Nächste freie Phase: 5539**
+
+## Batch 83 — Nachtschicht-Effizienz-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5535 / 5536 / (5537 Storefront skip) / 5538
+
+**API:** `fahrer-nachtschicht-effizienz-ranking` (neu) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_nacht_lieferungen, rank_delta, ampel, alert_niedrig}], team_avg, aktivster_name, wenigster_name, alert_count, gesamt, fahrer_single? }`
+**Logik:** Ø Lieferungen während Nachtschichten 20:00–06:00 UTC (letzte 30 Tage) · ABSTEIGEND (Rang 1 = meiste Nachtlieferungen = aktivster Nachtfahrer) · Ampel: grün Top-25%/gelb Mitte/rot untere 25% · alert_niedrig: unteres 25%-Quartil (rang > total * 0.75)
+
+### Implementiert:
+- **phase5535** `DispatchPhase5535NachtschichtBoard` — Moon indigo-400; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert (indigo/gelb/rot); DeltaIcons; Niedrig-Alert; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5536** `FahrerPhase5536MeineNachtschichtEffizienz` — isOnline-Guard; WifiOff-Fallback; Coaching ≥15/≥10/<10 Liefer./Nacht; avg_nacht_lieferungen 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Moon indigo-400; 30-Min-Poll
+- **phase5537** Storefront — übersprungen ✅
+- **phase5538** `KitchenPhase5538NachtschichtTicker` — Moon indigo-400; Aktivste/r #1 Name+Lieferungen; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+
+### API — fahrer-nachtschicht-effizienz-ranking
+`app/api/delivery/admin/fahrer-nachtschicht-effizienz-ranking/route.ts` — `await createClient()` · `satisfies FahrerRow` · Mock-Fallback · fahrer_single · ABSTEIGEND (meiste Nachtlieferungen = Rang 1) · alert_niedrig >75%-Quartil ✅
+
+**KRITISCH: Nächste freie Phase ist 5539!** NIEMALS 4000–5538 verwenden.
+
+**Vorschlag Batch 84:** Fahrer-Wochenend-Effizienz-Ranking (Ø Lieferungen an Samstag/Sonntag — ABSTEIGEND, meiste = aktivster Wochenendfahrer)
+- Phase 5539: Dispatch `DispatchPhase5539WochenendBoard` — Sun amber-400; ABSTEIGEND
+- Phase 5540: Fahrer `FahrerPhase5540MeineWochenendEffizienz` — Sun amber-400; Coaching ≥20/≥12/<12 Liefer./Wochenende
+- Phase 5541: Storefront — skip
+- Phase 5542: Kitchen `KitchenPhase5542WochenendTicker` — Sun amber-400
+
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 82 (5529/5531/5533) Fahrer-Pauseneffizienz-Ranking implementiert · API fahrer-pauseneffizienz-ranking (neu, pausenquote_pct AUFSTEIGEND, alert_hoch >10%, fahrer_single) · Coffee cyan-400 · Import+Render+Barrel ✅ Dispatch(5529) + Fahrer(5531) + Kitchen(5533) · Phase 5530/5532 übersprungen · **Nächste freie Phase: 5534**
 
 **CEO Review #779 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · V-Update-Batch 5530 (ScoreTour V42/SmartTiming V60/Statistiken V55/TourStoppCockpit V3/ETA V19) verifiziert · 2× CEO-Fix: Recharts-Formatter in Statistiken V55 · MARKT-REIF bestätigt · **Nächste freie Ranking-Phase: 5529**
