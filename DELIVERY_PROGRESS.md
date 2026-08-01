@@ -39097,4 +39097,32 @@ Import+Render+Barrel ✅ Dispatch(5488) + Fahrer(5489) + Kitchen(5491)
 
 Backend-Architekt-Agent (2026-08-01): Batch 75 abgeschlossen. API fahrer-tourstart-reaktionszeit-ranking (VORHANDEN, avg_min/alert_bottom Schema). 3 Komponenten (5488/5489/5491) — Tourstart-Reaktionszeit-Ranking Timer violet-400 AUFSTEIGEND. Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5492.**
 
+---
+
+## Batch 76 — Kundenbewertungs-Ranking ✅ (2026-08-01)
+
+**Phasen:** 5496 / 5497 / (5498 Storefront skip) / 5499
+
+**Hinweis:** Phasen 5492–5495 wurden bereits durch V-Updates (Smart-Timing V55, Score-Tour V37, Statistiken V50, Tour-Nav V12) belegt (Commit 84a9bfbe). Batch 76 startet daher bei Phase 5496.
+
+**API:** `fahrer-kundenbewertung-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_bewertung, rank_delta, ampel, alert_niedrig}], team_avg_bewertung, bester_name, niedrigster_name, alert_count, gesamt, ziel_bewertung }`
+**Logik:** Ø Kundenbewertung (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchste avg_bewertung = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_niedrig: unteres 25%-Quartil
+
+### Implementiert:
+- **phase5496** `DispatchPhase5496KundenbewertungBoard` — Star orange-400; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert (orange/amber/rot); DeltaIcons; Niedrig-Alert via alert_niedrig; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5497** `FahrerPhase5497MeineKundenbewertung` — isOnline-Guard; WifiOff-Fallback; Coaching ≥4.5/≥4.0/<4.0; avg_bewertung 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Star orange-400; 30-Min-Poll
+- **phase5499** `KitchenPhase5499KundenbewertungTicker` — Star orange-400; Beste/r #1 Name+★avg; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+
+**KRITISCH: Nächste freie Phase ist 5500!** NIEMALS 4000–5499 verwenden.
+
+**Vorschlag Batch 77:** Fahrer-Umsatz-pro-Tour-Ranking (Ø Umsatz pro Tour — ABSTEIGEND, höchster = bester)
+- Phase 5500: Dispatch `DispatchPhase5500UmsatzProTourBoard` — Euro green-400; ABSTEIGEND
+- Phase 5501: Fahrer `FahrerPhase5501MeinUmsatzProTour` — Euro green-400; Coaching API-abhängig
+- Phase 5502: Storefront — skip
+- Phase 5503: Kitchen `KitchenPhase5503UmsatzProTourTicker` — Euro green-400
+
+---
+
+Backend-Architekt-Agent (2026-08-01): Batch 76 abgeschlossen. API fahrer-kundenbewertung-ranking (VORHANDEN, avg_bewertung/team_avg_bewertung/bester_name/niedrigster_name/alert_niedrig/ziel_bewertung). Import+Render+Barrel ✅ Dispatch(5496) + Fahrer(5497) + Kitchen(5499). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5500.**
+
 ## STATUS: MARKT-REIF

@@ -1364,6 +1364,7 @@ import { FahrerPhase5481MeineGesamtlieferungen } from './phase5481-meine-gesamtl
 import { FahrerPhase5485MeineTourstartPuenktlichkeit } from './phase5485-meine-tourstart-puenktlichkeit';
 import { FahrerPhase5489MeineTourstartReaktionszeit } from './phase5489-meine-tourstart-reaktionszeit';
 import { FahrerPhase5493TourStopsNavHubV12 } from './phase5493-tour-stops-nav-hub-v12';
+import { FahrerPhase5497MeineKundenbewertung } from './phase5497-meine-kundenbewertung';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7876,6 +7877,8 @@ export function FahrerApp({
           <FahrerPhase5489MeineTourstartReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5493: Tour-Stops Nav Hub V12 — CountdownRing SVG; Google Maps+Waze Deep-Links; Geliefert-CTA; Next-Stops-Liste; Traffic-Badge; 30-Sek-Polling */}
           <FahrerPhase5493TourStopsNavHubV12 driverId={driver.id} locationId={driver.location_id ?? null} />
+          {/* Phase 5497: Meine Kundenbewertung — Star orange-400; avg_bewertung 4xl+Rang; Coaching ≥4.5/≥4.0/<4.0; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5497MeineKundenbewertung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5478: Tour-Stops & Navigation Hub V11 — Multi-App-Navigation-Wähler; Sprach-Navigations-Hinweis; Distanz-Fortschritts-Ring SVG; Kunden-Kontakt-Direktaktionen Anruf/SMS; Stopp-Bewertungs-Prompt; ETA-Genauigkeits-Badge; 7-KPI-Grid */}
           <FahrerPhase5478TourStopsNavHubV11 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5469: Tour-Stops & Navigation Hub V10 — ETA-Genauigkeits-Score je Stopp; KI-Reihenfolge-Badge; Zahlung-Status-Badge; Live-Distanz-Ampel; 6-KPI-Grid; GPS-Multi-App-Deeplinks; expand/collapse */}
@@ -12656,3 +12659,5 @@ export { FahrerPhase5485MeineTourstartPuenktlichkeit } from './phase5485-meine-t
 export { FahrerPhase5489MeineTourstartReaktionszeit } from './phase5489-meine-tourstart-reaktionszeit';
 // Phase 5493 — Tour-Stops Nav Hub V12 (CountdownRing SVG; Google Maps+Waze Deep-Links; Geliefert-CTA; Next-Stops-Liste; Traffic-Badge; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5493TourStopsNavHubV12 } from './phase5493-tour-stops-nav-hub-v12';
+// Phase 5497 — Meine Kundenbewertung (Star orange-400; avg_bewertung ABSTEIGEND Rang 1=höchste Bewertung=bester; 4xl+Rang; Coaching ≥4.5/≥4.0/<4.0; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5497MeineKundenbewertung } from './phase5497-meine-kundenbewertung';

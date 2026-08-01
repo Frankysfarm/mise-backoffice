@@ -1460,6 +1460,7 @@ import { DispatchPhase5480GesamtlieferungenBoard } from './phase5480-gesamtliefe
 import { DispatchPhase5484TourstartPuenktlichkeitBoard } from './phase5484-tourstart-puenktlichkeit-board';
 import { DispatchPhase5488TourstartReaktionszeitBoard } from './phase5488-tourstart-reaktionszeit-board';
 import { DispatchPhase5492ScoreTourVisualisierungV37 } from './phase5492-score-tour-visualisierung-v37';
+import { DispatchPhase5496KundenbewertungBoard } from './phase5496-kundenbewertung-board';
 
 type Driver = {
   employee_id: string;
@@ -5773,6 +5774,8 @@ export function DispatchBoard({
           <DispatchPhase5488TourstartReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5492: Score + Tour-Visualisierung V37 — Fleet-Score+Delta; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach; aufklappbare Stopp-Timeline; High-Risk-Alert-Banner; 20-Sek-Polling */}
           <DispatchPhase5492ScoreTourVisualisierungV37 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5496: Kundenbewertungs-Board — Star orange-400; avg_bewertung ABSTEIGEND Rang 1=höchste Bewertung=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5496KundenbewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14795,3 +14798,5 @@ export { DispatchPhase5488TourstartReaktionszeitBoard } from './phase5488-tourst
 
 // Phase 5492 — Score + Tour-Visualisierung V37 (Trophy violet; Fleet-Score+Delta; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/Touren; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Route-Effizienz-Balken; Stopp-Dot-Sequenz; aufklappbare Stopp-Timeline ETA+Betrag+Bewertung; High-Risk-Alert-Banner; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5492ScoreTourVisualisierungV37 } from './phase5492-score-tour-visualisierung-v37';
+// Phase 5496 — Kundenbewertungs-Board (Star orange-400; avg_bewertung ABSTEIGEND Rang 1=höchste Bewertung=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5496KundenbewertungBoard } from './phase5496-kundenbewertung-board';
