@@ -16,6 +16,7 @@ Updated: 2026-08-01
 | T08 Routing/Batching/Kitchen Hold | COMPLETE | G7 GREEN (isolated PostgreSQL + source contracts) | `codex/driver-remediation` | `5fa6b6f3`, `570d953e`, `c02e15e0` | Atomic route append, real Frank evaluation/RPC integration, read-only shadow, persistent hold watchdog and deterministic replay pass twice. |
 | T10 E2E Canary Release | LOCAL COMPLETE | G9 BLOCKED_EXTERNAL | `codex/driver-remediation` | `a4460510` | Full isolated aggregate is green; hosted services, networked build, compiled mobile and physical devices remain unavailable. |
 | Final Completion 2026-08-01 | LOCAL COMPLETE | PRODUCTION BLOCKED / SHADOW-ONLY | `codex/driver-remediation` | `90786387`…`dec91d43` | Runtime integrity, global optimizer, Google route-before-depart, multi-order cancel/arrival, explicit append consent, canonical UI and push dedupe pass locally. Production schema/device/hosted E2E and dependency-major-upgrade gates remain external/open. |
+| Autonomous Test Lab 2026-08-01 | IN PROGRESS | TL-G0 GREEN; release BLOCKED | `codex/driver-remediation` | `c143e83a`…current | Guard, synthetic actors, invariant monitor, chaos controller, independent oracle, 500 seeds, scenario catalog, CLI/reports and preview dashboard implemented locally. Real browser, DB-backed full scenarios, native/device, independent board and human acceptance remain open. |
 
 ## Production safety
 

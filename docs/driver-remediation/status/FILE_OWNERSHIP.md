@@ -32,5 +32,11 @@ Updated: 2026-08-01
 | multi-order cancel and arrival-sequence successor migration/tests | final completion | pickup_routing_audit | exclusive | New migration/test files after 286 only; no edits to existing migrations or shared API modules. |
 | push service-worker ACK/dedupe contract and tests | final completion | navigation_ui_audit | exclusive | New helper/test files and existing service-worker/push-register files only; no lifecycle UI edits. |
 | mid-tour proposed-append consent successor migration/tests | final completion | pickup_routing_audit | exclusive | New post-287 SQL/test files only; T08 append remains unchanged and callable only through accepted proposal handoff. |
+| `tests/driver-system-lab/support/**`, `tests/driver-system-lab/providers/**`, environment-guard tests | autonomous test lab | lead orchestrator | exclusive | TL-G0 isolation, run identity, provider sinks and safe cleanup; production is fail-closed. |
+| `tests/driver-system-lab/oracle/**`, `tests/driver-system-lab/scenarios/dispatch/**`, oracle tests/docs | autonomous test lab | dispatch_oracle_lab | exclusive | Independent data model/cost function; must not import production optimizer scoring. |
+| `tests/driver-system-lab/actors/**`, `tests/driver-system-lab/ui/**`, UI scenario fixtures | autonomous test lab | ui_actor_lab | exclusive | Synthetic actors and real-click browser harness; no business-state DB writer. |
+| `tests/driver-system-lab/invariants/**`, `tests/driver-system-lab/chaos/**`, invariant/chaos tests/docs | autonomous test lab | invariant_chaos_lab | exclusive | Read-only invariant checks and deterministic test-only failpoints. |
+| `tests/driver-system-lab/{cli,orchestrator,fixtures,scenarios,reports}/**`, lab package scripts, test-lab status/docs | autonomous test lab | lead orchestrator | exclusive | DSL, execution, evidence, dashboard/API safety, aggregate commands and gate decisions. |
+| `app/test-lab/**`, `app/api/test-lab/**` | autonomous test lab | lead orchestrator | exclusive | Local/test/staging-only dashboard; hard 404 in production and no direct business writer. |
 
 Ownership must be updated before another task edits a listed scope.

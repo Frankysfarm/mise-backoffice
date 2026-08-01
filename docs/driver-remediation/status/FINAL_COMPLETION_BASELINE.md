@@ -70,3 +70,20 @@ Produktive Schema-/Enum-/RLS-/Cron-/Flag-Stände, der aktuell ausgerollte Backen
 der TestFlight-Binary-SHA und reale Background-/Locked-/Killed-iPhone-Nachweise sind
 ohne produktive beziehungsweise Gerätezugriffe nicht lokal beweisbar. Sie dürfen am
 Ende nur als externe Release-Blocker, nicht als bestandene Gates ausgewiesen werden.
+# Autonomous Test Lab continuation baseline — 2026-08-01
+
+This section records the superseding completion master before TL-G0 work.
+
+- Master instruction read in full from the sole exact-name copy at `/Users/eule/Downloads/MISE_DRIVER_FINAL_COMPLETION_WITH_AUTONOMOUS_TESTLAB_PRO_2026-08-01.md`; it was not moved, renamed, copied, or edited.
+- Repository: `/Users/eule/mise-driver-remediation`
+- Branch: `codex/driver-remediation`
+- Input commit: `8c0ebb8c4b9274d8d0cbd0a33d8e215045321eec`
+- Dirty files at baseline: none (`git status --porcelain=v1` returned empty).
+- Host/toolchain: Darwin arm64, Node `v20.20.2`, npm `10.8.2`.
+- Installed dependencies: `node_modules` present (approximately 594 MiB).
+- Free disk at baseline: approximately 2.5 GiB; evidence retention must remain bounded.
+- Production prohibition: no production deployment, migration, database connection, order, push, provider charge, TestFlight upload, or feature activation is authorized.
+- First open gate: TL-G0 Isolation.
+
+The earlier completion evidence remains historical input. It does not make any
+new autonomous-test-lab gate green by implication.

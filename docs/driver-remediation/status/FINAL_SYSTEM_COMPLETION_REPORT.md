@@ -51,3 +51,13 @@ und Security-Major-Upgrade bleiben offen. Daher lautet die ehrliche Entscheidung
 Details stehen in `TEST_EVIDENCE.md`, `REMAINING_BLOCKERS.md`,
 `RELEASE_READINESS.md` und den Runbooks. Die Masterdatei wurde nicht geändert,
 verschoben, umbenannt oder überschrieben.
+# Autonomous test-lab continuation
+
+The superseding master added a production-denying autonomous lab. The local
+implementation now contains TL-G0 guard/sinks, synthetic actors, a real-click
+compatible UI harness, an invariant monitor, deterministic chaos controller,
+an independently implemented enumerating dispatch oracle with 500 seeds, a
+100+ case catalog, CLI/report formats, a six-step invariant-safe model timeline
+and a production-hidden dashboard preview. Aggregate test-lab evidence is
+48/48 green. This is not equivalent to browser, database-backed, native,
+independent-review or human-acceptance evidence, so the release is `BLOCKED`.
