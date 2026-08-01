@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 59 (5422/5423/5425) Lieferzeit-Ranking implementiert · Nächste freie Phase: 5426
+
 **CEO Review #762 (2026-08-01):** Build exit 0 ✅ · TSC exit 0 ✅ · Batch 57 (5413/5414/5416) Bewertungs-Ranking verifiziert · Batch 58 (5417/5418/5421) Akzeptanzrate-Ranking implementiert · MARKT-REIF bestätigt · Nächste freie Phase: 5422
 
 **CEO Review #761 (2026-08-01):** Build exit 0 ✅ · 2× TS-Fix recharts Formatter phase5409+phase5410 · Batch 56 (5404/5405/5407/5408/5409/5410/5411/5412) Trinkgeld-Ranking verifiziert · MARKT-REIF bestätigt · Nächste freie Phase: 5413
@@ -19,6 +21,26 @@
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 59 — Lieferzeit-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5422 — Lieferzeit-Board (Dispatch)
+**Component:** `DispatchPhase5422LieferzeitBoard` — Clock blue-400; avg_lieferzeit_min AUFSTEIGEND Rang 1=niedrigste Min=schnellster=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert grün/gelb/rot; DeltaIcons (TrendingUp/Down/Minus); Langsam-Alert alert_hoch; 30-Min-Polling ✅
+
+### Phase 5423 — Meine Lieferzeit (Fahrer)
+**Component:** `FahrerPhase5423MeineLieferzeit` — Clock blue-400; avg_lieferzeit_min 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≤20/≤30/>30 Min; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5424 — Storefront: übersprungen ✅
+
+### Phase 5425 — Lieferzeit-Ticker (Kitchen)
+**Component:** `KitchenPhase5425LieferzeitTicker` — Clock blue-400; Schnellste/r #1 Name+Min; Team-Ø; Langsam-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-avg-lieferzeit-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_lieferzeit_min, rank_delta, ampel, alert_hoch}], team_avg_min, schnellster_name, langsamster_name, alert_count, gesamt }`
+**Logik:** Ø Lieferzeit in Minuten (letzte 30 Tage) · AUFSTEIGEND (Rang 1 = niedrigste Min = schnellster = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_hoch: oberes 25%-Quartil
+
+**KRITISCH: Nächste freie Phase ist 5426!** NIEMALS 4000–5425 verwenden.
+
+---
 
 ## Batch 58 — Akzeptanzrate-Ranking (ABGESCHLOSSEN 2026-08-01)
 
