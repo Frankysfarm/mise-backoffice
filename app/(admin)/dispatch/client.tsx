@@ -1461,6 +1461,7 @@ import { DispatchPhase5484TourstartPuenktlichkeitBoard } from './phase5484-tours
 import { DispatchPhase5488TourstartReaktionszeitBoard } from './phase5488-tourstart-reaktionszeit-board';
 import { DispatchPhase5492ScoreTourVisualisierungV37 } from './phase5492-score-tour-visualisierung-v37';
 import { DispatchPhase5496KundenbewertungBoard } from './phase5496-kundenbewertung-board';
+import { DispatchPhase5500ScoreTourVisualisierungV38 } from './phase5500-score-tour-visualisierung-v38';
 
 type Driver = {
   employee_id: string;
@@ -5776,6 +5777,8 @@ export function DispatchBoard({
           <DispatchPhase5492ScoreTourVisualisierungV37 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5496: Kundenbewertungs-Board — Star orange-400; avg_bewertung ABSTEIGEND Rang 1=höchste Bewertung=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
           <DispatchPhase5496KundenbewertungBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5500: Score + Tour-Visualisierung V38 — V37+Eco-Score-Badge; Gesamttouren-Zielpfad-Balken; Batch-Indikator; Fleet-Score+Delta; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach; aufklappbare Stopp-Timeline; High-Risk-Alert-Banner; 20-Sek-Polling */}
+          <DispatchPhase5500ScoreTourVisualisierungV38 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14800,3 +14803,5 @@ export { DispatchPhase5488TourstartReaktionszeitBoard } from './phase5488-tourst
 export { DispatchPhase5492ScoreTourVisualisierungV37 } from './phase5492-score-tour-visualisierung-v37';
 // Phase 5496 — Kundenbewertungs-Board (Star orange-400; avg_bewertung ABSTEIGEND Rang 1=höchste Bewertung=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5496KundenbewertungBoard } from './phase5496-kundenbewertung-board';
+// Phase 5500 — Score + Tour-Visualisierung V38 (Trophy violet; V38: Eco-Score-Badge+Leaf; Gesamttouren-Zielpfad-Balken; Batch-Indikator; Fleet-Score+Delta; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/Eco; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach; Route-Effizienz+Eco-Balken; Stopp-Dot-Sequenz; aufklappbare Timeline; High-Risk-Alert-Banner; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5500ScoreTourVisualisierungV38 } from './phase5500-score-tour-visualisierung-v38';

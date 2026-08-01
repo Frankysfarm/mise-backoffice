@@ -1390,6 +1390,7 @@ import { KitchenPhase5487TourstartPuenktlichkeitTicker } from './phase5487-tours
 import { KitchenPhase5491TourstartReaktionszeitTicker } from './phase5491-tourstart-reaktionszeit-ticker';
 import { KitchenPhase5495SmartTimingCountdownV55 } from './phase5495-smart-timing-countdown-v55';
 import { KitchenPhase5499KundenbewertungTicker } from './phase5499-kundenbewertung-ticker';
+import { KitchenPhase5503SmartTimingCountdownV56 } from './phase5503-smart-timing-countdown-v56';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5307,6 +5308,8 @@ export function KitchenBoard({
       <KitchenPhase5495SmartTimingCountdownV55 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5499: Kundenbewertungs-Ticker — Star orange-400; Beste/r #1 Name+★avg; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
       <KitchenPhase5499KundenbewertungTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5503: Smart-Timing Countdown V56 — V55+Batch-Gruppen-Anzeige; Kochstart-Offset-Indikator; Abholer-Timing-Badge; 4-stufige Farbkodierung; Station-Filter; Dual-Countdown; 1s-Tick+15s-Polling */}
+      <KitchenPhase5503SmartTimingCountdownV56 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5475: Smart-Timing Countdown V54 — KI-Stapel-Prognose; Multi-Station-Farbkodierung; Übergabe-Zeit-Optimierer; Burn-Rate-Indikator; 10-KPI-Grid; 4-Tab; 1s-Tick+15s-Polling */}
       <KitchenPhase5475SmartTimingCountdownV54 />
       {/* Phase 5466: Smart-Timing Countdown V53 — Batch-Sync-Score je Gruppe; ETA-Fahrer-Abgleich-Matrix; KI-Kochstart-Korrektur-Vorschlag; Überfälligkeits-Eskalations-Alarm; 9-KPI-Grid; 3-Tab; 1s-Tick+15s-Polling */}
@@ -13374,3 +13377,5 @@ export { KitchenPhase5491TourstartReaktionszeitTicker } from './phase5491-tourst
 export { KitchenPhase5495SmartTimingCountdownV55 } from './phase5495-smart-timing-countdown-v55';
 // Phase 5499 — Kundenbewertungs-Ticker (Star orange-400; Beste/r #1 Name+★avg; Team-Ø; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5499KundenbewertungTicker } from './phase5499-kundenbewertung-ticker';
+// Phase 5503 — Smart-Timing Countdown V56 (Timer amber; V56: Batch-Gruppen-Anzeige+Users-Icon; Kochstart-Offset-Indikator ±min farbkodiert; 4-stufige Farbkodierung ok/warn/critical/overdue; Station-Filter-Tabs; 5-KPI-Grid Aktiv/Kritisch/Überfällig/Fertig/Batches; Dual-Countdown Küche+Fahrer-ETA-Sync; Fortschrittsbalken; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase5503SmartTimingCountdownV56 } from './phase5503-smart-timing-countdown-v56';

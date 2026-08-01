@@ -540,6 +540,7 @@ import { LieferdienstPhase5420StatistikenDashboardV47 } from './phase5420-statis
 import { LieferdienstPhase5468StatistikenDashboardV48 } from './phase5468-statistiken-dashboard-v48';
 import { LieferdienstPhase5477StatistikenDashboardV49 } from './phase5477-statistiken-dashboard-v49';
 import { LieferdienstPhase5480StatistikenDashboardV50 } from './phase5480-statistiken-dashboard-v50';
+import { LieferdienstPhase5502StatistikenDashboardV51 } from './phase5502-statistiken-dashboard-v51';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2498,6 +2499,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5477StatistikenDashboardV49 />
                 {/* Phase 5480: Statistiken-Dashboard V50 — Alert-Strip; Gesamt-Score-Balken; 8-KPI-Grid Ampel+Δ%+Ziel-Balken; Stundenverlauf BarChart; Top-3-Fahrer; Zonen-SLA-Balken; 60-Sek-Polling */}
                 <LieferdienstPhase5480StatistikenDashboardV50 locationId={locationId ?? null} />
+                {/* Phase 5502: Statistiken-Dashboard V51 — V50+Revenue-Trend-SparkLine 7h; Zonen-Fahrer-Anzeige; Alert-Strip; Gesamt-Score-Balken; 8-KPI-Grid; Stundenverlauf BarChart; Top-3-Fahrer Vergleichs-Balken; Zonen-SLA; 60-Sek-Polling */}
+                <LieferdienstPhase5502StatistikenDashboardV51 locationId={locationId ?? null} />
                 {/* Phase 5468: Statistiken-Dashboard V48 — Echtzeit-Umsatz-Velocity-AreaChart (letzte 15 Min); Storno-Trend-LineChart mit Alarmgrenze 5%; Fahrer-Belastungs-Heatmap; Spitzenzeit-Countdown; Ø-Wartezeit-Monitor; 12-KPI-Grid; 7-Tab-Nav; 45-Sek-Polling */}
                 <LieferdienstPhase5468StatistikenDashboardV48 />
                 {/* Phase 5036: Statistiken-Dashboard V26 — Revenue-Velocity; Storno-Analyse; Profit-KPI; Velocity-Chart; Zonen-SLA; 45-Sek-Polling */}
@@ -5267,3 +5270,5 @@ export { LieferdienstPhase5477StatistikenDashboardV49 } from './phase5477-statis
 
 // Phase 5480 — Statistiken-Dashboard V50 (BarChart2 indigo; Alert-Strip; Gesamt-Score-Balken; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel-Balken; Insight-Tipp; Stundenverlauf BarChart umschaltbar Bestellungen/Umsatz Jetzt-Stunde violet; Top-3-Fahrer Score+Touren+Trinkgeld; Zonen-SLA-Balken farbkodiert; 60-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5480StatistikenDashboardV50 } from './phase5480-statistiken-dashboard-v50';
+// Phase 5502 — Statistiken-Dashboard V51 (BarChart2 indigo; V51: Revenue-Trend-SparkLine LineChart 7h; Zonen-Fahrer-Anzeige; Alert-Strip; Gesamt-Score-Balken; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel-Balken; Insight-Tipp; Stundenverlauf BarChart umschaltbar; Top-3-Fahrer Vergleichs-Balken; Zonen-SLA farbkodiert; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5502StatistikenDashboardV51 } from './phase5502-statistiken-dashboard-v51';
