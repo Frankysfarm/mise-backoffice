@@ -1338,6 +1338,9 @@ import { FahrerPhase5367MeineStornoquote } from './phase5367-meine-stornoquote';
 import { FahrerPhase5371MeineAuslastung } from './phase5371-meine-auslastung';
 import { FahrerPhase5380MeineKundenzufriedenheit } from './phase5380-meine-kundenzufriedenheit';
 import { FahrerPhase5304TourStoppNavigatorV4 } from './phase5304-tour-stopp-navigator-v4';
+import { FahrerPhase5388MeineLeerfahrten } from './phase5388-meine-leerfahrten';
+import { FahrerPhase5392MeineVollstaendigkeit } from './phase5392-meine-vollstaendigkeit';
+import { FahrerPhase5398TourStopsNavHubV8 } from './phase5398-tour-stops-navigation-hub-v8';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7802,6 +7805,12 @@ export function FahrerApp({
           <FahrerPhase5371MeineAuslastung driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5380: Meine Kundenzufriedenheit — Star amber-400; avg_sterne 4xl+Rang; Coaching ≥4.5/≥4.0/<4.0; Dual-Balken Ich+Team-Ø; isOnline-Guard */}
           <FahrerPhase5380MeineKundenzufriedenheit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5388: Meine Leerfahrten — Navigation orange-400; leerfahrten_pct 4xl+Rang; Coaching ≤10/≤20/>30%; Dual-Balken Ich+Team-Ø; isOnline-Guard */}
+          <FahrerPhase5388MeineLeerfahrten driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5392: Meine Vollständigkeit — CheckCircle2 emerald-400; vollstaendigkeit_pct 4xl+Rang; Coaching ≥95/≥88/<88%; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5392MeineVollstaendigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5398: Tour-Stops & Navigation Hub V8 — Vollständigkeit+Leerfahrten-KPIs; ETA-Konfidenz-Balken; GPS-Deeplinks; Leerfahrten-Warnung; ki_routen_qualitaet Badge; 30-Sek-Polling */}
+          <FahrerPhase5398TourStopsNavHubV8 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5142: Tour-Stops & Navigation Hub V6 — Tour-Fortschritts-Balken; Verdienst-Ziel-Tracker; Trinkgeld-Prognose je Stopp; Prioritäts-Stopps-Übersicht; Zahlungsarten-Auswertung; 30s-Polling */}
           <FahrerPhase5142TourStopsNavigationHubV6 />
           {/* Phase 5036: Tour-Stopp Smart Navigator V15 — Live-Distanz; Trinkgeld-Prognose; Effizienz-Score; Navigation-CTA; 20-Sek-Polling */}
@@ -12524,3 +12533,7 @@ export { FahrerPhase5377TourStopsNavigationHubV7 } from './phase5377-tour-stops-
 export { FahrerPhase5380MeineKundenzufriedenheit } from './phase5380-meine-kundenzufriedenheit';
 // Phase 5388 — Meine Leerfahrten (Navigation orange-400; leerfahrten_pct 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≤10/≤20/>30%; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
 export { FahrerPhase5388MeineLeerfahrten } from './phase5388-meine-leerfahrten';
+// Phase 5392 — Meine Vollständigkeit (CheckCircle2 emerald-400; vollstaendigkeit_pct 4xl+Rang; Dual-Balken Ich+Team-Ø; Coaching ≥95/≥88/<88%; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Poll; Mock-Fallback)
+export { FahrerPhase5392MeineVollstaendigkeit } from './phase5392-meine-vollstaendigkeit';
+// Phase 5398 — Tour-Stops & Navigation Hub V8 (Route blue; Vollständigkeit+Leerfahrten-KPIs in 5-KPI-Grid; Leerfahrten-Warnung >15%; ki_routen_qualitaet Badge; ETA-Konfidenz-Balken je Stopp; GPS-Deeplinks Maps+Waze; expand/collapse; Offline-Guard; 30-Sek-Poll; Mock-Fallback)
+export { FahrerPhase5398TourStopsNavHubV8 } from './phase5398-tour-stops-navigation-hub-v8';

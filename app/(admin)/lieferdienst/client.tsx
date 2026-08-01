@@ -534,6 +534,7 @@ import { LieferdienstPhase5145StatistikenDashboardV38 } from './phase5145-statis
 import { LieferdienstPhase5146StatistikenDashboardV39 } from './phase5146-statistiken-dashboard-v39';
 import { LieferdienstPhase5148StatistikenDashboardV41 } from './phase5148-statistiken-dashboard-v41';
 import { LieferdienstPhase5149StatistikenDashboardV42 } from './phase5149-statistiken-dashboard-v42';
+import { LieferdienstPhase5397StatistikenDashboardV45 } from './phase5397-statistiken-dashboard-v45';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2482,6 +2483,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5148StatistikenDashboardV41 />
                 {/* Phase 5149: Statistiken-Dashboard V42 — Peak-Time-Prognose nächste 2h+Fahrer-Bedarf; SLA-Compliance-Matrix; Umsatz-Forecast Ist vs. Prognose AreaChart; Lieferzeit-Effizienz-Score; 9-KPI-Grid; 5-Tab-Nav Überblick/Prognose/SLA/Fahrer/Zonen; 60-Sek-Polling */}
                 <LieferdienstPhase5149StatistikenDashboardV42 />
+                {/* Phase 5397: Statistiken-Dashboard V45 — 10-KPI-Grid 5-spaltig Vollständigkeit+Leerfahrten+Fitness-Index; 6-Tab-Nav Überblick/Stunden/Fahrer/Vollständigkeit/Leerfahrten/Bilanz; Vollständigkeit-LineChart+Ziel-Linie; Leerfahrten-BarChart Wochentrend; Fahrer-Tabelle vollstaendigkeit_pct+leerfahrten_pct; 45-Sek-Polling */}
+                <LieferdienstPhase5397StatistikenDashboardV45 />
                 {/* Phase 5036: Statistiken-Dashboard V26 — Revenue-Velocity; Storno-Analyse; Profit-KPI; Velocity-Chart; Zonen-SLA; 45-Sek-Polling */}
                 <LieferdienstPhase5036StatistikenDashboardV26 locationId={locationId ?? null} />
                 {/* Phase 5035: Statistiken-Dashboard V25 — Monatsziel-Fortschritt; 8-KPI-Grid; Stunden/Woche-Chart; Top-Fahrer; Zonen-SLA; 30-Sek-Polling */}
@@ -5235,3 +5238,5 @@ export { LieferdienstPhase5149StatistikenDashboardV42 } from './phase5149-statis
 export { LieferdienstPhase5150StatistikenDashboardV43 } from './phase5150-statistiken-dashboard-v43';
 // Phase 5151 — Statistiken-Dashboard V44 (Activity teal; Live-Kunden-Zufriedenheits-Trend NPS+Rating+Sentiment; Schicht-Bilanz-Panel Kosten-vs-Einnahmen-vs-Gewinn; KI-Prognose-Score; 9-KPI-Grid 3-spaltig Ampel+Δ+Ziel; 5-Tab-Nav Überblick/Stunden/Fahrer/Zufriedenheit/Bilanz; Stunden-BarChart 3-Modi farbkodiert; Fahrer-Tier-Ranking Platin/Gold/Gut/Schwach; NPS-Trend-LineChart; 45-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5151StatistikenDashboardV44 } from './phase5151-statistiken-dashboard-v44';
+// Phase 5397 — Statistiken-Dashboard V45 (Activity teal; 10-KPI-Grid 5-spaltig inkl. Vollständigkeit+Leerfahrten+Fitness-Index; 6-Tab-Nav Überblick/Stunden/Fahrer/Vollständigkeit/Leerfahrten/Bilanz; Vollständigkeit-LineChart+Ziel-Linie; Leerfahrten-BarChart Wochentrend; Fahrer-Tabelle vollstaendigkeit_pct+leerfahrten_pct; Bilanz-Panel; 45-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5397StatistikenDashboardV45 } from './phase5397-statistiken-dashboard-v45';

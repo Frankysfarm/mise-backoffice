@@ -1434,6 +1434,9 @@ import { DispatchPhase5362ReaktionszeitBoard } from './phase5362-reaktionszeit-b
 import { DispatchPhase5366StornoquotenBoard } from './phase5366-stornoquoten-board';
 import { DispatchPhase5370AuslastungsBoard } from './phase5370-auslastungs-board';
 import { DispatchPhase5379KundenzufriedenheitsBoard } from './phase5379-kundenzufriedenheits-board';
+import { DispatchPhase5387LeerfahrtenBoard } from './phase5387-leerfahrten-board';
+import { DispatchPhase5391VollstaendigkeitsBoard } from './phase5391-vollstaendigkeits-board';
+import { DispatchPhase5396ScoreTourVisualisierungV32 } from './phase5396-score-tour-visualisierung-v32';
 
 type Driver = {
   employee_id: string;
@@ -5695,6 +5698,12 @@ export function DispatchBoard({
           <DispatchPhase5370AuslastungsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5379: Kundenzufriedenheits-Board — Star amber-400; Bester/Team-Ø/Niedrigster; Balken farbkodiert; DeltaIcons; Niedrig-Alert <4.0; ABSTEIGEND; 30-Min-Polling */}
           <DispatchPhase5379KundenzufriedenheitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5387: Leerfahrten-Board — Navigation orange-400; 3-KPI-Grid Effizienz-/Team-Ø/Hoch; Balken farbkodiert; DeltaIcons; Hoch-Alert >30%; AUFSTEIGEND; 30-Min-Polling */}
+          <DispatchPhase5387LeerfahrtenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5391: Vollständigkeits-Board — CheckCircle2 emerald-400; Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert <88%; ABSTEIGEND; 30-Min-Polling */}
+          <DispatchPhase5391VollstaendigkeitsBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5396: Score + Tour-Visualisierung V32 — Radar-Chart Fahrerprofil; Touren-Heatmap; Fleet-Fitness-Index; 5-KPI-Grid; 3-Tab Rangliste/Radar/Heatmap; 20-Sek-Polling */}
+          <DispatchPhase5396ScoreTourVisualisierungV32 />
         </div>
       </div>
     </div>
@@ -14663,3 +14672,7 @@ export { DispatchPhase5376ScoreTourVisualisierungV31 } from './phase5376-score-t
 export { DispatchPhase5379KundenzufriedenheitsBoard } from './phase5379-kundenzufriedenheits-board';
 // Phase 5387 — Leerfahrten-Board (Navigation orange-400; 3-KPI-Grid Effizienz-/Team-Ø/Hoch; Balken farbkodiert; DeltaIcons; Hoch-Alert >30%; AUFSTEIGEND; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5387LeerfahrtenBoard } from './phase5387-leerfahrten-board';
+// Phase 5391 — Vollständigkeits-Board (CheckCircle2 emerald-400; 3-KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert <88%; ABSTEIGEND; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5391VollstaendigkeitsBoard } from './phase5391-vollstaendigkeits-board';
+// Phase 5396 — Score + Tour-Visualisierung V32 (Trophy violet; Radar-Chart Fahrerprofil Score/Pünktlichkeit/Vollständigkeit/Reaktion/Zufriedenheit; Live-Touren-Heatmap-BarChart; Fleet-Fitness-Index; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Vollst./Fitness; 3-Tab Rangliste/Radar/Heatmap; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5396ScoreTourVisualisierungV32 } from './phase5396-score-tour-visualisierung-v32';
