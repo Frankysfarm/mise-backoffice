@@ -5261,3 +5261,6 @@ export { LieferdienstPhase5420StatistikenDashboardV47 } from './phase5420-statis
 export { LieferdienstPhase5468StatistikenDashboardV48 } from './phase5468-statistiken-dashboard-v48';
 // Phase 5477 — Statistiken-Dashboard V49 (Activity emerald; Monatlicher Trend-Chart Umsatz+Kosten letzte 6 Monate; Umsatz-vs-Kosten-Breakdown-AreaChart; Storno-Muster-Heatmap Uhrzeit-Pattern; Fahrer-Wechsel-Risiko-Score Ampel; 13-KPI-Grid 4-spaltig inkl. Monats-Umsatz/Kosten/Marge/Wechsel-Risiko; 8-Tab-Nav Überblick/Velocity/Storno/Fahrer/Zonen/Bilanz/Monat/Prognose; 45-Sek-Polling; Mock-Fallback)
 export { LieferdienstPhase5477StatistikenDashboardV49 } from './phase5477-statistiken-dashboard-v49';
+
+// Phase 5480 — Statistiken-Dashboard V50 (BarChart2 indigo; Alert-Strip; Gesamt-Score-Balken; 8-KPI-Grid 2-spaltig Ampel+Δ%+Ziel-Balken; Insight-Tipp; Stundenverlauf BarChart umschaltbar Bestellungen/Umsatz Jetzt-Stunde violet; Top-3-Fahrer Score+Touren+Trinkgeld; Zonen-SLA-Balken farbkodiert; 60-Sek-Polling; Mock-Fallback)
+export { LieferdienstPhase5480StatistikenDashboardV50 } from './phase5480-statistiken-dashboard-v50';

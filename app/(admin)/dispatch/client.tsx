@@ -14789,3 +14789,6 @@ export { DispatchPhase5480GesamtlieferungenBoard } from './phase5480-gesamtliefe
 export { DispatchPhase5484TourstartPuenktlichkeitBoard } from './phase5484-tourstart-puenktlichkeit-board';
 // Phase 5488 — Tourstart-Reaktionszeit-Board (Timer violet-400; avg_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Langsam-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5488TourstartReaktionszeitBoard } from './phase5488-tourstart-reaktionszeit-board';
+
+// Phase 5492 — Score + Tour-Visualisierung V37 (Trophy violet; Fleet-Score+Delta; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/Touren; Fahrer-Rangliste tier-farbkodiert Platin/Gold/Gut/Schwach+Score-Delta+Delay-Risiko; Route-Effizienz-Balken; Stopp-Dot-Sequenz; aufklappbare Stopp-Timeline ETA+Betrag+Bewertung; High-Risk-Alert-Banner; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5492ScoreTourVisualisierungV37 } from './phase5492-score-tour-visualisierung-v37';

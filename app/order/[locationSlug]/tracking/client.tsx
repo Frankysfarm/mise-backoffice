@@ -22,6 +22,7 @@ import { Phase5399LiveEtaVollstaendigkeitsCockpit } from '../phase5399-live-eta-
 import { Phase5412LiveEtaTrinkgeldCockpit } from '../phase5412-live-eta-trinkgeld-cockpit';
 import { BestellPhase5470DynamischeEtaLiveTrackingV13 } from '../phase5470-dynamische-eta-live-tracking-v13';
 import { BestellPhase5479DynamischeEtaLiveTrackingV14 } from '../phase5479-dynamische-eta-live-tracking-v14';
+import { StorefrontPhase5483DynamischeEtaLiveTrackingV15 } from '../phase5483-dynamische-eta-live-tracking-v15';
 
 type Phase = 'neu' | 'bestätigt' | 'in_zubereitung' | 'fertig' | 'abgeholt' | 'unterwegs' | 'geliefert' | 'storniert';
 
@@ -435,6 +436,8 @@ export function TrackingClient({ initialOrder, locationSlug }: Props) {
         <BestellPhase5479DynamischeEtaLiveTrackingV14 orderId={order.id} locationSlug={locationSlug} />
         {/* Phase 5470: Dynamische ETA Live-Tracking V13 — 4-Phasen-Statuslinie Eingang→Küche→Fahrer→Lieferung; Live-Countdown Sekunden-Präzision; ETA-Konfidenz hoch/mittel/niedrig; Fahrer-Name + Küchen-Fortschritts-Balken; Wetter-Einfluss-Badge; 30-Sek-Polling */}
         <BestellPhase5470DynamischeEtaLiveTrackingV13 orderId={order.id} locationSlug={locationSlug} />
+        {/* Phase 5483: Dynamische ETA Live-Tracking V15 — 5-Phasen-Status-Timeline; ETA-Countdown Sekunden-genau farbkodiert grün/gelb/rot; Fahrer-Info-Card + Anruf-Button; Karten-Placeholder pulsierend; Supabase-Subscription + 30-Sek-Polling */}
+        <StorefrontPhase5483DynamischeEtaLiveTrackingV15 orderId={order.id} locationSlug={locationSlug} initialStatus={order.status} initialEta={order.eta_earliest} />
 
         {/* Order summary */}
         <div className="bg-white rounded-2xl border border-matcha-100 p-4 shadow-sm">

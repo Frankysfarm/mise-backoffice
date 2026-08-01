@@ -13363,3 +13363,6 @@ export { KitchenPhase5483GesamtlieferungenTicker } from './phase5483-gesamtliefe
 export { KitchenPhase5487TourstartPuenktlichkeitTicker } from './phase5487-tourstart-puenktlichkeit-ticker';
 // Phase 5491 — Tourstart-Reaktionszeit-Ticker (Timer violet-400; Schnellste/r #1 Name+Reaktionszeit; Team-Ø; Langsam-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5491TourstartReaktionszeitTicker } from './phase5491-tourstart-reaktionszeit-ticker';
+
+// Phase 5495 — Smart-Timing Countdown V55 (Timer indigo; 4-stufige Farbkodierung ok/warn/critical/overdue; Station-Filter-Tabs Grill/Friture/Kalt/Pasta/Ofen; 5-KPI-Grid Aktiv/Kritisch/Überfällig/Fertig/Score; Dual-Countdown Küche+Fahrer-ETA-Sync; Batch-ID-Badge; Fortschrittsbalken; Überfällig-Alert-Banner; 1-Sek-Tick + 15-Sek-Polling; Mock-Fallback)
+export { KitchenPhase5495SmartTimingCountdownV55 } from './phase5495-smart-timing-countdown-v55';
