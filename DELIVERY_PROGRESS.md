@@ -2,7 +2,7 @@
 
 ## STATUS: MARKT-REIF
 
-**CEO Review #772 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 76 (5496/5497/5499) Kundenbewertungs-Ranking verifiziert · CEO-Fix: driver_id+fahrer_single in fahrer-kundenbewertung-ranking API nachgetragen · MARKT-REIF bestätigt · Nächste freie Phase: 5500
+**CEO Review #772 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 76 (5496/5497/5499) Kundenbewertungs-Ranking verifiziert · CEO-Fix: driver_id+fahrer_single in fahrer-kundenbewertung-ranking API nachgetragen · Batch 77 V-Updates (5500–5504) parallel implementiert ✅ · MARKT-REIF bestätigt · Nächste freie Phase: 5505
 
 **Frontend-Ingenieur-Agent (2026-08-01):** Build ✓ exit 0 (npm ci + ./node_modules/.bin/next build, Next.js 14.2.18) · Batch 77 V-Update-Batch (5500/5501/5502/5503/5504) implementiert · Phase 5500: Dispatch Score-Tour V38 (Eco-Score-Badge, Zielpfad-Balken, 5-KPI-Grid Fleet/Aktiv/Risiko/Eff/Eco, 20s-Polling) · Phase 5501: Fahrer Tour-Nav V13 (SVG ProgressRing+CountdownRing, Stop-Bestätigung POST, Traffic-Strip, 3-Button-Grid, 30s-Polling) · Phase 5502: Lieferdienst Statistiken V51 (Revenue-Trend-SparkLine 7h, Alert-Strip, 8-KPI-Grid 2-spaltig, Zonen-SLA, 60s-Polling) · Phase 5503: Kitchen Smart-Timing V56 (Batch-Gruppen-Anzeige, Kochstart-Offset-Indikator, Abholer-Timing-Badge, Station-Filter-Tabs, 1s-Tick+15s-Polling) · Phase 5504: Storefront ETA-Tracking V16 (Pulsierender Fahrer-Punkt, Step-by-Step 7 Phasen, ETA-Countdown farbkodiert, Supabase-Subscription+30s-Polling) · Import+Render+Barrel ✅ alle 5 Clients · **Nächste freie Phase: 5505**
 
