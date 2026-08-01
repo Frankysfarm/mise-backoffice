@@ -10,6 +10,7 @@
     "lib/delivery/atomic-lifecycle.ts",
     "lib/delivery/canonical-state-contract.ts",
     "lib/delivery/driver-v2-contract.ts",
+    "lib/delivery/driver-v2-pick.ts",
     "lib/delivery/driver-v2-server.ts",
     "lib/delivery/gps-transport.ts",
     "lib/delivery/gps-dispatch-eligibility.ts",
