@@ -7908,6 +7908,8 @@ export function FahrerApp({
           {/* Phase 5532: Mein Umsatz pro Tour — Euro green-400; avg_umsatz ABSTEIGEND Rang 1=höchster Umsatz=bester; Coaching ≥40€/≥30€/<30€; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5532MeinUmsatzProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5536: Meine Nachtschicht-Effizienz — Moon indigo-400; avg_nacht_lieferungen ABSTEIGEND Rang 1=meiste=bester; Coaching ≥15/≥10/<10; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          {/* Phase 5545: Mein Trinkgeld pro Tour — Coins yellow-400; avg_trinkgeld ABSTEIGEND Rang 1=höchstes Trinkgeld=bester; Coaching ≥2.50/≥1.50/<1.50 €; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5545MeinTrinkgeldProTour driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />

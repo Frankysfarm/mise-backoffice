@@ -5342,6 +5342,8 @@ export function KitchenBoard({
       <KitchenPhase5539SchichtstartPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5540: Kundenbindungs-Rate-Ticker — Heart rose-400; Beste/r #1 Name+kundenbindungs_pct; Team-Ø; Niedrig-Alert <60%; 30-Min-Polling */}
       <KitchenPhase5540KundenbindungsRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5547: Trinkgeld-pro-Tour-Ticker — Coins yellow-400; Beste/r #1 Name+€avg; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
+      <KitchenPhase5547TrinkgeldProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5547: Smart-Timing Countdown V62 — Schichtende-Prognose, Bestellrückstand-Ampel, Multi-Stations-Sync-Score, Übergabe-Erfolgsquote live, 12-KPI-Grid, 7-Tab */}
       <KitchenPhase5547SmartTimingCountdownV62 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}

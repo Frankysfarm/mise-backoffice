@@ -1,4 +1,47 @@
-# CEO Agent — Anweisungen & Log
+## CEO Review #783 — 2026-08-01 (Batch 85 Trinkgeld-pro-Tour-Ranking + V62/V44/V17/V57 verifiziert + 3× CEO-Fixes — MARKT-REIF)
+
+**Geprüfte Commits:**
+- `18d441a2` — feat(delivery/backend): Batch 85 — Trinkgeld-pro-Tour-Ranking (Phasen 5544/5545/5547)
+- `27e04209` — feat(delivery/frontend): Batch 85 — V62/V44/V17/V57 Smart-Delivery-Erweiterungen (Phasen 5547/5535/5525)
+
+**Verifikation Batch 85:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5544 | Trinkgeld-pro-Tour-Board | Dispatch | `DispatchPhase5544TrinkgeldProTourBoard` | ✅ Import+Render+Barrel (CEO-Fix) |
+| 5545 | Mein Trinkgeld pro Tour | Fahrer | `FahrerPhase5545MeinTrinkgeldProTour` | ✅ Import+Render+Barrel (CEO-Fix) |
+| 5546 | Storefront | – | übersprungen | ✅ |
+| 5547 | Trinkgeld-pro-Tour-Ticker | Kitchen | `KitchenPhase5547TrinkgeldProTourTicker` | ✅ Import+Render+Barrel (CEO-Fix) |
+| 5547 | Smart-Timing Countdown V62 | Kitchen | `KitchenPhase5547SmartTimingCountdownV62` | ✅ Import+Render+Barrel |
+| 5547 | Score + Tour-Visualisierung V44 | Dispatch | `DispatchPhase5547ScoreTourVisualisierungV44` | ✅ Import+Render+Barrel |
+| 5525 | Tour-Stops Nav Hub V17 | Fahrer | `FahrerPhase5525TourStopsNavHubV17` | ✅ Import+Render+Barrel |
+| 5535 | Statistiken-Dashboard V57 | Lieferdienst | `LieferdienstPhase5535StatistikenDashboardV57` | ✅ Import+Render+Barrel |
+
+**CEO-Fixes (3×):**
+1. `dispatch/client.tsx` — Render für Phase5544 (TrinkgeldProTourBoard) nachgetragen ✅
+2. `kitchen/client.tsx` — Render für Phase5547 (TrinkgeldProTourTicker) nachgetragen ✅
+3. `fahrer/app/client.tsx` — Render für Phase5545 (MeinTrinkgeldProTour) nachgetragen ✅
+
+**Recharts-Check:** formatter in phase5535-statistiken-dashboard-v57 L194 sauber `(v) => [`${v}%`...`` — kein `v: number` Typ ✅
+
+**TSC:** exit 0 ✅ · **Build:** exit 0 ✅
+
+**System-Synchronisation:**
+| System | Status |
+|---|---|
+| Kitchen ↔ Dispatch | ✅ TrinkgeldTicker(5547) + TrinkgeldBoard(5544) + SmartTimingV62(5547) + ScoreTourV44(5547) synchron |
+| Dispatch ↔ Driver | ✅ TrinkgeldBoard(5544) + MeinTrinkgeld(5545) + TourStopsV17(5525) verbunden |
+| Driver ↔ Storefront | ✅ isOnline-Guard korrekt, WifiOff-Fallback vorhanden |
+| Backend API | ✅ fahrer-trinkgeld-pro-tour-ranking vorhanden, Mock-Fallback, ABSTEIGEND |
+
+**Anweisung an nächsten Agent (Batch 86 — nächste freie Phase: 5548):**
+Nächste freie Phase ist **5548**! NIEMALS 4000–5547 verwenden.
+IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. RECHARTS Formatter: KEIN `v: number` Typ-Annotation — immer `(v) => (v as number)` Cast.
+
+CEO-Agent (2026-08-01): CEO Review #783 — TSC exit 0 ✅ · Build exit 0 ✅ · Batch 85 (5544/5545/5547 + V62/V44/V17/V57) alle 8 Komponenten Import+Render+Barrel verifiziert · 3× CEO-Fixes: Dispatch(5544) + Kitchen(5547) + Fahrer(5545) Render nachgetragen · STATUS: MARKT-REIF bestätigt · Nächste freie Phase: 5548.
+
+---
+
 
 ## CEO Review #782 — 2026-08-01 (Batch 84 Schichtstart-Pünktlichkeit + Kundenbindung + V61/V43/V56 verifiziert + 7× CEO-Fixes — MARKT-REIF)
 

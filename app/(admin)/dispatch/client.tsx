@@ -5821,6 +5821,8 @@ export function DispatchBoard({
           <DispatchPhase5536SchichtstartPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5540: Kundenbindungs-Rate-Board — Heart rose-400; kundenbindungs_pct ABSTEIGEND Rang 1=höchste Rate=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert <60%; 30-Min-Polling */}
           <DispatchPhase5540KundenbindungsRateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5544: Trinkgeld-pro-Tour-Board — Coins yellow-400; avg_trinkgeld ABSTEIGEND Rang 1=höchstes Trinkgeld=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5544TrinkgeldProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5547: Score + Tour-Visualisierung V44 — Tour-Abschluss-Zeitfenster, Schicht-Wellbeing-Score, Zonen-Fairness-Index, Übergabe-Erfolgsquote Fleet-Ø, 12-KPI-Grid, 8-Tab */}
           <DispatchPhase5547ScoreTourVisualisierungV44 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
