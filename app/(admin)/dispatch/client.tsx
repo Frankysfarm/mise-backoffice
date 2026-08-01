@@ -1466,6 +1466,7 @@ import { DispatchPhase5510ScoreTourVisualisierungV39 } from './phase5510-score-t
 import { DispatchPhase5505ProblemReaktionszeitBoard } from './phase5505-problem-reaktionszeit-board';
 import { DispatchPhase5509ZuverlaessigkeitsScoreBoard } from './phase5509-zuverlaessigkeits-score-board';
 import { DispatchPhase5511ScoreTourVisualisierungV40 } from './phase5511-score-tour-visualisierung-v40';
+import { DispatchPhase5517AbholpuenktlichkeitBoard } from './phase5517-abholpuenktlichkeit-board';
 
 type Driver = {
   employee_id: string;
@@ -5791,6 +5792,8 @@ export function DispatchBoard({
           <DispatchPhase5510ScoreTourVisualisierungV39 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5511: Score + Tour-Visualisierung V40 — V39+: KI-Zuweisung-Score je Bestellung; Real-time Fleet ETA Sync Panel; Multi-Fahrer Tour-Status Matrix; Stop-Dot-Zeitlinie animiert; 8-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/ETA-Drift/Profit/Touren; 4-Tab Rangliste/Matrix/Zuweisung/Fleet-ETA; 20s-Polling */}
           <DispatchPhase5511ScoreTourVisualisierungV40 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5517: Abholpünktlichkeit-Board — Timer violet-400; avg_minuten AUFSTEIGEND Rang 1=schnellste Abholung=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Langsam-Alert; 30-Min-Polling */}
+          <DispatchPhase5517AbholpuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14827,3 +14830,5 @@ export { DispatchPhase5510ScoreTourVisualisierungV39 } from './phase5510-score-t
 // Phase 5511 — Score + Tour-Visualisierung V40 (Trophy violet; V39+: KI-Zuweisung-Score je Bestellung; Real-time Fleet ETA Sync Panel; Multi-Fahrer Tour-Status Matrix; Stop-Dot-Zeitlinie animiert; 8-KPI-Grid Fleet/Aktiv/Risiko/Eff
 // Phase 5511 — Score + Tour-Visualisierung V40 (Trophy violet; V39+: KI-Zuweisung-Score je Bestellung; Real-time Fleet ETA Sync Panel; Multi-Fahrer Tour-Status Matrix; Stop-Dot-Zeitlinie animiert; 8-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/ETA-Drift/Profit/Touren; 4-Tab Rangliste/Matrix/Zuweisung/Fleet-ETA; Tier Platin/Gold/Gut/Schwach; 20s-Polling; Mock-Fallback)
 export { DispatchPhase5511ScoreTourVisualisierungV40 } from './phase5511-score-tour-visualisierung-v40';
+// Phase 5517 — Abholpünktlichkeit-Board (Timer violet-400; avg_minuten AUFSTEIGEND Rang 1=schnellste Abholung=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Langsam-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5517AbholpuenktlichkeitBoard } from './phase5517-abholpuenktlichkeit-board';

@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 80 (5517/5518/5520) Abholpünktlichkeit-Ranking implementiert · API fahrer-abholpuenktlichkeit-ranking (neu, avg_minuten AUFSTEIGEND, alert_langsam >5min, fahrer_single) · Timer violet-400 · Import+Render+Barrel ✅ Dispatch(5517) + Fahrer(5518) + Kitchen(5520) · Phase 5519 übersprungen · **Nächste freie Phase: 5521**
+
 **CEO Review #775 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Phase 5511-5513 Frontend-Batch (ScoreTour V40/TourStops V15/Statistiken V53/SmartTiming V58/ETA V17) verifiziert · 4× CEO-Fixes: Import+Render für Dispatch(5511)+Kitchen(5513)+Fahrer(5511)+Lieferdienst(5511) nachgetragen · MARKT-REIF bestätigt · Nächste freie Phase: 5517
 
 **CEO Review #774 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 79 (5509/5510/5512) Zuverlässigkeits-Score-Ranking verifiziert · V-Updates (ScoreTour V39/SmartTiming V57/Statistiken V52/TourStops V14/ETA Final) Import+Render nachgetragen · 6× CEO-Fixes: Merge-Konfliktmarker bereinigt + alle V-Updates verdrahtet · MARKT-REIF bestätigt · Nächste freie Phase: 5513
@@ -73,6 +75,26 @@
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 52 (5379/5380/5382) Kundenzufriedenheits-Ranking implementiert · Nächste freie Phase: 5383
 
 **CEO Review #758 (2026-08-01):** Build ✓ exit 0 + TSC exit 0 · Batch 51 (5375/5376/5378) Wartezeit-Restaurant-Ranking verifiziert + Barrel-Fixes phase1097+phase5167 · MARKT-REIF bestätigt · Nächste freie Phase: 5379
+
+## Batch 80 — Abholpünktlichkeit-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5517 — Abholpünktlichkeit-Board (Dispatch)
+**Component:** `DispatchPhase5517AbholpuenktlichkeitBoard` — Timer violet-400; avg_minuten AUFSTEIGEND Rang 1=schnellste Abholung=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Langsam-Alert alert_langsam; 30-Min-Polling ✅
+
+### Phase 5518 — Meine Abholpünktlichkeit (Fahrer)
+**Component:** `FahrerPhase5518MeineAbholpuenktlichkeit` — Timer violet-400; avg_minuten 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≤3/≤5/>5 min; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5519 — Storefront: übersprungen ✅
+
+### Phase 5520 — Abholpünktlichkeit-Ticker (Kitchen)
+**Component:** `KitchenPhase5520AbholpuenktlichkeitTicker` — Timer violet-400; Schnellste/r #1 Name+min; Team-Ø; Langsam-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-abholpuenktlichkeit-ranking` (neu) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_minuten, rank_delta, ampel, alert_langsam}], team_avg_minuten, schnellste_name, langsamste_name, alert_count, gesamt }`
+**Logik:** Avg Diff picked_up_at − ready_at (letzte 30 Tage, mind. 3 Stops) · AUFSTEIGEND (Rang 1 = niedrigste Wartezeit = schnellster Abholer) · alert_langsam: avg > 5 min · fahrer_single für Fahrer-App ✅
+
+**KRITISCH: Nächste freie Phase ist 5521!** NIEMALS 4000–5520 verwenden.
+
+---
 
 ## Batch 79 — Zuverlässigkeits-Score-Ranking (ABGESCHLOSSEN 2026-08-01)
 

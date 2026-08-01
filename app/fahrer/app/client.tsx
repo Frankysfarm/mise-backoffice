@@ -1370,6 +1370,7 @@ import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hu
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
 import { FahrerPhase5510MeineZuverlaessigkeit } from './phase5510-meine-zuverlaessigkeit';
 import { FahrerPhase5511TourStopsNavHubV15 } from './phase5511-tour-stops-nav-hub-v15';
+import { FahrerPhase5518MeineAbholpuenktlichkeit } from './phase5518-meine-abholpuenktlichkeit';
 import { FahrerPhase5142TourStopsNavigationHubV6 } from './phase5142-tour-stops-navigation-hub-v6';
 import { FahrerPhase5022SmartTourStoppNavV12 } from './phase5022-smart-tour-stopp-nav-v12';
 import { FahrerPhase5025SmartTourStoppNavV13 } from './phase5025-smart-tour-stopp-nav-v13';
@@ -7888,6 +7889,8 @@ export function FahrerApp({
           <FahrerPhase5506MeineProblemReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5510: Meine Zuverlässigkeit — ShieldCheck emerald-400; score 4xl+Rang; Coaching ≥80/≥60/<60; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5510MeineZuverlaessigkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5518: Meine Abholpünktlichkeit — Timer violet-400; avg_minuten AUFSTEIGEND Rang 1=schnellste Abholung=bester; 4xl+Rang; Coaching ≤3/≤5/>5 min; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5518MeineAbholpuenktlichkeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />
           {/* Phase 5505: Tour-Stops Nav Hub V14 — V13+Hold-to-Confirm 800ms; Kunden-Kontakt tel+WhatsApp; Live-Kundendistanz-Ring SVG; Paketübergabe-Checkliste; 30-Sek-Polling */}
@@ -12687,3 +12690,5 @@ export { FahrerPhase5510MeineZuverlaessigkeit } from './phase5510-meine-zuverlae
 
 // Phase 5511 — Tour-Stops Nav Hub V15 (Navigation blue; V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; QR-Scan-Prompt; Gesamtfortschritts-Ring SVG; 7-KPI-Grid Stops/Fertig/Offen/km/ETA-Score/Einnahmen/Kontakte; Offline-Guard; 30s-Poll; Mock-Fallback)
 export { FahrerPhase5511TourStopsNavHubV15 } from './phase5511-tour-stops-nav-hub-v15';
+// Phase 5518 — Meine Abholpünktlichkeit (Timer violet-400; avg_minuten AUFSTEIGEND Rang 1=schnellste Abholung=bester; 4xl+Rang; Coaching ≤3/≤5/>5 min; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5518MeineAbholpuenktlichkeit } from './phase5518-meine-abholpuenktlichkeit';
