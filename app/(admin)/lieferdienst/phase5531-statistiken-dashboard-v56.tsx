@@ -180,7 +180,7 @@ export function LieferdienstPhase5531StatistikenDashboardV56({ locationId, class
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={puenktlichkeit} margin={{ top: 2, right: 4, bottom: 0, left: 0 }}>
                 <XAxis dataKey="stunde" tick={{ fontSize: 9, fill: '#6b7280' }} />
-                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', fontSize: 10 }} formatter={(v: number) => [`${v}min`, 'Ø Verzögerung']} />
+                <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', fontSize: 10 }} formatter={(v) => [`${v as number}min`, 'Ø Verzögerung']} />
                 <Bar dataKey="avg_verzoegerung_min" radius={[2,2,0,0]}>
                   {puenktlichkeit.map((p, i) => (
                     <rect key={i} fill={ampelColor(p.ampel)} />

@@ -1473,6 +1473,9 @@ import { DispatchPhase5530ScoreTourVisualisierungV42 } from './phase5530-score-t
 import { DispatchPhase5529PauseneffizienzBoard } from './phase5529-pauseneffizienz-board';
 import { DispatchPhase5531UmsatzProTourBoard } from './phase5531-umsatz-pro-tour-board';
 import { DispatchPhase5535NachtschichtBoard } from './phase5535-nachtschicht-board';
+import { DispatchPhase5536SchichtstartPuenktlichkeitBoard } from './phase5536-schichtstart-puenktlichkeit-board';
+import { DispatchPhase5540KundenbindungsRateBoard } from './phase5540-kundenbindungs-rate-board';
+import { DispatchPhase5543ScoreTourVisualisierungV43 } from './phase5543-score-tour-visualisierung-v43';
 
 type Driver = {
   employee_id: string;
@@ -5812,6 +5815,12 @@ export function DispatchBoard({
           <DispatchPhase5531UmsatzProTourBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5535: Nachtschicht-Effizienz-Board — Moon indigo-400; avg_nacht_lieferungen ABSTEIGEND Rang 1=meiste Nachtlieferungen=bester; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
           <DispatchPhase5535NachtschichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5536: Schichtstart-Pünktlichkeit-Board — Clock3 sky-400; avg_verzoegerung_min AUFSTEIGEND Rang 1=kürzeste Verzögerung=bester; 3-KPI-Grid Pünktlichste/r/Team-Ø/Verspätetste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert >3min; 30-Min-Polling */}
+          <DispatchPhase5536SchichtstartPuenktlichkeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5540: Kundenbindungs-Rate-Board — Heart rose-400; kundenbindungs_pct ABSTEIGEND Rang 1=höchste Rate=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert <60%; 30-Min-Polling */}
+          <DispatchPhase5540KundenbindungsRateBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
+          <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>

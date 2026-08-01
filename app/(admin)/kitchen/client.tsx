@@ -1402,6 +1402,9 @@ import { KitchenPhase5530SmartTimingCountdownV60 } from './phase5530-smart-timin
 import { KitchenPhase5533PauseneffizienzTicker } from './phase5533-pauseneffizienz-ticker';
 import { KitchenPhase5534UmsatzProTourTicker } from './phase5534-umsatz-pro-tour-ticker';
 import { KitchenPhase5538NachtschichtTicker } from './phase5538-nachtschicht-ticker';
+import { KitchenPhase5539SchichtstartPuenktlichkeitTicker } from './phase5539-schichtstart-puenktlichkeit-ticker';
+import { KitchenPhase5540KundenbindungsRateTicker } from './phase5540-kundenbindungs-rate-ticker';
+import { KitchenPhase5543SmartTimingCountdownV61 } from './phase5543-smart-timing-countdown-v61';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5333,6 +5336,12 @@ export function KitchenBoard({
       <KitchenPhase5534UmsatzProTourTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5538: Nachtschicht-Effizienz-Ticker — Moon indigo-400; Aktivste/r #1 Name+Lieferungen; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
       <KitchenPhase5538NachtschichtTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5539: Schichtstart-Pünktlichkeit-Ticker — Clock3 sky-400; Pünktlichste/r #1 Name+avg_verzoegerung_min; Team-Ø; Hoch-Alert >3min; 30-Min-Polling */}
+      <KitchenPhase5539SchichtstartPuenktlichkeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5540: Kundenbindungs-Rate-Ticker — Heart rose-400; Beste/r #1 Name+kundenbindungs_pct; Team-Ø; Niedrig-Alert <60%; 30-Min-Polling */}
+      <KitchenPhase5540KundenbindungsRateTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}
+      <KitchenPhase5543SmartTimingCountdownV61 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
       <KitchenPhase5510SmartTimingCountdownV57 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5513: Smart-Timing Countdown V58 — V57+: Küchen↔Dispatch Bridge Score Sync/Drift/Lost; Dual-ETA-Sync-Ring Küche vs. Fahrer SVG; SLA-Commitment-Band Überfälligkeits-Prognose; Item-Level-Countdown mit Kategorie-Icon; 8-KPI-Grid; 4-Tab; 1s-Tick+15s-Polling */}
