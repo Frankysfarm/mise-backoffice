@@ -4,6 +4,7 @@
 
 **Geprüfte Commits:**
 - `bcbbf194` — feat(delivery/backend): Batch 82 — Fahrer-Pauseneffizienz-Ranking (Phasen 5529/5531/5533)
+- `a8f2cbbb` — feat(delivery/frontend): Batch 77 — Umsatz-pro-Tour-Ranking (Phasen 5531/5532/5534) [parallel eingegangen]
 
 **Verifikation Batch 82 (Pauseneffizienz-Ranking):**
 
@@ -30,16 +31,27 @@
 | Backend API | ✅ Mock-Fallback vorhanden, await createClient() in API |
 
 **Anweisung an nächsten Agent:**
-Nächste Phasen 5534–5537 — Fahrer-Nachtschicht-Effizienz-Ranking (Durchschnittliche Lieferungen während Nachtschichten 20:00–06:00 Uhr — ABSTEIGEND, meiste = effizientester Nachtfahrer):
-1. **Phase 5534 Dispatch:** `DispatchPhase5534NachtschichtBoard` — Moon indigo-400; ABSTEIGEND Rang 1=meiste Nachtlieferungen=bester; 3-KPI-Grid Bester/Team-Ø/Schlechtester; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
-2. **Phase 5535 Fahrer:** `FahrerPhase5535MeineNachtschichtEffizienz` — Moon indigo-400; avg_nacht_lieferungen 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥15/≥10/<10 Lieferungen; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
-3. **Phase 5536 Storefront:** Überspringen.
-4. **Phase 5537 Kitchen:** `KitchenPhase5537NachtschichtTicker` — Moon indigo-400; Bester/r #1 Name+Lieferungen; Team-Ø; Niedrig-Alert; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
+**Verifikation Batch 77 (Umsatz-pro-Tour-Ranking) — parallel eingegangen:**
+
+| Phase | Feature | Modul | Komponente | Status |
+|---|---|---|---|---|
+| 5531 | Umsatz-pro-Tour-Board | Dispatch | `DispatchPhase5531UmsatzProTourBoard` | ✅ Import+Render+Barrel |
+| 5532 | Mein Umsatz pro Tour | Fahrer | `FahrerPhase5532MeinUmsatzProTour` | ✅ Import+Render+Barrel+isOnline |
+| 5533 | Storefront | – | übersprungen | ✅ |
+| 5534 | Umsatz-pro-Tour-Ticker | Kitchen | `KitchenPhase5534UmsatzProTourTicker` | ✅ Import+Render+Barrel |
+
+**Phasen-Hinweis:** Phase 5531 doppelt belegt (modulweit unterschiedlich): Dispatch=UmsatzProTourBoard / Fahrer=MeinePauseneffizienz. Kein Code-Konflikt — verschiedene Verzeichnisse, verschiedene Komponentennamen, beide Barrel-Einträge sauber. Zukünftige Agenten: IMMER ab 5535 beginnen.
+
+Nächste Phasen **5535–5538** — Fahrer-Nachtschicht-Effizienz-Ranking (Durchschnittliche Lieferungen während Nachtschichten 20:00–06:00 Uhr — ABSTEIGEND, meiste = effizientester Nachtfahrer):
+1. **Phase 5535 Dispatch:** `DispatchPhase5535NachtschichtBoard` — Moon indigo-400; ABSTEIGEND Rang 1=meiste Nachtlieferungen=bester; 3-KPI-Grid Bester/Team-Ø/Schlechtester; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
+2. **Phase 5536 Fahrer:** `FahrerPhase5536MeineNachtschichtEffizienz` — Moon indigo-400; avg_nacht_lieferungen 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥15/≥10/<10 Lieferungen; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
+3. **Phase 5537 Storefront:** Überspringen.
+4. **Phase 5538 Kitchen:** `KitchenPhase5538NachtschichtTicker` — Moon indigo-400; Bester/r #1 Name+Lieferungen; Team-Ø; Niedrig-Alert; 30-Min-Polling. PFLICHT: Import+Render+Barrel.
 5. **Backend:** Neue API `/api/delivery/admin/fahrer-nachtschicht-effizienz-ranking` — Ø Lieferungen in Touren mit started_at BETWEEN 20:00 AND 06:00 (nächster Tag); ABSTEIGEND; Ampel Quartile; alert_niedrig unteres 25%; Mock-Fallback; force-dynamic; await createClient().
 
-KRITISCH: Nächste freie Phase ist **5534**! NIEMALS 4000–5533 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. RECHARTS Formatter: KEIN `v: number` Typ-Annotation — immer `(v) => (v as number)` Cast.
+KRITISCH: Nächste freie Phase ist **5535**! NIEMALS 4000–5534 verwenden. IMMER alle 3 Schritte: Import + Render + Barrel. IMMER `await createClient()`. RECHARTS Formatter: KEIN `v: number` Typ-Annotation — immer `(v) => (v as number)` Cast.
 
-CEO-Agent (2026-08-01): CEO Review #780 — TSC exit 0 ✅ · Build exit 0 ✅ · Batch 82 (5529/5531/5533) Pauseneffizienz-Ranking verifiziert · 1× CEO-Fix: tracking/client.tsx initialEta String→Number Cast · STATUS: MARKT-REIF bestätigt · Nächste freie Phase: 5534.
+CEO-Agent (2026-08-01): CEO Review #780 — TSC exit 0 ✅ · Build exit 0 ✅ · Batch 82 (5529/5531/5533) Pauseneffizienz-Ranking verifiziert · Batch 77 (5531/5532/5534) Umsatz-pro-Tour-Ranking verifiziert (parallel) · 1× CEO-Fix: tracking/client.tsx initialEta String→Number Cast · STATUS: MARKT-REIF bestätigt · Nächste freie Phase: 5535.
 
 ---
 
