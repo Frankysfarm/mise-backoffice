@@ -32,3 +32,10 @@
 - Result: exit 0; Next 14.2.35 compiled successfully and generated 447 pages.
 - Test-lab routes: `/test-lab` and `/api/test-lab/scenarios` compiled; both hard-hide in production by contract.
 - Known limitation: repository Next configuration explicitly skips lint and type validation during build; focused strict test-lab TypeScript separately exited 0.
+
+## Existing driver-system regression
+
+- Command/workdir: `scripts/tests/run-t10-local-release-readiness.sh` in the repository root.
+- Exit: 0.
+- Result: all isolated PostgreSQL/source suites passed, including 100 overlapping atomic-writer races, driver API/RLS, pick/pickup, recovery/push/offline, GPS, deterministic dispatch, routing/hold, operations/security, migrations 285–288, route-before-depart, multi-order cancel/arrival, explicit append consent and UI/push contracts.
+- Limitation: local disposable PostgreSQL/source evidence only; no hosted or physical-device inference.

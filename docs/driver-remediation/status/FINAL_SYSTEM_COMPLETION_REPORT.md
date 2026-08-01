@@ -61,3 +61,6 @@ an independently implemented enumerating dispatch oracle with 500 seeds, a
 and a production-hidden dashboard preview. Aggregate test-lab evidence is
 48/48 green. This is not equivalent to browser, database-backed, native,
 independent-review or human-acceptance evidence, so the release is `BLOCKED`.
+
+The pre-existing aggregate release-readiness runner also passed after these
+changes, including its true-overlap database races and migrations 285–288.
