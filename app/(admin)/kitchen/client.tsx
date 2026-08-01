@@ -1410,6 +1410,7 @@ import { KitchenPhase5547SmartTimingCountdownV62 } from './phase5547-smart-timin
 import { KitchenPhase5551LeerfahrtenTicker } from './phase5551-leerfahrten-ticker';
 import { KitchenPhase5555UmsatzProKmTicker } from './phase5555-umsatz-pro-km-ticker';
 import { KitchenPhase5559KmProTagTicker } from './phase5559-km-pro-tag-ticker';
+import { KitchenPhase5564StornoQuoteTicker } from './phase5564-storno-quote-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5355,6 +5356,8 @@ export function KitchenBoard({
       <KitchenPhase5555UmsatzProKmTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5559: km-pro-Tag-Ticker — Gauge blue-400; Aktivste/r #1 Name+km/Tag; Team-Ø; Niedrig-Alert; 30-Min-Polling */}
       <KitchenPhase5559KmProTagTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5564: Storno-Quote-Ticker — XCircle red-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert; 30-Min-Polling */}
+      <KitchenPhase5564StornoQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}
       <KitchenPhase5543SmartTimingCountdownV61 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
@@ -13477,3 +13480,5 @@ export { KitchenPhase5555UmsatzProKmTicker } from './phase5555-umsatz-pro-km-tic
 export { KitchenPhase5559KmProTagTicker } from './phase5559-km-pro-tag-ticker';
 // Phase 5560 — Smart-Timing Countdown V63 (Timer violet; V62+: Übergabe-Zuverlässigkeits-Score je Fahrer; Echtzeit-Kochauslastungs-Prognose +20min je Station; Bestellwachstum-Trendindikator Δ%; Schicht-Qualitäts-Composite-Index; 13-KPI-Grid Score/Aktiv/Kritisch/Überfällig/Fertig/Varianz/Stationen/SLA/Bereit/Drift/Bind/Sync/Qualität; 8-Tab Countdown/Prognose/Übergabe/Items/Stationen/Kunden/Schicht/Qualität; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5560SmartTimingCountdownV63 } from './phase5560-smart-timing-countdown-v63';
+// Phase 5564 — Storno-Quote-Ticker (XCircle red-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert alert_hoch; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5564StornoQuoteTicker } from './phase5564-storno-quote-ticker';

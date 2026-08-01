@@ -1481,6 +1481,7 @@ import { DispatchPhase5547ScoreTourVisualisierungV44 } from './phase5547-score-t
 import { DispatchPhase5548LeerfahrtenBoard } from './phase5548-leerfahrten-board';
 import { DispatchPhase5552UmsatzProKmBoard } from './phase5552-umsatz-pro-km-board';
 import { DispatchPhase5556KmProTagBoard } from './phase5556-km-pro-tag-board';
+import { DispatchPhase5561StornoQuoteBoard } from './phase5561-storno-quote-board';
 
 type Driver = {
   employee_id: string;
@@ -5834,6 +5835,8 @@ export function DispatchBoard({
           <DispatchPhase5552UmsatzProKmBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5556: km-pro-Tag-Board — Gauge blue-400; avg_km_pro_tag ABSTEIGEND Rang 1=höchstes km/Tag=aktivster; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
           <DispatchPhase5556KmProTagBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5561: Storno-Quote-Board — XCircle red-400; rate_pct AUFSTEIGEND Rang 1=niedrigste Storno-Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Hoechste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
+          <DispatchPhase5561StornoQuoteBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14904,3 +14907,5 @@ export { DispatchPhase5552UmsatzProKmBoard } from './phase5552-umsatz-pro-km-boa
 export { DispatchPhase5556KmProTagBoard } from './phase5556-km-pro-tag-board';
 // Phase 5557 — Score + Tour-Visualisierung V45 (Trophy violet; V44+: Fahrer-Compliance-Trend Sparkline; Energie-Niveau-Indikator; Eco-Effizienz-Score CO₂/Lieferung; Tour-Abschluss-Wahrscheinlichkeit KI%; 13-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/CO₂/Ertrag/Energie/Bindung/Pünktl/Qualität/Compliance/Abschluss; 9-Tab Rangliste/Profit/Energie/Lücken/CO₂/Bindung/Abschluss/Compliance/Wellbeing; 20s-Polling; Mock-Fallback)
 export { DispatchPhase5557ScoreTourVisualisierungV45 } from './phase5557-score-tour-visualisierung-v45';
+// Phase 5561 — Storno-Quote-Board (XCircle red-400; rate_pct AUFSTEIGEND Rang 1=niedrigste Storno-Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Hoechste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert alert_hoch; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5561StornoQuoteBoard } from './phase5561-storno-quote-board';
