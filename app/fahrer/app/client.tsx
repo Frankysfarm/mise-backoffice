@@ -12754,3 +12754,5 @@ export { FahrerPhase5532MeinUmsatzProTour } from './phase5532-mein-umsatz-pro-to
 export { FahrerPhase5536MeineNachtschichtEffizienz } from './phase5536-meine-nachtschicht-effizienz';
 // Phase 5557 — Tour-Stops Nav Hub V18 (Navigation2 blue; V17+: Proaktiver Kunden-ETA-Push 5-Min-Vorab; Eco-Fahrhinweis Strecke+Geschwindigkeit optimiert; Batterie-Warnung <20%; Echtzeit-Ampel-Indikator grün/gelb/rot je Stopp; Schicht-Ende-Prognose; 10-KPI-Grid Stops/Fertig/Offen/km/ETA-Score/Einnahmen/Bewertung/Pause/Eco/Batterie; Offline-Guard; 30s-Poll; Mock-Fallback)
 export { FahrerPhase5557TourStopsNavHubV18 } from './phase5557-tour-stops-nav-hub-v18';
+// Phase 5566 — Tour-Stops Nav Hub V19 (Navigation emerald; V18+: Smart-Reihenfolge-Optimierung live KI-Δmin; Stopp-Timer-Ring; Kunden-Kontakt-Schnell-Panel je Stopp; Ankunfts-Prognose-Ampel; Batch-Status-Banner; 5-Tab Stopps/Navi/Kunden/Score/Übersicht; 15s-Polling; Mock-Fallback)
+export { FahrerPhase5566TourStopsNavHubV19 } from './phase5566-tour-stops-nav-hub-v19';

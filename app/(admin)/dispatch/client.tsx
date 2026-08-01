@@ -14909,3 +14909,5 @@ export { DispatchPhase5556KmProTagBoard } from './phase5556-km-pro-tag-board';
 export { DispatchPhase5557ScoreTourVisualisierungV45 } from './phase5557-score-tour-visualisierung-v45';
 // Phase 5561 — Storno-Quote-Board (XCircle red-400; rate_pct AUFSTEIGEND Rang 1=niedrigste Storno-Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Hoechste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert alert_hoch; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5561StornoQuoteBoard } from './phase5561-storno-quote-board';
+// Phase 5565 — Score + Tour-Visualisierung V46 (Trophy violet; V45+: Fleet-Energie-Matrix Müdigkeit×Schichtdauer; Dispatch-Entscheidungs-Log KI-Begründung je Zuweisung; Tour-Abschluss-Wahrscheinlichkeit+ETA-Drift; 14-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/CO₂/Ertrag/Energie/Bindung/Pünktl/Qualität/Compliance/Abschluss/Wellbeing; 5-Tab Rangliste/Energie/KI-Log/Profit/Wellbeing; 20s-Polling; Mock-Fallback)
+export { DispatchPhase5565ScoreTourVisualisierungV46 } from './phase5565-score-tour-visualisierung-v46';

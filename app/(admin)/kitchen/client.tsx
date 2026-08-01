@@ -13482,3 +13482,5 @@ export { KitchenPhase5559KmProTagTicker } from './phase5559-km-pro-tag-ticker';
 export { KitchenPhase5560SmartTimingCountdownV63 } from './phase5560-smart-timing-countdown-v63';
 // Phase 5564 — Storno-Quote-Ticker (XCircle red-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert alert_hoch; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5564StornoQuoteTicker } from './phase5564-storno-quote-ticker';
+// Phase 5568 — Smart-Timing Countdown V64 (Brain indigo; V63+: Lieferzeit-Prognose-vs-SLA je Order; Dual-Stations-Kapazitäts-Alarm; Fahrer-Zuverlässigkeits-Badge; Echtzeit-Übergabe-Fenster-Score; 14-KPI-Grid Score/Aktiv/Kritisch/Überfällig/Fertig/Varianz/Stationen/SLA/Bereit/ETA-Drift/Bindung/Sync/Qualität/Übergabe; 5-Tab Countdown/Prognose/Übergabe/Stationen/Kapazität; 1s-Tick+15s-Polling; Mock-Fallback)
+export { KitchenPhase5568SmartTimingCountdownV64 } from './phase5568-smart-timing-countdown-v64';

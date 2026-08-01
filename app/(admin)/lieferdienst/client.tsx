@@ -5305,3 +5305,5 @@ export { LieferdienstPhase5531StatistikenDashboardV56 } from './phase5531-statis
 export { LieferdienstPhase5535StatistikenDashboardV57 } from './phase5535-statistiken-dashboard-v57';
 // Phase 5540 — Statistiken-Dashboard V58 (Activity teal; V57+: Echtzeit-Fahrer-Verfügbarkeits-Kalender freie/gebuchte/aktive Slots je Stunde; Schicht-Fluktuation-Index Abgang-Rate/Aufnahme-Rate; Kunden-Beschwerde-Trend-Monitor Rate% letzte 7h AreaChart; SLA-Verletzungs-Kosten-Analyse €-Kompensation; 19-KPI-Grid 4-spaltig; 14-Tab-Nav; 60s-Polling; Mock-Fallback)
 export { LieferdienstPhase5540StatistikenDashboardV58 } from './phase5540-statistiken-dashboard-v58';
+// Phase 5545 — Statistiken-Dashboard V59 (BarChart3 teal; V58+: Schicht-Gesundheits-Score Composite Pünktlichkeit+Effizienz+Wellbeing; Peak-Prognose Stunden-Ampel nächste 4h; Fahrer-Loyalitäts-Matrix Neu/Erfahren/Veteran; KPI-Vergleich Heute vs. Vorwoche Δ%; 20-KPI-Grid 4-spaltig; 5-Tab Überblick/Stunden/Fahrer/Loyalität/Peak; 60s-Polling; Mock-Fallback)
+export { LieferdienstPhase5545StatistikenDashboardV59 } from './phase5545-statistiken-dashboard-v59';
