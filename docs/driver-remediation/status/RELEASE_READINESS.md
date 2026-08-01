@@ -2,11 +2,20 @@
 
 Decision: **NOT READY FOR PRODUCTION**
 
+Final-completion decision (2026-08-01): **SHADOW-ONLY** for the adaptive
+optimizer and **BLOCKED** for a production migration/activation.
+
 The source and isolated PostgreSQL system is a strong release candidate:
 G0–G4 and G6–G8 are green locally; G5 and G9 remain externally blocked.
 
 The web production build and project-specific native source/config verifier are
 green. Remaining mobile work requires real platform toolchains and devices.
+
+The final-completion branch additionally proves migrations 285–288, including
+two-session races and failpoints, and reduces `/fahrer/app` from roughly 905 kB
+to 349 kB first-load JS. Next was patched from 14.2.18 to 14.2.35, removing the
+observed critical audit item; eight high and one moderate dependency advisories
+remain and require a separately tested framework-major upgrade.
 
 Before release:
 

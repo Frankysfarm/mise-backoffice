@@ -29,5 +29,8 @@ Updated: 2026-08-01
 | route-before-depart successor migration and its dedicated SQL runners | final completion | pickup_routing_audit | exclusive | New files only; do not edit migrations 276-285 or shared runners. |
 | reachable driver UI import/render cleanup and dedicated UI contract test | final completion | navigation_ui_audit | exclusive | May edit `app/fahrer/app/client.tsx` plus new dedicated test only; preserve canonical DeliveryView behavior. |
 | adaptive deterministic optimizer successor module/spec/tests | final completion | push_offline_audit | exclusive | New optimizer files only; no edits to `lib/frank.ts` or frozen T07 files until lead review. |
+| multi-order cancel and arrival-sequence successor migration/tests | final completion | pickup_routing_audit | exclusive | New migration/test files after 286 only; no edits to existing migrations or shared API modules. |
+| push service-worker ACK/dedupe contract and tests | final completion | navigation_ui_audit | exclusive | New helper/test files and existing service-worker/push-register files only; no lifecycle UI edits. |
+| mid-tour proposed-append consent successor migration/tests | final completion | pickup_routing_audit | exclusive | New post-287 SQL/test files only; T08 append remains unchanged and callable only through accepted proposal handoff. |
 
 Ownership must be updated before another task edits a listed scope.

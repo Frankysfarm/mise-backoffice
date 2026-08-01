@@ -1,6 +1,6 @@
 # Driver Remediation Program Status
 
-Updated: 2026-07-28
+Updated: 2026-08-01
 
 | Task | State | Gate | Branch | Commit | Notes |
 |---|---|---|---|---|---|
@@ -15,6 +15,7 @@ Updated: 2026-07-28
 | T09 Operations/Security/Observability | COMPLETE | G8 GREEN (isolated server/PostgreSQL) | `codex/driver-remediation` | `3399cfad`, `426d5924` | Durable role/tenant/location authority, override CAS, alerts, retention, authenticated APIs and scheduler monitor pass locally. |
 | T08 Routing/Batching/Kitchen Hold | COMPLETE | G7 GREEN (isolated PostgreSQL + source contracts) | `codex/driver-remediation` | `5fa6b6f3`, `570d953e`, `c02e15e0` | Atomic route append, real Frank evaluation/RPC integration, read-only shadow, persistent hold watchdog and deterministic replay pass twice. |
 | T10 E2E Canary Release | LOCAL COMPLETE | G9 BLOCKED_EXTERNAL | `codex/driver-remediation` | `a4460510` | Full isolated aggregate is green; hosted services, networked build, compiled mobile and physical devices remain unavailable. |
+| Final Completion 2026-08-01 | LOCAL COMPLETE | PRODUCTION BLOCKED / SHADOW-ONLY | `codex/driver-remediation` | `90786387`…`dec91d43` | Runtime integrity, global optimizer, Google route-before-depart, multi-order cancel/arrival, explicit append consent, canonical UI and push dedupe pass locally. Production schema/device/hosted E2E and dependency-major-upgrade gates remain external/open. |
 
 ## Production safety
 
