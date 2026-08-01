@@ -12747,3 +12747,5 @@ export { FahrerPhase5531MeinePauseneffizienz } from './phase5531-meine-pauseneff
 export { FahrerPhase5532MeinUmsatzProTour } from './phase5532-mein-umsatz-pro-tour';
 // Phase 5536 — Meine Nachtschicht-Effizienz (Moon indigo-400; avg_nacht_lieferungen ABSTEIGEND Rang 1=meiste Nachtlieferungen=bester; Coaching ≥15/≥10/<10; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5536MeineNachtschichtEffizienz } from './phase5536-meine-nachtschicht-effizienz';
+// Phase 5557 — Tour-Stops Nav Hub V18 (Navigation2 blue; V17+: Proaktiver Kunden-ETA-Push 5-Min-Vorab; Eco-Fahrhinweis Strecke+Geschwindigkeit optimiert; Batterie-Warnung <20%; Echtzeit-Ampel-Indikator grün/gelb/rot je Stopp; Schicht-Ende-Prognose; 10-KPI-Grid Stops/Fertig/Offen/km/ETA-Score/Einnahmen/Bewertung/Pause/Eco/Batterie; Offline-Guard; 30s-Poll; Mock-Fallback)
+export { FahrerPhase5557TourStopsNavHubV18 } from './phase5557-tour-stops-nav-hub-v18';

@@ -5303,3 +5303,5 @@ export { LieferdienstPhase5530StatistikenDashboardV55 } from './phase5530-statis
 export { LieferdienstPhase5531StatistikenDashboardV56 } from './phase5531-statistiken-dashboard-v56';
 // Phase 5535 — Statistiken-Dashboard V57 (Activity violet; V56+: Schicht-ROI-Analyse Umsatz−Kosten ROI%; Personalkosten-Benchmark Ø-Kosten/Lieferung vs. Industrie Ampel; Touren-Rendite-Heatmap Ertrag/Tour je Stunde Grid 6×4; Wellbeing-Trend Moralindex 7 Schichten AreaChart; 18-KPI-Grid 4-spaltig; 13-Tab-Nav; 60s-Polling; Mock-Fallback)
 export { LieferdienstPhase5535StatistikenDashboardV57 } from './phase5535-statistiken-dashboard-v57';
+// Phase 5540 — Statistiken-Dashboard V58 (Activity teal; V57+: Echtzeit-Fahrer-Verfügbarkeits-Kalender freie/gebuchte/aktive Slots je Stunde; Schicht-Fluktuation-Index Abgang-Rate/Aufnahme-Rate; Kunden-Beschwerde-Trend-Monitor Rate% letzte 7h AreaChart; SLA-Verletzungs-Kosten-Analyse €-Kompensation; 19-KPI-Grid 4-spaltig; 14-Tab-Nav; 60s-Polling; Mock-Fallback)
+export { LieferdienstPhase5540StatistikenDashboardV58 } from './phase5540-statistiken-dashboard-v58';

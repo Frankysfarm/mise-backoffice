@@ -13475,3 +13475,5 @@ export { KitchenPhase5551LeerfahrtenTicker } from './phase5551-leerfahrten-ticke
 export { KitchenPhase5555UmsatzProKmTicker } from './phase5555-umsatz-pro-km-ticker';
 // Phase 5559 — km-pro-Tag-Ticker (Gauge blue-400; Aktivste/r #1 Name+km/Tag; Team-Ø; Niedrig-Alert alert_niedrig; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5559KmProTagTicker } from './phase5559-km-pro-tag-ticker';
+// Phase 5560 — Smart-Timing Countdown V63 (Timer violet; V62+: Übergabe-Zuverlässigkeits-Score je Fahrer; Echtzeit-Kochauslastungs-Prognose +20min je Station; Bestellwachstum-Trendindikator Δ%; Schicht-Qualitäts-Composite-Index; 13-KPI-Grid Score/Aktiv/Kritisch/Überfällig/Fertig/Varianz/Stationen/SLA/Bereit/Drift/Bind/Sync/Qualität; 8-Tab Countdown/Prognose/Übergabe/Items/Stationen/Kunden/Schicht/Qualität; 1s-Tick+15s-Polling; Mock-Fallback)
+export { KitchenPhase5560SmartTimingCountdownV63 } from './phase5560-smart-timing-countdown-v63';

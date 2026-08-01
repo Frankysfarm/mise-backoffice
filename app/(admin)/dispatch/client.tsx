@@ -14902,3 +14902,5 @@ export { DispatchPhase5548LeerfahrtenBoard } from './phase5548-leerfahrten-board
 export { DispatchPhase5552UmsatzProKmBoard } from './phase5552-umsatz-pro-km-board';
 // Phase 5556 — km-pro-Tag-Board (Gauge blue-400; avg_km_pro_tag ABSTEIGEND Rang 1=höchstes km/Tag=aktivster; 3-KPI-Grid Aktivste/r/Team-Ø/Wenigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_niedrig; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5556KmProTagBoard } from './phase5556-km-pro-tag-board';
+// Phase 5557 — Score + Tour-Visualisierung V45 (Trophy violet; V44+: Fahrer-Compliance-Trend Sparkline; Energie-Niveau-Indikator; Eco-Effizienz-Score CO₂/Lieferung; Tour-Abschluss-Wahrscheinlichkeit KI%; 13-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/CO₂/Ertrag/Energie/Bindung/Pünktl/Qualität/Compliance/Abschluss; 9-Tab Rangliste/Profit/Energie/Lücken/CO₂/Bindung/Abschluss/Compliance/Wellbeing; 20s-Polling; Mock-Fallback)
+export { DispatchPhase5557ScoreTourVisualisierungV45 } from './phase5557-score-tour-visualisierung-v45';
