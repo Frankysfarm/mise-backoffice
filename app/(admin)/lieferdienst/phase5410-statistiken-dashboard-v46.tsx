@@ -230,7 +230,7 @@ export function LieferdienstPhase5410StatistikenDashboardV46() {
             <XAxis dataKey="stunde" tick={{ fill: '#9ca3af', fontSize: 10 }} />
             <Tooltip
               contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: 8, fontSize: 11 }}
-              formatter={(v: number, n: string) => [n === 'bestellungen' ? `${v} Bestellungen` : `€${v}`, n]}
+              formatter={(v, n) => [n === 'bestellungen' ? `${v as number} Bestellungen` : `€${v as number}`, n]}
             />
             <Bar dataKey="bestellungen" fill="#14b8a6" radius={[2, 2, 0, 0]} />
             <Bar dataKey="umsatz"       fill="#0d9488" radius={[2, 2, 0, 0]} />
@@ -315,7 +315,7 @@ export function LieferdienstPhase5410StatistikenDashboardV46() {
             <LineChart data={data.trinkgeld_trend} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
               <XAxis dataKey="tag" tick={{ fill: '#9ca3af', fontSize: 10 }} />
               <YAxis domain={[0, 3]} tick={{ fill: '#9ca3af', fontSize: 10 }} />
-              <Tooltip contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: 8, fontSize: 11 }} formatter={(v: number) => [`€${v.toFixed(2)}`, '']} />
+              <Tooltip contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: 8, fontSize: 11 }} formatter={(v) => [`€${(v as number).toFixed(2)}`, '']} />
               <Line dataKey="avg"  stroke="#f97316" strokeWidth={2} dot={{ r: 3, fill: '#f97316' }} />
               <Line dataKey="ziel" stroke="#6b7280" strokeWidth={1} strokeDasharray="4 4" dot={false} />
             </LineChart>

@@ -206,7 +206,7 @@ export function DispatchPhase5409ScoreTourVisualisierungV33() {
             <XAxis dataKey="stunde" tick={{ fill: '#9ca3af', fontSize: 10 }} />
             <Tooltip
               contentStyle={{ background: '#111827', border: '1px solid #374151', borderRadius: 8, fontSize: 11 }}
-              formatter={(v: number, name: string) => [name === 'touren' ? `${v} Touren` : `${v} Ø`, name]}
+              formatter={(v, name) => [name === 'touren' ? `${v as number} Touren` : `${v as number} Ø`, name]}
             />
             <Bar dataKey="touren"     fill="#7c3aed" radius={[2, 2, 0, 0]} />
             <Bar dataKey="durchschnitt" fill="#6d28d9" radius={[2, 2, 0, 0]} />
