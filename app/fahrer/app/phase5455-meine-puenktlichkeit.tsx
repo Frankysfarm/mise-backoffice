@@ -1,17 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { CalendarCheck, TrendingUp, TrendingDown, Minus, WifiOff, AlertTriangle } from 'lucide-react';
+import { Clock3, TrendingUp, TrendingDown, Minus, WifiOff, AlertTriangle } from 'lucide-react';
 
-// Phase 5451 — Mein Frühbucher-Score (Fahrer)
-// CalendarCheck green-400; fruehbucher_quote_pct 4xl+Rang; isOnline-Guard+WifiOff-Fallback;
-// Coaching ≥80%/≥60%/<60%; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback
+// Phase 5455 — Meine Pünktlichkeit (Fahrer)
+// Clock3 blue-400; rate_pct 4xl+Rang; isOnline-Guard+WifiOff-Fallback;
+// Coaching ≥90%/≥70%/<70%; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling; Mock-Fallback
 
 type Ampel = 'gruen' | 'gelb' | 'rot';
 
 interface MyData {
   rang: number;
-  fruehbucher_quote_pct: number;
+  rate_pct: number;
   team_avg_pct: number;
   rank_delta: number;
   ampel: Ampel;
@@ -21,33 +21,33 @@ interface MyData {
 
 const MOCK: MyData = {
   rang: 2,
-  fruehbucher_quote_pct: 74,
-  team_avg_pct: 62,
-  rank_delta: 1,
-  ampel: 'gruen',
+  rate_pct: 88,
+  team_avg_pct: 78,
+  rank_delta: 0,
+  ampel: 'gelb',
   alert_niedrig: false,
   gesamt: 4,
 };
 
 const BORDER: Record<Ampel, string> = {
-  gruen: 'border-green-500/50',
+  gruen: 'border-blue-500/50',
   gelb:  'border-yellow-500/50',
   rot:   'border-red-500/50',
 };
 
 function DeltaIcon({ d }: { d: number }) {
-  if (d > 0) return <TrendingUp className="h-3.5 w-3.5 text-green-400" />;
+  if (d > 0) return <TrendingUp className="h-3.5 w-3.5 text-blue-400" />;
   if (d < 0) return <TrendingDown className="h-3.5 w-3.5 text-red-400" />;
   return <Minus className="h-3.5 w-3.5 text-gray-500" />;
 }
 
 function coaching(q: number): { text: string; color: string } {
-  if (q >= 80) return { text: 'Top-Planer! Du buchst deine Schichten sehr früh — das hilft dem Team enorm!', color: 'text-green-400' };
-  if (q >= 60) return { text: 'Gute Planung — versuche noch mehr Schichten ≥24h im Voraus zu buchen!', color: 'text-yellow-400' };
-  return { text: 'Frühzeitig buchen lohnt sich — du sicherst dir bessere Schichten und Boni!', color: 'text-red-400' };
+  if (q >= 90) return { text: 'Top-Pünktlichkeit! Du lieferst fast immer rechtzeitig — weiter so!', color: 'text-blue-400' };
+  if (q >= 70) return { text: 'Gute Pünktlichkeit — versuche noch gleichmäßiger in der Zeit zu bleiben!', color: 'text-yellow-400' };
+  return { text: 'Pünktlichkeit verbessern — Kunden verlassen sich auf deine ETA!', color: 'text-red-400' };
 }
 
-export function FahrerPhase5451MeinFruehbucherScore({
+export function FahrerPhase5455MeinePuenktlichkeit({
   driverId,
   locationId,
   isOnline,
@@ -63,7 +63,7 @@ export function FahrerPhase5451MeinFruehbucherScore({
     if (!isOnline || !driverId) return;
     try {
       const r = await fetch(
-        `/api/delivery/admin/fahrer-fruehbucher-score?driver_id=${driverId}${locationId ? `&location_id=${locationId}` : ''}`,
+        `/api/delivery/admin/fahrer-puenktlichkeits-ranking?driver_id=${driverId}${locationId ? `&location_id=${locationId}` : ''}`,
       );
       if (r.ok) {
         const json = await r.json();
@@ -71,7 +71,7 @@ export function FahrerPhase5451MeinFruehbucherScore({
           const me = json.fahrer.find((f: { fahrer_id: string }) => f.fahrer_id === driverId);
           if (me) setData({
             rang: me.rang,
-            fruehbucher_quote_pct: me.fruehbucher_quote_pct,
+            rate_pct: me.rate_pct,
             team_avg_pct: json.team_avg_pct,
             rank_delta: me.rank_delta,
             ampel: me.ampel,
@@ -94,27 +94,27 @@ export function FahrerPhase5451MeinFruehbucherScore({
     return (
       <div className="flex items-center gap-2 rounded-lg bg-gray-900 border border-gray-700/50 px-3 py-2">
         <WifiOff className="h-3.5 w-3.5 text-gray-600" />
-        <span className="text-xs text-gray-500">Frühbucher-Score — offline nicht verfügbar</span>
+        <span className="text-xs text-gray-500">Pünktlichkeit — offline nicht verfügbar</span>
       </div>
     );
   }
 
-  const maxVal = Math.max(data.fruehbucher_quote_pct, data.team_avg_pct, 1);
-  const c = coaching(data.fruehbucher_quote_pct);
+  const maxVal = Math.max(data.rate_pct, data.team_avg_pct, 1);
+  const c = coaching(data.rate_pct);
 
   return (
     <div className={`rounded-lg bg-gray-900 border ${BORDER[data.ampel]} p-3 space-y-2`}>
       {/* Header */}
       <div className="flex items-center gap-1.5">
-        <CalendarCheck className="h-3.5 w-3.5 text-green-400" />
-        <span className="text-xs font-semibold text-white">Mein Frühbucher-Score</span>
+        <Clock3 className="h-3.5 w-3.5 text-blue-400" />
+        <span className="text-xs font-semibold text-white">Meine Pünktlichkeit</span>
         {data.alert_niedrig && <AlertTriangle className="h-3 w-3 text-red-400 ml-auto" />}
       </div>
 
       {/* Hauptwert */}
       <div className="flex items-end gap-2">
-        <span className="text-4xl font-black text-green-400">{data.fruehbucher_quote_pct}</span>
-        <span className="text-lg text-green-300 mb-0.5">%</span>
+        <span className="text-4xl font-black text-blue-400">{data.rate_pct}</span>
+        <span className="text-lg text-blue-300 mb-0.5">%</span>
         <div className="ml-auto flex items-center gap-1 text-xs text-gray-400">
           <span>Rang {data.rang}/{data.gesamt}</span>
           <DeltaIcon d={data.rank_delta} />
@@ -127,11 +127,11 @@ export function FahrerPhase5451MeinFruehbucherScore({
           <span className="text-[10px] text-gray-400 w-8">Ich</span>
           <div className="flex-1 h-2 rounded-full bg-gray-800">
             <div
-              className="h-2 rounded-full bg-green-400 transition-all duration-500"
-              style={{ width: `${(data.fruehbucher_quote_pct / maxVal) * 100}%` }}
+              className="h-2 rounded-full bg-blue-400 transition-all duration-500"
+              style={{ width: `${(data.rate_pct / maxVal) * 100}%` }}
             />
           </div>
-          <span className="text-[10px] font-mono text-green-300 w-8 text-right">{data.fruehbucher_quote_pct}%</span>
+          <span className="text-[10px] font-mono text-blue-300 w-8 text-right">{data.rate_pct}%</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-gray-400 w-8">Ø</span>
