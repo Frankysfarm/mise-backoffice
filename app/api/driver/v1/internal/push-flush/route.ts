@@ -23,6 +23,7 @@ interface OutboxRow {
   sound: string | null;
   priority: string | null;
   attempts: number;
+  expires_at?: string | null;
 }
 
 interface DriverShortRow {
@@ -94,7 +95,11 @@ export async function POST(req: NextRequest) {
     if (result.error || !(result.data as { ok?: boolean } | null)?.ok) throw new Error('PUSH_LEDGER_UPDATE_FAILED');
   };
   const wakeData = (row: OutboxRow) => ({
+    ...row.data,
     wake_only: true, notification_id: row.id, event_type: row.type,
+    assignment_id: row.data.assignment_id ?? row.data.batch_id,
+    assignment_version: row.data.assignment_version ?? row.data.snapshot_version ?? 1,
+    expires_at: row.expires_at ?? row.data.expires_at ?? row.data.lease_expires_at,
     snapshot_path: '/api/driver/v2/snapshot',
   });
 

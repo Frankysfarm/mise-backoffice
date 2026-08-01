@@ -43,6 +43,8 @@ assert.match(navigation, /return \{ google \}/);
 assert.doesNotMatch(navigation, /apple:|waze:|auto_ios:|auto_android:/);
 assert.match(push, /collapseId:/);
 assert.match(push, /p_retryable:\s*retryable/);
+assert.match(push, /assignment_id:\s*row\.data\.assignment_id \?\? row\.data\.batch_id/);
+assert.match(push, /assignment_version:\s*row\.data\.assignment_version/);
 assert.doesNotMatch(atomicPickup, /rerouteBundle|fn_driver_pickup_batch_v2/);
 assert.match(atomicPickup, /fn_driver_pickup_ready_v2/);
 assert.match(atomicPickup, /fn_persist_google_departure_route_v2/);

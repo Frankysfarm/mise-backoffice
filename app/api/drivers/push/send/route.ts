@@ -1,12 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import webpush from 'web-push';
 import { createServiceClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET() { return run(); }
-export async function POST() { return run(); }
+export async function POST(req: NextRequest) {
+  const expected = process.env.BISS_INTERNAL_TOKEN;
+  const provided = req.headers.get('x-internal-token');
+  if (!expected || expected.length < 16 || provided !== expected) {
+    return NextResponse.json({ ok: false, reason_code: 'UNAUTHORIZED' }, { status: 401 });
+  }
+  return run();
+}
 
 async function run() {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -29,6 +35,17 @@ async function run() {
 
   let sent = 0, failed = 0;
   for (const event of pending ?? []) {
+    const batchId = typeof event.batch_id === 'string' ? event.batch_id : null;
+    const { data: batch, error: batchError } = batchId
+      ? await svc.from('mise_delivery_batches').select('state,state_version').eq('id', batchId).maybeSingle()
+      : { data: null, error: null };
+    if (batchError || !batch || !['pending_acceptance', 'assigned', 'at_pickup'].includes(String(batch.state))) {
+      failed++;
+      await svc.from('driver_push_outbox').update({
+        sent_at: new Date().toISOString(), error: batchError ? 'BATCH_LOOKUP_FAILED' : 'BATCH_NOT_PUSHABLE',
+      }).eq('id', event.id);
+      continue;
+    }
     const { data: subs } = await svc
       .from('driver_push_subscriptions')
       .select('*')
@@ -42,6 +59,10 @@ async function run() {
         }, JSON.stringify({
           title: event.title,
           body: event.body,
+          notification_id: String(event.id),
+          assignment_id: batchId,
+          assignment_version: Number(batch.state_version),
+          expires_at: event.expires_at ?? null,
           url: event.url || '/fahrer/app',
           tag: `batch-${event.batch_id ?? event.id}`,
           urgent: true,

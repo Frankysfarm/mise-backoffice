@@ -13,6 +13,7 @@ const VERSION = 'v5-' + new Date().toISOString().slice(0, 10);
 const STATIC_CACHE  = `mise-static-${VERSION}`;
 const RUNTIME_CACHE = `mise-runtime-${VERSION}`;
 const OFFLINE_CACHE = `mise-offline-${VERSION}`;
+const PUSH_LEDGER_CACHE = 'mise-driver-push-ledger-v2';
 
 // Offline-Bundle Pfade — immer mit frischer Kopie im Cache vorhalten
 const OFFLINE_BUNDLE_PATH = '/api/delivery/driver/offline-bundle';
@@ -27,7 +28,7 @@ self.addEventListener('activate', (event) => {
     const keys = await caches.keys();
     await Promise.all(
       keys
-        .filter((k) => k !== STATIC_CACHE && k !== RUNTIME_CACHE && k !== OFFLINE_CACHE)
+        .filter((k) => k !== STATIC_CACHE && k !== RUNTIME_CACHE && k !== OFFLINE_CACHE && k !== PUSH_LEDGER_CACHE)
         .map((k) => caches.delete(k))
     );
     await self.clients.claim();
@@ -119,6 +120,63 @@ self.addEventListener('fetch', (event) => {
 
 /* ================= PUSH ================= */
 
+function normalizeDriverPush(raw) {
+  const nested = raw?.data && typeof raw.data === 'object' ? raw.data : {};
+  const data = { ...(raw ?? {}), ...nested };
+  const notificationId = data.notification_id;
+  const assignmentId = data.assignment_id ?? data.batch_id;
+  const assignmentVersion = Number(data.assignment_version);
+  const expiresAt = data.expires_at ?? data.lease_expires_at ?? null;
+  if (typeof notificationId !== 'string' || notificationId.length < 8) return null;
+  if (typeof assignmentId !== 'string' || assignmentId.length < 8) return null;
+  if (!Number.isSafeInteger(assignmentVersion) || assignmentVersion < 1) return null;
+  if (expiresAt !== null && (typeof expiresAt !== 'string' || !Number.isFinite(Date.parse(expiresAt)))) return null;
+  return {
+    notification_id: notificationId,
+    assignment_id: assignmentId,
+    assignment_version: assignmentVersion,
+    expires_at: expiresAt,
+    title: data.title,
+    body: data.body,
+    url: data.url,
+    tag: data.tag,
+  };
+}
+
+function pushLedgerRequest(kind, id) {
+  return new Request(`${self.location.origin}/__driver_push_${kind}__/${encodeURIComponent(id)}`);
+}
+
+async function claimDriverPush(payload) {
+  const cache = await caches.open(PUSH_LEDGER_CACHE);
+  const notificationKey = pushLedgerRequest('notification', payload.notification_id);
+  if (await cache.match(notificationKey)) return false;
+  if (payload.expires_at && Date.parse(payload.expires_at) <= Date.now()) {
+    await cache.put(notificationKey, new Response(JSON.stringify({ ...payload, state: 'expired' })));
+    return false;
+  }
+  const assignmentKey = pushLedgerRequest('assignment', payload.assignment_id);
+  const previous = await cache.match(assignmentKey);
+  if (previous) {
+    const previousVersion = Number((await previous.json().catch(() => null))?.assignment_version ?? 0);
+    if (previousVersion >= payload.assignment_version) {
+      await cache.put(notificationKey, new Response(JSON.stringify({ ...payload, state: 'stale' })));
+      return false;
+    }
+  }
+  const pending = { ...payload, state: 'pending', received_at: new Date().toISOString() };
+  await Promise.all([
+    cache.put(notificationKey, new Response(JSON.stringify(pending), { headers: { 'Content-Type': 'application/json' } })),
+    cache.put(assignmentKey, new Response(JSON.stringify({ assignment_version: payload.assignment_version }))),
+  ]);
+  return true;
+}
+
+async function broadcastDriverPush(payload) {
+  const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  windows.forEach((client) => client.postMessage({ type: 'DRIVER_PUSH_RECEIVED', payload }));
+}
+
 self.addEventListener('push', (event) => {
   const data = (() => { try { return event.data?.json() ?? {}; } catch { return {}; } })();
 
@@ -144,24 +202,26 @@ self.addEventListener('push', (event) => {
     return;
   }
 
-  // Fahrer-Push (Standard)
-  const title = data.title || '📦 Neue Tour';
-  const options = {
-    body: data.body || 'Bestellung fertig zum Abholen',
-    icon: '/fahrer-icon-192.png',
-    badge: '/fahrer-icon-192.png',
-    tag: data.tag ?? 'mise-tour',
-    renotify: true,
-    requireInteraction: true,
-    silent: false,
-    vibrate: [200, 100, 200, 100, 200, 100, 400],
-    data: { url: data.url ?? '/fahrer/app', time: Date.now() },
-    actions: [
-      { action: 'open', title: 'Öffnen' },
-      { action: 'snooze', title: 'Später' },
-    ],
-  };
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil((async () => {
+    const payload = normalizeDriverPush(data);
+    if (!payload || !(await claimDriverPush(payload))) return;
+    await broadcastDriverPush(payload);
+    await self.registration.showNotification(payload.title || '📦 Neue Tour', {
+      body: payload.body || 'Bestellung fertig zum Abholen',
+      icon: '/fahrer-icon-192.png',
+      badge: '/fahrer-icon-192.png',
+      tag: payload.tag ?? `assignment-${payload.assignment_id}`,
+      renotify: true,
+      requireInteraction: true,
+      silent: false,
+      vibrate: [200, 100, 200, 100, 200, 100, 400],
+      data: { ...payload, url: payload.url ?? '/fahrer/app', time: Date.now() },
+      actions: [
+        { action: 'open', title: 'Öffnen' },
+        { action: 'snooze', title: 'Später' },
+      ],
+    });
+  })());
 });
 
 self.addEventListener('notificationclick', (event) => {
@@ -194,5 +254,30 @@ self.addEventListener('message', (event) => {
         if (res.ok) cache.put(OFFLINE_BUNDLE_PATH, res);
       }).catch(() => {})
     );
+  }
+  if (event.data?.type === 'DRAIN_DRIVER_PUSHES') {
+    event.waitUntil((async () => {
+      const cache = await caches.open(PUSH_LEDGER_CACHE);
+      const keys = await cache.keys();
+      for (const key of keys.filter((request) => request.url.includes('/__driver_push_notification__/'))) {
+        const record = await cache.match(key);
+        const payload = await record?.json().catch(() => null);
+        if (!payload || payload.state !== 'pending') continue;
+        if (payload.expires_at && Date.parse(payload.expires_at) <= Date.now()) {
+          await cache.put(key, new Response(JSON.stringify({ ...payload, state: 'expired' })));
+          continue;
+        }
+        event.source?.postMessage({ type: 'DRIVER_PUSH_RECEIVED', payload });
+      }
+    })());
+  }
+  if (event.data?.type === 'DRIVER_PUSH_ACKED' && typeof event.data.notification_id === 'string') {
+    event.waitUntil((async () => {
+      const cache = await caches.open(PUSH_LEDGER_CACHE);
+      const key = pushLedgerRequest('notification', event.data.notification_id);
+      const record = await cache.match(key);
+      const payload = await record?.json().catch(() => null);
+      if (payload) await cache.put(key, new Response(JSON.stringify({ ...payload, state: 'acked' })));
+    })());
   }
 });

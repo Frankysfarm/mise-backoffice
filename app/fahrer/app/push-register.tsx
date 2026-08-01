@@ -3,6 +3,15 @@
 import { useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { snapshotThenTechnicalAck } from './push-reconcile';
+import {
+  PUSH_PENDING_KEY,
+  PUSH_PROCESSED_KEY,
+  isDriverPushExpired,
+  parseDriverPushNotification,
+  readNotificationIds,
+  rememberProcessedNotification,
+  type DriverPushNotification,
+} from './push-notification-contract';
 
 function beacon(stage: string, data: unknown) {
   try {
@@ -27,19 +36,30 @@ export function PushRegister() {
       hasPN: !!Cap?.Plugins?.PushNotifications,
     });
 
-    if (!Cap?.isNativePlatform?.()) { beacon('abort', 'not-native'); return; }
-    const PN = Cap.Plugins?.PushNotifications;
-    if (!PN) { beacon('abort', 'no-PN-plugin'); return; }
-    const pendingAckKey = 'mise_pending_notification_acks_v1';
-    const readPendingAcks = (): string[] => {
+    const PN = Cap?.Plugins?.PushNotifications;
+    // V1 contained notification IDs without assignment/version and is unsafe to
+    // replay. Drop it once; only the complete V2 envelope is retryable.
+    const legacyPendingAckKey = 'mise_pending_notification_acks_v1';
+    localStorage.removeItem(legacyPendingAckKey);
+    const readPendingNotifications = (): DriverPushNotification[] => {
       try {
-        const value = JSON.parse(localStorage.getItem(pendingAckKey) ?? '[]');
-        return Array.isArray(value) ? value.filter((id): id is string => typeof id === 'string') : [];
+        const value = JSON.parse(localStorage.getItem(PUSH_PENDING_KEY) ?? '[]');
+        return Array.isArray(value)
+          ? value.map(parseDriverPushNotification).filter((item): item is DriverPushNotification => item !== null)
+          : [];
       } catch {
         return [];
       }
     };
-    const savePendingAcks = (ids: string[]) => localStorage.setItem(pendingAckKey, JSON.stringify([...new Set(ids)]));
+    const savePendingNotifications = (items: DriverPushNotification[]) => {
+      const unique = new Map(items.map((item) => [item.notificationId, {
+        notification_id: item.notificationId,
+        assignment_id: item.assignmentId,
+        assignment_version: item.assignmentVersion,
+        expires_at: item.expiresAt,
+      }]));
+      localStorage.setItem(PUSH_PENDING_KEY, JSON.stringify([...unique.values()]));
+    };
     const reconcileSnapshot = async (): Promise<string> => {
       const sbc = createClient();
       const { data, error } = await sbc.auth.getSession();
@@ -52,10 +72,16 @@ export function PushRegister() {
       window.dispatchEvent(new CustomEvent('mise:driver-snapshot-reconciled', { detail: snapshot }));
       return data.session.access_token;
     };
-    const reconcileAndAck = async (notificationId: string) => {
-      savePendingAcks([...readPendingAcks(), notificationId]);
+    const reconcileAndAck = async (notification: DriverPushNotification) => {
+      if (isDriverPushExpired(notification)) {
+        savePendingNotifications(readPendingNotifications().filter((item) => item.notificationId !== notification.notificationId));
+        rememberProcessedNotification(localStorage, notification.notificationId);
+        return;
+      }
+      if (readNotificationIds(localStorage, PUSH_PROCESSED_KEY).includes(notification.notificationId)) return;
+      savePendingNotifications([...readPendingNotifications(), notification]);
       let accessToken = '';
-      await snapshotThenTechnicalAck(notificationId, async () => {
+      await snapshotThenTechnicalAck(notification.notificationId, async () => {
         accessToken = await reconcileSnapshot();
       }, async (id) => {
         const actionKeyStorage = `mise_notification_ack_action:${id}`;
@@ -71,18 +97,45 @@ export function PushRegister() {
         });
         if (!ackResponse.ok) throw new Error(`PUSH_TECHNICAL_ACK_FAILED:${ackResponse.status}`);
       });
-      savePendingAcks(readPendingAcks().filter((id) => id !== notificationId));
+      rememberProcessedNotification(localStorage, notification.notificationId);
+      savePendingNotifications(readPendingNotifications().filter((item) => item.notificationId !== notification.notificationId));
+      navigator.serviceWorker?.controller?.postMessage({
+        type: 'DRIVER_PUSH_ACKED', notification_id: notification.notificationId,
+      });
     };
-    const notificationId = (event: unknown): string | null => {
+    const notificationFromNativeEvent = (event: unknown): DriverPushNotification | null => {
       const record = event as { notification?: { data?: Record<string, unknown> }; data?: Record<string, unknown> };
-      const value = record?.notification?.data?.notification_id ?? record?.data?.notification_id;
-      return typeof value === 'string' ? value : null;
+      return parseDriverPushNotification(record?.notification?.data ?? record?.data);
     };
     const listenerHandles: Array<{ remove?: () => Promise<void> | void }> = [];
+    const inFlightNotificationIds = new Set<string>();
     let disposed = false;
 
-    try {
-      PN.addListener?.('registration', async (t: { value?: string }) => {
+    const processNotification = (notification: DriverPushNotification | null, stage: string) => {
+      if (!notification) { beacon(`${stage}-invalid-contract`, {}); return; }
+      if (inFlightNotificationIds.has(notification.notificationId)) return;
+      inFlightNotificationIds.add(notification.notificationId);
+      reconcileAndAck(notification).catch((error) =>
+        beacon(`${stage}-snapshot-ack-error`, String((error as Error).message)))
+        .finally(() => inFlightNotificationIds.delete(notification.notificationId));
+    };
+    const onServiceWorkerMessage = (event: MessageEvent) => {
+      if (event.data?.type !== 'DRIVER_PUSH_RECEIVED') return;
+      processNotification(parseDriverPushNotification(event.data.payload), 'web-push');
+    };
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', onServiceWorkerMessage);
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.active?.postMessage({ type: 'DRAIN_DRIVER_PUSHES' });
+      }).catch((error) => beacon('web-push-drain-error', String(error)));
+    }
+    for (const notification of readPendingNotifications()) {
+      processNotification(notification, 'pending');
+    }
+    reconcileSnapshot().catch((error) => beacon('startup-snapshot-error', String((error as Error).message)));
+
+    if (PN) try {
+      PN?.addListener?.('registration', async (t: { value?: string }) => {
         beacon('registration', { len: t?.value?.length ?? 0, head: (t?.value ?? '').slice(0, 10) });
         try {
           if (t?.value) {
@@ -105,12 +158,10 @@ export function PushRegister() {
           }
         } catch (e) { beacon('token-post-error', String((e as Error)?.message ?? e)); }
       });
-      PN.addListener?.('registrationError', (e: unknown) => beacon('registrationError', String((e as any)?.error ?? JSON.stringify(e))));
+      PN?.addListener?.('registrationError', (e: unknown) => beacon('registrationError', String((e as any)?.error ?? JSON.stringify(e))));
       for (const eventName of ['pushNotificationReceived', 'pushNotificationActionPerformed']) {
-        const handle = PN.addListener?.(eventName, (event: unknown) => {
-          const id = notificationId(event);
-          if (!id) return;
-          reconcileAndAck(id).catch((error) => beacon('snapshot-ack-error', String((error as Error).message)));
+        const handle = PN?.addListener?.(eventName, (event: unknown) => {
+          processNotification(notificationFromNativeEvent(event), 'native-push');
         });
         if (handle) {
           Promise.resolve(handle).then(async (resolved) => {
@@ -120,13 +171,9 @@ export function PushRegister() {
             .catch((error) => beacon('listener-add-error', String(error)));
         }
       }
-      for (const id of readPendingAcks()) {
-        reconcileAndAck(id).catch((error) => beacon('pending-snapshot-ack-error', String((error as Error).message)));
-      }
-      reconcileSnapshot().catch((error) => beacon('startup-snapshot-error', String((error as Error).message)));
     } catch (e) { beacon('listener-error', String((e as Error)?.message ?? e)); }
 
-    (async () => {
+    if (PN) (async () => {
       try {
         const perm = await PN.requestPermissions();
         beacon('permission', perm);
@@ -137,12 +184,12 @@ export function PushRegister() {
       } catch (e) { beacon('register-error', String((e as Error)?.message ?? e)); }
     })();
 
-    try { Cap.Plugins?.Geolocation?.requestPermissions?.(); } catch { /* noop */ }
+    try { Cap?.Plugins?.Geolocation?.requestPermissions?.(); } catch { /* noop */ }
 
     // Access-Token nativ verfuegbar machen (fuer CallKit-Annehmen -> accept-tour)
     const storeToken = async () => {
       try {
-        const Pref = Cap.Plugins?.Preferences;
+        const Pref = Cap?.Plugins?.Preferences;
         if (!Pref) return;
         const sb = createClient();
         const { data } = await sb.auth.getSession();
@@ -155,7 +202,7 @@ export function PushRegister() {
 
     // VoIP-Token (nativ via PushKit in Preferences) -> Server (CallKit/Uber-Anruf)
     (async () => {
-      const Pref = Cap.Plugins?.Preferences;
+      const Pref = Cap?.Plugins?.Preferences;
       if (!Pref) return;
       for (let i = 0; i < 12; i++) {
         try {
@@ -183,6 +230,9 @@ export function PushRegister() {
     return () => {
       disposed = true;
       clearInterval(tokIv);
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', onServiceWorkerMessage);
+      }
       for (const handle of listenerHandles) {
         Promise.resolve(handle.remove?.()).catch((error) => beacon('listener-remove-error', String(error)));
       }
