@@ -43,11 +43,6 @@ export interface NavState {
 
 export interface NavDeepLinks {
   google: string;
-  apple: string;
-  waze: string;
-  /** Best-guess für iOS (Apple Maps), Android (Google), sonst Google */
-  auto_ios: string;
-  auto_android: string;
 }
 
 // ── HTML-Stripping ─────────────────────────────────────────────────────────────
@@ -326,7 +321,7 @@ export function buildNaviDeepLinks(args: {
   vehicle: 'car' | 'bike';
 }): NavDeepLinks {
   if (args.stops.length === 0) {
-    return { google: '', apple: '', waze: '', auto_ios: '', auto_android: '' };
+    return { google: '' };
   }
 
   const travelMode = args.vehicle === 'bike' ? 'bicycling' : 'driving';
@@ -340,20 +335,7 @@ export function buildNaviDeepLinks(args: {
     : '';
   const google = googleBase + googleWaypoints;
 
-  // Apple Maps (nur erster Stop als Destination — kein Waypoint-Support in URL-Schema)
-  const first = args.stops[0];
-  const apple = `maps://maps.apple.com/?daddr=${first.lat},${first.lng}&dirflg=${args.vehicle === 'bike' ? 'w' : 'd'}`;
-
-  // Waze (nur erster Stop)
-  const waze = `https://waze.com/ul?ll=${first.lat},${first.lng}&navigate=yes&zoom=17`;
-
-  return {
-    google,
-    apple,
-    waze,
-    auto_ios: apple,
-    auto_android: google,
-  };
+  return { google };
 }
 
 // ── Cleanup: Alte Caches löschen ──────────────────────────────────────────────

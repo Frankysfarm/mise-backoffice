@@ -39,8 +39,6 @@ interface NavData {
   segment?: { steps: NavStep[]; total_dist_m: number; total_dur_s: number };
   deep_links: {
     google: string;
-    apple: string;
-    waze: string;
   };
   error?: string;
 }
@@ -116,8 +114,6 @@ export function NaviWidget({
   const lastFetchRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
 
-  const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
-
   const fetchNav = useCallback(async (force = false) => {
     if (driverLat == null || driverLng == null) return;
     const now = Date.now();
@@ -171,9 +167,7 @@ export function NaviWidget({
 
   const { current_step, next_step, distance_remaining_m, duration_remaining_s, deep_links } = data ?? {};
 
-  const primaryMapUrl = isIos
-    ? (deep_links?.apple || deep_links?.google || '')
-    : (deep_links?.google || '');
+  const primaryMapUrl = deep_links?.google || '';
 
   return (
     <div className="mx-4 mb-3 rounded-2xl overflow-hidden border border-accent/40 bg-accent/5">
@@ -301,27 +295,7 @@ export function NaviWidget({
                 className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl bg-accent text-matcha-900 font-bold text-[12px] active:scale-[0.98] transition"
               >
                 <Navigation size={13} />
-                {isIos ? 'Apple Maps' : 'Google Maps'}
-              </a>
-            )}
-            {deep_links?.waze && (
-              <a
-                href={deep_links.waze}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center justify-center gap-1 h-9 px-3 rounded-xl bg-[#33ccff]/15 border border-[#33ccff]/40 text-[#33ccff] font-bold text-[12px] active:scale-[0.98] transition"
-              >
-                Waze
-              </a>
-            )}
-            {!isIos && deep_links?.google && (
-              <a
-                href={deep_links.google}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center justify-center gap-1 h-9 px-3 rounded-xl bg-matcha-700/60 border border-matcha-600/40 text-matcha-100 font-bold text-[12px] active:scale-[0.98] transition"
-              >
-                G Maps
+                Google Maps
               </a>
             )}
           </div>

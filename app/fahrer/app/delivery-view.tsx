@@ -435,7 +435,8 @@ export function DeliveryView({
     const kmBonus = stop?.distanz_zum_vorgaenger_m != null ? (stop.distanz_zum_vorgaenger_m / 1000) * 0.20 : 0;
     setEarningsBubble({ amount: 1.50 + kmBonus, key: Date.now() });
     setTimeout(() => setEarningsBubble(null), 3000);
-    if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
+    // Tourabschluss bleibt eine ausdrückliche, serverbestätigte Aktion. Der
+    // letzte Drop-off darf die Rückkehr-/Abschlusslogik nicht implizit auslösen.
   }
 
   async function markFailedAttempt(stopId: string) {
@@ -1171,21 +1172,19 @@ export function DeliveryView({
 
       {/* Multi-Waypoint Navigation */}
       {openStops.length > 0 && (() => {
-        const stopsWithCoords = openStops.filter((s) => s.order.kunde_lat && s.order.kunde_lng);
+        const routeOrderedStops = [
+          ...openStops.filter((s) => !skippedIds.has(s.id)),
+          ...openStops.filter((s) => skippedIds.has(s.id)),
+        ];
+        const stopsWithCoords = routeOrderedStops.filter((s) =>
+          Number.isFinite(s.order.kunde_lat) && Number.isFinite(s.order.kunde_lng));
         if (stopsWithCoords.length === 0) return null;
-        const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
-        let mapsUrl: string;
-        if (isIos && stopsWithCoords.length === 1) {
-          mapsUrl = `maps://maps.apple.com/?daddr=${stopsWithCoords[0].order.kunde_lat},${stopsWithCoords[0].order.kunde_lng}&dirflg=d`;
-        } else {
-          // Google Maps Waypoints (works on all platforms)
-          const coords = stopsWithCoords.map((s) => `${s.order.kunde_lat},${s.order.kunde_lng}`);
-          const dest = coords[coords.length - 1];
-          const waypoints = coords.slice(0, -1).join('|');
-          mapsUrl = waypoints
-            ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}&travelmode=driving`
-            : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
-        }
+        const coords = stopsWithCoords.map((s) => `${s.order.kunde_lat},${s.order.kunde_lng}`);
+        const dest = coords[coords.length - 1];
+        const waypoints = coords.slice(0, -1).join('|');
+        const mapsUrl = waypoints
+          ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}&travelmode=driving`
+          : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
         return (
           <div className="mx-4 mt-2">
             <a
@@ -1821,34 +1820,18 @@ export function DeliveryView({
                       <AlertTriangle size={12} /> N. zust.
                     </button>
                   )}
-                  {stop.order.kunde_lat && stop.order.kunde_lng && (() => {
-                    const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+                  {Number.isFinite(stop.order.kunde_lat) && Number.isFinite(stop.order.kunde_lng) && (() => {
                     const lat = stop.order.kunde_lat!;
                     const lng = stop.order.kunde_lng!;
-                    const primaryHref = isIos
-                      ? `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`
-                      : `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
-                    const secondaryHref = isIos
-                      ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`
-                      : `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
-                    const secondaryLabel = isIos ? 'Google' : 'Waze';
+                    const primaryHref = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
                     return (
-                      <>
-                        <a
+                      <a
                           href={primaryHref}
                           target="_blank" rel="noreferrer"
                           className="flex-1 h-11 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center gap-2 text-sm font-bold"
                         >
                           <Navigation size={16} /> Navigieren
                         </a>
-                        <a
-                          href={secondaryHref}
-                          target="_blank" rel="noreferrer"
-                          className="h-11 px-3 rounded-xl bg-white/5 hover:bg-white/15 flex items-center justify-center text-xs font-bold text-matcha-300"
-                        >
-                          {secondaryLabel}
-                        </a>
-                      </>
                     );
                   })()}
                   <button
@@ -1885,10 +1868,7 @@ export function DeliveryView({
               {/* Navigation zurück zum Restaurant */}
               {restaurantLoc && (() => {
                 const { lat, lng, name } = restaurantLoc;
-                const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
                 const googleUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
-                const appleUrl  = `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`;
-                const wazeUrl   = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
                 return (
                   <div className="rounded-xl border border-matcha-500/40 bg-matcha-900/60 p-3">
                     <div className="text-[10px] font-bold uppercase tracking-[0.15em] text-matcha-400 mb-2 flex items-center gap-1.5">
@@ -1897,21 +1877,13 @@ export function DeliveryView({
                     </div>
                     <div className="flex gap-2">
                       <a
-                        href={isIos ? appleUrl : googleUrl}
+                        href={googleUrl}
                         target="_blank"
                         rel="noreferrer"
                         className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg bg-matcha-700 text-matcha-100 font-bold text-xs active:scale-[0.98] transition"
                       >
                         <Navigation size={12} />
-                        {isIos ? 'Apple Maps' : 'Google Maps'}
-                      </a>
-                      <a
-                        href={wazeUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center justify-center gap-1 h-9 px-3 rounded-lg bg-[#33ccff]/15 border border-[#33ccff]/30 text-[#33ccff] font-bold text-xs active:scale-[0.98] transition"
-                      >
-                        Waze
+                        Google Maps
                       </a>
                     </div>
                   </div>
