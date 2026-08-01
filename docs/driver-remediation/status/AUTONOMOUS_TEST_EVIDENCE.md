@@ -79,3 +79,5 @@
 - Registry: all 115 catalog descriptors are bound exactly once; 6/6 validation tests pass. Unknown/unbound IDs and substituted metadata fail closed. Every current handler is explicitly `audit-only`, and the CLI returns exit 2 rather than pretending an E2E pass.
 - Oracle adapter: adapter plus oracle tests pass 17/17 including 500 seeds. Hard-constraint violations, exact match, tolerance and quality-gap verdicts are recorded without importing production scoring into the oracle.
 - Limitations: no actual production decision capture or concrete production route sequence is connected; catalog handlers do not yet drive application APIs/UI.
+- Aggregate run `tl_20260801t220000z_abcdef12`: 73 pass, 3 correctly skipped DB-only tests, 0 failures. The three DB cases separately pass 3/3 in disposable PostgreSQL.
+- Latest `npm run build`: exit 0, 447 pages.

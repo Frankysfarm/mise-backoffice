@@ -64,3 +64,8 @@ independent-review or human-acceptance evidence, so the release is `BLOCKED`.
 
 The pre-existing aggregate release-readiness runner also passed after these
 changes, including its true-overlap database races and migrations 285–288.
+
+TL-G1 continuation adds 65 persisted actor profiles, 115 deterministic registry
+bindings, 3/3 PostgreSQL factory concurrency cases and an honest blocked status
+for audit-only scenarios. The enlarged aggregate is 73 passed, 3 DB-only skips,
+0 failures; the skipped cases pass separately against disposable PostgreSQL.
