@@ -82,7 +82,8 @@ test('UI actor uses real locator clicks and captures UI plus server evidence aft
   assert.equal(actor.actor.state, 'completed')
   assert.equal(evidence.length, 2)
   assert.ok(events.includes('click:role:button:Auftrag annehmen'))
-  assert.ok(events.includes('snapshot:accepted'))
+  assert.ok(events.includes('snapshot:accepted:before'))
+  assert.ok(events.includes('snapshot:accepted:after'))
   assert.equal(events.at(-1), 'trace:stop')
 })
 
@@ -110,3 +111,36 @@ test('cross-origin and protocol-relative navigation is rejected before page muta
   assert.equal(events.length, 0)
 })
 
+test('server precondition is checked before a business click and fails closed', async () => {
+  const events: string[] = []
+  const actor = new BrowserClickActor({
+    actorId: 'lab-run-driver-precondition',
+    kind: 'driver',
+    baseUrl: 'http://127.0.0.1:3200',
+    artifactDirectory: 'artifacts/lab-run-driver-precondition',
+    headed: true,
+    clock,
+    page: fakePage(events),
+    context: {},
+    evidence: {
+      async ensureDirectory(path) { events.push(`mkdir:${path}`) },
+      async writeText(path) { events.push(`write:${path}`) },
+    },
+    snapshotProbe: {
+      async readSnapshot(checkpoint) {
+        events.push(`snapshot:${checkpoint}`)
+        return { assignmentStatus: 'expired', assignmentVersion: 4 }
+      },
+    },
+  })
+
+  await assert.rejects(actor.run('/fahrer/app', [{
+    id: 'accept-current-assignment',
+    action: 'click',
+    selector: { by: 'role', role: 'button', name: 'Auftrag annehmen' },
+    serverCheckpoint: 'accept',
+    expectedServerBefore: { assignmentStatus: 'offered', assignmentVersion: 4 },
+  }]), /server precondition assignmentStatus/)
+  assert.ok(!events.includes('click:role:button:Auftrag annehmen'))
+  assert.equal(actor.actor.state, 'failed')
+})

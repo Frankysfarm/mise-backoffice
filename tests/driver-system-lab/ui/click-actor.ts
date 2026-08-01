@@ -14,6 +14,7 @@ export interface UiStep {
   selector: UiSelector
   value?: string
   expectedText?: string
+  expectedServerBefore?: Readonly<Record<string, string | number | boolean | null>>
   serverCheckpoint: string
 }
 
@@ -84,6 +85,15 @@ export class BrowserClickActor {
   private async execute(step: UiStep): Promise<UiStepEvidence> {
     const stepId = safeSegment(step.id)
     const locator = locate(this.options.page, step.selector)
+    const before = await this.options.snapshotProbe.readSnapshot(`${step.serverCheckpoint}:before`)
+    for (const [field, expected] of Object.entries(step.expectedServerBefore ?? {})) {
+      const actual = before[field]
+      if (actual !== expected) {
+        throw new Error(
+          `${step.id}: server precondition ${field} expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`,
+        )
+      }
+    }
     switch (step.action) {
       case 'click':
         await locator.click()
@@ -113,7 +123,7 @@ export class BrowserClickActor {
     const domSnapshot = `${this.options.artifactDirectory}/${stepId}.html`
     await this.options.page.screenshot({ path: screenshot, fullPage: true })
     await this.options.evidence.writeText(domSnapshot, await this.options.page.content())
-    const serverSnapshot = await this.options.snapshotProbe.readSnapshot(step.serverCheckpoint)
+    const serverSnapshot = await this.options.snapshotProbe.readSnapshot(`${step.serverCheckpoint}:after`)
     await this.options.evidence.writeText(
       `${this.options.artifactDirectory}/${stepId}.server.json`,
       JSON.stringify(serverSnapshot, null, 2),
@@ -136,4 +146,3 @@ export class BrowserClickActor {
     )
   }
 }
-
