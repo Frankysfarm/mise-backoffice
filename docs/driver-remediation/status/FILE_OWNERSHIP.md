@@ -1,6 +1,6 @@
 # Critical File Ownership
 
-Updated: 2026-07-28
+Updated: 2026-08-01
 
 | File/scope | Active task | Owner | Mode | Notes |
 |---|---|---|---|---|
@@ -23,5 +23,11 @@ Updated: 2026-07-28
 | `package.json`, `next.config.js`, ESLint config | none | released by T00 | protected | Tool configuration complete. |
 | native verification scripts in `/Users/eule/mise-driver-native-t00` | none | released by T00 | protected | Native T00 commit `0ec66de`; no app logic changed. |
 | `docs/driver-remediation/status/*` | program | lead orchestrator | exclusive | Baseline, status, gates and command evidence. |
+| final-completion schema/preflight, migrations `285_*` onward and their tests | final completion | lead orchestrator | exclusive | Masterauftrag 2026-08-01; local/disposable databases only, no production mutation. |
+| final-completion routing/lifecycle/UI cleanup | final completion | lead orchestrator | exclusive | Existing dirty edits are preserved and audited before consolidation; no parallel writer may edit these scopes. |
+| `scripts/tests/285_*`, `scripts/tests/run-285-*`, schema-preflight helpers | final completion | push_offline_audit | exclusive | Migration 285 behavior/race evidence only; migration SQL itself remains lead-owned. |
+| route-before-depart successor migration and its dedicated SQL runners | final completion | pickup_routing_audit | exclusive | New files only; do not edit migrations 276-285 or shared runners. |
+| reachable driver UI import/render cleanup and dedicated UI contract test | final completion | navigation_ui_audit | exclusive | May edit `app/fahrer/app/client.tsx` plus new dedicated test only; preserve canonical DeliveryView behavior. |
+| adaptive deterministic optimizer successor module/spec/tests | final completion | push_offline_audit | exclusive | New optimizer files only; no edits to `lib/frank.ts` or frozen T07 files until lead review. |
 
 Ownership must be updated before another task edits a listed scope.
