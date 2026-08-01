@@ -14810,3 +14810,5 @@ export { DispatchPhase5496KundenbewertungBoard } from './phase5496-kundenbewertu
 export { DispatchPhase5500ScoreTourVisualisierungV38 } from './phase5500-score-tour-visualisierung-v38';
 // Phase 5505 — Problem-Reaktionszeit-Board (Zap yellow-400; reaktionszeit_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Langsam-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5505ProblemReaktionszeitBoard } from './phase5505-problem-reaktionszeit-board';
+// Phase 5510 — Score + Tour-Visualisierung V39 (Trophy violet; Fahrer-Compliance-Score; Tour-Profit-per-km-Heatmap-Balken; Gesamttour-Bilanz-Panel Einnahmen vs. Kosten; ETA-Drift-Warnung; 6-KPI-Grid Fleet-Score/Aktiv/Risiko/Compliance/Profit-km/ETA-Drift; 3-Tab Rangliste/Compliance/Profit; Tier Platin/Gold/Gut/Schwach; 20-Sek-Polling; Mock-Fallback)
+export { DispatchPhase5510ScoreTourVisualisierungV39 } from './phase5510-score-tour-visualisierung-v39';

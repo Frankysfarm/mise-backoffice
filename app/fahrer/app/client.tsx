@@ -12669,5 +12669,7 @@ export { FahrerPhase5493TourStopsNavHubV12 } from './phase5493-tour-stops-nav-hu
 export { FahrerPhase5497MeineKundenbewertung } from './phase5497-meine-kundenbewertung';
 // Phase 5501 — Tour-Stops Nav Hub V13 (V13: Stopp-Bestätigung via API+POST; Gesamtfortschritts-Ring SVG violett; Verkehrsampel Live Leicht/Mittel/Schwer; CountdownRing SVG farbkodiert; Google Maps Deep-Link; Geliefert-CTA; Next-Stops-Liste; 30-Sek-Polling; Mock-Fallback)
 export { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
+// Phase 5505 — Tour-Stops Nav Hub V14 (Navigation blue; V14: Hold-to-Confirm 800ms Geste; Kunden-Kontakt tel+WhatsApp; Live-Kundendistanz-Ring SVG farbkodiert; Paketübergabe-Checkliste 2-Klick; Gesamtfortschritts-Balken; 30-Sek-Poll; Mock-Fallback)
+export { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 // Phase 5506 — Meine Problem-Reaktionszeit (Zap yellow-400; reaktionszeit_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; 4xl+Rang; Coaching ≤10/≤20/>20 min; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';

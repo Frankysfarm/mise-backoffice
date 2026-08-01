@@ -13384,3 +13384,6 @@ export { KitchenPhase5499KundenbewertungTicker } from './phase5499-kundenbewertu
 export { KitchenPhase5503SmartTimingCountdownV56 } from './phase5503-smart-timing-countdown-v56';
 // Phase 5508 — Problem-Reaktionszeit-Ticker (Zap yellow-400; Schnellste/r #1 Name+Reaktionszeit; Team-Ø; Langsam-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5508ProblemReaktionszeitTicker } from './phase5508-problem-reaktionszeit-ticker';
+// Phase 5510 — Smart-Timing Countdown V57 (Timer amber; V57: Kategorie-Filter Vorspeisen/Hauptgang/Nachtisch/Getränke; Warmhalte-Indikator je Bestellung; Batch-Score-Ring; 6-KPI-Grid Score/Aktiv/Kritisch/Fertig/Warm/Velocity; Kochstart-Offset-Badge; Dual-Countdown Küche+Fahrer-ETA-Sync; Fortschrittsbalken; 1s-Tick + 15s-Polling; Mock-Fallback)
+export { KitchenPhase5510SmartTimingCountdownV57 } from './phase5510-smart-timing-countdown-v57';
+>>>>>>> 67a29c8c (feat(delivery/frontend): extend all 5 Smart Delivery System modules)
