@@ -1394,6 +1394,7 @@ import { KitchenPhase5503SmartTimingCountdownV56 } from './phase5503-smart-timin
 import { KitchenPhase5510SmartTimingCountdownV57 } from './phase5510-smart-timing-countdown-v57';
 import { KitchenPhase5508ProblemReaktionszeitTicker } from './phase5508-problem-reaktionszeit-ticker';
 import { KitchenPhase5512ZuverlaessigkeitsScoreTicker } from './phase5512-zuverlaessigkeits-score-ticker';
+import { KitchenPhase5513SmartTimingCountdownV58 } from './phase5513-smart-timing-countdown-v58';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5317,6 +5318,8 @@ export function KitchenBoard({
       <KitchenPhase5512ZuverlaessigkeitsScoreTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
       <KitchenPhase5510SmartTimingCountdownV57 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5513: Smart-Timing Countdown V58 — V57+: Küchen↔Dispatch Bridge Score Sync/Drift/Lost; Dual-ETA-Sync-Ring Küche vs. Fahrer SVG; SLA-Commitment-Band Überfälligkeits-Prognose; Item-Level-Countdown mit Kategorie-Icon; 8-KPI-Grid; 4-Tab; 1s-Tick+15s-Polling */}
+      <KitchenPhase5513SmartTimingCountdownV58 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5503: Smart-Timing Countdown V56 — V55+Batch-Gruppen-Anzeige; Kochstart-Offset-Indikator; Abholer-Timing-Badge; 4-stufige Farbkodierung; Station-Filter; Dual-Countdown; 1s-Tick+15s-Polling */}
       <KitchenPhase5503SmartTimingCountdownV56 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5475: Smart-Timing Countdown V54 — KI-Stapel-Prognose; Multi-Station-Farbkodierung; Übergabe-Zeit-Optimierer; Burn-Rate-Indikator; 10-KPI-Grid; 4-Tab; 1s-Tick+15s-Polling */}

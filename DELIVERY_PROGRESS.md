@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**CEO Review #775 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Phase 5511-5513 Frontend-Batch (ScoreTour V40/TourStops V15/Statistiken V53/SmartTiming V58/ETA V17) verifiziert · 4× CEO-Fixes: Import+Render für Dispatch(5511)+Kitchen(5513)+Fahrer(5511)+Lieferdienst(5511) nachgetragen · MARKT-REIF bestätigt · Nächste freie Phase: 5517
+
 **CEO Review #774 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 79 (5509/5510/5512) Zuverlässigkeits-Score-Ranking verifiziert · V-Updates (ScoreTour V39/SmartTiming V57/Statistiken V52/TourStops V14/ETA Final) Import+Render nachgetragen · 6× CEO-Fixes: Merge-Konfliktmarker bereinigt + alle V-Updates verdrahtet · MARKT-REIF bestätigt · Nächste freie Phase: 5513
 
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 · Batch 79 (5509/5510/5512) Zuverlässigkeits-Score-Ranking implementiert · API fahrer-zuverlaessigkeits-score-ranking (vorhanden + fahrer_single nachgerüstet, score ABSTEIGEND, alert_niedrig Score<60) · ShieldCheck emerald-400 · Import+Render+Barrel ✅ Dispatch(5509) + Fahrer(5510) + Kitchen(5512) · Kitchen-Merge-Conflict-Marker bereinigt · **Nächste freie Phase: 5513**
@@ -88,7 +90,7 @@
 **API:** `fahrer-zuverlaessigkeits-score-ranking` (vorhanden + fahrer_single nachgerüstet) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, score, ausfallquote_pct, schicht_puenktlichkeit_pct, annahme_rate_pct, rank_delta, ampel, alert_niedrig}], team_avg_score, beste_name, niedrigste_name, alert_count, gesamt }`
 **Logik:** Composite-Score: Ausfallquote-Invers (33%) + Schichtpünktlichkeit (33%) + Annahme-Rate (34%) · ABSTEIGEND (Rang 1 = höchster Score = zuverlässigster) · alert_niedrig: Score < 60
 
-**KRITISCH: Nächste freie Phase ist 5513!** NIEMALS 4000–5512 verwenden.
+**KRITISCH: Nächste freie Phase ist 5517!** NIEMALS 4000–5516 verwenden.
 
 ---
 

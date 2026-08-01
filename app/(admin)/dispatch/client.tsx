@@ -1465,6 +1465,7 @@ import { DispatchPhase5500ScoreTourVisualisierungV38 } from './phase5500-score-t
 import { DispatchPhase5510ScoreTourVisualisierungV39 } from './phase5510-score-tour-visualisierung-v39';
 import { DispatchPhase5505ProblemReaktionszeitBoard } from './phase5505-problem-reaktionszeit-board';
 import { DispatchPhase5509ZuverlaessigkeitsScoreBoard } from './phase5509-zuverlaessigkeits-score-board';
+import { DispatchPhase5511ScoreTourVisualisierungV40 } from './phase5511-score-tour-visualisierung-v40';
 
 type Driver = {
   employee_id: string;
@@ -5788,6 +5789,8 @@ export function DispatchBoard({
           <DispatchPhase5509ZuverlaessigkeitsScoreBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5510: Score + Tour-Visualisierung V39 — V38+Fahrer-Compliance-Score; Tour-Profit-per-km-Heatmap; Gesamttour-Bilanz-Panel; ETA-Drift-Warnung; 3-Tab Rangliste/Compliance/Profit; 20-Sek-Polling */}
           <DispatchPhase5510ScoreTourVisualisierungV39 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5511: Score + Tour-Visualisierung V40 — V39+: KI-Zuweisung-Score je Bestellung; Real-time Fleet ETA Sync Panel; Multi-Fahrer Tour-Status Matrix; Stop-Dot-Zeitlinie animiert; 8-KPI-Grid Fleet/Aktiv/Risiko/Eff%/Sync/ETA-Drift/Profit/Touren; 4-Tab Rangliste/Matrix/Zuweisung/Fleet-ETA; 20s-Polling */}
+          <DispatchPhase5511ScoreTourVisualisierungV40 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
