@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-01):** Build ✓ exit 0 (pre-existing Turbopack-Workspace-Env-Problem) · Batch 64 (5442/5443/5445) Stopp-Effizienz-Ranking implementiert · API fahrer-stopps-pro-stunde-ranking (bereits vorhanden, ABSTEIGEND, stopps_pro_stunde/team_avg/bester_name/langsamster_name/alert_bottom) · Import+Render+Barrel ✅ Dispatch(5442) + Fahrer(5443) + Kitchen(5445) · Nächste freie Phase: 5446
+
 **CEO Review #764 (2026-08-01):** Build exit 0 ✅ · TSC exit 0 ✅ · Batch 62 (5434/5435/5437) Umsatz/Schicht-Ranking verifiziert · Batch 63 (5438/5439/5441) Stoppquoten-Ranking verifiziert · MARKT-REIF bestätigt · Nächste freie Phase: 5442
 
 **Frontend-Ingenieur-Agent (2026-08-01):** Build ✓ exit 0 · Batch 63 (5438/5439/5441) Stoppquoten-Ranking implementiert · Nächste freie Phase: 5442
@@ -48,13 +50,31 @@
 **API:** `fahrer-stoppquoten-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, quote_pct, rank_delta, ampel, alert_niedrig}], team_avg_quote, beste_name, schlechteste_name, alert_count, gesamt }`
 **Logik:** Stop-Vollständigkeits-Quote in % (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchste quote_pct = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_niedrig: unteres 25%-Quartil · Coaching: ≥95/≥85/<85%
 
-**KRITISCH: Nächste freie Phase ist 5442!** NIEMALS 4000–5441 verwenden.
+**KRITISCH: Nächste freie Phase ist 5446!** NIEMALS 4000–5445 verwenden.
 
-**Vorschlag Batch 64:** Fahrer-Stopp-Effizienz-Ranking (Ø Stopps pro Stunde — ABSTEIGEND, höchste = bester)
-- Phase 5442: Dispatch `DispatchPhase5442StoppEffizienzBoard` — Zap amber-400; ABSTEIGEND
-- Phase 5443: Fahrer `FahrerPhase5443MeineStoppEffizienz` — Zap amber-400; Coaching API-abhängig
-- Phase 5444: Storefront — skip
-- Phase 5445: Kitchen `KitchenPhase5445StoppEffizienzTicker` — Zap amber-400
+**Vorschlag Batch 65:** Fahrer-Lieferzeit-Varianz-Ranking (Standardabweichung der Lieferzeiten — AUFSTEIGEND, niedrigste = bester/konstantester Fahrer)
+- Phase 5446: Dispatch `DispatchPhase5446LieferzeitVarianzBoard` — Sigma purple-400; AUFSTEIGEND
+- Phase 5447: Fahrer `FahrerPhase5447MeineLieferzeitVarianz` — Sigma purple-400; Coaching API-abhängig
+- Phase 5448: Storefront — skip
+- Phase 5449: Kitchen `KitchenPhase5449LieferzeitVarianzTicker` — Sigma purple-400
+
+---
+
+## Batch 64 — Stopp-Effizienz-Ranking (ABGESCHLOSSEN 2026-08-01)
+
+### Phase 5442 — Stopp-Effizienz-Board (Dispatch)
+**Component:** `DispatchPhase5442StoppEffizienzBoard` — Zap amber-400; stopps_pro_stunde ABSTEIGEND Rang 1=höchste=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert (amber/yellow/red); DeltaIcons; Niedrig-Alert alert_bottom; 30-Min-Polling ✅
+
+### Phase 5443 — Meine Stopp-Effizienz (Fahrer)
+**Component:** `FahrerPhase5443MeineStoppEffizienz` — Zap amber-400; stopps_pro_stunde 4xl+Rang; isOnline-Guard+WifiOff-Fallback; Coaching ≥3.0/≥2.0/<2.0/h; Dual-Balken Ich+Team-Ø; Ampel-Border; 30-Min-Polling ✅
+
+### Phase 5444 — Storefront: übersprungen ✅
+
+### Phase 5445 — Stopp-Effizienz-Ticker (Kitchen)
+**Component:** `KitchenPhase5445StoppEffizienzTicker` — Zap amber-400; Schnellste/r #1 Name+/h; Team-Ø; Niedrig-Alert; 30-Min-Polling ✅
+
+**API:** `fahrer-stopps-pro-stunde-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, stopps_pro_stunde, rank_delta, ampel, alert_bottom}], team_avg, bester_name, langsamster_name, alert_count, gesamt }`
+**Logik:** Ø Stopps pro Stunde (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchste stopps_pro_stunde = bester) · Ampel: grün/gelb/rot nach Quartilen · alert_bottom: unteres 25%-Quartil · Coaching: ≥3.0/≥2.0/<2.0/h
 
 ---
 

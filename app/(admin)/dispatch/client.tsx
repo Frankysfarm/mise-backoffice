@@ -1447,6 +1447,7 @@ import { DispatchPhase5426KmProTourBoard } from './phase5426-km-pro-tour-board';
 import { DispatchPhase5430TourenProSchichtBoard } from './phase5430-touren-pro-schicht-board';
 import { DispatchPhase5434UmsatzProSchichtBoard } from './phase5434-umsatz-pro-schicht-board';
 import { DispatchPhase5438StoppquotenBoard } from './phase5438-stoppquoten-board';
+import { DispatchPhase5442StoppEffizienzBoard } from './phase5442-stopp-effizienz-board';
 
 type Driver = {
   employee_id: string;
@@ -5734,6 +5735,8 @@ export function DispatchBoard({
           <DispatchPhase5434UmsatzProSchichtBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5438: Stoppquoten-Board — CheckCircle emerald-400; ABSTEIGEND; 3-KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
           <DispatchPhase5438StoppquotenBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5442: Stopp-Effizienz-Board — Zap amber-400; ABSTEIGEND; 3-KPI-Grid Schnellste/Team-Ø/Langsamste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5442StoppEffizienzBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
       </div>
     </div>
@@ -14726,5 +14729,7 @@ export { DispatchPhase5430TourenProSchichtBoard } from './phase5430-touren-pro-s
 export { DispatchPhase5434UmsatzProSchichtBoard } from './phase5434-umsatz-pro-schicht-board';
 // Phase 5438 — Stoppquoten-Board (CheckCircle emerald-400; ABSTEIGEND; 3-KPI-Grid Beste/Team-Ø/Niedrigste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5438StoppquotenBoard } from './phase5438-stoppquoten-board';
+// Phase 5442 — Stopp-Effizienz-Board (Zap amber-400; ABSTEIGEND; 3-KPI-Grid Schnellste/Team-Ø/Langsamste; Balken farbkodiert; DeltaIcons; Niedrig-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5442StoppEffizienzBoard } from './phase5442-stopp-effizienz-board';
 // Phase 5420 — Score + Tour-Visualisierung V34 (Trophy violet; Fahrer-Cluster-Karte Hotspot-Dichte; Profit/km je Fahrer; ETA-Drift-Alarm; Fleet-Fitness-Score; 5-KPI-Grid Fleet-Score/Aktiv/Risiko/Eff%/€-km; 3-Tab Rangliste/Cluster/Profit; Tier-farbkodiert Platin/Gold/Gut/Schwach; 20-Sek-Polling; Mock-Fallback)
 export { DispatchPhase5420ScoreTourVisualisierungV34 } from './phase5420-score-tour-visualisierung-v34';
