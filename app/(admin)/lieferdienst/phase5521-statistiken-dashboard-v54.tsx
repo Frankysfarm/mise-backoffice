@@ -271,7 +271,7 @@ export function LieferdienstPhase5521StatistikenDashboardV54({ locationId, class
               <LineChart data={MOCK_PEAK}>
                 <XAxis dataKey="woche" tick={{ fill: '#71717a', fontSize: 9 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: '#71717a', fontSize: 9 }} axisLine={false} tickLine={false} domain={[60, 100]} />
-                <Tooltip contentStyle={{ background: '#18181b', border: 'none', fontSize: 10 }} formatter={(v: number, n: string) => [`${v}${n === 'eff_pct' ? '%' : '€'}`, n === 'eff_pct' ? 'Effizienz' : 'Umsatz']} />
+                <Tooltip contentStyle={{ background: '#18181b', border: 'none', fontSize: 10 }} formatter={(v, n) => [`${(v as number)}${n === 'eff_pct' ? '%' : '€'}`, n === 'eff_pct' ? 'Effizienz' : 'Umsatz']} />
                 <Line dataKey="eff_pct" stroke="#6366f1" strokeWidth={2} dot={{ r: 3, fill: '#6366f1' }} />
                 <Line dataKey="umsatz" stroke="#22c55e" strokeWidth={2} dot={{ r: 3, fill: '#22c55e' }} yAxisId={1} hide />
               </LineChart>
