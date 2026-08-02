@@ -71,6 +71,10 @@ test('real Chromium assigns through the production Dispatcher component fail-clo
       const element = document.querySelector('[data-testid="dispatch-order-b5000000-0000-4000-8000-000000000001"]');
       return element ? Object.keys(element).some((key) => key.startsWith('__reactProps')) : false;
     });
+    await page.waitForTimeout(1_000);
+    assert.ok(pageErrors.some((message) => message.includes('hydrat') || message.includes('server-rendered HTML')),
+      'full production board hydration defect must remain explicit evidence');
+    pageErrors.length = 0;
     await page.getByTestId('dispatch-order-b5000000-0000-4000-8000-000000000001').click();
     await page.getByText(/1 ausgewählt/).waitFor();
     const assign = page.getByTestId('dispatch-assign-b1000000-0000-4000-8000-000000000001');
@@ -94,13 +98,7 @@ test('real Chromium assigns through the production Dispatcher component fail-clo
     });
     assert.match(String(attempts[0].action_id), /^[0-9a-f-]{36}$/i);
     assert.deepEqual(external, []);
-    const unexpectedPageErrors = pageErrors.filter((message) =>
-      !message.includes('Text content does not match server-rendered HTML')
-      && !message.includes('Hydration failed because the initial UI does not match')
-      && !message.includes('There was an error while hydrating')
-      && !message.includes('TypeError: Failed to fetch'),
-    );
-    assert.deepEqual(unexpectedPageErrors, []);
+    assert.deepEqual(pageErrors, [], 'manual assignment interaction must add no browser exception');
     await page.screenshot({ path: screenshot, fullPage: true });
   } finally {
     await browserContext.tracing.stop({ path: trace }); await browserContext.close(); await browser.close();

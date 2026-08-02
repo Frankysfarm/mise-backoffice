@@ -11,6 +11,7 @@ test('Dispatcher UI has one fail-closed manual assignment boundary', async () =>
   assert.doesNotMatch(source, /rpc\('assign_to_driver'/);
   assert.doesNotMatch(source, /from\('delivery_batches'\)[\s\S]{0,250}\.insert\(/);
   assert.match(source, /manualAssignKeysRef/);
+  assert.doesNotMatch(source, /DispatchPhase1223FahrerEinsatzPlaner|DispatchPhase1838FreierFahrerSofortZuweisung|DispatchBatchReassignDialog/);
 });
 
 test('manual assignment route requires tenant role and atomic-v2 writer', async () => {
@@ -18,7 +19,23 @@ test('manual assignment route requires tenant role and atomic-v2 writer', async 
   assert.match(source, /getAdminContext\(\)/);
   assert.match(source, /ASSIGN_ROLES/);
   assert.match(source, /selectedDispatchWriter\(service, context\.tenant_id\) !== 'atomic_v2'/);
-  assert.match(source, /claimAtomicWriterV2/);
+  assert.doesNotMatch(source, /claimAtomicWriterV2/);
+  assert.match(source, /from\('dispatch_writer_gates'\)/);
+  assert.match(source, /ACTIVE_WRITER_LEASE_REQUIRED/);
+  assert.match(source, /canonicalOrderIds.*sort/);
+  assert.match(source, /\.order\('id', \{ ascending: true \}\)/);
   assert.match(source, /createAtomicAssignmentV2/);
   assert.doesNotMatch(source, /mock-fallback|ok:\s*true.*catch/s);
+});
+
+test('unsafe legacy assignment endpoints are fail-closed tombstones', async () => {
+  for (const path of [
+    'app/api/delivery/admin/batch-assign/route.ts',
+    'app/api/delivery/admin/auto-zuweisung/route.ts',
+    'app/api/delivery/admin/batch-reassign/route.ts',
+  ]) {
+    const source = await readFile(path, 'utf8');
+    assert.match(source, /status: 410/);
+    assert.doesNotMatch(source, /createServiceClient|\.update\(|\.insert\(|mock-fallback|erfolg:\s*true/);
+  }
 });

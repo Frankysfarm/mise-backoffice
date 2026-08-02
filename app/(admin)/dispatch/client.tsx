@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
@@ -262,7 +262,6 @@ import { DispatchFahrerRueckkehrPrognosePanel } from './fahrer-rueckkehr-prognos
 import { DispatchFahrerVerfuegbarkeitsSignalPanel } from './fahrer-verfuegbarkeits-signal-panel';
 import { DispatchOrderPriorityOverrideBadge } from './order-priority-override-badge';
 import { DispatchTourSequenzLive } from './dispatch-tour-sequenz-live';
-import { DispatchBatchReassignDialog } from './batch-reassign-dialog';
 import { DispatchZonenbilanzKarte } from './zonen-bilanz-karte';
 import { DispatchZoneActionBoard } from './zone-action-board';
 import { DispatchPhase564TourScoreAmpel } from './phase564-tour-score-ampel';
@@ -462,7 +461,6 @@ import { DispatchPhase1208FahrerAuslastungsPrognose } from './phase1208-fahrer-a
 import { DispatchPhase1210TourScoreVisualisierungLive } from './phase1210-tour-score-visualisierung-live';
 import { DispatchPhase1213SchichtendeUebernahmeAlert } from './phase1213-schichtende-uebernahme-alert';
 import { DispatchPhase1218EtaAbweichungsMonitor } from './phase1218-eta-abweichungs-monitor';
-import { DispatchPhase1223FahrerEinsatzPlaner } from './phase1223-fahrer-einsatz-planer';
 import { DispatchPhase1233SchichtKostenErtrag } from './phase1233-schicht-kosten-ertrag';
 import { DispatchPhase1238SchichtPauseOptimierer } from './phase1238-schicht-pause-optimierer';
 import { DispatchPhase1243FahrerRueckkehrCountdown } from './phase1243-fahrer-rueckkehr-countdown';
@@ -606,7 +604,6 @@ import { DispatchPhase1818FahrerZuverlaessigkeitsRanking } from './phase1818-fah
 import { DispatchPhase1823TourenKapazitaetsAuslastungsGauge } from './phase1823-touren-kapazitaets-auslastungs-gauge';
 import { DispatchPhase1828FahrerEinnahmenVergleich } from './phase1828-fahrer-einnahmen-vergleich';
 import { DispatchPhase1833ZonenEffizienzDashboard } from './phase1833-zonen-effizienz-dashboard';
-import { DispatchPhase1838FreierFahrerSofortZuweisung } from './phase1838-freier-fahrer-sofort-zuweisung';
 import { DispatchPhase1843LetzteTouren } from './phase1843-letzte-touren-recap';
 import { DispatchPhase1848TourScoreEchtzeitDashboard } from './phase1848-tour-score-echtzeit-dashboard';
 import { DispatchPhase1853TourKostenWidget } from './phase1853-tour-kosten-widget';
@@ -1125,7 +1122,7 @@ export function DispatchBoard({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [orderSort, setOrderSort] = useState<'wait' | 'zone' | 'score'>('wait');
-  const [pending, startTransition] = useTransition();
+  const [manualAssignPending, setManualAssignPending] = useState(false);
   const [dispatchPending, setDispatchPending] = useState(false);
   const [manualAssignError, setManualAssignError] = useState<string | null>(null);
   const [manualAssignSuccess, setManualAssignSuccess] = useState(false);
@@ -1161,8 +1158,6 @@ export function DispatchBoard({
   }[]>([]);
   const [recoveryPending, setRecoveryPending] = useState<string | null>(null);
 
-  // Phase 484: Batch-Reassign-Dialog
-  const [reassignBatch, setReassignBatch] = useState<{ id: string; driverId: string | null; driverName: string } | null>(null);
 
   // KI-Dispatch-Assistent
   const [aiPanelOpen, setAiPanelOpen] = useState(false);
@@ -1634,18 +1629,18 @@ export function DispatchBoard({
   }
 
   async function assignToDriver(fahrerId: string, explicitOrderIds?: string[]) {
-    const orderIds = explicitOrderIds ?? Array.from(selected);
+    const orderIds = [...(explicitOrderIds ?? Array.from(selected))].sort();
     if (orderIds.length === 0) return;
     const selectedOrders = readyOrders.filter((o) => orderIds.includes(o.id));
     const locationId = selectedOrders[0]?.location_id ?? null;
-    const requestKey = `${fahrerId}:${[...orderIds].sort().join(',')}`;
+    const requestKey = `${fahrerId}:${orderIds.join(',')}`;
     const actionId = manualAssignKeysRef.current.get(requestKey) ?? crypto.randomUUID();
     manualAssignKeysRef.current.set(requestKey, actionId);
 
-    startTransition(async () => {
-      setManualAssignError(null);
-      setManualAssignSuccess(false);
-      try {
+    setManualAssignPending(true);
+    setManualAssignError(null);
+    setManualAssignSuccess(false);
+    try {
         const response = await fetch('/api/delivery/admin/manual-assign', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
@@ -1665,10 +1660,11 @@ export function DispatchBoard({
         setSelected(new Set());
         setManualAssignSuccess(true);
         await refresh();
-      } catch {
-        setManualAssignError('MANUAL_ASSIGN_NETWORK_FAILED');
-      }
-    });
+    } catch {
+      setManualAssignError('MANUAL_ASSIGN_NETWORK_FAILED');
+    } finally {
+      setManualAssignPending(false);
+    }
   }
 
   return (
@@ -1997,7 +1993,6 @@ export function DispatchBoard({
       {/* Phase 1218: ETA-Abweichungs-Monitor — Delta geschätzte vs. tatsächliche Lieferzeit + Eskalation */}
       <DispatchPhase1218EtaAbweichungsMonitor locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1223: Fahrer-Einsatz-Planer — Drag-and-Drop-Zuweisung freier Fahrer zu offenen Touren (Vorschau) */}
-      <DispatchPhase1223FahrerEinsatzPlaner locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1233: Schicht-Kosten-Ertrag — Umsatz vs. Fahrer-Löhne + Marge je Fahrer */}
       <DispatchPhase1233SchichtKostenErtrag locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1238: Schicht-Pause-Optimierer — Letzte Pause je Fahrer + Empfehlung wenn Zone ruhig */}
@@ -2238,8 +2233,6 @@ export function DispatchBoard({
       <DispatchPhase1828FahrerEinnahmenVergleich locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1833: Zonen-Effizienz-Dashboard — Phase1826-API: Tabelle Zonen + Umsatz/km; Ausreißer-Flagge; Alert bei rot-Zonen; 30-Min-Polling */}
       <DispatchPhase1833ZonenEffizienzDashboard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
-      {/* Phase 1838: Freier-Fahrer-Sofort-Zuweisung — Button "Nächste Bestellung zuweisen" → optimaler freier Fahrer nach Zone + Auslastung; POST auto-zuweisung */}
-      <DispatchPhase1838FreierFahrerSofortZuweisung locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1843: Letzte-Touren-Recap — Letzte 5 abgeschlossene Touren: Fahrer, Stopps, Dauer, ETA-Abweichung; 30-Min-Polling */}
       <DispatchPhase1843LetzteTouren locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 1848: Tour-Score-Echtzeit-Dashboard — Live-Score aller aktiven Touren (Pünktlichkeit/Effizienz/Bündelung); expandierbare Aufschlüsselung; Bundle-Empfehlung; 90-Sek-Polling */}
@@ -3611,23 +3604,6 @@ export function DispatchBoard({
       {/* Phase 878: Tour-Score-Live-Karte — Alle aktiven Touren mit Score-Meter + Pünktlichkeitsampel */}
       <DispatchPhase878TourScoreLiveKarte batches={batches as any} locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
 
-      {/* Phase 484: Batch-Reassign-Dialog — Neubesetzen einer Tour */}
-      <DispatchBatchReassignDialog
-        open={!!reassignBatch}
-        onClose={() => setReassignBatch(null)}
-        batchId={reassignBatch?.id ?? null}
-        currentDriverId={reassignBatch?.driverId ?? null}
-        currentDriverName={reassignBatch?.driverName}
-        locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)}
-        onReassigned={(newDriverId, newDriverName) => {
-          setBatches((prev) => prev.map((b) =>
-            b.id === reassignBatch?.id
-              ? { ...b, fahrer_id: newDriverId, fahrer: { vorname: newDriverName, nachname: '' } }
-              : b,
-          ));
-          setReassignBatch(null);
-        }}
-      />
       {/* Phase 479: Tour-Nächste-Stopp-Matrix — Alle aktiven Touren mit nächstem Stopp + ETA-Ampel */}
       <DispatchTourNaechsteStoppMatrix locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
       {/* Phase 465: Benchmark-Verlauf-Chart — 28-Tage Trend je Metrik als Liniendiagramm */}
@@ -3674,7 +3650,6 @@ export function DispatchBoard({
         recoveryEvents={recoveryEvents}
         recoveryPending={recoveryPending}
         onRecover={triggerRecovery}
-        onReassign={(batchId, driverId, driverName) => setReassignBatch({ id: batchId, driverId, driverName })}
       />
 
       {/* Lange Wartezeiten: Bestellungen >8 Min ohne Fahrer */}
@@ -3862,7 +3837,7 @@ export function DispatchBoard({
                     driver={d}
                     activeBatch={batches.find((b) => b.fahrer_id === d.employee_id || b.id === d.aktueller_batch_id) ?? null}
                     canAssign={selected.size > 0 && !d.aktueller_batch_id}
-                    busy={pending}
+                    busy={manualAssignPending}
                     onAssign={() => assignToDriver(d.employee_id)}
                     restaurantLat={loc?.lat ?? null}
                     restaurantLng={loc?.lng ?? null}
