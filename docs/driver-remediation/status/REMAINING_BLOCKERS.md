@@ -30,7 +30,7 @@
 Releaseentscheidung: **BLOCKED für Produktion; SHADOW-ONLY lokal/isoliert.**
 # Autonomous test-lab blockers — 2026-08-01
 
-- TL-G1: two review rounds rejected concrete issues. Deep immutability/authentication, action compatibility, behavior-specific roles and the full required provider/infrastructure variant matrix are now corrected but require another fixed-commit independent review. The 115 `audit-only` handlers block TL-G2/TL-G5 canonical execution, not the narrower TL-G1 contract.
+- TL-G1 is independently GREEN at `9b3e66bd`. Nonblocking future rule: each new behavior/action/fixture ID must add typed semantics and negative registry tests. The 115 `audit-only` handlers remain a TL-G2/TL-G5 blocker.
 - TL-G2: Chromium, trace and actual dashboard E2E are green; authenticated Storefront/Kitchen/Driver production-UI fixtures and selectors remain.
 - TL-G4: a pure-optimizer comparison exists, but runtime dispatch-pipeline capture, production route sequence, diverse multi-driver/store cases and retained complete optimality-gap traces are open.
 - TL-G5: the required categories and over 75 names exist; most are not yet executable full-stack cases.
