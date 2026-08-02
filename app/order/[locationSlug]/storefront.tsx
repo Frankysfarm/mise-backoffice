@@ -490,6 +490,7 @@ import { Phase5164DynamischeEtaLiveTrackingV9 } from './phase5164-dynamische-eta
 import { Phase5165DynamischeEtaLiveTrackingV10 } from './phase5165-dynamische-eta-live-tracking-v10';
 import { StorefrontPhase5535DynamischeEtaLiveTrackingV20 } from './phase5535-dynamische-eta-live-tracking-v20';
 import { StorefrontPhase5537DynamischeEtaLiveTrackingV21 } from './phase5537-dynamische-eta-live-tracking-v21';
+import { StorefrontPhase5585DynamischeEtaLiveTrackingV22 } from './phase5585-dynamische-eta-live-tracking-v22';
 import { Phase4475DynamischeEtaLiveTrackingV6 } from './phase4475-dynamische-eta-live-tracking-v6';
 import { Phase4500DynamischeEtaLiveHub } from './phase4500-dynamische-eta-live-hub';
 import { Phase5036DynamischeEtaLiveHubV2 } from './phase5036-dynamische-eta-live-hub-v2';
@@ -3445,6 +3446,13 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
           orderId={order.orderId ?? undefined}
         />
       )}
+      {/* Phase 5585: Dynamische ETA Live-Tracking V22 — KI-Konfidenz-Pfeil; Küchen-Transparenz-Score; Fahrer-Profil-Live-Badge; Bonus-Punkte-Preview; Animierter ETA-Ring; 30s-Polling */}
+      {order.isDelivery && (
+        <StorefrontPhase5585DynamischeEtaLiveTrackingV22
+          orderId={order.orderId ?? undefined}
+          locationId={location.id ?? undefined}
+        />
+      )}
       {/* Phase 985: Live-ETA-Tracking-Banner — Farbcodierter Phasen-Fortschritt + Sekunden-Countdown + Live-Tracking-Dot */}
       {order.isDelivery && (
         <Phase985LiveEtaTrackingBanner
@@ -4138,6 +4146,8 @@ export { Phase5165DynamischeEtaLiveTrackingV10 } from './phase5165-dynamische-et
 export { StorefrontPhase5535DynamischeEtaLiveTrackingV20 } from './phase5535-dynamische-eta-live-tracking-v20';
 // Phase 5537 — Dynamische ETA Live-Tracking V21 (6-Phasen-Timeline animiert; ETA-Countdown Sekunden-Präzision; KI-Konfidenz-Ring hoch/mittel/niedrig; Fahrer-Annäherungs-Balken; Stopp-Countdown; Fast-da-Pulse-Banner; Bewertungs-Stars nach Lieferung; 30-Sek-Polling; Mock-Fallback)
 export { StorefrontPhase5537DynamischeEtaLiveTrackingV21 } from './phase5537-dynamische-eta-live-tracking-v21';
+// Phase 5585 — Dynamische ETA Live-Tracking V22 (KI-Lieferzeitprognose Konfidenz-Pfeil hoch/mittel/niedrig+Δmin; Küchen-Transparenz-Score Fortschritts-Badge; Fahrer-Profil-Live-Badge Name+Bewertung+Initialen-Avatar; Bonus-Punkte-Preview Treuepunkte; Animierter ETA-Ring SVG-Kreisbogen; Geliefert-Celebration+Stern-Bewertung; 30-Sek-Polling; Mock-Fallback)
+export { StorefrontPhase5585DynamischeEtaLiveTrackingV22 } from './phase5585-dynamische-eta-live-tracking-v22';
 // Phase 5166 — Dynamische ETA Live-Tracking V11 (Bike indigo; Schritt-für-Schritt Status-Timeline 5-stufig animiert; Puls-Ring Fahrer-Avatar; Wetter-Einfluss-Hinweis; Stop-Count-Countdown; Bewertungs-Snippet nach Lieferung; Delay-Alert+Wetter-Hinweis; Geschwindigkeits+Distanz; Geliefert-Celebration+Bewertungs-Stars; 15-Sek-Polling; Mock-Fallback)
 export { StorefrontPhase5166DynamischeEtaLiveTrackingV11 } from './phase5166-dynamische-eta-live-tracking-v11';
 // Phase 5167 — Dynamische ETA Live-Tracking V12 (ETA-Ring; Phasen-Timeline; Fahrer-Annäherungs-Balken; Konfidenz-Indikator; 15-Sek-Polling; Mock-Fallback)

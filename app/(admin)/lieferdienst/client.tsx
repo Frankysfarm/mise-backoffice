@@ -549,6 +549,7 @@ import { LieferdienstPhase5531StatistikenDashboardV56 } from './phase5531-statis
 import { LieferdienstPhase5535StatistikenDashboardV57 } from './phase5535-statistiken-dashboard-v57';
 import { LieferdienstPhase5545StatistikenDashboardV59 } from './phase5545-statistiken-dashboard-v59';
 import { LieferdienstPhase5549StatistikenDashboardV60 } from './phase5549-statistiken-dashboard-v60';
+import { LieferdienstPhase5584StatistikenDashboardV61 } from './phase5584-statistiken-dashboard-v61';
 
 export function LieferdienstClient() {
   // Auth State - Default staff (no login required)
@@ -2517,6 +2518,8 @@ export function LieferdienstClient() {
                 <LieferdienstPhase5545StatistikenDashboardV59 locationId={locationId ?? null} />
                 {/* Phase 5549: Statistiken-Dashboard V60 — 21-KPI-Grid, Zonen-Performance, Schicht-Analyse, Kunden-Loyalitäts-Matrix Churn-Risiko, Peak-Prognose-Ampel, Eco+Score-Breakdown; 6-Tab; 30s-Polling */}
                 <LieferdienstPhase5549StatistikenDashboardV60 locationId={locationId ?? null} />
+                {/* Phase 5584: Statistiken-Dashboard V61 — Eco-Score+CO₂; Tour-Ertrag-Prognose nächste h; Reklamations-Muster-Analyse Stunde×Grund; Fahrer-Gesundheits-Trend LineChart; 22-KPI-Grid; 7-Tab; 30s-Polling */}
+                <LieferdienstPhase5584StatistikenDashboardV61 locationId={locationId ?? null} />
                 {/* Phase 5531: Statistiken-Dashboard V56 — Schichtstart-Pünktlichkeit-Trend, Kundenbindungs-Kohorte Neukunde/Stammkunde/VIP AreaChart, Tour-Qualitäts-Radar, Schicht-Fairness-Index Gini, 17-KPI-Grid 4-spaltig, 12-Tab-Nav */}
                 <LieferdienstPhase5531StatistikenDashboardV56 locationId={locationId ?? null} />
                 {/* Phase 5530: Statistiken-Dashboard V55 — V54+: KI-Schicht-Score-Prognose +1h+Konfidenz; Fahrer-Moral-Index Bewertung+Trinkgeld+Pünktlichkeit Composite; Umsatz-Momentum Δ€/h AreaChart; Lieferzeit-Perzentil-Analyse P50/P75/P90 LineChart; 16-KPI-Grid 4-spaltig; 11-Tab-Nav; 60-Sek-Polling */}
@@ -5315,3 +5318,5 @@ export { LieferdienstPhase5540StatistikenDashboardV58 } from './phase5540-statis
 export { LieferdienstPhase5545StatistikenDashboardV59 } from './phase5545-statistiken-dashboard-v59';
 // Phase 5549 — Statistiken-Dashboard V60 (V59+: 21-KPI-Grid 3/4-spaltig; Zonen-Performance Nord/Mitte/Süd/West SLA+ETA+Trend-Pfeil; Schicht-Analyse Früh/Mittag/Abend Auslastungs-Balken; Kunden-Loyalitäts-Matrix Neu/Gelegentlich/Stamm/Premium Churn-Risiko%; Peak-Prognose-Ampel Stunden-Überlast-Alert; Eco-Score+CO₂-Ersparnis; Score-Breakdown 7 Dimensionen; 6-Tab KPIs/Zonen/Schichten/Loyalität/Peak/Eco; 30s-Polling; Mock-Fallback)
 export { LieferdienstPhase5549StatistikenDashboardV60 } from './phase5549-statistiken-dashboard-v60';
+// Phase 5584 — Statistiken-Dashboard V61 (V60+: Schicht-Nachhaltigkeits-Score CO₂+Öko+Leerfahrten; Tour-Ertrag-Prognose nächste Stunde KI-Balken je Fahrer; Reklamations-Muster-Analyse Stunde×Grund Heatmap-Grid; Fahrer-Gesundheits-Trend Wellbeing+Moral-LineChart 7 Schichten; 22-KPI-Grid 4-spaltig; 7-Tab KPIs/Zonen/Schichten/Rekla/Prognose/Eco/Gesundheit; 30s-Polling; Mock-Fallback)
+export { LieferdienstPhase5584StatistikenDashboardV61 } from './phase5584-statistiken-dashboard-v61';

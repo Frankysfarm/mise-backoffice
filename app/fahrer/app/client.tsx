@@ -1375,6 +1375,7 @@ import { FahrerPhase5566TourStopsNavHubV19 } from './phase5566-tour-stops-nav-hu
 import { FahrerPhase5570MeineLieferzeitPraezision } from './phase5570-meine-lieferzeit-praezision';
 import { FahrerPhase5574TourStopsNavHubV20 } from './phase5574-tour-stops-nav-hub-v20';
 import { FahrerPhase5578MeineReaktionszeit } from './phase5578-meine-reaktionszeit';
+import { FahrerPhase5583TourStopsNavHubV21 } from './phase5583-tour-stops-nav-hub-v21';
 import { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
 import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
@@ -7934,6 +7935,8 @@ export function FahrerApp({
           <FahrerPhase5574TourStopsNavHubV20 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5578: Meine Dispatch-Reaktionszeit — Zap yellow-400; avg_reaktionszeit_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; Coaching ≤3/≤8/>8 min; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
           <FahrerPhase5578MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5583: Tour-Stops Nav Hub V21 — KI-Übergabe-Qualitäts-Score; Fahrer-Pausen-Empfehlung; Smart-Schicht-Ende-Prognose; Bonus-Track-Status; 12-KPI-Grid; 7-Tab; 15s-Polling */}
+          <FahrerPhase5583TourStopsNavHubV21 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />
@@ -12774,3 +12777,5 @@ export { FahrerPhase5570MeineLieferzeitPraezision } from './phase5570-meine-lief
 export { FahrerPhase5574TourStopsNavHubV20 } from './phase5574-tour-stops-nav-hub-v20';
 // Phase 5578 — Meine Dispatch-Reaktionszeit (Zap yellow-400; avg_reaktionszeit_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; 4xl+Rang; Coaching ≤3/≤8/>8 min; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5578MeineReaktionszeit } from './phase5578-meine-reaktionszeit';
+// Phase 5583 — Tour-Stops Nav Hub V21 (KI-Übergabe-Qualitäts-Score Foto+Unterschrift+Klingel; Fahrer-Pausen-Empfehlung Müdigkeit+Schicht-Check; Smart-Schicht-Ende-Prognose; Bonus-Track-Status Distanz/Pünktlichkeit/Bewertung; 12-KPI-Grid; 7-Tab Stopps/Navi/Kunden/Score/Übersicht/Telemetrie/Bonus; 15s-Polling; Offline-Guard; Mock-Fallback)
+export { FahrerPhase5583TourStopsNavHubV21 } from './phase5583-tour-stops-nav-hub-v21';

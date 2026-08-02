@@ -1486,6 +1486,7 @@ import { DispatchPhase5565ScoreTourVisualisierungV46 } from './phase5565-score-t
 import { DispatchPhase5569LieferzeitPraezisionBoard } from './phase5569-lieferzeit-praezision-board';
 import { DispatchPhase5573ScoreTourVisualisierungV47 } from './phase5573-score-tour-visualisierung-v47';
 import { DispatchPhase5577ReaktionszeitBoard } from './phase5577-reaktionszeit-board';
+import { DispatchPhase5582ScoreTourVisualisierungV48 } from './phase5582-score-tour-visualisierung-v48';
 
 type Driver = {
   employee_id: string;
@@ -5849,6 +5850,8 @@ export function DispatchBoard({
           <DispatchPhase5573ScoreTourVisualisierungV47 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5577: Dispatch-Reaktionszeit-Board — Zap yellow-400; avg_reaktionszeit_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
           <DispatchPhase5577ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5582: Score + Tour-Visualisierung V48 — Absenz-Risiko-Prognose; KI-Routeneffizienz Δkm; Tour-Profitabilitäts-Matrix; Zonen-Durchsatz-Optimierung; 16-KPI-Grid; 7-Tab; 20s-Polling */}
+          <DispatchPhase5582ScoreTourVisualisierungV48 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14929,3 +14932,5 @@ export { DispatchPhase5569LieferzeitPraezisionBoard } from './phase5569-lieferze
 export { DispatchPhase5573ScoreTourVisualisierungV47 } from './phase5573-score-tour-visualisierung-v47';
 // Phase 5577 — Dispatch-Reaktionszeit-Board (Zap yellow-400; avg_reaktionszeit_min AUFSTEIGEND Rang 1=schnellste Reaktion=bester; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert alert_hoch; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5577ReaktionszeitBoard } from './phase5577-reaktionszeit-board';
+// Phase 5582 — Score + Tour-Visualisierung V48 (Fahrer-Absenz-Risiko-Prognose Müdigkeit×Schichtlänge; KI-Routeneffizienz-Analyse Δkm+Δmin; Tour-Profitabilitäts-Matrix €/Stopp je Zone; Zonen-Durchsatz-Optimierung Kapazität vs. Nachfrage; 16-KPI-Grid; 7-Tab Rangliste/Profit/Fairness/KI-Route/Lücken/Absenz/Durchsatz; 20s-Polling; Mock-Fallback)
+export { DispatchPhase5582ScoreTourVisualisierungV48 } from './phase5582-score-tour-visualisierung-v48';
