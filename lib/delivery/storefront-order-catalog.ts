@@ -1,13 +1,14 @@
 export type StorefrontRequestedItem = { id: unknown; qty: unknown }
 export type StorefrontCatalogItem = { id: string; name: string; preis: unknown; location_id: string; verfuegbar: boolean }
 export type CanonicalStorefrontItem = { id: string; name: string; qty: number; price: number }
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 export function validateRequestedItems(value: unknown): { ok: true; items: Array<{ id: string; qty: number }> } | { ok: false; reason: string } {
   if (!Array.isArray(value) || value.length < 1 || value.length > 50) return { ok: false, reason: 'INVALID_ITEMS' }
   const seen = new Set<string>()
   const items: Array<{ id: string; qty: number }> = []
   for (const raw of value as StorefrontRequestedItem[]) {
-    if (!raw || typeof raw !== 'object' || typeof raw.id !== 'string' || raw.id.length < 1 || raw.id.length > 128) return { ok: false, reason: 'INVALID_ITEM_ID' }
+    if (!raw || typeof raw !== 'object' || typeof raw.id !== 'string' || !UUID_RE.test(raw.id)) return { ok: false, reason: 'INVALID_ITEM_ID' }
     if (!Number.isInteger(raw.qty) || (raw.qty as number) < 1 || (raw.qty as number) > 99) return { ok: false, reason: 'INVALID_ITEM_QUANTITY' }
     if (seen.has(raw.id)) return { ok: false, reason: 'DUPLICATE_ITEM' }
     seen.add(raw.id)

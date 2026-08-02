@@ -115,6 +115,7 @@ function CheckoutForm({ cart, items, tenant, location, onBack, onSuccess }: {
   const [form, setForm] = useState({ name: '', phone: '', address: '', payment: 'bar' as 'bar' | 'karte', type: 'lieferung' as 'lieferung' | 'abholung' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const requestRef = useRef<{ payload: string; key: string } | null>(null);
   const cartItems = items.filter(i => (cart.get(i.id) ?? 0) > 0);
   const subtotal = cartItems.reduce((sum, i) => sum + i.preis * (cart.get(i.id) ?? 0), 0);
   const fee = form.type === 'lieferung' ? tenant.deliveryFee : 0;
@@ -124,16 +125,20 @@ function CheckoutForm({ cart, items, tenant, location, onBack, onSuccess }: {
     setLoading(true);
     setError(null);
     try {
+      const orderPayload = JSON.stringify({
+        location_id: location.id,
+        items: cartItems.map(i => ({ id: i.id, name: i.name, qty: cart.get(i.id)!, price: i.preis })),
+        customer: { name: form.name, phone: form.phone, address: form.address },
+        type: form.type,
+        payment_method: form.payment,
+      });
+      if (!requestRef.current || requestRef.current.payload !== orderPayload) {
+        requestRef.current = { payload: orderPayload, key: crypto.randomUUID() };
+      }
       const res = await fetch('/api/delivery/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          location_id: location.id,
-          items: cartItems.map(i => ({ id: i.id, name: i.name, qty: cart.get(i.id)!, price: i.preis })),
-          customer: { name: form.name, phone: form.phone, address: form.address },
-          type: form.type,
-          payment_method: form.payment,
-        }),
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': requestRef.current.key },
+        body: orderPayload,
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();

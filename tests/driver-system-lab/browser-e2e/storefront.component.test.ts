@@ -30,6 +30,8 @@ test("real Chromium completes the production BISS Storefront component", async (
   })
   const external: string[] = []
   let posted: unknown
+  const idempotencyKeys: string[] = []
+  let orderAttempts = 0
   await page.route("**/*", async (route) => {
     const request = route.request()
     const target = new URL(request.url())
@@ -40,6 +42,11 @@ test("real Chromium completes the production BISS Storefront component", async (
       await route.fulfill({ status: 200, headers: { "access-control-allow-origin": "*" }, contentType: "application/json", body: "[]" })
     } else if (target.pathname === "/api/delivery/orders" && request.method() === "POST") {
       posted = request.postDataJSON()
+      idempotencyKeys.push(request.headers()["idempotency-key"] ?? "")
+      if (orderAttempts++ === 0) {
+        await route.fulfill({ status: 503, contentType: "text/plain", body: "synthetic retry" })
+        return
+      }
       await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ id: "testlab-order-1", bestellnummer: "TL-1001" }) })
     } else if (target.pathname === "/api/delivery/public/eta") {
       // A malformed successful response must degrade safely, never crash checkout.
@@ -64,10 +71,15 @@ test("real Chromium completes the production BISS Storefront component", async (
     await page.getByTestId("storefront-customer-phone").fill("synthetic:phone-1")
     await page.getByTestId("storefront-customer-address").fill("Laborstraße 2, Berlin")
     await page.getByTestId("storefront-submit-order").click()
+    await page.getByText("synthetic retry", { exact: true }).waitFor()
+    await page.getByTestId("storefront-submit-order").click()
     await page.getByTestId("storefront-order-success").waitFor()
     await page.getByText("#TL-1001", { exact: true }).first().waitFor()
     assert.deepEqual(external, [])
     assert.deepEqual(pageErrors, [])
+    assert.equal(idempotencyKeys.length, 2)
+    assert.match(idempotencyKeys[0], /^[0-9a-f-]{36}$/i)
+    assert.equal(idempotencyKeys[1], idempotencyKeys[0])
     assert.deepEqual(posted, {
       location_id: "testlab-location-a",
       items: [{ id: "testlab-item-bowl", name: "Test Bowl", qty: 1, price: 12.5 }],
