@@ -10,9 +10,9 @@ Updated: 2026-08-02
 | TL-G3 Invariant monitor | PARTIAL / REVIEW REJECT | Post-review hardening adds cross-tenant route/pick, batch-driver, stop-order, numeric, sequence, fingerprint and temporal push checks; focused tests pass, but canonical DB-snapshot integration and re-review are open. |
 | TL-G4 Dispatch oracle | PARTIAL | A captured test invokes the real pure adaptive optimizer for bundle sizes 1–4 and compares through the independent oracle seam. Diverse captures and concrete production stop-sequence comparison remain open. |
 | TL-G5 Functional catalog | PARTIAL | 100+ named categories/cases are catalogued; they are not all executable E2E scenarios yet. |
-| TL-G6 Race/chaos/recovery | PARTIAL | Real disposable DB transaction abort, eight-session idempotent recovery and SIGKILLed psql worker rollback/replacement pass. Broader network/service-worker/restart matrix remains open. |
+| TL-G6 Race/chaos/recovery | PARTIAL | Real disposable DB transaction abort, eight-session idempotent recovery and SIGKILLed psql-client disconnect rollback/replacement pass. Canonical app-worker, network, service-worker and restart recovery remain open. |
 | TL-G7 Push/GPS/native | BLOCKED_EXTERNAL | Local contracts exist; real devices/background/locked/terminated evidence is unavailable. |
-| TL-G8 Continuous operation | PARTIAL | Guarded CLI, reports, deterministic replay and 2,000-run bounded soak pass; dashboard preview works in real Chromium. CI scheduling, authenticated execution/pause/abort and long resource soak remain open. |
+| TL-G8 Continuous operation | PARTIAL | Guarded CLI, reports, seed/suite rerun and 2,000-case bounded model repetition pass; dashboard preview works in real Chromium. Output-comparing replay, CI scheduling, authenticated execution/pause/abort and long resource soak remain open. |
 | TL-G9 Independent review | BLOCKED | Review structure exists; required double sign-offs and final judge are not complete. |
 | TL-G10 Human acceptance | BLOCKED_EXTERNAL | Runbook exists; employees/devices/sign-offs not executed. |
 

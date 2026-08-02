@@ -34,10 +34,11 @@ Releaseentscheidung: **BLOCKED für Produktion; SHADOW-ONLY lokal/isoliert.**
 - TL-G2: Chromium, trace and actual dashboard E2E are green; authenticated Storefront/Kitchen/Driver production-UI fixtures and selectors remain.
 - TL-G4: a pure-optimizer comparison exists, but runtime dispatch-pipeline capture, production route sequence, diverse multi-driver/store cases and retained complete optimality-gap traces are open.
 - TL-G5: the required categories and over 75 names exist; most are not yet executable full-stack cases.
-- TL-G6: real DB abort/retry and killed-worker recovery are green; network, service-worker and broader application restart chaos remain.
+- TL-G6: real DB abort/retry and killed-client rollback are green; canonical application-worker, network, service-worker and broader restart chaos remain.
 - TL-G7: physical iOS/Android background, lock, terminated-app, push and GPS evidence needs devices/toolchains.
-- TL-G8: replay and bounded soak are green; authenticated dashboard execution/pause/abort, CI scheduling and long resource soak remain.
+- TL-G8: seed/suite rerun and bounded model repetition are green; output-comparing replay, authenticated dashboard execution/pause/abort, CI scheduling and long resource soak remain.
 - TL-G9/TL-G10: three fixed-commit reviews rejected the current maturity; post-fix double sign-offs, final judge and employee acceptance have not run.
+- Dependency audit: Playwright was updated to 1.55.1 and its reported download-verification finding is closed. `npm audit --omit=dev` still reports two high findings through Next/PostCSS and one moderate Anthropic SDK finding; offered fixes require breaking major upgrades and need a separate migration/regression cycle.
 - The first Next build attempt exhausted the initially available disk space and was stopped safely. After removing only its reproducible `.next` output, a clean retry completed successfully (447 pages, including production-hidden `/test-lab`).
 
 These blockers keep the decision `BLOCKED`. None authorizes production.
