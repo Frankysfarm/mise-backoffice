@@ -1432,6 +1432,7 @@ import { KitchenPhase5637FruehschichtPuenktlichkeitsTrendTicker } from './phase5
 import { KitchenPhase5641AbendschichtEffizienzTrendTicker } from './phase5641-abendschicht-effizienz-trend-ticker';
 import { KitchenPhase5645WochenendEffizienzTrendTicker } from './phase5645-wochenend-effizienz-trend-ticker';
 import { KitchenPhase5649MittagsschichtPuenktlichkeitsTrendTicker } from './phase5649-mittagsschicht-puenktlichkeit-trend-ticker';
+import { KitchenPhase5653FeierabendEffizienzTrendTicker } from './phase5653-feierabend-effizienz-trend-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -13585,3 +13586,5 @@ export { KitchenPhase5641AbendschichtEffizienzTrendTicker } from './phase5641-ab
 export { KitchenPhase5645WochenendEffizienzTrendTicker } from './phase5645-wochenend-effizienz-trend-ticker';
 // Phase 5649 — Mittagsschicht-Pünktlichkeits-Trend-Ticker (Sun amber-400; puenktlichkeit_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5649MittagsschichtPuenktlichkeitsTrendTicker } from './phase5649-mittagsschicht-puenktlichkeit-trend-ticker';
+// Phase 5653 — Feierabend-Effizienz-Trend-Ticker (Sunset orange-500; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5653FeierabendEffizienzTrendTicker } from './phase5653-feierabend-effizienz-trend-ticker';

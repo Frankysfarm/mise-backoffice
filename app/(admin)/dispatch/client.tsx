@@ -1503,6 +1503,7 @@ import { DispatchPhase5634FruehschichtPuenktlichkeitsTrendBoard } from './phase5
 import { DispatchPhase5638AbendschichtEffizienzTrendBoard } from './phase5638-abendschicht-effizienz-trend-board';
 import { DispatchPhase5642WochenendEffizienzTrendBoard } from './phase5642-wochenend-effizienz-trend-board';
 import { DispatchPhase5646MittagsschichtPuenktlichkeitsTrendBoard } from './phase5646-mittagsschicht-puenktlichkeit-trend-board';
+import { DispatchPhase5650FeierabendEffizienzTrendBoard } from './phase5650-feierabend-effizienz-trend-board';
 
 type Driver = {
   employee_id: string;
@@ -15013,3 +15014,5 @@ export { DispatchPhase5638AbendschichtEffizienzTrendBoard } from './phase5638-ab
 export { DispatchPhase5642WochenendEffizienzTrendBoard } from './phase5642-wochenend-effizienz-trend-board';
 // Phase 5646 — Mittagsschicht-Pünktlichkeits-Trend-Board (Sun amber-400; puenktlichkeit_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid; Balken farbkodiert; DeltaIcons; Rückfall-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5646MittagsschichtPuenktlichkeitsTrendBoard } from './phase5646-mittagsschicht-puenktlichkeit-trend-board';
+// Phase 5650 — Feierabend-Effizienz-Trend-Board (Sunset orange-500; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5650FeierabendEffizienzTrendBoard } from './phase5650-feierabend-effizienz-trend-board';

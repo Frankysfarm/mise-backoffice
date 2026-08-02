@@ -1392,6 +1392,7 @@ import { FahrerPhase5635MeinFruehschichtPuenktlichkeitsTrend } from './phase5635
 import { FahrerPhase5639MeinAbendschichtEffizienzTrend } from './phase5639-mein-abendschicht-effizienz-trend';
 import { FahrerPhase5643MeinWochenendEffizienzTrend } from './phase5643-mein-wochenend-effizienz-trend';
 import { FahrerPhase5647MeinMittagsschichtPuenktlichkeitsTrend } from './phase5647-mein-mittagsschicht-puenktlichkeit-trend';
+import { FahrerPhase5651MeinFeierabendEffizienzTrend } from './phase5651-mein-feierabend-effizienz-trend';
 import { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
 import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
@@ -12857,3 +12858,5 @@ export { FahrerPhase5639MeinAbendschichtEffizienzTrend } from './phase5639-mein-
 export { FahrerPhase5643MeinWochenendEffizienzTrend } from './phase5643-mein-wochenend-effizienz-trend';
 // Phase 5647 — Mein Mittagsschicht-Pünktlichkeits-Trend (Sun amber-400; puenktlichkeit_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5647MeinMittagsschichtPuenktlichkeitsTrend } from './phase5647-mein-mittagsschicht-puenktlichkeit-trend';
+// Phase 5651 — Mein Feierabend-Effizienz-Trend (Sunset orange-500; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5651MeinFeierabendEffizienzTrend } from './phase5651-mein-feierabend-effizienz-trend';
