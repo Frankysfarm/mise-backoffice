@@ -1,5 +1,5 @@
 import { createCanonicalActorProfiles } from "../actors/profiles"
-import { gpsFixtures, hasOwnFixture, infrastructureTargets, invariantIds, networkFixtures, pushFixtures, routingFixtures, scenarioActions, scenarioFaults, trafficFixtures, uiStateIds } from "../fixtures/registry"
+import { actionActorKinds, clockFixtures, geocodingFixtures, gpsFixtures, hasOwnFixture, infrastructureFixtures, infrastructureTargets, invariantIds, networkFixtures, paymentFixtures, pushFixtures, routingFixtures, scenarioActions, scenarioFaults, trafficFixtures, uiStateIds } from "../fixtures/registry"
 
 export type ActorKind = "customer" | "kitchen" | "driver" | "dispatcher" | "system"
 export type VehicleKind = "bike" | "car" | "scooter" | "foot"
@@ -47,6 +47,10 @@ export type LabScenario = Readonly<{
     traffic: string
     push: string
     network: string
+    payment: string
+    geocoding: string
+    clock: string
+    infrastructure: string
   }>
   steps: readonly ScenarioStep[]
   chaos: readonly Readonly<{ atSeconds: number; fault: string; target: string }> []
@@ -222,9 +226,9 @@ export function validateScenario(value: unknown): LabScenario {
   }
 
   const fixtures = object(raw.fixtures, "scenario.fixtures")
-  exact(fixtures, ["routing", "traffic", "push", "network"], "scenario.fixtures")
-  const fixtureRegistries = { routing: routingFixtures, traffic: trafficFixtures, push: pushFixtures, network: networkFixtures } as const
-  for (const key of ["routing", "traffic", "push", "network"] as const) {
+  exact(fixtures, ["routing", "traffic", "push", "network", "payment", "geocoding", "clock", "infrastructure"], "scenario.fixtures")
+  const fixtureRegistries = { routing: routingFixtures, traffic: trafficFixtures, push: pushFixtures, network: networkFixtures, payment: paymentFixtures, geocoding: geocodingFixtures, clock: clockFixtures, infrastructure: infrastructureFixtures } as const
+  for (const key of ["routing", "traffic", "push", "network", "payment", "geocoding", "clock", "infrastructure"] as const) {
     const fixtureId = id(fixtures[key], `scenario.fixtures.${key}`)
     if (!hasOwnFixture(fixtureRegistries[key], fixtureId)) throw new Error(`scenario references an unknown ${key} fixture`)
   }
@@ -236,6 +240,7 @@ export function validateScenario(value: unknown): LabScenario {
     if (!actorIds.has(actor)) throw new Error("scenario step references an unknown actor")
     const action = id(step.action, `scenario.steps[${index}].action`)
     if (!scenarioActions.has(action)) throw new Error("scenario step action is unknown")
+    if (!actionActorKinds[action]?.includes(actorKinds.get(actor) ?? "")) throw new Error("scenario action is incompatible with actor kind")
     if (step.atSeconds !== undefined) integer(step.atSeconds, `scenario.steps[${index}].atSeconds`)
     if (step.arguments !== undefined) {
       const args = object(step.arguments, `scenario.steps[${index}].arguments`)

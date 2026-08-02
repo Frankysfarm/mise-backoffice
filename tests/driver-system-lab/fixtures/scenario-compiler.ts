@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto"
 import { validateScenario, type LabScenario } from "../scenarios/schema"
-import { gpsFixtures, networkFixtures, pushFixtures, routingFixtures, trafficFixtures } from "./registry"
+import { clockFixtures, geocodingFixtures, gpsFixtures, infrastructureFixtures, networkFixtures, paymentFixtures, pushFixtures, routingFixtures, trafficFixtures } from "./registry"
 
 export type CompiledScenarioFixture = Readonly<{
   fixtureVersion: 1
@@ -14,7 +14,7 @@ export type CompiledScenarioFixture = Readonly<{
   vehicleRows: readonly Readonly<{ id: string; kind: string; capacityOrders: number }> []
   driverRows: readonly Readonly<{ actorId: string; vehicleId: string; state: string; lat: number; lng: number; gpsFixture: string; gpsPath: readonly Readonly<{ atSeconds: number; lat: number; lng: number }> [] }> []
   orderRows: readonly Readonly<{ id: string; customerId: string; storeId: string; items: LabScenario["orders"][number]["items"]; createdAt: string; prepReadyAt: string; deadlineAt: string; payment: string; idempotencyKey: string }> []
-  providerFixtures: Readonly<{ routing: unknown; traffic: unknown; push: unknown; network: unknown }>
+  providerFixtures: Readonly<{ routing: unknown; traffic: unknown; push: unknown; network: unknown; payment: unknown; geocoding: unknown; clock: unknown; infrastructure: unknown }>
   timeline: readonly Readonly<{ sequence: number; atSeconds: number; kind: "action" | "fault"; actorOrTarget: string; operation: string; arguments?: Readonly<Record<string, string | number | boolean>> }> []
   digest: string
 }>
@@ -32,12 +32,20 @@ function stable(value: unknown): string {
   return JSON.stringify(value)
 }
 
+function deepFreeze<T>(value: T): T {
+  if (value && typeof value === "object" && !Object.isFrozen(value)) {
+    Object.freeze(value)
+    for (const nested of Object.values(value as Record<string, unknown>)) deepFreeze(nested)
+  }
+  return value
+}
+
 function seededKey(seed: number, kind: string, id: string): string {
   return createHash("sha256").update(`${seed}\0${kind}\0${id}`).digest("hex").slice(0, 24)
 }
 
 export function compileScenarioFixture(input: unknown): CompiledScenarioFixture {
-  const scenario = validateScenario(input)
+  const scenario = validateScenario(structuredClone(input))
   const startMs = Date.parse(scenario.clock.start)
   const actorRows = scenario.actors.map((actor) => ({ id: actor.id, kind: actor.kind, profile: actor.profile })).sort((left, right) => left.id.localeCompare(right.id))
   const vehicleRows = scenario.vehicles.map((vehicle) => ({ ...vehicle })).sort((left, right) => left.id.localeCompare(right.id))
@@ -75,13 +83,26 @@ export function compileScenarioFixture(input: unknown): CompiledScenarioFixture 
       traffic: trafficFixtures[scenario.fixtures.traffic as keyof typeof trafficFixtures],
       push: pushFixtures[scenario.fixtures.push as keyof typeof pushFixtures],
       network: networkFixtures[scenario.fixtures.network as keyof typeof networkFixtures],
+      payment: paymentFixtures[scenario.fixtures.payment as keyof typeof paymentFixtures],
+      geocoding: geocodingFixtures[scenario.fixtures.geocoding as keyof typeof geocodingFixtures],
+      clock: clockFixtures[scenario.fixtures.clock as keyof typeof clockFixtures],
+      infrastructure: infrastructureFixtures[scenario.fixtures.infrastructure as keyof typeof infrastructureFixtures],
     },
     timeline,
   }
   const digest = createHash("sha256").update(stable(withoutDigest)).digest("hex")
-  return Object.freeze({ ...withoutDigest, digest })
+  return deepFreeze({ ...withoutDigest, digest })
 }
 
 export function serializeCompiledFixture(fixture: CompiledScenarioFixture): string {
   return `${stable(fixture)}\n`
+}
+
+export function authenticateCompiledFixture(candidate: CompiledScenarioFixture): CompiledScenarioFixture {
+  if (candidate.fixtureVersion !== 1) throw new Error("compiled fixture version is unsupported")
+  const canonical = compileScenarioFixture(candidate.sourceScenario)
+  if (candidate.digest !== canonical.digest || serializeCompiledFixture(candidate) !== serializeCompiledFixture(canonical)) {
+    throw new Error("compiled fixture digest/content authentication failed")
+  }
+  return canonical
 }

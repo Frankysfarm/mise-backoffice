@@ -2,7 +2,7 @@ import { spawn } from "node:child_process"
 import type { TestLabEnvironment } from "../support/environment"
 import { assertRunOwnedResource, assertTestLabEnvironment } from "../support/environment"
 import { createCanonicalActorProfiles } from "../actors/profiles"
-import type { CompiledScenarioFixture } from "./scenario-compiler"
+import { authenticateCompiledFixture, type CompiledScenarioFixture } from "./scenario-compiler"
 
 function schemaName(runId: string): string {
   return `lab_${runId.replaceAll("-", "_")}`
@@ -47,6 +47,7 @@ function jsonValues(rows: readonly unknown[]): string {
 
 export async function createRunData(environment: TestLabEnvironment, fixture?: CompiledScenarioFixture): Promise<{ schema: string; actors: number; fixtureDigest?: string; materializedRows: number }> {
   environment = revalidate(environment)
+  if (fixture) fixture = authenticateCompiledFixture(fixture)
   if (fixture && (fixture.tenantId !== environment.tenantId || fixture.seed !== environment.seed)) throw new Error("compiled fixture does not match guarded tenant/seed")
   const schema = schemaName(environment.runId)
   const run = literal(environment.runId); const tenant = literal(environment.tenantId)

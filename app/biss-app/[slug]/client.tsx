@@ -32,7 +32,7 @@ function EtaBadge({ eta }: { eta: EtaData }) {
 
 function ItemCard({ item, qty, onAdd, onRemove }: { item: Item; qty: number; onAdd: () => void; onRemove: () => void }) {
   return (
-    <div className="flex items-start gap-3 p-3 bg-white rounded-xl shadow-subtle border border-gray-100">
+    <div data-testid={`storefront-item-${item.id}`} className="flex items-start gap-3 p-3 bg-white rounded-xl shadow-subtle border border-gray-100">
       {item.bild_url && (
         <img src={item.bild_url} alt={item.name} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
       )}
@@ -49,7 +49,7 @@ function ItemCard({ item, qty, onAdd, onRemove }: { item: Item; qty: number; onA
         <div className="flex items-center justify-between mt-2">
           <span className="font-bold text-matcha-700">{euro(item.preis)}</span>
           {qty === 0 ? (
-            <button onClick={onAdd} className="w-8 h-8 rounded-full bg-matcha-600 text-white flex items-center justify-center text-lg font-bold hover:bg-matcha-700 transition-colors">+</button>
+            <button data-testid={`storefront-add-${item.id}`} onClick={onAdd} className="w-8 h-8 rounded-full bg-matcha-600 text-white flex items-center justify-center text-lg font-bold hover:bg-matcha-700 transition-colors">+</button>
           ) : (
             <div className="flex items-center gap-2">
               <button onClick={onRemove} className="w-7 h-7 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center font-bold hover:bg-gray-200 transition-colors">−</button>
@@ -95,6 +95,7 @@ function CartDrawer({ cart, items, tenant, orderType, onClose, onCheckout }: {
           <div className="flex justify-between font-bold text-base pt-1 border-t"><span>Gesamt</span><span>{euro(total)}</span></div>
           {subtotal < tenant.minOrder && <p className="text-xs text-amber-600">Mindestbestellwert: {euro(tenant.minOrder)} (noch {euro(tenant.minOrder - subtotal)})</p>}
           <button
+            data-testid="storefront-checkout"
             onClick={onCheckout}
             disabled={subtotal < tenant.minOrder}
             className="w-full py-3 bg-matcha-600 text-white rounded-xl font-semibold hover:bg-matcha-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
@@ -160,10 +161,10 @@ function CheckoutForm({ cart, items, tenant, location, onBack, onSuccess }: {
               </button>
             ))}
           </div>
-          <input className={field} placeholder="Dein Name *" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-          <input className={field} placeholder="Telefonnummer *" required value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+          <input data-testid="storefront-customer-name" className={field} placeholder="Dein Name *" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+          <input data-testid="storefront-customer-phone" className={field} placeholder="Telefonnummer *" required value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
           {form.type === 'lieferung' && (
-            <input className={field} placeholder="Lieferadresse (Straße, Hausnr., Stadt) *" required value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
+            <input data-testid="storefront-customer-address" className={field} placeholder="Lieferadresse (Straße, Hausnr., Stadt) *" required value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
           )}
           <div>
             <p className="text-sm font-semibold mb-2">Zahlungsmethode</p>
@@ -183,7 +184,7 @@ function CheckoutForm({ cart, items, tenant, location, onBack, onSuccess }: {
             <div className="border-t pt-1 flex justify-between font-bold"><span>Gesamt</span><span>{euro(subtotal + fee)}</span></div>
           </div>
           {error && <p className="text-red-600 text-sm bg-red-50 p-3 rounded-xl">{error}</p>}
-          <button type="submit" disabled={loading}
+          <button data-testid="storefront-submit-order" type="submit" disabled={loading}
             className="w-full py-3.5 bg-matcha-600 text-white rounded-xl font-bold text-base hover:bg-matcha-700 disabled:opacity-50 transition-colors">
             {loading ? 'Wird gesendet…' : `Jetzt bestellen · ${euro(subtotal + fee)}`}
           </button>
@@ -470,7 +471,7 @@ export function BissStorefront({ location, tenant, categories, items }: {
       {/* Floating cart button */}
       {totalQty > 0 && (
         <div className="fixed bottom-6 left-4 right-4 z-40 max-w-lg mx-auto">
-          <button onClick={() => setShowCart(true)}
+          <button data-testid="storefront-open-cart" onClick={() => setShowCart(true)}
             className="w-full bg-matcha-600 hover:bg-matcha-700 text-white px-5 py-3.5 rounded-2xl shadow-strong flex items-center justify-between font-semibold transition-colors">
             <span className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center text-sm font-bold">{totalQty}</span>
             <span>Warenkorb anzeigen</span>

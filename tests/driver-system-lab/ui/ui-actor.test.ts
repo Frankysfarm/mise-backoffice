@@ -16,6 +16,12 @@ test('canonical profiles cover every required synthetic role without ID collisio
   const all = Object.values(profiles).flat()
   assert.equal(new Set(all.map((entry) => entry.id)).size, all.length)
   assert.ok(all.every((entry) => entry.testRunId === 'run-42017'))
+  assert.notDeepEqual(profiles.customers[0].metadata, profiles.customers[2].metadata)
+  assert.equal(profiles.customers.find((entry) => entry.behavior === 'cancel-during-prep')?.metadata.cancelPhase, 'during-prep')
+  assert.equal(profiles.kitchens.find((entry) => entry.behavior === 'missing-required-item')?.metadata.missingRequiredItem, true)
+  assert.equal(profiles.drivers.find((entry) => entry.behavior === 'full-capacity')?.metadata.currentLoad, 4)
+  assert.equal(profiles.drivers.find((entry) => entry.behavior === 'two-tabs')?.metadata.browserTabs, 2)
+  assert.ok(all.every((entry) => Object.keys(entry.metadata).length >= 3))
 })
 
 test('actor state machine rejects actions with stale preconditions', () => {

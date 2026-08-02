@@ -183,6 +183,7 @@ function OrderBlock({
 
   return (
     <div
+      data-testid={`kitchen-order-${order.id}`}
       className={cn(
         'rounded-2xl border-2 p-4 transition overflow-hidden',
         critical ? 'border-red-500 bg-red-950/30 animate-pulse' :
@@ -253,6 +254,7 @@ function OrderBlock({
               <div className="flex gap-1">
                 {it.station_status === 'offen' && (
                   <button
+                    data-testid={`kitchen-start-${it.id}`}
                     onClick={() => onAdvance(it.id, 'in_arbeit')}
                     className="h-8 px-2 rounded-md bg-yellow-500 text-black text-xs font-bold hover:bg-yellow-400"
                   >
@@ -261,6 +263,7 @@ function OrderBlock({
                 )}
                 {(it.station_status === 'offen' || it.station_status === 'in_arbeit') && (
                   <button
+                    data-testid={`kitchen-finish-${it.id}`}
                     onClick={() => onAdvance(it.id, 'fertig')}
                     className="h-8 w-8 rounded-md bg-matcha-600 hover:bg-matcha-500 flex items-center justify-center"
                   >

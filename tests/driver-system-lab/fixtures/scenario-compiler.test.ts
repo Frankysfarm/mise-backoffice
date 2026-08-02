@@ -1,7 +1,8 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 import { completeScenario } from "../scenarios/example"
-import { compileScenarioFixture, serializeCompiledFixture } from "./scenario-compiler"
+import { authenticateCompiledFixture, compileScenarioFixture, serializeCompiledFixture } from "./scenario-compiler"
+import { clockFixtures, geocodingFixtures, infrastructureFixtures, networkFixtures, paymentFixtures, pushFixtures, routingFixtures } from "./registry"
 
 test("same scenario and seed compile byte-identically", () => {
   const first = serializeCompiledFixture(compileScenarioFixture(structuredClone(completeScenario)))
@@ -46,4 +47,26 @@ test("every execution-relevant semantic domain participates in the digest", () =
 
 test("invalid scenarios fail before fixture materialization", () => {
   assert.throws(() => compileScenarioFixture({ ...completeScenario, environment: "production" }), /environment is invalid/)
+})
+
+test("compiled fixtures are detached, deeply frozen and authenticated", () => {
+  const mutable = structuredClone(completeScenario)
+  const compiled = compileScenarioFixture(mutable)
+  const before = serializeCompiledFixture(compiled)
+  ;(mutable.orders[0].items[0] as { quantity: number }).quantity = 99
+  assert.equal(serializeCompiledFixture(compiled), before)
+  assert.ok(Object.isFrozen(compiled.sourceScenario.orders[0].items[0]))
+  assert.equal(authenticateCompiledFixture(compiled).digest, compiled.digest)
+  assert.throws(() => authenticateCompiledFixture({ ...compiled, digest: "0".repeat(64) }), /authentication failed/)
+  assert.throws(() => authenticateCompiledFixture({ ...compiled, fixtureVersion: 2 as 1 }), /version is unsupported/)
+})
+
+test("provider registry covers required success, degradation, loss, duplication and infrastructure modes", () => {
+  assert.deepEqual(Object.keys(routingFixtures).sort(), ["evening-route", "partial-route", "slow-route", "unavailable-route"])
+  assert.ok(Object.keys(pushFixtures).length >= 4)
+  assert.ok(Object.keys(paymentFixtures).length >= 3)
+  assert.ok(Object.keys(networkFixtures).includes("realtime-disconnect"))
+  assert.ok(Object.keys(geocodingFixtures).includes("failed-geocoding"))
+  assert.ok(Object.keys(clockFixtures).includes("skewed-clock"))
+  assert.ok(Object.keys(infrastructureFixtures).length >= 6)
 })

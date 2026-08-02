@@ -27,7 +27,7 @@ export const completeScenario = {
     { id: "order-1", customer: "customer-1", store: "store-a", items: [{ id: "item-1", quantity: 1, required: true }], createdAtOffsetSeconds: 0, prepMinutes: 8, deadlineMinutes: 42, payment: "confirmed" },
     { id: "order-2", customer: "customer-2", store: "store-a", items: [{ id: "item-2", quantity: 2, required: true }], createdAtOffsetSeconds: 15, prepMinutes: 9, deadlineMinutes: 50, payment: "confirmed" },
   ],
-  fixtures: { routing: "evening-route", traffic: "evening-traffic", push: "reliable-push", network: "reliable-network" },
+  fixtures: { routing: "evening-route", traffic: "evening-traffic", push: "reliable-push", network: "reliable-network", payment: "successful-payment", geocoding: "successful-geocoding", clock: "stable-clock", infrastructure: "healthy-infrastructure" },
   steps: [{ actor: "customer-1", action: "place-order", atSeconds: 0 }, { actor: "system-1", action: "run-dispatch", atSeconds: 20 }],
   chaos: [{ atSeconds: 30, fault: "network-drop", target: "driver-1" }],
   expect: { uiStates: ["order-visible"], invariants: ["no-duplicate-assignment", "all-orders-accounted"], selectedDriver: "driver-2", bundleSize: 2, stopOrder: ["pickup-order-1", "dropoff-order-1", "dropoff-order-2"], optimizationTolerance: 0 },

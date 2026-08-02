@@ -17,6 +17,7 @@ test("creates run-bound synthetic data and cleans only its own schema", async (c
   assert.equal(created.fixtureDigest, fixture.digest)
   assert.equal(created.materializedRows, fixture.storeRows.length + fixture.actorRows.length + fixture.vehicleRows.length + fixture.driverRows.length + fixture.orderRows.length + fixture.timeline.length + 1)
   await assert.rejects(() => createRunData({ ...second, runId: "tl_20260801t200002z_fac7abcf" }, fixture), /tenant\/seed/)
+  await assert.rejects(() => createRunData({ ...second, runId: "tl_20260801t200002z_fac7abcf" }, { ...fixture, digest: "0".repeat(64) }), /authentication failed/)
   await assert.rejects(() => cleanupRunData(environment, "tl_20260801t200000z_deadbeef"))
   await assert.rejects(() => cleanupRunData({ ...environment, tenantId: "testlab_wrong_tenant" }, environment.runId))
   await cleanupRunData(environment, environment.runId)

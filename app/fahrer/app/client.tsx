@@ -2507,6 +2507,7 @@ function OpenBatchSection({
               </div>
 
               <button
+                data-testid={`driver-accept-${batchId}`}
                 onClick={() => onClaim(batchId)}
                 disabled={pending}
                 className="w-full h-12 rounded-xl bg-accent text-matcha-900 font-display font-bold text-base inline-flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"

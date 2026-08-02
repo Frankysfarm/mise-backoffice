@@ -18,6 +18,7 @@ test("rejects unknown provider and GPS fixtures", () => {
 })
 test("rejects unknown actions, faults, targets and expectations", () => {
   assert.throws(() => validateScenario({ ...completeScenario, steps: [{ actor: "system-1", action: "run-production" }] }), /action is unknown/)
+  assert.throws(() => validateScenario({ ...completeScenario, steps: [{ actor: "customer-1", action: "depart-tour" }] }), /incompatible with actor kind/)
   assert.throws(() => validateScenario({ ...completeScenario, chaos: [{ atSeconds: 1, fault: "delete-database", target: "database-session" }] }), /fault is unknown/)
   assert.throws(() => validateScenario({ ...completeScenario, chaos: [{ atSeconds: 1, fault: "network-drop", target: "production-driver" }] }), /target is unknown/)
   assert.throws(() => validateScenario({ ...completeScenario, expect: { ...completeScenario.expect, invariants: ["looks-good"] } }), /invariant is unknown/)
