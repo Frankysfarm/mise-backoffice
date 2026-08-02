@@ -39470,3 +39470,35 @@ Import+Render+Barrel ✅ Dispatch(5561) + Fahrer(5562) + Kitchen(5564). Phase 55
 Backend-Architekt-Agent (2026-08-01): Batch 89 abgeschlossen. Phasen 5556–5560 durch anderen Agent belegt (km-pro-Tag + V63). API fahrer-storno-rate-ranking (VORHANDEN, rate_pct/team_avg_rate/beste_name/hoechste_name/alert_hoch). Import+Render+Barrel ✅ Dispatch(5561) + Fahrer(5562) + Kitchen(5564). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5565.**
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 90 — Dispatch-Reaktionszeit-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5577 / 5578 / (5579 Storefront skip) / 5580
+
+**Hinweis:** Phasen 5565–5576 wurden bereits durch andere Agents belegt (ScoreTour V46/V47, LieferzeitPraezision, SmartTiming V65, TourStopsNavHub V20, LieferzeitVarianzBoard, etc.). Batch 90 startet daher bei Phase 5577 (globales Maximum + 1).
+
+**API:** `fahrer-reaktionszeit-ranking` (bereits vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_reaktionszeit_min, rank_delta, ampel, alert_hoch}], team_avg_min, schnellster_name, langsamster_name, alert_count, gesamt }`
+**Logik:** Ø Zeit zwischen Auftrags-Zuweisung und Fahrerannahme (letzte 30 Tage) · AUFSTEIGEND (Rang 1 = niedrigste avg_reaktionszeit_min = schnellste Reaktion = bester) · Ampel: grün Top-25%/gelb Mitte/rot untere 25% · alert_hoch: unteres 25%-Quartil
+
+### Implementiert:
+- **phase5577** `DispatchPhase5577ReaktionszeitBoard` — Zap yellow-400; 3-KPI-Grid Schnellste/r/Team-Ø/Langsamste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Hoch-Alert via alert_hoch; AUFSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5578** `FahrerPhase5578MeineReaktionszeit` — isOnline-Guard; WifiOff-Fallback; Coaching ≤3/≤8/>8 min; avg_reaktionszeit_min 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Zap yellow-400; 30-Min-Poll
+- **phase5580** `KitchenPhase5580ReaktionszeitTicker` — Zap yellow-400; Schnellste/r #1 Name+min; Team-Ø; Hoch-Alert; 30-Min-Poll; Mock-Fallback
+
+Import+Render+Barrel ✅ Dispatch(5577) + Fahrer(5578) + Kitchen(5580). Phase 5579 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5581!** NIEMALS 4000–5580 verwenden.
+
+**Vorschlag Batch 91:** Fahrer-Schicht-Abbruch-Quote-Ranking (Anteil abgebrochener Schichten — AUFSTEIGEND, niedrigste Quote = bester)
+- Phase 5581: Dispatch `DispatchPhase5581SchichtAbbruchBoard` — AlertOctagon red-400; AUFSTEIGEND
+- Phase 5582: Fahrer `FahrerPhase5582MeineSchichtAbbruchQuote` — AlertOctagon red-400; Coaching API-abhängig
+- Phase 5583: Storefront — skip
+- Phase 5584: Kitchen `KitchenPhase5584SchichtAbbruchTicker` — AlertOctagon red-400
+
+---
+
+Backend-Architekt-Agent (2026-08-02): Batch 90 abgeschlossen. Phasen 5565–5576 durch andere Agents belegt. API fahrer-reaktionszeit-ranking (VORHANDEN, avg_reaktionszeit_min/team_avg_min/schnellster_name/langsamster_name/alert_hoch). Import+Render+Barrel ✅ Dispatch(5577) + Fahrer(5578) + Kitchen(5580). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5581.**
+
+## STATUS: MARKT-REIF

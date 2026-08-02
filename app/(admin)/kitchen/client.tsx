@@ -1414,6 +1414,7 @@ import { KitchenPhase5564StornoQuoteTicker } from './phase5564-storno-quote-tick
 import { KitchenPhase5568SmartTimingCountdownV64 } from './phase5568-smart-timing-countdown-v64';
 import { KitchenPhase5572LieferzeitPraezisionTicker } from './phase5572-lieferzeit-praezision-ticker';
 import { KitchenPhase5576SmartTimingCountdownV65 } from './phase5576-smart-timing-countdown-v65';
+import { KitchenPhase5580ReaktionszeitTicker } from './phase5580-reaktionszeit-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5367,6 +5368,8 @@ export function KitchenBoard({
       <KitchenPhase5572LieferzeitPraezisionTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5576: Smart-Timing Countdown V65 — KI-Batch-Priorisierung, Übergabe-Verzögerungs-Prognose, Kochzeit-Drift-Korrektur, SLA-Risiko-Heatmap, 15-KPI-Grid, 6-Tab, 1s-Tick+15s-Polling */}
       <KitchenPhase5576SmartTimingCountdownV65 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5580: Dispatch-Reaktionszeit-Ticker — Zap yellow-400; Schnellste/r #1 Name+min; Team-Ø; Hoch-Alert; 30-Min-Polling */}
+      <KitchenPhase5580ReaktionszeitTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}
       <KitchenPhase5543SmartTimingCountdownV61 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
@@ -13497,3 +13500,5 @@ export { KitchenPhase5568SmartTimingCountdownV64 } from './phase5568-smart-timin
 export { KitchenPhase5572LieferzeitPraezisionTicker } from './phase5572-lieferzeit-praezision-ticker';
 // Phase 5576 — Smart-Timing Countdown V65 (KI-Batch-Priorisierung+Begründung; Übergabe-Verzögerungs-Prognose Δmin; Kochzeit-Drift-Korrektur; SLA-Risiko-Heatmap; 15-KPI-Grid; 6-Tab Countdown/Prognose/Übergabe/Stationen/Kapazität/KI-Batch; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5576SmartTimingCountdownV65 } from './phase5576-smart-timing-countdown-v65';
+// Phase 5580 — Dispatch-Reaktionszeit-Ticker (Zap yellow-400; Schnellste/r #1 Name+avg_reaktionszeit_min; Team-Ø; Hoch-Alert alert_hoch; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5580ReaktionszeitTicker } from './phase5580-reaktionszeit-ticker';
