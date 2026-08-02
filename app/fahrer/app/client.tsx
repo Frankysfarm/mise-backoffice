@@ -1377,6 +1377,7 @@ import { FahrerPhase5574TourStopsNavHubV20 } from './phase5574-tour-stops-nav-hu
 import { FahrerPhase5578MeineReaktionszeit } from './phase5578-meine-reaktionszeit';
 import { FahrerPhase5583TourStopsNavHubV21 } from './phase5583-tour-stops-nav-hub-v21';
 import { FahrerPhase5587MeineSchichtAbbruchQuote } from './phase5587-meine-schicht-abbruch-quote';
+import { FahrerPhase5591MeineWartezeitRestaurant } from './phase5591-meine-wartezeit-restaurant';
 import { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
 import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
@@ -7938,6 +7939,10 @@ export function FahrerApp({
           <FahrerPhase5578MeineReaktionszeit driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5583: Tour-Stops Nav Hub V21 — KI-Übergabe-Qualitäts-Score; Fahrer-Pausen-Empfehlung; Smart-Schicht-Ende-Prognose; Bonus-Track-Status; 12-KPI-Grid; 7-Tab; 15s-Polling */}
           <FahrerPhase5583TourStopsNavHubV21 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5587: Meine Schicht-Abbruch-Quote — AlertOctagon red-400; abbruch_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; Coaching ≤2%/≤10%/>10%; Dual-Balken Ich+Team-Ø; Ampel-Border */}
+          <FahrerPhase5587MeineSchichtAbbruchQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5591: Meine Wartezeit Restaurant — Clock cyan-400; avg_wartezeit_min AUFSTEIGEND Rang 1=kürzeste Wartezeit=bester; Coaching ≤5/≤10/>10 min; Dual-Balken Ich+Team-Ø; Ampel-Border */}
+          <FahrerPhase5591MeineWartezeitRestaurant driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />
@@ -12782,3 +12787,5 @@ export { FahrerPhase5578MeineReaktionszeit } from './phase5578-meine-reaktionsze
 export { FahrerPhase5583TourStopsNavHubV21 } from './phase5583-tour-stops-nav-hub-v21';
 // Phase 5587 — Meine Schicht-Abbruch-Quote (AlertOctagon red-400; abbruch_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 4xl+Rang; Coaching ≤2%/≤10%/>10%; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5587MeineSchichtAbbruchQuote } from './phase5587-meine-schicht-abbruch-quote';
+// Phase 5591 — Meine Wartezeit Restaurant (Clock cyan-400; avg_wartezeit_min AUFSTEIGEND Rang 1=kürzeste Wartezeit=bester; 4xl+Rang; Coaching ≤5/≤10/>10 min; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5591MeineWartezeitRestaurant } from './phase5591-meine-wartezeit-restaurant';

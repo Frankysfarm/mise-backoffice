@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Frontend-Ingenieur-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 91 Frontend (5586/5587/5589) Schicht-Abbruch-Quote-Ranking — fehlende Renders nachgetragen: Dispatch(5586)+Fahrer(5587)+Kitchen(5589) · Batch 93 (5590/5591/5592-skip/5593) Wartezeit-Restaurant-Ranking — API fahrer-wartezeit-restaurant-ranking (vorhanden, avg_wartezeit_min AUFSTEIGEND, Rang 1=kürzeste Wartezeit=bester, alert_lang >10min) · Clock cyan-400 · Import+Render+Barrel ✅ Dispatch(5590)+Fahrer(5591)+Kitchen(5593) · **Nächste freie Phase: 5594**
+
 **CEO Review #788 (2026-08-02):** Build ignoreBuildErrors=true ✅ · Batch 92 (5581/5582/5583/5584/5585) 5×Frontend verifiziert · 0× CEO-Fixes · MARKT-REIF bestätigt · **Nächste freie Phase: 5586**
 
 **CEO Review #787 (2026-08-02):** TSC exit 0 ✅ · Build ignoreBuildErrors=true (pre-existing OOM) ✅ · Batch 90a (5569/5570/5572) Lieferzeit-Präzision + Batch 91 (5576/5573/5574/5549/5537) 5×Frontend + Batch 90b (5577/5578/5580) Reaktionszeit verifiziert · 2× CEO-Fixes: phase5565 + phase5566 fehlende locationId-Prop-Typen nachgetragen (TS exit 0 bestätigt) · MARKT-REIF bestätigt · **Nächste freie Phase: 5581**

@@ -1488,6 +1488,7 @@ import { DispatchPhase5573ScoreTourVisualisierungV47 } from './phase5573-score-t
 import { DispatchPhase5577ReaktionszeitBoard } from './phase5577-reaktionszeit-board';
 import { DispatchPhase5582ScoreTourVisualisierungV48 } from './phase5582-score-tour-visualisierung-v48';
 import { DispatchPhase5586SchichtAbbruchBoard } from './phase5586-schicht-abbruch-board';
+import { DispatchPhase5590WartezeitRestaurantBoard } from './phase5590-wartezeit-restaurant-board';
 
 type Driver = {
   employee_id: string;
@@ -5853,6 +5854,10 @@ export function DispatchBoard({
           <DispatchPhase5577ReaktionszeitBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5582: Score + Tour-Visualisierung V48 — Absenz-Risiko-Prognose; KI-Routeneffizienz Δkm; Tour-Profitabilitäts-Matrix; Zonen-Durchsatz-Optimierung; 16-KPI-Grid; 7-Tab; 20s-Polling */}
           <DispatchPhase5582ScoreTourVisualisierungV48 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5586: Schicht-Abbruch-Quote-Board — AlertOctagon red-400; abbruch_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 3-KPI-Grid; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
+          <DispatchPhase5586SchichtAbbruchBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5590: Wartezeit-Restaurant-Board — Clock cyan-400; avg_wartezeit_min AUFSTEIGEND Rang 1=kürzeste Wartezeit=bester; 3-KPI-Grid Beste/r/Team-Ø/Längste/r; DeltaIcons; Lang-Alert; 30-Min-Polling */}
+          <DispatchPhase5590WartezeitRestaurantBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14937,3 +14942,5 @@ export { DispatchPhase5577ReaktionszeitBoard } from './phase5577-reaktionszeit-b
 export { DispatchPhase5582ScoreTourVisualisierungV48 } from './phase5582-score-tour-visualisierung-v48';
 // Phase 5586 — Schicht-Abbruch-Quote-Board (AlertOctagon red-400; abbruch_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Hoechste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert alert_hoch; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5586SchichtAbbruchBoard } from './phase5586-schicht-abbruch-board';
+// Phase 5590 — Wartezeit-Restaurant-Board (Clock cyan-400; avg_wartezeit_min AUFSTEIGEND Rang 1=kürzeste Wartezeit=bester; 3-KPI-Grid Beste/r/Team-Ø/Längste/r; Balken farbkodiert; DeltaIcons; Lang-Alert alert_lang; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5590WartezeitRestaurantBoard } from './phase5590-wartezeit-restaurant-board';
