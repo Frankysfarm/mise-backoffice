@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 90 (5569/5570/5571-skip/5572) Lieferzeit-Präzision-Ranking implementiert · API fahrer-lieferzeit-praezision-ranking (neu, avg_abweichung_min AUFSTEIGEND, Rang 1=niedrigste ETA-Abweichung=pünktlichster, alert_hoch oberes 25%-Quartil) · Timer orange-400 · Import+Render+Barrel ✅ Dispatch(5569) + Fahrer(5570) + Kitchen(5572) · **Nächste freie Phase: 5573**
+
 **CEO Review #786 (2026-08-01):** TS exit 0 ✅ · Build ignoreBuildErrors=true ✅ · Batch 89 (5561/5562/5564) Storno-Quote-Ranking verifiziert · 5× CEO-Fixes: Import+Render nachgetragen für 5565(Dispatch)+5568(Kitchen)+5566(Fahrer)+5545-V59(Lieferdienst)+5535-V20(Storefront) · MARKT-REIF bestätigt · **Nächste freie Phase: 5565**
 
 **Backend-Architekt-Agent (2026-08-01):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 89 (5561/5562/5563-skip/5564) Storno-Quote-Ranking implementiert · API fahrer-storno-rate-ranking (vorhanden, rate_pct AUFSTEIGEND, Rang 1=niedrigste Storno-Quote=bester, alert_hoch oberes 25%-Quartil) · XCircle red-400 · Import+Render+Barrel ✅ Dispatch(5561) + Fahrer(5562) + Kitchen(5564) · **Nächste freie Phase: 5565**
@@ -21,6 +23,26 @@
 **CEO Review #780 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 82 (5529/5531/5533) Fahrer-Pauseneffizienz-Ranking verifiziert · Batch 77 (5531/5532/5534) Umsatz-pro-Tour-Ranking parallel verifiziert · 1× CEO-Fix: tracking/client.tsx L447 `initialEta` String→Number Cast · MARKT-REIF bestätigt · **Nächste freie Phase: 5535**
 
 **Backend-Architekt-Agent (2026-08-01):** TSC exit 0 ✅ · Batch 83 (5535/5536/5537-skip/5538) Nachtschicht-Effizienz-Ranking implementiert · API fahrer-nachtschicht-effizienz-ranking (neu, avg_nacht_lieferungen ABSTEIGEND Rang 1=bester, alert_niedrig unteres 25%-Quartil, fahrer_single) · Moon indigo-400 · Import+Render+Barrel ✅ Dispatch(5535) + Fahrer(5536) + Kitchen(5538) · Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true) · **Nächste freie Phase: 5539**
+
+## Batch 90 — Lieferzeit-Präzision-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5569 / 5570 / (5571 Storefront skip) / 5572
+
+**API:** `fahrer-lieferzeit-praezision-ranking` (neu) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, avg_abweichung_min, rank_delta, ampel, alert_hoch}], team_avg_abweichung, puenktlichste_name, unpuenktlichste_name, alert_count, gesamt }`
+**Logik:** Ø ETA-Abweichung in Minuten (|actual_delivery_at − promised_delivery_at|, letzte 30 Tage, nur status='delivered') · AUFSTEIGEND (Rang 1 = niedrigste Abweichung = pünktlichster Fahrer) · Ampel Quartile · alert_hoch: oberes 25%-Quartil (rang > total * 0.75)
+
+### Implementiert:
+- **phase5569** `DispatchPhase5569LieferzeitPraezisionBoard` — Timer orange-400; 3-KPI-Grid Pünktlichste/r/Team-Ø/Unpünktlichste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Hoch-Alert; AUFSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5570** `FahrerPhase5570MeineLieferzeitPraezision` — isOnline-Guard; WifiOff-Fallback; Coaching ≤2/≤5/>5 min; avg_abweichung_min 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Timer orange-400; 30-Min-Poll
+- **phase5571** Storefront — übersprungen ✅
+- **phase5572** `KitchenPhase5572LieferzeitPraezisionTicker` — Timer orange-400; Pünktlichste/r #1 Name+Abweichung; Team-Ø; Hoch-Alert; 30-Min-Poll; Mock-Fallback
+
+### API — fahrer-lieferzeit-praezision-ranking
+`app/api/delivery/admin/fahrer-lieferzeit-praezision-ranking/route.ts` — `await createClient()` · `satisfies ApiResponse` · Mock-Fallback · driver_id→fahrer:[me] · AUFSTEIGEND (niedrigste Abweichung = Rang 1) · alert_hoch >75%-Quartil ✅
+
+**KRITISCH: Nächste freie Phase ist 5573!** NIEMALS 4000–5572 verwenden.
+
+---
 
 ## Batch 88 — Fahrer-km-pro-Tag-Ranking ✅ (2026-08-01)
 

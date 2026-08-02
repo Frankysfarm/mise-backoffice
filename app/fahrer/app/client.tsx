@@ -1372,6 +1372,7 @@ import { FahrerPhase5553MeinUmsatzProKm } from './phase5553-mein-umsatz-pro-km';
 import { FahrerPhase5557MeineKmProTag } from './phase5557-meine-km-pro-tag';
 import { FahrerPhase5562MeineStornoQuote } from './phase5562-meine-storno-quote';
 import { FahrerPhase5566TourStopsNavHubV19 } from './phase5566-tour-stops-nav-hub-v19';
+import { FahrerPhase5570MeineLieferzeitPraezision } from './phase5570-meine-lieferzeit-praezision';
 import { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
 import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
@@ -7925,6 +7926,8 @@ export function FahrerApp({
           <FahrerPhase5562MeineStornoQuote driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5566: Tour-Stops Nav Hub V19 — KI-Reihenfolge-Optimierung, Stopp-Timer-Ring, Kunden-Kontakt-Panel, 5-Tab-Nav */}
           <FahrerPhase5566TourStopsNavHubV19 driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5570: Meine Lieferzeit-Präzision — Timer orange-400; avg_abweichung_min AUFSTEIGEND Rang 1=niedrigste Abweichung=pünktlichster; Coaching ≤2/≤5/>5 min; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard */}
+          <FahrerPhase5570MeineLieferzeitPraezision driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />
@@ -12759,3 +12762,5 @@ export { FahrerPhase5536MeineNachtschichtEffizienz } from './phase5536-meine-nac
 export { FahrerPhase5557TourStopsNavHubV18 } from './phase5557-tour-stops-nav-hub-v18';
 // Phase 5566 — Tour-Stops Nav Hub V19 (Navigation emerald; V18+: Smart-Reihenfolge-Optimierung live KI-Δmin; Stopp-Timer-Ring; Kunden-Kontakt-Schnell-Panel je Stopp; Ankunfts-Prognose-Ampel; Batch-Status-Banner; 5-Tab Stopps/Navi/Kunden/Score/Übersicht; 15s-Polling; Mock-Fallback)
 export { FahrerPhase5566TourStopsNavHubV19 } from './phase5566-tour-stops-nav-hub-v19';
+// Phase 5570 — Meine Lieferzeit-Präzision (Timer orange-400; avg_abweichung_min AUFSTEIGEND Rang 1=niedrigste Abweichung=pünktlichster; 4xl+Rang; Coaching ≤2/≤5/>5 min; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5570MeineLieferzeitPraezision } from './phase5570-meine-lieferzeit-praezision';

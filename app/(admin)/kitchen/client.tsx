@@ -1412,6 +1412,7 @@ import { KitchenPhase5555UmsatzProKmTicker } from './phase5555-umsatz-pro-km-tic
 import { KitchenPhase5559KmProTagTicker } from './phase5559-km-pro-tag-ticker';
 import { KitchenPhase5564StornoQuoteTicker } from './phase5564-storno-quote-ticker';
 import { KitchenPhase5568SmartTimingCountdownV64 } from './phase5568-smart-timing-countdown-v64';
+import { KitchenPhase5572LieferzeitPraezisionTicker } from './phase5572-lieferzeit-praezision-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5361,6 +5362,8 @@ export function KitchenBoard({
       <KitchenPhase5564StornoQuoteTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5568: Smart-Timing Countdown V64 — 14-KPI-Grid, Farbcodierung, Stationen-Erkennung, Fahrer-Badge, 1s-Tick+15s-Polling */}
       <KitchenPhase5568SmartTimingCountdownV64 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5572: Lieferzeit-Präzision-Ticker — Timer orange-400; Pünktlichste/r #1 Name+Abweichung; Team-Ø; Hoch-Alert; 30-Min-Polling */}
+      <KitchenPhase5572LieferzeitPraezisionTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}
       <KitchenPhase5543SmartTimingCountdownV61 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
@@ -13487,3 +13490,5 @@ export { KitchenPhase5560SmartTimingCountdownV63 } from './phase5560-smart-timin
 export { KitchenPhase5564StornoQuoteTicker } from './phase5564-storno-quote-ticker';
 // Phase 5568 — Smart-Timing Countdown V64 (Brain indigo; V63+: Lieferzeit-Prognose-vs-SLA je Order; Dual-Stations-Kapazitäts-Alarm; Fahrer-Zuverlässigkeits-Badge; Echtzeit-Übergabe-Fenster-Score; 14-KPI-Grid Score/Aktiv/Kritisch/Überfällig/Fertig/Varianz/Stationen/SLA/Bereit/ETA-Drift/Bindung/Sync/Qualität/Übergabe; 5-Tab Countdown/Prognose/Übergabe/Stationen/Kapazität; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5568SmartTimingCountdownV64 } from './phase5568-smart-timing-countdown-v64';
+// Phase 5572 — Lieferzeit-Präzision-Ticker (Timer orange-400; Pünktlichste/r #1 Name+Abweichung; Team-Ø; Hoch-Alert alert_hoch; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5572LieferzeitPraezisionTicker } from './phase5572-lieferzeit-praezision-ticker';
