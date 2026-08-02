@@ -2,6 +2,7 @@
 
 import { AlertTriangle, Clock, Package, Truck, ChefHat } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
 
 interface Order {
   id: string;
@@ -20,19 +21,23 @@ interface Props {
   schwellenwertMin?: { neu: number; zubereitung: number; fertig: number };
 }
 
-function minutenSeit(iso: string | null | undefined): number {
+function minutenSeit(iso: string | null | undefined, now: number): number {
   if (!iso) return 0;
-  return Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  return Math.max(0, Math.round((now - new Date(iso).getTime()) / 60_000));
 }
 
 export function DispatchWarteAlarmPanel({
   orders,
   schwellenwertMin = { neu: 10, zubereitung: 30, fertig: 15 },
 }: Props) {
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => setNow(Date.now()), []);
+  if (now === null) return null;
+
   const alarme = orders
     .map((o) => {
-      const minSeitBestellt = minutenSeit(o.bestellt_am);
-      const minSeitFertig = minutenSeit(o.fertig_am);
+      const minSeitBestellt = minutenSeit(o.bestellt_am, now);
+      const minSeitFertig = minutenSeit(o.fertig_am, now);
 
       if (o.status === 'neu' && minSeitBestellt >= schwellenwertMin.neu) {
         return {

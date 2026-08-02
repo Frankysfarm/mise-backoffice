@@ -93,7 +93,15 @@ export function DispatchPhase1363SchichtVergleichWidget({ locationId }: Props) {
     try {
       const res = await fetch(`/api/delivery/admin/schicht-vergleich?location_id=${locationId}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      setData(await res.json() as ApiData);
+      const next: unknown = await res.json();
+      const candidate = next as ApiData;
+      if (!candidate || typeof candidate !== 'object' || !candidate.aktuell
+        || !candidate.durchschnitt_7tage || !candidate.deltas
+        || !candidate.deltas.stopps || !candidate.deltas.umsatz_eur
+        || !candidate.deltas.trinkgeld_eur || !candidate.deltas.puenktlich_pct) {
+        throw new Error('Ungültige API-Antwort');
+      }
+      setData(candidate);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Fehler');
     } finally {

@@ -84,8 +84,10 @@ export function DispatchPhase1358TourEffizienzRangliste({ locationId }: Props) {
       // Versuche Live-Daten; Fallback auf Mock
       const res = await fetch(`/api/delivery/admin/tour-effizienz?location_id=${locationId}`);
       if (res.ok) {
-        const json: ApiData = await res.json();
-        setData(json);
+        const json: unknown = await res.json();
+        setData(json && typeof json === 'object' && Array.isArray((json as ApiData).touren)
+          ? json as ApiData
+          : buildMock());
       } else {
         setData(buildMock());
       }
