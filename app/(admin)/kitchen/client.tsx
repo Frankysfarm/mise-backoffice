@@ -1433,6 +1433,7 @@ import { KitchenPhase5641AbendschichtEffizienzTrendTicker } from './phase5641-ab
 import { KitchenPhase5645WochenendEffizienzTrendTicker } from './phase5645-wochenend-effizienz-trend-ticker';
 import { KitchenPhase5649MittagsschichtPuenktlichkeitsTrendTicker } from './phase5649-mittagsschicht-puenktlichkeit-trend-ticker';
 import { KitchenPhase5653FeierabendEffizienzTrendTicker } from './phase5653-feierabend-effizienz-trend-ticker';
+import { KitchenPhase5657NachtschichtEffizienzTrendTicker } from './phase5657-nachtschicht-effizienz-trend-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5422,6 +5423,8 @@ export function KitchenBoard({
       <KitchenPhase5645WochenendEffizienzTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5649: Mittagsschicht-Pünktlichkeits-Trend-Ticker — Sun amber-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling */}
       <KitchenPhase5649MittagsschichtPuenktlichkeitsTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5653: Feierabend-Effizienz-Trend-Ticker — Sunset orange-500; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling */}
+      <KitchenPhase5653FeierabendEffizienzTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}
       <KitchenPhase5543SmartTimingCountdownV61 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
@@ -13588,3 +13591,5 @@ export { KitchenPhase5645WochenendEffizienzTrendTicker } from './phase5645-woche
 export { KitchenPhase5649MittagsschichtPuenktlichkeitsTrendTicker } from './phase5649-mittagsschicht-puenktlichkeit-trend-ticker';
 // Phase 5653 — Feierabend-Effizienz-Trend-Ticker (Sunset orange-500; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5653FeierabendEffizienzTrendTicker } from './phase5653-feierabend-effizienz-trend-ticker';
+// Phase 5657 — Nachtschicht-Effizienz-Trend-Ticker (Moon indigo-400; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5657NachtschichtEffizienzTrendTicker } from './phase5657-nachtschicht-effizienz-trend-ticker';
