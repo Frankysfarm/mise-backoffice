@@ -110,7 +110,12 @@ export function DispatchPhase1105KapazitaetsPlanung({ locationId }: Props) {
       const url = `/api/delivery/admin/kapazitaets-planung?location_id=${encodeURIComponent(locationId)}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('fetch failed');
-      setData(await res.json());
+      const next: unknown = await res.json();
+      setData(next && typeof next === 'object'
+        && (next as ApiData).naechste_stunde
+        && (next as ApiData).uebernachste_stunde
+        ? next as ApiData
+        : MOCK);
     } catch {
       setData(MOCK);
     } finally {

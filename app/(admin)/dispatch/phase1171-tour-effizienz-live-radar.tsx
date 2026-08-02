@@ -77,7 +77,8 @@ export function DispatchPhase1171TourEffizienzLiveRadar({ locationId }: Props) {
 
   return (
     <div className={cn('rounded-2xl border overflow-hidden', headerBg)}>
-      <button onClick={() => setOpen(v => !v)} className="w-full flex items-center gap-2 px-4 py-3 hover:bg-black/5 transition">
+      <div className="flex w-full items-center px-4 py-3 hover:bg-black/5 transition">
+        <button type="button" onClick={() => setOpen(v => !v)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
         <Clock size={16} className={headerText} />
         <span className={cn('font-bold text-sm uppercase tracking-wider', headerText)}>Tour-Effizienz-Radar</span>
         {critCount > 0 && (
@@ -87,12 +88,13 @@ export function DispatchPhase1171TourEffizienzLiveRadar({ locationId }: Props) {
         )}
         {loading && <Loader2 size={12} className="animate-spin text-muted-foreground" />}
         <div className="ml-auto flex items-center gap-1">
-          <button onClick={e => { e.stopPropagation(); load(); }} className="rounded-full p-1 hover:bg-black/10 transition">
-            <RefreshCw size={12} className="text-muted-foreground" />
-          </button>
           {open ? <ChevronUp size={14} className={headerText} /> : <ChevronDown size={14} className={headerText} />}
         </div>
-      </button>
+        </button>
+        <button type="button" onClick={() => load()} className="ml-2 rounded-full p-1 hover:bg-black/10 transition" aria-label="Tour-Effizienz-Radar aktualisieren">
+          <RefreshCw size={12} className="text-muted-foreground" />
+        </button>
+      </div>
 
       {open && (
         <div className="border-t border-black/10 divide-y divide-muted">

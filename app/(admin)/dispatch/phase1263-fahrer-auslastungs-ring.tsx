@@ -57,7 +57,7 @@ const LEVEL_STYLE = {
 const MOCK: AuslastungData = {
   aktive: 6, pausiert: 2, frei: 3, gesamt: 11,
   auslastungs_prozent: 73, level: 'hoch',
-  location_id: '', generiert_am: new Date().toISOString(),
+  location_id: '', generiert_am: '',
 };
 
 const R = 40; const CX = 56; const CY = 56; const CIRC = 2 * Math.PI * R;
@@ -166,7 +166,9 @@ export function DispatchPhase1263FahrerAuslastungsRing({ locationId }: { locatio
             </div>
           </div>
           <p className="text-xs text-slate-400 dark:text-slate-500 text-right mt-2">
-            Aktualisiert: {new Date(d.generiert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+            Aktualisiert: {d.generiert_am
+              ? new Date(d.generiert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+              : '--:--'} Uhr
           </p>
         </div>
       )}
