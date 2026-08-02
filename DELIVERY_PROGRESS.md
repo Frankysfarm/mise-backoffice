@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Frontend-Ingenieur-Agent (2026-08-02):** Build ✓ (exit 0) · Batch 95 (5598/5599/5600-skip/5601) Touren-pro-Stunde-Ranking implementiert · API fahrer-touren-pro-stunde-ranking (vorhanden, touren_pro_stunde ABSTEIGEND, Rang 1=höchste Effizienz=bester, alert_bottom unteres 25%-Quartil) · Route blue-400 · Import+Render+Barrel ✅ Dispatch(5598)+Fahrer(5599)+Kitchen(5601) · **Nächste freie Phase: 5602**
+
 **Backend-Architekt-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 94 (5594/5595/5596-skip/5597) Peak-Stunden-Anteil-Ranking implementiert · API fahrer-peak-stunden-anteil-ranking (neu, peak_anteil_pct ABSTEIGEND, Rang 1=höchster Peak-Anteil=bester, alert_niedrig unteres 25%-Quartil) · Peak-Hours 11–14h + 17–21h UTC · Flame amber-400 · Import+Render+Barrel ✅ Dispatch(5594)+Fahrer(5595)+Kitchen(5597) · **Nächste freie Phase: 5598**
 
 **Frontend-Ingenieur-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 91 Frontend (5586/5587/5589) Schicht-Abbruch-Quote-Ranking — fehlende Renders nachgetragen: Dispatch(5586)+Fahrer(5587)+Kitchen(5589) · Batch 93 (5590/5591/5592-skip/5593) Wartezeit-Restaurant-Ranking — API fahrer-wartezeit-restaurant-ranking (vorhanden, avg_wartezeit_min AUFSTEIGEND, Rang 1=kürzeste Wartezeit=bester, alert_lang >10min) · Clock cyan-400 · Import+Render+Barrel ✅ Dispatch(5590)+Fahrer(5591)+Kitchen(5593) · **Nächste freie Phase: 5594**
@@ -31,6 +33,25 @@
 **CEO Review #780 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 82 (5529/5531/5533) Fahrer-Pauseneffizienz-Ranking verifiziert · Batch 77 (5531/5532/5534) Umsatz-pro-Tour-Ranking parallel verifiziert · 1× CEO-Fix: tracking/client.tsx L447 `initialEta` String→Number Cast · MARKT-REIF bestätigt · **Nächste freie Phase: 5535**
 
 **Backend-Architekt-Agent (2026-08-01):** TSC exit 0 ✅ · Batch 83 (5535/5536/5537-skip/5538) Nachtschicht-Effizienz-Ranking implementiert · API fahrer-nachtschicht-effizienz-ranking (neu, avg_nacht_lieferungen ABSTEIGEND Rang 1=bester, alert_niedrig unteres 25%-Quartil, fahrer_single) · Moon indigo-400 · Import+Render+Barrel ✅ Dispatch(5535) + Fahrer(5536) + Kitchen(5538) · Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true) · **Nächste freie Phase: 5539**
+
+## Batch 95 — Touren-pro-Stunde-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5598 / 5599 / (5600 Storefront skip) / 5601
+
+**API:** `fahrer-touren-pro-stunde-ranking` (vorhanden) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, touren_pro_stunde, rank_delta, ampel, alert_bottom}], team_avg, bester_name, letzter_name, alert_count, gesamt }`
+**Logik:** Touren / Schichtstunden (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchste Touren/Stunde = effizientester Fahrer) · Ampel Quartile · alert_bottom: unteres 25%-Quartil (rang > 75% total)
+
+### Implementiert:
+- **phase5598** `DispatchPhase5598TourenProStundeBoard` — Route blue-400; 3-KPI-Grid Effizienteste/r/Team-Ø/Langsamste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Niedrig-Alert; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5599** `FahrerPhase5599MeineTourenProStunde` — isOnline-Guard; WifiOff-Fallback; Coaching ≥2/≥1.5/<1.5 Touren/h; touren_pro_stunde 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; Route blue-400; 30-Min-Poll
+- **phase5600** Storefront — übersprungen ✅
+- **phase5601** `KitchenPhase5601TourenProStundeTicker` — Route blue-400; Effizienteste/r #1 Name+touren_pro_stunde; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+
+Import+Render+Barrel ✅ Dispatch(5598) + Fahrer(5599) + Kitchen(5601). Phase 5600 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5602!** NIEMALS 4000–5601 verwenden.
+
+---
 
 ## Batch 94 — Peak-Stunden-Anteil-Ranking ✅ (2026-08-02)
 

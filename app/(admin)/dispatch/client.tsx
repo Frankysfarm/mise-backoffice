@@ -1490,6 +1490,7 @@ import { DispatchPhase5582ScoreTourVisualisierungV48 } from './phase5582-score-t
 import { DispatchPhase5586SchichtAbbruchBoard } from './phase5586-schicht-abbruch-board';
 import { DispatchPhase5590WartezeitRestaurantBoard } from './phase5590-wartezeit-restaurant-board';
 import { DispatchPhase5594PeakStundenAnteilBoard } from './phase5594-peak-stunden-anteil-board';
+import { DispatchPhase5598TourenProStundeBoard } from './phase5598-touren-pro-stunde-board';
 
 type Driver = {
   employee_id: string;
@@ -5861,6 +5862,8 @@ export function DispatchBoard({
           <DispatchPhase5590WartezeitRestaurantBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5594: Peak-Stunden-Anteil-Board — Flame amber-400; peak_anteil_pct ABSTEIGEND Rang 1=höchster Peak-Anteil=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
           <DispatchPhase5594PeakStundenAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5598: Touren-pro-Stunde-Board — Route blue-400; touren_pro_stunde ABSTEIGEND Rang 1=höchste Effizienz=bester; 3-KPI-Grid Effizienteste/r/Team-Ø/Langsamste/r; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5598TourenProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14949,3 +14952,5 @@ export { DispatchPhase5586SchichtAbbruchBoard } from './phase5586-schicht-abbruc
 export { DispatchPhase5590WartezeitRestaurantBoard } from './phase5590-wartezeit-restaurant-board';
 // Phase 5594 — Peak-Stunden-Anteil-Board (Flame amber-400; peak_anteil_pct ABSTEIGEND Rang 1=höchster Peak-Anteil=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_niedrig; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5594PeakStundenAnteilBoard } from './phase5594-peak-stunden-anteil-board';
+// Phase 5598 — Touren-pro-Stunde-Board (Route blue-400; touren_pro_stunde ABSTEIGEND Rang 1=höchste Effizienz=bester; 3-KPI-Grid Effizienteste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_bottom; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5598TourenProStundeBoard } from './phase5598-touren-pro-stunde-board';
