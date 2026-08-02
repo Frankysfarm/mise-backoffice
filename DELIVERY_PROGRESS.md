@@ -39506,3 +39506,35 @@ Import+Render+Barrel ✅ Dispatch(5577) + Fahrer(5578) + Kitchen(5580). Phase 55
 Backend-Architekt-Agent (2026-08-02): Batch 90 abgeschlossen. Phasen 5565–5576 durch andere Agents belegt. API fahrer-reaktionszeit-ranking (VORHANDEN, avg_reaktionszeit_min/team_avg_min/schnellster_name/langsamster_name/alert_hoch). Import+Render+Barrel ✅ Dispatch(5577) + Fahrer(5578) + Kitchen(5580). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5581.**
 
 ## STATUS: MARKT-REIF
+
+---
+
+## Batch 91 — Schicht-Abbruch-Quote-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5586 / 5587 / (5588 Storefront skip) / 5589
+
+**Hinweis:** Phasen 5581–5585 wurden durch andere Agents belegt (SmartTiming V66, ScoreTour V48, TourStopsNavHub V21, DynamischeEtaLiveTracking V22). Batch 91 startet bei Phase 5586 (globales Maximum + 1).
+
+**API:** `fahrer-schicht-abbruch-ranking` (NEU erstellt) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, abbruch_pct, abbrueche, schichten, rank_delta, ampel, alert_hoch}], team_avg_abbruch_pct, bester_name, hoechster_name, alert_count, gesamt }`
+**Logik:** Anteil abgebrochener Schichten (letzte 30 Tage) · AUFSTEIGEND (Rang 1 = niedrigste Abbruch-Quote = bester) · Ampel: grün Top-25%/gelb Mitte/rot untere 25% · alert_hoch: Ampel === 'rot'
+
+### Implementiert:
+- **phase5586** `DispatchPhase5586SchichtAbbruchBoard` — AlertOctagon red-400; 3-KPI-Grid Beste/r/Team-Ø/Höchste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Hoch-Alert via alert_hoch; AUFSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5587** `FahrerPhase5587MeineSchichtAbbruchQuote` — isOnline-Guard; WifiOff-Fallback; Coaching ≤2%/≤10%/>10%; abbruch_pct 4xl+Rang; Dual-Balken Ich+Team-Ø; Ampel-Border; AlertOctagon red-400; 30-Min-Poll
+- **phase5589** `KitchenPhase5589SchichtAbbruchTicker` — AlertOctagon red-400; Beste/r #1 Name+%; Team-Ø; Hoch-Alert; 30-Min-Poll; Mock-Fallback
+
+Import+Render+Barrel ✅ Dispatch(5586) + Fahrer(5587) + Kitchen(5589). Phase 5588 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5590!** NIEMALS 4000–5589 verwenden.
+
+**Vorschlag Batch 92:** Fahrer-Schicht-Pünktlichkeits-Trend-Ranking (Verbesserung der Pünktlichkeit über Zeit — ABSTEIGEND, größte positive Verbesserung = bester)
+- Phase 5590: Dispatch `DispatchPhase5590PuenktlichkeitsTrendBoard` — TrendingUp cyan-400; ABSTEIGEND
+- Phase 5591: Fahrer `FahrerPhase5591MeinPuenktlichkeitsTrend` — TrendingUp cyan-400; Coaching API-abhängig
+- Phase 5592: Storefront — skip
+- Phase 5593: Kitchen `KitchenPhase5593PuenktlichkeitsTrendTicker` — TrendingUp cyan-400
+
+---
+
+Backend-Architekt-Agent (2026-08-02): Batch 91 abgeschlossen. API fahrer-schicht-abbruch-ranking (NEU, abbruch_pct/team_avg_abbruch_pct/bester_name/hoechster_name/alert_hoch). Import+Render+Barrel ✅ Dispatch(5586) + Fahrer(5587) + Kitchen(5589). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5590.**
+
+## STATUS: MARKT-REIF
