@@ -18,7 +18,7 @@ test("real Chromium accepts an offer in the production Driver component", async 
   const screenshot = join(root, "driver-offer-accepted.png")
   const trace = join(root, "driver-trace.zip")
   const browser = await chromium.launch({ headless: process.env.MISE_TEST_LAB_HEADED !== "true" })
-  const browserContext = await browser.newContext()
+  const browserContext = await browser.newContext({ serviceWorkers: "block" })
   const syntheticSession = {
     access_token: "synthetic-driver-access", refresh_token: "synthetic-driver-refresh", token_type: "bearer",
     expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600,
@@ -76,7 +76,10 @@ test("real Chromium accepts an offer in the production Driver component", async 
   try {
     const response = await page.goto(new URL("/test-lab/actors/driver", baseUrl).toString())
     assert.equal(response?.status(), 200)
-    await page.getByTestId("driver-accept-a4000000-0000-4000-8000-000000000001").click()
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: "domcontentloaded" }),
+      page.getByTestId("driver-accept-a4000000-0000-4000-8000-000000000001").click(),
+    ])
     await page.waitForFunction(() => {
       const raw = localStorage.getItem("mise-driver:canonical-offer:v1")
       return raw ? JSON.parse(raw).assignmentVersion === 2 : false
@@ -87,6 +90,7 @@ test("real Chromium accepts an offer in the production Driver component", async 
       authorization: "Bearer synthetic-driver-access",
     })
     assert.match((accepted as { body: { transition_key: string } }).body.transition_key, /^[0-9a-f-]{36}$/i)
+    assert.equal(page.url(), new URL("/test-lab/actors/driver", baseUrl).toString())
     assert.deepEqual(external, [])
     assert.deepEqual(pageErrors, [])
     await page.screenshot({ path: screenshot, fullPage: true })
