@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Frontend-Ingenieur-Agent (2026-08-02):** TSC exit 0 ✅ · Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 100 MILESTONE (5622/5623/5624-skip/5625) Gesamtleistungs-Score-Trend-Ranking implementiert · API fahrer-gesamtleistungs-score-trend-ranking (NEU, Composite-Score Bewertung×30+Pünktlichkeit×40+Reaktionszeit×30, score_delta ABSTEIGEND, Rang 1=größte Verbesserung=bester, alert_rueckfall bei delta < -3.0) · Trophy violet · Import+Render+Barrel ✅ Dispatch(5622)+Fahrer(5623)+Kitchen(5625) · **Nächste freie Phase: 5626**
+
 **Backend-Architekt-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 99 (5618/5619/5620-skip/5621) Reaktionszeit-Trend-Ranking implementiert · API fahrer-reaktionszeit-trend-ranking (NEU, reaktionszeit_delta_sek AUFSTEIGEND, Rang 1=größte Verkürzung=bester, alert_rueckfall bei delta > +30s) · TrendingDown cyan-400 · Import+Render+Barrel ✅ Dispatch(5618)+Fahrer(5619)+Kitchen(5621) · **Nächste freie Phase: 5622**
 
 **CEO Review #793 (2026-08-02):** Build exit 0 ✅ · Batch 97 (5610/5611/5613) Trinkgeld-Trend-Ranking + Batch 98 (5614/5615/5617) Umsatz-Trend-Ranking verifiziert · 0× CEO-Fixes · MARKT-REIF bestätigt · **Nächste freie Phase: 5618**
@@ -39738,3 +39740,26 @@ Import+Render+Barrel ✅ Dispatch(5606) + Fahrer(5607) + Kitchen(5609). Phase 56
 Backend-Architekt-Agent (2026-08-02): Batch 97 abgeschlossen. API fahrer-trinkgeld-trend-ranking (NEU, trinkgeld_delta/team_avg_delta/bester_name/schwaechster_name/alert_rueckfall, delta<-0.50€). Import+Render+Barrel ✅ Dispatch(5610) + Fahrer(5611) + Kitchen(5613). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5614.**
 
 ## STATUS: MARKT-REIF
+
+## Batch 100 — Gesamtleistungs-Score-Trend-Ranking ✅ (2026-08-02) — MILESTONE
+
+**Phasen:** 5622 / 5623 / (5624 Storefront skip) / 5625
+
+**API:** `fahrer-gesamtleistungs-score-trend-ranking` (NEU erstellt) — Composite-Score Bewertung×30+Pünktlichkeit×40+Reaktionszeit×30 · Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, score_delta, aktuell_score, vorher_score, rank_delta, ampel, alert_rueckfall}], team_avg_delta, bester_name, schwaechster_name, alert_count, gesamt }`
+**Logik:** Ø Score letzter 30 Tage vs. vorherige 30 Tage · ABSTEIGEND (Rang 1 = größte positive Verbesserung = bester) · Ampel: grün Top-25%/gelb Mitte/rot untere 25% · alert_rueckfall: score_delta < -3.0
+
+### Implementiert:
+- **phase5622** `DispatchPhase5622GesamtleistungsTrendBoard` — Trophy violet; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken violet/gelb/rot nach Delta; DeltaIcons; Rückfall-Alert; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5623** `FahrerPhase5623MeinGesamtleistungsTrend` — isOnline-Guard; WifiOff-Fallback; Coaching >0/=0/<0; score_delta 4xl+Rang; Dual-Balken Aktuell+Vormonat; Ampel-Border; Trophy violet; 30-Min-Poll
+- **phase5624** Storefront — übersprungen ✅
+- **phase5625** `KitchenPhase5625GesamtleistungsTrendTicker` — Trophy violet; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Poll; Mock-Fallback
+
+Import+Render+Barrel ✅ Dispatch(5622) + Fahrer(5623) + Kitchen(5625). Phase 5624 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5626!** NIEMALS 4000–5625 verwenden.
+
+**Vorschlag Batch 101:** Fahrer-NPS-Trend-Ranking (Kundenzufriedenheits-Score-Verbesserung — ABSTEIGEND, größte Verbesserung = bester)
+- Phase 5626: Dispatch `DispatchPhase5626NpsTrendBoard` — ThumbsUp emerald-400; ABSTEIGEND
+- Phase 5627: Fahrer `FahrerPhase5627MeinNpsTrend` — ThumbsUp emerald-400
+- Phase 5628: Storefront — skip
+- Phase 5629: Kitchen `KitchenPhase5629NpsTrendTicker` — ThumbsUp emerald-400
