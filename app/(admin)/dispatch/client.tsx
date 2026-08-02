@@ -1484,6 +1484,7 @@ import { DispatchPhase5556KmProTagBoard } from './phase5556-km-pro-tag-board';
 import { DispatchPhase5561StornoQuoteBoard } from './phase5561-storno-quote-board';
 import { DispatchPhase5565ScoreTourVisualisierungV46 } from './phase5565-score-tour-visualisierung-v46';
 import { DispatchPhase5569LieferzeitPraezisionBoard } from './phase5569-lieferzeit-praezision-board';
+import { DispatchPhase5573ScoreTourVisualisierungV47 } from './phase5573-score-tour-visualisierung-v47';
 
 type Driver = {
   employee_id: string;
@@ -5843,6 +5844,8 @@ export function DispatchBoard({
           <DispatchPhase5565ScoreTourVisualisierungV46 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5569: Lieferzeit-Präzision-Board — Timer orange-400; avg_abweichung_min AUFSTEIGEND Rang 1=niedrigste Abweichung=pünktlichster; 3-KPI-Grid; DeltaIcons; Hoch-Alert; 30-Min-Polling */}
           <DispatchPhase5569LieferzeitPraezisionBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5573: Score + Tour-Visualisierung V47 — Echtzeit-Tour-Profitabilität €/Stopp+Sparkline; Fahrer-Belastungs-Fairness-Gini; KI-Dispatch-Effizienz-Score; Zonen-Überdeckungs-Gap-Alert; 15-KPI-Grid; 6-Tab; 20s-Polling */}
+          <DispatchPhase5573ScoreTourVisualisierungV47 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14919,3 +14922,5 @@ export { DispatchPhase5561StornoQuoteBoard } from './phase5561-storno-quote-boar
 export { DispatchPhase5565ScoreTourVisualisierungV46 } from './phase5565-score-tour-visualisierung-v46';
 // Phase 5569 — Lieferzeit-Präzision-Board (Timer orange-400; avg_abweichung_min AUFSTEIGEND Rang 1=niedrigste Abweichung=pünktlichster; 3-KPI-Grid Pünktlichste/r/Team-Ø/Unpünktlichste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert alert_hoch; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5569LieferzeitPraezisionBoard } from './phase5569-lieferzeit-praezision-board';
+// Phase 5573 — Score + Tour-Visualisierung V47 (Echtzeit-Tour-Profitabilität €/Stopp+Trend-Sparkline; Fahrer-Belastungs-Fairness-Gini-Koeffizient; KI-Dispatch-Effizienz-Score; Zonen-Überdeckungs-Gap-Alert; 15-KPI-Grid; 6-Tab Rangliste/Profit/Fairness/KI-Dispatch/Lücken/Wellbeing; 20s-Polling; Mock-Fallback)
+export { DispatchPhase5573ScoreTourVisualisierungV47 } from './phase5573-score-tour-visualisierung-v47';
