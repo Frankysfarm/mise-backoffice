@@ -1396,6 +1396,7 @@ import { FahrerPhase5651MeinFeierabendEffizienzTrend } from './phase5651-mein-fe
 import { FahrerPhase5655MeinNachtschichtEffizienzTrend } from './phase5655-mein-nachtschicht-effizienz-trend';
 import { FahrerPhase5659MeinFruehschichtEffizienzTrend } from './phase5659-mein-fruehschicht-effizienz-trend';
 import { FahrerPhase5663MeinSpaetabendPuenktlichkeitsTrend } from './phase5663-mein-spaetabend-puenktlichkeit-trend';
+import { FahrerPhase5667MeinMittagsEffizienzTrend } from './phase5667-mein-mittags-effizienz-trend';
 import { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
 import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
@@ -7997,6 +7998,8 @@ export function FahrerApp({
           <FahrerPhase5659MeinFruehschichtEffizienzTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5663: Mein Spätabend-Pünktlichkeits-Trend — Moon violet-400; puenktlichkeit_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border */}
           <FahrerPhase5663MeinSpaetabendPuenktlichkeitsTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5667: Mein Mittagsschicht-Effizienz-Trend — Sun lime-400; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border */}
+          <FahrerPhase5667MeinMittagsEffizienzTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />
@@ -12877,3 +12880,5 @@ export { FahrerPhase5655MeinNachtschichtEffizienzTrend } from './phase5655-mein-
 export { FahrerPhase5659MeinFruehschichtEffizienzTrend } from './phase5659-mein-fruehschicht-effizienz-trend';
 // Phase 5663 — Mein Spätabend-Pünktlichkeits-Trend (Moon violet-400; puenktlichkeit_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5663MeinSpaetabendPuenktlichkeitsTrend } from './phase5663-mein-spaetabend-puenktlichkeit-trend';
+// Phase 5667 — Mein Mittagsschicht-Effizienz-Trend (Sun lime-400; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5667MeinMittagsEffizienzTrend } from './phase5667-mein-mittags-effizienz-trend';
