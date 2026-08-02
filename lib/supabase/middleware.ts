@@ -36,6 +36,8 @@ export async function updateSession(request: NextRequest) {
 
   const isPublic =
     pathname === '/login' ||
+    pathname === '/test-lab' ||
+    pathname.startsWith('/api/test-lab/') ||
     pathname === '/delivery-progress' ||
     pathname === '/start' ||
     pathname === '/use-case' ||

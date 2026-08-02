@@ -31,12 +31,12 @@ Releaseentscheidung: **BLOCKED für Produktion; SHADOW-ONLY lokal/isoliert.**
 # Autonomous test-lab blockers — 2026-08-01
 
 - TL-G1: all profiles and descriptors exist, but the 115 handlers are deliberately `audit-only`; canonical storefront/API/UI execution is not connected.
-- TL-G2: Playwright/browser binaries, stable app selectors, authentication fixtures and a real click-through trace are absent.
+- TL-G2: Chromium, trace and actual dashboard E2E are green; authenticated Storefront/Kitchen/Driver production-UI fixtures and selectors remain.
 - TL-G4: a comparison adapter exists, but actual production decision capture, production route sequence and retained real optimality gaps are open.
 - TL-G5: the required categories and over 75 names exist; most are not yet executable full-stack cases.
-- TL-G6: deterministic in-process chaos is green; real multi-session DB races, process kills and restart recovery remain to be wired into the lab.
+- TL-G6: real DB abort/retry and killed-worker recovery are green; network, service-worker and broader application restart chaos remain.
 - TL-G7: physical iOS/Android background, lock, terminated-app, push and GPS evidence needs devices/toolchains.
-- TL-G8: authenticated dashboard execution/pause/abort, CI, nightly retention and bounded soak are open.
+- TL-G8: replay and bounded soak are green; authenticated dashboard execution/pause/abort, CI scheduling and long resource soak remain.
 - TL-G9/TL-G10: three fixed-commit reviews rejected the current maturity; post-fix double sign-offs, final judge and employee acceptance have not run.
 - The first Next build attempt exhausted the initially available disk space and was stopped safely. After removing only its reproducible `.next` output, a clean retry completed successfully (447 pages, including production-hidden `/test-lab`).
 
