@@ -23,6 +23,17 @@ const LOAD_CONFIG: Record<LoadLevel, { emoji: string; label: string; color: stri
   high:   { emoji: '🔴', label: 'Viel los',   color: 'text-red-700' },
 };
 
+function validApiData(value: unknown): value is ApiData {
+  if (!value || typeof value !== 'object') return false;
+  const candidate = value as Partial<ApiData>;
+  return Number.isFinite(candidate.eta_min)
+    && candidate.eta_min! >= 0
+    && (candidate.load_level === 'low' || candidate.load_level === 'normal' || candidate.load_level === 'high')
+    && Number.isFinite(candidate.active_drivers)
+    && candidate.active_drivers! >= 0
+    && (candidate.queue_position === null || (Number.isInteger(candidate.queue_position) && candidate.queue_position! >= 0));
+}
+
 export function BissPhase2310LiveEtaTrackingHub({
   locationId,
   deliveryTimeMin,
@@ -37,7 +48,10 @@ export function BissPhase2310LiveEtaTrackingHub({
     const load = async () => {
       try {
         const res = await fetch(`/api/delivery/public/eta?location_id=${locationId}`);
-        if (res.ok && active) setData(await res.json());
+        if (res.ok && active) {
+          const payload: unknown = await res.json();
+          setData(validApiData(payload) ? payload : MOCK);
+        }
       } catch {
         if (active) setData(MOCK);
       }

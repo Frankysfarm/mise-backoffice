@@ -243,7 +243,7 @@ function OrderSuccess({ orderId, bestellnummer, onClose }: { orderId: string; be
   const trackUrl = bestellnummer ? `/track/${bestellnummer}` : null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
+    <div data-testid="storefront-order-success" className="fixed inset-0 z-50 bg-white overflow-y-auto">
       <div className="max-w-lg mx-auto p-6 text-center">
         <div className="w-16 h-16 bg-matcha-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✓</div>
         <h2 className="text-2xl font-bold text-matcha-700 mb-1">Bestellung aufgegeben!</h2>

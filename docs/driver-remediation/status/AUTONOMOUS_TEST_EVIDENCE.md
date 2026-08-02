@@ -113,3 +113,12 @@
 - Current full aggregate `tl_20260802t070000z_d51c0de4`: 89 pass, 8 intentional environment-only skips, 0 failures. Disposable authenticated factory/concurrency remains 3/3 pass.
 - Third independent TL-G1 review at `9b3e66bd`: both APPROVE, no P0/P1. Adversarial probes confirm post-compile mutation remains byte-stable and forged digest/row/version are rejected before schema mutation. Architecture probe confirms 65/65 unique semantic configurations and the complete required provider/infrastructure matrix.
 - Post-selector production build: exit 0, 447/447 pages generated.
+
+## Production Storefront browser actor — 2026-08-02
+
+- Guarded actor route `/test-lab/actors/storefront` renders the actual production `BissStorefront` component and fails closed through the central environment guard outside an explicitly isolated lab. Middleware exposes only that exact path before the guard; production remains prohibited.
+- Real Chromium clicks add item, open cart, checkout, fill customer data and submit. It asserts the exact intercepted synthetic order payload, reaches the real order-success UI, records no external origin or page error, and retains screenshot plus trace under `artifacts/driver-system-lab/storefront-component/`.
+- The first run found a real malformed-ETA crash in `BissPhase2310LiveEtaTrackingHub`: a successful partial response produced an unknown load configuration. The production component now validates the complete response and safely falls back; the browser test deliberately supplies the partial response as a regression case.
+- Browser result: 1/1 pass. Full aggregate run `tl_20260802t130000z_57f0a001`: 89 pass, 9 intentional opt-in skips, 0 failures. T10 local PostgreSQL/race/release-readiness aggregate: exit 0.
+- Clean production build after disk-cache recovery: exit 0, 448/448 pages generated. Separate repository-wide `tsc` with the default heap exhausted memory; the 8-GB retry remained non-terminating and was stopped, so it is not claimed as typecheck evidence.
+- Scope boundary: this is the actual production Storefront component with a synthetic intercepted mutation, not the canonical database-backed order API. Kitchen, Driver and Dispatcher production-component actors remain the next TL-G2 work.

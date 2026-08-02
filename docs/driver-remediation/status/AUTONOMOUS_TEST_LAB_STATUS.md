@@ -6,7 +6,7 @@ Updated: 2026-08-02
 |---|---|---|
 | TL-G0 Isolation | GREEN | Central guard received two independent P0 approvals at `8dd1eb2e`; atomic run+tenant cleanup received two independent approvals at `003b2c53`. Disposable PostgreSQL integration passes. |
 | TL-G1 Data Factory / DSL | GREEN | Two independent reviewers approve fixed commit `9b3e66bd`: strict DSL, seeded canonical fixtures, deep immutability/authentication, 65 configured roles, complete required provider/infrastructure variants and run-owned PostgreSQL materialization pass with no P0/P1. |
-| TL-G2 UI actors | PARTIAL | Real Chromium clicks, screenshot and trace pass for the synthetic driver lifecycle and actual guarded Next dashboard. Stable semantic selectors now exist on real BISS Storefront, Kitchen item actions and Driver offer acceptance. Real multi-role production-component/browser execution with auth fixtures remains open. |
+| TL-G2 UI actors | PARTIAL | Real Chromium clicks, screenshot and trace pass for the synthetic driver lifecycle, actual guarded Next dashboard and the production BISS Storefront component through order success. Stable selectors exist on real Kitchen item actions and Driver offer acceptance. Real Kitchen/Driver/Dispatcher production-component execution and canonical full-stack mutations remain open. |
 | TL-G3 Invariant monitor | PARTIAL / REVIEW REJECT | Post-review hardening adds cross-tenant route/pick, batch-driver, stop-order, numeric, sequence, fingerprint and temporal push checks; focused tests pass, but canonical DB-snapshot integration and re-review are open. |
 | TL-G4 Dispatch oracle | PARTIAL | A captured test invokes the real pure adaptive optimizer for bundle sizes 1–4 and compares through the independent oracle seam. Diverse captures and concrete production stop-sequence comparison remain open. |
 | TL-G5 Functional catalog | PARTIAL | 100+ named categories/cases are catalogued; they are not all executable E2E scenarios yet. |
@@ -22,5 +22,5 @@ First incomplete gate: **TL-G2 UI Actor Automation**. The 115 catalog
 descriptors still lack canonical Storefront/Kitchen/Driver/Dispatcher API/UI
 execution under TL-G2/TL-G5.
 
-Build status: GREEN on a clean retry (`npm run build`, 447 pages). The generated
+Build status: GREEN on a clean retry (`npm run build`, 448 pages). The generated
 `.next` directory was removed afterward to recover local disk capacity.
