@@ -1487,6 +1487,7 @@ import { DispatchPhase5569LieferzeitPraezisionBoard } from './phase5569-lieferze
 import { DispatchPhase5573ScoreTourVisualisierungV47 } from './phase5573-score-tour-visualisierung-v47';
 import { DispatchPhase5577ReaktionszeitBoard } from './phase5577-reaktionszeit-board';
 import { DispatchPhase5582ScoreTourVisualisierungV48 } from './phase5582-score-tour-visualisierung-v48';
+import { DispatchPhase5586SchichtAbbruchBoard } from './phase5586-schicht-abbruch-board';
 
 type Driver = {
   employee_id: string;
@@ -14934,3 +14935,5 @@ export { DispatchPhase5573ScoreTourVisualisierungV47 } from './phase5573-score-t
 export { DispatchPhase5577ReaktionszeitBoard } from './phase5577-reaktionszeit-board';
 // Phase 5582 — Score + Tour-Visualisierung V48 (Fahrer-Absenz-Risiko-Prognose Müdigkeit×Schichtlänge; KI-Routeneffizienz-Analyse Δkm+Δmin; Tour-Profitabilitäts-Matrix €/Stopp je Zone; Zonen-Durchsatz-Optimierung Kapazität vs. Nachfrage; 16-KPI-Grid; 7-Tab Rangliste/Profit/Fairness/KI-Route/Lücken/Absenz/Durchsatz; 20s-Polling; Mock-Fallback)
 export { DispatchPhase5582ScoreTourVisualisierungV48 } from './phase5582-score-tour-visualisierung-v48';
+// Phase 5586 — Schicht-Abbruch-Quote-Board (AlertOctagon red-400; abbruch_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 3-KPI-Grid Beste/r/Team-Ø/Hoechste/r; Balken farbkodiert; DeltaIcons; Hoch-Alert alert_hoch; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5586SchichtAbbruchBoard } from './phase5586-schicht-abbruch-board';

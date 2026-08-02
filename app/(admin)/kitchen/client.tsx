@@ -1416,6 +1416,7 @@ import { KitchenPhase5572LieferzeitPraezisionTicker } from './phase5572-lieferze
 import { KitchenPhase5576SmartTimingCountdownV65 } from './phase5576-smart-timing-countdown-v65';
 import { KitchenPhase5580ReaktionszeitTicker } from './phase5580-reaktionszeit-ticker';
 import { KitchenPhase5581SmartTimingCountdownV66 } from './phase5581-smart-timing-countdown-v66';
+import { KitchenPhase5589SchichtAbbruchTicker } from './phase5589-schicht-abbruch-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -13507,3 +13508,5 @@ export { KitchenPhase5576SmartTimingCountdownV65 } from './phase5576-smart-timin
 export { KitchenPhase5580ReaktionszeitTicker } from './phase5580-reaktionszeit-ticker';
 // Phase 5581 — Smart-Timing Countdown V66 (Schicht-Temperatur-Indikator; Batch-Synchronisations-Score; Automatische Pausenplanung; Koch-Fehler-Erkennung; 16-KPI-Grid; 7-Tab Countdown/Prognose/Übergabe/Stationen/Kapazität/KI-Batch/Fehler; 1s-Tick+15s-Polling; Mock-Fallback)
 export { KitchenPhase5581SmartTimingCountdownV66 } from './phase5581-smart-timing-countdown-v66';
+// Phase 5589 — Schicht-Abbruch-Quote-Ticker (AlertOctagon red-400; Beste/r #1 Name+abbruch_pct; Team-Ø; Hoch-Alert alert_hoch; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5589SchichtAbbruchTicker } from './phase5589-schicht-abbruch-ticker';

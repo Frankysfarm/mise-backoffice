@@ -1376,6 +1376,7 @@ import { FahrerPhase5570MeineLieferzeitPraezision } from './phase5570-meine-lief
 import { FahrerPhase5574TourStopsNavHubV20 } from './phase5574-tour-stops-nav-hub-v20';
 import { FahrerPhase5578MeineReaktionszeit } from './phase5578-meine-reaktionszeit';
 import { FahrerPhase5583TourStopsNavHubV21 } from './phase5583-tour-stops-nav-hub-v21';
+import { FahrerPhase5587MeineSchichtAbbruchQuote } from './phase5587-meine-schicht-abbruch-quote';
 import { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
 import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
@@ -12779,3 +12780,5 @@ export { FahrerPhase5574TourStopsNavHubV20 } from './phase5574-tour-stops-nav-hu
 export { FahrerPhase5578MeineReaktionszeit } from './phase5578-meine-reaktionszeit';
 // Phase 5583 — Tour-Stops Nav Hub V21 (KI-Übergabe-Qualitäts-Score Foto+Unterschrift+Klingel; Fahrer-Pausen-Empfehlung Müdigkeit+Schicht-Check; Smart-Schicht-Ende-Prognose; Bonus-Track-Status Distanz/Pünktlichkeit/Bewertung; 12-KPI-Grid; 7-Tab Stopps/Navi/Kunden/Score/Übersicht/Telemetrie/Bonus; 15s-Polling; Offline-Guard; Mock-Fallback)
 export { FahrerPhase5583TourStopsNavHubV21 } from './phase5583-tour-stops-nav-hub-v21';
+// Phase 5587 — Meine Schicht-Abbruch-Quote (AlertOctagon red-400; abbruch_pct AUFSTEIGEND Rang 1=niedrigste Quote=bester; 4xl+Rang; Coaching ≤2%/≤10%/>10%; Dual-Balken Ich+Team-Ø; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5587MeineSchichtAbbruchQuote } from './phase5587-meine-schicht-abbruch-quote';
