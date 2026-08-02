@@ -7989,6 +7989,8 @@ export function FahrerApp({
           <FahrerPhase5647MeinMittagsschichtPuenktlichkeitsTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5651: Mein Feierabend-Effizienz-Trend — Sunset orange-500; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border */}
           <FahrerPhase5651MeinFeierabendEffizienzTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5655: Mein Nachtschicht-Effizienz-Trend — Moon indigo-400; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border */}
+          <FahrerPhase5655MeinNachtschichtEffizienzTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />

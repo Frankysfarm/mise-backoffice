@@ -5425,6 +5425,8 @@ export function KitchenBoard({
       <KitchenPhase5649MittagsschichtPuenktlichkeitsTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5653: Feierabend-Effizienz-Trend-Ticker — Sunset orange-500; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling */}
       <KitchenPhase5653FeierabendEffizienzTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5657: Nachtschicht-Effizienz-Trend-Ticker — Moon indigo-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling */}
+      <KitchenPhase5657NachtschichtEffizienzTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}
       <KitchenPhase5543SmartTimingCountdownV61 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
