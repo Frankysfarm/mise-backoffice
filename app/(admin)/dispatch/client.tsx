@@ -1628,9 +1628,9 @@ export function DispatchBoard({
     }
   }
 
-  async function assignToDriver(fahrerId: string, explicitOrderIds?: string[]) {
+  async function assignToDriver(fahrerId: string, explicitOrderIds?: string[]): Promise<boolean> {
     const orderIds = [...(explicitOrderIds ?? Array.from(selected))].sort();
-    if (orderIds.length === 0) return;
+    if (orderIds.length === 0) return false;
     const selectedOrders = readyOrders.filter((o) => orderIds.includes(o.id));
     const locationId = selectedOrders[0]?.location_id ?? null;
     const requestKey = `${fahrerId}:${orderIds.join(',')}`;
@@ -1654,14 +1654,16 @@ export function DispatchBoard({
         const result = await response.json().catch(() => null) as { ok?: boolean; reason_code?: string } | null;
         if (!response.ok || !result?.ok) {
           setManualAssignError(result?.reason_code ?? 'MANUAL_ASSIGN_FAILED');
-          return;
+          return false;
         }
         manualAssignKeysRef.current.delete(requestKey);
         setSelected(new Set());
         setManualAssignSuccess(true);
         await refresh();
+        return true;
     } catch {
       setManualAssignError('MANUAL_ASSIGN_NETWORK_FAILED');
+      return false;
     } finally {
       setManualAssignPending(false);
     }
@@ -8211,7 +8213,7 @@ function DispatchNextBestAction({
   orders: ReadyOrder[];
   drivers: Driver[];
   batches: Batch[];
-  onAssign: (orderIds: string[], driverId: string) => void;
+  onAssign: (orderIds: string[], driverId: string) => Promise<boolean>;
 }) {
   const [dismissed, setDismissed] = useState(false);
   const [, setTick] = useState(0);
@@ -8327,7 +8329,7 @@ function DispatchNextBestAction({
           </div>
         </div>
         <button
-          onClick={() => { onAssign(orderIds, bestDriver.employee_id); setDismissed(true); }}
+          onClick={async () => { if (await onAssign(orderIds, bestDriver.employee_id)) setDismissed(true); }}
           className={cn(
             'ml-auto inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold text-white transition active:scale-[0.98]',
             urgency === 'critical' ? 'bg-red-600 hover:bg-red-700' :
@@ -10281,7 +10283,7 @@ function DispatchQuickAssignBar({
   drivers: Driver[];
   restaurantLat?: number | null;
   restaurantLng?: number | null;
-  onAssign: (orderIds: string[], driverId: string) => Promise<void>;
+  onAssign: (orderIds: string[], driverId: string) => Promise<boolean>;
 }) {
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState<string | null>(null);
@@ -10320,9 +10322,10 @@ function DispatchQuickAssignBar({
   async function quickAssign() {
     setPending(true);
     try {
-      await onAssign([topOrder!.id], bestDriver.employee_id);
-      setDone(`✓ ${topOrder!.bestellnummer.replace('FF-', '')} → ${driverName}`);
-      setTimeout(() => setDone(null), 6000);
+      if (await onAssign([topOrder!.id], bestDriver.employee_id)) {
+        setDone(`✓ ${topOrder!.bestellnummer.replace('FF-', '')} → ${driverName}`);
+        setTimeout(() => setDone(null), 6000);
+      }
     } finally {
       setPending(false);
     }

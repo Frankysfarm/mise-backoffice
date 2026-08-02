@@ -42,6 +42,33 @@ export async function POST(request: NextRequest) {
   const service = createServiceClient();
 
   try {
+    const [{ data: prior, error: priorError }, { data: replayDriver, error: replayDriverError }] = await Promise.all([
+      service.from('dispatch_assignment_requests_v2')
+        .select('tenant_id,action,result').eq('action_id', actionId).maybeSingle(),
+      service.from('mise_drivers').select('id').eq('employee_id', employeeId).maybeSingle(),
+    ]);
+    if (priorError || replayDriverError) throw priorError ?? replayDriverError;
+    if (prior) {
+      const result = prior.result as { assignment_ids?: unknown; order_ids?: unknown; [key: string]: unknown };
+      const priorOrderIds = Array.isArray(result.order_ids)
+        ? result.order_ids.filter((id): id is string => typeof id === 'string').sort() : [];
+      const assignmentIds = Array.isArray(result.assignment_ids)
+        ? result.assignment_ids.filter((id): id is string => typeof id === 'string') : [];
+      if (!replayDriver || prior.tenant_id !== context.tenant_id || prior.action !== 'assign'
+        || JSON.stringify(priorOrderIds) !== JSON.stringify(canonicalOrderIds)
+        || assignmentIds.length !== canonicalOrderIds.length) {
+        return reject('IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST', 409);
+      }
+      const { data: priorAssignments, error: priorAssignmentsError } = await service.from('dispatch_offer_assignments')
+        .select('id,tenant_id,driver_id,order_id').in('id', assignmentIds);
+      if (priorAssignmentsError) throw priorAssignmentsError;
+      if (!priorAssignments || priorAssignments.length !== assignmentIds.length
+        || priorAssignments.some((row) => row.tenant_id !== context.tenant_id || row.driver_id !== replayDriver.id)
+        || priorAssignments.map((row) => row.order_id).sort().join(',') !== canonicalOrderIds.join(',')) {
+        return reject('IDEMPOTENCY_REPLAY_IDENTITY_MISMATCH', 409);
+      }
+      return NextResponse.json({ ...result, idempotent_replay: true });
+    }
     if (await selectedDispatchWriter(service, context.tenant_id) !== 'atomic_v2') {
       return reject('ATOMIC_WRITER_NOT_ACTIVE', 409);
     }

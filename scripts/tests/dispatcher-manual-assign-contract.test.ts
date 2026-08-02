@@ -11,6 +11,9 @@ test('Dispatcher UI has one fail-closed manual assignment boundary', async () =>
   assert.doesNotMatch(source, /rpc\('assign_to_driver'/);
   assert.doesNotMatch(source, /from\('delivery_batches'\)[\s\S]{0,250}\.insert\(/);
   assert.match(source, /manualAssignKeysRef/);
+  assert.match(source, /Promise<boolean>/);
+  assert.match(source, /if \(await onAssign\(orderIds, bestDriver\.employee_id\)\) setDismissed/);
+  assert.match(source, /if \(await onAssign\(\[topOrder!\.id\], bestDriver\.employee_id\)\)/);
   assert.doesNotMatch(source, /DispatchPhase1223FahrerEinsatzPlaner|DispatchPhase1838FreierFahrerSofortZuweisung|DispatchBatchReassignDialog/);
 });
 
@@ -24,6 +27,9 @@ test('manual assignment route requires tenant role and atomic-v2 writer', async 
   assert.match(source, /ACTIVE_WRITER_LEASE_REQUIRED/);
   assert.match(source, /canonicalOrderIds.*sort/);
   assert.match(source, /\.order\('id', \{ ascending: true \}\)/);
+  assert.match(source, /from\('dispatch_assignment_requests_v2'\)/);
+  assert.match(source, /IDEMPOTENCY_REPLAY_IDENTITY_MISMATCH/);
+  assert.ok(source.indexOf("from('dispatch_assignment_requests_v2')") < source.indexOf('selectedDispatchWriter(service'));
   assert.match(source, /createAtomicAssignmentV2/);
   assert.doesNotMatch(source, /mock-fallback|ok:\s*true.*catch/s);
 });
