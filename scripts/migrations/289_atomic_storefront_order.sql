@@ -79,7 +79,7 @@ BEGIN
   WHERE m.location_id=p_location_id AND m.verfuegbar=true
   FOR SHARE OF m;
 
-  SELECT count(*), round(sum(m.preis*x.qty)::numeric,2)
+  SELECT count(*), sum(round(round(m.preis::numeric,2)*x.qty,2))
     INTO catalog_count, subtotal
   FROM jsonb_to_recordset(p_items) AS x(id uuid, qty integer)
   JOIN public.menu_items m ON m.id=x.id
@@ -98,7 +98,8 @@ BEGIN
   ) RETURNING id,bestellnummer,status INTO created_order;
 
   INSERT INTO public.order_items(order_id,location_id,menu_item_id,name,menge,einzelpreis,gesamtpreis,position)
-  SELECT created_order.id,p_location_id,m.id,m.name,x.qty,m.preis,round((m.preis*x.qty)::numeric,2),x.position::integer
+  SELECT created_order.id,p_location_id,m.id,m.name,x.qty,round(m.preis::numeric,2),
+    round(round(m.preis::numeric,2)*x.qty,2),x.position::integer
   FROM ROWS FROM (jsonb_to_recordset(p_items) AS (id uuid,qty integer)) WITH ORDINALITY AS x(id,qty,position)
   JOIN public.menu_items m ON m.id=x.id
   ORDER BY x.position;

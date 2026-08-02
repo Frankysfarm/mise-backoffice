@@ -3,7 +3,9 @@ INSERT INTO locations(id,aktiv) VALUES
 INSERT INTO menu_items(id,location_id,name,preis,verfuegbar) VALUES
  ('92000000-0000-4000-8000-000000000001','91000000-0000-4000-8000-000000000001','Canonical Bowl',12.50,true),
  ('92000000-0000-4000-8000-000000000002','91000000-0000-4000-8000-000000000002','Foreign Bowl',0.01,true),
- ('92000000-0000-4000-8000-000000000003','91000000-0000-4000-8000-000000000001','Unavailable',1.00,false);
+ ('92000000-0000-4000-8000-000000000003','91000000-0000-4000-8000-000000000001','Unavailable',1.00,false),
+ ('92000000-0000-4000-8000-000000000004','91000000-0000-4000-8000-000000000001','Fraction A',0.005,true),
+ ('92000000-0000-4000-8000-000000000005','91000000-0000-4000-8000-000000000001','Fraction B',0.005,true);
 
 DO $$ DECLARE first_result jsonb; replay jsonb; conflict jsonb; rejected jsonb; BEGIN
  first_result:=fn_storefront_create_order_v1('93000000-0000-4000-8000-000000000001',repeat('a',64),
@@ -51,5 +53,16 @@ DO $$ BEGIN
 END $$;
 DROP TRIGGER reject_order_item ON order_items;
 DROP FUNCTION reject_order_item();
+
+DO $$ DECLARE accounting jsonb; order_total numeric; line_total numeric; BEGIN
+ accounting:=fn_storefront_create_order_v1('93000000-0000-4000-8000-000000000004',repeat('4',64),
+  '91000000-0000-4000-8000-000000000001',
+  '[{"id":"92000000-0000-4000-8000-000000000004","qty":1},{"id":"92000000-0000-4000-8000-000000000005","qty":1}]',
+  'Accounting','synthetic:accounting','Laborstraße 5','lieferung','bar');
+ SELECT gesamtbetrag INTO order_total FROM customer_orders WHERE id=(accounting->>'id')::uuid;
+ SELECT sum(gesamtpreis) INTO line_total FROM order_items WHERE order_id=(accounting->>'id')::uuid;
+ IF order_total<>0.02 OR line_total<>order_total THEN RAISE EXCEPTION 'money invariant failed header %, lines %',order_total,line_total; END IF;
+ IF EXISTS(SELECT 1 FROM order_items WHERE order_id=(accounting->>'id')::uuid AND einzelpreis<>0.01) THEN RAISE EXCEPTION 'unit price scale failed'; END IF;
+END $$;
 
 SELECT 'T14 atomic storefront order: PASS' AS result;

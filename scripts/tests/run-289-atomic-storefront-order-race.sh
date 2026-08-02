@@ -22,8 +22,8 @@ second_id=$(grep -h -o '"id": "[^"]*"' "$race_dir/b" | head -1)
 test "$first_id" = "$second_id"
 psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
 DO $$ BEGIN
- IF (SELECT count(*) FROM customer_orders)<>2 THEN RAISE EXCEPTION 'race duplicated order'; END IF;
- IF (SELECT count(*) FROM storefront_order_requests_v1)<>2 THEN RAISE EXCEPTION 'race duplicated request'; END IF;
+ IF (SELECT count(*) FROM customer_orders)<>3 THEN RAISE EXCEPTION 'race duplicated order'; END IF;
+ IF (SELECT count(*) FROM storefront_order_requests_v1)<>3 THEN RAISE EXCEPTION 'race duplicated request'; END IF;
 END $$;
 SQL
 echo 'T14 atomic storefront two-session idempotency race: PASS'
@@ -55,7 +55,7 @@ DROP TRIGGER slow_storefront_insert ON customer_orders;
 DROP FUNCTION slow_storefront_insert();
 DO $$ BEGIN
  IF (SELECT aktiv FROM locations WHERE id='91000000-0000-4000-8000-000000000001') THEN RAISE EXCEPTION 'location was not deactivated'; END IF;
- IF (SELECT count(*) FROM customer_orders)<>3 THEN RAISE EXCEPTION 'location race order count mismatch'; END IF;
+ IF (SELECT count(*) FROM customer_orders)<>4 THEN RAISE EXCEPTION 'location race order count mismatch'; END IF;
 END $$;
 SQL
 echo 'T14 active-location lock versus deactivation race: PASS'
