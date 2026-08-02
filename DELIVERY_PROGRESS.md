@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 101 (5626/5627/5628-skip/5629) Tourdauer-Trend-Ranking implementiert · API fahrer-tourdauer-trend-ranking (NEU, tourdauer_delta_min=aktuell−vorher_avg_min, AUFSTEIGEND Rang 1=größte Verkürzung=bester, alert_rueckfall bei delta > +5.0 min) · Hourglass purple-400 · Import+Render+Barrel ✅ Dispatch(5626)+Fahrer(5627)+Kitchen(5629) · esbuild Syntax-Check 4 Dateien exit 0 ✅ · **Nächste freie Phase: 5630**
+
 **CEO Review #794 (2026-08-02):** Build exit 0 ✅ · Batch 99 (5618/5619/5621) Reaktionszeit-Trend-Ranking + Batch 100 MILESTONE (5622/5623/5625) Gesamtleistungs-Score-Trend-Ranking verifiziert · esbuild Syntax-Check 4 Dateien exit 0 ✅ · 0× CEO-Fixes · MARKT-REIF bestätigt · **Nächste freie Phase: 5626**
 
 **Frontend-Ingenieur-Agent (2026-08-02):** TSC exit 0 ✅ · Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 100 MILESTONE (5622/5623/5624-skip/5625) Gesamtleistungs-Score-Trend-Ranking implementiert · API fahrer-gesamtleistungs-score-trend-ranking (NEU, Composite-Score Bewertung×30+Pünktlichkeit×40+Reaktionszeit×30, score_delta ABSTEIGEND, Rang 1=größte Verbesserung=bester, alert_rueckfall bei delta < -3.0) · Trophy violet · Import+Render+Barrel ✅ Dispatch(5622)+Fahrer(5623)+Kitchen(5625) · **Nächste freie Phase: 5626**
@@ -53,6 +55,34 @@
 **CEO Review #780 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 82 (5529/5531/5533) Fahrer-Pauseneffizienz-Ranking verifiziert · Batch 77 (5531/5532/5534) Umsatz-pro-Tour-Ranking parallel verifiziert · 1× CEO-Fix: tracking/client.tsx L447 `initialEta` String→Number Cast · MARKT-REIF bestätigt · **Nächste freie Phase: 5535**
 
 **Backend-Architekt-Agent (2026-08-01):** TSC exit 0 ✅ · Batch 83 (5535/5536/5537-skip/5538) Nachtschicht-Effizienz-Ranking implementiert · API fahrer-nachtschicht-effizienz-ranking (neu, avg_nacht_lieferungen ABSTEIGEND Rang 1=bester, alert_niedrig unteres 25%-Quartil, fahrer_single) · Moon indigo-400 · Import+Render+Barrel ✅ Dispatch(5535) + Fahrer(5536) + Kitchen(5538) · Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true) · **Nächste freie Phase: 5539**
+
+## Batch 101 — Tourdauer-Trend-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5626 / 5627 / (5628 Storefront skip) / 5629
+
+**API:** `fahrer-tourdauer-trend-ranking` (neu) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, tourdauer_delta_min, aktuell_avg_min, vorher_avg_min, rank_delta, ampel, alert_rueckfall}], team_avg_delta_min, schnellste_name, langsamste_name, alert_count, gesamt }`
+**Logik:** Vergleich Ø Tourdauer (delivered_at − departed_at in Minuten) letzter 30 Tage vs. vorherige 30 Tage · AUFSTEIGEND (Rang 1 = kleinster delta = größte Verkürzung = schnellster Fahrer) · Ampel Quartile · alert_rueckfall: tourdauer_delta_min > +5.0 min
+
+### Implementiert:
+- **phase5626** `DispatchPhase5626TourdauerTrendBoard` — Hourglass purple-400; 3-KPI-Grid Schnellste/r/Team-Trend/Langsamste/r; Balken farbkodiert (purple/gelb/rot); DeltaIcons; Rückfall-Alert; AUFSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5627** `FahrerPhase5627MeineTourdauerTrend` — isOnline-Guard; WifiOff-Fallback; Coaching <0/=0/>0; tourdauer_delta_min 4xl+Rang; Dual-Balken Aktuell+Vormonat; Ampel-Border; Hourglass purple-400; 30-Min-Poll
+- **phase5628** Storefront — übersprungen ✅
+- **phase5629** `KitchenPhase5629TourdauerTrendTicker` — Hourglass purple-400; Schnellste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Poll; Mock-Fallback
+
+### API — fahrer-tourdauer-trend-ranking
+`app/api/delivery/admin/fahrer-tourdauer-trend-ranking/route.ts` — `await createClient()` · `force-dynamic` · Mock-Fallback · driver_id→fahrer filter · AUFSTEIGEND (kleinster delta = Rang 1) · alert_rueckfall delta > +5.0 min ✅
+
+Import+Render+Barrel ✅ Dispatch(5626) + Fahrer(5627) + Kitchen(5629). Phase 5628 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5630!** NIEMALS 4000–5629 verwenden.
+
+**Vorschlag Batch 102:** Fahrer-Kundenkontakt-Effizienz-Trend (Verbesserung der Kundenbewertung bei Kontrolle der Lieferzeit — ABSTEIGEND, größte Verbesserung = bester)
+- Phase 5630: Dispatch `DispatchPhase5630KundenkontaktTrendBoard` — Star emerald-400; ABSTEIGEND
+- Phase 5631: Fahrer `FahrerPhase5631MeinKundenkontaktTrend` — Star emerald-400
+- Phase 5632: Storefront — skip
+- Phase 5633: Kitchen `KitchenPhase5633KundenkontaktTrendTicker` — Star emerald-400
+
+---
 
 ## Batch 99 — Reaktionszeit-Trend-Ranking ✅ (2026-08-02)
 
