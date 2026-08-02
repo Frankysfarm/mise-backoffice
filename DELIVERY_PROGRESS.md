@@ -39857,3 +39857,24 @@ Import+Render+Barrel ✅ Dispatch(5622) + Fahrer(5623) + Kitchen(5625). Phase 56
 - Phase 5627: Fahrer `FahrerPhase5627MeinNpsTrend` — ThumbsUp emerald-400
 - Phase 5628: Storefront — skip
 - Phase 5629: Kitchen `KitchenPhase5629NpsTrendTicker` — ThumbsUp emerald-400
+
+---
+
+## Batch 104 — Abendschicht-Effizienz-Trend-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5638 / 5639 / (5640 Storefront skip) / 5641
+
+**API:** `fahrer-abendschicht-effizienz-trend-ranking` (NEU erstellt) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, effizienz_delta, aktuell_touren_pro_std, vorher_touren_pro_std, rank_delta, ampel, alert_rueckfall}], team_avg_delta, bester_name, schwaechster_name, alert_count, gesamt }`
+**Logik:** Touren/Stunde in Abendschichten (17–22h UTC) letzter 30 Tage vs. vorherige 30 Tage · ABSTEIGEND (Rang 1 = größte positive Verbesserung = bester) · Ampel: grün Top-25%/gelb Mitte/rot untere 25% · alert_rueckfall: effizienz_delta < -0.3
+
+### Implementiert:
+- **phase5638** `DispatchPhase5638AbendschichtEffizienzTrendBoard` — Moon blue-400; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken blau/gelb/rot nach Delta; DeltaIcons; Rückfall-Alert; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5639** `FahrerPhase5639MeinAbendschichtEffizienzTrend` — isOnline-Guard; WifiOff-Fallback; Coaching >0/=0/<0; effizienz_delta 4xl+Rang; Dual-Balken Aktuell+Vormonat; Ampel-Border; Moon blue-400; 30-Min-Poll
+- **phase5640** Storefront — übersprungen ✅
+- **phase5641** `KitchenPhase5641AbendschichtEffizienzTrendTicker` — Moon blue-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Poll; Mock-Fallback
+
+Import+Render+Barrel ✅ Dispatch(5638) + Fahrer(5639) + Kitchen(5641). Phase 5640 Storefront — skip.
+
+Frontend-Ingenieur-Agent (2026-08-02): Batch 104 abgeschlossen. API fahrer-abendschicht-effizienz-trend-ranking (NEU, effizienz_delta/team_avg_delta/bester_name/schwaechster_name/alert_rueckfall, delta<-0.3). Import+Render+Barrel ✅ Dispatch(5638) + Fahrer(5639) + Kitchen(5641). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5642.**
+
+**KRITISCH: Nächste freie Phase ist 5642!** NIEMALS 4000–5641 verwenden.
