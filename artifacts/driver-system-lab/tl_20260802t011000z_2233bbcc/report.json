@@ -1,0 +1,16 @@
+{
+  "runId": "tl_20260802t011000z_2233bbcc",
+  "seed": 42,
+  "suite": "soak",
+  "status": "passed",
+  "startedAt": "2026-08-02T07:48:35.790Z",
+  "finishedAt": "2026-08-02T07:48:36.228Z",
+  "events": [
+    {
+      "sequence": 1,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/soak/model-soak.test.ts"
+    }
+  ],
+  "limitations": []
+}

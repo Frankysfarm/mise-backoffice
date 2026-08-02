@@ -41,5 +41,8 @@ Updated: 2026-08-01
 | `tests/driver-system-lab/adapters/**` | TL-G4 comparison | review_dispatch_or | exclusive | Normalized production-vs-oracle adapter only; oracle remains independently implemented. |
 | `tests/driver-system-lab/scenarios/executable/**` | TL-G1 executable registry | review_arch_security | exclusive | Descriptor-to-handler binding and deterministic execution metadata; no production calls. |
 | `tests/driver-system-lab/fixtures/*concurrency*` | TL-G0/TL-G1 DB adversarial evidence | review_adversarial_sre | exclusive | Disposable PostgreSQL two-session/collision/cleanup tests only. |
+| `tests/driver-system-lab/browser-e2e/**` | TL-G2 real-browser harness | review_arch_security | exclusive | Real Chromium clicks/screenshots/trace against test-only harness; production UI status must remain explicit. |
+| `tests/driver-system-lab/chaos/integration/**` | TL-G6 integrated chaos | review_adversarial_sre | exclusive | Disposable PostgreSQL/process fault integration only. |
+| `tests/driver-system-lab/adapters/captured/**` | TL-G4 captured production comparison | review_dispatch_or | exclusive | Invoke pure production optimizer, normalize result and compare independently; no production side effects. |
 
 Ownership must be updated before another task edits a listed scope.
