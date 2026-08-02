@@ -15,21 +15,15 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { canonicalizeStorefrontItems, validateRequestedItems } from '@/lib/delivery/storefront-order-catalog';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-interface OrderItem {
-  id: string;
-  name: string;
-  qty: number;
-  price: number;
-}
-
 export async function POST(req: NextRequest) {
   let body: {
     location_id?: string;
-    items?: OrderItem[];
+    items?: unknown;
     customer?: { name?: string; phone?: string; address?: string };
     type?: string;
     payment_method?: string;
@@ -43,13 +37,25 @@ export async function POST(req: NextRequest) {
 
   const { location_id, items, customer, type, payment_method } = body;
 
-  if (!location_id || !items?.length || !customer?.name || !customer?.phone) {
+  if (!location_id || !customer?.name || !customer?.phone) {
     return NextResponse.json({ error: 'location_id, items, customer.name und customer.phone sind erforderlich' }, { status: 400 });
   }
 
   const sb = createServiceClient();
+  const requested = validateRequestedItems(items);
+  if (!requested.ok) return NextResponse.json({ error: requested.reason }, { status: 400 });
 
-  const zwischensumme = items.reduce((s, i) => s + i.price * i.qty, 0);
+  const { data: catalogRows, error: catalogError } = await sb
+    .from('menu_items')
+    .select('id,name,preis,location_id,verfuegbar')
+    .in('id', requested.items.map((item) => item.id))
+    .eq('location_id', location_id)
+    .eq('verfuegbar', true);
+  if (catalogError) return NextResponse.json({ error: 'Artikelkatalog konnte nicht geprüft werden' }, { status: 500 });
+  const canonical = canonicalizeStorefrontItems(requested.items, (catalogRows ?? []) as any[], location_id);
+  if (!canonical.ok) return NextResponse.json({ error: canonical.reason }, { status: 400 });
+
+  const zwischensumme = canonical.items.reduce((s, i) => s + i.price * i.qty, 0);
 
   const { data: order, error: orderErr } = await sb
     .from('customer_orders')
@@ -73,7 +79,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: orderErr?.message ?? 'Bestellung konnte nicht erstellt werden' }, { status: 500 });
   }
 
-  const rows = items.map((i, idx) => ({
+  const rows = canonical.items.map((i, idx) => ({
     order_id: (order as { id: string }).id,
     location_id,
     menu_item_id: i.id,

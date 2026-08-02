@@ -48,6 +48,7 @@ export function StationDisplay({
   const [audio, setAudio] = useState(station.sound_enabled);
   const prevCount = useRef(initialItems.length);
   const [tick, setTick] = useState(0);
+  const [mutationError, setMutationError] = useState<string | null>(null);
 
   // Ticker für Wartezeit-Anzeige
   useEffect(() => {
@@ -85,8 +86,16 @@ export function StationDisplay({
   }, [items.length, audio]);
 
   async function advance(itemId: string, to: 'in_arbeit' | 'fertig') {
-    await supabase.from('order_items').update({ station_status: to }).eq('id', itemId);
-    if (to === 'fertig') setItems((arr) => arr.filter((i) => i.id !== itemId));
+    setMutationError(null);
+    try {
+      const { error } = await supabase.from('order_items').update({ station_status: to }).eq('id', itemId);
+      if (error) throw error;
+      setItems((arr) => to === 'fertig'
+        ? arr.filter((i) => i.id !== itemId)
+        : arr.map((item) => item.id === itemId ? { ...item, station_status: to } : item));
+    } catch {
+      setMutationError('Status konnte nicht gespeichert werden. Bitte erneut versuchen.');
+    }
   }
 
   // Gruppiert nach Order
@@ -133,6 +142,11 @@ export function StationDisplay({
 
       {/* Items */}
       <main className="p-4">
+        {mutationError && (
+          <div data-testid="kitchen-mutation-error" role="alert" className="mb-4 rounded-xl border border-red-500 bg-red-950/40 p-3 text-sm font-semibold text-red-100">
+            {mutationError}
+          </div>
+        )}
         {orderBlocks.length === 0 ? (
           <div className="min-h-[60vh] grid place-items-center text-white/40">
             <div className="text-center">

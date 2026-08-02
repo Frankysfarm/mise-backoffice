@@ -23,7 +23,8 @@ test("real Chromium advances an item in the production Kitchen component", async
   const page = await browserContext.newPage()
   const external: string[] = []
   const pageErrors: string[] = []
-  const mutations: unknown[] = []
+  const mutations: Array<{ pathname: string; search: string; body: unknown }> = []
+  let finishAttempts = 0
   page.on("pageerror", (error) => pageErrors.push(error.stack ?? error.message))
   await page.routeWebSocket("**/*", (socket) => {
     const target = new URL(socket.url())
@@ -37,7 +38,14 @@ test("real Chromium advances an item in the production Kitchen component", async
       external.push(target.origin)
       await route.abort("blockedbyclient")
     } else if (target.origin === mockedSupabaseOrigin) {
-      if (request.method() === "PATCH") mutations.push(request.postDataJSON())
+      if (request.method() === "PATCH") {
+        const body = request.postDataJSON()
+        mutations.push({ pathname: target.pathname, search: target.search, body })
+        if ((body as { station_status?: string }).station_status === "fertig" && finishAttempts++ === 0) {
+          await route.fulfill({ status: 500, headers: { "access-control-allow-origin": "*" }, contentType: "application/json", body: JSON.stringify({ message: "synthetic write failure" }) })
+          return
+        }
+      }
       await route.fulfill({ status: 200, headers: { "access-control-allow-origin": "*", "content-profile": "public" }, contentType: "application/json", body: "[]" })
     } else {
       await route.continue()
@@ -49,8 +57,15 @@ test("real Chromium advances an item in the production Kitchen component", async
     await page.waitForLoadState("networkidle")
     await page.getByTestId("kitchen-start-testlab-kitchen-item-1").click()
     await page.getByTestId("kitchen-finish-testlab-kitchen-item-1").click()
+    await page.getByTestId("kitchen-mutation-error").waitFor()
+    await page.getByTestId("kitchen-order-testlab-kitchen-order-1").waitFor()
+    await page.getByTestId("kitchen-finish-testlab-kitchen-item-1").click()
     await page.getByText("Alles erledigt.", { exact: true }).waitFor()
-    assert.deepEqual(mutations, [{ station_status: "in_arbeit" }, { station_status: "fertig" }])
+    assert.deepEqual(mutations, [
+      { pathname: "/rest/v1/order_items", search: "?id=eq.testlab-kitchen-item-1", body: { station_status: "in_arbeit" } },
+      { pathname: "/rest/v1/order_items", search: "?id=eq.testlab-kitchen-item-1", body: { station_status: "fertig" } },
+      { pathname: "/rest/v1/order_items", search: "?id=eq.testlab-kitchen-item-1", body: { station_status: "fertig" } },
+    ])
     assert.deepEqual(external, [])
     assert.deepEqual(pageErrors, [])
     await page.screenshot({ path: screenshot, fullPage: true })

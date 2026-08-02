@@ -1,0 +1,116 @@
+{
+  "runId": "tl_20260802t150000z_57f0a004",
+  "seed": 570005,
+  "suite": "full",
+  "status": "passed",
+  "startedAt": "2026-08-02T12:03:56.195Z",
+  "finishedAt": "2026-08-02T12:03:57.807Z",
+  "events": [
+    {
+      "sequence": 1,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/adapters/captured/captured-adaptive-comparison.test.ts"
+    },
+    {
+      "sequence": 2,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/adapters/production-oracle-comparison.test.ts"
+    },
+    {
+      "sequence": 3,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/browser-e2e/dashboard.app.test.ts"
+    },
+    {
+      "sequence": 4,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/browser-e2e/driver-harness.smoke.test.ts"
+    },
+    {
+      "sequence": 5,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/browser-e2e/kitchen.component.test.ts"
+    },
+    {
+      "sequence": 6,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/browser-e2e/storefront.component.test.ts"
+    },
+    {
+      "sequence": 7,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/chaos/controller.test.ts"
+    },
+    {
+      "sequence": 8,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/chaos/integration/postgres-recovery.test.ts"
+    },
+    {
+      "sequence": 9,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/fixtures/postgres-factory-concurrency.test.ts"
+    },
+    {
+      "sequence": 10,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/fixtures/postgres-factory.test.ts"
+    },
+    {
+      "sequence": 11,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/fixtures/scenario-compiler.test.ts"
+    },
+    {
+      "sequence": 12,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/invariants/monitor.test.ts"
+    },
+    {
+      "sequence": 13,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/oracle/dispatch-oracle.test.ts"
+    },
+    {
+      "sequence": 14,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/orchestrator/single-order.test.ts"
+    },
+    {
+      "sequence": 15,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/scenarios/catalog.test.ts"
+    },
+    {
+      "sequence": 16,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/scenarios/executable/registry.test.ts"
+    },
+    {
+      "sequence": 17,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/scenarios/schema.test.ts"
+    },
+    {
+      "sequence": 18,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/scenarios/storefront-order-catalog.test.ts"
+    },
+    {
+      "sequence": 19,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/soak/model-soak.test.ts"
+    },
+    {
+      "sequence": 20,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/support/environment.test.ts"
+    },
+    {
+      "sequence": 21,
+      "kind": "test-file",
+      "testFile": "tests/driver-system-lab/ui/ui-actor.test.ts"
+    }
+  ],
+  "limitations": []
+}
