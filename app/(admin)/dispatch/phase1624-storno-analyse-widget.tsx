@@ -58,7 +58,7 @@ const MOCK_DATA: StornoAnalyseData = {
   ],
 };
 
-const MOCK: ApiResponse = { ok: true, data: MOCK_DATA, generatedAt: new Date().toISOString() };
+const MOCK: ApiResponse = { ok: true, data: MOCK_DATA, generatedAt: '' };
 
 function rateColor(rate: number): string {
   if (rate >= 12) return 'bg-red-500';
@@ -83,8 +83,14 @@ export function DispatchPhase1624StornoAnalyseWidget({ locationId }: Props) {
     try {
       const res = await fetch(`/api/delivery/admin/storno-analyse?location_id=${locationId}&days=30`);
       if (!res.ok) throw new Error('not ok');
-      const json = await res.json();
-      setApiData(json);
+      const json: unknown = await res.json();
+      const candidate = json as ApiResponse;
+      setApiData(candidate && typeof candidate === 'object'
+        && candidate.data
+        && Array.isArray(candidate.data.byHour)
+        && Array.isArray(candidate.data.byZone)
+        ? candidate
+        : MOCK);
     } catch {
       setApiData(MOCK);
     } finally {
@@ -202,7 +208,9 @@ export function DispatchPhase1624StornoAnalyseWidget({ locationId }: Props) {
           )}
 
           <div className="text-[9px] text-stone-400">
-            Stand: {new Date((apiData ?? MOCK).generatedAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} · Aktualisierung alle 30 Min
+            Stand: {(apiData ?? MOCK).generatedAt
+              ? new Date((apiData ?? MOCK).generatedAt).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+              : '--:--'} · Aktualisierung alle 30 Min
           </div>
         </div>
       )}

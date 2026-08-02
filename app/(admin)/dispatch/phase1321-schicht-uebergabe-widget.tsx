@@ -90,7 +90,13 @@ export function DispatchPhase1321SchichtUebergabeWidget({ locationId }: Props) {
     try {
       const res = await fetch(`/api/delivery/admin/schicht-uebergabe?location_id=${locationId}`);
       if (!res.ok) throw new Error('fetch failed');
-      setData(await res.json());
+      const next: unknown = await res.json();
+      setData(next && typeof next === 'object'
+        && Array.isArray((next as UebergabeData).aktive_fahrer)
+        && Array.isArray((next as UebergabeData).offene_bestellungen)
+        && Array.isArray((next as UebergabeData).laufende_touren)
+        ? next as UebergabeData
+        : buildMock());
     } catch {
       setData(buildMock());
     } finally {

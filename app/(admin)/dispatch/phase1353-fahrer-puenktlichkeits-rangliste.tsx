@@ -56,8 +56,11 @@ export function DispatchPhase1353FahrerPuenktlichkeitsRangliste({ locationId }: 
     try {
       const res = await fetch(`/api/delivery/admin/fahrer-puenktlichkeit?location_id=${locationId}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json: ApiData = await res.json();
-      setData(json);
+      const json: unknown = await res.json();
+      if (!json || typeof json !== 'object' || !Array.isArray((json as ApiData).rangliste)) {
+        throw new Error('Ungültige API-Antwort');
+      }
+      setData(json as ApiData);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Fehler');
     } finally {
