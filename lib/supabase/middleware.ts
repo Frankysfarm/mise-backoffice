@@ -38,6 +38,7 @@ export async function updateSession(request: NextRequest) {
     pathname === '/login' ||
     pathname === '/test-lab' ||
     pathname === '/test-lab/actors/storefront' ||
+    pathname === '/test-lab/actors/kitchen' ||
     pathname === '/api/test-lab/scenarios' ||
     pathname === '/delivery-progress' ||
     pathname === '/start' ||

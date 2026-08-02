@@ -26,12 +26,14 @@ const LOAD_CONFIG: Record<LoadLevel, { emoji: string; label: string; color: stri
 function validApiData(value: unknown): value is ApiData {
   if (!value || typeof value !== 'object') return false;
   const candidate = value as Partial<ApiData>;
-  return Number.isFinite(candidate.eta_min)
+  return Number.isInteger(candidate.eta_min)
     && candidate.eta_min! >= 0
+    && candidate.eta_min! <= 1440
     && (candidate.load_level === 'low' || candidate.load_level === 'normal' || candidate.load_level === 'high')
-    && Number.isFinite(candidate.active_drivers)
+    && Number.isInteger(candidate.active_drivers)
     && candidate.active_drivers! >= 0
-    && (candidate.queue_position === null || (Number.isInteger(candidate.queue_position) && candidate.queue_position! >= 0));
+    && candidate.active_drivers! <= 10_000
+    && (candidate.queue_position === null || (Number.isInteger(candidate.queue_position) && candidate.queue_position! >= 0 && candidate.queue_position! <= 100_000));
 }
 
 export function BissPhase2310LiveEtaTrackingHub({
@@ -50,7 +52,7 @@ export function BissPhase2310LiveEtaTrackingHub({
         const res = await fetch(`/api/delivery/public/eta?location_id=${locationId}`);
         if (res.ok && active) {
           const payload: unknown = await res.json();
-          setData(validApiData(payload) ? payload : MOCK);
+          if (active) setData(validApiData(payload) ? payload : MOCK);
         }
       } catch {
         if (active) setData(MOCK);
@@ -76,7 +78,7 @@ export function BissPhase2310LiveEtaTrackingHub({
 
       <div className="px-4 pb-4 pt-2 space-y-3">
         <div className="flex items-end gap-2">
-          <span className="text-5xl font-black tabular-nums leading-none">{d.eta_min}</span>
+          <span data-testid="storefront-live-eta-minutes" className="text-5xl font-black tabular-nums leading-none">{d.eta_min}</span>
           <span className="text-lg font-semibold opacity-80 mb-1">Min.</span>
           <span className="ml-auto text-xs opacity-70 mb-1 text-right">geschätzte<br />Lieferzeit</span>
         </div>
