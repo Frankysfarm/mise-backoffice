@@ -1496,6 +1496,7 @@ import { DispatchPhase5606BewertungsTrendBoard } from './phase5606-bewertungs-tr
 import { DispatchPhase5610TrinkgeldTrendBoard } from './phase5610-trinkgeld-trend-board';
 import { DispatchPhase5614UmsatzTrendBoard } from './phase5614-umsatz-trend-board';
 import { DispatchPhase5618ReaktionszeitTrendBoard } from './phase5618-reaktionszeit-trend-board';
+import { DispatchPhase5622GesamtleistungsTrendBoard } from './phase5622-gesamtleistungs-trend-board';
 
 type Driver = {
   employee_id: string;
@@ -5879,6 +5880,8 @@ export function DispatchBoard({
           <DispatchPhase5614UmsatzTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5618: Reaktionszeit-Trend-Board — TrendingDown cyan-400; reaktionszeit_delta_sek AUFSTEIGEND Rang 1=größte Verkürzung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
           <DispatchPhase5618ReaktionszeitTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5622: Gesamtleistungs-Score-Trend-Board — Trophy violet; score_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
+          <DispatchPhase5622GesamtleistungsTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14978,3 +14981,5 @@ export { DispatchPhase5610TrinkgeldTrendBoard } from './phase5610-trinkgeld-tren
 // Phase 5614 — Umsatz-Trend-Board (TrendingUp emerald-400; umsatz_delta ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5614UmsatzTrendBoard } from './phase5614-umsatz-trend-board';
 export { DispatchPhase5618ReaktionszeitTrendBoard } from './phase5618-reaktionszeit-trend-board';
+// Phase 5622 — Gesamtleistungs-Score-Trend-Board (Trophy violet; score_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5622GesamtleistungsTrendBoard } from './phase5622-gesamtleistungs-trend-board';

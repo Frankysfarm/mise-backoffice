@@ -1385,6 +1385,7 @@ import { FahrerPhase5607MeinBewertungsTrend } from './phase5607-mein-bewertungs-
 import { FahrerPhase5611MeinTrinkgeldTrend } from './phase5611-mein-trinkgeld-trend';
 import { FahrerPhase5615MeinUmsatzTrend } from './phase5615-mein-umsatz-trend';
 import { FahrerPhase5619MeineReaktionszeitTrend } from './phase5619-meine-reaktionszeit-trend';
+import { FahrerPhase5623MeinGesamtleistungsTrend } from './phase5623-mein-gesamtleistungs-trend';
 import { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
 import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
@@ -7964,6 +7965,8 @@ export function FahrerApp({
           <FahrerPhase5615MeinUmsatzTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5619: Meine Reaktionszeit-Trend — TrendingDown cyan-400; reaktionszeit_delta_sek AUFSTEIGEND Rang 1=größte Verkürzung=bester; Coaching <0/=0/>0; Dual-Balken Aktuell+Vormonat; Ampel-Border */}
           <FahrerPhase5619MeineReaktionszeitTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5623: Mein Gesamtleistungs-Score-Trend — Trophy violet; score_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border */}
+          <FahrerPhase5623MeinGesamtleistungsTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />
@@ -12823,3 +12826,5 @@ export { FahrerPhase5611MeinTrinkgeldTrend } from './phase5611-mein-trinkgeld-tr
 // Phase 5615 — Mein Umsatz-Trend (TrendingUp emerald-400; umsatz_delta ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 4xl+Rang; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5615MeinUmsatzTrend } from './phase5615-mein-umsatz-trend';
 export { FahrerPhase5619MeineReaktionszeitTrend } from './phase5619-meine-reaktionszeit-trend';
+// Phase 5623 — Mein Gesamtleistungs-Score-Trend (Trophy violet; score_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 4xl+Rang; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5623MeinGesamtleistungsTrend } from './phase5623-mein-gesamtleistungs-trend';
