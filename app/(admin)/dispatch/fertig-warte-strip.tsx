@@ -31,9 +31,10 @@ function formatWait(fertigAm: string | null, now: number): string {
 }
 
 export function DispatchFertigWarteStrip({ orders }: { orders: ReadyOrder[] }) {
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
+    setNow(Date.now());
     const iv = setInterval(() => setNow(Date.now()), 10_000);
     return () => clearInterval(iv);
   }, []);
@@ -42,7 +43,7 @@ export function DispatchFertigWarteStrip({ orders }: { orders: ReadyOrder[] }) {
   if (fertig.length === 0) return null;
 
   const maxWaitMs = Math.max(
-    ...fertig.map((o) => (o.fertig_am ? now - new Date(o.fertig_am).getTime() : 0)),
+    ...fertig.map((o) => (o.fertig_am && now !== null ? now - new Date(o.fertig_am).getTime() : 0)),
   );
   const criticalCount = fertig.filter((o) => getWaitLevel(o.fertig_am) === 'critical').length;
   const maxWaitMin = Math.floor(maxWaitMs / 60_000);
@@ -71,14 +72,14 @@ export function DispatchFertigWarteStrip({ orders }: { orders: ReadyOrder[] }) {
         {fertig
           .slice()
           .sort((a, b) => {
-            const aMs = a.fertig_am ? now - new Date(a.fertig_am).getTime() : 0;
-            const bMs = b.fertig_am ? now - new Date(b.fertig_am).getTime() : 0;
+            const aMs = a.fertig_am && now !== null ? now - new Date(a.fertig_am).getTime() : 0;
+            const bMs = b.fertig_am && now !== null ? now - new Date(b.fertig_am).getTime() : 0;
             return bMs - aMs;
           })
           .slice(0, 6)
           .map((order) => {
             const level = getWaitLevel(order.fertig_am);
-            const wait = formatWait(order.fertig_am, now);
+            const wait = now === null ? '--:--' : formatWait(order.fertig_am, now);
             return (
               <div
                 key={order.id}

@@ -73,8 +73,9 @@ export function DispatchPhase963SchichtKapazitaetsPlaner({ locationId }: Props) 
   const [open, setOpen] = useState(true);
   const [fahrer, setFahrer] = useState<FahrerSlot[]>(MOCK_FAHRER);
   const [neuerFahrerIdx, setNeuerFahrerIdx] = useState(0);
+  const [prognose, setPrognose] = useState<StundenPrognose[]>([]);
 
-  const prognose = berechnePrognose(fahrer);
+  useEffect(() => setPrognose(berechnePrognose(fahrer)), [fahrer]);
   const aktivCount = fahrer.filter(f => f.typ !== 'frei').length;
 
   const fahrerHinzufuegen = useCallback(() => {

@@ -36,7 +36,7 @@ export function DispatchOffeneWarteschlange({ locationId }: Props) {
   const [items, setItems] = useState<QueueItem[]>([]);
   const [health, setHealth] = useState<QueueHealth | null>(null);
   const [loading, setLoading] = useState(true);
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
 
   const load = () => {
     if (!locationId) return;
@@ -155,7 +155,9 @@ export function DispatchOffeneWarteschlange({ locationId }: Props) {
 
       <div className="px-4 py-2 border-t bg-muted/20">
         <span className="text-[10px] text-muted-foreground">
-          Aktualisiert {lastRefresh.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} · alle 30 Sek
+          Aktualisiert {lastRefresh
+            ? lastRefresh.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            : '--:--:--'} · alle 30 Sek
         </span>
       </div>
     </Card>

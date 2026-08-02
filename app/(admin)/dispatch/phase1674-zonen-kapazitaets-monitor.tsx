@@ -101,10 +101,12 @@ export function DispatchPhase1674ZonenKapazitaetsMonitor({ locationId }: Props) 
 
   return (
     <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
-      <button
-        className="flex w-full items-center gap-2 px-4 py-2.5 border-b hover:bg-muted/40 transition"
-        onClick={() => setOpen(v => !v)}
-      >
+      <div className="flex w-full items-center border-b px-4 py-2.5 hover:bg-muted/40 transition">
+        <button
+          type="button"
+          className="flex min-w-0 flex-1 items-center gap-2 text-left"
+          onClick={() => setOpen(v => !v)}
+        >
         <MapPin className="h-4 w-4 text-emerald-600 shrink-0" />
         <span className="text-xs font-bold uppercase tracking-wider text-foreground">
           Zonen-Kapazitäts-Monitor
@@ -119,14 +121,17 @@ export function DispatchPhase1674ZonenKapazitaetsMonitor({ locationId }: Props) 
             Gesamt {data.gesamt_auslastung_pct}%
           </span>
         )}
+        </button>
         <button
+          type="button"
           className="ml-auto p-1 rounded hover:bg-muted transition"
-          onClick={e => { e.stopPropagation(); load(); }}
+          onClick={() => load()}
           title="Aktualisieren"
+          aria-label="Zonen-Kapazitäts-Monitor aktualisieren"
         >
           <RefreshCw className={cn('h-3 w-3 text-muted-foreground', loading && 'animate-spin')} />
         </button>
-      </button>
+      </div>
 
       {open && (
         <div className="p-3 space-y-3">

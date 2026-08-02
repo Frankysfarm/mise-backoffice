@@ -94,9 +94,11 @@ export function DispatchPhase1643SchichtUebergabeCockpitWidget({ locationId }: P
 
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
-      <button
+      <div className="w-full flex items-center px-4 py-3 hover:bg-muted/50 transition">
+        <button
+        type="button"
         onClick={() => setCollapsed((c) => !c)}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition"
+        className="min-w-0 flex flex-1 items-center justify-between text-left"
       >
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold">Schicht-Übergabe-Cockpit</span>
@@ -116,16 +118,19 @@ export function DispatchPhase1643SchichtUebergabeCockpitWidget({ locationId }: P
               vor {Math.floor((Date.now() - lastFetch) / 60_000)} Min
             </span>
           )}
-          <button
-            onClick={(e) => { e.stopPropagation(); fetch(); }}
-            className="rounded p-1 hover:bg-muted transition"
-            title="Aktualisieren"
-          >
-            <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
-          </button>
           {collapsed ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronUp className="h-4 w-4 text-muted-foreground" />}
         </div>
-      </button>
+        </button>
+        <button
+          type="button"
+          onClick={() => fetch()}
+          className="ml-2 rounded p-1 hover:bg-muted transition"
+          title="Aktualisieren"
+          aria-label="Schicht-Übergabe-Cockpit aktualisieren"
+        >
+          <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
+        </button>
+      </div>
 
       {!collapsed && (
         <div className="px-4 pb-4 space-y-4 border-t border-border pt-3">

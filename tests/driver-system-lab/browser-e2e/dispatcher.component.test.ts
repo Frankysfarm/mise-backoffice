@@ -23,8 +23,10 @@ test('real Chromium assigns through the production Dispatcher component fail-clo
   const page = await browserContext.newPage();
   const external: string[] = [];
   const pageErrors: string[] = [];
+  const consoleErrors: string[] = [];
   const attempts: Array<Record<string, unknown>> = [];
   page.on('pageerror', (error) => pageErrors.push(error.stack ?? error.message));
+  page.on('console', (message) => { if (message.type() === 'error') consoleErrors.push(message.text()); });
   page.on('dialog', (dialog) => dialog.dismiss());
   await page.routeWebSocket('**/*', (socket) => {
     const target = new URL(socket.url()); if (!allowedWs.has(target.origin)) external.push(target.origin); socket.close();
@@ -61,7 +63,9 @@ test('real Chromium assigns through the production Dispatcher component fail-clo
       }
       await route.fulfill({ status: 200, headers: cors, contentType: 'application/json', body: '[]' }); return;
     }
-    if (target.pathname.startsWith('/api/')) { await route.abort('blockedbyclient'); return; }
+    if (target.pathname.startsWith('/api/')) {
+      await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }); return;
+    }
     await route.continue();
   });
   try {
@@ -72,9 +76,8 @@ test('real Chromium assigns through the production Dispatcher component fail-clo
       return element ? Object.keys(element).some((key) => key.startsWith('__reactProps')) : false;
     });
     await page.waitForTimeout(1_000);
-    assert.ok(pageErrors.some((message) => message.includes('hydrat') || message.includes('server-rendered HTML')),
-      'full production board hydration defect must remain explicit evidence');
-    pageErrors.length = 0;
+    assert.deepEqual(pageErrors, [], 'full production board must start without browser exceptions');
+    assert.deepEqual(consoleErrors, [], 'full production board must start without console errors');
     await page.getByTestId('dispatch-order-b5000000-0000-4000-8000-000000000001').click();
     await page.getByText(/1 ausgewählt/).waitFor();
     const assign = page.getByTestId('dispatch-assign-b1000000-0000-4000-8000-000000000001');
@@ -99,6 +102,7 @@ test('real Chromium assigns through the production Dispatcher component fail-clo
     assert.match(String(attempts[0].action_id), /^[0-9a-f-]{36}$/i);
     assert.deepEqual(external, []);
     assert.deepEqual(pageErrors, [], 'manual assignment interaction must add no browser exception');
+    assert.deepEqual(consoleErrors, [], 'manual assignment interaction must add no console error');
     await page.screenshot({ path: screenshot, fullPage: true });
   } finally {
     await browserContext.tracing.stop({ path: trace }); await browserContext.close(); await browser.close();

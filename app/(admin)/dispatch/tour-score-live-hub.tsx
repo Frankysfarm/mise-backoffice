@@ -153,7 +153,9 @@ function mapApiData(raw: unknown): TourEntry[] {
 export function DispatchTourScoreLiveHub({ locationId }: { locationId: string | null }) {
   const [tours, setTours] = useState<TourEntry[]>(MOCK_TOURS);
   const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  // Keep the server render and the first client render byte-identical. The
+  // actual clock is installed only after a successful client-side refresh.
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const fetchTours = useCallback(async () => {
     if (!locationId) {
@@ -239,7 +241,9 @@ export function DispatchTourScoreLiveHub({ locationId }: { locationId: string | 
           </span>
         </div>
         <span className="text-[10px] text-stone-400 tabular-nums">
-          {lastUpdated.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+          {lastUpdated
+            ? lastUpdated.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            : '--:--:--'}
         </span>
       </div>
     </div>

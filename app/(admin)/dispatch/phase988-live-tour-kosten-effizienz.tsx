@@ -81,8 +81,10 @@ export function DispatchPhase988LiveTourKostenEffizienz({ locationId }: Props) {
       try {
         const res = await fetch(`/api/delivery/admin/tour-kosten-live?location_id=${locationId}`);
         if (res.ok) {
-          const json = await res.json() as ApiResponse;
-          setData(json);
+          const json: unknown = await res.json();
+          setData(json && typeof json === 'object' && Array.isArray((json as ApiResponse).touren)
+            ? json as ApiResponse
+            : MOCK);
         } else {
           setData(MOCK);
         }

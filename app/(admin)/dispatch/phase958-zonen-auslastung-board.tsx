@@ -63,7 +63,12 @@ export function DispatchPhase958ZonenAuslastungBoard({ locationId }: Props) {
     const load = async () => {
       try {
         const res = await fetch(`/api/delivery/admin/zonen-auslastung-live?location_id=${locationId}`);
-        if (res.ok) setData(await res.json());
+        if (res.ok) {
+          const next: unknown = await res.json();
+          if (next && typeof next === 'object' && Array.isArray((next as ApiResponse).zonen)) {
+            setData(next as ApiResponse);
+          }
+        }
       } catch { /* ignore */ } finally {
         setLoading(false);
       }

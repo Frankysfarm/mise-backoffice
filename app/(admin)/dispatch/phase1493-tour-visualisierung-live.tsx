@@ -92,6 +92,9 @@ export function DispatchPhase1493TourVisualisierungLive({ locationId }: Props) {
   const [open, setOpen] = useState(true);
   const [tours, setTours] = useState<Tour[]>(buildMockTours);
   const [tick, setTick] = useState(0);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => setHydrated(true), []);
 
   // Live countdown tick every 10s
   useEffect(() => {
@@ -235,7 +238,7 @@ export function DispatchPhase1493TourVisualisierungLive({ locationId }: Props) {
                       {nextStop.address ?? '–'}
                     </span>
                     <span className="ml-auto font-black text-indigo-600 dark:text-indigo-400 tabular-nums">
-                      {countdownMin(nextStop.estimated_arrival)}
+                      {hydrated ? countdownMin(nextStop.estimated_arrival) : '--:-- Min'}
                     </span>
                   </div>
                 )}
