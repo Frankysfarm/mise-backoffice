@@ -1428,6 +1428,7 @@ import { KitchenPhase5621ReaktionszeitTrendTicker } from './phase5621-reaktionsz
 import { KitchenPhase5625GesamtleistungsTrendTicker } from './phase5625-gesamtleistungs-trend-ticker';
 import { KitchenPhase5629TourdauerTrendTicker } from './phase5629-tourdauer-trend-ticker';
 import { KitchenPhase5633KundenkontaktTrendTicker } from './phase5633-kundenkontakt-trend-ticker';
+import { KitchenPhase5637FruehschichtPuenktlichkeitsTrendTicker } from './phase5637-fruehschicht-puenktlichkeit-trend-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5409,6 +5410,8 @@ export function KitchenBoard({
       <KitchenPhase5629TourdauerTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5633: Kundenkontakt-Effizienz-Trend-Ticker — Star emerald-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling */}
       <KitchenPhase5633KundenkontaktTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5637: Frühschicht-Pünktlichkeits-Trend-Ticker — Sunrise orange-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling */}
+      <KitchenPhase5637FruehschichtPuenktlichkeitsTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}
       <KitchenPhase5543SmartTimingCountdownV61 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
@@ -13565,3 +13568,5 @@ export { KitchenPhase5625GesamtleistungsTrendTicker } from './phase5625-gesamtle
 export { KitchenPhase5629TourdauerTrendTicker } from './phase5629-tourdauer-trend-ticker';
 // Phase 5633 — Kundenkontakt-Effizienz-Trend-Ticker (Star emerald-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5633KundenkontaktTrendTicker } from './phase5633-kundenkontakt-trend-ticker';
+// Phase 5637 — Frühschicht-Pünktlichkeits-Trend-Ticker (Sunrise orange-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5637FruehschichtPuenktlichkeitsTrendTicker } from './phase5637-fruehschicht-puenktlichkeit-trend-ticker';

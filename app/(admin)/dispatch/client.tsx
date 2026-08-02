@@ -1499,6 +1499,7 @@ import { DispatchPhase5618ReaktionszeitTrendBoard } from './phase5618-reaktionsz
 import { DispatchPhase5622GesamtleistungsTrendBoard } from './phase5622-gesamtleistungs-trend-board';
 import { DispatchPhase5626TourdauerTrendBoard } from './phase5626-tourdauer-trend-board';
 import { DispatchPhase5630KundenkontaktTrendBoard } from './phase5630-kundenkontakt-trend-board';
+import { DispatchPhase5634FruehschichtPuenktlichkeitsTrendBoard } from './phase5634-fruehschicht-puenktlichkeit-trend-board';
 
 type Driver = {
   employee_id: string;
@@ -5888,6 +5889,8 @@ export function DispatchBoard({
           <DispatchPhase5626TourdauerTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5630: Kundenkontakt-Effizienz-Trend-Board — Star emerald-400; kontakt_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
           <DispatchPhase5630KundenkontaktTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5634: Frühschicht-Pünktlichkeits-Trend-Board — Sunrise orange-400; puenktlichkeit_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
+          <DispatchPhase5634FruehschichtPuenktlichkeitsTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14993,3 +14996,5 @@ export { DispatchPhase5622GesamtleistungsTrendBoard } from './phase5622-gesamtle
 export { DispatchPhase5626TourdauerTrendBoard } from './phase5626-tourdauer-trend-board';
 // Phase 5630 — Kundenkontakt-Effizienz-Trend-Board (Star emerald-400; kontakt_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5630KundenkontaktTrendBoard } from './phase5630-kundenkontakt-trend-board';
+// Phase 5634 — Frühschicht-Pünktlichkeits-Trend-Board (Sunrise orange-400; puenktlichkeit_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5634FruehschichtPuenktlichkeitsTrendBoard } from './phase5634-fruehschicht-puenktlichkeit-trend-board';
