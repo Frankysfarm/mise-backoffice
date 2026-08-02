@@ -35,6 +35,7 @@ DECLARE
   item_count integer;
   catalog_count integer;
   subtotal numeric(14,2);
+  locked_location_id uuid;
 BEGIN
   IF p_idempotency_key IS NULL OR p_request_fingerprint !~ '^[0-9a-f]{64}$' THEN
     RAISE EXCEPTION 'invalid idempotency identity' USING ERRCODE='22023';
@@ -48,7 +49,8 @@ BEGIN
     RETURN old_request.result || jsonb_build_object('idempotent_replay',true);
   END IF;
 
-  IF p_location_id IS NULL OR NOT EXISTS (SELECT 1 FROM public.locations WHERE id=p_location_id AND aktiv=true) THEN
+  SELECT id INTO locked_location_id FROM public.locations WHERE id=p_location_id AND aktiv=true FOR SHARE;
+  IF locked_location_id IS NULL THEN
     RETURN jsonb_build_object('ok',false,'reason_code','LOCATION_NOT_ORDERABLE');
   END IF;
   IF p_type NOT IN ('lieferung','abholung') OR p_payment_method NOT IN ('bar','karte') THEN

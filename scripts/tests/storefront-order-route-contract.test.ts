@@ -4,6 +4,7 @@ import test from 'node:test'
 
 const route = readFileSync('app/api/delivery/orders/route.ts', 'utf8')
 const client = readFileSync('app/biss-app/[slug]/client.tsx', 'utf8')
+const middleware = readFileSync('lib/supabase/middleware.ts', 'utf8')
 
 test('storefront route delegates its only persistence boundary to the atomic RPC', () => {
   assert.match(route, /\.rpc\('fn_storefront_create_order_v1'/)
@@ -11,6 +12,11 @@ test('storefront route delegates its only persistence boundary to the atomic RPC
   assert.doesNotMatch(route, /\.from\('order_items'\)/)
   assert.match(route, /idempotency-key/)
   assert.match(route, /createHash\('sha256'\)/)
+})
+
+test('middleware exposes only the exact public Storefront order endpoint', () => {
+  assert.match(middleware, /pathname === '\/api\/delivery\/orders'/)
+  assert.doesNotMatch(middleware, /pathname\.startsWith\('\/api\/delivery\/orders'/)
 })
 
 test('storefront client reuses a payload-bound idempotency key', () => {

@@ -60,6 +60,11 @@ test("real Chromium completes the production BISS Storefront component", async (
     }
   })
   try {
+    const middlewareProbe = await fetch(new URL("/api/delivery/orders", baseUrl), {
+      method: "POST", redirect: "manual", headers: { "content-type": "application/json" }, body: "{}",
+    })
+    assert.equal(middlewareProbe.status, 400)
+    assert.equal(middlewareProbe.headers.get("location"), null)
     const response = await page.goto(new URL("/test-lab/actors/storefront", baseUrl).toString())
     assert.equal(response?.status(), 200)
     await page.waitForLoadState("networkidle")

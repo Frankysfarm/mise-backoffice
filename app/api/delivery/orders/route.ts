@@ -84,7 +84,11 @@ export async function POST(req: NextRequest) {
     p_type: normalized.type,
     p_payment_method: normalized.payment_method,
   });
-  if (rpcError) return NextResponse.json({ error: rpcError.message }, { status: 500 });
+  if (rpcError) {
+    const correlationId = crypto.randomUUID();
+    console.error('storefront-order-rpc-failed', { correlationId, message: rpcError.message });
+    return NextResponse.json({ error: 'ORDER_PERSISTENCE_FAILED', correlation_id: correlationId }, { status: 500 });
+  }
   const result = data as { ok?: boolean; reason_code?: string; id?: string; bestellnummer?: string; status?: string; idempotent_replay?: boolean } | null;
   if (!result?.ok) return NextResponse.json({ error: result?.reason_code ?? 'ORDER_REJECTED' }, { status: result?.reason_code === 'IDEMPOTENCY_CONFLICT' ? 409 : 400 });
 
