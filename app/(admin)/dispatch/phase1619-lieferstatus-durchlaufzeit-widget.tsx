@@ -30,7 +30,7 @@ const MOCK: ApiData = {
     { von: 'unterwegs', nach: 'geliefert', label: 'Unterwegs → Geliefert', avg_min: 18.2, avg_min_gestern: 19.1, trend: 'besser', beobachtungen: 31 },
   ],
   gesamtzeit_avg_min: 38.5,
-  generiert_am: new Date().toISOString(),
+  generiert_am: '',
 };
 
 const TREND_ICON: Record<string, { icon: string; color: string }> = {
@@ -60,8 +60,10 @@ export function DispatchPhase1619LieferstatusDurchlaufzeitWidget({ locationId }:
     setLoading(true);
     try {
       const res = await fetch(`/api/delivery/admin/lieferstatus-durchlaufzeit?location_id=${locationId}`);
-      const json = await res.json();
-      setData(json);
+      const json: unknown = await res.json();
+      setData(json && typeof json === 'object' && Array.isArray((json as ApiData).uebergaenge)
+        ? json as ApiData
+        : MOCK);
     } catch {
       setData(MOCK);
     } finally {
@@ -140,7 +142,9 @@ export function DispatchPhase1619LieferstatusDurchlaufzeitWidget({ locationId }:
           <div className="flex items-center gap-3 pt-1 border-t border-stone-100 text-xs text-stone-500">
             <span>Gesamt: <strong className="text-stone-800">{d.gesamtzeit_avg_min} Min</strong></span>
             <span className="text-stone-300">|</span>
-            <span>Stand: {new Date(d.generiert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
+            <span>Stand: {d.generiert_am
+              ? new Date(d.generiert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+              : '--:--'}</span>
           </div>
         </div>
       )}

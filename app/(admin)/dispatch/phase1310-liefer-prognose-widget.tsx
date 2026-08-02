@@ -63,7 +63,14 @@ export function DispatchPhase1310LieferPrognoseWidget({ locationId }: Props) {
     setLoading(true);
     try {
       const res = await fetch(`/api/delivery/admin/liefer-prognose?location_id=${locationId}`);
-      setData(res.ok ? await res.json() : MOCK);
+      if (!res.ok) {
+        setData(MOCK);
+      } else {
+        const next: unknown = await res.json();
+        setData(next && typeof next === 'object' && Array.isArray((next as LieferPrognose).zonen)
+          ? next as LieferPrognose
+          : MOCK);
+      }
     } catch {
       setData(MOCK);
     } finally {

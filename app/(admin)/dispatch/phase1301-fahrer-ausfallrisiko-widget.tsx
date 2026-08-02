@@ -45,7 +45,12 @@ export function DispatchPhase1301FahrerAusfallrisikoWidget({ locationId }: { loc
     setLoading(true);
     try {
       const res = await fetch(`/api/delivery/admin/fahrer-ausfallrisiko?location_id=${locationId}`);
-      if (res.ok) setData(await res.json());
+      if (res.ok) {
+        const next: unknown = await res.json();
+        setData(next && typeof next === 'object' && Array.isArray((next as ApiData).fahrer)
+          ? next as ApiData
+          : null);
+      }
     } finally {
       setLoading(false);
     }

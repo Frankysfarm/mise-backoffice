@@ -44,7 +44,11 @@ export function DispatchPhase1316FahrerKapazitaetsReserveWidget({ locationId }: 
       try {
         const res = await fetch(`/api/delivery/admin/fahrer-kapazitaets-reserve?location_id=${locationId}`);
         if (!res.ok) throw new Error('fetch failed');
-        setData(await res.json());
+        const next: unknown = await res.json();
+        setData(next && typeof next === 'object'
+          && ['gut', 'warnung', 'kritisch'].includes(String((next as KapazitaetsData).ampel))
+          ? next as KapazitaetsData
+          : buildMock());
       } catch {
         setData(buildMock());
       } finally {
