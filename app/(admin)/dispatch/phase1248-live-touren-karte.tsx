@@ -60,8 +60,8 @@ export function DispatchPhase1248LiveTourenKarte({ locationId }: { locationId: s
     if (!locationId) return;
     setLoading(true);
     fetch(`/api/delivery/admin/live-touren-karte?location_id=${locationId}`)
-      .then(r => r.json())
-      .then((d: ApiResponse) => setData(d))
+      .then(r => r.ok ? r.json() : null)
+      .then((d: ApiResponse | null) => setData(d && Array.isArray(d.fahrer) ? d : null))
       .catch(() => {})
       .finally(() => setLoading(false));
   };
