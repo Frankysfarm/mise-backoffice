@@ -1492,6 +1492,7 @@ import { DispatchPhase5590WartezeitRestaurantBoard } from './phase5590-wartezeit
 import { DispatchPhase5594PeakStundenAnteilBoard } from './phase5594-peak-stunden-anteil-board';
 import { DispatchPhase5598TourenProStundeBoard } from './phase5598-touren-pro-stunde-board';
 import { DispatchPhase5602PuenktlichkeitsTrendBoard } from './phase5602-puenktlichkeit-trend-board';
+import { DispatchPhase5606BewertungsTrendBoard } from './phase5606-bewertungs-trend-board';
 
 type Driver = {
   employee_id: string;
@@ -5867,6 +5868,8 @@ export function DispatchBoard({
           <DispatchPhase5598TourenProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5602: Pünktlichkeits-Trend-Board — TrendingUp cyan-400; trend_delta_pct ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
           <DispatchPhase5602PuenktlichkeitsTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5606: Bewertungs-Trend-Board — Star yellow-400; bewertung_delta ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
+          <DispatchPhase5606BewertungsTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14959,3 +14962,5 @@ export { DispatchPhase5594PeakStundenAnteilBoard } from './phase5594-peak-stunde
 export { DispatchPhase5598TourenProStundeBoard } from './phase5598-touren-pro-stunde-board';
 // Phase 5602 — Pünktlichkeits-Trend-Board (TrendingUp cyan-400; trend_delta_pct ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5602PuenktlichkeitsTrendBoard } from './phase5602-puenktlichkeit-trend-board';
+// Phase 5606 — Bewertungs-Trend-Board (Star yellow-400; bewertung_delta ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5606BewertungsTrendBoard } from './phase5606-bewertungs-trend-board';

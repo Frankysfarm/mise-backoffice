@@ -1421,6 +1421,7 @@ import { KitchenPhase5593WartezeitRestaurantTicker } from './phase5593-wartezeit
 import { KitchenPhase5597PeakStundenAnteilTicker } from './phase5597-peak-stunden-anteil-ticker';
 import { KitchenPhase5601TourenProStundeTicker } from './phase5601-touren-pro-stunde-ticker';
 import { KitchenPhase5605PuenktlichkeitsTrendTicker } from './phase5605-puenktlichkeit-trend-ticker';
+import { KitchenPhase5609BewertungsTrendTicker } from './phase5609-bewertungs-trend-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5388,6 +5389,8 @@ export function KitchenBoard({
       <KitchenPhase5601TourenProStundeTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5605: Pünktlichkeits-Trend-Ticker — TrendingUp cyan-400; Beste/r #1 Name+%; Team-Trend; Rückfall-Alert; 30-Min-Polling */}
       <KitchenPhase5605PuenktlichkeitsTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5609: Bewertungs-Trend-Ticker — Star yellow-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling */}
+      <KitchenPhase5609BewertungsTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}
       <KitchenPhase5543SmartTimingCountdownV61 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
@@ -13532,3 +13535,5 @@ export { KitchenPhase5597PeakStundenAnteilTicker } from './phase5597-peak-stunde
 export { KitchenPhase5601TourenProStundeTicker } from './phase5601-touren-pro-stunde-ticker';
 // Phase 5605 — Pünktlichkeits-Trend-Ticker (TrendingUp cyan-400; Beste/r #1 Name+%; Team-Trend; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5605PuenktlichkeitsTrendTicker } from './phase5605-puenktlichkeit-trend-ticker';
+// Phase 5609 — Bewertungs-Trend-Ticker (Star yellow-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5609BewertungsTrendTicker } from './phase5609-bewertungs-trend-ticker';

@@ -1381,6 +1381,7 @@ import { FahrerPhase5591MeineWartezeitRestaurant } from './phase5591-meine-warte
 import { FahrerPhase5595MeinPeakStundenAnteil } from './phase5595-mein-peak-stunden-anteil';
 import { FahrerPhase5599MeineTourenProStunde } from './phase5599-meine-touren-pro-stunde';
 import { FahrerPhase5603MeinPuenktlichkeitsTrend } from './phase5603-mein-puenktlichkeit-trend';
+import { FahrerPhase5607MeinBewertungsTrend } from './phase5607-mein-bewertungs-trend';
 import { FahrerPhase5501TourStopsNavHubV13 } from './phase5501-tour-stops-nav-hub-v13';
 import { FahrerPhase5505TourStopsNavHubV14 } from './phase5505-tour-stops-nav-hub-v14';
 import { FahrerPhase5506MeineProblemReaktionszeit } from './phase5506-meine-problem-reaktionszeit';
@@ -7952,6 +7953,8 @@ export function FahrerApp({
           <FahrerPhase5599MeineTourenProStunde driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5603: Mein Pünktlichkeits-Trend — TrendingUp cyan-400; trend_delta_pct ABSTEIGEND Rang 1=größte positive Verbesserung=bester; Coaching >0%/=0%/<0%; Dual-Balken Aktuell+Vormonat; Ampel-Border */}
           <FahrerPhase5603MeinPuenktlichkeitsTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
+          {/* Phase 5607: Mein Bewertungs-Trend — Star yellow-400; bewertung_delta ABSTEIGEND Rang 1=größte positive Verbesserung=bester; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border */}
+          <FahrerPhase5607MeinBewertungsTrend driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           <FahrerPhase5536MeineNachtschichtEffizienz driverId={driver.id} locationId={driver.location_id ?? null} isOnline={isOnline} />
           {/* Phase 5511: Tour-Stops Nav Hub V15 — V14+: Proaktive Kunden-Benachrichtigung 10-Min-Vorab; Lieferdauer-Prognose KI-basiert; Multi-App-Nav Google/Waze/Apple; Gesamtfortschritts-Ring SVG; 7-KPI-Grid; Offline-Guard; 30s-Poll */}
           <FahrerPhase5511TourStopsNavHubV15 driverId={driver.id} />
@@ -12804,3 +12807,5 @@ export { FahrerPhase5595MeinPeakStundenAnteil } from './phase5595-mein-peak-stun
 export { FahrerPhase5599MeineTourenProStunde } from './phase5599-meine-touren-pro-stunde';
 // Phase 5603 — Mein Pünktlichkeits-Trend (TrendingUp cyan-400; trend_delta_pct ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 4xl+Rang; Coaching >0%/=0%/<0%; Dual-Balken Aktuell+Vormonat; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
 export { FahrerPhase5603MeinPuenktlichkeitsTrend } from './phase5603-mein-puenktlichkeit-trend';
+// Phase 5607 — Mein Bewertungs-Trend (Star yellow-400; bewertung_delta ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 4xl+Rang; Coaching >0/=0/<0; Dual-Balken Aktuell+Vormonat; Ampel-Border; isOnline-Guard; WifiOff-Fallback; 30-Min-Polling; Mock-Fallback)
+export { FahrerPhase5607MeinBewertungsTrend } from './phase5607-mein-bewertungs-trend';
