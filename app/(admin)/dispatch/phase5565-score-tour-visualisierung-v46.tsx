@@ -159,7 +159,7 @@ function KpiCell({ label, value, unit = '', warn = false }: {
 }
 
 /* ─── Haupt-Komponente ───────────────────────────────────── */
-export function DispatchPhase5565ScoreTourVisualisierungV46() {
+export function DispatchPhase5565ScoreTourVisualisierungV46(_props: { locationId?: string | null } = {}) {
   const [drivers, setDrivers] = useState<DriverScore[]>(MOCK_DRIVERS);
   const [kpi, setKpi] = useState<FleetKpi>(MOCK_KPI);
   const [tab, setTab] = useState<Tab>('Rangliste');

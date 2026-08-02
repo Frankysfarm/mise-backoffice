@@ -118,6 +118,7 @@ export function FahrerPhase5566TourStopsNavHubV19({
   isOnline = true,
 }: {
   driverId?: string;
+  locationId?: string | null;
   isOnline?: boolean;
 }) {
   const [stops, setStops] = useState<TourStop[]>(MOCK_STOPS);
