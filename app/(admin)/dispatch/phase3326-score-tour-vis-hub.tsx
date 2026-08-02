@@ -23,6 +23,14 @@ type BatchRow = {
   score: number | null;
 };
 
+type RawBatch = {
+  id: string;
+  fahrer_id: string | null;
+  status: string;
+  started_at: string | null;
+  tour_score: number | null;
+};
+
 function scoreColor(score: number | null): { bg: string; text: string; ring: string } {
   if (score === null) return { bg: 'bg-stone-100 border-stone-300', text: 'text-stone-500', ring: 'stroke-stone-300' };
   if (score >= 85) return { bg: 'bg-emerald-50 border-emerald-300', text: 'text-emerald-700', ring: 'stroke-emerald-500' };
@@ -74,9 +82,10 @@ export function DispatchPhase3326ScoreTourVisHub({ locationId }: { locationId: s
         setBatches([]);
         return;
       }
+      const typedRawBatches = rawBatches as RawBatch[];
 
-      const batchIds = rawBatches.map(b => b.id);
-      const fahrerIds = rawBatches.map(b => b.fahrer_id).filter(Boolean) as string[];
+      const batchIds = typedRawBatches.map((b) => b.id);
+      const fahrerIds = typedRawBatches.map((b) => b.fahrer_id).filter(Boolean) as string[];
 
       const [stopsRes, driversRes] = await Promise.all([
         supabase
@@ -95,7 +104,7 @@ export function DispatchPhase3326ScoreTourVisHub({ locationId }: { locationId: s
       const stops = stopsRes.data ?? [];
       const drivers = driversRes.data ?? [];
 
-      const mapped = rawBatches.map(b => {
+      const mapped: BatchRow[] = typedRawBatches.map((b) => {
         const drv = drivers.find((d: any) => d.id === b.fahrer_id);
         const bStops = stops.filter((s: any) => s.batch_id === b.id);
         return {
@@ -105,13 +114,13 @@ export function DispatchPhase3326ScoreTourVisHub({ locationId }: { locationId: s
           started_at: b.started_at,
           driver_name: drv ? `${(drv as any).vorname} ${(drv as any).nachname}` : 'Fahrer',
           stops: bStops as TourStop[],
-          score: (b as any).tour_score ?? null,
+          score: b.tour_score ?? null,
         };
       });
 
       setBatches(mapped);
 
-      const scored = mapped.filter(b => b.score !== null);
+      const scored = mapped.filter((b) => b.score !== null);
       if (scored.length > 0) {
         setFleetAvg(Math.round(scored.reduce((a, b) => a + (b.score ?? 0), 0) / scored.length));
       }
