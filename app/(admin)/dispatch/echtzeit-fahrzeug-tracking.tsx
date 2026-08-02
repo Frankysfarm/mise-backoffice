@@ -91,6 +91,7 @@ export function DispatchEchtzeitFahrzeugTracking() {
   const [data, setData] = useState<TrackingData>(MOCK);
   const [loading, setLoading] = useState(false);
   const [connected, setConnected] = useState(true);
+  const [hydrated, setHydrated] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -113,6 +114,7 @@ export function DispatchEchtzeitFahrzeugTracking() {
   }, []);
 
   useEffect(() => {
+    setHydrated(true);
     refresh();
     const iv = setInterval(refresh, 15_000);
     return () => clearInterval(iv);
@@ -160,7 +162,7 @@ export function DispatchEchtzeitFahrzeugTracking() {
       <div className="divide-y divide-border">
         {[...activeDrivers, ...pauseDrivers, ...offlineDrivers].map((d) => {
           const cfg = STATUS_CFG[d.status];
-          const stale = (Date.now() - new Date(d.last_update).getTime()) > 5 * 60000;
+          const stale = hydrated && (Date.now() - new Date(d.last_update).getTime()) > 5 * 60000;
           return (
             <div key={d.driver_id} className={cn(
               'flex items-center gap-3 px-3 py-2.5',
@@ -200,7 +202,7 @@ export function DispatchEchtzeitFahrzeugTracking() {
                     </>
                   )}
                   <span className="flex items-center gap-0.5 ml-auto">
-                    <Clock className="h-2.5 w-2.5" />{timeSince(d.last_update)}
+                    <Clock className="h-2.5 w-2.5" />{hydrated ? timeSince(d.last_update) : '--'}
                   </span>
                 </div>
               </div>

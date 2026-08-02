@@ -72,8 +72,12 @@ export function DispatchPhase1025FahrerZuverlaessigkeitsDashboard({ locationId }
       setLoading(true);
       try {
         const res = await fetch(`/api/delivery/admin/fahrer-zuverlaessigkeits-score?location_id=${locationId}`);
-        if (res.ok) setData(await res.json());
-        else setData(MOCK);
+        if (res.ok) {
+          const next: unknown = await res.json();
+          setData(next && typeof next === 'object' && Array.isArray((next as ApiResponse).fahrer)
+            ? next as ApiResponse
+            : MOCK);
+        } else setData(MOCK);
       } catch { setData(MOCK); }
       finally { setLoading(false); }
     }
