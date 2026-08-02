@@ -1127,6 +1127,9 @@ export function DispatchBoard({
   const [orderSort, setOrderSort] = useState<'wait' | 'zone' | 'score'>('wait');
   const [pending, startTransition] = useTransition();
   const [dispatchPending, setDispatchPending] = useState(false);
+  const [manualAssignError, setManualAssignError] = useState<string | null>(null);
+  const [manualAssignSuccess, setManualAssignSuccess] = useState(false);
+  const manualAssignKeysRef = useRef(new Map<string, string>());
   const [cancelPending, setCancelPending] = useState(false);
   const [etaRefreshing, setEtaRefreshing] = useState(false);
   const [etaRefreshResult, setEtaRefreshResult] = useState<{ orders_updated: number; orders_skipped: number; batches_processed: number; errors: number; duration_ms: number } | null>(null);
@@ -1630,50 +1633,41 @@ export function DispatchBoard({
     }
   }
 
-  async function assignToDriver(fahrerId: string) {
-    if (selected.size === 0) return;
-    const selectedOrders = readyOrders.filter((o) => selected.has(o.id));
+  async function assignToDriver(fahrerId: string, explicitOrderIds?: string[]) {
+    const orderIds = explicitOrderIds ?? Array.from(selected);
+    if (orderIds.length === 0) return;
+    const selectedOrders = readyOrders.filter((o) => orderIds.includes(o.id));
     const locationId = selectedOrders[0]?.location_id ?? null;
-    const orderIds = Array.from(selected);
+    const requestKey = `${fahrerId}:${[...orderIds].sort().join(',')}`;
+    const actionId = manualAssignKeysRef.current.get(requestKey) ?? crypto.randomUUID();
+    manualAssignKeysRef.current.set(requestKey, actionId);
 
     startTransition(async () => {
-      // Bridge-Write: atomisch in Legacy + Mise-System schreiben (via DB-Funktion)
-      const { data, error } = await supabase.rpc('assign_to_driver', {
-        p_employee_id: fahrerId,
-        p_order_ids:   orderIds,
-        p_location_id: locationId,
-      });
-
-      if (error || !(data as { ok: boolean })?.ok) {
-        // Fallback: Legacy-Only-Write wenn RPC nicht verfügbar
-        const { data: batch, error: e1 } = await supabase
-          .from('delivery_batches')
-          .insert({
+      setManualAssignError(null);
+      setManualAssignSuccess(false);
+      try {
+        const response = await fetch('/api/delivery/admin/manual-assign', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            employee_id: fahrerId,
+            order_ids: orderIds,
             location_id: locationId,
-            fahrer_id: fahrerId,
-            status: 'pickup',
-            startzeit: new Date().toISOString(),
-            erstellt_von: null,
-            auto_erstellt: false,
-          })
-          .select()
-          .single();
-        if (e1 || !batch) return;
-
-        const stops = orderIds.map((id, idx) => ({ batch_id: (batch as { id: string }).id, order_id: id, reihenfolge: idx + 1 }));
-        await supabase.from('delivery_batch_stops').insert(stops);
-        await supabase
-          .from('customer_orders')
-          .update({ fahrer_id: fahrerId, batch_id: (batch as { id: string }).id, status: 'unterwegs' })
-          .in('id', orderIds);
-        await supabase
-          .from('driver_status')
-          .update({ aktueller_batch_id: (batch as { id: string }).id })
-          .eq('employee_id', fahrerId);
+            action_id: actionId,
+          }),
+        });
+        const result = await response.json().catch(() => null) as { ok?: boolean; reason_code?: string } | null;
+        if (!response.ok || !result?.ok) {
+          setManualAssignError(result?.reason_code ?? 'MANUAL_ASSIGN_FAILED');
+          return;
+        }
+        manualAssignKeysRef.current.delete(requestKey);
+        setSelected(new Set());
+        setManualAssignSuccess(true);
+        await refresh();
+      } catch {
+        setManualAssignError('MANUAL_ASSIGN_NETWORK_FAILED');
       }
-
-      setSelected(new Set());
-      await refresh();
     });
   }
 
@@ -1681,6 +1675,16 @@ export function DispatchBoard({
     <>
     <DispatchBrowserNotifier batches={batches} orders={readyOrders} />
     <div className="space-y-6">
+      {manualAssignError && (
+        <div data-testid="dispatch-manual-assign-error" role="alert" className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800">
+          Zuweisung fehlgeschlagen ({manualAssignError}). Auswahl bleibt erhalten – bitte erneut versuchen.
+        </div>
+      )}
+      {manualAssignSuccess && (
+        <div data-testid="dispatch-manual-assign-success" role="status" className="rounded-md border border-green-300 bg-green-50 px-4 py-3 text-sm text-green-800">
+          Tour wurde atomar zugewiesen.
+        </div>
+      )}
       {/* Phase 459: Echtzeit-Kommandozentrale — Hero-Übersicht ganz oben */}
       <DispatchEchtzeitKommandoZentrale
         locationId={locations[0]?.id ?? null}
@@ -2918,7 +2922,7 @@ export function DispatchBoard({
           onAssign={(driverId) => {
             if (readyOrders.length > 0) {
               setSelected(new Set([readyOrders[0].id]));
-              assignToDriver(driverId);
+              assignToDriver(driverId, [readyOrders[0].id]);
             }
           }}
         />
@@ -3131,24 +3135,7 @@ export function DispatchBoard({
         restaurantLat={locationFilter !== 'all' ? (locations.find((l) => l.id === locationFilter)?.lat ?? null) : (locations[0]?.lat ?? null)}
         restaurantLng={locationFilter !== 'all' ? (locations.find((l) => l.id === locationFilter)?.lng ?? null) : (locations[0]?.lng ?? null)}
         onAssign={async (orderIds, driverId) => {
-          const locationId = readyOrders.find((o) => orderIds.includes(o.id))?.location_id ?? null;
-          const { data, error } = await supabase.rpc('assign_to_driver', {
-            p_employee_id: driverId,
-            p_order_ids: orderIds,
-            p_location_id: locationId,
-          });
-          if (error || !(data as { ok: boolean })?.ok) {
-            const { data: batch } = await supabase
-              .from('delivery_batches')
-              .insert({ location_id: locationId, fahrer_id: driverId, status: 'pickup', startzeit: new Date().toISOString(), erstellt_von: null, auto_erstellt: false })
-              .select().single();
-            if (batch) {
-              await supabase.from('delivery_batch_stops').insert(orderIds.map((id, i) => ({ batch_id: (batch as { id: string }).id, order_id: id, reihenfolge: i + 1 })));
-              await supabase.from('customer_orders').update({ fahrer_id: driverId, batch_id: (batch as { id: string }).id, status: 'unterwegs' }).in('id', orderIds);
-              await supabase.from('driver_status').update({ aktueller_batch_id: (batch as { id: string }).id }).eq('employee_id', driverId);
-            }
-          }
-          await refresh();
+          await assignToDriver(driverId, orderIds);
         }}
       />
 
@@ -3278,26 +3265,7 @@ export function DispatchBoard({
           drivers={onlineDrivers}
           batches={batches}
           onAssign={async (orderIds, driverId) => {
-            // Direktzuweisung ohne selected-State-Abhängigkeit
-            const locationId = readyOrders.find((o) => orderIds.includes(o.id))?.location_id ?? null;
-            const { data, error } = await supabase.rpc('assign_to_driver', {
-              p_employee_id: driverId,
-              p_order_ids:   orderIds,
-              p_location_id: locationId,
-            });
-            if (error || !(data as { ok: boolean })?.ok) {
-              // Fallback
-              const { data: batch } = await supabase
-                .from('delivery_batches')
-                .insert({ location_id: locationId, fahrer_id: driverId, status: 'pickup', startzeit: new Date().toISOString(), erstellt_von: null, auto_erstellt: false })
-                .select().single();
-              if (batch) {
-                await supabase.from('delivery_batch_stops').insert(orderIds.map((id, i) => ({ batch_id: (batch as { id: string }).id, order_id: id, reihenfolge: i + 1 })));
-                await supabase.from('customer_orders').update({ fahrer_id: driverId, batch_id: (batch as { id: string }).id, status: 'unterwegs' }).in('id', orderIds);
-                await supabase.from('driver_status').update({ aktueller_batch_id: (batch as { id: string }).id }).eq('employee_id', driverId);
-              }
-            }
-            await refresh();
+            await assignToDriver(driverId, orderIds);
           }}
         />
       )}
@@ -3865,7 +3833,7 @@ export function DispatchBoard({
             batches={batches}
             onSelectOrders={(ids, driverId) => {
               setSelected(new Set(ids));
-              assignToDriver(driverId);
+              assignToDriver(driverId, ids);
             }}
           />
 
@@ -5821,8 +5789,18 @@ function OrderRow({
   const etaSoon = etaSec !== null && etaSec >= 0 && etaSec < 900; // <15 min
 
   return (
-    <button
+    <div
+      data-testid={`dispatch-order-${order.id}`}
+      role="button"
+      aria-pressed={selected}
+      tabIndex={0}
       onClick={onToggle}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onToggle();
+        }
+      }}
       className={cn(
         'flex w-full items-center gap-4 px-5 py-3.5 text-left transition hover:bg-muted/40',
         selected && 'bg-matcha-50',
@@ -5949,7 +5927,7 @@ function OrderRow({
           </div>
         )}
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -6120,7 +6098,7 @@ function DriverRow({
           </div>
         )}
         {canAssign && (
-          <Button size="sm" onClick={onAssign} disabled={busy}>
+          <Button data-testid={`dispatch-assign-${driver.employee_id}`} size="sm" onClick={onAssign} disabled={busy}>
             Zuweisen
           </Button>
         )}

@@ -31,5 +31,6 @@ node --import tsx scripts/tests/driver-ui-canonical-contract.test.ts
 node --import tsx scripts/tests/web-push-client-contract.test.ts
 node --import tsx scripts/tests/recovery-push-contract.test.ts
 node --import tsx --test scripts/tests/storefront-order-route-contract.test.ts
+node --import tsx --test scripts/tests/dispatcher-manual-assign-contract.test.ts
 
 echo "T10 isolated local release-readiness suites: PASS"

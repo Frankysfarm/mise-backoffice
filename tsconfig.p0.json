@@ -27,6 +27,7 @@
     "app/api/driver/v1/orders/[id]/picked-up/route.ts",
     "app/api/driver/v1/orders/[id]/delivered/route.ts",
     "app/api/driver/v1/me/accept-tour/route.ts",
+    "app/api/delivery/admin/manual-assign/route.ts",
     "app/fahrer/app/native-offer-bridge.tsx",
     "app/fahrer/app/atomic-offer-client-state.ts",
     "app/fahrer/app/pick-dialog.tsx",
