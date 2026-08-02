@@ -1491,6 +1491,7 @@ import { DispatchPhase5586SchichtAbbruchBoard } from './phase5586-schicht-abbruc
 import { DispatchPhase5590WartezeitRestaurantBoard } from './phase5590-wartezeit-restaurant-board';
 import { DispatchPhase5594PeakStundenAnteilBoard } from './phase5594-peak-stunden-anteil-board';
 import { DispatchPhase5598TourenProStundeBoard } from './phase5598-touren-pro-stunde-board';
+import { DispatchPhase5602PuenktlichkeitsTrendBoard } from './phase5602-puenktlichkeit-trend-board';
 
 type Driver = {
   employee_id: string;
@@ -5864,6 +5865,8 @@ export function DispatchBoard({
           <DispatchPhase5594PeakStundenAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5598: Touren-pro-Stunde-Board — Route blue-400; touren_pro_stunde ABSTEIGEND Rang 1=höchste Effizienz=bester; 3-KPI-Grid Effizienteste/r/Team-Ø/Langsamste/r; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
           <DispatchPhase5598TourenProStundeBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5602: Pünktlichkeits-Trend-Board — TrendingUp cyan-400; trend_delta_pct ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
+          <DispatchPhase5602PuenktlichkeitsTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14954,3 +14957,5 @@ export { DispatchPhase5590WartezeitRestaurantBoard } from './phase5590-wartezeit
 export { DispatchPhase5594PeakStundenAnteilBoard } from './phase5594-peak-stunden-anteil-board';
 // Phase 5598 — Touren-pro-Stunde-Board (Route blue-400; touren_pro_stunde ABSTEIGEND Rang 1=höchste Effizienz=bester; 3-KPI-Grid Effizienteste/r/Team-Ø/Langsamste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_bottom; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5598TourenProStundeBoard } from './phase5598-touren-pro-stunde-board';
+// Phase 5602 — Pünktlichkeits-Trend-Board (TrendingUp cyan-400; trend_delta_pct ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5602PuenktlichkeitsTrendBoard } from './phase5602-puenktlichkeit-trend-board';
