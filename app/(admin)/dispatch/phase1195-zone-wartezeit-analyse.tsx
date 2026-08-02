@@ -60,7 +60,14 @@ export function DispatchPhase1195ZoneWartezeitAnalyse({ locationId }: Props) {
     setLoading(true);
     try {
       const r = await fetch(`/api/delivery/admin/zone-wartezeit-analyse?location_id=${encodeURIComponent(locationId)}`);
-      setData(r.ok ? await r.json() as ApiData : MOCK);
+      if (!r.ok) {
+        setData(MOCK);
+      } else {
+        const next: unknown = await r.json();
+        setData(next && typeof next === 'object' && Array.isArray((next as ApiData).zonen)
+          ? next as ApiData
+          : MOCK);
+      }
     } catch {
       setData(MOCK);
     } finally {

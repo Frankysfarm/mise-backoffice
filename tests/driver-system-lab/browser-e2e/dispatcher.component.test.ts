@@ -75,7 +75,9 @@ test('real Chromium assigns through the production Dispatcher component fail-clo
       const element = document.querySelector('[data-testid="dispatch-order-b5000000-0000-4000-8000-000000000001"]');
       return element ? Object.keys(element).some((key) => key.startsWith('__reactProps')) : false;
     });
-    await page.waitForTimeout(1_000);
+    // Allow the first wave of legacy widget effects/API refreshes to settle;
+    // delayed startup exceptions must fail the same strict gate.
+    await page.waitForTimeout(5_000);
     assert.deepEqual(pageErrors, [], 'full production board must start without browser exceptions');
     assert.deepEqual(consoleErrors, [], 'full production board must start without console errors');
     await page.getByTestId('dispatch-order-b5000000-0000-4000-8000-000000000001').click();

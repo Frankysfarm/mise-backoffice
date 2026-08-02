@@ -101,7 +101,7 @@ export function DispatchPhase1243FahrerRueckkehrCountdown({ locationId }: { loca
     fetch(`/api/delivery/admin/fahrer-rueckkehr-countdown?location_id=${encodeURIComponent(locationId)}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d: ApiResponse | null) => {
-        setData(d ?? buildMock());
+        setData(d && Array.isArray(d.fahrer) ? d : buildMock());
         setLastUpdated(new Date());
       })
       .catch(() => {

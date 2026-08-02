@@ -65,8 +65,12 @@ export function DispatchPhase1130FahrerEffizienzRangliste({ locationId }: Props)
     setLoading(true);
     try {
       const r = await fetch(`/api/delivery/admin/fahrer-effizienz-rangliste?location_id=${locationId}`);
-      if (r.ok) setData(await r.json() as ApiData);
-      else setData(MOCK);
+      if (r.ok) {
+        const next: unknown = await r.json();
+        setData(next && typeof next === 'object' && Array.isArray((next as ApiData).fahrer)
+          ? next as ApiData
+          : MOCK);
+      } else setData(MOCK);
     } catch { setData(MOCK); } finally { setLoading(false); }
   }, [locationId]);
 
