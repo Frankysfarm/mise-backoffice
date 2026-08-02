@@ -78,7 +78,7 @@
 
 - Registry: all 115 catalog descriptors are bound exactly once; 6/6 validation tests pass. Unknown/unbound IDs and substituted metadata fail closed. Every current handler is explicitly `audit-only`, and the CLI returns exit 2 rather than pretending an E2E pass.
 - Oracle adapter: adapter plus oracle tests pass 17/17 including 500 seeds. Hard-constraint violations, exact match, tolerance and quality-gap verdicts are recorded without importing production scoring into the oracle.
-- Limitations: no actual production decision capture or concrete production route sequence is connected; catalog handlers do not yet drive application APIs/UI.
+- Limitations: a pure production-optimizer capture exists, but no real runtime-pipeline capture or concrete production route sequence is connected; catalog handlers do not yet drive application APIs/UI.
 - Aggregate run `tl_20260801t220000z_abcdef12`: 73 pass, 3 correctly skipped DB-only tests, 0 failures. The three DB cases separately pass 3/3 in disposable PostgreSQL.
 - Latest `npm run build`: exit 0, 447 pages.
 
@@ -89,7 +89,7 @@
 - First dashboard attempt exposed a local middleware redirect to the public domain and was failed; no mutation occurred. The test now blocks every non-local origin and uses the canonical localhost host. The potentially contaminated failed trace was removed.
 - Soak run `tl_20260802t011000z_2233bbcc`: 2,000 model deliveries / 12,000 timeline events, exit 0. Replay as `tl_20260802t012000z_3344ccdd` with the retained seed/suite also exits 0.
 - Integrated disposable PostgreSQL: transaction-abort rollback plus eight parallel retries, and SIGKILLed worker rollback plus replacement recovery, 2/2 pass. Factory concurrency remains 3/3 pass.
-- Captured production optimizer comparison: combined adapter/oracle 18/18 pass including bundle sizes 1–4 and 500 seeds.
+- Captured pure production-optimizer comparison: combined adapter/oracle 18/18 pass including bundle sizes 1–4 and 500 Oracle-only seeds. It proves the comparison seam, not runtime-pipeline equivalence; the capture is limited to one driver, one store, four feasible orders and assignment membership without a concrete production stop sequence.
 - Limitation: browser driver flow is explicitly a synthetic harness; actual Dashboard is production code, but Storefront/Kitchen/Driver application flows still require auth/test fixtures.
 - Current aggregate run `tl_20260802t030000z_f00dba11`: 74 pass, 8 intentional skips, 0 failures. The five disposable-PostgreSQL cases separately pass 5/5.
 - Current `npm run build`: exit 0 and 447/447 static pages generated. Webpack reported a non-fatal cache-write `ENOSPC` warning; compilation and page generation still completed.

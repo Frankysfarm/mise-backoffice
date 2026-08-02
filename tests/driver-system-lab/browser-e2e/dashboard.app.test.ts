@@ -40,6 +40,7 @@ test("real Chromium operates the guarded Next test-lab dashboard", async (contex
     const payload = await api.json() as { productionSelectable: boolean; scenarios: unknown[] }
     assert.equal(payload.productionSelectable, false)
     assert.equal(payload.scenarios.length, 115)
+    assert.deepEqual(blockedOrigins, [], `dashboard attempted external request: ${blockedOrigins.join(", ")}`)
     await page.screenshot({ path: screenshot, fullPage: true })
   } finally {
     await browserContext.tracing.stop({ path: trace })
