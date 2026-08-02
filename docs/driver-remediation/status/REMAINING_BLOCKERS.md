@@ -31,7 +31,7 @@ Releaseentscheidung: **BLOCKED für Produktion; SHADOW-ONLY lokal/isoliert.**
 # Autonomous test-lab blockers — 2026-08-01
 
 - TL-G1 is independently GREEN at `9b3e66bd`. Nonblocking future rule: each new behavior/action/fixture ID must add typed semantics and negative registry tests. The 115 `audit-only` handlers remain a TL-G2/TL-G5 blocker.
-- TL-G2: Chromium/trace are green for guarded production Storefront and Kitchen components. Atomic Storefront persistence passes directly in disposable PostgreSQL, but HTTP→PostgREST→DB lifecycle linkage plus production Driver/Dispatcher actors remain.
+- TL-G2: Chromium/trace are green for guarded production Storefront, Kitchen and Driver components. Atomic Storefront persistence passes directly in disposable PostgreSQL, but HTTP→PostgREST→DB lifecycle linkage plus the production Dispatcher actor remain.
 - TL-G4: a pure-optimizer comparison exists, but runtime dispatch-pipeline capture, production route sequence, diverse multi-driver/store cases and retained complete optimality-gap traces are open.
 - TL-G5: the required categories and over 75 names exist; most are not yet executable full-stack cases.
 - TL-G6: real DB abort/retry and killed-client rollback are green; canonical application-worker, network, service-worker and broader restart chaos remain.
