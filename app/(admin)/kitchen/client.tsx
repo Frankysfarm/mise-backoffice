@@ -1423,6 +1423,7 @@ import { KitchenPhase5601TourenProStundeTicker } from './phase5601-touren-pro-st
 import { KitchenPhase5605PuenktlichkeitsTrendTicker } from './phase5605-puenktlichkeit-trend-ticker';
 import { KitchenPhase5609BewertungsTrendTicker } from './phase5609-bewertungs-trend-ticker';
 import { KitchenPhase5613TrinkgeldTrendTicker } from './phase5613-trinkgeld-trend-ticker';
+import { KitchenPhase5617UmsatzTrendTicker } from './phase5617-umsatz-trend-ticker';
 import { KitchenPhase5142SmartTimingCountdownV42 } from './phase5142-smart-timing-countdown-v42';
 import { KitchenPhase5163SmartTimingCountdownV43 } from './phase5163-smart-timing-countdown-v43';
 import { KitchenPhase4855SmartTimingCountdownV20 } from './phase4855-smart-timing-countdown-v20';
@@ -5394,6 +5395,8 @@ export function KitchenBoard({
       <KitchenPhase5609BewertungsTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5613: Trinkgeld-Trend-Ticker — Coins green-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling */}
       <KitchenPhase5613TrinkgeldTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
+      {/* Phase 5617: Umsatz-Trend-Ticker — TrendingUp emerald-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Polling */}
+      <KitchenPhase5617UmsatzTrendTicker locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5543: Smart-Timing Countdown V61 — Schichtstart-Pünktlichkeit-Ampel, Stammkunde-Badge, Stations-Kapazitäts-Prognose +20min, Übergabe-Zeitfenster-Indikator, 11-KPI-Grid, 6-Tab */}
       <KitchenPhase5543SmartTimingCountdownV61 locationId={locationFilter === 'all' ? (locations[0]?.id ?? null) : locationFilter} />
       {/* Phase 5510: Smart-Timing Countdown V57 — V56+Kategorie-Filter; Warmhalte-Indikator; Batch-Score-Ring; 6-KPI-Grid; 1s-Tick+15s-Polling */}
@@ -13542,3 +13545,5 @@ export { KitchenPhase5605PuenktlichkeitsTrendTicker } from './phase5605-puenktli
 export { KitchenPhase5609BewertungsTrendTicker } from './phase5609-bewertungs-trend-ticker';
 // Phase 5613 — Trinkgeld-Trend-Ticker (Coins green-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
 export { KitchenPhase5613TrinkgeldTrendTicker } from './phase5613-trinkgeld-trend-ticker';
+// Phase 5617 — Umsatz-Trend-Ticker (TrendingUp emerald-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
+export { KitchenPhase5617UmsatzTrendTicker } from './phase5617-umsatz-trend-ticker';
