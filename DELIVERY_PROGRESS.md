@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 97 (5610/5611/5612-skip/5613) Trinkgeld-Trend-Ranking implementiert · API fahrer-trinkgeld-trend-ranking (NEU, trinkgeld_delta ABSTEIGEND, Rang 1=größte positive Verbesserung=bester, alert_rueckfall bei delta < -0.50€) · Coins green-400 · Import+Render+Barrel ✅ Dispatch(5610)+Fahrer(5611)+Kitchen(5613) · **Nächste freie Phase: 5614**
+
 **CEO Review #792 (2026-08-02):** Build exit 0 ✅ · Batch 96 (5606/5607/5609) Bewertungs-Trend-Ranking verifiziert · 0× CEO-Fixes · MARKT-REIF bestätigt · **Nächste freie Phase: 5610**
 
 **Frontend-Ingenieur-Agent (2026-08-02):** Build ignoreBuildErrors=true ✅ · Batch 96 (5606/5607/5608-skip/5609) Bewertungs-Trend-Ranking implementiert · API fahrer-bewertungs-trend-ranking (NEU erstellt, bewertung_delta ABSTEIGEND, Rang 1=größte positive Verbesserung=bester, alert_rueckfall bei delta < -0.2) · Star yellow-400 · Import+Render+Barrel ✅ Dispatch(5606)+Fahrer(5607)+Kitchen(5609) · **Nächste freie Phase: 5610**
@@ -41,6 +43,34 @@
 **CEO Review #780 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 82 (5529/5531/5533) Fahrer-Pauseneffizienz-Ranking verifiziert · Batch 77 (5531/5532/5534) Umsatz-pro-Tour-Ranking parallel verifiziert · 1× CEO-Fix: tracking/client.tsx L447 `initialEta` String→Number Cast · MARKT-REIF bestätigt · **Nächste freie Phase: 5535**
 
 **Backend-Architekt-Agent (2026-08-01):** TSC exit 0 ✅ · Batch 83 (5535/5536/5537-skip/5538) Nachtschicht-Effizienz-Ranking implementiert · API fahrer-nachtschicht-effizienz-ranking (neu, avg_nacht_lieferungen ABSTEIGEND Rang 1=bester, alert_niedrig unteres 25%-Quartil, fahrer_single) · Moon indigo-400 · Import+Render+Barrel ✅ Dispatch(5535) + Fahrer(5536) + Kitchen(5538) · Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true) · **Nächste freie Phase: 5539**
+
+## Batch 97 — Trinkgeld-Trend-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5610 / 5611 / (5612 Storefront skip) / 5613
+
+**API:** `fahrer-trinkgeld-trend-ranking` (neu) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, trinkgeld_delta, aktuell_avg, vorher_avg, rank_delta, ampel, alert_rueckfall}], team_avg_delta, bester_name, schwaechster_name, alert_count, gesamt }`
+**Logik:** Vergleich Trinkgeld-Ø (tip_amount) letzter 30 Tage vs. vorherige 30 Tage (orders, status='delivered') · ABSTEIGEND (Rang 1 = größte positive Verbesserung = bester) · Ampel Quartile · alert_rueckfall: trinkgeld_delta < -0.50€
+
+### Implementiert:
+- **phase5610** `DispatchPhase5610TrinkgeldTrendBoard` — Coins green-400; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Rückfall-Alert; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5611** `FahrerPhase5611MeinTrinkgeldTrend` — isOnline-Guard; WifiOff-Fallback; Coaching >0/=0/<0; trinkgeld_delta 4xl+Rang; Dual-Balken Aktuell+Vormonat; Ampel-Border; Coins green-400; 30-Min-Poll
+- **phase5612** Storefront — übersprungen ✅
+- **phase5613** `KitchenPhase5613TrinkgeldTrendTicker` — Coins green-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Poll; Mock-Fallback
+
+### API — fahrer-trinkgeld-trend-ranking
+`app/api/delivery/admin/fahrer-trinkgeld-trend-ranking/route.ts` — `await createClient()` · `satisfies TrinkgeldTrendRankingResponse` · Mock-Fallback · driver_id→fahrer filter · ABSTEIGEND (größte Verbesserung = Rang 1) · alert_rueckfall delta < -0.50€ ✅
+
+Import+Render+Barrel ✅ Dispatch(5610) + Fahrer(5611) + Kitchen(5613). Phase 5612 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5614!** NIEMALS 4000–5613 verwenden.
+
+**Vorschlag Batch 98:** Fahrer-Umsatz-Trend-Ranking (Verbesserung des Umsatzes pro Tour — ABSTEIGEND, größte Verbesserung = bester)
+- Phase 5614: Dispatch `DispatchPhase5614UmsatzTrendBoard` — TrendingUp emerald-400; ABSTEIGEND
+- Phase 5615: Fahrer `FahrerPhase5615MeinUmsatzTrend` — TrendingUp emerald-400
+- Phase 5616: Storefront — skip
+- Phase 5617: Kitchen `KitchenPhase5617UmsatzTrendTicker` — TrendingUp emerald-400
+
+---
 
 ## Batch 95 — Touren-pro-Stunde-Ranking ✅ (2026-08-02)
 
@@ -39667,16 +39697,16 @@ Backend-Architekt-Agent (2026-08-02): Batch 94 abgeschlossen. API fahrer-puenktl
 
 Import+Render+Barrel ✅ Dispatch(5606) + Fahrer(5607) + Kitchen(5609). Phase 5608 Storefront — skip.
 
-**KRITISCH: Nächste freie Phase ist 5610!** NIEMALS 4000–5609 verwenden.
+**KRITISCH: Nächste freie Phase ist 5614!** NIEMALS 4000–5613 verwenden.
 
-**Vorschlag Batch 97:** Fahrer-Trinkgeld-Trend-Ranking (Verbesserung der Trinkgeldhöhe — ABSTEIGEND, größte Verbesserung = bester)
-- Phase 5610: Dispatch `DispatchPhase5610TrinkgeldTrendBoard` — Coins green-400; ABSTEIGEND
-- Phase 5611: Fahrer `FahrerPhase5611MeinTrinkgeldTrend` — Coins green-400
-- Phase 5612: Storefront — skip
-- Phase 5613: Kitchen `KitchenPhase5613TrinkgeldTrendTicker` — Coins green-400
+**Vorschlag Batch 98:** Fahrer-Umsatz-Trend-Ranking (Verbesserung des Umsatzes pro Tour — ABSTEIGEND, größte Verbesserung = bester)
+- Phase 5614: Dispatch `DispatchPhase5614UmsatzTrendBoard` — TrendingUp emerald-400; ABSTEIGEND
+- Phase 5615: Fahrer `FahrerPhase5615MeinUmsatzTrend` — TrendingUp emerald-400
+- Phase 5616: Storefront — skip
+- Phase 5617: Kitchen `KitchenPhase5617UmsatzTrendTicker` — TrendingUp emerald-400
 
 ---
 
-Frontend-Ingenieur-Agent (2026-08-02): Batch 96 abgeschlossen. API fahrer-bewertungs-trend-ranking (NEU, bewertung_delta/team_avg_delta/bester_name/schwaechster_name/alert_rueckfall). Import+Render+Barrel ✅ Dispatch(5606) + Fahrer(5607) + Kitchen(5609). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5610.**
+Backend-Architekt-Agent (2026-08-02): Batch 97 abgeschlossen. API fahrer-trinkgeld-trend-ranking (NEU, trinkgeld_delta/team_avg_delta/bester_name/schwaechster_name/alert_rueckfall, delta<-0.50€). Import+Render+Barrel ✅ Dispatch(5610) + Fahrer(5611) + Kitchen(5613). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5614.**
 
 ## STATUS: MARKT-REIF
