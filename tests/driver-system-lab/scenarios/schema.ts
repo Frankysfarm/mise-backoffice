@@ -1,34 +1,254 @@
 export type ActorKind = "customer" | "kitchen" | "driver" | "dispatcher" | "system"
-export type ScenarioStep = Readonly<{ actor: string; action: string; atSeconds?: number; arguments?: Readonly<Record<string, unknown>> }>
+export type VehicleKind = "bike" | "car" | "scooter" | "foot"
+
+export type ScenarioStep = Readonly<{
+  actor: string
+  action: string
+  atSeconds?: number
+  arguments?: Readonly<Record<string, string | number | boolean>>
+}>
+
 export type LabScenario = Readonly<{
-  version: 1
+  schemaVersion: 1
   id: string
   title: string
+  description: string
+  seed: number
   tags: readonly string[]
-  actors: readonly Readonly<{ id: string; kind: ActorKind }>[]
+  capabilities: readonly string[]
+  environment: "local" | "test" | "staging"
+  tenant: Readonly<{ id: string }>
+  clock: Readonly<{ start: string }>
+  stores: readonly Readonly<{ id: string; prepQueueMinutes: number }> []
+  actors: readonly Readonly<{ id: string; kind: ActorKind; profile: string }> []
+  vehicles: readonly Readonly<{ id: string; kind: VehicleKind; capacityOrders: number }> []
+  drivers: readonly Readonly<{
+    actor: string
+    vehicle: string
+    state: "idle" | "active" | "offline"
+    start: Readonly<{ lat: number; lng: number }>
+    gpsFixture: string
+  }> []
+  orders: readonly Readonly<{
+    id: string
+    customer: string
+    store: string
+    items: readonly Readonly<{ id: string; quantity: number; required: boolean }> []
+    createdAtOffsetSeconds: number
+    prepMinutes: number
+    deadlineMinutes: number
+    payment: "confirmed" | "delayed" | "failed"
+  }> []
+  fixtures: Readonly<{
+    routing: string
+    traffic: string
+    push: string
+    network: string
+  }>
   steps: readonly ScenarioStep[]
-  expect: Readonly<Record<string, boolean | number | string>>
+  chaos: readonly Readonly<{ atSeconds: number; fault: string; target: string }> []
+  expect: Readonly<{
+    uiStates: readonly string[]
+    invariants: readonly string[]
+    selectedDriver?: string
+    bundleSize?: number
+    stopOrder?: readonly string[]
+    optimizationTolerance: number
+  }>
+  cleanup: Readonly<{ scope: "run-only"; verifyZeroRows: boolean }>
 }>
 
 const ID = /^[a-z][a-z0-9-]{2,63}$/
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/
+
+function object(value: unknown, label: string): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${label} must be an object`)
+  return value as Record<string, unknown>
+}
+
+function exact(raw: Record<string, unknown>, allowed: readonly string[], label: string): void {
+  const unknown = Object.keys(raw).filter((key) => !allowed.includes(key)).sort()
+  if (unknown.length > 0) throw new Error(`${label} has unknown fields: ${unknown.join(", ")}`)
+}
+
+function id(value: unknown, label: string): string {
+  if (typeof value !== "string" || !ID.test(value)) throw new Error(`${label} must be a lowercase stable id`)
+  return value
+}
+
+function text(value: unknown, label: string): string {
+  if (typeof value !== "string" || value.trim().length === 0) throw new Error(`${label} must be non-empty`)
+  return value
+}
+
+function finite(value: unknown, label: string, minimum = 0): number {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < minimum) throw new Error(`${label} must be finite and >= ${minimum}`)
+  return value
+}
+
+function integer(value: unknown, label: string, minimum = 0): number {
+  const number = finite(value, label, minimum)
+  if (!Number.isSafeInteger(number)) throw new Error(`${label} must be a safe integer`)
+  return number
+}
+
+function strings(value: unknown, label: string): readonly string[] {
+  if (!Array.isArray(value) || !value.every((entry) => typeof entry === "string" && entry.length > 0)) throw new Error(`${label} must be a string array`)
+  if (new Set(value).size !== value.length) throw new Error(`${label} must not contain duplicates`)
+  return value
+}
+
+function array(value: unknown, label: string, allowEmpty = false): readonly unknown[] {
+  if (!Array.isArray(value) || (!allowEmpty && value.length === 0)) throw new Error(`${label} must be ${allowEmpty ? "an" : "a non-empty"} array`)
+  return value
+}
+
+function oneOf<T extends string>(value: unknown, values: readonly T[], label: string): T {
+  if (typeof value !== "string" || !values.includes(value as T)) throw new Error(`${label} is invalid`)
+  return value as T
+}
 
 export function validateScenario(value: unknown): LabScenario {
-  if (!value || typeof value !== "object") throw new Error("scenario must be an object")
-  const raw = value as Record<string, unknown>
-  if (raw.version !== 1 || typeof raw.id !== "string" || !ID.test(raw.id)) throw new Error("scenario version/id is invalid")
-  if (typeof raw.title !== "string" || raw.title.length < 3) throw new Error("scenario title is invalid")
-  if (!Array.isArray(raw.tags) || !raw.tags.every((tag) => typeof tag === "string")) throw new Error("scenario tags are invalid")
-  if (!Array.isArray(raw.actors) || raw.actors.length === 0) throw new Error("scenario actors are required")
+  const raw = object(value, "scenario")
+  exact(raw, ["schemaVersion", "id", "title", "description", "seed", "tags", "capabilities", "environment", "tenant", "clock", "stores", "actors", "vehicles", "drivers", "orders", "fixtures", "steps", "chaos", "expect", "cleanup"], "scenario")
+  if (raw.schemaVersion !== 1) throw new Error("scenario schemaVersion must equal 1")
+  id(raw.id, "scenario.id")
+  text(raw.title, "scenario.title")
+  text(raw.description, "scenario.description")
+  integer(raw.seed, "scenario.seed")
+  strings(raw.tags, "scenario.tags")
+  strings(raw.capabilities, "scenario.capabilities")
+  oneOf(raw.environment, ["local", "test", "staging"], "scenario.environment")
+
+  const tenant = object(raw.tenant, "scenario.tenant")
+  exact(tenant, ["id"], "scenario.tenant")
+  const tenantId = id(tenant.id, "scenario.tenant.id")
+  if (!tenantId.startsWith("testlab-")) throw new Error("scenario tenant must be visibly test-lab marked")
+
+  const clock = object(raw.clock, "scenario.clock")
+  exact(clock, ["start"], "scenario.clock")
+  if (typeof clock.start !== "string" || !ISO_DATE.test(clock.start) || Number.isNaN(Date.parse(clock.start))) throw new Error("scenario.clock.start must be an offset-qualified ISO timestamp")
+
+  const storeIds = new Set<string>()
+  for (const [index, entry] of array(raw.stores, "scenario.stores").entries()) {
+    const store = object(entry, `scenario.stores[${index}]`)
+    exact(store, ["id", "prepQueueMinutes"], `scenario.stores[${index}]`)
+    const storeId = id(store.id, `scenario.stores[${index}].id`)
+    if (storeIds.has(storeId)) throw new Error("scenario store ids must be unique")
+    storeIds.add(storeId)
+    finite(store.prepQueueMinutes, `scenario.stores[${index}].prepQueueMinutes`)
+  }
+
   const actorIds = new Set<string>()
-  for (const actor of raw.actors as Record<string, unknown>[]) {
-    if (!actor || typeof actor.id !== "string" || !ID.test(actor.id) || actorIds.has(actor.id)) throw new Error("actor ids must be valid and unique")
-    if (!["customer", "kitchen", "driver", "dispatcher", "system"].includes(String(actor.kind))) throw new Error("actor kind is invalid")
-    actorIds.add(actor.id)
+  const actorKinds = new Map<string, ActorKind>()
+  for (const [index, entry] of array(raw.actors, "scenario.actors").entries()) {
+    const actor = object(entry, `scenario.actors[${index}]`)
+    exact(actor, ["id", "kind", "profile"], `scenario.actors[${index}]`)
+    const actorId = id(actor.id, `scenario.actors[${index}].id`)
+    if (actorIds.has(actorId)) throw new Error("scenario actor ids must be unique")
+    const kind = oneOf(actor.kind, ["customer", "kitchen", "driver", "dispatcher", "system"], `scenario.actors[${index}].kind`)
+    text(actor.profile, `scenario.actors[${index}].profile`)
+    actorIds.add(actorId)
+    actorKinds.set(actorId, kind)
   }
-  if (!Array.isArray(raw.steps) || raw.steps.length === 0) throw new Error("scenario steps are required")
-  for (const step of raw.steps as Record<string, unknown>[]) {
-    if (!step || typeof step.actor !== "string" || !actorIds.has(step.actor) || typeof step.action !== "string") throw new Error("scenario step references an invalid actor/action")
+
+  const vehicleIds = new Set<string>()
+  for (const [index, entry] of array(raw.vehicles, "scenario.vehicles").entries()) {
+    const vehicle = object(entry, `scenario.vehicles[${index}]`)
+    exact(vehicle, ["id", "kind", "capacityOrders"], `scenario.vehicles[${index}]`)
+    const vehicleId = id(vehicle.id, `scenario.vehicles[${index}].id`)
+    if (vehicleIds.has(vehicleId)) throw new Error("scenario vehicle ids must be unique")
+    vehicleIds.add(vehicleId)
+    oneOf(vehicle.kind, ["bike", "car", "scooter", "foot"], `scenario.vehicles[${index}].kind`)
+    integer(vehicle.capacityOrders, `scenario.vehicles[${index}].capacityOrders`, 1)
   }
-  if (!raw.expect || typeof raw.expect !== "object" || Array.isArray(raw.expect)) throw new Error("scenario expectations are required")
-  return value as LabScenario
+
+  const driverActors = new Set<string>()
+  for (const [index, entry] of array(raw.drivers, "scenario.drivers").entries()) {
+    const driver = object(entry, `scenario.drivers[${index}]`)
+    exact(driver, ["actor", "vehicle", "state", "start", "gpsFixture"], `scenario.drivers[${index}]`)
+    const actor = id(driver.actor, `scenario.drivers[${index}].actor`)
+    if (actorKinds.get(actor) !== "driver" || driverActors.has(actor)) throw new Error("scenario driver must reference one unique driver actor")
+    driverActors.add(actor)
+    const vehicle = id(driver.vehicle, `scenario.drivers[${index}].vehicle`)
+    if (!vehicleIds.has(vehicle)) throw new Error("scenario driver references an unknown vehicle")
+    oneOf(driver.state, ["idle", "active", "offline"], `scenario.drivers[${index}].state`)
+    const start = object(driver.start, `scenario.drivers[${index}].start`)
+    exact(start, ["lat", "lng"], `scenario.drivers[${index}].start`)
+    const lat = finite(start.lat, `scenario.drivers[${index}].start.lat`, -90)
+    const lng = finite(start.lng, `scenario.drivers[${index}].start.lng`, -180)
+    if (lat > 90 || lng > 180) throw new Error("scenario driver coordinates are out of range")
+    id(driver.gpsFixture, `scenario.drivers[${index}].gpsFixture`)
+  }
+
+  const orderIds = new Set<string>()
+  for (const [index, entry] of array(raw.orders, "scenario.orders").entries()) {
+    const order = object(entry, `scenario.orders[${index}]`)
+    exact(order, ["id", "customer", "store", "items", "createdAtOffsetSeconds", "prepMinutes", "deadlineMinutes", "payment"], `scenario.orders[${index}]`)
+    const orderId = id(order.id, `scenario.orders[${index}].id`)
+    if (orderIds.has(orderId)) throw new Error("scenario order ids must be unique")
+    orderIds.add(orderId)
+    const customer = id(order.customer, `scenario.orders[${index}].customer`)
+    if (actorKinds.get(customer) !== "customer") throw new Error("scenario order customer must reference a customer actor")
+    const store = id(order.store, `scenario.orders[${index}].store`)
+    if (!storeIds.has(store)) throw new Error("scenario order references an unknown store")
+    const itemIds = new Set<string>()
+    for (const [itemIndex, itemEntry] of array(order.items, `scenario.orders[${index}].items`).entries()) {
+      const item = object(itemEntry, `scenario.orders[${index}].items[${itemIndex}]`)
+      exact(item, ["id", "quantity", "required"], `scenario.orders[${index}].items[${itemIndex}]`)
+      const itemId = id(item.id, `scenario.orders[${index}].items[${itemIndex}].id`)
+      if (itemIds.has(itemId)) throw new Error("scenario item ids must be unique per order")
+      itemIds.add(itemId)
+      integer(item.quantity, `scenario.orders[${index}].items[${itemIndex}].quantity`, 1)
+      if (typeof item.required !== "boolean") throw new Error("scenario item required must be boolean")
+    }
+    integer(order.createdAtOffsetSeconds, `scenario.orders[${index}].createdAtOffsetSeconds`)
+    finite(order.prepMinutes, `scenario.orders[${index}].prepMinutes`)
+    finite(order.deadlineMinutes, `scenario.orders[${index}].deadlineMinutes`, 1)
+    oneOf(order.payment, ["confirmed", "delayed", "failed"], `scenario.orders[${index}].payment`)
+  }
+
+  const fixtures = object(raw.fixtures, "scenario.fixtures")
+  exact(fixtures, ["routing", "traffic", "push", "network"], "scenario.fixtures")
+  for (const key of ["routing", "traffic", "push", "network"] as const) id(fixtures[key], `scenario.fixtures.${key}`)
+
+  for (const [index, entry] of array(raw.steps, "scenario.steps").entries()) {
+    const step = object(entry, `scenario.steps[${index}]`)
+    exact(step, ["actor", "action", "atSeconds", "arguments"], `scenario.steps[${index}]`)
+    const actor = id(step.actor, `scenario.steps[${index}].actor`)
+    if (!actorIds.has(actor)) throw new Error("scenario step references an unknown actor")
+    id(step.action, `scenario.steps[${index}].action`)
+    if (step.atSeconds !== undefined) integer(step.atSeconds, `scenario.steps[${index}].atSeconds`)
+    if (step.arguments !== undefined) {
+      const args = object(step.arguments, `scenario.steps[${index}].arguments`)
+      for (const argument of Object.values(args)) if (!["string", "number", "boolean"].includes(typeof argument)) throw new Error("scenario step arguments must be scalar")
+    }
+  }
+
+  let previousFaultTime = -1
+  for (const [index, entry] of array(raw.chaos, "scenario.chaos", true).entries()) {
+    const fault = object(entry, `scenario.chaos[${index}]`)
+    exact(fault, ["atSeconds", "fault", "target"], `scenario.chaos[${index}]`)
+    const at = integer(fault.atSeconds, `scenario.chaos[${index}].atSeconds`)
+    if (at < previousFaultTime) throw new Error("scenario chaos events must be time ordered")
+    previousFaultTime = at
+    id(fault.fault, `scenario.chaos[${index}].fault`)
+    text(fault.target, `scenario.chaos[${index}].target`)
+  }
+
+  const expect = object(raw.expect, "scenario.expect")
+  exact(expect, ["uiStates", "invariants", "selectedDriver", "bundleSize", "stopOrder", "optimizationTolerance"], "scenario.expect")
+  strings(expect.uiStates, "scenario.expect.uiStates")
+  if (strings(expect.invariants, "scenario.expect.invariants").length === 0) throw new Error("scenario expectations require invariants")
+  if (expect.selectedDriver !== undefined && !driverActors.has(id(expect.selectedDriver, "scenario.expect.selectedDriver"))) throw new Error("scenario expected driver is unknown")
+  if (expect.bundleSize !== undefined) integer(expect.bundleSize, "scenario.expect.bundleSize", 1)
+  if (expect.stopOrder !== undefined) {
+    for (const stop of strings(expect.stopOrder, "scenario.expect.stopOrder")) if (!orderIds.has(stop.replace(/^(pickup|dropoff)-/, ""))) throw new Error("scenario expected stop references an unknown order")
+  }
+  finite(expect.optimizationTolerance, "scenario.expect.optimizationTolerance")
+
+  const cleanup = object(raw.cleanup, "scenario.cleanup")
+  exact(cleanup, ["scope", "verifyZeroRows"], "scenario.cleanup")
+  if (cleanup.scope !== "run-only" || cleanup.verifyZeroRows !== true) throw new Error("scenario cleanup must be run-only and verified")
+  return Object.freeze(value as LabScenario)
 }

@@ -30,7 +30,7 @@
 Releaseentscheidung: **BLOCKED für Produktion; SHADOW-ONLY lokal/isoliert.**
 # Autonomous test-lab blockers — 2026-08-01
 
-- TL-G1: all profiles and descriptors exist, but the 115 handlers are deliberately `audit-only`; canonical storefront/API/UI execution is not connected.
+- TL-G1: strict DSL, deterministic fixture compiler and 65 persisted profiles are implemented; fixed-commit independent approval is pending. The 115 `audit-only` handlers block TL-G2/TL-G5 canonical execution, not the narrower TL-G1 contract.
 - TL-G2: Chromium, trace and actual dashboard E2E are green; authenticated Storefront/Kitchen/Driver production-UI fixtures and selectors remain.
 - TL-G4: a pure-optimizer comparison exists, but runtime dispatch-pipeline capture, production route sequence, diverse multi-driver/store cases and retained complete optimality-gap traces are open.
 - TL-G5: the required categories and over 75 names exist; most are not yet executable full-stack cases.

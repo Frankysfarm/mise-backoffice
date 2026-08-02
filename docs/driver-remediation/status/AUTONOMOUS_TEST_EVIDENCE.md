@@ -95,3 +95,11 @@
 - Current `npm run build`: exit 0 and 447/447 static pages generated. Webpack reported a non-fatal cache-write `ENOSPC` warning; compilation and page generation still completed.
 - Current T10 isolated local release-readiness aggregate: exit 0 across all database, race, routing, push/offline, GPS, runtime-integrity and source-contract suites.
 - Browser dependency hardening: Playwright 1.55.1 installed, matching Chromium build 1193 downloaded, and the real synthetic-driver Chromium flow reran 1/1 green. Production-dependency audit remains nonzero: two high Next/PostCSS groups and one moderate Anthropic SDK finding require breaking migrations.
+
+## Complete DSL and deterministic fixture compiler — 2026-08-02
+
+- DSL validation covers all master-contract domains and rejects root/nested unknown fields, production-like tenant identity, broken actor/store/vehicle/order references, unsafe cleanup and unordered faults before materialization.
+- Canonical fixture compilation produces sorted actor/vehicle/driver/order rows, absolute timestamps, provider fixtures, a stable mixed action/fault timeline and SHA-256 digest. Same scenario/seed is byte-identical; seed/provider changes alter the digest.
+- Focused DSL/compiler tests: 12/12 pass. Focused TypeScript check and current smoke aggregate pass.
+- Current full aggregate `tl_20260802t051000z_d51c0de2`: 83 pass, 8 intentional environment-only skips, 0 failures.
+- Scope boundary: this proves TL-G1 data/DSL determinism, not the TL-G2/TL-G5 real UI/API execution of all 115 catalog cases.
