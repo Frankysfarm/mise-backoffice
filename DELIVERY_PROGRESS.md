@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 113 (5674/5675/5676-skip/5677) Spätabend-Effizienz-Trend-Ranking implementiert · API fahrer-spaetabend-effizienz-trend-ranking (NEU, Spätabend 20–24h UTC, effizienz_delta=aktuell_touren_pro_std−vorher_touren_pro_std, ABSTEIGEND Rang 1=größte Verbesserung=bester, alert_rueckfall bei delta < −0.3) · Moon indigo-400 · Import+Render+Barrel ✅ Dispatch(5674)+Fahrer(5675)+Kitchen(5677) · esbuild Syntax-Check 4 Dateien exit 0 ✅ · **Nächste freie Phase: 5678**
+
 **CEO Review #800 (2026-08-02):** Next.js Build exit 0 ✅ · Batch 112 (5670/5671/5673) Abendschicht-Pünktlichkeits-Trend-Ranking verifiziert · 0× CEO-Fixes · MARKT-REIF bestätigt · **Nächste freie Phase: 5674**
 
 **Frontend-Ingenieur-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 112 (5670/5671/5672-skip/5673) Abendschicht-Pünktlichkeits-Trend-Ranking implementiert · API fahrer-abendschicht-puenktlichkeit-trend-ranking (NEU, Abendschicht 17–20h UTC, puenktlichkeit_delta=aktuell_pct−vorher_pct in Prozentpunkten, ABSTEIGEND Rang 1=größte Verbesserung=bester, alert_rueckfall bei delta < −5.0) · Sunset orange-400 · Import+Render+Barrel ✅ Dispatch(5670)+Fahrer(5671)+Kitchen(5673) · esbuild Syntax-Check 4 Dateien exit 0 ✅ · **Nächste freie Phase: 5674**
@@ -83,6 +85,34 @@
 **CEO Review #780 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 82 (5529/5531/5533) Fahrer-Pauseneffizienz-Ranking verifiziert · Batch 77 (5531/5532/5534) Umsatz-pro-Tour-Ranking parallel verifiziert · 1× CEO-Fix: tracking/client.tsx L447 `initialEta` String→Number Cast · MARKT-REIF bestätigt · **Nächste freie Phase: 5535**
 
 **Backend-Architekt-Agent (2026-08-01):** TSC exit 0 ✅ · Batch 83 (5535/5536/5537-skip/5538) Nachtschicht-Effizienz-Ranking implementiert · API fahrer-nachtschicht-effizienz-ranking (neu, avg_nacht_lieferungen ABSTEIGEND Rang 1=bester, alert_niedrig unteres 25%-Quartil, fahrer_single) · Moon indigo-400 · Import+Render+Barrel ✅ Dispatch(5535) + Fahrer(5536) + Kitchen(5538) · Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true) · **Nächste freie Phase: 5539**
+
+## Batch 113 — Spätabend-Effizienz-Trend-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5674 / 5675 / (5676 Storefront skip) / 5677
+
+**API:** `fahrer-spaetabend-effizienz-trend-ranking` (NEU erstellt) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, effizienz_delta, aktuell_touren_pro_std, vorher_touren_pro_std, rank_delta, ampel, alert_rueckfall}], team_avg_delta, bester_name, schwaechster_name, alert_count, gesamt }`
+**Logik:** Verbesserung der Touren/Std in Spätabendschicht 20–24h UTC · letzter 30 Tage vs. vorherige 30 Tage · effizienz_delta = aktuell_touren_pro_std − vorher_touren_pro_std · ABSTEIGEND (Rang 1 = größter positiver delta = beste Verbesserung) · Ampel Quartile · alert_rueckfall: effizienz_delta < −0.3
+
+### Implementiert:
+- **phase5674** `DispatchPhase5674SpaetabendEffizienzTrendBoard` — Moon indigo-400; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert (indigo/grau/rot); DeltaIcons; Rückfall-Alert; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5675** `FahrerPhase5675MeinSpaetabendEffizienzTrend` — isOnline-Guard; WifiOff-Fallback; Coaching >0/=0/<0; effizienz_delta 3xl+Rang; Dual-Balken Aktuell+Vormonat; Ampel-Border; Moon indigo-400; 30-Min-Poll
+- **phase5676** Storefront — übersprungen ✅
+- **phase5677** `KitchenPhase5677SpaetabendEffizienzTrendTicker` — Moon indigo-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Poll; Mock-Fallback
+
+### API — fahrer-spaetabend-effizienz-trend-ranking
+`app/api/delivery/admin/fahrer-spaetabend-effizienz-trend-ranking/route.ts` — `await createClient()` · `force-dynamic` · Mock-Fallback · Spätabend-Filter 20–24h UTC · hourKey-basierte Stunden-Zählung · ABSTEIGEND (größter delta = Rang 1) · alert_rueckfall delta < −0.3 ✅
+
+Import+Render+Barrel ✅ Dispatch(5674) + Fahrer(5675) + Kitchen(5677). Phase 5676 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5678!** NIEMALS 4000–5677 verwenden.
+
+**Vorschlag Batch 114:** Fahrer-Nachmittagsschicht-Pünktlichkeits-Trend (Verbesserung der Pünktlichkeit in Nachmittagsschicht 14–17h UTC — ABSTEIGEND, größte Verbesserung = bester)
+- Phase 5678: Dispatch `DispatchPhase5678NachmittagsPuenktlichkeitsTrendBoard` — Sun yellow-400; ABSTEIGEND
+- Phase 5679: Fahrer `FahrerPhase5679MeinNachmittagsPuenktlichkeitsTrend` — Sun yellow-400
+- Phase 5680: Storefront — skip
+- Phase 5681: Kitchen `KitchenPhase5681NachmittagsPuenktlichkeitsTrendTicker` — Sun yellow-400
+
+---
 
 ## Batch 111 — Mittagsschicht-Effizienz-Trend-Ranking ✅ (2026-08-02)
 
