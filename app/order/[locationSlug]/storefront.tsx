@@ -3450,7 +3450,7 @@ function ActiveOrderProgressPanel({ locationId, deliveryTimeMin = 35 }: { locati
       {order.isDelivery && (
         <StorefrontPhase5585DynamischeEtaLiveTrackingV22
           orderId={order.orderId ?? undefined}
-          locationId={location.id ?? undefined}
+          locationId={locationId ?? undefined}
         />
       )}
       {/* Phase 985: Live-ETA-Tracking-Banner — Farbcodierter Phasen-Fortschritt + Sekunden-Countdown + Live-Tracking-Dot */}
