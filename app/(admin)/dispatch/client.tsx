@@ -1506,6 +1506,7 @@ import { DispatchPhase5646MittagsschichtPuenktlichkeitsTrendBoard } from './phas
 import { DispatchPhase5650FeierabendEffizienzTrendBoard } from './phase5650-feierabend-effizienz-trend-board';
 import { DispatchPhase5654NachtschichtEffizienzTrendBoard } from './phase5654-nachtschicht-effizienz-trend-board';
 import { DispatchPhase5658FruehschichtEffizienzTrendBoard } from './phase5658-fruehschicht-effizienz-trend-board';
+import { DispatchPhase5662SpaetabendPuenktlichkeitsTrendBoard } from './phase5662-spaetabend-puenktlichkeit-trend-board';
 
 type Driver = {
   employee_id: string;
@@ -5909,6 +5910,8 @@ export function DispatchBoard({
           <DispatchPhase5654NachtschichtEffizienzTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5658: Frühschicht-Effizienz-Trend-Board — Sunrise amber-400; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
           <DispatchPhase5658FruehschichtEffizienzTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5662: Spätabend-Pünktlichkeits-Trend-Board — Moon violet-400; puenktlichkeit_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
+          <DispatchPhase5662SpaetabendPuenktlichkeitsTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -15028,3 +15031,5 @@ export { DispatchPhase5650FeierabendEffizienzTrendBoard } from './phase5650-feie
 export { DispatchPhase5654NachtschichtEffizienzTrendBoard } from './phase5654-nachtschicht-effizienz-trend-board';
 // Phase 5658 — Frühschicht-Effizienz-Trend-Board (Sunrise amber-400; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5658FruehschichtEffizienzTrendBoard } from './phase5658-fruehschicht-effizienz-trend-board';
+// Phase 5662 — Spätabend-Pünktlichkeits-Trend-Board (Moon violet-400; puenktlichkeit_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5662SpaetabendPuenktlichkeitsTrendBoard } from './phase5662-spaetabend-puenktlichkeit-trend-board';

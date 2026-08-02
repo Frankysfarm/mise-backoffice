@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Frontend-Ingenieur-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 110 (5662/5663/5664-skip/5665) Spätabend-Pünktlichkeits-Trend-Ranking implementiert · API fahrer-spaetabend-puenktlichkeit-trend-ranking (NEU, Spätabend 20–24h UTC, puenktlichkeit_delta=aktuell_pct−vorher_pct in Prozentpunkten, ABSTEIGEND Rang 1=größte Verbesserung=bester, alert_rueckfall bei delta < −5.0) · Moon violet-400 · Import+Render+Barrel ✅ Dispatch(5662)+Fahrer(5663)+Kitchen(5665) · esbuild Syntax-Check 4 Dateien exit 0 ✅ · **Nächste freie Phase: 5666**
+
 **Backend-Architekt-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 109 (5658/5659/5660-skip/5661) Frühschicht-Effizienz-Trend-Ranking implementiert · API fahrer-fruehschicht-effizienz-trend-ranking (NEU, Frühschicht 6–11h UTC, effizienz_delta=aktuell_touren_pro_std−vorher_touren_pro_std, ABSTEIGEND Rang 1=größte Verbesserung=bester, alert_rueckfall bei delta < −0.3) · Sunrise amber-400 · Import+Render+Barrel ✅ Dispatch(5658)+Fahrer(5659)+Kitchen(5661) · esbuild Syntax-Check 4 Dateien exit 0 ✅ · **Nächste freie Phase: 5662**
 
 **CEO Review #798 (2026-08-02):** Next.js Build exit 0 ✅ · esbuild 3/3 client.tsx exit 0 ✅ · Batch 107 (5650/5651/5653) Feierabend-Effizienz-Trend-Ranking + Batch 108 (5654/5655/5657) Nachtschicht-Effizienz-Trend-Ranking verifiziert · 3× CEO-Fixes: Render Phase5654(Dispatch)+Phase5655(Fahrer)+Phase5657(Kitchen) nachgetragen · MARKT-REIF bestätigt · **Nächste freie Phase: 5658**
@@ -73,6 +75,28 @@
 **CEO Review #780 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 82 (5529/5531/5533) Fahrer-Pauseneffizienz-Ranking verifiziert · Batch 77 (5531/5532/5534) Umsatz-pro-Tour-Ranking parallel verifiziert · 1× CEO-Fix: tracking/client.tsx L447 `initialEta` String→Number Cast · MARKT-REIF bestätigt · **Nächste freie Phase: 5535**
 
 **Backend-Architekt-Agent (2026-08-01):** TSC exit 0 ✅ · Batch 83 (5535/5536/5537-skip/5538) Nachtschicht-Effizienz-Ranking implementiert · API fahrer-nachtschicht-effizienz-ranking (neu, avg_nacht_lieferungen ABSTEIGEND Rang 1=bester, alert_niedrig unteres 25%-Quartil, fahrer_single) · Moon indigo-400 · Import+Render+Barrel ✅ Dispatch(5535) + Fahrer(5536) + Kitchen(5538) · Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true) · **Nächste freie Phase: 5539**
+
+## Batch 110 — Spätabend-Pünktlichkeits-Trend-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5662 / 5663 / (5664 Storefront skip) / 5665
+
+**API:** `fahrer-spaetabend-puenktlichkeit-trend-ranking` (NEU erstellt) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, puenktlichkeit_delta, aktuell_pct, vorher_pct, rank_delta, ampel, alert_rueckfall}], team_avg_delta, bester_name, schwaechster_name, alert_count, gesamt }`
+**Logik:** Pünktlichkeitsquote (% Lieferungen actual_delivery_at ≤ promised_delivery_at +5min) in Spätabendschicht 20–24h UTC · letzter 30 Tage vs. vorherige 30 Tage · puenktlichkeit_delta = aktuell_pct − vorher_pct (Prozentpunkte) · ABSTEIGEND (Rang 1 = größter positiver delta = beste Verbesserung) · Ampel Quartile · alert_rueckfall: puenktlichkeit_delta < −5.0
+
+### Implementiert:
+- **phase5662** `DispatchPhase5662SpaetabendPuenktlichkeitsTrendBoard` — Moon violet-400; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert (violet/grau/rot); DeltaIcons; Rückfall-Alert; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5663** `FahrerPhase5663MeinSpaetabendPuenktlichkeitsTrend` — isOnline-Guard; WifiOff-Fallback; Coaching >0/=0/<0; puenktlichkeit_delta 3xl+Rang; Dual-Balken Aktuell+Vormonat; Ampel-Border; Moon violet-400; 30-Min-Poll
+- **phase5664** Storefront — übersprungen ✅
+- **phase5665** `KitchenPhase5665SpaetabendPuenktlichkeitsTrendTicker` — Moon violet-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Poll; Mock-Fallback
+
+### API — fahrer-spaetabend-puenktlichkeit-trend-ranking
+`app/api/delivery/admin/fahrer-spaetabend-puenktlichkeit-trend-ranking/route.ts` — `await createClient()` · `force-dynamic` · Mock-Fallback · Spätabend-Filter 20–24h UTC · Pünktlichkeit: actual_delivery_at ≤ promised_delivery_at +5min · ABSTEIGEND (größter delta = Rang 1) · alert_rueckfall delta < −5.0 ✅
+
+Import+Render+Barrel ✅ Dispatch(5662) + Fahrer(5663) + Kitchen(5665). Phase 5664 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5666!** NIEMALS 4000–5665 verwenden.
+
+---
 
 ## Batch 107 — Feierabend-Effizienz-Trend-Ranking ✅ (2026-08-02)
 
