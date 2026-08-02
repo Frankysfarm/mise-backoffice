@@ -71,7 +71,8 @@ export function DispatchPhase1161TourScoreLiveVisualisierungPro({ locationId }: 
 
   return (
     <div className="rounded-2xl border border-matcha-200 bg-matcha-50 overflow-hidden">
-      <button onClick={() => setOpen(v => !v)} className="w-full flex items-center gap-2 px-4 py-3 hover:bg-matcha-100/60 transition">
+      <div className="flex w-full items-center px-4 py-3 hover:bg-matcha-100/60 transition">
+        <button type="button" onClick={() => setOpen(v => !v)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
         <Gauge size={16} className="text-matcha-700" />
         <span className="font-bold text-sm text-matcha-800 uppercase tracking-wider">Tour-Score Live</span>
         {touren.length > 0 && (
@@ -81,12 +82,13 @@ export function DispatchPhase1161TourScoreLiveVisualisierungPro({ locationId }: 
         )}
         {loading && <Loader2 size={12} className="animate-spin text-matcha-500" />}
         <div className="ml-auto flex items-center gap-1">
-          <button onClick={e => { e.stopPropagation(); load(); }} className="rounded-full p-1 hover:bg-matcha-200 transition">
-            <RefreshCw size={12} className="text-matcha-500" />
-          </button>
           {open ? <ChevronUp size={14} className="text-matcha-600" /> : <ChevronDown size={14} className="text-matcha-600" />}
         </div>
-      </button>
+        </button>
+        <button type="button" onClick={() => load()} className="ml-2 rounded-full p-1 hover:bg-matcha-200 transition" aria-label="Tour-Score Live aktualisieren">
+          <RefreshCw size={12} className="text-matcha-500" />
+        </button>
+      </div>
 
       {open && (
         <div className="border-t border-matcha-200 p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">

@@ -55,8 +55,14 @@ export function DispatchPhase1075FahrerWochenbilanzCard({ locationId }: { locati
       const p = new URLSearchParams();
       if (locationId) p.set('location_id', locationId);
       const r = await fetch(`/api/delivery/admin/fahrer-wochenbilanz?${p}`);
-      if (r.ok) setData(await r.json());
-      else throw new Error();
+      if (r.ok) {
+        const next: unknown = await r.json();
+        if (next && typeof next === 'object' && Array.isArray((next as ApiResponse).fahrer)) {
+          setData(next as ApiResponse);
+        } else {
+          setData(mock());
+        }
+      } else throw new Error();
     } catch {
       setData(mock());
     } finally {

@@ -80,8 +80,12 @@ export function DispatchPhase1080LiveFahrerstatusUebersicht({ locationId }: { lo
       const p = new URLSearchParams();
       if (locationId) p.set('location_id', locationId);
       const r = await fetch(`/api/delivery/admin/live-fahrerstatus?${p}`);
-      if (r.ok) setData(await r.json());
-      else throw new Error();
+      if (r.ok) {
+        const next: unknown = await r.json();
+        setData(next && typeof next === 'object' && Array.isArray((next as ApiResponse).fahrer)
+          ? next as ApiResponse
+          : mock());
+      } else throw new Error();
     } catch {
       setData(mock());
     } finally {

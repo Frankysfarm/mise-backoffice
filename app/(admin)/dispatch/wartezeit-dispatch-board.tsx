@@ -127,10 +127,12 @@ export function WartezeitDispatchBoard({ locationId }: { locationId: string | nu
   return (
     <div className="rounded-2xl border border-stone-200 bg-white shadow-sm overflow-hidden">
       {/* Header */}
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-stone-50 transition"
-      >
+      <div className="flex w-full items-center px-5 py-4 hover:bg-stone-50 transition">
+        <button
+          type="button"
+          onClick={() => setOpen(v => !v)}
+          className="flex min-w-0 flex-1 items-center justify-between text-left"
+        >
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600">
             <Clock className="h-4 w-4" />
@@ -151,15 +153,18 @@ export function WartezeitDispatchBoard({ locationId }: { locationId: string | nu
           )}
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={e => { e.stopPropagation(); refresh(); }}
-            className="rounded-full p-1.5 hover:bg-stone-100 transition text-stone-400"
-          >
-            <RefreshCw className={cn('h-3.5 w-3.5', refreshing && 'animate-spin')} />
-          </button>
           {open ? <ChevronUp className="h-4 w-4 text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-400" />}
         </div>
-      </button>
+        </button>
+        <button
+          type="button"
+          onClick={() => refresh()}
+          className="ml-2 rounded-full p-1.5 hover:bg-stone-100 transition text-stone-400"
+          aria-label="Wartezeit-Dashboard aktualisieren"
+        >
+          <RefreshCw className={cn('h-3.5 w-3.5', refreshing && 'animate-spin')} />
+        </button>
+      </div>
 
       {open && (
         <div className="px-5 pb-5 space-y-4">

@@ -5743,24 +5743,25 @@ function OrderRow({
   onToggle: () => void;
   onScoreClick?: (order: ReadyOrder) => void;
 }) {
-  const [, setTick] = useState(0);
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
-    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
 
   const pay = payMeta(order.zahlungsart);
-  const waitingMin = order.fertig_am
-    ? Math.floor((Date.now() - new Date(order.fertig_am).getTime()) / 60_000)
+  const waitingMin = order.fertig_am && now !== null
+    ? Math.floor((now - new Date(order.fertig_am).getTime()) / 60_000)
     : null;
-  const waitingSec = order.fertig_am
-    ? Math.floor((Date.now() - new Date(order.fertig_am).getTime()) / 1_000)
+  const waitingSec = order.fertig_am && now !== null
+    ? Math.floor((now - new Date(order.fertig_am).getTime()) / 1_000)
     : null;
   const urgent = waitingMin !== null && waitingMin >= 10;
 
   // Live ETA countdown — how long until customer's expected delivery window
-  const etaSec = order.eta_earliest
-    ? Math.floor((new Date(order.eta_earliest).getTime() - Date.now()) / 1_000)
+  const etaSec = order.eta_earliest && now !== null
+    ? Math.floor((new Date(order.eta_earliest).getTime() - now) / 1_000)
     : null;
   const etaOverdue = etaSec !== null && etaSec < 0;
   const etaSoon = etaSec !== null && etaSec >= 0 && etaSec < 900; // <15 min
@@ -7287,14 +7288,15 @@ function LongWaitOrdersPanel({
   onSelect: (id: string) => void;
   selected: Set<string>;
 }) {
-  const [, setTick] = useState(0);
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
-    const t = setInterval(() => setTick((n) => n + 1), 10_000);
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 10_000);
     return () => clearInterval(t);
   }, []);
 
-  const now = Date.now();
   const THRESHOLD_MIN = 8;
+  if (now === null) return null;
 
   const longWait = orders
     .filter((o) => o.fertig_am && Math.floor((now - new Date(o.fertig_am).getTime()) / 60_000) >= THRESHOLD_MIN)

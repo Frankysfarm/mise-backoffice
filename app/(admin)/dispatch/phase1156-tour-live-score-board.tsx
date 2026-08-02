@@ -123,10 +123,12 @@ export function DispatchPhase1156TourLiveScoreBoard({ locationId }: Props) {
 
   return (
     <div className="rounded-xl border border-matcha-200 bg-matcha-50 overflow-hidden">
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-matcha-100/60 transition"
-      >
+      <div className="flex w-full items-center px-4 py-3 hover:bg-matcha-100/60 transition">
+        <button
+          type="button"
+          onClick={() => setOpen(v => !v)}
+          className="flex min-w-0 flex-1 items-center justify-between text-left"
+        >
         <div className="flex items-center gap-2 flex-wrap">
           <Trophy className="h-4 w-4 text-matcha-600 shrink-0" />
           <span className="text-sm font-bold text-matcha-800 uppercase tracking-wider">
@@ -145,15 +147,18 @@ export function DispatchPhase1156TourLiveScoreBoard({ locationId }: Props) {
           {loading && <Loader2 className="h-3 w-3 animate-spin text-matcha-500" />}
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={(e) => { e.stopPropagation(); load(); }}
-            className="rounded-full p-1 hover:bg-matcha-200 transition"
-          >
-            <RefreshCw className="h-3 w-3 text-matcha-500" />
-          </button>
           {open ? <ChevronUp className="h-4 w-4 text-matcha-600" /> : <ChevronDown className="h-4 w-4 text-matcha-600" />}
         </div>
-      </button>
+        </button>
+        <button
+          type="button"
+          onClick={() => load()}
+          className="ml-2 rounded-full p-1 hover:bg-matcha-200 transition"
+          aria-label="Tour-Live-Score aktualisieren"
+        >
+          <RefreshCw className="h-3 w-3 text-matcha-500" />
+        </button>
+      </div>
 
       {open && (
         <div className="border-t border-matcha-200 divide-y divide-matcha-100">
