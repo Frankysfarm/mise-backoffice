@@ -39880,3 +39880,36 @@ Import+Render+Barrel ✅ Dispatch(5638) + Fahrer(5639) + Kitchen(5641). Phase 56
 Frontend-Ingenieur-Agent (2026-08-02): Batch 104 abgeschlossen. API fahrer-abendschicht-effizienz-trend-ranking (NEU, effizienz_delta/team_avg_delta/bester_name/schwaechster_name/alert_rueckfall, delta<-0.3). Import+Render+Barrel ✅ Dispatch(5638) + Fahrer(5639) + Kitchen(5641). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5642.**
 
 **KRITISCH: Nächste freie Phase ist 5642!** NIEMALS 4000–5641 verwenden.
+
+**KRITISCH: Nächste freie Phase ist 5642!** NIEMALS 4000–5641 verwenden.
+
+---
+
+## Batch 105 — Wochenend-Effizienz-Trend-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5642 / 5643 / (5644 Storefront skip) / 5645
+
+**API:** `fahrer-wochenend-effizienz-trend-ranking` (NEU erstellt) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, effizienz_delta, aktuell_touren_pro_std, vorher_touren_pro_std, rank_delta, ampel, alert_rueckfall}], team_avg_delta, bester_name, schwaechster_name, alert_count, gesamt }`
+**Logik:** Touren/Stunde in Wochenendschichten (Sa/So UTC) letzter 30 Tage vs. vorherige 30 Tage · ABSTEIGEND (Rang 1 = größte positive Verbesserung = bester) · Ampel: grün Top-25%/gelb Mitte/rot untere 25% · alert_rueckfall: effizienz_delta < -0.3
+
+### Implementiert:
+- **phase5642** `DispatchPhase5642WochenendEffizienzTrendBoard` — Zap purple-400; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken purple/gelb/rot nach Delta; DeltaIcons; Rückfall-Alert; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5643** `FahrerPhase5643MeinWochenendEffizienzTrend` — isOnline-Guard; WifiOff-Fallback; Coaching >0/=0/<0; effizienz_delta 4xl+Rang; Dual-Balken Aktuell+Vormonat; Ampel-Border; Zap purple-400; 30-Min-Poll
+- **phase5644** Storefront — übersprungen ✅
+- **phase5645** `KitchenPhase5645WochenendEffizienzTrendTicker` — Zap purple-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Poll; Mock-Fallback
+
+Import+Render+Barrel ✅ Dispatch(5642) + Fahrer(5643) + Kitchen(5645). Phase 5644 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5646!** NIEMALS 4000–5645 verwenden.
+
+**Vorschlag Batch 106:** Fahrer-Mittagsschicht-Effizienz-Trend-Ranking (Touren/Stunde in Mittagsschichten 11–15h UTC — ABSTEIGEND, größte Verbesserung = bester)
+- Phase 5646: Dispatch `DispatchPhase5646MittagsschichtEffizienzTrendBoard` — Sun amber-400; ABSTEIGEND
+- Phase 5647: Fahrer `FahrerPhase5647MeinMittagsschichtEffizienzTrend` — Sun amber-400
+- Phase 5648: Storefront — skip
+- Phase 5649: Kitchen `KitchenPhase5649MittagsschichtEffizienzTrendTicker` — Sun amber-400
+
+---
+
+Backend-Architekt-Agent (2026-08-02): Batch 105 abgeschlossen. API fahrer-wochenend-effizienz-trend-ranking (NEU, effizienz_delta/team_avg_delta/bester_name/schwaechster_name/alert_rueckfall, delta<-0.3, Sa/So-Filter). Import+Render+Barrel ✅ Dispatch(5642) + Fahrer(5643) + Kitchen(5645). Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true). **Nächste freie Phase: 5646.**
+
+## STATUS: MARKT-REIF

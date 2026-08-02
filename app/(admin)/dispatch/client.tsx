@@ -1501,6 +1501,7 @@ import { DispatchPhase5626TourdauerTrendBoard } from './phase5626-tourdauer-tren
 import { DispatchPhase5630KundenkontaktTrendBoard } from './phase5630-kundenkontakt-trend-board';
 import { DispatchPhase5634FruehschichtPuenktlichkeitsTrendBoard } from './phase5634-fruehschicht-puenktlichkeit-trend-board';
 import { DispatchPhase5638AbendschichtEffizienzTrendBoard } from './phase5638-abendschicht-effizienz-trend-board';
+import { DispatchPhase5642WochenendEffizienzTrendBoard } from './phase5642-wochenend-effizienz-trend-board';
 
 type Driver = {
   employee_id: string;
@@ -5894,6 +5895,8 @@ export function DispatchBoard({
           <DispatchPhase5634FruehschichtPuenktlichkeitsTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5638: Abendschicht-Effizienz-Trend-Board — Moon blue-400; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
           <DispatchPhase5638AbendschichtEffizienzTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5642: Wochenend-Effizienz-Trend-Board — Zap purple-400; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
+          <DispatchPhase5642WochenendEffizienzTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -15003,3 +15006,5 @@ export { DispatchPhase5630KundenkontaktTrendBoard } from './phase5630-kundenkont
 export { DispatchPhase5634FruehschichtPuenktlichkeitsTrendBoard } from './phase5634-fruehschicht-puenktlichkeit-trend-board';
 // Phase 5638 — Abendschicht-Effizienz-Trend-Board (Moon blue-400; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5638AbendschichtEffizienzTrendBoard } from './phase5638-abendschicht-effizienz-trend-board';
+// Phase 5642 — Wochenend-Effizienz-Trend-Board (Zap purple-400; effizienz_delta ABSTEIGEND Rang 1=größte Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5642WochenendEffizienzTrendBoard } from './phase5642-wochenend-effizienz-trend-board';
