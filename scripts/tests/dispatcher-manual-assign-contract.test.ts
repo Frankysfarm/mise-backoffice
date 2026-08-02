@@ -14,6 +14,7 @@ test('Dispatcher UI has one fail-closed manual assignment boundary', async () =>
   assert.match(source, /Promise<boolean>/);
   assert.match(source, /if \(await onAssign\(orderIds, bestDriver\.employee_id\)\) setDismissed/);
   assert.match(source, /if \(await onAssign\(\[topOrder!\.id\], bestDriver\.employee_id\)\)/);
+  assert.equal((source.match(/return await assignToDriver\(driverId, orderIds\)/g) ?? []).length, 2);
   assert.doesNotMatch(source, /DispatchPhase1223FahrerEinsatzPlaner|DispatchPhase1838FreierFahrerSofortZuweisung|DispatchBatchReassignDialog/);
 });
 

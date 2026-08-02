@@ -3130,7 +3130,7 @@ export function DispatchBoard({
         restaurantLat={locationFilter !== 'all' ? (locations.find((l) => l.id === locationFilter)?.lat ?? null) : (locations[0]?.lat ?? null)}
         restaurantLng={locationFilter !== 'all' ? (locations.find((l) => l.id === locationFilter)?.lng ?? null) : (locations[0]?.lng ?? null)}
         onAssign={async (orderIds, driverId) => {
-          await assignToDriver(driverId, orderIds);
+          return await assignToDriver(driverId, orderIds);
         }}
       />
 
@@ -3260,7 +3260,7 @@ export function DispatchBoard({
           drivers={onlineDrivers}
           batches={batches}
           onAssign={async (orderIds, driverId) => {
-            await assignToDriver(driverId, orderIds);
+            return await assignToDriver(driverId, orderIds);
           }}
         />
       )}
