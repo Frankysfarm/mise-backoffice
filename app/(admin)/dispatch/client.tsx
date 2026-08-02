@@ -1495,6 +1495,7 @@ import { DispatchPhase5602PuenktlichkeitsTrendBoard } from './phase5602-puenktli
 import { DispatchPhase5606BewertungsTrendBoard } from './phase5606-bewertungs-trend-board';
 import { DispatchPhase5610TrinkgeldTrendBoard } from './phase5610-trinkgeld-trend-board';
 import { DispatchPhase5614UmsatzTrendBoard } from './phase5614-umsatz-trend-board';
+import { DispatchPhase5618ReaktionszeitTrendBoard } from './phase5618-reaktionszeit-trend-board';
 
 type Driver = {
   employee_id: string;
@@ -5876,6 +5877,8 @@ export function DispatchBoard({
           <DispatchPhase5610TrinkgeldTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5614: Umsatz-Trend-Board — TrendingUp emerald-400; umsatz_delta ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
           <DispatchPhase5614UmsatzTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5618: Reaktionszeit-Trend-Board — TrendingDown cyan-400; reaktionszeit_delta_sek AUFSTEIGEND Rang 1=größte Verkürzung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; DeltaIcons; Rückfall-Alert; 30-Min-Polling */}
+          <DispatchPhase5618ReaktionszeitTrendBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14974,3 +14977,4 @@ export { DispatchPhase5606BewertungsTrendBoard } from './phase5606-bewertungs-tr
 export { DispatchPhase5610TrinkgeldTrendBoard } from './phase5610-trinkgeld-trend-board';
 // Phase 5614 — Umsatz-Trend-Board (TrendingUp emerald-400; umsatz_delta ABSTEIGEND Rang 1=größte positive Verbesserung=bester; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert; DeltaIcons; Rückfall-Alert alert_rueckfall; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5614UmsatzTrendBoard } from './phase5614-umsatz-trend-board';
+export { DispatchPhase5618ReaktionszeitTrendBoard } from './phase5618-reaktionszeit-trend-board';

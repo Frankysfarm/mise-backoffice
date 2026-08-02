@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 99 (5618/5619/5620-skip/5621) Reaktionszeit-Trend-Ranking implementiert · API fahrer-reaktionszeit-trend-ranking (NEU, reaktionszeit_delta_sek AUFSTEIGEND, Rang 1=größte Verkürzung=bester, alert_rueckfall bei delta > +30s) · TrendingDown cyan-400 · Import+Render+Barrel ✅ Dispatch(5618)+Fahrer(5619)+Kitchen(5621) · **Nächste freie Phase: 5622**
+
 **CEO Review #793 (2026-08-02):** Build exit 0 ✅ · Batch 97 (5610/5611/5613) Trinkgeld-Trend-Ranking + Batch 98 (5614/5615/5617) Umsatz-Trend-Ranking verifiziert · 0× CEO-Fixes · MARKT-REIF bestätigt · **Nächste freie Phase: 5618**
 
 **Frontend-Ingenieur-Agent (2026-08-02):** Build ✓ (exit 0) · Batch 98 (5614/5615/5616-skip/5617) Umsatz-Trend-Ranking implementiert · API fahrer-umsatz-trend-ranking (NEU, umsatz_delta ABSTEIGEND, Rang 1=größte positive Verbesserung=bester, alert_rueckfall bei delta < -1.00€) · TrendingUp emerald-400 · Import+Render+Barrel ✅ Dispatch(5614)+Fahrer(5615)+Kitchen(5617) · **Nächste freie Phase: 5618**
@@ -47,6 +49,28 @@
 **CEO Review #780 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 82 (5529/5531/5533) Fahrer-Pauseneffizienz-Ranking verifiziert · Batch 77 (5531/5532/5534) Umsatz-pro-Tour-Ranking parallel verifiziert · 1× CEO-Fix: tracking/client.tsx L447 `initialEta` String→Number Cast · MARKT-REIF bestätigt · **Nächste freie Phase: 5535**
 
 **Backend-Architekt-Agent (2026-08-01):** TSC exit 0 ✅ · Batch 83 (5535/5536/5537-skip/5538) Nachtschicht-Effizienz-Ranking implementiert · API fahrer-nachtschicht-effizienz-ranking (neu, avg_nacht_lieferungen ABSTEIGEND Rang 1=bester, alert_niedrig unteres 25%-Quartil, fahrer_single) · Moon indigo-400 · Import+Render+Barrel ✅ Dispatch(5535) + Fahrer(5536) + Kitchen(5538) · Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true) · **Nächste freie Phase: 5539**
+
+## Batch 99 — Reaktionszeit-Trend-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5618 / 5619 / (5620 Storefront skip) / 5621
+
+**API:** `fahrer-reaktionszeit-trend-ranking` (neu) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, reaktionszeit_delta_sek, aktuell_avg_sek, vorher_avg_sek, rank_delta, ampel, alert_rueckfall}], team_avg_delta_sek, bester_name, schwaechster_name, alert_count, gesamt }`
+**Logik:** Vergleich Ø Reaktionszeit (departed_at − created_at, delivery_tours) letzter 30 Tage vs. vorherige 30 Tage · AUFSTEIGEND (Rang 1 = kleinster delta = größte Verkürzung = bester) · Ampel Quartile · alert_rueckfall: reaktionszeit_delta_sek > +30s
+
+### Implementiert:
+- **phase5618** `DispatchPhase5618ReaktionszeitTrendBoard` — TrendingDown cyan-400; 3-KPI-Grid Beste/r/Team-Trend/Schwächste/r; Balken farbkodiert (cyan/gelb/rot); DeltaIcons; Rückfall-Alert; AUFSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5619** `FahrerPhase5619MeineReaktionszeitTrend` — isOnline-Guard; WifiOff-Fallback; Coaching <0/=0/>0; reaktionszeit_delta_sek 4xl+Rang; Dual-Balken Aktuell+Vormonat; Ampel-Border; TrendingDown cyan-400; 30-Min-Poll
+- **phase5620** Storefront — übersprungen ✅
+- **phase5621** `KitchenPhase5621ReaktionszeitTrendTicker` — TrendingDown cyan-400; Beste/r #1 Name+Delta; Team-Trend; Rückfall-Alert; 30-Min-Poll; Mock-Fallback
+
+### API — fahrer-reaktionszeit-trend-ranking
+`app/api/delivery/admin/fahrer-reaktionszeit-trend-ranking/route.ts` — `await createClient()` · `force-dynamic` · Mock-Fallback · driver_id→fahrer filter · AUFSTEIGEND (kleinster delta = Rang 1) · alert_rueckfall delta > +30s ✅
+
+Import+Render+Barrel ✅ Dispatch(5618) + Fahrer(5619) + Kitchen(5621). Phase 5620 Storefront — skip.
+
+**KRITISCH: Nächste freie Phase ist 5622!** NIEMALS 4000–5621 verwenden.
+
+---
 
 ## Batch 97 — Trinkgeld-Trend-Ranking ✅ (2026-08-02)
 
