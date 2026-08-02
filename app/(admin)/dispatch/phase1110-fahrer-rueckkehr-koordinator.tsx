@@ -80,7 +80,10 @@ export function DispatchPhase1110FahrerRueckkehrKoordinator({ locationId }: Prop
     try {
       const res = await fetch(`/api/delivery/admin/fahrer-rueckkehr-koordinator?location_id=${encodeURIComponent(locationId)}`);
       if (!res.ok) throw new Error('fetch');
-      setData(await res.json());
+      const next: unknown = await res.json();
+      setData(next && typeof next === 'object' && Array.isArray((next as ApiData).fahrer)
+        ? next as ApiData
+        : MOCK);
     } catch {
       setData(MOCK);
     } finally {

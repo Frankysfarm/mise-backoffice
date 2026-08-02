@@ -122,14 +122,14 @@ function computeHealth(drivers: Driver[], batches: Batch[], readyOrders: ReadyOr
 }
 
 export function DispatchFlottenGesundheitsIndex({ drivers, batches, readyOrders }: Props) {
-  const [, setTick] = useState(0);
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
-    const iv = setInterval(() => setTick(n => n + 1), 15_000);
+    setNow(Date.now());
+    const iv = setInterval(() => setNow(Date.now()), 15_000);
     return () => clearInterval(iv);
   }, []);
 
-  const now = Date.now();
-  const health = computeHealth(drivers, batches, readyOrders, now);
+  const health = computeHealth(drivers, batches, readyOrders, now ?? 0);
 
   const gradeBg = {
     A: 'from-matcha-600 to-matcha-500',
