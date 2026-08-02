@@ -1,0 +1,34 @@
+[
+  {
+    "bundleSize": 1,
+    "algorithmVersion": "adaptive-set-packing-v1",
+    "productionAssignments": ["driver-1|order-a"],
+    "oracleAssignments": ["driver-1|order-a"],
+    "verdict": "EXACT_MATCH",
+    "assignedOrderGap": 0
+  },
+  {
+    "bundleSize": 2,
+    "algorithmVersion": "adaptive-set-packing-v1",
+    "productionAssignments": ["driver-1|order-a,order-b"],
+    "oracleAssignments": ["driver-1|order-a,order-b"],
+    "verdict": "EXACT_MATCH",
+    "assignedOrderGap": 0
+  },
+  {
+    "bundleSize": 3,
+    "algorithmVersion": "adaptive-set-packing-v1",
+    "productionAssignments": ["driver-1|order-a,order-b,order-c"],
+    "oracleAssignments": ["driver-1|order-a,order-b,order-c"],
+    "verdict": "EXACT_MATCH",
+    "assignedOrderGap": 0
+  },
+  {
+    "bundleSize": 4,
+    "algorithmVersion": "adaptive-set-packing-v1",
+    "productionAssignments": ["driver-1|order-a,order-b,order-c,order-d"],
+    "oracleAssignments": ["driver-1|order-a,order-b,order-c,order-d"],
+    "verdict": "EXACT_MATCH",
+    "assignedOrderGap": 0
+  }
+]
