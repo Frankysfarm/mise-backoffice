@@ -1489,6 +1489,7 @@ import { DispatchPhase5577ReaktionszeitBoard } from './phase5577-reaktionszeit-b
 import { DispatchPhase5582ScoreTourVisualisierungV48 } from './phase5582-score-tour-visualisierung-v48';
 import { DispatchPhase5586SchichtAbbruchBoard } from './phase5586-schicht-abbruch-board';
 import { DispatchPhase5590WartezeitRestaurantBoard } from './phase5590-wartezeit-restaurant-board';
+import { DispatchPhase5594PeakStundenAnteilBoard } from './phase5594-peak-stunden-anteil-board';
 
 type Driver = {
   employee_id: string;
@@ -5858,6 +5859,8 @@ export function DispatchBoard({
           <DispatchPhase5586SchichtAbbruchBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5590: Wartezeit-Restaurant-Board — Clock cyan-400; avg_wartezeit_min AUFSTEIGEND Rang 1=kürzeste Wartezeit=bester; 3-KPI-Grid Beste/r/Team-Ø/Längste/r; DeltaIcons; Lang-Alert; 30-Min-Polling */}
           <DispatchPhase5590WartezeitRestaurantBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
+          {/* Phase 5594: Peak-Stunden-Anteil-Board — Flame amber-400; peak_anteil_pct ABSTEIGEND Rang 1=höchster Peak-Anteil=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; DeltaIcons; Niedrig-Alert; 30-Min-Polling */}
+          <DispatchPhase5594PeakStundenAnteilBoard locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
           {/* Phase 5543: Score + Tour-Visualisierung V43 — Pünktlichkeit-Ampel, Kundenbindungs-Score, Schicht-Balance-Fairness, Tour-Qualitäts-Composite, 11-KPI-Grid, 7-Tab */}
           <DispatchPhase5543ScoreTourVisualisierungV43 locationId={locationFilter !== 'all' ? locationFilter : (locations[0]?.id ?? null)} />
         </div>
@@ -14944,3 +14947,5 @@ export { DispatchPhase5582ScoreTourVisualisierungV48 } from './phase5582-score-t
 export { DispatchPhase5586SchichtAbbruchBoard } from './phase5586-schicht-abbruch-board';
 // Phase 5590 — Wartezeit-Restaurant-Board (Clock cyan-400; avg_wartezeit_min AUFSTEIGEND Rang 1=kürzeste Wartezeit=bester; 3-KPI-Grid Beste/r/Team-Ø/Längste/r; Balken farbkodiert; DeltaIcons; Lang-Alert alert_lang; 30-Min-Polling; Mock-Fallback)
 export { DispatchPhase5590WartezeitRestaurantBoard } from './phase5590-wartezeit-restaurant-board';
+// Phase 5594 — Peak-Stunden-Anteil-Board (Flame amber-400; peak_anteil_pct ABSTEIGEND Rang 1=höchster Peak-Anteil=bester; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert; DeltaIcons; Niedrig-Alert alert_niedrig; 30-Min-Polling; Mock-Fallback)
+export { DispatchPhase5594PeakStundenAnteilBoard } from './phase5594-peak-stunden-anteil-board';

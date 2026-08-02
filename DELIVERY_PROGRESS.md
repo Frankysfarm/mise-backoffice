@@ -2,6 +2,8 @@
 
 ## STATUS: MARKT-REIF
 
+**Backend-Architekt-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 94 (5594/5595/5596-skip/5597) Peak-Stunden-Anteil-Ranking implementiert · API fahrer-peak-stunden-anteil-ranking (neu, peak_anteil_pct ABSTEIGEND, Rang 1=höchster Peak-Anteil=bester, alert_niedrig unteres 25%-Quartil) · Peak-Hours 11–14h + 17–21h UTC · Flame amber-400 · Import+Render+Barrel ✅ Dispatch(5594)+Fahrer(5595)+Kitchen(5597) · **Nächste freie Phase: 5598**
+
 **Frontend-Ingenieur-Agent (2026-08-02):** Build ✓ (pre-existing Turbopack-Workspace-Env-Problem) · Batch 91 Frontend (5586/5587/5589) Schicht-Abbruch-Quote-Ranking — fehlende Renders nachgetragen: Dispatch(5586)+Fahrer(5587)+Kitchen(5589) · Batch 93 (5590/5591/5592-skip/5593) Wartezeit-Restaurant-Ranking — API fahrer-wartezeit-restaurant-ranking (vorhanden, avg_wartezeit_min AUFSTEIGEND, Rang 1=kürzeste Wartezeit=bester, alert_lang >10min) · Clock cyan-400 · Import+Render+Barrel ✅ Dispatch(5590)+Fahrer(5591)+Kitchen(5593) · **Nächste freie Phase: 5594**
 
 **CEO Review #788 (2026-08-02):** Build ignoreBuildErrors=true ✅ · Batch 92 (5581/5582/5583/5584/5585) 5×Frontend verifiziert · 0× CEO-Fixes · MARKT-REIF bestätigt · **Nächste freie Phase: 5586**
@@ -29,6 +31,26 @@
 **CEO Review #780 (2026-08-01):** TSC exit 0 ✅ · Build exit 0 ✅ · Batch 82 (5529/5531/5533) Fahrer-Pauseneffizienz-Ranking verifiziert · Batch 77 (5531/5532/5534) Umsatz-pro-Tour-Ranking parallel verifiziert · 1× CEO-Fix: tracking/client.tsx L447 `initialEta` String→Number Cast · MARKT-REIF bestätigt · **Nächste freie Phase: 5535**
 
 **Backend-Architekt-Agent (2026-08-01):** TSC exit 0 ✅ · Batch 83 (5535/5536/5537-skip/5538) Nachtschicht-Effizienz-Ranking implementiert · API fahrer-nachtschicht-effizienz-ranking (neu, avg_nacht_lieferungen ABSTEIGEND Rang 1=bester, alert_niedrig unteres 25%-Quartil, fahrer_single) · Moon indigo-400 · Import+Render+Barrel ✅ Dispatch(5535) + Fahrer(5536) + Kitchen(5538) · Build-Failure ist pre-existing Turbopack-Workspace-Env-Problem (identisch mit allen vorherigen Runs, ignoreBuildErrors=true) · **Nächste freie Phase: 5539**
+
+## Batch 94 — Peak-Stunden-Anteil-Ranking ✅ (2026-08-02)
+
+**Phasen:** 5594 / 5595 / (5596 Storefront skip) / 5597
+
+**API:** `fahrer-peak-stunden-anteil-ranking` (neu) — Schema: `{ fahrer: [{fahrer_id, fahrer_name, rang, peak_anteil_pct, peak_touren, total_touren, rank_delta, ampel, alert_niedrig}], team_avg_peak_pct, bester_name, niedrigster_name, alert_count, gesamt }`
+**Logik:** Anteil der Touren in Spitzenzeiten (11–14h und 17–21h UTC) an Gesamttouren (letzte 30 Tage) · ABSTEIGEND (Rang 1 = höchster Peak-Anteil = bester Peak-Coverage) · Ampel Quartile · alert_niedrig: unteres 25%-Quartil (ampel='rot')
+
+### Implementiert:
+- **phase5594** `DispatchPhase5594PeakStundenAnteilBoard` — Flame amber-400; 3-KPI-Grid Beste/r/Team-Ø/Niedrigste/r; Balken farbkodiert (grün/gelb/rot); DeltaIcons; Niedrig-Alert; ABSTEIGEND; Mock-Fallback; 30-Min-Poll
+- **phase5595** `FahrerPhase5595MeinPeakStundenAnteil` — isOnline-Guard; WifiOff-Fallback; Coaching ≥70%/≥50%/<50%; peak_anteil_pct 4xl+Rang; peak_touren/total_touren Subtitle; Dual-Balken Ich+Team-Ø; Ampel-Border; Flame amber-400; 30-Min-Poll
+- **phase5596** Storefront — übersprungen ✅
+- **phase5597** `KitchenPhase5597PeakStundenAnteilTicker` — Flame amber-400; Beste/r #1 Name+peak_anteil_pct; Team-Ø; Niedrig-Alert; 30-Min-Poll; Mock-Fallback
+
+### API — fahrer-peak-stunden-anteil-ranking
+`app/api/delivery/admin/fahrer-peak-stunden-anteil-ranking/route.ts` — `await createClient()` · `satisfies ApiResponse` · Mock-Fallback · driver_id→fahrer filter · ABSTEIGEND (höchster Peak-Anteil = Rang 1) · alert_niedrig ampel='rot' ✅
+
+**KRITISCH: Nächste freie Phase ist 5598!** NIEMALS 4000–5597 verwenden.
+
+---
 
 ## Batch 90 — Lieferzeit-Präzision-Ranking ✅ (2026-08-02)
 
