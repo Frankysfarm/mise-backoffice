@@ -41,12 +41,19 @@ test("real Chromium advances an item in the production Kitchen component", async
       if (request.method() === "PATCH") {
         const body = request.postDataJSON()
         mutations.push({ pathname: target.pathname, search: target.search, body })
-        if ((body as { station_status?: string }).station_status === "fertig" && finishAttempts++ === 0) {
-          await route.fulfill({ status: 500, headers: { "access-control-allow-origin": "*" }, contentType: "application/json", body: JSON.stringify({ message: "synthetic write failure" }) })
-          return
+        if ((body as { station_status?: string }).station_status === "fertig") {
+          const attempt = finishAttempts++
+          if (attempt === 0) {
+            await route.fulfill({ status: 500, headers: { "access-control-allow-origin": "*" }, contentType: "application/json", body: JSON.stringify({ message: "synthetic write failure" }) })
+            return
+          }
+          if (attempt === 1) {
+            await route.fulfill({ status: 200, headers: { "access-control-allow-origin": "*", "content-profile": "public" }, contentType: "application/json", body: "[]" })
+            return
+          }
         }
       }
-      await route.fulfill({ status: 200, headers: { "access-control-allow-origin": "*", "content-profile": "public" }, contentType: "application/json", body: "[]" })
+      await route.fulfill({ status: 200, headers: { "access-control-allow-origin": "*", "content-profile": "public" }, contentType: "application/json", body: JSON.stringify([{ id: "testlab-kitchen-item-1" }]) })
     } else {
       await route.continue()
     }
@@ -59,12 +66,18 @@ test("real Chromium advances an item in the production Kitchen component", async
     await page.getByTestId("kitchen-finish-testlab-kitchen-item-1").click()
     await page.getByTestId("kitchen-mutation-error").waitFor()
     await page.getByTestId("kitchen-order-testlab-kitchen-order-1").waitFor()
+    const zeroRowResponse = page.waitForResponse((response) => response.request().method() === "PATCH" && response.status() === 200)
+    await page.getByTestId("kitchen-finish-testlab-kitchen-item-1").click()
+    await zeroRowResponse
+    await page.getByTestId("kitchen-mutation-error").waitFor()
+    await page.getByTestId("kitchen-order-testlab-kitchen-order-1").waitFor()
     await page.getByTestId("kitchen-finish-testlab-kitchen-item-1").click()
     await page.getByText("Alles erledigt.", { exact: true }).waitFor()
     assert.deepEqual(mutations, [
-      { pathname: "/rest/v1/order_items", search: "?id=eq.testlab-kitchen-item-1", body: { station_status: "in_arbeit" } },
-      { pathname: "/rest/v1/order_items", search: "?id=eq.testlab-kitchen-item-1", body: { station_status: "fertig" } },
-      { pathname: "/rest/v1/order_items", search: "?id=eq.testlab-kitchen-item-1", body: { station_status: "fertig" } },
+      { pathname: "/rest/v1/order_items", search: "?id=eq.testlab-kitchen-item-1&station_id=eq.testlab-station-hot&station_status=eq.offen&select=id", body: { station_status: "in_arbeit" } },
+      { pathname: "/rest/v1/order_items", search: "?id=eq.testlab-kitchen-item-1&station_id=eq.testlab-station-hot&station_status=eq.in_arbeit&select=id", body: { station_status: "fertig" } },
+      { pathname: "/rest/v1/order_items", search: "?id=eq.testlab-kitchen-item-1&station_id=eq.testlab-station-hot&station_status=eq.in_arbeit&select=id", body: { station_status: "fertig" } },
+      { pathname: "/rest/v1/order_items", search: "?id=eq.testlab-kitchen-item-1&station_id=eq.testlab-station-hot&station_status=eq.in_arbeit&select=id", body: { station_status: "fertig" } },
     ])
     assert.deepEqual(external, [])
     assert.deepEqual(pageErrors, [])

@@ -88,8 +88,16 @@ export function StationDisplay({
   async function advance(itemId: string, to: 'in_arbeit' | 'fertig') {
     setMutationError(null);
     try {
-      const { error } = await supabase.from('order_items').update({ station_status: to }).eq('id', itemId);
-      if (error) throw error;
+      const current = items.find((item) => item.id === itemId);
+      if (!current || (current.station_status !== 'offen' && current.station_status !== 'in_arbeit')) throw new Error('stale item');
+      const { data, error } = await supabase.from('order_items')
+        .update({ station_status: to })
+        .eq('id', itemId)
+        .eq('station_id', station.id)
+        .eq('station_status', current.station_status)
+        .select('id')
+        .maybeSingle();
+      if (error || !data?.id) throw error ?? new Error('stale item');
       setItems((arr) => to === 'fertig'
         ? arr.filter((i) => i.id !== itemId)
         : arr.map((item) => item.id === itemId ? { ...item, station_status: to } : item));
