@@ -45,8 +45,10 @@ export function DispatchPhase1253ZoneBestelldichteOverlay({ locationId }: { loca
     if (!locationId) return;
     setLoading(true);
     fetch(`/api/delivery/admin/echtzeit-bestelldichte?location_id=${locationId}`)
-      .then(r => r.json())
-      .then((d: ApiResponse) => setData(d))
+      .then(r => r.ok ? r.json() : null)
+      .then((d: ApiResponse | null) => setData(
+        d && Array.isArray(d.zonen) && Array.isArray(d.hotspot_zonen) ? d : null,
+      ))
       .catch(() => {})
       .finally(() => setLoading(false));
   };

@@ -61,7 +61,10 @@ export function DispatchPhase1287FahrerEinsatzOptimierer({ locationId }: { locat
     try {
       const r = await fetch(`/api/delivery/admin/fahrer-einsatz-optimierer?location_id=${locationId}`);
       if (!r.ok) throw new Error();
-      setData(await r.json());
+      const next: unknown = await r.json();
+      setData(next && typeof next === 'object' && Array.isArray((next as ApiResponse).fahrer)
+        ? next as ApiResponse
+        : MOCK);
     } catch {
       setData(MOCK);
     } finally {
@@ -137,7 +140,7 @@ export function DispatchPhase1287FahrerEinsatzOptimierer({ locationId }: { locat
 
               {/* Driver list */}
               <div className="space-y-1.5">
-                {data.fahrer
+                {[...data.fahrer]
                   .sort((a, b) => {
                     const order = ['ueberausgelastet', 'unterausgelastet', 'optimal'];
                     return order.indexOf(a.auslastung) - order.indexOf(b.auslastung);
