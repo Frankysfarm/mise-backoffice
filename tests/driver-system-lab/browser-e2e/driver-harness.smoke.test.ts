@@ -12,7 +12,8 @@ test("real Chromium clicks the synthetic driver lifecycle and retains visual evi
     return testContext.skip("requires explicit MISE_TEST_LAB_BROWSER=true")
   }
   const runId = createTestRunId(new Date("2026-08-02T00:00:00.000Z"), "00000000-0000-4000-8000-000000000001")
-  const artifactDirectory = join(tmpdir(), "mise-driver-system-lab", runId)
+  const artifactRoot = process.env.MISE_TEST_LAB_ARTIFACT_ROOT ?? join(tmpdir(), "mise-driver-system-lab")
+  const artifactDirectory = join(artifactRoot, runId)
   const screenshot = join(artifactDirectory, "driver-harness-delivered.png")
   const trace = join(artifactDirectory, "driver-harness-trace.zip")
   await mkdir(artifactDirectory, { recursive: true })
