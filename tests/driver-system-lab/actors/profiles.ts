@@ -92,6 +92,13 @@ function profile<TBehavior extends string>(
   metadata: ActorProfile<TBehavior>['metadata'] = {},
 ): ActorProfile<TBehavior> {
   const prefix = `lab-${testRunId}`
+  const defaults: ActorProfile<TBehavior>['metadata'] = kind === 'customer'
+    ? { paymentMode: behavior.includes('payment') ? 'controlled-delay' : 'test-confirmed', deadlineMinutes: behavior.includes('tight') ? 20 : 45, sequence: index }
+    : kind === 'kitchen'
+      ? { prepMinutes: behavior.includes('late') ? 25 : behavior.includes('early') ? 3 : 10, queueDepth: behavior.includes('overloaded') ? 12 : 2, sequence: index }
+      : kind === 'driver'
+        ? { vehicle: behavior.includes('bike') ? 'bike' : 'car', capacityOrders: behavior.includes('small') ? 2 : 4, gpsAgeSeconds: behavior.includes('stale') ? 600 : 5, online: !behavior.includes('offline'), sequence: index }
+        : { authority: behavior.includes('override') ? 'versioned-test-override' : 'observe', sequence: index }
   return {
     id: `${prefix}-${kind}-${index}`,
     kind,
@@ -99,7 +106,7 @@ function profile<TBehavior extends string>(
     displayName: `${prefix} ${kind} ${behavior}`,
     testRunId,
     tenantId,
-    metadata,
+    metadata: Object.keys(metadata).length > 0 ? metadata : defaults,
   }
 }
 
@@ -137,4 +144,3 @@ export function createCanonicalActorProfiles(testRunId: string, tenantId: string
     dispatchers: dispatchers.map((behavior, index) => profile(testRunId, tenantId, 'dispatcher', behavior, index + 1)),
   } as const
 }
-

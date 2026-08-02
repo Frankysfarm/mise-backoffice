@@ -5,7 +5,7 @@ Updated: 2026-08-02
 | Gate | Current decision | Evidence / blocker |
 |---|---|---|
 | TL-G0 Isolation | GREEN | Central guard received two independent P0 approvals at `8dd1eb2e`; atomic run+tenant cleanup received two independent approvals at `003b2c53`. Disposable PostgreSQL integration passes. |
-| TL-G1 Data Factory / DSL | READY FOR REVIEW | Strict complete DSL rejects unknown fields and unsafe/cross-invalid input; deterministic compiler emits canonical hashed actors/orders/providers/timeline. All 65 profiles persist in run-owned PostgreSQL. Canonical UI/API execution is tracked under TL-G2/TL-G5. |
+| TL-G1 Data Factory / DSL | PARTIAL / REVIEW REJECT | First review rejected tenant-prefix, incomplete-digest, unbound-registry and disconnected-factory gaps. Corrections now unify `testlab_`, bind profiles/actions/faults/providers/GPS/expectations, resolve concrete fixtures, seed idempotency data and materialize the compiled scenario in PostgreSQL; fixed-commit re-review is pending. |
 | TL-G2 UI actors | PARTIAL | Real Chromium clicks, screenshot and trace pass for the synthetic driver lifecycle and actual guarded Next dashboard. Real Storefront/Kitchen/Driver production UIs with auth fixtures remain open. |
 | TL-G3 Invariant monitor | PARTIAL / REVIEW REJECT | Post-review hardening adds cross-tenant route/pick, batch-driver, stop-order, numeric, sequence, fingerprint and temporal push checks; focused tests pass, but canonical DB-snapshot integration and re-review are open. |
 | TL-G4 Dispatch oracle | PARTIAL | A captured test invokes the real pure adaptive optimizer for bundle sizes 1–4 and compares through the independent oracle seam. Diverse captures and concrete production stop-sequence comparison remain open. |
@@ -18,9 +18,9 @@ Updated: 2026-08-02
 
 Current release decision: `BLOCKED` (confirmed independently). No production action occurred.
 
-First gate awaiting independent closure: **TL-G1 Data Factory / Scenario DSL**.
-Its implementation now matches the TL-G1 contract; independent fixed-commit
-review is required before GREEN. The 115 catalog descriptors still lack
+First incomplete gate: **TL-G1 Data Factory / Scenario DSL**. Review-found
+P1 gaps have been corrected locally; independent fixed-commit re-review is
+required before GREEN. The 115 catalog descriptors still lack
 canonical Storefront/Kitchen/Driver/Dispatcher API/UI execution under TL-G2/TL-G5.
 
 Build status: GREEN on a clean retry (`npm run build`, 447 pages). The generated

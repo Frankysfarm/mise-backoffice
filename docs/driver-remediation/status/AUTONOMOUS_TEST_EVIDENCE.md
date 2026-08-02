@@ -100,6 +100,10 @@
 
 - DSL validation covers all master-contract domains and rejects root/nested unknown fields, production-like tenant identity, broken actor/store/vehicle/order references, unsafe cleanup and unordered faults before materialization.
 - Canonical fixture compilation produces sorted actor/vehicle/driver/order rows, absolute timestamps, provider fixtures, a stable mixed action/fault timeline and SHA-256 digest. Same scenario/seed is byte-identical; seed/provider changes alter the digest.
-- Focused DSL/compiler tests: 12/12 pass. Focused TypeScript check and current smoke aggregate pass.
+- Initial focused DSL/compiler tests: 12/12 pass; after registry/digest hardening the focused set is 16/16. Focused TypeScript check and current smoke aggregate pass.
 - Current full aggregate `tl_20260802t051000z_d51c0de2`: 83 pass, 8 intentional environment-only skips, 0 failures.
 - Scope boundary: this proves TL-G1 data/DSL determinism, not the TL-G2/TL-G5 real UI/API execution of all 115 catalog cases.
+- First independent TL-G1 reviews: both REJECT at `cbc27456`, no P0. They independently reproduced a `testlab-`/`testlab_` mismatch, identical digests after material semantic changes, arbitrary profile/provider/fault references, inert seed and a compiler disconnected from PostgreSQL.
+- Post-review correction: DSL uses the central `testlab_` identity; actor profiles, actions, faults/targets, GPS/provider fixtures and expectation IDs bind to declared registries. Provider/GPS IDs resolve to concrete deterministic data. The digest now includes the complete validated source plus items, step arguments, expectations and cleanup; seed derives order idempotency keys.
+- PostgreSQL factory now verifies tenant/seed, stores the exact scenario manifest/digest and materializes stores, scenario actors, vehicles, drivers with GPS paths, orders/items/times, timeline and providers in the run-owned schema. Canonical 65 actor rows now carry kind-specific capacity/GPS/prep/payment metadata. Disposable factory/concurrency rerun: 3/3 pass.
+- Post-correction full aggregate `tl_20260802t060000z_d51c0de3`: 87 pass, 8 intentional environment-only skips, 0 failures.

@@ -7,7 +7,7 @@ export const completeScenario = {
   tags: ["dispatch", "routing", "ui"],
   capabilities: ["browser", "routing-simulator"],
   environment: "local",
-  tenant: { id: "testlab-alpha" },
+  tenant: { id: "testlab_alpha" },
   clock: { start: "2026-08-01T18:00:00+02:00" },
   stores: [{ id: "store-a", prepQueueMinutes: 6 }],
   actors: [

@@ -1,3 +1,6 @@
+import { createCanonicalActorProfiles } from "../actors/profiles"
+import { gpsFixtures, hasOwnFixture, infrastructureTargets, invariantIds, networkFixtures, pushFixtures, routingFixtures, scenarioActions, scenarioFaults, trafficFixtures, uiStateIds } from "../fixtures/registry"
+
 export type ActorKind = "customer" | "kitchen" | "driver" | "dispatcher" | "system"
 export type VehicleKind = "bike" | "car" | "scooter" | "foot"
 
@@ -59,7 +62,16 @@ export type LabScenario = Readonly<{
 }>
 
 const ID = /^[a-z][a-z0-9-]{2,63}$/
+const TENANT_ID = /^testlab_[a-z0-9][a-z0-9_-]{1,55}$/
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/
+const profiles = createCanonicalActorProfiles("tl_20260802t000000z_00000000", "testlab_registry")
+const PROFILE_BY_KIND = new Map<ActorKind, Set<string>>([
+  ["customer", new Set(profiles.customers.map((profile) => profile.behavior))],
+  ["kitchen", new Set(profiles.kitchens.map((profile) => profile.behavior))],
+  ["driver", new Set(profiles.drivers.map((profile) => profile.behavior))],
+  ["dispatcher", new Set(profiles.dispatchers.map((profile) => profile.behavior))],
+  ["system", new Set(["canonical"])],
+])
 
 function object(value: unknown, label: string): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`${label} must be an object`)
@@ -122,8 +134,7 @@ export function validateScenario(value: unknown): LabScenario {
 
   const tenant = object(raw.tenant, "scenario.tenant")
   exact(tenant, ["id"], "scenario.tenant")
-  const tenantId = id(tenant.id, "scenario.tenant.id")
-  if (!tenantId.startsWith("testlab-")) throw new Error("scenario tenant must be visibly test-lab marked")
+  if (typeof tenant.id !== "string" || !TENANT_ID.test(tenant.id)) throw new Error("scenario tenant must use the guarded testlab_ prefix")
 
   const clock = object(raw.clock, "scenario.clock")
   exact(clock, ["start"], "scenario.clock")
@@ -147,7 +158,8 @@ export function validateScenario(value: unknown): LabScenario {
     const actorId = id(actor.id, `scenario.actors[${index}].id`)
     if (actorIds.has(actorId)) throw new Error("scenario actor ids must be unique")
     const kind = oneOf(actor.kind, ["customer", "kitchen", "driver", "dispatcher", "system"], `scenario.actors[${index}].kind`)
-    text(actor.profile, `scenario.actors[${index}].profile`)
+    const profile = text(actor.profile, `scenario.actors[${index}].profile`)
+    if (!PROFILE_BY_KIND.get(kind)?.has(profile)) throw new Error(`scenario actor profile is unknown for ${kind}`)
     actorIds.add(actorId)
     actorKinds.set(actorId, kind)
   }
@@ -178,7 +190,8 @@ export function validateScenario(value: unknown): LabScenario {
     const lat = finite(start.lat, `scenario.drivers[${index}].start.lat`, -90)
     const lng = finite(start.lng, `scenario.drivers[${index}].start.lng`, -180)
     if (lat > 90 || lng > 180) throw new Error("scenario driver coordinates are out of range")
-    id(driver.gpsFixture, `scenario.drivers[${index}].gpsFixture`)
+    const gpsFixture = id(driver.gpsFixture, `scenario.drivers[${index}].gpsFixture`)
+    if (!hasOwnFixture(gpsFixtures, gpsFixture)) throw new Error("scenario driver references an unknown GPS fixture")
   }
 
   const orderIds = new Set<string>()
@@ -210,18 +223,25 @@ export function validateScenario(value: unknown): LabScenario {
 
   const fixtures = object(raw.fixtures, "scenario.fixtures")
   exact(fixtures, ["routing", "traffic", "push", "network"], "scenario.fixtures")
-  for (const key of ["routing", "traffic", "push", "network"] as const) id(fixtures[key], `scenario.fixtures.${key}`)
+  const fixtureRegistries = { routing: routingFixtures, traffic: trafficFixtures, push: pushFixtures, network: networkFixtures } as const
+  for (const key of ["routing", "traffic", "push", "network"] as const) {
+    const fixtureId = id(fixtures[key], `scenario.fixtures.${key}`)
+    if (!hasOwnFixture(fixtureRegistries[key], fixtureId)) throw new Error(`scenario references an unknown ${key} fixture`)
+  }
 
   for (const [index, entry] of array(raw.steps, "scenario.steps").entries()) {
     const step = object(entry, `scenario.steps[${index}]`)
     exact(step, ["actor", "action", "atSeconds", "arguments"], `scenario.steps[${index}]`)
     const actor = id(step.actor, `scenario.steps[${index}].actor`)
     if (!actorIds.has(actor)) throw new Error("scenario step references an unknown actor")
-    id(step.action, `scenario.steps[${index}].action`)
+    const action = id(step.action, `scenario.steps[${index}].action`)
+    if (!scenarioActions.has(action)) throw new Error("scenario step action is unknown")
     if (step.atSeconds !== undefined) integer(step.atSeconds, `scenario.steps[${index}].atSeconds`)
     if (step.arguments !== undefined) {
       const args = object(step.arguments, `scenario.steps[${index}].arguments`)
-      for (const argument of Object.values(args)) if (!["string", "number", "boolean"].includes(typeof argument)) throw new Error("scenario step arguments must be scalar")
+      for (const argument of Object.values(args)) {
+        if (!["string", "number", "boolean"].includes(typeof argument) || (typeof argument === "number" && !Number.isFinite(argument))) throw new Error("scenario step arguments must be finite scalar values")
+      }
     }
   }
 
@@ -232,14 +252,19 @@ export function validateScenario(value: unknown): LabScenario {
     const at = integer(fault.atSeconds, `scenario.chaos[${index}].atSeconds`)
     if (at < previousFaultTime) throw new Error("scenario chaos events must be time ordered")
     previousFaultTime = at
-    id(fault.fault, `scenario.chaos[${index}].fault`)
-    text(fault.target, `scenario.chaos[${index}].target`)
+    const faultId = id(fault.fault, `scenario.chaos[${index}].fault`)
+    if (!scenarioFaults.has(faultId)) throw new Error("scenario chaos fault is unknown")
+    const target = text(fault.target, `scenario.chaos[${index}].target`)
+    if (!actorIds.has(target) && !infrastructureTargets.has(target)) throw new Error("scenario chaos target is unknown")
   }
 
   const expect = object(raw.expect, "scenario.expect")
   exact(expect, ["uiStates", "invariants", "selectedDriver", "bundleSize", "stopOrder", "optimizationTolerance"], "scenario.expect")
-  strings(expect.uiStates, "scenario.expect.uiStates")
-  if (strings(expect.invariants, "scenario.expect.invariants").length === 0) throw new Error("scenario expectations require invariants")
+  const uiStates = strings(expect.uiStates, "scenario.expect.uiStates")
+  if (uiStates.some((state) => !uiStateIds.has(state))) throw new Error("scenario expected UI state is unknown")
+  const invariants = strings(expect.invariants, "scenario.expect.invariants")
+  if (invariants.length === 0) throw new Error("scenario expectations require invariants")
+  if (invariants.some((invariant) => !invariantIds.has(invariant))) throw new Error("scenario expected invariant is unknown")
   if (expect.selectedDriver !== undefined && !driverActors.has(id(expect.selectedDriver, "scenario.expect.selectedDriver"))) throw new Error("scenario expected driver is unknown")
   if (expect.bundleSize !== undefined) integer(expect.bundleSize, "scenario.expect.bundleSize", 1)
   if (expect.stopOrder !== undefined) {
