@@ -29,11 +29,15 @@ export function mutationHandler(action: DriverV2Action) {
       return NextResponse.json(result, { status: result.ok ? 200 : statusForDriverV2Reason(result.reason_code) });
     } catch (error) {
       const reason = error instanceof Error ? error.message : 'INVALID_REQUEST';
-      const safeReason = reason.startsWith('EXPECTED_') || reason.startsWith('INVALID_')
-        || reason.endsWith('_REQUIRED') ? reason : 'DRIVER_V2_REQUEST_FAILED';
+      const isClientReason = reason.startsWith('EXPECTED_') || reason.startsWith('INVALID_')
+        || reason.endsWith('_REQUIRED');
+      const safeReason = isClientReason ? reason : 'DRIVER_V2_SERVICE_UNAVAILABLE';
       let snapshot = null;
       if (auth) snapshot = await loadDriverV2Snapshot(sb(), auth.driver.id, correlationId).catch(() => null);
-      return NextResponse.json({ ok: false, reason_code: safeReason, correlation_id: correlationId, snapshot }, { status: statusForDriverV2Reason(safeReason) });
+      return NextResponse.json(
+        { ok: false, reason_code: safeReason, correlation_id: correlationId, snapshot },
+        { status: isClientReason ? statusForDriverV2Reason(safeReason) : 503 },
+      );
     }
   };
 }

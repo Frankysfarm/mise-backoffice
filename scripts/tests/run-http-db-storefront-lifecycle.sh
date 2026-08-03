@@ -49,7 +49,7 @@ psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -c \
 psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -c 'CREATE SCHEMA IF NOT EXISTS auth AUTHORIZATION supabase_auth_admin'
 psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -c 'ALTER ROLE supabase_auth_admin IN DATABASE mise_remediation SET search_path = auth'
 
-docker run --rm -d --name "$container" \
+docker run -d --name "$container" \
   --add-host host.docker.internal:host-gateway \
   -p "127.0.0.1:${postgrest_upstream_port}:3000" \
   -e "PGRST_DB_URI=postgresql://authenticator:testlab-postgrest@host.docker.internal:${database_port}/mise_remediation" \

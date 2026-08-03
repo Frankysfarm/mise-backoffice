@@ -645,6 +645,54 @@ test("Driver HTTP boundary rejects changed idempotency payload and stale assignm
   assert.equal(scalar(`select count(*) from driver_api_compatibility_events_v2 where correlation_id=(select correlation_id from driver_action_requests_v2 where action_id='${reusedActionId}')`), "1")
 })
 
+test("PostgREST outage before Driver acknowledgement fails closed and recovery commits once", async () => {
+  const container = process.env.MISE_TEST_LAB_POSTGREST_CONTAINER
+  if (!container?.startsWith("mise-testlab-postgrest-tl_")) throw new Error("guarded local PostgREST container required")
+  const actionId = "93000000-0000-4000-8000-000000000022"
+  const payload = {
+    action_id: actionId,
+    expected_state: "assigned",
+    expected_versions: { driver: 5, assignment: 1 },
+    occurred_at: "2026-08-03T00:00:22.000Z",
+  }
+  const acknowledge = () => fetch(`${appUrl}/api/driver/v2/assignments/ack`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${issuedDriverAccessToken}` },
+    body: JSON.stringify(payload),
+  })
+
+  execFileSync("docker", ["stop", container], { stdio: "pipe" })
+  try {
+    const unavailable = await acknowledge()
+    const unavailableBody = await unavailable.json() as { ok?: boolean; reason_code?: string }
+    assert.equal(unavailable.status, 503, JSON.stringify(unavailableBody))
+    assert.equal(unavailableBody.ok, false)
+    assert.equal(unavailableBody.reason_code, "DRIVER_V2_SERVICE_UNAVAILABLE")
+    assert.equal(scalar(`select count(*) from driver_action_requests_v2 where action_id='${actionId}'`), "0")
+  } finally {
+    execFileSync("docker", ["start", container], { stdio: "pipe" })
+  }
+  let ready = false
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    try {
+      const response = await fetch(`${postgrestUrl}/rest/v1/`, {
+        headers: { apikey: localServiceKey!, authorization: `Bearer ${localServiceKey}` },
+      })
+      if (response.ok) { ready = true; break }
+    } catch { /* expected during guarded local restart */ }
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+  assert.equal(ready, true)
+
+  const recovered = await acknowledge()
+  const recoveredBody = await recovered.json() as { ok?: boolean; idempotent_replay?: boolean }
+  assert.equal(recovered.status, 200, JSON.stringify(recoveredBody))
+  assert.equal(recoveredBody.ok, true)
+  assert.notEqual(recoveredBody.idempotent_replay, true)
+  assert.equal(scalar(`select count(*) from driver_action_requests_v2 where action_id='${actionId}'`), "1")
+  assert.equal(scalar(`select count(*) from driver_api_compatibility_events_v2 where correlation_id=(select correlation_id from driver_action_requests_v2 where action_id='${actionId}')`), "1")
+})
+
 test("Next application restart preserves Storefront idempotency and database state", async () => {
   const oldPid = Number(process.env.MISE_TEST_LAB_NEXT_PID)
   if (!Number.isSafeInteger(oldPid) || oldPid <= 1) throw new Error("guarded local Next pid required")
@@ -689,6 +737,26 @@ test("Next application restart preserves Storefront idempotency and database sta
     assert.equal(scalar("select count(*) from customer_orders"), "2")
     assert.equal(scalar("select count(*) from storefront_order_requests_v1"), "2")
     assert.equal(scalar("select count(*) from mise_push_outbox"), "2")
+
+    const driverAfterRestart = await fetch(`${appUrl}/api/driver/v2/snapshot`, {
+      headers: { authorization: `Bearer ${issuedDriverAccessToken}` },
+    })
+    const driverBody = await driverAfterRestart.json() as {
+      ok?: boolean
+      snapshot?: { driver?: { id?: string }; assignment?: { received_by_app_at?: string | null } | null }
+    }
+    assert.equal(driverAfterRestart.status, 200, JSON.stringify(driverBody))
+    assert.equal(driverBody.ok, true)
+    assert.equal(driverBody.snapshot?.driver?.id, "90000000-0000-4000-8000-000000000001")
+    assert.ok(driverBody.snapshot?.assignment?.received_by_app_at)
+
+    const adminAfterRestart = await fetch(`${appUrl}/api/admin/drivers`, {
+      headers: { cookie: issuedAdminCookie }, redirect: "manual",
+    })
+    const adminBody = await adminAfterRestart.json() as { ok?: boolean; drivers?: Array<{ id?: string }> }
+    assert.equal(adminAfterRestart.status, 200, JSON.stringify(adminBody))
+    assert.equal(adminBody.ok, true)
+    assert.deepEqual(adminBody.drivers?.map((row) => row.id), ["90000000-0000-4000-8000-000000000001"])
   } finally {
     next.kill("SIGTERM")
   }

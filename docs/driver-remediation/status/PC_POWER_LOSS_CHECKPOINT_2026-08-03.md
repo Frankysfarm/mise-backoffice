@@ -22,7 +22,7 @@ correctly failed closed because the writer lease expired during a long cold Next
 test now renews the exact same elected writer lease immediately before assignment.
 
 Confirming result after the invariant/race/service-restart/role/GoTrue extension: `npm run test:lab:lifecycle:http-db`, exit 0,
-16/16. It proves Storefront
+17/17. It proves Storefront
 create/replay, token-bound atomic Kitchen-ready, boundary/cross-station rejection, Atomic-v2
 assignment/replay with exactly one batch/assignment/push, Driver ACK, pickup arrival, incomplete
 manifest rejection, whole-trip pickup/departure, drop-off arrival, delivery completion/replay,
@@ -37,6 +37,7 @@ Pinned local GoTrue issues the Driver JWT; the real Driver-v2 snapshot accepts i
 The second GoTrue user authenticates through a real Admin SSR cookie; the tenant-scoped Admin route excludes a foreign-tenant driver.
 GoTrue restart preserves both sessions, and a discarded committed Driver-ACK response retries with exactly one registry/event write.
 Changed-idempotency and stale-assignment requests fail closed without additional writes.
+A pre-commit PostgREST outage returns retryable 503 with zero writes; recovery commits the identical Driver request exactly once.
 
 Next required command (local only):
 
