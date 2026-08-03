@@ -10,6 +10,8 @@ app_port="3210"
 container="mise-testlab-postgrest-${run_id}"
 jwt_secret="mise-test-lab-only-secret-at-least-thirty-two-characters"
 service_key=$(node tests/driver-system-lab/support/local-jwt.mjs "$jwt_secret" service_role)
+anon_key=$(node tests/driver-system-lab/support/local-jwt.mjs "$jwt_secret" anon)
+authenticated_key=$(node tests/driver-system-lab/support/local-jwt.mjs "$jwt_secret" authenticated)
 database_port=$(node -e 'process.stdout.write(new URL(process.argv[1]).port)' "$TEST_DATABASE_URL")
 
 cleanup() {
@@ -85,6 +87,8 @@ MISE_TEST_LAB_ROUTING_MODE=fixture \
 MISE_TEST_LAB_APP_URL="http://127.0.0.1:${app_port}" \
 MISE_TEST_LAB_POSTGREST_URL="http://127.0.0.1:${postgrest_port}" \
 MISE_TEST_LAB_LOCAL_SERVICE_KEY="$service_key" \
+MISE_TEST_LAB_LOCAL_ANON_KEY="$anon_key" \
+MISE_TEST_LAB_LOCAL_AUTHENTICATED_KEY="$authenticated_key" \
 MISE_TEST_LAB_POSTGREST_CONTAINER="$container" \
 MISE_TEST_LAB_NEXT_PID="$app_pid" \
 NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:${postgrest_port}" \

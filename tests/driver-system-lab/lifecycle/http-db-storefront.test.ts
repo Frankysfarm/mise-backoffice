@@ -10,8 +10,10 @@ if (!appUrl || new URL(appUrl).hostname !== "127.0.0.1") {
 }
 const postgrestUrl = process.env.MISE_TEST_LAB_POSTGREST_URL
 const localServiceKey = process.env.MISE_TEST_LAB_LOCAL_SERVICE_KEY
-if (!postgrestUrl || new URL(postgrestUrl).hostname !== "127.0.0.1" || !localServiceKey) {
-  throw new Error("local PostgREST URL and service key are required")
+const localAnonKey = process.env.MISE_TEST_LAB_LOCAL_ANON_KEY
+const localAuthenticatedKey = process.env.MISE_TEST_LAB_LOCAL_AUTHENTICATED_KEY
+if (!postgrestUrl || new URL(postgrestUrl).hostname !== "127.0.0.1" || !localServiceKey || !localAnonKey || !localAuthenticatedKey) {
+  throw new Error("local PostgREST URL and role keys are required")
 }
 
 function scalar(sql: string): string {
@@ -420,6 +422,32 @@ test("PostgREST restart preserves terminal state and idempotent completion recov
   assert.equal(scalar(`select status from customer_orders where id='${orderId}'`), "delivered")
   assert.equal(scalar(`select state from dispatch_offer_assignments where id='${assignmentId}'`), "completed")
   assert.equal(scalar("select count(*) from mise_push_outbox"), "2")
+})
+
+test("PostgREST grants and RLS deny browser roles from canonical lifecycle writes", async () => {
+  const deniedRpcPayload = {
+    p_tenant_id: "80000000-0000-4000-8000-000000000001",
+    p_writer_id: "91000000-0000-4000-8000-000000000001", p_writer_epoch: 1,
+    p_driver_id: "90000000-0000-4000-8000-000000000001", p_expected_driver_version: 5,
+    p_action_id: "92000000-0000-4000-8000-000000000099", p_algorithm_version: "forbidden",
+    p_orders: [], p_push_title: "forbidden", p_push_body: "forbidden",
+  }
+  for (const token of [localAnonKey, localAuthenticatedKey]) {
+    const rpcResponse = await fetch(`${postgrestUrl}/rest/v1/rpc/fn_dispatch_assign_orders_v2`, {
+      method: "POST",
+      headers: { "content-type": "application/json", apikey: token!, authorization: `Bearer ${token}` },
+      body: JSON.stringify(deniedRpcPayload),
+    })
+    assert.ok([401, 403, 404].includes(rpcResponse.status), `unexpected browser-role RPC status ${rpcResponse.status}`)
+
+    const directWrite = await fetch(`${postgrestUrl}/rest/v1/customer_orders?id=eq.${scalar("select id from customer_orders limit 1")}`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json", apikey: token!, authorization: `Bearer ${token}`, prefer: "return=representation" },
+      body: JSON.stringify({ status: "delivered" }),
+    })
+    assert.ok([401, 403, 404].includes(directWrite.status), `unexpected browser-role write status ${directWrite.status}`)
+  }
+  assert.equal(scalar("select count(*) from dispatch_assignment_requests_v2 where action='forbidden'"), "0")
 })
 
 test("Next application restart preserves Storefront idempotency and database state", async () => {
