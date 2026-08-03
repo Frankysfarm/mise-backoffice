@@ -268,6 +268,30 @@ test("real Driver lifecycle enforces complete pick manifest and reaches terminal
   assert.equal(scalar(`select state||':'||state_version||':'||current_capacity from mise_drivers where id='${driverId}'`), "returning:4:0")
   assert.equal(scalar(`select string_agg(type||':'||state,',' order by sequence) from mise_delivery_batch_stops where batch_id='${batchId}'`), "pickup:completed,dropoff:completed")
   assert.equal(scalar("select count(*) from mise_push_outbox"), "1")
+
+  const redispatch = await rpc("fn_dispatch_assign_orders_v2", {
+    p_tenant_id: tenantId,
+    p_writer_id: "91000000-0000-4000-8000-000000000001",
+    p_writer_epoch: Number(scalar(`select writer_epoch from dispatch_writer_gates where tenant_id='${tenantId}'`)),
+    p_driver_id: driverId,
+    p_expected_driver_version: 4,
+    p_action_id: "92000000-0000-4000-8000-000000000003",
+    p_algorithm_version: "testlab-fixture-v1",
+    p_orders: [{
+      order_id: orderId, expected_order_version: 4,
+      pickup_lat: 52.5200, pickup_lng: 13.4050, dropoff_lat: 52.5100, dropoff_lng: 13.3900,
+      pickup_address: "Testküche", dropoff_address: "Testweg 1",
+      pickup_deadline_at: new Date(Date.now() + 20 * 60_000).toISOString(),
+      delivery_deadline_at: new Date(Date.now() + 50 * 60_000).toISOString(),
+    }],
+    p_push_title: "Neue Lieferung", p_push_body: "Darf nicht entstehen",
+  })
+  assert.equal(redispatch.status, 200)
+  assert.equal(redispatch.body.ok, false)
+  assert.equal(redispatch.body.reason_code, "ORDER_NOT_ASSIGNABLE")
+  assert.equal(scalar("select count(*) from mise_delivery_batches"), "1")
+  assert.equal(scalar("select count(*) from dispatch_offer_assignments"), "1")
+  assert.equal(scalar("select count(*) from mise_push_outbox"), "1")
 })
 
 test("concurrent final Kitchen items serialize and make the order ready exactly once", async () => {
@@ -298,4 +322,18 @@ test("concurrent final Kitchen items serialize and make the order ready exactly 
   assert.deepEqual(finished.map((response) => response.status), [200, 200])
   assert.equal(scalar(`select status||':'||(fertig_am is not null) from customer_orders where id='${orderId}'`), "fertig:true")
   assert.equal(scalar(`select count(*) from order_items where order_id='${orderId}' and station_status='fertig'`), "2")
+})
+
+test("canonical database snapshot has no lifecycle invariant violations", () => {
+  const violations = {
+    active_assignment_duplicates: scalar(`select count(*) from (select order_id from dispatch_offer_assignments where state in ('offered','accepted','assigned','picked_up','in_progress') group by order_id having count(*)>1) x`),
+    active_batch_duplicates: scalar(`select count(*) from (select driver_id from mise_delivery_batches where state in ('pending_acceptance','assigned','at_pickup','in_progress','on_route') group by driver_id having count(*)>1) x`),
+    orphan_assignments: scalar(`select count(*) from dispatch_offer_assignments a left join customer_orders o on o.id=a.order_id left join mise_delivery_batches b on b.id=a.batch_id left join mise_drivers d on d.id=a.driver_id where o.id is null or b.id is null or d.id is null`),
+    orphan_stops: scalar(`select count(*) from mise_delivery_batch_stops s left join mise_delivery_batches b on b.id=s.batch_id left join customer_orders o on o.id=s.order_id where b.id is null or o.id is null`),
+    capacity_mismatch: scalar(`select count(*) from mise_drivers d where d.current_capacity<>(select count(*) from dispatch_offer_assignments a where a.driver_id=d.id and a.state in ('assigned','picked_up','in_progress'))`),
+    terminal_active_assignments: scalar(`select count(*) from customer_orders o join dispatch_offer_assignments a on a.order_id=o.id where o.status in ('delivered','cancelled') and a.state in ('offered','accepted','assigned','picked_up','in_progress')`),
+    duplicate_assignment_pushes: scalar(`select count(*) from (select data->>'batch_id' from mise_push_outbox where type='order_assigned' group by data->>'batch_id' having count(*)>1) x`),
+    invalid_stop_sequences: scalar(`select count(*) from (select batch_id,min(sequence) lo,max(sequence) hi,count(*) n,count(distinct sequence) dn from mise_delivery_batch_stops group by batch_id having min(sequence)<>0 or max(sequence)<>count(*)-1 or count(*)<>count(distinct sequence)) x`),
+  }
+  assert.deepEqual(violations, Object.fromEntries(Object.keys(violations).map((key) => [key, "0"])))
 })
