@@ -19,8 +19,8 @@ local PostgreSQL database and real local PostgREST. The first complete run after
 correctly failed closed because the writer lease expired during a long cold Next compile. The
 test now renews the exact same elected writer lease immediately before assignment.
 
-Confirming result after the invariant/race/service-restart/role extension: `npm run test:lab:lifecycle:http-db`, exit 0,
-11/11. It proves Storefront
+Confirming result after the invariant/race/service-restart/role/GoTrue extension: `npm run test:lab:lifecycle:http-db`, exit 0,
+12/12. It proves Storefront
 create/replay, token-bound atomic Kitchen-ready, boundary/cross-station rejection, Atomic-v2
 assignment/replay with exactly one batch/assignment/push, Driver ACK, pickup arrival, incomplete
 manifest rejection, whole-trip pickup/departure, drop-off arrival, delivery completion/replay,
@@ -31,6 +31,7 @@ Restarting the local PostgREST service preserves terminal state and the idempote
 registry.
 Restarting the local Next application also preserves Storefront idempotency and all row counts.
 Real PostgREST denies both `anon` and `authenticated` JWTs from lifecycle RPC/table writes.
+Pinned local GoTrue issues the Driver JWT; the real Driver-v2 snapshot accepts it and rejects an invalid JWT with 401.
 
 Next required command (local only):
 

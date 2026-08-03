@@ -99,6 +99,7 @@ export async function updateSession(request: NextRequest) {
     pathname === '/unsubscribe' ||
     pathname.startsWith('/api/track/') ||
     pathname.startsWith('/api/driver/v1/') ||
+    pathname.startsWith('/api/driver/v2/') ||
     pathname === '/apps' || pathname === '/driver' || pathname.startsWith('/driver/') || pathname === '/lieferdienst' || pathname.startsWith('/lieferdienst/') || pathname.startsWith('/api/lieferdienst/') || pathname.startsWith('/api/driver-app/') || pathname === '/pos/terminal-v5' || pathname.startsWith('/pos/terminal-v5/');
 
   if (!user && !isPublic) {

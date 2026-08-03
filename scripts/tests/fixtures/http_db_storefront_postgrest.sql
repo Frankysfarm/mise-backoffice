@@ -24,7 +24,16 @@ CREATE TABLE public.mise_drivers (
   active boolean NOT NULL DEFAULT false,
   state text NOT NULL,
   last_position_at timestamptz,
-  updated_at timestamptz NOT NULL DEFAULT now()
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  auth_user_id uuid,
+  employee_id uuid,
+  phone text,
+  email text,
+  vehicle text NOT NULL DEFAULT 'bike',
+  max_radius_km numeric NOT NULL DEFAULT 10,
+  frank_mode text NOT NULL DEFAULT 'manual',
+  total_deliveries integer NOT NULL DEFAULT 0,
+  total_earnings numeric NOT NULL DEFAULT 0
 );
 CREATE TABLE public.mise_driver_tenants (
   driver_id uuid NOT NULL REFERENCES public.mise_drivers(id),
@@ -51,6 +60,9 @@ ALTER TABLE public.customer_orders
   ADD COLUMN mise_driver_id uuid REFERENCES public.mise_drivers(id),
   ADD COLUMN eta_latest timestamptz,
   ADD COLUMN geliefert_am timestamptz,
+  ADD COLUMN kunde_plz text,
+  ADD COLUMN kunde_lat numeric,
+  ADD COLUMN kunde_lng numeric,
   ADD COLUMN updated_at timestamptz NOT NULL DEFAULT now();
 CREATE TABLE public.mise_delivery_batch_stops (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),

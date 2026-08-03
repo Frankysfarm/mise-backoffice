@@ -450,6 +450,43 @@ test("PostgREST grants and RLS deny browser roles from canonical lifecycle write
   assert.equal(scalar("select count(*) from dispatch_assignment_requests_v2 where action='forbidden'"), "0")
 })
 
+test("GoTrue-issued JWT authenticates the real Driver snapshot boundary and invalid JWT fails closed", async () => {
+  const signup = await fetch(`${postgrestUrl}/auth/v1/signup`, {
+    method: "POST",
+    headers: { "content-type": "application/json", apikey: localAnonKey! },
+    body: JSON.stringify({ email: "driver-testlab@mise.invalid", password: "Testlab-Driver-Password-2026!" }),
+  })
+  const auth = await signup.json() as { access_token?: string; user?: { id?: string }; error?: string; msg?: string }
+  assert.equal(signup.status, 200, JSON.stringify(auth))
+  assert.match(auth.access_token ?? "", /^ey[^.]*\.[^.]+\.[^.]+$/)
+  assert.match(auth.user?.id ?? "", /^[0-9a-f-]{36}$/)
+
+  const authUserId = auth.user!.id!
+  scalar(`update mise_drivers set auth_user_id='${authUserId}' where id='90000000-0000-4000-8000-000000000001'`)
+  assert.equal(scalar(`select count(*) from auth.users where id='${authUserId}' and confirmed_at is not null`), "1")
+
+  const snapshotResponse = await fetch(`${appUrl}/api/driver/v2/snapshot`, {
+    headers: { authorization: `Bearer ${auth.access_token}` },
+  })
+  const snapshot = await snapshotResponse.json() as {
+    ok?: boolean
+    reason_code?: string
+    snapshot?: { driver?: { id?: string }; assignment?: { state?: string } | null }
+  }
+  assert.equal(snapshotResponse.status, 200, JSON.stringify(snapshot))
+  assert.equal(snapshot.ok, true)
+  assert.equal(snapshot.snapshot?.driver?.id, "90000000-0000-4000-8000-000000000001")
+  assert.equal(snapshot.snapshot?.assignment?.state, "assigned")
+
+  const denied = await fetch(`${appUrl}/api/driver/v2/snapshot`, {
+    headers: { authorization: "Bearer eyInvalid.header.signature" },
+  })
+  const deniedBody = await denied.json() as { ok?: boolean; reason_code?: string }
+  assert.equal(denied.status, 401, JSON.stringify(deniedBody))
+  assert.equal(deniedBody.ok, false)
+  assert.equal(deniedBody.reason_code, "UNAUTHORIZED")
+})
+
 test("Next application restart preserves Storefront idempotency and database state", async () => {
   const oldPid = Number(process.env.MISE_TEST_LAB_NEXT_PID)
   if (!Number.isSafeInteger(oldPid) || oldPid <= 1) throw new Error("guarded local Next pid required")
