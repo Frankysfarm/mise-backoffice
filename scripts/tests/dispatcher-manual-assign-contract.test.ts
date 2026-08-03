@@ -14,7 +14,10 @@ test('Dispatcher UI has one fail-closed manual assignment boundary', async () =>
   assert.match(source, /Promise<boolean>/);
   assert.match(source, /if \(await onAssign\(orderIds, bestDriver\.employee_id\)\) setDismissed/);
   assert.match(source, /if \(await onAssign\(\[topOrder!\.id\], bestDriver\.employee_id\)\)/);
-  assert.equal((source.match(/return await assignToDriver\(driverId, orderIds\)/g) ?? []).length, 2);
+  assert.equal((source.match(/return await assignToDriver\(driverId, orderIds\)/g) ?? []).length, 0,
+    'removed diagnostic assignment adapters must not remain in the startup board');
+  assert.match(source, /onAssign=\{\(\) => assignToDriver\(d\.employee_id\)\}/,
+    'canonical driver row must retain the single manual-assignment boundary');
   assert.doesNotMatch(source, /DispatchPhase1223FahrerEinsatzPlaner|DispatchPhase1838FreierFahrerSofortZuweisung|DispatchBatchReassignDialog/);
 });
 
@@ -32,6 +35,8 @@ test('manual assignment route requires tenant role and atomic-v2 writer', async 
   assert.match(source, /IDEMPOTENCY_REPLAY_IDENTITY_MISMATCH/);
   assert.ok(source.indexOf("from('dispatch_assignment_requests_v2')") < source.indexOf('selectedDispatchWriter(service'));
   assert.match(source, /createAtomicAssignmentV2/);
+  assert.match(source, /if \(!result\.ok\) return rejectAtomicDecision/);
+  assert.match(source, /ok: false, reason_code: reason, retryable: true/);
   assert.doesNotMatch(source, /mock-fallback|ok:\s*true.*catch/s);
 });
 

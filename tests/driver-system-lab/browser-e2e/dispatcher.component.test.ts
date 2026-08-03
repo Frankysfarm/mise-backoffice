@@ -39,7 +39,7 @@ test('real Chromium assigns through the production Dispatcher component fail-clo
     }
     if (target.pathname === '/api/delivery/admin/manual-assign' && request.method() === 'POST') {
       attempts.push(request.postDataJSON() as Record<string, unknown>);
-      if (attempts.length === 1) await route.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ ok: false, reason_code: 'ORDER_VERSION_CONFLICT' }) });
+      if (attempts.length === 1) await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: false, reason_code: 'ORDER_VERSION_CONFLICT' }) });
       else await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, batch_id: 'b4000000-0000-4000-8000-000000000001' }) });
       return;
     }
@@ -87,6 +87,11 @@ test('real Chromium assigns through the production Dispatcher component fail-clo
     await assign.click({ force: true });
     await page.getByTestId('dispatch-manual-assign-error').waitFor();
     assert.match(await page.getByTestId('dispatch-manual-assign-error').innerText(), /ORDER_VERSION_CONFLICT/);
+    assert.equal(
+      await page.getByTestId('dispatch-order-b5000000-0000-4000-8000-000000000001').getAttribute('aria-pressed'),
+      'true',
+      'retryable domain conflict must retain the selected order',
+    );
     assert.equal(await assign.isVisible(), true, 'failed assignment must retain selection');
     await page.waitForFunction(() => !(document.querySelector('[data-testid="dispatch-assign-b1000000-0000-4000-8000-000000000001"]') as HTMLButtonElement | null)?.disabled);
     await assign.click();

@@ -20,6 +20,13 @@ function reject(reason: string, status: number) {
   return NextResponse.json({ ok: false, reason_code: reason }, { status });
 }
 
+// An atomic CAS refusal is an expected, retryable domain result. Returning a
+// successful transport envelope keeps browser operators free of misleading
+// failed-resource errors while `ok: false` remains fail-closed for every client.
+function rejectAtomicDecision(reason: string) {
+  return NextResponse.json({ ok: false, reason_code: reason, retryable: true });
+}
+
 export async function POST(request: NextRequest) {
   const context = await getAdminContext();
   if (!isAdminContext(context)) return context;
@@ -115,7 +122,7 @@ export async function POST(request: NextRequest) {
       })),
       push: { title: `Neue Tour: ${location.name}`, body: 'Eine neue Lieferung ist dir zugewiesen.' },
     });
-    if (!result.ok) return reject(result.reason_code ?? 'ATOMIC_ASSIGNMENT_REJECTED', 409);
+    if (!result.ok) return rejectAtomicDecision(result.reason_code ?? 'ATOMIC_ASSIGNMENT_REJECTED');
     return NextResponse.json(result);
   } catch (error) {
     const correlationId = crypto.randomUUID();

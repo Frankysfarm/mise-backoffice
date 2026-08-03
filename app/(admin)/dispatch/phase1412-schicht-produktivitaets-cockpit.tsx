@@ -25,6 +25,19 @@ interface ApiData {
   schnitt_bestellungen_pro_stunde: number;
 }
 
+export function parseSchichtProduktivitaet(value: unknown): ApiData | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const candidate = value as Record<string, unknown>;
+  if (!Array.isArray(candidate.fahrer) || typeof candidate.schnitt_bestellungen_pro_stunde !== 'number' || !Number.isFinite(candidate.schnitt_bestellungen_pro_stunde)) return null;
+  if (!candidate.fahrer.every((item) => item && typeof item === 'object' &&
+    typeof item.driver_id === 'string' && typeof item.name === 'string' &&
+    typeof item.bestellungen_heute === 'number' && Number.isFinite(item.bestellungen_heute) &&
+    typeof item.stunden_aktiv === 'number' && Number.isFinite(item.stunden_aktiv) &&
+    typeof item.bestellungen_pro_stunde === 'number' && Number.isFinite(item.bestellungen_pro_stunde) &&
+    ['top', 'mitte', 'low'].includes(String(item.ranking)))) return null;
+  return candidate as unknown as ApiData;
+}
+
 interface Props {
   locationId: string | null;
 }
@@ -53,36 +66,28 @@ const RANKING_CONFIG = {
   },
 };
 
-const MOCK: ApiData = {
-  fahrer: [
-    { driver_id: '1', name: 'Lena K.', bestellungen_heute: 33, stunden_aktiv: 4, bestellungen_pro_stunde: 8.2, ranking: 'top' },
-    { driver_id: '2', name: 'Sara M.', bestellungen_heute: 31, stunden_aktiv: 4, bestellungen_pro_stunde: 7.8, ranking: 'top' },
-    { driver_id: '3', name: 'Markus R.', bestellungen_heute: 26, stunden_aktiv: 4, bestellungen_pro_stunde: 6.5, ranking: 'mitte' },
-    { driver_id: '4', name: 'Felix W.', bestellungen_heute: 21, stunden_aktiv: 4, bestellungen_pro_stunde: 5.3, ranking: 'mitte' },
-    { driver_id: '5', name: 'Tobias H.', bestellungen_heute: 16, stunden_aktiv: 4, bestellungen_pro_stunde: 4.1, ranking: 'low' },
-  ],
-  schnitt_bestellungen_pro_stunde: 6.4,
-};
-
 export function DispatchPhase1412SchichtProduktivitaetsCockpit({ locationId }: Props) {
   const [data, setData] = useState<ApiData | null>(null);
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [unavailable, setUnavailable] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const load = useCallback(async () => {
     if (!locationId) return;
     setLoading(true);
+    setUnavailable(false);
     try {
       const res = await fetch(`/api/delivery/admin/schicht-produktivitaet?location_id=${locationId}`);
       if (!res.ok) throw new Error('api');
-      const json: ApiData = await res.json();
-      setData(json);
+      const parsed = parseSchichtProduktivitaet(await res.json());
+      if (!parsed) throw new Error('invalid-response-shape');
+      setData(parsed);
       setLastUpdate(new Date());
     } catch {
-      setData(MOCK);
-      setLastUpdate(new Date());
+      setData(null);
+      setUnavailable(true);
     } finally {
       setLoading(false);
     }
@@ -127,8 +132,14 @@ export function DispatchPhase1412SchichtProduktivitaetsCockpit({ locationId }: P
           {!locationId && (
             <p className="text-xs text-muted-foreground">Bitte Filiale auswählen.</p>
           )}
-          {locationId && !data && (
+          {locationId && !data && !unavailable && (
             <p className="text-xs text-muted-foreground">Lade Daten…</p>
+          )}
+          {locationId && unavailable && !loading && (
+            <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+              <span>Produktivitätsdaten aktuell nicht verfügbar.</span>
+              <button type="button" onClick={() => { void load(); }} className="rounded border border-teal-300 px-2 py-1 font-medium hover:bg-white/70">Erneut versuchen</button>
+            </div>
           )}
 
           {(data?.fahrer ?? []).map((f) => {

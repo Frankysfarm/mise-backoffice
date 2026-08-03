@@ -37,6 +37,24 @@ interface ApiResponse {
   generiert_am: string;
 }
 
+function finiteOrNull(value: unknown): value is number | null {
+  return value === null || (typeof value === 'number' && Number.isFinite(value));
+}
+
+export function parseFahrerEffizienzMatrix(value: unknown, expectedLocationId: string): ApiResponse | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const candidate = value as Record<string, unknown>;
+  if (!Array.isArray(candidate.fahrer) || !Array.isArray(candidate.zellen) || !Array.isArray(candidate.wochentage)) return null;
+  if (candidate.location_id !== expectedLocationId || typeof candidate.generiert_am !== 'string' || !Number.isFinite(Date.parse(candidate.generiert_am))) return null;
+  if (!candidate.fahrer.every((item) => item && typeof item === 'object' && typeof item.id === 'string' && typeof item.name === 'string')) return null;
+  if (!candidate.wochentage.every((item) => item && typeof item === 'object' && Number.isInteger(item.index) && typeof item.label === 'string')) return null;
+  if (!candidate.zellen.every((item) => item && typeof item === 'object' &&
+    typeof item.fahrer_id === 'string' && Number.isInteger(item.wochentag) && typeof item.wochentag_label === 'string' &&
+    finiteOrNull(item.km_pro_stopp) && finiteOrNull(item.puenktlichkeit_pct) && finiteOrNull(item.trinkgeld_avg) &&
+    Number.isInteger(item.anzahl_touren) && Number(item.anzahl_touren) >= 0)) return null;
+  return candidate as unknown as ApiResponse;
+}
+
 interface Props {
   locationId: string | null;
 }
@@ -88,17 +106,25 @@ function spaltensumme(zellen: Zelle[], fahrerList: FahrerInfo[], dow: number, m:
 export function DispatchPhase1392FahrerEffizienzMatrixWidget({ locationId }: Props) {
   const [data, setData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [unavailable, setUnavailable] = useState(false);
   const [metrik, setMetrik] = useState<Metrik>('puenktlichkeit_pct');
   const [filterDow, setFilterDow] = useState<number | null>(null);
 
   async function load() {
     setLoading(true);
+    setUnavailable(false);
     try {
       const params = new URLSearchParams();
       if (locationId) params.set('location_id', locationId);
       const res = await fetch(`/api/delivery/admin/fahrer-effizienz-matrix?${params}`);
-      if (res.ok) setData(await res.json());
-    } catch { /* ignore */ } finally {
+      if (!res.ok) throw new Error(`http-${res.status}`);
+      const parsed = parseFahrerEffizienzMatrix(await res.json(), locationId ?? 'default');
+      if (!parsed) throw new Error('invalid-response-shape');
+      setData(parsed);
+    } catch {
+      setData(null);
+      setUnavailable(true);
+    } finally {
       setLoading(false);
     }
   }
@@ -173,6 +199,13 @@ export function DispatchPhase1392FahrerEffizienzMatrixWidget({ locationId }: Pro
       {loading && !data && (
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      )}
+
+      {unavailable && !loading && !data && (
+        <div className="flex items-center justify-between gap-3 py-3 text-xs text-muted-foreground">
+          <span>Effizienzmatrix aktuell nicht verfügbar.</span>
+          <button type="button" onClick={() => { void load(); }} className="rounded border border-border px-2 py-1 font-medium hover:bg-muted">Erneut versuchen</button>
         </div>
       )}
 

@@ -31,7 +31,7 @@ Releaseentscheidung: **BLOCKED für Produktion; SHADOW-ONLY lokal/isoliert.**
 # Autonomous test-lab blockers — 2026-08-01
 
 - TL-G1 is independently GREEN at `9b3e66bd`. Nonblocking future rule: each new behavior/action/fixture ID must add typed semantics and negative registry tests. The 115 `audit-only` handlers remain a TL-G2/TL-G5 blocker.
-- TL-G2: Chromium/trace are green for production Storefront, Kitchen and Driver plus the bounded Dispatcher manual-assignment mutation. Strict full-board startup checking is now enabled and remains RED while legacy widgets with nondeterministic SSR or unsafe response assumptions are corrected. HTTP→PostgREST→DB lifecycle linkage remains open.
+- TL-G2: Chromium/trace are green for production Storefront, Kitchen and Driver plus the production Dispatcher core. The strict Dispatcher startup subgate is GREEN after removing 744 overlapping historical/demo widgets from the boot rendergraph and 662 now-unused static imports; three repeated headless runs and one headed run have zero page/console/hydration errors. Overall TL-G2 remains PARTIAL because HTTP→PostgREST→DB lifecycle linkage is open.
 - Dispatcher legacy batch-assign, auto-assign and reassign controls are deliberately disabled with HTTP 410 after P0 review findings. Canonical atomic replacements are required before those operator features can return.
 - TL-G4: a pure-optimizer comparison exists, but runtime dispatch-pipeline capture, production route sequence, diverse multi-driver/store cases and retained complete optimality-gap traces are open.
 - TL-G5: the required categories and over 75 names exist; most are not yet executable full-stack cases.
