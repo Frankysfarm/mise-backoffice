@@ -22,7 +22,7 @@ correctly failed closed because the writer lease expired during a long cold Next
 test now renews the exact same elected writer lease immediately before assignment.
 
 Confirming result after the invariant/race/service-restart/role/GoTrue extension: `npm run test:lab:lifecycle:http-db`, exit 0,
-12/12. It proves Storefront
+13/13. It proves Storefront
 create/replay, token-bound atomic Kitchen-ready, boundary/cross-station rejection, Atomic-v2
 assignment/replay with exactly one batch/assignment/push, Driver ACK, pickup arrival, incomplete
 manifest rejection, whole-trip pickup/departure, drop-off arrival, delivery completion/replay,
@@ -34,11 +34,12 @@ registry.
 Restarting the local Next application also preserves Storefront idempotency and all row counts.
 Real PostgREST denies both `anon` and `authenticated` JWTs from lifecycle RPC/table writes.
 Pinned local GoTrue issues the Driver JWT; the real Driver-v2 snapshot accepts it and rejects an invalid JWT with 401.
+The second GoTrue user authenticates through a real Admin SSR cookie; the tenant-scoped Admin route excludes a foreign-tenant driver.
 
 Next required command (local only):
 
 `npm run test:lab:lifecycle:http-db`
 
-After restart, first run `git status --short` and verify commit `035bad09`. The next independent
-gate is real admin SSR-cookie authentication, followed by application-path chaos/recovery.
+After restart, first run `git status --short` and verify the latest checkpoint commit. The next
+independent gate is application-path chaos/recovery and Realtime isolation.
 Production remains forbidden.

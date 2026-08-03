@@ -487,6 +487,53 @@ test("GoTrue-issued JWT authenticates the real Driver snapshot boundary and inva
   assert.equal(deniedBody.reason_code, "UNAUTHORIZED")
 })
 
+test("GoTrue SSR cookie authenticates the real tenant-scoped Admin drivers route", async () => {
+  const signup = await fetch(`${postgrestUrl}/auth/v1/signup`, {
+    method: "POST",
+    headers: { "content-type": "application/json", apikey: localAnonKey! },
+    body: JSON.stringify({ email: "admin-testlab@mise.invalid", password: "Testlab-Admin-Password-2026!" }),
+  })
+  const session = await signup.json() as {
+    access_token?: string
+    refresh_token?: string
+    token_type?: string
+    expires_in?: number
+    user?: { id?: string; aud?: string; role?: string }
+  }
+  assert.equal(signup.status, 200, JSON.stringify(session))
+  assert.match(session.user?.id ?? "", /^[0-9a-f-]{36}$/)
+  assert.match(session.access_token ?? "", /^ey[^.]*\.[^.]+\.[^.]+$/)
+  assert.ok(session.refresh_token)
+
+  const authUserId = session.user!.id!
+  scalar(`update employees set auth_user_id='${authUserId}' where id='81000000-0000-4000-8000-000000000001'`)
+  const cookieSession = {
+    ...session,
+    expires_at: Math.floor(Date.now() / 1000) + Number(session.expires_in ?? 3600),
+  }
+  const cookieValue = `base64-${Buffer.from(JSON.stringify(cookieSession), "utf8").toString("base64url")}`
+  const adminResponse = await fetch(`${appUrl}/api/admin/drivers`, {
+    headers: { cookie: `sb-127-auth-token=${cookieValue}` },
+    redirect: "manual",
+  })
+  const adminBody = await adminResponse.json() as {
+    ok?: boolean
+    drivers?: Array<{ id?: string; link_status?: string }>
+  }
+  assert.equal(adminResponse.status, 200, JSON.stringify(adminBody))
+  assert.equal(adminBody.ok, true)
+  assert.equal(scalar("select count(*) from mise_drivers"), "2")
+  assert.equal(adminBody.drivers?.length, 1)
+  assert.equal(adminBody.drivers?.[0]?.id, "90000000-0000-4000-8000-000000000001")
+  assert.equal(adminBody.drivers?.[0]?.link_status, "active")
+
+  const unauthenticated = await fetch(`${appUrl}/api/admin/drivers`, { redirect: "manual" })
+  assert.ok([307, 401].includes(unauthenticated.status))
+  if (unauthenticated.status === 307) {
+    assert.match(unauthenticated.headers.get("location") ?? "", /\/login\?next=%2Fapi%2Fadmin%2Fdrivers/)
+  }
+})
+
 test("Next application restart preserves Storefront idempotency and database state", async () => {
   const oldPid = Number(process.env.MISE_TEST_LAB_NEXT_PID)
   if (!Number.isSafeInteger(oldPid) || oldPid <= 1) throw new Error("guarded local Next pid required")

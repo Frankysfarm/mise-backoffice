@@ -14,6 +14,14 @@ CREATE TABLE public.tenants (
   name text NOT NULL,
   slug text NOT NULL UNIQUE
 );
+CREATE TABLE public.employees (
+  id uuid PRIMARY KEY,
+  tenant_id uuid NOT NULL REFERENCES public.tenants(id),
+  auth_user_id uuid UNIQUE,
+  rolle text NOT NULL,
+  muss_passwort_aendern boolean NOT NULL DEFAULT false
+);
+GRANT SELECT ON public.employees TO authenticated, service_role;
 ALTER TABLE public.locations
   ADD COLUMN tenant_id uuid NOT NULL REFERENCES public.tenants(id),
   ADD COLUMN name text NOT NULL DEFAULT 'Testlab Location';
@@ -33,12 +41,16 @@ CREATE TABLE public.mise_drivers (
   max_radius_km numeric NOT NULL DEFAULT 10,
   frank_mode text NOT NULL DEFAULT 'manual',
   total_deliveries integer NOT NULL DEFAULT 0,
-  total_earnings numeric NOT NULL DEFAULT 0
+  total_earnings numeric NOT NULL DEFAULT 0,
+  initial_code_consumed_at timestamptz,
+  initial_code_expires_at timestamptz
 );
 CREATE TABLE public.mise_driver_tenants (
+  id uuid NOT NULL DEFAULT gen_random_uuid() UNIQUE,
   driver_id uuid NOT NULL REFERENCES public.mise_drivers(id),
   tenant_id uuid NOT NULL REFERENCES public.tenants(id),
   status text NOT NULL,
+  joined_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY(driver_id, tenant_id)
 );
 CREATE TABLE public.mise_delivery_batches (
@@ -122,13 +134,21 @@ GRANT SELECT ON public.kitchen_stations TO service_role;
 
 INSERT INTO public.tenants(id, name, slug)
 VALUES ('80000000-0000-4000-8000-000000000001', 'Testlab Tenant', 'testlab-tenant');
+INSERT INTO public.tenants(id, name, slug)
+VALUES ('80000000-0000-4000-8000-000000000002', 'Foreign Testlab Tenant', 'foreign-testlab-tenant');
+INSERT INTO public.employees(id, tenant_id, rolle)
+VALUES ('81000000-0000-4000-8000-000000000001', '80000000-0000-4000-8000-000000000001', 'admin');
 INSERT INTO public.locations(id, tenant_id, name, aktiv)
 VALUES ('10000000-0000-4000-8000-000000000001', '80000000-0000-4000-8000-000000000001', 'Testlab Kitchen', true);
 
 INSERT INTO public.mise_drivers(id, name, active, state, last_position_at)
 VALUES ('90000000-0000-4000-8000-000000000001', 'Testfahrer', true, 'idle', now());
+INSERT INTO public.mise_drivers(id, name, active, state, last_position_at)
+VALUES ('90000000-0000-4000-8000-000000000002', 'Fremder Testfahrer', true, 'idle', now());
 INSERT INTO public.mise_driver_tenants(driver_id, tenant_id, status)
 VALUES ('90000000-0000-4000-8000-000000000001', '80000000-0000-4000-8000-000000000001', 'active');
+INSERT INTO public.mise_driver_tenants(driver_id, tenant_id, status)
+VALUES ('90000000-0000-4000-8000-000000000002', '80000000-0000-4000-8000-000000000002', 'active');
 
 INSERT INTO public.kitchen_stations(id, location_id, display_token)
 VALUES ('40000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'testlab-kitchen-token');
