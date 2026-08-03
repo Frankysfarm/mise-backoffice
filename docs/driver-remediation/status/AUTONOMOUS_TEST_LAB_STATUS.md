@@ -1,12 +1,12 @@
 # Autonomous test-lab status
 
-Updated: 2026-08-02
+Updated: 2026-08-03
 
 | Gate | Current decision | Evidence / blocker |
 |---|---|---|
 | TL-G0 Isolation | GREEN | Central guard received two independent P0 approvals at `8dd1eb2e`; atomic run+tenant cleanup received two independent approvals at `003b2c53`. Disposable PostgreSQL integration passes. |
 | TL-G1 Data Factory / DSL | GREEN | Two independent reviewers approve fixed commit `9b3e66bd`: strict DSL, seeded canonical fixtures, deep immutability/authentication, 65 configured roles, complete required provider/infrastructure variants and run-owned PostgreSQL materialization pass with no P0/P1. |
-| TL-G2 UI actors | PARTIAL — startup subgate GREEN | Real Chromium covers production Storefront, Kitchen, Driver and the pruned production Dispatcher core. The full Dispatcher core starts with zero page errors, console errors or hydration mismatches and preserves selection/idempotency through a retryable atomic conflict; three repeat runs plus one headed run pass. HTTP-to-DB lifecycle evidence and canonical replacements for disabled legacy controls remain open. |
+| TL-G2 UI actors | PARTIAL — startup + Storefront HTTP/DB subgates GREEN | Real Chromium covers production Storefront, Kitchen, Driver and the pruned production Dispatcher core. The full Dispatcher core starts without browser errors and preserves selection/idempotency through a retryable atomic conflict. A separate unmocked Next→PostgREST→disposable-PostgreSQL Storefront order/replay test is green twice. Kitchen-ready→dispatch→Driver→terminal linkage and canonical replacements for disabled legacy controls remain open. |
 | TL-G3 Invariant monitor | PARTIAL / REVIEW REJECT | Post-review hardening adds cross-tenant route/pick, batch-driver, stop-order, numeric, sequence, fingerprint and temporal push checks; focused tests pass, but canonical DB-snapshot integration and re-review are open. |
 | TL-G4 Dispatch oracle | PARTIAL | A captured test invokes the real pure adaptive optimizer for bundle sizes 1–4 and compares through the independent oracle seam. Diverse captures and concrete production stop-sequence comparison remain open. |
 | TL-G5 Functional catalog | PARTIAL | 100+ named categories/cases are catalogued; they are not all executable E2E scenarios yet. |

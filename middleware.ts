@@ -2,7 +2,7 @@ import { updateSession } from '@/lib/supabase/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 
-const PRIMARY_HOSTS = new Set(['mise-gastro.de', 'www.mise-gastro.de', 'localhost', 'localhost:3000', 'localhost:3300']);
+const PRIMARY_HOSTS = new Set(['mise-gastro.de', 'www.mise-gastro.de', 'localhost', '127.0.0.1', '::1']);
 
 // In-memory cache for custom-domain → tenant-slug lookup (60s TTL)
 const domainCache = new Map<string, { slug: string; expires: number }>();

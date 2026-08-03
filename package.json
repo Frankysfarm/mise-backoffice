@@ -9,6 +9,7 @@
     "start": "next start -p 3200",
     "lint": "next lint",
     "test:lab:guard": "node --import tsx --test tests/driver-system-lab/support/*.test.ts",
+    "test:lab:lifecycle:http-db": "scripts/tests/with-local-remediation-postgres.sh sh scripts/tests/run-http-db-storefront-lifecycle.sh",
     "test:lab:up": "node --import tsx tests/driver-system-lab/cli/index.ts up",
     "test:lab:down": "node --import tsx tests/driver-system-lab/cli/index.ts down",
     "test:lab:smoke": "node --import tsx tests/driver-system-lab/cli/index.ts suite smoke",

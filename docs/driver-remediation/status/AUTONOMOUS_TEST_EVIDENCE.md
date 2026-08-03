@@ -179,3 +179,10 @@
 - Strict Dispatcher Chromium runs (seed 42): `tl-g2-core-prune-2`, `-3`, `-4` and `-headed` all pass with zero page errors, console errors and hydration mismatches. Artifacts contain a full trace and screenshot per run.
 - Combined production-component actor run: Storefront, Kitchen, Driver and Dispatcher pass 4/4 against the guarded local server.
 - Proven claim: **Dispatcher startup subgate GREEN**. Scope boundary: overall TL-G2 stays PARTIAL until canonical HTTP→API→PostgREST→disposable-PostgreSQL lifecycle evidence exists; disabled legacy operator functions remain unavailable.
+
+## HTTP→PostgREST→PostgreSQL lifecycle foundation — 2026-08-03
+
+- Canonical npm command: `npm run test:lab:lifecycle:http-db`. It starts a disposable native PostgreSQL cluster, the pinned local `public.ecr.aws/supabase/postgrest:v14.8` image, a prefix-only local `/rest/v1` gateway and the real Next application on loopback. The central test-lab guard rejects non-local database/app targets; provider modes remain sinks/fixtures and production is forbidden.
+- The first unmocked run found that loopback `127.0.0.1` was misclassified as a custom tenant domain and redirected the public checkout endpoint. Middleware now treats loopback as a primary development/test host; the existing exact API public-path check remains unchanged.
+- Two consecutive green runs prove real HTTP `POST /api/delivery/orders` → Next route → Supabase client → authenticated PostgREST RPC → PostgreSQL. The same UUID idempotency key returns 201 then a 200 replay with the same order ID; SQL asserts exactly one order, one line, canonical quantity/price and one request record.
+- P0 TypeScript and `git diff --check`: exit 0. Proven scope is the Storefront persistence foundation only. Full Kitchen-ready, routing enrichment, atomic dispatch, Driver lifecycle, RLS identities and terminal invariants remain open, so TL-G2/TL-G5 stay PARTIAL.
