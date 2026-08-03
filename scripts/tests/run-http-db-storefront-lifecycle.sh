@@ -22,6 +22,7 @@ trap cleanup EXIT INT TERM
 psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/tests/fixtures/289_storefront_schema.sql
 psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/migrations/289_atomic_storefront_order.sql
 psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/tests/fixtures/http_db_storefront_postgrest.sql
+psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/migrations/290_atomic_kitchen_item_transition.sql
 
 docker run --rm -d --name "$container" \
   --add-host host.docker.internal:host-gateway \

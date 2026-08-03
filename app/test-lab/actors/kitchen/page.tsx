@@ -11,12 +11,13 @@ export default function TestLabKitchenActorPage() {
     notFound()
   }
   return <StationDisplay
-    station={{ id: "testlab-station-hot", name: "Testküche Warm", icon: "🍳", farbe: "#14532d", sound_enabled: false }}
+    station={{ id: "40000000-0000-4000-8000-000000000001", name: "Testküche Warm", icon: "🍳", farbe: "#14532d", sound_enabled: false }}
+    displayToken="testlab-kitchen-token"
     initialItems={[{
-      id: "testlab-kitchen-item-1", order_id: "testlab-kitchen-order-1", name: "Test Bowl", menge: 1,
+      id: "60000000-0000-4000-8000-000000000001", order_id: "70000000-0000-4000-8000-000000000001", name: "Test Bowl", menge: 1,
       notiz: "ohne Zwiebeln", station_status: "offen", extras: [],
       order: {
-        id: "testlab-kitchen-order-1", bestellnummer: "TL-K-1001", status: "bestaetigt", typ: "lieferung",
+        id: "70000000-0000-4000-8000-000000000001", bestellnummer: "TL-K-1001", status: "bestaetigt", typ: "lieferung",
         bestellt_am: "2026-08-02T10:00:00.000Z", kunde_name: "Testkunde Eins", tisch_id: null, gedeckt_personen: null,
       },
     }]}

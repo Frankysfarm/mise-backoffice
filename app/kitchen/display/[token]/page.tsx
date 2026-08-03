@@ -44,6 +44,7 @@ export default async function StationDisplayPage({
   return (
     <StationDisplay
       station={station as any}
+      displayToken={token}
       initialItems={(items as any[]) ?? []}
       initialTableMap={tableMap}
     />
