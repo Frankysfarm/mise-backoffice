@@ -8,6 +8,8 @@ Branch: `codex/driver-remediation`
 - `8eed47bb` — strict Dispatcher startup subgate.
 - `aad06df7` — real Storefront HTTP→Next→PostgREST→PostgreSQL foundation.
 - `ce4b6cce` — token-bound atomic Kitchen-ready transition.
+- `b5ff4db2` — PostgREST browser-role isolation after terminal lifecycle/recovery.
+- `035bad09` — real GoTrue-issued Driver JWT and canonical Driver-v2 snapshot boundary.
 
 The pre-existing modified `artifacts/driver-system-lab/dispatcher-component/dispatcher-trace.zip`
 and generated artifact directories are not part of these commits and must not be staged.
@@ -37,6 +39,6 @@ Next required command (local only):
 
 `npm run test:lab:lifecycle:http-db`
 
-After restart, first run `git status --short` and verify this checkpoint commit. The next gate is
-an invariant snapshot over the real lifecycle followed by application-path chaos/recovery.
+After restart, first run `git status --short` and verify commit `035bad09`. The next independent
+gate is real admin SSR-cookie authentication, followed by application-path chaos/recovery.
 Production remains forbidden.
