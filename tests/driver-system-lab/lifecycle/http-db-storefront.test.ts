@@ -609,6 +609,42 @@ test("lost Driver HTTP acknowledgement response retries idempotently without a s
   assert.equal(scalar(`select received_by_app_at is not null from dispatch_offer_assignments where id='${activeAssignmentId}'`), "t")
 })
 
+test("Driver HTTP boundary rejects changed idempotency payload and stale assignment version without writes", async () => {
+  const reusedActionId = "93000000-0000-4000-8000-000000000020"
+  const changed = await fetch(`${appUrl}/api/driver/v2/assignments/ack`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${issuedDriverAccessToken}` },
+    body: JSON.stringify({
+      action_id: reusedActionId,
+      expected_state: "assigned",
+      expected_versions: { driver: 5, assignment: 1 },
+      occurred_at: "2026-08-03T00:00:00.000Z",
+    }),
+  })
+  const changedBody = await changed.json() as { ok?: boolean; reason_code?: string }
+  assert.equal(changed.status, 409, JSON.stringify(changedBody))
+  assert.equal(changedBody.ok, false)
+  assert.equal(changedBody.reason_code, "IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_REQUEST")
+
+  const staleActionId = "93000000-0000-4000-8000-000000000021"
+  const stale = await fetch(`${appUrl}/api/driver/v2/assignments/ack`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${issuedDriverAccessToken}` },
+    body: JSON.stringify({
+      action_id: staleActionId,
+      expected_state: "assigned",
+      expected_versions: { driver: 5, assignment: 0 },
+    }),
+  })
+  const staleBody = await stale.json() as { ok?: boolean; reason_code?: string }
+  assert.equal(stale.status, 409, JSON.stringify(staleBody))
+  assert.equal(staleBody.ok, false)
+  assert.equal(staleBody.reason_code, "EXPECTED_ASSIGNMENT_VERSION_CONFLICT")
+
+  assert.equal(scalar(`select count(*) from driver_action_requests_v2 where action_id in ('${reusedActionId}','${staleActionId}')`), "1")
+  assert.equal(scalar(`select count(*) from driver_api_compatibility_events_v2 where correlation_id=(select correlation_id from driver_action_requests_v2 where action_id='${reusedActionId}')`), "1")
+})
+
 test("Next application restart preserves Storefront idempotency and database state", async () => {
   const oldPid = Number(process.env.MISE_TEST_LAB_NEXT_PID)
   if (!Number.isSafeInteger(oldPid) || oldPid <= 1) throw new Error("guarded local Next pid required")
