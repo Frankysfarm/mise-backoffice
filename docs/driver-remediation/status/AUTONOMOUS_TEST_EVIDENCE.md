@@ -195,3 +195,11 @@
 - Production `StationDisplay` Chromium failure/retry behavior passes 1/1 with the new token-bound POST contract: a 503 and a stale 409 retain the item and error state, while only confirmed success removes it. P0 TypeScript, focused Storefront contracts and `git diff --check` pass.
 - A clean Next production-build attempt reached `Creating an optimized production build ...` but emitted no further output for the bounded observation window and was stopped; no green build is claimed for this checkpoint. The preceding Dispatcher checkpoint build remains green, and the focused P0 compilation covers all changed TypeScript.
 - Scope remains partial: deterministic routing enrichment, atomic dispatch/outbox, Driver accept/pick/depart/stops/delivery and end-to-end tenant/RLS identities are the next lifecycle work. No production migration or request occurred.
+
+## Real Atomic-v2 dispatch and Driver terminal lifecycle — 2026-08-03
+
+- The disposable lifecycle now composes migrations 274, 276–279, 289 and 290 before starting pinned local PostgREST and the real Next app. A writer lease is renewed immediately before assignment so a slow cold compile cannot silently consume its bounded authority.
+- Real PostgREST Atomic-v2 assignment creates exactly one batch, one assignment, ordered pickup/drop-off stops, driver capacity 1 and one `order_assigned` outbox row. An identical action replay returns the same batch and creates no duplicate; a fresh conflicting attempt fails closed.
+- The Driver path acknowledges receipt, arrives at pickup, rejects an incomplete required-item manifest without mutation, accepts the complete manifest, records every item outcome, atomically departs, arrives at drop-off and completes delivery. Same-action completion replay is idempotent.
+- Terminal SQL state is order `delivered`, assignment/batch `completed`, both stops `completed`, driver `returning` with capacity 0. Push-outbox count remains exactly one. Full command `npm run test:lab:lifecycle:http-db`: exit 0, 6/6.
+- This proves real local PostgREST/RLS service-role boundaries and canonical database functions. It does not yet prove GoTrue-backed human/driver HTTP route authentication, Realtime, application-worker crash recovery or production/provider behavior.

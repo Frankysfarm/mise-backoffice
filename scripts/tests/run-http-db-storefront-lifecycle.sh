@@ -23,6 +23,12 @@ psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/tests/fixtures/289_store
 psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/migrations/289_atomic_storefront_order.sql
 psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/tests/fixtures/http_db_storefront_postgrest.sql
 psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/migrations/290_atomic_kitchen_item_transition.sql
+psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/migrations/274_atomic_single_order_offer.sql
+psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/migrations/276_atomic_single_writer_v2.sql
+psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/migrations/277_atomic_v2_lifecycle_hardening.sql
+psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/migrations/278_driver_v2_api_boundary.sql
+psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/migrations/279_pick_pickup_correctness.sql
+psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/tests/fixtures/http_db_dispatch_seed.sql
 
 docker run --rm -d --name "$container" \
   --add-host host.docker.internal:host-gateway \
@@ -77,4 +83,6 @@ MISE_TEST_LAB_SMS_MODE=sink \
 MISE_TEST_LAB_WHATSAPP_MODE=sink \
 MISE_TEST_LAB_ROUTING_MODE=fixture \
 MISE_TEST_LAB_APP_URL="http://127.0.0.1:${app_port}" \
+MISE_TEST_LAB_POSTGREST_URL="http://127.0.0.1:${postgrest_port}" \
+MISE_TEST_LAB_LOCAL_SERVICE_KEY="$service_key" \
 node --import tsx --test tests/driver-system-lab/lifecycle/http-db-storefront.test.ts
