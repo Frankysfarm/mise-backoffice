@@ -1,5 +1,5 @@
 import assert from "node:assert/strict"
-import { execFileSync } from "node:child_process"
+import { execFileSync, spawn } from "node:child_process"
 import test from "node:test"
 import { assertTestLabEnvironment } from "../support/environment"
 
@@ -420,4 +420,53 @@ test("PostgREST restart preserves terminal state and idempotent completion recov
   assert.equal(scalar(`select status from customer_orders where id='${orderId}'`), "delivered")
   assert.equal(scalar(`select state from dispatch_offer_assignments where id='${assignmentId}'`), "completed")
   assert.equal(scalar("select count(*) from mise_push_outbox"), "2")
+})
+
+test("Next application restart preserves Storefront idempotency and database state", async () => {
+  const oldPid = Number(process.env.MISE_TEST_LAB_NEXT_PID)
+  if (!Number.isSafeInteger(oldPid) || oldPid <= 1) throw new Error("guarded local Next pid required")
+  process.kill(oldPid, "SIGTERM")
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    try {
+      await fetch(`${appUrl}/api/health`, { signal: AbortSignal.timeout(200) })
+    } catch { break }
+    await new Promise((resolve) => setTimeout(resolve, 100))
+  }
+
+  const port = new URL(appUrl).port
+  const next = spawn("./node_modules/.bin/next", ["dev", "-p", port], {
+    cwd: process.cwd(), env: process.env, stdio: "ignore",
+  })
+  try {
+    let ready = false
+    for (let attempt = 0; attempt < 120; attempt += 1) {
+      if (next.exitCode !== null) throw new Error(`restarted Next exited with ${next.exitCode}`)
+      try {
+        const response = await fetch(`${appUrl}/api/delivery/orders`, {
+          method: "POST",
+          headers: { "content-type": "application/json", "idempotency-key": "30000000-0000-4000-8000-000000000001" },
+          body: JSON.stringify({
+            location_id: "10000000-0000-4000-8000-000000000001",
+            items: [{ id: "20000000-0000-4000-8000-000000000001", qty: 2 }],
+            customer: { name: "Testkunde", phone: "+491000000", address: "Testweg 1" },
+            type: "lieferung", payment_method: "bar",
+          }),
+        })
+        if (response.status === 200) {
+          const replay = await response.json() as { order_id?: string; idempotent_replay?: boolean }
+          assert.equal(replay.idempotent_replay, true)
+          assert.equal(replay.order_id, scalar("select id from customer_orders where kunde_name='Testkunde'"))
+          ready = true
+          break
+        }
+      } catch { /* expected while the local app restarts */ }
+      await new Promise((resolve) => setTimeout(resolve, 250))
+    }
+    assert.equal(ready, true)
+    assert.equal(scalar("select count(*) from customer_orders"), "2")
+    assert.equal(scalar("select count(*) from storefront_order_requests_v1"), "2")
+    assert.equal(scalar("select count(*) from mise_push_outbox"), "2")
+  } finally {
+    next.kill("SIGTERM")
+  }
 })

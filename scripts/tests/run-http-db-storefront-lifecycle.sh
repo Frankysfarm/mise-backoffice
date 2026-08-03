@@ -86,4 +86,8 @@ MISE_TEST_LAB_APP_URL="http://127.0.0.1:${app_port}" \
 MISE_TEST_LAB_POSTGREST_URL="http://127.0.0.1:${postgrest_port}" \
 MISE_TEST_LAB_LOCAL_SERVICE_KEY="$service_key" \
 MISE_TEST_LAB_POSTGREST_CONTAINER="$container" \
+MISE_TEST_LAB_NEXT_PID="$app_pid" \
+NEXT_PUBLIC_SUPABASE_URL="http://127.0.0.1:${postgrest_port}" \
+NEXT_PUBLIC_SUPABASE_ANON_KEY="$service_key" \
+SUPABASE_SERVICE_ROLE_KEY="$service_key" \
 node --import tsx --test tests/driver-system-lab/lifecycle/http-db-storefront.test.ts

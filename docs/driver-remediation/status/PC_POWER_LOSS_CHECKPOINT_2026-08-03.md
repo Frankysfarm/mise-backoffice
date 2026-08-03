@@ -19,8 +19,8 @@ local PostgreSQL database and real local PostgREST. The first complete run after
 correctly failed closed because the writer lease expired during a long cold Next compile. The
 test now renews the exact same elected writer lease immediately before assignment.
 
-Confirming result after the invariant/race/restart extension: `npm run test:lab:lifecycle:http-db`, exit 0,
-9/9. It proves Storefront
+Confirming result after the invariant/race/service-restart extension: `npm run test:lab:lifecycle:http-db`, exit 0,
+10/10. It proves Storefront
 create/replay, token-bound atomic Kitchen-ready, boundary/cross-station rejection, Atomic-v2
 assignment/replay with exactly one batch/assignment/push, Driver ACK, pickup arrival, incomplete
 manifest rejection, whole-trip pickup/departure, drop-off arrival, delivery completion/replay,
@@ -29,6 +29,7 @@ and a zero-violation canonical database snapshot. Two parallel Atomic-v2 writers
 winner; replay after simulated response loss creates no duplicate batch, assignment or push.
 Restarting the local PostgREST service preserves terminal state and the idempotent completion
 registry.
+Restarting the local Next application also preserves Storefront idempotency and all row counts.
 
 Next required command (local only):
 
