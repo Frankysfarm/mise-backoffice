@@ -71,8 +71,10 @@ export function DispatchPhase1373SpitzenzeitPrognoseWidget({ locationId }: Props
     try {
       const res = await fetch(`/api/delivery/admin/spitzenzeit-prognose?location_id=${locationId}`);
       if (!res.ok) throw new Error();
-      const json = await res.json();
-      setData(json);
+      const json: unknown = await res.json();
+      setData(json && typeof json === 'object' && Array.isArray((json as PrognoseData).slots)
+        ? json as PrognoseData
+        : buildMock());
       setLastUpdated(new Date());
     } catch {
       setData(buildMock());

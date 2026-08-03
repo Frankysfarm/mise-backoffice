@@ -47,7 +47,7 @@ const MOCK: ApiResponse = {
     { zone: 'C', wiederkehr_pct: 38, kunden_gesamt: 26, kunden_wiederkehrend: 10 },
     { zone: 'D', wiederkehr_pct: 29, kunden_gesamt: 14, kunden_wiederkehrend: 4 },
   ],
-  generiert_am: new Date().toISOString(),
+  generiert_am: '',
 };
 
 const POLL_MS = 60 * 60 * 1000;
@@ -82,7 +82,12 @@ export function DispatchPhase1714KundenWiederkehrRateWidget({ locationId }: Prop
       setLoading(true);
       try {
         const res = await fetch(`/api/delivery/admin/kunden-wiederkehr-rate?location_id=${locationId}`);
-        if (res.ok) setData(await res.json());
+        if (res.ok) {
+          const next: unknown = await res.json();
+          if (next && typeof next === 'object' && Array.isArray((next as ApiResponse).zonen)) {
+            setData(next as ApiResponse);
+          }
+        }
       } catch {
         /* keep mock */
       } finally {
@@ -157,7 +162,9 @@ export function DispatchPhase1714KundenWiederkehrRateWidget({ locationId }: Prop
           </div>
 
           <p className="text-[10px] text-muted-foreground">
-            Aktualisiert: {new Date(data.generiert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} · 60-Min-Polling
+            Aktualisiert: {data.generiert_am
+              ? new Date(data.generiert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+              : '--:--'} · 60-Min-Polling
           </p>
         </div>
       )}

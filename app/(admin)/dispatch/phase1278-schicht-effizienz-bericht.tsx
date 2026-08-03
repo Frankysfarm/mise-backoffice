@@ -35,7 +35,7 @@ const MOCK: ApiResponse = {
   top_fahrer: 'Max M.',
   top_fahrer_stopps: 22,
   location_id: '',
-  generiert_am: new Date().toISOString(),
+  generiert_am: '',
 };
 
 function fmtEur(v: number) {
@@ -61,7 +61,10 @@ export function DispatchPhase1278SchichtEffizienzBericht({ locationId }: { locat
     try {
       const r = await fetch(`/api/delivery/admin/schicht-effizienz-bericht?location_id=${locationId}`);
       if (!r.ok) throw new Error();
-      setData(await r.json());
+      const next: unknown = await r.json();
+      setData(next && typeof next === 'object' && typeof (next as ApiResponse).stopps_gesamt === 'number'
+        ? next as ApiResponse
+        : { ...MOCK, location_id: locationId });
     } catch {
       setData({ ...MOCK, location_id: locationId });
     } finally {
@@ -153,7 +156,9 @@ export function DispatchPhase1278SchichtEffizienzBericht({ locationId }: { locat
           )}
 
           <p className="text-xs text-slate-400 dark:text-slate-500 text-right">
-            Stand: {new Date(d.generiert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr
+            Stand: {d.generiert_am
+              ? new Date(d.generiert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+              : '--:--'} Uhr
           </p>
         </div>
       )}
