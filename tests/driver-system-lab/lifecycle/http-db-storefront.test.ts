@@ -15,6 +15,8 @@ const localAuthenticatedKey = process.env.MISE_TEST_LAB_LOCAL_AUTHENTICATED_KEY
 if (!postgrestUrl || new URL(postgrestUrl).hostname !== "127.0.0.1" || !localServiceKey || !localAnonKey || !localAuthenticatedKey) {
   throw new Error("local PostgREST URL and role keys are required")
 }
+let issuedDriverAccessToken = ""
+let issuedAdminCookie = ""
 
 function scalar(sql: string): string {
   return execFileSync("psql", [environment.databaseUrl.toString(), "-X", "-A", "-t", "-q", "-v", "ON_ERROR_STOP=1", "-c", sql], { encoding: "utf8" }).trim()
@@ -462,6 +464,7 @@ test("GoTrue-issued JWT authenticates the real Driver snapshot boundary and inva
   assert.match(auth.user?.id ?? "", /^[0-9a-f-]{36}$/)
 
   const authUserId = auth.user!.id!
+  issuedDriverAccessToken = auth.access_token!
   scalar(`update mise_drivers set auth_user_id='${authUserId}' where id='90000000-0000-4000-8000-000000000001'`)
   assert.equal(scalar(`select count(*) from auth.users where id='${authUserId}' and confirmed_at is not null`), "1")
 
@@ -512,8 +515,9 @@ test("GoTrue SSR cookie authenticates the real tenant-scoped Admin drivers route
     expires_at: Math.floor(Date.now() / 1000) + Number(session.expires_in ?? 3600),
   }
   const cookieValue = `base64-${Buffer.from(JSON.stringify(cookieSession), "utf8").toString("base64url")}`
+  issuedAdminCookie = `sb-127-auth-token=${cookieValue}`
   const adminResponse = await fetch(`${appUrl}/api/admin/drivers`, {
-    headers: { cookie: `sb-127-auth-token=${cookieValue}` },
+    headers: { cookie: issuedAdminCookie },
     redirect: "manual",
   })
   const adminBody = await adminResponse.json() as {
@@ -532,6 +536,77 @@ test("GoTrue SSR cookie authenticates the real tenant-scoped Admin drivers route
   if (unauthenticated.status === 307) {
     assert.match(unauthenticated.headers.get("location") ?? "", /\/login\?next=%2Fapi%2Fadmin%2Fdrivers/)
   }
+})
+
+test("GoTrue restart preserves issued Driver and Admin sessions through real API boundaries", async () => {
+  const container = process.env.MISE_TEST_LAB_GOTRUE_CONTAINER
+  if (!container?.startsWith("mise-testlab-gotrue-tl_")) throw new Error("guarded local GoTrue container required")
+  assert.match(issuedDriverAccessToken, /^ey[^.]*\.[^.]+\.[^.]+$/)
+  assert.match(issuedAdminCookie, /^sb-127-auth-token=base64-/)
+
+  execFileSync("docker", ["restart", container], { stdio: "pipe" })
+  let ready = false
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    try {
+      const response = await fetch(`${postgrestUrl}/auth/v1/health`)
+      if (response.ok) { ready = true; break }
+    } catch { /* expected while the isolated auth service restarts */ }
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+  assert.equal(ready, true)
+
+  const driver = await fetch(`${appUrl}/api/driver/v2/snapshot`, {
+    headers: { authorization: `Bearer ${issuedDriverAccessToken}` },
+  })
+  const driverBody = await driver.json() as { ok?: boolean; snapshot?: { driver?: { id?: string } } }
+  assert.equal(driver.status, 200, JSON.stringify(driverBody))
+  assert.equal(driverBody.ok, true)
+  assert.equal(driverBody.snapshot?.driver?.id, "90000000-0000-4000-8000-000000000001")
+
+  const admin = await fetch(`${appUrl}/api/admin/drivers`, {
+    headers: { cookie: issuedAdminCookie }, redirect: "manual",
+  })
+  const adminBody = await admin.json() as { ok?: boolean; drivers?: Array<{ id?: string }> }
+  assert.equal(admin.status, 200, JSON.stringify(adminBody))
+  assert.equal(adminBody.ok, true)
+  assert.deepEqual(adminBody.drivers?.map((row) => row.id), ["90000000-0000-4000-8000-000000000001"])
+})
+
+test("lost Driver HTTP acknowledgement response retries idempotently without a second write", async () => {
+  const actionId = "93000000-0000-4000-8000-000000000020"
+  const activeAssignmentId = scalar(`select id from dispatch_offer_assignments where driver_id='90000000-0000-4000-8000-000000000001' and state='assigned'`)
+  const payload = {
+    action_id: actionId,
+    expected_state: "assigned",
+    expected_versions: { driver: 5, assignment: 1 },
+    occurred_at: new Date().toISOString(),
+  }
+  const acknowledge = () => fetch(`${appUrl}/api/driver/v2/assignments/ack`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${issuedDriverAccessToken}` },
+    body: JSON.stringify(payload),
+  })
+
+  const lostResponse = await acknowledge()
+  assert.equal(lostResponse.status, 200)
+  // Deliberately discard the first response body, matching a committed request
+  // whose network response never reaches the app. Retry the identical envelope.
+  await lostResponse.body?.cancel()
+  const retry = await acknowledge()
+  const replay = await retry.json() as {
+    ok?: boolean
+    idempotent_replay?: boolean
+    assignment_id?: string
+    snapshot?: { assignment?: { id?: string } | null }
+  }
+  assert.equal(retry.status, 200, JSON.stringify(replay))
+  assert.equal(replay.ok, true)
+  assert.equal(replay.idempotent_replay, true)
+  assert.equal(replay.assignment_id, activeAssignmentId)
+  assert.equal(replay.snapshot?.assignment?.id, activeAssignmentId)
+  assert.equal(scalar(`select count(*) from driver_action_requests_v2 where action_id='${actionId}'`), "1")
+  assert.equal(scalar(`select count(*) from driver_api_compatibility_events_v2 where correlation_id=(select correlation_id from driver_action_requests_v2 where action_id='${actionId}')`), "1")
+  assert.equal(scalar(`select received_by_app_at is not null from dispatch_offer_assignments where id='${activeAssignmentId}'`), "t")
 })
 
 test("Next application restart preserves Storefront idempotency and database state", async () => {
