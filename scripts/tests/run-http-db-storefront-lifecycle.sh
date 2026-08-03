@@ -85,4 +85,5 @@ MISE_TEST_LAB_ROUTING_MODE=fixture \
 MISE_TEST_LAB_APP_URL="http://127.0.0.1:${app_port}" \
 MISE_TEST_LAB_POSTGREST_URL="http://127.0.0.1:${postgrest_port}" \
 MISE_TEST_LAB_LOCAL_SERVICE_KEY="$service_key" \
+MISE_TEST_LAB_POSTGREST_CONTAINER="$container" \
 node --import tsx --test tests/driver-system-lab/lifecycle/http-db-storefront.test.ts

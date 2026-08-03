@@ -384,3 +384,40 @@ test("canonical database snapshot has no lifecycle invariant violations", () => 
   }
   assert.deepEqual(violations, Object.fromEntries(Object.keys(violations).map((key) => [key, "0"])))
 })
+
+test("PostgREST restart preserves terminal state and idempotent completion recovery", async () => {
+  const container = process.env.MISE_TEST_LAB_POSTGREST_CONTAINER
+  if (!container?.startsWith("mise-testlab-postgrest-tl_")) throw new Error("guarded local PostgREST container required")
+  execFileSync("docker", ["restart", container], { stdio: "pipe" })
+  let ready = false
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    try {
+      const response = await fetch(`${postgrestUrl}/rest/v1/`, {
+        headers: { apikey: localServiceKey!, authorization: `Bearer ${localServiceKey}` },
+      })
+      if (response.ok) { ready = true; break }
+    } catch { /* expected while the local service restarts */ }
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+  assert.equal(ready, true)
+
+  const orderId = scalar("select id from customer_orders where kunde_name='Testkunde'")
+  const assignmentId = scalar(`select id from dispatch_offer_assignments where order_id='${orderId}'`)
+  const batchId = scalar(`select batch_id from dispatch_offer_assignments where order_id='${orderId}'`)
+  const dropoffStopId = scalar(`select id from mise_delivery_batch_stops where batch_id='${batchId}' and type='dropoff'`)
+  const replay = await rpc("fn_driver_complete_v2", {
+    p_tenant_id: "80000000-0000-4000-8000-000000000001", p_order_id: orderId,
+    p_expected_order_version: 3, p_expected_assignment_version: 3,
+    p_expected_batch_version: 3, p_expected_driver_version: 3,
+    p_actor_driver_id: "90000000-0000-4000-8000-000000000001",
+    p_action_id: "93000000-0000-4000-8000-000000000006",
+    p_stop_id: dropoffStopId, p_expected_stop_version: 1, p_expected_route_version: 1,
+    p_correlation_id: "94000000-0000-4000-8000-000000000006",
+  })
+  assert.equal(replay.status, 200)
+  assert.equal(replay.body.ok, true)
+  assert.equal(replay.body.idempotent_replay, true)
+  assert.equal(scalar(`select status from customer_orders where id='${orderId}'`), "delivered")
+  assert.equal(scalar(`select state from dispatch_offer_assignments where id='${assignmentId}'`), "completed")
+  assert.equal(scalar("select count(*) from mise_push_outbox"), "2")
+})
