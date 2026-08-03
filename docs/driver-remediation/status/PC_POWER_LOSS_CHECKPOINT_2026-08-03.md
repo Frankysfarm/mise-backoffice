@@ -19,13 +19,14 @@ local PostgreSQL database and real local PostgREST. The first complete run after
 correctly failed closed because the writer lease expired during a long cold Next compile. The
 test now renews the exact same elected writer lease immediately before assignment.
 
-Confirming result after the invariant extension: `npm run test:lab:lifecycle:http-db`, exit 0,
-7/7. It proves Storefront
+Confirming result after the invariant/race extension: `npm run test:lab:lifecycle:http-db`, exit 0,
+8/8. It proves Storefront
 create/replay, token-bound atomic Kitchen-ready, boundary/cross-station rejection, Atomic-v2
 assignment/replay with exactly one batch/assignment/push, Driver ACK, pickup arrival, incomplete
 manifest rejection, whole-trip pickup/departure, drop-off arrival, delivery completion/replay,
 terminal rows, zero driver capacity, concurrent Kitchen finalization, terminal redispatch denial
-and a zero-violation canonical database snapshot.
+and a zero-violation canonical database snapshot. Two parallel Atomic-v2 writers yield one
+winner; replay after simulated response loss creates no duplicate batch, assignment or push.
 
 Next required command (local only):
 

@@ -324,6 +324,53 @@ test("concurrent final Kitchen items serialize and make the order ready exactly 
   assert.equal(scalar(`select count(*) from order_items where order_id='${orderId}' and station_status='fertig'`), "2")
 })
 
+test("parallel Atomic-v2 writers produce one winner and response-loss retry is idempotent", async () => {
+  const tenantId = "80000000-0000-4000-8000-000000000001"
+  const writerId = "91000000-0000-4000-8000-000000000001"
+  const driverId = "90000000-0000-4000-8000-000000000001"
+  const orderId = scalar("select id from customer_orders where kunde_name='Parallel'")
+  const lease = await rpc("fn_dispatch_claim_writer_v2", {
+    p_tenant_id: tenantId, p_writer_id: writerId, p_lease_seconds: 120,
+  })
+  assert.equal(lease.body.ok, true)
+  const common = {
+    p_tenant_id: tenantId, p_writer_id: writerId, p_writer_epoch: Number(lease.body.writer_epoch),
+    p_driver_id: driverId, p_expected_driver_version: 4,
+    p_algorithm_version: "testlab-race-v1",
+    p_orders: [{
+      order_id: orderId, expected_order_version: 0,
+      pickup_lat: 52.5200, pickup_lng: 13.4050, dropoff_lat: 52.5000, dropoff_lng: 13.3800,
+      pickup_address: "Testküche", dropoff_address: "Testweg 2",
+      pickup_deadline_at: new Date(Date.now() + 20 * 60_000).toISOString(),
+      delivery_deadline_at: new Date(Date.now() + 50 * 60_000).toISOString(),
+    }],
+    p_push_title: "Neue Lieferung", p_push_body: "Race-Auftrag",
+  }
+  const firstPayload = { ...common, p_action_id: "92000000-0000-4000-8000-000000000010" }
+  const secondPayload = { ...common, p_action_id: "92000000-0000-4000-8000-000000000011" }
+  const [first, second] = await Promise.all([
+    rpc("fn_dispatch_assign_orders_v2", firstPayload),
+    rpc("fn_dispatch_assign_orders_v2", secondPayload),
+  ])
+  const results = [first.body, second.body]
+  assert.equal(results.filter((result) => result.ok === true).length, 1)
+  assert.equal(results.filter((result) => result.ok === false).length, 1)
+  assert.ok(["DRIVER_NOT_ELIGIBLE", "ORDER_NOT_ASSIGNABLE"].includes(String(results.find((result) => result.ok === false)?.reason_code)))
+
+  const winningPayload = first.body.ok === true ? firstPayload : secondPayload
+  const winningBatch = String((first.body.ok === true ? first.body : second.body).batch_id)
+  const responseLossRetry = await rpc("fn_dispatch_assign_orders_v2", winningPayload)
+  assert.equal(responseLossRetry.body.ok, true)
+  assert.equal(responseLossRetry.body.idempotent_replay, true)
+  assert.equal(responseLossRetry.body.batch_id, winningBatch)
+
+  assert.equal(scalar(`select count(*) from dispatch_offer_assignments where order_id='${orderId}'`), "1")
+  assert.equal(scalar(`select count(*) from mise_delivery_batches where id='${winningBatch}'`), "1")
+  assert.equal(scalar(`select count(*) from mise_push_outbox where data->>'batch_id'='${winningBatch}'`), "1")
+  assert.equal(scalar(`select status||':'||dispatch_version from customer_orders where id='${orderId}'`), "assigned:1")
+  assert.equal(scalar(`select state||':'||state_version||':'||current_capacity from mise_drivers where id='${driverId}'`), "assigned:5:1")
+})
+
 test("canonical database snapshot has no lifecycle invariant violations", () => {
   const violations = {
     active_assignment_duplicates: scalar(`select count(*) from (select order_id from dispatch_offer_assignments where state in ('offered','accepted','assigned','picked_up','in_progress') group by order_id having count(*)>1) x`),
