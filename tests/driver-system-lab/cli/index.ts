@@ -7,7 +7,10 @@ import { executableScenarioRegistry } from "../scenarios/executable/catalog-regi
 
 function runTests(patterns: string[], extraEnv: NodeJS.ProcessEnv = {}): Promise<number> {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, ["--import", "tsx", "--test", ...patterns], { stdio: "inherit", env: { ...process.env, ...extraEnv } })
+    const concurrency = extraEnv.MISE_TEST_LAB_BROWSER === "true"
+      ? ["--test-concurrency=1"]
+      : []
+    const child = spawn(process.execPath, ["--import", "tsx", "--test", ...concurrency, ...patterns], { stdio: "inherit", env: { ...process.env, ...extraEnv } })
     child.once("error", reject)
     child.once("exit", (code) => resolve(code ?? 1))
   })

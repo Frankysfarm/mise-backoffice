@@ -331,7 +331,11 @@ export function FahrerApp({
       if (integrated) persistAtomicOffer(integrated);
     };
     window.addEventListener('mise-driver-offer-integrated', onIntegrated);
-    return () => window.removeEventListener('mise-driver-offer-integrated', onIntegrated);
+    document.documentElement.dataset.miseDriverOfferListenerReady = 'true';
+    return () => {
+      window.removeEventListener('mise-driver-offer-integrated', onIntegrated);
+      delete document.documentElement.dataset.miseDriverOfferListenerReady;
+    };
   }, []);
 
   async function runAtomicAction(
@@ -736,7 +740,10 @@ export function FahrerApp({
       if (atomic && atomic.batchId === batchId) {
         try {
           await runAtomicAction('accept', '/api/driver/v1/orders/accept');
-          window.location.reload();
+          // Keep the persisted offer/version alive while Next reconciles the
+          // server snapshot. A hard reload can race the native offer bridge
+          // and re-integrate the pre-accept assignment version.
+          router.refresh();
         } catch (error) {
           alert(error instanceof Error ? error.message : 'Atomic accept failed');
         }
@@ -2507,6 +2514,7 @@ function OpenBatchSection({
               </div>
 
               <button
+                type="button"
                 data-testid={`driver-accept-${batchId}`}
                 onClick={() => onClaim(batchId)}
                 disabled={pending}

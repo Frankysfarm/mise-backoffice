@@ -14,6 +14,7 @@
     "test:lab:down": "node --import tsx tests/driver-system-lab/cli/index.ts down",
     "test:lab:smoke": "node --import tsx tests/driver-system-lab/cli/index.ts suite smoke",
     "test:lab:ui": "node --import tsx tests/driver-system-lab/cli/index.ts suite ui",
+    "test:lab:ui:local": "scripts/tests/with-local-remediation-postgres.sh sh scripts/tests/run-test-lab-ui-local.sh",
     "test:lab:dispatch": "node --import tsx tests/driver-system-lab/cli/index.ts suite dispatch",
     "test:lab:kitchen": "node --import tsx tests/driver-system-lab/cli/index.ts suite kitchen",
     "test:lab:routing": "node --import tsx tests/driver-system-lab/cli/index.ts suite routing",

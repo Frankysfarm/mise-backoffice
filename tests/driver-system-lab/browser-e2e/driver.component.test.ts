@@ -42,9 +42,10 @@ test("real Chromium accepts an offer in the production Driver component", async 
   const page = await browserContext.newPage()
   const external: string[] = []
   const pageErrors: string[] = []
+  const dialogs: string[] = []
   let accepted: { body: unknown; authorization?: string } | null = null
   page.on("pageerror", (error) => pageErrors.push(error.stack ?? error.message))
-  page.on("dialog", (dialog) => dialog.dismiss())
+  page.on("dialog", (dialog) => { dialogs.push(dialog.message()); void dialog.dismiss() })
   await page.routeWebSocket("**/*", (socket) => {
     const target = new URL(socket.url()); if (!allowedWs.has(target.origin)) external.push(target.origin); socket.close()
   })
@@ -74,12 +75,31 @@ test("real Chromium accepts an offer in the production Driver component", async 
     await route.continue()
   })
   try {
-    const response = await page.goto(new URL("/test-lab/actors/driver", baseUrl).toString())
+    const response = await page.goto(new URL("/test-lab/actors/driver", baseUrl).toString(), { waitUntil: "domcontentloaded" })
     assert.equal(response?.status(), 200)
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: "domcontentloaded" }),
-      page.getByTestId("driver-accept-a4000000-0000-4000-8000-000000000001").click(),
-    ])
+    const acceptButton = page.getByTestId("driver-accept-a4000000-0000-4000-8000-000000000001")
+    await acceptButton.waitFor({ state: "visible" })
+    await page.waitForFunction(() => {
+      const button = document.querySelector('[data-testid="driver-accept-a4000000-0000-4000-8000-000000000001"]') as HTMLButtonElement | null
+      return button && !button.disabled && document.documentElement.dataset.miseDriverOfferListenerReady === "true"
+    })
+    await page.evaluate(() => {
+      // The storage removal makes the following assertion prove that the
+      // hydrated native-offer listener, not addInitScript, handled the event.
+      localStorage.removeItem("mise-driver:canonical-offer:v1")
+      window.dispatchEvent(new CustomEvent("mise-driver-offer-integrated", { detail: {
+        offer_id: "a6000000-0000-4000-8000-000000000001",
+        assignment_version: 1,
+        batch_id: "a4000000-0000-4000-8000-000000000001",
+      } }))
+    })
+    await page.waitForFunction(() => {
+      const raw = localStorage.getItem("mise-driver:canonical-offer:v1")
+      if (!raw) return false
+      const offer = JSON.parse(raw)
+      return offer.offerId === "a6000000-0000-4000-8000-000000000001" && offer.assignmentVersion === 1
+    })
+    await acceptButton.click()
     await page.waitForFunction(() => {
       const raw = localStorage.getItem("mise-driver:canonical-offer:v1")
       return raw ? JSON.parse(raw).assignmentVersion === 2 : false
@@ -93,6 +113,7 @@ test("real Chromium accepts an offer in the production Driver component", async 
     assert.equal(page.url(), new URL("/test-lab/actors/driver", baseUrl).toString())
     assert.deepEqual(external, [])
     assert.deepEqual(pageErrors, [])
+    assert.deepEqual(dialogs, [])
     await page.screenshot({ path: screenshot, fullPage: true })
   } finally {
     await browserContext.tracing.stop({ path: trace }); await browserContext.close(); await browser.close()

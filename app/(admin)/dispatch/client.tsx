@@ -2628,15 +2628,22 @@ function Metric({ icon, label, value, highlight }: { icon: React.ReactNode; labe
    Jeder Balken = eine Bestellung, Farbe = Wartedauer.
 ────────────────────────────────────────────────────────────────────────────── */
 function ReadyOrderWaitHeatmap({ orders }: { orders: { fertig_am: string | null; bestellnummer: string }[] }) {
-  const [, setTick] = useState(0);
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
-    const t = setInterval(() => setTick((n) => n + 1), 30_000);
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(t);
   }, []);
 
   if (orders.length === 0) return null;
+  if (now === null) {
+    return (
+      <div className="flex items-center gap-3 border-b bg-muted/30 px-5 py-2">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Wartezeit</span>
+      </div>
+    );
+  }
 
-  const now = Date.now();
   const buckets = [
     { label: '<5m',  max: 5,  color: 'bg-matcha-400', text: 'text-matcha-700' },
     { label: '5-10m', max: 10, color: 'bg-amber-400',  text: 'text-amber-700' },
