@@ -232,6 +232,13 @@
 - Focused atomic-offer/UI contracts pass 7/7. `tsc -p tsconfig.p0.json --noEmit --pretty false --incremental false` and `git diff --check` exit 0. This closes the six browser opt-in skips from the aggregate by separate orchestration; it does not close Realtime, physical devices or broader worker/provider chaos.
 - The remaining bounded model-soak opt-in was executed separately as run `tl_20260804t120000z_20d20d20`, seed 20: 2,000 complete deterministic lifecycles and 12,000 timeline events pass with every order terminal, every driver idle and no active assignment. This closes execution evidence for all 24 aggregate opt-in skips, but is not a claim of a multi-hour process/resource soak.
 
+## Aachen shift end-to-end simulation — 2026-08-04
+
+- `npm run test:lab:shift:aachen` boots the full disposable local stack (PostgreSQL, PostgREST, GoTrue, Next) and runs a realistic evening shift: four customers from Aachen and its surroundings (Mitte, Burtscheid, Laurensberg, Wuerselen) order over the real storefront HTTP API, the kitchen advances every item over the token route, Atomic-v2 dispatch assigns three riders over PostgREST, and each rider runs ack, arrive, complete-manifest pickup, arrive and complete to terminal `delivered` with live GPS tracking rows written along the actual route into `mise_driver_locations` (the table the production live-tracking reader consumes).
+- Mid-shift the default-off DB shadow reads the persisted first-wave assignment and confirms the adaptive optimizer picks the same nearest rider with the exact persisted stop sequence. After the first tours complete, the returning rider takes the second-wave Wuerselen order and delivers it.
+- Shift close asserts: 4/4 orders delivered with `geliefert_am`, all assignments/batches/stops completed, per-batch stop sequences contiguous, whole fleet back at capacity 0, exactly one push per dispatched batch, at least 10 distinct GPS positions per tour, and a final shadow pass over zero active assignments with zero violations. Result: 6/6 pass, repeated twice.
+- Out of scope, unchanged: the v2 HTTP GPS ingest chain (`fn_ingest_driver_gps_v2`, migration 280+) and real devices remain under TL-G7.
+
 ## Real DB snapshot/readback shadow — 2026-08-04
 
 - A default-off, read-only DB shadow (`lib/delivery/adaptive-dispatch-db-shadow.ts`) loads actual persisted rows — active `dispatch_offer_assignments`, `mise_delivery_batch_stops`, `customer_orders`, `mise_drivers` and latest `mise_driver_locations` GPS — through an injected SELECT-only executor with an explicit write/multi-statement guard, rebuilds the runtime snapshot with deterministic haversine estimates and hands it to the existing runtime-shadow seam.
