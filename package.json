@@ -23,6 +23,7 @@
     "test:lab:chaos": "node --import tsx tests/driver-system-lab/cli/index.ts suite chaos",
     "test:lab:security": "node --import tsx tests/driver-system-lab/cli/index.ts suite security",
     "test:lab:full": "node --import tsx tests/driver-system-lab/cli/index.ts suite full",
+    "test:lab:full:local": "scripts/tests/with-local-remediation-postgres.sh sh scripts/tests/run-test-lab-full-local.sh",
     "test:lab:nightly": "node --import tsx tests/driver-system-lab/cli/index.ts suite nightly",
     "test:lab:soak": "node --import tsx tests/driver-system-lab/cli/index.ts suite soak",
     "test:lab:replay": "node --import tsx tests/driver-system-lab/cli/index.ts replay",

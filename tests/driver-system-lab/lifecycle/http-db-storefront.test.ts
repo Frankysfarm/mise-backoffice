@@ -4,17 +4,21 @@ import test from "node:test"
 import { assertTestLabEnvironment } from "../support/environment"
 
 const environment = assertTestLabEnvironment()
-const appUrl = process.env.MISE_TEST_LAB_APP_URL
-if (!appUrl || new URL(appUrl).hostname !== "127.0.0.1") {
-  throw new Error("MISE_TEST_LAB_APP_URL must target 127.0.0.1")
-}
-const postgrestUrl = process.env.MISE_TEST_LAB_POSTGREST_URL
+const configuredAppUrl = process.env.MISE_TEST_LAB_APP_URL
+const configuredPostgrestUrl = process.env.MISE_TEST_LAB_POSTGREST_URL
 const localServiceKey = process.env.MISE_TEST_LAB_LOCAL_SERVICE_KEY
 const localAnonKey = process.env.MISE_TEST_LAB_LOCAL_ANON_KEY
 const localAuthenticatedKey = process.env.MISE_TEST_LAB_LOCAL_AUTHENTICATED_KEY
-if (!postgrestUrl || new URL(postgrestUrl).hostname !== "127.0.0.1" || !localServiceKey || !localAnonKey || !localAuthenticatedKey) {
-  throw new Error("local PostgREST URL and role keys are required")
+const lifecycleEnabled = Boolean(configuredAppUrl && configuredPostgrestUrl && localServiceKey && localAnonKey && localAuthenticatedKey)
+if (configuredAppUrl && new URL(configuredAppUrl).hostname !== "127.0.0.1") {
+  throw new Error("MISE_TEST_LAB_APP_URL must target 127.0.0.1")
 }
+if (configuredPostgrestUrl && new URL(configuredPostgrestUrl).hostname !== "127.0.0.1") {
+  throw new Error("MISE_TEST_LAB_POSTGREST_URL must target 127.0.0.1")
+}
+const appUrl = configuredAppUrl ?? "http://127.0.0.1:1"
+const postgrestUrl = configuredPostgrestUrl ?? "http://127.0.0.1:1"
+const lifecycleTest = lifecycleEnabled ? test : test.skip
 let issuedDriverAccessToken = ""
 let issuedAdminCookie = ""
 
@@ -31,7 +35,7 @@ async function rpc(name: string, payload: unknown): Promise<{ status: number; bo
   return { status: response.status, body: await response.json() as Record<string, unknown> }
 }
 
-test("real HTTP -> Next API -> PostgREST -> PostgreSQL creates one idempotent storefront order", async () => {
+lifecycleTest("real HTTP -> Next API -> PostgREST -> PostgreSQL creates one idempotent storefront order", async () => {
   const key = "30000000-0000-4000-8000-000000000001"
   const body = {
     location_id: "10000000-0000-4000-8000-000000000001",
@@ -64,7 +68,7 @@ test("real HTTP -> Next API -> PostgREST -> PostgreSQL creates one idempotent st
   assert.equal(scalar("select count(*) from storefront_order_requests_v1"), "1")
 })
 
-test("real Kitchen token route advances the routed item and atomically makes the order ready", async () => {
+lifecycleTest("real Kitchen token route advances the routed item and atomically makes the order ready", async () => {
   const itemId = scalar("select id from order_items limit 1")
   const endpoint = `${appUrl}/kitchen/display/testlab-kitchen-token/items/${itemId}/advance`
   const advance = async (expected_status: string, target_status: string) => {
@@ -95,7 +99,7 @@ test("real Kitchen token route advances the routed item and atomically makes the
   assert.equal(replay.idempotent_replay, true)
 })
 
-test("Kitchen HTTP boundary rejects invalid transitions, unknown tokens and cross-station items", async () => {
+lifecycleTest("Kitchen HTTP boundary rejects invalid transitions, unknown tokens and cross-station items", async () => {
   const itemId = scalar("select id from order_items limit 1")
   const request = (token: string, body: unknown) => fetch(`${appUrl}/kitchen/display/${token}/items/${itemId}/advance`, {
     method: "POST",
@@ -110,7 +114,7 @@ test("Kitchen HTTP boundary rejects invalid transitions, unknown tokens and cros
   assert.equal(scalar("select status from customer_orders limit 1"), "fertig")
 })
 
-test("real PostgREST Atomic-v2 dispatch creates one assignment, route and push event", async () => {
+lifecycleTest("real PostgREST Atomic-v2 dispatch creates one assignment, route and push event", async () => {
   const orderId = scalar("select id from customer_orders where kunde_name='Testkunde'")
   const lease = await rpc("fn_dispatch_claim_writer_v2", {
     p_tenant_id: "80000000-0000-4000-8000-000000000001",
@@ -186,7 +190,7 @@ test("real PostgREST Atomic-v2 dispatch creates one assignment, route and push e
   assert.equal(scalar("select count(*) from mise_push_outbox"), "1")
 })
 
-test("real Driver lifecycle enforces complete pick manifest and reaches terminal delivery", async () => {
+lifecycleTest("real Driver lifecycle enforces complete pick manifest and reaches terminal delivery", async () => {
   const tenantId = "80000000-0000-4000-8000-000000000001"
   const driverId = "90000000-0000-4000-8000-000000000001"
   const orderId = scalar("select id from customer_orders where kunde_name='Testkunde'")
@@ -298,7 +302,7 @@ test("real Driver lifecycle enforces complete pick manifest and reaches terminal
   assert.equal(scalar("select count(*) from mise_push_outbox"), "1")
 })
 
-test("concurrent final Kitchen items serialize and make the order ready exactly once", async () => {
+lifecycleTest("concurrent final Kitchen items serialize and make the order ready exactly once", async () => {
   const create = await fetch(`${appUrl}/api/delivery/orders`, {
     method: "POST",
     headers: { "content-type": "application/json", "idempotency-key": "30000000-0000-4000-8000-000000000002" },
@@ -328,7 +332,7 @@ test("concurrent final Kitchen items serialize and make the order ready exactly 
   assert.equal(scalar(`select count(*) from order_items where order_id='${orderId}' and station_status='fertig'`), "2")
 })
 
-test("parallel Atomic-v2 writers produce one winner and response-loss retry is idempotent", async () => {
+lifecycleTest("parallel Atomic-v2 writers produce one winner and response-loss retry is idempotent", async () => {
   const tenantId = "80000000-0000-4000-8000-000000000001"
   const writerId = "91000000-0000-4000-8000-000000000001"
   const driverId = "90000000-0000-4000-8000-000000000001"
@@ -375,7 +379,7 @@ test("parallel Atomic-v2 writers produce one winner and response-loss retry is i
   assert.equal(scalar(`select state||':'||state_version||':'||current_capacity from mise_drivers where id='${driverId}'`), "assigned:5:1")
 })
 
-test("canonical database snapshot has no lifecycle invariant violations", () => {
+lifecycleTest("canonical database snapshot has no lifecycle invariant violations", () => {
   const violations = {
     active_assignment_duplicates: scalar(`select count(*) from (select order_id from dispatch_offer_assignments where state in ('offered','accepted','assigned','picked_up','in_progress') group by order_id having count(*)>1) x`),
     active_batch_duplicates: scalar(`select count(*) from (select driver_id from mise_delivery_batches where state in ('pending_acceptance','assigned','at_pickup','in_progress','on_route') group by driver_id having count(*)>1) x`),
@@ -389,7 +393,7 @@ test("canonical database snapshot has no lifecycle invariant violations", () => 
   assert.deepEqual(violations, Object.fromEntries(Object.keys(violations).map((key) => [key, "0"])))
 })
 
-test("PostgREST restart preserves terminal state and idempotent completion recovery", async () => {
+lifecycleTest("PostgREST restart preserves terminal state and idempotent completion recovery", async () => {
   const container = process.env.MISE_TEST_LAB_POSTGREST_CONTAINER
   if (!container?.startsWith("mise-testlab-postgrest-tl_")) throw new Error("guarded local PostgREST container required")
   execFileSync("docker", ["restart", container], { stdio: "pipe" })
@@ -426,7 +430,7 @@ test("PostgREST restart preserves terminal state and idempotent completion recov
   assert.equal(scalar("select count(*) from mise_push_outbox"), "2")
 })
 
-test("PostgREST grants and RLS deny browser roles from canonical lifecycle writes", async () => {
+lifecycleTest("PostgREST grants and RLS deny browser roles from canonical lifecycle writes", async () => {
   const deniedRpcPayload = {
     p_tenant_id: "80000000-0000-4000-8000-000000000001",
     p_writer_id: "91000000-0000-4000-8000-000000000001", p_writer_epoch: 1,
@@ -452,7 +456,7 @@ test("PostgREST grants and RLS deny browser roles from canonical lifecycle write
   assert.equal(scalar("select count(*) from dispatch_assignment_requests_v2 where action='forbidden'"), "0")
 })
 
-test("GoTrue-issued JWT authenticates the real Driver snapshot boundary and invalid JWT fails closed", async () => {
+lifecycleTest("GoTrue-issued JWT authenticates the real Driver snapshot boundary and invalid JWT fails closed", async () => {
   const signup = await fetch(`${postgrestUrl}/auth/v1/signup`, {
     method: "POST",
     headers: { "content-type": "application/json", apikey: localAnonKey! },
@@ -490,7 +494,7 @@ test("GoTrue-issued JWT authenticates the real Driver snapshot boundary and inva
   assert.equal(deniedBody.reason_code, "UNAUTHORIZED")
 })
 
-test("GoTrue SSR cookie authenticates the real tenant-scoped Admin drivers route", async () => {
+lifecycleTest("GoTrue SSR cookie authenticates the real tenant-scoped Admin drivers route", async () => {
   const signup = await fetch(`${postgrestUrl}/auth/v1/signup`, {
     method: "POST",
     headers: { "content-type": "application/json", apikey: localAnonKey! },
@@ -538,7 +542,7 @@ test("GoTrue SSR cookie authenticates the real tenant-scoped Admin drivers route
   }
 })
 
-test("GoTrue restart preserves issued Driver and Admin sessions through real API boundaries", async () => {
+lifecycleTest("GoTrue restart preserves issued Driver and Admin sessions through real API boundaries", async () => {
   const container = process.env.MISE_TEST_LAB_GOTRUE_CONTAINER
   if (!container?.startsWith("mise-testlab-gotrue-tl_")) throw new Error("guarded local GoTrue container required")
   assert.match(issuedDriverAccessToken, /^ey[^.]*\.[^.]+\.[^.]+$/)
@@ -572,7 +576,7 @@ test("GoTrue restart preserves issued Driver and Admin sessions through real API
   assert.deepEqual(adminBody.drivers?.map((row) => row.id), ["90000000-0000-4000-8000-000000000001"])
 })
 
-test("lost Driver HTTP acknowledgement response retries idempotently without a second write", async () => {
+lifecycleTest("lost Driver HTTP acknowledgement response retries idempotently without a second write", async () => {
   const actionId = "93000000-0000-4000-8000-000000000020"
   const activeAssignmentId = scalar(`select id from dispatch_offer_assignments where driver_id='90000000-0000-4000-8000-000000000001' and state='assigned'`)
   const payload = {
@@ -609,7 +613,7 @@ test("lost Driver HTTP acknowledgement response retries idempotently without a s
   assert.equal(scalar(`select received_by_app_at is not null from dispatch_offer_assignments where id='${activeAssignmentId}'`), "t")
 })
 
-test("Driver HTTP boundary rejects changed idempotency payload and stale assignment version without writes", async () => {
+lifecycleTest("Driver HTTP boundary rejects changed idempotency payload and stale assignment version without writes", async () => {
   const reusedActionId = "93000000-0000-4000-8000-000000000020"
   const changed = await fetch(`${appUrl}/api/driver/v2/assignments/ack`, {
     method: "POST",
@@ -645,7 +649,7 @@ test("Driver HTTP boundary rejects changed idempotency payload and stale assignm
   assert.equal(scalar(`select count(*) from driver_api_compatibility_events_v2 where correlation_id=(select correlation_id from driver_action_requests_v2 where action_id='${reusedActionId}')`), "1")
 })
 
-test("PostgREST outage before Driver acknowledgement fails closed and recovery commits once", async () => {
+lifecycleTest("PostgREST outage before Driver acknowledgement fails closed and recovery commits once", async () => {
   const container = process.env.MISE_TEST_LAB_POSTGREST_CONTAINER
   if (!container?.startsWith("mise-testlab-postgrest-tl_")) throw new Error("guarded local PostgREST container required")
   const actionId = "93000000-0000-4000-8000-000000000022"
@@ -693,7 +697,7 @@ test("PostgREST outage before Driver acknowledgement fails closed and recovery c
   assert.equal(scalar(`select count(*) from driver_api_compatibility_events_v2 where correlation_id=(select correlation_id from driver_action_requests_v2 where action_id='${actionId}')`), "1")
 })
 
-test("Next application restart preserves Storefront idempotency and database state", async () => {
+lifecycleTest("Next application restart preserves Storefront idempotency and database state", async () => {
   const oldPid = Number(process.env.MISE_TEST_LAB_NEXT_PID)
   if (!Number.isSafeInteger(oldPid) || oldPid <= 1) throw new Error("guarded local Next pid required")
   process.kill(oldPid, "SIGTERM")

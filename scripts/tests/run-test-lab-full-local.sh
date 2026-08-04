@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+: "${TEST_DATABASE_URL:?must be provided by with-local-remediation-postgres.sh}"
+
+MISE_TEST_LAB_ENABLED=true \
+MISE_TEST_LAB_ENV=local \
+MISE_TEST_LAB_DATABASE_URL="$TEST_DATABASE_URL" \
+MISE_TEST_LAB_TENANT_ID=testlab_full_local \
+MISE_TEST_LAB_RUN_ID=tl_20260804t070000z_17a17a17 \
+MISE_TEST_LAB_SEED=17 \
+MISE_TEST_LAB_PUSH_MODE=sink \
+MISE_TEST_LAB_EMAIL_MODE=sink \
+MISE_TEST_LAB_SMS_MODE=sink \
+MISE_TEST_LAB_WHATSAPP_MODE=sink \
+MISE_TEST_LAB_ROUTING_MODE=fixture \
+npm run test:lab:full

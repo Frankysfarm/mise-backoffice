@@ -38,11 +38,12 @@ The second GoTrue user authenticates through a real Admin SSR cookie; the tenant
 GoTrue restart preserves both sessions, and a discarded committed Driver-ACK response retries with exactly one registry/event write.
 Changed-idempotency and stale-assignment requests fail closed without additional writes.
 A pre-commit PostgREST outage returns retryable 503 with zero writes; recovery commits the identical Driver request exactly once.
+On 2026-08-04, T10 exits 0, the guarded aggregate Full suite exits 0 (97 pass, 24 explicit opt-in skips), and the separately orchestrated lifecycle reconfirms 17/17 with zero skips.
 
 Next required command (local only):
 
 `npm run test:lab:lifecycle:http-db`
 
 After restart, first run `git status --short` and verify the latest checkpoint commit. The next
-independent gate is application-path chaos/recovery and Realtime isolation.
+independent gate is Realtime isolation, remaining browser opt-in execution and runtime routing capture.
 Production remains forbidden.
