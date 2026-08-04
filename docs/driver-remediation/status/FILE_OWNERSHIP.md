@@ -46,5 +46,6 @@ Updated: 2026-08-01
 | `lib/supabase/middleware.ts` test-lab public boundary | TL-G2 dashboard access | lead orchestrator | exclusive | Test-lab page/API may reach their central environment guard before auth; all other auth behavior frozen. |
 | `tests/driver-system-lab/chaos/integration/**` | TL-G6 integrated chaos | review_adversarial_sre | exclusive | Disposable PostgreSQL/process fault integration only. |
 | `tests/driver-system-lab/adapters/captured/**` | TL-G4 captured production comparison | review_dispatch_or | exclusive | Invoke pure production optimizer, normalize result and compare independently; no production side effects. |
+| `lib/delivery/adaptive-dispatch-runtime-shadow.ts`, Frank read-only capture wiring, focused runtime-oracle tests/docs | TL-G4 runtime capture | review_dispatch_or | exclusive | Strict default-off/read-only shadow observation; no writer callback, score change or production activation. |
 
 Ownership must be updated before another task edits a listed scope.

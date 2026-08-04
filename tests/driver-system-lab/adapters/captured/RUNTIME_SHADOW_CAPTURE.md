@@ -1,0 +1,33 @@
+# Runtime dispatch shadow capture
+
+`adaptive-dispatch-runtime-shadow.ts` is a strictly read-only, explicit
+shadow seam. It accepts the runtime snapshot and a separately read persisted
+observation, invokes the unchanged production adaptive optimizer, and retains
+all three values: runtime input, optimizer input/plan, and persisted
+assignments/stops. It has no database, network, writer, provider, feature flag,
+or activation callback; passing `enabled=false` fails closed.
+
+The focused fixture covers two and four drivers, Bike and Car capacity, staggered
+ready times, an endangered order, an incumbent route prefix, two stores, two
+traffic-matrix versions, and maximum bundle sizes one through four. The
+persisted readback fixture is declared independently of the optimizer result.
+Assignments and exact stop sequences must match both the captured route
+estimate and the independently implemented exhaustive Oracle. Reordered stops
+or a different persisted assignment fail explicitly.
+
+This closes the deterministic capture/comparison format, not production
+activation. Frank does not currently invoke the adaptive optimizer; its active
+runtime remains the canonical per-order deterministic/T08 pipeline. Therefore
+this seam must not be described as evidence that adaptive global bundling is
+live, database-persisted, or production-wired. A later integration needs an
+explicitly reviewed default-off Frank shadow call and a disposable full-schema
+readback. Existing route feasibility and ready time remain provider inputs:
+the seam proves they are captured and that estimates preserve the incumbent
+prefix/do not predate readiness, not that an external routing provider computed
+them correctly.
+
+Focused command:
+
+```sh
+node --import tsx --test tests/driver-system-lab/adapters/captured/runtime-shadow-pipeline.test.ts
+```
