@@ -546,7 +546,7 @@ lifecycleTest("parallel HTTP requests in the ordered lifecycle deduplicate one D
     (select coalesce(jsonb_agg(to_jsonb(s) order by s.id)::text,'[]') from mise_delivery_batch_stops s where s.batch_id=(select batch_id from dispatch_offer_assignments where id='${activeAssignmentId}')),
     (select coalesce(jsonb_agg(to_jsonb(p) order by p.id)::text,'[]') from mise_push_outbox p where p.data->>'batch_id'=(select batch_id::text from dispatch_offer_assignments where id='${activeAssignmentId}')),
     (select coalesce(jsonb_agg(to_jsonb(r) order by r.action_id)::text,'[]') from driver_action_requests_v2 r where r.action_id='${staleActionId}'),
-    (select coalesce(jsonb_agg(to_jsonb(e) order by e.id)::text,'[]') from driver_api_compatibility_events_v2 e where e.correlation_id='${staleActionId}')
+    (select coalesce(jsonb_agg(to_jsonb(e) order by e.id)::text,'[]') from driver_api_compatibility_events_v2 e)
   ))`)
   const beforeStale = fingerprint()
   const staleResponse = await request(staleActionId, expectedAssignmentVersion - 1)
