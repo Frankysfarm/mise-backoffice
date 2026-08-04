@@ -494,6 +494,49 @@ lifecycleTest("GoTrue-issued JWT authenticates the real Driver snapshot boundary
   assert.equal(deniedBody.reason_code, "UNAUTHORIZED")
 })
 
+lifecycleTest("parallel HTTP workers deduplicate one Driver event and stale out-of-order replay stays write-free", async () => {
+  const actionId = "93000000-0000-4000-8000-000000000023"
+  const staleActionId = "93000000-0000-4000-8000-000000000024"
+  const activeAssignmentId = scalar(`select id from dispatch_offer_assignments where driver_id='90000000-0000-4000-8000-000000000001' and state='assigned'`)
+  const terminalBatchId = scalar(`select a.batch_id from dispatch_offer_assignments a join customer_orders o on o.id=a.order_id where o.kunde_name='Testkunde' and o.status='delivered'`)
+  const terminalPushCountBefore = scalar(`select count(*) from mise_push_outbox where data->>'batch_id'='${terminalBatchId}'`)
+  const request = (id: string, assignmentVersion: number) => fetch(`${appUrl}/api/driver/v2/assignments/ack`, {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${issuedDriverAccessToken}` },
+    body: JSON.stringify({
+      action_id: id,
+      expected_state: "assigned",
+      expected_versions: { driver: 5, assignment: assignmentVersion },
+      occurred_at: "2026-08-04T00:00:23.000Z",
+    }),
+  })
+
+  const [firstResponse, secondResponse] = await Promise.all([
+    request(actionId, 1),
+    request(actionId, 1),
+  ])
+  const concurrent = await Promise.all([
+    firstResponse.json() as Promise<{ ok?: boolean; idempotent_replay?: boolean; assignment_id?: string }>,
+    secondResponse.json() as Promise<{ ok?: boolean; idempotent_replay?: boolean; assignment_id?: string }>,
+  ])
+  assert.deepEqual([firstResponse.status, secondResponse.status], [200, 200])
+  assert.equal(concurrent.every((result) => result.ok === true), true)
+  assert.equal(concurrent.filter((result) => result.idempotent_replay === true).length, 1)
+  assert.deepEqual(concurrent.map((result) => result.assignment_id), [activeAssignmentId, activeAssignmentId])
+  assert.equal(scalar(`select count(*) from driver_action_requests_v2 where action_id='${actionId}'`), "1")
+  assert.equal(scalar(`select count(*) from driver_api_compatibility_events_v2 where correlation_id=(select correlation_id from driver_action_requests_v2 where action_id='${actionId}')`), "1")
+
+  const compatibilityEventsBeforeStale = scalar("select count(*) from driver_api_compatibility_events_v2")
+  const staleResponse = await request(staleActionId, 0)
+  const stale = await staleResponse.json() as { ok?: boolean; reason_code?: string }
+  assert.equal(staleResponse.status, 409, JSON.stringify(stale))
+  assert.equal(stale.ok, false)
+  assert.equal(stale.reason_code, "EXPECTED_ASSIGNMENT_VERSION_CONFLICT")
+  assert.equal(scalar(`select count(*) from driver_action_requests_v2 where action_id='${staleActionId}'`), "0")
+  assert.equal(scalar("select count(*) from driver_api_compatibility_events_v2"), compatibilityEventsBeforeStale)
+  assert.equal(scalar(`select count(*) from mise_push_outbox where data->>'batch_id'='${terminalBatchId}'`), terminalPushCountBefore)
+})
+
 lifecycleTest("GoTrue SSR cookie authenticates the real tenant-scoped Admin drivers route", async () => {
   const signup = await fetch(`${postgrestUrl}/auth/v1/signup`, {
     method: "POST",
