@@ -1,6 +1,7 @@
 import assert from "node:assert/strict"
 import { execFileSync, spawn } from "node:child_process"
 import test from "node:test"
+import { loadAdaptiveDispatchDbShadow } from "../../../lib/delivery/adaptive-dispatch-db-shadow"
 import { assertTestLabEnvironment } from "../support/environment"
 
 const environment = assertTestLabEnvironment()
@@ -762,6 +763,137 @@ lifecycleTest("PostgREST outage before Driver acknowledgement fails closed and r
   assert.equal(scalar(`select count(*) from driver_api_compatibility_events_v2 where correlation_id=(select correlation_id from driver_action_requests_v2 where action_id='${actionId}')`), "1")
 })
 
+lifecycleTest("default-off DB shadow reads real persisted assignment and stop rows and fails closed on drift", async () => {
+  const locationId = "10000000-0000-4000-8000-000000000011"
+  const stationToken = "testlab-aachen-kitchen-token"
+  const bikeDriverId = "90000000-0000-4000-8000-000000000031"
+  const carDriverId = "90000000-0000-4000-8000-000000000032"
+  const store = { lat: 50.77843, lng: 6.07873 }
+  const customer = { lat: 50.7681, lng: 6.0903 }
+  scalar(`insert into locations(id, tenant_id, name, aktiv) values ('${locationId}', '80000000-0000-4000-8000-000000000001', 'Aachen Pontstrasse', true)`)
+  scalar(`insert into menu_items(id, location_id, category_id, name, preis, verfuegbar) values ('20000000-0000-4000-8000-000000000011', '${locationId}', '50000000-0000-4000-8000-000000000001', 'Aachener Printen-Bowl', 14.90, true)`)
+  scalar(`insert into kitchen_stations(id, location_id, display_token) values ('40000000-0000-4000-8000-000000000011', '${locationId}', '${stationToken}')`)
+  scalar(`insert into station_category_routing(station_id, category_id) values ('40000000-0000-4000-8000-000000000011', '50000000-0000-4000-8000-000000000001')`)
+  scalar(`insert into mise_drivers(id, name, active, state, vehicle, last_position_at) values ('${bikeDriverId}', 'Aachen Rad-Kurier', true, 'idle', 'bike', now())`)
+  scalar(`insert into mise_drivers(id, name, active, state, vehicle, last_position_at) values ('${carDriverId}', 'Aachen Auto-Kurier', true, 'idle', 'car', now())`)
+  scalar(`insert into mise_driver_tenants(driver_id, tenant_id, status) values ('${bikeDriverId}', '80000000-0000-4000-8000-000000000001', 'active')`)
+  scalar(`insert into mise_driver_tenants(driver_id, tenant_id, status) values ('${carDriverId}', '80000000-0000-4000-8000-000000000001', 'active')`)
+  scalar(`insert into mise_driver_locations(driver_id, lat, lng, accuracy_m, recorded_at) values ('${bikeDriverId}', 50.7780, 6.0810, 12, now())`)
+  scalar(`insert into mise_driver_locations(driver_id, lat, lng, accuracy_m, recorded_at) values ('${carDriverId}', 50.8180, 6.1250, 15, now())`)
+
+  const created = await fetch(`${appUrl}/api/delivery/orders`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "idempotency-key": "30000000-0000-4000-8000-000000000031" },
+    body: JSON.stringify({
+      location_id: locationId,
+      items: [{ id: "20000000-0000-4000-8000-000000000011", qty: 1 }],
+      customer: { name: "Aachener Testkunde", phone: "+49241000000", address: "Wilhelmstrasse 12, 52062 Aachen" },
+      type: "lieferung",
+      payment_method: "bar",
+    }),
+  })
+  const createdBody = await created.json() as { order_id?: string }
+  assert.equal(created.status, 201, JSON.stringify(createdBody))
+  const orderId = createdBody.order_id!
+  const itemId = scalar(`select id from order_items where order_id='${orderId}'`)
+  for (const step of [["offen", "in_arbeit"], ["in_arbeit", "fertig"]]) {
+    const advance = await fetch(`${appUrl}/kitchen/display/${stationToken}/items/${itemId}/advance`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ expected_status: step[0], target_status: step[1] }),
+    })
+    assert.equal(advance.status, 200)
+  }
+  scalar(`update customer_orders set kunde_plz='52062', kunde_lat=${customer.lat}, kunde_lng=${customer.lng}, eta_latest=now()+interval '45 minutes' where id='${orderId}'`)
+
+  const lease = await rpc("fn_dispatch_claim_writer_v2", {
+    p_tenant_id: "80000000-0000-4000-8000-000000000001",
+    p_writer_id: "91000000-0000-4000-8000-000000000001",
+    p_lease_seconds: 120,
+  })
+  assert.equal(lease.body.ok, true, JSON.stringify(lease.body))
+  const dispatch = await rpc("fn_dispatch_assign_orders_v2", {
+    p_tenant_id: "80000000-0000-4000-8000-000000000001",
+    p_writer_id: "91000000-0000-4000-8000-000000000001",
+    p_writer_epoch: Number(lease.body.writer_epoch),
+    p_driver_id: bikeDriverId,
+    p_expected_driver_version: 0,
+    p_action_id: "92000000-0000-4000-8000-000000000031",
+    p_algorithm_version: "testlab-db-shadow-v1",
+    p_orders: [{
+      order_id: orderId,
+      expected_order_version: 0,
+      pickup_lat: store.lat,
+      pickup_lng: store.lng,
+      dropoff_lat: customer.lat,
+      dropoff_lng: customer.lng,
+      pickup_address: "Pontstrasse 141, 52062 Aachen",
+      dropoff_address: "Wilhelmstrasse 12, 52062 Aachen",
+      pickup_deadline_at: new Date(Date.now() + 20 * 60_000).toISOString(),
+      delivery_deadline_at: new Date(Date.now() + 50 * 60_000).toISOString(),
+    }],
+    p_push_title: "Neue Lieferung",
+    p_push_body: "Aachen DB-Shadow Auftrag",
+  })
+  assert.equal(dispatch.body.ok, true, JSON.stringify(dispatch.body))
+  const batchId = String(dispatch.body.batch_id)
+
+  const issuedStatements: string[] = []
+  const executor = async (sql: string) => {
+    issuedStatements.push(sql)
+    return JSON.parse(execFileSync("psql", [
+      environment.databaseUrl.toString(), "-X", "-A", "-t", "-q", "-v", "ON_ERROR_STOP=1", "-c",
+      `select coalesce(json_agg(row_to_json(t)), '[]'::json) from (${sql}) t`,
+    ], { encoding: "utf8" }).trim()) as Record<string, unknown>[]
+  }
+  const runShadow = () => loadAdaptiveDispatchDbShadow(true, executor, {
+    captureId: "tl_dbshadow_aachen_31",
+    evaluatedAt: new Date().toISOString(),
+    maxBundleOrders: 2,
+    locationId,
+  })
+
+  await assert.rejects(
+    loadAdaptiveDispatchDbShadow(false, executor, {
+      captureId: "tl_dbshadow_aachen_31", evaluatedAt: new Date().toISOString(), maxBundleOrders: 2, locationId,
+    }),
+    /RUNTIME_CAPTURE_DISABLED/,
+  )
+  assert.equal(issuedStatements.length, 0)
+
+  const green = await runShadow()
+  assert.equal(issuedStatements.length > 0, true)
+  assert.equal(issuedStatements.every((sql) => sql.trim().toLowerCase().startsWith("select")), true)
+  assert.equal(green.loaded.assignmentRows, 1)
+  assert.equal(green.loaded.stopRows, 2)
+  assert.equal(green.loaded.driverRows >= 2, true)
+  assert.equal(green.loaded.gpsRows >= 2, true)
+  assert.deepEqual(green.capture.comparison.violations, [])
+  assert.equal(green.capture.comparison.assignmentMatch, true)
+  assert.equal(green.capture.comparison.stopSequenceMatch, true)
+  assert.deepEqual(
+    green.capture.persisted.assignments.map(({ driverId, orderIds }) => `${driverId}:${orderIds.join(",")}`),
+    [`${bikeDriverId}:${orderId}`],
+  )
+
+  scalar(`update mise_delivery_batch_stops set sequence = 1 - sequence where batch_id='${batchId}'`)
+  const stopDrift = await runShadow()
+  assert.equal(stopDrift.capture.comparison.stopSequenceMatch, false)
+  assert.deepEqual(stopDrift.capture.comparison.violations, [`PERSISTED_STOP_SEQUENCE_MISMATCH:${bikeDriverId}`])
+  scalar(`update mise_delivery_batch_stops set sequence = 1 - sequence where batch_id='${batchId}'`)
+
+  const maxGpsId = scalar("select max(id) from mise_driver_locations")
+  scalar(`insert into mise_driver_locations(driver_id, lat, lng, accuracy_m, recorded_at) values ('${bikeDriverId}', 50.8300, 6.2800, 10, now())`)
+  scalar(`insert into mise_driver_locations(driver_id, lat, lng, accuracy_m, recorded_at) values ('${carDriverId}', ${store.lat}, ${store.lng}, 10, now())`)
+  const assignmentDrift = await runShadow()
+  assert.equal(assignmentDrift.capture.comparison.assignmentMatch, false)
+  assert.equal(assignmentDrift.capture.comparison.violations.includes("PERSISTED_ASSIGNMENT_MISMATCH"), true)
+  scalar(`delete from mise_driver_locations where id > ${maxGpsId}`)
+
+  const restored = await runShadow()
+  assert.deepEqual(restored.capture.comparison.violations, [])
+})
+
 lifecycleTest("Next application restart preserves Storefront idempotency and database state", async () => {
   const oldPid = Number(process.env.MISE_TEST_LAB_NEXT_PID)
   if (!Number.isSafeInteger(oldPid) || oldPid <= 1) throw new Error("guarded local Next pid required")
@@ -803,9 +935,9 @@ lifecycleTest("Next application restart preserves Storefront idempotency and dat
       await new Promise((resolve) => setTimeout(resolve, 250))
     }
     assert.equal(ready, true)
-    assert.equal(scalar("select count(*) from customer_orders"), "2")
-    assert.equal(scalar("select count(*) from storefront_order_requests_v1"), "2")
-    assert.equal(scalar("select count(*) from mise_push_outbox"), "2")
+    assert.equal(scalar("select count(*) from customer_orders"), "3")
+    assert.equal(scalar("select count(*) from storefront_order_requests_v1"), "3")
+    assert.equal(scalar("select count(*) from mise_push_outbox"), "3")
 
     const driverAfterRestart = await fetch(`${appUrl}/api/driver/v2/snapshot`, {
       headers: { authorization: `Bearer ${issuedDriverAccessToken}` },
@@ -825,7 +957,11 @@ lifecycleTest("Next application restart preserves Storefront idempotency and dat
     const adminBody = await adminAfterRestart.json() as { ok?: boolean; drivers?: Array<{ id?: string }> }
     assert.equal(adminAfterRestart.status, 200, JSON.stringify(adminBody))
     assert.equal(adminBody.ok, true)
-    assert.deepEqual(adminBody.drivers?.map((row) => row.id), ["90000000-0000-4000-8000-000000000001"])
+    assert.deepEqual(adminBody.drivers?.map((row) => row.id).sort(), [
+      "90000000-0000-4000-8000-000000000001",
+      "90000000-0000-4000-8000-000000000031",
+      "90000000-0000-4000-8000-000000000032",
+    ])
   } finally {
     if (next.exitCode === null) {
       next.kill("SIGTERM")

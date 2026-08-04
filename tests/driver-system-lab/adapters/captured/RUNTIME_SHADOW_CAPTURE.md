@@ -35,3 +35,14 @@ Focused command:
 ```sh
 node --import tsx --test tests/driver-system-lab/adapters/captured/runtime-shadow-pipeline.test.ts
 ```
+
+## DB-backed readback (2026-08-04)
+
+`lib/delivery/adaptive-dispatch-db-shadow.ts` extends this seam with a
+default-off, read-only loader: it reads the actual persisted assignment, batch
+stop, order, driver and latest GPS rows through an injected SELECT-only
+executor, rebuilds the runtime snapshot with deterministic haversine
+estimates and reuses the comparison above. The real HTTP lifecycle proves the
+green path and both drift directions (stop-sequence swap, GPS-driven
+assignment flip) against live PostgreSQL. The shadow is not called by any
+production scheduler; activation stays a reviewed default-off decision.

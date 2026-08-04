@@ -86,6 +86,18 @@ CREATE TABLE public.mise_delivery_batch_stops (
   lng numeric,
   address text
 );
+CREATE TABLE public.mise_driver_locations (
+  id bigserial PRIMARY KEY,
+  driver_id uuid NOT NULL REFERENCES public.mise_drivers(id),
+  lat double precision NOT NULL,
+  lng double precision NOT NULL,
+  accuracy_m double precision,
+  heading double precision,
+  speed_kmh double precision,
+  batch_id uuid,
+  recorded_at timestamptz NOT NULL
+);
+GRANT SELECT ON public.mise_driver_locations TO service_role;
 CREATE TABLE public.mise_push_outbox (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   driver_id uuid NOT NULL REFERENCES public.mise_drivers(id),

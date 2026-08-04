@@ -232,6 +232,12 @@
 - Focused atomic-offer/UI contracts pass 7/7. `tsc -p tsconfig.p0.json --noEmit --pretty false --incremental false` and `git diff --check` exit 0. This closes the six browser opt-in skips from the aggregate by separate orchestration; it does not close Realtime, physical devices or broader worker/provider chaos.
 - The remaining bounded model-soak opt-in was executed separately as run `tl_20260804t120000z_20d20d20`, seed 20: 2,000 complete deterministic lifecycles and 12,000 timeline events pass with every order terminal, every driver idle and no active assignment. This closes execution evidence for all 24 aggregate opt-in skips, but is not a claim of a multi-hour process/resource soak.
 
+## Real DB snapshot/readback shadow — 2026-08-04
+
+- A default-off, read-only DB shadow (`lib/delivery/adaptive-dispatch-db-shadow.ts`) loads actual persisted rows — active `dispatch_offer_assignments`, `mise_delivery_batch_stops`, `customer_orders`, `mise_drivers` and latest `mise_driver_locations` GPS — through an injected SELECT-only executor with an explicit write/multi-statement guard, rebuilds the runtime snapshot with deterministic haversine estimates and hands it to the existing runtime-shadow seam.
+- The real HTTP lifecycle exercises it end-to-end on an isolated Aachen scenario: storefront order over HTTP, kitchen advance over the token route, Atomic-v2 dispatch over PostgREST, then the shadow readback. Green case matches assignment and exact stop sequence; a persisted stop-sequence swap fails closed with `PERSISTED_STOP_SEQUENCE_MISMATCH`, a GPS-driven optimal-driver flip fails closed with `PERSISTED_ASSIGNMENT_MISMATCH`, and disabled mode issues zero SQL statements. Full guarded lifecycle: 19/19 pass.
+- Scope remains honest: the shadow is invoked by the test lab, not by a production scheduler tick; activating it inside the live Frank runtime stays a reviewed default-off product decision.
+
 ## Runtime shadow/oracle and concurrent HTTP requests — 2026-08-04
 
 - A strict default-off, read-only adaptive runtime-shadow seam captures runtime-shaped order/driver/route inputs and compares a separately declared persisted assignment/stop observation. It has no database, writer, network or provider callback and changes no dispatch score or activation default.
