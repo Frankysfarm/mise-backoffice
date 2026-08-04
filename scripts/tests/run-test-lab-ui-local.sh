@@ -5,7 +5,7 @@ set -eu
 
 app_port=3212
 app_url="http://127.0.0.1:${app_port}"
-run_id=tl_20260804t073000z_18b18b18
+run_id="tl_$(date -u +%Y%m%dt%H%M%Sz)_18b18b18_$$"
 dist_dir=".next-testlab-ui-$$"
 lock_dir=.next-testlab-ui.lock
 lock_owned=false

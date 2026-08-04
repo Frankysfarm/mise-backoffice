@@ -494,26 +494,38 @@ lifecycleTest("GoTrue-issued JWT authenticates the real Driver snapshot boundary
   assert.equal(deniedBody.reason_code, "UNAUTHORIZED")
 })
 
-lifecycleTest("parallel HTTP workers deduplicate one Driver event and stale out-of-order replay stays write-free", async () => {
+lifecycleTest("parallel HTTP requests in the ordered lifecycle deduplicate one Driver event and stale replay preserves canonical state", async () => {
   const actionId = "93000000-0000-4000-8000-000000000023"
   const staleActionId = "93000000-0000-4000-8000-000000000024"
   const activeAssignmentId = scalar(`select id from dispatch_offer_assignments where driver_id='90000000-0000-4000-8000-000000000001' and state='assigned'`)
-  const terminalBatchId = scalar(`select a.batch_id from dispatch_offer_assignments a join customer_orders o on o.id=a.order_id where o.kunde_name='Testkunde' and o.status='delivered'`)
-  const terminalPushCountBefore = scalar(`select count(*) from mise_push_outbox where data->>'batch_id'='${terminalBatchId}'`)
+  const previousAuthUserId = scalar(`select auth_user_id from mise_drivers where id='90000000-0000-4000-8000-000000000001'`)
+  const signup = await fetch(`${postgrestUrl}/auth/v1/signup`, {
+    method: "POST", headers: { "content-type": "application/json", apikey: localAnonKey! },
+    body: JSON.stringify({ email: "driver-parallel-testlab@mise.invalid", password: "Testlab-Parallel-Password-2026!" }),
+  })
+  const auth = await signup.json() as { access_token?: string; user?: { id?: string } }
+  assert.equal(signup.status, 200, JSON.stringify(auth))
+  scalar(`update mise_drivers set auth_user_id='${auth.user!.id!}' where id='90000000-0000-4000-8000-000000000001'`)
+  const snapshotResponse = await fetch(`${appUrl}/api/driver/v2/snapshot`, { headers: { authorization: `Bearer ${auth.access_token}` } })
+  const snapshotBody = await snapshotResponse.json() as { snapshot?: { driver?: { version?: number }; assignment?: { id?: string; version?: number } } }
+  assert.equal(snapshotResponse.status, 200, JSON.stringify(snapshotBody))
+  assert.equal(snapshotBody.snapshot?.assignment?.id, activeAssignmentId)
+  const expectedDriverVersion = snapshotBody.snapshot!.driver!.version!
+  const expectedAssignmentVersion = snapshotBody.snapshot!.assignment!.version!
   const request = (id: string, assignmentVersion: number) => fetch(`${appUrl}/api/driver/v2/assignments/ack`, {
     method: "POST",
-    headers: { "content-type": "application/json", authorization: `Bearer ${issuedDriverAccessToken}` },
+    headers: { "content-type": "application/json", authorization: `Bearer ${auth.access_token}` },
     body: JSON.stringify({
       action_id: id,
       expected_state: "assigned",
-      expected_versions: { driver: 5, assignment: assignmentVersion },
+      expected_versions: { driver: expectedDriverVersion, assignment: assignmentVersion },
       occurred_at: "2026-08-04T00:00:23.000Z",
     }),
   })
 
   const [firstResponse, secondResponse] = await Promise.all([
-    request(actionId, 1),
-    request(actionId, 1),
+    request(actionId, expectedAssignmentVersion),
+    request(actionId, expectedAssignmentVersion),
   ])
   const concurrent = await Promise.all([
     firstResponse.json() as Promise<{ ok?: boolean; idempotent_replay?: boolean; assignment_id?: string }>,
@@ -526,15 +538,25 @@ lifecycleTest("parallel HTTP workers deduplicate one Driver event and stale out-
   assert.equal(scalar(`select count(*) from driver_action_requests_v2 where action_id='${actionId}'`), "1")
   assert.equal(scalar(`select count(*) from driver_api_compatibility_events_v2 where correlation_id=(select correlation_id from driver_action_requests_v2 where action_id='${actionId}')`), "1")
 
-  const compatibilityEventsBeforeStale = scalar("select count(*) from driver_api_compatibility_events_v2")
-  const staleResponse = await request(staleActionId, 0)
+  const fingerprint = () => scalar(`select md5(concat_ws('|',
+    (select coalesce(jsonb_agg(to_jsonb(a) order by a.id)::text,'[]') from dispatch_offer_assignments a where a.id='${activeAssignmentId}'),
+    (select coalesce(jsonb_agg(to_jsonb(d) order by d.id)::text,'[]') from mise_drivers d where d.id='90000000-0000-4000-8000-000000000001'),
+    (select coalesce(jsonb_agg(to_jsonb(b) order by b.id)::text,'[]') from mise_delivery_batches b where b.id=(select batch_id from dispatch_offer_assignments where id='${activeAssignmentId}')),
+    (select coalesce(jsonb_agg(to_jsonb(o) order by o.id)::text,'[]') from customer_orders o where o.id=(select order_id from dispatch_offer_assignments where id='${activeAssignmentId}')),
+    (select coalesce(jsonb_agg(to_jsonb(s) order by s.id)::text,'[]') from mise_delivery_batch_stops s where s.batch_id=(select batch_id from dispatch_offer_assignments where id='${activeAssignmentId}')),
+    (select coalesce(jsonb_agg(to_jsonb(p) order by p.id)::text,'[]') from mise_push_outbox p where p.data->>'batch_id'=(select batch_id::text from dispatch_offer_assignments where id='${activeAssignmentId}')),
+    (select coalesce(jsonb_agg(to_jsonb(r) order by r.action_id)::text,'[]') from driver_action_requests_v2 r where r.action_id='${staleActionId}'),
+    (select coalesce(jsonb_agg(to_jsonb(e) order by e.id)::text,'[]') from driver_api_compatibility_events_v2 e where e.correlation_id='${staleActionId}')
+  ))`)
+  const beforeStale = fingerprint()
+  const staleResponse = await request(staleActionId, expectedAssignmentVersion - 1)
   const stale = await staleResponse.json() as { ok?: boolean; reason_code?: string }
   assert.equal(staleResponse.status, 409, JSON.stringify(stale))
   assert.equal(stale.ok, false)
   assert.equal(stale.reason_code, "EXPECTED_ASSIGNMENT_VERSION_CONFLICT")
   assert.equal(scalar(`select count(*) from driver_action_requests_v2 where action_id='${staleActionId}'`), "0")
-  assert.equal(scalar("select count(*) from driver_api_compatibility_events_v2"), compatibilityEventsBeforeStale)
-  assert.equal(scalar(`select count(*) from mise_push_outbox where data->>'batch_id'='${terminalBatchId}'`), terminalPushCountBefore)
+  assert.equal(fingerprint(), beforeStale)
+  scalar(`update mise_drivers set auth_user_id='${previousAuthUserId}' where id='90000000-0000-4000-8000-000000000001'`)
 })
 
 lifecycleTest("GoTrue SSR cookie authenticates the real tenant-scoped Admin drivers route", async () => {
@@ -805,6 +827,12 @@ lifecycleTest("Next application restart preserves Storefront idempotency and dat
     assert.equal(adminBody.ok, true)
     assert.deepEqual(adminBody.drivers?.map((row) => row.id), ["90000000-0000-4000-8000-000000000001"])
   } finally {
-    next.kill("SIGTERM")
+    if (next.exitCode === null) {
+      next.kill("SIGTERM")
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error("restarted Next did not exit after SIGTERM")), 10_000)
+        next.once("exit", () => { clearTimeout(timeout); resolve() })
+      })
+    }
   }
 })

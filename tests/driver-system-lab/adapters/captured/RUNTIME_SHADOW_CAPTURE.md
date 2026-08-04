@@ -7,13 +7,17 @@ all three values: runtime input, optimizer input/plan, and persisted
 assignments/stops. It has no database, network, writer, provider, feature flag,
 or activation callback; passing `enabled=false` fails closed.
 
-The focused fixture covers two and four drivers, Bike and Car capacity, staggered
-ready times, an endangered order, an incumbent route prefix, two stores, two
-traffic-matrix versions, and maximum bundle sizes one through four. The
-persisted readback fixture is declared independently of the optimizer result.
+The focused fixture captures two and four drivers, Bike and Car capacity,
+staggered ready times, an endangered-order marker, an incumbent route prefix,
+two stores, two traffic-matrix versions, and maximum bundle sizes one through
+four. Capacity and bundle size are decision inputs. Readiness and incumbent
+stops are validated constraints; endangered and traffic-matrix version are
+retained metadata here, not proven decision-sensitive optimizer inputs. The
+persisted readback fixture is constructed separately from route estimates.
 Assignments and exact stop sequences must match both the captured route
-estimate and the independently implemented exhaustive Oracle. Reordered stops
-or a different persisted assignment fail explicitly.
+estimate and the independently implemented exhaustive Oracle. Reordered,
+independently declared stops fail even when assignment membership is unchanged;
+a different persisted assignment also fails explicitly.
 
 This closes the deterministic capture/comparison format, not production
 activation. Frank does not currently invoke the adaptive optimizer; its active

@@ -8,6 +8,8 @@ postgrest_port="54329"
 postgrest_upstream_port="54330"
 gotrue_upstream_port="54331"
 app_port="3210"
+lock_dir=.next-testlab-http-db.lock
+lock_owned=false
 container="mise-testlab-postgrest-${run_id}"
 auth_container="mise-testlab-gotrue-${run_id}"
 jwt_secret="mise-test-lab-only-secret-at-least-thirty-two-characters"
@@ -21,13 +23,26 @@ cleanup() {
   if [ "$cleanup_status" -ne 0 ]; then
     docker logs "$auth_container" 2>&1 || true
   fi
-  if [ -n "${app_pid:-}" ]; then kill "$app_pid" >/dev/null 2>&1 || true; fi
-  if [ -n "${proxy_pid:-}" ]; then kill "$proxy_pid" >/dev/null 2>&1 || true; fi
+  if [ -n "${app_pid:-}" ]; then kill "$app_pid" >/dev/null 2>&1 || true; wait "$app_pid" >/dev/null 2>&1 || true; fi
+  if [ -n "${proxy_pid:-}" ]; then kill "$proxy_pid" >/dev/null 2>&1 || true; wait "$proxy_pid" >/dev/null 2>&1 || true; fi
   docker rm -f "$container" >/dev/null 2>&1 || true
   docker rm -f "$auth_container" >/dev/null 2>&1 || true
+  if [ "$lock_owned" = true ]; then rmdir "$lock_dir" >/dev/null 2>&1 || true; fi
   return "$cleanup_status"
 }
 trap cleanup EXIT INT TERM
+
+if ! mkdir "$lock_dir" 2>/dev/null; then
+  echo "another HTTP lifecycle owns $lock_dir; refusing concurrent execution" >&2
+  exit 1
+fi
+lock_owned=true
+for port in "$postgrest_port" "$postgrest_upstream_port" "$gotrue_upstream_port" "$app_port"; do
+  if lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "HTTP lifecycle port $port is already owned; refusing stale-process reuse" >&2
+    exit 1
+  fi
+done
 
 psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/tests/fixtures/289_storefront_schema.sql
 psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/migrations/289_atomic_storefront_order.sql
@@ -110,9 +125,13 @@ app_pid=$!
 
 attempt=0
 until curl -fsS "http://127.0.0.1:${app_port}/api/health" >/dev/null 2>&1 || curl -fsS "http://127.0.0.1:${app_port}/" >/dev/null 2>&1; do
+  kill -0 "$app_pid" 2>/dev/null || { cat "${TMPDIR:-/tmp}/mise-testlab-next-${run_id}.log"; exit 1; }
   attempt=$((attempt + 1)); [ "$attempt" -lt 60 ] || { cat "${TMPDIR:-/tmp}/mise-testlab-next-${run_id}.log"; exit 1; }
   sleep 1
 done
+
+curl -fsS "http://127.0.0.1:${app_port}/api/test-lab/scenarios" |
+  node -e 'let body=""; process.stdin.on("data", chunk => body += chunk); process.stdin.on("end", () => { const parsed=JSON.parse(body); if(parsed.runId!==process.argv[1]) process.exit(1) })' "$run_id"
 
 MISE_TEST_LAB_ENABLED=true \
 MISE_TEST_LAB_ENV=local \

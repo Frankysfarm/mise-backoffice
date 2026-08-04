@@ -68,7 +68,7 @@ function oracleInput(runtime: RuntimeDispatchSnapshot, maxBundleOrders: number):
   };
 }
 
-test('runtime shadow captures 2/4 drivers, vehicles, readiness, incumbent route, multi-store matrix and bundles 1-4', () => {
+test('runtime shadow compares independent persisted stops across 2/4-driver captures and bundles 1-4', () => {
   for (const driverCount of [2, 4] as const) for (let bundleSize = 1; bundleSize <= 4; bundleSize += 1) {
     const runtime = snapshot(driverCount);
     const expectedOrders = {
@@ -79,11 +79,22 @@ test('runtime shadow captures 2/4 drivers, vehicles, readiness, incumbent route,
     }[bundleSize] as Record<string, string[]>;
     // This is the independently retained persisted readback fixture. It is
     // intentionally not derived from the optimizer plan.
-    const persisted = { assignments: Object.entries(expectedOrders).map(([driverId, orderIds]) => {
-      const estimate = runtime.routeEstimates.find((candidate) => candidate.driverId === driverId && [...candidate.orderIds].sort().join() === [...orderIds].sort().join());
-      assert.ok(estimate);
-      return { driverId, orderIds, stops: estimate.stopSequence };
-    }) };
+    const persisted = { assignments: Object.entries(expectedOrders).map(([driverId, orderIds]) => ({
+      driverId,
+      orderIds,
+      // Model a separately queried persistence rowset. Do not reuse the
+      // route-estimate stopSequence that the shadow comparison validates.
+      stops: driverId === 'bike-primary'
+        ? [
+            { kind: 'dropoff' as const, orderId: 'incumbent-bike', storeId: 'store-b', sequence: 1 },
+            { kind: 'pickup' as const, orderId: orderIds[0], storeId: 'store-b', sequence: 2 },
+            ...orderIds.map((orderId, index) => ({ kind: 'dropoff' as const, orderId, storeId: 'store-b', sequence: index + 3 })),
+          ]
+        : [
+            { kind: 'pickup' as const, orderId: orderIds[0], storeId: 'store-a', sequence: 1 },
+            ...orderIds.map((orderId, index) => ({ kind: 'dropoff' as const, orderId, storeId: 'store-a', sequence: index + 2 })),
+          ],
+    })) };
     const capture = captureAdaptiveDispatchRuntimeShadow(true, runtime, persisted, bundleSize);
     assert.deepEqual(capture.comparison, { assignmentMatch: true, stopSequenceMatch: true, violations: [] });
     assert.equal(capture.runtimeInput.drivers.length, driverCount);
@@ -118,4 +129,24 @@ test('runtime shadow is default-off and detects persisted assignment/stop drift'
   const capture = captureAdaptiveDispatchRuntimeShadow(true, runtime, { assignments: [{ driverId: 'car-primary', orderIds: ['a-1'], stops: [{ kind: 'dropoff', orderId: 'a-1', storeId: 'store-a', sequence: 1 }] }] }, 4);
   assert.equal(capture.comparison.assignmentMatch, false);
   assert.equal(capture.comparison.stopSequenceMatch, false);
+
+  const stopOnlyDrift = captureAdaptiveDispatchRuntimeShadow(true, runtime, {
+    assignments: [
+      { driverId: 'car-primary', orderIds: ['a-1', 'a-2', 'a-3', 'a-4'], stops: [
+        { kind: 'pickup', orderId: 'a-1', storeId: 'store-a', sequence: 1 },
+        { kind: 'dropoff', orderId: 'a-2', storeId: 'store-a', sequence: 2 },
+        { kind: 'dropoff', orderId: 'a-1', storeId: 'store-a', sequence: 3 },
+        { kind: 'dropoff', orderId: 'a-3', storeId: 'store-a', sequence: 4 },
+        { kind: 'dropoff', orderId: 'a-4', storeId: 'store-a', sequence: 5 },
+      ] },
+      { driverId: 'bike-primary', orderIds: ['b-1'], stops: [
+        { kind: 'dropoff', orderId: 'incumbent-bike', storeId: 'store-b', sequence: 1 },
+        { kind: 'pickup', orderId: 'b-1', storeId: 'store-b', sequence: 2 },
+        { kind: 'dropoff', orderId: 'b-1', storeId: 'store-b', sequence: 3 },
+      ] },
+    ],
+  }, 4);
+  assert.equal(stopOnlyDrift.comparison.assignmentMatch, true);
+  assert.equal(stopOnlyDrift.comparison.stopSequenceMatch, false);
+  assert.deepEqual(stopOnlyDrift.comparison.violations, ['PERSISTED_STOP_SEQUENCE_MISMATCH:car-primary']);
 });
