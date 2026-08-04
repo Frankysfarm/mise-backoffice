@@ -104,6 +104,11 @@ test("real Chromium accepts an offer in the production Driver component", async 
       const raw = localStorage.getItem("mise-driver:canonical-offer:v1")
       return raw ? JSON.parse(raw).assignmentVersion === 2 : false
     })
+    await page.waitForFunction(() => {
+      const button = document.querySelector('[data-testid="driver-accept-a4000000-0000-4000-8000-000000000001"]') as HTMLButtonElement | null
+      return button?.disabled === true && button.textContent?.includes("Tour angenommen")
+    })
+    assert.equal(await acceptButton.isDisabled(), true)
     assert.deepEqual(accepted, {
       body: { action: "accept", offer_id: "a6000000-0000-4000-8000-000000000001", assignment_version: 1,
         transition_key: (accepted as { body?: { transition_key?: string } } | null)?.body?.transition_key },

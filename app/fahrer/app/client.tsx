@@ -138,6 +138,7 @@ export function FahrerApp({
   const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
   const [openBatches, setOpenBatches] = useState(initialOpenBatches);
+  const [acceptedBatchIds, setAcceptedBatchIds] = useState<Set<string>>(() => new Set());
   const [activeBatch, setActiveBatch] = useState(initialActiveBatch);
   const [lastCompletedBatchId, setLastCompletedBatchId] = useState<string | null>(initialActiveBatch?.id ?? null);
   const prevBatchIdRef = React.useRef<string | null>(initialActiveBatch?.id ?? null);
@@ -740,6 +741,11 @@ export function FahrerApp({
       if (atomic && atomic.batchId === batchId) {
         try {
           await runAtomicAction('accept', '/api/driver/v1/orders/accept');
+          // A router refresh preserves Client Component state. Disable the
+          // accepted offer immediately so it cannot be submitted twice, then
+          // reconcile the canonical server snapshot when it is available.
+          setAcceptedBatchIds((current) => new Set(current).add(batchId));
+          void reloadDriverV2Snapshot().catch(() => {});
           // Keep the persisted offer/version alive while Next reconciles the
           // server snapshot. A hard reload can race the native offer bridge
           // and re-integrate the pre-accept assignment version.
@@ -1474,6 +1480,7 @@ export function FahrerApp({
         {!activeBatch && isOnline && (
           <OpenBatchSection
             openBatches={openBatches}
+            acceptedBatchIds={acceptedBatchIds}
             pending={pending}
             onClaim={claimBatch}
             driverPos={driverPos}
@@ -2301,11 +2308,13 @@ function ChallengeWidget() {
 
 function OpenBatchSection({
   openBatches,
+  acceptedBatchIds,
   pending,
   onClaim,
   driverPos,
 }: {
   openBatches: OpenBatch[];
+  acceptedBatchIds: ReadonlySet<string>;
   pending: boolean;
   onClaim: (batchId: string) => void;
   driverPos?: { lat: number; lng: number } | null;
@@ -2369,6 +2378,7 @@ function OpenBatchSection({
       ) : (
         <div className="space-y-3">
           {grouped.map(({ batchId, stops, totalAmount, cashAmount, estDriverEarnings, locationName, maxEta, totalDistanceKm, estEtaMin }, idx) => {
+            const accepted = acceptedBatchIds.has(batchId);
             // Beste Wahl: höchster Verdienst / geschätzte Minuten
             const earningRate = estEtaMin && estEtaMin > 0 && estDriverEarnings > 0
               ? estDriverEarnings / estEtaMin
@@ -2517,11 +2527,11 @@ function OpenBatchSection({
                 type="button"
                 data-testid={`driver-accept-${batchId}`}
                 onClick={() => onClaim(batchId)}
-                disabled={pending}
+                disabled={pending || accepted}
                 className="w-full h-12 rounded-xl bg-accent text-matcha-900 font-display font-bold text-base inline-flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
               >
                 {pending ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
-                {stops.length === 1 ? 'Tour annehmen' : `${stops.length}-Stopp-Tour annehmen`}
+                {accepted ? 'Tour angenommen' : stops.length === 1 ? 'Tour annehmen' : `${stops.length}-Stopp-Tour annehmen`}
               </button>
             </div>
             );

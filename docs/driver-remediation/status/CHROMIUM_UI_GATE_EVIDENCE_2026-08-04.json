@@ -1,0 +1,39 @@
+{
+  "gate": "TL-G2 local Chromium actor subgate",
+  "recordedAt": "2026-08-04",
+  "baseCommit": "92e86bcb90b996c3637e3706ff8fa7ddf6e9e314",
+  "command": "npm run test:lab:ui:local",
+  "runId": "tl_20260804t073000z_18b18b18",
+  "seed": 18,
+  "repetitionsAfterFix": 3,
+  "lastRun": {
+    "exitCode": 0,
+    "tests": 12,
+    "passed": 12,
+    "failed": 0,
+    "skipped": 0
+  },
+  "confirmed": [
+    "guarded dashboard starts in real Chromium",
+    "production Dispatcher assignment path is fail-closed",
+    "production Driver offer acceptance becomes immediately non-repeatable",
+    "production Kitchen mutation boundary retains stale/error state",
+    "production Storefront retry is idempotent",
+    "all browser actors complete without captured console error, page error, hydration mismatch or unexpected origin"
+  ],
+  "notConfirmed": [
+    "physical iOS device behavior",
+    "production deployment",
+    "multi-hour browser soak"
+  ],
+  "artifacts": {
+    "dashboardTrace": { "path": "artifacts/driver-system-lab/browser-actors/full-local/dashboard-trace.zip", "sha256": "f11782584855501bd413762ad0b7f31464f0246c3af1bf682aa0e2296fa85d5c" },
+    "dispatcherTrace": { "path": "artifacts/driver-system-lab/browser-actors/full-local/dispatcher-trace.zip", "sha256": "af4b89d7daa9e3ac50495ef7d13032fd92fa5e6714cf9b0f43151c7c86809dc9" },
+    "driverTrace": { "path": "artifacts/driver-system-lab/browser-actors/full-local/driver-trace.zip", "sha256": "8233a6ae3a0bfb31b80b089a45051df68d2a1ddb2fdea3f663987e761a837300" },
+    "kitchenTrace": { "path": "artifacts/driver-system-lab/browser-actors/full-local/kitchen-trace.zip", "sha256": "f865c984ec757110dd337e7ef38e5552dc166ce323fcd47c2d53ac6e31a45db0" },
+    "storefrontTrace": { "path": "artifacts/driver-system-lab/browser-actors/full-local/storefront-trace.zip", "sha256": "d29e530dc7ceb0c5b4ffec3c6bdfd050633ecd4d54402ffcb087185e64119ea7" },
+    "report": { "path": "artifacts/driver-system-lab/browser-actors/full-local/tl_20260804t073000z_18b18b18/report.json", "sha256": "288e2604403450272966a082bf7fe588ee523f05f204a95e052fc9ac424052f7" },
+    "junit": { "path": "artifacts/driver-system-lab/browser-actors/full-local/tl_20260804t073000z_18b18b18/junit.xml", "sha256": "5dd02de11eeecbe6c632afebb0b2526fcc6e598b435cc6a90ec51fed0b9e366b" },
+    "reproduce": { "path": "artifacts/driver-system-lab/browser-actors/full-local/tl_20260804t073000z_18b18b18/reproduce.json", "sha256": "e470e36809e43157e5c32979f60a23aa251d5f80157be718ef1e56894b057d9f" }
+  }
+}

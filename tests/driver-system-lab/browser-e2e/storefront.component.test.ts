@@ -65,7 +65,7 @@ test("real Chromium completes the production BISS Storefront component", async (
     })
     assert.equal(middlewareProbe.status, 400)
     assert.equal(middlewareProbe.headers.get("location"), null)
-    const response = await page.goto(new URL("/test-lab/actors/storefront", baseUrl).toString())
+    const response = await page.goto(new URL("/test-lab/actors/storefront", baseUrl).toString(), { waitUntil: "domcontentloaded" })
     assert.equal(response?.status(), 200)
     await page.waitForLoadState("networkidle")
     await page.getByTestId("storefront-live-eta-minutes").getByText("25", { exact: true }).waitFor()

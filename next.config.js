@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  distDir: process.env.MISE_NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
-  typescript: { ignoreBuildErrors: true },
+  typescript: {
+    ignoreBuildErrors: true,
+    tsconfigPath: process.env.MISE_NEXT_TSCONFIG || 'tsconfig.json',
+  },
   eslint: { ignoreDuringBuilds: true },
   experimental: {
     outputFileTracingExcludes: {

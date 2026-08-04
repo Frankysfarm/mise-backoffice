@@ -8297,15 +8297,14 @@ const ZONE_META_DISPATCH: Record<string, { label: string; ring: string; bg: stri
 };
 
 function DispatchZoneAnalysisPanel({ orders }: { orders: ReadyOrder[] }) {
-  const [, setTick] = useState(0);
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
-    const t = setInterval(() => setTick((n) => n + 1), 20_000);
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 20_000);
     return () => clearInterval(t);
   }, []);
 
   if (orders.length === 0) return null;
-
-  const now = Date.now();
 
   type ZoneRow = {
     zone: string;
@@ -8326,7 +8325,7 @@ function DispatchZoneAnalysisPanel({ orders }: { orders: ReadyOrder[] }) {
   const rows: ZoneRow[] = Array.from(map.entries())
     .map(([zone, zOrders]) => {
       const waitTimes = zOrders.map((o) =>
-        o.fertig_am ? Math.floor((now - new Date(o.fertig_am).getTime()) / 60_000) : 0,
+        o.fertig_am && now !== null ? Math.floor((now - new Date(o.fertig_am).getTime()) / 60_000) : 0,
       );
       return {
         zone,
@@ -8404,7 +8403,7 @@ function DispatchZoneAnalysisPanel({ orders }: { orders: ReadyOrder[] }) {
                 </div>
                 <div className="shrink-0 flex flex-wrap gap-1">
                   {r.orders.slice(0, 4).map((o) => {
-                    const wMin = o.fertig_am ? Math.floor((now - new Date(o.fertig_am).getTime()) / 60_000) : 0;
+                    const wMin = o.fertig_am && now !== null ? Math.floor((now - new Date(o.fertig_am).getTime()) / 60_000) : 0;
                     return (
                       <span
                         key={o.id}

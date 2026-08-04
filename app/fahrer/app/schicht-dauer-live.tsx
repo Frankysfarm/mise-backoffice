@@ -19,9 +19,10 @@ function fmtDuration(ms: number): string {
 }
 
 export function FahrerSchichtDauerLive({ onlineSeit, stopsHeute, className }: Props) {
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
+    setNow(Date.now());
     const iv = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(iv);
   }, []);
@@ -29,7 +30,7 @@ export function FahrerSchichtDauerLive({ onlineSeit, stopsHeute, className }: Pr
   if (!onlineSeit) return null;
 
   const startMs = new Date(onlineSeit).getTime();
-  const elapsedMs = Math.max(0, now - startMs);
+  const elapsedMs = now === null ? 0 : Math.max(0, now - startMs);
   const elapsedMin = Math.floor(elapsedMs / 60_000);
 
   const stopRate = elapsedMin > 0 ? (stopsHeute / (elapsedMin / 60)).toFixed(1) : '—';

@@ -15,7 +15,12 @@ function enabled(): boolean {
 
 export async function GET() {
   if (!enabled()) return new NextResponse(null, { status: 404 })
-  return NextResponse.json({ environment: process.env.MISE_TEST_LAB_ENV ?? "unset", productionSelectable: false, scenarios: scenarioCatalog })
+  return NextResponse.json({
+    environment: process.env.MISE_TEST_LAB_ENV ?? "unset",
+    runId: process.env.MISE_TEST_LAB_RUN_ID ?? "unset",
+    productionSelectable: false,
+    scenarios: scenarioCatalog,
+  })
 }
 
 export async function POST() {

@@ -59,7 +59,7 @@ test("real Chromium advances an item in the production Kitchen component", async
     }
   })
   try {
-    const response = await page.goto(new URL("/test-lab/actors/kitchen", baseUrl).toString())
+    const response = await page.goto(new URL("/test-lab/actors/kitchen", baseUrl).toString(), { waitUntil: "domcontentloaded" })
     assert.equal(response?.status(), 200)
     await page.waitForLoadState("networkidle")
     await page.getByTestId("kitchen-start-60000000-0000-4000-8000-000000000001").click()
