@@ -14,7 +14,6 @@ type StepData = Record<string, string | number | null>;
 const STEPS = [
   { id: 'persoenlich', title: 'Du', icon: '👋' },
   { id: 'kontakt',     title: 'Kontakt', icon: '📱' },
-  { id: 'steuer',      title: 'Steuer & Bank', icon: '💳' },
   { id: 'arbeit',      title: 'Arbeit', icon: '🍵' },
   { id: 'fertig',      title: 'Abschicken', icon: '🎉' },
 ];
@@ -94,8 +93,7 @@ export default function RegisterPage({ params }: { params: Promise<{ token: stri
         <CardTitle className="text-2xl">Geschafft, {employee!.vorname}! 🎉</CardTitle>
         <CardDescription className="mt-2 text-base">
           Deine Bewerbung ist eingereicht. Der Filialleiter meldet sich bei dir —
-          meistens innerhalb von 1–2 Werktagen. Anschließend bekommst du eine Einladungs-Mail
-          für die Mitarbeiter-App und die ersten Schulungen.
+          anschließend erfährst du, ob und wann eine Probearbeit stattfindet.
         </CardDescription>
       </CardHeader></Card>
     </Centered>;
@@ -122,9 +120,8 @@ export default function RegisterPage({ params }: { params: Promise<{ token: stri
           <CardContent>
             {step === 0 && <StepPersoenlich data={data} upd={upd} employee={employee!} />}
             {step === 1 && <StepKontakt data={data} upd={upd} employee={employee!} />}
-            {step === 2 && <StepSteuer data={data} upd={upd} />}
-            {step === 3 && <StepArbeit data={data} upd={upd} />}
-            {step === 4 && <StepFertig data={data} employee={employee!} />}
+            {step === 2 && <StepArbeit data={data} upd={upd} />}
+            {step === 3 && <StepFertig data={data} employee={employee!} />}
           </CardContent>
         </Card>
 
@@ -199,20 +196,6 @@ function StepKontakt({ data, upd, employee }: any) {
   );
 }
 
-function StepSteuer({ data, upd }: any) {
-  return (
-    <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">Brauchen wir für deinen Arbeitsvertrag und die Lohnabrechnung.</p>
-      <Field label="Steuer-Identifikationsnummer (11-stellig)"><Input value={data.steuer_id ?? ''} onChange={e => upd('steuer_id', e.target.value)} maxLength={11} placeholder="12345678901" /></Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Sozialvers.-Nr."><Input value={data.sv_nummer ?? ''} onChange={e => upd('sv_nummer', e.target.value)} /></Field>
-        <Field label="Krankenkasse"><Input value={data.krankenkasse ?? ''} onChange={e => upd('krankenkasse', e.target.value)} placeholder="TK, AOK, …" /></Field>
-      </div>
-      <Field label="IBAN"><Input value={data.iban ?? ''} onChange={e => upd('iban', e.target.value)} placeholder="DE…" /></Field>
-    </div>
-  );
-}
-
 function StepArbeit({ data, upd }: any) {
   const positions = [
     { value: 'barista', label: '☕ Barista' },
@@ -274,12 +257,11 @@ function StepFertig({ data, employee }: any) {
         <Row l="Geburtstag" v={data.geburtsdatum} />
         <Row l="Telefon" v={data.telefon} />
         <Row l="Adresse" v={[data.adresse_strasse, data.adresse_plz, data.adresse_stadt].filter(Boolean).join(', ')} />
-        <Row l="Steuer-ID" v={data.steuer_id} />
         <Row l="Position" v={data.position_typ} />
         <Row l="Typ" v={data.employment_type} />
         <Row l="Std./Woche" v={data.wochenstunden} />
       </div>
-      <p className="text-muted-foreground">Nach dem Abschicken prüft der Filialleiter deine Daten und weist dich einer Abteilung zu. Du bekommst dann eine App-Einladung und startest mit den Schulungen.</p>
+      <p className="text-muted-foreground">Nach dem Abschicken prüft die Restaurantleitung deine Angaben und meldet sich bei dir wegen einer möglichen Probearbeit. Vertrags-, Steuer- und Bankdaten werden erst nach einer Zusage benötigt.</p>
     </div>
   );
 }

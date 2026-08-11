@@ -6,9 +6,9 @@ import { sendEmail, renderInviteEmail } from '@/lib/email';
 import { z } from 'zod';
 
 const schema = z.object({
-  email: z.string().email(),
-  vorname: z.string().min(1),
-  nachname: z.string().min(1),
+  email: z.string().trim().email().transform((value) => value.toLowerCase()),
+  vorname: z.string().trim().min(1).max(100),
+  nachname: z.string().trim().min(1).max(100),
   location_id: z.string().uuid().optional(),
 });
 
@@ -17,7 +17,10 @@ function token(): string {
 }
 
 export async function POST(req: NextRequest) {
-  await requireManagerPlus();
+  const currentEmployee = await requireManagerPlus();
+  if (!currentEmployee.tenant_id) {
+    return NextResponse.json({ error: 'Mitarbeiterkonto ist keinem Mandanten zugeordnet.' }, { status: 403 });
+  }
   const body = await req.json().catch(() => null);
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
@@ -26,10 +29,24 @@ export async function POST(req: NextRequest) {
   const { email, vorname, nachname, location_id } = parsed.data;
   const sb = createServiceClient();
 
-  // Existiert Employee mit dieser E-Mail?
+  if (location_id) {
+    const { data: location } = await sb.from('locations')
+      .select('id')
+      .eq('id', location_id)
+      .eq('tenant_id', currentEmployee.tenant_id)
+      .maybeSingle();
+    if (!location) {
+      return NextResponse.json({ error: 'Standort gehört nicht zu diesem Betrieb.' }, { status: 400 });
+    }
+  }
+
+  // Existing applications are matched only inside the current tenant.
   const { data: existing } = await sb.from('employees')
-    .select('id,status').eq('email', email).maybeSingle();
-  if (existing && !['registriert', 'wartet_zuteilung'].includes(existing.status)) {
+    .select('id,status')
+    .eq('email', email)
+    .eq('tenant_id', currentEmployee.tenant_id)
+    .maybeSingle();
+  if (existing && !['registriert', 'wartet_zuteilung', 'abgelehnt'].includes(existing.status)) {
     return NextResponse.json({ error: `E-Mail existiert bereits (Status: ${existing.status})` }, { status: 409 });
   }
 
@@ -38,13 +55,20 @@ export async function POST(req: NextRequest) {
 
   if (existing) {
     const { error } = await sb.from('employees').update({
-      invite_token: t, invite_expires_at: expires, vorname, nachname, location_id: location_id ?? null,
-    }).eq('id', existing.id);
+      invite_token: t,
+      invite_expires_at: expires,
+      vorname,
+      nachname,
+      location_id: location_id ?? null,
+      status: 'registriert',
+      beworben_am: new Date().toISOString(),
+    }).eq('id', existing.id).eq('tenant_id', currentEmployee.tenant_id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   } else {
     const { error } = await sb.from('employees').insert({
       email, vorname, nachname, location_id: location_id ?? null,
       status: 'registriert', rolle: 'mitarbeiter',
+      tenant_id: currentEmployee.tenant_id,
       invite_token: t, invite_expires_at: expires, beworben_am: new Date().toISOString(),
     });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });

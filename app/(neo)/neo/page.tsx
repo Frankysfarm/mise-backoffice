@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Boxes, BriefcaseBusiness, CalendarDays, MonitorDot, QrCode, ReceiptText, UsersRound } from 'lucide-react';
+import { ArrowRight, Boxes, BriefcaseBusiness, CalendarDays, ClipboardCheck, MonitorDot, QrCode, ReceiptText, UsersRound } from 'lucide-react';
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 
 export const dynamic = 'force-dynamic';
@@ -45,6 +45,17 @@ const MODULES = [
     color: '#D97706',
     tint: '#FEF3C7',
     icon: BriefcaseBusiness,
+  },
+  {
+    title: 'Bewerbungen',
+    description: 'Bewerbungen prüfen, Probearbeit planen, bewerten und erst danach einstellen.',
+    href: '/neo/app/bewerbungen',
+    action: 'Bewerbungen öffnen',
+    badge: 'AKTIV',
+    color: '#4F46E5',
+    tint: '#EEF2FF',
+    icon: ClipboardCheck,
+    managerOnly: true,
   },
   {
     title: 'Mitarbeiter',

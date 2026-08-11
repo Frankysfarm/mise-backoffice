@@ -1,5 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { z } from 'zod';
+
+const applicationDataSchema = z.object({
+  position_typ: z.string().trim().min(1).max(120),
+  employment_type: z.enum(['minijob', 'teilzeit', 'vollzeit', 'werkstudent']),
+  wochenstunden: z.coerce.number().min(1).max(50),
+}).passthrough();
 
 export async function POST(_req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -10,18 +17,26 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ to
   if (emp.invite_expires_at && new Date(emp.invite_expires_at) < new Date()) {
     return NextResponse.json({ error: 'expired' }, { status: 410 });
   }
+  if (emp.status === 'wartet_zuteilung') return NextResponse.json({ ok: true, already_submitted: true });
+  if (emp.status !== 'registriert') {
+    return NextResponse.json({ error: 'application_already_processed' }, { status: 409 });
+  }
 
   const { data: progress } = await sb.from('onboarding_progress')
     .select('daten').eq('employee_id', emp.id).maybeSingle();
-  const daten = (progress?.daten as Record<string, any>) ?? {};
+  const rawData = (progress?.daten as Record<string, any>) ?? {};
+  const parsedData = applicationDataSchema.safeParse(rawData);
+  if (!parsedData.success) {
+    return NextResponse.json({ error: 'Bitte Einsatzbereich, Anstellungsart und Wunsch-Wochenstunden vollständig angeben.' }, { status: 400 });
+  }
+  const daten = parsedData.data;
 
   // Daten auf employees schreiben (nur gesetzte Felder, Rest behalten)
   const updates: Record<string, any> = {};
   const map: Record<string, string> = {
     geburtsdatum: 'geburtsdatum', telefon: 'telefon',
     adresse_strasse: 'adresse_strasse', adresse_plz: 'adresse_plz', adresse_stadt: 'adresse_stadt',
-    steuer_id: 'steuer_id', sv_nummer: 'sv_nummer', krankenkasse: 'krankenkasse', krankenkasse_nr: 'krankenkasse_nr',
-    iban: 'iban', employment_type: 'employment_type', position_typ: 'position_typ',
+    employment_type: 'employment_type', position_typ: 'position_typ',
     wochenstunden: 'wochenstunden',
   };
   for (const [dk, ek] of Object.entries(map)) {

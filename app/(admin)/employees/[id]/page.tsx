@@ -113,8 +113,10 @@ export default async function EmployeeDetail({ params }: EmployeeDetailProps) {
           <TabsContent value="probe">
             <ProbeReview
               employeeId={emp.id}
+              employeeStatus={emp.status}
               probeShifts={(probeShifts as any[]) ?? []}
               existingReview={review}
+              disabled={emp.status !== 'in_probe'}
             />
           </TabsContent>
         )}

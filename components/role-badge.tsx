@@ -21,9 +21,14 @@ export function RoleBadge({ rolle }: { rolle: string }) {
 
 export function StatusBadge({ status }: { status: string }) {
   const variants: Record<string, 'secondary' | 'destructive' | 'muted' | 'gold'> = {
-    aktiv: 'secondary', inaktiv: 'muted', gekündigt: 'destructive', pause: 'gold',
+    aktiv: 'secondary', inaktiv: 'muted', gekündigt: 'destructive', krank: 'gold', urlaub: 'gold',
+    in_training: 'gold', in_probe: 'gold', registriert: 'muted', wartet_zuteilung: 'gold', abgelehnt: 'destructive',
   };
-  return <Badge variant={variants[status] ?? 'muted'}>{status}</Badge>;
+  const labels: Record<string, string> = {
+    in_training: 'In Einarbeitung', in_probe: 'In Probearbeit', wartet_zuteilung: 'Daten prüfen',
+    registriert: 'Einladung offen', abgelehnt: 'Abgelehnt', gekündigt: 'Gekündigt',
+  };
+  return <Badge variant={variants[status] ?? 'muted'}>{labels[status] ?? status}</Badge>;
 }
 
 /**

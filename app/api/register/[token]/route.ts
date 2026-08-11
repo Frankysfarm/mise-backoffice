@@ -40,6 +40,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ to
   const { token } = await params;
   const { sb, emp, progress } = await loadByToken(token);
   if (!emp) return NextResponse.json({ error: 'invalid_token' }, { status: 404 });
+  if (emp.status !== 'registriert') {
+    return NextResponse.json({ error: 'application_already_submitted' }, { status: 409 });
+  }
 
   const body = await req.json().catch(() => null);
   const parsed = patchSchema.safeParse(body);

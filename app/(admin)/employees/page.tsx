@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RoleBadge, StatusBadge } from '@/components/role-badge';
-import { Plus } from 'lucide-react';
+import { Plus, UserRoundSearch } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
@@ -16,12 +16,14 @@ export default async function EmployeesPage({ searchParams }: EmployeesPageProps
   const currentEmployee = await requireManagerPlus();
   if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
   const basePath = await operationsBasePath('/employees', '/neo/app/mitarbeiter');
+  const applicationsPath = basePath.startsWith('/neo/') ? '/neo/app/bewerbungen' : '/applications';
   const params = await searchParams;
   const supabase = await createClient();
 
   let q = supabase.from('employees')
     .select('id,personalnummer,vorname,nachname,email,rolle,status,employment_type,position_typ,stundenlohn,wochenstunden,department:departments(name),location:locations(name)')
     .eq('tenant_id', currentEmployee.tenant_id)
+    .in('status', ['aktiv', 'inaktiv', 'krank', 'urlaub', 'gekündigt', 'in_training'])
     .order('nachname');
 
   if (params.rolle)  q = q.eq('rolle', params.rolle);
@@ -35,7 +37,10 @@ export default async function EmployeesPage({ searchParams }: EmployeesPageProps
       <PageHeader
         title="Mitarbeiter"
         description={`${employees?.length ?? 0} Einträge — Stammdaten, Rollen, Status.`}
-        actions={['admin', 'backoffice'].includes(currentEmployee.rolle) ? <Link href={`${basePath}/new`}><Button><Plus className="h-4 w-4" /> Neu anlegen</Button></Link> : undefined}
+        actions={<>
+          <Link href={applicationsPath}><Button variant="outline"><UserRoundSearch className="h-4 w-4" /> Bewerbungen</Button></Link>
+          {['admin', 'backoffice'].includes(currentEmployee.rolle) && <Link href={`${basePath}/new`}><Button><Plus className="h-4 w-4" /> Neu anlegen</Button></Link>}
+        </>}
       />
 
       <form className="mb-4 flex flex-wrap gap-2">
@@ -53,7 +58,9 @@ export default async function EmployeesPage({ searchParams }: EmployeesPageProps
           <option value="">Alle Status</option>
           <option value="aktiv">Aktiv</option>
           <option value="inaktiv">Inaktiv</option>
-          <option value="pause">Pause</option>
+          <option value="in_training">In Einarbeitung</option>
+          <option value="krank">Krank</option>
+          <option value="urlaub">Urlaub</option>
           <option value="gekündigt">Gekündigt</option>
         </select>
         <Button type="submit" variant="outline" size="sm">Filtern</Button>

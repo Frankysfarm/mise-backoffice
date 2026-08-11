@@ -16,13 +16,14 @@ const ICONS: Record<string, string> = {
   kunden: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>',
   statistik: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>',
   buchhaltung: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>',
+  bewerbungen: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a5 5 0 015-5h4a5 5 0 015 5v2M17 11l2 2 4-4"/></svg>',
   mitarbeiter: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>',
   dienstplan: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>',
   lager: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6v11a1 1 0 01-1 1H4a1 1 0 01-1-1V9z"/><path d="M7 21v-8h10v8M7 16h10"/></svg>',
 };
 const NAV: { label: string; managerOnly?: boolean; items: [string, string][] }[] = [
   { label: 'BETRIEB', items: [['overview', 'Übersicht'], ['lieferzentrale', 'Lieferzentrale'], ['tischbestellung', 'Tischbestellung'], ['fahrer', 'Fahrer']] },
-  { label: 'TEAM & ABLÄUFE', managerOnly: true, items: [['mitarbeiter', 'Mitarbeiter'], ['dienstplan', 'Dienstplan'], ['lager', 'Lager']] },
+  { label: 'TEAM & ABLÄUFE', managerOnly: true, items: [['bewerbungen', 'Bewerbungen'], ['mitarbeiter', 'Mitarbeiter'], ['dienstplan', 'Dienstplan'], ['lager', 'Lager']] },
   { label: 'SHOP', items: [['shopdesign', 'Shop-Design'], ['shopsettings', 'Shop-Einstellungen'], ['menu', 'Menü'], ['aktionen', 'Aktionen & Rabatte'], ['loyalty', 'Bonusprogramme'], ['zahlungen', 'Zahlungen']] },
   { label: 'GESCHÄFT', items: [['kunden', 'Kundenstamm'], ['statistik', 'Statistik'], ['buchhaltung', 'Buchhaltung']] },
 ];
@@ -34,6 +35,7 @@ const META: Record<string, [string, string]> = {
   aktionen: ['Aktionen & Rabatte', 'Marketingaktionen und Treueprogramm'], zahlungen: ['Zahlungsmodalitäten', 'Zahlungsarten im Shop aktivieren'],
   kunden: ['Kundenstamm', 'Kunden verwalten und Kampagnen erstellen'], statistik: ['Statistik', 'Kennzahlen deines Liefergeschäfts'],
   buchhaltung: ['Buchhaltung', 'Steuerlich saubere Auswertung & Export'],
+  bewerbungen: ['Bewerbungen', 'Prüfen, Probearbeit planen und Einstellung entscheiden'],
   mitarbeiter: ['Mitarbeiter', 'Team, Rollen und Stammdaten verwalten'],
   dienstplan: ['Dienstplan', 'Schichten planen und Besetzung im Blick behalten'],
   lager: ['Lager', 'Bestände, Inventuren und Bestellungen steuern'],
@@ -47,7 +49,7 @@ export default function Shell({ children, newCount = 0, tenantName = 'Mein Shop'
   const seg = path.split('/neo/app/')[1]?.split('/')[0] || 'uebersicht';
   const active = seg === 'uebersicht' ? 'overview' : seg;
   const [title, sub] = META[active] || META.overview;
-  const isOperations = ['mitarbeiter', 'dienstplan', 'lager'].includes(active);
+  const isOperations = ['bewerbungen', 'mitarbeiter', 'dienstplan', 'lager'].includes(active);
   const initials = tenantName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
   const [menuOpen, setMenuOpen] = useState(false);
   return (

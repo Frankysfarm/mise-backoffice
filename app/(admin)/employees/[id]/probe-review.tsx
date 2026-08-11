@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,10 +26,12 @@ const DECISIONS = [
 
 type Decision = typeof DECISIONS[number]['value'];
 
-export function ProbeReview({ employeeId, probeShifts, existingReview }: {
+export function ProbeReview({ employeeId, probeShifts, existingReview, employeeStatus = 'in_probe', disabled = false }: {
   employeeId: string;
   probeShifts: { id: string; start_zeit: string; end_zeit: string }[];
   existingReview: any | null;
+  employeeStatus?: string;
+  disabled?: boolean;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -43,47 +44,42 @@ export function ProbeReview({ employeeId, probeShifts, existingReview }: {
   const [entwicklung, setEntwicklung] = useState(existingReview?.entwicklungsfelder ?? '');
   const [kommentar, setKommentar] = useState(existingReview?.kommentar_mitarbeiter ?? '');
 
+  if (employeeStatus !== 'in_probe') {
+    const decision = existingReview?.kategorien?.entscheidung;
+    const decisionLabel = decision === 'einstellen' ? 'Eingestellt' : decision === 'ablehnen' ? 'Nicht eingestellt' : 'Abgeschlossen';
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Probearbeit abgeschlossen</div>
+          <div className="mt-2 text-lg font-semibold">{decisionLabel}</div>
+          <p className="mt-1 text-sm text-muted-foreground">Die abgeschlossene Entscheidung kann im Bewerberbereich eingesehen, aber nicht nachträglich überschrieben werden.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   async function save() {
     if (!decision) { toastError('Entscheidung fehlt'); return; }
-    const sum = Object.values(scores).reduce((a, b) => a + b, 0);
-    const gesamt = KATEGORIEN.length > 0 ? sum / KATEGORIEN.length : null;
-
-    const first = probeShifts.at(-1);
-    const last  = probeShifts[0];
-    const payload: any = {
-      employee_id: employeeId,
-      zeitraum_von: first?.start_zeit?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
-      zeitraum_bis: last?.end_zeit?.slice(0, 10)   ?? new Date().toISOString().slice(0, 10),
-      gesamtnote: gesamt,
-      kategorien: { ...scores, entscheidung: decision },
-      stärken: staerken || null,
-      entwicklungsfelder: entwicklung || null,
-      kommentar_mitarbeiter: kommentar || null,
-      abgeschlossen: true,
-    };
+    if (KATEGORIEN.some((category) => !scores[category.key])) {
+      toastError('Bewertung unvollständig', 'Bitte alle fünf Kriterien mit 1 bis 5 Sternen bewerten.');
+      return;
+    }
     start(async () => {
-      const sb = createClient();
-      let reviewErr;
-      if (existingReview) {
-        const { error } = await sb.from('performance_reviews').update(payload).eq('id', existingReview.id);
-        reviewErr = error;
-      } else {
-        const { error } = await sb.from('performance_reviews').insert(payload);
-        reviewErr = error;
+      const response = await fetch(`/api/applications/${employeeId}/review`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scores, decision, staerken, entwicklung, kommentar }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        toastError('Bewertung konnte nicht gespeichert werden', data?.error ?? `Fehler ${response.status}`);
+        return;
       }
-      if (reviewErr) { toastError('Bericht speichern fehlgeschlagen', reviewErr.message); return; }
-
-      // Status-Update basierend auf Entscheidung
-      const newStatus = decision === 'einstellen' ? 'aktiv'
-                      : decision === 'ablehnen'   ? 'gekündigt'
-                      : 'in_probe'; // verlaengern
-      const { error: empErr } = await sb.from('employees').update({ status: newStatus }).eq('id', employeeId);
-      if (empErr) { toastError('Status-Update fehlgeschlagen', empErr.message); return; }
 
       toastSuccess('Bericht gespeichert',
-        decision === 'einstellen' ? 'Mitarbeiter ist jetzt aktiv.'
-        : decision === 'ablehnen' ? 'Bewerbung beendet.'
-        : 'Probezeit verlängert.');
+        decision === 'einstellen' ? 'Die Person ist eingestellt und startet die Einarbeitung.'
+        : decision === 'ablehnen' ? 'Die Bewerbung wurde ins Archiv verschoben.'
+        : 'Die Probearbeit wurde verlängert.');
       router.refresh();
     });
   }
@@ -120,7 +116,10 @@ export function ProbeReview({ employeeId, probeShifts, existingReview }: {
                   {[1, 2, 3, 4, 5].map(n => (
                     <button key={n} type="button"
                       onClick={() => setScores({ ...scores, [k.key]: n })}
-                      className="p-0.5">
+                      aria-label={`${k.label}: ${n} Sterne`}
+                      aria-pressed={n === (scores[k.key] ?? 0)}
+                      disabled={disabled}
+                      className="rounded p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50">
                       <Star
                         className={cn('h-6 w-6 transition',
                           n <= (scores[k.key] ?? 0) ? 'fill-gold text-gold' : 'text-muted-foreground hover:text-gold')} />
@@ -152,8 +151,9 @@ export function ProbeReview({ employeeId, probeShifts, existingReview }: {
             {DECISIONS.map(d => (
               <button key={d.value} type="button"
                 onClick={() => setDecision(d.value)}
+                disabled={disabled}
                 className={cn(
-                  'rounded-lg border-2 px-4 py-3 text-sm font-semibold transition',
+                  'rounded-lg border-2 px-4 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50',
                   decision === d.value ? d.color + ' border-transparent' : 'bg-card hover:bg-muted border-border',
                 )}>
                 {d.label}
@@ -162,8 +162,8 @@ export function ProbeReview({ employeeId, probeShifts, existingReview }: {
           </div>
         </div>
 
-        <Button onClick={save} disabled={pending || !decision} size="lg" className="w-full">
-          {pending ? 'Speichere…' : existingReview ? 'Aktualisieren' : 'Bericht abschließen'}
+        <Button onClick={save} disabled={pending || !decision || disabled} size="lg" className="w-full">
+          {pending ? 'Speichere…' : 'Bewertung abschließen'}
         </Button>
       </CardContent>
     </Card>
