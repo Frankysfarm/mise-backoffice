@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EmptyState } from '@/components/ui/empty';
 import { euro } from '@/lib/utils';
-import { Plus } from 'lucide-react';
+import { Settings2 } from 'lucide-react';
 
 function ampel(bestand: number | null, min: number | null): { label: string; variant: 'secondary' | 'gold' | 'destructive' | 'muted' } {
   if (bestand === null) return { label: '?', variant: 'muted' };
@@ -19,17 +19,23 @@ function ampel(bestand: number | null, min: number | null): { label: string; var
 }
 
 export default async function ProductsPage({ searchParams }: { searchParams: Promise<{ q?: string; area?: string }> }) {
-  await requireManagerPlus();
+  const currentEmployee = await requireManagerPlus();
+  if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
   const params = await searchParams;
   const supabase = await createClient();
 
   let q = supabase.from('inventory_items')
-    .select('*,area:inventory_areas(name),supplier:suppliers(name)')
+    .select('*,area:inventory_areas!inner(name,location:locations!inner(tenant_id)),supplier:suppliers(name)')
+    .eq('area.location.tenant_id', currentEmployee.tenant_id)
     .eq('aktiv', true).order('name');
   if (params.area) q = q.eq('area_id', params.area);
   if (params.q) q = q.or(`name.ilike.%${params.q}%,artikelnummer.ilike.%${params.q}%`);
   const { data: items } = await q;
-  const { data: areas } = await supabase.from('inventory_areas').select('id,name').order('name');
+  const { data: areas } = await supabase
+    .from('inventory_areas')
+    .select('id,name,location:locations!inner(tenant_id)')
+    .eq('location.tenant_id', currentEmployee.tenant_id)
+    .order('name');
 
   return (
     <div>
@@ -37,7 +43,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
         backHref="/inventory"
         title="Produkte"
         description={`${(items ?? []).length} aktive Produkte. Ampel zeigt Bestandsstatus.`}
-        actions={<Link href="/inventory/products/new"><Button><Plus className="h-4 w-4" /> Neu</Button></Link>}
+        actions={<Link href="/inventory/products/manage"><Button><Settings2 className="h-4 w-4" /> Verwalten</Button></Link>}
       />
 
       <form className="mb-4 flex flex-wrap gap-2">

@@ -4,16 +4,25 @@ import { PageHeader } from '@/components/layout/page-header';
 import { NewEmployeeForm } from './form';
 
 export default async function NewEmployeePage() {
-  await requireAdmin();
+  const currentEmployee = await requireAdmin();
+  if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
   const supabase = await createClient();
   const [{ data: locations }, { data: departments }] = await Promise.all([
-    supabase.from('locations').select('id,name').order('name'),
-    supabase.from('departments').select('id,name').order('name'),
+    supabase.from('locations').select('id,name').eq('tenant_id', currentEmployee.tenant_id).order('name'),
+    supabase
+      .from('departments')
+      .select('id,name,location:locations!inner(tenant_id)')
+      .eq('location.tenant_id', currentEmployee.tenant_id)
+      .order('name'),
   ]);
   return (
     <div>
       <PageHeader backHref="/employees" title="Neuen Mitarbeiter anlegen" description="Stammdaten — Einladung per E-Mail erfolgt separat." />
-      <NewEmployeeForm locations={locations ?? []} departments={departments ?? []} />
+      <NewEmployeeForm
+        tenantId={currentEmployee.tenant_id}
+        locations={locations ?? []}
+        departments={(departments ?? []).map(({ id, name }) => ({ id, name }))}
+      />
     </div>
   );
 }

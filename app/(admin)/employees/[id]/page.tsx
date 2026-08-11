@@ -14,13 +14,16 @@ import { AvailabilityEditor } from './availability-editor';
 import { DocumentUploader } from './document-uploader';
 
 export default async function EmployeeDetail({ params }: { params: Promise<{ id: string }> }) {
-  await requireManagerPlus();
+  const currentEmployee = await requireManagerPlus();
+  if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
   const { id } = await params;
   const supabase = await createClient();
 
   const { data: emp } = await supabase.from('employees')
     .select('*, department:departments(id,name), location:locations(id,name)')
-    .eq('id', id).maybeSingle();
+    .eq('id', id)
+    .eq('tenant_id', currentEmployee.tenant_id)
+    .maybeSingle();
   if (!emp) notFound();
 
   const [{ data: shifts }, { data: trainingRaw }, { data: docs }, { data: badges }, { data: locations }, { data: departments }, { data: probeShifts }, { data: review }, { data: availRaw }, { data: excRaw }] = await Promise.all([
@@ -28,8 +31,12 @@ export default async function EmployeeDetail({ params }: { params: Promise<{ id:
     supabase.from('training_progress').select('*,module:training_modules(titel,kategorie)').eq('employee_id', id),
     supabase.from('documents').select('id,titel,kategorie,ablaufdatum').eq('employee_id', id).order('created_at', { ascending: false }),
     supabase.from('employee_badges').select('verliehen_am,badge:badges(name,icon,punkte)').eq('employee_id', id),
-    supabase.from('locations').select('id,name').order('name'),
-    supabase.from('departments').select('id,name').order('name'),
+    supabase.from('locations').select('id,name').eq('tenant_id', currentEmployee.tenant_id).order('name'),
+    supabase
+      .from('departments')
+      .select('id,name,location:locations!inner(tenant_id)')
+      .eq('location.tenant_id', currentEmployee.tenant_id)
+      .order('name'),
     supabase.from('shifts').select('id,start_zeit,end_zeit').eq('employee_id', id).eq('typ', 'probe').order('start_zeit', { ascending: false }),
     supabase.from('performance_reviews').select('*').eq('employee_id', id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
     supabase.from('employee_availability').select('*').eq('employee_id', id),
@@ -45,7 +52,7 @@ export default async function EmployeeDetail({ params }: { params: Promise<{ id:
         title={`${emp.vorname} ${emp.nachname}`}
         description={<>
           <RoleBadge rolle={emp.rolle} /> <StatusBadge status={emp.status} />
-        </> as unknown as string}
+        </>}
         actions={<InviteButton employeeId={emp.id} email={emp.email} alreadyLinked={!!emp.auth_user_id} />}
       />
 
@@ -61,7 +68,11 @@ export default async function EmployeeDetail({ params }: { params: Promise<{ id:
         </TabsList>
 
         <TabsContent value="profil">
-          <EditEmployeeForm employee={emp} locations={locations ?? []} departments={departments ?? []} />
+          <EditEmployeeForm
+            employee={emp}
+            locations={locations ?? []}
+            departments={(departments ?? []).map(({ id, name }) => ({ id, name }))}
+          />
         </TabsContent>
 
         <TabsContent value="schichten">

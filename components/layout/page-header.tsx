@@ -6,7 +6,7 @@ export function PageHeader({
   title, description, backHref, actions, className,
 }: {
   title: string;
-  description?: string;
+  description?: React.ReactNode;
   backHref?: string;
   actions?: React.ReactNode;
   className?: string;
@@ -20,7 +20,7 @@ export function PageHeader({
           </Link>
         )}
         <h1 className="font-display text-3xl font-bold tracking-tight">{title}</h1>
-        {description && <p className="mt-1 max-w-2xl text-muted-foreground">{description}</p>}
+        {description && <div className="mt-1 max-w-2xl text-muted-foreground">{description}</div>}
       </div>
       {actions && <div className="flex gap-2">{actions}</div>}
     </div>

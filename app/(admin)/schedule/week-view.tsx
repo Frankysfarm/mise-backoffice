@@ -4,12 +4,13 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { DndContext, type DragEndEvent, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { toastError, toastSuccess } from '@/components/ui/toaster';
 import { validateShift, validateWeek, highestSeverity, type ArbZGWarning, type ShiftLike } from '@/lib/validation/arbzg';
 import { useRealtimeTable } from '@/hooks/useRealtimeTable';
+import { EditShiftDialog } from './edit-shift-dialog';
 
 export type Shift = {
   id: string;
@@ -20,6 +21,10 @@ export type Shift = {
   pause_minuten: number | null;
   employee_id: string | null;
   department_id: string | null;
+  location_id: string | null;
+  typ?: string | null;
+  notiz?: string | null;
+  offen_fuer_bewerbung?: boolean | null;
   employee: { id?: string; vorname?: string; nachname?: string; rolle?: string; geburtsdatum?: string; wochenstunden?: number } | null;
   department: { name?: string; farbe?: string } | null;
   location: { name?: string } | null;
@@ -31,9 +36,17 @@ function toDate(s: string) { return new Date(s); }
 function sameDay(a: Date, b: Date) { return a.toDateString() === b.toDateString(); }
 function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
 
-export function ScheduleWeek({ weekStart, initialShifts }: { weekStart: Date; initialShifts: Shift[] }) {
+export function ScheduleWeek({ weekStart, initialShifts, employees, departments, locations }: {
+  weekStart: Date;
+  initialShifts: Shift[];
+  employees: { id: string; vorname: string; nachname: string }[];
+  departments: { id: string; name: string }[];
+  locations: { id: string; name: string }[];
+}) {
   const router = useRouter();
+  const dndContextId = React.useId();
   const [shifts, setShifts] = React.useState(initialShifts);
+  const [editingShift, setEditingShift] = React.useState<Shift | null>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   // Server-Daten nachziehen (z.B. nach router.refresh())
@@ -136,12 +149,27 @@ export function ScheduleWeek({ weekStart, initialShifts }: { weekStart: Date; in
   }
 
   return (
-    <DndContext sensors={sensors} onDragEnd={onDragEnd}>
+    <DndContext id={dndContextId} sensors={sensors} onDragEnd={onDragEnd}>
       <div className="grid grid-cols-7 divide-x">
         {days.map(d => (
-          <Day key={isoDate(d)} date={d} shifts={shiftsFor(d)} warningsByShift={warningsByShift} />
+          <Day
+            key={isoDate(d)}
+            date={d}
+            shifts={shiftsFor(d)}
+            warningsByShift={warningsByShift}
+            onEdit={setEditingShift}
+          />
         ))}
       </div>
+
+      <EditShiftDialog
+        open={editingShift !== null}
+        onOpenChange={(open) => { if (!open) setEditingShift(null); }}
+        shift={editingShift}
+        employees={employees}
+        departments={departments}
+        locations={locations}
+      />
 
       {weekWarningsByEmp.size > 0 && (
         <div className="border-t p-4">
@@ -164,7 +192,12 @@ export function ScheduleWeek({ weekStart, initialShifts }: { weekStart: Date; in
   );
 }
 
-function Day({ date, shifts, warningsByShift }: { date: Date; shifts: Shift[]; warningsByShift: Map<string, ArbZGWarning[]> }) {
+function Day({ date, shifts, warningsByShift, onEdit }: {
+  date: Date;
+  shifts: Shift[];
+  warningsByShift: Map<string, ArbZGWarning[]>;
+  onEdit: (shift: Shift) => void;
+}) {
   const iso = isoDate(date);
   const weekdayIdx = (date.getDay() + 6) % 7;
   const { setNodeRef, isOver } = useDroppable({ id: `day-${iso}` });
@@ -187,7 +220,7 @@ function Day({ date, shifts, warningsByShift }: { date: Date; shifts: Shift[]; w
       </div>
       <div className="space-y-1.5">
         {shifts.map(s => (
-          <DraggableShift key={s.id} s={s} warnings={warningsByShift.get(s.id) ?? []} />
+          <DraggableShift key={s.id} s={s} warnings={warningsByShift.get(s.id) ?? []} onEdit={onEdit} />
         ))}
         {shifts.length === 0 && (
           <div className="rounded-md border border-dashed py-4 text-center text-xs text-muted-foreground">
@@ -199,7 +232,11 @@ function Day({ date, shifts, warningsByShift }: { date: Date; shifts: Shift[]; w
   );
 }
 
-function DraggableShift({ s, warnings }: { s: Shift; warnings: ArbZGWarning[] }) {
+function DraggableShift({ s, warnings, onEdit }: {
+  s: Shift;
+  warnings: ArbZGWarning[];
+  onEdit: (shift: Shift) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: s.id });
   const start = toDate(s.start_zeit);
   const end = toDate(s.end_zeit);
@@ -225,9 +262,20 @@ function DraggableShift({ s, warnings }: { s: Shift; warnings: ArbZGWarning[] })
     >
       <div className="flex items-center justify-between">
         <div className="font-mono text-[10px] text-muted-foreground">{fmt(start)}–{fmt(end)}</div>
-        {severity && (
-          <AlertTriangle className={cn('h-3 w-3', severity === 'error' ? 'text-destructive' : 'text-gold')} />
-        )}
+        <div className="flex items-center gap-1">
+          {severity && (
+            <AlertTriangle className={cn('h-3 w-3', severity === 'error' ? 'text-destructive' : 'text-gold')} />
+          )}
+          <button
+            type="button"
+            aria-label={`Schicht von ${unassigned ? 'Unbesetzt' : `${s.employee?.vorname ?? ''} ${s.employee?.nachname ?? ''}`} bearbeiten`}
+            className="rounded p-1 text-muted-foreground opacity-70 transition hover:bg-muted hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => { event.stopPropagation(); onEdit(s); }}
+          >
+            <Pencil className="h-3 w-3" />
+          </button>
+        </div>
       </div>
       <div className="font-medium" style={!unassigned ? { color } : undefined}>
         {unassigned ? '⚠ Unbesetzt' : `${s.employee?.vorname ?? ''} ${s.employee?.nachname ?? ''}`}

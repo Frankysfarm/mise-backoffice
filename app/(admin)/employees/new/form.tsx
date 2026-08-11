@@ -8,7 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 
-export function NewEmployeeForm({ locations, departments }: { locations: { id: string; name: string }[]; departments: { id: string; name: string }[] }) {
+export function NewEmployeeForm({ tenantId, locations, departments }: {
+  tenantId: string;
+  locations: { id: string; name: string }[];
+  departments: { id: string; name: string }[];
+}) {
   const router = useRouter();
   const [isPending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
@@ -17,6 +21,9 @@ export function NewEmployeeForm({ locations, departments }: { locations: { id: s
     e.preventDefault(); setErr(null);
     const fd = new FormData(e.currentTarget);
     const payload: Record<string, any> = Object.fromEntries(fd);
+    // Never trust a tenant identifier from the browser form. The server page
+    // supplies the authenticated admin's tenant and it is not user-editable.
+    payload.tenant_id = tenantId;
     for (const k of ['stundenlohn', 'wochenstunden']) payload[k] = payload[k] ? Number(payload[k]) : null;
     for (const k of ['employment_type', 'department_id', 'location_id', 'position_typ']) if (!payload[k]) payload[k] = null;
     start(async () => {

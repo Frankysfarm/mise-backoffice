@@ -10,12 +10,14 @@ import { Plus } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty';
 
 export default async function EmployeesPage({ searchParams }: { searchParams: Promise<{ rolle?: string; status?: string; q?: string }> }) {
-  await requireManagerPlus();
+  const currentEmployee = await requireManagerPlus();
+  if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
   const params = await searchParams;
   const supabase = await createClient();
 
   let q = supabase.from('employees')
     .select('id,personalnummer,vorname,nachname,email,rolle,status,employment_type,position_typ,stundenlohn,wochenstunden,department:departments(name),location:locations(name)')
+    .eq('tenant_id', currentEmployee.tenant_id)
     .order('nachname');
 
   if (params.rolle)  q = q.eq('rolle', params.rolle);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus, Trash2 } from 'lucide-react';
+import { toastError, toastSuccess } from '@/components/ui/toaster';
 
 type Area = { id: string; name: string; beschreibung: string | null; location_id: string | null; location: any };
 type Item = { id: string; area_id: string; name: string; artikelnummer: string | null; einheit: string; soll_bestand: number | null; min_bestand: number | null; lieferant: string | null; preis_pro_einheit: number | null; aktiv: boolean };
@@ -19,23 +20,28 @@ export function InventoryEditor({ areas, items, locations }: { areas: Area[]; it
   const [localItems, setItems] = useState(items);
   const sb = createClient();
 
+  useEffect(() => { setItems(items); }, [items]);
+
   function upd(id: string, f: keyof Item, v: any) { setItems(rs => rs.map(r => r.id === id ? { ...r, [f]: v } : r)); }
 
   async function saveItem(r: Item) {
     start(async () => {
-      await sb.from('inventory_items').update({
+      const { error } = await sb.from('inventory_items').update({
         name: r.name, artikelnummer: r.artikelnummer, einheit: r.einheit,
         soll_bestand: r.soll_bestand, min_bestand: r.min_bestand,
         lieferant: r.lieferant, preis_pro_einheit: r.preis_pro_einheit,
       }).eq('id', r.id);
+      if (error) { toastError('Speichern fehlgeschlagen', error.message); return; }
+      toastSuccess('Produkt gespeichert', r.name);
       router.refresh();
     });
   }
   async function addItem(areaId: string, fd: FormData) {
     start(async () => {
-      await sb.from('inventory_items').insert({
+      const name = String(fd.get('name') ?? '');
+      const { error } = await sb.from('inventory_items').insert({
         area_id: areaId,
-        name: fd.get('name'),
+        name,
         artikelnummer: fd.get('artikelnummer') || null,
         einheit: fd.get('einheit') || 'Stück',
         soll_bestand: fd.get('soll_bestand') ? Number(fd.get('soll_bestand')) : null,
@@ -44,23 +50,30 @@ export function InventoryEditor({ areas, items, locations }: { areas: Area[]; it
         preis_pro_einheit: fd.get('preis') ? Number(fd.get('preis')) : null,
         aktiv: true,
       });
+      if (error) { toastError('Produkt konnte nicht angelegt werden', error.message); return; }
+      toastSuccess('Produkt angelegt', name);
       router.refresh();
     });
   }
   async function delItem(id: string) {
     if (!confirm('Produkt deaktivieren?')) return;
     start(async () => {
-      await sb.from('inventory_items').update({ aktiv: false }).eq('id', id);
+      const { error } = await sb.from('inventory_items').update({ aktiv: false }).eq('id', id);
+      if (error) { toastError('Deaktivieren fehlgeschlagen', error.message); return; }
       setItems(rs => rs.filter(r => r.id !== id));
+      toastSuccess('Produkt deaktiviert');
       router.refresh();
     });
   }
   async function addArea(fd: FormData) {
     start(async () => {
-      await sb.from('inventory_areas').insert({
-        name: fd.get('name'), beschreibung: fd.get('beschreibung') || null,
+      const name = String(fd.get('name') ?? '');
+      const { error } = await sb.from('inventory_areas').insert({
+        name, beschreibung: fd.get('beschreibung') || null,
         location_id: fd.get('location_id') || null,
       });
+      if (error) { toastError('Bereich konnte nicht angelegt werden', error.message); return; }
+      toastSuccess('Bereich angelegt', name);
       router.refresh();
     });
   }
@@ -73,8 +86,8 @@ export function InventoryEditor({ areas, items, locations }: { areas: Area[]; it
           <div className="flex flex-col gap-1.5"><Label>Name</Label><Input name="name" placeholder="Trockenlager" required /></div>
           <div className="flex flex-col gap-1.5 md:col-span-2"><Label>Beschreibung</Label><Input name="beschreibung" /></div>
           <div className="flex flex-col gap-1.5"><Label>Standort</Label>
-            <select name="location_id" className="h-10 w-full rounded-md border bg-background px-3 text-sm">
-              <option value="">—</option>
+            <select name="location_id" required className="h-10 w-full rounded-md border bg-background px-3 text-sm">
+              <option value="">Standort wählen</option>
               {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </div>
@@ -111,7 +124,7 @@ export function InventoryEditor({ areas, items, locations }: { areas: Area[]; it
                       <TableCell><Input className="w-24 text-right" type="number" step="0.01" value={r.preis_pro_einheit ?? ''} onChange={e => upd(r.id, 'preis_pro_einheit', e.target.value ? +e.target.value : null)} /></TableCell>
                       <TableCell className="flex gap-1">
                         <Button size="sm" variant="secondary" onClick={() => saveItem(r)} disabled={pending}>Speichern</Button>
-                        <Button size="icon" variant="ghost" onClick={() => delItem(r.id)} disabled={pending}><Trash2 className="h-4 w-4" /></Button>
+                        <Button size="icon" variant="ghost" aria-label={`${r.name} deaktivieren`} onClick={() => delItem(r.id)} disabled={pending}><Trash2 className="h-4 w-4" /></Button>
                       </TableCell>
                     </TableRow>
                   ))}

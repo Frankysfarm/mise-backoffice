@@ -25,7 +25,8 @@ function addDays(d: Date, n: number) { const r = new Date(d); r.setDate(r.getDat
 function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
 
 export default async function SchedulePage({ searchParams }: { searchParams: Promise<{ week?: string; location?: string }> }) {
-  await requireManagerPlus();
+  const currentEmployee = await requireManagerPlus();
+  if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
   const params = await searchParams;
   const supabase = await createClient();
 
@@ -36,7 +37,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
   const today = isoDate(new Date());
 
   let q = supabase.from('shifts')
-    .select('id,start_zeit,end_zeit,status,position,pause_minuten,employee_id,department_id,location_id,employee:employees!shifts_employee_id_fkey(id,vorname,nachname,rolle,geburtsdatum,wochenstunden),department:departments(name,farbe),location:locations(name)')
+    .select('id,start_zeit,end_zeit,status,position,pause_minuten,employee_id,department_id,location_id,typ,notiz,offen_fuer_bewerbung,employee:employees!shifts_employee_id_fkey(id,vorname,nachname,rolle,geburtsdatum,wochenstunden),department:departments(name,farbe),location:locations(name)')
     .gte('start_zeit', weekStart.toISOString())
     .lt('start_zeit', weekEnd.toISOString())
     .order('start_zeit');
@@ -45,9 +46,18 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
   const shifts = shiftsRaw as any[] | null;
 
   const [{ data: locations }, { data: departments }, { data: employees }, { data: swaps }] = await Promise.all([
-    supabase.from('locations').select('id,name').order('name'),
-    supabase.from('departments').select('id,name').order('name'),
-    supabase.from('employees').select('id,vorname,nachname').eq('status', 'aktiv').order('nachname'),
+    supabase.from('locations').select('id,name').eq('tenant_id', currentEmployee.tenant_id).order('name'),
+    supabase
+      .from('departments')
+      .select('id,name,location:locations!inner(tenant_id)')
+      .eq('location.tenant_id', currentEmployee.tenant_id)
+      .order('name'),
+    supabase
+      .from('employees')
+      .select('id,vorname,nachname')
+      .eq('tenant_id', currentEmployee.tenant_id)
+      .eq('status', 'aktiv')
+      .order('nachname'),
     supabase.from('shift_swaps').select('id,status').eq('status', 'angefragt'),
   ]);
 
@@ -69,7 +79,7 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
           )}
           <NewShiftDialog
             employees={employees ?? []}
-            departments={departments ?? []}
+            departments={(departments ?? []).map(({ id, name }) => ({ id, name }))}
             locations={locations ?? []}
             defaultDate={today}
           />
@@ -80,17 +90,24 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
         <Link href={`/schedule?week=${prev}${params.location ? `&location=${params.location}` : ''}`}><Button variant="outline" size="sm">← Vorherige Woche</Button></Link>
         <Link href="/schedule"><Button variant="ghost" size="sm">Heute</Button></Link>
         <Link href={`/schedule?week=${next}${params.location ? `&location=${params.location}` : ''}`}><Button variant="outline" size="sm">Nächste Woche →</Button></Link>
-        <form className="ml-auto">
+        <form className="ml-auto flex items-center gap-2">
           <input type="hidden" name="week" value={isoDate(weekStart)} />
-          <select name="location" defaultValue={params.location ?? ''} className="h-9 rounded-md border bg-background px-2 text-sm" onChange={e => e.currentTarget.form!.submit()}>
+          <select name="location" defaultValue={params.location ?? ''} className="h-9 rounded-md border bg-background px-2 text-sm">
             <option value="">Alle Standorte</option>
             {locations?.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
           </select>
+          <Button type="submit" variant="outline" size="sm">Anwenden</Button>
         </form>
       </div>
 
       <Card>
-        <ScheduleWeek weekStart={weekStart} initialShifts={(shifts ?? []) as any} />
+        <ScheduleWeek
+          weekStart={weekStart}
+          initialShifts={(shifts ?? []) as any}
+          employees={employees ?? []}
+          departments={(departments ?? []).map(({ id, name }) => ({ id, name }))}
+          locations={locations ?? []}
+        />
       </Card>
 
       <div className="mt-4 flex flex-wrap gap-3 rounded-md border bg-muted/40 p-3 text-xs text-muted-foreground">
