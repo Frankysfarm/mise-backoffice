@@ -7,9 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty';
 import { dateTimeDE } from '@/lib/utils';
 import { SwapActions } from './actions';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function SwapRequestsPage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/schedule', '/neo/app/dienstplan');
   const supabase = await createClient();
   const { data: swapsRaw } = await supabase.from('shift_swaps')
     .select('*')
@@ -18,7 +20,7 @@ export default async function SwapRequestsPage() {
 
   return (
     <div>
-      <PageHeader backHref="/schedule" title="Schichttausch-Anfragen" description={`${swaps?.length ?? 0} Einträge.`} />
+      <PageHeader backHref={basePath} title="Schichttausch-Anfragen" description={`${swaps?.length ?? 0} Einträge.`} />
       {(swaps?.length ?? 0) === 0 ? (
         <EmptyState title="Keine Anfragen" />
       ) : (

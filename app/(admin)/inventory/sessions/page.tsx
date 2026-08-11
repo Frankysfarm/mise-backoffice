@@ -9,9 +9,11 @@ import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty';
 import { dateTimeDE } from '@/lib/utils';
 import { StartSessionButton } from './start-button';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function InventorySessionsPage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/inventory', '/neo/app/lager');
   const supabase = await createClient();
   const [{ data: sessions }, { data: locs }] = await Promise.all([
     supabase.from('inventory_sessions')
@@ -25,7 +27,7 @@ export default async function InventorySessionsPage() {
       <PageHeader
         title="Inventur-Sessions"
         description={`${sessions?.length ?? 0} Inventuren in der Historie.`}
-        backHref="/inventory"
+        backHref={basePath}
         actions={<StartSessionButton locations={locs ?? []} />}
       />
       {(sessions?.length ?? 0) === 0 ? (

@@ -4,11 +4,13 @@ import { PageHeader } from '@/components/layout/page-header';
 import { Card } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty';
 import { TemplatesManager } from './manager';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export const dynamic = 'force-dynamic';
 
 export default async function TemplatesPage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/schedule', '/neo/app/dienstplan');
   const supabase = await createClient();
 
   const [{ data: templates }, { data: departments }, { data: locations }] = await Promise.all([
@@ -22,7 +24,7 @@ export default async function TemplatesPage() {
   return (
     <div>
       <PageHeader
-        backHref="/schedule"
+        backHref={basePath}
         title="Schicht-Vorlagen"
         description="Typische Schichten vordefinieren und per 1-Klick einfügen."
       />

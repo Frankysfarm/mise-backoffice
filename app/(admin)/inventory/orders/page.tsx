@@ -8,9 +8,11 @@ import { EmptyState } from '@/components/ui/empty';
 import { dateTimeDE, euro } from '@/lib/utils';
 import { NewOrderButton } from './new-order';
 import { SendOrderButton } from './send-button';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function OrdersPage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/inventory', '/neo/app/lager');
   const supabase = await createClient();
   const [{ data: orders }, { data: items }, { data: locs }] = await Promise.all([
     supabase.from('order_lists')
@@ -28,7 +30,7 @@ export default async function OrdersPage() {
       <PageHeader
         title="Bestelllisten"
         description={`${orders?.length ?? 0} Bestellungen — Versand via order-list-mail.`}
-        backHref="/inventory"
+        backHref={basePath}
         actions={<NewOrderButton items={items ?? []} locations={locs ?? []} />}
       />
       {(orders?.length ?? 0) === 0 ? (

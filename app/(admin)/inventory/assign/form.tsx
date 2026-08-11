@@ -12,10 +12,11 @@ import { ClipboardList } from 'lucide-react';
 
 type Area = { id: string; name: string; location_id: string | null; location: { name: string } | null };
 
-export function AssignForm({ areas, employees, locations }: {
+export function AssignForm({ areas, employees, locations, successPath = '/inventory/sessions' }: {
   areas: Area[];
   employees: { id: string; vorname: string; nachname: string }[];
   locations: { id: string; name: string }[];
+  successPath?: string;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -40,7 +41,7 @@ export function AssignForm({ areas, employees, locations }: {
       } as any).select('id').single();
       if (error) return toastError('Zuweisung fehlgeschlagen', error.message);
       toastSuccess('Inventur zugewiesen', 'Mitarbeiter sieht die Aufgabe auf der Home-Seite.');
-      router.push('/inventory/sessions');
+      router.push(successPath);
     });
   }
 

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ScheduleWeek } from './week-view';
 import { NewShiftDialog } from './new-shift-dialog';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 function parseWeek(param?: string): Date {
   if (param) {
@@ -24,9 +25,12 @@ function startOfWeekMonday(d: Date) {
 function addDays(d: Date, n: number) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
 function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
 
-export default async function SchedulePage({ searchParams }: { searchParams: Promise<{ week?: string; location?: string }> }) {
+type SchedulePageProps = { searchParams: Promise<{ week?: string; location?: string }> };
+
+export default async function SchedulePage({ searchParams }: SchedulePageProps) {
   const currentEmployee = await requireManagerPlus();
   if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
+  const basePath = await operationsBasePath('/schedule', '/neo/app/dienstplan');
   const params = await searchParams;
   const supabase = await createClient();
 
@@ -67,13 +71,16 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
         title="Dienstplan"
         description={`Woche ab ${weekStart.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })}. ${shifts?.length ?? 0} Schichten.`}
         actions={<>
+          <Link href={`${basePath}/templates`}>
+            <Button variant="outline">Vorlagen</Button>
+          </Link>
           <Link
             href={`/api/pdf/schedule?week=${isoDate(weekStart)}${params.location ? `&location=${params.location}` : ''}`}
           >
             <Button variant="outline">📄 PDF</Button>
           </Link>
           {(swaps?.length ?? 0) > 0 && (
-            <Link href="/schedule/swap-requests">
+            <Link href={`${basePath}/swap-requests`}>
               <Button variant="outline">{swaps!.length} Tauschanfragen</Button>
             </Link>
           )}
@@ -87,9 +94,9 @@ export default async function SchedulePage({ searchParams }: { searchParams: Pro
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Link href={`/schedule?week=${prev}${params.location ? `&location=${params.location}` : ''}`}><Button variant="outline" size="sm">← Vorherige Woche</Button></Link>
-        <Link href="/schedule"><Button variant="ghost" size="sm">Heute</Button></Link>
-        <Link href={`/schedule?week=${next}${params.location ? `&location=${params.location}` : ''}`}><Button variant="outline" size="sm">Nächste Woche →</Button></Link>
+        <Link href={`${basePath}?week=${prev}${params.location ? `&location=${params.location}` : ''}`}><Button variant="outline" size="sm">← Vorherige Woche</Button></Link>
+        <Link href={basePath}><Button variant="ghost" size="sm">Heute</Button></Link>
+        <Link href={`${basePath}?week=${next}${params.location ? `&location=${params.location}` : ''}`}><Button variant="outline" size="sm">Nächste Woche →</Button></Link>
         <form className="ml-auto flex items-center gap-2">
           <input type="hidden" name="week" value={isoDate(weekStart)} />
           <select name="location" defaultValue={params.location ?? ''} className="h-9 rounded-md border bg-background px-2 text-sm">

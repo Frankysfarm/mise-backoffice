@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty';
 import { dateTimeDE, euro } from '@/lib/utils';
 import { WasteForm } from './form';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 const GRUND_LABELS: Record<string, string> = {
   abgelaufen: 'Abgelaufen', verdorben: 'Verdorben', beschädigt: 'Beschädigt',
@@ -19,6 +20,7 @@ const GRUND_COLORS: Record<string, 'destructive' | 'gold' | 'muted'> = {
 
 export default async function WastePage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/inventory', '/neo/app/lager');
   const supabase = await createClient();
   const [{ data: waste }, { data: items }] = await Promise.all([
     supabase.from('inventory_waste')
@@ -32,7 +34,7 @@ export default async function WastePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        backHref="/inventory"
+        backHref={basePath}
         title="Schwund / Waste"
         description={`${(waste ?? []).length} Einträge · Gesamtwert: ${euro(total)}`}
       />

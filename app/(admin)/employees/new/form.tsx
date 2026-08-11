@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 
-export function NewEmployeeForm({ tenantId, locations, departments }: {
+export function NewEmployeeForm({ tenantId, locations, departments, detailBasePath = '/employees' }: {
   tenantId: string;
   locations: { id: string; name: string }[];
   departments: { id: string; name: string }[];
+  detailBasePath?: string;
 }) {
   const router = useRouter();
   const [isPending, start] = useTransition();
@@ -29,7 +30,7 @@ export function NewEmployeeForm({ tenantId, locations, departments }: {
     start(async () => {
       const { data, error } = await createClient().from('employees').insert(payload).select('id').single();
       if (error) return setErr(error.message);
-      router.push(`/employees/${data!.id}`);
+      router.push(`${detailBasePath}/${data!.id}`);
     });
   }
 

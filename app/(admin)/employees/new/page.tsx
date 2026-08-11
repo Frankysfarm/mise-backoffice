@@ -2,10 +2,12 @@ import { createClient } from '@/lib/supabase/server';
 import { requireAdmin } from '@/lib/auth/requireRole';
 import { PageHeader } from '@/components/layout/page-header';
 import { NewEmployeeForm } from './form';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function NewEmployeePage() {
   const currentEmployee = await requireAdmin();
   if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
+  const basePath = await operationsBasePath('/employees', '/neo/app/mitarbeiter');
   const supabase = await createClient();
   const [{ data: locations }, { data: departments }] = await Promise.all([
     supabase.from('locations').select('id,name').eq('tenant_id', currentEmployee.tenant_id).order('name'),
@@ -17,9 +19,10 @@ export default async function NewEmployeePage() {
   ]);
   return (
     <div>
-      <PageHeader backHref="/employees" title="Neuen Mitarbeiter anlegen" description="Stammdaten — Einladung per E-Mail erfolgt separat." />
+      <PageHeader backHref={basePath} title="Neuen Mitarbeiter anlegen" description="Stammdaten — Einladung per E-Mail erfolgt separat." />
       <NewEmployeeForm
         tenantId={currentEmployee.tenant_id}
+        detailBasePath={basePath}
         locations={locations ?? []}
         departments={(departments ?? []).map(({ id, name }) => ({ id, name }))}
       />

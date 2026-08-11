@@ -7,9 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { EmptyState } from '@/components/ui/empty';
 import { dateTimeDE } from '@/lib/utils';
 import { ReceivingForm } from './form';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function ReceivingPage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/inventory', '/neo/app/lager');
   const supabase = await createClient();
   const [{ data: receiving }, { data: pendingOrders }, { data: suppliers }] = await Promise.all([
     supabase.from('inventory_receiving')
@@ -22,7 +24,7 @@ export default async function ReceivingPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader backHref="/inventory" title="Wareneingang"
+      <PageHeader backHref={basePath} title="Wareneingang"
         description="Lieferung prüfen: Was ist da, was fehlt, wo kommt es hin?" />
 
       <ReceivingForm pendingOrders={(pendingOrders ?? []) as any[]} suppliers={suppliers ?? []} />

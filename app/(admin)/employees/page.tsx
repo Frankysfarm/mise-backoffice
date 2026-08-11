@@ -8,10 +8,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { RoleBadge, StatusBadge } from '@/components/role-badge';
 import { Plus } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
-export default async function EmployeesPage({ searchParams }: { searchParams: Promise<{ rolle?: string; status?: string; q?: string }> }) {
+type EmployeesPageProps = { searchParams: Promise<{ rolle?: string; status?: string; q?: string }> };
+
+export default async function EmployeesPage({ searchParams }: EmployeesPageProps) {
   const currentEmployee = await requireManagerPlus();
   if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
+  const basePath = await operationsBasePath('/employees', '/neo/app/mitarbeiter');
   const params = await searchParams;
   const supabase = await createClient();
 
@@ -31,7 +35,7 @@ export default async function EmployeesPage({ searchParams }: { searchParams: Pr
       <PageHeader
         title="Mitarbeiter"
         description={`${employees?.length ?? 0} Einträge — Stammdaten, Rollen, Status.`}
-        actions={<Link href="/employees/new"><Button><Plus className="h-4 w-4" /> Neu anlegen</Button></Link>}
+        actions={['admin', 'backoffice'].includes(currentEmployee.rolle) ? <Link href={`${basePath}/new`}><Button><Plus className="h-4 w-4" /> Neu anlegen</Button></Link> : undefined}
       />
 
       <form className="mb-4 flex flex-wrap gap-2">
@@ -53,7 +57,7 @@ export default async function EmployeesPage({ searchParams }: { searchParams: Pr
           <option value="gekündigt">Gekündigt</option>
         </select>
         <Button type="submit" variant="outline" size="sm">Filtern</Button>
-        <Link href="/employees"><Button type="button" variant="ghost" size="sm">Reset</Button></Link>
+        <Link href={basePath}><Button type="button" variant="ghost" size="sm">Reset</Button></Link>
       </form>
 
       {(employees?.length ?? 0) === 0 ? (
@@ -78,7 +82,7 @@ export default async function EmployeesPage({ searchParams }: { searchParams: Pr
                 <TableRow key={e.id} className="cursor-pointer">
                   <TableCell className="font-mono text-xs">{e.personalnummer ?? '—'}</TableCell>
                   <TableCell className="font-medium">
-                    <Link href={`/employees/${e.id}`} className="hover:underline">
+                    <Link href={`${basePath}/${e.id}`} className="hover:underline">
                       {e.vorname} {e.nachname}
                     </Link>
                     <div className="text-xs text-muted-foreground">{e.email}</div>

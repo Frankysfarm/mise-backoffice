@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { EmptyState } from '@/components/ui/empty';
 import { euro } from '@/lib/utils';
 import { Settings2 } from 'lucide-react';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 function ampel(bestand: number | null, min: number | null): { label: string; variant: 'secondary' | 'gold' | 'destructive' | 'muted' } {
   if (bestand === null) return { label: '?', variant: 'muted' };
@@ -18,9 +19,12 @@ function ampel(bestand: number | null, min: number | null): { label: string; var
   return { label: 'OK', variant: 'secondary' };
 }
 
-export default async function ProductsPage({ searchParams }: { searchParams: Promise<{ q?: string; area?: string }> }) {
+type ProductsPageProps = { searchParams: Promise<{ q?: string; area?: string }> };
+
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const currentEmployee = await requireManagerPlus();
   if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
+  const basePath = await operationsBasePath('/inventory', '/neo/app/lager');
   const params = await searchParams;
   const supabase = await createClient();
 
@@ -40,10 +44,10 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   return (
     <div>
       <PageHeader
-        backHref="/inventory"
+        backHref={basePath}
         title="Produkte"
         description={`${(items ?? []).length} aktive Produkte. Ampel zeigt Bestandsstatus.`}
-        actions={<Link href="/inventory/products/manage"><Button><Settings2 className="h-4 w-4" /> Verwalten</Button></Link>}
+        actions={<Link href={`${basePath}/products/manage`}><Button><Settings2 className="h-4 w-4" /> Verwalten</Button></Link>}
       />
 
       <form className="mb-4 flex flex-wrap gap-2">

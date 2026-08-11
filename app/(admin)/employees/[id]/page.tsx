@@ -12,10 +12,14 @@ import { InviteButton } from './invite-button';
 import { ProbeReview } from './probe-review';
 import { AvailabilityEditor } from './availability-editor';
 import { DocumentUploader } from './document-uploader';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
-export default async function EmployeeDetail({ params }: { params: Promise<{ id: string }> }) {
+type EmployeeDetailProps = { params: Promise<{ id: string }> };
+
+export default async function EmployeeDetail({ params }: EmployeeDetailProps) {
   const currentEmployee = await requireManagerPlus();
   if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
+  const basePath = await operationsBasePath('/employees', '/neo/app/mitarbeiter');
   const { id } = await params;
   const supabase = await createClient();
 
@@ -48,7 +52,7 @@ export default async function EmployeeDetail({ params }: { params: Promise<{ id:
   return (
     <div>
       <PageHeader
-        backHref="/employees"
+        backHref={basePath}
         title={`${emp.vorname} ${emp.nachname}`}
         description={<>
           <RoleBadge rolle={emp.rolle} /> <StatusBadge status={emp.status} />

@@ -9,11 +9,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { euro } from '@/lib/utils';
 import {
   Package, AlertTriangle, TrendingDown, Truck, Trash2,
-  BarChart3, ClipboardList, ShoppingCart, Warehouse,
+  BarChart3, ClipboardList, ShoppingCart, Warehouse, PackageCheck, ListTree, UserRoundCheck,
 } from 'lucide-react';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function InventoryDashboard() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/inventory', '/neo/app/lager');
   const supabase = await createClient();
 
   const [
@@ -40,12 +42,15 @@ export default async function InventoryDashboard() {
   const suggestions = (reorderSuggestions ?? []) as any[];
 
   const tiles = [
-    { href: '/inventory/products',   icon: Package,        label: 'Produkte',       value: `${activeItems ?? 0} aktiv`, desc: 'Stammdaten + Bestände' },
-    { href: '/inventory/suppliers',  icon: Truck,          label: 'Lieferanten',    value: '',                          desc: 'Kontakte + Lieferkonditionen' },
-    { href: '/inventory/sessions',   icon: ClipboardList,  label: 'Inventuren',     value: '',                          desc: 'Zählen + Differenzen' },
-    { href: '/inventory/orders',     icon: ShoppingCart,    label: 'Bestellungen',   value: `${pendingOrders ?? 0} offen`, desc: 'Bestellen + Wareneingang' },
-    { href: '/inventory/waste',      icon: Trash2,         label: 'Schwund',        value: euro(wasteTotal30d) + ' / 30T', desc: 'Was weggeworfen wird' },
-    { href: '/inventory/movements',  icon: BarChart3,      label: 'Bewegungen',     value: '',                          desc: 'Audit-Trail aller Änderungen' },
+    { href: `${basePath}/products`,   icon: Package,        label: 'Produkte',       value: `${activeItems ?? 0} aktiv`, desc: 'Stammdaten + Bestände' },
+    { href: `${basePath}/suppliers`,  icon: Truck,          label: 'Lieferanten',    value: '',                          desc: 'Kontakte + Lieferkonditionen' },
+    { href: `${basePath}/sessions`,   icon: ClipboardList,  label: 'Inventuren',     value: '',                          desc: 'Zählen + Differenzen' },
+    { href: `${basePath}/orders`,     icon: ShoppingCart,    label: 'Bestellungen',   value: `${pendingOrders ?? 0} offen`, desc: 'Bestellen + Wareneingang' },
+    { href: `${basePath}/waste`,      icon: Trash2,         label: 'Schwund',        value: euro(wasteTotal30d) + ' / 30T', desc: 'Was weggeworfen wird' },
+    { href: `${basePath}/movements`,  icon: BarChart3,      label: 'Bewegungen',     value: '',                          desc: 'Audit-Trail aller Änderungen' },
+    { href: `${basePath}/receiving`,  icon: PackageCheck,   label: 'Wareneingang',   value: '',                          desc: 'Lieferungen prüfen + buchen' },
+    { href: `${basePath}/shelves`,    icon: ListTree,       label: 'Regalplätze',    value: '',                          desc: 'Physische Lagerplätze ordnen' },
+    { href: `${basePath}/assign`,     icon: UserRoundCheck, label: 'Inventur zuweisen', value: '',                       desc: 'Zählaufgaben ans Team geben' },
   ];
 
   return (
@@ -96,7 +101,7 @@ export default async function InventoryDashboard() {
                     <TableCell className="text-right font-mono">{s.item_count}</TableCell>
                     <TableCell className="text-right font-mono">{euro(s.total_value)}</TableCell>
                     <TableCell>
-                      <Link href="/inventory/orders">
+                      <Link href={`${basePath}/orders`}>
                         <Button size="sm" variant="secondary">Bestellen →</Button>
                       </Link>
                     </TableCell>

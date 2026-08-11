@@ -2,10 +2,12 @@ import { createClient } from '@/lib/supabase/server';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { PageHeader } from '@/components/layout/page-header';
 import { InventoryEditor } from '../../editor';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function ManageInventoryProductsPage() {
   const currentEmployee = await requireManagerPlus();
   if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
+  const basePath = await operationsBasePath('/inventory', '/neo/app/lager');
   const supabase = await createClient();
 
   const [{ data: areas }, { data: items }, { data: locations }] = await Promise.all([
@@ -26,7 +28,7 @@ export default async function ManageInventoryProductsPage() {
   return (
     <div>
       <PageHeader
-        backHref="/inventory/products"
+        backHref={`${basePath}/products`}
         title="Produkte verwalten"
         description="Lagerbereiche und Produktstammdaten anlegen, bearbeiten oder deaktivieren."
       />

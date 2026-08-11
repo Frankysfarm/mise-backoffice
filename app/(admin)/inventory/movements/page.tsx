@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty';
 import { dateTimeDE } from '@/lib/utils';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 const TYP_LABELS: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'gold' | 'muted' }> = {
   eingang:    { label: '📥 Eingang',    variant: 'secondary' },
@@ -19,6 +20,7 @@ const TYP_LABELS: Record<string, { label: string; variant: 'default' | 'secondar
 
 export default async function MovementsPage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/inventory', '/neo/app/lager');
   const supabase = await createClient();
   const { data } = await supabase.from('stock_movements')
     .select('*,item:inventory_items(name,einheit),employee:employees!stock_movements_erfasst_von_fkey(vorname,nachname)')
@@ -26,7 +28,7 @@ export default async function MovementsPage() {
 
   return (
     <div>
-      <PageHeader backHref="/inventory" title="Bestandsbewegungen" description="Lückenloser Audit-Trail aller Lageränderungen." />
+      <PageHeader backHref={basePath} title="Bestandsbewegungen" description="Lückenloser Audit-Trail aller Lageränderungen." />
       {(data ?? []).length === 0 ? (
         <EmptyState title="Noch keine Bewegungen" />
       ) : (
