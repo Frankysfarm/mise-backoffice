@@ -51,8 +51,27 @@ export async function POST(
     return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
   }
 
+  const { data: paidOrd, error: orderReadError } = await c
+    .from('customer_orders')
+    .select('status,bezahlt,zahlungsart')
+    .eq('id', orderId)
+    .maybeSingle();
+  if (orderReadError) {
+    console.error('[driver/delivered] order read failed', orderReadError);
+    return NextResponse.json({ error: 'Bestellstatus konnte nicht geladen werden' }, { status: 500 });
+  }
+  if (!paidOrd) {
+    return NextResponse.json({ error: 'Bestellung nicht gefunden' }, { status: 404 });
+  }
+  if (paidOrd.status !== 'unterwegs') {
+    return NextResponse.json(
+      { error: 'Bestellung wurde noch nicht abgeholt', code: 'order_not_picked_up' },
+      { status: 409 },
+    );
+  }
+
   const now = new Date().toISOString();
-  await c
+  const { error: stopError } = await c
     .from('mise_delivery_batch_stops')
     .update({
       completed_at: now,
@@ -63,25 +82,39 @@ export async function POST(
       },
     })
     .eq('id', stop.id);
+  if (stopError) {
+    console.error('[driver/delivered] stop update failed', stopError);
+    return NextResponse.json({ error: 'Zustellung konnte nicht gespeichert werden' }, { status: 500 });
+  }
 
-  const { data: paidOrd } = await c.from('customer_orders').select('bezahlt, zahlungsart').eq('id', orderId).maybeSingle();
   const ordUpdate: Record<string, unknown> = { status: 'geliefert' };
-  if (paidOrd && !paidOrd.bezahlt && (paidOrd.zahlungsart === 'bar' || paidOrd.zahlungsart == null)) {
+  if (!paidOrd.bezahlt && (paidOrd.zahlungsart === 'bar' || paidOrd.zahlungsart == null)) {
     ordUpdate.bezahlt = true;
     ordUpdate.zahlungsart = 'bar';
     ordUpdate.stripe_payment_id = `cash:driver:${m.driver.id}:${now}`;
   }
-  await c.from('customer_orders').update(ordUpdate).eq('id', orderId);
+  const { error: orderUpdateError } = await c
+    .from('customer_orders')
+    .update(ordUpdate)
+    .eq('id', orderId);
+  if (orderUpdateError) {
+    console.error('[driver/delivered] order update failed', orderUpdateError);
+    return NextResponse.json({ error: 'Bestellstatus konnte nicht gespeichert werden' }, { status: 500 });
+  }
 
   // Sind alle Stops erledigt? → Batch completed
-  const { data: openStops } = await c
+  const { data: openStops, error: openStopsError } = await c
     .from('mise_delivery_batch_stops')
     .select('id')
     .eq('batch_id', batch.id)
     .is('completed_at', null);
+  if (openStopsError) {
+    console.error('[driver/delivered] open stops read failed', openStopsError);
+    return NextResponse.json({ error: 'Tourabschluss konnte nicht geprüft werden' }, { status: 500 });
+  }
 
   if (!openStops || openStops.length === 0) {
-    await Promise.all([
+    const [batchUpdate, statusUpdate] = await Promise.all([
       c.from('mise_delivery_batches')
         .update({ state: 'completed', completed_at: now })
         .eq('id', batch.id),
@@ -89,6 +122,13 @@ export async function POST(
         .update({ aktueller_batch_id: null })
         .eq('aktueller_batch_id', batch.id),
     ]);
+    if (batchUpdate.error || statusUpdate.error) {
+      console.error('[driver/delivered] completion update failed', {
+        batch: batchUpdate.error,
+        driverStatus: statusUpdate.error,
+      });
+      return NextResponse.json({ error: 'Tourabschluss konnte nicht gespeichert werden' }, { status: 500 });
+    }
   }
 
   // JIT-Koch-Gate: diese Order ist erledigt -> aus der Koch-Warteschlange nehmen

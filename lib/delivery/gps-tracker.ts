@@ -164,20 +164,33 @@ export async function checkGeofences(
   const events: GeofenceEvent[] = [];
   const pos = { lat, lng };
 
-  // Aktiven Batch des Fahrers laden
+  // Fahrerstatus und aktiven Batch separat laden. mise_drivers hat weder
+  // active_batch_id noch location_id; die Zuordnung lebt am Delivery-Batch.
   const { data: driverRow } = await client
     .from('mise_drivers')
-    .select('id, state, active_batch_id, location_id')
+    .select('id, state')
     .eq('id', driverId)
     .single();
 
   if (!driverRow) return { events: [], newDriverState: null };
 
   const state = driverRow.state as string;
-  const batchId = driverRow.active_batch_id as string | null;
+  const { data: activeBatch } = await client
+    .from('mise_delivery_batches')
+    .select('id, location_id')
+    .eq('driver_id', driverId)
+    .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'on_route'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const batchId = activeBatch?.id as string | null;
 
   // Kein aktiver Batch → kein Geofencing nötig
   if (!batchId) return { events: [], newDriverState: null };
+  const effectiveLocationId = activeBatch?.location_id as string | null;
+  if (!effectiveLocationId || effectiveLocationId !== locationId) {
+    return { events: [], newDriverState: null };
+  }
 
   // Duplikat-Guard: letzte Geofence-Events der letzten 3 Minuten
   const { data: recentEvents } = await client
@@ -194,7 +207,7 @@ export async function checkGeofences(
     const { data: location } = await client
       .from('locations')
       .select('lat, lng')
-      .eq('id', locationId)
+      .eq('id', effectiveLocationId)
       .single();
 
     if (location?.lat != null && location?.lng != null) {
@@ -203,7 +216,7 @@ export async function checkGeofences(
         events.push({ type: 'arrived_restaurant', orderId: null, distanceM: dm });
         await logGeofenceEvent({
           driverId,
-          locationId,
+          locationId: effectiveLocationId,
           batchId,
           eventType: 'arrived_restaurant',
           orderId: null,
@@ -235,7 +248,7 @@ export async function checkGeofences(
         events.push({ type: 'arrived_customer', orderId, distanceM: dm });
         await logGeofenceEvent({
           driverId,
-          locationId,
+          locationId: effectiveLocationId,
           batchId,
           eventType: 'arrived_customer',
           orderId,
@@ -244,7 +257,7 @@ export async function checkGeofences(
           distanceM: dm,
         });
         // Customer Event Feed: Fahrer ist in der Nähe (fire-and-forget)
-        recordCustomerEvent(orderId, locationId, 'driver_nearby', {
+        recordCustomerEvent(orderId, effectiveLocationId, 'driver_nearby', {
           driver_id: driverId,
           batch_id:  batchId,
           distance_m: dm,
@@ -302,11 +315,26 @@ async function logGeofenceEvent(params: {
 export async function getActiveTrails(locationId: string): Promise<DriverTrailSummary[]> {
   const client = sb();
 
-  // Fahrer für Location laden
+  // Fahrer für den Tenant der Location laden. mise_drivers hat keine
+  // location_id-Spalte; die Tenant-Zuordnung steht in mise_driver_tenants.
+  const { data: location } = await client
+    .from('locations')
+    .select('tenant_id')
+    .eq('id', locationId)
+    .maybeSingle();
+  if (!location?.tenant_id) return [];
+
+  const { data: memberships } = await client
+    .from('mise_driver_tenants')
+    .select('driver_id')
+    .eq('tenant_id', location.tenant_id);
+  const tenantDriverIds = (memberships ?? []).map((row) => row.driver_id as string);
+  if (tenantDriverIds.length === 0) return [];
+
   const { data: drivers } = await client
     .from('mise_drivers')
-    .select('id, name, state, vehicle, location_id, last_lat, last_lng, last_position_at')
-    .eq('location_id', locationId)
+    .select('id, name, state, vehicle, last_lat, last_lng, last_position_at')
+    .in('id', tenantDriverIds)
     .neq('state', 'offline');
 
   if (!drivers?.length) return [];
@@ -343,7 +371,7 @@ export async function getActiveTrails(locationId: string): Promise<DriverTrailSu
     driver_name:  d.name as string,
     driver_state: d.state as string,
     vehicle:      d.vehicle as string,
-    location_id:  d.location_id as string,
+    location_id:  locationId,
     trail_points: trailsByDriver.get(d.id as string) ?? [],
     last_lat:     d.last_lat as number | null,
     last_lng:     d.last_lng as number | null,

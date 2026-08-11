@@ -1,11 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { internalCronUnauthorized, isInternalCronRequest } from '@/lib/internal-cron-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET() { return run(); }
-export async function POST() { return run(); }
+export async function GET(req: NextRequest) {
+  if (!isInternalCronRequest(req)) return internalCronUnauthorized();
+  return run();
+}
+export async function POST(req: NextRequest) {
+  if (!isInternalCronRequest(req)) return internalCronUnauthorized();
+  return run();
+}
 
 async function run() {
   const svc = createServiceClient();

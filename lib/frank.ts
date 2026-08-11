@@ -82,6 +82,16 @@ function sb(): SupabaseClient {
   return _sb;
 }
 
+function dispatchCreatedAfter(): string | null {
+  const raw = process.env.DELIVERY_DISPATCH_CREATED_AFTER?.trim();
+  if (!raw) return null;
+  const timestamp = Date.parse(raw);
+  if (!Number.isFinite(timestamp)) {
+    throw new Error('DELIVERY_DISPATCH_CREATED_AFTER must be a valid ISO timestamp');
+  }
+  return new Date(timestamp).toISOString();
+}
+
 // FIX 2: In-Memory Tick-Throttle — vermeidet sinnlose DB-Writes wenn Tenant dauerhaft kein Fahrer hat.
 // Map<tenantId, lastNoDriverAt (ms)> — verliert sich bei Restart, ist OK.
 const tenantNoDriverThrottle = new Map<string, number>();
@@ -170,7 +180,8 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
   // --- Änderung 1: dispatch_after-Filter — Orders im Hold werden übersprungen ---
   // Orders ohne dispatch_after (kein Hold) oder mit dispatch_after in der Vergangenheit werden geladen.
   const nowIso = new Date().toISOString();
-  const { data: orders } = await c
+  const cutoff = dispatchCreatedAfter();
+  let pendingOrdersQuery = c
     .from('customer_orders')
     .select('id, bestellnummer, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, created_at')
     .eq('typ', 'lieferung')
@@ -180,6 +191,16 @@ export async function dispatchTick(): Promise<DispatchTickResult> {
     .or(`dispatch_after.is.null,dispatch_after.lte.${nowIso}`)
     .order('created_at', { ascending: true })
     .limit(50);
+
+  // Keep unresolved historical orders available for an explicit operator
+  // decision. Both dispatch engines must honor the same rollout cutoff; this
+  // legacy Frank tick runs independently every few seconds.
+  if (cutoff) pendingOrdersQuery = pendingOrdersQuery.gte('created_at', cutoff);
+
+  const { data: orders, error: ordersError } = await pendingOrdersQuery;
+  if (ordersError) {
+    throw new Error(`Frank pending delivery query failed: ${ordersError.message}`);
+  }
 
   const result: DispatchTickResult = {
     scanned_orders: orders?.length ?? 0,

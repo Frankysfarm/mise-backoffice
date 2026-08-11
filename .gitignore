@@ -14,6 +14,10 @@ dist/
 .env
 .env.local
 .env.*.local
+.env.production
+
+# pnpm is the only lockfile used by the production Docker build
+/package-lock.json
 
 # logs
 *.log

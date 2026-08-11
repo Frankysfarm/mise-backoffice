@@ -30,21 +30,33 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { recordGpsPoint, checkGeofences } from '@/lib/delivery/gps-tracker';
+import {
+  getDriverFromBearer,
+  sb,
+  unauthorized,
+} from '../../../driver/v1/_lib/driver-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+const UUID_RX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function POST(req: NextRequest) {
+  const member = await getDriverFromBearer(req);
+  if (!member) return unauthorized();
+  if (!member.driver.active) {
+    return NextResponse.json({ error: 'Fahrer ist nicht aktiv' }, { status: 409 });
+  }
+
   const body = await req.json().catch(() => ({})) as Record<string, unknown>;
 
-  const driverId   = typeof body.driverId   === 'string' ? body.driverId.trim()   : '';
   const locationId = typeof body.locationId === 'string' ? body.locationId.trim() : '';
   const lat        = typeof body.lat        === 'number' ? body.lat        : null;
   const lng        = typeof body.lng        === 'number' ? body.lng        : null;
 
-  if (!driverId || !locationId || lat === null || lng === null) {
+  if (!UUID_RX.test(locationId) || lat === null || lng === null) {
     return NextResponse.json(
-      { error: 'driverId, locationId, lat und lng sind Pflichtfelder' },
+      { error: 'locationId, lat und lng sind Pflichtfelder' },
       { status: 400 },
     );
   }
@@ -56,7 +68,46 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const batchId    = typeof body.batchId    === 'string' ? body.batchId    : null;
+  const requestedBatchId = typeof body.batchId === 'string' && UUID_RX.test(body.batchId)
+    ? body.batchId
+    : null;
+
+  // Never trust driverId/locationId from the request. The authenticated driver
+  // must belong to the location's tenant, and an optional batch must be theirs.
+  const { data: location } = await sb()
+    .from('locations')
+    .select('id, tenant_id')
+    .eq('id', locationId)
+    .maybeSingle();
+  if (!location?.tenant_id) {
+    return NextResponse.json({ error: 'Standort nicht gefunden' }, { status: 404 });
+  }
+
+  const { data: membership } = await sb()
+    .from('mise_driver_tenants')
+    .select('driver_id')
+    .eq('driver_id', member.driver.id)
+    .eq('tenant_id', location.tenant_id)
+    .maybeSingle();
+  if (!membership) {
+    return NextResponse.json({ error: 'Standort nicht freigegeben' }, { status: 403 });
+  }
+
+  let batchId: string | null = null;
+  if (requestedBatchId) {
+    const { data: batch } = await sb()
+      .from('mise_delivery_batches')
+      .select('id, location_id')
+      .eq('id', requestedBatchId)
+      .eq('driver_id', member.driver.id)
+      .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'on_route'])
+      .maybeSingle();
+    if (!batch || batch.location_id !== locationId) {
+      return NextResponse.json({ error: 'Tour nicht freigegeben' }, { status: 403 });
+    }
+    batchId = batch.id as string;
+  }
+
   const accuracy_m  = typeof body.accuracy_m  === 'number' ? body.accuracy_m  : null;
   const speed_kmh   = typeof body.speed_kmh   === 'number' ? body.speed_kmh   : null;
   const heading_deg = typeof body.heading_deg === 'number'
@@ -64,10 +115,10 @@ export async function POST(req: NextRequest) {
     : null;
 
   // GPS-Punkt speichern + Driver-Position aktualisieren
-  await recordGpsPoint({ driverId, locationId, batchId, lat, lng, accuracy_m, speed_kmh, heading_deg });
+  await recordGpsPoint({ driverId: member.driver.id, locationId, batchId, lat, lng, accuracy_m, speed_kmh, heading_deg });
 
   // Geofencing prüfen
-  const { events, newDriverState } = await checkGeofences(driverId, lat, lng, locationId);
+  const { events, newDriverState } = await checkGeofences(member.driver.id, lat, lng, locationId);
 
   const response: Record<string, unknown> = { ok: true };
   if (events.length > 0)     response.geofenceEvents  = events;

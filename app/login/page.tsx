@@ -56,11 +56,10 @@ function LoginScreen() {
 
   function resolveTarget(): string {
     if (mode === 'backoffice') {
-      // Backoffice: Inhaber landet im NEUEN /neo-Backoffice (Lieferservice-Cockpit).
-      // Tiefe Links (z.B. /menu) werden weiterhin geehrt; frischer Login → /neo.
-      // Onboarding wird vom /neo-Layout gerouted (Setup-Wizard falls nicht fertig).
+      // Backoffice: Inhaber landet im blauen Neo-Modulwähler.
+      // Tiefe Links werden weiterhin geehrt; ein frischer Login zeigt die vier Arbeitsbereiche.
       if (next && next !== '/' && next !== '/start' && !next.startsWith('/pos')) return next;
-      return '/neo/app/uebersicht';
+      return '/neo';
     }
     if (mode === 'lieferung') return '/pos/inbox';
     if (next.startsWith('/pos/inbox')) return '/pos';
@@ -99,7 +98,7 @@ function LoginScreen() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 lg:grid lg:grid-cols-[1fr_minmax(420px,520px)]">
-      {/* ─── Left Panel: Brand Visual (Indigo) ─── */}
+      {/* ─── Left Panel: Neo Brand Visual ─── */}
       <div className="hidden lg:flex lg:flex-col lg:justify-between bg-gradient-to-br from-indigo-700 via-indigo-900 to-indigo-950 text-white p-12 relative overflow-hidden">
         {/* Decorative blobs */}
         <div className="pointer-events-none absolute -top-32 -left-32 h-[480px] w-[480px] rounded-full bg-indigo-400 opacity-25 blur-3xl" />

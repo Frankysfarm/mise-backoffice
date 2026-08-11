@@ -18,6 +18,7 @@ type Props = {
   isDelivery: boolean;
   onNewOrder: () => void;
   orderId?: string;
+  trackingToken: string;
   cartItems?: CartItem[];
 };
 
@@ -44,7 +45,7 @@ function liveStatusIndex(status: string, steps: readonly StatusStep[]): number {
   return i >= 0 ? i : 0;
 }
 
-export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNewOrder, orderId, cartItems }: Props) {
+export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNewOrder, orderId, trackingToken, cartItems }: Props) {
   const firstName = name?.split(' ')[0];
   const supabase = React.useMemo(() => createClient(), []);
   const STATUS_STEPS: readonly StatusStep[] = isDelivery ? DELIVERY_STEPS : PICKUP_STEPS;
@@ -68,13 +69,15 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
     setRating(stars);
     setRatingSubmitted(true);
     try {
-      const tokenRes = await fetch(`/api/delivery/orders/${orderId}/rate`);
+      const tokenRes = await fetch(`/api/delivery/orders/${orderId}/rate`, {
+        headers: { 'x-tracking-token': trackingToken },
+      });
       if (tokenRes.ok) {
         const { token } = await tokenRes.json() as { token?: string };
         if (token) {
           await fetch(`/api/delivery/orders/${orderId}/rate`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-tracking-token': trackingToken },
             body: JSON.stringify({ token, rating: stars }),
           });
         }
@@ -83,7 +86,9 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
   }
 
   async function shareTracking() {
-    const url = typeof window !== 'undefined' ? `${window.location.origin}/track/${bestellnummer}` : '';
+    const url = typeof window !== 'undefined'
+      ? `${window.location.origin}/track/${encodeURIComponent(bestellnummer)}?token=${encodeURIComponent(trackingToken)}`
+      : '';
     const text = `Verfolge meine Bestellung ${bestellnummer} live!`;
     if (navigator.share) {
       try { await navigator.share({ title: 'Bestellung verfolgen', text, url }); } catch {}
@@ -107,7 +112,9 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
     if (!orderId) return;
     const poll = async () => {
       try {
-        const res = await fetch(`/api/delivery/eta/${orderId}`);
+        const res = await fetch(`/api/delivery/orders/${orderId}/tracking`, {
+          headers: { 'x-tracking-token': trackingToken },
+        });
         if (!res.ok) return;
         const data = await res.json();
         if (data?.eta_earliest) {
@@ -122,7 +129,7 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
     poll();
     const iv = setInterval(poll, 30_000);
     return () => clearInterval(iv);
-  }, [orderId]);
+  }, [orderId, trackingToken]);
 
   // Supabase realtime: live status updates
   React.useEffect(() => {
@@ -140,7 +147,9 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
             setTimeout(() => setStatusFlash(false), 3000);
             // fahrer_vorname is not a column on customer_orders — fetch via tracking API
             if (newStatus === 'unterwegs' && orderId) {
-              fetch(`/api/delivery/orders/${orderId}/tracking`)
+              fetch(`/api/delivery/orders/${orderId}/tracking`, {
+                headers: { 'x-tracking-token': trackingToken },
+              })
                 .then((r) => r.ok ? r.json() : null)
                 .then((d) => { if (d?.driver_name) setDriverName(d.driver_name); })
                 .catch(() => {});
@@ -166,7 +175,9 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
     let cancelled = false;
     const poll = async () => {
       try {
-        const res = await fetch(`/api/delivery/orders/${orderId}/tracking`);
+        const res = await fetch(`/api/delivery/orders/${orderId}/tracking`, {
+          headers: { 'x-tracking-token': trackingToken },
+        });
         if (!res.ok || cancelled) return;
         const d = await res.json();
         if (d?.driver?.lat != null) setDriverPos(d.driver);
@@ -175,7 +186,7 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
     poll();
     const iv = setInterval(poll, 15_000);
     return () => { cancelled = true; clearInterval(iv); };
-  }, [orderId, isDelivery, liveStatus]);
+  }, [orderId, isDelivery, liveStatus, trackingToken]);
 
   // Leaflet mini-map: init on first driver position, then pan on updates
   React.useEffect(() => {
@@ -431,7 +442,7 @@ export function SuccessState({ bestellnummer, name, etaMinutes, isDelivery, onNe
         )}
 
         <a
-          href={`/track/${bestellnummer}`}
+          href={`/track/${encodeURIComponent(bestellnummer)}?token=${encodeURIComponent(trackingToken)}`}
           className={cn(
             'mt-10 inline-flex w-full items-center justify-between rounded-2xl bg-accent px-6 py-4 font-display text-lg font-bold text-matcha-900 shadow-[0_0_30px_rgba(74,230,138,0.25)] transition hover:brightness-105',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-matcha-900',

@@ -13,9 +13,9 @@ interface Body {
  * POST /api/driver/v1/orders/:id/pick-verify
  * Body: { verified_item_ids: string[], photo_url?: string }
  *
- * Item-Verification (Spec §9). Schreibt das pick_verification jsonb
- * an den entsprechenden pickup-Stop. Prüft NICHT (yet) ob alle Items
- * dabei sind — der Client zeigt CTA nur enabled bei vollem Set.
+ * Item-Verification (Spec §9). Bestätigt alle zur Bestellung gehörenden
+ * order_items und schreibt zusätzlich das pick_verification jsonb an den
+ * Pickup-Stop. Die Vollständigkeit wird serverseitig erzwungen.
  */
 export async function POST(
   req: NextRequest,
@@ -56,23 +56,65 @@ export async function POST(
     return NextResponse.json({ error: 'Nicht autorisiert für diese Bestellung' }, { status: 403 });
   }
 
-  await c
+  const { data: orderItems, error: itemsReadError } = await c
+    .from('order_items')
+    .select('id')
+    .eq('order_id', orderId);
+  if (itemsReadError) {
+    console.error('[driver/pick-verify] item read failed', itemsReadError);
+    return NextResponse.json({ error: 'Bestellpositionen konnten nicht geladen werden' }, { status: 500 });
+  }
+
+  const expectedIds = (orderItems ?? []).map((item) => item.id as string).sort();
+  const verifiedIds = Array.from(new Set(body.verified_item_ids)).sort();
+  if (
+    expectedIds.length === 0 ||
+    expectedIds.length !== verifiedIds.length ||
+    expectedIds.some((id, index) => id !== verifiedIds[index])
+  ) {
+    return badRequest('Alle Bestellpositionen müssen vollständig bestätigt werden');
+  }
+
+  const verifiedAt = new Date().toISOString();
+  const { error: itemsUpdateError } = await c
+    .from('order_items')
+    .update({
+      pick_confirmed_at: verifiedAt,
+      pick_missing: false,
+      pick_missing_note: null,
+    })
+    .eq('order_id', orderId)
+    .in('id', verifiedIds);
+  if (itemsUpdateError) {
+    console.error('[driver/pick-verify] item update failed', itemsUpdateError);
+    return NextResponse.json({ error: 'Bestellpositionen konnten nicht bestätigt werden' }, { status: 500 });
+  }
+
+  const { error: verifyError } = await c
     .from('mise_delivery_batch_stops')
     .update({
       pick_verification: {
         verified_item_ids: body.verified_item_ids,
         photo_url: body.photo_url ?? null,
-        verified_at: new Date().toISOString(),
+        verified_at: verifiedAt,
       },
-      arrived_at: new Date().toISOString(),
+      arrived_at: verifiedAt,
     })
     .eq('id', stop.id);
+  if (verifyError) {
+    console.error('[driver/pick-verify] stop update failed', verifyError);
+    return NextResponse.json({ error: 'Abholprüfung konnte nicht gespeichert werden' }, { status: 500 });
+  }
 
   // Driver state → at_restaurant
-  await c
+  const { error: driverError } = await c
     .from('mise_drivers')
     .update({ state: 'at_restaurant' })
     .eq('id', m.driver.id);
+  if (driverError) {
+    console.error('[driver/pick-verify] driver update failed', driverError);
+    return NextResponse.json({ error: 'Fahrerstatus konnte nicht gespeichert werden' }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }

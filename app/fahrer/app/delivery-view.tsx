@@ -27,6 +27,7 @@ type Stop = {
   order: {
     id: string;
     bestellnummer: string;
+    tracking_token?: string | null;
     kunde_name: string;
     kunde_adresse: string | null;
     kunde_plz: string | null;
@@ -1778,7 +1779,10 @@ export function DeliveryView({
                     {/* Tracking-Link teilen */}
                     <button
                       onClick={async () => {
-                        const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/track/${stop.order.bestellnummer}`;
+                        const base = `${typeof window !== 'undefined' ? window.location.origin : ''}/track/${encodeURIComponent(stop.order.bestellnummer)}`;
+                        const url = stop.order.tracking_token
+                          ? `${base}?token=${encodeURIComponent(stop.order.tracking_token)}`
+                          : base;
                         const text = `Deine Bestellung ist unterwegs! Verfolge sie hier: ${url}`;
                         if (typeof navigator !== 'undefined' && navigator.share) {
                           try { await navigator.share({ title: 'Lieferung verfolgen', text, url }); } catch {}

@@ -70,7 +70,26 @@ export interface DriverPublic {
 }
 
 const DRIVER_SELECT =
-  'id,employee_id,phone,email,name,vehicle,max_radius_km,frank_mode,state,active,total_deliveries,total_earnings';
+  'id,phone,email,name,vehicle,max_radius_km,frank_mode,state,active,total_deliveries,total_earnings';
+
+export function toDriverPublic(driver: any): DriverPublic {
+  return {
+    id: driver.id,
+    // mise_drivers has no employee_id column. Legacy employee synchronization is
+    // therefore intentionally disabled until a real mapping is introduced.
+    employee_id: null,
+    phone: driver.phone ?? null,
+    email: driver.email ?? null,
+    name: driver.name,
+    vehicle: driver.vehicle,
+    max_radius_km: Number(driver.max_radius_km),
+    frank_mode: driver.frank_mode,
+    state: driver.state,
+    active: Boolean(driver.active),
+    total_deliveries: Number(driver.total_deliveries ?? 0),
+    total_earnings: Number(driver.total_earnings ?? 0),
+  };
+}
 
 export async function createDriverSession(driverId: string, ua: string | null) {
   const token = randomBytes(TOKEN_BYTES).toString('base64url');
@@ -131,17 +150,13 @@ async function driverFromCookieSession(): Promise<{ driver: DriverPublic; token:
     const { data: { user } } = await ssrClient.auth.getUser();
     if (!user) return null;
 
-    // Hinweis: select('*') statt DRIVER_SELECT — letzteres referenziert die in der
-    // realen mise_drivers-Tabelle nicht existierende Spalte 'employee_id' und wuerde
-    // den Lookup mit einem Fehler null liefern lassen (-> 401). '*' liefert robust
-    // alle vorhandenen Spalten; Consumer (decline/issue) nutzen nur driver.id.
     const { data: driver } = await sb()
       .from('mise_drivers')
-      .select('*')
+      .select(DRIVER_SELECT)
       .eq('auth_user_id', user.id)
       .maybeSingle();
     if (!driver) return null;
-    return { driver: driver as DriverPublic, token: 'cookie-session' };
+    return { driver: toDriverPublic(driver), token: 'cookie-session' };
   } catch {
     return null;
   }
@@ -159,7 +174,7 @@ async function driverFromSupabaseJwt(token: string): Promise<DriverPublic | null
     .eq('auth_user_id', authUserId)
     .maybeSingle();
   if (!driver) return null;
-  return driver as DriverPublic;
+  return toDriverPublic(driver);
 }
 
 async function driverFromLegacySession(
@@ -189,7 +204,7 @@ async function driverFromLegacySession(
     .update({ last_seen: new Date().toISOString() })
     .eq('token', token);
 
-  return { driver: driver as DriverPublic, token };
+  return { driver: toDriverPublic(driver), token };
 }
 
 export function unauthorized() {

@@ -79,7 +79,7 @@ export interface ReoptimizeResult {
 interface BatchRow {
   id: string;
   location_id: string;
-  fahrer_id: string | null;
+  driver_id: string | null;
   state: string;
   stop_count: number;
   total_eta_min: number | null;
@@ -250,7 +250,7 @@ export async function insertStopIntoActiveTour(
   // 1. Batch laden + Validierung
   const { data: batch } = await sb
     .from('mise_delivery_batches')
-    .select('id, location_id, fahrer_id, state, stop_count, total_eta_min, modification_count')
+    .select('id, location_id, driver_id, state, stop_count, total_eta_min, modification_count')
     .eq('id', batchId)
     .eq('location_id', locationId)
     .single<BatchRow>();
@@ -418,9 +418,9 @@ export async function insertStopIntoActiveTour(
   });
 
   // 11. Fahrer per Push benachrichtigen (fire-and-forget)
-  if (batch.fahrer_id) {
+  if (batch.driver_id) {
     enqueueBatchPush({
-      driverId: batch.fahrer_id,
+      driverId: batch.driver_id,
       batchId,
       orderCount: 1,
       restaurantName: restaurantAddress,
@@ -469,7 +469,7 @@ export async function removeStopFromActiveTour(
   // 1. Batch laden + Validierung
   const { data: batch } = await sb
     .from('mise_delivery_batches')
-    .select('id, location_id, fahrer_id, state, stop_count, total_eta_min, modification_count')
+    .select('id, location_id, driver_id, state, stop_count, total_eta_min, modification_count')
     .eq('id', batchId)
     .eq('location_id', locationId)
     .single<BatchRow>();
@@ -636,7 +636,7 @@ export async function reoptimizeActiveTour(
   // 1. Batch laden + Validierung
   const { data: batch } = await sb
     .from('mise_delivery_batches')
-    .select('id, location_id, fahrer_id, state, stop_count, total_eta_min, modification_count')
+    .select('id, location_id, driver_id, state, stop_count, total_eta_min, modification_count')
     .eq('id', batchId)
     .eq('location_id', locationId)
     .single<BatchRow>();

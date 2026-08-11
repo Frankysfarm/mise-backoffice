@@ -2,7 +2,7 @@
  * GET /api/delivery/orders/[orderId]/tracking
  *
  * Live-Tracking-Daten für eine Bestellung.
- * Öffentlicher Endpunkt (kein Auth) — nutzt order_token aus Query.
+ * Öffentlicher Endpunkt — nur mit dem zur Bestellung gehörenden Capability-Token.
  *
  * Gibt zurück:
  * - Bestellstatus + ETA
@@ -12,16 +12,26 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { hasTrackingAccess } from '@/lib/delivery/tracking-access';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+const NO_STORE = { 'Cache-Control': 'no-store, private, max-age=0' };
 
 interface Params {
   params: Promise<{ orderId: string }>;
 }
 
+const UUID_RX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function GET(req: NextRequest, { params }: Params) {
   const { orderId } = await params;
+  if (!UUID_RX.test(orderId)) {
+    return NextResponse.json({ error: 'Ungültige Bestellungs-ID' }, { status: 400 });
+  }
+  if (!(await hasTrackingAccess(req, orderId))) {
+    return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 });
+  }
   const sb = createServiceClient();
 
   // Bestellung laden
@@ -60,7 +70,7 @@ export async function GET(req: NextRequest, { params }: Params) {
       driver:      null,
       stops_before: null,
       batch_state:  null,
-    });
+    }, { headers: NO_STORE });
   }
 
   // Batch + Stops laden
@@ -110,7 +120,7 @@ export async function GET(req: NextRequest, { params }: Params) {
         .maybeSingle(),
       sb
         .from('mise_drivers')
-        .select('employee_id')
+        .select('auth_user_id, name')
         .eq('id', driverId)
         .maybeSingle(),
     ]);
@@ -127,14 +137,15 @@ export async function GET(req: NextRequest, { params }: Params) {
       };
     }
 
-    if (driverRow?.employee_id) {
+    if (driverRow?.auth_user_id) {
       const { data: emp } = await sb
         .from('employees')
         .select('vorname')
-        .eq('id', driverRow.employee_id)
+        .eq('auth_user_id', driverRow.auth_user_id)
         .maybeSingle();
       if (emp?.vorname) driverName = emp.vorname as string;
     }
+    if (!driverName && driverRow?.name) driverName = driverRow.name as string;
   }
 
   return NextResponse.json({
@@ -148,5 +159,5 @@ export async function GET(req: NextRequest, { params }: Params) {
     stops_before:  stopsBefore,
     driver:        driverPosition,
     driver_name:   driverName,
-  });
+  }, { headers: NO_STORE });
 }

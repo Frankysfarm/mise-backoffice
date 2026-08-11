@@ -305,9 +305,9 @@ export async function getIncidents(
 
   const [orderMap, driverMap] = await Promise.all([
     orderIds.length > 0
-      ? sb.from('customer_orders').select('id, bestellnummer, lieferung_oder_abholung').in('id', orderIds).then(r =>
+      ? sb.from('customer_orders').select('id, bestellnummer, typ').in('id', orderIds).then(r =>
           Object.fromEntries((r.data ?? []).map(o => [o.id, o])))
-      : Promise.resolve({} as Record<string, { id: string; bestellnummer: string; lieferung_oder_abholung: string }>),
+      : Promise.resolve({} as Record<string, { id: string; bestellnummer: string; typ: string }>),
     driverIds.length > 0
       ? sb.from('mise_drivers').select('id, name').in('id', driverIds).then(r =>
           Object.fromEntries((r.data ?? []).map(d => [d.id, d])))
@@ -317,7 +317,7 @@ export async function getIncidents(
   const enriched = incidents.map(i => ({
     ...i,
     bestellnummer: i.order_id ? (orderMap[i.order_id]?.bestellnummer ?? null) : null,
-    order_type:    i.order_id ? (orderMap[i.order_id]?.lieferung_oder_abholung ?? null) : null,
+    order_type:    i.order_id ? (orderMap[i.order_id]?.typ ?? null) : null,
     driver_name:   i.driver_id ? (driverMap[i.driver_id]?.name ?? null) : null,
   }));
 
@@ -352,7 +352,7 @@ export async function getIncident(
   // Enrich
   const [orderData, driverData] = await Promise.all([
     incident.order_id
-      ? sb.from('customer_orders').select('bestellnummer, lieferung_oder_abholung').eq('id', incident.order_id).maybeSingle().then(r => r.data)
+      ? sb.from('customer_orders').select('bestellnummer, typ').eq('id', incident.order_id).maybeSingle().then(r => r.data)
       : Promise.resolve(null),
     incident.driver_id
       ? sb.from('mise_drivers').select('name').eq('id', incident.driver_id).maybeSingle().then(r => r.data)
@@ -362,7 +362,7 @@ export async function getIncident(
   return {
     ...(incident as DeliveryIncident),
     bestellnummer: orderData?.bestellnummer ?? null,
-    order_type:    orderData?.lieferung_oder_abholung ?? null,
+    order_type:    orderData?.typ ?? null,
     driver_name:   driverData?.name ?? null,
     actions:       (actions ?? []) as IncidentAction[],
   };

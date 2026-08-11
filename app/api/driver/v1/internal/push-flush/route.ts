@@ -114,17 +114,58 @@ export async function POST(req: NextRequest) {
 
     // 1) VoIP-First für Bundle-Assignments
     const isAssign = row.type === 'order_assigned' || row.type === 'assign';
+    const assignmentBatchId =
+      typeof row.data?.batch_id === 'string' ? row.data.batch_id : null;
+
+    // Outbox-Einträge können einen Batch-Rollback oder eine Stornierung
+    // überleben. Vor einem Assignment-Push immer den Live-Zustand prüfen,
+    // damit niemals eine alte/abgebrochene Tour beim Fahrer klingelt.
+    if (isAssign && assignmentBatchId) {
+      const { data: liveBatch, error: liveBatchError } = await c
+        .from('mise_delivery_batches')
+        .select('id,state,driver_id')
+        .eq('id', assignmentBatchId)
+        .maybeSingle();
+      if (liveBatchError) {
+        console.error('[driver/push-flush] batch validation failed', liveBatchError);
+        return NextResponse.json({ error: 'push batch validation failed' }, { status: 500 });
+      }
+      if (
+        !liveBatch ||
+        liveBatch.driver_id !== row.driver_id ||
+        ['cancelled', 'completed', 'expired'].includes(liveBatch.state as string)
+      ) {
+        await c
+          .from('mise_push_outbox')
+          .update({
+            failed_at: new Date().toISOString(),
+            fail_reason: !liveBatch ? 'stale-batch-missing' : `stale-batch-${liveBatch.state}`,
+          })
+          .eq('id', row.id);
+        skipped++;
+        continue;
+      }
+    }
+
     if (isAssign && drv?.voip_push_token) {
       const data = (row.data ?? {}) as Record<string, unknown>;
-      const r = await sendVoipPush(drv.voip_push_token, {
-        batch_id: typeof data.batch_id === 'string' ? data.batch_id : '',
-        order_count: typeof data.order_count === 'number' ? data.order_count : 1,
-        restaurant_name: typeof data.restaurant_name === 'string' ? data.restaurant_name : 'Bestellung',
-        distance_km: typeof data.distance_km === 'number' ? data.distance_km : null,
-        payout_eur: typeof data.payout_eur === 'number' ? data.payout_eur : null,
-        reason_text: row.body,
-        decision_id: typeof data.decision_id === 'string' ? data.decision_id : undefined,
-      });
+      let r: Awaited<ReturnType<typeof sendVoipPush>>;
+      try {
+        r = await sendVoipPush(drv.voip_push_token, {
+          batch_id: typeof data.batch_id === 'string' ? data.batch_id : '',
+          order_count: typeof data.order_count === 'number' ? data.order_count : 1,
+          restaurant_name: typeof data.restaurant_name === 'string' ? data.restaurant_name : 'Bestellung',
+          distance_km: typeof data.distance_km === 'number' ? data.distance_km : null,
+          payout_eur: typeof data.payout_eur === 'number' ? data.payout_eur : null,
+          reason_text: row.body,
+          decision_id: typeof data.decision_id === 'string' ? data.decision_id : undefined,
+        });
+      } catch (error) {
+        r = {
+          ok: false,
+          error: error instanceof Error ? error.message : 'voip push failed',
+        };
+      }
       if (r.ok) {
         await c
           .from('mise_push_outbox')

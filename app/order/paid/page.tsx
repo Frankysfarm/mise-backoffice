@@ -17,6 +17,7 @@ export default async function OrderPaidPage({
   // Stripe-Session verifizieren, wenn verfügbar
   let paid = false;
   let amountTotal: number | null = null;
+  let verifiedOrder: { bestellnummer: string; tracking_token: string } | null = null;
 
   if (sp.session_id && stripeConfigured()) {
     const stripe = getStripe()!;
@@ -32,12 +33,23 @@ export default async function OrderPaidPage({
           .update({ bezahlt: true, stripe_payment_id: session.id })
           .eq('id', session.metadata.order_id);
       }
+      if (session.metadata?.order_id) {
+        const { data } = await svc
+          .from('customer_orders')
+          .select('bestellnummer, tracking_token')
+          .eq('id', session.metadata.order_id)
+          .maybeSingle();
+        verifiedOrder = data;
+      }
     } catch {
       // Session nicht ladbar — trotzdem Success-UI anzeigen
     }
   }
 
-  const trackUrl = sp.bon ? `/track/${sp.bon}` : '/';
+  const displayNumber = verifiedOrder?.bestellnummer ?? sp.bon;
+  const trackUrl = verifiedOrder
+    ? `/track/${encodeURIComponent(verifiedOrder.bestellnummer)}?token=${encodeURIComponent(verifiedOrder.tracking_token)}`
+    : sp.bon ? `/track/${encodeURIComponent(sp.bon)}` : '/';
 
   return (
     <div className="min-h-screen bg-matcha-900 text-white flex items-center justify-center p-6">
@@ -55,9 +67,9 @@ export default async function OrderPaidPage({
             : 'Deine Bestellung ist eingegangen.'}
         </p>
 
-        {sp.bon && (
+        {displayNumber && (
           <div className="mt-6 font-mono text-xs text-matcha-300 tracking-widest">
-            #{sp.bon.replace(/^FF-/, '')}
+            #{displayNumber.replace(/^FF-/, '')}
           </div>
         )}
 

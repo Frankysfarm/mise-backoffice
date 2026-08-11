@@ -61,14 +61,23 @@ export async function updateSession(request: NextRequest) {
     pathname === '/sw-customer.js' ||
     pathname.startsWith('/api/push/') ||
     pathname.startsWith('/api/cron/') ||
+    pathname === '/api/delivery/dispatch' ||
     pathname === '/api/drivers/push/send' ||
+    pathname === '/api/drivers/auto-offline' ||
+    pathname === '/api/modules/expire-trials' ||
     pathname === '/api/pos/z-report/auto' ||
     pathname === '/api/pos/backup/worm' ||
     pathname.startsWith('/fahrer-icon') ||
     pathname.startsWith('/track/') ||
     pathname.startsWith('/rate/') ||
     pathname.startsWith('/api/delivery/orders/') ||
+    pathname === '/order' ||
     pathname.startsWith('/order/') ||
+    pathname === '/staff' ||
+    pathname.startsWith('/staff/') ||
+    pathname === '/invite' ||
+    pathname.startsWith('/invite/') ||
+    pathname.startsWith('/api/order/') ||
     pathname.startsWith('/t/') ||
     pathname.startsWith('/kuche/') ||
     pathname.startsWith('/api/print/') ||

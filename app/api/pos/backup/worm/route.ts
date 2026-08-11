@@ -3,6 +3,7 @@ import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import JSZip from 'jszip';
 import crypto from 'crypto';
+import { internalCronUnauthorized, isInternalCronRequest } from '@/lib/internal-cron-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -22,6 +23,11 @@ export async function GET(req: NextRequest) { return run(req); }
 export async function POST(req: NextRequest) { return run(req); }
 
 async function run(req: NextRequest) {
+  const specificTenantId = req.nextUrl.searchParams.get('tenant_id');
+  if (!specificTenantId && !isInternalCronRequest(req)) {
+    return internalCronUnauthorized();
+  }
+
   // Config-Check
   const bucket = process.env.AWS_WORM_BUCKET;
   const region = process.env.AWS_WORM_REGION ?? 'eu-central-1';
@@ -33,7 +39,6 @@ async function run(req: NextRequest) {
   }
 
   // Auth / Tenant-Scope
-  const specificTenantId = req.nextUrl.searchParams.get('tenant_id');
   let tenantIds: string[] = [];
 
   if (specificTenantId) {

@@ -42,9 +42,22 @@ export async function POST(req: NextRequest) {
 
     try {
       const origin = new URL(req.url).origin;
-      const html = mail.html && mail.html.length > 50
-        ? mail.html
-        : renderByTemplate(mail.template, mail.template_data ?? {}, { origin, tenant });
+      let templateData = { ...(mail.template_data ?? {}) };
+      if (mail.order_id) {
+        const { data: order } = await svc
+          .from('customer_orders')
+          .select('bestellnummer, tracking_token')
+          .eq('id', mail.order_id)
+          .maybeSingle();
+        if (order) templateData = { ...templateData, ...order };
+      }
+      const knownTemplate = ['order_confirmation', 'delivery_unterwegs', 'delivery_delivered', 'delivery_abholbereit']
+        .includes(mail.template ?? '');
+      const html = knownTemplate
+        ? renderByTemplate(mail.template, templateData, { origin, tenant })
+        : mail.html && mail.html.length > 50
+          ? mail.html
+          : renderByTemplate(mail.template, templateData, { origin, tenant });
 
       const resend = new Resend(tenant.resend_api_key);
       const r = await resend.emails.send({
@@ -133,12 +146,12 @@ ${opts.inner}
 
 /** Status-Mail: Fahrer unterwegs (nur Lieferung). */
 function deliveryUnterwegsHtml(
-  data: { bestellnummer: string; kunde_name?: string; typ?: string },
+  data: { bestellnummer: string; kunde_name?: string; typ?: string; tracking_token?: string },
   ctx: { origin: string; tenant: any },
 ): string {
   const themeColor = ctx.tenant.theme_primary ?? '#14532d';
   const firstName = (data.kunde_name ?? '').split(' ')[0] || 'du';
-  const trackUrl = `${ctx.origin}/track/${data.bestellnummer}`;
+  const trackUrl = buildTrackingUrl(ctx.origin, data.bestellnummer, data.tracking_token);
   const inner = `
   <tr><td style="padding:32px 40px 8px; font-size:16px; line-height:1.6; color:#333;">
     Hey ${firstName}, gute Nachrichten — <strong>${ctx.tenant.name}</strong> hat deine Bestellung
@@ -235,10 +248,10 @@ function deliveryAbholbereitHtml(
 }
 
 function orderConfirmationHtml(
-  data: { bestellnummer: string; kunde_name: string; gesamtbetrag: number; typ: string; zahlungsart: string; unsubscribe_token?: string },
+  data: { bestellnummer: string; kunde_name: string; gesamtbetrag: number; typ: string; zahlungsart: string; unsubscribe_token?: string; tracking_token?: string },
   ctx: { origin: string; tenant: any },
 ): string {
-  const trackUrl = `${ctx.origin}/track/${data.bestellnummer}`;
+  const trackUrl = buildTrackingUrl(ctx.origin, data.bestellnummer, data.tracking_token);
   const unsubUrl = data.unsubscribe_token
     ? `${ctx.origin}/unsubscribe?token=${data.unsubscribe_token}`
     : `${ctx.origin}/unsubscribe`;
@@ -312,4 +325,9 @@ function orderConfirmationHtml(
 </td></tr>
 </table>
 </body></html>`;
+}
+
+function buildTrackingUrl(origin: string, bestellnummer: string, token?: string) {
+  const path = `${origin}/track/${encodeURIComponent(bestellnummer)}`;
+  return token ? `${path}?token=${encodeURIComponent(token)}` : path;
 }

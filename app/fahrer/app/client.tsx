@@ -1133,7 +1133,7 @@ export function FahrerApp({
 
         {/* Schicht-Statistik — wenn kein aktiver Batch und NICHT im Drive-Warte-Screen */}
         {false && (
-          <SchichtStats driverId={driver.id} isOnline={isOnline} />
+          <SchichtStats driverId={driver.id} miseDriverId={miseDriverId} isOnline={isOnline} />
         )}
 
         {/* Schicht-Buchung — Fahrer können sich für offene Schichten anmelden */}
@@ -1220,7 +1220,7 @@ export function FahrerApp({
 
 /* ---------- SchichtStats ---------- */
 
-function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: boolean }) {
+function SchichtStats({ driverId, miseDriverId, isOnline }: { driverId: string; miseDriverId: string | null; isOnline: boolean }) {
   const supabase = createClient();
   const [stats, setStats] = useState<{
     deliveries: number;
@@ -1240,24 +1240,11 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
   useEffect(() => {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     (async () => {
-      // Legacy + Mise parallel abfragen
-      const [
-        { data: legacyBatches },
-        { data: miseDriver },
-      ] = await Promise.all([
-        supabase
-          .from('delivery_batches')
-          .select('id, total_distance_km')
-          .eq('fahrer_id', driverId)
-          .gte('created_at', today.toISOString()),
-        supabase
-          .from('mise_drivers')
-          .select('id')
-          .eq('employee_id', driverId)
-          .maybeSingle(),
-      ]);
-
-      const miseDriverId = (miseDriver as any)?.id ?? null;
+      const { data: legacyBatches } = await supabase
+        .from('delivery_batches')
+        .select('id, total_distance_km')
+        .eq('fahrer_id', driverId)
+        .gte('created_at', today.toISOString());
 
       const [{ data: legacyStops }, { data: miseBatches }] = await Promise.all([
         legacyBatches?.length
@@ -1300,7 +1287,7 @@ function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: bool
       });
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [driverId]);
+  }, [driverId, miseDriverId]);
 
   const [realEarnings, setRealEarnings] = useState<{ deliveries: number; totalEur: number } | null>(null);
 

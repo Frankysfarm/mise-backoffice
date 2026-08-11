@@ -6,11 +6,10 @@ import { Bell, BellRing, Check, X, Loader2, Share, Plus as PlusIcon } from 'luci
 type Props = {
   orderId: string;
   tenantId: string;
-  telefon?: string;
-  email?: string;
+  trackingToken: string;
 };
 
-export function PushOptInCard({ orderId, tenantId, telefon, email }: Props) {
+export function PushOptInCard({ orderId, tenantId, trackingToken }: Props) {
   const [state, setState] = useState<'idle' | 'loading' | 'granted' | 'denied' | 'unsupported' | 'dismissed' | 'ios-install'>('idle');
 
   useEffect(() => {
@@ -69,7 +68,7 @@ export function PushOptInCard({ orderId, tenantId, telefon, email }: Props) {
         body: JSON.stringify({
           order_id: orderId,
           tenant_id: tenantId,
-          telefon, email,
+          tracking_token: trackingToken,
           subscription: {
             endpoint: subJson.endpoint,
             keys: { p256dh: subJson.keys?.p256dh, auth: subJson.keys?.auth },

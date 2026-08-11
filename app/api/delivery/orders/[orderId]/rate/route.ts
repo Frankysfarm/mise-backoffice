@@ -12,15 +12,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { generateRatingToken, submitCustomerRating } from '@/lib/delivery/satisfaction';
+import { hasTrackingAccess } from '@/lib/delivery/tracking-access';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+const NO_STORE = { 'Cache-Control': 'no-store, private, max-age=0' };
 
 /** POST: Kunden-Bewertung einreichen (öffentlich via Token) */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { orderId: string } },
+  { params }: { params: Promise<{ orderId: string }> },
 ) {
+  const { orderId } = await params;
+  if (!(await hasTrackingAccess(req, orderId))) {
+    return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 });
+  }
   const body = await req.json() as {
     token?: string;
     rating?: number;
@@ -55,16 +61,20 @@ export async function POST(
 
 /** GET: Rating-Token für eine Bestellung generieren (interner Admin-Aufruf) */
 export async function GET(
-  _req: NextRequest,
-  { params }: { params: { orderId: string } },
+  req: NextRequest,
+  { params }: { params: Promise<{ orderId: string }> },
 ) {
+  const { orderId } = await params;
+  if (!(await hasTrackingAccess(req, orderId))) {
+    return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 });
+  }
   const sb = createServiceClient();
 
   // Sicherheitscheck: Order muss geliefert sein
   const { data: order } = await sb
     .from('customer_orders')
     .select('id, status')
-    .eq('id', params.orderId)
+    .eq('id', orderId)
     .maybeSingle();
 
   if (!order) {
@@ -72,11 +82,11 @@ export async function GET(
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? '';
-  const result = await generateRatingToken(params.orderId, baseUrl);
+  const result = await generateRatingToken(orderId, baseUrl);
 
   if (!result) {
     return NextResponse.json({ error: 'Token-Generierung fehlgeschlagen' }, { status: 500 });
   }
 
-  return NextResponse.json(result);
+  return NextResponse.json(result, { headers: NO_STORE });
 }

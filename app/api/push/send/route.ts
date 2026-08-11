@@ -1,13 +1,20 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import webpush from 'web-push';
 import { createServiceClient } from '@/lib/supabase/server';
+import { internalCronUnauthorized, isInternalCronRequest } from '@/lib/internal-cron-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 // Vercel-Cron ruft als GET, wir akzeptieren beides
-export async function GET() { return run(); }
-export async function POST() { return run(); }
+export async function GET(req: NextRequest) {
+  if (!isInternalCronRequest(req)) return internalCronUnauthorized();
+  return run();
+}
+export async function POST(req: NextRequest) {
+  if (!isInternalCronRequest(req)) return internalCronUnauthorized();
+  return run();
+}
 
 async function run() {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -35,10 +42,14 @@ async function run() {
   let failed = 0;
 
   for (const event of pending ?? []) {
-    const { data: subs } = await svc
-      .from('customer_push_subscriptions')
-      .select('*')
-      .eq('order_id', event.order_id);
+    const [{ data: subs }, { data: order }] = await Promise.all([
+      svc.from('customer_push_subscriptions').select('*').eq('order_id', event.order_id),
+      svc.from('customer_orders').select('bestellnummer, tracking_token').eq('id', event.order_id).maybeSingle(),
+    ]);
+
+    const trackingUrl = order?.bestellnummer && order?.tracking_token
+      ? `/track/${encodeURIComponent(order.bestellnummer)}?token=${encodeURIComponent(order.tracking_token)}`
+      : '/';
 
     const results = await Promise.allSettled(
       (subs ?? []).map((s) => {
@@ -46,7 +57,7 @@ async function run() {
           title: event.title,
           body: event.body,
           tag: `order-${event.order_id}`,
-          url: `/track/${event.order_id}`,
+          url: trackingUrl,
           unsubscribe_token: s.unsubscribe_token,
         });
         return webpush.sendNotification({

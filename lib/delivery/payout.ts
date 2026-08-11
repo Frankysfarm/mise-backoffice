@@ -162,7 +162,9 @@ const DEFAULT_CONFIG: Omit<PayoutConfig, 'id' | 'locationId'> = {
     { weekday: 7, start: '11:00', end: '21:30' },
   ],
   currency: 'EUR',
-  isActive: true,
+  // A payout rate is a business decision. Keep defaults inactive until an
+  // operator explicitly configures the location and enables payouts at runtime.
+  isActive: false,
 };
 
 export async function getPayoutConfig(locationId: string): Promise<PayoutConfig> {
@@ -252,8 +254,29 @@ export interface PayoutCalculation {
 export async function calculateDeliveryPayout(
   input: DeliveryPayoutInput,
 ): Promise<PayoutCalculation> {
+  const disabledResult: PayoutCalculation = {
+    baseAmount: 0,
+    kmBonus: 0,
+    peakBonus: 0,
+    ratingBonus: 0,
+    milestoneBonus: 0,
+    totalAmount: 0,
+    wasPeakTime: false,
+    breakdown: 'Fahrer-Abrechnung ist nicht aktiviert',
+  };
+
+  // Monetary payouts require two deliberate switches: the runtime feature flag
+  // and an active location config. This prevents a deploy or a test delivery
+  // from silently creating payable records with default rates.
+  if (process.env.DELIVERY_PAYOUTS_ENABLED !== 'true') {
+    return disabledResult;
+  }
+
   const sb = createServiceClient();
   const config = await getPayoutConfig(input.locationId);
+  if (!config.isActive) {
+    return disabledResult;
+  }
   const completedAt = input.completedAt ? new Date(input.completedAt) : new Date();
 
   // Lieferungs-km aus Order ableiten wenn nicht direkt übergeben

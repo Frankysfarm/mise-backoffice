@@ -43,23 +43,63 @@ export async function POST(
     return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
   }
 
+  // Die Datenbank erzwingt die Statusfolge. Vor den Tour-Updates explizit
+  // prüfen, damit ein noch nicht fertiger Auftrag keine Teiländerungen erzeugt.
+  const { data: order, error: orderReadError } = await c
+    .from('customer_orders')
+    .select('id,status')
+    .eq('id', orderId)
+    .maybeSingle();
+  if (orderReadError) {
+    console.error('[driver/picked-up] order read failed', orderReadError);
+    return NextResponse.json({ error: 'Bestellstatus konnte nicht geladen werden' }, { status: 500 });
+  }
+  if (!order) {
+    return NextResponse.json({ error: 'Bestellung nicht gefunden' }, { status: 404 });
+  }
+  if (order.status !== 'fertig') {
+    return NextResponse.json(
+      { error: 'Bestellung ist noch nicht abholbereit', code: 'order_not_ready' },
+      { status: 409 },
+    );
+  }
+
   const now = new Date().toISOString();
-  await c
+  const { error: stopError } = await c
     .from('mise_delivery_batch_stops')
     .update({ completed_at: now })
     .eq('id', stop.id);
+  if (stopError) {
+    console.error('[driver/picked-up] stop update failed', stopError);
+    return NextResponse.json({ error: 'Abholung konnte nicht gespeichert werden' }, { status: 500 });
+  }
 
-  await c
+  const { error: batchError } = await c
     .from('mise_delivery_batches')
     .update({ state: 'in_progress', picked_up_at: now })
     .eq('id', batch.id);
+  if (batchError) {
+    console.error('[driver/picked-up] batch update failed', batchError);
+    return NextResponse.json({ error: 'Tourstatus konnte nicht gespeichert werden' }, { status: 500 });
+  }
 
-  await c.from('mise_drivers').update({ state: 'en_route' }).eq('id', m.driver.id);
+  const { error: driverError } = await c
+    .from('mise_drivers')
+    .update({ state: 'en_route' })
+    .eq('id', m.driver.id);
+  if (driverError) {
+    console.error('[driver/picked-up] driver update failed', driverError);
+    return NextResponse.json({ error: 'Fahrerstatus konnte nicht gespeichert werden' }, { status: 500 });
+  }
 
-  await c
+  const { error: orderUpdateError } = await c
     .from('customer_orders')
     .update({ status: 'unterwegs' })
     .eq('id', orderId);
+  if (orderUpdateError) {
+    console.error('[driver/picked-up] order update failed', orderUpdateError);
+    return NextResponse.json({ error: 'Bestellstatus konnte nicht gespeichert werden' }, { status: 500 });
+  }
 
   // Route ERST berechnen, wenn ALLE Bestellungen der Tour abgeholt sind
   const { data: remainingPickups } = await c

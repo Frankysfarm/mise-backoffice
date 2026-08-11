@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
     ? await c
         .from('customer_orders')
         .select(
-          'id,bestellnummer,status,typ,kunde_name,kunde_telefon,kunde_adresse,kunde_plz,kunde_stadt,kunde_etage,kunde_lieferhinweis,gesamtbetrag,driver_payout,kunde_lat,kunde_lng,location_id',
+          'id,bestellnummer,tracking_token,status,typ,kunde_name,kunde_telefon,kunde_adresse,kunde_plz,kunde_stadt,kunde_etage,kunde_lieferhinweis,gesamtbetrag,driver_payout,kunde_lat,kunde_lng,location_id',
         )
         .in('id', orderIds)
     : { data: [] };

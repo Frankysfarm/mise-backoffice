@@ -27,6 +27,13 @@ export function createServiceClient() {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     key,
-    { cookies: { getAll() { return []; }, setAll() {} } },
+    {
+      // Service-role reads power live operational screens. Next's data cache must
+      // never reuse an earlier order/driver state across polling requests.
+      global: {
+        fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' }),
+      },
+      cookies: { getAll() { return []; }, setAll() {} },
+    },
   );
 }

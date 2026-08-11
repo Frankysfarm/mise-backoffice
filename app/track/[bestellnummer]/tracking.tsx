@@ -2,7 +2,6 @@
 
 import dynamic from 'next/dynamic';
 import React, { useEffect, useRef, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
 
 const LiveMap = dynamic(() => import('./live-map').then((m) => m.LiveMap), { ssr: false });
 import { cn, euro } from '@/lib/utils';
@@ -84,8 +83,7 @@ function stepIndex(status: string): number {
   return i >= 0 ? i : 0;
 }
 
-export function TrackingView({ order: initial, items, tenant, restaurantTelefon }: { order: Order; items: Item[]; tenant?: { name?: string | null; logo_url?: string | null; brand_color?: string | null } | null; restaurantTelefon?: string | null }) {
-  const supabase = createClient();
+export function TrackingView({ order: initial, items, trackingToken, tenant, restaurantTelefon }: { order: Order; items: Item[]; trackingToken: string; tenant?: { name?: string | null; logo_url?: string | null; brand_color?: string | null } | null; restaurantTelefon?: string | null }) {
   const [order, setOrder] = useState(initial);
   const [stopsBefore, setStopsBefore] = useState<number | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -113,7 +111,9 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
   // Poll tracking API every 30s to update driver position and ETA
   useEffect(() => {
     const pollTracking = () => {
-      fetch(`/api/delivery/orders/${order.order_id}/tracking`)
+      fetch(`/api/delivery/orders/${order.order_id}/tracking`, {
+        headers: { 'x-tracking-token': trackingToken },
+      })
         .then((r) => r.ok ? r.json() : null)
         .then((d) => {
           if (!d) return;
@@ -150,60 +150,35 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
       return () => clearInterval(iv);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [order.order_id, order.status]);
+  }, [order.order_id, order.status, trackingToken]);
 
+  // Customer data is fetched through UUID-capability API routes instead of
+  // granting the anonymous browser role access to whole database tables.
   useEffect(() => {
-    const ch = supabase
-      .channel(`track:${order.order_id}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'customer_orders', filter: `id=eq.${order.order_id}` },
-        () => void refresh(),
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'driver_status' },
-        () => void refresh(),
-      )
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'order_messages', filter: `order_id=eq.${order.order_id}` },
-        (payload: { new: Msg }) => setMessages((m) => [...m, payload.new]),
-      )
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'customer_delivery_events', filter: `order_id=eq.${order.order_id}` },
-        (payload: { new: DeliveryEvent }) => setDeliveryEvents((prev) => [...prev, payload.new]),
-      )
-      .subscribe();
-    void loadMessages();
-    void loadEvents();
-    return () => {
-      supabase.removeChannel(ch);
+    const loadCustomerUpdates = () => {
+      void loadMessages();
+      void loadEvents();
     };
+    loadCustomerUpdates();
+    const iv = setInterval(loadCustomerUpdates, 15_000);
+    return () => clearInterval(iv);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [order.order_id, trackingToken]);
 
-  async function refresh() {
-    const { data } = await supabase
-      .from('v_order_tracking')
-      .select('*')
-      .eq('order_id', order.order_id)
-      .maybeSingle();
-    if (data) setOrder(data as Order);
-  }
   async function loadMessages() {
-    const { data } = await supabase
-      .from('order_messages')
-      .select('id, sender, nachricht, created_at')
-      .eq('order_id', order.order_id)
-      .order('created_at', { ascending: true });
-    setMessages((data as Msg[]) ?? []);
+    const res = await fetch(`/api/delivery/orders/${order.order_id}/messages`, {
+      headers: { 'x-tracking-token': trackingToken },
+    });
+    if (!res.ok) return;
+    const body = await res.json() as { messages?: Msg[] };
+    setMessages(body.messages ?? []);
     setTimeout(() => listRef.current?.scrollTo({ top: 99999, behavior: 'smooth' }), 50);
   }
   async function loadEvents() {
     try {
-      const res = await fetch(`/api/delivery/orders/${order.order_id}/events`);
+      const res = await fetch(`/api/delivery/orders/${order.order_id}/events`, {
+        headers: { 'x-tracking-token': trackingToken },
+      });
       if (!res.ok) return;
       const body = await res.json() as { events: DeliveryEvent[] };
       setDeliveryEvents(body.events ?? []);
@@ -214,21 +189,23 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
     const msg = text.trim();
     if (!msg) return;
     setText('');
-    await supabase.from('order_messages').insert({
-      order_id: order.order_id,
-      sender: 'kunde',
-      nachricht: msg,
+    const res = await fetch(`/api/delivery/orders/${order.order_id}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-tracking-token': trackingToken },
+      body: JSON.stringify({ message: msg }),
     });
+    if (res.ok) await loadMessages();
   }
 
   async function sendQuickReply(msg: string) {
     if (quickReplySent) return;
     setQuickReplySent(msg);
-    await supabase.from('order_messages').insert({
-      order_id: order.order_id,
-      sender: 'kunde',
-      nachricht: msg,
+    const res = await fetch(`/api/delivery/orders/${order.order_id}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-tracking-token': trackingToken },
+      body: JSON.stringify({ message: msg }),
     });
+    if (res.ok) await loadMessages();
   }
 
   async function submitRating(stars: number) {
@@ -236,13 +213,15 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
     setRatingSubmitted(true);
     try {
       // Token holen (wird generiert falls noch nicht vorhanden), dann Rating einreichen
-      const tokenRes = await fetch(`/api/delivery/orders/${order.order_id}/rate`);
+      const tokenRes = await fetch(`/api/delivery/orders/${order.order_id}/rate`, {
+        headers: { 'x-tracking-token': trackingToken },
+      });
       if (tokenRes.ok) {
         const { token } = await tokenRes.json() as { token?: string };
         if (token) {
           await fetch(`/api/delivery/orders/${order.order_id}/rate`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-tracking-token': trackingToken },
             body: JSON.stringify({ token, rating: stars }),
           });
         }
@@ -263,6 +242,7 @@ export function TrackingView({ order: initial, items, tenant, restaurantTelefon 
         <div className="mx-auto flex max-w-3xl items-center justify-between px-5 py-4">
           <div className="flex items-center gap-3">
             {tenant?.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element -- tenant logo is resolved at runtime
               <img src={tenant.logo_url} alt={tenant.name ?? 'Logo'} className="h-8 w-8 rounded-lg object-cover" />
             ) : (
               <div className="grid h-8 w-8 place-items-center rounded-lg bg-matcha-700 text-sm font-bold text-matcha-50">
@@ -1252,4 +1232,3 @@ function haversineM(a: { lat: number; lng: number }, b: { lat: number; lng: numb
     Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
 }
-

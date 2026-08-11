@@ -71,6 +71,7 @@ interface LocationRow {
 
 interface DriverRow {
   id: string;
+  auth_user_id: string | null;
   employee_id: string | null;
   vehicle: 'bike' | 'car';
   max_radius_km: number;
@@ -98,6 +99,16 @@ function sb(): SupabaseClient {
   return _sb;
 }
 
+function dispatchCreatedAfter(): string | null {
+  const raw = process.env.DELIVERY_DISPATCH_CREATED_AFTER?.trim();
+  if (!raw) return null;
+  const timestamp = Date.parse(raw);
+  if (!Number.isFinite(timestamp)) {
+    throw new Error('DELIVERY_DISPATCH_CREATED_AFTER must be a valid ISO timestamp');
+  }
+  return new Date(timestamp).toISOString();
+}
+
 /** Dispatch-Tick: alle unzugewiesenen Lieferungs-Orders dispatchen. */
 export async function smartDispatchTick(): Promise<{
   scanned: number;
@@ -107,7 +118,8 @@ export async function smartDispatchTick(): Promise<{
   escalated: number;
   results: DispatchResult[];
 }> {
-  const { data: orders } = await sb()
+  const cutoff = dispatchCreatedAfter();
+  let pendingOrdersQuery = sb()
     .from('customer_orders')
     .select('id, location_id, kunde_lat, kunde_lng, kunde_adresse, kunde_plz, kunde_stadt, bestellnummer, priority, estimated_prep_min, created_at, dispatch_attempts, dispatch_escalated_at, schedule_status')
     .eq('typ', 'lieferung')
@@ -117,6 +129,15 @@ export async function smartDispatchTick(): Promise<{
     .or('schedule_status.is.null,schedule_status.neq.scheduled')
     .order('created_at', { ascending: true })
     .limit(50);
+
+  // A rollout cutoff keeps unresolved historical orders visible for manual
+  // review without repeatedly mutating or unexpectedly dispatching them.
+  if (cutoff) pendingOrdersQuery = pendingOrdersQuery.gte('created_at', cutoff);
+
+  const { data: orders, error: ordersError } = await pendingOrdersQuery;
+  if (ordersError) {
+    throw new Error(`Pending delivery query failed: ${ordersError.message}`);
+  }
 
   const results: DispatchResult[] = [];
   const now = new Date().toISOString();
@@ -441,11 +462,14 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
 }
 
 async function loadActiveDrivers(tenantId: string): Promise<DriverRow[]> {
+  const freshPositionAfter = new Date(Date.now() - 15 * 60_000).toISOString();
   const { data } = await sb()
     .from('mise_drivers')
-    .select('id, employee_id, vehicle, max_radius_km, last_lat, last_lng, current_capacity, max_capacity, total_deliveries, state, active')
+    .select('id, auth_user_id, vehicle, max_radius_km, last_lat, last_lng, current_capacity, max_capacity, total_deliveries, state, active')
     .eq('active', true)
     .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning'])
+    .not('last_position_at', 'is', null)
+    .gte('last_position_at', freshPositionAfter)
     .order('last_position_at', { ascending: false });
 
   if (!data) return [];
@@ -458,7 +482,27 @@ async function loadActiveDrivers(tenantId: string): Promise<DriverRow[]> {
   const locationIds = new Set((locations ?? []).map((l) => l.id as string));
 
   // Aktive Batches für alle Fahrer in einer einzigen Query laden (kein N+1)
-  const drivers = data as DriverRow[];
+  const drivers: DriverRow[] = (data as Array<Omit<DriverRow, 'employee_id'>>).map((driver) => ({
+    ...driver,
+    employee_id: null,
+  }));
+  const authUserIds = drivers
+    .map((driver) => driver.auth_user_id)
+    .filter((id): id is string => Boolean(id));
+  if (authUserIds.length > 0) {
+    const { data: employees } = await sb()
+      .from('employees')
+      .select('id, auth_user_id')
+      .in('auth_user_id', authUserIds);
+    const employeeByAuthUser = new Map(
+      (employees ?? []).map((employee) => [employee.auth_user_id as string, employee.id as string]),
+    );
+    for (const driver of drivers) {
+      driver.employee_id = driver.auth_user_id
+        ? employeeByAuthUser.get(driver.auth_user_id) ?? null
+        : null;
+    }
+  }
   const driverIds = drivers.map((d) => d.id);
   const batchMap = new Map<string, { id: string; stop_count: number }>();
 

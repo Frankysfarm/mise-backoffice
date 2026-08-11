@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 const ICONS: Record<string, string> = {
   overview: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
   lieferzentrale: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg>',
+  tischbestellung: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14h1M20 18h1M14 21h3M19 21h2"/></svg>',
   fahrer: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="11" rx="1.5"/><path d="M15 9h4l4 4v4h-8V9z"/><circle cx="5" cy="18.5" r="2"/><circle cx="18" cy="18.5" r="2"/></svg>',
   shopdesign: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 22a10 10 0 110-20c5.5 0 10 4.5 10 10 0 2.8-2.2 4-4 4h-2c-1.5 0-2 1-2 2s-.5 4-2 4z"/></svg>',
   shopsettings: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-6 10 6M4 9v10a1 1 0 001 1h14a1 1 0 001-1V9M9 20v-6h6v6"/></svg>',
@@ -16,12 +17,13 @@ const ICONS: Record<string, string> = {
   buchhaltung: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>',
 };
 const NAV: { label: string; items: [string, string][] }[] = [
-  { label: 'BETRIEB', items: [['overview', 'Übersicht'], ['lieferzentrale', 'Lieferzentrale'], ['fahrer', 'Fahrer']] },
+  { label: 'BETRIEB', items: [['overview', 'Übersicht'], ['lieferzentrale', 'Lieferzentrale'], ['tischbestellung', 'Tischbestellung'], ['fahrer', 'Fahrer']] },
   { label: 'SHOP', items: [['shopdesign', 'Shop-Design'], ['shopsettings', 'Shop-Einstellungen'], ['menu', 'Menü'], ['aktionen', 'Aktionen & Rabatte'], ['loyalty', 'Bonusprogramme'], ['zahlungen', 'Zahlungen']] },
   { label: 'GESCHÄFT', items: [['kunden', 'Kundenstamm'], ['statistik', 'Statistik'], ['buchhaltung', 'Buchhaltung']] },
 ];
 const META: Record<string, [string, string]> = {
   overview: ['Übersicht', 'Dein Liefergeschäft auf einen Blick'], lieferzentrale: ['Lieferzentrale', 'Küchendisplay · alle eingehenden Bestellungen'],
+  tischbestellung: ['Tischbestellung', 'Tische, QR-Codes und Bestellfluss verwalten'],
   fahrer: ['Fahrer', 'Fahrer einladen und Liefergebiete verwalten'], shopdesign: ['Shop-Design', 'Aussehen deines Online-Shops anpassen'],
   shopsettings: ['Shop-Einstellungen', 'Domain, QR-Code und Verfügbarkeit'], menu: ['Menü', 'Kategorien, Artikel, Preise & Steuersätze'],
   aktionen: ['Aktionen & Rabatte', 'Marketingaktionen und Treueprogramm'], zahlungen: ['Zahlungsmodalitäten', 'Zahlungsarten im Shop aktivieren'],

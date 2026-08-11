@@ -61,6 +61,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
     eta: number;
     type: OrderType;
     orderId: string;
+    trackingToken: string;
     items: CartItem[];
   } | null>(null);
 
@@ -264,7 +265,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           voucher_rabatt: voucherRabatt + (voucher?.typ === 'gratis_lieferung' ? deliveryFeeBase : 0),
           marketing_optin: form.marketing_optin ?? false,
         })
-        .select('id,bestellnummer')
+        .select('id,bestellnummer,tracking_token')
         .single();
       if (error) throw error;
 
@@ -327,6 +328,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         eta,
         type: orderType,
         orderId: order.id,
+        trackingToken: order.tracking_token,
         items: cart,
       });
       setCart([]);
@@ -355,6 +357,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
         isDelivery={orderSuccess.type === 'lieferung'}
         onNewOrder={() => setOrderSuccess(null)}
         orderId={orderSuccess.orderId}
+        trackingToken={orderSuccess.trackingToken}
         cartItems={orderSuccess.items}
       />
     );

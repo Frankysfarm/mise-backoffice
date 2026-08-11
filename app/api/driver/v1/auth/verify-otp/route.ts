@@ -7,6 +7,7 @@ import {
   normalizePhone,
   otpHashesEqual,
   sb,
+  toDriverPublic,
   type DriverPublic,
 } from '../../_lib/driver-auth';
 
@@ -84,7 +85,7 @@ export async function POST(req: NextRequest) {
 
   let driver: DriverPublic;
   if (existing) {
-    driver = existing as DriverPublic;
+    driver = toDriverPublic(existing);
   } else {
     const { data: created, error: createErr } = await sb()
       .from('mise_drivers')
@@ -105,7 +106,7 @@ export async function POST(req: NextRequest) {
         { status: 500 },
       );
     }
-    driver = created as DriverPublic;
+    driver = toDriverPublic(created);
   }
 
   // Bei Login: alle wartenden Invitations einlösen + Driver-Tenants verlinken
@@ -129,7 +130,7 @@ export async function POST(req: NextRequest) {
       )
       .eq('id', driver.id)
       .maybeSingle();
-    if (refreshed) driver = refreshed as DriverPublic;
+    if (refreshed) driver = toDriverPublic(refreshed);
   }
 
   // Driver's aktive Tenants laden
