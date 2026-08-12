@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { createServiceClient } from '@/lib/supabase/server';
+import { getDeliveryAdminActor } from '@/lib/delivery/admin-auth';
 import {
   getPendingClaims,
   approveShiftClaim,
@@ -10,16 +9,6 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-async function getAdminLocationId(userId: string): Promise<string | null> {
-  const svc = createServiceClient();
-  const { data } = await svc
-    .from('employees')
-    .select('location_id')
-    .eq('auth_user_id', userId)
-    .maybeSingle();
-  return data?.location_id ?? null;
-}
-
 /**
  * GET /api/delivery/admin/shift-claims
  * GET /api/delivery/admin/shift-claims?action=stats
@@ -27,11 +16,9 @@ async function getAdminLocationId(userId: string): Promise<string | null> {
  * Admin-Zugriff: offene Schicht-Anmeldungen oder Statistiken.
  */
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const locationId = await getAdminLocationId(user.id);
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const locationId = actor.location_id;
   if (!locationId) return NextResponse.json({ error: 'No location assigned' }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
@@ -60,23 +47,21 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'action and claim_id are required' }, { status: 400 });
   }
 
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const locationId = await getAdminLocationId(user.id);
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const locationId = actor.location_id;
   if (!locationId) return NextResponse.json({ error: 'No location assigned' }, { status: 403 });
 
   const claimId = String(body.claim_id);
 
   if (body.action === 'approve') {
-    const claim = await approveShiftClaim(claimId, locationId, user.id);
+    const claim = await approveShiftClaim(claimId, locationId, actor.auth_user_id!);
     return NextResponse.json({ claim });
   }
 
   if (body.action === 'reject') {
     const reason = typeof body.reason === 'string' ? body.reason.slice(0, 300) : undefined;
-    await rejectShiftClaim(claimId, locationId, user.id, reason);
+    await rejectShiftClaim(claimId, locationId, actor.auth_user_id!, reason);
     return NextResponse.json({ ok: true });
   }
 

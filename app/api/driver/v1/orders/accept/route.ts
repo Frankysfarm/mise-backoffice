@@ -17,15 +17,21 @@ export async function POST(req: NextRequest) {
   const m = await getDriverFromBearer(req);
   if (!m) return unauthorized();
 
+  let body: { batch_id?: string } = {};
+  try { body = (await req.json()) as { batch_id?: string }; } catch { /* noop */ }
+
   const c = sb();
-  const { data: batch } = await c
+  let query = c
     .from('mise_delivery_batches')
     .select('id, driver_id, state')
     .eq('driver_id', m.driver.id)
-    .eq('state', 'pending_acceptance')
-    .order('created_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .eq('state', 'pending_acceptance');
+  if (typeof body.batch_id === 'string' && body.batch_id.length > 10) {
+    query = query.eq('id', body.batch_id);
+  } else {
+    query = query.order('created_at', { ascending: false }).limit(1);
+  }
+  const { data: batch } = await query.maybeSingle();
 
   if (!batch) {
     return NextResponse.json(
@@ -34,14 +40,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { error } = await c
-    .from('mise_delivery_batches')
-    .update({ state: 'assigned', accepted_at: new Date().toISOString() })
-    .eq('id', batch.id);
+  const { data: accepted, error } = await c.rpc('accept_delivery_batch', {
+    p_batch_id: batch.id,
+    p_driver_id: m.driver.id,
+  });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+  if (!accepted) return NextResponse.json({ error: 'Tour wurde bereits geändert oder neu verteilt' }, { status: 409 });
 
   return NextResponse.json({ ok: true, batch_id: batch.id });
 }

@@ -35,6 +35,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { directions, geocode, haversineKm, type RouteResult } from './google-maps';
 import { enqueueBatchPush } from './delivery/push-notify';
 import { scheduleKitchenHold } from './delivery/kitchen-sync';
+import { hasCurrentDriverSession } from './delivery/driver-shift-eligibility';
 
 interface DriverRow {
   id: string;
@@ -443,13 +444,15 @@ async function driversForTenant(tenantId: string): Promise<DriverRow[]> {
     .from('mise_driver_tenants')
     .select(
       `status,
-       driver:driver_id(id, vehicle, max_radius_km, last_lat, last_lng, state, active, excluded_until, last_position_at)`,
+       driver:driver_id(id, vehicle, max_radius_km, last_lat, last_lng, state, active, excluded_until, last_position_at, shift_started_at)`,
     )
     .eq('tenant_id', tenantId)
     .eq('status', 'active');
   return (data ?? [])
     .map((row: any) => row.driver)
     .filter((d: any) => d && d.active && d.state !== 'offline')
+    // A device left online overnight must not receive tomorrow's orders.
+    .filter((d: any) => hasCurrentDriverSession(d.shift_started_at))
     // Fahrer ausschliessen die gerade im DB-Timeout sind (excluded_until in der Zukunft)
     .filter((d: any) => !d.excluded_until || d.excluded_until < nowIso)
     // Ghost-Driver-Fix: Fahrer ohne frisches GPS (>15 Min) aus dem Pool

@@ -34,6 +34,7 @@ export type AlertType =
   | 'no_drivers_online'
   | 'kitchen_overload'
   | 'stale_orders_critical'
+  | 'dispatch_order_attention'
   | 'eta_accuracy_low';
 
 export type AlertSeverity = 'info' | 'warning' | 'critical';
@@ -274,13 +275,15 @@ async function checkNoDriversOnline(
   locationId: string,
   rule: AlertRule,
 ): Promise<{ fired: boolean; resolved: boolean }> {
-  const { count } = await sb
-    .from('mise_drivers')
-    .select('id', { count: 'exact', head: true })
-    .eq('active', true)
-    .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning']);
-
-  const onlineCount = count ?? 0;
+  const { data: location } = await sb.from('locations').select('tenant_id')
+    .eq('id', locationId).maybeSingle();
+  const { data: eligible } = location?.tenant_id
+    ? await sb.rpc('get_eligible_delivery_drivers', {
+        p_tenant_id: location.tenant_id,
+        p_location_id: locationId,
+      })
+    : { data: [] };
+  const onlineCount = Array.isArray(eligible) ? eligible.length : 0;
   const isActive = onlineCount === 0;
 
   const resolved = await autoResolve(sb, locationId, 'no_drivers_online', isActive);

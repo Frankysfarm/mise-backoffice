@@ -457,11 +457,21 @@ export function FahrerApp({
   async function goOffline() {
     setShowShiftEnd(false);
     startTransition(async () => {
+      if (miseDriverId) {
+        const { data: { session } } = await supabase.auth.getSession();
+        const response = await fetch('/api/driver/v1/session/end', {
+          method: 'POST',
+          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+        });
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          alert((body as { error?: string }).error ?? 'Schicht konnte nicht beendet werden.');
+          return;
+        }
+      }
       await supabase.from('driver_status').upsert({
         employee_id: driver.id, ist_online: false, fahrzeug: driver.fahrzeug_praeferenz, online_seit: null,
       });
-      // Mise-Fahrer: state auf offline -> Frank ruft NICHT mehr an
-      await supabase.from('mise_drivers').update({ state: 'offline' }).eq('id', miseDriverId ?? '');
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: false, online_seit: null }));
     });
   }
@@ -538,12 +548,26 @@ export function FahrerApp({
     }
     // Going online
     startTransition(async () => {
+      if (miseDriverId) {
+        const { data: { session } } = await supabase.auth.getSession();
+        const response = await fetch('/api/driver/v1/session/start', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+          },
+          body: JSON.stringify({}),
+        });
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          alert((body as { error?: string }).error ?? 'Schicht konnte nicht gestartet werden.');
+          return;
+        }
+      }
       await supabase.from('driver_status').upsert({
         employee_id: driver.id, ist_online: true, fahrzeug: driver.fahrzeug_praeferenz,
         online_seit: new Date().toISOString(),
       });
-      // Mise-Fahrer: state auf idle -> Frank darf zuteilen (nur wenn nicht auf aktiver Tour)
-      await supabase.from('mise_drivers').update({ state: 'idle' }).eq('id', miseDriverId ?? '').eq('state', 'offline');
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: true, online_seit: new Date().toISOString() }));
     });
   }
@@ -553,7 +577,20 @@ export function FahrerApp({
     const isMise = batch?.source_system === 'mise';
     startTransition(async () => {
       if (isMise) {
-        await supabase.rpc('claim_mise_delivery_batch', { p_batch_id: batchId, p_employee_id: miseDriverId ?? driver.id });
+        const { data: { session } } = await supabase.auth.getSession();
+        const response = await fetch('/api/driver/v1/orders/accept', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+          },
+          body: JSON.stringify({ batch_id: batchId }),
+        });
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          alert((body as { error?: string }).error ?? 'Tour konnte nicht angenommen werden.');
+          return;
+        }
       } else {
         await supabase.rpc('claim_delivery_batch', { p_batch_id: batchId });
       }
@@ -568,7 +605,20 @@ export function FahrerApp({
     startTransition(async () => {
       if (activeBatch.status === 'unterwegs') {
         // Waehrend Liefern: separate Warte-Tour (claimen) — NICHT in die laufende Route mergen (Kuechen-JIT)
-        await supabase.rpc('claim_mise_delivery_batch', { p_batch_id: orderBatchId, p_employee_id: miseDriverId ?? driver.id });
+        const { data: { session } } = await supabase.auth.getSession();
+        const response = await fetch('/api/driver/v1/orders/accept', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+          },
+          body: JSON.stringify({ batch_id: orderBatchId }),
+        });
+        if (!response.ok) {
+          const body = await response.json().catch(() => ({}));
+          alert((body as { error?: string }).error ?? 'Wartetour konnte nicht angenommen werden.');
+          return;
+        }
       } else {
         // Waehrend Picken: in die aktive Tour mergen
         await supabase.rpc('merge_mise_order_into_active_batch', { p_active_batch_id: activeBatch.id, p_order_batch_id: orderBatchId });

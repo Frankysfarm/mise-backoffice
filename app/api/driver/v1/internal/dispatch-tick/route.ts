@@ -19,6 +19,12 @@ export async function POST(req: NextRequest) {
   if (!expected || got !== expected) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
+  // Smart dispatch is the sole production writer.  This opt-in gate exists only
+  // for a controlled rollback while the host cron entry is being removed.
+  if (process.env.DELIVERY_LEGACY_DISPATCH_ENABLED !== 'true') {
+    // Keep the legacy host cron healthy during rollout while making it a no-op.
+    return NextResponse.json({ ok: true, disabled: true, writer: 'smart-dispatch' });
+  }
   try {
     const result = await dispatchTick();
     return NextResponse.json({ ok: true, ...result });

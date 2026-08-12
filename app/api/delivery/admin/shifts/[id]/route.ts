@@ -18,7 +18,8 @@
  *   Nur möglich wenn status='scheduled'.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -26,12 +27,16 @@ export const dynamic = 'force-dynamic';
 type RouteParams = { params: Promise<{ id: string }> };
 
 export async function PATCH(req: NextRequest, { params }: RouteParams) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 });
 
   const { id } = await params;
   if (!id) return NextResponse.json({ error: 'ID fehlt' }, { status: 400 });
+  const svc = createServiceClient();
+  const { data: existingShift } = await svc.from('driver_shifts').select('location_id').eq('id', id).maybeSingle();
+  if (!existingShift || !await isDeliveryAdminLocation(actor, existingShift.location_id as string)) {
+    return NextResponse.json({ error: 'Schicht nicht gefunden' }, { status: 404 });
+  }
 
   let body: Record<string, unknown>;
   try {
@@ -69,7 +74,6 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    const svc = createServiceClient();
     const { data: shift, error } = await svc
       .from('driver_shifts')
       .update(update)
@@ -90,9 +94,8 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
 }
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 });
 
   const { id } = await params;
   if (!id) return NextResponse.json({ error: 'ID fehlt' }, { status: 400 });
@@ -103,11 +106,11 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
     // Nur 'scheduled' Schichten können storniert werden
     const { data: existing } = await svc
       .from('driver_shifts')
-      .select('status')
+      .select('status,location_id')
       .eq('id', id)
       .maybeSingle();
 
-    if (!existing) return NextResponse.json({ error: 'Schicht nicht gefunden' }, { status: 404 });
+    if (!existing || !await isDeliveryAdminLocation(actor, existing.location_id as string)) return NextResponse.json({ error: 'Schicht nicht gefunden' }, { status: 404 });
     if ((existing.status as string) !== 'scheduled') {
       return NextResponse.json(
         { error: `Schicht kann nicht storniert werden (Status: ${existing.status})` },
