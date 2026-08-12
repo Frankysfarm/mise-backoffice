@@ -33,8 +33,9 @@ export interface BatchPushParams {
 }
 
 /**
- * Schreibt eine Push-Nachricht in mise_push_outbox.
- * Der push-flush-Cron sendet sie via VoIP (iOS) oder Expo.
+ * Schreibt je nach registrierten Kanälen in die Native- und/oder Web-Push-Outbox.
+ * Browser-Fahrer dürfen nicht in die Native-Outbox gelangen: ein fehlendes
+ * Expo-/VoIP-Token würde dort absichtlich die Zuweisung zurückrollen.
  * Fire-and-forget — Fehler werden geloggt aber nicht geworfen.
  */
 export async function enqueueBatchPush(params: BatchPushParams): Promise<void> {
@@ -50,9 +51,24 @@ export async function enqueueBatchPush(params: BatchPushParams): Promise<void> {
       ? `Hinzugefügt zu deiner laufenden Tour · ${distanceKm.toFixed(1)} km`
       : `${orderCount} Bestellung${orderCount > 1 ? 'en' : ''} · ${distanceKm.toFixed(1)} km Fahrt`;
 
-  const { error } = await sb()
-    .from('mise_push_outbox')
-    .insert({
+  const c = sb();
+  const { data: driver } = await c.from('mise_drivers')
+    .select('auth_user_id,push_enabled,expo_push_token,voip_push_token')
+    .eq('id', driverId).maybeSingle();
+  const { data: employee } = driver?.auth_user_id
+    ? await c.from('employees').select('id').eq('auth_user_id', driver.auth_user_id).maybeSingle()
+    : { data: null };
+  const { count: webSubscriptionCount } = employee?.id
+    ? await c.from('driver_push_subscriptions').select('id', { head: true, count: 'exact' }).eq('employee_id', employee.id)
+    : { count: 0 };
+  const hasNativePush = Boolean(
+    driver?.push_enabled && (driver.expo_push_token || driver.voip_push_token),
+  );
+  const hasWebPush = Boolean(employee?.id && (webSubscriptionCount ?? 0) > 0);
+
+  const errors: string[] = [];
+  if (hasNativePush) {
+    const { error } = await c.from('mise_push_outbox').insert({
       driver_id: driverId,
       type:      'order_assigned',
       title,
@@ -67,9 +83,25 @@ export async function enqueueBatchPush(params: BatchPushParams): Promise<void> {
         decision_id:     batchId,
       },
     });
+    if (error) errors.push(`native: ${error.message}`);
+  }
 
-  if (error) {
-    console.error('[push-notify] enqueueBatchPush fehlgeschlagen:', error.message, { driverId, batchId });
+  // One authoritative outbox per assignment. A dual-channel enqueue could let
+  // one failed transport requeue a batch after the other already delivered it.
+  if (hasWebPush && !hasNativePush && employee?.id) {
+    const { error } = await c.from('driver_push_outbox').insert({
+      employee_id: employee.id,
+      batch_id: batchId,
+      title,
+      body,
+      url: '/fahrer/app',
+    });
+    if (error) errors.push(`web: ${error.message}`);
+  }
+
+  if (!hasNativePush && !hasWebPush) errors.push('kein zustellbarer Push-Kanal');
+  if (errors.length > 0) {
+    console.error('[push-notify] enqueueBatchPush fehlgeschlagen:', errors.join('; '), { driverId, batchId });
   }
 }
 

@@ -51,4 +51,19 @@ describe('delivery dispatch writer contract', () => {
     expect(migration).toContain('driver_stale_after_pickup_manual_intervention');
     expect(migration).toContain('offer_expired_before_acceptance');
   });
+
+  it('treats scoped web push as a reliable browser-driver channel', () => {
+    const migration = source('scripts/migrations/058_delivery_browser_push_contract.sql');
+    const enqueue = source('lib/delivery/push-notify.ts');
+    const webFlush = source('app/api/drivers/push/send/route.ts');
+    const webDriver = source('app/fahrer/app/client.tsx');
+    expect(migration).toContain('driver_push_subscriptions');
+    expect(migration).toContain('web_employee.tenant_id=p_tenant_id');
+    expect(migration).toContain('web_employee.location_id=p_location_id');
+    expect(enqueue).toContain("from('driver_push_outbox').insert");
+    expect(webFlush).toContain("rpc('requeue_delivery_batch'");
+    expect(webFlush).toContain('webpush_all_failed');
+    expect(webDriver).toContain('await ensureBrowserPushSubscription();');
+    expect(webDriver).toContain("fetch('/api/drivers/push/subscribe'");
+  });
 });

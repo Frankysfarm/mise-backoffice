@@ -415,25 +415,7 @@ export function FahrerApp({
   /* Push-Subscribe beim ersten Online-Gehen */
   useEffect(() => {
     if (!isOnline) return;
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-    (async () => {
-      try {
-        const reg = await navigator.serviceWorker.ready;
-        const existing = await reg.pushManager.getSubscription();
-        if (existing) return;
-        const vapid = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-        if (!vapid) return;
-        const sub = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(vapid).buffer as ArrayBuffer,
-        });
-        await fetch('/api/drivers/push/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ subscription: sub.toJSON() }),
-        });
-      } catch {}
-    })();
+    ensureBrowserPushSubscription().catch(() => {});
   }, [isOnline]);
 
   /* Realtime: refresh bei Änderungen in Legacy- UND Mise-Tabellen */
@@ -548,6 +530,12 @@ export function FahrerApp({
     }
     // Going online
     startTransition(async () => {
+      try {
+        await ensureBrowserPushSubscription();
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Browser-Benachrichtigungen konnten nicht aktiviert werden.');
+        return;
+      }
       if (miseDriverId) {
         const { data: { session } } = await supabase.auth.getSession();
         const response = await fetch('/api/driver/v1/session/start', {
@@ -570,6 +558,37 @@ export function FahrerApp({
       });
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: true, online_seit: new Date().toISOString() }));
     });
+  }
+
+  async function ensureBrowserPushSubscription(): Promise<void> {
+    const capacitor = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+    if (capacitor?.isNativePlatform?.()) return;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
+      throw new Error('Dieser Browser unterstützt keine Fahrer-Benachrichtigungen. Bitte Chrome oder Safari verwenden.');
+    }
+    const permission = Notification.permission === 'default'
+      ? await Notification.requestPermission()
+      : Notification.permission;
+    if (permission !== 'granted') {
+      throw new Error('Bitte Benachrichtigungen erlauben, bevor du online gehst.');
+    }
+    const vapid = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+    if (!vapid) throw new Error('Fahrer-Benachrichtigungen sind nicht konfiguriert.');
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription()
+      ?? await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapid).buffer as ArrayBuffer,
+      });
+    const response = await fetch('/api/drivers/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subscription: subscription.toJSON() }),
+    });
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error((body as { error?: string }).error ?? 'Browser-Benachrichtigung konnte nicht gespeichert werden.');
+    }
   }
 
   async function claimBatch(batchId: string) {
