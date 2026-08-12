@@ -119,34 +119,51 @@ function dispatchCreatedAfter(): string | null {
  */
 async function reconcileCompletedBatches(): Promise<number> {
   const c = sb();
+  // Auch assigned/at_restaurant/picked_up können mit komplett erledigten Stops
+  // hängen bleiben (z. B. Direct-Write-Pfade, App-Reload) — nicht nur in_progress.
+  const RECONCILE_STATES = ['in_progress', 'picked_up', 'at_restaurant', 'assigned'];
   const { data: openBatches } = await c
     .from('mise_delivery_batches')
-    .select('id, driver_id')
-    .eq('state', 'in_progress')
+    .select('id, driver_id, state')
+    .in('state', RECONCILE_STATES)
     .limit(20);
   if (!openBatches || openBatches.length === 0) return 0;
 
   let reconciled = 0;
   for (const batch of openBatches) {
-    const { data: openStops } = await c
+    const { data: allStops } = await c
       .from('mise_delivery_batch_stops')
-      .select('id')
-      .eq('batch_id', batch.id)
-      .is('completed_at', null)
-      .limit(1);
-    if (openStops && openStops.length > 0) continue;
+      .select('id, completed_at')
+      .eq('batch_id', batch.id);
+    // Batch ohne Stops nicht anfassen; offene Stops -> weiter warten.
+    if (!allStops || allStops.length === 0) continue;
+    if (allStops.some((s) => s.completed_at === null)) continue;
 
     await c
       .from('mise_delivery_batches')
       .update({ state: 'completed', completed_at: new Date().toISOString() })
       .eq('id', batch.id)
-      .eq('state', 'in_progress');
+      .eq('state', batch.state);
+    await c
+      .from('driver_status')
+      .update({ aktueller_batch_id: null })
+      .eq('aktueller_batch_id', batch.id);
     if (batch.driver_id) {
-      await c
-        .from('mise_drivers')
-        .update({ state: 'idle' })
-        .eq('id', batch.driver_id)
-        .eq('state', 'en_route');
+      // Nur zurücksetzen, wenn der Fahrer keine andere aktive Tour hat.
+      const { data: otherActive } = await c
+        .from('mise_delivery_batches')
+        .select('id')
+        .eq('driver_id', batch.driver_id)
+        .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'picked_up', 'in_progress'])
+        .neq('id', batch.id)
+        .limit(1);
+      if (!otherActive || otherActive.length === 0) {
+        await c
+          .from('mise_drivers')
+          .update({ state: 'idle' })
+          .eq('id', batch.driver_id)
+          .in('state', ['en_route', 'returning']);
+      }
     }
     reconciled++;
   }

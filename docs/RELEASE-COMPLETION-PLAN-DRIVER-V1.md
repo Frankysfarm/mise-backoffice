@@ -63,12 +63,10 @@ GPS trackt durchgehend (POST /api/driver/v1/me/position, max. 1×/10 s)
 - Verifikation: E2E-Rig-Szenario „Storno während aktiver Tour" (Order canceln → Fahrer-UI prüfen → Delivered-Versuch → 409); Verhaltenstest für Stop-Filter.
 - Abhängigkeit: P1-1 (Realtime-Härtung) sinnvoll gemeinsam.
 
-**P0-3 · Angebots-Verfall serverseitig tot — Bestellung bleibt am Fahrer hängen**
-- Problem: `fn_auto_cancel_unaccepted_batches` / `fn_recover_abandoned_tours` werden nur von `internal/repush-loop` aufgerufen — **kein Cron ruft diesen Endpunkt auf** (`vercel.json` listet ihn nicht; Legacy-`dispatch-tick` ist per `DELIVERY_LEGACY_DISPATCH_ENABLED` abgeschaltet; `smartDispatchTick` enthält keinerlei Expiry/`excluded_until`). Nicht angenommene Angebote laufen nie ab; der undismissbare Angebots-Sheet (`client.tsx:1175`) bleibt dauerhaft stehen (Countdown springt auf 10-s-Minimum).
-- Ursache: Expiry-Logik hängt am stillgelegten Legacy-Tick; beim Umstieg auf Smart-Dispatch nicht migriert.
-- Akzeptanz: `pending_acceptance`-Batches älter als Angebotsfrist (3 min lt. Migration 057) werden ≤ 1 min nach Ablauf automatisch requeued/gecancelt (Cron-verdrahtet); abgelaufenes Angebot verschwindet beim Fahrer beim nächsten Refresh; `excluded_until` greift wieder.
-- Verifikation: Angebot erzeugen, nicht annehmen → SQL-Probe nach ≤ 4 min (state ≠ `pending_acceptance`); Rig: UI zeigt kein abgelaufenes Angebot mehr.
-- Abhängigkeit: Entscheidung, wo der Cron läuft (Vercel-Cron-Eintrag vs. Server-`mise_cron`-Container) — Investigation nötig, welcher in Prod tatsächlich feuert.
+**P0-3 · Angebots-Verfall serverseitig tot — ✅ GESCHLOSSEN 12.08. (Fehlklassifikation, empirisch widerlegt)**
+- Investigation-Ergebnis: Der Audit sah nur `vercel.json` — die Prod-Realität auf Hetzner ist der **`mise_cron`-Container**, dessen interne Schleife `repush-loop`, `push-flush` und `dispatch-tick` **alle 15 s per POST mit `BISS_INTERNAL_TOKEN`** aufruft. `fn_auto_cancel_unaccepted_batches` + `fn_recover_abandoned_tours` laufen also produktiv.
+- Evidenz (Live-DB 12.08.): 0 hängende `pending_acceptance`-Batches; alle nicht angenommenen Angebote der letzten 48 h wurden nach **exakt 3 min** gecancelt (5/5 Stichproben `min_alive=3`). Endpoint-Test mit Token: Loop aktiv.
+- Verbleibende Randnotizen: (a) redundanter Host-Crontab-Eintrag ruft `repush-loop` per GET → 405 (harmlos, aufräumen = P2); (b) `vercel.json` beschreibt nicht die echte Cron-Infrastruktur → Doku-Punkt P2; (c) `fn_recover_abandoned_tours` requeued **bewusst nicht** nach Pickup (nur Alert `driver_stale_after_pickup_manual_intervention`) — Live-Beleg: Batch `39c15e9c` (Order RT-S1-164814, 12.08. 16:51 UTC) hängt mit offenem Dropoff und offline gegangenem Fahrer in `in_progress` → genau der Fall für P1-5.
 
 **P0-4 · Golden-Path-DB-Funktionen nicht versioniert (`confirm_pick_item`, `confirm_pickup_complete`)**
 - Problem: Beide RPCs werden vom Client aufgerufen (`pick-dialog.tsx:64`, `client.tsx:717`), sind aber in keiner Migration im Repo definiert. Jede neue Umgebung / jeder DB-Restore bricht die Kette Picken → Route → Delivered. Kritischer Frontend/DB-Contract ist unverifiziert.

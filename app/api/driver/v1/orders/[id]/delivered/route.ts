@@ -63,6 +63,10 @@ export async function POST(
   if (!paidOrd) {
     return NextResponse.json({ error: 'Bestellung nicht gefunden' }, { status: 404 });
   }
+  if (paidOrd.status === 'geliefert') {
+    // Idempotenz: Doppel-Tap / Outbox-Retry darf nichts überschreiben.
+    return NextResponse.json({ ok: true, already_delivered: true, batch_completed: false });
+  }
   if (paidOrd.status !== 'unterwegs') {
     return NextResponse.json(
       { error: 'Bestellung wurde noch nicht abgeholt', code: 'order_not_picked_up' },
@@ -129,6 +133,8 @@ export async function POST(
       });
       return NextResponse.json({ error: 'Tourabschluss konnte nicht gespeichert werden' }, { status: 500 });
     }
+    // Fahrer-State konsistent halten (wie TourCloseButton): en_route -> returning
+    await c.from('mise_drivers').update({ state: 'returning' }).eq('id', batch.driver_id).eq('state', 'en_route');
   }
 
   // JIT-Koch-Gate: diese Order ist erledigt -> aus der Koch-Warteschlange nehmen

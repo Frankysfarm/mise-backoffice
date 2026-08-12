@@ -72,11 +72,14 @@ export function DeliveryView({
 }) {
   const supabase = createClient();
   const [stops, setStops] = useState(initialStops);
+  useEffect(() => { stopsRef.current = stops; }, [stops]);
   const [pending, setPending] = useState<string | null>(null);
   const [arrivedIds, setArrivedIds] = useState<Set<string>>(new Set());
   const [proximityTriggered, setProximityTriggered] = useState<Set<string>>(new Set());
   const [skippedIds, setSkippedIds] = useState<Set<string>>(new Set());
   const [confirmSkipId, setConfirmSkipId] = useState<string | null>(null);
+  const [syncNotice, setSyncNotice] = useState<string | null>(null);
+  const stopsRef = useRef(initialStops);
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapReady, setMapReady] = useState(false);
   const driverMarkerRef = useRef<any>(null);
@@ -124,7 +127,18 @@ export function DeliveryView({
       const { data: { session } } = await supabase.auth.getSession();
       return session?.access_token ?? null;
     };
-    const on = () => { setIsOnline(true); flushOutbox(getToken).catch(() => {}); };
+    const on = () => {
+      setIsOnline(true);
+      flushOutbox(getToken)
+        .then((sent) => {
+          if (sent > 0) {
+            setSyncNotice(null);
+            // Waren alle Stops nur noch auf Server-Bestätigung — jetzt ist die Tour wirklich fertig.
+            if (stopsRef.current.every((x) => x.geliefert_am)) setTimeout(() => onAllDone(), 400);
+          }
+        })
+        .catch(() => {});
+    };
     const off = () => setIsOnline(false);
     window.addEventListener('online', on);
     window.addEventListener('offline', off);
@@ -445,31 +459,45 @@ export function DeliveryView({
       return;
     }
     if (!isOnline) {
+      // Offline: in Outbox — Tour NICHT lokal abschließen, Server hat noch nichts.
       enqueueOutbox(url, 'POST', { stop_id: stopId });
+      setSyncNotice('Lieferung gespeichert — wird gesendet, sobald wieder Netz da ist.');
       setPending(null);
-      if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
       return;
     }
     try {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
-      const res = await fetch(url, {
+      const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+      let res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        headers,
         body: JSON.stringify({ stop_id: stopId }),
       });
+      if (res.status === 409) {
+        const err = await res.json().catch(() => ({} as { code?: string }));
+        if (err?.code === 'order_not_picked_up') {
+          // Recovery: Pickup-Status nachziehen (z. B. nach App-Reload), dann genau 1 Retry.
+          await fetch(`/api/driver/v1/orders/${stop.order_id}/picked-up`, { method: 'POST', headers }).catch(() => null);
+          res = await fetch(url, { method: 'POST', headers, body: JSON.stringify({ stop_id: stopId }) });
+        }
+      }
       if (!res.ok) {
-        // API failed — fallback to direct writes so delivery is never lost
-        await Promise.all([
-          supabase.from('delivery_batch_stops').update({ geliefert_am: now, angekommen_am: now }).eq('id', stopId),
-          supabase.from('mise_delivery_batch_stops').update({ completed_at: now, arrived_at: now }).eq('id', stopId),
-          supabase.from('customer_orders').update({ status: 'geliefert', geliefert_am: now }).eq('id', stop.order_id),
-        ]);
+        // Kein stiller Direct-Write mehr: Optimistic-Update zurücknehmen und Fehler zeigen.
+        const err = await res.json().catch(() => ({} as { error?: string }));
+        setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, geliefert_am: null } : x));
+        setPending(null);
+        alert(`Zustellung wurde NICHT gespeichert: ${err?.error ?? `Fehler ${res.status}`}. Bitte erneut versuchen.`);
+        return;
       }
     } catch {
-      // Network error — enqueue for retry
+      // Netzfehler — in Outbox, Tour NICHT lokal abschließen.
       enqueueOutbox(url, 'POST', { stop_id: stopId });
+      setSyncNotice('Netzfehler — Lieferung wird automatisch nachgesendet.');
+      setPending(null);
+      return;
     }
+    setSyncNotice(null);
     setPending(null);
     if (openStops.length === 1) setTimeout(() => onAllDone(), 800);
   }
@@ -609,6 +637,13 @@ export function DeliveryView({
         <div className="sticky top-0 z-50 flex items-center justify-center gap-2 bg-[var(--danger)] px-4 py-2 text-sm font-bold text-[var(--ink)]">
           <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
           Kein Internet — Änderungen werden verzögert synchronisiert
+        </div>
+      )}
+      {/* Sync-Hinweis: Lieferung wartet auf Server-Bestätigung (Outbox) */}
+      {syncNotice && (
+        <div className="sticky top-0 z-40 flex items-center justify-center gap-2 bg-amber-500 px-4 py-2 text-sm font-bold text-black">
+          <span className="h-2 w-2 rounded-full bg-black/60 animate-pulse" />
+          {syncNotice}
         </div>
       )}
       {/* Route-Änderungs-Banner — erscheint wenn Dispatch die Tour live modifiziert */}
@@ -2025,17 +2060,30 @@ function TourCloseButton({ batchId, onDone }: { batchId: string; onDone: () => v
       .eq('id', batchId)
       .maybeSingle();
 
-    const updates: Promise<any>[] = [
+    // Kritischer Write zuerst und mit Fehlerauswertung — kein stiller Fehlschlag mehr.
+    const { error: miseError } = await supabase
+      .from('mise_delivery_batches')
+      .update({ state: 'completed', completed_at: new Date().toISOString() })
+      .eq('id', batchId);
+    if (miseError) {
+      setClosing(false);
+      alert(`Tour konnte NICHT abgeschlossen werden: ${miseError.message}. Bitte erneut versuchen.`);
+      return;
+    }
+    // Nachgelagerte Aufräum-Writes: Fehler loggen, aber Abschluss nicht blockieren.
+    const cleanup: Promise<{ error: { message: string } | null }>[] = [
       supabase.from('delivery_batches').update({ status: 'abgeschlossen' }).eq('id', batchId),
-      supabase.from('mise_delivery_batches').update({ state: 'completed', completed_at: new Date().toISOString() }).eq('id', batchId),
       supabase.from('driver_status').update({ aktueller_batch_id: null }).eq('aktueller_batch_id', batchId),
     ];
     if (miseBatch?.driver_id) {
-      updates.push(
+      cleanup.push(
         supabase.from('mise_drivers').update({ state: 'returning' }).eq('id', miseBatch.driver_id)
       );
     }
-    await Promise.all(updates);
+    const results = await Promise.all(cleanup);
+    for (const r of results) {
+      if (r.error) console.error('[tour-close] cleanup write failed', r.error.message);
+    }
     setClosing(false);
     onDone();
   }
