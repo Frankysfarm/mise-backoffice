@@ -700,8 +700,16 @@ export function FahrerApp({
   // Alle Orders gepickt -> Batch-Pickup abschliessen + Route-Sheet (das eigentliche "losfahren")
   async function completeAndRoute(batchId: string) {
     startTransition(async () => {
-      const { error } = await supabase.rpc('confirm_pickup_complete', { p_batch_id: batchId });
-      if (error) return;
+      const { data: result, error } = await supabase.rpc('confirm_pickup_complete', { p_batch_id: batchId });
+      if (error) {
+        alert(`Route konnte nicht gestartet werden: ${error.message}`);
+        return;
+      }
+      const r = result as { ok?: boolean; error?: string } | null;
+      if (r && r.ok === false) {
+        alert(r.error ?? 'Noch nicht alles in der Tüte — bitte alle Bestellungen durchgehen.');
+        return;
+      }
       // Google-Maps-Route optimieren (beste Stopp-Reihenfolge)
       try {
         const { data } = await supabase.auth.getSession();
