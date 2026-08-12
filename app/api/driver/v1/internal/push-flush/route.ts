@@ -38,6 +38,22 @@ interface DriverShortRow {
   last_active_at: string | null;
 }
 
+async function requeueFailedAssignment(
+  c: ReturnType<typeof sb>,
+  row: Pick<OutboxRow, 'driver_id' | 'type' | 'data'>,
+  reason: string,
+): Promise<void> {
+  const isAssign = row.type === 'order_assigned' || row.type === 'assign';
+  const batchId = typeof row.data?.batch_id === 'string' ? row.data.batch_id : null;
+  if (!isAssign || !batchId) return;
+  const { error } = await c.rpc('requeue_delivery_batch', {
+    p_batch_id: batchId,
+    p_reason: `push_failure:${reason}`.slice(0, 500),
+    p_exclude_minutes: 15,
+  });
+  if (error) throw new Error(`assignment requeue failed: ${error.message}`);
+}
+
 export async function POST(req: NextRequest) {
   const expected = process.env.BISS_INTERNAL_TOKEN;
   let provided: string | null = null;
@@ -91,8 +107,12 @@ export async function POST(req: NextRequest) {
 
   for (const row of pending as unknown as Row[]) {
     const drv = row.drivers;
+    const isAssign = row.type === 'order_assigned' || row.type === 'assign';
+    const assignmentBatchId =
+      typeof row.data?.batch_id === 'string' ? row.data.batch_id : null;
     const enabled = drv?.push_enabled ?? true;
     if (!enabled) {
+      await requeueFailedAssignment(c, row, 'push_enabled=false');
       await c
         .from('mise_push_outbox')
         .update({ failed_at: new Date().toISOString(), fail_reason: 'push_enabled=false' })
@@ -113,10 +133,6 @@ export async function POST(req: NextRequest) {
     }
 
     // 1) VoIP-First für Bundle-Assignments
-    const isAssign = row.type === 'order_assigned' || row.type === 'assign';
-    const assignmentBatchId =
-      typeof row.data?.batch_id === 'string' ? row.data.batch_id : null;
-
     // Outbox-Einträge können einen Batch-Rollback oder eine Stornierung
     // überleben. Vor einem Assignment-Push immer den Live-Zustand prüfen,
     // damit niemals eine alte/abgebrochene Tour beim Fahrer klingelt.
@@ -207,6 +223,7 @@ export async function POST(req: NextRequest) {
       if (r.tokenDead) {
         await c.from('mise_drivers').update({ expo_push_token: null, push_token_updated_at: new Date().toISOString() }).eq('id', row.driver_id);
       }
+      await requeueFailedAssignment(c, row, r.error ?? 'apns-alert-fail');
       await c.from('mise_push_outbox').update({ failed_at: new Date().toISOString(), fail_reason: r.error ?? 'apns-alert-fail' }).eq('id', row.id);
       skipped++;
       continue;
@@ -215,6 +232,7 @@ export async function POST(req: NextRequest) {
     // 2) Expo-Push (Standard oder Fallback)
     const expoToken = drv?.expo_push_token;
     if (!expoToken) {
+      await requeueFailedAssignment(c, row, 'no expo token');
       await c
         .from('mise_push_outbox')
         .update({ failed_at: new Date().toISOString(), fail_reason: 'no expo token' })
@@ -254,7 +272,21 @@ export async function POST(req: NextRequest) {
       for (let i = 0; i < expoBatch.length; i++) {
         const ticket = tickets[i];
         const outboxId = expoBatch[i].outboxId;
-        if (!ticket) continue;
+        if (!ticket) {
+          const row = pending.find((p: OutboxRow) => p.id === outboxId);
+          const newAttempts = (row?.attempts ?? 0) + 1;
+          if (row) await requeueFailedAssignment(c, row, 'expo-ticket-missing');
+          await c
+            .from('mise_push_outbox')
+            .update({
+              attempts: newAttempts,
+              fail_reason: 'expo-ticket-missing',
+              failed_at: new Date().toISOString(),
+            })
+            .eq('id', outboxId);
+          failed++;
+          continue;
+        }
         if (ticket.status === 'ok') {
           await c
             .from('mise_push_outbox')
@@ -264,6 +296,7 @@ export async function POST(req: NextRequest) {
         } else {
           const row = pending.find((p: OutboxRow) => p.id === outboxId);
           const newAttempts = (row?.attempts ?? 0) + 1;
+          if (row) await requeueFailedAssignment(c, row, ticket.message ?? 'expo-ticket-failed');
           await c
             .from('mise_push_outbox')
             .update({
@@ -276,8 +309,29 @@ export async function POST(req: NextRequest) {
         }
       }
     } catch (e) {
+      const reason = e instanceof Error ? e.message : 'expo transport failed';
+      // A transport-level failure has no ticket to reconcile later. Release all
+      // assignment batches immediately; the Smart writer retries another
+      // eligible driver and the DB transaction raises the per-order alert.
+      for (const entry of expoBatch) {
+        const row = pending.find((p: OutboxRow) => p.id === entry.outboxId);
+        if (!row) continue;
+        try {
+          await requeueFailedAssignment(c, row, `expo-transport:${reason}`);
+          await c
+            .from('mise_push_outbox')
+            .update({
+              attempts: (row.attempts ?? 0) + 1,
+              fail_reason: reason.slice(0, 500),
+              failed_at: new Date().toISOString(),
+            })
+            .eq('id', entry.outboxId);
+        } catch (requeueError) {
+          console.error('[driver/push-flush] transport failure requeue failed', requeueError);
+        }
+      }
       return NextResponse.json(
-        { error: e instanceof Error ? e.message : 'push send failed' },
+        { error: reason },
         { status: 500 },
       );
     }

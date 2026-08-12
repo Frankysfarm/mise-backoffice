@@ -33,7 +33,12 @@ export async function POST(req: NextRequest) {
   const { data: batch } = await query.maybeSingle();
   if (!batch) return NextResponse.json({ ok: false, error: 'keine offene Tour' });
 
-  await svc.from('mise_delivery_batches').update({ state: 'assigned', accepted_at: new Date().toISOString() }).eq('id', batch.id);
+  const { data: accepted, error } = await svc.rpc('accept_delivery_batch', {
+    p_batch_id: batch.id,
+    p_driver_id: drv.id,
+  });
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!accepted) return NextResponse.json({ ok: false, error: 'Tour wurde bereits geändert oder neu verteilt' }, { status: 409 });
   console.log('[ACCEPT-TOUR] OK', drv.id, batch.id);
   return NextResponse.json({ ok: true, batch_id: batch.id });
 }

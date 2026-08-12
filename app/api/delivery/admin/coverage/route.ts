@@ -31,7 +31,7 @@
  *   { requirement: CoverageRequirement }
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 import {
   getCoverageGaps,
   getCoverageRequirements,
@@ -42,13 +42,13 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const locationId = searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) return NextResponse.json({ error: 'Standort nicht gefunden' }, { status: 404 });
 
   const hours    = Math.min(Math.max(Number(searchParams.get('hours') ?? 24), 1), 168);
   const gapsOnly = searchParams.get('gaps_only') === 'true';
@@ -85,9 +85,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 });
 
   let body: {
     location_id: string;
@@ -111,6 +110,7 @@ export async function POST(req: NextRequest) {
       { status: 400 },
     );
   }
+  if (!await isDeliveryAdminLocation(actor, location_id)) return NextResponse.json({ error: 'Standort nicht gefunden' }, { status: 404 });
 
   if (day_of_week < 0 || day_of_week > 6) {
     return NextResponse.json({ error: 'day_of_week muss zwischen 0 (So) und 6 (Sa) liegen' }, { status: 400 });

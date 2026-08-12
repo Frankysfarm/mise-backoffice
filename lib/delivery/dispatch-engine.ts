@@ -19,7 +19,7 @@ import { createClient as createSupabaseClient, type SupabaseClient } from '@supa
 import { haversineKm, geocode } from '@/lib/google-maps';
 import { classifyZone } from './zones';
 import { scoreDriver, rankDrivers, type DriverScoreInput, type OrderScoreInput } from './scoring';
-import { findBundleCandidates, appendToTour } from './bundling';
+import { findBundleCandidates } from './bundling';
 import { optimizeTour } from './tour-optimizer';
 import { calculateEta, updateOrderEta } from './eta';
 import { upsertKitchenTiming } from './kitchen-sync';
@@ -82,6 +82,7 @@ interface DriverRow {
   total_deliveries: number;
   state: string;
   active: boolean;
+  shift_started_at: string | null;
   mise_batch_id?: string | null;
 }
 
@@ -168,6 +169,13 @@ export async function smartDispatchTick(): Promise<{
         });
       }
       await sb().from('customer_orders').update(patch).eq('id', row.id);
+      if (newAttempts >= 3) {
+        await sb().rpc('raise_delivery_dispatch_alert', {
+          p_order_id: row.id,
+          p_reason: r.reason,
+          p_batch_id: null,
+        });
+      }
     }
   }
 
@@ -222,7 +230,7 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   await sb().from('customer_orders').update({ delivery_zone: zone }).eq('id', o.id);
 
   // 4) Fahrer-Pool
-  const drivers = await loadActiveDrivers(loc.tenant_id);
+  const drivers = await loadActiveDrivers(loc.tenant_id, loc.id);
   if (drivers.length === 0) return held('Kein aktiver Fahrer verfügbar');
 
   const orderInput: OrderScoreInput = {
@@ -264,7 +272,6 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   const bestScore = best.score;
 
   // 6) Bündelung prüfen
-  const restaurantAddress = [loc.adresse, loc.plz, loc.stadt].filter(Boolean).join(', ') || loc.name;
   const bundleDecision = await findBundleCandidates(
     best.driver.id,
     loc.lat,
@@ -273,61 +280,32 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
     o.kunde_lng!,
   );
 
-  let batchId: string;
-  let outcome: 'dispatched' | 'bundled';
-
-  if (bundleDecision.shouldBundle && bundleDecision.candidateBatchId) {
-    // An bestehende Tour anhängen
-    await appendToTour(
-      bundleDecision.candidateBatchId,
-      o.id,
-      loc.lat,
-      loc.lng,
-      restaurantAddress,
-      o.kunde_lat!,
-      o.kunde_lng!,
-      o.kunde_adresse,
-    );
-    batchId = bundleDecision.candidateBatchId;
-    outcome = 'bundled';
-    // appendToTour setzt nur mise_batch_id — mise_driver_id muss separat gesetzt werden
-    await sb().from('customer_orders')
-      .update({ mise_driver_id: best.driver.id })
-      .eq('id', o.id);
-  } else {
-    // Neue Tour erstellen
-    const { data: newBatch, error } = await sb()
-      .from('mise_delivery_batches')
-      .insert({
-        driver_id:    best.driver.id,
-        location_id:  o.location_id,
-        state:        'pending_acceptance',
-        zone,
-        dispatch_score: bestScore.total,
-        stop_count:   2,
-      })
-      .select('id')
-      .single();
-    if (error || !newBatch) return held(`Batch-Insert fehlgeschlagen: ${error?.message}`);
-    batchId = (newBatch as { id: string }).id;
-
-    await sb().from('mise_delivery_batch_stops').insert([
-      {
-        batch_id: batchId, order_id: o.id, type: 'pickup', sequence: 0,
-        lat: loc.lat, lng: loc.lng, address: restaurantAddress,
-      },
-      {
-        batch_id: batchId, order_id: o.id, type: 'dropoff', sequence: 1,
-        lat: o.kunde_lat, lng: o.kunde_lng, address: o.kunde_adresse,
-      },
-    ]);
-
-    await sb().from('customer_orders')
-      .update({ mise_batch_id: batchId, mise_driver_id: best.driver.id })
-      .eq('id', o.id);
-
-    outcome = 'dispatched';
+  // The database owns the order lock, final eligibility check, stops and order
+  // compare-and-set.  A concurrent writer can no longer create a second tour or
+  // leave a half-linked order behind.
+  const claimArgs = {
+    p_order_id: o.id,
+    p_driver_id: best.driver.id,
+    p_zone: zone,
+    p_dispatch_score: bestScore.total,
+    p_bundle_batch_id: bundleDecision.shouldBundle ? bundleDecision.candidateBatchId : null,
+  };
+  let { data: claim, error: claimError } = await sb().rpc('claim_delivery_order', claimArgs);
+  // A bundle can change after scoring. Retry once as a new atomic batch; the
+  // order CAS still makes this safe against another concurrent winner.
+  if (claimError && claimArgs.p_bundle_batch_id) {
+    ({ data: claim, error: claimError } = await sb().rpc('claim_delivery_order', {
+      ...claimArgs,
+      p_bundle_batch_id: null,
+    }));
   }
+  if (claimError || !claim || typeof claim !== 'object') {
+    return held(`Atomare Zuweisung fehlgeschlagen: ${claimError?.message ?? 'kein Ergebnis'}`);
+  }
+  const claimResult = claim as { batch_id?: string; outcome?: 'dispatched' | 'bundled' };
+  if (!claimResult.batch_id || !claimResult.outcome) return held('Atomare Zuweisung lieferte keinen Batch');
+  const batchId = claimResult.batch_id;
+  const outcome = claimResult.outcome;
 
   // driver_status.aktueller_batch_id synchronisieren (Legacy-Board zeigt Mise-Fahrer als belegt)
   const bestRow = nearby.find((d) => d.id === best.driver.id);
@@ -461,48 +439,13 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   };
 }
 
-async function loadActiveDrivers(tenantId: string): Promise<DriverRow[]> {
-  const freshPositionAfter = new Date(Date.now() - 15 * 60_000).toISOString();
-  const { data } = await sb()
-    .from('mise_drivers')
-    .select('id, auth_user_id, vehicle, max_radius_km, last_lat, last_lng, current_capacity, max_capacity, total_deliveries, state, active')
-    .eq('active', true)
-    .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning'])
-    .not('last_position_at', 'is', null)
-    .gte('last_position_at', freshPositionAfter)
-    .order('last_position_at', { ascending: false });
-
-  if (!data) return [];
-
-  // Tenant-Filter über locations (Fahrer gehören zu Tenants via location)
-  const { data: locations } = await sb()
-    .from('locations')
-    .select('id')
-    .eq('tenant_id', tenantId);
-  const locationIds = new Set((locations ?? []).map((l) => l.id as string));
-
-  // Aktive Batches für alle Fahrer in einer einzigen Query laden (kein N+1)
-  const drivers: DriverRow[] = (data as Array<Omit<DriverRow, 'employee_id'>>).map((driver) => ({
-    ...driver,
-    employee_id: null,
-  }));
-  const authUserIds = drivers
-    .map((driver) => driver.auth_user_id)
-    .filter((id): id is string => Boolean(id));
-  if (authUserIds.length > 0) {
-    const { data: employees } = await sb()
-      .from('employees')
-      .select('id, auth_user_id')
-      .in('auth_user_id', authUserIds);
-    const employeeByAuthUser = new Map(
-      (employees ?? []).map((employee) => [employee.auth_user_id as string, employee.id as string]),
-    );
-    for (const driver of drivers) {
-      driver.employee_id = driver.auth_user_id
-        ? employeeByAuthUser.get(driver.auth_user_id) ?? null
-        : null;
-    }
-  }
+async function loadActiveDrivers(tenantId: string, locationId: string): Promise<DriverRow[]> {
+  const { data, error } = await sb().rpc('get_eligible_delivery_drivers', {
+    p_tenant_id: tenantId,
+    p_location_id: locationId,
+  });
+  if (error || !Array.isArray(data)) return [];
+  const drivers = data as DriverRow[];
   const driverIds = drivers.map((d) => d.id);
   const batchMap = new Map<string, { id: string; stop_count: number }>();
 
@@ -528,8 +471,5 @@ async function loadActiveDrivers(tenantId: string): Promise<DriverRow[]> {
     d.current_capacity = batch ? Math.floor(batch.stop_count / 2) : 0;
   }
 
-  // Da wir keinen direkten Tenant-Filter auf mise_drivers haben, alle aktiven zurückgeben
-  // (Frank-Kompatibilität — Fahrer sind systemweit aktiv, nicht location-gebunden)
-  void locationIds; // multi-tenant wird über Frank-Routing sichergestellt
   return drivers;
 }

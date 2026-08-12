@@ -16,8 +16,8 @@
  * }
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -40,13 +40,13 @@ interface StaleOrderRow {
 }
 
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const locationId = searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) return NextResponse.json({ error: 'Standort nicht gefunden' }, { status: 404 });
 
   const svc = createServiceClient();
 
@@ -108,9 +108,8 @@ export async function GET(req: NextRequest) {
  * Nützlich wenn Admin manuell eingreifen will.
  */
 export async function POST(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 });
 
   const body = await req.json().catch(() => ({})) as { order_id?: string };
   if (!body.order_id) return NextResponse.json({ error: 'order_id fehlt' }, { status: 400 });
@@ -123,6 +122,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error || !o) return NextResponse.json({ error: 'Bestellung nicht gefunden' }, { status: 404 });
+  if (!await isDeliveryAdminLocation(actor, o.location_id as string)) return NextResponse.json({ error: 'Bestellung nicht gefunden' }, { status: 404 });
 
   const { dispatchSingleOrder } = await import('@/lib/delivery/dispatch-engine');
   const result = await dispatchSingleOrder(

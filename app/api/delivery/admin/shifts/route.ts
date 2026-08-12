@@ -26,20 +26,21 @@
  *   { shift: ShiftRow }
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { getShiftsByDate, getUpcomingShifts } from '@/lib/delivery/shifts';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const locationId = searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) return NextResponse.json({ error: 'Standort nicht gefunden' }, { status: 404 });
 
   const dateStr  = searchParams.get('date');
   const statusFilter = searchParams.get('status');
@@ -73,9 +74,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 });
 
   let body: {
     driver_id: string;
@@ -110,6 +110,11 @@ export async function POST(req: NextRequest) {
 
   try {
     const svc = createServiceClient();
+    const [{ data: allowedLocation }, { data: membership }] = await Promise.all([
+      svc.from('locations').select('id').eq('id', location_id).eq('tenant_id', actor.tenant_id).maybeSingle(),
+      svc.from('mise_driver_tenants').select('driver_id').eq('driver_id', driver_id).eq('tenant_id', actor.tenant_id).eq('status', 'active').maybeSingle(),
+    ]);
+    if (!allowedLocation || !membership) return NextResponse.json({ error: 'Fahrer oder Standort gehört nicht zu diesem Betrieb' }, { status: 404 });
     const { data: shift, error } = await svc
       .from('driver_shifts')
       .insert({
@@ -118,7 +123,7 @@ export async function POST(req: NextRequest) {
         planned_start: startTs.toISOString(),
         planned_end:   endTs.toISOString(),
         notes:         notes ?? null,
-        created_by:    user.id,
+        created_by:    actor.auth_user_id,
       })
       .select('id, driver_id, location_id, planned_start, planned_end, actual_start, actual_end, status, notes, created_at')
       .single();

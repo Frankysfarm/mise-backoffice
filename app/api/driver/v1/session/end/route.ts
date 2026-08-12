@@ -24,14 +24,20 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const c = sb();
+  const { data: ended, error } = await c.rpc('end_driver_dispatch_session', {
+    p_driver_id: m.driver.id,
+  });
+  if (error || !ended) return NextResponse.json({ error: error?.message ?? 'Schicht konnte nicht beendet werden' }, { status: 409 });
+  const { data: identity } = await c.from('mise_drivers').select('auth_user_id').eq('id', m.driver.id).maybeSingle();
+  const { data: employee } = identity?.auth_user_id
+    ? await c.from('employees').select('id').eq('auth_user_id', identity.auth_user_id).maybeSingle()
+    : { data: null };
   await Promise.all([
-    sb().from('mise_drivers')
-      .update({ active: false, state: 'offline' })
-      .eq('id', m.driver.id),
-    m.driver.employee_id
-      ? sb().from('driver_status')
+    employee?.id
+      ? c.from('driver_status')
           .update({ ist_online: false, online_seit: null })
-          .eq('employee_id', m.driver.employee_id)
+          .eq('employee_id', employee.id)
       : Promise.resolve(),
   ]);
 
