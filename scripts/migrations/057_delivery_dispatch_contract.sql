@@ -412,7 +412,7 @@ revoke all on function public.fn_recover_abandoned_tours() from public,anon,auth
 -- Superseded by the authenticated HTTP route + accept_delivery_batch CAS. The
 -- historical RPC was SECURITY DEFINER and accepted a caller-supplied employee
 -- id, so leaving it callable would bypass the new ownership/eligibility checks.
-revoke all on function public.claim_mise_delivery_batch(uuid,uuid) from public,anon,authenticated;
+revoke all on function public.claim_mise_delivery_batch(uuid,uuid) from public,anon,authenticated,service_role;
 grant execute on function public.mise_driver_has_current_shift(uuid,uuid,timestamptz) to service_role;
 grant execute on function public.mise_driver_is_dispatch_eligible(uuid,uuid,uuid,timestamptz) to service_role;
 grant execute on function public.get_eligible_delivery_drivers(uuid,uuid) to service_role;
