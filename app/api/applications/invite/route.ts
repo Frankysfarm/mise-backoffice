@@ -16,6 +16,18 @@ function token(): string {
   return randomBytes(24).toString('base64url');
 }
 
+function publicOrigin(req: NextRequest): string {
+  const forwardedHost = req.headers.get('x-forwarded-host');
+  const requestHost = req.headers.get('host');
+  const host = (forwardedHost ?? requestHost ?? '').split(',')[0].trim().toLowerCase();
+  const safeHost = host === 'mise-gastro.de' || host === 'www.mise-gastro.de' || host.startsWith('localhost:')
+    ? host
+    : 'mise-gastro.de';
+  const forwardedProto = req.headers.get('x-forwarded-proto')?.split(',')[0].trim();
+  const proto = safeHost.startsWith('localhost:') ? 'http' : forwardedProto === 'http' || forwardedProto === 'https' ? forwardedProto : 'https';
+  return `${proto}://${safeHost}`;
+}
+
 export async function POST(req: NextRequest) {
   const currentEmployee = await requireManagerPlus();
   if (!currentEmployee.tenant_id) {
@@ -74,7 +86,7 @@ export async function POST(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const origin = new URL(req.url).origin;
+  const origin = publicOrigin(req);
   const link = `${origin}/register/${t}`;
 
   const mail = renderInviteEmail({ vorname, link });
