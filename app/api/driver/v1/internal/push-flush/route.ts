@@ -38,6 +38,29 @@ interface DriverShortRow {
   last_active_at: string | null;
 }
 
+async function driverHasWebPushChannel(
+  c: ReturnType<typeof sb>,
+  driverId: string,
+): Promise<boolean> {
+  const { data: drv } = await c
+    .from('mise_drivers')
+    .select('auth_user_id')
+    .eq('id', driverId)
+    .maybeSingle();
+  if (!drv?.auth_user_id) return false;
+  const { data: emp } = await c
+    .from('employees')
+    .select('id')
+    .eq('auth_user_id', drv.auth_user_id)
+    .maybeSingle();
+  if (!emp?.id) return false;
+  const { count } = await c
+    .from('driver_push_subscriptions')
+    .select('id', { head: true, count: 'exact' })
+    .eq('employee_id', emp.id);
+  return (count ?? 0) > 0;
+}
+
 async function requeueFailedAssignment(
   c: ReturnType<typeof sb>,
   row: Pick<OutboxRow, 'driver_id' | 'type' | 'data'>,
@@ -112,10 +135,16 @@ export async function POST(req: NextRequest) {
       typeof row.data?.batch_id === 'string' ? row.data.batch_id : null;
     const enabled = drv?.push_enabled ?? true;
     if (!enabled) {
-      await requeueFailedAssignment(c, row, 'push_enabled=false');
+      // Browser-Fahrer: Assignment ging bereits über driver_push_outbox (Web-Push) raus —
+      // der fehlende Native-Kanal darf die Tour dann nicht stornieren.
+      const hasWebChannel = await driverHasWebPushChannel(c, row.driver_id);
+      if (!hasWebChannel) await requeueFailedAssignment(c, row, 'push_enabled=false');
       await c
         .from('mise_push_outbox')
-        .update({ failed_at: new Date().toISOString(), fail_reason: 'push_enabled=false' })
+        .update({
+          failed_at: new Date().toISOString(),
+          fail_reason: hasWebChannel ? 'webpush-channel-active' : 'push_enabled=false',
+        })
         .eq('id', row.id);
       skipped++;
       continue;
@@ -232,10 +261,14 @@ export async function POST(req: NextRequest) {
     // 2) Expo-Push (Standard oder Fallback)
     const expoToken = drv?.expo_push_token;
     if (!expoToken) {
-      await requeueFailedAssignment(c, row, 'no expo token');
+      const hasWebChannel = await driverHasWebPushChannel(c, row.driver_id);
+      if (!hasWebChannel) await requeueFailedAssignment(c, row, 'no expo token');
       await c
         .from('mise_push_outbox')
-        .update({ failed_at: new Date().toISOString(), fail_reason: 'no expo token' })
+        .update({
+          failed_at: new Date().toISOString(),
+          fail_reason: hasWebChannel ? 'webpush-channel-active' : 'no expo token',
+        })
         .eq('id', row.id);
       skipped++;
       continue;
