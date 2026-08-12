@@ -305,6 +305,20 @@ export function FahrerApp({
     return () => document.removeEventListener('visibilitychange', onVis);
   }, [activeBatch, pickOpen]);
 
+  /* Access-Token gecacht halten: getSession() pro GPS-Fix kann im Feld hängen (navigator.locks),
+     dann gehen Positions-Updates verloren und der Fahrer fliegt aus dem Dispatch-Pool. */
+  const accessTokenRef = useRef<string>('');
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.access_token) accessTokenRef.current = data.session.access_token;
+    }).catch(() => {});
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.access_token) accessTokenRef.current = session.access_token;
+    });
+    return () => sub.subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   /* GPS-Tracking: bei Online-Status → bg-location.ts (Capacitor+PWA, Wake Lock, sendBeacon, Offline-Queue) */
   useEffect(() => {
     if (!isOnline) {
@@ -330,8 +344,8 @@ export function FahrerApp({
       if (now - lastGpsPushRef.current < 10000) return; // max alle 10s
       lastGpsPushRef.current = now;
 
-      const { data: sessData } = await supabase.auth.getSession();
-      const token = sessData.session?.access_token ?? '';
+      const token = accessTokenRef.current;
+      if (!token) return; // Token noch nicht da — nächster Fix nimmt ihn mit
       await fetch('/api/driver/v1/me/position', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
@@ -702,7 +716,9 @@ export function FahrerApp({
     startTransition(async () => {
       const { data: result, error } = await supabase.rpc('confirm_pickup_complete', { p_batch_id: batchId });
       if (error) {
-        alert(`Route konnte nicht gestartet werden: ${error.message}`);
+        alert(error.message.includes('PICK_REQUIRED')
+          ? 'Noch nicht alle Artikel bestätigt — bitte jede Bestellung in der Liste durchgehen.'
+          : `Route konnte nicht gestartet werden: ${error.message}`);
         return;
       }
       const r = result as { ok?: boolean; error?: string } | null;

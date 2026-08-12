@@ -14,6 +14,7 @@
 import 'server-only';
 import { haversineKm } from '@/lib/google-maps';
 import { createServiceClient } from '@/lib/supabase/server';
+import { dropoffFitsTour } from '@/lib/delivery/tour-direction';
 
 const MAX_DETOUR_KM = 1.5;
 const SAME_RESTAURANT_KM = 0.1;
@@ -106,7 +107,19 @@ async function evaluateBundle(
   );
 
   if (sameRestaurant) {
-    return { shouldBundle: true, candidateBatchId: batchId, reason: 'Selbes Restaurant → Bundle' };
+    // Selbes Restaurant reicht nicht: West+Ost-Ziele dürfen nicht in eine Tour
+    // (Livefall 12.08. — Vaalser-Ziel in Trierer/Eilendorf-Tour, 12.8 km).
+    const fit = dropoffFitsTour(
+      { lat: restaurantLat, lng: restaurantLng },
+      dropoffs
+        .filter((d) => d.lat != null && d.lng != null)
+        .map((d) => ({ lat: d.lat as number, lng: d.lng as number })),
+      { lat: newOrderLat, lng: newOrderLng },
+    );
+    if (fit.fits) {
+      return { shouldBundle: true, candidateBatchId: batchId, reason: `Selbes Restaurant, ${fit.reason} → Bundle` };
+    }
+    return { shouldBundle: false, candidateBatchId: null, reason: `Selbes Restaurant, aber ${fit.reason}` };
   }
 
   // Detour-Prüfung: aktueller letzter Dropoff → neuer Dropoff → Ende
