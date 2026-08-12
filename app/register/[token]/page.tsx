@@ -23,7 +23,7 @@ export default function RegisterPage({ params }: { params: { token: string } }) 
   const [error, setError] = React.useState<string | null>(null);
   const [step, setStep] = React.useState(0);
   const [done, setDone] = React.useState(false);
-  const [employee, setEmployee] = React.useState<{ vorname: string; nachname: string; email: string } | null>(null);
+  const [employee, setEmployee] = React.useState<{ vorname: string; nachname: string; email: string; tenant_name: string } | null>(null);
   const [data, setData] = React.useState<StepData>({});
   const [saving, setSaving] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
@@ -103,7 +103,7 @@ export default function RegisterPage({ params }: { params: { token: string } }) 
       <div className="mx-auto max-w-2xl px-4">
         <div className="mb-6 text-center">
           <div className="text-3xl">🍵</div>
-          <h1 className="mt-2 font-display text-2xl font-bold">Bewerbung — Matcha Kaffee</h1>
+          <h1 className="mt-2 font-display text-2xl font-bold">Bewerbung — {employee!.tenant_name}</h1>
           <p className="text-sm text-muted-foreground">Hi {employee!.vorname}! Dauert 5 Minuten.</p>
         </div>
 

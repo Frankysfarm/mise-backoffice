@@ -66,16 +66,19 @@ export async function POST(req: NextRequest) {
   const expires = new Date(Date.now() + 14 * 86_400_000).toISOString(); // 14 Tage gültig
 
   if (existing) {
-    const { error } = await sb.from('employees').update({
-      invite_token: t,
-      invite_expires_at: expires,
-      vorname,
-      nachname,
-      location_id: location_id ?? null,
-      status: 'registriert',
-      beworben_am: new Date().toISOString(),
-    }).eq('id', existing.id).eq('tenant_id', currentEmployee.tenant_id);
+    const now = new Date().toISOString();
+    const { data: reset, error } = await sb.rpc('reissue_candidate_application', {
+      p_employee_id: existing.id,
+      p_tenant_id: currentEmployee.tenant_id,
+      p_vorname: vorname,
+      p_nachname: nachname,
+      p_location_id: location_id ?? null,
+      p_invite_token: t,
+      p_invite_expires_at: expires,
+      p_beworben_am: now,
+    });
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!reset) return NextResponse.json({ error: 'Bewerbung wurde zwischenzeitlich geändert. Bitte Seite neu laden.' }, { status: 409 });
   } else {
     const { error } = await sb.from('employees').insert({
       email, vorname, nachname, location_id: location_id ?? null,

@@ -33,7 +33,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
   const sb = createServiceClient();
   const { data: application } = await sb.from('employees')
-    .select('id,status')
+    .select('id,status,beworben_am,created_at')
     .eq('id', id)
     .eq('tenant_id', currentEmployee.tenant_id)
     .maybeSingle();
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     .select('id,start_zeit,end_zeit')
     .eq('employee_id', id)
     .eq('typ', 'probe')
+    .gte('created_at', application.beworben_am ?? application.created_at)
     .lte('end_zeit', new Date().toISOString())
     .order('start_zeit');
   if (!trialShifts?.length) {

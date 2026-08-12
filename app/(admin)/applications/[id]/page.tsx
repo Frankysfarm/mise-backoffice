@@ -36,13 +36,16 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
       .eq('location.tenant_id', currentEmployee.tenant_id)
       .order('name'),
     supabase.from('locations').select('id,name').eq('tenant_id', currentEmployee.tenant_id).order('name'),
-    supabase.from('shifts').select('id,start_zeit,end_zeit,position,status,notiz,location:locations(name),department:departments(name)').eq('employee_id', id).eq('typ', 'probe').order('start_zeit', { ascending: false }),
+    supabase.from('shifts').select('id,start_zeit,end_zeit,position,status,notiz,created_at,location:locations(name),department:departments(name)').eq('employee_id', id).eq('typ', 'probe').order('start_zeit', { ascending: false }),
     supabase.from('performance_reviews').select('*').eq('employee_id', id).order('created_at', { ascending: false }),
   ]);
   const departments = (departmentsRaw ?? []).map(({ id: departmentId, name, location_id }) => ({ id: departmentId, name, location_id }));
   const data = (progress?.daten as Record<string, any>) ?? {};
-  const latestReview = reviews?.[0] ?? null;
-  const finishedTrialExists = (trialShifts ?? []).some((shift) => new Date(shift.end_zeit) <= new Date());
+  const currentCycleStartedAt = new Date(application.beworben_am ?? application.created_at);
+  const currentTrialShifts = (trialShifts ?? []).filter((shift) => new Date(shift.created_at) >= currentCycleStartedAt);
+  const currentReviews = (reviews ?? []).filter((review) => new Date(review.created_at) >= currentCycleStartedAt);
+  const latestReview = currentReviews[0] ?? null;
+  const finishedTrialExists = currentTrialShifts.some((shift) => new Date(shift.end_zeit) <= new Date());
   const decisionComplete = ['in_training', 'aktiv', 'abgelehnt'].includes(application.status);
 
   return (
@@ -92,11 +95,11 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
         )}
       </div>
 
-      {(trialShifts?.length ?? 0) > 0 && (
+      {currentTrialShifts.length > 0 && (
         <Card className="mt-6">
           <CardHeader><CardTitle>Geplante Probearbeit</CardTitle></CardHeader>
           <CardContent className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            {trialShifts!.map((shift) => (
+            {currentTrialShifts.map((shift) => (
               <div key={shift.id} className="rounded-lg border bg-muted/20 p-4 text-sm">
                 <div className="font-semibold">{dateTimeDE(shift.start_zeit)} – {new Date(shift.end_zeit).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</div>
                 <div className="mt-1 text-muted-foreground">{shift.position ?? 'Einsatzbereich offen'} · {(shift.location as any)?.name ?? 'Standort offen'} · {(shift.department as any)?.name ?? 'Abteilung offen'}</div>
@@ -110,7 +113,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
       {application.status === 'in_probe' && (
         <div className="mt-6">
           {!finishedTrialExists && <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950">Die Bewertung wird freigeschaltet, sobald mindestens eine Probearbeit beendet ist.</div>}
-          <ProbeReview employeeId={id} employeeStatus={application.status} probeShifts={(trialShifts as any[]) ?? []} existingReview={latestReview} disabled={!finishedTrialExists} />
+          <ProbeReview employeeId={id} employeeStatus={application.status} probeShifts={currentTrialShifts as any[]} existingReview={latestReview} disabled={!finishedTrialExists} />
         </div>
       )}
 

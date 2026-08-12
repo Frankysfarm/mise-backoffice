@@ -10,7 +10,7 @@ import { z } from 'zod';
 async function loadByToken(token: string) {
   const sb = createServiceClient();
   const { data: emp } = await sb.from('employees')
-    .select('id,email,vorname,nachname,invite_expires_at,status,department_id,location_id,angenommen_am,beworben_am,onboarding_completed_at')
+    .select('id,email,vorname,nachname,invite_expires_at,status,department_id,location_id,angenommen_am,beworben_am,onboarding_completed_at,tenant:tenants(name)')
     .eq('invite_token', token).maybeSingle();
   if (!emp) return { sb, emp: null, progress: null };
   if (emp.invite_expires_at && new Date(emp.invite_expires_at) < new Date()) {
@@ -26,7 +26,14 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ tok
   const { emp, progress, expired } = await loadByToken(token);
   if (!emp) return NextResponse.json({ error: expired ? 'expired' : 'not_found' }, { status: 404 });
   return NextResponse.json({
-    employee: { id: emp.id, email: emp.email, vorname: emp.vorname, nachname: emp.nachname, status: emp.status },
+    employee: {
+      id: emp.id,
+      email: emp.email,
+      vorname: emp.vorname,
+      nachname: emp.nachname,
+      status: emp.status,
+      tenant_name: (emp.tenant as any)?.name ?? 'deinem neuen Betrieb',
+    },
     progress: progress ? { step: progress.aktueller_step, daten: progress.daten, abgeschlossen: progress.abgeschlossen } : null,
   });
 }
