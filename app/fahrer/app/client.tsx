@@ -574,6 +574,11 @@ export function FahrerApp({
     }
     const vapid = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
     if (!vapid) throw new Error('Fahrer-Benachrichtigungen sind nicht konfiguriert.');
+    // Browser-Fahrer landen direkt auf /fahrer/app ohne Install-Seite — SW hier registrieren,
+    // sonst wartet serviceWorker.ready für immer.
+    if (!(await navigator.serviceWorker.getRegistration('/fahrer'))) {
+      await navigator.serviceWorker.register('/sw.js', { scope: '/fahrer' });
+    }
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.getSubscription()
       ?? await registration.pushManager.subscribe({
