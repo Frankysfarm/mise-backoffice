@@ -957,19 +957,13 @@ export function DeliveryView({
       {openStops.length > 0 && (() => {
         const stopsWithCoords = openStops.filter((s) => s.order.kunde_lat && s.order.kunde_lng);
         if (stopsWithCoords.length === 0) return null;
-        const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
-        let mapsUrl: string;
-        if (isIos && stopsWithCoords.length === 1) {
-          mapsUrl = `maps://maps.apple.com/?daddr=${stopsWithCoords[0].order.kunde_lat},${stopsWithCoords[0].order.kunde_lng}&dirflg=d`;
-        } else {
-          // Google Maps Waypoints (works on all platforms)
-          const coords = stopsWithCoords.map((s) => `${s.order.kunde_lat},${s.order.kunde_lng}`);
-          const dest = coords[coords.length - 1];
-          const waypoints = coords.slice(0, -1).join('|');
-          mapsUrl = waypoints
-            ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}&travelmode=driving`
-            : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
-        }
+        // Immer Google Maps — nie Apple Maps (Founder-Regel)
+        const coords = stopsWithCoords.map((s) => `${s.order.kunde_lat},${s.order.kunde_lng}`);
+        const dest = coords[coords.length - 1];
+        const waypoints = coords.slice(0, -1).join('|');
+        const mapsUrl = waypoints
+          ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}&travelmode=driving`
+          : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
         return (
           <div className="mx-4 mt-2">
             <a
@@ -1699,13 +1693,11 @@ export function DeliveryView({
 
               {/* Actions nur für next stop — Drive 07-route: Anrufen + Navi, dann Primary, dann muted Utility */}
               {isNext && (() => {
-                const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
                 const lat = stop.order.kunde_lat;
                 const lng = stop.order.kunde_lng;
+                // Immer Google Maps — nie Apple Maps (Founder-Regel)
                 const navHref = lat && lng
-                  ? (isIos
-                      ? `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`
-                      : `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`)
+                  ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`
                   : null;
                 const wazeHref = lat && lng ? `https://waze.com/ul?ll=${lat},${lng}&navigate=yes` : null;
                 const arrived = stop.angekommen_am || arrivedIds.has(stop.id);
@@ -1865,9 +1857,8 @@ export function DeliveryView({
               {/* Navigation zurück zum Restaurant */}
               {restaurantLoc && (() => {
                 const { lat, lng, name } = restaurantLoc;
-                const isIos = typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent);
+                // Immer Google Maps — nie Apple Maps (Founder-Regel)
                 const googleUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
-                const appleUrl  = `maps://maps.apple.com/?daddr=${lat},${lng}&dirflg=d`;
                 const wazeUrl   = `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`;
                 return (
                   <div className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-3">
@@ -1877,13 +1868,13 @@ export function DeliveryView({
                     </div>
                     <div className="flex gap-2">
                       <a
-                        href={isIos ? appleUrl : googleUrl}
+                        href={googleUrl}
                         target="_blank"
                         rel="noreferrer"
                         className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg bg-[var(--surface-2)] text-[var(--ink-2)] font-bold text-xs active:scale-[0.98] transition"
                       >
                         <Navigation size={12} />
-                        {isIos ? 'Apple Maps' : 'Google Maps'}
+                        Google Maps
                       </a>
                       <a
                         href={wazeUrl}
