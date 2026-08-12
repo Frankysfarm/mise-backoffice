@@ -43,7 +43,7 @@ export function TrialSetupForm({ applicationId, locations, departments, initialL
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           location_id: locationId,
-          department_id: departmentId,
+          department_id: departmentId || undefined,
           start_zeit: startAt.toISOString(),
           end_zeit: endAt.toISOString(),
           position: form.get('position'),
@@ -80,18 +80,20 @@ export function TrialSetupForm({ applicationId, locations, departments, initialL
         </select>
       </div>
       <div>
-        <Label htmlFor="trial-department">Abteilung</Label>
+        <Label htmlFor="trial-department">Abteilung (optional)</Label>
         <select
           id="trial-department"
           value={departmentId}
           onChange={(event) => setDepartmentId(event.target.value)}
           className="h-10 w-full rounded-md border bg-background px-3 text-sm disabled:opacity-50"
           disabled={!locationId}
-          required
         >
-          <option value="">— wählen —</option>
+          <option value="">— ohne Abteilung —</option>
           {filteredDepartments.map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}
         </select>
+        {locationId && filteredDepartments.length === 0 && (
+          <p className="mt-1 text-xs text-muted-foreground">Für diesen Standort ist noch keine Abteilung eingerichtet. Die Probearbeit kann trotzdem geplant werden.</p>
+        )}
       </div>
       <div>
         <Label htmlFor="trial-position">Einsatzbereich</Label>
@@ -106,7 +108,7 @@ export function TrialSetupForm({ applicationId, locations, departments, initialL
         <Label htmlFor="trial-note">Hinweis für den Prüfer (optional)</Label>
         <Textarea id="trial-note" name="notiz" rows={3} placeholder="Worauf soll bei dieser Probearbeit besonders geachtet werden?" />
       </div>
-      <Button type="submit" disabled={pending || !locationId || !departmentId} className="w-full">
+      <Button type="submit" disabled={pending || !locationId} className="w-full">
         {pending ? 'Wird geplant…' : 'Probearbeit verbindlich planen'}
       </Button>
     </form>
