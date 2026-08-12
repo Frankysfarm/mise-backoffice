@@ -732,7 +732,7 @@ export function FahrerApp({
         const tok = data.session?.access_token;
         await fetch(`/api/driver/v1/batch/${batchId}/reroute`, { method: 'POST', headers: tok ? { authorization: `Bearer ${tok}` } : {} });
       } catch { /* noop */ }
-      void showRouteSheetAfterPickup(batchId);
+      // Keine Zwischenseite: direkt in die Lieferansicht (Founder-Vorgabe 12.08.)
       router.refresh();
     });
   }
@@ -1256,9 +1256,20 @@ export function FahrerApp({
           batchId={activeBatch.id}
           onClose={() => setPickOpen(false)}
           onComplete={() => {
-            // Diese Order in der Tuete -> zurueck zur Uebersicht. Route erst wenn alle gepickt.
-            setPickOpen(false);
-            router.refresh();
+            // Geführter Flow: nächste ungepickte Order öffnet sich automatisch;
+            // nach der letzten wird direkt die Route berechnet (keine Zwischenseite).
+            const nextUnpicked = activeBatch.stops.find((s: any) => {
+              if (!s.order_id || s.order_id === pickOrderId) return false;
+              const its = (s.order?.items ?? []) as any[];
+              return !(its.length > 0 && its.every((it: any) => it.pick_confirmed_at));
+            });
+            if (nextUnpicked) {
+              setPickOrderId(nextUnpicked.order_id);
+              router.refresh();
+            } else {
+              setPickOpen(false);
+              completeAndRoute(activeBatch.id);
+            }
           }}
         />
       )}

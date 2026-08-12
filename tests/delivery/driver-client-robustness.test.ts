@@ -38,3 +38,26 @@ describe('driver client robustness', () => {
     expect(block).toContain('Artikel');
   });
 });
+
+describe('pick auto-flow', () => {
+  it('opens the next unpicked order automatically and routes directly after the last one', () => {
+    const client = readFileSync(join(root, 'app/fahrer/app/client.tsx'), 'utf8');
+    const block = client.slice(
+      client.indexOf('<PickDialog'),
+      client.indexOf('</PickDialog>') > -1 ? client.indexOf('</PickDialog>') : client.indexOf('{/* F1: Route'),
+    );
+    // Nach einer Order: nächste ungepickte automatisch öffnen
+    expect(block).toContain('nextUnpicked');
+    // Nach der letzten: direkt Route berechnen, keine Zwischenseite
+    expect(block).toContain('completeAndRoute(');
+  });
+
+  it('skips the route sheet interstitial after pickup', () => {
+    const client = readFileSync(join(root, 'app/fahrer/app/client.tsx'), 'utf8');
+    const block = client.slice(
+      client.indexOf('async function completeAndRoute'),
+      client.indexOf('async function markDelivered'),
+    );
+    expect(block).not.toContain('showRouteSheetAfterPickup');
+  });
+});

@@ -111,6 +111,49 @@ function dispatchCreatedAfter(): string | null {
 }
 
 /** Dispatch-Tick: alle unzugewiesenen Lieferungs-Orders dispatchen. */
+/**
+ * Schließt in_progress-Batches ab, deren Stops alle erledigt sind.
+ * Der delivered-Endpoint macht das normalerweise selbst — bei einem Race
+ * (z.B. Tour nach App-Reload fortgesetzt, Livefall 12.08.) bleibt der Batch
+ * sonst für immer offen und der Fahrer im busy-Filter gefangen.
+ */
+async function reconcileCompletedBatches(): Promise<number> {
+  const c = sb();
+  const { data: openBatches } = await c
+    .from('mise_delivery_batches')
+    .select('id, driver_id')
+    .eq('state', 'in_progress')
+    .limit(20);
+  if (!openBatches || openBatches.length === 0) return 0;
+
+  let reconciled = 0;
+  for (const batch of openBatches) {
+    const { data: openStops } = await c
+      .from('mise_delivery_batch_stops')
+      .select('id')
+      .eq('batch_id', batch.id)
+      .is('completed_at', null)
+      .limit(1);
+    if (openStops && openStops.length > 0) continue;
+
+    await c
+      .from('mise_delivery_batches')
+      .update({ state: 'completed', completed_at: new Date().toISOString() })
+      .eq('id', batch.id)
+      .eq('state', 'in_progress');
+    if (batch.driver_id) {
+      await c
+        .from('mise_drivers')
+        .update({ state: 'idle' })
+        .eq('id', batch.driver_id)
+        .eq('state', 'en_route');
+    }
+    reconciled++;
+  }
+  if (reconciled > 0) console.log(`[dispatch] reconcileCompletedBatches: ${reconciled} Batch(es) abgeschlossen`);
+  return reconciled;
+}
+
 export async function smartDispatchTick(): Promise<{
   scanned: number;
   dispatched: number;
@@ -119,6 +162,7 @@ export async function smartDispatchTick(): Promise<{
   escalated: number;
   results: DispatchResult[];
 }> {
+  await reconcileCompletedBatches();
   const cutoff = dispatchCreatedAfter();
   let pendingOrdersQuery = sb()
     .from('customer_orders')
