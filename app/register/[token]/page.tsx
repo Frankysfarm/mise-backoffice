@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { use } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,8 +17,8 @@ const STEPS = [
   { id: 'fertig',      title: 'Abschicken', icon: '🎉' },
 ];
 
-export default function RegisterPage({ params }: { params: Promise<{ token: string }> }) {
-  const { token } = use(params);
+export default function RegisterPage({ params }: { params: { token: string } }) {
+  const { token } = params;
   const [loaded, setLoaded] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [step, setStep] = React.useState(0);
