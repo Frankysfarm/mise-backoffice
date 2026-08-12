@@ -40,7 +40,11 @@ const META: Record<string, [string, string]> = {
   dienstplan: ['Dienstplan', 'Schichten planen und Besetzung im Blick behalten'],
   lager: ['Lager', 'Bestände, Inventuren und Bestellungen steuern'],
 };
-const ROUTE: Record<string, string> = { overview: 'uebersicht' };
+const ROUTE: Record<string, string> = {
+  overview: 'uebersicht',
+  // Loyalty rewards are configured in the combined promotions module.
+  loyalty: 'aktionen',
+};
 const href = (k: string) => `/neo/app/${ROUTE[k] || k}`;
 const Svg = ({ html }: { html: string }) => <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: html }} />;
 
