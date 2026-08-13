@@ -178,7 +178,7 @@ export function FahrerApp({
   const [decliningBatch, setDecliningBatch] = useState<string | null>(null);
   const [showShiftEnd, setShowShiftEnd] = useState(false);
   const [shiftSnapshot, setShiftSnapshot] = useState<{
-    deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number;
+    deliveries: number; tours: number; distKm: number; betrag: number; barBetrag: number; onlineMin: number;
   } | null>(null);
 
   // Kapazitäts-Badge: CAP_BASE = 4 Stopps (Standard, aus Config)
@@ -566,14 +566,14 @@ export function FahrerApp({
         (legacyBatches as any[])?.length
           ? supabase
               .from('delivery_batch_stops')
-              .select('id, order:customer_orders(gesamtbetrag)')
+              .select('id, order:customer_orders(gesamtbetrag,zahlungsart,bezahlt)')
               .in('batch_id', (legacyBatches as any[]).map((b: any) => b.id))
               .not('geliefert_am', 'is', null)
           : Promise.resolve({ data: [] }),
         (miseBatchesRaw as any[])?.length
           ? supabase
               .from('mise_delivery_batch_stops')
-              .select('id, completed_at, type, order:customer_orders(gesamtbetrag)')
+              .select('id, completed_at, type, order:customer_orders(gesamtbetrag,zahlungsart,bezahlt)')
               .in('batch_id', (miseBatchesRaw as any[]).map((b: any) => b.id))
               .eq('type', 'dropoff')
               .not('completed_at', 'is', null)
@@ -586,6 +586,11 @@ export function FahrerApp({
       if (totalDeliveries > 0) {
         const legacyBetrag = ((legacyStops as any[]) ?? []).reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
         const miseBetrag = ((miseStops as any[]) ?? []).reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
+        // Bargeld in der Fahrertasche: bar kassierte, zugestellte Orders des Tages
+        const isBarStop = (st: any) => st.order?.zahlungsart === 'bar' && st.order?.bezahlt === true;
+        const barBetrag = [...(((legacyStops as any[]) ?? [])), ...(((miseStops as any[]) ?? []))]
+          .filter(isBarStop)
+          .reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
         const legacyDist = ((legacyBatches as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
         const miseDist = ((miseBatchesRaw as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
         const onlineMin = status?.online_seit
@@ -596,6 +601,7 @@ export function FahrerApp({
           tours: totalTours,
           distKm: legacyDist + miseDist,
           betrag: legacyBetrag + miseBetrag,
+          barBetrag,
           onlineMin,
         });
         setShowShiftEnd(true);
@@ -1209,7 +1215,7 @@ export function FahrerApp({
                     </div>
                     <div style={{ marginTop: 13, display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div style={{ flex: 1, background: 'var(--line)', borderRadius: 99, height: 7, overflow: 'hidden' }}>
-                        <div style={{ width: kitchenReady ? '100%' : '0%', height: '100%', background: 'var(--accent)', borderRadius: 99, transition: 'width .45s cubic-bezier(.2,.7,.2,1)' }} />
+                        <div style={{ width: '100%', height: '100%', background: 'var(--accent)', borderRadius: 99, transformOrigin: 'left', transform: kitchenReady ? 'scaleX(1)' : 'scaleX(0)', transition: 'transform .45s cubic-bezier(.2,.7,.2,1)' }} />
                       </div>
                       <span style={{ fontSize: 12.5, color: isCash ? 'var(--warn)' : 'var(--ink-3)', fontWeight: 700, whiteSpace: 'nowrap' }}>
                         {isCash ? `Bar · ${euro(o.gesamtbetrag)}` : itemCount != null ? `${itemCount} Artikel` : euro(o.gesamtbetrag)}
@@ -1457,7 +1463,7 @@ function SchichtStats({ driverId, miseDriverId, isOnline }: { driverId: string; 
       const { data: miseStops } = miseBatches?.length
         ? await supabase
             .from('mise_delivery_batch_stops')
-            .select('id, completed_at, type, order:customer_orders(gesamtbetrag)')
+            .select('id, completed_at, type, order:customer_orders(gesamtbetrag,zahlungsart,bezahlt)')
             .in('batch_id', (miseBatches as any[]).map((b) => b.id))
             .eq('type', 'dropoff')
             .not('completed_at', 'is', null)
@@ -2550,7 +2556,7 @@ function SchichtAbschlussModal({
   onConfirm,
   onCancel,
 }: {
-  snapshot: { deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number };
+  snapshot: { deliveries: number; tours: number; distKm: number; betrag: number; barBetrag: number; onlineMin: number };
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -2602,6 +2608,17 @@ function SchichtAbschlussModal({
             <div className="text-[11px] text-[var(--ink-3)] mt-1.5">Online-Zeit</div>
           </div>
         </div>
+
+        {/* Bargeld-Übergabe: die eine Zahl, die bei Schichtende zählt */}
+        {snapshot.barBetrag > 0 && (
+          <div className="rounded-2xl bg-[var(--warn-tint)] border-2 border-[var(--warn)]/40 px-4 py-3 mb-3 text-center">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--warn)] mb-1">
+              Bargeld zur Übergabe
+            </div>
+            <div className="font-display text-3xl font-black text-[var(--warn)] mono">{euro(snapshot.barBetrag)}</div>
+            <div className="text-[9px] text-[var(--ink-3)] mt-0.5">Heute bar kassiert — bitte im Restaurant abgeben</div>
+          </div>
+        )}
 
         {/* Estimated earnings */}
         {estEarnings > 0 && (
