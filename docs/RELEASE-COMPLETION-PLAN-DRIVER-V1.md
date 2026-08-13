@@ -188,7 +188,25 @@ Regel: Nur EIN P0/P1 aktiv. Blocker → Fix → fokussierte Verifikation → Reg
 | P1-3 | **PASS (13.08. 13:20)** | bg-location meldet Geolocation-Fehler über onGpsError-Hook statt still zu schlucken; Browser-Beweis: Fahrer-Profil mit VERWEIGERTER GPS-Permission → gelbes Banner „GPS blockiert" sichtbar (Screenshot /tmp/gps-denied-proof.png); >2 min ohne Fix → „GPS-Signal veraltet". Ersetzt die tote {false&&}-Anzeige. |
 | P1-6 | **PASS (13.08. 13:45)** | Dockerfile-Guards: Build ohne NEXT_PUBLIC_*-Args bricht ab — NEGATIV-TEST auf dem Server bestanden („FEHLER: NEXT_PUBLIC_SUPABASE_URL fehlt", Exit 1). `pnpm typecheck:delivery` läuft im Docker-Build vor `pnpm build` (wirksames Typ-Gate trotz ignoreBuildErrors). build-version.ts wird je Deploy aus `git rev-parse` generiert (auto-deploy.sh, live verifiziert). Fonts-Flake: auto-deploy.sh mit Einmal-Retry gehärtet (2× live aufgetreten); Self-Hosting → P2. |
 | P1-7 | **PASS (Code, Live-Check nach Deploy)** | push-debug-Route gelöscht (war POST ohne Auth), Client-Beacon → console.log; interne Endpoints (dispatch-tick, push-flush, repush-loop) fail-closed via BISS_INTERNAL_TOKEN (Code-Beleg). Live-Curl-Check nach Deploy: erwartungsgemäß 404. |
-| **FINAL: Golden-Path-Gate-Lauf** | AUSSTEHEND | Nach Deploy: E2E + SQL-Proben + Gate-Checkliste §4. |
+| Bundle-Pickup-Recovery (Fund aus Gate-Lauf) | **PASS (13.08. 14:15)** | Struktureller Bug live gefunden: bei Bundle-Touren hängt der gemeinsame Pickup-Stop nur an EINER Order → picked-up-Recovery der zweiten Order lief in 404. Fix: Batch-Lokalisierung über Dropoff-Stop, Pickup-Stops optional completed; Pick-Evidenz- + Ownership-Gates unverändert. Beweis: TEST-113645 nach Deploy in 90 s über die Recovery geliefert. |
+| **FINAL: Golden-Path-Gate-Lauf** | **✅ BESTANDEN (13.08. 14:20)** | Bundle-Tour mit 2 Bestellungen komplett durch den geführten Flow: Annehmen → beide Orders einzeln gepickt (4/4 `pick_confirmed_at` = GP-1) → Auto-Route → beide `geliefert, bezahlt=t` mit `cash:driver:*`-ID (API-Pfad) → Batch `completed` → 0 hängende Batches → Fahrer-States sauber (idle/returning) → 0 `maps.apple` im Live-Bundle. Zusätzlich im Lauf bewiesen: Tour-Resume nach Browser-Abbruch, 409-Recovery, Ownership-403/404 für fremde Fahrer. |
+
+## §4-Gates — ALLE GRÜN (13.08.2026)
+
+1. ✅ Produktions-Build mit Build-Arg-Guards + In-Build-Typecheck (Negativ-Test bestanden, Deploy 12:08 grün)
+2. ✅ Golden Path E2E (Bundle-Tour 2 Orders, kompletter geführter Flow)
+3. ✅ P0-1…P0-4 geschlossen mit Verifikationsnachweis
+4. ✅ P1-1…P1-7 geschlossen mit Verifikationsnachweis
+5. ✅ Auth: Login/Restore im E2E, Ablauf-Handling (Refresh + Banner) implementiert+getestet
+6. ✅ Kritische Contracts versioniert & verifiziert (Migrationen 057/058/060, Diff leer)
+7. ✅ Statusübergänge persistieren korrekt (SQL-Proben aller E2E-Läufe, keine Leichen)
+8. ✅ GPS-Flow: Positionen kommen an; Fehlerfall sichtbar (Browser-Beweis GPS-Denied-Banner)
+9. ✅ Restart/Recovery: Tour-Resume nach Browser-Abbruch; Storno während Tour verschwindet (Mid-Tour-E2E)
+10. ✅ Keine Mocks/localhost in kritischen Pfaden (Audit + erneuter Grep)
+11. ✅ 33/33 Vitest tests/delivery + Scoped-Typecheck (jetzt im Build erzwungen)
+12. ✅ Kein bekannter Bug kann eine Lieferung falsch abschließen, verlieren oder korrumpieren
+
+**RELEASE KOMPLETT — Projekt eingefroren. Weitere Arbeit nur noch über das Post-Release-Backlog (P2/P3 + Design-Runde + Smart-Hold).**
 
 ## 6. Empfohlene Reihenfolge
 
