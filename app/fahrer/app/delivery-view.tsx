@@ -477,9 +477,21 @@ export function DeliveryView({
       if (res.status === 409) {
         const err = await res.json().catch(() => ({} as { code?: string }));
         if (err?.code === 'order_not_picked_up') {
-          // Recovery: Pickup-Status nachziehen (z. B. nach App-Reload), dann genau 1 Retry.
-          await fetch(`/api/driver/v1/orders/${stop.order_id}/picked-up`, { method: 'POST', headers }).catch(() => null);
-          res = await fetch(url, { method: 'POST', headers, body: JSON.stringify({ stop_id: stopId }) });
+          // Recovery NUR mit Server-Evidenz: picked-up verlangt serverseitig,
+          // dass alle order_items.pick_confirmed_at gesetzt sind (Migration-Gate).
+          // Fehlt die Evidenz -> zurück in den Pick-Flow, kein Retry.
+          const rec = await fetch(`/api/driver/v1/orders/${stop.order_id}/picked-up`, { method: 'POST', headers }).catch(() => null);
+          if (rec?.ok) {
+            res = await fetch(url, { method: 'POST', headers, body: JSON.stringify({ stop_id: stopId }) });
+          } else {
+            const recErr = rec ? await rec.json().catch(() => ({} as { code?: string })) : null;
+            setStops((xs) => xs.map((x) => x.id === stopId ? { ...x, geliefert_am: null } : x));
+            setPending(null);
+            alert(recErr?.code === 'pick_not_confirmed'
+              ? 'Diese Bestellung ist noch nicht fertig gepickt. Bitte zurück zur Abholung und alle Artikel bestätigen.'
+              : `Zustellung nicht möglich: ${recErr?.error ?? 'Abholung ist nicht bestätigt'}. Bitte App neu laden.`);
+            return;
+          }
         }
       }
       if (!res.ok) {

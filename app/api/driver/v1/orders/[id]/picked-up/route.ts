@@ -71,6 +71,26 @@ export async function POST(
     );
   }
 
+  // Domänen-Gate: PICKED_UP setzt physisches Picken voraus. Dauerhafte Evidenz
+  // ist order_items.pick_confirmed_at (je Artikel via confirm_pick_item).
+  // Ohne diese Evidenz wird der Übergang verweigert — kein Client kann ihn fabrizieren.
+  const { data: unpickedItems, error: itemsError } = await c
+    .from('order_items')
+    .select('id')
+    .eq('order_id', orderId)
+    .is('pick_confirmed_at', null)
+    .limit(1);
+  if (itemsError) {
+    console.error('[driver/picked-up] pick evidence read failed', itemsError);
+    return NextResponse.json({ error: 'Pick-Status konnte nicht geprüft werden' }, { status: 500 });
+  }
+  if (unpickedItems && unpickedItems.length > 0) {
+    return NextResponse.json(
+      { error: 'Noch nicht alle Artikel als gepickt bestätigt', code: 'pick_not_confirmed' },
+      { status: 409 },
+    );
+  }
+
   const now = new Date().toISOString();
   const { error: stopError } = await c
     .from('mise_delivery_batch_stops')
