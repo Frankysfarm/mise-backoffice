@@ -156,6 +156,8 @@ export function FahrerApp({
   // GPS-Zustand wird von bg-location.ts verwaltet (kein lokaler Ref noetig)
   const lastGpsPushRef = useRef<number>(0);
   const [gpsOk, setGpsOk] = useState<boolean | null>(null);
+  const gpsAuthFailsRef = useRef(0);
+  const [authLost, setAuthLost] = useState(false);
   const [gpsSpeed, setGpsSpeed] = useState<number | null>(null);
   const [gpsLastAt, setGpsLastAt] = useState<number | null>(null);
   const [gpsCalibrating, setGpsCalibrating] = useState(false);
@@ -320,8 +322,11 @@ export function FahrerApp({
     supabase.auth.getSession().then(({ data }) => {
       if (data.session?.access_token) accessTokenRef.current = data.session.access_token;
     }).catch(() => {});
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.access_token) accessTokenRef.current = session.access_token;
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      // Token IMMER nachziehen — auch invalidieren, sonst laufen GPS-POSTs
+      // nach Session-Ablauf ewig mit dem alten Token in 401 (Fahrer fliegt still aus dem Pool).
+      accessTokenRef.current = session?.access_token ?? '';
+      if (event === 'SIGNED_OUT') setAuthLost(true);
     });
     return () => sub.subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -354,11 +359,25 @@ export function FahrerApp({
 
       const token = accessTokenRef.current;
       if (!token) return; // Token noch nicht da — nächster Fix nimmt ihn mit
-      await fetch('/api/driver/v1/me/position', {
+      const res = await fetch('/api/driver/v1/me/position', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
         body: JSON.stringify({ lat: fix.lat, lng: fix.lng, heading: fix.heading ?? null, speed_kmh: fix.speed_kmh ?? null, accuracy_m: accuracy }),
       });
+      if (res.status === 401) {
+        // Session abgelaufen: einmal aktiv refreshen; klappt das nicht, Fahrer laut warnen.
+        gpsAuthFailsRef.current += 1;
+        const { data, error } = await supabase.auth.refreshSession();
+        if (data.session?.access_token) {
+          accessTokenRef.current = data.session.access_token;
+          gpsAuthFailsRef.current = 0;
+          setAuthLost(false);
+        } else if (error || gpsAuthFailsRef.current >= 3) {
+          setAuthLost(true);
+        }
+      } else if (res.ok) {
+        gpsAuthFailsRef.current = 0;
+      }
     };
 
     startBgLocation(pushFn, activeBatch?.id ?? null).catch(() => setGpsOk(false));
@@ -799,6 +818,16 @@ export function FahrerApp({
   return (
     <>
     <div className="min-h-screen pb-24">
+      {/* Auth-Verlust: Session abgelaufen und Refresh gescheitert — laut warnen, sonst
+          verschwindet der Fahrer still aus dem Dispatch-Pool (GPS-401s). */}
+      {authLost && (
+        <div className="sticky top-0 z-[60] flex items-center justify-between gap-3 bg-[var(--danger)] px-4 py-3 text-white">
+          <div className="text-sm font-bold">Anmeldung abgelaufen — du bekommst keine Touren mehr!</div>
+          <a href="/fahrer/login" className="shrink-0 rounded-lg bg-white/20 px-3 py-1.5 text-sm font-black">
+            Neu anmelden
+          </a>
+        </div>
+      )}
       {/* Header */}
       <header className="sticky top-0 z-10 bg-[var(--bg)] px-4 py-4 border-b border-[var(--line)]">
         <div className="flex items-center gap-3">

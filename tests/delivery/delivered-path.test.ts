@@ -105,3 +105,18 @@ describe('realtime hardening (P1-1)', () => {
     expect(client).toContain('Math.min(30_000');
   });
 });
+
+// P1-2: Session-Ablauf darf den Fahrer nicht still aus dem Pool werfen.
+describe('auth expiry surfacing (P1-2)', () => {
+  it('GPS push checks 401, refreshes session, and warns loudly on failure', () => {
+    const client = source('app/fahrer/app/client.tsx');
+    expect(client).toContain('res.status === 401');
+    expect(client).toContain('supabase.auth.refreshSession()');
+    expect(client).toContain('setAuthLost(true)');
+    // Token wird auch INVALIDIERT, nicht nur gesetzt
+    expect(client).toContain("accessTokenRef.current = session?.access_token ?? ''");
+    // Sichtbare Warnung mit Weg zurück zum Login
+    expect(client).toContain('Anmeldung abgelaufen');
+    expect(client).toContain('/fahrer/login');
+  });
+});
