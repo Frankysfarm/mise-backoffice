@@ -858,10 +858,11 @@ export function DeliveryView({
           })()}
           <div className="mt-2 flex items-center gap-3 text-[11px]">
             <span className="flex items-center gap-1 text-[var(--ink-3)]">
+              {/* Position innerhalb der Lieferstopps — reihenfolge zählt den Pickup mit (Off-by-one) */}
               <span className="h-5 w-5 rounded-full bg-[var(--accent)] text-white flex items-center justify-center font-black text-[10px]">
-                {nextStop.reihenfolge}
+                {sorted.findIndex((s) => s.id === nextStop.id) + 1}
               </span>
-              Stopp {nextStop.reihenfolge} von {stops.length}
+              Stopp {sorted.findIndex((s) => s.id === nextStop.id) + 1} von {stops.length}
             </span>
             {nextStop.distanz_zum_vorgaenger_m != null && nextStop.distanz_zum_vorgaenger_m > 0 && (
               <span className="text-[var(--ink-3)] mono">
