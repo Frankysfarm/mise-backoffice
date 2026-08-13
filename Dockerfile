@@ -30,6 +30,15 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_VAPID_PUBLIC_KEY=$NEXT_PUBLIC_VAPID_PUBLIC_KEY
 
+# Build-Gate 1: Leere Build-Args bauen sonst GRÜN durch und Push/Auth sind still tot.
+RUN test -n "$NEXT_PUBLIC_SUPABASE_URL" || (echo "FEHLER: NEXT_PUBLIC_SUPABASE_URL fehlt (Build-Arg)" && exit 1)
+RUN test -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" || (echo "FEHLER: NEXT_PUBLIC_SUPABASE_ANON_KEY fehlt (Build-Arg)" && exit 1)
+RUN test -n "$NEXT_PUBLIC_VAPID_PUBLIC_KEY" || (echo "FEHLER: NEXT_PUBLIC_VAPID_PUBLIC_KEY fehlt (Build-Arg)" && exit 1)
+
+# Build-Gate 2: delivery-kritischer Typecheck (next.config ignoriert Build-Fehler,
+# tsconfig.delivery-hardening.json ist das wirksame Gate für den Fahrer-Pfad).
+RUN pnpm typecheck:delivery
+
 RUN pnpm build
 
 # ---- Stage 3: Runner (production) ----

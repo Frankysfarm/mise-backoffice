@@ -134,3 +134,15 @@ describe('gps failure surfacing (P1-3)', () => {
     expect(client).toContain('nowTick - gpsLastAt > 120_000');
   });
 });
+
+// P1-6: Build-Gates — leerer Build-Arg oder Typfehler im Delivery-Pfad muss den Build stoppen.
+describe('build gates (P1-6)', () => {
+  it('Dockerfile guards empty build args and runs the delivery typecheck', () => {
+    const docker = source('Dockerfile');
+    expect(docker).toContain('test -n "$NEXT_PUBLIC_SUPABASE_URL"');
+    expect(docker).toContain('test -n "$NEXT_PUBLIC_VAPID_PUBLIC_KEY"');
+    expect(docker).toContain('pnpm typecheck:delivery');
+    const pkg = source('package.json');
+    expect(pkg).toContain('"typecheck:delivery"');
+  });
+});
