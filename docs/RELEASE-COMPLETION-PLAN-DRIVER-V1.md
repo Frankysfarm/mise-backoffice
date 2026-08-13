@@ -43,6 +43,14 @@ Login (E-Mail+Passwort) → Session-Restore (Cookie)
 GPS trackt durchgehend (POST /api/driver/v1/me/position, max. 1×/10 s)
 ```
 
+**Abnahmekriterium GP-1 (Founder-Vorgabe 13.08., release-relevant, kein Kosmetik-Punkt):**
+Bei Touren mit mehreren Bestellungen/Pickups gilt verbindlich:
+1. Der Fahrer geht jede Bestellung einzeln durch (geführtes Durchklicken).
+2. Jeder erforderliche Artikel wird je Bestellung bestätigt (`confirm_pick_item` → `order_items.pick_confirmed_at`).
+3. Routenberechnung/Navigation startet NICHT, bevor alle erforderlichen Pickups bestätigt sind (Server-Gate: `confirm_pickup_complete` zählt unbestätigte Items und verweigert; zusätzlich `picked-up`-Route mit `pick_not_confirmed`-Gate).
+4. Sind alle Pickups bestätigt, wird die Google-Maps-Lieferroute AUTOMATISCH berechnet und gestartet (client.tsx: nach letzter gepickter Order → `completeAndRoute()` ohne weiteren Tap).
+Verifikation: Rig-E2E mit ≥2 Bestellungen + Screenshot-Kette (Pick-Dialog je Order → Auto-Route) + Negativ-Probe (Route-Versuch mit unbestätigtem Item → PICK_REQUIRED/`pick_not_confirmed`).
+
 ---
 
 ## 3. Befunde — klassifiziert
@@ -172,8 +180,9 @@ Regel: Nur EIN P0/P1 aktiv. Blocker → Fix → fokussierte Verifikation → Reg
 | P0-3 | **PASS (geschlossen, Fehlklassifikation)** | mise_cron tickt `repush-loop` alle 15 s per POST+Token (Container-Cmd inspiziert); Live-DB: 0 hängende `pending_acceptance`, 5/5 Stichproben nach exakt 3 min gecancelt. |
 | P0-4 | **PASS (geschlossen)** | (1) `pg_get_functiondef`-Diff Repo↔Live = leer; (2) transaktionaler Beweis auf Live: `BEGIN; DROP beide; \i 060; SELECT` → beide Signaturen exakt wiederhergestellt (`confirm_pick_item(uuid,boolean,text)`, `confirm_pickup_complete(uuid)`), `ROLLBACK` sauber; (3) SECURITY DEFINER + EXECUTE für `authenticated` erhalten; (4) Client-Contract deckungsgleich (`pick-dialog.tsx:64-67`, `client.tsx:717`). Commit `88aae0ec`. |
 | Audit A (Offline-Delivered) | **PASS** | Offline-Zweig ruft `onAllDone` nicht (nur Outbox + Sync-Banner + return); `onAllDone` = `router.refresh()` (client.tsx:960) — persistiert nichts, Server bleibt Source of Truth; `end_driver_dispatch_session` blockt Schichtende bei aktivem Batch serverseitig; TourCloseButton schlägt offline laut fehl. |
-| Audit B (409-Recovery) | **PASS (Beweis erbracht)** | `picked-up`-Route erzwingt: Pickup-Stop existiert (404), `batch.driver_id` = auth. Fahrer (403, `picked-up/route.ts:41-43`), `status='fertig'` (409 `order_not_ready`, `:59-64`). Recovery kann nur den legitimen Schritt fertig→unterwegs nachziehen; storniert/nicht-fertig → sichtbarer Fehler + Optimistic-Rollback. Kein fabrizierter Zustand möglich. |
-| P0-1 (+P1-4/P1-5) | **AKTIV — Fix deployt (Port 3300), fokussierte E2E-Verifikation ausstehend** | Code committet `7205b309`, 23/23 Vitest + Scoped-Typecheck grün, Blue-Green-Deploy Health-ok. Ausstehend: Rig-Durchlauf (Golden Path + Delivered-nach-Reload) + SQL-Proben. |
+| Audit B (409-Recovery) | **CONCERNS → behoben 13.08. (Pick-Evidenz-Gate)** | Berechtigter Einwand: `status='fertig'` beweist Küchen-Readiness, nicht physisches Picken. Dauerhafte Server-Evidenz existiert: `order_items.pick_confirmed_at` (je Artikel via `confirm_pick_item`). Fix `eda675ee`: `picked-up`-Route verweigert den Übergang ohne diese Evidenz (409 `pick_not_confirmed`) — serverseitig, von keinem Client fabrizierbar. Client-Recovery macht Retry NUR bei erfolgreichem picked-up, sonst Rollback + Rückführung in den Pick-Flow. Bestehende Gates bleiben: Ownership (403), `status='fertig'` (409). |
+| P0-1 (+P1-4/P1-5) | **PASS (geschlossen 13.08. 09:53)** | REPRODUCE: Live-A/B 12.08. — alter Code direct-schrieb `geliefert` ohne Zahlung (RT-N1/N2, `bezahlt=f`), neuer Code verweigerte sichtbar. ROOT CAUSE: (a) stiller Client-Fallback, (b) Stop-Lookup `maybeSingle` ohne Batch-Filter → 404 bei jeder requeueten Order. FIX: `7205b309` + `a49a859a` + `eda675ee` (Fallback raus, requeue-fester Lookup, Pick-Evidenz-Gate). BEHAVIOR TEST: `scripts/verify/stop-lookup-requeue.mjs` PASS gegen Live-Schema (Beweis A/B/C, Fixture bereinigt). BROWSER E2E: TEST-075130 komplett geführt in 105 s (Annehmen→2 Items picken→Auto-Route→geliefert). SQL: `status=geliefert, bezahlt=t, cash:driver:*-ID` (API-Pfad!), Batch `completed`, Fahrer `returning`, `aktueller_batch_id` geleert, 0 hängende Batches, 2/2 `pick_confirmed_at` (GP-1). REGRESSION: 24/24 Vitest + Scoped-Typecheck grün. Live: `f64a1a59` Port 3300. |
+| **NÄCHSTER aktiver Blocker: P0-2** (Storno während Tour unsichtbar) | OFFEN | — |
 
 ## 6. Empfohlene Reihenfolge
 
