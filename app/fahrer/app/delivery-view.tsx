@@ -698,8 +698,11 @@ export function DeliveryView({
         <div className="flex items-center justify-between">
           <div>
             <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Lieferung läuft</div>
-            <div className="font-display font-bold text-lg">
-              {doneCount} / {stops.length} zugestellt
+            {/* Ein-Blick-Status: die eine Zahl, die zählt — wo bin ich in der Tour */}
+            <div className="font-display font-black text-[28px] leading-none tracking-[-0.02em]">
+              {doneCount === stops.length
+                ? 'Alles zugestellt'
+                : <>Stopp {Math.min(doneCount + 1, stops.length)}<span className="text-[var(--ink-3)] font-bold text-lg"> von {stops.length}</span></>}
             </div>
             <div className="text-[10px] text-[var(--ink-3)] mono mt-0.5 flex items-center gap-2">
               <span>Unterwegs seit {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')} Min</span>
@@ -1571,18 +1574,24 @@ export function DeliveryView({
         );
       })()}
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-        {sorted.map((stop) => {
+      <div className="flex-1 overflow-y-auto px-4 py-4">
+        {sorted.map((stop, stopIdx) => {
           const done = !!stop.geliefert_am;
           const isNext = !done && stop.id === nextStop?.id;
           const isBar = !stop.order.bezahlt && (stop.order.zahlungsart === 'bar' || stop.order.zahlungsart == null);
           const amount = stop.order.gesamtbetrag;
+          const prevDone = stopIdx > 0 ? !!sorted[stopIdx - 1].geliefert_am : false;
 
           return (
-            <div key={stop.id} className={cn(
+            <div key={stop.id}>
+            {/* Timeline-Verbinder: die Tour liest sich als Route, nicht als lose Karten */}
+            {stopIdx > 0 && (
+              <div className={cn('ml-[39px] h-5 w-0.5 rounded-full', prevDone ? 'bg-[var(--accent)]' : 'bg-[var(--line)]')} />
+            )}
+            <div className={cn(
               'rounded-2xl p-4 border-2 transition',
               done ? 'bg-[var(--surface-2)] border-[var(--line)] opacity-50' :
-              isNext ? 'bg-[var(--accent-tint)] border-accent shadow-xl shadow-accent/20' :
+              isNext ? 'bg-[var(--accent-tint)] border-accent shadow-xl shadow-accent/20 ring-4 ring-[var(--accent)]/15' :
               'bg-[var(--surface-2)] border-[var(--line)]',
             )}>
               <div className="flex items-start gap-3">
@@ -1884,6 +1893,7 @@ export function DeliveryView({
                 );
               })()}
             </div>
+            </div>
           );
         })}
 
@@ -1903,7 +1913,7 @@ export function DeliveryView({
                     width: 96, height: 96, borderRadius: '50%', background: 'var(--accent)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     marginBottom: 14, boxShadow: '0 16px 40px -12px var(--accent)',
-                    animation: 'drv-pop .5s cubic-bezier(.2,.9,.3,1.2)',
+                    animation: 'drv-pop .45s cubic-bezier(.16,1,.3,1)',
                   }}
                 >
                   <Check size={50} strokeWidth={3} className="text-white" />
