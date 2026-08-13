@@ -41,7 +41,7 @@ export default async function FahrerAppPage() {
     // Mise-Batch (mise_delivery_batches) — nur wenn Mise-Driver-Account vorhanden
     miseDriver
       ? svc.from('mise_delivery_batches')
-          .select('id, state, stops:mise_delivery_batch_stops(id, batch_id, order_id, sequence, completed_at, type, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,kunde_notiz,kunde_lieferhinweis,items:order_items(id,order_id,name,menge,notiz,pick_confirmed_at,pick_missing)))')
+          .select('id, state, stops:mise_delivery_batch_stops(id, batch_id, order_id, sequence, completed_at, type, cancelled, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,kunde_notiz,kunde_lieferhinweis,items:order_items(id,order_id,name,menge,notiz,pick_confirmed_at,pick_missing)))')
           .eq('driver_id', miseDriver.id)
           .in('state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress'])
           .order('created_at', { ascending: false })
@@ -59,7 +59,8 @@ export default async function FahrerAppPage() {
     status: ['in_progress', 'picked_up'].includes((miseActiveBatch as any).state) ? 'unterwegs' : 'pickup',
     started_at: null,
     stops: ((miseActiveBatch as any).stops ?? [])
-      .filter((s: any) => s.type === 'dropoff')
+      // Stornierte Stops (Requeue/Order-Storno) nie an den Fahrer rendern
+      .filter((s: any) => s.type === 'dropoff' && !s.cancelled)
       .map((s: any) => ({
         id: s.id,
         batch_id: s.batch_id,
@@ -77,7 +78,7 @@ export default async function FahrerAppPage() {
   // Warte-Touren (waehrend Liefern angenommen, warten auf Abholung) -> Box-Format
   const waitingBatches = miseWaiting.map((b: any) => ({
     batch_id: b.id,
-    orders: ((b.stops ?? []) as any[]).filter((s: any) => s.type === 'dropoff').map((s: any) => ({
+    orders: ((b.stops ?? []) as any[]).filter((s: any) => s.type === 'dropoff' && !s.cancelled).map((s: any) => ({
       order_id: s.order_id,
       bestellnummer: s.order?.bestellnummer ?? '',
       kunde_name: s.order?.kunde_name ?? '',

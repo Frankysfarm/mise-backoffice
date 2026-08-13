@@ -305,6 +305,14 @@ export function FahrerApp({
     return () => document.removeEventListener('visibilitychange', onVis);
   }, [activeBatch, pickOpen]);
 
+  /* Während aktiver Tour: 30-s-Polling als Realtime-Fallback — Storno/Requeue
+     durch die Zentrale muss den Fahrer auch bei totem WebSocket erreichen. */
+  useEffect(() => {
+    if (!activeBatch) return;
+    const t = setInterval(() => router.refresh(), 30_000);
+    return () => clearInterval(t);
+  }, [activeBatch?.id]);
+
   /* Access-Token gecacht halten: getSession() pro GPS-Fix kann im Feld hängen (navigator.locks),
      dann gehen Positions-Updates verloren und der Fahrer fliegt aus dem Dispatch-Pool. */
   const accessTokenRef = useRef<string>('');

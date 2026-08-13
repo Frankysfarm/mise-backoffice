@@ -73,6 +73,19 @@ export function DeliveryView({
   const supabase = createClient();
   const [stops, setStops] = useState(initialStops);
   useEffect(() => { stopsRef.current = stops; }, [stops]);
+  // Server-Props in den lokalen State nachziehen (Storno/Requeue entfernt Stops
+  // serverseitig — ohne Sync bleibt ein stornierter Stopp sichtbar und lieferbar).
+  // Server ist Source of Truth; lokale Optimistic-Marks bleiben, bis der Server sie bestätigt.
+  useEffect(() => {
+    setStops((prev) => initialStops.map((n) => {
+      const old = prev.find((p) => p.id === n.id);
+      return {
+        ...n,
+        geliefert_am: n.geliefert_am ?? old?.geliefert_am ?? null,
+        angekommen_am: n.angekommen_am ?? old?.angekommen_am ?? null,
+      };
+    }));
+  }, [initialStops]);
   const [pending, setPending] = useState<string | null>(null);
   const [arrivedIds, setArrivedIds] = useState<Set<string>>(new Set());
   const [proximityTriggered, setProximityTriggered] = useState<Set<string>>(new Set());

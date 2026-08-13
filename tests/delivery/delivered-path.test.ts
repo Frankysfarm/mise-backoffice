@@ -63,3 +63,24 @@ describe('delivered path safety', () => {
     expect(fn).toContain('NICHT abgeschlossen');
   });
 });
+
+// P0-2: Storno während aktiver Tour muss den Fahrer erreichen.
+describe('cancelled stops reach the driver (P0-2)', () => {
+  it('server load never renders cancelled stops', () => {
+    const page = source('app/fahrer/app/page.tsx');
+    expect(page).toContain('completed_at, type, cancelled,');
+    expect(page.match(/type === 'dropoff' && !s\.cancelled/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+  });
+
+  it('DeliveryView syncs server props into local stops state', () => {
+    const view = source('app/fahrer/app/delivery-view.tsx');
+    expect(view).toContain('}, [initialStops]);');
+    expect(view).toContain('initialStops.map((n)');
+  });
+
+  it('active tour has a polling fallback for dead realtime', () => {
+    const client = source('app/fahrer/app/client.tsx');
+    expect(client).toContain("setInterval(() => router.refresh(), 30_000)");
+    expect(client).toContain('}, [activeBatch?.id]);');
+  });
+});
