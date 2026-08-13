@@ -32,12 +32,19 @@ export async function POST(
   }
 
   const c = sb();
-  const { data: stop } = await c
+  // Eine Order kann nach Requeue mehrere Stop-Zeilen haben — es zählt der
+  // nicht-stornierte Stop im aktiven Batch DIESES Fahrers (maybeSingle ohne
+  // Filter kippte sonst bei jeder requeueten Order in 404).
+  const { data: stopRows } = await c
     .from('mise_delivery_batch_stops')
-    .select('id,batch_id,type')
+    .select('id,batch_id,type,mise_delivery_batches!inner(driver_id,state)')
     .eq('order_id', orderId)
     .eq('type', 'dropoff')
-    .maybeSingle();
+    .eq('cancelled', false)
+    .eq('mise_delivery_batches.driver_id', m.driver.id)
+    .in('mise_delivery_batches.state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress'])
+    .limit(1);
+  const stop = stopRows?.[0] ?? null;
   if (!stop) {
     return NextResponse.json({ error: 'Dropoff-Stop nicht gefunden' }, { status: 404 });
   }

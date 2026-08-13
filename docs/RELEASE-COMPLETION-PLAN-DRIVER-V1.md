@@ -106,6 +106,7 @@ GPS trackt durchgehend (POST /api/driver/v1/me/position, max. 1×/10 s)
 **P1-6 · Kein wirksames Build-/Deploy-Gate**
 - Problem: `next.config.js:5` `ignoreBuildErrors: true`; die drei `NEXT_PUBLIC_*`-Build-Args (Supabase-URL/Key, VAPID) bauen bei Fehlen **leer und grün** durch → Push still tot; der gescopte Typecheck `tsconfig.delivery-hardening.json` ist in keinem npm-Script/Deploy verdrahtet; `build-version.ts` wird manuell gepflegt und zeigt aktuell einen falschen Stand (Hash `62f6960e` ≠ HEAD) — das Diagnose-Werkzeug für „App zeigt was Altes" führt in die Irre.
 - Akzeptanz: Dockerfile bricht ab, wenn eines der drei Build-Args leer ist; `typecheck:delivery` als npm-Script + Aufruf in `auto-deploy.sh` vor dem Build; `build-version.ts` wird beim Deploy automatisch aus `git rev-parse` generiert (Mechanik existiert bereits in `auto-deploy.sh`, muss nur verlässlich greifen und committet werden).
+- Zusatzbefund 13.08. (Live-Vorfall): `next/font` lädt Google-Fonts **zur Build-Zeit** aus dem Netz — ein transienter fonts.gstatic.com-Ausfall ließ den Deploy-Build scheitern (Build-Nichtdeterminismus). Außerdem maskiert `bash auto-deploy.sh | tail` den Exit-Code — Deploy-Aufrufe nie durch eine Pipe leiten. Empfehlung (Backlog): Fonts self-hosten oder `next/font`-Fallback konfigurieren.
 - Verifikation: Build ohne VAPID-Arg schlägt fehl (Exit ≠ 0); nach Deploy zeigt das Gerät die HEAD-Version an.
 
 **P1-7 · Ungeschützter Debug-Endpoint `/api/driver/v1/push-debug`**
@@ -162,7 +163,19 @@ Release ist fertig, wenn — mit ausführbarer Evidenz, nicht Behauptung:
 
 ---
 
-## 5. Empfohlene Reihenfolge
+## 5. Evidenz-Log (Single-Blocker-Konvergenz, seit 13.08.)
+
+Regel: Nur EIN P0/P1 aktiv. Blocker → Fix → fokussierte Verifikation → Regression → Evidenz → PASS → nächster.
+
+| Blocker | Status | Evidenz |
+|---|---|---|
+| P0-3 | **PASS (geschlossen, Fehlklassifikation)** | mise_cron tickt `repush-loop` alle 15 s per POST+Token (Container-Cmd inspiziert); Live-DB: 0 hängende `pending_acceptance`, 5/5 Stichproben nach exakt 3 min gecancelt. |
+| P0-4 | **PASS (geschlossen)** | (1) `pg_get_functiondef`-Diff Repo↔Live = leer; (2) transaktionaler Beweis auf Live: `BEGIN; DROP beide; \i 060; SELECT` → beide Signaturen exakt wiederhergestellt (`confirm_pick_item(uuid,boolean,text)`, `confirm_pickup_complete(uuid)`), `ROLLBACK` sauber; (3) SECURITY DEFINER + EXECUTE für `authenticated` erhalten; (4) Client-Contract deckungsgleich (`pick-dialog.tsx:64-67`, `client.tsx:717`). Commit `88aae0ec`. |
+| Audit A (Offline-Delivered) | **PASS** | Offline-Zweig ruft `onAllDone` nicht (nur Outbox + Sync-Banner + return); `onAllDone` = `router.refresh()` (client.tsx:960) — persistiert nichts, Server bleibt Source of Truth; `end_driver_dispatch_session` blockt Schichtende bei aktivem Batch serverseitig; TourCloseButton schlägt offline laut fehl. |
+| Audit B (409-Recovery) | **PASS (Beweis erbracht)** | `picked-up`-Route erzwingt: Pickup-Stop existiert (404), `batch.driver_id` = auth. Fahrer (403, `picked-up/route.ts:41-43`), `status='fertig'` (409 `order_not_ready`, `:59-64`). Recovery kann nur den legitimen Schritt fertig→unterwegs nachziehen; storniert/nicht-fertig → sichtbarer Fehler + Optimistic-Rollback. Kein fabrizierter Zustand möglich. |
+| P0-1 (+P1-4/P1-5) | **AKTIV — Fix deployt (Port 3300), fokussierte E2E-Verifikation ausstehend** | Code committet `7205b309`, 23/23 Vitest + Scoped-Typecheck grün, Blue-Green-Deploy Health-ok. Ausstehend: Rig-Durchlauf (Golden Path + Delivered-nach-Reload) + SQL-Proben. |
+
+## 6. Empfohlene Reihenfolge
 
 1. **P0-4** (DB-Funktionen extrahieren — reine Absicherung, kein Verhaltens-Change, entblockt P0-1)
 2. **P0-3** (Cron-Verdrahtung Verfall — kleiner, isolierter Fix mit großem Wirkradius)

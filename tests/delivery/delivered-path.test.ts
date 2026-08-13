@@ -18,6 +18,19 @@ describe('delivered path safety', () => {
     expect(route).toContain("update({ state: 'returning' })");
   });
 
+  it('stop lookup survives requeued orders (no bare maybeSingle on order_id)', () => {
+    for (const rel of [
+      'app/api/driver/v1/orders/[id]/delivered/route.ts',
+      'app/api/driver/v1/orders/[id]/picked-up/route.ts',
+    ]) {
+      const route = source(rel);
+      // Stop-Lookup muss auf nicht-stornierte Stops im aktiven Batch des Fahrers filtern
+      expect(route).toContain("eq('cancelled', false)");
+      expect(route).toContain("mise_delivery_batches!inner");
+      expect(route).toContain("eq('mise_delivery_batches.driver_id', m.driver.id)");
+    }
+  });
+
   it('markDelivered has no silent direct-write fallback on API errors', () => {
     const view = source('app/fahrer/app/delivery-view.tsx');
     const fn = view.slice(view.indexOf('async function markDelivered'), view.indexOf('async function markFailedAttempt'));
