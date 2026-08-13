@@ -118,6 +118,7 @@ export async function POST(
     .from('mise_delivery_batch_stops')
     .select('id')
     .eq('batch_id', batch.id)
+    .eq('cancelled', false) // stornierte Stops blockieren den Tour-Abschluss nicht
     .is('completed_at', null);
   if (openStopsError) {
     console.error('[driver/delivered] open stops read failed', openStopsError);

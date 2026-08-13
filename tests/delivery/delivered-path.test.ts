@@ -66,6 +66,15 @@ describe('delivered path safety', () => {
 
 // P0-2: Storno während aktiver Tour muss den Fahrer erreichen.
 describe('cancelled stops reach the driver (P0-2)', () => {
+  it('cancelled stops never block tour completion', () => {
+    const route = source('app/api/driver/v1/orders/[id]/delivered/route.ts');
+    const completion = route.slice(route.indexOf('openStops'));
+    expect(completion).toContain("eq('cancelled', false)");
+    const engine = source('lib/delivery/dispatch-engine.ts');
+    const fn = engine.slice(engine.indexOf('async function reconcileCompletedBatches'));
+    expect(fn).toContain('filter((s) => !s.cancelled)');
+  });
+
   it('server load never renders cancelled stops', () => {
     const page = source('app/fahrer/app/page.tsx');
     expect(page).toContain('completed_at, type, cancelled,');

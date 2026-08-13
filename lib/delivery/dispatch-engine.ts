@@ -133,11 +133,14 @@ async function reconcileCompletedBatches(): Promise<number> {
   for (const batch of openBatches) {
     const { data: allStops } = await c
       .from('mise_delivery_batch_stops')
-      .select('id, completed_at')
+      .select('id, completed_at, cancelled')
       .eq('batch_id', batch.id);
     // Batch ohne Stops nicht anfassen; offene Stops -> weiter warten.
+    // Stornierte Stops zählen nicht als offen (sonst hängt der Batch nach Order-Storno ewig).
     if (!allStops || allStops.length === 0) continue;
-    if (allStops.some((s) => s.completed_at === null)) continue;
+    const relevant = allStops.filter((s) => !s.cancelled);
+    if (relevant.length === 0) continue;
+    if (relevant.some((s) => s.completed_at === null)) continue;
 
     await c
       .from('mise_delivery_batches')
