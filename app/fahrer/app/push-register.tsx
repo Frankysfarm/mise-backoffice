@@ -4,14 +4,8 @@ import { useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 function beacon(stage: string, data: unknown) {
-  try {
-    fetch('/api/driver/v1/push-debug', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stage, data }),
-      keepalive: true,
-    });
-  } catch { /* noop */ }
+  // Debug-Endpoint entfernt (war ohne Auth öffentlich) — lokal loggen reicht.
+  try { console.log('[push-register]', stage, data); } catch { /* noop */ }
 }
 
 export function PushRegister() {

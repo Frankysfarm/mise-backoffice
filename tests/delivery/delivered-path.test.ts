@@ -146,3 +146,18 @@ describe('build gates (P1-6)', () => {
     expect(pkg).toContain('"typecheck:delivery"');
   });
 });
+
+// P1-7: kein ungeschützter Debug-Endpoint im Fahrer-Namespace.
+describe('no unauthenticated debug endpoint (P1-7)', () => {
+  it('push-debug route is gone and internal endpoints are token-gated', () => {
+    const { existsSync } = require('node:fs');
+    expect(existsSync(join(root, 'app/api/driver/v1/push-debug/route.ts'))).toBe(false);
+    for (const rel of [
+      'app/api/driver/v1/internal/dispatch-tick/route.ts',
+      'app/api/driver/v1/internal/push-flush/route.ts',
+      'app/api/driver/v1/internal/repush-loop/route.ts',
+    ]) {
+      expect(source(rel)).toContain('BISS_INTERNAL_TOKEN');
+    }
+  });
+});
