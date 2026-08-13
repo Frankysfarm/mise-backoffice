@@ -440,17 +440,42 @@ export function FahrerApp({
     ensureBrowserPushSubscription().catch(() => {});
   }, [isOnline]);
 
-  /* Realtime: refresh bei Änderungen in Legacy- UND Mise-Tabellen */
+  /* Realtime: refresh bei Änderungen in Legacy- UND Mise-Tabellen.
+     Subscribe-Status wird ausgewertet: bei CHANNEL_ERROR/TIMED_OUT/CLOSED
+     wird mit Backoff neu verbunden — sonst friert die App bei totem wss ein
+     (das 30-s-Polling während aktiver Tour bleibt als zweites Netz). */
   useEffect(() => {
-    const ch = supabase
-      .channel('fahrer-app')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batches' }, refresh)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batch_stops' }, refresh)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batches' }, refresh)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batch_stops' }, refresh)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'driver_status', filter: `employee_id=eq.${driver.id}` }, refresh)
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    let disposed = false;
+    let ch: ReturnType<typeof supabase.channel> | null = null;
+    let retry = 0;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const connect = () => {
+      if (disposed) return;
+      ch = supabase
+        .channel(`fahrer-app-${retry}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batches' }, refresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batch_stops' }, refresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batches' }, refresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batch_stops' }, refresh)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'driver_status', filter: `employee_id=eq.${driver.id}` }, refresh)
+        .subscribe((status) => {
+          if (disposed) return;
+          if (status === 'SUBSCRIBED') { retry = 0; return; }
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            if (ch) { supabase.removeChannel(ch); ch = null; }
+            const delayMs = Math.min(30_000, 2_000 * 2 ** retry);
+            retry += 1;
+            retryTimer = setTimeout(connect, delayMs);
+          }
+        });
+    };
+    connect();
+    return () => {
+      disposed = true;
+      if (retryTimer) clearTimeout(retryTimer);
+      if (ch) supabase.removeChannel(ch);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

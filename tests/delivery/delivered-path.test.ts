@@ -93,3 +93,15 @@ describe('cancelled stops reach the driver (P0-2)', () => {
     expect(client).toContain('}, [activeBatch?.id]);');
   });
 });
+
+// P1-1: Realtime muss Fehler erkennen und neu verbinden.
+describe('realtime hardening (P1-1)', () => {
+  it('main channel evaluates subscribe status and reconnects with backoff', () => {
+    const client = source('app/fahrer/app/client.tsx');
+    expect(client).toContain("subscribe((status)");
+    expect(client).toContain("'CHANNEL_ERROR'");
+    expect(client).toContain("'TIMED_OUT'");
+    expect(client).toContain('setTimeout(connect, delayMs)');
+    expect(client).toContain('Math.min(30_000');
+  });
+});
