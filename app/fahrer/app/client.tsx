@@ -16,7 +16,7 @@ import { AlarmRinger } from './alarm-ringer';
 import { PushRegister } from './push-register';
 import { UpdateBanner } from './update-banner';
 import { PermissionsGate } from './permissions-gate';
-import { startBgLocation, stopBgLocation, updateBatchId } from './bg-location';
+import { startBgLocation, stopBgLocation, updateBatchId, onGpsError } from './bg-location';
 
 
 type Driver = {
@@ -160,6 +160,12 @@ export function FahrerApp({
   const [authLost, setAuthLost] = useState(false);
   const [gpsSpeed, setGpsSpeed] = useState<number | null>(null);
   const [gpsLastAt, setGpsLastAt] = useState<number | null>(null);
+  // 30-s-Ticker, damit die "GPS veraltet"-Warnung ohne neuen Fix erscheinen kann
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNowTick(Date.now()), 30_000);
+    return () => clearInterval(t);
+  }, []);
   const [gpsCalibrating, setGpsCalibrating] = useState(false);
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
@@ -380,9 +386,13 @@ export function FahrerApp({
       }
     };
 
+    // Geolocation-Fehler sichtbar machen: Code 1 = Permission verweigert
+    onGpsError((code) => {
+      if (code === 1) setGpsOk(false);
+    });
     startBgLocation(pushFn, activeBatch?.id ?? null).catch(() => setGpsOk(false));
 
-    return () => stopBgLocation();
+    return () => { onGpsError(null); stopBgLocation(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline]);
 
@@ -826,6 +836,16 @@ export function FahrerApp({
           <a href="/fahrer/login" className="shrink-0 rounded-lg bg-white/20 px-3 py-1.5 text-sm font-black">
             Neu anmelden
           </a>
+        </div>
+      )}
+      {/* GPS-Warnung: ohne frische Position fliegt der Fahrer aus dem Dispatch-Pool */}
+      {isOnline && (gpsOk === false || (gpsLastAt != null && nowTick - gpsLastAt > 120_000)) && (
+        <div className="sticky top-0 z-[55] flex items-center justify-between gap-3 bg-amber-500 px-4 py-3 text-black">
+          <div className="text-sm font-bold">
+            {gpsOk === false
+              ? 'GPS blockiert — du bekommst keine Touren! Bitte Standort in den Einstellungen erlauben.'
+              : 'GPS-Signal veraltet — prüfe Standortfreigabe, sonst bekommst du keine Touren.'}
+          </div>
         </div>
       )}
       {/* Header */}

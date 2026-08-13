@@ -120,3 +120,17 @@ describe('auth expiry surfacing (P1-2)', () => {
     expect(client).toContain('/fahrer/login');
   });
 });
+
+// P1-3: GPS-Ausfall muss dem Fahrer sichtbar gemeldet werden.
+describe('gps failure surfacing (P1-3)', () => {
+  it('geolocation errors propagate and render a visible warning', () => {
+    const bg = source('app/fahrer/app/bg-location.ts');
+    expect(bg).toContain('export function onGpsError');
+    expect(bg).toContain('_onGpsError?.(err?.code');
+    const client = source('app/fahrer/app/client.tsx');
+    expect(client).toContain('onGpsError((code)');
+    expect(client).toContain('GPS blockiert');
+    expect(client).toContain('GPS-Signal veraltet');
+    expect(client).toContain('nowTick - gpsLastAt > 120_000');
+  });
+});

@@ -84,6 +84,12 @@ async function startNative(batchId: string | null) {
   }
 }
 
+/** Wird bei Geolocation-Fehlern (v.a. Permission-Denied) aufgerufen — vom Client gesetzt. */
+let _onGpsError: ((code: number, message: string) => void) | null = null;
+export function onGpsError(handler: ((code: number, message: string) => void) | null) {
+  _onGpsError = handler;
+}
+
 function startWeb(batchId: string | null): Promise<void> {
   return new Promise((resolve) => {
     if (!navigator.geolocation) { resolve(); return; }
@@ -101,7 +107,12 @@ function startWeb(batchId: string | null): Promise<void> {
         _pushFn?.(fix).catch(() => queueFix(fix));
         resolve();
       },
-      () => resolve(),
+      (err) => {
+        // Fehler nicht mehr still schlucken: Permission-Denied etc. nach oben melden,
+        // sonst steht der Fahrer ohne Warnung außerhalb des Dispatch-Pools.
+        _onGpsError?.(err?.code ?? 0, err?.message ?? 'GPS-Fehler');
+        resolve();
+      },
       { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 },
     );
   });
