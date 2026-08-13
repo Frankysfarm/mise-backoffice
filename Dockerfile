@@ -39,7 +39,9 @@ RUN test -n "$NEXT_PUBLIC_VAPID_PUBLIC_KEY" || (echo "FEHLER: NEXT_PUBLIC_VAPID_
 # tsconfig.delivery-hardening.json ist das wirksame Gate für den Fahrer-Pfad).
 RUN pnpm typecheck:delivery
 
-RUN pnpm build
+# Font-Cache persistent über Builds (BuildKit-Cache): next/font lädt Google-Fonts
+# zur Build-Zeit — ohne Cache killt jeder CDN-Schluckauf den Deploy (3× passiert).
+RUN --mount=type=cache,id=nextfont-cache,target=/app/node_modules/.cache pnpm build
 
 # ---- Stage 3: Runner (production) ----
 FROM base AS runner
