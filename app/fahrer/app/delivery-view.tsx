@@ -1034,6 +1034,67 @@ export function DeliveryView({
         </div>
       )}
 
+      {/* Bestellrunde: fixer Überblick der Runde + Route-Karte — öffnet automatisch nach dem letzten Pick.
+          Oben jede Bestellung in Fahr-Reihenfolge mit Zahlung + Anruf, darunter die Route eingebettet. */}
+      <div className="px-4 pb-1">
+        <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] overflow-hidden">
+          {sorted.map((s, i) => {
+            const rDone = !!s.geliefert_am;
+            const rBar = !s.order.bezahlt && (s.order.zahlungsart === 'bar' || s.order.zahlungsart == null);
+            return (
+              <div key={s.id} className={cn('flex items-center gap-3 px-3 py-2.5', i > 0 && 'border-t border-[var(--line-2)]', rDone && 'opacity-45')}>
+                <span className={cn(
+                  'h-7 w-7 rounded-full grid place-items-center text-[12px] font-black shrink-0',
+                  rDone ? 'bg-[var(--accent-tint)] text-[var(--accent)]' : 'bg-[var(--accent)] text-[var(--on-accent)]',
+                )}>
+                  {rDone ? <Check size={14} /> : i + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-sm leading-tight truncate">{s.order.kunde_name}</div>
+                  <div className="text-[11px] text-[var(--ink-3)] leading-tight truncate">{s.order.kunde_adresse}</div>
+                </div>
+                <span className={cn(
+                  'shrink-0 rounded-full px-2 py-1 text-[10px] font-black mono',
+                  rDone ? 'bg-[var(--surface-2)] text-[var(--ink-3)]'
+                    : rBar ? 'bg-[var(--warn-tint)] text-[var(--warn)]'
+                    : 'bg-[var(--surface-2)] text-[var(--ink-3)]',
+                )}>
+                  {rBar ? `BAR ${euro(s.order.gesamtbetrag)}` : 'Bezahlt ✓'}
+                </span>
+                {s.order.kunde_telefon && !rDone && (
+                  <a
+                    href={`tel:${s.order.kunde_telefon}`}
+                    aria-label={`${s.order.kunde_name} anrufen`}
+                    className="h-9 w-9 shrink-0 rounded-xl bg-[var(--surface-2)] border border-[var(--line)] grid place-items-center text-[var(--ink-2)] active:scale-95 transition"
+                  >
+                    <Phone size={14} />
+                  </a>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {/* Route eingebettet — die Karte gehört zur App, nicht nur ein Absprung */}
+        {restaurantLoc && (() => {
+          const coords = sorted.filter((s) => !s.geliefert_am && s.order.kunde_lat && s.order.kunde_lng)
+            .map((s) => `${s.order.kunde_lat},${s.order.kunde_lng}`);
+          if (coords.length === 0) return null;
+          const embed = `https://maps.google.com/maps?saddr=${restaurantLoc.lat},${restaurantLoc.lng}&daddr=${coords.join('+to:')}&output=embed`;
+          return (
+            <div className="mt-2 rounded-2xl overflow-hidden border border-[var(--line)]">
+              <iframe
+                title="Routen-Karte"
+                src={embed}
+                className="w-full block"
+                style={{ height: 210, border: 0, filter: 'saturate(0.85)' }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+          );
+        })()}
+      </div>
+
       {/* Multi-Waypoint Navigation */}
       {openStops.length > 0 && (() => {
         const stopsWithCoords = openStops.filter((s) => s.order.kunde_lat && s.order.kunde_lng);

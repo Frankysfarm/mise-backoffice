@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#F2F4F2',
+  themeColor: '#0C100E',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -40,14 +40,18 @@ export default function FahrerLayout({ children }: { children: React.ReactNode }
         dangerouslySetInnerHTML={{
           __html: `
         .drive {
-          --accent:#0F9C50; --accent-press:#0B7E40; --on-accent:#FFFFFF; --accent-tint:#E6F4EC;
-          --bg:#F2F4F2; --surface:#FFFFFF; --surface-2:#F6F8F6;
-          --ink:#0B0F0D; --ink-2:#586460; --ink-3:#909893;
-          --line:#E5E9E6; --line-2:#EFF2F0;
-          --danger:#E5484D; --danger-tint:#FCEBEC; --warn:#E07C0B; --warn-tint:#FBF0DF;
+          /* Dark-first: die Fahrer-App ist eine Nacht-und-Tag-Arbeitsmaschine wie Uber Driver —
+             dunkle Flächen immer, Grün als einziges lautes Signal. */
+          --accent:#2FBF6B; --accent-press:#27A65C; --on-accent:#08130C; --accent-tint:#14301F;
+          --bg:#0C100E; --surface:#161B18; --surface-2:#1D2320;
+          --ink:#F0F4F1; --ink-2:#ADB7B1; --ink-3:#7C867F;
+          --line:#293029; --line-2:#22282A;
+          --danger:#F26D72; --danger-tint:#3A1D1F; --warn:#F0A33B; --warn-tint:#37290F;
           background:var(--bg); color:var(--ink);
           font-family:'Hanken Grotesk',-apple-system,system-ui,sans-serif; letter-spacing:-0.01em;
         }
+        .drive .bg-white { background: var(--surface) !important; }
+        .drive iframe { color-scheme: light; }
         /* Nachtmodus für Fahrten nach Sonnenuntergang — gleiche Hierarchie, dunkle Flächen,
            Akzent einen Tick heller für Kontrast auf dunklem Grund. */
         .drive.drive-dark {

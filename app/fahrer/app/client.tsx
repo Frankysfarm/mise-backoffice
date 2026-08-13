@@ -167,13 +167,7 @@ export function FahrerApp({
     const t = setInterval(() => setNowTick(Date.now()), 30_000);
     return () => clearInterval(t);
   }, []);
-  // Nachtmodus für Fahrten nach Sonnenuntergang: 20:00–06:30 automatisch
-  useEffect(() => {
-    const root = document.querySelector('.drive');
-    if (!root) return;
-    const h = new Date(nowTick).getHours() + new Date(nowTick).getMinutes() / 60;
-    root.classList.toggle('drive-dark', h >= 20 || h < 6.5);
-  }, [nowTick]);
+  // Dark-first: die .drive-Palette ist jetzt immer dunkel (kein Zeit-Toggle mehr).
   const [gpsCalibrating, setGpsCalibrating] = useState(false);
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
