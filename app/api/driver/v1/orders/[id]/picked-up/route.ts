@@ -27,18 +27,21 @@ export async function POST(
   // Eine Order kann nach Requeue mehrere Stop-Zeilen haben — es zählt der
   // nicht-stornierte Stop im aktiven Batch DIESES Fahrers (maybeSingle ohne
   // Filter kippte sonst bei jeder requeueten Order in 404).
+  // Batch über den DROPOFF-Stop der Order lokalisieren: bei Bundle-Touren hängt
+  // der (gemeinsame) Pickup-Stop oft nur an EINER Order — die anderen Orders
+  // haben keinen eigenen Pickup-Stop und liefen hier fälschlich in 404.
   const { data: stopRows } = await c
     .from('mise_delivery_batch_stops')
     .select('id,batch_id,type,mise_delivery_batches!inner(driver_id,state)')
     .eq('order_id', orderId)
-    .eq('type', 'pickup')
+    .eq('type', 'dropoff')
     .eq('cancelled', false)
     .eq('mise_delivery_batches.driver_id', m.driver.id)
     .in('mise_delivery_batches.state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress'])
     .limit(1);
   const stop = stopRows?.[0] ?? null;
   if (!stop) {
-    return NextResponse.json({ error: 'Pickup-Stop nicht gefunden' }, { status: 404 });
+    return NextResponse.json({ error: 'Kein aktiver Stop für diese Bestellung' }, { status: 404 });
   }
 
   const { data: batch } = await c
@@ -92,12 +95,16 @@ export async function POST(
   }
 
   const now = new Date().toISOString();
+  // Offene Pickup-Stops des Batches als erledigt markieren (falls vorhanden —
+  // bei Bundle-Touren existiert oft nur ein gemeinsamer Pickup-Stop).
   const { error: stopError } = await c
     .from('mise_delivery_batch_stops')
     .update({ completed_at: now })
-    .eq('id', stop.id);
+    .eq('batch_id', stop.batch_id)
+    .eq('type', 'pickup')
+    .is('completed_at', null);
   if (stopError) {
-    console.error('[driver/picked-up] stop update failed', stopError);
+    console.error('[driver/picked-up] pickup stop update failed', stopError);
     return NextResponse.json({ error: 'Abholung konnte nicht gespeichert werden' }, { status: 500 });
   }
 
