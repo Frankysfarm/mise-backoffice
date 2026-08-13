@@ -158,6 +158,7 @@ export function FahrerApp({
   const [gpsOk, setGpsOk] = useState<boolean | null>(null);
   const gpsAuthFailsRef = useRef(0);
   const [authLost, setAuthLost] = useState(false);
+  const [rtOk, setRtOk] = useState(true); // Realtime-Verbindungsstatus für den Sync-Punkt
   const [gpsSpeed, setGpsSpeed] = useState<number | null>(null);
   const [gpsLastAt, setGpsLastAt] = useState<number | null>(null);
   // 30-s-Ticker, damit die "GPS veraltet"-Warnung ohne neuen Fix erscheinen kann
@@ -166,6 +167,13 @@ export function FahrerApp({
     const t = setInterval(() => setNowTick(Date.now()), 30_000);
     return () => clearInterval(t);
   }, []);
+  // Nachtmodus für Fahrten nach Sonnenuntergang: 20:00–06:30 automatisch
+  useEffect(() => {
+    const root = document.querySelector('.drive');
+    if (!root) return;
+    const h = new Date(nowTick).getHours() + new Date(nowTick).getMinutes() / 60;
+    root.classList.toggle('drive-dark', h >= 20 || h < 6.5);
+  }, [nowTick]);
   const [gpsCalibrating, setGpsCalibrating] = useState(false);
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
@@ -490,8 +498,9 @@ export function FahrerApp({
         .on('postgres_changes', { event: '*', schema: 'public', table: 'driver_status', filter: `employee_id=eq.${driver.id}` }, refresh)
         .subscribe((status) => {
           if (disposed) return;
-          if (status === 'SUBSCRIBED') { retry = 0; return; }
+          if (status === 'SUBSCRIBED') { retry = 0; setRtOk(true); return; }
           if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            setRtOk(false);
             if (ch) { supabase.removeChannel(ch); ch = null; }
             const delayMs = Math.min(30_000, 2_000 * 2 ** retry);
             retry += 1;
@@ -885,6 +894,11 @@ export function FahrerApp({
               </div>
             );
           })()}
+          {/* Sync-Punkt: grün = Live-Verbindung, gelb = Polling-Fallback aktiv */}
+          <span
+            title={rtOk ? 'Live verbunden' : 'Verbindung wird neu aufgebaut — Updates per Abruf'}
+            className={cn('h-2.5 w-2.5 rounded-full shrink-0', rtOk ? 'bg-[var(--accent)]' : 'bg-[var(--warn)] animate-pulse')}
+          />
           <button
             onClick={logout}
             className="h-10 w-10 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] flex items-center justify-center"

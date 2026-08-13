@@ -194,6 +194,23 @@ export function DeliveryView({
       }, (payload: { new: { modification_type: string; created_at: string } }) => {
         const type = payload.new.modification_type;
         setRouteChangedNotice({ type, ts: Date.now() });
+        // Eigener Ton für Routen-Änderung: gedämpfter absteigender Zwei-Ton —
+        // klar unterscheidbar vom hellen Neue-Tour-Klingeln.
+        try {
+          const ctx = new AudioContext();
+          [[520, 0], [390, 0.16]].forEach(([freq, at]) => {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.frequency.value = freq;
+            o.type = 'sine';
+            g.gain.setValueAtTime(0.12, ctx.currentTime + at);
+            g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + at + 0.22);
+            o.connect(g).connect(ctx.destination);
+            o.start(ctx.currentTime + at);
+            o.stop(ctx.currentTime + at + 0.25);
+          });
+        } catch { /* Audio blockiert — Banner reicht */ }
+        vibrate([60, 40, 60]);
         setTimeout(() => setRouteChangedNotice(null), 12_000);
       })
       .subscribe();

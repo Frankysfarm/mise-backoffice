@@ -48,6 +48,16 @@ export default function FahrerLayout({ children }: { children: React.ReactNode }
           background:var(--bg); color:var(--ink);
           font-family:'Hanken Grotesk',-apple-system,system-ui,sans-serif; letter-spacing:-0.01em;
         }
+        /* Nachtmodus für Fahrten nach Sonnenuntergang — gleiche Hierarchie, dunkle Flächen,
+           Akzent einen Tick heller für Kontrast auf dunklem Grund. */
+        .drive.drive-dark {
+          --accent:#2FBF6B; --accent-press:#27A65C; --on-accent:#08130C; --accent-tint:#14301F;
+          --bg:#0E1210; --surface:#171C19; --surface-2:#1E2420;
+          --ink:#F0F4F1; --ink-2:#ADB7B1; --ink-3:#7C867F;
+          --line:#2A312C; --line-2:#232925;
+          --danger:#F26D72; --danger-tint:#3A1D1F; --warn:#F0A33B; --warn-tint:#37290F;
+        }
+        .drive.drive-dark .bg-white { background: var(--surface) !important; }
         .drive .mono { font-family:'JetBrains Mono',ui-monospace,monospace; letter-spacing:-0.02em; }
         .drive button { font-family: inherit; cursor: pointer; }
         .drive .scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
