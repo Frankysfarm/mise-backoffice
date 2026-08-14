@@ -51,6 +51,15 @@ export async function POST(req: NextRequest) {
     sb().from('mise_drivers')
       .update({ last_lat: body.lat, last_lng: body.lng, last_position_at: now })
       .eq('id', m.driver.id),
+    // Selbstheilung: Wer online geht, hat noch eine alte Position — der Stale-Cron
+    // wirft ihn dann auf 'offline', obwohl die App "Online" zeigt, und niemand holt
+    // ihn zurück. Frisches GPS + laufende Schicht = wieder dispatchbar.
+    sb().from('mise_drivers')
+      .update({ state: 'idle' })
+      .eq('id', m.driver.id)
+      .eq('active', true)
+      .eq('state', 'offline')
+      .not('shift_started_at', 'is', null),
     // Sync in driver_status damit Kitchen-Monitor + Dispatch-Board den Fahrer auf der Karte sehen
     m.driver.employee_id
       ? sb().from('driver_status')
