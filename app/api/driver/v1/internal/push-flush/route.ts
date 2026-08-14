@@ -192,7 +192,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    if (isAssign && drv?.voip_push_token) {
+    // VoIP (= eingehender Anruf-Bildschirm) ist per Founder-Entscheidung 14.08. aus:
+    // Touren kommen als normale Push-Mitteilung. Über DELIVERY_VOIP_PUSH_ENABLED=true
+    // wieder aktivierbar, ohne Code-Änderung.
+    const voipEnabled = process.env.DELIVERY_VOIP_PUSH_ENABLED === 'true';
+    if (voipEnabled && isAssign && drv?.voip_push_token) {
       const data = (row.data ?? {}) as Record<string, unknown>;
       let r: Awaited<ReturnType<typeof sendVoipPush>>;
       try {
