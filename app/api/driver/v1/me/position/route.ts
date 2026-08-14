@@ -49,7 +49,9 @@ export async function POST(req: NextRequest) {
 
   await Promise.all([
     sb().from('mise_drivers')
-      .update({ last_lat: body.lat, last_lng: body.lng, last_position_at: now })
+      // last_active_at mitschreiben: GPS beweist eine offene App — davon hängt ab,
+      // ob ein Push-Fehler die Tour requeued (siehe push-flush).
+      .update({ last_lat: body.lat, last_lng: body.lng, last_position_at: now, last_active_at: now })
       .eq('id', m.driver.id),
     // Selbstheilung: Wer online geht, hat noch eine alte Position — der Stale-Cron
     // wirft ihn dann auf 'offline', obwohl die App "Online" zeigt, und niemand holt

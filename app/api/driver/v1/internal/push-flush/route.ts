@@ -69,6 +69,18 @@ async function requeueFailedAssignment(
   const isAssign = row.type === 'order_assigned' || row.type === 'assign';
   const batchId = typeof row.data?.batch_id === 'string' ? row.data.batch_id : null;
   if (!isAssign || !batchId) return;
+
+  // Fahrer mit offener App sieht das Angebot per Polling/Realtime — ein defekter
+  // Push-Kanal darf ihm die Tour dann NICHT wegnehmen (live 14.08.: ungültiger
+  // Token stornierte jede Tour Sekunden nach dem Anbieten, App blieb leer).
+  // Ohne App-Kontakt bleibt es beim Requeue, damit die Tour zum nächsten Fahrer geht.
+  const { data: drv } = await c
+    .from('mise_drivers')
+    .select('last_active_at')
+    .eq('id', row.driver_id)
+    .maybeSingle();
+  const lastActive = drv?.last_active_at ? new Date(drv.last_active_at as string).getTime() : 0;
+  if (Date.now() - lastActive < 120_000) return;
   const { error } = await c.rpc('requeue_delivery_batch', {
     p_batch_id: batchId,
     p_reason: `push_failure:${reason}`.slice(0, 500),

@@ -179,3 +179,19 @@ describe('offer polling fallback while waiting', () => {
     expect(migration).toContain("interval '10 minutes'");
   });
 });
+
+// Live-Bug 14.08.: defekter Push-Token stornierte jede Tour Sekunden nach dem Anbieten.
+describe('broken push channel must not steal an active driver tour', () => {
+  it('requeue is skipped while the driver app is alive', () => {
+    const route = source('app/api/driver/v1/internal/push-flush/route.ts');
+    const fn = route.slice(route.indexOf('async function requeueFailedAssignment'), route.indexOf('export async function POST'));
+    expect(fn).toContain('last_active_at');
+    expect(fn).toContain('Date.now() - lastActive < 120_000');
+    // VoIP-Anrufbildschirm ist per Default aus
+    expect(route).toContain("process.env.DELIVERY_VOIP_PUSH_ENABLED === 'true'");
+  });
+
+  it('position ping keeps last_active_at fresh', () => {
+    expect(source('app/api/driver/v1/me/position/route.ts')).toContain('last_active_at: now');
+  });
+});
