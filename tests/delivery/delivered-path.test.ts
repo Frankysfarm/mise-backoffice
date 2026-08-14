@@ -195,3 +195,29 @@ describe('broken push channel must not steal an active driver tour', () => {
     expect(source('app/api/driver/v1/me/position/route.ts')).toContain('last_active_at: now');
   });
 });
+
+// 14.08.: Ein Fehltipp buchte Bargeld als kassiert. Der letzte Schritt verlangt jetzt eine Wischgeste.
+describe('cash delivery cannot be booked by an accidental tap', () => {
+  const view = () => source('app/fahrer/app/delivery-view.tsx');
+
+  it('the proof sheet confirms via swipe, not a tap', () => {
+    const v = view();
+    expect(v).toContain('function SwipeToConfirm');
+    // Die Buchung haengt am Regler, nicht mehr an einem Button
+    const sheet = v.slice(v.indexOf('<SwipeToConfirm'), v.indexOf('<SwipeToConfirm') + 600);
+    expect(sheet).toContain('onConfirm={() => confirmDeliveryWithProof');
+    expect(sheet).toContain('Zum Kassieren wischen');
+  });
+
+  it('only a near-complete swipe triggers the booking', () => {
+    const v = view();
+    const fn = v.slice(v.indexOf('function SwipeToConfirm'), v.indexOf('function StopEtaBar'));
+    expect(fn).toContain('maxX() * 0.85');
+  });
+
+  it('delivered is booked through exactly one guarded path', () => {
+    const v = view();
+    expect(v.match(/confirmDeliveryWithProof\(/g)?.length).toBe(2); // Definition + Regler
+    expect(v.match(/await markDelivered\(/g)?.length).toBe(1);
+  });
+});

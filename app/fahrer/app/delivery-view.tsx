@@ -1629,23 +1629,21 @@ export function DeliveryView({
                   className="w-full rounded-xl bg-[var(--surface)] border border-[var(--line)] text-sm text-[var(--ink)] placeholder:text-[var(--ink-3)] px-3 py-2 resize-none focus:outline-none focus:border-accent/60"
                 />
               </div>
-              <div className="flex gap-3">
+              <div className="space-y-3">
+                {/* Wischen statt Tippen: der letzte Schritt bucht Bargeld — ein Fehltipp darf das nicht auslösen. */}
+                <SwipeToConfirm
+                  label={proofType === 'photo' && !proofPhotoBlob ? 'Foto fehlt noch' : isBarProof ? 'Zum Kassieren wischen' : 'Zum Bestätigen wischen'}
+                  amountLabel={isBarProof && proofStop ? `Bar: ${euro(proofStop.order.gesamtbetrag)}` : null}
+                  disabled={proofType === 'photo' && !proofPhotoBlob}
+                  pending={proofPending}
+                  onConfirm={() => confirmDeliveryWithProof(proofModalStopId!)}
+                />
                 <button
                   onClick={() => { setProofModalStopId(null); setProofPhotoBlob(null); setProofPhotoPreview(null); }}
                   disabled={proofPending}
-                  className="flex-1 h-12 rounded-xl bg-[var(--surface-2)] font-bold text-sm disabled:opacity-40"
+                  className="w-full h-11 rounded-xl bg-[var(--surface-2)] font-bold text-sm disabled:opacity-40"
                 >
                   Zurück
-                </button>
-                <button
-                  onClick={() => confirmDeliveryWithProof(proofModalStopId!)}
-                  disabled={proofPending || (proofType === 'photo' && !proofPhotoBlob)}
-                  className="flex-1 h-12 rounded-[17px] bg-[var(--accent)] text-white font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-60 shadow-[0_6px_18px_-8px_var(--accent)]"
-                >
-                  {proofPending
-                    ? <Loader2 size={16} className="animate-spin" />
-                    : <CheckCircle2 size={16} />}
-                  {proofType === 'photo' && !proofPhotoBlob ? 'Foto fehlt noch' : isBarProof ? 'Kassiert & Zugestellt' : 'Bestätigen'}
                 </button>
               </div>
             </div>
@@ -2320,6 +2318,95 @@ function SpeedArcGauge({ speed }: { speed: number }) {
         </text>
       </svg>
       <span className="text-[7px] text-[var(--ink-3)] font-bold leading-none">km/h</span>
+    </div>
+  );
+}
+
+/**
+ * Wisch-Bestätigung für den letzten, unumkehrbaren Schritt einer Lieferung.
+ * Ein Fehltipp buchte vorher Bargeld als kassiert — Wischen verlangt eine bewusste Geste.
+ * Pointer-Events statt Touch-Events, damit der Browser-Testfahrer sie auch auslösen kann.
+ */
+function SwipeToConfirm({
+  label,
+  amountLabel,
+  disabled,
+  pending,
+  onConfirm,
+}: {
+  label: string;
+  amountLabel?: string | null;
+  disabled?: boolean;
+  pending?: boolean;
+  onConfirm: () => void;
+}) {
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const [x, setX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const firedRef = useRef(false);
+  const THUMB = 54;
+  const maxX = () => Math.max(0, (trackRef.current?.offsetWidth ?? 0) - THUMB - 6);
+
+  const move = (clientX: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const left = track.getBoundingClientRect().left;
+    setX(Math.min(maxX(), Math.max(0, clientX - left - THUMB / 2)));
+  };
+  const release = () => {
+    setDragging(false);
+    if (!firedRef.current && x >= maxX() * 0.85) {
+      firedRef.current = true;
+      setX(maxX());
+      navigator.vibrate?.(30);
+      onConfirm();
+      return;
+    }
+    setX(0);
+  };
+
+  const locked = disabled || pending;
+  const pct = maxX() > 0 ? x / maxX() : 0;
+
+  return (
+    <div
+      ref={trackRef}
+      className={cn(
+        'relative h-[60px] w-full rounded-full overflow-hidden select-none touch-none',
+        'bg-[var(--surface-2)] border border-[var(--line)]',
+        locked && 'opacity-50',
+      )}
+      onPointerMove={(e) => dragging && !locked && move(e.clientX)}
+      onPointerUp={() => dragging && !locked && release()}
+      onPointerLeave={() => dragging && !locked && release()}
+    >
+      {/* mitwachsende Füllung als Fortschritt */}
+      <div
+        className="absolute inset-y-0 left-0 bg-[var(--accent)]/25"
+        style={{ width: x + THUMB, transition: dragging ? 'none' : 'width .25s ease-out' }}
+      />
+      <div
+        className="absolute inset-0 flex items-center justify-center gap-2 pointer-events-none"
+        style={{ opacity: 1 - pct * 1.4 }}
+      >
+        <span className="text-[15px] font-bold text-[var(--ink)]">{label}</span>
+        <span className="text-accent text-[15px] font-bold tracking-[-2px]">››</span>
+      </div>
+      {amountLabel && (
+        <div
+          className="absolute inset-x-0 bottom-1 text-center text-[10px] font-bold text-[var(--warn)] pointer-events-none"
+          style={{ opacity: 1 - pct * 1.4 }}
+        >
+          {amountLabel}
+        </div>
+      )}
+      <div
+        onPointerDown={(e) => { if (locked) return; (e.target as HTMLElement).setPointerCapture?.(e.pointerId); setDragging(true); move(e.clientX); }}
+        className="absolute top-[3px] left-[3px] h-[54px] w-[54px] rounded-full bg-[var(--accent)] text-white flex items-center justify-center shadow-[0_6px_18px_-8px_var(--accent)] cursor-grab active:cursor-grabbing"
+        style={{ transform: `translateX(${x}px)`, transition: dragging ? 'none' : 'transform .25s ease-out' }}
+      >
+        {pending ? <Loader2 size={20} className="animate-spin" /> : <CheckCircle2 size={20} />}
+      </div>
     </div>
   );
 }
