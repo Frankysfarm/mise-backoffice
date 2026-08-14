@@ -323,6 +323,16 @@ export function FahrerApp({
     return () => clearInterval(t);
   }, [activeBatch?.id]);
 
+  /* Wartend auf Angebote: 15-s-Polling. Ohne diesen Fallback hängt das Angebot
+     allein an Push und Realtime — fällt beides aus, sieht der Fahrer die Tour nie
+     und sie verfällt nach 3 Minuten (live beobachtet 14.08.). Angebote sind
+     zeitkritischer als Tour-Updates, daher engeres Intervall. */
+  useEffect(() => {
+    if (!isOnline || activeBatch || pickOpen) return;
+    const t = setInterval(() => router.refresh(), 15_000);
+    return () => clearInterval(t);
+  }, [isOnline, activeBatch?.id, pickOpen]);
+
   /* Access-Token gecacht halten: getSession() pro GPS-Fix kann im Feld hängen (navigator.locks),
      dann gehen Positions-Updates verloren und der Fahrer fliegt aus dem Dispatch-Pool. */
   const accessTokenRef = useRef<string>('');

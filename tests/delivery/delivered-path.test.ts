@@ -161,3 +161,21 @@ describe('no unauthenticated debug endpoint (P1-7)', () => {
     }
   });
 });
+
+// Live-Bug 14.08.: Angebot hing allein an Push+Realtime — beides tot = Tour verfällt ungesehen.
+describe('offer polling fallback while waiting', () => {
+  it('polls for offers when online and idle', () => {
+    const client = source('app/fahrer/app/client.tsx');
+    expect(client).toContain('if (!isOnline || activeBatch || pickOpen) return;');
+    expect(client).toContain('setInterval(() => router.refresh(), 15_000)');
+  });
+
+  it('driver going online survives the stale-offline cron', () => {
+    const route = source('app/api/driver/v1/me/position/route.ts');
+    expect(route).toContain("update({ state: 'idle' })");
+    expect(route).toContain("eq('state', 'offline')");
+    const migration = source('scripts/migrations/061_driver_online_grace_period.sql');
+    expect(migration).toContain('shift_started_at');
+    expect(migration).toContain("interval '10 minutes'");
+  });
+});
