@@ -633,12 +633,17 @@ export function DeliveryView({
     }
   }
 
-  async function confirmDeliveryWithProof(stopId: string) {
+  /**
+   * `directProof` kommt vom Regler auf der Stopp-Karte: dort gibt es kein Nachweis-Blatt,
+   * also den Standard mitgeben statt auf den (asynchronen) State zu warten.
+   */
+  async function confirmDeliveryWithProof(stopId: string, directProof?: ProofType) {
     setProofPending(true);
     const stop = stops.find((s) => s.id === stopId);
+    const usedProof = directProof ?? proofType;
 
     let photoUrl: string | null = null;
-    if (proofType === 'photo' && proofPhotoBlob) {
+    if (!directProof && proofType === 'photo' && proofPhotoBlob) {
       photoUrl = await uploadProofPhoto(proofPhotoBlob, stopId);
     }
 
@@ -649,9 +654,9 @@ export function DeliveryView({
       body: JSON.stringify({
         stop_id:    stopId,
         order_id:   stop?.order_id ?? null,
-        proof_type: proofType,
+        proof_type: usedProof,
         photo_url:  photoUrl,
-        notes:      proofNotes.trim() || null,
+        notes:      directProof ? null : (proofNotes.trim() || null),
         driver_lat: driverLat ?? null,
         driver_lng: driverLng ?? null,
       }),
@@ -1869,14 +1874,20 @@ export function DeliveryView({
                       </a>
                     )}
                   </div>
-                  {/* Primary: Bestellung geliefert */}
+                  {/* Primär: NUR per Wischen. Eine antippbare Fläche an dieser Stelle hat
+                      schon Bargeld als kassiert gebucht, wenn ein Daumen danebenlag. */}
+                  <SwipeToConfirm
+                    label={isBar ? 'Zum Kassieren wischen' : 'Zum Zustellen wischen'}
+                    amountLabel={isBar ? `Bar: ${euro(stop.order.gesamtbetrag)}` : null}
+                    pending={pending === stop.id || proofPending}
+                    onConfirm={() => confirmDeliveryWithProof(stop.id, 'handed_to_person')}
+                  />
                   <button
                     onClick={() => { setProofModalStopId(stop.id); setProofType('handed_to_person'); setProofNotes(''); setProofPhotoBlob(null); setProofPhotoPreview(null); }}
                     disabled={pending === stop.id || proofPending}
-                    className="w-full h-14 rounded-[17px] bg-[var(--accent)] text-white flex items-center justify-center gap-2 text-[18px] font-bold active:scale-[0.98] disabled:opacity-50 shadow-[0_6px_18px_-8px_var(--accent)]"
+                    className="w-full h-9 text-[12px] font-bold text-[var(--ink-3)] underline underline-offset-4 disabled:opacity-40"
                   >
-                    {pending === stop.id ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
-                    {isBar ? 'Kassiert & geliefert' : 'Bestellung geliefert'}
+                    Nachweis ändern (Foto, vor Tür, Nachbar)
                   </button>
                   {/* Sekundäre Utility-Aktionen (muted, kompakt) */}
                   <div className="flex flex-wrap items-center gap-2 pt-0.5">

@@ -217,7 +217,32 @@ describe('cash delivery cannot be booked by an accidental tap', () => {
 
   it('delivered is booked through exactly one guarded path', () => {
     const v = view();
-    expect(v.match(/confirmDeliveryWithProof\(/g)?.length).toBe(2); // Definition + Regler
+    // Definition + Regler im Nachweis-Blatt + Regler auf der Stopp-Karte
+    expect(v.match(/confirmDeliveryWithProof\(/g)?.length).toBe(3);
     expect(v.match(/await markDelivered\(/g)?.length).toBe(1);
+  });
+
+  // Founder-Befund 14.08.: die gefaehrliche Flaeche lag auf der Stopp-Karte, nicht im Blatt.
+  it('the stop card has no tappable delivery button left', () => {
+    const v = view();
+    const card = v.slice(v.indexOf('{/* Primär: NUR per Wischen'), v.indexOf('{/* Sekundäre Utility-Aktionen'));
+    expect(card).toContain('<SwipeToConfirm');
+    expect(card).toContain("confirmDeliveryWithProof(stop.id, 'handed_to_person')");
+    // der verbleibende Knopf oeffnet nur das Nachweis-Blatt und bucht nichts
+    expect(card).toContain('setProofModalStopId(stop.id)');
+    expect(card).not.toMatch(/onClick=\{\(\) => confirmDeliveryWithProof/);
+    expect(card).not.toContain('Kassiert & geliefert');
+  });
+
+  // Founder-Ablauf: nur die Bestellung, die gerade ausgeliefert wird, darf bestaetigt werden.
+  it('only the current stop can be confirmed, never a later one', () => {
+    const v = view();
+    const gateStart = v.indexOf('{isNext && (() => {');
+    const cardSwipe = v.indexOf('<SwipeToConfirm', v.indexOf('{/* Primär: NUR per Wischen'));
+    const gateEnd = v.indexOf('{/* Sekundäre Utility-Aktionen');
+    expect(gateStart).toBeGreaterThan(-1);
+    // der Regler liegt INNERHALB des isNext-Blocks
+    expect(cardSwipe).toBeGreaterThan(gateStart);
+    expect(cardSwipe).toBeLessThan(gateEnd);
   });
 });
