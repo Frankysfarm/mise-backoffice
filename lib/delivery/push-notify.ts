@@ -73,7 +73,7 @@ export async function enqueueBatchPush(params: BatchPushParams): Promise<void> {
       type:      'order_assigned',
       title,
       body,
-      sound:    'default',
+      sound:    'long_ring.wav',
       priority: 'high',
       data: {
         batch_id:        batchId,

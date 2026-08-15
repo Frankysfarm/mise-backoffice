@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { BUILD_VERSION } from './build-version';
+import { PwaAudioListener } from './pwa-audio-listener';
 
 export const metadata: Metadata = {
   title: 'Mise Fahrer',
@@ -29,6 +30,7 @@ export const viewport: Viewport = {
 export default function FahrerLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <PwaAudioListener />
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link
         rel="stylesheet"

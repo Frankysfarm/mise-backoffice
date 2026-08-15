@@ -77,11 +77,22 @@ self.addEventListener('push', (event) => {
       { action: 'snooze', title: 'Später' },
     ],
   };
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil(
+    self.registration.showNotification(title, options).then(() => {
+      return self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    }).then((clients) => {
+      clients.forEach(c => c.postMessage({ type: 'PLAY_ALARM' }));
+    })
+  );
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
+  
+  self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+    clients.forEach(c => c.postMessage({ type: 'STOP_ALARM' }));
+  });
+
   if (event.action === 'snooze') return;
   const url = event.notification.data?.url ?? '/fahrer/app';
   event.waitUntil(
