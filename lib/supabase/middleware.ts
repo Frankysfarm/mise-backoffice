@@ -55,6 +55,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/biss-app/') ||
     pathname === '/fahrer' ||
     pathname.startsWith('/fahrer/') ||
+    pathname === '/fahrer.webmanifest' ||
     pathname === '/manifest.json' ||
     pathname === '/mais.webmanifest' ||
     pathname === '/sw.js' ||
@@ -106,7 +107,9 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/api/qr/') ||
     pathname === '/unsubscribe' ||
     pathname.startsWith('/api/track/') ||
-    pathname.startsWith('/api/driver/v1/') ||
+    // Driver APIs authenticate Bearer/cookie/internal tokens in their own
+    // handlers. Middleware redirects would turn native 401/409 JSON into HTML.
+    pathname.startsWith('/api/driver/') ||
     pathname === '/apps' || pathname === '/driver' || pathname.startsWith('/driver/') || pathname === '/lieferdienst' || pathname.startsWith('/lieferdienst/') || pathname.startsWith('/api/lieferdienst/') || pathname.startsWith('/api/driver-app/') || pathname === '/pos/terminal-v5' || pathname.startsWith('/pos/terminal-v5/');
 
   if (!user && !isPublic) {

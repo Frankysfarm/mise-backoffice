@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { mapBackendDriverState, validateNativeGpsEnvelope } from '../../lib/delivery/native-gps';
 
 const now = Date.parse('2026-08-16T10:00:00.000Z');
@@ -26,6 +28,11 @@ const valid = {
 };
 
 describe('native background GPS contract', () => {
+  it('lets the manifest and bearer-authenticated v2 API reach their handlers', () => {
+    const middleware = readFileSync(resolve(process.cwd(), 'lib/supabase/middleware.ts'), 'utf8');
+    expect(middleware).toContain("pathname === '/fahrer.webmanifest'");
+    expect(middleware).toContain("pathname.startsWith('/api/driver/')");
+  });
   it('maps existing backend states to the native authority vocabulary', () => {
     expect(mapBackendDriverState('idle')).toBe('available');
     expect(mapBackendDriverState('at_restaurant')).toBe('at_pickup');

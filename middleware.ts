@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
       // Pfade die NICHT umgeschrieben werden: Next-Assets + biss-app-API + auth + etc.
       const passthrough = path.startsWith('/_next') || path.startsWith('/api') ||
         path.startsWith('/auth') || path.startsWith('/biss-app/_next') ||
-        path === '/favicon.ico' || path.startsWith('/manifest.json');
+        path === '/favicon.ico' || path.startsWith('/manifest.json') || path === '/fahrer.webmanifest';
       if (!passthrough) {
         // Wenn Root: leite zu /biss-app/[slug] (Storefront)
         // Wenn /t/[token]: leite zu /biss-app/t/[token] (QR-Tisch)
