@@ -6,6 +6,7 @@ const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf
 
 describe('own-fleet QR handoff contract', () => {
   const migration = source('scripts/migrations/066_own_fleet_qr_handoff.sql');
+  const duplicateFlagFix = source('scripts/migrations/067_fix_pickup_scan_duplicate_flag.sql');
 
   it('plans internal tours directly without a driver acceptance race', () => {
     expect(migration).toContain("'own_fleet','planned',now()");
@@ -42,10 +43,13 @@ describe('own-fleet QR handoff contract', () => {
 
   it('prints signed per-bag QR labels and accepts only verified scans', () => {
     const kitchen = source('app/kuche/[token]/client.tsx');
+    const kitchenPage = source('app/kuche/[token]/page.tsx');
     const route = source('app/api/driver/v1/batch/[id]/handoff/scan/route.ts');
     const qr = source('lib/delivery/pickup-qr.ts');
     expect(kitchen).toContain('QRCode.toDataURL');
     expect(kitchen).toContain('ERSATZCODE');
+    expect(kitchenPage).toContain('delivery_bag_count');
+    expect(kitchenPage).toContain('buildPickupQr');
     expect(route).toContain('parseAndVerifyPickupQr');
     expect(route).toContain("rpc('scan_delivery_pickup_bag'");
     expect(qr).toContain("createHmac('sha256'");
@@ -56,7 +60,7 @@ describe('own-fleet QR handoff contract', () => {
     const driver = source('app/fahrer/app/client.tsx');
     const alarm = source('app/fahrer/app/alarm-ringer.tsx');
     expect(driver).toContain("activeBatch.assignment_mode === 'own_fleet'");
-    expect(driver).toContain('Übergabe scannen');
+    expect(driver).toContain('Beutel scannen');
     expect(driver).not.toContain('assignedBatchId=');
     expect(alarm).toContain('played >= 3');
     expect(alarm).toContain('8000');
@@ -66,5 +70,12 @@ describe('own-fleet QR handoff contract', () => {
     const route = source('app/api/driver/v1/orders/[id]/picked-up/route.ts');
     expect(route).toContain("batch.assignment_mode === 'own_fleet'");
     expect(route).toContain("code: 'qr_handoff_required'");
+  });
+
+  it('reports a duplicate only when this bag existed before the current scan', () => {
+    expect(duplicateFlagFix).toContain('v_already_scanned boolean');
+    expect(duplicateFlagFix).toContain('value::integer=p_bag_index');
+    expect(duplicateFlagFix).toContain("'duplicate',v_already_scanned");
+    expect(duplicateFlagFix).not.toContain("'duplicate',p_bag_index=any(v_scanned)");
   });
 });

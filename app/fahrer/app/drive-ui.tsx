@@ -178,7 +178,7 @@ export function Btn({
     gap: 9,
     width: full ? '100%' : undefined,
     whiteSpace: 'nowrap',
-    height: size === 'lg' ? 56 : size === 'md' ? 46 : 38,
+    height: size === 'lg' ? 56 : size === 'md' ? 46 : 44,
     padding: size === 'sm' ? '0 16px' : '0 22px',
     borderRadius: size === 'lg' ? 17 : 13,
     fontSize: size === 'lg' ? 18 : size === 'md' ? 16 : 14.5,

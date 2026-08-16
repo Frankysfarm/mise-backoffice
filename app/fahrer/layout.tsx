@@ -39,9 +39,9 @@ export default function FahrerLayout({ children }: { children: React.ReactNode }
           __html: `
         .drive {
           /* Light & Clean Premium Branding: Airy background, soft white surfaces, crisp dark text */
-          --accent:#248A3D; --accent-press:#1D7131; --on-accent:#FFFFFF; --accent-tint:#E9F4EC;
+          --accent:#1F7A35; --accent-press:#185F29; --on-accent:#FFFFFF; --accent-tint:#E9F4EC;
           --bg:#F7F7F9; --surface:#FFFFFF; --surface-2:#F0F0F2;
-          --ink:#111111; --ink-2:#666666; --ink-3:#999999;
+          --ink:#111111; --ink-2:#666666; --ink-3:#737373;
           --line:#E5E5E5; --line-2:#D4D4D4;
           --danger:#E52B12; --danger-tint:#FCECE9; --warn:#FFC043; --warn-tint:#FFF9E6;
           background:var(--bg); color:var(--ink);

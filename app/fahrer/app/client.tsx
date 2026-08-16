@@ -19,6 +19,7 @@ import { UpdateBanner } from './update-banner';
 import { PermissionsGate } from './permissions-gate';
 import { startBgLocation, stopBgLocation, updateBatchId, onGpsError } from './bg-location';
 import { BUILD_VERSION } from '../build-version';
+import { needsCashCollection } from '@/lib/delivery/payment';
 
 
 type Driver = {
@@ -1038,7 +1039,7 @@ export function FahrerApp({
           />
           <button
             onClick={logout}
-            className="h-10 w-10 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] flex items-center justify-center"
+            className="h-11 w-11 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] flex items-center justify-center"
             aria-label="Abmelden"
           >
             <LogOut size={16} />
@@ -1209,6 +1210,8 @@ export function FahrerApp({
             ? s.pick_verification?.complete === true
             : (() => { const its = (s.order?.items ?? []) as any[]; return its.length > 0 && its.every((it) => it.pick_confirmed_at); })();
           const pickedCount = stops.filter(isOrderPicked).length;
+          const requiredBagCount = stops.reduce((sum, stop) => sum + Math.max(1, Number(stop.order?.delivery_bag_count) || 1), 0);
+          const scannedBagCount = stops.reduce((sum, stop) => sum + new Set(stop.pick_verification?.scanned_bags ?? []).size, 0);
           const allPicked = total > 0 && pickedCount === total;
           const handoffReady = ownFleetHandoff && activeBatch.handoff_state === 'ready' && allPicked;
           const hubName = (activeBatch as any).location_name
@@ -1222,7 +1225,7 @@ export function FahrerApp({
           const allReady = total > 0 && readyCount === total;
           const cashStops = stops.filter((s) => {
             const o = s.order as any;
-            return o.zahlungsart === 'bar' || o.bezahlt === false;
+            return needsCashCollection(o);
           });
           const totalCash = cashStops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
           // Maps-Routenvorschau (alle Stops mit Koordinaten)
@@ -1296,7 +1299,7 @@ export function FahrerApp({
               {stops.map((stop) => {
                 const o = stop.order as any;
                 const picked = isOrderPicked(stop);
-                const isCash = o.zahlungsart === 'bar' || o.bezahlt === false;
+                const isCash = needsCashCollection(o);
                 const ks = kitchenStatuses.get(stop.order_id) ?? null;
                 const kitchenReady = ks === 'fertig' || ks === 'unterwegs';
                 const kitchenCooking = ks === 'in_zubereitung';
@@ -1406,7 +1409,7 @@ export function FahrerApp({
                 <Btn onClick={() => completeAndRoute(activeBatch.id)} disabled={pending} icon="route">Abfahrt · Route starten</Btn>
               ) : ownFleetHandoff ? (
                 <Btn onClick={() => void openHandoffScanner()} disabled={pending || !allReady} icon="bag">
-                  {allReady ? `Übergabe scannen · ${pickedCount}/${total}` : `Warten auf Küche · ${readyCount}/${total}`}
+                  {allReady ? `Beutel scannen · ${scannedBagCount}/${requiredBagCount}` : `Warten auf Küche · ${readyCount}/${total}`}
                 </Btn>
               ) : (
                 <Btn onClick={() => { const next = stops.find((s) => !isOrderPicked(s)); setPickOrderId((next ?? stops[0])?.order_id ?? null); setPickOpen(true); }} icon="bag">{`Picken · ${pickedCount}/${total} in der Tüte`}</Btn>
@@ -2213,7 +2216,7 @@ function FahrerWarteAnzeige({
                 type="button"
                 onClick={onEndShift}
                 disabled={offlinePending}
-                className="rounded-xl px-2.5 py-2 text-xs font-bold text-[var(--ink-3)] hover:bg-[var(--surface-2)] disabled:opacity-50"
+                className="min-h-11 rounded-xl px-2.5 py-2 text-xs font-bold text-[var(--ink-3)] hover:bg-[var(--surface-2)] disabled:opacity-50"
               >
                 Beenden
               </button>
@@ -2328,7 +2331,7 @@ function OpenBatchSection({
       }
       const estEtaMin = Math.round((totalDistanceKm / 20) * 60 + stops.length * 3);
       const cashAmount = stops
-        .filter((s) => s.zahlungsart === 'bar' || s.bezahlt === false)
+        .filter(needsCashCollection)
         .reduce((sum, s) => sum + s.gesamtbetrag, 0);
       // Fahrer-Verdienstschätzung: Basis 3€/Stop + 0.15€/km
       const estDriverEarnings = Math.round((stops.length * 3 + totalDistanceKm * 0.15) * 100) / 100;
@@ -2429,7 +2432,7 @@ function OpenBatchSection({
                 {/* flache Stopp-Liste */}
                 <div style={{ background: 'var(--surface-2)', borderRadius: 16, padding: 4, marginBottom: 12 }}>
                   {stops.map((s, i) => {
-                    const isCash = s.zahlungsart === 'bar' || s.bezahlt === false;
+                    const isCash = needsCashCollection(s);
                     const stopKm = hub && s.kunde_lat != null && s.kunde_lng != null
                       ? haversineKm(hub, { lat: s.kunde_lat, lng: s.kunde_lng }) : null;
                     const sub = [

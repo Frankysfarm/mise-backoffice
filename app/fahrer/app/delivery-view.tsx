@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Navigation, MapPin, Banknote, CreditCard, Check, CheckCircle2, Loader2, Phone, PhoneCall, ArrowRight, Map as MapIcon, Flag, TrendingUp, Share2, AlertTriangle, MessageSquare, AlertCircle, Camera, ImageIcon, Clock } from 'lucide-react';
 import { euro, cn } from '@/lib/utils';
+import { needsCashCollection } from '@/lib/delivery/payment';
 import { enqueueOutbox, flushOutbox } from './outbox';
 
 type FailedReason = 'no_answer' | 'wrong_address' | 'refused' | 'access_denied' | 'not_home' | 'other';
@@ -792,7 +793,7 @@ export function DeliveryView({
         </div>
         {/* Tour-Kassen-Zusammenfassung */}
         {(() => {
-          const cashStops = stops.filter((s) => !s.order.bezahlt && (s.order.zahlungsart === 'bar' || s.order.zahlungsart == null));
+          const cashStops = stops.filter((s) => needsCashCollection(s.order));
           const totalCash = cashStops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
           const totalAll = stops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
           if (totalCash === 0) return null;
@@ -815,11 +816,11 @@ export function DeliveryView({
             <span className="text-[9px] font-black uppercase tracking-widest text-accent">Nächster Stopp</span>
             <span className={cn(
               'ml-auto rounded-full px-2 py-0.5 text-[9px] font-bold mono',
-              !nextStop.order.bezahlt && (nextStop.order.zahlungsart === 'bar' || nextStop.order.zahlungsart == null)
+              needsCashCollection(nextStop.order)
                 ? 'bg-[var(--warn)] text-[var(--ink)]'
                 : 'bg-[var(--surface-2)] text-[var(--ink)]',
             )}>
-              {!nextStop.order.bezahlt && (nextStop.order.zahlungsart === 'bar' || nextStop.order.zahlungsart == null)
+              {needsCashCollection(nextStop.order)
                 ? `BAR ${euro(nextStop.order.gesamtbetrag)}`
                 : `Online ✓`}
             </span>
@@ -956,7 +957,7 @@ export function DeliveryView({
               const distKm = s.distanz_zum_vorgaenger_m != null && s.distanz_zum_vorgaenger_m > 0
                 ? (s.distanz_zum_vorgaenger_m / 1000).toFixed(1)
                 : null;
-              const isCash = !s.order.bezahlt && (s.order.zahlungsart === 'bar' || s.order.zahlungsart == null);
+              const isCash = needsCashCollection(s.order);
               return (
                 <div
                   key={s.id}
@@ -1045,7 +1046,7 @@ export function DeliveryView({
         <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] overflow-hidden">
           {sorted.map((s, i) => {
             const rDone = !!s.geliefert_am;
-            const rBar = !s.order.bezahlt && (s.order.zahlungsart === 'bar' || s.order.zahlungsart == null);
+            const rBar = needsCashCollection(s.order);
             return (
               <div key={s.id} className={cn('flex items-center gap-3 px-3 py-2.5', i > 0 && 'border-t border-[var(--line-2)]', rDone && 'opacity-45')}>
                 <span className={cn(
@@ -1182,7 +1183,7 @@ export function DeliveryView({
                 .map((s, idx, arr) => {
                   const done = !!s.geliefert_am;
                   const isNext = !done && arr.slice(0, idx).every((p) => !!p.geliefert_am);
-                  const isBar = !s.order.bezahlt && (s.order.zahlungsart === 'bar' || s.order.zahlungsart == null);
+                  const isBar = needsCashCollection(s.order);
                   const deliveryTime = s.geliefert_am
                     ? new Date(s.geliefert_am).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
                     : null;
@@ -1524,7 +1525,7 @@ export function DeliveryView({
       {/* Modal: Liefernachweis — Art der Übergabe wählen */}
       {proofModalStopId && (() => {
         const proofStop = stops.find((s) => s.id === proofModalStopId);
-        const isBarProof = !proofStop?.order.bezahlt && (proofStop?.order.zahlungsart === 'bar' || proofStop?.order.zahlungsart == null);
+        const isBarProof = needsCashCollection(proofStop?.order);
         const PROOF_OPTIONS: { key: ProofType; label: string; icon: string }[] = [
           { key: 'handed_to_person', label: 'Übergeben', icon: '🤝' },
           { key: 'left_at_door',    label: 'Vor Tür',    icon: '🚪' },
@@ -1660,7 +1661,7 @@ export function DeliveryView({
         {sorted.map((stop, stopIdx) => {
           const done = !!stop.geliefert_am;
           const isNext = !done && stop.id === nextStop?.id;
-          const isBar = !stop.order.bezahlt && (stop.order.zahlungsart === 'bar' || stop.order.zahlungsart == null);
+          const isBar = needsCashCollection(stop.order);
           const amount = stop.order.gesamtbetrag;
           const prevDone = stopIdx > 0 ? !!sorted[stopIdx - 1].geliefert_am : false;
 
@@ -1986,7 +1987,7 @@ export function DeliveryView({
         })}
 
         {allDone && (() => {
-          const cashStops = stops.filter((s) => !s.order.bezahlt && (s.order.zahlungsart === 'bar' || s.order.zahlungsart == null));
+          const cashStops = stops.filter((s) => needsCashCollection(s.order));
           const totalCash = cashStops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
           const onlineTotal = stops.filter((s) => s.order.bezahlt && s.order.zahlungsart !== 'bar')
             .reduce((sum, s) => sum + s.order.gesamtbetrag, 0);

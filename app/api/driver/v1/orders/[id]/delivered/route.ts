@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { badRequest, getDriverFromBearer, sb, unauthorized } from '../../../_lib/driver-auth';
 import { markPickedUp, promoteNextScheduled } from '@/lib/delivery/kitchen-sync';
+import { needsCashCollection } from '@/lib/delivery/payment';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -99,7 +100,7 @@ export async function POST(
   }
 
   const ordUpdate: Record<string, unknown> = { status: 'geliefert' };
-  if (!paidOrd.bezahlt && (paidOrd.zahlungsart === 'bar' || paidOrd.zahlungsart == null)) {
+  if (needsCashCollection(paidOrd)) {
     ordUpdate.bezahlt = true;
     ordUpdate.zahlungsart = 'bar';
     ordUpdate.stripe_payment_id = `cash:driver:${m.driver.id}:${now}`;

@@ -14,7 +14,7 @@ const MapView = dynamic(() => import('./map-view'), { ssr: false });
 
 const C = {
   appBg: '#0B0F0D', headerBg: '#121815', laneBg: '#0E1311', card: '#18211C', cardHover: '#1F2A24',
-  border: '#26332C', borderStrong: '#2E3D35', t1: '#F4F8F5', t2: '#9DB0A5', t3: '#6B7D72', link: '#5AB0FF',
+  border: '#26332C', borderStrong: '#2E3D35', t1: '#F4F8F5', t2: '#9DB0A5', t3: '#778A7F', link: '#5AB0FF',
   neu: '#FFB020', neuTint: '#3A2D0E', zub: '#12B85C', zubTint: '#0E2E1C', fertig: '#22C9C0', fertigTint: '#0C2E2C',
   warn: '#FF4D4F', warnTint: '#3A1517', warnSoft: '#FF8A3D', gold: '#F0BC44', goldTint: '#2E2410', btnHover: '#15CF66',
 };
@@ -69,6 +69,7 @@ export default function KitchenMonitor({
   const [soundType, setSoundType] = useState<string>(() => { try { return localStorage.getItem('kuche_sound') || 'sirene'; } catch { return 'sirene'; } });
   const [soundOpen, setSoundOpen] = useState(false);
   const [mapOpen, setMapOpen] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
   function chooseMethod(m: string) { setPrintMethodState(m); savePrintMethod(token, m); }
   function chooseSound(k: string) { setSoundType(k); try { localStorage.setItem('kuche_sound', k); } catch { /* noop */ } if (audioCtxRef.current) { try { audioCtxRef.current.resume(); } catch { /* noop */ } SOUNDS[k]?.play(audioCtxRef.current); } }
   const [toast, setToast] = useState<{ text: string; undo: () => void } | null>(null);
@@ -206,7 +207,7 @@ export default function KitchenMonitor({
   if (!activated) {
     return (
       <div onClick={activate} style={{ minHeight: '100vh', background: `radial-gradient(120% 80% at 50% -10%, ${brand}22, ${C.appBg} 60%)`, color: C.t1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, cursor: 'pointer', fontFamily: 'system-ui, sans-serif' }}>
-        {logoUrl ? <img src={logoUrl} alt="" style={{ height: 80, borderRadius: 16 }} /> : <UtensilsCrossed size={72} color={brand} />}
+        {logoUrl && !logoFailed ? <img src={logoUrl} alt={shopName} onError={() => setLogoFailed(true)} style={{ height: 80, borderRadius: 16 }} /> : <UtensilsCrossed size={72} color={brand} />}
         <div style={{ fontSize: 30, fontWeight: 800 }}>{shopName}</div>
         <div style={{ fontSize: 15, fontWeight: 700, color: C.t3, letterSpacing: '.12em' }}>mise · KÜCHE</div>
         <button onClick={activate} style={{ padding: '22px 48px', borderRadius: 16, border: 'none', background: brand, color: '#fff', fontSize: 22, fontWeight: 800, cursor: 'pointer', boxShadow: `0 12px 40px -8px ${brand}88` }}>▶ Bildschirm starten</button>
@@ -264,7 +265,7 @@ export default function KitchenMonitor({
       {/* HEADER */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', background: C.headerBg, borderBottom: `1px solid ${C.border}`, gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
-          {logoUrl ? <img src={logoUrl} alt="" style={{ height: 36, borderRadius: 8 }} /> : <UtensilsCrossed size={28} color={brand} />}
+          {logoUrl && !logoFailed ? <img src={logoUrl} alt={shopName} onError={() => setLogoFailed(true)} style={{ height: 36, borderRadius: 8 }} /> : <UtensilsCrossed size={28} color={brand} />}
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 20, fontWeight: 800, whiteSpace: 'nowrap' }}>{shopName}</div>
             <div style={{ fontSize: 13, fontWeight: 600, color: C.t2 }}>Küche · {orders.length} aktiv</div>
@@ -516,7 +517,7 @@ function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onI
         <span style={{ fontWeight: 800, fontSize: 28, fontFamily: 'monospace' }}>#{(o.bestellnummer || '').slice(-4) || '----'}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: tc.tint, color: tc.color, borderRadius: 999, padding: '4px 10px', fontSize: 13, fontWeight: 700 }}><tc.Icon size={14} /> {tc.label}</span>
-          {onPrint && <button onClick={() => onPrint(o)} title="Bon drucken" style={{ display: 'flex', width: 36, height: 36, alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', color: C.t3, cursor: 'pointer' }}><Printer size={18} /></button>}
+          {onPrint && <button onClick={() => onPrint(o)} aria-label="Bon drucken" style={{ display: 'flex', width: 44, height: 44, alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', color: C.t3, cursor: 'pointer' }}><Printer size={18} /></button>}
         </div>
       </div>
       {(o.kunde_name || o.kunde_telefon) && (
@@ -531,7 +532,7 @@ function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onI
           <div key={it.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 20, padding: '6px 0', color: it.pick_missing ? '#ff9b9e' : C.t1 }}>
             <span style={{ fontWeight: 900, color: it.pick_missing ? '#ff9b9e' : C.zub, minWidth: 30 }}>{it.menge}×</span>
             <span style={{ fontWeight: 700, textDecoration: it.pick_missing ? 'line-through' : 'none', flex: 1 }}>{it.name}</span>
-            {onItemMissing && <button onClick={() => onItemMissing(it.id, !it.pick_missing)} title="fehlt" style={{ width: 34, height: 34, borderRadius: 8, border: 'none', background: it.pick_missing ? C.warnTint : 'transparent', color: it.pick_missing ? '#ff9b9e' : C.t3, cursor: 'pointer', flexShrink: 0 }}><AlertTriangle size={15} /></button>}
+            {onItemMissing && <button onClick={() => onItemMissing(it.id, !it.pick_missing)} aria-label={it.pick_missing ? `${it.name} wieder verfügbar` : `${it.name} fehlt`} style={{ width: 44, height: 44, borderRadius: 10, border: 'none', background: it.pick_missing ? C.warnTint : 'transparent', color: it.pick_missing ? '#ff9b9e' : C.t3, cursor: 'pointer', flexShrink: 0 }}><AlertTriangle size={17} /></button>}
           </div>
         ))}
         {(o.items ?? []).flatMap((it) => it.notiz ? [<div key={it.id + 'n'} style={{ background: C.goldTint, color: C.gold, borderRadius: 8, padding: '4px 9px', fontSize: 14, fontWeight: 600, marginTop: 2 }}>{it.name}: {it.notiz}</div>] : [])}
@@ -543,9 +544,9 @@ function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onI
             <div style={{ fontSize: 11, color: C.t3 }}>Ein QR pro Beutel</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <button type="button" onClick={() => onBagCount(o.id, Math.max(1, o.delivery_bag_count - 1))} disabled={o.delivery_bag_count <= 1} aria-label="Ein Beutel weniger" style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${C.borderStrong}`, background: C.card, color: C.t1, fontSize: 20, cursor: 'pointer' }}>−</button>
+            <button type="button" onClick={() => onBagCount(o.id, Math.max(1, o.delivery_bag_count - 1))} disabled={o.delivery_bag_count <= 1} aria-label="Ein Beutel weniger" style={{ width: 44, height: 44, borderRadius: 12, border: `1px solid ${C.borderStrong}`, background: C.card, color: C.t1, fontSize: 22, cursor: 'pointer' }}>−</button>
             <strong style={{ minWidth: 24, textAlign: 'center', fontSize: 20 }}>{o.delivery_bag_count || 1}</strong>
-            <button type="button" onClick={() => onBagCount(o.id, Math.min(12, o.delivery_bag_count + 1))} disabled={o.delivery_bag_count >= 12} aria-label="Ein Beutel mehr" style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${C.borderStrong}`, background: C.card, color: C.t1, fontSize: 20, cursor: 'pointer' }}>+</button>
+            <button type="button" onClick={() => onBagCount(o.id, Math.min(12, o.delivery_bag_count + 1))} disabled={o.delivery_bag_count >= 12} aria-label="Ein Beutel mehr" style={{ width: 44, height: 44, borderRadius: 12, border: `1px solid ${C.borderStrong}`, background: C.card, color: C.t1, fontSize: 22, cursor: 'pointer' }}>+</button>
           </div>
         </div>
       )}
@@ -562,9 +563,9 @@ function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onI
           <button onClick={() => onStorno(o.id)} style={{ flex: 1, padding: 14, borderRadius: 10, border: 'none', background: C.warn, color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>Stornieren</button>
         </div>
       ) : (
-        <button onClick={() => setStornoConfirm && setStornoConfirm(o.id)} style={{ width: '100%', marginTop: 8, padding: 8, borderRadius: 10, border: 'none', background: 'transparent', color: C.t3, fontSize: 13, cursor: 'pointer' }}>Stornieren</button>
+        <button onClick={() => setStornoConfirm && setStornoConfirm(o.id)} style={{ width: '100%', minHeight: 44, marginTop: 8, padding: 10, borderRadius: 10, border: 'none', background: 'transparent', color: C.t3, fontSize: 13, cursor: 'pointer' }}>Stornieren</button>
       ))}
     </div>
   );
 }
-function Empty({ text }: { text: string }) { return <div style={{ textAlign: 'center', color: '#3a463e', fontSize: 14, padding: '30px 0' }}>{text}</div>; }
+function Empty({ text }: { text: string }) { return <div style={{ textAlign: 'center', color: C.t3, fontSize: 14, padding: '30px 0' }}>{text}</div>; }

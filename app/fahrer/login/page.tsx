@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Btn, Icon, Spinner, type IconName, SAFE_TOP, SAFE_BOTTOM } from '../app/drive-ui';
-import { BUILD_VERSION } from '../build-version';
 
 /* Brand-Mark im Drive-Stil — Lieferdienst „Mise". */
 function BrandMark({ size = 32 }: { size?: number }) {
@@ -248,7 +247,7 @@ export default function FahrerLoginPage() {
         }}
       >
         <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.08 }}>
-          Schicht starten
+          Fahrer-Anmeldung
         </div>
         <div style={{ fontSize: 15.5, color: 'var(--ink-2)', marginTop: 7, fontWeight: 500 }}>
           Melde dich mit deinem Fahrer-Zugang an.
@@ -280,7 +279,7 @@ export default function FahrerLoginPage() {
                   onClick={() => setShowPwd((v) => !v)}
                   aria-label="Passwort anzeigen"
                   className="press"
-                  style={{ color: 'var(--ink-3)', fontSize: 13, fontWeight: 700, padding: 4 }}
+                  style={{ color: 'var(--ink-3)', fontSize: 13, fontWeight: 700, minHeight: 44, padding: '0 8px' }}
                 >
                   {showPwd ? 'verbergen' : 'zeigen'}
                 </button>
@@ -298,7 +297,10 @@ export default function FahrerLoginPage() {
               fontSize: 14,
               fontWeight: 600,
               color: 'var(--accent)',
-              padding: 0,
+              minHeight: 44,
+              padding: '0 2px',
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
             Passwort vergessen?
@@ -344,8 +346,8 @@ export default function FahrerLoginPage() {
 
           <div style={{ flex: 1, minHeight: 18 }} />
           <div style={{ paddingBottom: SAFE_BOTTOM + 14 }}>
-            <Btn type="submit" disabled={busy} icon={busy ? undefined : 'power'}>
-              {busy ? <Spinner /> : 'Anmelden & online gehen'}
+            <Btn type="submit" disabled={busy} icon={busy ? undefined : 'user'}>
+              {busy ? <Spinner /> : 'Anmelden'}
             </Btn>
             <div
               style={{
@@ -358,7 +360,6 @@ export default function FahrerLoginPage() {
             >
               Nur fuer Fahrer:innen · Zugang per Einladung vom Restaurant
             </div>
-            <div className="mono" style={{ marginTop: 8, fontSize: 11, color: 'var(--ink-3)', opacity: 0.7, textAlign: 'center' }}>v {BUILD_VERSION}</div>
           </div>
         </form>
       </div>
