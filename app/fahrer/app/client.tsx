@@ -4,8 +4,8 @@ import React, { useEffect, useMemo, useRef, useState, useTransition } from 'reac
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import {
-  Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, Footprints,
-  Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Phone, Power, Route, ShoppingBag,
+  Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, Coffee, Footprints,
+  Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Phone, Play, Power, Route, ShoppingBag,
   TrendingUp, Trophy, X,
 } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
@@ -35,6 +35,14 @@ type Status = {
   fahrzeug: string | null;
   aktueller_batch_id: string | null;
   online_seit: string | null;
+};
+
+type DutyState = 'off_duty' | 'available' | 'paused';
+type DutyStatus = {
+  state: DutyState;
+  reason: string | null;
+  changedAt: string | null;
+  shiftStartedAt: string | null;
 };
 
 type OpenBatch = {
@@ -95,7 +103,7 @@ function refreshNativeGpsAuthority(): void {
 }
 
 export function FahrerApp({
-  driver, miseDriverId, initialStatus, initialOpenBatches, initialActiveBatch, initialWaitingBatches = [],
+  driver, miseDriverId, initialStatus, initialOpenBatches, initialActiveBatch, initialWaitingBatches = [], initialDutyStatus,
 }: {
   driver: Driver;
   miseDriverId: string | null;
@@ -103,15 +111,19 @@ export function FahrerApp({
   initialOpenBatches: OpenBatch[];
   initialActiveBatch: ActiveBatch | null;
   initialWaitingBatches?: { batch_id: string; orders: { order_id: string; bestellnummer: string; kunde_name: string; kunde_adresse: string; picked: boolean }[] }[];
+  initialDutyStatus: DutyStatus;
 }) {
   const supabase = createClient();
   const router = useRouter();
   const [status, setStatus] = useState(initialStatus);
   const [openBatches, setOpenBatches] = useState(initialOpenBatches);
   const [activeBatch, setActiveBatch] = useState(initialActiveBatch);
+  const [dutyStatus, setDutyStatus] = useState<DutyStatus>(initialDutyStatus);
   // Server-Daten -> lokalen State syncen: macht router.refresh() wirksam (kein Full-Reload noetig)
   useEffect(() => { setActiveBatch(initialActiveBatch); }, [initialActiveBatch]);
   useEffect(() => { setOpenBatches(initialOpenBatches); }, [initialOpenBatches]);
+  useEffect(() => { setStatus(initialStatus); }, [initialStatus]);
+  useEffect(() => { setDutyStatus(initialDutyStatus); }, [initialDutyStatus]);
   // Native APNs bridge: the notification is only a wake-up hint. The actual
   // assignment remains server-authoritative and is loaded via router.refresh().
   useEffect(() => {
@@ -176,7 +188,10 @@ export function FahrerApp({
   }, [supabase]);
   const [pending, startTransition] = useTransition();
 
-  const isOnline = status?.ist_online ?? false;
+  // Eingeloggt sein ist kein Dienststatus. Nur "available" erlaubt neue
+  // Zuweisungen; Pause und Schichtende bleiben auch nach Reload eindeutig.
+  const isOnline = dutyStatus.state === 'available';
+  const trackingEnabled = isOnline || Boolean(activeBatch);
   // GPS-Zustand wird von bg-location.ts verwaltet (kein lokaler Ref noetig)
   const lastGpsPushRef = useRef<number>(0);
   const [gpsOk, setGpsOk] = useState<boolean | null>(null);
@@ -361,10 +376,10 @@ export function FahrerApp({
      dann gehen Positions-Updates verloren und der Fahrer fliegt aus dem Dispatch-Pool. */
   const accessTokenRef = useRef<string>('');
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data }: { data: { session: { access_token?: string } | null } }) => {
       if (data.session?.access_token) accessTokenRef.current = data.session.access_token;
     }).catch(() => {});
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event: string, session: { access_token?: string } | null) => {
       // Token IMMER nachziehen — auch invalidieren, sonst laufen GPS-POSTs
       // nach Session-Ablauf ewig mit dem alten Token in 401 (Fahrer fliegt still aus dem Pool).
       accessTokenRef.current = session?.access_token ?? '';
@@ -374,9 +389,10 @@ export function FahrerApp({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* GPS-Tracking: bei Online-Status → bg-location.ts (Capacitor+PWA, Wake Lock, sendBeacon, Offline-Queue) */
+  /* GPS-Tracking: verfügbar oder noch auf aktiver Tour. Eine Admin-Pause darf
+     neue Zuweisungen sperren, aber niemals das Tracking der laufenden Tour. */
   useEffect(() => {
-    if (!isOnline) {
+    if (!trackingEnabled) {
       stopBgLocation();
       return;
     }
@@ -430,7 +446,7 @@ export function FahrerApp({
 
     return () => { onGpsError(null); stopBgLocation(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOnline]);
+  }, [trackingEnabled]);
 
   /* Batch-ID an bg-location weitergeben wenn sich activeBatch aendert */
   useEffect(() => {
@@ -524,7 +540,7 @@ export function FahrerApp({
         .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batches' }, refresh)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batch_stops' }, refresh)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'driver_status', filter: `employee_id=eq.${driver.id}` }, refresh)
-        .subscribe((status) => {
+        .subscribe((status: string) => {
           if (disposed) return;
           if (status === 'SUBSCRIBED') { retry = 0; setRtOk(true); return; }
           if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
@@ -568,14 +584,14 @@ export function FahrerApp({
         employee_id: driver.id, ist_online: false, fahrzeug: driver.fahrzeug_praeferenz, online_seit: null,
       });
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: false, online_seit: null }));
+      setDutyStatus({ state: 'off_duty', reason: null, changedAt: new Date().toISOString(), shiftStartedAt: null });
       refreshNativeGpsAuthority();
+      router.refresh();
     });
   }
 
-  async function toggleOnline() {
-    const next = !isOnline;
-    if (!next) {
-      // Going offline — aggregate Legacy + Mise Batches für Schicht-Zusammenfassung
+  async function endShift() {
+      // Schichtende — Legacy + Mise Batches für Zusammenfassung aggregieren
       const today = new Date(); today.setHours(0, 0, 0, 0);
 
       // Parallel: Legacy + Mise Batches abrufen
@@ -647,8 +663,9 @@ export function FahrerApp({
       }
       await goOffline();
       return;
-    }
-    // Going online
+  }
+
+  async function startShift() {
     startTransition(async () => {
       try {
         await ensureBrowserPushSubscription();
@@ -684,8 +701,64 @@ export function FahrerApp({
         return;
       }
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: true, online_seit: new Date().toISOString() }));
+      setDutyStatus({ state: 'available', reason: null, changedAt: new Date().toISOString(), shiftStartedAt: new Date().toISOString() });
       refreshNativeGpsAuthority();
+      router.refresh();
     });
+  }
+
+  async function pauseShift() {
+    startTransition(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch('/api/driver/v1/session/pause', {
+        method: 'POST',
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
+      const body = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) {
+        alert(body.error ?? 'Pause konnte nicht gestartet werden.');
+        return;
+      }
+      setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: false, online_seit: null }));
+      setDutyStatus((current) => ({ ...current, state: 'paused', reason: 'manual', changedAt: new Date().toISOString() }));
+      refreshNativeGpsAuthority();
+      router.refresh();
+    });
+  }
+
+  async function resumeShift() {
+    startTransition(async () => {
+      try {
+        await ensureBrowserPushSubscription();
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Benachrichtigungen konnten nicht aktiviert werden.');
+        return;
+      }
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch('/api/driver/v1/session/resume', {
+        method: 'POST',
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
+      const body = await response.json().catch(() => ({})) as { error?: string; code?: string };
+      if (!response.ok) {
+        if (body.code === 'shift_expired') {
+          setDutyStatus({ state: 'off_duty', reason: null, changedAt: new Date().toISOString(), shiftStartedAt: null });
+          router.refresh();
+        }
+        alert(body.error ?? 'Schicht konnte nicht fortgesetzt werden.');
+        return;
+      }
+      setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: true, online_seit: s?.online_seit ?? new Date().toISOString() }));
+      setDutyStatus((current) => ({ ...current, state: 'available', reason: null, changedAt: new Date().toISOString() }));
+      refreshNativeGpsAuthority();
+      router.refresh();
+    });
+  }
+
+  function toggleDuty() {
+    if (dutyStatus.state === 'available') void pauseShift();
+    else if (dutyStatus.state === 'paused') void resumeShift();
+    else void startShift();
   }
 
   async function ensureBrowserPushSubscription(): Promise<void> {
@@ -905,7 +978,11 @@ export function FahrerApp({
         <div className="flex items-center gap-3">
           <div className={cn(
             'h-11 w-11 rounded-2xl flex items-center justify-center',
-            isOnline ? 'bg-[var(--accent)] text-white' : 'bg-[var(--surface-2)]',
+            isOnline
+              ? 'bg-[var(--accent)] text-white'
+              : dutyStatus.state === 'paused'
+                ? 'bg-amber-100 text-amber-700'
+                : 'bg-[var(--surface-2)]',
           )}>
             <Bike size={22} />
           </div>
@@ -914,7 +991,7 @@ export function FahrerApp({
             <div className="font-display font-bold truncate">{driver.vorname} {driver.nachname}</div>
           </div>
           {/* Kapazitäts-Badge: zeige Stopp-Auslastung wenn online + aktiver Batch */}
-          {isOnline && activeBatch && (() => {
+          {activeBatch && (() => {
             const stopCount = activeBatch.stops.length;
             const bg = stopCount < 3 ? '#16a34a' : stopCount === 3 ? '#ea580c' : '#dc2626';
             return (
@@ -979,7 +1056,7 @@ export function FahrerApp({
         {false && (
           <section>
             <button
-              onClick={toggleOnline}
+              onClick={toggleDuty}
               disabled={pending}
               className={cn(
                 'w-full rounded-3xl p-5 font-display font-bold text-lg flex items-center gap-4 transition active:scale-[0.98]',
@@ -1009,8 +1086,8 @@ export function FahrerApp({
                   {gpsOk === false && <span className="text-[var(--danger)]">⚠️ GPS blockiert — in Safari/Chrome Standort erlauben</span>}
                   {gpsCalibrating && <span className="text-[var(--ink-2)]">📍 GPS wird kalibriert…</span>}
                   {gpsOk === true && !gpsCalibrating && (() => {
-                    const ageMs = gpsLastAt ? Date.now() - gpsLastAt : null;
-                    if (ageMs != null && ageMs > 60000) {
+                    const ageMs = Date.now() - Number(gpsLastAt ?? Date.now());
+                    if (ageMs > 60000) {
                       return (
                         <button
                           className="text-[var(--danger)] font-semibold"
@@ -1020,7 +1097,7 @@ export function FahrerApp({
                         </button>
                       );
                     }
-                    if (ageMs != null && ageMs > 30000) {
+                    if (ageMs > 30000) {
                       return <span className="text-[var(--warning,#f59e0b)] font-semibold">⚠️ GPS schwach — vor {Math.round(ageMs / 1000)}s</span>;
                     }
                     return <span className="text-accent">📍 GPS aktiv</span>;
@@ -1331,13 +1408,15 @@ export function FahrerApp({
         {!activeBatch && (
           <FahrerWarteAnzeige
             isOnline={isOnline}
+            dutyStatus={dutyStatus}
             driverId={driver.id}
             driverName={`${driver.vorname} ${driver.nachname}`.trim()}
             vehicle={driver.fahrzeug_praeferenz}
             gpsOk={gpsOk}
             gpsLastAt={gpsLastAt}
             gpsCalibrating={gpsCalibrating}
-            onGoOffline={toggleOnline}
+            onPrimaryAction={toggleDuty}
+            onEndShift={endShift}
             offlinePending={pending}
           />
         )}
@@ -1375,7 +1454,7 @@ export function FahrerApp({
 
         {/* Schicht-Buchung — Fahrer können sich für offene Schichten anmelden */}
         {false && driver.location_id && (
-          <SchichtBuchung locationId={driver.location_id} />
+          <SchichtBuchung locationId={driver.location_id!} />
         )}
       </main>
 
@@ -1384,7 +1463,7 @@ export function FahrerApp({
       {/* Alarm-Ringer: klingelt wenn Tour in Open-Liste (zum Annehmen) ODER zugewiesen (zum Picken) */}
       <PushRegister />
       <AlarmRinger
-        openBatchIds={openBatches.map((b) => b.batch_id)}
+        openBatchIds={isOnline ? openBatches.map((b) => b.batch_id) : []}
         assignedBatchId={activeBatch?.status === 'zugewiesen' && !pickOpen ? activeBatch.id : null}
       />
 
@@ -1790,34 +1869,50 @@ function WarteMapBg() {
 
 function FahrerWarteAnzeige({
   isOnline,
+  dutyStatus,
   driverId,
   driverName,
   vehicle,
   gpsOk,
   gpsLastAt,
   gpsCalibrating,
-  onGoOffline,
+  onPrimaryAction,
+  onEndShift,
   offlinePending,
 }: {
   isOnline: boolean;
+  dutyStatus: DutyStatus;
   driverId: string;
   driverName: string;
   vehicle: string | null;
   gpsOk: boolean | null;
   gpsLastAt: number | null;
   gpsCalibrating: boolean;
-  onGoOffline: () => void;
+  onPrimaryAction: () => void;
+  onEndShift: () => void;
   offlinePending: boolean;
 }) {
   const supabase = createClient();
   const [waitSec, setWaitSec] = useState(0);
   const [lastDeliveryMin, setLastDeliveryMin] = useState<number | null>(null);
 
-  // Wartezeit-Ticker
+  const isPaused = dutyStatus.state === 'paused';
+  const isOnDuty = dutyStatus.state !== 'off_duty';
+  const pauseCopy = dutyStatus.reason === 'inactivity'
+    ? { title: 'Sicherheitspause', body: 'Seit 30 Minuten kam kein Standort oder App-Signal. Tippe auf Weiterarbeiten, wenn du wieder bereit bist.' }
+    : dutyStatus.reason === 'admin'
+      ? { title: 'Von der Zentrale pausiert', body: 'Du bekommst keine neue Tour. Kläre mit der Zentrale, bevor du weiterarbeitest.' }
+      : dutyStatus.reason === 'cutoff'
+        ? { title: 'Arbeitstag beendet', body: 'Der eingestellte Tageswechsel ist erreicht. Starte für den nächsten Dienst eine neue Schicht.' }
+        : { title: 'Du machst Pause', body: 'Dein Konto bleibt angemeldet. Während der Pause bekommst du keine Bestellungen.' };
+
+  // Wartezeit zählt nur, solange der Fahrer wirklich zuweisbar ist.
   useEffect(() => {
+    setWaitSec(0);
+    if (!isOnline) return;
     const t = setInterval(() => setWaitSec((s) => s + 1), 1_000);
     return () => clearInterval(t);
-  }, []);
+  }, [isOnline]);
 
   // Letzte abgeschlossene Lieferung holen
   useEffect(() => {
@@ -1876,11 +1971,13 @@ function FahrerWarteAnzeige({
               width: 9,
               height: 9,
               borderRadius: 99,
-              background: isOnline ? 'var(--accent)' : 'var(--ink-3)',
-              boxShadow: isOnline ? '0 0 0 3px var(--accent-tint)' : 'none',
+              background: isOnline ? 'var(--accent)' : isPaused ? '#d97706' : 'var(--ink-3)',
+              boxShadow: isOnline ? '0 0 0 3px var(--accent-tint)' : isPaused ? '0 0 0 3px rgba(217,119,6,.14)' : 'none',
             }}
           />
-          <span style={{ fontWeight: 700, fontSize: 14.5 }}>{isOnline ? 'Online' : 'Offline'}</span>
+          <span style={{ fontWeight: 700, fontSize: 14.5 }}>
+            {isOnline ? 'Verfügbar' : isPaused ? 'Pause' : 'Außer Dienst'}
+          </span>
         </div>
         <div className="flex-1" />
         {gpsOk === false && (
@@ -1955,15 +2052,17 @@ function FahrerWarteAnzeige({
         style={{ left: '50%', top: '44%', transform: 'translate(-50%,-50%)', width: 250 }}
       >
         <div style={{ position: 'relative', width: 92, height: 92, margin: '0 auto 18px' }}>
-          <span
-            style={{
-              position: 'absolute',
-              inset: 0,
-              borderRadius: '50%',
-              background: 'var(--accent)',
-              animation: 'drv-pulse 2s ease-out infinite',
-            }}
-          />
+          {isOnline && (
+            <span
+              style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '50%',
+                background: 'var(--accent)',
+                animation: 'drv-pulse 2s ease-out infinite',
+              }}
+            />
+          )}
           <div
             style={{
               position: 'absolute',
@@ -1977,11 +2076,17 @@ function FahrerWarteAnzeige({
               boxShadow: '0 8px 32px -8px rgba(0,0,0,.12), 0 0 0 1px var(--line)',
             }}
           >
-            <DIcon name="bag" size={40} stroke={1.8} style={{ color: 'var(--accent)' }} />
+            {isOnline ? (
+              <DIcon name="bag" size={40} stroke={1.8} style={{ color: 'var(--accent)' }} />
+            ) : isPaused ? (
+              <Coffee size={38} strokeWidth={1.8} style={{ color: '#d97706' }} />
+            ) : (
+              <Power size={38} strokeWidth={1.8} style={{ color: 'var(--ink-3)' }} />
+            )}
           </div>
         </div>
         <div style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.02em' }}>
-          {isOnline ? 'Warte auf Bestellungen' : 'Du bist offline'}
+          {isOnline ? 'Warte auf Bestellungen' : isPaused ? pauseCopy.title : 'Bereit für deine nächste Schicht?'}
         </div>
         <div
           style={{
@@ -1992,11 +2097,15 @@ function FahrerWarteAnzeige({
             lineHeight: 1.4,
           }}
         >
-          {isOnline ? 'Bleib in der Naehe vom Restaurant. Neue Auftraege kommen automatisch rein.' : 'Tippe unten auf „Online gehen“, um Bestellungen zu bekommen.'}
+          {isOnline
+            ? 'Bleib in der Nähe vom Restaurant. Neue Aufträge kommen automatisch rein.'
+            : isPaused
+              ? pauseCopy.body
+              : 'Du bist angemeldet, aber nicht im Dienst. Erst „Schicht starten“ erlaubt neue Bestellungen.'}
         </div>
 
         {/* Wartezeit-Chip (mono) */}
-        <div
+        {isOnline && <div
           className="mono"
           style={{
             display: 'inline-flex',
@@ -2018,7 +2127,7 @@ function FahrerWarteAnzeige({
               · letzte vor {lastDeliveryMin}m
             </span>
           )}
-        </div>
+        </div>}
       </div>
 
       {/* Untere Fahrer-Leiste */}
@@ -2053,16 +2162,38 @@ function FahrerWarteAnzeige({
               {vehicle || 'Lieferung'}
             </div>
           </div>
-          <Btn
-            variant={isOnline ? "secondary" : "primary"}
-            size="sm"
-            full={false}
-            onClick={onGoOffline}
-            disabled={offlinePending}
-            style={{ width: 'auto' }}
-          >
-            {offlinePending ? <DSpinner size={16} color="var(--ink-2)" /> : (isOnline ? 'Offline' : 'Online gehen')}
-          </Btn>
+          <div className="flex shrink-0 items-center gap-2">
+            {isOnDuty && (
+              <button
+                type="button"
+                onClick={onEndShift}
+                disabled={offlinePending}
+                className="rounded-xl px-2.5 py-2 text-xs font-bold text-[var(--ink-3)] hover:bg-[var(--surface-2)] disabled:opacity-50"
+              >
+                Beenden
+              </button>
+            )}
+            <Btn
+              variant={isOnline ? "secondary" : "primary"}
+              size="sm"
+              full={false}
+              onClick={onPrimaryAction}
+              disabled={offlinePending}
+              style={isOnline
+                ? { width: 'auto', color: '#92400e', background: 'rgba(245,158,11,.14)' }
+                : { width: 'auto' }}
+            >
+              {offlinePending ? (
+                <DSpinner size={16} color="var(--ink-2)" />
+              ) : isOnline ? (
+                <><Coffee size={15} /> Pause</>
+              ) : isPaused ? (
+                <><Play size={15} /> Weiterarbeiten</>
+              ) : (
+                <><Power size={15} /> Schicht starten</>
+              )}
+            </Btn>
+          </div>
         </div>
       </div>
     </section>

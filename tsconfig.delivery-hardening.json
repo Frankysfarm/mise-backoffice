@@ -15,6 +15,9 @@
     "lib/delivery/recovery.ts",
     "lib/frank.ts",
     "app/api/driver/v1/session/start/route.ts",
+    "app/api/driver/v1/session/pause/route.ts",
+    "app/api/driver/v1/session/resume/route.ts",
+    "app/api/driver/v1/me/position/route.ts",
     "app/api/driver/v1/me/heartbeat/route.ts",
     "app/api/driver/v1/internal/push-flush/route.ts",
     "app/api/driver/v2/snapshot/route.ts",
@@ -27,8 +30,13 @@
     "app/api/delivery/admin/shifts/[id]/route.ts",
     "app/api/delivery/admin/shift-claims/route.ts",
     "app/(admin)/analytics/client.tsx",
+    "app/(admin)/drivers/page.tsx",
+    "app/(admin)/drivers/client.tsx",
+    "app/api/admin/drivers/duty/route.ts",
     "app/fahrer/layout.tsx",
     "app/fahrer/install.tsx",
+    "app/fahrer/app/page.tsx",
+    "app/fahrer/app/client.tsx",
     "tests/delivery/**/*.ts"
   ],
   "exclude": ["node_modules", ".next"]

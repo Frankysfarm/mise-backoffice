@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn, dateTimeDE } from '@/lib/utils';
 import {
-  AlertCircle, Bike, Check, Copy, ExternalLink, Loader2, Mail, Package, Phone, Plus, Send, Store, UserPlus, Wifi, WifiOff, X,
+  AlertCircle, Bike, Check, Coffee, Copy, ExternalLink, Loader2, Mail, Package, Phone, Play, Plus, Power, Send, Store, UserPlus, Wifi, WifiOff, X,
 } from 'lucide-react';
 
 type Driver = {
@@ -21,6 +21,15 @@ type Driver = {
   location_id: string;
   created_at: string;
   driver_status: { ist_online: boolean; fahrzeug: string; online_seit: string | null; last_update: string | null }[] | null;
+  mise_driver: {
+    id: string;
+    dispatch_availability: 'off_duty' | 'available' | 'paused';
+    availability_reason: string | null;
+    availability_changed_at: string | null;
+    shift_started_at: string | null;
+    active: boolean;
+    state: string;
+  } | null;
 };
 
 type Location = { id: string; name: string };
@@ -50,8 +59,11 @@ export function DriversClient({
 }) {
   const router = useRouter();
   const [showInvite, setShowInvite] = useState(false);
-  const online = drivers.filter((d) => d.driver_status?.[0]?.ist_online);
-  const offline = drivers.filter((d) => !d.driver_status?.[0]?.ist_online);
+  const dutyOf = (driver: Driver) => driver.mise_driver?.dispatch_availability
+    ?? (driver.driver_status?.[0]?.ist_online ? 'available' : 'off_duty');
+  const online = drivers.filter((d) => dutyOf(d) === 'available');
+  const paused = drivers.filter((d) => dutyOf(d) === 'paused');
+  const offline = drivers.filter((d) => dutyOf(d) === 'off_duty');
 
   const primary = tenant.theme_primary ?? '#14532d';
   const accent = tenant.theme_accent ?? '#4ae68a';
@@ -167,7 +179,10 @@ export function DriversClient({
       ) : (
         <>
           {online.length > 0 && (
-            <DriversSection title="Online" tone="accent" drivers={online} locations={locations} />
+            <DriversSection title="Verfügbar" tone="accent" drivers={online} locations={locations} />
+          )}
+          {paused.length > 0 && (
+            <DriversSection title="Pausiert / gesperrt" tone="warning" drivers={paused} locations={locations} />
           )}
           {offline.length > 0 && (
             <DriversSection title="Offline / Eingeladen" tone="muted" drivers={offline} locations={locations} />
@@ -188,10 +203,13 @@ export function DriversClient({
   );
 }
 
-function DriversSection({ title, tone, drivers, locations }: { title: string; tone: 'accent' | 'muted'; drivers: Driver[]; locations?: Location[] }) {
+function DriversSection({ title, tone, drivers, locations }: { title: string; tone: 'accent' | 'warning' | 'muted'; drivers: Driver[]; locations?: Location[] }) {
   return (
     <section>
-      <h2 className={cn('text-xs font-bold uppercase tracking-[0.2em] mb-2 px-1', tone === 'accent' ? 'text-matcha-700' : 'text-muted-foreground')}>
+      <h2 className={cn(
+        'text-xs font-bold uppercase tracking-[0.2em] mb-2 px-1',
+        tone === 'accent' ? 'text-matcha-700' : tone === 'warning' ? 'text-amber-700' : 'text-muted-foreground',
+      )}>
         {title} · {drivers.length}
       </h2>
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -203,10 +221,15 @@ function DriversSection({ title, tone, drivers, locations }: { title: string; to
 
 function DriverCard({ driver: d, locations }: { driver: Driver; locations?: Location[] }) {
   const ds = d.driver_status?.[0];
-  const online = ds?.ist_online ?? false;
+  const duty = d.mise_driver?.dispatch_availability ?? (ds?.ist_online ? 'available' : 'off_duty');
+  const online = duty === 'available';
+  const paused = duty === 'paused';
   const veh = ds?.fahrzeug ?? d.fahrzeug_praeferenz ?? 'ebike';
   const initials = `${d.vorname[0] ?? ''}${d.nachname[0] ?? ''}`.toUpperCase();
   const locationName = locations?.find((l) => l.id === d.location_id)?.name;
+  const statusAt = online
+    ? (ds?.online_seit ?? d.mise_driver?.availability_changed_at ?? ds?.last_update ?? null)
+    : (d.mise_driver?.availability_changed_at ?? ds?.last_update ?? null);
 
   return (
     <Card className="p-5">
@@ -217,9 +240,9 @@ function DriverCard({ driver: d, locations }: { driver: Driver; locations?: Loca
           </div>
           <div className={cn(
             'absolute -bottom-1 -right-1 h-5 w-5 rounded-full border-2 border-card flex items-center justify-center',
-            online ? 'bg-matcha-500' : 'bg-muted',
+            online ? 'bg-matcha-500' : paused ? 'bg-amber-500' : 'bg-muted',
           )}>
-            {online ? <Wifi className="h-2.5 w-2.5 text-white" /> : <WifiOff className="h-2.5 w-2.5 text-white" />}
+            {online ? <Wifi className="h-2.5 w-2.5 text-white" /> : paused ? <Coffee className="h-2.5 w-2.5 text-white" /> : <WifiOff className="h-2.5 w-2.5 text-white" />}
           </div>
         </div>
         <div className="flex-1 min-w-0">
@@ -246,17 +269,91 @@ function DriverCard({ driver: d, locations }: { driver: Driver; locations?: Loca
         </div>
       </div>
       <div className="mt-3 pt-3 border-t flex items-center justify-between text-xs">
-        <Badge variant={online ? 'accent' : 'muted'} className="h-5 px-2 text-[10px]">
-          {online ? `Online · ${VEHICLE_LABEL[veh]}` : 'Offline'}
+        <Badge variant={online ? 'accent' : 'muted'} className={cn('h-5 px-2 text-[10px]', paused && 'bg-amber-100 text-amber-800')}>
+          {online ? `Verfügbar · ${VEHICLE_LABEL[veh]}` : paused ? dutyReasonLabel(d.mise_driver?.availability_reason) : 'Außer Dienst'}
         </Badge>
-        {ds?.last_update && (
+        {statusAt && (
           <span className="text-muted-foreground">
-            {online ? `seit ${timeAgo(ds.online_seit ?? ds.last_update)}` : `zuletzt ${timeAgo(ds.last_update)}`}
+            seit {timeAgo(statusAt)}
           </span>
         )}
       </div>
       <VehiclePicker driverId={d.id} initial={d.fahrzeug_praeferenz ?? 'ebike'} />
+      {d.mise_driver && <DriverDutyActions driver={d.mise_driver} />}
     </Card>
+  );
+}
+
+function dutyReasonLabel(reason: string | null | undefined) {
+  if (reason === 'inactivity') return 'Sicherheitspause';
+  if (reason === 'admin') return 'Von Zentrale pausiert';
+  if (reason === 'cutoff') return 'Tageswechsel erreicht';
+  if (reason === 'push_unreachable') return 'Push nicht erreichbar';
+  return 'Pause';
+}
+
+function DriverDutyActions({ driver }: { driver: NonNullable<Driver['mise_driver']> }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const duty = driver.dispatch_availability;
+
+  async function run(action: 'pause' | 'resume' | 'end') {
+    if (action === 'end' && !confirm('Schicht wirklich beenden? Der Fahrer erhält danach keine neue Bestellung.')) return;
+    setBusy(action);
+    setError(null);
+    try {
+      const response = await fetch('/api/admin/drivers/duty', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ driver_id: driver.id, action }),
+      });
+      const body = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) {
+        setError(body.error ?? 'Dienststatus konnte nicht geändert werden.');
+        return;
+      }
+      router.refresh();
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  if (duty === 'off_duty') return null;
+  return (
+    <div className="mt-3 border-t pt-3">
+      <div className="flex gap-2">
+        {duty === 'available' ? (
+          <button
+            onClick={() => run('pause')}
+            disabled={busy !== null}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-amber-50 px-2 py-2 text-xs font-bold text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+          >
+            {busy === 'pause' ? <Loader2 size={13} className="animate-spin" /> : <Coffee size={13} />}
+            Zuweisungen stoppen
+          </button>
+        ) : (
+          <button
+            onClick={() => run('resume')}
+            disabled={busy !== null || driver.availability_reason === 'cutoff'}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-matcha-100 px-2 py-2 text-xs font-bold text-matcha-800 hover:bg-matcha-200 disabled:opacity-50"
+          >
+            {busy === 'resume' ? <Loader2 size={13} className="animate-spin" /> : <Play size={13} />}
+            Wieder freigeben
+          </button>
+        )}
+        <button
+          onClick={() => run('end')}
+          disabled={busy !== null}
+          className="flex items-center justify-center gap-1.5 rounded-lg bg-muted px-2.5 py-2 text-xs font-bold text-muted-foreground hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+          title="Schicht sicher beenden"
+        >
+          {busy === 'end' ? <Loader2 size={13} className="animate-spin" /> : <Power size={13} />}
+          Beenden
+        </button>
+      </div>
+      {error && <p className="mt-2 text-[11px] font-semibold text-red-700">{error}</p>}
+    </div>
   );
 }
 

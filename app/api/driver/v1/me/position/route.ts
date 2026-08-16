@@ -19,6 +19,13 @@ export async function POST(req: NextRequest) {
   if (!m.driver.active) {
     return NextResponse.json({ ok: false, error: 'inactive' }, { status: 409 });
   }
+  if (m.driver.dispatch_availability !== 'available') {
+    const { data: activeBatch } = await sb().from('mise_delivery_batches').select('id')
+      .eq('driver_id', m.driver.id).not('state', 'in', '("completed","cancelled")').limit(1).maybeSingle();
+    if (!activeBatch) {
+      return NextResponse.json({ ok: false, error: 'gps_paused' }, { status: 409 });
+    }
+  }
 
   let body: Body;
   try {
@@ -60,6 +67,7 @@ export async function POST(req: NextRequest) {
       .update({ state: 'idle' })
       .eq('id', m.driver.id)
       .eq('active', true)
+      .eq('dispatch_availability', 'available')
       .eq('state', 'offline')
       .not('shift_started_at', 'is', null),
     // Sync in driver_status damit Kitchen-Monitor + Dispatch-Board den Fahrer auf der Karte sehen

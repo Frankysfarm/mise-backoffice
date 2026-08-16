@@ -143,6 +143,24 @@ export async function POST(
     }
     // Fahrer-State konsistent halten (wie TourCloseButton): en_route -> returning
     await c.from('mise_drivers').update({ state: 'returning' }).eq('id', batch.driver_id).eq('state', 'en_route');
+    // Eine von der Zentrale während der Tour gesetzte Pause wirkt nach dem
+    // letzten Stopp vollständig: Tracking endet und Legacy-Anzeigen zeigen
+    // den Fahrer nicht irrtümlich weiter als zuweisbar.
+    const { data: duty } = await c.from('mise_drivers')
+      .select('auth_user_id,dispatch_availability')
+      .eq('id', batch.driver_id)
+      .maybeSingle();
+    if (duty?.dispatch_availability === 'paused') {
+      await c.from('mise_drivers').update({ state: 'offline' }).eq('id', batch.driver_id);
+      if (duty.auth_user_id) {
+        const { data: employee } = await c.from('employees').select('id')
+          .eq('auth_user_id', duty.auth_user_id).maybeSingle();
+        if (employee?.id) {
+          await c.from('driver_status').update({ ist_online: false, online_seit: null })
+            .eq('employee_id', employee.id);
+        }
+      }
+    }
   }
 
   // JIT-Koch-Gate: diese Order ist erledigt -> aus der Koch-Warteschlange nehmen

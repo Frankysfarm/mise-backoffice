@@ -23,8 +23,10 @@ export async function POST(req: NextRequest) {
     const envelope = validateNativeGpsEnvelope(await req.json());
     const event = envelope.payload;
     const client = sb();
-    const [{ data: current }, locationId] = await Promise.all([
-      client.from('mise_drivers').select('state,active,shift_started_at').eq('id', auth.driver.id).maybeSingle(),
+    const [{ data: current }, { data: activeBatch }, locationId] = await Promise.all([
+      client.from('mise_drivers').select('state,active,shift_started_at,dispatch_availability').eq('id', auth.driver.id).maybeSingle(),
+      client.from('mise_delivery_batches').select('id')
+        .eq('driver_id', auth.driver.id).not('state', 'in', '("completed","cancelled")').limit(1).maybeSingle(),
       resolveDriverLocationId(client, auth.driver.id),
     ]);
     if (!locationId) {
@@ -40,8 +42,10 @@ export async function POST(req: NextRequest) {
       settings.driver_shift_cutoff_minute,
       settings.driver_session_max_hours,
     ));
-    const currentState = sessionCurrent ? mapBackendDriverState(current?.state ?? 'offline') : 'offline';
-    if (!sessionCurrent || (event.app_state !== 'foreground' && settings.driver_background_gps_enabled < 1)) {
+    const dutyAllowsGps = current?.dispatch_availability === 'available' || Boolean(activeBatch);
+    const currentState = sessionCurrent && dutyAllowsGps ? mapBackendDriverState(current?.state ?? 'offline') : 'offline';
+    if (!sessionCurrent || !dutyAllowsGps
+        || (event.app_state !== 'foreground' && settings.driver_background_gps_enabled < 1)) {
       return NextResponse.json(
         { ok: false, reason_code: 'GPS_POLICY_DISABLED', correlation_id: correlationId },
         { status: 409 },

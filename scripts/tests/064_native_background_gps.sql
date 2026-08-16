@@ -24,7 +24,7 @@ begin
     raise exception 'native GPS test fixture unavailable';
   end if;
 
-  update public.mise_drivers set active=true,state='idle',shift_started_at=now(),
+  update public.mise_drivers set active=true,state='idle',dispatch_availability='available',shift_started_at=now(),
     last_position_at=null,last_lat=null,last_lng=null,last_foreground_at=null
   where id=v_driver_id;
 

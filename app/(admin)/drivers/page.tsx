@@ -16,10 +16,10 @@ export default async function DriversPage() {
 
   const tenantLocIds = ((await svc.from('locations').select('id').eq('tenant_id', empT.tenant_id)).data as any[])?.map((l) => l.id) ?? [];
 
-  const [{ data: drivers }, { data: locations }, { data: tenant }, { data: openOrders }] = await Promise.all([
+  const [{ data: drivers }, { data: locations }, { data: tenant }, { data: openOrders }, { data: miseDriverLinks }] = await Promise.all([
     svc
       .from('employees')
-      .select('id, vorname, nachname, email, telefon, fahrzeug_praeferenz, status, kann_ausliefern, location_id, created_at, driver_status(ist_online, fahrzeug, online_seit, last_update)')
+      .select('id, auth_user_id, vorname, nachname, email, telefon, fahrzeug_praeferenz, status, kann_ausliefern, location_id, created_at, driver_status(ist_online, fahrzeug, online_seit, last_update)')
       .eq('tenant_id', empT.tenant_id)
       .eq('kann_ausliefern', true)
       .order('created_at', { ascending: false }),
@@ -31,7 +31,20 @@ export default async function DriversPage() {
       .eq('typ', 'lieferung')
       .in('status', ['fertig', 'unterwegs'])
       .in('location_id', tenantLocIds.length > 0 ? tenantLocIds : ['00000000-0000-0000-0000-000000000000']),
+    svc.from('mise_driver_tenants')
+      .select('driver:driver_id(id,auth_user_id,dispatch_availability,availability_reason,availability_changed_at,shift_started_at,active,state)')
+      .eq('tenant_id', empT.tenant_id)
+      .eq('status', 'active'),
   ]);
+
+  const miseByAuth = new Map<string, any>();
+  ((miseDriverLinks as any[]) ?? []).forEach((link) => {
+    if (link.driver?.auth_user_id) miseByAuth.set(link.driver.auth_user_id, link.driver);
+  });
+  const enrichedDrivers = ((drivers as any[]) ?? []).map((driver) => ({
+    ...driver,
+    mise_driver: driver.auth_user_id ? (miseByAuth.get(driver.auth_user_id) ?? null) : null,
+  }));
 
   const sources = new Set<string>();
   let internalCount = 0;
@@ -48,7 +61,7 @@ export default async function DriversPage() {
         description="Fahrer anlegen, einladen, App-Status sehen — alles an einem Ort."
       />
       <DriversClient
-        drivers={(drivers as any[]) ?? []}
+        drivers={enrichedDrivers}
         locations={(locations as any[]) ?? []}
         defaultLocationId={empT.location_id}
         resendReady={!!(tenant as any)?.resend_verified_at}

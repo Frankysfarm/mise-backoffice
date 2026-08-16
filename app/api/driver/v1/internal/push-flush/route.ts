@@ -90,6 +90,14 @@ async function requeueFailedAssignment(
     p_exclude_minutes: 15,
   });
   if (error) throw new Error(`assignment requeue failed: ${error.message}`);
+  // Nach einem echten Push-Ausfall ohne frischen App-Kontakt nicht sofort die
+  // nächste Tour wieder demselben unerreichbaren Fahrer anbieten. Die Session
+  // bleibt erhalten; der Fahrer kann nach Prüfung von Push/GPS fortsetzen.
+  await c.rpc('pause_driver_dispatch_session', {
+    p_driver_id: row.driver_id,
+    p_reason: 'push_unreachable',
+    p_allow_active_batch: true,
+  });
 }
 
 export async function POST(req: NextRequest) {

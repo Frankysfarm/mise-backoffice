@@ -33,14 +33,17 @@ export async function POST(req: NextRequest) {
   // Sonst findet sich der Fahrer nach einer Bildschirmpause offline wieder und muss
   // auf den ersten GPS-Fix warten, um zurückzukommen (Founder-Befund 14.08.).
   const { data: driver } = await svc.from('mise_drivers')
-    .select('id,active,state,shift_started_at')
+    .select('id,active,state,shift_started_at,dispatch_availability')
     .eq('auth_user_id', uid)
     .maybeSingle();
   const { data: employee } = await svc.from('employees')
     .select('location_id')
     .eq('auth_user_id', uid)
     .maybeSingle();
-  if (driver?.active && ['offline', 'stale'].includes(driver.state as string) && employee?.location_id) {
+  // Nur eine bereits freigegebene Schicht selbst heilen. Manuelle, automatische
+  // oder Admin-Pausen werden niemals durch bloßes Öffnen der App aufgehoben.
+  if (driver?.active && driver.dispatch_availability === 'available'
+      && ['offline', 'stale'].includes(driver.state as string) && employee?.location_id) {
     const [cutoffMinute, maxHours] = await Promise.all([
       getSetting(employee.location_id as string, 'driver_shift_cutoff_minute'),
       getSetting(employee.location_id as string, 'driver_session_max_hours'),

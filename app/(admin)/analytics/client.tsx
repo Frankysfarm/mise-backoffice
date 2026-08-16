@@ -770,6 +770,7 @@ const KEY_UNITS: Record<string, string> = {
   dispatch_max_attempts: 'x',
   driver_shift_cutoff_minute: 'Uhr',
   driver_session_max_hours: 'Std.',
+  driver_inactivity_pause_minutes: 'min',
   driver_background_gps_enabled: '0/1',
   bundling_max_detour_km: 'km',
   bundling_max_stops: 'Stopps',

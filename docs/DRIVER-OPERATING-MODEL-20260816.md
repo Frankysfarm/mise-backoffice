@@ -16,6 +16,30 @@ Zuweisungen an Fahrer vom Vortag.
 - Nach dem Cutoff gibt es keine neue Zuweisung; ohne aktive Tour schließt der Cron
   Schicht, Online-Projektion und Fahrerstatus gemeinsam
 
+## Dienststatus statt Login-Schalter
+
+Der Auth-Login sagt nur, **wer** das Gerät benutzt. Ob der Fahrer Bestellungen
+bekommen darf, entscheidet ausschließlich `dispatch_availability`:
+
+- `off_duty`: Konto bleibt angemeldet, keine aktive Schicht, keine Zuweisung
+- `available`: aktuelle Schicht, Push und frisches GPS; neue Touren erlaubt
+- `paused`: Schicht bleibt erhalten, aber keine neue Zuweisung und ohne aktive
+  Tour kein GPS-Tracking
+
+Eine Pause trägt einen nachvollziehbaren Grund: manuell, Inaktivität, Zentrale,
+Tageswechsel oder Push-Unerreichbarkeit. Ein sichtbarer Heartbeat darf eine
+Pause niemals automatisch aufheben. Nach Inaktivität muss der Fahrer bewusst
+„Weiterarbeiten“ wählen; nach dem Tageswechsel ist eine neue Schicht nötig.
+
+Die Zentrale kann neue Zuweisungen sofort stoppen. Befindet sich der Fahrer auf
+Tour, bleibt diese samt GPS aktiv und die Pause wirkt vollständig nach dem
+letzten Stopp. Ein hartes Schichtende ist mit aktiver Tour gesperrt.
+
+Der Inaktivitäts-Failsafe ist pro Standort konfigurierbar (Standard 30 Minuten).
+Unabhängig davon sperrt ein GPS-Alter über 15 Minuten die Dispatch-Auswahl. So
+bleibt ein Gerät mit funktionierendem Background-GPS und Push erreichbar, ein
+tatsächlich verschwundener Fahrer aber nicht im Pool.
+
 ## Nicht verhandelbare Systeminvarianten
 
 1. Eine Bestellung kann atomar nur genau einen aktiven Batch gewinnen.
@@ -29,6 +53,9 @@ Zuweisungen an Fahrer vom Vortag.
    direkt les- oder schreibbar.
 8. Ein stop- und bestellungsloser Crash-Batch wird nach Schonfrist bereinigt;
    verknüpfte Kundenbestellungen werden dabei niemals blind verändert.
+9. Eingeloggt ist nie gleich zuweisbar: Nur `available` darf einen atomaren
+   Fahrer-Claim gewinnen.
+10. Pause und Schichtende dürfen eine laufende Custody-Tour nicht unterbrechen.
 
 ## Push- und Offline-Modell
 

@@ -76,7 +76,16 @@ export async function POST(req: NextRequest) {
       console.error('[session/start] driver_status nicht geschrieben:', statusError.message);
       // Kein Split-Brain: Wenn die Legacy-Statusprojektion nicht geschrieben
       // werden kann, die eben gestartete Dispatch-Session sofort zurückrollen.
-      await c.rpc('end_driver_dispatch_session', { p_driver_id: m.driver.id });
+      const wasExistingSession = Boolean((started as { resumed?: boolean } | null)?.resumed);
+      if (wasExistingSession) {
+        await c.rpc('pause_driver_dispatch_session', {
+          p_driver_id: m.driver.id,
+          p_reason: 'manual',
+          p_allow_active_batch: false,
+        });
+      } else {
+        await c.rpc('end_driver_dispatch_session', { p_driver_id: m.driver.id });
+      }
       return NextResponse.json(
         { ok: false, error: 'Online-Status konnte nicht sicher gespeichert werden', status_written: false },
         { status: 503 },

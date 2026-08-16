@@ -65,12 +65,15 @@ export interface DriverPublic {
   frank_mode: 'auto' | 'confirm' | 'manual';
   state: string;
   active: boolean;
+  dispatch_availability: 'off_duty' | 'available' | 'paused';
+  availability_reason: 'manual' | 'inactivity' | 'admin' | 'cutoff' | 'push_unreachable' | null;
+  shift_started_at: string | null;
   total_deliveries: number;
   total_earnings: number;
 }
 
 const DRIVER_SELECT =
-  'id,phone,email,name,vehicle,max_radius_km,frank_mode,state,active,total_deliveries,total_earnings';
+  'id,phone,email,name,vehicle,max_radius_km,frank_mode,state,active,dispatch_availability,availability_reason,shift_started_at,total_deliveries,total_earnings';
 
 export function toDriverPublic(driver: any): DriverPublic {
   return {
@@ -86,6 +89,9 @@ export function toDriverPublic(driver: any): DriverPublic {
     frank_mode: driver.frank_mode,
     state: driver.state,
     active: Boolean(driver.active),
+    dispatch_availability: driver.dispatch_availability ?? (driver.active ? 'available' : 'off_duty'),
+    availability_reason: driver.availability_reason ?? null,
+    shift_started_at: driver.shift_started_at ?? null,
     total_deliveries: Number(driver.total_deliveries ?? 0),
     total_earnings: Number(driver.total_earnings ?? 0),
   };

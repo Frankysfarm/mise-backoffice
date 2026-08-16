@@ -32,6 +32,7 @@ export type DeliverySettingKey =
   // driver operations
   | 'driver_shift_cutoff_minute'
   | 'driver_session_max_hours'
+  | 'driver_inactivity_pause_minutes'
   | 'driver_background_gps_enabled'
   // bundling
   | 'bundling_max_detour_km'
@@ -64,6 +65,7 @@ const DEFAULTS: Record<DeliverySettingKey, number> = {
   dispatch_max_attempts:       5,
   driver_shift_cutoff_minute:  0,
   driver_session_max_hours:   16,
+  driver_inactivity_pause_minutes: 30,
   driver_background_gps_enabled: 1,
   bundling_max_detour_km:     1.5,
   bundling_max_stops:          4,

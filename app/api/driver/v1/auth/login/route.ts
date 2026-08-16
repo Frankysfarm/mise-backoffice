@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   const { data: driver } = await c
     .from('mise_drivers')
     .select(
-      'id,phone,email,name,vehicle,max_radius_km,frank_mode,state,active,total_deliveries,total_earnings,initial_code_hash,initial_code_expires_at,initial_code_consumed_at',
+      'id,phone,email,name,vehicle,max_radius_km,frank_mode,state,active,dispatch_availability,availability_reason,shift_started_at,total_deliveries,total_earnings,initial_code_hash,initial_code_expires_at,initial_code_consumed_at',
     )
     .eq('phone', phone)
     .maybeSingle();
@@ -127,6 +127,9 @@ export async function POST(req: NextRequest) {
     frank_mode: driver.frank_mode,
     state: driver.state,
     active: driver.active,
+    dispatch_availability: driver.dispatch_availability ?? (driver.active ? 'available' : 'off_duty'),
+    availability_reason: driver.availability_reason ?? null,
+    shift_started_at: driver.shift_started_at ?? null,
     total_deliveries: driver.total_deliveries,
     total_earnings: Number(driver.total_earnings),
   };

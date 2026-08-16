@@ -25,7 +25,7 @@ export default async function FahrerAppPage() {
   // Mise-Driver-ID via auth_user_id ermitteln (für Smart-Dispatch-Batches)
   const { data: miseDriver } = await svc
     .from('mise_drivers')
-    .select('id')
+    .select('id,dispatch_availability,availability_reason,availability_changed_at,shift_started_at,active')
     .eq('auth_user_id', user.id)
     .maybeSingle();
 
@@ -134,6 +134,13 @@ export default async function FahrerAppPage() {
       initialOpenBatches={allOpenBatches}
       initialActiveBatch={(activeBatch as any) ?? null}
       initialWaitingBatches={waitingBatches as any}
+      initialDutyStatus={{
+        state: (miseDriver?.dispatch_availability as 'off_duty' | 'available' | 'paused' | undefined)
+          ?? ((status as any)?.ist_online ? 'available' : 'off_duty'),
+        reason: (miseDriver?.availability_reason as string | null | undefined) ?? null,
+        changedAt: (miseDriver?.availability_changed_at as string | null | undefined) ?? null,
+        shiftStartedAt: (miseDriver?.shift_started_at as string | null | undefined) ?? null,
+      }}
     />
   );
 }
