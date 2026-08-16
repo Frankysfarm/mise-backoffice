@@ -647,10 +647,17 @@ export function FahrerApp({
           return;
         }
       }
-      await supabase.from('driver_status').upsert({
+      // Fehler hier NICHT verschlucken: sonst zeigt die App "online", während in der
+      // Datenbank offline steht — und der Fahrer findet sich nach dem nächsten Laden
+      // offline wieder, ohne etwas getan zu haben (Founder-Befund 14.08.).
+      const { error: statusError } = await supabase.from('driver_status').upsert({
         employee_id: driver.id, ist_online: true, fahrzeug: driver.fahrzeug_praeferenz,
         online_seit: new Date().toISOString(),
       });
+      if (statusError && !miseDriverId) {
+        alert(`Online-Status konnte nicht gespeichert werden: ${statusError.message}`);
+        return;
+      }
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: true, online_seit: new Date().toISOString() }));
     });
   }
@@ -1355,30 +1362,39 @@ export function FahrerApp({
         assignedBatchId={activeBatch?.status === 'zugewiesen' && !pickOpen ? activeBatch.id : null}
       />
 
-      {pickOpen && activeBatch && (
-        <PickDialog
-          orderBestellnummer={(activeBatch.stops.find((s) => s.order_id === pickOrderId)?.order.bestellnummer) ?? activeBatch.stops[0]?.order.bestellnummer ?? ''}
-          items={pickItems}
-          batchId={activeBatch.id}
-          onClose={() => setPickOpen(false)}
-          onComplete={() => {
-            // Geführter Flow: nächste ungepickte Order öffnet sich automatisch;
-            // nach der letzten wird direkt die Route berechnet (keine Zwischenseite).
-            const nextUnpicked = activeBatch.stops.find((s: any) => {
-              if (!s.order_id || s.order_id === pickOrderId) return false;
-              const its = (s.order?.items ?? []) as any[];
-              return !(its.length > 0 && its.every((it: any) => it.pick_confirmed_at));
-            });
-            if (nextUnpicked) {
-              setPickOrderId(nextUnpicked.order_id);
-              router.refresh();
-            } else {
+      {pickOpen && activeBatch && (() => {
+        // Die GANZE Tour geht in den Dialog — eine Seite pro Bestellung, horizontal durchwischbar.
+        const seen = new Set<string>();
+        const pickOrders = activeBatch.stops
+          .slice()
+          .sort((a: any, b: any) => a.reihenfolge - b.reihenfolge)
+          .filter((s: any) => {
+            if (!s.order_id || seen.has(s.order_id)) return false;
+            seen.add(s.order_id);
+            return true;
+          })
+          .map((s: any) => ({
+            orderId: s.order_id as string,
+            bestellnummer: (s.order?.bestellnummer ?? '') as string,
+            kundeName: (s.order?.kunde_name ?? null) as string | null,
+            // pickItems ist der frisch nachgeladene Stand der zuletzt geöffneten Bestellung
+            items: (s.order_id === pickOrderId && pickItems.length > 0
+              ? pickItems
+              : ((s.order?.items ?? []) as any[])),
+          }));
+        return (
+          <PickDialog
+            orders={pickOrders}
+            batchId={activeBatch.id}
+            routePending={pending}
+            onClose={() => setPickOpen(false)}
+            onRouteReady={() => {
               setPickOpen(false);
               completeAndRoute(activeBatch.id);
-            }
-          }}
-        />
-      )}
+            }}
+          />
+        );
+      })()}
 
       {/* F1: Route-Bestaetigungs-Sheet nach komplettem Pickup */}
       {routeSheet && (
@@ -1931,7 +1947,8 @@ function FahrerWarteAnzeige({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 8px 24px -8px rgba(0,0,0,.3)',
+              border: 'none',
+              boxShadow: '0 8px 32px -8px rgba(0,0,0,.12), 0 0 0 1px var(--line)',
             }}
           >
             <DIcon name="bag" size={40} stroke={1.8} style={{ color: 'var(--accent)' }} />

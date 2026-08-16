@@ -359,7 +359,7 @@ export function PickDialog({
                 fontSize: 19,
                 letterSpacing: '-0.02em',
                 lineHeight: 1.2,
-                boxShadow: '0 12px 32px -8px rgba(0,0,0,0.5)',
+                boxShadow: '0 16px 40px -12px rgba(36, 138, 61, 0.45), inset 0 0 0 1px rgba(255,255,255,0.25)',
                 opacity: (!allOrdersDone || routePending) ? 0.5 : 1
               }}
             >
