@@ -43,13 +43,13 @@ export async function enqueueBatchPush(params: BatchPushParams): Promise<void> {
 
   const title =
     outcome === 'bundled'
-      ? `+${orderCount} Bestellung${orderCount > 1 ? 'en' : ''} gebündelt`
-      : `Neue Tour: ${restaurantName}`;
+      ? `Tour aktualisiert · ${orderCount} weitere Bestellung${orderCount > 1 ? 'en' : ''}`
+      : 'Nächste Tour eingeplant';
 
   const body =
     outcome === 'bundled'
-      ? `Hinzugefügt zu deiner laufenden Tour · ${distanceKm.toFixed(1)} km`
-      : `${orderCount} Bestellung${orderCount > 1 ? 'en' : ''} · ${distanceKm.toFixed(1)} km Fahrt`;
+      ? `Abholung bei ${restaurantName} · sicher bei Stillstand ansehen`
+      : `${restaurantName} · ${distanceKm.toFixed(1)} km · im Restaurant per QR übernehmen`;
 
   const c = sb();
   const { data: driver } = await c.from('mise_drivers')
@@ -70,17 +70,18 @@ export async function enqueueBatchPush(params: BatchPushParams): Promise<void> {
   if (hasNativePush) {
     const { error } = await c.from('mise_push_outbox').insert({
       driver_id: driverId,
-      type:      'order_assigned',
+      type:      'tour_planned',
       title,
       body,
-      sound:    'alarm.caf',
-      priority: 'high',
+      sound:    'default',
+      priority: 'normal',
       data: {
         batch_id:        batchId,
         order_count:     orderCount,
         restaurant_name: restaurantName,
         distance_km:     distanceKm,
         decision_id:     batchId,
+        assignment_mode: 'own_fleet',
       },
     });
     if (error) errors.push(`native: ${error.message}`);

@@ -41,7 +41,7 @@ export default async function FahrerAppPage() {
     // Mise-Batch (mise_delivery_batches) — nur wenn Mise-Driver-Account vorhanden
     miseDriver
       ? svc.from('mise_delivery_batches')
-          .select('id, state, stops:mise_delivery_batch_stops(id, batch_id, order_id, sequence, completed_at, type, cancelled, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,kunde_notiz,kunde_lieferhinweis,items:order_items(id,order_id,name,menge,notiz,pick_confirmed_at,pick_missing)))')
+          .select('id, state, assignment_mode, handoff_state, planned_at, plan_expires_at, handoff_started_at, committed_at, stops:mise_delivery_batch_stops(id, batch_id, order_id, sequence, completed_at, type, cancelled, pick_verification, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,kunde_notiz,kunde_lieferhinweis,delivery_bag_count,items:order_items(id,order_id,name,menge,notiz,pick_confirmed_at,pick_missing)))')
           .eq('driver_id', miseDriver.id)
           .in('state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress'])
           .order('created_at', { ascending: false })
@@ -57,6 +57,12 @@ export default async function FahrerAppPage() {
   const normalizedMiseBatch = miseActiveBatch ? {
     id: (miseActiveBatch as any).id,
     status: ['in_progress', 'picked_up'].includes((miseActiveBatch as any).state) ? 'unterwegs' : 'pickup',
+    assignment_mode: (miseActiveBatch as any).assignment_mode ?? 'offer',
+    handoff_state: (miseActiveBatch as any).handoff_state ?? 'planned',
+    planned_at: (miseActiveBatch as any).planned_at ?? null,
+    plan_expires_at: (miseActiveBatch as any).plan_expires_at ?? null,
+    handoff_started_at: (miseActiveBatch as any).handoff_started_at ?? null,
+    committed_at: (miseActiveBatch as any).committed_at ?? null,
     started_at: null,
     stops: ((miseActiveBatch as any).stops ?? [])
       // Stornierte Stops (Requeue/Order-Storno) nie an den Fahrer rendern
@@ -68,6 +74,7 @@ export default async function FahrerAppPage() {
         reihenfolge: s.sequence,
         angekommen_am: null,
         geliefert_am: s.completed_at ?? null,
+        pick_verification: s.pick_verification ?? null,
         order: s.order ?? null,
       })),
   } : null;
@@ -92,9 +99,10 @@ export default async function FahrerAppPage() {
   const { data: misePending } = miseDriver
     ? await svc
         .from('mise_delivery_batches')
-        .select('id, created_at, stops:mise_delivery_batch_stops(order_id, type, order:customer_orders(bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_stadt,kunde_lat,kunde_lng,gesamtbetrag,zahlungsart,bezahlt,geschaetzte_lieferung_min,location:locations(name,lat,lng)))')
+        .select('id, created_at, assignment_mode, stops:mise_delivery_batch_stops(order_id, type, order:customer_orders(bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_stadt,kunde_lat,kunde_lng,gesamtbetrag,zahlungsart,bezahlt,geschaetzte_lieferung_min,location:locations(name,lat,lng)))')
         .eq('driver_id', miseDriver.id)
         .eq('state', 'pending_acceptance')
+        .eq('assignment_mode', 'offer')
     : { data: null };
 
   const misePendingOpen = (((misePending as unknown) as any[]) ?? []).flatMap((b: any) =>

@@ -67,10 +67,16 @@ describe('delivery dispatch writer contract', () => {
     expect(webDriver).toContain("fetch('/api/drivers/push/subscribe'");
   });
 
-  it('keeps the bundled alarm sound for raw APNs device tokens', () => {
+  it('uses a calm planning notification for internal fleet tours', () => {
     const enqueue = source('lib/delivery/push-notify.ts');
     const flush = source('app/api/driver/v1/internal/push-flush/route.ts');
-    expect(enqueue).toContain("sound:    'alarm.caf'");
+    expect(enqueue).toContain("type:      'tour_planned'");
+    expect(enqueue).toContain("sound:    'default'");
+    expect(enqueue).toContain("priority: 'normal'");
+    expect(enqueue).not.toContain("sound:    'alarm.caf'");
+    expect(flush).toContain("row.type === 'tour_planned'");
+    expect(flush).toContain('isUrgentAssign');
+    expect(flush).toContain('voipEnabled && isUrgentAssign');
     expect(flush).toContain("sound: row.sound ?? 'default'");
     expect(flush).not.toContain("body: row.body,\n        sound: 'default'");
     const apns = source('lib/apns-alert.ts');

@@ -9,7 +9,7 @@
  *  - Selbes Restaurant (< 100m Haversine zwischen Pickups)
  *  - Oder Detour < MAX_DETOUR_KM (Umweg durch neue Lieferadresse)
  *  - Und Tour hat noch freie Kapazität
- *  - Und Tour ist in bündelbarem Zustand (pending_acceptance / assigned)
+ *  - Und die interne Übergabe noch nicht begonnen hat
  */
 import 'server-only';
 import { haversineKm } from '@/lib/google-maps';
@@ -49,9 +49,11 @@ export async function findBundleCandidates(
 
   const { data: batches } = await sb
     .from('mise_delivery_batches')
-    .select('id, state, stop_count, driver_id')
+    .select('id, state, stop_count, driver_id, assignment_mode, handoff_state')
     .eq('driver_id', driverId)
-    .in('state', ['pending_acceptance', 'assigned', 'at_restaurant'])
+    .eq('assignment_mode', 'own_fleet')
+    .eq('handoff_state', 'planned')
+    .in('state', ['assigned', 'at_restaurant'])
     .limit(5);
 
   if (!batches || batches.length === 0) {

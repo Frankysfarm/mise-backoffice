@@ -1,6 +1,7 @@
 'use server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { enqueueTourStatusPush } from '@/lib/delivery/push-notify';
+import { buildPickupQr } from '@/lib/delivery/pickup-qr';
 
 async function locForToken(token: string) {
   const svc = createServiceClient();
@@ -19,6 +20,10 @@ function bonText(shop: string, o: any, items: any[], prepMin: number): string {
   if (o.typ === 'lieferung' && o.kunde_adresse) L.push(String(o.kunde_adresse));
   L.push(line);
   for (const it of items) L.push((it.menge || 1) + 'x ' + it.name + (it.notiz ? ' (' + it.notiz + ')' : ''));
+  if (o.typ === 'lieferung' && Array.isArray(o.pickup_qr_payloads)) {
+    L.push(line);
+    for (const bag of o.pickup_qr_payloads) L.push(`BEUTEL ${bag.bagIndex}/${o.delivery_bag_count}: ${bag.fallbackCode}`);
+  }
   L.push(line);
   if (prepMin) L.push('   FERTIG IN ' + prepMin + ' MIN');
   L.push(''); L.push(''); L.push('');
@@ -44,7 +49,7 @@ export async function getKitchenData(token: string) {
   const svc = createServiceClient();
   const [{ data: orders }, { data: items }] = await Promise.all([
     svc.from('customer_orders')
-      .select('id, bestellnummer, status, kunde_name, kunde_telefon, kunde_adresse, typ, gesamtbetrag, fertig_am, created_at, mise_driver_id, items:order_items(id, name, menge, notiz, pick_missing)')
+      .select('id, bestellnummer, status, kunde_name, kunde_telefon, kunde_adresse, typ, gesamtbetrag, fertig_am, created_at, mise_driver_id, mise_batch_id, delivery_bag_count, items:order_items(id, name, menge, notiz, pick_missing)')
       .eq('location_id', loc.id)
       .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig'])
       .order('created_at', { ascending: true }),
@@ -80,7 +85,39 @@ export async function getKitchenData(token: string) {
     .filter((od: any) => od.typ === 'lieferung' && od.status === 'fertig' && !od.mise_driver_id && od.fertig_am && (nowMs - new Date(od.fertig_am).getTime()) > STUCK_MS)
     .map((od: any) => ({ id: od.id, bestellnummer: od.bestellnummer, kunde_name: od.kunde_name, kunde_telefon: od.kunde_telefon, waitingMin: Math.round((nowMs - new Date(od.fertig_am).getTime()) / 60_000), noDriverOnline: !anyDriverWorking }));
 
-  return { orders: orders ?? [], items: items ?? [], drivers, stuckDeliveries, printMethod: (loc as any).print_method ?? 'off' };
+  const printableOrders = (orders ?? []).map((order: any) => ({
+    ...order,
+    pickup_qr_payloads: order.typ === 'lieferung'
+      ? Array.from({ length: Math.max(1, Math.min(12, Number(order.delivery_bag_count) || 1)) }, (_, index) => buildPickupQr(order.id, index + 1))
+      : [],
+  }));
+  return { orders: printableOrders, items: items ?? [], drivers, stuckDeliveries, printMethod: (loc as any).print_method ?? 'off' };
+}
+
+/** Beutelanzahl muss vor dem ersten QR-Scan feststehen. */
+export async function setDeliveryBagCount(token: string, orderId: string, count: number) {
+  const loc = await locForToken(token);
+  if (!loc) return { error: 'unauth' };
+  const bagCount = Math.trunc(count);
+  if (bagCount < 1 || bagCount > 12) return { error: 'Beutelanzahl muss zwischen 1 und 12 liegen' };
+  const svc = createServiceClient();
+  const { data: order } = await svc.from('customer_orders')
+    .select('id,typ,mise_batch_id')
+    .eq('id', orderId).eq('location_id', loc.id).maybeSingle();
+  if (!order || order.typ !== 'lieferung') return { error: 'Lieferbestellung nicht gefunden' };
+  if (order.mise_batch_id) {
+    const { data: batch } = await svc.from('mise_delivery_batches')
+      .select('handoff_state,state').eq('id', order.mise_batch_id).maybeSingle();
+    if (batch && (batch.handoff_state !== 'planned' || !['assigned', 'at_restaurant'].includes(batch.state))) {
+      return { error: 'Beutelanzahl ist nach Beginn der Übergabe gesperrt' };
+    }
+  }
+  const { data: updated, error } = await svc.rpc('set_delivery_bag_count', {
+    p_order_id: orderId,
+    p_location_id: loc.id,
+    p_bag_count: bagCount,
+  });
+  return error ? { error: error.message } : updated ? { ok: true } : { error: 'Lieferbestellung nicht gefunden' };
 }
 
 /** Annehmen: setzt in_zubereitung + Fertig-Zeitpunkt (jetzt + prepMin). */
@@ -94,9 +131,13 @@ export async function acceptOrder(token: string, orderId: string, prepMin: numbe
     .eq('id', orderId).eq('location_id', loc.id);
   if (!error && (loc as any).print_method === 'cloudprnt') {
     const { data: ord } = await svc.from('customer_orders')
-      .select('bestellnummer, typ, kunde_name, kunde_telefon, kunde_adresse, items:order_items(name, menge, notiz)')
+      .select('id, bestellnummer, typ, kunde_name, kunde_telefon, kunde_adresse, delivery_bag_count, items:order_items(name, menge, notiz)')
       .eq('id', orderId).maybeSingle();
-    if (ord) await svc.from('mise_print_jobs').insert({ location_id: loc.id, payload: bonText((loc as any).name, ord, (ord as any).items ?? [], prepMin) });
+    if (ord) {
+      const count = Math.max(1, Math.min(12, Number((ord as any).delivery_bag_count) || 1));
+      const printable = { ...ord, pickup_qr_payloads: ord.typ === 'lieferung' ? Array.from({ length: count }, (_, index) => buildPickupQr(ord.id, index + 1)) : [] };
+      await svc.from('mise_print_jobs').insert({ location_id: loc.id, payload: bonText((loc as any).name, printable, (ord as any).items ?? [], prepMin) });
+    }
   }
   return error ? { error: error.message } : { ok: true };
 }

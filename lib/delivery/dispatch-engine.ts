@@ -217,6 +217,8 @@ export async function smartDispatchTick(): Promise<{
   escalated: number;
   results: DispatchResult[];
 }> {
+  const { error: expiryError } = await sb().rpc('expire_own_fleet_plans');
+  if (expiryError) console.error('[dispatch] expire_own_fleet_plans failed:', expiryError.message);
   await reconcileCompletedBatches();
   const cutoff = dispatchCreatedAfter();
   let pendingOrdersQuery = sb()

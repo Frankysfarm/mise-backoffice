@@ -46,11 +46,17 @@ export async function POST(
 
   const { data: batch } = await c
     .from('mise_delivery_batches')
-    .select('id,driver_id')
+    .select('id,driver_id,assignment_mode,handoff_state')
     .eq('id', stop.batch_id)
     .single();
   if (!batch || batch.driver_id !== m.driver.id) {
     return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
+  }
+  if (batch.assignment_mode === 'own_fleet') {
+    return NextResponse.json(
+      { error: 'Interne Touren starten ausschließlich über die vollständige QR-Übergabe', code: 'qr_handoff_required' },
+      { status: 409 },
+    );
   }
 
   // Die Datenbank erzwingt die Statusfolge. Vor den Tour-Updates explizit

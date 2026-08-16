@@ -67,7 +67,7 @@ async function requeueFailedAssignment(
   row: Pick<OutboxRow, 'driver_id' | 'type' | 'data'>,
   reason: string,
 ): Promise<void> {
-  const isAssign = row.type === 'order_assigned' || row.type === 'assign';
+  const isAssign = row.type === 'order_assigned' || row.type === 'assign' || row.type === 'tour_planned';
   const batchId = typeof row.data?.batch_id === 'string' ? row.data.batch_id : null;
   if (!isAssign || !batchId) return;
 
@@ -153,7 +153,8 @@ export async function POST(req: NextRequest) {
 
   for (const row of pending as unknown as Row[]) {
     const drv = row.drivers;
-    const isAssign = row.type === 'order_assigned' || row.type === 'assign';
+    const isAssign = row.type === 'order_assigned' || row.type === 'assign' || row.type === 'tour_planned';
+    const isUrgentAssign = row.type === 'order_assigned' || row.type === 'assign';
     const assignmentBatchId =
       typeof row.data?.batch_id === 'string' ? row.data.batch_id : null;
     const enabled = drv?.push_enabled ?? true;
@@ -219,7 +220,7 @@ export async function POST(req: NextRequest) {
     // Touren kommen als normale Push-Mitteilung. Über DELIVERY_VOIP_PUSH_ENABLED=true
     // wieder aktivierbar, ohne Code-Änderung.
     const voipEnabled = process.env.DELIVERY_VOIP_PUSH_ENABLED === 'true';
-    if (voipEnabled && isAssign && drv?.voip_push_token) {
+    if (voipEnabled && isUrgentAssign && drv?.voip_push_token) {
       const data = (row.data ?? {}) as Record<string, unknown>;
       let r: Awaited<ReturnType<typeof sendVoipPush>>;
       try {

@@ -1,13 +1,14 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import QRCode from 'qrcode';
 
 import { useEffect, useRef, useState } from 'react';
 import {
   Truck, ShoppingBag, MapPin, BellRing, Printer, Maximize, Volume2, VolumeX,
   Undo2, X, UtensilsCrossed, RotateCcw, AlertTriangle, Settings2, Play, Check, Bike, Map as MapIcon,
 } from 'lucide-react';
-import { getKitchenData, acceptOrder, markFertig, recallOrder, toggleItem, stornoOrder, markItemMissing, setPrintMethod as savePrintMethod, testPrint } from './actions';
+import { getKitchenData, acceptOrder, markFertig, recallOrder, toggleItem, stornoOrder, markItemMissing, setDeliveryBagCount, setPrintMethod as savePrintMethod, testPrint } from './actions';
 
 const MapView = dynamic(() => import('./map-view'), { ssr: false });
 
@@ -32,7 +33,9 @@ type Item = { id: string; name: string; menge: number; notiz: string | null; pic
 type Order = {
   id: string; bestellnummer: string | null; status: string; kunde_name: string | null;
   kunde_telefon: string | null; kunde_adresse: string | null; typ: string | null; gesamtbetrag: number | null;
-  fertig_am: string | null; created_at: string; mise_driver_id: string | null; items: Item[];
+  fertig_am: string | null; created_at: string; mise_driver_id: string | null; mise_batch_id: string | null;
+  delivery_bag_count: number; pickup_qr_payloads: Array<{ bagIndex: number; payload: string; fallbackCode: string }>;
+  items: Item[];
 };
 type MenuItem = { id: string; name: string; verfuegbar: boolean };
 type Driver = { id: string; name: string; lat: number | null; lng: number | null; state: string; undelivered: number; busy: boolean; returning: boolean; stale?: boolean };
@@ -49,6 +52,7 @@ export default function KitchenMonitor({
   token, shopName, initialOrders, initialItems, logoUrl, brandColor, shopLat, shopLng,
 }: {
   token: string; shopName: string; initialOrders: Order[]; initialItems: MenuItem[]; logoUrl: string | null; brandColor: string | null;
+  shopLat: number | null; shopLng: number | null;
 }) {
   const brand = brandColor || C.zub;
   const [orders, setOrders] = useState<Order[]>(initialOrders);
@@ -164,24 +168,36 @@ export default function KitchenMonitor({
     await markItemMissing(token, itemId, missing);
     if (missing) showToast('Gericht als fehlt markiert', () => onItemMissing(itemId, false));
   }
+  async function onBagCount(orderId: string, count: number) {
+    setBusy(orderId);
+    const result = await setDeliveryBagCount(token, orderId, count);
+    if ('error' in result) showToast(result.error ?? 'Beutelanzahl konnte nicht gespeichert werden', () => {});
+    await refresh();
+    setBusy(null);
+  }
   async function onToggle(it: MenuItem) { await toggleItem(token, it.id, !it.verfuegbar); setItems((xs) => xs.map((x) => x.id === it.id ? { ...x, verfuegbar: !x.verfuegbar } : x)); }
 
-  function buildBon(o: Order, prepMin?: number): string {
+  async function buildBon(o: Order, prepMin?: number): Promise<string> {
     const esc = (s: string) => (s || '').replace(/[<>&]/g, (m) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' } as any)[m]);
     const lines = (o.items ?? []).map((it) => `<div class="it"><b>${it.menge}×</b> ${esc(it.name)}${it.pick_missing ? ' <b>(FEHLT)</b>' : ''}${it.notiz ? `<br><span class="n">  ${esc(it.notiz)}</span>` : ''}</div>`).join('');
     const d = new Date();
-    return `<!doctype html><html><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}*{margin:0;padding:0;box-sizing:border-box}body{width:80mm;padding:4mm 3mm;font-family:'Courier New',monospace;color:#000;font-size:13px;line-height:1.35}.c{text-align:center}.b{font-weight:800}.big{font-size:17px;font-weight:800}hr{border:none;border-top:1px dashed #000;margin:6px 0}.it{margin:3px 0;font-size:14px}.n{font-style:italic;font-size:12px}</style></head><body>
-      <div class="c big">${esc(shopName)}</div><div class="c">Küchen-Bon</div><hr>
+    const bags = o.typ === 'lieferung' && o.pickup_qr_payloads?.length ? o.pickup_qr_payloads : [null];
+    const qrImages = await Promise.all(bags.map((bag) => bag ? QRCode.toDataURL(bag.payload, { width: 360, margin: 1, errorCorrectionLevel: 'M' }) : Promise.resolve('')));
+    const pages = bags.map((bag, index) => `<section class="page">
+      <div class="c big">${esc(shopName)}</div><div class="c">${bag ? 'Lieferbeutel' : 'Küchen-Bon'}</div><hr>
       <div class="b" style="font-size:16px">#${(o.bestellnummer || '').slice(-6) || '----'}</div>
       <div>${d.toLocaleDateString('de-DE')} ${d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</div>
       <div class="b">${typeCfg(o.typ).label.toUpperCase()}</div><hr>
       ${o.kunde_name ? `<div class="b">${esc(o.kunde_name)}</div>` : ''}${o.kunde_telefon ? `<div>Tel: ${esc(o.kunde_telefon)}</div>` : ''}${o.typ === 'lieferung' && o.kunde_adresse ? `<div>${esc(o.kunde_adresse)}</div>` : ''}<hr>
-      ${lines}<hr>${prepMin ? `<div class="c b" style="font-size:15px">FERTIG IN ${prepMin} MIN</div>` : ''}<div class="c" style="margin-top:8px">.</div></body></html>`;
+      ${lines}<hr>${prepMin ? `<div class="c b" style="font-size:15px">FERTIG IN ${prepMin} MIN</div>` : ''}
+      ${bag ? `<div class="c"><div class="bag">BEUTEL ${bag.bagIndex} / ${o.delivery_bag_count}</div><img class="qr" src="${qrImages[index]}" alt=""><div class="code">ERSATZCODE ${bag.fallbackCode}</div><div class="hint">Fahrer scannt bei der Übergabe</div></div>` : ''}
+      <div class="c" style="margin-top:8px">.</div></section>`).join('');
+    return `<!doctype html><html><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}*{margin:0;padding:0;box-sizing:border-box}body{width:80mm;font-family:'Courier New',monospace;color:#000;font-size:13px;line-height:1.35}.page{width:80mm;padding:4mm 3mm;break-after:page;page-break-after:always}.page:last-child{break-after:auto;page-break-after:auto}.c{text-align:center}.b{font-weight:800}.big{font-size:17px;font-weight:800}hr{border:none;border-top:1px dashed #000;margin:6px 0}.it{margin:3px 0;font-size:14px}.n{font-style:italic;font-size:12px}.bag{margin-top:7px;font-size:20px;font-weight:900}.qr{display:block;width:48mm;height:48mm;margin:2mm auto}.code{font-size:16px;font-weight:900;letter-spacing:.08em}.hint{font-size:10px;margin-top:2px}</style></head><body>${pages}</body></html>`;
   }
-  function printBon(o: Order, prepMin?: number) {
+  async function printBon(o: Order, prepMin?: number) {
     try {
       const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f);
-      const doc = f.contentWindow!.document; doc.open(); doc.write(buildBon(o, prepMin)); doc.close();
+      const doc = f.contentWindow!.document; doc.open(); doc.write(await buildBon(o, prepMin)); doc.close();
       setTimeout(() => { try { f.contentWindow!.focus(); f.contentWindow!.print(); } catch { /* noop */ } setTimeout(() => { try { document.body.removeChild(f); } catch { /* noop */ } }, 1500); }, 300);
     } catch { /* noop */ }
   }
@@ -199,7 +215,7 @@ export default function KitchenMonitor({
     );
   }
 
-  const sharedCardProps = { onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onPrint: (ord: Order) => printBon(ord) };
+  const sharedCardProps = { onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onBagCount, onPrint: (ord: Order) => void printBon(ord) };
 
   return (
     <div style={{ minHeight: '100vh', background: C.appBg, color: C.t1, fontFamily: 'system-ui, sans-serif' }}>
@@ -473,9 +489,10 @@ function CardHead({ o, big }: { o: Order; big?: boolean }) {
     </div>
   );
 }
-function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onPrint, cookHold, cookWarn }: {
+function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onBagCount, onPrint, cookHold, cookWarn }: {
   o: Order; now: number; children: React.ReactNode; onStorno?: (id: string) => void; stornoConfirm?: string | null;
-  setStornoConfirm?: (id: string | null) => void; onItemMissing?: (itemId: string, missing: boolean) => void; onPrint?: (o: Order) => void; cookHold?: boolean; cookWarn?: boolean;
+  setStornoConfirm?: (id: string | null) => void; onItemMissing?: (itemId: string, missing: boolean) => void;
+  onBagCount?: (orderId: string, count: number) => void; onPrint?: (o: Order) => void; cookHold?: boolean; cookWarn?: boolean;
 }) {
   const tc = typeCfg(o.typ);
   // Timer: in Zubereitung = Countdown zu fertig_am, sonst Alter seit Eingang
@@ -519,6 +536,19 @@ function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onI
         ))}
         {(o.items ?? []).flatMap((it) => it.notiz ? [<div key={it.id + 'n'} style={{ background: C.goldTint, color: C.gold, borderRadius: 8, padding: '4px 9px', fontSize: 14, fontWeight: 600, marginTop: 2 }}>{it.name}: {it.notiz}</div>] : [])}
       </div>
+      {o.typ === 'lieferung' && onBagCount && (
+        <div style={{ margin: '0 0 12px', padding: '10px 12px', borderRadius: 12, background: C.laneBg, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 13, color: C.t2, fontWeight: 800 }}>Lieferbeutel</div>
+            <div style={{ fontSize: 11, color: C.t3 }}>Ein QR pro Beutel</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button type="button" onClick={() => onBagCount(o.id, Math.max(1, o.delivery_bag_count - 1))} disabled={o.delivery_bag_count <= 1} aria-label="Ein Beutel weniger" style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${C.borderStrong}`, background: C.card, color: C.t1, fontSize: 20, cursor: 'pointer' }}>−</button>
+            <strong style={{ minWidth: 24, textAlign: 'center', fontSize: 20 }}>{o.delivery_bag_count || 1}</strong>
+            <button type="button" onClick={() => onBagCount(o.id, Math.min(12, o.delivery_bag_count + 1))} disabled={o.delivery_bag_count >= 12} aria-label="Ein Beutel mehr" style={{ width: 34, height: 34, borderRadius: 10, border: `1px solid ${C.borderStrong}`, background: C.card, color: C.t1, fontSize: 20, cursor: 'pointer' }}>+</button>
+          </div>
+        </div>
+      )}
       {o.status !== 'fertig' && (
         <div style={{ textAlign: 'center', marginBottom: 12, fontSize: 40, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: tColor }}>
           {mode === 'count' ? (over ? `+${fmt(sec)}` : fmt(sec)) : fmt(sec)}

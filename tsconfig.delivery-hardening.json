@@ -9,6 +9,7 @@
     "lib/delivery/driver-shift-eligibility.ts",
     "lib/delivery/driver-location.ts",
     "lib/delivery/native-gps.ts",
+    "lib/delivery/pickup-qr.ts",
     "lib/delivery/dispatch-engine.ts",
     "lib/delivery/config.ts",
     "lib/delivery/shifts.ts",
@@ -26,6 +27,8 @@
     "app/api/driver/v1/session/end/route.ts",
     "app/api/driver/v1/orders/accept/route.ts",
     "app/api/driver/v1/orders/decline/route.ts",
+    "app/api/driver/v1/batch/[id]/handoff/scan/route.ts",
+    "app/api/driver/v1/orders/[id]/picked-up/route.ts",
     "app/api/delivery/admin/shifts/route.ts",
     "app/api/delivery/admin/shifts/[id]/route.ts",
     "app/api/delivery/admin/shift-claims/route.ts",
@@ -37,6 +40,10 @@
     "app/fahrer/install.tsx",
     "app/fahrer/app/page.tsx",
     "app/fahrer/app/client.tsx",
+    "app/fahrer/app/handoff-scanner.tsx",
+    "app/fahrer/app/alarm-ringer.tsx",
+    "app/kuche/[token]/actions.ts",
+    "app/kuche/[token]/client.tsx",
     "tests/delivery/**/*.ts"
   ],
   "exclude": ["node_modules", ".next"]

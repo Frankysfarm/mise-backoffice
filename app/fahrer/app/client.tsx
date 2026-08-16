@@ -13,6 +13,7 @@ import { Btn, IconBtn, Avatar, Sheet, Icon as DIcon, Spinner as DSpinner } from 
 import { PickDialog } from './pick-dialog';
 import { DeliveryView } from './delivery-view';
 import { AlarmRinger } from './alarm-ringer';
+import { HandoffScanner } from './handoff-scanner';
 import { PushRegister } from './push-register';
 import { UpdateBanner } from './update-banner';
 import { PermissionsGate } from './permissions-gate';
@@ -71,6 +72,12 @@ type OpenBatch = {
 type ActiveBatch = {
   id: string;
   status: string;
+  assignment_mode?: 'own_fleet' | 'offer';
+  handoff_state?: 'planned' | 'scanning' | 'ready' | 'committed';
+  planned_at?: string | null;
+  plan_expires_at?: string | null;
+  handoff_started_at?: string | null;
+  committed_at?: string | null;
   started_at: string | null;
   total_eta_min?: number | null;
   total_distance_km?: number | null;
@@ -81,6 +88,12 @@ type ActiveBatch = {
     reihenfolge: number;
     angekommen_am: string | null;
     geliefert_am: string | null;
+    pick_verification?: {
+      method?: string;
+      required_bags?: number;
+      scanned_bags?: number[];
+      complete?: boolean;
+    } | null;
     distanz_zum_vorgaenger_m?: number | null;
     order: {
       id: string;
@@ -93,6 +106,8 @@ type ActiveBatch = {
       gesamtbetrag: number;
       kunde_notiz?: string | null;
       kunde_lieferhinweis?: string | null;
+      delivery_bag_count?: number;
+      items?: Array<{ id: string; order_id: string; name: string; menge: number; pick_confirmed_at?: string | null }>;
     };
   }[];
 };
@@ -210,8 +225,16 @@ export function FahrerApp({
   const [gpsCalibrating, setGpsCalibrating] = useState(false);
   const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
   const [pickOpen, setPickOpen] = useState(false);
+  const [handoffOpen, setHandoffOpen] = useState(false);
+  const [handoffToken, setHandoffToken] = useState<string | null>(null);
   const [pickOrderId, setPickOrderId] = useState<string | null>(null);
   const [pickItems, setPickItems] = useState<any[]>([]);
+
+  async function openHandoffScanner() {
+    const { data } = await supabase.auth.getSession();
+    setHandoffToken(data.session?.access_token ?? null);
+    setHandoffOpen(true);
+  }
   // Artikel-Anzahl pro Bestellung (fuer die Drive "Zu picken"-Karten)
   const [pickCounts, setPickCounts] = useState<Map<string, number>>(new Map());
   // F1 Route-Popup: nach komplettem Pickup ("Alles abgeholt. Beste Route fertig")
@@ -1181,9 +1204,13 @@ export function FahrerApp({
         {activeBatch && activeBatch.status !== 'unterwegs' && (() => {
           const stops = activeBatch.stops.slice().sort((a, b) => a.reihenfolge - b.reihenfolge);
           const total = stops.length;
-          const isOrderPicked = (s: any) => { const its = (s.order?.items ?? []) as any[]; return its.length > 0 && its.every((it) => it.pick_confirmed_at); };
+          const ownFleetHandoff = activeBatch.assignment_mode === 'own_fleet';
+          const isOrderPicked = (s: any) => ownFleetHandoff
+            ? s.pick_verification?.complete === true
+            : (() => { const its = (s.order?.items ?? []) as any[]; return its.length > 0 && its.every((it) => it.pick_confirmed_at); })();
           const pickedCount = stops.filter(isOrderPicked).length;
           const allPicked = total > 0 && pickedCount === total;
+          const handoffReady = ownFleetHandoff && activeBatch.handoff_state === 'ready' && allPicked;
           const hubName = (activeBatch as any).location_name
             || (driver as any).hub_name
             || 'Restaurant';
@@ -1219,9 +1246,9 @@ export function FahrerApp({
             {/* Drive-Header */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '8px 18px 12px' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.1, color: 'var(--ink)' }}>Zu picken</div>
+                <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.1, color: 'var(--ink)' }}>{ownFleetHandoff ? 'Tour eingeplant' : 'Zu picken'}</div>
                 <div style={{ fontSize: 13.5, color: 'var(--ink-2)', fontWeight: 500, marginTop: 2 }}>
-                  {total} {total === 1 ? 'Bestellung' : 'Bestellungen'} · {hubName}
+                  {ownFleetHandoff ? 'Keine Annahme während der Fahrt · ' : ''}{total} {total === 1 ? 'Bestellung' : 'Bestellungen'} · {hubName}
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, marginTop: 4 }}>
@@ -1280,7 +1307,10 @@ export function FahrerApp({
                     key={stop.id}
                     type="button"
                     className="press"
-                    onClick={() => { setPickOrderId(stop.order_id); setPickOpen(true); }}
+                    onClick={() => {
+                      if (ownFleetHandoff) void openHandoffScanner();
+                      else { setPickOrderId(stop.order_id); setPickOpen(true); }
+                    }}
                     style={{
                       width: '100%', textAlign: 'left', display: 'block', background: 'var(--surface)',
                       borderRadius: 20, padding: 16, marginBottom: 12,
@@ -1292,7 +1322,7 @@ export function FahrerApp({
                       <div style={{ flex: 1 }} />
                       {picked ? (
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px 5px 9px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, background: 'var(--accent)', color: 'var(--on-accent)' }}>
-                          <DIcon name="check" size={14} stroke={2.4} /> In der Tüte
+                          <DIcon name="check" size={14} stroke={2.4} /> QR bestätigt
                         </span>
                       ) : kitchenReady ? (
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px 5px 9px', borderRadius: 9, fontSize: 12.5, fontWeight: 700, background: 'var(--accent-tint)', color: 'var(--accent)' }}>
@@ -1337,7 +1367,7 @@ export function FahrerApp({
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--accent)', flexShrink: 0 }}>
-                        <span style={{ fontSize: 14, fontWeight: 700 }}>Picken</span>
+                        <span style={{ fontSize: 14, fontWeight: 700 }}>{ownFleetHandoff ? 'Details' : 'Picken'}</span>
                         <DIcon name="chevron" size={17} stroke={2.6} />
                       </div>
                     </div>
@@ -1372,13 +1402,19 @@ export function FahrerApp({
                   Route in Maps vorschauen
                 </a>
               )}
-              {allPicked ? (
-                <Btn onClick={() => completeAndRoute(activeBatch.id)} disabled={pending} icon="route">Route berechnen</Btn>
+              {handoffReady || (!ownFleetHandoff && allPicked) ? (
+                <Btn onClick={() => completeAndRoute(activeBatch.id)} disabled={pending} icon="route">Abfahrt · Route starten</Btn>
+              ) : ownFleetHandoff ? (
+                <Btn onClick={() => void openHandoffScanner()} disabled={pending || !allReady} icon="bag">
+                  {allReady ? `Übergabe scannen · ${pickedCount}/${total}` : `Warten auf Küche · ${readyCount}/${total}`}
+                </Btn>
               ) : (
                 <Btn onClick={() => { const next = stops.find((s) => !isOrderPicked(s)); setPickOrderId((next ?? stops[0])?.order_id ?? null); setPickOpen(true); }} icon="bag">{`Picken · ${pickedCount}/${total} in der Tüte`}</Btn>
               )}
               <div style={{ marginTop: 12, fontSize: 12.5, color: 'var(--ink-3)', textAlign: 'center', lineHeight: 1.5 }}>
-                Tippe eine Bestellung → geh jedes Gericht durch. Danach berechnen wir die Route.
+                {ownFleetHandoff
+                  ? 'Im Restaurant jeden Beutel scannen. Erst die vollständige Übergabe startet die Tour.'
+                  : 'Tippe eine Bestellung → geh jedes Gericht durch. Danach berechnen wir die Route.'}
               </div>
             </div>
           </section>
@@ -1460,12 +1496,21 @@ export function FahrerApp({
 
       <UpdateBanner />
 
-      {/* Alarm-Ringer: klingelt wenn Tour in Open-Liste (zum Annehmen) ODER zugewiesen (zum Picken) */}
+      {/* Nur externe Angebote klingeln kurz. Interne Touren sind direkt eingeplant. */}
       <PushRegister />
       <AlarmRinger
         openBatchIds={isOnline ? openBatches.map((b) => b.batch_id) : []}
-        assignedBatchId={activeBatch?.status === 'zugewiesen' && !pickOpen ? activeBatch.id : null}
       />
+
+      {activeBatch && activeBatch.assignment_mode === 'own_fleet' && (
+        <HandoffScanner
+          open={handoffOpen}
+          batchId={activeBatch.id}
+          accessToken={handoffToken}
+          onClose={() => setHandoffOpen(false)}
+          onUpdated={async () => { router.refresh(); }}
+        />
+      )}
 
       {pickOpen && activeBatch && (() => {
         // Die GANZE Tour geht in den Dialog — eine Seite pro Bestellung, horizontal durchwischbar.
