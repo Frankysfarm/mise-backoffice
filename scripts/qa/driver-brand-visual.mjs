@@ -83,10 +83,15 @@ async function login(page, email) {
   await page.goto(`${BASE}/fahrer/login`, { waitUntil: 'domcontentloaded', timeout: 30_000 });
   await page.locator('input[type="email"]').fill(email);
   await page.locator('input[type="password"]').fill(passwordFor(email));
-  await Promise.all([
-    page.waitForURL(/\/fahrer\/app/, { timeout: 30_000 }),
-    page.locator('button[type="submit"]').click(),
-  ]);
+  await page.locator('button[type="submit"]').click();
+  try {
+    await page.waitForURL(/\/fahrer\/app/, { timeout: 30_000 });
+  } catch (error) {
+    const safeName = email.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+    await page.screenshot({ path: `${OUTPUT}/login-failure-${safeName}.png`, fullPage: true });
+    const visibleText = (await page.locator('body').innerText()).replace(/\s+/g, ' ').slice(0, 1_000);
+    throw new Error(`Driver login did not reach the app: ${visibleText}`, { cause: error });
+  }
   await page.locator('header').waitFor({ state: 'visible', timeout: 30_000 });
   await page.waitForTimeout(500);
 }
@@ -119,7 +124,7 @@ try {
     await page.screenshot({ path: `${OUTPUT}/driver-planned-${width}.png`, fullPage: true });
     report.screens.push(await metrics(page, `driver-planned-${width}`));
     if (width === 390) {
-      await page.getByRole('button', { name: /Übergabe scannen/ }).last().click();
+      await page.getByRole('button', { name: /Beutel scannen/ }).last().click();
       await page.getByRole('dialog', { name: 'Beutel-Übergabe scannen' }).waitFor({ state: 'visible' });
       await page.waitForTimeout(700);
       await page.screenshot({ path: `${OUTPUT}/driver-scanner-390.png`, fullPage: true });

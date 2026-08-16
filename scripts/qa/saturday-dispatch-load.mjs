@@ -655,6 +655,25 @@ async function auditProductionFixtures() {
   }, null, 2));
 }
 
+async function repairTenantBrandAsset() {
+  const assetPath = '/biss-app/bilder/frankys-pasta-logo.png';
+  const check = await fetch(`${API_BASE}${assetPath}`, { method: 'HEAD' });
+  if (!check.ok || !check.headers.get('content-type')?.startsWith('image/')) {
+    throw new Error(`Verified tenant logo is unavailable: HTTP ${check.status}`);
+  }
+  const current = await dataOf(
+    service.from('tenants').select('logo_url').eq('id', TARGET_TENANT).single(),
+    'load current tenant logo',
+  );
+  if (current.logo_url !== assetPath) {
+    await dataOf(
+      service.from('tenants').update({ logo_url: assetPath }).eq('id', TARGET_TENANT).select('id').single(),
+      'repair tenant logo path',
+    );
+  }
+  console.log(JSON.stringify({ repaired: current.logo_url !== assetPath, logoPath: assetPath }));
+}
+
 async function cleanup() {
   await loadContext();
   const work = await clearQaWork();
@@ -679,6 +698,7 @@ else if (command === 'qr') await runQrOnly();
 else if (command === 'visual') await prepareVisualFixture();
 else if (command === 'audit') await auditProductionFixtures();
 else if (command === 'quarantine') console.log(JSON.stringify({ quarantined: await quarantineLegacyFixtures() }));
+else if (command === 'fix-brand') await repairTenantBrandAsset();
 else if (command === 'cleanup') await cleanup();
 else if (command === 'status') console.log(JSON.stringify(await loadContext(), null, 2));
 else throw new Error(`Unknown command: ${command}`);

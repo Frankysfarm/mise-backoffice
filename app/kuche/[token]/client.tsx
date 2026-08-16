@@ -284,7 +284,7 @@ export default function KitchenMonitor({
           <IconBtn on={() => setMuted((m) => !m)} active={!muted}>{muted ? <VolumeX size={20} /> : <Volume2 size={20} />}</IconBtn>
           <IconBtn on={() => setSoundOpen(true)}><Settings2 size={20} /></IconBtn>
           <IconBtn on={() => setAutoPrint((v) => !v)} active={autoPrint}><Printer size={20} /></IconBtn>
-          <button onClick={() => setSoldOutOpen(true)} style={{ padding: '11px 16px', borderRadius: 12, fontWeight: 700, fontSize: 14, border: 'none', background: soldOutCount > 0 ? C.warn : C.border, color: '#fff', cursor: 'pointer' }}>{soldOutCount > 0 ? `${soldOutCount} ausverkauft` : 'Ausverkauft'}</button>
+          <button onClick={() => setSoldOutOpen(true)} style={{ minHeight: 44, padding: '11px 16px', borderRadius: 12, fontWeight: 700, fontSize: 14, border: 'none', background: soldOutCount > 0 ? C.warn : C.border, color: '#fff', cursor: 'pointer' }}>{soldOutCount > 0 ? `${soldOutCount} ausverkauft` : 'Ausverkauft'}</button>
           <IconBtn on={() => setMapOpen(true)} active={drivers.some((d) => d.returning)}><MapIcon size={20} /></IconBtn>
           <IconBtn on={() => { try { document.documentElement.requestFullscreen(); } catch { /* noop */ } }}><Maximize size={20} /></IconBtn>
         </div>
