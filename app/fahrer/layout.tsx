@@ -42,24 +42,24 @@ export default function FahrerLayout({ children }: { children: React.ReactNode }
         dangerouslySetInnerHTML={{
           __html: `
         .drive {
-          /* Uber-like Professional Branding: Deep black background, crisp contrast, clean accent */
-          --accent:#05A357; --accent-press:#048245; --on-accent:#FFFFFF; --accent-tint:#012413;
-          --bg:#000000; --surface:#141414; --surface-2:#222222;
-          --ink:#FFFFFF; --ink-2:#A3A3A3; --ink-3:#737373;
-          --line:#2E2E2E; --line-2:#3B3B3B;
-          --danger:#E52B12; --danger-tint:#330A04; --warn:#FFC043; --warn-tint:#33260D;
+          /* Light & Clean Premium Branding: Airy background, soft white surfaces, crisp dark text */
+          --accent:#248A3D; --accent-press:#1D7131; --on-accent:#FFFFFF; --accent-tint:#E9F4EC;
+          --bg:#F7F7F9; --surface:#FFFFFF; --surface-2:#F0F0F2;
+          --ink:#111111; --ink-2:#666666; --ink-3:#999999;
+          --line:#E5E5E5; --line-2:#D4D4D4;
+          --danger:#E52B12; --danger-tint:#FCECE9; --warn:#FFC043; --warn-tint:#FFF9E6;
           background:var(--bg); color:var(--ink);
           font-family:'Hanken Grotesk',-apple-system,system-ui,sans-serif; letter-spacing:-0.01em;
         }
         .drive .bg-white { background: var(--surface) !important; }
-        .drive iframe { color-scheme: dark; }
-        /* Der Nachtmodus ist beim Uber-Theme identisch (da dark-first) */
+        .drive iframe { color-scheme: light; }
+        /* Dark mode fallback, falls das Handy dunkel eingestellt ist, aber clean gehalten */
         .drive.drive-dark {
-          --accent:#05A357; --accent-press:#048245; --on-accent:#FFFFFF; --accent-tint:#012413;
-          --bg:#000000; --surface:#141414; --surface-2:#222222;
+          --accent:#248A3D; --accent-press:#1D7131; --on-accent:#FFFFFF; --accent-tint:#08220F;
+          --bg:#0A0A0A; --surface:#141414; --surface-2:#222222;
           --ink:#FFFFFF; --ink-2:#A3A3A3; --ink-3:#737373;
           --line:#2E2E2E; --line-2:#3B3B3B;
-          --danger:#E52B12; --danger-tint:#330A04; --warn:#FFC043; --warn-tint:#33260D;
+          --danger:#FF453A; --danger-tint:#330A04; --warn:#FFD60A; --warn-tint:#332A02;
         }
         .drive.drive-dark .bg-white { background: var(--surface) !important; }
         .drive .mono { font-family:'JetBrains Mono',ui-monospace,monospace; letter-spacing:-0.02em; }
