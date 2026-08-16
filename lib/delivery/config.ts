@@ -29,6 +29,10 @@ export type DeliverySettingKey =
   | 'dispatch_max_radius_km'
   | 'dispatch_stale_batch_min'
   | 'dispatch_max_attempts'
+  // driver operations
+  | 'driver_shift_cutoff_minute'
+  | 'driver_session_max_hours'
+  | 'driver_background_gps_enabled'
   // bundling
   | 'bundling_max_detour_km'
   | 'bundling_max_stops'
@@ -58,6 +62,9 @@ const DEFAULTS: Record<DeliverySettingKey, number> = {
   dispatch_max_radius_km:     12,
   dispatch_stale_batch_min:   60,
   dispatch_max_attempts:       5,
+  driver_shift_cutoff_minute:  0,
+  driver_session_max_hours:   16,
+  driver_background_gps_enabled: 1,
   bundling_max_detour_km:     1.5,
   bundling_max_stops:          4,
   bundling_time_window_min:    8,

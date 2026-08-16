@@ -36,6 +36,7 @@ interface DriverShortRow {
   voip_push_token: string | null;
   push_enabled: boolean;
   last_active_at: string | null;
+  last_foreground_at: string | null;
 }
 
 async function driverHasWebPushChannel(
@@ -76,11 +77,13 @@ async function requeueFailedAssignment(
   // Ohne App-Kontakt bleibt es beim Requeue, damit die Tour zum nächsten Fahrer geht.
   const { data: drv } = await c
     .from('mise_drivers')
-    .select('last_active_at')
+    .select('last_foreground_at')
     .eq('id', row.driver_id)
     .maybeSingle();
-  const lastActive = drv?.last_active_at ? new Date(drv.last_active_at as string).getTime() : 0;
-  if (Date.now() - lastActive < 120_000) return;
+  const lastForeground = drv?.last_foreground_at
+    ? new Date(drv.last_foreground_at as string).getTime()
+    : 0;
+  if (Date.now() - lastForeground < 120_000) return;
   const { error } = await c.rpc('requeue_delivery_batch', {
     p_batch_id: batchId,
     p_reason: `push_failure:${reason}`.slice(0, 500),
@@ -108,7 +111,7 @@ export async function POST(req: NextRequest) {
   const { data: pending } = await c
     .from('mise_push_outbox')
     .select(
-      'id, driver_id, type, title, body, data, sound, priority, attempts, drivers:driver_id(expo_push_token,voip_push_token,push_enabled,last_active_at)',
+      'id, driver_id, type, title, body, data, sound, priority, attempts, drivers:driver_id(expo_push_token,voip_push_token,push_enabled,last_active_at,last_foreground_at)',
     )
     .is('sent_at', null)
     .is('failed_at', null)
@@ -163,8 +166,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Fahrer gerade aktiv in der App? -> Realtime zeigt die Order live -> KEIN Anruf/Push
-    const lastActive = drv?.last_active_at ? new Date(drv.last_active_at).getTime() : 0;
-    if (Date.now() - lastActive < 25_000) {
+    const lastForeground = drv?.last_foreground_at ? new Date(drv.last_foreground_at).getTime() : 0;
+    if (Date.now() - lastForeground < 25_000) {
       await c
         .from('mise_push_outbox')
         .update({ sent_at: new Date().toISOString(), fail_reason: 'skip-foreground' })
@@ -257,7 +260,10 @@ export async function POST(req: NextRequest) {
       const r = await sendAlertPush(rawTok, {
         title: row.title,
         body: row.body,
-        sound: 'default',
+        // Custom sound muss im nativen Bundle liegen (alarm.caf wird im
+        // TestFlight-Workflow als Resource verifiziert). Nicht hier wieder auf
+        // den iOS-Default ueberschreiben.
+        sound: row.sound ?? 'default',
         data: (row.data ?? {}) as Record<string, unknown>,
       });
       if (r.ok) {

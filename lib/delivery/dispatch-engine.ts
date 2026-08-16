@@ -84,6 +84,7 @@ interface DriverRow {
   active: boolean;
   shift_started_at: string | null;
   mise_batch_id?: string | null;
+  active_batch_state?: string | null;
 }
 
 let _sb: SupabaseClient | null = null;
@@ -110,6 +111,26 @@ function dispatchCreatedAfter(): string | null {
   return new Date(timestamp).toISOString();
 }
 
+async function releaseDriverIfNoOtherBatch(
+  client: SupabaseClient,
+  driverId: string | null,
+  finishedBatchId: string,
+): Promise<void> {
+  if (!driverId) return;
+  const { data: otherActive } = await client.from('mise_delivery_batches')
+    .select('id')
+    .eq('driver_id', driverId)
+    .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'picked_up', 'in_progress'])
+    .neq('id', finishedBatchId)
+    .limit(1);
+  if (!otherActive || otherActive.length === 0) {
+    await client.from('mise_drivers')
+      .update({ state: 'idle' })
+      .eq('id', driverId)
+      .in('state', ['assigned', 'at_restaurant', 'picked_up', 'en_route', 'returning']);
+  }
+}
+
 /** Dispatch-Tick: alle unzugewiesenen Lieferungs-Orders dispatchen. */
 /**
  * Schließt in_progress-Batches ab, deren Stops alle erledigt sind.
@@ -124,7 +145,7 @@ async function reconcileCompletedBatches(): Promise<number> {
   const RECONCILE_STATES = ['in_progress', 'picked_up', 'at_restaurant', 'assigned'];
   const { data: openBatches } = await c
     .from('mise_delivery_batches')
-    .select('id, driver_id, state')
+    .select('id, driver_id, state, created_at')
     .in('state', RECONCILE_STATES)
     .limit(20);
   if (!openBatches || openBatches.length === 0) return 0;
@@ -135,11 +156,41 @@ async function reconcileCompletedBatches(): Promise<number> {
       .from('mise_delivery_batch_stops')
       .select('id, completed_at, cancelled')
       .eq('batch_id', batch.id);
-    // Batch ohne Stops nicht anfassen; offene Stops -> weiter warten.
+    // Ein atomar erzeugter Batch ist nie dauerhaft stoplos. Stoplose und zugleich
+    // orderlose Batches >5 Min sind Test-/Crash-Artefakte und blockieren sonst
+    // den Fahrer fuer immer. Verknuepfte Orders werden bewusst nicht angefasst.
+    if (!allStops || allStops.length === 0) {
+      const ageMs = Date.now() - new Date(batch.created_at as string).getTime();
+      if (ageMs >= 5 * 60_000) {
+        const { data: linkedOrders } = await c.from('customer_orders')
+          .select('id').eq('mise_batch_id', batch.id).limit(1);
+        if (!linkedOrders || linkedOrders.length === 0) {
+          await c.from('mise_delivery_batches')
+            .update({ state: 'cancelled' })
+            .eq('id', batch.id)
+            .eq('state', batch.state);
+          await c.from('driver_status')
+            .update({ aktueller_batch_id: null })
+            .eq('aktueller_batch_id', batch.id);
+          await releaseDriverIfNoOtherBatch(c, batch.driver_id as string | null, batch.id as string);
+          reconciled++;
+        }
+      }
+      continue;
+    }
+    // Offene Stops -> weiter warten.
     // Stornierte Stops zählen nicht als offen (sonst hängt der Batch nach Order-Storno ewig).
     if (!allStops || allStops.length === 0) continue;
     const relevant = allStops.filter((s) => !s.cancelled);
-    if (relevant.length === 0) continue;
+    if (relevant.length === 0) {
+      await c.from('mise_delivery_batches').update({ state: 'cancelled' })
+        .eq('id', batch.id).eq('state', batch.state);
+      await c.from('driver_status').update({ aktueller_batch_id: null })
+        .eq('aktueller_batch_id', batch.id);
+      await releaseDriverIfNoOtherBatch(c, batch.driver_id as string | null, batch.id as string);
+      reconciled++;
+      continue;
+    }
     if (relevant.some((s) => s.completed_at === null)) continue;
 
     await c
@@ -151,23 +202,7 @@ async function reconcileCompletedBatches(): Promise<number> {
       .from('driver_status')
       .update({ aktueller_batch_id: null })
       .eq('aktueller_batch_id', batch.id);
-    if (batch.driver_id) {
-      // Nur zurücksetzen, wenn der Fahrer keine andere aktive Tour hat.
-      const { data: otherActive } = await c
-        .from('mise_delivery_batches')
-        .select('id')
-        .eq('driver_id', batch.driver_id)
-        .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'picked_up', 'in_progress'])
-        .neq('id', batch.id)
-        .limit(1);
-      if (!otherActive || otherActive.length === 0) {
-        await c
-          .from('mise_drivers')
-          .update({ state: 'idle' })
-          .eq('id', batch.driver_id)
-          .in('state', ['en_route', 'returning']);
-      }
-    }
+    await releaseDriverIfNoOtherBatch(c, batch.driver_id as string | null, batch.id as string);
     reconciled++;
   }
   if (reconciled > 0) console.log(`[dispatch] reconcileCompletedBatches: ${reconciled} Batch(es) abgeschlossen`);
@@ -332,42 +367,52 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   const ranked = rankDrivers(driverInputs, orderInput);
   if (ranked.length === 0) return held('Alle Fahrer sind voll');
 
-  const best = ranked[0];
+  // 6) Kandidaten der Reihe nach atomar versuchen. Ein hoch bewerteter Fahrer
+  // kann bereits eine nicht passende offene Tour haben; dessen DB-Ablehnung
+  // darf die Bestellung nicht blockieren, solange ein anderer Fahrer frei ist.
+  let best: (typeof ranked)[number] | null = null;
+  let bundleDecision: Awaited<ReturnType<typeof findBundleCandidates>> | null = null;
+  let claimResult: { batch_id?: string; outcome?: 'dispatched' | 'bundled' } | null = null;
+  let lastClaimError = 'kein Ergebnis';
+  for (const candidate of ranked) {
+    const candidateBundle = await findBundleCandidates(
+      candidate.driver.id,
+      loc.lat,
+      loc.lng,
+      o.kunde_lat!,
+      o.kunde_lng!,
+    );
+    const claimArgs = {
+      p_order_id: o.id,
+      p_driver_id: candidate.driver.id,
+      p_zone: zone,
+      p_dispatch_score: candidate.score.total,
+      p_bundle_batch_id: candidateBundle.shouldBundle ? candidateBundle.candidateBatchId : null,
+    };
+    let { data: claim, error: claimError } = await sb().rpc('claim_delivery_order', claimArgs);
+    // Das Bundle kann sich zwischen Bewertung und Claim ändern. Ein neuer Batch
+    // wird einmal atomar versucht; ist der Fahrer belegt, folgt der nächste.
+    if (claimError && claimArgs.p_bundle_batch_id) {
+      ({ data: claim, error: claimError } = await sb().rpc('claim_delivery_order', {
+        ...claimArgs,
+        p_bundle_batch_id: null,
+      }));
+    }
+    const candidateClaim = claim && typeof claim === 'object'
+      ? claim as { batch_id?: string; outcome?: 'dispatched' | 'bundled' }
+      : null;
+    if (!claimError && candidateClaim?.batch_id && candidateClaim.outcome) {
+      best = candidate;
+      bundleDecision = candidateBundle;
+      claimResult = candidateClaim;
+      break;
+    }
+    lastClaimError = claimError?.message ?? 'Atomare Zuweisung lieferte keinen Batch';
+  }
+  if (!best || !bundleDecision || !claimResult?.batch_id || !claimResult.outcome) {
+    return held(`Atomare Zuweisung fehlgeschlagen: ${lastClaimError}`);
+  }
   const bestScore = best.score;
-
-  // 6) Bündelung prüfen
-  const bundleDecision = await findBundleCandidates(
-    best.driver.id,
-    loc.lat,
-    loc.lng,
-    o.kunde_lat!,
-    o.kunde_lng!,
-  );
-
-  // The database owns the order lock, final eligibility check, stops and order
-  // compare-and-set.  A concurrent writer can no longer create a second tour or
-  // leave a half-linked order behind.
-  const claimArgs = {
-    p_order_id: o.id,
-    p_driver_id: best.driver.id,
-    p_zone: zone,
-    p_dispatch_score: bestScore.total,
-    p_bundle_batch_id: bundleDecision.shouldBundle ? bundleDecision.candidateBatchId : null,
-  };
-  let { data: claim, error: claimError } = await sb().rpc('claim_delivery_order', claimArgs);
-  // A bundle can change after scoring. Retry once as a new atomic batch; the
-  // order CAS still makes this safe against another concurrent winner.
-  if (claimError && claimArgs.p_bundle_batch_id) {
-    ({ data: claim, error: claimError } = await sb().rpc('claim_delivery_order', {
-      ...claimArgs,
-      p_bundle_batch_id: null,
-    }));
-  }
-  if (claimError || !claim || typeof claim !== 'object') {
-    return held(`Atomare Zuweisung fehlgeschlagen: ${claimError?.message ?? 'kein Ergebnis'}`);
-  }
-  const claimResult = claim as { batch_id?: string; outcome?: 'dispatched' | 'bundled' };
-  if (!claimResult.batch_id || !claimResult.outcome) return held('Atomare Zuweisung lieferte keinen Batch');
   const batchId = claimResult.batch_id;
   const outcome = claimResult.outcome;
 
@@ -511,29 +556,36 @@ async function loadActiveDrivers(tenantId: string, locationId: string): Promise<
   if (error || !Array.isArray(data)) return [];
   const drivers = data as DriverRow[];
   const driverIds = drivers.map((d) => d.id);
-  const batchMap = new Map<string, { id: string; stop_count: number }>();
+  const batchMap = new Map<string, { id: string; state: string; dropoff_count: number }>();
 
   if (driverIds.length > 0) {
     const { data: activeBatches } = await sb()
       .from('mise_delivery_batches')
-      .select('id, driver_id, stop_count')
+      .select('id, driver_id, state, stops:mise_delivery_batch_stops(type,completed_at,cancelled)')
       .in('driver_id', driverIds)
-      .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'on_route'])
+      .in('state', ['pending_acceptance', 'assigned', 'at_restaurant', 'picked_up', 'in_progress'])
       .order('created_at', { ascending: false });
 
     for (const b of activeBatches ?? []) {
       const dId = b.driver_id as string;
-      if (!batchMap.has(dId)) {
-        batchMap.set(dId, { id: b.id as string, stop_count: b.stop_count as number });
-      }
+      const stops = ((b as unknown as { stops?: Array<{ type: string; completed_at: string | null; cancelled: boolean }> }).stops ?? []);
+      const dropoffCount = stops.filter((stop) => stop.type === 'dropoff' && !stop.cancelled && !stop.completed_at).length;
+      const candidate = { id: b.id as string, state: b.state as string, dropoff_count: dropoffCount };
+      const existing = batchMap.get(dId);
+      // Laufende Custody-Tour hat Vorrang vor einem eventuell zusaetzlich
+      // vorhandenen Angebot: Dieser Fahrer darf keine weitere Tour gewinnen.
+      if (!existing || ['picked_up', 'in_progress'].includes(candidate.state)) batchMap.set(dId, candidate);
     }
   }
 
   for (const d of drivers) {
     const batch = batchMap.get(d.id);
     (d as DriverRow & { mise_batch_id?: string | null }).mise_batch_id = batch?.id ?? null;
-    d.current_capacity = batch ? Math.floor(batch.stop_count / 2) : 0;
+    d.active_batch_state = batch?.state ?? null;
+    d.current_capacity = batch?.dropoff_count ?? 0;
   }
 
-  return drivers;
+  // Eine bereits abgeholte/laufende Tour ist nicht bundlebar. Diese Fahrer aus
+  // der Kandidatenliste entfernen, damit der naechste freie Fahrer bewertet wird.
+  return drivers.filter((driver) => !['picked_up', 'in_progress'].includes(driver.active_batch_state ?? ''));
 }

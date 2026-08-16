@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
       refreshEnRouteEtas().catch(() => ({
         batches_processed: 0, orders_updated: 0, orders_skipped: 0, errors: 1,
       })),
-      autoCloseMissedShifts().catch(() => ({ missed: 0 })),
+      autoCloseMissedShifts().catch(() => ({ missed: 0, sessionsClosed: 0 })),
       isDemandTick
         ? snapshotAllLocations().catch(() => ({ locations: 0, snapshots: 0 }))
         : Promise.resolve(null),
@@ -155,6 +155,7 @@ export async function GET(req: NextRequest) {
         updated: etaResult.orders_updated,
       },
       shifts_closed: shiftResult.missed,
+      driver_sessions_closed: shiftResult.sessionsClosed,
       alerts: {
         created:  alertResult.created,
         resolved: alertResult.resolved,

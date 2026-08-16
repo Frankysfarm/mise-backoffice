@@ -58,6 +58,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error?.message ?? 'Konnte Schicht nicht starten' }, { status: 409 });
   }
 
+  // Der Online-Status MUSS geschrieben sein, bevor wir "ok" melden. Vorher lief das
+  // als fire-and-forget: die Antwort ging raus, der Schreibvorgang wurde mit der
+  // Function abgeräumt — die App zeigte "online", die Datenbank blieb auf offline,
+  // und nach dem nächsten Laden stand der Fahrer wieder offline da (Befund 14.08.).
+  let statusWritten = true;
   if (employee?.id) {
     const statusPatch: Record<string, unknown> = {
       employee_id: employee.id,
@@ -65,8 +70,24 @@ export async function POST(req: NextRequest) {
       online_seit: new Date().toISOString(),
     };
     if (body.vehicle) statusPatch.fahrzeug = body.vehicle;
-    c.from('driver_status').upsert(statusPatch).then(() => {});
+    const { error: statusError } = await c.from('driver_status').upsert(statusPatch);
+    if (statusError) {
+      statusWritten = false;
+      console.error('[session/start] driver_status nicht geschrieben:', statusError.message);
+      // Kein Split-Brain: Wenn die Legacy-Statusprojektion nicht geschrieben
+      // werden kann, die eben gestartete Dispatch-Session sofort zurückrollen.
+      await c.rpc('end_driver_dispatch_session', { p_driver_id: m.driver.id });
+      return NextResponse.json(
+        { ok: false, error: 'Online-Status konnte nicht sicher gespeichert werden', status_written: false },
+        { status: 503 },
+      );
+    }
   }
 
-  return NextResponse.json({ ok: true, location_id: locationId, fallback: Boolean((started as { fallback?: boolean }).fallback) });
+  return NextResponse.json({
+    ok: true,
+    location_id: locationId,
+    status_written: statusWritten,
+    fallback: Boolean((started as { fallback?: boolean }).fallback),
+  });
 }

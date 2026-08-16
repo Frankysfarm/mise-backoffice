@@ -6,6 +6,7 @@
  * und stellt Aggregationen für Admin-Dashboard + Dispatch-Scoring bereit.
  */
 import 'server-only';
+import { recomputeDriverRating } from '@/lib/delivery/rating';
 import { createServiceClient } from '@/lib/supabase/server';
 import { randomBytes, createHash } from 'crypto';
 

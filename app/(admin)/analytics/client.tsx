@@ -759,6 +759,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   eta:       'ETA-Berechnung',
   kitchen:   'Küchen-Timing',
   scoring:   'Fahrer-Scoring',
+  driver:    'Fahrer-Schicht & Tracking',
   general:   'Allgemein',
 };
 
@@ -767,6 +768,9 @@ const KEY_UNITS: Record<string, string> = {
   dispatch_max_radius_km: 'km',
   dispatch_stale_batch_min: 'min',
   dispatch_max_attempts: 'x',
+  driver_shift_cutoff_minute: 'Uhr',
+  driver_session_max_hours: 'Std.',
+  driver_background_gps_enabled: '0/1',
   bundling_max_detour_km: 'km',
   bundling_max_stops: 'Stopps',
   bundling_time_window_min: 'min',
@@ -956,22 +960,32 @@ function ConfigRow({
   onSave: (key: string, value: number) => void;
 }) {
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(String(row.effective_value));
+  const isCutoff = row.key === 'driver_shift_cutoff_minute';
+  const cutoffValue = (value: number) => {
+    const minute = Math.min(1439, Math.max(0, Math.round(value)));
+    return `${String(Math.floor(minute / 60)).padStart(2, '0')}:${String(minute % 60).padStart(2, '0')}`;
+  };
+  const [draft, setDraft] = useState(isCutoff ? cutoffValue(row.effective_value) : String(row.effective_value));
   const inputRef = useRef<HTMLInputElement>(null);
 
   function startEdit() {
-    setDraft(String(row.effective_value));
+    setDraft(isCutoff ? cutoffValue(row.effective_value) : String(row.effective_value));
     setEditing(true);
     setTimeout(() => inputRef.current?.select(), 0);
   }
 
   function cancel() {
     setEditing(false);
-    setDraft(String(row.effective_value));
+    setDraft(isCutoff ? cutoffValue(row.effective_value) : String(row.effective_value));
   }
 
   function commit() {
-    const num = parseFloat(draft);
+    const num = isCutoff
+      ? (() => {
+          const [hours, minutes] = draft.split(':').map(Number);
+          return hours * 60 + minutes;
+        })()
+      : parseFloat(draft);
     if (isNaN(num)) { cancel(); return; }
     if (row.min_value !== null && num < row.min_value) { setDraft(String(row.min_value)); return; }
     if (row.max_value !== null && num > row.max_value) { setDraft(String(row.max_value)); return; }
@@ -1011,11 +1025,11 @@ function ConfigRow({
           <>
             <input
               ref={inputRef}
-              type="number"
+              type={isCutoff ? 'time' : 'number'}
               value={draft}
-              min={row.min_value ?? undefined}
-              max={row.max_value ?? undefined}
-              step={unit === 'km' || unit === '%' || unit === 'km/h' ? '0.1' : '1'}
+              min={isCutoff ? undefined : row.min_value ?? undefined}
+              max={isCutoff ? undefined : row.max_value ?? undefined}
+              step={isCutoff ? '60' : unit === 'km' || unit === '%' || unit === 'km/h' ? '0.1' : '1'}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') commit();
@@ -1037,7 +1051,7 @@ function ConfigRow({
                 : 'bg-muted text-foreground hover:bg-muted/70',
             )}
           >
-            {saving ? '…' : `${row.effective_value}${unit ? ' ' + unit : ''}`}
+            {saving ? '…' : isCutoff ? `${cutoffValue(row.effective_value)} Uhr` : `${row.effective_value}${unit ? ' ' + unit : ''}`}
           </button>
         )}
         {saved && !editing && (

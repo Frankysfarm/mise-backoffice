@@ -5,7 +5,7 @@
  * Dadurch gibt es NIE eine alte gecachte Seite — Updates sind sofort live.
  */
 
-const VERSION = 'v4-' + new Date().toISOString().slice(0, 10);
+const VERSION = new URL(self.location.href).searchParams.get('v') || 'v5-fallback';
 const STATIC_CACHE = `mise-static-${VERSION}`;
 const RUNTIME_CACHE = `mise-runtime-${VERSION}`;
 
@@ -47,7 +47,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((res) => {
-        if (res.ok && (url.pathname.startsWith('/fahrer') || url.pathname === '/manifest.json')) {
+        if (res.ok && (url.pathname.startsWith('/fahrer') || url.pathname === '/fahrer.webmanifest')) {
           const clone = res.clone();
           caches.open(RUNTIME_CACHE).then((c) => c.put(event.request, clone));
         }

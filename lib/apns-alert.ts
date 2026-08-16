@@ -89,13 +89,17 @@ export async function sendAlertPush(deviceToken: string, payload: AlertPayload):
   const aps: Record<string, unknown> = {
     alert: { title: payload.title, body: payload.body },
     sound: payload.sound ?? 'default',
+    'content-available': 1,
   };
   if (typeof payload.badge === 'number') aps.badge = payload.badge;
   const body = JSON.stringify({ aps, ...(payload.data ?? {}) });
 
   let lastErr: AlertSendResult | null = null;
   for (let attempt = 1; attempt <= 3; attempt++) {
-    const r = await sendOnce(deviceToken, body);
+    const collapseId = typeof payload.data?.batch_id === 'string'
+      ? payload.data.batch_id.slice(0, 64)
+      : undefined;
+    const r = await sendOnce(deviceToken, body, collapseId);
     if (r.ok) return r;
     if (r.tokenDead) return r;
     if (r.status && r.status >= 400 && r.status < 500) return r;
@@ -105,7 +109,7 @@ export async function sendAlertPush(deviceToken: string, payload: AlertPayload):
   return lastErr ?? { ok: false, error: 'unknown' };
 }
 
-function sendOnce(deviceToken: string, body: string): Promise<AlertSendResult> {
+function sendOnce(deviceToken: string, body: string, collapseId?: string): Promise<AlertSendResult> {
   return new Promise((resolve) => {
     let resolved = false;
     const finish = (r: AlertSendResult) => {
@@ -118,16 +122,19 @@ function sendOnce(deviceToken: string, body: string): Promise<AlertSendResult> {
     const client = http2.connect(host());
     client.on('error', (e: NodeJS.ErrnoException) => finish({ ok: false, error: `connect: ${e.message}` }));
 
-    const req = client.request({
+    const headers: http2.OutgoingHttpHeaders = {
       ':method': 'POST',
       ':path': `/3/device/${deviceToken}`,
       authorization: `bearer ${getJwt()}`,
       'apns-topic': bundleId(),
       'apns-push-type': 'alert',
       'apns-priority': '10',
+      'apns-expiration': String(Math.floor(Date.now() / 1000) + 5 * 60),
       'content-type': 'application/json',
       'content-length': Buffer.byteLength(body).toString(),
-    });
+    };
+    if (collapseId) headers['apns-collapse-id'] = collapseId;
+    const req = client.request(headers);
 
     req.setTimeout(8000, () => { req.close(); finish({ ok: false, error: 'timeout' }); });
 

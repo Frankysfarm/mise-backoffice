@@ -259,15 +259,24 @@ export async function upsertCoverageRequirement(req: {
  * Markiert vergessene Schichten als missed / abgelaufene active als completed.
  * Fire-and-forget kompatibel.
  */
-export async function autoCloseMissedShifts(): Promise<{ missed: number }> {
+export async function autoCloseMissedShifts(): Promise<{ missed: number; sessionsClosed: number }> {
   const sb = createServiceClient();
-  const { data, error } = await sb.rpc('auto_close_missed_shifts');
+  const [{ data, error }, { data: sessionsClosed, error: sessionError }] = await Promise.all([
+    sb.rpc('auto_close_missed_shifts'),
+    sb.rpc('close_expired_driver_sessions'),
+  ]);
   if (error) {
     // eslint-disable-next-line no-console
     console.warn('[shifts] autoCloseMissedShifts:', error.message);
-    return { missed: 0 };
+    return { missed: 0, sessionsClosed: Number(sessionsClosed ?? 0) };
   }
-  return { missed: (data as number | null) ?? 0 };
+  if (sessionError && !/close_expired_driver_sessions.*(does not exist|schema cache)/i.test(sessionError.message)) {
+    console.warn('[shifts] close_expired_driver_sessions:', sessionError.message);
+  }
+  return {
+    missed: (data as number | null) ?? 0,
+    sessionsClosed: sessionError ? 0 : Number(sessionsClosed ?? 0),
+  };
 }
 
 /**

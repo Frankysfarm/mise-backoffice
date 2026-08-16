@@ -66,4 +66,16 @@ describe('delivery dispatch writer contract', () => {
     expect(webDriver).toContain('await ensureBrowserPushSubscription();');
     expect(webDriver).toContain("fetch('/api/drivers/push/subscribe'");
   });
+
+  it('keeps the bundled alarm sound for raw APNs device tokens', () => {
+    const enqueue = source('lib/delivery/push-notify.ts');
+    const flush = source('app/api/driver/v1/internal/push-flush/route.ts');
+    expect(enqueue).toContain("sound:    'alarm.caf'");
+    expect(flush).toContain("sound: row.sound ?? 'default'");
+    expect(flush).not.toContain("body: row.body,\n        sound: 'default'");
+    const apns = source('lib/apns-alert.ts');
+    expect(apns).toContain("'content-available': 1");
+    expect(apns).toContain("headers['apns-collapse-id']");
+    expect(apns).toContain("'apns-expiration'");
+  });
 });

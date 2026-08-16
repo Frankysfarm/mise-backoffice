@@ -12,6 +12,21 @@ const nextConfig = {
       { source: '/pos/terminal', destination: '/apps', permanent: false },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: '/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+          { key: 'Service-Worker-Allowed', value: '/fahrer/' },
+        ],
+      },
+      {
+        source: '/fahrer.webmanifest',
+        headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }],
+      },
+    ];
+  },
   // Images von Unsplash (Demo-Menü) + Supabase-Storage erlauben
   images: {
     remotePatterns: [

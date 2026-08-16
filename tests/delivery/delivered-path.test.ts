@@ -185,14 +185,23 @@ describe('broken push channel must not steal an active driver tour', () => {
   it('requeue is skipped while the driver app is alive', () => {
     const route = source('app/api/driver/v1/internal/push-flush/route.ts');
     const fn = route.slice(route.indexOf('async function requeueFailedAssignment'), route.indexOf('export async function POST'));
-    expect(fn).toContain('last_active_at');
-    expect(fn).toContain('Date.now() - lastActive < 120_000');
+    expect(fn).toContain('last_foreground_at');
+    expect(fn).toContain('Date.now() - lastForeground < 120_000');
     // VoIP-Anrufbildschirm ist per Default aus
     expect(route).toContain("process.env.DELIVERY_VOIP_PUSH_ENABLED === 'true'");
   });
 
   it('position ping keeps last_active_at fresh', () => {
     expect(source('app/api/driver/v1/me/position/route.ts')).toContain('last_active_at: now');
+  });
+
+  it('background GPS stays alive without suppressing the visible push', () => {
+    const migration = source('scripts/migrations/064_native_background_gps.sql');
+    const flush = source('app/api/driver/v1/internal/push-flush/route.ts');
+    expect(migration).toContain('last_foreground_at');
+    expect(migration).toContain("p_metadata->>'app_state'");
+    expect(flush).toContain('last_foreground_at');
+    expect(flush).not.toContain('Date.now() - lastActive < 25_000');
   });
 });
 
@@ -244,5 +253,81 @@ describe('cash delivery cannot be booked by an accidental tap', () => {
     // der Regler liegt INNERHALB des isNext-Blocks
     expect(cardSwipe).toBeGreaterThan(gateStart);
     expect(cardSwipe).toBeLessThan(gateEnd);
+  });
+});
+
+// Founder-Ablauf 14.08.: Picken soll eine Wisch-Strecke ueber die ganze Tour sein,
+// mit Zurueckwischen zum Kontrollieren und einer Abschluss-Seite "Route berechnen".
+describe('picking runs as one swipeable tour, not one dialog per order', () => {
+  const dlg = () => source('app/fahrer/app/pick-dialog.tsx');
+
+  it('the dialog receives the whole tour', () => {
+    const d = dlg();
+    expect(d).toContain('orders: PickOrder[]');
+    expect(d).not.toContain('orderBestellnummer');
+    // eine Seite pro Bestellung + Abschluss-Seite
+    expect(d).toContain('const pageCount = local.length + 1');
+  });
+
+  it('a finished order advances to the next one by itself', () => {
+    const d = dlg();
+    expect(d).toContain('autoAdvanced');
+    expect(d).toContain('Math.min(pageCount - 1, p + 1)');
+  });
+
+  it('the driver can swipe back to check an already picked order', () => {
+    const d = dlg();
+    expect(d).toContain('goTo(page - 1)');
+    expect(d).toContain('zum Kontrollieren zurückwischen');
+  });
+
+  it('nobody can skip past an unpicked order', () => {
+    const d = dlg();
+    // maxPage endet an der ersten ungepickten Bestellung
+    expect(d).toContain('const firstOpen = local.findIndex((o) => !orderDone(o))');
+    expect(d).toContain('Math.min(maxPage, p)');
+  });
+
+  it('the last page is the deliberate route step', () => {
+    const d = dlg();
+    expect(d).toContain('Route berechnen');
+    expect(d).toContain('disabled={!allOrdersDone || routePending}');
+    expect(d).toContain('onClick={onRouteReady}');
+  });
+
+  it('the caller hands over every order of the batch', () => {
+    const c = source('app/fahrer/app/client.tsx');
+    expect(c).toContain('orders={pickOrders}');
+    expect(c).toContain('onRouteReady={() => {');
+    expect(c).toContain('completeAndRoute(activeBatch.id)');
+  });
+});
+
+// Founder-Befund 14.08.: "System geht auf dem Handy von selbst offline."
+describe('a driver stays online until he says otherwise', () => {
+  it('the offline watchdog counts the app heartbeat, not just GPS', () => {
+    const mig = source('scripts/migrations/062_driver_stays_online_while_app_alive.sql');
+    expect(mig).toContain('GREATEST(last_position_at, last_active_at)');
+    expect(mig).toContain('CREATE OR REPLACE FUNCTION public.mark_stale_drivers_offline');
+    // updated_at darf die Uhr NICHT dauerhaft frisch halten
+    expect(mig).not.toContain('COALESCE(updated_at,       ');
+  });
+
+  it('reopening the app brings the driver straight back online', () => {
+    const hb = source('app/api/driver/v1/me/heartbeat/route.ts');
+    expect(hb).toContain("update({ state: 'idle' })");
+    expect(hb).toContain("['offline', 'stale'].includes(driver.state as string)");
+    expect(hb).toContain('hasCurrentDriverSession(');
+    expect(hb).toContain("'driver_shift_cutoff_minute'");
+  });
+
+  it('going online never reports success on an unwritten status', () => {
+    const route = source('app/api/driver/v1/session/start/route.ts');
+    // kein fire-and-forget mehr
+    expect(route).not.toContain('.upsert(statusPatch).then(() => {})');
+    expect(route).toContain('await c.from(\'driver_status\').upsert(statusPatch)');
+    expect(route).toContain('status_written');
+    const client = source('app/fahrer/app/client.tsx');
+    expect(client).toContain('const { error: statusError } = await supabase.from(\'driver_status\').upsert');
   });
 });

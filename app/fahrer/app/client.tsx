@@ -17,6 +17,7 @@ import { PushRegister } from './push-register';
 import { UpdateBanner } from './update-banner';
 import { PermissionsGate } from './permissions-gate';
 import { startBgLocation, stopBgLocation, updateBatchId, onGpsError } from './bg-location';
+import { BUILD_VERSION } from '../build-version';
 
 
 type Driver = {
@@ -88,6 +89,11 @@ type ActiveBatch = {
   }[];
 };
 
+function refreshNativeGpsAuthority(): void {
+  const capacitor = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+  if (capacitor?.isNativePlatform?.()) window.location.href = 'mise-driver://gps-refresh';
+}
+
 export function FahrerApp({
   driver, miseDriverId, initialStatus, initialOpenBatches, initialActiveBatch, initialWaitingBatches = [],
 }: {
@@ -106,6 +112,24 @@ export function FahrerApp({
   // Server-Daten -> lokalen State syncen: macht router.refresh() wirksam (kein Full-Reload noetig)
   useEffect(() => { setActiveBatch(initialActiveBatch); }, [initialActiveBatch]);
   useEffect(() => { setOpenBatches(initialOpenBatches); }, [initialOpenBatches]);
+  // Native APNs bridge: the notification is only a wake-up hint. The actual
+  // assignment remains server-authoritative and is loaded via router.refresh().
+  useEffect(() => {
+    type NativeOfferDetail = { batch_id?: unknown; ack_url?: unknown };
+    const onNativeOffer = (raw: Event) => {
+      const detail = (raw as CustomEvent<NativeOfferDetail>).detail;
+      if (!detail || typeof detail.batch_id !== 'string' || detail.batch_id.length < 1) return;
+      router.refresh();
+      const bridge = (window as unknown as {
+        MiseDriverNativeBridge?: { ack?: (value: NativeOfferDetail) => void };
+      }).MiseDriverNativeBridge;
+      bridge?.ack?.(detail);
+    };
+    window.addEventListener('mise-driver-offer', onNativeOffer);
+    const capacitor = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+    if (capacitor?.isNativePlatform?.()) window.location.href = 'mise-driver://bridge-ready';
+    return () => window.removeEventListener('mise-driver-offer', onNativeOffer);
+  }, [router]);
   // Externe Links im System oeffnen; Per-Stop-Navi bevorzugt die Google-Maps-App (sonst macht iOS Apple Maps auf).
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -544,6 +568,7 @@ export function FahrerApp({
         employee_id: driver.id, ist_online: false, fahrzeug: driver.fahrzeug_praeferenz, online_seit: null,
       });
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: false, online_seit: null }));
+      refreshNativeGpsAuthority();
     });
   }
 
@@ -659,6 +684,7 @@ export function FahrerApp({
         return;
       }
       setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: true, online_seit: new Date().toISOString() }));
+      refreshNativeGpsAuthority();
     });
   }
 
@@ -679,7 +705,7 @@ export function FahrerApp({
     // Browser-Fahrer landen direkt auf /fahrer/app ohne Install-Seite — SW hier registrieren,
     // sonst wartet serviceWorker.ready für immer.
     if (!(await navigator.serviceWorker.getRegistration('/fahrer'))) {
-      await navigator.serviceWorker.register('/sw.js', { scope: '/fahrer' });
+      await navigator.serviceWorker.register(`/sw.js?v=${encodeURIComponent(BUILD_VERSION)}`, { scope: '/fahrer/' });
     }
     const registration = await navigator.serviceWorker.ready;
     const subscription = await registration.pushManager.getSubscription()

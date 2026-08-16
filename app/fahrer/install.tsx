@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Check, Download, Smartphone, Copy, AlertTriangle } from 'lucide-react';
+import { BUILD_VERSION } from './build-version';
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -17,8 +18,9 @@ export function FahrerInstall() {
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js', { scope: '/fahrer' })
-        .then(() => setSwOk(true)).catch(() => setSwOk(false));
+      navigator.serviceWorker.register(`/sw.js?v=${encodeURIComponent(BUILD_VERSION)}`, { scope: '/fahrer/' })
+        .then((registration) => registration.update().then(() => setSwOk(true)))
+        .catch(() => setSwOk(false));
     }
 
     const onBefore = (e: Event) => { e.preventDefault(); setDeferred(e as BeforeInstallPromptEvent); };

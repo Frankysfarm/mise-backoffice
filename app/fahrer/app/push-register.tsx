@@ -72,7 +72,10 @@ export function PushRegister() {
         const sb = createClient();
         const { data } = await sb.auth.getSession();
         const tk = data?.session?.access_token;
-        if (tk) await Pref.set({ key: 'mise_access_token', value: tk });
+        if (tk) {
+          await Pref.set({ key: 'mise_access_token', value: tk });
+          window.location.href = 'mise-driver://gps-refresh';
+        }
       } catch { /* noop */ }
     };
     storeToken();

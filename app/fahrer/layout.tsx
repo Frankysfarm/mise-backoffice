@@ -5,7 +5,8 @@ import { PwaAudioListener } from './pwa-audio-listener';
 export const metadata: Metadata = {
   title: 'Mise Fahrer',
   description: 'Deine Fahrer-App für Mise',
-  manifest: '/manifest.json',
+  applicationName: 'Mise Fahrer',
+  manifest: '/fahrer.webmanifest',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0C100E',
+  themeColor: '#F7F7F9',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -31,11 +32,6 @@ export default function FahrerLayout({ children }: { children: React.ReactNode }
   return (
     <>
       <PwaAudioListener />
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap"
-      />
       <div className="drive min-h-screen">{children}</div>
       <div className="mono" style={{ position: 'fixed', bottom: 3, right: 6, zIndex: 9999, fontSize: 9, lineHeight: 1, color: 'var(--ink-3)', opacity: 0.5, pointerEvents: 'none' }}>v {BUILD_VERSION}</div>
       <style
@@ -49,8 +45,9 @@ export default function FahrerLayout({ children }: { children: React.ReactNode }
           --line:#E5E5E5; --line-2:#D4D4D4;
           --danger:#E52B12; --danger-tint:#FCECE9; --warn:#FFC043; --warn-tint:#FFF9E6;
           background:var(--bg); color:var(--ink);
-          font-family:'Hanken Grotesk',-apple-system,system-ui,sans-serif; letter-spacing:-0.01em;
+          font-family:var(--font-body),-apple-system,system-ui,sans-serif; letter-spacing:-0.01em;
         }
+        .drive h1,.drive h2,.drive h3,.drive .font-display { font-family:var(--font-display),system-ui,sans-serif; }
         .drive .bg-white { background: var(--surface) !important; }
         .drive iframe { color-scheme: light; }
         /* Dark mode fallback, falls das Handy dunkel eingestellt ist, aber clean gehalten */
@@ -62,7 +59,7 @@ export default function FahrerLayout({ children }: { children: React.ReactNode }
           --danger:#FF453A; --danger-tint:#330A04; --warn:#FFD60A; --warn-tint:#332A02;
         }
         .drive.drive-dark .bg-white { background: var(--surface) !important; }
-        .drive .mono { font-family:'JetBrains Mono',ui-monospace,monospace; letter-spacing:-0.02em; }
+        .drive .mono,.drive .font-mono { font-family:var(--font-mono),ui-monospace,monospace; letter-spacing:-0.02em; }
         .drive button { font-family: inherit; cursor: pointer; }
         .drive .scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
         .drive .scroll::-webkit-scrollbar { display: none; }
@@ -80,6 +77,12 @@ export default function FahrerLayout({ children }: { children: React.ReactNode }
         .drive .ring-anim { animation: drv-ring 1s ease-in-out infinite; transform-origin: 50% 15%; }
         .drv-sheet-in { animation: drv-sheet-in .34s cubic-bezier(.2,.8,.2,1); }
         .drv-fade-in { animation: drv-fade-in .25s ease; }
+        @media (prefers-reduced-motion: reduce) {
+          .drive *,.drive *::before,.drive *::after {
+            animation-duration:.01ms !important; animation-iteration-count:1 !important;
+            transition-duration:.01ms !important; scroll-behavior:auto !important;
+          }
+        }
       `,
         }}
       />
