@@ -14,6 +14,7 @@ import {
   GripVertical,
   Image as ImageIcon,
   LayoutTemplate,
+  Loader2,
   Megaphone,
   Monitor,
   Navigation,
@@ -30,7 +31,9 @@ import {
   Trash2,
   Type,
   Undo2,
+  Upload,
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 import {
   createStorefrontSection,
   type StorefrontBuilderEnvelope,
@@ -301,6 +304,7 @@ export function ShopDesignClient({ tenant, initialEnvelope, products, categories
             ) : selectedSection ? (
               <SectionInspector
                 section={selectedSection}
+                tenantId={tenant.id}
                 index={document.sections.findIndex((section) => section.id === selectedSection.id)}
                 total={document.sections.length}
                 products={products}
@@ -359,8 +363,9 @@ function HeaderInspector({ document, update }: { document: StorefrontStudioDocum
   </div>;
 }
 
-function SectionInspector({ section, index, total, products, categories, onUpdate, onMove, onDuplicate, onRemove }: {
+function SectionInspector({ section, tenantId, index, total, products, categories, onUpdate, onMove, onDuplicate, onRemove }: {
   section: StorefrontStudioSection;
+  tenantId: string;
   index: number;
   total: number;
   products: StudioProduct[];
@@ -376,7 +381,7 @@ function SectionInspector({ section, index, total, products, categories, onUpdat
     <Toggle label="Abschnitt aktiv" checked={section.enabled} onChange={(value) => onUpdate({ enabled: value })} />
     <div className="grid grid-cols-2 gap-2"><Toggle label="Mobil" compact checked={section.showMobile} onChange={(value) => onUpdate({ showMobile: value })} /><Toggle label="Desktop" compact checked={section.showDesktop} onChange={(value) => onUpdate({ showDesktop: value })} /></div>
     {section.type !== 'navigation' && <><Field label="Kleine Zeile"><input className="studio-input" maxLength={80} value={section.kicker} onChange={(event) => onUpdate({ kicker: event.target.value })} /></Field><Field label="Überschrift"><input className="studio-input" maxLength={120} value={section.title} onChange={(event) => onUpdate({ title: event.target.value })} /></Field><Field label="Beschreibung"><textarea className="studio-input min-h-[76px] resize-y" maxLength={320} value={section.subtitle} onChange={(event) => onUpdate({ subtitle: event.target.value })} /></Field></>}
-    {(section.type === 'hero' || section.type === 'image_banner') && <><Field label="Bild-URL"><input className="studio-input" value={section.imageUrl} placeholder="https://…" onChange={(event) => onUpdate({ imageUrl: event.target.value })} /></Field><div className="grid grid-cols-2 gap-2"><Field label="Button"><input className="studio-input" maxLength={48} value={section.ctaLabel} onChange={(event) => onUpdate({ ctaLabel: event.target.value })} /></Field><Field label="Button-Ziel"><input className="studio-input" value={section.ctaTarget} placeholder="#speisekarte" onChange={(event) => onUpdate({ ctaTarget: event.target.value })} /></Field></div></>}
+    {(section.type === 'hero' || section.type === 'image_banner') && <><SectionImageUploader tenantId={tenantId} section={section} onUpdate={onUpdate} /><div className="grid grid-cols-2 gap-2"><Field label="Button"><input className="studio-input" maxLength={48} value={section.ctaLabel} onChange={(event) => onUpdate({ ctaLabel: event.target.value })} /></Field><Field label="Button-Ziel"><input className="studio-input" value={section.ctaTarget} placeholder="#speisekarte" onChange={(event) => onUpdate({ ctaTarget: event.target.value })} /></Field></div></>}
     {(section.type === 'bestsellers' || section.type === 'product_rail') && <ProductPicker products={products} selected={section.productIds} onChange={(productIds) => onUpdate({ productIds })} automatic={section.type === 'bestsellers'} />}
     {section.type === 'category_tiles' && <CategoryPicker categories={categories} selected={section.categoryIds} onChange={(categoryIds) => onUpdate({ categoryIds })} />}
     {section.type === 'navigation' && <NavigationEditor section={section} categories={categories} onUpdate={onUpdate} />}
@@ -384,6 +389,56 @@ function SectionInspector({ section, index, total, products, categories, onUpdat
     <details className="rounded-xl border border-[#DDDAD2] bg-[#F6F4EF] p-3"><summary className="cursor-pointer text-[10px] font-black uppercase tracking-[.12em] text-[#737980]">Eigene Abschnittsfarben</summary><div className="mt-3 grid grid-cols-3 gap-2"><ColorField label="Fläche" value={section.background || '#FFFFFF'} onChange={(value) => onUpdate({ background: value })} /><ColorField label="Text" value={section.foreground || '#17231B'} onChange={(value) => onUpdate({ foreground: value })} /><ColorField label="Akzent" value={section.accent || '#F26A3D'} onChange={(value) => onUpdate({ accent: value })} /></div></details>
     <button type="button" onClick={onRemove} className="flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-[#EDC1B9] bg-[#FFF4F1] text-xs font-black text-[#A63E2D]"><Trash2 size={14} /> Abschnitt entfernen</button>
   </div>;
+}
+
+function SectionImageUploader({ tenantId, section, onUpdate }: {
+  tenantId: string;
+  section: StorefrontStudioSection;
+  onUpdate: (patch: Partial<StorefrontStudioSection>) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function uploadImage(file: File) {
+    setError(null);
+    if (!['image/jpeg', 'image/png', 'image/webp', 'image/avif'].includes(file.type)) {
+      setError('Bitte JPG, PNG, WebP oder AVIF verwenden.');
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setError('Das Bild darf höchstens 8 MB groß sein.');
+      return;
+    }
+    setUploading(true);
+    try {
+      const extension = ({ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/avif': 'avif' } as Record<string, string>)[file.type];
+      const path = `${tenantId}/studio-${section.id}-${Date.now()}.${extension}`;
+      const supabase = createClient();
+      const { error: uploadError } = await supabase.storage.from('tenant_assets').upload(path, file, { contentType: file.type, upsert: false });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from('tenant_assets').getPublicUrl(path);
+      onUpdate({ imageUrl: data.publicUrl });
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : 'Bild konnte nicht hochgeladen werden.');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return <Field label="Bannerbild">
+    <div className="overflow-hidden rounded-xl border border-[#D7D5CF] bg-white">
+      {section.imageUrl ? <div className="relative aspect-[16/7] bg-[#E9E7E1]"><img src={section.imageUrl} alt="Banner-Vorschau" className="h-full w-full object-cover" /><button type="button" onClick={() => onUpdate({ imageUrl: '' })} className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-black/65 text-white" aria-label="Bannerbild entfernen"><Trash2 size={13} /></button></div> : <div className="grid aspect-[16/5] place-items-center bg-[#F2F0EB] text-[11px] font-bold text-[#8A9096]">Noch kein Bild gewählt</div>}
+      <div className="flex flex-wrap items-center gap-2 p-2.5">
+        <label className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-[#17202A] px-3 text-[10px] font-black text-white">
+          {uploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}{uploading ? 'Wird geladen…' : section.imageUrl ? 'Bild ersetzen' : 'Bild hochladen'}
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" disabled={uploading} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadImage(file); event.currentTarget.value = ''; }} />
+        </label>
+        <span className="text-[9px] text-[#8A9096]">Querformat · max. 8 MB</span>
+      </div>
+    </div>
+    <input className="studio-input !mt-2" value={section.imageUrl} placeholder="Oder Bild-URL einfügen" onChange={(event) => onUpdate({ imageUrl: event.target.value })} />
+    {error && <div className="mt-2 rounded-lg bg-[#FFF0ED] px-3 py-2 text-[10px] font-bold text-[#9B3427]">{error}</div>}
+  </Field>;
 }
 
 function NavigationEditor({ section, categories, onUpdate }: { section: StorefrontStudioSection; categories: StudioCategory[]; onUpdate: (patch: Partial<StorefrontStudioSection>) => void }) {
