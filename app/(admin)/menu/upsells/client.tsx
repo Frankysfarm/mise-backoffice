@@ -11,7 +11,8 @@ import {
   TrendingUp,
   Search,
   Percent,
-  GripVertical,
+  ArrowUp,
+  ArrowDown,
   AlertCircle,
 } from 'lucide-react';
 
@@ -22,6 +23,7 @@ interface Item {
   preis: number;
   bild_url: string | null;
   beliebt: boolean | null;
+  option_groups: { required?: boolean; options?: { default?: boolean }[] }[] | null;
   kategorie: { name: string } | { name: string }[] | null;
 }
 
@@ -74,6 +76,16 @@ export function UpsellsClient({
     setError(null);
     const existing = upsellByItemId.get(itemId);
     if (on) {
+      const item = itemById.get(itemId);
+      const missingDefaults = item?.option_groups?.some((group) => group.required && !group.options?.some((option) => option.default));
+      if (missingDefaults) {
+        setError('Für jedes Pflichtfeld muss eine Standardoption markiert sein, bevor dieses Produkt als 1-Klick-Upsell genutzt werden kann.');
+        return;
+      }
+      if (activeUpsells.length >= 6) {
+        setError('Maximal 6 aktive Upsells. Weniger Auswahl konvertiert in der Regel besser.');
+        return;
+      }
       if (existing) {
         await updateUpsell(existing.id, { aktiv: true });
         return;
@@ -104,7 +116,8 @@ export function UpsellsClient({
     const { error: e } = await sb
       .from('tenant_upsells')
       .update(patch)
-      .eq('id', id);
+      .eq('id', id)
+      .eq('tenant_id', tenantId);
     if (e) {
       setError('Update fehlgeschlagen: ' + e.message);
       return;
@@ -116,12 +129,29 @@ export function UpsellsClient({
 
   async function deleteUpsell(id: string) {
     if (!confirm('Item aus Upsell-Liste entfernen?')) return;
-    const { error: e } = await sb.from('tenant_upsells').delete().eq('id', id);
+    const { error: e } = await sb.from('tenant_upsells').delete().eq('id', id).eq('tenant_id', tenantId);
     if (e) {
       setError('Löschen fehlgeschlagen: ' + e.message);
       return;
     }
     setUpsells((prev) => prev.filter((u) => u.id !== id));
+  }
+
+  async function moveUpsell(id: string, direction: -1 | 1) {
+    const ordered = [...activeUpsells].sort((a, b) => a.sort_order - b.sort_order);
+    const index = ordered.findIndex((upsell) => upsell.id === id);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= ordered.length) return;
+    const current = ordered[index];
+    const other = ordered[nextIndex];
+    const currentOrder = current.sort_order;
+    const otherOrder = other.sort_order;
+    setUpsells((prev) => prev.map((upsell) => upsell.id === current.id ? { ...upsell, sort_order: otherOrder } : upsell.id === other.id ? { ...upsell, sort_order: currentOrder } : upsell));
+    const [a, b] = await Promise.all([
+      sb.from('tenant_upsells').update({ sort_order: otherOrder }).eq('id', current.id).eq('tenant_id', tenantId),
+      sb.from('tenant_upsells').update({ sort_order: currentOrder }).eq('id', other.id).eq('tenant_id', tenantId),
+    ]);
+    if (a.error || b.error) setError('Reihenfolge konnte nicht gespeichert werden. Bitte neu laden.');
   }
 
   const activeUpsells = upsells.filter((u) => u.aktiv);
@@ -148,8 +178,8 @@ export function UpsellsClient({
           <div className="flex-1">
             <h3 className="font-semibold mb-1">So funktioniert's</h3>
             <p className="text-sm text-muted-foreground">
-              Wenn ein Kunde im Warenkorb auf „Zur Kasse" klickt, zeigen wir die
-              hier ausgewählten Items als Vorschlag an — z.B.{' '}
+              Die ausgewählten Items erscheinen markenkonform im Warenkorb und
+              vor der Bestellübersicht — z.B.{' '}
               <em>„Vergiss das nicht"</em>. Bei aktiviertem Rabatt wird der
               Originalpreis durchgestrichen + der Rabatt-Preis prominent
               gezeigt. Klick = direkt im Warenkorb.
@@ -190,9 +220,10 @@ export function UpsellsClient({
                 key={upsell.id}
                 className="flex items-center gap-3 p-3 rounded-xl border border-zinc-200 bg-white"
               >
-                <span className="font-mono text-xs text-muted-foreground w-6">
-                  {idx + 1}.
-                </span>
+                <div className="flex w-7 shrink-0 flex-col">
+                  <button type="button" onClick={() => moveUpsell(upsell.id, -1)} disabled={idx === 0} className="text-muted-foreground hover:text-zinc-900 disabled:opacity-20" aria-label="Nach oben"><ArrowUp size={13} /></button>
+                  <button type="button" onClick={() => moveUpsell(upsell.id, 1)} disabled={idx === activeUpsellItems.length - 1} className="text-muted-foreground hover:text-zinc-900 disabled:opacity-20" aria-label="Nach unten"><ArrowDown size={13} /></button>
+                </div>
                 <div
                   className="w-12 h-12 rounded-lg shrink-0"
                   style={{
@@ -232,6 +263,13 @@ export function UpsellsClient({
                       </>
                     )}
                   </div>
+                  <input
+                    defaultValue={upsell.label_override ?? ''}
+                    onBlur={(event) => updateUpsell(upsell.id, { label_override: event.target.value.trim() || null })}
+                    maxLength={48}
+                    placeholder="Label, z. B. Perfekt dazu"
+                    className="mt-1.5 w-full max-w-xs rounded-md border border-zinc-200 px-2 py-1 text-[11px] outline-none focus:border-orange-400"
+                  />
                 </div>
                 {/* Rabatt-Picker */}
                 <div className="flex items-center gap-1.5 shrink-0">
@@ -297,6 +335,8 @@ export function UpsellsClient({
             {filteredItems.map((item) => {
               const upsell = upsellByItemId.get(item.id);
               const active = upsell?.aktiv === true;
+              const hasOptions = Boolean(item.option_groups?.length);
+              const missingDefaults = item.option_groups?.some((group) => group.required && !group.options?.some((option) => option.default));
               const kat = Array.isArray(item.kategorie)
                 ? item.kategorie[0]?.name
                 : item.kategorie?.name;
@@ -304,7 +344,8 @@ export function UpsellsClient({
                 <button
                   key={item.id}
                   onClick={() => toggleUpsell(item.id, !active)}
-                  className="flex items-center gap-3 p-3 rounded-xl border transition text-left"
+                  disabled={missingDefaults && !active}
+                  className="flex items-center gap-3 p-3 rounded-xl border transition text-left disabled:cursor-not-allowed disabled:opacity-45"
                   style={{
                     borderColor: active ? '#F97316' : '#E4E4E7',
                     background: active ? '#FFF7ED' : 'white',
@@ -323,7 +364,7 @@ export function UpsellsClient({
                       {item.name}
                     </div>
                     <div className="text-[11px] text-muted-foreground truncate">
-                      {kat ?? '—'} · {item.preis.toFixed(2)} €
+                      {kat ?? '—'} · {item.preis.toFixed(2)} €{hasOptions ? (missingDefaults ? ' · Standard fehlt' : ' · mit Standardoptionen') : ''}
                     </div>
                   </div>
                   <div

@@ -12,15 +12,23 @@ export default async function AktionenPage() {
   const { data: emp } = await sb.from('employees').select('tenant_id').eq('id', employee.id).maybeSingle();
   if (!emp?.tenant_id) redirect('/start');
 
-  const { data: fpConfig } = await sb
+  const { data: fpConfigs } = await sb
     .from('free_product_configs')
     .select('*')
     .eq('tenant_id', emp.tenant_id)
-    .maybeSingle();
+    .order('created_at');
+
+  const { data: locations } = await sb
+    .from('locations')
+    .select('id')
+    .eq('tenant_id', emp.tenant_id)
+    .eq('aktiv', true);
+  const locationIds = (locations ?? []).map((location) => location.id);
 
   const { data: menuItems } = await sb
     .from('menu_items')
-    .select('id, name, preis')
+    .select('id, name, preis, option_groups')
+    .in('location_id', locationIds.length ? locationIds : ['00000000-0000-0000-0000-000000000000'])
     .eq('verfuegbar', true)
     .order('name');
 
@@ -31,13 +39,13 @@ export default async function AktionenPage() {
     .gte('eingeloest_am', new Date(Date.now() - 30 * 86400_000).toISOString());
 
   return (
-    <div className="p-6 max-w-4xl">
+    <div className="p-6 max-w-7xl">
       <h1 className="text-3xl font-bold mb-2">Aktionen & Rabatte</h1>
-      <p className="text-gray-600 mb-8">Belohne deine Kunden mit einem Gratis-Produkt — manipulationssicher mit Anti-Cheat.</p>
+      <p className="text-gray-600 mb-8">Steuere mehrere Gratis-Aktionen parallel — z. B. Cola bei jeder Bestellung und ein Geschenk bei jeder 3. Bestellung.</p>
       
       <GratisProdukClientUi
         tenantId={emp.tenant_id}
-        initialConfig={fpConfig as any}
+        initialConfigs={(fpConfigs as any) ?? []}
         menuItems={(menuItems as any) ?? []}
         redemptionsLast30={redemptionsLast30 ?? 0}
       />

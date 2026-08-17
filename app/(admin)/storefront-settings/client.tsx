@@ -87,12 +87,6 @@ export function StorefrontSettingsClient({ tenant, products }: Props) {
     setSettings((s) => ({ ...s, [section]: { ...(s[section] ?? {}), ...patch } }));
   };
 
-  const toggleFreeProduct = (id: string) => {
-    const current = settings.welcome_popup?.free_product_ids ?? [];
-    const next = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
-    update('welcome_popup', { free_product_ids: next.slice(0, 4) });
-  };
-
   const toggleCrossSellProduct = (id: string) => {
     const current = settings.cross_sell?.product_ids ?? [];
     const next = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
@@ -125,12 +119,12 @@ export function StorefrontSettingsClient({ tenant, products }: Props) {
         {/* SECTION: Welcome Popup */}
         <Card icon={<Gift size={18} className="text-amber-600" />} title="Welcome-Popup" subtitle="Begrüßt Neukunden mit einem Gratis-Geschenk">
           <Switch
-            checked={wp.enabled !== false}
+            checked={wp.enabled === true}
             onChange={(v) => update('welcome_popup', { enabled: v })}
             label="Popup aktivieren"
           />
 
-          {wp.enabled !== false && (
+          {wp.enabled === true && (
             <>
               <Field label="Titel (Hauptteil)">
                 <input
@@ -171,40 +165,9 @@ export function StorefrontSettingsClient({ tenant, products }: Props) {
                 />
               </Field>
 
-              <Field label={`Gratis-Produkte (${(wp.free_product_ids ?? []).length}/4 ausgewählt)`}>
-                <div className="text-[11px] text-neutral-500 mb-2">Wähle bis zu 4 Produkte aus dem Menü die der Kunde kostenlos erhalten kann.</div>
-                <div className="grid grid-cols-2 gap-2 max-h-72 overflow-y-auto p-1">
-                  {products.map((p) => {
-                    const checked = (wp.free_product_ids ?? []).includes(p.id);
-                    return (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => toggleFreeProduct(p.id)}
-                        className={`text-left rounded-lg p-2.5 text-xs border transition-all ${
-                          checked
-                            ? 'bg-emerald-50 border-emerald-300'
-                            : 'bg-white border-neutral-200 hover:border-emerald-200'
-                        }`}
-                      >
-                        <div className="flex items-start gap-2">
-                          <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                            checked ? 'bg-emerald-600 border-emerald-600' : 'border-neutral-300'
-                          }`}>
-                            {checked && <Check size={12} className="text-white" />}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-neutral-900 truncate">{p.name}</div>
-                            <div className="text-[10px] text-neutral-500 mt-0.5">
-                              {p.menu_categories?.name ?? p.category_id} · {p.preis.toFixed(2)} €
-                            </div>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </Field>
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950">
+                Welche Produkte gratis sind und ob die Aktion bei jeder, der ersten oder jeder N. Bestellung gilt, wird zentral unter <a href="/neo/app/aktionen" className="font-bold underline">Aktionen & Rabatte</a> eingestellt. So bleiben Shop, Preisprüfung und Küchenbon synchron.
+              </div>
             </>
           )}
         </Card>

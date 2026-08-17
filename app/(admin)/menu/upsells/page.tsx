@@ -34,7 +34,7 @@ export default async function UpsellsPage() {
 
   const { data: items } = await svc
     .from('menu_items')
-    .select('id, name, beschreibung, preis, bild_url, beliebt, kategorie:menu_categories(name)')
+    .select('id, name, beschreibung, preis, bild_url, beliebt, option_groups, kategorie:menu_categories(name)')
     .in('location_id', locIds.length > 0 ? locIds : [''])
     .eq('verfuegbar', true)
     .order('sort_order');
@@ -68,5 +68,6 @@ type ItemWithCat = {
   preis: number;
   bild_url: string | null;
   beliebt: boolean | null;
+  option_groups: { required?: boolean; options?: { default?: boolean }[] }[] | null;
   kategorie: { name: string } | { name: string }[] | null;
 };
