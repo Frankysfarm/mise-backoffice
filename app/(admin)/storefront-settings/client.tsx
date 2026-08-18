@@ -9,6 +9,7 @@ type Product = {
   name: string;
   preis: number;
   category_id: string;
+  option_groups?: { required?: boolean; options?: { default?: boolean }[] }[] | null;
   menu_categories?: { name: string } | null;
 };
 
@@ -27,6 +28,8 @@ type StorefrontSettings = {
     current_stamps?: number;
     reward_title?: string;
     reward_text?: string;
+    reward_product_ids?: string[];
+    reward_min_order?: number;
   };
   hero?: {
     badge?: string;
@@ -77,6 +80,7 @@ interface Props {
 export function StorefrontSettingsClient({ tenant, products }: Props) {
   const [settings, setSettings] = useState<StorefrontSettings>(tenant?.storefront_settings ?? {});
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   if (!tenant) {
@@ -93,10 +97,25 @@ export function StorefrontSettingsClient({ tenant, products }: Props) {
     update('cross_sell', { product_ids: next.slice(0, 6) });
   };
 
+  const toggleRewardProduct = (id: string) => {
+    const current = settings.loyalty?.reward_product_ids ?? [];
+    const next = current.includes(id) ? current.filter((productId) => productId !== id) : [...current, id];
+    update('loyalty', { reward_product_ids: next.slice(0, 12) });
+  };
+
   const save = () => {
     startTransition(async () => {
+      setSaveError(null);
+      if (settings.loyalty?.enabled !== false && !(settings.loyalty?.reward_product_ids?.length)) {
+        setSaveError('Wähle mindestens ein Treueprodukt oder deaktiviere die Stempel-Karte. Ohne Produkt wäre die versprochene Prämie nicht einlösbar.');
+        return;
+      }
       const supabase = createClient();
-      await supabase.from('tenants').update({ storefront_settings: settings }).eq('id', tenant.id);
+      const { error } = await supabase.from('tenants').update({ storefront_settings: settings }).eq('id', tenant.id);
+      if (error) {
+        setSaveError(`Speichern fehlgeschlagen: ${error.message}`);
+        return;
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 2400);
     });
@@ -211,6 +230,41 @@ export function StorefrontSettingsClient({ tenant, products }: Props) {
                   placeholder="1 Pasta gratis"
                   className="input"
                 />
+              </Field>
+
+              <Field label="Mindest-Warenwert für die Einlösung (€)">
+                <input
+                  type="number"
+                  min={0}
+                  step="0.5"
+                  value={ly.reward_min_order ?? 0}
+                  onChange={(e) => update('loyalty', { reward_min_order: Math.max(0, Number(e.target.value) || 0) })}
+                  className="input"
+                />
+              </Field>
+
+              <Field label={`Einlösbare Treueprodukte (${(ly.reward_product_ids ?? []).length}/12)`}>
+                <p className="mb-2 text-[11px] text-neutral-500">Nur diese Produkte können bei erreichter Stempelzahl kostenlos gewählt werden. Pflichtoptionen benötigen eine Standardauswahl.</p>
+                <div className="grid max-h-72 grid-cols-1 gap-2 overflow-y-auto p-1 sm:grid-cols-2">
+                  {products.map((product) => {
+                    const selected = (ly.reward_product_ids ?? []).includes(product.id);
+                    const missingDefaults = product.option_groups?.some((group) => group.required && !group.options?.some((option) => option.default));
+                    return (
+                      <button
+                        key={product.id}
+                        type="button"
+                        disabled={missingDefaults}
+                        onClick={() => toggleRewardProduct(product.id)}
+                        className={`min-h-14 rounded-xl border p-3 text-left transition disabled:cursor-not-allowed disabled:opacity-45 ${selected ? 'border-emerald-500 bg-emerald-50' : 'border-neutral-200 bg-white hover:border-emerald-300'}`}
+                      >
+                        <span className="flex items-start gap-2">
+                          <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${selected ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-neutral-300'}`}>{selected && <Check size={13} />}</span>
+                          <span className="min-w-0"><span className="block truncate text-sm font-semibold text-neutral-900">{product.name}</span><span className="mt-0.5 block text-[11px] text-neutral-500">{product.preis.toFixed(2)} €{missingDefaults ? ' · Standardoption fehlt' : ''}</span></span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </Field>
             </>
           )}
@@ -439,6 +493,8 @@ export function StorefrontSettingsClient({ tenant, products }: Props) {
             </Field>
           </div>
         </Card>
+
+      {saveError && <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-900">{saveError}</div>}
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 p-4 shadow-lg z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">

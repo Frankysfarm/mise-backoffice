@@ -22,7 +22,7 @@ export default async function StorefrontSettingsPage() {
 
   const { data: products } = await supabase
     .from('menu_items')
-    .select('id, name, preis, category_id, menu_categories(name)')
+    .select('id, name, preis, category_id, option_groups, menu_categories(name)')
     .in('location_id', locationIds.length ? locationIds : ['00000000-0000-0000-0000-000000000000'])
     .eq('verfuegbar', true)
     .order('name');

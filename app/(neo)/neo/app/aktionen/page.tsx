@@ -41,7 +41,7 @@ export default async function AktionenPage() {
   return (
     <div className="p-6 max-w-7xl">
       <h1 className="text-3xl font-bold mb-2">Aktionen & Rabatte</h1>
-      <p className="text-gray-600 mb-8">Steuere mehrere Gratis-Aktionen parallel — z. B. Cola bei jeder Bestellung und ein Geschenk bei jeder 3. Bestellung.</p>
+      <p className="text-gray-600 mb-8">Steuere mehrere Gratis-Aktionen. Pro Bestellung wird genau eine passende Aktion ausgespielt; gezielte Treueaktionen haben Vorrang vor dauerhaften Zugaben.</p>
       
       <GratisProdukClientUi
         tenantId={emp.tenant_id}
