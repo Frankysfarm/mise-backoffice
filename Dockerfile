@@ -14,9 +14,10 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 # ---- Stage 2: Builder ----
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Inherit the dependency layer instead of copying node_modules into a second
+# layer. This keeps production builds viable on the intentionally small host
+# volume without changing the resulting standalone runtime image.
+FROM deps AS builder
 COPY . .
 
 # Next.js telemetrie aus
