@@ -113,6 +113,7 @@ export async function updateSession(request: NextRequest) {
     // Driver APIs authenticate Bearer/cookie/internal tokens in their own
     // handlers. Middleware redirects would turn native 401/409 JSON into HTML.
     pathname.startsWith('/api/driver/') ||
+    pathname === '/api/fahrer/whoami' ||
     pathname === '/apps' || pathname === '/driver' || pathname.startsWith('/driver/') || pathname.startsWith('/api/lieferdienst/') || pathname.startsWith('/api/driver-app/');
 
   if (!user && !isPublic) {

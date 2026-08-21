@@ -81,6 +81,13 @@ test('delivery health endpoint is public and reaches the database', async ({ req
   expect(body.checks.database.ok).toBe(true);
 });
 
+test('driver identity endpoint returns JSON instead of an auth redirect', async ({ request }) => {
+  const response = await request.get('/api/fahrer/whoami', { maxRedirects: 0 });
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('application/json');
+  expect(await response.json()).toEqual({ isDriver: false });
+});
+
 test('driver ringtone is served as a public audio asset', async ({ request }) => {
   const response = await request.get('/ringtone.wav');
 

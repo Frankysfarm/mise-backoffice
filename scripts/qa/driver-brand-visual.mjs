@@ -80,17 +80,26 @@ async function metrics(page, label) {
 }
 
 async function login(page, email) {
-  await page.goto(`${BASE}/fahrer/login`, { waitUntil: 'domcontentloaded', timeout: 30_000 });
-  await page.locator('input[type="email"]').fill(email);
-  await page.locator('input[type="password"]').fill(passwordFor(email));
-  await page.locator('button[type="submit"]').click();
-  try {
-    await page.waitForURL(/\/fahrer\/app/, { timeout: 30_000 });
-  } catch (error) {
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    await page.goto(`${BASE}/fahrer/login`, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    await page.locator('input[type="email"]').fill(email);
+    await page.locator('input[type="password"]').fill(passwordFor(email));
+    await page.locator('button[type="submit"]').click();
+    try {
+      await page.waitForURL(/\/fahrer\/app/, { timeout: 30_000 });
+      lastError = undefined;
+      break;
+    } catch (error) {
+      lastError = error;
+      if (attempt < 2) await page.waitForTimeout(2_000);
+    }
+  }
+  if (lastError) {
     const safeName = email.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
     await page.screenshot({ path: `${OUTPUT}/login-failure-${safeName}.png`, fullPage: true });
     const visibleText = (await page.locator('body').innerText()).replace(/\s+/g, ' ').slice(0, 1_000);
-    throw new Error(`Driver login did not reach the app: ${visibleText}`, { cause: error });
+    throw new Error(`Driver login did not reach the app: ${visibleText}`, { cause: lastError });
   }
   await page.locator('header').waitFor({ state: 'visible', timeout: 30_000 });
   await page.waitForTimeout(500);
