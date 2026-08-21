@@ -23,7 +23,6 @@ export function LiveMap({ driver, dest, pickup }: Props) {
 
     (async () => {
       const L = await import('leaflet');
-      // @ts-ignore - inject leaflet CSS only once
       if (!document.querySelector('link[data-leaflet]')) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';

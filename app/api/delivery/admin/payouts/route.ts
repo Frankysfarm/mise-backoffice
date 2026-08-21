@@ -20,7 +20,7 @@
  *   { action: "bulk_mark_paid", period_ids: string[] }
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import {
   getDriverPayouts,
   getPeriodPayouts,
@@ -29,18 +29,39 @@ import {
   approvePeriod,
   markPeriodPaid,
 } from '@/lib/delivery/payout';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
+import type { CurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+async function areAuthorizedPayoutPeriods(actor: CurrentEmployee, periodIds: string[]): Promise<boolean> {
+  const uniqueIds = Array.from(new Set(periodIds));
+  if (uniqueIds.length === 0 || uniqueIds.length > 500) return false;
+
+  const { data: periods } = await createServiceClient()
+    .from('driver_payout_periods')
+    .select('id, location_id')
+    .in('id', uniqueIds);
+  if (!periods || periods.length !== uniqueIds.length) return false;
+
+  const locationIds = Array.from(new Set(periods.map((period) => period.location_id as string)));
+  const ownership = await Promise.all(
+    locationIds.map((locationId) => isDeliveryAdminLocation(actor, locationId)),
+  );
+  return ownership.every(Boolean);
+}
+
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const locationId = searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   const view = searchParams.get('view') ?? 'summary';
   const driverId = searchParams.get('driver_id') ?? undefined;
@@ -81,9 +102,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   let body: Record<string, unknown>;
   try {
@@ -99,6 +119,9 @@ export async function POST(req: NextRequest) {
     if (action === 'generate_daily') {
       const locationId = body.location_id as string | undefined;
       if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+      if (!await isDeliveryAdminLocation(actor, locationId)) {
+        return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+      }
 
       const dateStr = (body.date as string | undefined) ?? new Date().toISOString().slice(0, 10);
       const date = new Date(dateStr + 'T00:00:00');
@@ -117,7 +140,10 @@ export async function POST(req: NextRequest) {
     if (action === 'approve_period') {
       const periodId = body.period_id as string | undefined;
       if (!periodId) return NextResponse.json({ error: 'period_id fehlt' }, { status: 400 });
-      await approvePeriod(periodId, user.id);
+      if (!await areAuthorizedPayoutPeriods(actor, [periodId])) {
+        return NextResponse.json({ error: 'Abrechnungsperiode nicht autorisiert' }, { status: 403 });
+      }
+      await approvePeriod(periodId, actor.auth_user_id ?? actor.id);
       return NextResponse.json({ ok: true, period_id: periodId, status: 'approved' });
     }
 
@@ -125,6 +151,9 @@ export async function POST(req: NextRequest) {
     if (action === 'mark_paid') {
       const periodId = body.period_id as string | undefined;
       if (!periodId) return NextResponse.json({ error: 'period_id fehlt' }, { status: 400 });
+      if (!await areAuthorizedPayoutPeriods(actor, [periodId])) {
+        return NextResponse.json({ error: 'Abrechnungsperiode nicht autorisiert' }, { status: 403 });
+      }
       await markPeriodPaid(periodId);
       return NextResponse.json({ ok: true, period_id: periodId, status: 'paid' });
     }
@@ -133,6 +162,9 @@ export async function POST(req: NextRequest) {
     if (action === 'generate_weekly') {
       const locationId = body.location_id as string | undefined;
       if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+      if (!await isDeliveryAdminLocation(actor, locationId)) {
+        return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+      }
 
       const now = new Date();
       const day = now.getDay();
@@ -157,7 +189,10 @@ export async function POST(req: NextRequest) {
       if (!Array.isArray(periodIds) || periodIds.length === 0) {
         return NextResponse.json({ error: 'period_ids muss ein nicht-leeres Array sein' }, { status: 400 });
       }
-      await Promise.all(periodIds.map((id) => approvePeriod(id, user.id)));
+      if (!await areAuthorizedPayoutPeriods(actor, periodIds)) {
+        return NextResponse.json({ error: 'Mindestens eine Abrechnungsperiode ist nicht autorisiert' }, { status: 403 });
+      }
+      await Promise.all(periodIds.map((id) => approvePeriod(id, actor.auth_user_id ?? actor.id)));
       return NextResponse.json({ ok: true, approved: periodIds.length, status: 'approved' });
     }
 
@@ -166,6 +201,9 @@ export async function POST(req: NextRequest) {
       const periodIds = body.period_ids as string[] | undefined;
       if (!Array.isArray(periodIds) || periodIds.length === 0) {
         return NextResponse.json({ error: 'period_ids muss ein nicht-leeres Array sein' }, { status: 400 });
+      }
+      if (!await areAuthorizedPayoutPeriods(actor, periodIds)) {
+        return NextResponse.json({ error: 'Mindestens eine Abrechnungsperiode ist nicht autorisiert' }, { status: 403 });
       }
       await Promise.all(periodIds.map((id) => markPeriodPaid(id)));
       return NextResponse.json({ ok: true, marked_paid: periodIds.length, status: 'paid' });

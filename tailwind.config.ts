@@ -1,4 +1,6 @@
 import type { Config } from 'tailwindcss';
+import animate from 'tailwindcss-animate';
+import typography from '@tailwindcss/typography';
 
 const config: Config = {
   darkMode: 'class',
@@ -29,8 +31,8 @@ const config: Config = {
           foreground: 'hsl(var(--muted-foreground))',
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
+          DEFAULT: 'hsl(var(--accent-hsl, var(--accent)))',
+          foreground: 'hsl(var(--accent-foreground-hsl, var(--accent-foreground)))',
         },
         card: {
           DEFAULT: 'hsl(var(--card))',
@@ -65,6 +67,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')],
+  plugins: [animate, typography],
 };
 export default config;

@@ -1603,7 +1603,11 @@ export function DeliveryView({
                       <img src={proofPhotoPreview} alt="Foto-Vorschau" className="w-full h-40 object-cover" />
                       <button
                         type="button"
-                        onClick={() => { setProofPhotoBlob(null); setProofPhotoPreview(null); proofCameraRef.current && (proofCameraRef.current.value = ''); }}
+                        onClick={() => {
+                          setProofPhotoBlob(null);
+                          setProofPhotoPreview(null);
+                          if (proofCameraRef.current) proofCameraRef.current.value = '';
+                        }}
                         className="absolute top-2 right-2 h-8 w-8 rounded-full bg-black/70 flex items-center justify-center text-[var(--ink)] text-xs font-bold"
                       >
                         ✕

@@ -342,7 +342,7 @@ export async function getActiveTrails(locationId: string): Promise<DriverTrailSu
   const driverIds = drivers.map((d) => d.id as string);
 
   // Trail-Punkte laden — Graceful Fallback wenn Tabelle fehlt
-  let trailsByDriver: Map<string, TrailPoint[]> = new Map();
+  const trailsByDriver: Map<string, TrailPoint[]> = new Map();
   try {
     const cutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString();
     const { data: trails } = await client

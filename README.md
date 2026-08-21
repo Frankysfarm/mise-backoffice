@@ -1,6 +1,8 @@
-# Backoffice
+# Mise Gastro Backoffice und Lieferzentrale
 
-Admin-Dashboard für die Restaurant-Operations-Platform. Läuft neben `mobile/` (Mitarbeiter-App) und `app/` (Auth-Landing) auf derselben Supabase-Instanz.
+Admin-Dashboard und Lieferplattform für Restaurantbetrieb, Küche, Dispatch,
+Fahrer-App, Kundenbestellung und Tracking. Alle Module verwenden dieselbe
+mandantenfähige Supabase-Instanz.
 
 Root-Projekt: siehe `../README.md` für Setup der DB und der Edge Functions.
 
@@ -14,35 +16,18 @@ npx supabase status  # URL/Keys notieren
 # Backoffice
 cd backoffice
 pnpm install
-cp .env.local.example .env.local
+cp .env.example .env.local
 # Keys aus `supabase status` eintragen
 pnpm dev
 # → http://127.0.0.1:3200
 ```
 
-## Test-Login
+## Test-Zugänge
 
-Ein Admin-Account ist für die lokale DB verdrahtet:
-
-| E-Mail | Passwort |
-|---|---|
-| `admin@matcha.test` | `matcha123` |
-
-Verknüpft mit Employee `P100 Alex Admin` (Rolle: `admin`).
-
-Weitere Test-Accounts anlegen:
-```bash
-# Service-Role-Key aus supabase status
-curl -X POST http://127.0.0.1:54321/auth/v1/admin/users \
-  -H "Authorization: Bearer <service-role-key>" \
-  -H "apikey: <service-role-key>" \
-  -H "Content-Type: application/json" \
-  -d '{"email":"manager@matcha.test","password":"matcha123","email_confirm":true}'
-
-# Dann Employee verknüpfen via psql:
-docker exec supabase_db_projekt-frankys-backend psql -U postgres -c \
-  "update employees set auth_user_id='<user-id>' where email='mira.m@frankys.test';"
-```
+Test-Zugänge werden ausschließlich über die lokale, nicht eingecheckte Umgebung
+konfiguriert. Für Fahrer-Tests sind dies `MISE_TEST_DRIVER_EMAIL` und
+`MISE_TEST_DRIVER_PASSWORD`. Service-Role-Schlüssel oder Passwörter gehören
+nicht in Quellcode, Dokumentation oder Commits.
 
 ## Rollen-Gate
 
@@ -78,6 +63,12 @@ app/
     badges        Regel-JSON
     notifications Feed
     settings      Systemübersicht + Admin-Links
+  api/delivery    Lieferlogik, Dispatch, Reporting und Admin-Endpunkte
+  api/driver/v1   Fahrer-Authentifizierung, Touren, Pickup und Zustellung
+  fahrer          Fahrer-Einstieg, Login und operative Fahrer-App
+  lieferdienst    Lieferzentrale
+  order           Kundenbestellung
+  track           Live-Tracking
 components/
   ui/             Radix-Primitives (Button, Card, Table, Dialog, Toast, ...)
   layout/         Sidebar, Header, PageHeader
@@ -112,7 +103,23 @@ pnpm build
 pnpm start   # Port 3200
 ```
 
-Build erzeugt alle 28 Routes als dynamisch-gerendert (außer `/login` als statisch). Middleware läuft edge-mode für Auth-Gate.
+Der geprüfte Release-Stand erzeugt 212 Seiten. Middleware und Handler erzwingen
+Rollen-, Mandanten- und Standortgrenzen; standortbezogene Health-Daten sind
+nicht öffentlich.
+
+## Qualitäts-Gates
+
+```bash
+pnpm test                    # Vitest: Logik, Security und Storefront
+pnpm typecheck:delivery      # fokussierter Delivery-Typecheck
+pnpm exec playwright test    # Desktop- und Mobile-Smoke-Tests
+pnpm build                   # vollständiger Release-Gate inkl. Typecheck
+```
+
+Der kritische Lieferstatus folgt einer serverseitig geprüften Zustandsmaschine:
+`neu → bestätigt → in_zubereitung → fertig → unterwegs → geliefert`.
+Abholung und Stornierung besitzen eigene erlaubte Übergänge; ungültige Sprünge
+werden mit HTTP 409 abgewiesen.
 
 ## Edge Functions nutzen
 
@@ -123,13 +130,13 @@ cd ..
 npx supabase functions serve --env-file supabase/functions/.env
 ```
 
-## Nächste Schritte (Priorisierung)
+## Release-Ablauf
 
-1. **Schedule DnD** (dnd-kit + ArbZG-Validator) — größter UX-Gewinn
-2. **Photo-Gallerien** für Check-ups/Cleaning (Storage-URLs signieren)
-3. **Notification Rules Editor** + DB-Tabelle `notification_rules`
-4. **PDF-Schichtplan** für Aushang
-5. **Realtime Channels** für Dashboard + Schedule
+1. Unit-, Security-, Browser-Tests und Produktions-Build grün ausführen.
+2. Einen markierten Testauftrag authentifiziert durch Küche, Dispatch, Fahrer
+   und Zustellung führen; anschließend ausschließlich soft stornieren/archivieren.
+3. Erst danach über den vorgesehenen Zero-Downtime-Prozess deployen und den
+   Health-/Login-Smoke-Test gegen die Zielumgebung wiederholen.
 
 ## Troubleshooting
 

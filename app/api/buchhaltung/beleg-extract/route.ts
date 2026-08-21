@@ -51,7 +51,8 @@ export async function POST(req: NextRequest) {
         { type: 'text', text: 'Lies diesen Beleg aus und gib das JSON zurück.' },
       ] }],
     });
-    const text = res.content.find((b: any) => b.type === 'text')?.text ?? '{}';
+    const textBlock = res.content.find((block) => block.type === 'text');
+    const text = textBlock?.type === 'text' ? textBlock.text : '{}';
     const json = text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1);
     extracted = JSON.parse(json);
   } catch (e) {

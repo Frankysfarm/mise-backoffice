@@ -17,16 +17,15 @@
  * Limits: max. 10 000 Zeilen für 'orders', unbegrenzt für 'drivers' (via View)
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { generateOrdersCSV, generateDriversCSV } from '@/lib/delivery/reporting';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const format     = searchParams.get('format');
@@ -34,6 +33,9 @@ export async function GET(req: NextRequest) {
 
   if (!format)     return NextResponse.json({ error: 'format fehlt (orders | drivers)' }, { status: 400 });
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   const todayIso = new Date().toISOString().slice(0, 10);
   const thirtyDaysAgo = new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10);

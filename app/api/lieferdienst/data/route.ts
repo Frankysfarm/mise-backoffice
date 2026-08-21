@@ -1,37 +1,52 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-/**
- * GET /api/lieferdienst/data
- *
- * DEV-Modus: kein Auth-Gate. Liefert hartkodiert Frankys-Farm Daten.
- * Wird später auf requireManagerPlus + tenant-aware umgestellt.
- */
-const DEV_TENANT_ID = 'd1522124-4b9b-4362-9d9a-882a6a8621f6';
-const DEV_LOCATION_ID = 'bb01ae0a-da47-48b1-b986-3a1201aacc4b';
+/** GET /api/lieferdienst/data?location_id=... */
+export async function GET(req: NextRequest) {
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 });
 
-export async function GET() {
+  const requestedLocationId = req.nextUrl.searchParams.get('location_id');
+  const locationId = actor.location_id ?? requestedLocationId;
+  if (!locationId) {
+    return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  }
+  if (actor.location_id && requestedLocationId && requestedLocationId !== actor.location_id) {
+    return NextResponse.json({ error: 'Standort nicht gefunden' }, { status: 404 });
+  }
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht gefunden' }, { status: 404 });
+  }
+
   const svc = createServiceClient();
+  const operationalCutoff = new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString();
 
-  const [{ data: orders }, { data: drivers }, { data: menu }] = await Promise.all([
+  const [{ data: orders }, { data: driverLinks }, { data: menu }] = await Promise.all([
     svc.from('customer_orders')
       .select('id, bestellnummer, typ, status, kunde_name, kunde_telefon, kunde_adresse, kunde_plz, kunde_stadt, kunde_notiz, gesamtbetrag, bestellt_am, bestaetigt_am, zubereitung_start, fertig_am, fahrer_id, mise_driver_id, tisch_id, items:order_items(id, name, menge, einzelpreis, notiz, extras)')
-      .eq('tenant_id', DEV_TENANT_ID)
-      .eq('location_id', DEV_LOCATION_ID)
+      .eq('tenant_id', actor.tenant_id)
+      .eq('location_id', locationId)
       .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig', 'unterwegs'])
+      .gte('bestellt_am', operationalCutoff)
       .order('bestellt_am', { ascending: false })
       .limit(100),
-    svc.from('mise_drivers')
-      .select('id, name, phone, state, active, vehicle, last_position_at')
-      .eq('active', true),
+    svc.from('mise_driver_tenants')
+      .select('driver:driver_id!inner(id, name, phone, state, active, vehicle, last_position_at)')
+      .eq('tenant_id', actor.tenant_id)
+      .eq('status', 'active'),
     svc.from('menu_items')
       .select('id, name, preis, beschreibung, allergene, category_id, verfuegbar, beliebt, ausverkauft_bis_schicht')
-      .eq('location_id', DEV_LOCATION_ID)
+      .eq('location_id', locationId)
       .order('sort_order_in_category'),
   ]);
+
+  const drivers = (driverLinks ?? [])
+    .map((link: any) => link.driver)
+    .filter((driver: any) => driver?.active);
 
   return NextResponse.json({
     orders: (orders ?? []).map(mapOrder),

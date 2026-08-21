@@ -15,7 +15,6 @@
  *   → Fällige Retry-Orders sofort freigeben (Debug/Cron-Ersatz)
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import {
   getPendingFailedAttempts,
   getFailedAttemptStats,
@@ -24,6 +23,7 @@ import {
   releaseRetryAttempts,
   type FailedResolution,
 } from '@/lib/delivery/proof';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -33,30 +33,15 @@ const VALID_RESOLUTIONS: FailedResolution[] = [
   'delivered', 'returned_to_restaurant', 'cancelled', 'rescheduled',
 ];
 
-async function getLocationId(req: NextRequest): Promise<string | null> {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return null;
-
-  const locationParam = new URL(req.url).searchParams.get('location_id');
-  if (locationParam) return locationParam;
-
-  const { data: employee } = await sb
-    .from('employees')
-    .select('location_id')
-    .eq('auth_user_id', user.id)
-    .maybeSingle();
-
-  return (employee?.location_id as string | null) ?? null;
-}
-
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
-  const locationId = await getLocationId(req);
+  const locationId = new URL(req.url).searchParams.get('location_id') ?? actor.location_id;
   if (!locationId) return NextResponse.json({ error: 'location_id nicht ermittelbar' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   const { searchParams } = new URL(req.url);
   const action = searchParams.get('action') ?? 'list';
@@ -73,12 +58,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
-  const locationId = await getLocationId(req);
+  const locationId = new URL(req.url).searchParams.get('location_id') ?? actor.location_id;
   if (!locationId) return NextResponse.json({ error: 'location_id nicht ermittelbar' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   const body = await req.json() as {
     action?: string;
@@ -125,7 +112,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (action === 'release_retries') {
-    const result = await releaseRetryAttempts();
+    const result = await releaseRetryAttempts(locationId);
     return NextResponse.json({ ok: true, ...result });
   }
 

@@ -8,20 +8,30 @@
  * PATCH: Fahrer aktivieren/deaktivieren oder max_capacity setzen.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { getDeliveryAdminActor } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
   const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
 
-  // Alle Fahrer mit aktueller Position + aktivem Batch
+  const { data: memberships } = await createServiceClient()
+    .from('mise_driver_tenants')
+    .select('driver_id')
+    .eq('tenant_id', actor.tenant_id as string)
+    .eq('status', 'active');
+  const allowedDriverIds = (memberships ?? []).map((membership) => membership.driver_id as string);
+  if (allowedDriverIds.length === 0) return NextResponse.json({ drivers: [] });
+
+  // Nur Fahrer des eigenen Mandanten mit aktueller Position + aktivem Batch
   const { data: drivers, error } = await sb
     .from('mise_drivers')
     .select('id, name, telefon, vehicle, state, active, max_radius_km, max_capacity, current_capacity, total_deliveries, last_lat, last_lng, last_position_at')
+    .in('id', allowedDriverIds)
     .order('state', { ascending: true })
     .order('name', { ascending: true });
 
@@ -98,13 +108,22 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
   const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const driverId = searchParams.get('driver_id');
   if (!driverId) return NextResponse.json({ error: 'driver_id fehlt' }, { status: 400 });
+
+  const { data: membership } = await createServiceClient()
+    .from('mise_driver_tenants')
+    .select('driver_id')
+    .eq('driver_id', driverId)
+    .eq('tenant_id', actor.tenant_id as string)
+    .eq('status', 'active')
+    .maybeSingle();
+  if (!membership) return NextResponse.json({ error: 'Fahrer nicht autorisiert' }, { status: 403 });
 
   let body: {
     active?: boolean;

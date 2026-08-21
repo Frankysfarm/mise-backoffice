@@ -28,14 +28,15 @@ import {
   getPeriodReport,
   getMultiLocationSummary,
 } from '@/lib/delivery/reporting';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
   const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
   const type = searchParams.get('type') ?? 'daily';
@@ -44,6 +45,9 @@ export async function GET(req: NextRequest) {
   if (type === 'daily') {
     const locationId = searchParams.get('location_id');
     if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+    if (!await isDeliveryAdminLocation(actor, locationId)) {
+      return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+    }
 
     const date = searchParams.get('date') ?? new Date().toISOString().slice(0, 10);
 
@@ -63,13 +67,16 @@ export async function GET(req: NextRequest) {
   if (type === 'period') {
     const locationId  = searchParams.get('location_id');
     if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+    if (!await isDeliveryAdminLocation(actor, locationId)) {
+      return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+    }
 
     const periodType = (searchParams.get('period_type') ?? 'custom') as 'daily' | 'weekly' | 'monthly' | 'custom';
     const now        = new Date();
     const todayIso   = now.toISOString().slice(0, 10);
 
     let from = searchParams.get('from');
-    let to   = searchParams.get('to') ?? todayIso;
+    const to = searchParams.get('to') ?? todayIso;
 
     if (!from) {
       // Standardzeiträume aus period_type ableiten
@@ -143,6 +150,9 @@ export async function GET(req: NextRequest) {
   if (type === 'cached') {
     const locationId  = searchParams.get('location_id');
     if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+    if (!await isDeliveryAdminLocation(actor, locationId)) {
+      return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+    }
 
     const reportType = searchParams.get('report_type') ?? 'daily';
     const limit      = Math.min(Math.max(Number(searchParams.get('limit') ?? 30), 1), 90);

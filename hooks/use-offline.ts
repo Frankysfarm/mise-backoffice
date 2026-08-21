@@ -3,11 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Order } from '@/lib/lieferdienst/orders'
 
-const ORDERS_STORAGE_KEY = 'mise_kds_orders'
-const COMPLETED_ORDERS_KEY = 'mise_kds_completed'
-const SETTINGS_STORAGE_KEY = 'mise_kds_settings'
-
-export function useOfflineStorage() {
+export function useOfflineStorage(scope: string) {
+  const ordersStorageKey = `mise_kds_orders:${scope}`
+  const completedOrdersKey = `mise_kds_completed:${scope}`
   const [isOnline, setIsOnline] = useState(true)
   const [hasUnsyncedData, setHasUnsyncedData] = useState(false)
 
@@ -36,19 +34,19 @@ export function useOfflineStorage() {
         acceptedAt: o.acceptedAt ? new Date(o.acceptedAt).toISOString() : undefined,
         waitingForCustomerSince: o.waitingForCustomerSince?.toISOString(),
       })))
-      localStorage.setItem(ORDERS_STORAGE_KEY, serialized)
+      localStorage.setItem(ordersStorageKey, serialized)
       if (!isOnline) {
         setHasUnsyncedData(true)
       }
     } catch (e) {
       console.error('[v0] Failed to save orders to localStorage:', e)
     }
-  }, [isOnline])
+  }, [isOnline, ordersStorageKey])
 
   // Load orders from localStorage
   const loadOrders = useCallback((): Order[] | null => {
     try {
-      const stored = localStorage.getItem(ORDERS_STORAGE_KEY)
+      const stored = localStorage.getItem(ordersStorageKey)
       if (!stored) return null
       
       const parsed = JSON.parse(stored)
@@ -62,7 +60,7 @@ export function useOfflineStorage() {
       console.error('[v0] Failed to load orders from localStorage:', e)
       return null
     }
-  }, [])
+  }, [ordersStorageKey])
 
   // Save completed orders
   const saveCompletedOrders = useCallback((orders: Order[]) => {
@@ -73,16 +71,16 @@ export function useOfflineStorage() {
         acceptedAt: o.acceptedAt ? new Date(o.acceptedAt).toISOString() : undefined,
         waitingForCustomerSince: o.waitingForCustomerSince?.toISOString(),
       })))
-      localStorage.setItem(COMPLETED_ORDERS_KEY, serialized)
+      localStorage.setItem(completedOrdersKey, serialized)
     } catch (e) {
       console.error('[v0] Failed to save completed orders:', e)
     }
-  }, [])
+  }, [completedOrdersKey])
 
   // Load completed orders
   const loadCompletedOrders = useCallback((): Order[] | null => {
     try {
-      const stored = localStorage.getItem(COMPLETED_ORDERS_KEY)
+      const stored = localStorage.getItem(completedOrdersKey)
       if (!stored) return null
       
       const parsed = JSON.parse(stored)
@@ -96,7 +94,7 @@ export function useOfflineStorage() {
       console.error('[v0] Failed to load completed orders:', e)
       return null
     }
-  }, [])
+  }, [completedOrdersKey])
 
   // Clear unsynced flag
   const markAsSynced = useCallback(() => {

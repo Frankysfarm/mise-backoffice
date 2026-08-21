@@ -20,19 +20,21 @@
  *   }
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { getPayoutConfig, upsertPayoutConfig } from '@/lib/delivery/payout';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const locationId = new URL(req.url).searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   try {
     const config = await getPayoutConfig(locationId);
@@ -43,9 +45,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   let body: Record<string, unknown>;
   try {
@@ -56,6 +57,9 @@ export async function POST(req: NextRequest) {
 
   const locationId = body.location_id as string | undefined;
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   try {
     const config = await upsertPayoutConfig({

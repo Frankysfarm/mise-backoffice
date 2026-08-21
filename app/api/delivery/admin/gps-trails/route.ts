@@ -30,46 +30,37 @@
  * Aktuelle Geofence-Events der Location.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { getActiveTrails, getDriverTrail, getGeofenceEvents } from '@/lib/delivery/gps-tracker';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
-
-  // Location-Zugriff prüfen
-  const { data: empT } = await sb
-    .from('employees')
-    .select('location_id')
-    .eq('user_id', user.id)
-    .single();
-  if (!empT) return NextResponse.json({ error: 'Kein Mitarbeiter-Profil gefunden' }, { status: 403 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
-  const locationId = searchParams.get('location_id') ?? (empT.location_id as string);
+  const locationId = searchParams.get('location_id') ?? actor.location_id;
   const driverId   = searchParams.get('driver_id');
   const action     = searchParams.get('action');
   const minutes    = Math.min(parseInt(searchParams.get('minutes') ?? '30', 10), 120);
 
-  // Tenant-Guard: Mitarbeiter darf nur eigene Location abfragen
-  if (locationId !== empT.location_id) {
-    const { data: loc } = await sb
-      .from('locations')
-      .select('tenant_id')
-      .eq('id', locationId)
-      .single();
-    const { data: myLoc } = await sb
-      .from('locations')
-      .select('tenant_id')
-      .eq('id', empT.location_id as string)
-      .single();
-    if (!loc || !myLoc || loc.tenant_id !== myLoc.tenant_id) {
-      return NextResponse.json({ error: 'Zugriff verweigert' }, { status: 403 });
-    }
+  if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
+
+  if (driverId) {
+    const { data: membership } = await createServiceClient()
+      .from('mise_driver_tenants')
+      .select('driver_id')
+      .eq('driver_id', driverId)
+      .eq('tenant_id', actor.tenant_id as string)
+      .eq('status', 'active')
+      .maybeSingle();
+    if (!membership) return NextResponse.json({ error: 'Fahrer nicht autorisiert' }, { status: 403 });
   }
 
   // Geofence-Events

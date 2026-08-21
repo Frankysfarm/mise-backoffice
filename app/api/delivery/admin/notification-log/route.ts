@@ -8,20 +8,22 @@
  *   limit       (optional, default 100, max 500)
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { getNotificationLog, getNotificationStats } from '@/lib/delivery/customer-push';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
   const p = req.nextUrl.searchParams;
   const locationId = p.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Location not authorized' }, { status: 403 });
+  }
 
   const status = p.get('status') ?? undefined;
   const limit  = Math.min(Number(p.get('limit') ?? '100'), 500);

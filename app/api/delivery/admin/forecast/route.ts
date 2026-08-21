@@ -18,24 +18,26 @@
  * update_coverage — coverage_requirements aus Forecast-Muster aktualisieren
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import {
   getForecast,
   snapshotDemand,
   updateCoverageFromForecast,
 } from '@/lib/delivery/forecast';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const locationId = searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   const hours = Math.min(24, Math.max(1, parseInt(searchParams.get('hours') ?? '6', 10)));
 
@@ -49,15 +51,17 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const body = await req.json() as { location_id?: string; action?: string };
   const { location_id: locationId, action } = body;
 
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
   if (!action) return NextResponse.json({ error: 'action fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   try {
     if (action === 'snapshot') {

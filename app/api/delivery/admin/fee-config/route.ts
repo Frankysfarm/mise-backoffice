@@ -16,32 +16,24 @@
  *   }
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { getAllZoneFees } from '@/lib/delivery/delivery-fee';
 import { upsertZone, getZoneConfig, invalidateZoneCache } from '@/lib/delivery/zones';
 import type { ZoneName } from '@/lib/delivery/zones';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-async function resolveLocationId(userId: string): Promise<string | null> {
-  const sb = await createClient();
-  const { data } = await sb
-    .from('employees')
-    .select('location_id')
-    .eq('auth_user_id', userId)
-    .maybeSingle();
-  return data?.location_id ?? null;
-}
-
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const locationId = new URL(req.url).searchParams.get('location_id')
-    ?? await resolveLocationId(user.id);
+    ?? actor.location_id;
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   try {
     const zones = await getAllZoneFees(locationId);
@@ -52,9 +44,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const body = await req.json() as {
     location_id?: string;
@@ -65,8 +56,11 @@ export async function POST(req: NextRequest) {
     eta_base_min?: number;
   };
 
-  const locationId = body.location_id ?? await resolveLocationId(user.id);
+  const locationId = body.location_id ?? actor.location_id;
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   const VALID_ZONES: ZoneName[] = ['A', 'B', 'C', 'D'];
   if (!body.zone || !VALID_ZONES.includes(body.zone as ZoneName)) {

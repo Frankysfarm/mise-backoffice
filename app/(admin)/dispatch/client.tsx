@@ -783,7 +783,12 @@ export function DispatchBoard({
       />
 
       {/* Lange Wartezeiten: Bestellungen >8 Min ohne Fahrer */}
-      <LongWaitOrdersPanel orders={readyOrders} onSelect={(id) => setSelected((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; })} selected={selected} />
+      <LongWaitOrdersPanel orders={readyOrders} onSelect={(id) => setSelected((s) => {
+        const n = new Set(s);
+        if (n.has(id)) n.delete(id);
+        else n.add(id);
+        return n;
+      })} selected={selected} />
 
       {/* Verspätungs-Monitor: verspätete Lieferungen + Kompensations-Gutscheine */}
       <DelayMonitorPanel locationId={locationFilter !== 'all' ? locationFilter : (orders[0]?.location_id ?? locations[0]?.id)} />

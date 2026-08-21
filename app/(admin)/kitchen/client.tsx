@@ -4226,7 +4226,8 @@ function KitchenStationFocusPanel({
               key={entry.name}
               onClick={() => setChecked((s) => {
                 const n = new Set(s);
-                n.has(entry.name) ? n.delete(entry.name) : n.add(entry.name);
+                if (n.has(entry.name)) n.delete(entry.name);
+                else n.add(entry.name);
                 return n;
               })}
               className={cn(

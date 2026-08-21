@@ -96,7 +96,7 @@ export function ConfettiButton({
                 left: p.x,
                 top: p.y,
                 transform: 'translate(-50%, -50%)',
-                // @ts-ignore — CSS vars
+                // @ts-expect-error -- typed CSSProperties does not include custom animation variables.
                 '--dx': `${p.dx}px`,
                 '--dy': `${p.dy}px`,
               }}

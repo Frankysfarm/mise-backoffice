@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -139,9 +139,13 @@ describe('gps failure surfacing (P1-3)', () => {
 describe('build gates (P1-6)', () => {
   it('Dockerfile guards empty build args and runs the delivery typecheck', () => {
     const docker = source('Dockerfile');
-    expect(docker).toContain('test -n "$NEXT_PUBLIC_SUPABASE_URL"');
-    expect(docker).toContain('test -n "$NEXT_PUBLIC_VAPID_PUBLIC_KEY"');
+    expect(docker).toContain('if (!process.env.NEXT_PUBLIC_SUPABASE_URL)');
+    expect(docker).toContain('if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)');
+    expect(docker).toContain('if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY)');
     expect(docker).toContain('pnpm typecheck:delivery');
+    expect(docker).toContain('# syntax=docker/dockerfile:1.7');
+    const dockerIgnore = source('.dockerignore');
+    expect(dockerIgnore).toContain('.next-*');
     const pkg = source('package.json');
     expect(pkg).toContain('"typecheck:delivery"');
   });
@@ -150,7 +154,6 @@ describe('build gates (P1-6)', () => {
 // P1-7: kein ungeschützter Debug-Endpoint im Fahrer-Namespace.
 describe('no unauthenticated debug endpoint (P1-7)', () => {
   it('push-debug route is gone and internal endpoints are token-gated', () => {
-    const { existsSync } = require('node:fs');
     expect(existsSync(join(root, 'app/api/driver/v1/push-debug/route.ts'))).toBe(false);
     for (const rel of [
       'app/api/driver/v1/internal/dispatch-tick/route.ts',

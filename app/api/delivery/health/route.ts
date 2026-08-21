@@ -2,7 +2,8 @@
  * GET /api/delivery/health?location_id=...
  *
  * System-Health-Check für Monitoring (UptimeRobot, Vercel Analytics, etc.).
- * Kein Auth erforderlich — gibt nur nicht-sensible Aggregatwerte zurück.
+ * Ohne Auth wird nur die globale DB-Erreichbarkeit ausgegeben. Standortbezogene
+ * Betriebswerte sind ausschließlich für aktive Delivery-Admins des Mandanten sichtbar.
  *
  * Response:
  * {
@@ -22,6 +23,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { getCurrentCoverageStatus } from '@/lib/delivery/shifts';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -36,11 +38,7 @@ export async function GET(req: NextRequest) {
   const locationId = searchParams.get('location_id');
 
   const checks: Record<string, CheckResult> = {
-    database:         { ok: false },
-    zones_configured: { ok: false, count: 0 },
-    drivers_online:   { ok: true,  count: 0 },
-    dispatch_backlog: { ok: true,  pending: 0 },
-    shift_coverage:   { ok: true,  uncovered_slots: 0 },
+    database: { ok: false },
   };
 
   const sb = createServiceClient();
@@ -56,48 +54,73 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // Location-spezifische Checks nur wenn location_id vorhanden
-  if (locationId) {
-    // 2. Zonen konfiguriert
-    const { count: zoneCount } = await sb
-      .from('delivery_zones')
-      .select('id', { count: 'exact', head: true })
-      .eq('location_id', locationId)
-      .eq('active', true);
+  if (!locationId) {
+    return NextResponse.json({
+      status: 'ok',
+      checks,
+      timestamp: new Date().toISOString(),
+    });
+  }
 
-    checks.zones_configured = { ok: (zoneCount ?? 0) > 0, count: zoneCount ?? 0 };
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
-    // 3. Online-Fahrer (mise_drivers hat keine location_id — globale Zählung)
-    const { count: driverCount } = await sb
+  checks.zones_configured = { ok: true, count: 0 };
+  checks.drivers_online = { ok: true, count: 0 };
+  checks.dispatch_backlog = { ok: true, pending: 0 };
+  checks.shift_coverage = { ok: true, uncovered_slots: 0 };
+
+  // 2. Zonen konfiguriert
+  const { count: zoneCount } = await sb
+    .from('delivery_zones')
+    .select('id', { count: 'exact', head: true })
+    .eq('location_id', locationId)
+    .eq('active', true);
+
+  checks.zones_configured = { ok: (zoneCount ?? 0) > 0, count: zoneCount ?? 0 };
+
+  // 3. Online-Fahrer des Mandanten (mise_drivers selbst hat keine tenant_id)
+  const { data: memberships } = await sb
+    .from('mise_driver_tenants')
+    .select('driver_id')
+    .eq('tenant_id', actor.tenant_id as string)
+    .eq('status', 'active');
+  const driverIds = (memberships ?? []).map((membership) => membership.driver_id as string);
+  const driverCount = driverIds.length > 0
+    ? (await sb
       .from('mise_drivers')
       .select('id', { count: 'exact', head: true })
+      .in('id', driverIds)
       .eq('active', true)
-      .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning']);
+      .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning'])).count
+    : 0;
 
-    checks.drivers_online = { ok: true, count: driverCount ?? 0 };
+  checks.drivers_online = { ok: true, count: driverCount ?? 0 };
 
-    // 4. Dispatch-Backlog (unvermittelte Lieferungen)
-    const { count: pendingCount } = await sb
-      .from('customer_orders')
-      .select('id', { count: 'exact', head: true })
-      .eq('location_id', locationId)
-      .eq('typ', 'lieferung')
-      .is('mise_batch_id', null)
-      .not('status', 'in', '(storniert,abgeschlossen,geliefert)');
+  // 4. Dispatch-Backlog (unvermittelte Lieferungen)
+  const { count: pendingCount } = await sb
+    .from('customer_orders')
+    .select('id', { count: 'exact', head: true })
+    .eq('location_id', locationId)
+    .eq('typ', 'lieferung')
+    .is('mise_batch_id', null)
+    .not('status', 'in', '(storniert,abgeschlossen,geliefert)');
 
-    const pending = pendingCount ?? 0;
-    checks.dispatch_backlog = { ok: pending < 20, pending };
+  const pending = pendingCount ?? 0;
+  checks.dispatch_backlog = { ok: pending < 20, pending };
 
-    // 5. Schicht-Abdeckung (nächste Stunde)
-    const coverage = await getCurrentCoverageStatus(locationId).catch(() => ({
-      uncovered_slots: 0, understaffed_slots: 0,
-    }));
-    checks.shift_coverage = {
-      ok: coverage.uncovered_slots === 0,
-      uncovered_slots:    coverage.uncovered_slots,
-      understaffed_slots: coverage.understaffed_slots,
-    };
-  }
+  // 5. Schicht-Abdeckung (nächste Stunde)
+  const coverage = await getCurrentCoverageStatus(locationId).catch(() => ({
+    uncovered_slots: 0, understaffed_slots: 0,
+  }));
+  checks.shift_coverage = {
+    ok: coverage.uncovered_slots === 0,
+    uncovered_slots:    coverage.uncovered_slots,
+    understaffed_slots: coverage.understaffed_slots,
+  };
 
   const allOk      = Object.values(checks).every((c) => c.ok);
   const criticalOk = checks.database.ok;

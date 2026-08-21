@@ -62,6 +62,7 @@ export async function updateSession(request: NextRequest) {
     pathname === '/sw-customer.js' ||
     pathname.startsWith('/api/push/') ||
     pathname.startsWith('/api/cron/') ||
+    pathname === '/api/delivery/health' ||
     pathname === '/api/delivery/dispatch' ||
     pathname === '/api/drivers/push/send' ||
     pathname === '/api/drivers/auto-offline' ||

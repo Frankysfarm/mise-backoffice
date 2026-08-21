@@ -437,16 +437,18 @@ export async function getFailedAttemptStats(
  * Alle fälligen Retry-Attempts freigeben (Cron-Tick).
  * Setzt schedule_status='released' für Bestellungen deren Retry-Zeit abgelaufen ist.
  */
-export async function releaseRetryAttempts(): Promise<{ released: number }> {
+export async function releaseRetryAttempts(locationId?: string): Promise<{ released: number }> {
   const sb = createServiceClient();
 
   try {
-    const { data, error } = await sb
+    let attemptsQuery = sb
       .from('delivery_failed_attempts')
-      .select('id, order_id')
+      .select('id, order_id, location_id')
       .is('resolved_at', null)
       .not('next_attempt_at', 'is', null)
       .lte('next_attempt_at', new Date().toISOString());
+    if (locationId) attemptsQuery = attemptsQuery.eq('location_id', locationId);
+    const { data, error } = await attemptsQuery;
 
     if (error?.code === '42P01') return { released: 0 };
     if (error || !data?.length) return { released: 0 };
@@ -460,6 +462,7 @@ export async function releaseRetryAttempts(): Promise<{ released: number }> {
         .from('customer_orders')
         .update({ status: 'pending', schedule_status: 'released' })
         .eq('id', attempt.order_id as string)
+        .eq('location_id', attempt.location_id as string)
         .eq('status', 'retry_scheduled');
 
       if (!upErr) {
@@ -467,7 +470,8 @@ export async function releaseRetryAttempts(): Promise<{ released: number }> {
         await sb
           .from('delivery_failed_attempts')
           .update({ resolution: 'rescheduled', resolved_at: new Date().toISOString() })
-          .eq('id', attempt.id as string);
+          .eq('id', attempt.id as string)
+          .eq('location_id', attempt.location_id as string);
         released++;
       }
     }

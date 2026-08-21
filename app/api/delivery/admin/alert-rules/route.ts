@@ -19,8 +19,8 @@
  * Legt neue Regel an oder überschreibt bestehende (UPSERT via location_id+alert_type).
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { getAlertRules, upsertAlertRule, type AlertType, type AlertSeverity } from '@/lib/delivery/alerts';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -36,13 +36,15 @@ const VALID_TYPES: AlertType[] = [
 const VALID_SEVERITIES: AlertSeverity[] = ['info', 'warning', 'critical'];
 
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const { searchParams } = new URL(req.url);
   const locationId = searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   try {
     const rules = await getAlertRules(locationId);
@@ -54,9 +56,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const body = await req.json() as {
     location_id?:     string;
@@ -72,6 +73,9 @@ export async function POST(req: NextRequest) {
   if (!location_id)     return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
   if (!alert_type)      return NextResponse.json({ error: 'alert_type fehlt' }, { status: 400 });
   if (threshold_value === undefined) return NextResponse.json({ error: 'threshold_value fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, location_id)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   if (!VALID_TYPES.includes(alert_type as AlertType)) {
     return NextResponse.json({ error: `Ungültiger alert_type: ${alert_type}` }, { status: 400 });

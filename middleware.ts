@@ -2,7 +2,14 @@ import { updateSession } from '@/lib/supabase/middleware';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 
-const PRIMARY_HOSTS = new Set(['mise-gastro.de', 'www.mise-gastro.de', 'localhost', 'localhost:3000', 'localhost:3300']);
+const PRIMARY_HOSTS = new Set([
+  'mise-gastro.de',
+  'www.mise-gastro.de',
+  'localhost',
+  '127.0.0.1',
+  '::1',
+  '0.0.0.0',
+]);
 
 // In-memory cache for custom-domain → tenant-slug lookup (60s TTL)
 const domainCache = new Map<string, { slug: string; expires: number }>();
@@ -37,10 +44,11 @@ async function resolveTenantSlug(host: string): Promise<string | null> {
 
 export async function middleware(request: NextRequest) {
   const host = (request.headers.get('host') ?? '').toLowerCase();
+  const hostname = request.nextUrl.hostname.toLowerCase();
 
   // ─── Custom-Domain-Rewrite ───────────────────────────────────────
   // Wenn der Host nicht mise-gastro.de ist, schau ob er auf einen Tenant zeigt.
-  if (host && !PRIMARY_HOSTS.has(host.split(':')[0])) {
+  if (host && !PRIMARY_HOSTS.has(hostname)) {
     const slug = await resolveTenantSlug(host);
     if (slug) {
       const url = request.nextUrl.clone();
@@ -107,5 +115,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  // Public static assets must never enter the auth middleware. In particular,
+  // the driver ringtone has to remain available before a session exists.
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp3|wav|ogg|m4a|caf)$).*)'],
 };

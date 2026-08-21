@@ -184,7 +184,7 @@ function slugify(s: string): string {
 }
 
 async function uniqueSlug(svc: any, base: string): Promise<string> {
-  let candidate = base || `restaurant-${Math.random().toString(36).slice(2, 8)}`;
+  const candidate = base || `restaurant-${Math.random().toString(36).slice(2, 8)}`;
   for (let i = 0; i < 10; i++) {
     const suffix = i === 0 ? '' : `-${i + 1}`;
     const slug = `${candidate}${suffix}`;

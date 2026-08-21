@@ -235,7 +235,7 @@ export async function getSatisfactionSummary(
   // Gesamt-KPIs
   const { data: totals } = await sb
     .from('customer_delivery_ratings')
-    .select('rating, comment')
+    .select('rating, comment, driver_id')
     .eq('location_id', locationId)
     .gte('created_at', since);
 
@@ -263,9 +263,15 @@ export async function getSatisfactionSummary(
   }));
 
   // Fahrer-Aufschlüsselung aus View
-  const { data: driverRows } = await sb
-    .from('v_driver_satisfaction')
-    .select('driver_id, driver_name, total_ratings, avg_rating, positive_ratings, negative_ratings, five_star_count, one_star_count, last_rating_at');
+  const locationDriverIds = Array.from(new Set(
+    ratings.map((rating) => rating.driver_id as string | null).filter(Boolean) as string[],
+  ));
+  const { data: driverRows } = locationDriverIds.length > 0
+    ? await sb
+      .from('v_driver_satisfaction')
+      .select('driver_id, driver_name, total_ratings, avg_rating, positive_ratings, negative_ratings, five_star_count, one_star_count, last_rating_at')
+      .in('driver_id', locationDriverIds)
+    : { data: [] };
 
   const byDriver: DriverSatisfaction[] = (driverRows ?? [])
     .filter(d => Number(d.total_ratings) > 0)

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Order, OrderStatus, mockOrders, generateRandomOrder } from '@/lib/lieferdienst/orders'
+import { Order, OrderStatus, generateRandomOrder } from '@/lib/lieferdienst/orders'
 import { OrderCard } from '@/components/lieferdienst/order-card'
 import { IncomingOrderDialog } from '@/components/lieferdienst/incoming-order-dialog'
 import { SettingsDialog } from '@/components/lieferdienst/settings-dialog'
@@ -17,9 +17,9 @@ import { ManualOrderForm } from '@/components/lieferdienst/manual-order-form'
 import { DriverReturningBanner } from '@/components/lieferdienst/driver-returning-banner'
 import { playSound } from '@/lib/lieferdienst/sounds'
 import { Settings, defaultSettings } from '@/lib/lieferdienst/settings'
-import { StaffMember, ShiftNote, mockShiftNotes, Station, stations } from '@/lib/lieferdienst/staff'
-import { MenuItem, mockMenuItems } from '@/lib/lieferdienst/menu'
-import { Driver, mockDrivers } from '@/lib/lieferdienst/drivers'
+import { StaffMember, ShiftNote, Station, stations } from '@/lib/lieferdienst/staff'
+import { MenuItem } from '@/lib/lieferdienst/menu'
+import { Driver } from '@/lib/lieferdienst/drivers'
 import { Language } from '@/lib/lieferdienst/translations'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
 import { useOfflineStorage } from '@/hooks/use-offline'
@@ -35,18 +35,21 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 
-export function LieferdienstClient() {
-  // Auth State - Default staff (no login required)
-  const [currentStaff, setCurrentStaff] = useState<StaffMember | null>({
-    id: 'default',
-    name: 'Küche',
-    pin: '0000',
-    role: 'admin',
-    active: true,
-  })
+const ENABLE_KDS_MOCKS = process.env.NEXT_PUBLIC_ENABLE_KDS_MOCKS === 'true'
+
+export function LieferdienstClient({
+  tenantId,
+  locationId,
+  staff,
+}: {
+  tenantId: string
+  locationId: string
+  staff: StaffMember
+}) {
+  const [currentStaff, setCurrentStaff] = useState<StaffMember | null>(staff)
   
   // Core State
-  const [orders, setOrders] = useState<Order[]>(mockOrders)
+  const [orders, setOrders] = useState<Order[]>([])
   const [completedOrders, setCompletedOrders] = useState<Order[]>([])
   const [currentTime, setCurrentTime] = useState(new Date())
   const [filter, setFilter] = useState<'all' | 'accepted' | 'waiting'>('all')
@@ -61,17 +64,17 @@ export function LieferdienstClient() {
   const [language, setLanguage] = useState<Language>('de')
   
   // Menu State
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(mockMenuItems)
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([])
   
   // Driver State
-  const [drivers, setDrivers] = useState<Driver[]>(mockDrivers)
+  const [drivers, setDrivers] = useState<Driver[]>([])
   const [driverBannerDismissed, setDriverBannerDismissed] = useState(false)
   
   // Manual Order State
   const [showManualOrder, setShowManualOrder] = useState(false)
   
   // Shift Notes State
-  const [shiftNotes, setShiftNotes] = useState<ShiftNote[]>(mockShiftNotes)
+  const [shiftNotes, setShiftNotes] = useState<ShiftNote[]>([])
 
   // Streak — aufeinanderfolgende pünktliche Abschlüsse
   const [prepStreak, setPrepStreak] = useState(0)
@@ -82,7 +85,7 @@ export function LieferdienstClient() {
   useEffect(() => {
     let cancelled = false;
     const fetchData = () => {
-      fetch('/api/lieferdienst/data', { cache: 'no-store' })
+      fetch(`/api/lieferdienst/data?location_id=${encodeURIComponent(locationId)}`, { cache: 'no-store' })
         .then(r => r.ok ? r.json() : null)
         .then(d => {
           if (cancelled || !d) return;
@@ -113,11 +116,11 @@ export function LieferdienstClient() {
       clearInterval(t);
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [locationId]);
 
   
   // Offline Storage
-  const { isOnline, hasUnsyncedData, saveOrders, loadOrders, saveCompletedOrders, loadCompletedOrders } = useOfflineStorage()
+  const { isOnline, hasUnsyncedData, saveOrders, loadOrders, saveCompletedOrders, loadCompletedOrders } = useOfflineStorage(`${tenantId}:${locationId}`)
 
   // Load stored data on mount
   useEffect(() => {
@@ -181,6 +184,7 @@ export function LieferdienstClient() {
 
   // Simulate incoming orders
   useEffect(() => {
+    if (!ENABLE_KDS_MOCKS) return
     const interval = setInterval(() => {
       if (Math.random() > 0.7 && !incomingOrder && isOnline) {
         const newOrder = generateRandomOrder()
@@ -247,7 +251,7 @@ export function LieferdienstClient() {
     fetch(`/api/lieferdienst/orders/${orderId}/accept`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ etaMinutes: estimatedTime }),
+      body: JSON.stringify({ etaMinutes: estimatedTime, locationId }),
     }).catch((e) => console.error('Accept-API failed', e));
     setOrders(prev => 
       prev.map(order => 
@@ -300,7 +304,7 @@ export function LieferdienstClient() {
     fetch(`/api/lieferdienst/orders/${orderId}/status`, {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ status: 'fertig' }),
+      body: JSON.stringify({ status: 'fertig', locationId }),
     }).catch((e) => console.error('Status-API failed', e));
     playSound('orderReady', soundEnabled)
     setOrders(prev => {

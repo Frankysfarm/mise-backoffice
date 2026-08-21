@@ -14,23 +14,25 @@
  * Graceful-Fallback wenn Migration 025 noch nicht ausgeführt.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import {
   listWebhooks,
   registerWebhook,
 } from '@/lib/delivery/webhooks';
 import type { DeliveryEventType } from '@/lib/delivery/events';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const locationId = new URL(req.url).searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id fehlt' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   try {
     const webhooks = await listWebhooks(locationId);
@@ -46,9 +48,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
   const body = await req.json() as {
     location_id?: string;
@@ -62,6 +63,9 @@ export async function POST(req: NextRequest) {
   if (!body.url)         return NextResponse.json({ error: 'url fehlt' }, { status: 400 });
   if (!body.secret)      return NextResponse.json({ error: 'secret fehlt' }, { status: 400 });
   if (!body.events?.length) return NextResponse.json({ error: 'events[] fehlt oder leer' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, body.location_id)) {
+    return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
+  }
 
   try {
     const webhook = await registerWebhook(

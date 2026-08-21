@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import { BUILD_VERSION } from './build-version';
 import { PwaAudioListener } from './pwa-audio-listener';
 
 export const metadata: Metadata = {
@@ -22,8 +21,8 @@ export const viewport: Viewport = {
   themeColor: '#F7F7F9',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  userScalable: true,
   viewportFit: 'cover',
 };
 
@@ -33,13 +32,12 @@ export default function FahrerLayout({ children }: { children: React.ReactNode }
     <>
       <PwaAudioListener />
       <div className="drive min-h-screen">{children}</div>
-      <div className="mono" style={{ position: 'fixed', bottom: 3, right: 6, zIndex: 9999, fontSize: 9, lineHeight: 1, color: 'var(--ink-3)', opacity: 0.5, pointerEvents: 'none' }}>v {BUILD_VERSION}</div>
       <style
         dangerouslySetInnerHTML={{
           __html: `
         .drive {
           /* Light & Clean Premium Branding: Airy background, soft white surfaces, crisp dark text */
-          --accent:#1F7A35; --accent-press:#185F29; --on-accent:#FFFFFF; --accent-tint:#E9F4EC;
+          --accent:#1F7A35; --accent-hsl:132 59% 30%; --accent-foreground-hsl:0 0% 100%; --accent-press:#185F29; --on-accent:#FFFFFF; --accent-tint:#E9F4EC;
           --bg:#F7F7F9; --surface:#FFFFFF; --surface-2:#F0F0F2;
           --ink:#111111; --ink-2:#666666; --ink-3:#737373;
           --line:#E5E5E5; --line-2:#D4D4D4;
@@ -52,15 +50,19 @@ export default function FahrerLayout({ children }: { children: React.ReactNode }
         .drive iframe { color-scheme: light; }
         /* Dark mode fallback, falls das Handy dunkel eingestellt ist, aber clean gehalten */
         .drive.drive-dark {
-          --accent:#248A3D; --accent-press:#1D7131; --on-accent:#FFFFFF; --accent-tint:#08220F;
+          --accent:#248A3D; --accent-hsl:132 59% 34%; --accent-foreground-hsl:0 0% 100%; --accent-press:#1D7131; --on-accent:#FFFFFF; --accent-tint:#08220F;
           --bg:#0A0A0A; --surface:#141414; --surface-2:#222222;
           --ink:#FFFFFF; --ink-2:#A3A3A3; --ink-3:#737373;
           --line:#2E2E2E; --line-2:#3B3B3B;
           --danger:#FF453A; --danger-tint:#330A04; --warn:#FFD60A; --warn-tint:#332A02;
         }
         .drive.drive-dark .bg-white { background: var(--surface) !important; }
+        .drive .driver-install { --accent-hsl:143 37% 73%; }
         .drive .mono,.drive .font-mono { font-family:var(--font-mono),ui-monospace,monospace; letter-spacing:-0.02em; }
         .drive button { font-family: inherit; cursor: pointer; }
+        .drive button:focus-visible,.drive a:focus-visible,.drive input:focus-visible {
+          outline:3px solid #86C3A2; outline-offset:3px;
+        }
         .drive .scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
         .drive .scroll::-webkit-scrollbar { display: none; }
         .drive .press { transition: transform .12s ease, opacity .12s ease, background .15s ease; }

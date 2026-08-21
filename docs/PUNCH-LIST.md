@@ -1,3 +1,9 @@
+# Historische Fahrer-Designliste (Stand 10.06.2026)
+
+> Diese Datei dokumentiert den damaligen Design-Handoff und ist keine aktuelle
+> Release-Freigabe. Verifizierter Stand, Tests und verbleibende Live-Gates stehen
+> in `docs/MORGEN-REPORT.md`.
+
 # ⭐ KONTEXT — UBER-STYLE FOOD-DELIVERY, VERKNÜPFT MIT MISE-PLATFORM
 Wir sind ein RESTAURANT und liefern FOOD (fertige Gerichte). Das Tool ist wie die UBER-DRIVER-APP:
 - VERKNÜPFT mit unserer Mise-Platform — echte Bestellungen aus customer_orders, echtes Dispatch via Frank (lib/frank.ts), echte Fahrer (mise_drivers). KEINE Mock-Daten. Das ist schon so verdrahtet — beim Design-Umbau NICHT die Dat/Logik-Verbindungen kappen.
@@ -28,5 +34,5 @@ F3 Ablehnen (Decline): Incoming -> Ablehnen -> Re-Dispatch an naechsten. Fehlt i
 F4 (RISKANT, nur mit CEO-Freigabe) Frank-Einzelannahme: frank.ts:191-212 buendelt VOR Annahme. Soll: jede Order einzeln als pending_acceptance, beim Annehmen in aktiven Batch mergen (neues RPC merge_mise_order_into_active_batch).
 
 ## Deploy: bash /opt/mise/auto-deploy.sh (Zero-Downtime Blue-Green 3300<->3310, Healthcheck, Auto-Rollback). NIE docker rm direkt.
-## Test-Login: tahar.galai@gmail.com / MiseFahrer2026! auf https://mise-gastro.de/fahrer/login
+## Test-Login: Zugang ausschließlich über `MISE_TEST_DRIVER_EMAIL` und `MISE_TEST_DRIVER_PASSWORD` aus der lokalen, nicht eingecheckten Umgebung auf https://mise-gastro.de/fahrer/login
 ## Test-Order anlegen: siehe frühere Muster (customer_orders typ=lieferung status=fertig tenant 0318b8f1 location 3e00a63f), dann dispatch-tick. Adib mise_drivers.id=aa00482a auf state=idle setzen.

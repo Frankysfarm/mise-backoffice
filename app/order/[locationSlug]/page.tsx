@@ -5,7 +5,11 @@ import { detectLocale } from '@/lib/i18n-storefront';
 import { Storefront } from './storefront';
 import { StorefrontV2 } from './storefront-v2';
 import { StorefrontAurora } from './storefront-aurora';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+
+export const viewport: Viewport = {
+  themeColor: '#0B0B0F',
+};
 
 export async function generateMetadata({ params }: { params: Promise<{ locationSlug: string }> }): Promise<Metadata> {
   const { locationSlug } = await params;
@@ -18,7 +22,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locationS
     title: restaurantName + ' · Online bestellen',
     description: 'Bestelle direkt bei ' + restaurantName + ' — schnelle Lieferung, sichere Zahlung.',
     manifest: '/manifest.json',
-    themeColor: '#0B0B0F',
     appleWebApp: {
       capable: true,
       statusBarStyle: 'default',

@@ -2,8 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: { typedRoutes: false },
-  typescript: { ignoreBuildErrors: true },
-  turbopack: { root: __dirname },
+  // Allows CI/local release builds to avoid colliding with a running dev
+  // server that owns .next. Production keeps Next's default directory.
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   // Standalone-Output für minimale Docker-Images
   output: 'standalone',
   // Bereits installierte Native-App lädt /pos/terminal → leite zur neuen Auswahl

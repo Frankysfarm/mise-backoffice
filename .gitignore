@@ -4,6 +4,7 @@ node_modules/
 
 # next.js build
 .next/
+.next-*/
 out/
 
 # production
@@ -31,6 +32,10 @@ pnpm-debug.log*
 *.pem
 .vercel
 .turbo
+.eslintcache
+playwright-report/
+test-results/
+supabase/.temp/
 .idea
 .vscode
 

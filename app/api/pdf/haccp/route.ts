@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
   }));
 
   // Cleaning Completions
-  let clQuery = supabase.from('cleaning_completions')
+  const clQuery = supabase.from('cleaning_completions')
     .select('erledigt_am,employee:employees!cleaning_completions_employee_id_fkey(vorname,nachname),task:cleaning_tasks(titel,zone:cleaning_zones(name,location_id))')
     .gte('erledigt_am', from).lt('erledigt_am', to)
     .order('erledigt_am');

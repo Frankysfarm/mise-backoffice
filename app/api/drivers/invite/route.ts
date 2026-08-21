@@ -20,7 +20,7 @@ function generatePassword(length = 12): string {
   const digit = '23456789';
   const all = upper + lower + digit;
   // Mindestens je 1 aus jeder Kategorie
-  let pw = [
+  const pw = [
     upper[Math.floor(Math.random() * upper.length)],
     lower[Math.floor(Math.random() * lower.length)],
     digit[Math.floor(Math.random() * digit.length)],

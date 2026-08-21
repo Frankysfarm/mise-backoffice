@@ -213,8 +213,6 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  if (!open) return null;
-
   const isLastStep = step === steps.length - 1;
 
   const canAdvance = (() => {
@@ -301,6 +299,8 @@ export function CheckoutSheet({ open, onClose, orderType, total, loading, onSubm
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, orderType, paymentMethods]);
+
+  if (!open) return null;
 
   return (
     <div

@@ -42,7 +42,7 @@ type Mode = 'photo' | 'voice' | 'text' | 'csv';
 function parseCsv(text: string): { items: ExtractedItem[]; warnings: string[] } {
   const warnings: string[] = [];
   // BOM weg
-  let src = text.replace(/^﻿/, '').replace(/\r\n?/g, '\n').trim();
+  const src = text.replace(/^﻿/, '').replace(/\r\n?/g, '\n').trim();
   if (!src) return { items: [], warnings: ['CSV ist leer.'] };
 
   const lines: string[][] = [];

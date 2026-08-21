@@ -41,6 +41,8 @@ export function UniversalStorefront({
 }) {
   const [pickedTable, setPickedTable] = useState<Table | null>(null);
   const [manualNummer, setManualNummer] = useState('');
+  const bereiche = Array.from(new Set(tables.map((t) => t.bereich).filter(Boolean))) as string[];
+  const [selectedBereich, setSelectedBereich] = useState<string>(bereiche[0] ?? 'all');
 
   const primary = tenant.theme_primary ?? '#14532d';
   const accent = tenant.theme_accent ?? '#4ae68a';
@@ -72,8 +74,6 @@ export function UniversalStorefront({
   }
 
   // Table-Picker
-  const bereiche = Array.from(new Set(tables.map((t) => t.bereich).filter(Boolean))) as string[];
-  const [selectedBereich, setSelectedBereich] = useState<string>(bereiche[0] ?? 'all');
   const filtered = !selectedBereich || selectedBereich === 'all'
     ? tables
     : tables.filter((t) => t.bereich === selectedBereich);

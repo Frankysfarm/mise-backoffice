@@ -1,9 +1,11 @@
+# syntax=docker/dockerfile:1.7
+
 # =============================================================
 # Mise Backoffice — Production Dockerfile
 # Multi-stage build for minimal image size
 # =============================================================
 
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 RUN apk add --no-cache libc6-compat
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
@@ -31,13 +33,15 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_VAPID_PUBLIC_KEY=$NEXT_PUBLIC_VAPID_PUBLIC_KEY
 
-# Build-Gate 1: Leere Build-Args bauen sonst GRÜN durch und Push/Auth sind still tot.
-RUN test -n "$NEXT_PUBLIC_SUPABASE_URL" || (echo "FEHLER: NEXT_PUBLIC_SUPABASE_URL fehlt (Build-Arg)" && exit 1)
-RUN test -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" || (echo "FEHLER: NEXT_PUBLIC_SUPABASE_ANON_KEY fehlt (Build-Arg)" && exit 1)
-RUN test -n "$NEXT_PUBLIC_VAPID_PUBLIC_KEY" || (echo "FEHLER: NEXT_PUBLIC_VAPID_PUBLIC_KEY fehlt (Build-Arg)" && exit 1)
+# Build-Gate 1: Leere Build-Args bauen sonst GRÜN durch und Push/Auth sind still
+# tot. process.env vermeidet, dass Docker die öffentlichen Werte in der
+# Fortschrittsanzeige in den RUN-Befehl einsetzt.
+RUN node -e "if (!process.env.NEXT_PUBLIC_SUPABASE_URL) throw new Error('NEXT_PUBLIC_SUPABASE_URL fehlt (Build-Arg)')"
+RUN node -e "if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY fehlt (Build-Arg)')"
+RUN node -e "if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) throw new Error('NEXT_PUBLIC_VAPID_PUBLIC_KEY fehlt (Build-Arg)')"
 
-# Build-Gate 2: delivery-kritischer Typecheck (next.config ignoriert Build-Fehler,
-# tsconfig.delivery-hardening.json ist das wirksame Gate für den Fahrer-Pfad).
+# Build-Gate 2: zusätzlicher delivery-kritischer Typecheck vor dem vollständigen
+# Next.js-Build und dessen projektweiter Typprüfung.
 RUN pnpm typecheck:delivery
 
 # Font-Cache persistent über Builds (BuildKit-Cache): next/font lädt Google-Fonts

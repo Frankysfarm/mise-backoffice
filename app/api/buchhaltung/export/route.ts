@@ -147,7 +147,8 @@ ${fehlendeBelege > 0 ? `\nACHTUNG: ${fehlendeBelege} Bankausgabe(n) ohne zugeord
 
   const out = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
   const fname = `Steuerberater_${betrieb.replace(/[^a-zA-Z0-9]+/g, '_')}_${monat}.zip`;
-  return new NextResponse(out, {
+  const responseBody = Uint8Array.from(out).buffer;
+  return new NextResponse(responseBody, {
     headers: {
       'Content-Type': 'application/zip',
       'Content-Disposition': `attachment; filename="${fname}"`,

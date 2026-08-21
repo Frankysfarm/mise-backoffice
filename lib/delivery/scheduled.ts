@@ -42,12 +42,12 @@ export interface ReleaseResult {
  * Läuft im Cron (alle 2 Min).
  * Freigabe: scheduled_at - estimated_prep_min <= jetzt
  */
-export async function releaseScheduledOrders(): Promise<ReleaseResult> {
+export async function releaseScheduledOrders(locationId?: string): Promise<ReleaseResult> {
   const sb = createServiceClient();
 
   // Lade fällige Bestellungen (scheduled_at - prep_time <= NOW())
   const cutoff = new Date();
-  const { data: dueOrders } = await sb
+  let dueQuery = sb
     .from('customer_orders')
     .select('id, location_id, bestellnummer, scheduled_at, estimated_prep_min')
     .eq('schedule_status', 'scheduled')
@@ -56,6 +56,8 @@ export async function releaseScheduledOrders(): Promise<ReleaseResult> {
     ).toISOString())
     .order('scheduled_at', { ascending: true })
     .limit(100);
+  if (locationId) dueQuery = dueQuery.eq('location_id', locationId);
+  const { data: dueOrders } = await dueQuery;
 
   if (!dueOrders || dueOrders.length === 0) {
     return { released: 0, orders: [] };
@@ -75,10 +77,12 @@ export async function releaseScheduledOrders(): Promise<ReleaseResult> {
     return { released: 0, orders: [] };
   }
 
-  const { error } = await sb
+  let releaseQuery = sb
     .from('customer_orders')
     .update({ schedule_status: 'released' })
     .in('id', toRelease);
+  if (locationId) releaseQuery = releaseQuery.eq('location_id', locationId);
+  const { error } = await releaseQuery;
 
   if (error) {
     // Graceful: Migration 024 noch nicht ausgeführt

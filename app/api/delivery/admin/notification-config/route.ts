@@ -6,7 +6,6 @@
  * Requires: authenticated session.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import {
   getNotificationConfig,
   upsertNotificationConfig,
@@ -14,6 +13,7 @@ import {
   type CustomerNotificationConfig,
 } from '@/lib/delivery/customer-push';
 import type { CustomerEventType } from '@/lib/delivery/customer-notify';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -29,12 +29,14 @@ const VALID_EVENTS: CustomerEventType[] = [
 ];
 
 export async function GET(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
   const locationId = req.nextUrl.searchParams.get('location_id');
   if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Location not authorized' }, { status: 403 });
+  }
 
   const [config, stats] = await Promise.all([
     getNotificationConfig(locationId),
@@ -58,9 +60,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const actor = await getDeliveryAdminActor();
+  if (!actor) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
 
   let body: Record<string, unknown>;
   try {
@@ -71,6 +72,9 @@ export async function POST(req: NextRequest) {
 
   const locationId = (body.location_id ?? body.locationId) as string | undefined;
   if (!locationId) return NextResponse.json({ error: 'location_id required' }, { status: 400 });
+  if (!await isDeliveryAdminLocation(actor, locationId)) {
+    return NextResponse.json({ error: 'Location not authorized' }, { status: 403 });
+  }
 
   // Validate enabled_events if provided
   const rawEvents = body.enabled_events ?? body.enabledEvents;
