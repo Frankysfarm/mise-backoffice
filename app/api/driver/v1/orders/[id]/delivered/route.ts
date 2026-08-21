@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { badRequest, getDriverFromBearer, sb, unauthorized } from '../../../_lib/driver-auth';
 import { markPickedUp, promoteNextScheduled } from '@/lib/delivery/kitchen-sync';
-import { needsCashCollection } from '@/lib/delivery/payment';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -11,180 +10,83 @@ interface Body {
   signature?: string | null;
 }
 
-/**
- * POST /api/driver/v1/orders/:id/delivered
- *
- * Order ist beim Kunden. Setzt dropoff-Stop completed, prüft ob das
- * der letzte Stop war → Batch.state='completed' → Trigger erhöht Counter.
- */
+type DeliveryResult = {
+  ok?: boolean;
+  code?: 'active_stop_missing' | 'order_not_picked_up';
+  error?: string;
+  batch_id?: string;
+  batch_completed?: boolean;
+  already_delivered?: boolean;
+};
+
+/** Atomically completes one owned dropoff and, on the final stop, its tour. */
 export async function POST(
   req: NextRequest,
   ctx: { params: Promise<{ id: string }> },
 ) {
-  const m = await getDriverFromBearer(req);
-  if (!m) return unauthorized();
+  const member = await getDriverFromBearer(req);
+  if (!member) return unauthorized();
   const { id: orderId } = await ctx.params;
 
   let body: Body = {};
-  try {
-    body = (await req.json()) as Body;
-  } catch {
-    /* leerer body ok */
+  try { body = (await req.json()) as Body; } catch { /* empty proof is allowed */ }
+  if (body.photo_url != null && (typeof body.photo_url !== 'string' || body.photo_url.length > 2_048)) {
+    return badRequest('photo_url ist ungültig');
+  }
+  if (body.signature != null && (typeof body.signature !== 'string' || body.signature.length > 200_000)) {
+    return badRequest('signature ist ungültig');
   }
 
-  const c = sb();
-  // Eine Order kann nach Requeue mehrere Stop-Zeilen haben — es zählt der
-  // nicht-stornierte Stop im aktiven Batch DIESES Fahrers (maybeSingle ohne
-  // Filter kippte sonst bei jeder requeueten Order in 404).
-  const { data: stopRows } = await c
-    .from('mise_delivery_batch_stops')
-    .select('id,batch_id,type,mise_delivery_batches!inner(driver_id,state)')
-    .eq('order_id', orderId)
-    .eq('type', 'dropoff')
-    .eq('cancelled', false)
-    .eq('mise_delivery_batches.driver_id', m.driver.id)
-    .in('mise_delivery_batches.state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress'])
-    .limit(1);
-  const stop = stopRows?.[0] ?? null;
-  if (!stop) {
-    return NextResponse.json({ error: 'Dropoff-Stop nicht gefunden' }, { status: 404 });
-  }
-
-  const { data: batch } = await c
-    .from('mise_delivery_batches')
-    .select('id,driver_id')
-    .eq('id', stop.batch_id)
-    .single();
-  if (!batch || batch.driver_id !== m.driver.id) {
-    return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
-  }
-
-  const { data: paidOrd, error: orderReadError } = await c
-    .from('customer_orders')
-    .select('status,bezahlt,zahlungsart')
-    .eq('id', orderId)
-    .maybeSingle();
-  if (orderReadError) {
-    console.error('[driver/delivered] order read failed', orderReadError);
-    return NextResponse.json({ error: 'Bestellstatus konnte nicht geladen werden' }, { status: 500 });
-  }
-  if (!paidOrd) {
-    return NextResponse.json({ error: 'Bestellung nicht gefunden' }, { status: 404 });
-  }
-  if (paidOrd.status === 'geliefert') {
-    // Idempotenz: Doppel-Tap / Outbox-Retry darf nichts überschreiben.
-    return NextResponse.json({ ok: true, already_delivered: true, batch_completed: false });
-  }
-  if (paidOrd.status !== 'unterwegs') {
-    return NextResponse.json(
-      { error: 'Bestellung wurde noch nicht abgeholt', code: 'order_not_picked_up' },
-      { status: 409 },
-    );
-  }
-
-  const now = new Date().toISOString();
-  const { error: stopError } = await c
-    .from('mise_delivery_batch_stops')
-    .update({
-      completed_at: now,
-      delivery_proof: {
-        photo_url: body.photo_url ?? null,
-        signature: body.signature ?? null,
-        delivered_at: now,
-      },
-    })
-    .eq('id', stop.id);
-  if (stopError) {
-    console.error('[driver/delivered] stop update failed', stopError);
+  const client = sb();
+  const { data, error } = await client.rpc('complete_driver_delivery', {
+    p_order_id: orderId,
+    p_driver_id: member.driver.id,
+    p_delivery_proof: {
+      photo_url: body.photo_url ?? null,
+      signature: body.signature ?? null,
+    },
+  });
+  if (error) {
+    console.error('[driver/delivered] atomic transition failed', error);
     return NextResponse.json({ error: 'Zustellung konnte nicht gespeichert werden' }, { status: 500 });
   }
 
-  const ordUpdate: Record<string, unknown> = { status: 'geliefert' };
-  if (needsCashCollection(paidOrd)) {
-    ordUpdate.bezahlt = true;
-    ordUpdate.zahlungsart = 'bar';
-    ordUpdate.stripe_payment_id = `cash:driver:${m.driver.id}:${now}`;
+  const result = (data ?? {}) as DeliveryResult;
+  if (!result.ok) {
+    const status = result.code === 'active_stop_missing' ? 404 : 409;
+    return NextResponse.json(
+      { error: result.error ?? 'Zustellung ist in diesem Zustand nicht möglich', code: result.code },
+      { status },
+    );
   }
-  const { error: orderUpdateError } = await c
-    .from('customer_orders')
-    .update(ordUpdate)
-    .eq('id', orderId);
-  if (orderUpdateError) {
-    console.error('[driver/delivered] order update failed', orderUpdateError);
-    return NextResponse.json({ error: 'Bestellstatus konnte nicht gespeichert werden' }, { status: 500 });
-  }
+  if (result.already_delivered) return NextResponse.json(result);
 
-  // Sind alle Stops erledigt? → Batch completed
-  const { data: openStops, error: openStopsError } = await c
-    .from('mise_delivery_batch_stops')
-    .select('id')
-    .eq('batch_id', batch.id)
-    .eq('cancelled', false) // stornierte Stops blockieren den Tour-Abschluss nicht
-    .is('completed_at', null);
-  if (openStopsError) {
-    console.error('[driver/delivered] open stops read failed', openStopsError);
-    return NextResponse.json({ error: 'Tourabschluss konnte nicht geprüft werden' }, { status: 500 });
-  }
-
-  if (!openStops || openStops.length === 0) {
-    const [batchUpdate, statusUpdate] = await Promise.all([
-      c.from('mise_delivery_batches')
-        .update({ state: 'completed', completed_at: now })
-        .eq('id', batch.id),
-      c.from('driver_status')
-        .update({ aktueller_batch_id: null })
-        .eq('aktueller_batch_id', batch.id),
-    ]);
-    if (batchUpdate.error || statusUpdate.error) {
-      console.error('[driver/delivered] completion update failed', {
-        batch: batchUpdate.error,
-        driverStatus: statusUpdate.error,
-      });
-      return NextResponse.json({ error: 'Tourabschluss konnte nicht gespeichert werden' }, { status: 500 });
-    }
-    // Fahrer-State konsistent halten (wie TourCloseButton): en_route -> returning
-    await c.from('mise_drivers').update({ state: 'returning' }).eq('id', batch.driver_id).eq('state', 'en_route');
-    // Eine von der Zentrale während der Tour gesetzte Pause wirkt nach dem
-    // letzten Stopp vollständig: Tracking endet und Legacy-Anzeigen zeigen
-    // den Fahrer nicht irrtümlich weiter als zuweisbar.
-    const { data: duty } = await c.from('mise_drivers')
-      .select('auth_user_id,dispatch_availability')
-      .eq('id', batch.driver_id)
-      .maybeSingle();
-    if (duty?.dispatch_availability === 'paused') {
-      await c.from('mise_drivers').update({ state: 'offline' }).eq('id', batch.driver_id);
-      if (duty.auth_user_id) {
-        const { data: employee } = await c.from('employees').select('id')
-          .eq('auth_user_id', duty.auth_user_id).maybeSingle();
-        if (employee?.id) {
-          await c.from('driver_status').update({ ist_online: false, online_seit: null })
-            .eq('employee_id', employee.id);
-        }
-      }
-    }
-  }
-
-  // JIT-Koch-Gate: diese Order ist erledigt -> aus der Koch-Warteschlange nehmen
-  try { await markPickedUp(orderId); } catch { /* noop */ }
-  // Meilenstein: Fahrer fast fertig (<=1 offener Stopp) -> naechste WARTENDE Order kochen lassen (Fahrer auf Rueckweg)
+  // Non-critical follow-up work runs only after the atomic delivery commit.
+  try { await markPickedUp(orderId); } catch { /* queue sync must not undo delivery */ }
   try {
-    const { data: ab } = await c
-      .from('mise_delivery_batches').select('id')
-      .eq('driver_id', batch.driver_id)
+    const { data: activeBatches } = await client
+      .from('mise_delivery_batches')
+      .select('id')
+      .eq('driver_id', member.driver.id)
       .in('state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress']);
-    const ids = (ab ?? []).map((b) => b.id as string);
+    const batchIds = (activeBatches ?? []).map((batch) => batch.id as string);
     let remaining = 0;
-    if (ids.length) {
-      const { data: rs } = await c
-        .from('mise_delivery_batch_stops').select('id')
-        .in('batch_id', ids).eq('type', 'dropoff').is('completed_at', null);
-      remaining = rs?.length ?? 0;
+    if (batchIds.length > 0) {
+      const { data: remainingStops } = await client
+        .from('mise_delivery_batch_stops')
+        .select('id')
+        .in('batch_id', batchIds)
+        .eq('type', 'dropoff')
+        .eq('cancelled', false)
+        .is('completed_at', null);
+      remaining = remainingStops?.length ?? 0;
     }
     if (remaining <= 1) {
-      const { data: ord } = await c.from('customer_orders').select('location_id').eq('id', orderId).single();
-      if (ord?.location_id) await promoteNextScheduled(ord.location_id as string);
+      const { data: order } = await client.from('customer_orders')
+        .select('location_id').eq('id', orderId).maybeSingle();
+      if (order?.location_id) await promoteNextScheduled(order.location_id as string);
     }
-  } catch { /* noop */ }
+  } catch { /* kitchen promotion is retriable background work */ }
 
-  return NextResponse.json({ ok: true, batch_completed: !openStops || openStops.length === 0 });
+  return NextResponse.json(result);
 }

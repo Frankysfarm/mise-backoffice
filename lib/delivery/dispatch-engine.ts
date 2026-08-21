@@ -18,10 +18,10 @@ import 'server-only';
 import { createClient as createSupabaseClient, type SupabaseClient } from '@supabase/supabase-js';
 import { haversineKm, geocode } from '@/lib/google-maps';
 import { classifyZone } from './zones';
-import { scoreDriver, rankDrivers, type DriverScoreInput, type OrderScoreInput } from './scoring';
+import { rankDrivers, type DriverScoreInput, type OrderScoreInput } from './scoring';
 import { findBundleCandidates } from './bundling';
 import { optimizeTour } from './tour-optimizer';
-import { calculateEta, updateOrderEta } from './eta';
+import { calculateEta } from './eta';
 import { upsertKitchenTiming } from './kitchen-sync';
 import { logDeliveryEvent } from './events';
 import { enqueueBatchPush } from './push-notify';
@@ -80,6 +80,9 @@ interface DriverRow {
   current_capacity: number;
   max_capacity: number;
   total_deliveries: number;
+  rating?: number | null;
+  avg_delivery_min?: number | null;
+  zone?: ZoneName | null;
   state: string;
   active: boolean;
   shift_started_at: string | null;
@@ -138,16 +141,18 @@ async function releaseDriverIfNoOtherBatch(
  * (z.B. Tour nach App-Reload fortgesetzt, Livefall 12.08.) bleibt der Batch
  * sonst für immer offen und der Fahrer im busy-Filter gefangen.
  */
-async function reconcileCompletedBatches(): Promise<number> {
+async function reconcileCompletedBatches(locationId?: string): Promise<number> {
   const c = sb();
   // Auch assigned/at_restaurant/picked_up können mit komplett erledigten Stops
   // hängen bleiben (z. B. Direct-Write-Pfade, App-Reload) — nicht nur in_progress.
   const RECONCILE_STATES = ['in_progress', 'picked_up', 'at_restaurant', 'assigned'];
-  const { data: openBatches } = await c
+  let openBatchesQuery = c
     .from('mise_delivery_batches')
     .select('id, driver_id, state, created_at')
     .in('state', RECONCILE_STATES)
     .limit(20);
+  if (locationId) openBatchesQuery = openBatchesQuery.eq('location_id', locationId);
+  const { data: openBatches } = await openBatchesQuery;
   if (!openBatches || openBatches.length === 0) return 0;
 
   let reconciled = 0;
@@ -209,7 +214,10 @@ async function reconcileCompletedBatches(): Promise<number> {
   return reconciled;
 }
 
-export async function smartDispatchTick(): Promise<{
+export async function smartDispatchTick(options: {
+  locationId?: string;
+  runGlobalMaintenance?: boolean;
+} = {}): Promise<{
   scanned: number;
   dispatched: number;
   bundled: number;
@@ -217,9 +225,12 @@ export async function smartDispatchTick(): Promise<{
   escalated: number;
   results: DispatchResult[];
 }> {
-  const { error: expiryError } = await sb().rpc('expire_own_fleet_plans');
-  if (expiryError) console.error('[dispatch] expire_own_fleet_plans failed:', expiryError.message);
-  await reconcileCompletedBatches();
+  const runGlobalMaintenance = options.runGlobalMaintenance ?? !options.locationId;
+  if (runGlobalMaintenance) {
+    const { error: expiryError } = await sb().rpc('expire_own_fleet_plans');
+    if (expiryError) console.error('[dispatch] expire_own_fleet_plans failed:', expiryError.message);
+  }
+  await reconcileCompletedBatches(options.locationId);
   const cutoff = dispatchCreatedAfter();
   let pendingOrdersQuery = sb()
     .from('customer_orders')
@@ -235,6 +246,7 @@ export async function smartDispatchTick(): Promise<{
   // A rollout cutoff keeps unresolved historical orders visible for manual
   // review without repeatedly mutating or unexpectedly dispatching them.
   if (cutoff) pendingOrdersQuery = pendingOrdersQuery.gte('created_at', cutoff);
+  if (options.locationId) pendingOrdersQuery = pendingOrdersQuery.eq('location_id', options.locationId);
 
   const { data: orders, error: ordersError } = await pendingOrdersQuery;
   if (ordersError) {
@@ -323,7 +335,7 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   }
 
   // 3) Zone berechnen
-  const { zone, zoneConfig, distanceKm } = await classifyZone(
+  const { zone, distanceKm } = await classifyZone(
     o.location_id,
     { lat: loc.lat, lng: loc.lng },
     { lat: o.kunde_lat!, lng: o.kunde_lng! },
@@ -334,6 +346,15 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
   const drivers = await loadActiveDrivers(loc.tenant_id, loc.id);
   if (drivers.length === 0) return held('Kein aktiver Fahrer verfügbar');
 
+  // Fahrzeug- und Kapazitätswertung müssen die echte Bestellgröße kennen.
+  // Ohne Count wurde jede Bestellung wie ein einzelner Artikel behandelt und
+  // große Touren konnten fälschlich Fahrräder bevorzugen.
+  const { count: itemCount, error: itemCountError } = await sb()
+    .from('order_items')
+    .select('id', { count: 'exact', head: true })
+    .eq('order_id', o.id);
+  if (itemCountError) return held(`Bestellgröße nicht lesbar: ${itemCountError.message}`);
+
   const orderInput: OrderScoreInput = {
     id: o.id,
     location_id: o.location_id,
@@ -343,6 +364,7 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
     restaurant_lng: loc.lng,
     zone,
     priority: (o.priority ?? 'normal') as OrderScoreInput['priority'],
+    item_count: Math.max(1, itemCount ?? 0),
     estimated_prep_min: o.estimated_prep_min ?? 15,
     created_at: o.created_at,
   };
@@ -363,6 +385,9 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
     current_capacity: d.current_capacity,
     max_capacity: d.max_capacity,
     total_deliveries: d.total_deliveries,
+    zone: d.zone ?? null,
+    rating: d.rating ?? null,
+    avg_delivery_min: d.avg_delivery_min ?? null,
     active_batch_id: d.mise_batch_id ?? null,
   }));
 
@@ -383,6 +408,7 @@ export async function dispatchSingleOrder(o: OrderRow, radiusFactor = 1.0): Prom
       loc.lng,
       o.kunde_lat!,
       o.kunde_lng!,
+      candidate.driver.max_capacity,
     );
     const claimArgs = {
       p_order_id: o.id,
@@ -561,6 +587,18 @@ async function loadActiveDrivers(tenantId: string, locationId: string): Promise<
   const batchMap = new Map<string, { id: string; state: string; dropoff_count: number }>();
 
   if (driverIds.length > 0) {
+    const { data: scoringProfiles } = await sb()
+      .from('mise_drivers')
+      .select('id, rating, avg_delivery_min, zone')
+      .in('id', driverIds);
+    const scoringByDriver = new Map((scoringProfiles ?? []).map((profile) => [profile.id as string, profile]));
+    for (const driver of drivers) {
+      const profile = scoringByDriver.get(driver.id);
+      driver.rating = profile?.rating == null ? null : Number(profile.rating);
+      driver.avg_delivery_min = profile?.avg_delivery_min == null ? null : Number(profile.avg_delivery_min);
+      driver.zone = (profile?.zone as ZoneName | null | undefined) ?? null;
+    }
+
     const { data: activeBatches } = await sb()
       .from('mise_delivery_batches')
       .select('id, driver_id, state, stops:mise_delivery_batch_stops(type,completed_at,cancelled)')

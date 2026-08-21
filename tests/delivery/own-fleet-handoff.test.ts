@@ -68,8 +68,10 @@ describe('own-fleet QR handoff contract', () => {
 
   it('blocks the legacy picked-up endpoint for own-fleet batches', () => {
     const route = source('app/api/driver/v1/orders/[id]/picked-up/route.ts');
-    expect(route).toContain("batch.assignment_mode === 'own_fleet'");
-    expect(route).toContain("code: 'qr_handoff_required'");
+    const migration = source('scripts/migrations/072_atomic_driver_delivery_flow.sql');
+    expect(route).toContain("rpc('complete_driver_pickup'");
+    expect(migration).toContain("v_batch.assignment_mode='own_fleet'");
+    expect(migration).toContain("'code','qr_handoff_required'");
   });
 
   it('reports a duplicate only when this bag existed before the current scan', () => {

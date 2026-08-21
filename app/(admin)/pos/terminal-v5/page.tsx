@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { createClient, createServiceClient } from '@/lib/supabase/server';
-// import { requirePosAccess } from '@/lib/auth/requireRole';
+import { createServiceClient } from '@/lib/supabase/server';
+import { requirePosAccess } from '@/lib/auth/requireRole';
 import { MisePOSv5Wrapper } from './client';
 import { ReservationsSidebar } from './ReservationsSidebar';
 import { MemberScannerFAB } from './MemberScanner';
@@ -36,48 +36,34 @@ function safeJSONForScript(value: unknown): string {
 }
 
 export default async function POSTerminalV5Page() {
-  // DEV: kein Auth
-
-  const sb = await createClient();
+  const employee = await requirePosAccess();
+  if (!employee.tenant_id || !employee.location_id) {
+    redirect('/apps?reason=missing-location');
+  }
   const svc = createServiceClient();
-
-  // DEV-Modus für Pilot: kein Auth-Gate, Fallback auf Frankys-Aachen
-  const DEV_TENANT_ID = 'd1522124-4b9b-4362-9d9a-882a6a8621f6';
-  const DEV_LOCATION_ID = 'bb01ae0a-da47-48b1-b986-3a1201aacc4b';
-
-  const { data: { user } } = await sb.auth.getUser();
-  let emp: { tenant_id: string; location_id: string } | null = null;
-  if (user) {
-    const { data } = await sb.from('employees')
-      .select('tenant_id, location_id')
-      .eq('auth_user_id', user.id)
-      .maybeSingle();
-    emp = data ?? null;
-  }
-  if (!emp?.tenant_id || !emp?.location_id) {
-    emp = { tenant_id: DEV_TENANT_ID, location_id: DEV_LOCATION_ID };
-  }
+  const tenantId = employee.tenant_id;
+  const locationId = employee.location_id;
 
   const [{ data: rawCategories }, { data: rawItems }, { data: rawTables }, { data: rawReservations }] = await Promise.all([
     svc.from('menu_categories')
       .select('id, name, sort_order')
-      .eq('location_id', emp.location_id)
+      .eq('location_id', locationId)
       .eq('aktiv', true)
       .order('sort_order'),
     svc.from('menu_items')
       .select('id, name, preis, category_id, verfuegbar, beliebt, mwst_satz, ausverkauft_bis_schicht, option_groups, sort_order_in_category')
-      .eq('location_id', emp.location_id)
+      .eq('location_id', locationId)
       .eq('verfuegbar', true)
       .order('sort_order_in_category'),
     svc.from('restaurant_tables')
       .select('id, nummer, name, kapazitaet, bereich, pos_x, pos_y, breite, hoehe, form, sort_order')
-      .eq('location_id', emp.location_id)
+      .eq('location_id', locationId)
       .eq('aktiv', true)
       .order('sort_order'),
     svc.from('v_heutige_reservierungen')
       .select('*')
-      .eq('tenant_id', emp.tenant_id)
-      .eq('location_id', emp.location_id)
+      .eq('tenant_id', tenantId)
+      .eq('location_id', locationId)
       .order('zeit_von', { ascending: true }),
   ]);
 
@@ -98,8 +84,8 @@ export default async function POSTerminalV5Page() {
       <MisePOSv5Wrapper />
       <ReservationsSidebar
         initialReservations={(rawReservations as any) ?? []}
-        tenantId={emp.tenant_id}
-        locationId={emp.location_id}
+        tenantId={tenantId}
+        locationId={locationId}
       />
       <MemberScannerFAB />
     </>

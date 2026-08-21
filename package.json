@@ -12,7 +12,8 @@
     "start": "next start -p 3200",
     "lint": "next lint",
     "test": "vitest run",
-    "typecheck:delivery": "tsc -p tsconfig.delivery-hardening.json --noEmit"
+    "typecheck:delivery": "tsc -p tsconfig.delivery-hardening.json --noEmit",
+    "release:gate": "corepack pnpm test && corepack pnpm typecheck:delivery && corepack pnpm build && corepack pnpm exec playwright test"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",

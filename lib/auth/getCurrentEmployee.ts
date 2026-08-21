@@ -22,6 +22,7 @@ export const getCurrentEmployee = cache(async (): Promise<CurrentEmployee | null
   const { data } = await supabase.from('employees')
     .select('id,auth_user_id,vorname,nachname,email,rolle,department_id,location_id,tenant_id')
     .eq('auth_user_id', user.id)
+    .in('status', ['aktiv', 'in_training', 'in_probe'])
     .maybeSingle<CurrentEmployee>();
   return data;
 });

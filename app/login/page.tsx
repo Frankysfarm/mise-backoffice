@@ -33,17 +33,19 @@ function LoginScreen() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const qrFailed = reason === 'qr_failed';
   const qrErrorMsg = params.get('qr_error');
-  const [mode, setMode] = useState<'kasse' | 'lieferung' | 'backoffice'>(() => {
+  const [mode, setMode] = useState<'team' | 'kasse' | 'lieferung' | 'backoffice'>(() => {
     // URL-Param hat höchste Priorität, dann next-Pfad, dann localStorage, dann Default
     const m = params.get('mode');
     if (m === 'lieferung') return 'lieferung';
     if (m === 'kasse') return 'kasse';
+    if (m === 'team' || m === 'mitarbeiter') return 'team';
     if (m === 'backoffice' || m === 'admin') return 'backoffice';
+    if (next.startsWith('/mitarbeiter')) return 'team';
     if (next.startsWith('/pos/inbox')) return 'lieferung';
     if (next.startsWith('/shop') || next === '/' || next.startsWith('/menu') || next.startsWith('/settings') || next.startsWith('/delivery') || next.startsWith('/dispatch')) return 'backoffice';
     if (typeof window !== 'undefined') {
       const remembered = window.localStorage.getItem('mise.loginMode');
-      if (remembered === 'lieferung' || remembered === 'kasse' || remembered === 'backoffice') return remembered;
+      if (remembered === 'team' || remembered === 'lieferung' || remembered === 'kasse' || remembered === 'backoffice') return remembered;
     }
     return 'backoffice';
   });
@@ -54,7 +56,10 @@ function LoginScreen() {
     }
   }, [mode]);
 
+  const operationsMode = mode === 'team' || mode === 'lieferung';
+
   function resolveTarget(): string {
+    if (mode === 'team') return '/mitarbeiter';
     if (mode === 'backoffice') {
       // Backoffice: Inhaber landet im blauen Neo-Modulwähler.
       // Tiefe Links werden weiterhin geehrt; ein frischer Login zeigt die vier Arbeitsbereiche.
@@ -144,10 +149,10 @@ function LoginScreen() {
       </div>
 
       {/* ─── Right Panel: Login Form ─── */}
-      <div className="flex flex-col justify-center min-h-screen lg:min-h-0 px-6 sm:px-12 py-12 bg-white">
+      <div className="flex min-h-screen flex-col bg-white px-6 py-6 sm:px-12 sm:py-10 lg:min-h-0 lg:justify-center">
         {/* Mobile logo */}
-        <div className="lg:hidden mb-8 flex items-center gap-2">
-          <svg viewBox="0 0 40 40" className="h-7 w-7 text-indigo-700">
+        <div className="mb-5 flex items-center gap-2 lg:hidden">
+          <svg viewBox="0 0 40 40" className={cn('h-7 w-7', operationsMode ? 'text-emerald-700' : 'text-indigo-700')}>
             <circle cx="20" cy="20" r="19" fill="none" stroke="currentColor" strokeWidth="2" />
             <path d="M 11 26 L 11 14 L 16 22 L 20 16 L 24 22 L 29 14 L 29 26" stroke="currentColor" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -155,7 +160,7 @@ function LoginScreen() {
         </div>
 
         <div className="mx-auto w-full max-w-sm">
-          <div className="mb-8">
+          <div className="mb-5 sm:mb-8">
             <h2 className="font-display text-3xl font-bold tracking-tight">Anmelden</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Noch kein Konto?{' '}
@@ -196,7 +201,10 @@ function LoginScreen() {
             type="button"
             onClick={() => setScannerOpen(true)}
             disabled={busy || oauthBusy}
-            className="group relative flex w-full items-center justify-center gap-3 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 hover:shadow disabled:opacity-60 disabled:cursor-not-allowed mb-3"
+            className={cn(
+              'group relative mb-3 flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-white shadow-sm transition-all hover:shadow disabled:cursor-not-allowed disabled:opacity-60',
+              operationsMode ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-indigo-600 hover:bg-indigo-700',
+            )}
           >
             <QrCode className="h-4 w-4" />
             QR-Code scannen (Schnell-Login)
@@ -217,7 +225,7 @@ function LoginScreen() {
             Mit Google fortfahren
           </button>
 
-          <div className="my-6 flex items-center gap-3 text-[10px] uppercase tracking-widest text-muted-foreground">
+          <div className="my-5 flex items-center gap-3 text-[10px] uppercase tracking-widest text-muted-foreground sm:my-6">
             <div className="h-px flex-1 bg-zinc-200" />
             oder mit E-Mail
             <div className="h-px flex-1 bg-zinc-200" />
@@ -236,7 +244,10 @@ function LoginScreen() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="du@restaurant.de"
-                  className="block w-full rounded-xl border border-zinc-200 bg-white py-3 pl-10 pr-3 text-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className={cn(
+                    'block w-full rounded-xl border border-zinc-200 bg-white py-3 pl-10 pr-3 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2',
+                    operationsMode ? 'focus:border-emerald-600 focus:ring-emerald-600/20' : 'focus:border-indigo-500 focus:ring-indigo-500/20',
+                  )}
                 />
               </div>
             </div>
@@ -246,7 +257,10 @@ function LoginScreen() {
                 <label htmlFor="password" className="text-xs font-semibold text-zinc-700">Passwort</label>
                 <Link
                   href="/auth/forgot-password"
-                  className="text-xs font-medium text-indigo-600 hover:text-indigo-800 underline-offset-2 hover:underline"
+                  className={cn(
+                    'text-xs font-medium underline-offset-2 hover:underline',
+                    operationsMode ? 'text-emerald-700 hover:text-emerald-900' : 'text-indigo-600 hover:text-indigo-800',
+                  )}
                 >
                   Vergessen?
                 </Link>
@@ -262,7 +276,10 @@ function LoginScreen() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full rounded-xl border border-zinc-200 bg-white py-3 pl-10 pr-10 text-sm placeholder:text-zinc-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  className={cn(
+                    'block w-full rounded-xl border border-zinc-200 bg-white py-3 pl-10 pr-10 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2',
+                    operationsMode ? 'focus:border-emerald-600 focus:ring-emerald-600/20' : 'focus:border-indigo-500 focus:ring-indigo-500/20',
+                  )}
                 />
                 <button
                   type="button"
@@ -282,23 +299,36 @@ function LoginScreen() {
               </div>
             )}
 
-            <div className="grid grid-cols-3 gap-1.5 rounded-2xl border-2 border-indigo-200 bg-indigo-50/40 p-1.5">
+            <div className={cn(
+              'grid grid-cols-2 gap-1.5 rounded-2xl border-2 p-1.5 sm:grid-cols-4',
+              operationsMode ? 'border-emerald-200 bg-emerald-50/40' : 'border-indigo-200 bg-indigo-50/40',
+            )}>
               <button
                 type="button"
                 onClick={() => setMode('backoffice')}
                 className={cn(
                   'rounded-xl px-2 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5',
-                  mode === 'backoffice' ? 'bg-indigo-600 text-white shadow-md' : 'text-indigo-700 hover:bg-indigo-50',
+                  mode === 'backoffice' ? 'bg-indigo-600 text-white shadow-md' : operationsMode ? 'text-emerald-800 hover:bg-emerald-50' : 'text-indigo-700 hover:bg-indigo-50',
                 )}
               >
                 <span aria-hidden>{'\u{1F3E2}'}</span> Backoffice
               </button>
               <button
                 type="button"
+                onClick={() => setMode('team')}
+                className={cn(
+                  'rounded-xl px-2 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5',
+                  mode === 'team' ? 'bg-emerald-700 text-white shadow-md' : operationsMode ? 'text-emerald-800 hover:bg-emerald-50' : 'text-indigo-700 hover:bg-indigo-50',
+                )}
+              >
+                <span aria-hidden>{'\u{1F465}'}</span> Team
+              </button>
+              <button
+                type="button"
                 onClick={() => setMode('kasse')}
                 className={cn(
                   'rounded-xl px-2 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5',
-                  mode === 'kasse' ? 'bg-indigo-600 text-white shadow-md' : 'text-indigo-700 hover:bg-indigo-50',
+                  mode === 'kasse' ? 'bg-indigo-600 text-white shadow-md' : operationsMode ? 'text-emerald-800 hover:bg-emerald-50' : 'text-indigo-700 hover:bg-indigo-50',
                 )}
               >
                 <span aria-hidden>{'\u{1F9FE}'}</span> Kasse
@@ -308,7 +338,7 @@ function LoginScreen() {
                 onClick={() => setMode('lieferung')}
                 className={cn(
                   'rounded-xl px-2 py-3 text-xs font-bold transition flex items-center justify-center gap-1.5',
-                  mode === 'lieferung' ? 'bg-indigo-600 text-white shadow-md' : 'text-indigo-700 hover:bg-indigo-50',
+                  mode === 'lieferung' ? 'bg-emerald-700 text-white shadow-md' : operationsMode ? 'text-emerald-800 hover:bg-emerald-50' : 'text-indigo-700 hover:bg-indigo-50',
                 )}
               >
                 <span aria-hidden>{'\u{1F6F5}'}</span> Lieferung
@@ -317,6 +347,8 @@ function LoginScreen() {
             <p className="text-xs text-muted-foreground -mt-1">
               {mode === 'backoffice'
                 ? 'Restaurant-Cockpit: Menü, Bilder, Domain, Stripe, Module, alles steuern.'
+                : mode === 'team'
+                ? 'Deine Schichten, Arbeitszeiten und die wichtigsten Team-Informationen.'
                 : mode === 'kasse'
                 ? 'Du landest direkt im POS-Terminal (Tische, Items, Kassieren).'
                 : 'Du landest direkt im Bestelleingang (Online-Lieferungen + Abholungen).'}
@@ -326,8 +358,10 @@ function LoginScreen() {
               type="submit"
               disabled={busy || oauthBusy}
               className={cn(
-                'group flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-all',
-                'hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-600/40',
+                'group flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white shadow-lg transition-all',
+                operationsMode
+                  ? 'bg-emerald-700 shadow-emerald-700/25 hover:bg-emerald-800 hover:shadow-xl hover:shadow-emerald-700/35'
+                  : 'bg-indigo-600 shadow-indigo-600/30 hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-600/40',
                 'disabled:opacity-60 disabled:cursor-not-allowed',
               )}
             >

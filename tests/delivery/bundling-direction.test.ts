@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { dropoffFitsTour } from '@/lib/delivery/tour-direction';
+import { hasBundleCapacity } from '@/lib/delivery/bundling';
 
 // Reale Koordinaten aus dem Browser-Fahrer-Test 12.08.2026:
 // Restaurant Franky's Pasta (Ost-Lage), West-Ziele Vaalser/Süsterfeld, Ost-Ziele Trierer/Eilendorf.
@@ -28,5 +29,14 @@ describe('dropoffFitsTour — Richtungs-/Nähe-Regel bei selbem Restaurant', () 
 
   it('leere Tour nimmt jedes Ziel (Seed)', () => {
     expect(dropoffFitsTour(restaurant, [], wandaWest).fits).toBe(true);
+  });
+});
+
+describe('bundle capacity', () => {
+  it('uses each driver capacity instead of a hard-coded tour size', () => {
+    expect(hasBundleCapacity(1, 2)).toBe(true);
+    expect(hasBundleCapacity(2, 2)).toBe(false);
+    expect(hasBundleCapacity(3, 4)).toBe(true);
+    expect(hasBundleCapacity(0, 0)).toBe(false);
   });
 });

@@ -37,6 +37,7 @@ export default async function UniversalOrderPage({
       items={(items as any[]) ?? []}
       tables={(tables as any[]) ?? []}
       relations={(relations as any[]) ?? []}
+      orderToken={token}
     />
   );
 }

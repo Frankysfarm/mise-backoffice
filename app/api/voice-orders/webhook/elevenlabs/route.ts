@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { getConversationAudioUrl } from '@/lib/voice-orders/elevenlabs';
+import { verifyElevenLabsWebhook } from '@/lib/voice-orders/webhook-signature';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,10 +13,29 @@ export const dynamic = 'force-dynamic';
  * `conversation.escalated` einen POST hierher. Wir mappen die agent_id
  * auf den Tenant und schreiben den Anruf in `voice_calls`.
  *
- * TODO: HMAC-Signatur prüfen (`x-elevenlabs-signature`).
+ * Nur signierte, frische Webhooks werden verarbeitet.
  */
 export async function POST(req: NextRequest) {
-  const event = (await req.json().catch(() => null)) as
+  const rawBody = await req.text();
+  const secret = process.env.ELEVENLABS_WEBHOOK_SECRET;
+  if (!secret) {
+    return NextResponse.json({ ok: false, reason: 'webhook_not_configured' }, { status: 503 });
+  }
+  if (!verifyElevenLabsWebhook({
+    rawBody,
+    signatureHeader: req.headers.get('elevenlabs-signature'),
+    secret,
+  })) {
+    return NextResponse.json({ ok: false, reason: 'invalid_signature' }, { status: 401 });
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawBody || 'null');
+  } catch {
+    return NextResponse.json({ ok: false, reason: 'invalid_json' }, { status: 400 });
+  }
+  const event = parsed as
     | {
         type?: string;
         conversation_id?: string;

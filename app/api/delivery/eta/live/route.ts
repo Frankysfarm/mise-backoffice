@@ -21,24 +21,29 @@ export async function GET(req: NextRequest) {
 
   try {
     const sb = createServiceClient();
+    const { data: location } = await sb.from('locations')
+      .select('id,tenant_id')
+      .eq('id', locationId)
+      .eq('aktiv', true)
+      .maybeSingle();
+    if (!location) return NextResponse.json({ eta_min: 35, load: 'normal' }, { headers: NO_CACHE });
 
-    const [{ count: activeOrders }, { count: onlineDrivers }, queueSignal] = await Promise.all([
+    const [{ count: activeOrders }, eligibleDrivers, queueSignal] = await Promise.all([
       sb
         .from('customer_orders')
         .select('id', { count: 'exact', head: true })
         .eq('location_id', locationId)
         .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig'])
         .eq('typ', 'lieferung'),
-      sb
-        .from('mise_drivers')
-        .select('id', { count: 'exact', head: true })
-        .eq('active', true)
-        .in('state', ['idle', 'assigned', 'at_restaurant', 'en_route', 'returning']),
+      sb.rpc('get_eligible_delivery_drivers', {
+        p_tenant_id: location.tenant_id,
+        p_location_id: location.id,
+      }),
       getCurrentQueueSignal(locationId).catch(() => null),
     ]);
 
     const active = activeOrders ?? 0;
-    const drivers = Math.max(onlineDrivers ?? 1, 1);
+    const drivers = Math.max(Array.isArray(eligibleDrivers.data) ? eligibleDrivers.data.length : 0, 1);
     const ratio = active / drivers;
 
     let load: 'quiet' | 'normal' | 'busy';

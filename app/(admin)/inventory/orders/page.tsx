@@ -11,15 +11,16 @@ import { SendOrderButton } from './send-button';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function OrdersPage() {
-  await requireManagerPlus();
+  const employee = await requireManagerPlus();
   const basePath = await operationsBasePath('/inventory', '/neo/app/lager');
   const supabase = await createClient();
-  const [{ data: orders }, { data: items }, { data: locs }] = await Promise.all([
+  const [{ data: orders }, { data: items }, { data: locs }, { data: suppliers }] = await Promise.all([
     supabase.from('order_lists')
       .select('*,location:locations(name),creator:employees!order_lists_erstellt_von_fkey(vorname,nachname)')
       .order('created_at', { ascending: false }).limit(50),
-    supabase.from('inventory_items').select('id,name,lieferant,einheit,preis_pro_einheit,artikelnummer,min_bestand,soll_bestand').eq('aktiv', true),
+    supabase.from('inventory_items').select('id,name,lieferant,supplier_id,einheit,preis_pro_einheit,artikelnummer,min_bestand,soll_bestand').eq('aktiv', true),
     supabase.from('locations').select('id,name').order('name'),
+    supabase.from('suppliers').select('id,name,email').eq('aktiv', true).order('name'),
   ]);
 
   const statusVariant = (s: string) =>
@@ -29,9 +30,9 @@ export default async function OrdersPage() {
     <div>
       <PageHeader
         title="Bestelllisten"
-        description={`${orders?.length ?? 0} Bestellungen — Versand via order-list-mail.`}
+        description={`${orders?.length ?? 0} Bestellungen — sicherer Versand direkt aus MISE.`}
         backHref={basePath}
-        actions={<NewOrderButton items={items ?? []} locations={locs ?? []} />}
+        actions={<NewOrderButton items={items ?? []} locations={locs ?? []} suppliers={suppliers ?? []} employeeId={employee.id} />}
       />
       {(orders?.length ?? 0) === 0 ? (
         <EmptyState title="Noch keine Bestellliste" description="Erstelle eine Liste aus Produkten, die unter Mindestbestand sind." />

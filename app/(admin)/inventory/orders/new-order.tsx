@@ -10,18 +10,19 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Plus } from 'lucide-react';
 import { toastError, toastSuccess } from '@/components/ui/toaster';
 
-type Item = { id: string; name: string; lieferant: string | null; einheit: string; preis_pro_einheit: number | null; artikelnummer: string | null; min_bestand: number | null; soll_bestand: number | null };
+type Item = { id: string; name: string; lieferant: string | null; supplier_id: string | null; einheit: string; preis_pro_einheit: number | null; artikelnummer: string | null; min_bestand: number | null; soll_bestand: number | null };
+type Supplier = { id: string; name: string; email: string | null };
 
-export function NewOrderButton({ items, locations }: { items: Item[]; locations: { id: string; name: string }[] }) {
+export function NewOrderButton({ items, locations, suppliers, employeeId }: { items: Item[]; locations: { id: string; name: string }[]; suppliers: Supplier[]; employeeId: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
-  const [supplier, setSupplier] = useState<string>('');
+  const [supplierId, setSupplierId] = useState<string>('');
   const [loc, setLoc] = useState<string>(locations[0]?.id ?? '');
   const [qty, setQty] = useState<Record<string, number>>({});
 
-  const suppliers = useMemo(() => Array.from(new Set(items.map(i => i.lieferant).filter(Boolean))) as string[], [items]);
-  const suppliedItems = useMemo(() => items.filter(i => i.lieferant === supplier), [items, supplier]);
+  const supplier = useMemo(() => suppliers.find((entry) => entry.id === supplierId) ?? null, [supplierId, suppliers]);
+  const suppliedItems = useMemo(() => items.filter((item) => item.supplier_id === supplierId || (!item.supplier_id && item.lieferant === supplier?.name)), [items, supplier, supplierId]);
   const total = suppliedItems.reduce((acc, i) => acc + ((qty[i.id] ?? 0) * (i.preis_pro_einheit ?? 0)), 0);
 
   async function onSubmit(e: React.FormEvent) {
@@ -36,11 +37,12 @@ export function NewOrderButton({ items, locations }: { items: Item[]; locations:
     if (positionen.length === 0) { toastError('Keine Positionen', 'Bitte mindestens eine Menge > 0.'); return; }
     start(async () => {
       const { error } = await createClient().from('order_lists').insert({
-        location_id: loc, lieferant: supplier,
+        location_id: loc, supplier_id: supplierId, lieferant: supplier?.name,
+        erstellt_von: employeeId,
         positionen, gesamtbetrag: total, status: 'entwurf',
       });
       if (error) return toastError('Speichern fehlgeschlagen', error.message);
-      toastSuccess('Bestellliste angelegt', `${positionen.length} Position(en) für ${supplier}.`);
+      toastSuccess('Bestellliste angelegt', `${positionen.length} Position(en) für ${supplier?.name}.`);
       setOpen(false); setQty({}); router.refresh();
     });
   }
@@ -58,14 +60,14 @@ export function NewOrderButton({ items, locations }: { items: Item[]; locations:
               </select>
             </div>
             <div><Label>Lieferant</Label>
-              <select value={supplier} onChange={e => setSupplier(e.target.value)} className="h-10 w-full rounded-md border bg-background px-3 text-sm" required>
+              <select value={supplierId} onChange={e => setSupplierId(e.target.value)} className="h-10 w-full rounded-md border bg-background px-3 text-sm" required>
                 <option value="">— wählen —</option>
-                {suppliers.map(s => <option key={s} value={s}>{s}</option>)}
+                {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}{s.email ? '' : ' (E-Mail fehlt)'}</option>)}
               </select>
             </div>
           </div>
 
-          {supplier && (
+          {supplierId && (
             <div className="max-h-[300px] overflow-y-auto rounded border">
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-muted/70"><tr>
@@ -101,7 +103,7 @@ export function NewOrderButton({ items, locations }: { items: Item[]; locations:
 
           <DialogFooter>
             <Button variant="outline" type="button" onClick={() => setOpen(false)}>Abbrechen</Button>
-            <Button type="submit" disabled={pending || !supplier}>{pending ? '...' : 'Als Entwurf speichern'}</Button>
+            <Button type="submit" disabled={pending || !supplierId || !supplier?.email}>{pending ? '...' : 'Als Entwurf speichern'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -19,7 +19,12 @@ const GRÜNDE = [
   { value: 'sonstiges', label: '📝 Sonstiges' },
 ];
 
-type Item = { id: string; name: string; einheit: string; preis_pro_einheit: number | null };
+type Item = { id: string; name: string; einheit: string; preis_pro_einheit: number | null; area: { location_id: string } | { location_id: string }[] | null };
+
+function itemLocationId(item: Item | undefined) {
+  if (!item?.area) return null;
+  return Array.isArray(item.area) ? item.area[0]?.location_id ?? null : item.area.location_id;
+}
 
 export function WasteForm({ items }: { items: Item[] }) {
   const router = useRouter();
@@ -40,6 +45,7 @@ export function WasteForm({ items }: { items: Item[] }) {
     start(async () => {
       const { error } = await createClient().from('inventory_waste').insert({
         item_id: itemId,
+        location_id: itemLocationId(selectedItem),
         menge: Number(menge),
         einheit: selectedItem?.einheit ?? 'Stück',
         grund,

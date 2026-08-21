@@ -2,7 +2,6 @@
 
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
 import { toastError, toastSuccess } from '@/components/ui/toaster';
@@ -14,18 +13,12 @@ export function SendOrderButton({ orderId }: { orderId: string }) {
   function send() {
     if (!confirm('Bestellung jetzt per E-Mail an den Lieferanten senden?')) return;
     start(async () => {
-      const sb = createClient();
-      const { data: { session } } = await sb.auth.getSession();
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/order-list-mail`, {
+      const res = await fetch(`/api/inventory/orders/${orderId}/send`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({ order_list_id: orderId }),
+        headers: { 'Content-Type': 'application/json' },
       });
-      const text = await res.text();
-      if (!res.ok) { toastError('Versand fehlgeschlagen', text); return; }
+      const payload = await res.json().catch(() => ({ error: 'Unbekannter Fehler' }));
+      if (!res.ok) { toastError('Versand fehlgeschlagen', payload.error); return; }
       toastSuccess('Bestellung versendet', 'Status: bestellt.');
       router.refresh();
     });

@@ -2,33 +2,40 @@
  * POST /api/delivery/dispatch
  *
  * Triggert den Smart-Dispatch-Tick manuell oder für eine spezifische Order.
- * Schutz: x-internal-token Header ODER authentifizierter User (für Frontend).
+ * Schutz: x-internal-token Header ODER aktiver Delivery-Admin. Interaktive
+ * Aufrufe bleiben immer auf den Standort des eingeloggten Mitarbeiters begrenzt.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { smartDispatchTick, dispatchSingleOrder } from '@/lib/delivery/dispatch-engine';
-import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
+import { getDeliveryAdminActor, isDeliveryAdminLocation } from '@/lib/delivery/admin-auth';
+import type { CurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-async function isAuthorized(req: NextRequest): Promise<boolean> {
+type Authorization =
+  | { kind: 'internal'; actor: null }
+  | { kind: 'admin'; actor: CurrentEmployee }
+  | { kind: 'forbidden'; actor: null };
+
+async function authorize(req: NextRequest): Promise<Authorization> {
   // Interner Cron-Token
   const expected = process.env.BISS_INTERNAL_TOKEN;
   if (expected && expected.length >= 16 && req.headers.get('x-internal-token') === expected) {
-    return true;
+    return { kind: 'internal', actor: null };
   }
-  // Authentifizierter Admin-User
-  const sb = await createClient();
-  const { data: { user } } = await sb.auth.getUser();
-  return !!user;
+  const actor = await getDeliveryAdminActor();
+  return actor ? { kind: 'admin', actor } : { kind: 'forbidden', actor: null };
 }
 
 export async function POST(req: NextRequest) {
-  if (!(await isAuthorized(req))) {
+  const authorization = await authorize(req);
+  if (authorization.kind === 'forbidden') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  let body: { order_id?: string } = {};
+  let body: { order_id?: string; location_id?: string } = {};
   try { body = await req.json(); } catch { /* leer ok */ }
 
   if (body.order_id) {
@@ -41,11 +48,29 @@ export async function POST(req: NextRequest) {
     if (error || !o) {
       return NextResponse.json({ error: 'Bestellung nicht gefunden' }, { status: 404 });
     }
+    if (
+      authorization.kind === 'admin' &&
+      (!o.location_id || !await isDeliveryAdminLocation(authorization.actor, o.location_id))
+    ) {
+      return NextResponse.json({ error: 'Bestellung nicht gefunden' }, { status: 404 });
+    }
     const radiusFactor = ((o as Record<string, unknown>).dispatch_attempts as number ?? 0) >= 3 ? 1.5 : 1.0;
     const result = await dispatchSingleOrder(o as Parameters<typeof dispatchSingleOrder>[0], radiusFactor);
     return NextResponse.json({ ok: true, result });
   }
 
-  const result = await smartDispatchTick();
+  if (authorization.kind === 'admin') {
+    const locationId = body.location_id ?? authorization.actor.location_id;
+    if (!locationId) {
+      return NextResponse.json({ error: 'Kein Standort zugeordnet' }, { status: 409 });
+    }
+    if (!await isDeliveryAdminLocation(authorization.actor, locationId)) {
+      return NextResponse.json({ error: 'Standort nicht gefunden' }, { status: 404 });
+    }
+    const result = await smartDispatchTick({ locationId, runGlobalMaintenance: false });
+    return NextResponse.json({ ok: true, ...result });
+  }
+
+  const result = await smartDispatchTick({ runGlobalMaintenance: true });
   return NextResponse.json({ ok: true, ...result });
 }

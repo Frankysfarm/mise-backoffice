@@ -179,10 +179,9 @@ const MODULE_DEFS: SidebarModule[] = [
     label: 'Loyalty & Coupons',
     icon: 'Award',
     items: [
-      { group: 'Stempelkarte', href: '/loyalty',                icon: 'Star',     label: 'Übersicht' },
-      { group: 'Stempelkarte', href: '/loyalty?tab=settings',   icon: 'Settings', label: 'Stempelkarte konfigurieren' },
-      { group: 'Coupons',      href: '/loyalty?tab=coupons',    icon: 'Ticket',   label: 'Coupon-Codes' },
-      { group: 'Stammkunden',  href: '/loyalty?tab=customers',  icon: 'Users',    label: 'Stammkunden-Datenbank' },
+      { group: 'Aktionen', href: '/neo/app/aktionen', icon: 'Star', label: 'Bonusprogramme & Aktionen' },
+      { group: 'Coupons', href: '/vouchers', icon: 'Ticket', label: 'Gutscheine & Coupon-Codes' },
+      { group: 'Stammkunden', href: '/neo/app/kunden', icon: 'Users', label: 'Stammkunden-Datenbank' },
     ],
   },
 

@@ -27,7 +27,7 @@ type Tenant = {
 type Table = { id: string; nummer: string; name: string | null; bereich: string | null };
 
 export function UniversalStorefront({
-  location, tenant, categories, items, tables, relations,
+  location, tenant, categories, items, tables, relations, orderToken,
 }: {
   location: Location;
   tenant: Tenant;
@@ -38,6 +38,7 @@ export function UniversalStorefront({
   tables: Table[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   relations: any[];
+  orderToken: string;
 }) {
   const [pickedTable, setPickedTable] = useState<Table | null>(null);
   const [manualNummer, setManualNummer] = useState('');
@@ -69,6 +70,7 @@ export function UniversalStorefront({
         categories={categories}
         items={items}
         relations={relations}
+        orderToken={orderToken}
       />
     );
   }
@@ -84,14 +86,6 @@ export function UniversalStorefront({
     const match = tables.find((t) => t.nummer.toLowerCase() === trimmed.toLowerCase());
     if (match) {
       setPickedTable(match);
-    } else {
-      // Kunde gibt Nummer ein, auch wenn Tisch nicht in DB
-      setPickedTable({
-        id: 'manual',
-        nummer: trimmed,
-        name: null,
-        bereich: null,
-      });
     }
   }
 

@@ -36,24 +36,19 @@ export async function POST(
   }
 
   const c = sb();
-  const { data: stop } = await c
+  const { data: stopRows, error: stopReadError } = await c
     .from('mise_delivery_batch_stops')
-    .select('id,batch_id,type,order_id')
+    .select('id,batch_id,type,order_id,mise_delivery_batches!inner(driver_id,state)')
     .eq('order_id', orderId)
-    .eq('type', 'pickup')
-    .maybeSingle();
+    .eq('type', 'dropoff')
+    .eq('cancelled', false)
+    .eq('mise_delivery_batches.driver_id', m.driver.id)
+    .in('mise_delivery_batches.state', ['assigned', 'at_restaurant'])
+    .limit(1);
+  if (stopReadError) return NextResponse.json({ error: 'Tour konnte nicht geprüft werden' }, { status: 500 });
+  const stop = stopRows?.[0] ?? null;
   if (!stop) {
-    return NextResponse.json({ error: 'Pickup-Stop nicht gefunden' }, { status: 404 });
-  }
-
-  // Ownership: der Stop muss zu einem Batch gehören das diesem Driver gehört
-  const { data: batch } = await c
-    .from('mise_delivery_batches')
-    .select('id,driver_id,state')
-    .eq('id', stop.batch_id)
-    .single();
-  if (!batch || batch.driver_id !== m.driver.id) {
-    return NextResponse.json({ error: 'Nicht autorisiert für diese Bestellung' }, { status: 403 });
+    return NextResponse.json({ error: 'Aktive Bestellung nicht gefunden' }, { status: 404 });
   }
 
   const { data: orderItems, error: itemsReadError } = await c

@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { toastError, toastSuccess } from '@/components/ui/toaster';
 import { Plus, Trash2 } from 'lucide-react';
 
@@ -18,7 +17,7 @@ type Supplier = {
   zahlungsziel_tage: number | null; kundennummer: string | null; aktiv: boolean;
 };
 
-export function SuppliersEditor({ suppliers }: { suppliers: Supplier[] }) {
+export function SuppliersEditor({ suppliers, tenantId }: { suppliers: Supplier[]; tenantId: string }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [rows, setRows] = useState(suppliers);
@@ -43,6 +42,7 @@ export function SuppliersEditor({ suppliers }: { suppliers: Supplier[] }) {
   async function add(fd: FormData) {
     start(async () => {
       const { error } = await createClient().from('suppliers').insert({
+        tenant_id: tenantId,
         name: fd.get('name'), email: fd.get('email') || null,
         telefon: fd.get('telefon') || null, kontakt_name: fd.get('kontakt') || null,
         aktiv: true,

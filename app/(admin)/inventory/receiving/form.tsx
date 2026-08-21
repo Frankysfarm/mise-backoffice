@@ -5,23 +5,25 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { toastError, toastSuccess } from '@/components/ui/toaster';
-import { Truck, Check, X, AlertTriangle } from 'lucide-react';
+import { Truck, Check, X } from 'lucide-react';
 
-type Order = { id: string; lieferant: string | null; supplier_id: string | null; gesamtbetrag: number | null; positionen: any; bestellt_am: string | null };
+type Order = { id: string; lieferant: string | null; supplier_id: string | null; location_id: string; gesamtbetrag: number | null; positionen: any; bestellt_am: string | null };
 
-export function ReceivingForm({ pendingOrders, suppliers }: {
+export function ReceivingForm({ pendingOrders, suppliers, locations, defaultLocationId }: {
   pendingOrders: Order[];
   suppliers: { id: string; name: string }[];
+  locations: { id: string; name: string }[];
+  defaultLocationId: string | null;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const [orderId, setOrderId] = useState('');
   const [supplierId, setSupplierId] = useState('');
+  const [locationId, setLocationId] = useState(defaultLocationId ?? locations[0]?.id ?? '');
   const [tempOk, setTempOk] = useState<boolean | null>(null);
   const [mhdOk, setMhdOk] = useState<boolean | null>(null);
   const [mengeOk, setMengeOk] = useState<boolean | null>(null);
@@ -31,24 +33,19 @@ export function ReceivingForm({ pendingOrders, suppliers }: {
   const positions = selectedOrder ? (Array.isArray(selectedOrder.positionen) ? selectedOrder.positionen : []) : [];
 
   async function submit() {
+    if (!locationId) return toastError('Standort auswählen');
     start(async () => {
-      const { error } = await createClient().from('inventory_receiving').insert({
-        order_list_id: orderId || null,
-        supplier_id: supplierId || selectedOrder?.supplier_id || null,
-        temperatur_ok: tempOk,
-        mhd_ok: mhdOk,
-        menge_ok: mengeOk,
-        notiz: notiz || null,
-        positionen: positions,
+      const { error } = await createClient().rpc('record_inventory_receiving' as any, {
+        p_order_list_id: orderId || null,
+        p_supplier_id: supplierId || selectedOrder?.supplier_id || null,
+        p_location_id: locationId,
+        p_temperatur_ok: tempOk,
+        p_mhd_ok: mhdOk,
+        p_menge_ok: mengeOk,
+        p_notiz: notiz || null,
+        p_positionen: positions,
       } as any);
       if (error) return toastError('Speichern fehlgeschlagen', error.message);
-
-      // Order-Status auf geliefert
-      if (orderId) {
-        await createClient().from('order_lists').update({
-          status: 'geliefert', geliefert_am: new Date().toISOString(),
-        }).eq('id', orderId);
-      }
 
       toastSuccess('Wareneingang erfasst');
       setOrderId(''); setNotiz(''); setTempOk(null); setMhdOk(null); setMengeOk(null);
@@ -62,10 +59,10 @@ export function ReceivingForm({ pendingOrders, suppliers }: {
         <CardTitle className="flex items-center gap-2"><Truck className="h-5 w-5" /> Lieferung entgegennehmen</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <div>
             <Label>Offene Bestellung (optional)</Label>
-            <select value={orderId} onChange={e => { setOrderId(e.target.value); const o = pendingOrders.find(x => x.id === e.target.value); if (o?.supplier_id) setSupplierId(o.supplier_id); }}
+            <select value={orderId} onChange={e => { setOrderId(e.target.value); const o = pendingOrders.find(x => x.id === e.target.value); if (o?.supplier_id) setSupplierId(o.supplier_id); if (o?.location_id) setLocationId(o.location_id); }}
               className="h-10 w-full rounded-md border bg-background px-3 text-sm">
               <option value="">— ohne Bestellung —</option>
               {pendingOrders.map(o => (
@@ -73,6 +70,14 @@ export function ReceivingForm({ pendingOrders, suppliers }: {
                   {o.lieferant ?? 'Unbekannt'} — bestellt {o.bestellt_am ? new Date(o.bestellt_am).toLocaleDateString('de-DE') : '?'}
                 </option>
               ))}
+            </select>
+          </div>
+          <div>
+            <Label>Standort</Label>
+            <select value={locationId} onChange={e => setLocationId(e.target.value)} required disabled={Boolean(selectedOrder)}
+              className="h-10 w-full rounded-md border bg-background px-3 text-sm disabled:opacity-70">
+              <option value="">— wählen —</option>
+              {locations.map(location => <option key={location.id} value={location.id}>{location.name}</option>)}
             </select>
           </div>
           <div>

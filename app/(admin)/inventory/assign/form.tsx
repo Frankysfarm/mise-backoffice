@@ -12,10 +12,11 @@ import { ClipboardList } from 'lucide-react';
 
 type Area = { id: string; name: string; location_id: string | null; location: { name: string } | null };
 
-export function AssignForm({ areas, employees, locations, successPath = '/inventory/sessions' }: {
+export function AssignForm({ areas, employees, locations, actorId, successPath = '/inventory/sessions' }: {
   areas: Area[];
   employees: { id: string; vorname: string; nachname: string }[];
   locations: { id: string; name: string }[];
+  actorId: string;
   successPath?: string;
 }) {
   const router = useRouter();
@@ -30,12 +31,15 @@ export function AssignForm({ areas, employees, locations, successPath = '/invent
   async function submit() {
     if (!areaId) return toastError('Bereich auswählen');
     if (!empId) return toastError('Mitarbeiter auswählen');
+    const area = areas.find((entry) => entry.id === areaId);
+    if (!area?.location_id) return toastError('Der Lagerbereich hat keinen Standort');
 
     start(async () => {
-      const { data, error } = await createClient().from('inventory_sessions').insert({
+      const { error } = await createClient().from('inventory_sessions').insert({
         area_id: areaId,
-        location_id: locId || null,
+        location_id: area.location_id,
         assigned_to: empId,
+        gestartet_von: actorId,
         typ: 'geplant',
         notiz: notiz || null,
       } as any).select('id').single();
@@ -63,9 +67,9 @@ export function AssignForm({ areas, employees, locations, successPath = '/invent
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <Label>Standort</Label>
-            <select value={locId} onChange={e => { setLocId(e.target.value); setAreaId(''); }}
+            <select value={locId} onChange={e => { setLocId(e.target.value); setAreaId(''); }} required
               className="h-10 w-full rounded-md border bg-background px-3 text-sm">
-              <option value="">— alle —</option>
+              <option value="">— wählen —</option>
               {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
             </select>
           </div>

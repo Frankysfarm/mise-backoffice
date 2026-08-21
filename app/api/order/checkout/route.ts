@@ -22,23 +22,6 @@ function normalizeTableNumber(value: unknown): string {
   return String(value ?? '').trim().toLowerCase().replace(/^tisch\s*/i, '').replace(/^t(?=\d)/i, '');
 }
 
-function normalizeFallbackItems(value: unknown): ResolvedItem[] | null {
-  if (!Array.isArray(value) || value.length === 0 || value.length > 100) return null;
-  const items = value.map((raw) => {
-    const item = raw as Record<string, unknown>;
-    return {
-      name: String(item.name ?? '').trim().slice(0, 200),
-      qty: Math.trunc(Number(item.qty)),
-      // Die Order-App sendet den Gesamtpreis der Position.
-      priceCents: Math.round(Number(item.priceCents)),
-    };
-  });
-  if (items.some((item) => !item.name || item.qty < 1 || item.qty > 50 || item.priceCents < 0 || item.priceCents > 500_000)) {
-    return null;
-  }
-  return items;
-}
-
 /** Erstellt eine Tischbestellung und einen Stripe PaymentIntent. */
 export async function POST(req: NextRequest) {
   if (!stripeConfigured()) {
@@ -77,21 +60,21 @@ export async function POST(req: NextRequest) {
 
   const itemIds = [...new Set(body.items.map((item: { id?: unknown }) => String(item.id ?? '')).filter(Boolean))];
   const { data: menuItems } = itemIds.length
-    ? await svc.from('menu_items').select('id,name,preis').in('id', itemIds).eq('tenant_id', tenant.id)
+    ? await svc.from('menu_items').select('id,name,preis').in('id', itemIds)
+        .eq('tenant_id', tenant.id).eq('location_id', table.location_id).eq('verfuegbar', true)
     : { data: [] as { id: string; name: string; preis: number }[] };
 
-  let resolvedItems: ResolvedItem[];
-  if (menuItems && menuItems.length === itemIds.length) {
-    const priceMap = new Map(menuItems.map((item) => [item.id, item]));
-    resolvedItems = body.items.map((raw: { id: string; qty: number }) => {
-      const item = priceMap.get(raw.id)!;
-      const qty = Math.max(1, Math.min(50, Math.trunc(Number(raw.qty))));
-      return { id: item.id, name: item.name, qty, priceCents: Math.round(Number(item.preis) * 100) * qty };
-    });
-  } else {
-    const fallback = normalizeFallbackItems(body.items);
-    if (!fallback) return NextResponse.json({ error: 'Ungültige Bestellpositionen' }, { status: 400, headers: CORS });
-    resolvedItems = fallback;
+  if (!menuItems || menuItems.length !== itemIds.length || itemIds.length === 0) {
+    return NextResponse.json({ error: 'Bestellpositionen sind nicht verfügbar' }, { status: 400, headers: CORS });
+  }
+  const priceMap = new Map(menuItems.map((item) => [item.id, item]));
+  const resolvedItems: ResolvedItem[] = body.items.map((raw: { id: string; qty: number }) => {
+    const item = priceMap.get(raw.id)!;
+    const qty = Math.trunc(Number(raw.qty));
+    return { id: item.id, name: item.name, qty, priceCents: Math.round(Number(item.preis) * 100) * qty };
+  });
+  if (resolvedItems.some((item) => !Number.isInteger(item.qty) || item.qty < 1 || item.qty > 50 || item.priceCents < 0)) {
+    return NextResponse.json({ error: 'Ungültige Bestellmenge' }, { status: 400, headers: CORS });
   }
 
   const amountCents = resolvedItems.reduce((sum, item) => sum + item.priceCents, 0);

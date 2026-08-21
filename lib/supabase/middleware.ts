@@ -56,6 +56,7 @@ export async function updateSession(request: NextRequest) {
     pathname === '/fahrer' ||
     pathname.startsWith('/fahrer/') ||
     pathname === '/fahrer.webmanifest' ||
+    pathname === '/mitarbeiter.webmanifest' ||
     pathname === '/manifest.json' ||
     pathname === '/mais.webmanifest' ||
     pathname === '/sw.js' ||
@@ -63,6 +64,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/api/push/') ||
     pathname.startsWith('/api/cron/') ||
     pathname === '/api/delivery/health' ||
+    pathname === '/api/delivery/windows' ||
     pathname === '/api/delivery/dispatch' ||
     pathname === '/api/drivers/push/send' ||
     pathname === '/api/drivers/auto-offline' ||
@@ -111,7 +113,7 @@ export async function updateSession(request: NextRequest) {
     // Driver APIs authenticate Bearer/cookie/internal tokens in their own
     // handlers. Middleware redirects would turn native 401/409 JSON into HTML.
     pathname.startsWith('/api/driver/') ||
-    pathname === '/apps' || pathname === '/driver' || pathname.startsWith('/driver/') || pathname === '/lieferdienst' || pathname.startsWith('/lieferdienst/') || pathname.startsWith('/api/lieferdienst/') || pathname.startsWith('/api/driver-app/') || pathname === '/pos/terminal-v5' || pathname.startsWith('/pos/terminal-v5/');
+    pathname === '/apps' || pathname === '/driver' || pathname.startsWith('/driver/') || pathname.startsWith('/api/lieferdienst/') || pathname.startsWith('/api/driver-app/');
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
@@ -129,6 +131,7 @@ export async function updateSession(request: NextRequest) {
     const { data: emp } = await supabase.from('employees')
       .select('id,rolle,muss_passwort_aendern')
       .eq('auth_user_id', user.id)
+      .in('status', ['aktiv', 'in_training', 'in_probe'])
       .maybeSingle();
 
     // Force Password-Change wenn Flag gesetzt
@@ -156,7 +159,8 @@ export async function updateSession(request: NextRequest) {
       pathname.startsWith('/api/printer') ||
       pathname.startsWith('/api/kitchen/') ||
       pathname === '/auth/signout';
-    const allowedForPath = isPosArea ? posRoles : backofficeRoles;
+    const isEmployeeArea = pathname === '/mitarbeiter' || pathname.startsWith('/mitarbeiter/');
+    const allowedForPath = isPosArea || isEmployeeArea ? posRoles : backofficeRoles;
     if (!emp || !allowedForPath.includes(emp.rolle)) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';

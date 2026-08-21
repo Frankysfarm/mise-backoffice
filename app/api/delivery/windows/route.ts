@@ -4,7 +4,7 @@
  *
  * POST /api/delivery/windows
  *   Body: { order_id, slot_id, location_id, notes? }
- *   → Fenster buchen (kein Auth – orderId als Autorisierung)
+ *   → Fenster mit dem Capability-Token der Bestellung buchen
  *
  * DELETE /api/delivery/windows?order_id=...&location_id=...
  *   → Buchung stornieren
@@ -17,6 +17,7 @@ import {
   cancelWindowBooking,
   getOrderWindow,
 } from '@/lib/delivery/windows';
+import { hasTrackingAccess } from '@/lib/delivery/tracking-access';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -38,6 +39,9 @@ export async function GET(req: NextRequest) {
   if (orderId) {
     if (!UUID_RE.test(orderId)) {
       return NextResponse.json({ error: 'order_id ungültig' }, { status: 400 });
+    }
+    if (!(await hasTrackingAccess(req, orderId))) {
+      return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 });
     }
     const booking = await getOrderWindow(orderId);
     return NextResponse.json({ booking });
@@ -83,6 +87,9 @@ export async function POST(req: NextRequest) {
   if (!location_id || !UUID_RE.test(location_id)) {
     return NextResponse.json({ error: 'location_id fehlt oder ungültig' }, { status: 400 });
   }
+  if (!(await hasTrackingAccess(req, order_id))) {
+    return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 });
+  }
 
   // Bestellung muss zur Location gehören (Tenant-Schutz)
   const sb = createServiceClient();
@@ -118,6 +125,9 @@ export async function DELETE(req: NextRequest) {
   }
   if (!locationId || !UUID_RE.test(locationId)) {
     return NextResponse.json({ error: 'location_id fehlt oder ungültig' }, { status: 400 });
+  }
+  if (!(await hasTrackingAccess(req, orderId))) {
+    return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 });
   }
 
   // Buchung für die Bestellung laden

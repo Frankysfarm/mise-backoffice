@@ -71,6 +71,8 @@ export function scoreDriver(
   order: OrderScoreInput,
   nowUtc: Date = new Date(),
 ): ScoreBreakdown | null {
+  if (!Number.isFinite(driver.max_capacity) || driver.max_capacity <= 0) return null;
+  if (!Number.isFinite(driver.current_capacity) || driver.current_capacity < 0) return null;
   if (driver.current_capacity >= driver.max_capacity) return null;
 
   const scores: Omit<ScoreBreakdown, 'total'> = {
@@ -121,7 +123,7 @@ function scoreLoad(driver: DriverScoreInput): number {
   const free = driver.max_capacity - driver.current_capacity;
   const ratio = free / driver.max_capacity;
   // Leerer Fahrer = 10, voller Fahrer = 0
-  return Math.round(ratio * 10 * 100) / 100;
+  return Math.max(0, Math.min(10, Math.round(ratio * 10 * 100) / 100));
 }
 
 function scoreVehicle(driver: DriverScoreInput, order: OrderScoreInput): number {
@@ -179,7 +181,13 @@ function scorePrepTime(
 }
 
 function scoreTimeOfDay(now: Date): number {
-  const hour = now.getUTCHours() + 1; // UTC+1 grob
+  // Europa/Berlin statt festem UTC+1: Sommerzeit darf die Rush-Hour-Wertung
+  // nicht um eine Stunde verschieben.
+  const hour = Number(new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Berlin',
+    hour: '2-digit',
+    hourCycle: 'h23',
+  }).format(now));
   // Rush-Hours 12–13 Uhr und 18–20 Uhr → Bonus für erfahrene Fahrer (hier neutral)
   if ((hour >= 12 && hour <= 13) || (hour >= 18 && hour <= 20)) return 6;
   if (hour >= 11 && hour <= 21) return 8;  // Kernlieferzeiten
@@ -208,5 +216,5 @@ function scoreHistory(driver: DriverScoreInput): number {
   const avgMin = driver.avg_delivery_min ?? 25;
   const ratingScore = ((rating - 1) / 4) * 7;        // 1–5 → 0–7
   const speedScore = avgMin <= 20 ? 3 : avgMin <= 30 ? 2 : avgMin <= 40 ? 1 : 0;
-  return Math.min(10, ratingScore + speedScore);
+  return Math.max(0, Math.min(10, ratingScore + speedScore));
 }

@@ -37,6 +37,14 @@ export interface BundleDecision {
   reason: string;
 }
 
+export function hasBundleCapacity(dropoffCount: number, maxCapacity: number): boolean {
+  return Number.isInteger(dropoffCount)
+    && dropoffCount >= 0
+    && Number.isInteger(maxCapacity)
+    && maxCapacity > 0
+    && dropoffCount < maxCapacity;
+}
+
 /** Findet offene Touren eines Fahrers die bündelbar sind. */
 export async function findBundleCandidates(
   driverId: string,
@@ -44,6 +52,7 @@ export async function findBundleCandidates(
   restaurantLng: number,
   newOrderLat: number,
   newOrderLng: number,
+  maxCapacity: number,
 ): Promise<BundleDecision> {
   const sb = createServiceClient();
 
@@ -68,6 +77,7 @@ export async function findBundleCandidates(
       restaurantLng,
       newOrderLat,
       newOrderLng,
+      maxCapacity,
     );
     if (decision.shouldBundle) return decision;
   }
@@ -82,6 +92,7 @@ async function evaluateBundle(
   restaurantLng: number,
   newOrderLat: number,
   newOrderLng: number,
+  maxCapacity: number,
 ): Promise<BundleDecision> {
   const sb = createServiceClient();
 
@@ -97,8 +108,7 @@ async function evaluateBundle(
 
   // Kapazitätsprüfung
   const dropoffs = stops.filter((s) => s.type === 'dropoff');
-  const maxCap = 4; // Default; wird später aus drivers geladen
-  if (dropoffs.length >= maxCap) {
+  if (!hasBundleCapacity(dropoffs.length, maxCapacity)) {
     return { shouldBundle: false, candidateBatchId: null, reason: 'Tour ist voll' };
   }
 

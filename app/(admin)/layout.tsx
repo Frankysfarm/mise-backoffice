@@ -8,25 +8,9 @@ import { OnboardingCheck } from '@/components/onboarding/check';
 import { requireManagerPlus, requirePosAccess } from '@/lib/auth/requireRole';
 import { getActiveModules, matchRouteToModule } from '@/lib/modules';
 
-// DEV-Modus: diese Routes laufen OHNE Auth + OHNE Sidebar (full-screen)
-// → werden für aktive Entwicklung/Demo genutzt
-const DEV_PUBLIC_PATHS = [
-  '/lieferdienst',
-  '/pos/terminal-v5',
-];
-
-function isDevPublicPath(pathname: string): boolean {
-  return DEV_PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
-}
-
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const h = await headers();
   const pathname = h.get('x-pathname') ?? '/';
-
-  // DEV-Public-Paths: kein Auth, kein Wrapper, direkt rendern (full-screen App)
-  if (isDevPublicPath(pathname)) {
-    return <>{children}</>;
-  }
 
   // POS-Bereich (Kassieren, Bestelleingang, Küche) ist für alle eingeloggten Mitarbeiter offen.
   // Restliches Backoffice bleibt manager+ only.

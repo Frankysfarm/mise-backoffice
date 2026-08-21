@@ -11,24 +11,20 @@ const source = (rel: string) => readFileSync(join(root, rel), 'utf8');
 describe('delivered path safety', () => {
   it('delivered route is idempotent and keeps driver state consistent', () => {
     const route = source('app/api/driver/v1/orders/[id]/delivered/route.ts');
-    // Doppel-Tap/Outbox-Retry: bereits gelieferte Order ist Erfolg-No-op, kein Überschreiben
-    expect(route).toContain("paidOrd.status === 'geliefert'");
-    expect(route).toContain('already_delivered');
-    // Nach Batch-Abschluss: Fahrer nicht in en_route hängen lassen
-    expect(route).toContain("update({ state: 'returning' })");
+    const migration = source('scripts/migrations/072_atomic_driver_delivery_flow.sql');
+    expect(route).toContain("rpc('complete_driver_delivery'");
+    // Doppel-Tap/Outbox-Retry: bereits gelieferte Order ist Erfolg-No-op.
+    expect(migration).toContain("v_order.status::text='geliefert'");
+    expect(migration).toContain("'already_delivered',true");
+    // Nach Batch-Abschluss: Fahrer nicht in en_route hängen lassen.
+    expect(migration).toContain("when state='en_route' then 'returning'");
   });
 
-  it('stop lookup survives requeued orders (no bare maybeSingle on order_id)', () => {
-    for (const rel of [
-      'app/api/driver/v1/orders/[id]/delivered/route.ts',
-      'app/api/driver/v1/orders/[id]/picked-up/route.ts',
-    ]) {
-      const route = source(rel);
-      // Stop-Lookup muss auf nicht-stornierte Stops im aktiven Batch des Fahrers filtern
-      expect(route).toContain("eq('cancelled', false)");
-      expect(route).toContain("mise_delivery_batches!inner");
-      expect(route).toContain("eq('mise_delivery_batches.driver_id', m.driver.id)");
-    }
+  it('binds pickup and delivery atomically to the current batch and driver', () => {
+    const migration = source('scripts/migrations/072_atomic_driver_delivery_flow.sql');
+    expect(migration.match(/where id=v_order\.mise_batch_id and driver_id=p_driver_id/g)?.length).toBe(2);
+    expect(migration.match(/not coalesce\(cancelled,false\)/g)?.length ?? 0).toBeGreaterThanOrEqual(3);
+    expect(migration).toContain('for update;');
   });
 
   it('markDelivered has no silent direct-write fallback on API errors', () => {
@@ -67,9 +63,9 @@ describe('delivered path safety', () => {
 // P0-2: Storno während aktiver Tour muss den Fahrer erreichen.
 describe('cancelled stops reach the driver (P0-2)', () => {
   it('cancelled stops never block tour completion', () => {
-    const route = source('app/api/driver/v1/orders/[id]/delivered/route.ts');
-    const completion = route.slice(route.indexOf('openStops'));
-    expect(completion).toContain("eq('cancelled', false)");
+    const migration = source('scripts/migrations/072_atomic_driver_delivery_flow.sql');
+    const completion = migration.slice(migration.indexOf('select count(*) into v_open_stops'));
+    expect(completion).toContain('not coalesce(cancelled,false)');
     const engine = source('lib/delivery/dispatch-engine.ts');
     const fn = engine.slice(engine.indexOf('async function reconcileCompletedBatches'));
     expect(fn).toContain('filter((s) => !s.cancelled)');

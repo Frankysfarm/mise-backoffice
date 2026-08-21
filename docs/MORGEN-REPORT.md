@@ -1,89 +1,133 @@
-# Mise Gastro / Lieferzentrale — Release-Bericht
+# Mise Gastro — System- und Release-Bericht
 
 Stand: 21.08.2026
 Branch: `delivery-hardening-20260811`
 
 ## Ergebnis
 
-Der lokale Release-Stand ist buildbar, browserstartfähig und gegen die im Audit
-bestätigten Mandantentrennungsfehler gehärtet. Ein Deployment wurde bewusst noch
-nicht ausgelöst. „Live fertig“ ist der Stand erst nach einem authentifizierten,
-markierten Testauftrag durch Bestellung, Küche, Dispatch, Fahrer und Zustellung
-sowie dem anschließenden Smoke-Test in der Zielumgebung.
+Der lokale Mise-Gastro-Stand ist als zusammenhängender Release Candidate für
+Lieferzentrale, Fahrer, Team/Schichten, POS und Lager fertiggestellt. Die
+kritischen Abläufe sind nicht nur statisch geprüft, sondern besitzen ausführbare
+Verhaltens-, Handler- und Browsertests.
 
-## Verifizierte Qualitäts-Gates
+Es wurde bewusst nichts gepusht oder deployed. Produktiv freigegeben ist der
+Stand erst, wenn die neuen SQL-Migrationen in der Ziel-Datenbank angewendet, die
+benötigten Secrets konfiguriert und der markierte Echtfluss in der Zielumgebung
+erfolgreich beendet wurde.
 
-- Node 22 und pnpm 10 als festgelegte Toolchain
-- 16 Vitest-Dateien, 137 Tests bestanden
-- Delivery-Typecheck ohne Fehler
-- vollständiger Next.js-Produktions-Build, 212/212 Seiten erzeugt
-- 8/8 Playwright-Smoke-Tests auf Desktop und Mobile bestanden
-- `git diff --check` ohne Whitespace-Fehler
-- Lint ohne Fehler; ältere nicht-blockierende Warnungen bleiben sichtbar
+## Module
 
-## Behobene Release-Defekte
+### Lieferzentrale und Admin
 
-### Lieferfluss
+- Delivery-Admin-Routen prüfen aktive Managerrolle, Mandant und Standort.
+- Interaktiver Smart-Dispatch ist standortgebunden; globale Cron-Ausführung
+  bleibt nur mit internem Token möglich.
+- Statuswechsel, Abbruch, Wiederholung und konkurrierende Aktionen liefern
+  kontrollierte Ergebnisse statt unzulässiger Sprünge.
+- Alte `driver_id`-APIs sind entfernt und antworten explizit mit HTTP 410.
+- Delivery-Fenster sowie Bestellstatus verwenden Capability-Tokens.
 
-- Öffentlicher Fahrer-Klingelton wird nicht mehr zum Login umgeleitet.
-- Der Admin-Lieferstatus ist jetzt eine serverseitige Zustandsmaschine:
-  `neu → bestätigt → in_zubereitung → fertig → unterwegs → geliefert`.
-- Abholung und Stornierung besitzen getrennte erlaubte Übergänge.
-- Ungültige Sprünge und konkurrierende Statusänderungen liefern HTTP 409.
-- Erneutes Annehmen oder wiederholte Zustellaktionen sind idempotent bzw.
-  werden kontrolliert abgewiesen.
+### Fahrer-App und Dispatch-Algorithmus
 
-### Mandanten- und Standorttrennung
+- Fahreridentität wird aus der echten Session abgeleitet; Order- und
+  Batch-Mutationen prüfen Besitz und Zuordnung.
+- Abholung und Zustellung laufen über atomare Datenbankfunktionen.
+- QR-Taschenübergabe, Zustellnachweis, Bargeldabschluss und Batch-Abschluss
+  werden gemeinsam geprüft.
+- Fahrerbewertung berücksichtigt Entfernung, Fahrzeug, Bestellgröße,
+  Schicht/GPS-Aktualität, Radius, Kapazität, Auslastung und Tageszeit.
+- Ein Claim-Rennen fällt kontrolliert auf den nächsten geeigneten Fahrer zurück.
+- Fahrer ohne Kapazität, außerhalb des Radius oder ohne aktuelle Bereitschaft
+  werden nicht zugewiesen.
 
-Standortbezogene Service-Role-Abfragen prüfen nun aktive Admin-Rolle, Mandant
-und Standort, bevor Daten gelesen oder verändert werden. Gehärtet wurden unter
-anderem:
+### Team- und Schicht-App
 
-- Alerts und Alert-Regeln
-- Broadcasts und Benachrichtigungskonfiguration
-- Fahrerlisten, Fahreränderungen und GPS-Spuren
-- Health-Details, Push-Statistik und Performance
-- Forecast, Heatmap, Events, SLA und Trends
-- Reports und CSV-Exporte
-- Webhooks einschließlich Testversand
-- Gebühren, Auszahlungen und Abrechnungsperioden
-- Kundenzufriedenheit
-- Vorbestellungen und fehlgeschlagene Zustellversuche
+- Geschütztes Mitarbeiterportal mit nächster Schicht, Wochenstunden,
+  anstehenden Schichten, Rolle und Standort.
+- Berliner Kalenderwochen und Sommer-/Winterzeit werden deterministisch
+  berechnet.
+- Mitarbeiter sehen zugewiesene Inventuren und können Blindzählungen mobil mit
+  großen Touch-Zielen erledigen.
+- Team- und Fahrerzugang verwenden eine gemeinsame grün/dunkle Betriebssprache;
+  Desktop- und Mobilansichten wurden visuell geprüft.
 
-Globale Admin-Aktionen wie `release_all` und `release_retries` sind für
-interaktive Admin-Aufrufe jetzt auf den autorisierten Standort begrenzt. Die
-öffentliche Health-Antwort enthält nur noch DB-Erreichbarkeit; Betriebszahlen
-erfordern einen autorisierten Standortzugriff.
+### Lager und Inventar
 
-## Tests mit echter Handler-Ausführung
+- Mandanten- und Standort-RLS für Lieferanten, Artikel, Lagerorte, Wareneingang,
+  Ausschuss, Bewegungen, Bestellungen, Inventuren und Zählungen.
+- Wareneingang und Inventurabschluss sind atomare Datenbankvorgänge.
+- Blindzählung verlangt genau eine Zählung je aktivem Artikel und erzeugt
+  nachvollziehbare Bestandsbewegungen.
+- Bestellungen an Lieferanten werden lokal, mandantengebunden, idempotent und
+  erst nach erfolgreichem E-Mail-Versand als bestellt markiert.
 
-Zusätzlich zu den bestehenden Vertragsprüfungen rufen Security-Tests die
-betroffenen Route-Handler mit fremden Standort-IDs auf. Sie belegen, dass vor
-Service-Role-Zugriffen HTTP 403 zurückgegeben und weder Alerts, Webhooks,
-Reports noch globale Freigaben ausgeführt werden. Eine reine Logikprüfung führt
-den vollständigen erlaubten Bestellstatuspfad aus und prüft verbotene Sprünge.
+### POS und öffentliche Bestellwege
 
-## Wiederherstellung und Arbeitsbaum
+- POS-Zugriff besitzt keine Pilot-Mandanten-Fallbacks mehr.
+- Der QR-Tischweg läuft lokal, validiert QR-Capability, Tisch, Standort,
+  verfügbare Artikel, Mengen und Optionspreise serverseitig.
+- Der unsichere clientpreisbasierte Cash-Endpunkt ist stillgelegt.
+- Eine nie ausgeführte Online-Zahlung wird nicht mehr als bezahlt angezeigt;
+  Tischbestellungen bleiben bis zur Kassenbestätigung ausstehend.
+- ElevenLabs-Webhooks sind mit HMAC-Signatur und Fünf-Minuten-Replay-Schutz
+  fail-closed abgesichert.
 
-Vor der Härtungsrunde wurden Git-Historie und aktueller Quellstand gesichert:
+## Qualitäts-Gates
 
-- `/Users/eule/mise-recovery/mise-delivery-hardening-release-pre-finish-20260821.bundle`
-- `/Users/eule/mise-recovery/mise-delivery-hardening-release-pre-finish-20260821.tgz`
+Der reproduzierbare Gesamtbefehl lautet:
 
-Lokale Debug-/Adminskripte und alte Fahrer-Backups wurden aus dem Release-Ordner
-nach `/Users/eule/mise-recovery/local-debug-scripts-20260821/` verschoben. Sie
-sind nicht Teil des Releases und bleiben mit restriktiven Dateirechten
-wiederherstellbar.
+```bash
+pnpm release:gate
+```
 
-## Noch erforderliche Live-Gates
+Verifiziert werden:
 
-1. Authentifizierten Testauftrag mit Testkennzeichnung vollständig durchspielen.
-2. Testdaten ausschließlich soft stornieren/archivieren; keine Produktionsdaten
-   hart löschen.
-3. Release-Änderungen in einem nachvollziehbaren Commit sichern.
-4. Über den vorgesehenen Zero-Downtime-Prozess deployen.
-5. Nach Deployment Login, Health, Küche, Dispatch, Fahrer-App und Tracking erneut
-   gegen die Zielumgebung prüfen.
+- 190/190 Vitest-Unit-, Security-, SQL-Vertrags- und Verhaltenstests,
+- Delivery-Typecheck,
+- vollständiger Next.js-Produktions-Build mit 214/214 Seiten,
+- 24/24 Playwright-Smoke-Tests in Desktop Chrome und mobilem Chromium,
+- `git diff --check`.
 
-Ohne diese fünf Schritte lautet das ehrliche Verdikt: **lokal releasefähig, aber
-noch nicht produktiv freigegeben**.
+Der Build enthält weiterhin ältere nicht-blockierende ESLint-Warnungen. Sie
+verhindern weder Typecheck noch Produktions-Build; der Bericht behauptet daher
+bewusst keinen warnungsfreien Gesamt-Lint.
+
+## Neue Datenbankmigrationen
+
+In dieser Reihenfolge anwenden:
+
+1. `scripts/migrations/072_atomic_driver_delivery_flow.sql`
+2. `scripts/migrations/073_inventory_tenant_integrity.sql`
+
+Vorher Datenbank-Snapshot erstellen, danach Funktionsrechte und RLS-Policies in
+der Zielumgebung prüfen.
+
+## Konfiguration vor Produktivfreigabe
+
+- `ELEVENLABS_WEBHOOK_SECRET` setzen und den identischen Secret-Wert im
+  ElevenLabs-Webhook hinterlegen.
+- Resend-Absender pro Mandant verifizieren, wenn Lieferantenbestellungen per
+  E-Mail verschickt werden sollen.
+- Stripe/SumUp, Push und interne Cron-Tokens in der Zielumgebung kontrollieren.
+- Vier klar markierte Testzugänge bereithalten: Manager, Küche/POS, Fahrer,
+  Mitarbeiter.
+
+## Letztes Live-Gate
+
+1. Migrationen anwenden.
+2. Markierte Testbestellung auslösen.
+3. Bestellung durch Küche und Lieferzentrale führen.
+4. Fahrerzuweisung, Annahme, Abholung, QR-Handoff, GPS und Zustellung prüfen.
+5. Mitarbeiter-Schicht und zugewiesene Blindinventur prüfen.
+6. Lieferanten-Testbestellung an eine kontrollierte Empfängeradresse senden.
+7. Testdaten soft stornieren/archivieren.
+8. Erst danach deployen und dieselben Smoke-Checks erneut ausführen.
+
+## Wiederherstellung
+
+Vor Beginn existieren Recovery-Sicherungen unter `/Users/eule/mise-recovery/`.
+Die entfernte alte Fahrer-Login-Sicherung liegt unter
+`/Users/eule/mise-recovery/legacy-source-20260821/`.
+
+Verdikt: **lokal releasefähig; Produktivfreigabe wartet auf Migrationen,
+Ziel-Secrets und den authentifizierten Echtfluss.**

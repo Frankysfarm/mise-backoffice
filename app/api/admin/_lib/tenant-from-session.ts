@@ -23,8 +23,9 @@ export async function getAdminContext(): Promise<AdminContext | NextResponse> {
 
   const { data: emp } = await sb
     .from('employees')
-    .select('id,tenant_id,rolle')
+    .select('id,tenant_id,rolle,status')
     .eq('auth_user_id', user.id)
+    .in('status', ['aktiv', 'in_training', 'in_probe'])
     .maybeSingle();
 
   if (!emp || !emp.tenant_id) {
@@ -32,6 +33,9 @@ export async function getAdminContext(): Promise<AdminContext | NextResponse> {
       { error: 'Kein Tenant-Zugriff für diesen User' },
       { status: 403 },
     );
+  }
+  if (!['manager', 'backoffice', 'admin'].includes(emp.rolle ?? '')) {
+    return NextResponse.json({ error: 'Manager-Zugriff erforderlich' }, { status: 403 });
   }
 
   return {

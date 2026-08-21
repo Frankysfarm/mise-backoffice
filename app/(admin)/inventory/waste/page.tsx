@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { PageHeader } from '@/components/layout/page-header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty';
@@ -26,7 +26,7 @@ export default async function WastePage() {
     supabase.from('inventory_waste')
       .select('*,item:inventory_items(name,einheit),employee:employees!inventory_waste_erfasst_von_fkey(vorname,nachname)')
       .order('created_at', { ascending: false }).limit(200),
-    supabase.from('inventory_items').select('id,name,einheit,preis_pro_einheit').eq('aktiv', true).order('name'),
+    supabase.from('inventory_items').select('id,name,einheit,preis_pro_einheit,area:inventory_areas(location_id)').eq('aktiv', true).order('name'),
   ]);
 
   const total = (waste ?? []).reduce((s, w: any) => s + Number(w.wert_euro ?? 0), 0);

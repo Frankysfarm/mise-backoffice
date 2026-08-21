@@ -203,7 +203,7 @@ export function isRouteActive(href: string, activeModules: Set<string>): boolean
   if (ALWAYS_OPEN_EXACT.has(href)) return true;
   if (ALWAYS_OPEN_PREFIXES.some((p) => href === p || href.startsWith(p + '/'))) return true;
 
-  const moduleId = ROUTE_MODULE_MAP[href];
+  const moduleId = matchRouteToModule(href);
   if (!moduleId) return true; // unmapped → sichtbar (Fallback)
   return activeModules.has(moduleId);
 }

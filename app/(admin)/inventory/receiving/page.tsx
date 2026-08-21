@@ -10,16 +10,17 @@ import { ReceivingForm } from './form';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function ReceivingPage() {
-  await requireManagerPlus();
+  const employee = await requireManagerPlus();
   const basePath = await operationsBasePath('/inventory', '/neo/app/lager');
   const supabase = await createClient();
-  const [{ data: receiving }, { data: pendingOrders }, { data: suppliers }] = await Promise.all([
+  const [{ data: receiving }, { data: pendingOrders }, { data: suppliers }, { data: locations }] = await Promise.all([
     supabase.from('inventory_receiving')
       .select('*,supplier:suppliers(name),employee:employees!inventory_receiving_empfangen_von_fkey(vorname,nachname)')
       .order('created_at', { ascending: false }).limit(30),
-    supabase.from('order_lists').select('id,lieferant,supplier_id,gesamtbetrag,positionen,bestellt_am')
+    supabase.from('order_lists').select('id,lieferant,supplier_id,location_id,gesamtbetrag,positionen,bestellt_am')
       .in('status', ['bestellt']).order('bestellt_am', { ascending: false }),
     supabase.from('suppliers').select('id,name').eq('aktiv', true).order('name'),
+    supabase.from('locations').select('id,name').eq('aktiv', true).order('name'),
   ]);
 
   return (
@@ -27,7 +28,12 @@ export default async function ReceivingPage() {
       <PageHeader backHref={basePath} title="Wareneingang"
         description="Lieferung prüfen: Was ist da, was fehlt, wo kommt es hin?" />
 
-      <ReceivingForm pendingOrders={(pendingOrders ?? []) as any[]} suppliers={suppliers ?? []} />
+      <ReceivingForm
+        pendingOrders={(pendingOrders ?? []) as any[]}
+        suppliers={suppliers ?? []}
+        locations={locations ?? []}
+        defaultLocationId={employee.location_id}
+      />
 
       {(receiving ?? []).length === 0 ? (
         <EmptyState title="Noch kein Wareneingang erfasst" />

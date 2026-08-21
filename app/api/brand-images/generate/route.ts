@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { requireManagerPlus } from '@/lib/auth/requireRole';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,6 +14,10 @@ export const maxDuration = 300; // 5 Min für mehrere DALL-E-Calls
  * updated tenant.storefront_settings.brand_page.gallery (+ hero.image_url).
  */
 export async function POST(req: NextRequest) {
+  const employee = await requireManagerPlus();
+  if (!employee.tenant_id) {
+    return NextResponse.json({ error: 'Mitarbeiterkonto ist keinem Mandanten zugeordnet' }, { status: 403 });
+  }
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: 'OPENAI_API_KEY nicht konfiguriert. Setze ihn in /opt/mise/.env' }, { status: 503 });
@@ -23,6 +28,9 @@ export async function POST(req: NextRequest) {
   const count = Math.min(Math.max(body?.count ?? 8, 1), 8);
   const type = body?.type ?? 'both';
   if (!tenant_id) return NextResponse.json({ error: 'tenant_id required' }, { status: 400 });
+  if (tenant_id !== employee.tenant_id) {
+    return NextResponse.json({ error: 'Keine Berechtigung für diesen Mandanten' }, { status: 403 });
+  }
 
   const svc = createServiceClient();
 

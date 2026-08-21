@@ -21,7 +21,6 @@ export default async function InventoryDashboard() {
   const [
     { count: totalItems },
     { count: activeItems },
-    { data: belowPar },
     { data: recentWaste },
     { count: pendingOrders },
     { data: reorderSuggestions },
@@ -29,7 +28,6 @@ export default async function InventoryDashboard() {
   ] = await Promise.all([
     supabase.from('inventory_items').select('id', { count: 'exact', head: true }),
     supabase.from('inventory_items').select('id', { count: 'exact', head: true }).eq('aktiv', true),
-    supabase.rpc('generate_reorder_list' as any).select('*') as any,
     supabase.from('inventory_waste').select('wert_euro,created_at').gte('created_at', new Date(Date.now() - 30 * 86_400_000).toISOString()).order('created_at', { ascending: false }),
     supabase.from('order_lists').select('id', { count: 'exact', head: true }).in('status', ['entwurf', 'bestellt']),
     supabase.rpc('generate_reorder_list' as any).select('*') as any,

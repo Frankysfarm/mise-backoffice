@@ -13,6 +13,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, '.'),
+      // Next.js treats this marker module specially. Vitest still needs a
+      // resolvable no-op module when server helpers are tested in isolation.
+      'server-only': path.resolve(import.meta.dirname, 'tests/stubs/server-only.ts'),
     },
   },
 });
