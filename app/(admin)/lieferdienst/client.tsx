@@ -36,6 +36,7 @@ import {
 import { Button } from '@/components/ui/button'
 
 const ENABLE_KDS_MOCKS = process.env.NEXT_PUBLIC_ENABLE_KDS_MOCKS === 'true'
+const HYDRATION_INSTANT = new Date('2000-01-01T00:00:00.000Z')
 
 export function LieferdienstClient({
   tenantId,
@@ -51,7 +52,7 @@ export function LieferdienstClient({
   // Core State
   const [orders, setOrders] = useState<Order[]>([])
   const [completedOrders, setCompletedOrders] = useState<Order[]>([])
-  const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentTime, setCurrentTime] = useState(HYDRATION_INSTANT)
   const [filter, setFilter] = useState<'all' | 'accepted' | 'waiting'>('all')
   const [soundEnabled, setSoundEnabled] = useState(true)
   const [incomingOrder, setIncomingOrder] = useState<Order | null>(null)
@@ -149,6 +150,9 @@ export function LieferdienstClient({
 
   // Clock
   useEffect(() => {
+    const mountedAt = new Date()
+    setCurrentTime(mountedAt)
+    setSchichtStart(mountedAt)
     const interval = setInterval(() => {
       setCurrentTime(new Date())
     }, 1000)
@@ -156,8 +160,10 @@ export function LieferdienstClient({
   }, [])
 
   // Schichtstart: merke ersten Mount
-  const schichtStart = useState<Date>(() => new Date())[0]
-  const schichtMinutes = Math.floor((currentTime.getTime() - schichtStart.getTime()) / 60_000)
+  const [schichtStart, setSchichtStart] = useState<Date | null>(null)
+  const schichtMinutes = schichtStart
+    ? Math.floor((currentTime.getTime() - schichtStart.getTime()) / 60_000)
+    : 0
   const schichtHours = Math.floor(schichtMinutes / 60)
   const schichtRestMin = schichtMinutes % 60
 
@@ -579,7 +585,9 @@ export function LieferdienstClient({
               <div className="flex items-center gap-2 bg-stone-100 px-4 py-2.5 rounded-xl border border-stone-200">
                 <Clock className="w-4 h-4 text-stone-500" />
                 <span className="font-mono text-lg font-semibold text-char tracking-tight">
-                  {currentTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                  {currentTime.toLocaleTimeString('de-DE', {
+                    hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin',
+                  })}
                 </span>
                 {schichtMinutes > 0 && (
                   <span className="text-xs text-stone-400 font-medium border-l border-stone-300 pl-2">

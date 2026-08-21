@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 const root = process.cwd();
 const migration = fs.readFileSync(path.join(root, 'scripts/migrations/073_inventory_tenant_integrity.sql'), 'utf8');
+const singleMovementMigration = fs.readFileSync(path.join(root, 'scripts/migrations/074_inventory_count_single_movement.sql'), 'utf8');
 const employeePage = fs.readFileSync(path.join(root, 'app/mitarbeiter/page.tsx'), 'utf8');
 const counter = fs.readFileSync(path.join(root, 'app/mitarbeiter/inventur/[id]/counter.tsx'), 'utf8');
 const sendRoute = fs.readFileSync(path.join(root, 'app/api/inventory/orders/[id]/send/route.ts'), 'utf8');
@@ -21,12 +22,14 @@ describe('inventory tenant and workflow contract', () => {
   });
 
   it('completes assigned blind counts atomically and records an audit movement', () => {
-    expect(migration).toContain('function public.complete_inventory_session');
-    expect(migration).toContain('for update;');
-    expect(migration).toContain('every active inventory item must be counted exactly once');
-    expect(migration).toContain("'inventory_session',v_session.id");
-    expect(migration).toContain('update public.inventory_items set letzte_inventur=v_count');
-    expect(migration).toContain('set abgeschlossen_am=now()');
+    expect(singleMovementMigration).toContain('function public.complete_inventory_session');
+    expect(singleMovementMigration).toContain('for update;');
+    expect(singleMovementMigration).toContain('every active inventory item must be counted exactly once');
+    expect(singleMovementMigration).toContain("tgname='trg_inventory_count_movement'");
+    expect(singleMovementMigration).toContain('insert into public.inventory_counts');
+    expect(singleMovementMigration).not.toContain('insert into public.stock_movements');
+    expect(singleMovementMigration).not.toContain('update public.inventory_items set letzte_inventur');
+    expect(singleMovementMigration).toContain('set abgeschlossen_am=now()');
   });
 
   it('shows only the signed-in employee’s open tasks and submits one atomic RPC', () => {
