@@ -1,0 +1,571 @@
+'use client';
+
+import dynamic from 'next/dynamic';
+import QRCode from 'qrcode';
+
+import { useEffect, useRef, useState } from 'react';
+import {
+  Truck, ShoppingBag, MapPin, BellRing, Printer, Maximize, Volume2, VolumeX,
+  Undo2, X, UtensilsCrossed, RotateCcw, AlertTriangle, Settings2, Play, Check, Bike, Map as MapIcon,
+} from 'lucide-react';
+import { getKitchenData, acceptOrder, markFertig, recallOrder, toggleItem, stornoOrder, markItemMissing, setDeliveryBagCount, setPrintMethod as savePrintMethod, testPrint } from './actions';
+
+const MapView = dynamic(() => import('./map-view'), { ssr: false });
+
+const C = {
+  appBg: '#0B0F0D', headerBg: '#121815', laneBg: '#0E1311', card: '#18211C', cardHover: '#1F2A24',
+  border: '#26332C', borderStrong: '#2E3D35', t1: '#F4F8F5', t2: '#9DB0A5', t3: '#778A7F', link: '#5AB0FF',
+  neu: '#FFB020', neuTint: '#3A2D0E', zub: '#12B85C', zubTint: '#0E2E1C', fertig: '#22C9C0', fertigTint: '#0C2E2C',
+  warn: '#FF4D4F', warnTint: '#3A1517', warnSoft: '#FF8A3D', gold: '#F0BC44', goldTint: '#2E2410', btnHover: '#15CF66',
+};
+const SOUNDS: Record<string, { label: string; play: (ctx: AudioContext) => void }> = {
+  sirene: { label: 'Sirene', play: (ctx) => { const t = ctx.currentTime; const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sawtooth'; o.connect(g); g.connect(ctx.destination); o.frequency.setValueAtTime(560, t); o.frequency.linearRampToValueAtTime(1180, t + 0.22); o.frequency.linearRampToValueAtTime(560, t + 0.44); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.7, t + 0.02); g.gain.setValueAtTime(0.7, t + 0.42); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5); o.start(t); o.stop(t + 0.5); } },
+  glocke: { label: 'Glocke', play: (ctx) => { const t = ctx.currentTime; ([[988, 0], [784, 0.2]] as [number, number][]).forEach(([fr, d]) => { const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sine'; o.frequency.value = fr; o.connect(g); g.connect(ctx.destination); const ss = t + d; g.gain.setValueAtTime(0.0001, ss); g.gain.exponentialRampToValueAtTime(0.6, ss + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, ss + 0.5); o.start(ss); o.stop(ss + 0.5); }); } },
+  piep: { label: 'Piepser', play: (ctx) => { const t = ctx.currentTime; [0, 0.16, 0.32].forEach((d) => { const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'square'; o.frequency.value = 1046; o.connect(g); g.connect(ctx.destination); const ss = t + d; g.gain.setValueAtTime(0.0001, ss); g.gain.exponentialRampToValueAtTime(0.5, ss + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, ss + 0.11); o.start(ss); o.stop(ss + 0.12); }); } },
+  gong: { label: 'Gong', play: (ctx) => { const t = ctx.currentTime; const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sine'; o.frequency.value = 330; o.connect(g); g.connect(ctx.destination); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.7, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.1); o.start(t); o.stop(t + 1.15); } },
+  alarm: { label: 'Alarm (hektisch)', play: (ctx) => { const t = ctx.currentTime; [0, 0.12, 0.24, 0.36].forEach((d) => { const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'square'; o.frequency.value = 1320; o.connect(g); g.connect(ctx.destination); const ss = t + d; g.gain.setValueAtTime(0.0001, ss); g.gain.exponentialRampToValueAtTime(0.55, ss + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, ss + 0.08); o.start(ss); o.stop(ss + 0.09); }); } },
+};
+
+const PREP = [15, 20, 25, 30, 45];
+const DEFAULT_PREP = 20;
+
+type Item = { id: string; name: string; menge: number; notiz: string | null; pick_missing?: boolean | null };
+type Order = {
+  id: string; bestellnummer: string | null; status: string; kunde_name: string | null;
+  kunde_telefon: string | null; kunde_adresse: string | null; typ: string | null; gesamtbetrag: number | null;
+  fertig_am: string | null; created_at: string; mise_driver_id: string | null; mise_batch_id: string | null;
+  delivery_bag_count: number; pickup_qr_payloads: Array<{ bagIndex: number; payload: string; fallbackCode: string }>;
+  items: Item[];
+};
+type MenuItem = { id: string; name: string; verfuegbar: boolean };
+type Driver = { id: string; name: string; lat: number | null; lng: number | null; state: string; undelivered: number; busy: boolean; returning: boolean; stale?: boolean };
+type StuckDelivery = { id: string; bestellnummer: string | null; kunde_name: string | null; kunde_telefon: string | null; waitingMin: number; noDriverOnline: boolean };
+
+function typeCfg(typ: string | null) {
+  if (typ === 'lieferung') return { label: 'Lieferung', Icon: Truck, color: C.link, tint: '#14233A' };
+  if (typ === 'abholung') return { label: 'Abholung', Icon: ShoppingBag, color: C.gold, tint: C.goldTint };
+  return { label: 'Vor Ort', Icon: MapPin, color: C.zub, tint: C.zubTint };
+}
+const fmt = (sec: number) => { const a = Math.abs(sec); return `${Math.floor(a / 60)}:${String(a % 60).padStart(2, '0')}`; };
+
+export default function KitchenMonitor({
+  token, shopName, initialOrders, initialItems, logoUrl, brandColor, shopLat, shopLng,
+}: {
+  token: string; shopName: string; initialOrders: Order[]; initialItems: MenuItem[]; logoUrl: string | null; brandColor: string | null;
+  shopLat: number | null; shopLng: number | null;
+}) {
+  const brand = brandColor || C.zub;
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [items, setItems] = useState<MenuItem[]>(initialItems);
+  const [soldOutOpen, setSoldOutOpen] = useState(false);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [stornoConfirm, setStornoConfirm] = useState<string | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+  const [activated, setActivated] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [autoPrint, setAutoPrint] = useState(true);
+  const [printMethod, setPrintMethodState] = useState<string>('off');
+  const [soundType, setSoundType] = useState<string>(() => { try { return localStorage.getItem('kuche_sound') || 'sirene'; } catch { return 'sirene'; } });
+  const [soundOpen, setSoundOpen] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
+  function chooseMethod(m: string) { setPrintMethodState(m); savePrintMethod(token, m); }
+  function chooseSound(k: string) { setSoundType(k); try { localStorage.setItem('kuche_sound', k); } catch { /* noop */ } if (audioCtxRef.current) { try { audioCtxRef.current.resume(); } catch { /* noop */ } SOUNDS[k]?.play(audioCtxRef.current); } }
+  const [toast, setToast] = useState<{ text: string; undo: () => void } | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const pendingMissing = useRef<Set<string>>(new Set());
+  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const returnedRef = useRef<Set<string>>(new Set());
+  const [returnBanner, setReturnBanner] = useState<string | null>(null);
+  const [stuck, setStuck] = useState<StuckDelivery[]>([]);
+
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+
+  useEffect(() => {
+    let alive = true;
+    async function poll() {
+      const r = await getKitchenData(token);
+      if (!alive || 'error' in r) return;
+      const fresh = r.orders as Order[];
+      // lokale pending "fehlt"-Edits bewahren (Polling ueberschreibt sonst)
+      for (const o of fresh) for (const it of (o.items ?? [])) if (pendingMissing.current.has(it.id)) it.pick_missing = true;
+      setOrders(fresh); setItems(r.items as MenuItem[]); setDrivers(((r as any).drivers ?? []) as Driver[]); setPrintMethodState(((r as any).printMethod as string) ?? 'off'); setStuck(((r as any).stuckDeliveries ?? []) as StuckDelivery[]);
+    }
+    const iv = setInterval(poll, 4000);
+    return () => { alive = false; clearInterval(iv); };
+  }, [token]);
+
+  const neu = orders.filter((o) => o.status === 'neu' || o.status === 'bestätigt')
+    .sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
+  const kochen = orders.filter((o) => o.status === 'in_zubereitung')
+    .sort((a, b) => (a.fertig_am ? +new Date(a.fertig_am) : Infinity) - (b.fertig_am ? +new Date(b.fertig_am) : Infinity));
+  const fertig = orders.filter((o) => o.status === 'fertig');
+  const soldOutCount = items.filter((i) => !i.verfuegbar).length;
+  const ringing = neu.length > 0 ? neu[0] : null;
+  // Koch-Slot: darf gekocht werden, wenn ein Fahrer frei (idle) oder auf dem Rueckweg (letzter Stopp) ist.
+  // Kein Fahrer getrackt -> nicht blocken (Abholung/Vor-Ort brauchen eh keinen Fahrer).
+  const canCook = drivers.length === 0 || drivers.some((d) => (!d.busy || d.returning) && !d.stale);
+  const ringingHold = !!ringing && ringing.typ === 'lieferung' && !canCook;
+  const MAX_WAIT_MS = 10 * 60 * 1000; // Notfall: nach 10 Min trotzdem kochen (kein Kunde wartet ewig)
+  const isStale = (od: Order) => now - new Date(od.created_at).getTime() > MAX_WAIT_MS;
+  const heldOrders = neu.filter((od) => od.typ === 'lieferung' && !canCook && !isStale(od));
+  const readyNeu = neu.filter((od) => !(od.typ === 'lieferung' && !canCook && !isStale(od)));
+  // P2: nur so viele Lieferungen 'jetzt kochen' wie freie Fahrer-Kapazitaet (Soft-Limit, uebersteuerbar)
+  const CAP_BASE_C = 4;
+  const freeSlots = canCook ? Math.max(1, drivers.filter((d) => (!d.busy || d.returning) && !d.stale).reduce((sum, d) => sum + Math.max(0, CAP_BASE_C - d.undelivered), 0)) : 0;
+  const overCapacityIds = new Set<string>(canCook ? readyNeu.filter((od) => od.typ === 'lieferung').slice(freeSlots).map((od) => od.id) : []);
+
+  // All-Day-Counts (aggregiert ueber alle aktiven Orders)
+  const allDay = (() => {
+    const m = new Map<string, number>();
+    for (const o of orders) for (const it of (o.items ?? [])) m.set(it.name, (m.get(it.name) ?? 0) + it.menge);
+    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+  })();
+
+  // Alarm (mutebar): heult solange neue Order wartet
+  useEffect(() => {
+    if ((!ringing && stuck.length === 0) || !activated || muted) return;
+    let stopped = false; const ctx = audioCtxRef.current; if (!ctx) return;
+    try { ctx.resume(); } catch { /* noop */ }
+    const play = () => { if (!stopped && ctx) (SOUNDS[soundType] ?? SOUNDS.sirene).play(ctx); };
+    play(); const iv = setInterval(play, 950);
+    return () => { stopped = true; clearInterval(iv); };
+  }, [ringing?.id, stuck.length, activated, muted, soundType]);
+
+  // "Fahrer auf Rueckweg"-Erkennung -> Banner + Gong (einmal pro Fahrer)
+  useEffect(() => {
+    for (const d of drivers) {
+      if (d.returning && !returnedRef.current.has(d.id)) {
+        returnedRef.current.add(d.id);
+        setReturnBanner(d.name);
+        if (!muted && audioCtxRef.current) { try { audioCtxRef.current.resume(); SOUNDS.gong.play(audioCtxRef.current); } catch { /* noop */ } }
+        const nm = d.name; setTimeout(() => setReturnBanner((b) => (b === nm ? null : b)), 12000);
+      }
+      if (!d.returning) returnedRef.current.delete(d.id);
+    }
+  }, [drivers, muted]);
+
+  async function refresh() { const r = await getKitchenData(token); if (!('error' in r)) { setOrders(r.orders as Order[]); setItems(r.items as MenuItem[]); } }
+  function showToast(text: string, undo: () => void) { setToast({ text, undo }); setTimeout(() => setToast((t) => (t && t.text === text ? null : t)), 5000); }
+
+  async function onAccept(orderId: string, prepMin: number) {
+    setBusy(orderId); setAcceptingId(null);
+    const ord = orders.find((o) => o.id === orderId);
+    await acceptOrder(token, orderId, prepMin);
+    // Auto-Druck läuft NUR über einen echten Drucker (cloudprnt) — serverseitig in acceptOrder, ganz ohne Browser-Dialog.
+    // Beim Annehmen wird KEIN Browser-Druckfenster mehr geöffnet. Bon manuell über das Drucker-Symbol auf der Karte druckbar.
+    await refresh(); setBusy(null);
+  }
+  async function onFertig(orderId: string) {
+    setBusy(orderId); await markFertig(token, orderId); await refresh(); setBusy(null);
+    showToast('Als fertig markiert', async () => { await recallOrder(token, orderId); refresh(); });
+  }
+  async function onRecall(orderId: string) { setBusy(orderId); await recallOrder(token, orderId); await refresh(); setBusy(null); }
+  async function onStorno(orderId: string) { setBusy(orderId); setStornoConfirm(null); await stornoOrder(token, orderId); await refresh(); setBusy(null); }
+  async function onItemMissing(itemId: string, missing: boolean) {
+    if (missing) pendingMissing.current.add(itemId); else pendingMissing.current.delete(itemId);
+    setOrders((os) => os.map((o) => ({ ...o, items: (o.items ?? []).map((it) => it.id === itemId ? { ...it, pick_missing: missing } : it) })));
+    await markItemMissing(token, itemId, missing);
+    if (missing) showToast('Gericht als fehlt markiert', () => onItemMissing(itemId, false));
+  }
+  async function onBagCount(orderId: string, count: number) {
+    setBusy(orderId);
+    const result = await setDeliveryBagCount(token, orderId, count);
+    if ('error' in result) showToast(result.error ?? 'Beutelanzahl konnte nicht gespeichert werden', () => {});
+    await refresh();
+    setBusy(null);
+  }
+  async function onToggle(it: MenuItem) { await toggleItem(token, it.id, !it.verfuegbar); setItems((xs) => xs.map((x) => x.id === it.id ? { ...x, verfuegbar: !x.verfuegbar } : x)); }
+
+  async function buildBon(o: Order, prepMin?: number): Promise<string> {
+    const esc = (s: string) => (s || '').replace(/[<>&]/g, (m) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' } as any)[m]);
+    const lines = (o.items ?? []).map((it) => `<div class="it"><b>${it.menge}×</b> ${esc(it.name)}${it.pick_missing ? ' <b>(FEHLT)</b>' : ''}${it.notiz ? `<br><span class="n">  ${esc(it.notiz)}</span>` : ''}</div>`).join('');
+    const d = new Date();
+    const bags = o.typ === 'lieferung' && o.pickup_qr_payloads?.length ? o.pickup_qr_payloads : [null];
+    const qrImages = await Promise.all(bags.map((bag) => bag ? QRCode.toDataURL(bag.payload, { width: 360, margin: 1, errorCorrectionLevel: 'M' }) : Promise.resolve('')));
+    const pages = bags.map((bag, index) => `<section class="page">
+      <div class="c big">${esc(shopName)}</div><div class="c">${bag ? 'Lieferbeutel' : 'Küchen-Bon'}</div><hr>
+      <div class="b" style="font-size:16px">#${(o.bestellnummer || '').slice(-6) || '----'}</div>
+      <div>${d.toLocaleDateString('de-DE')} ${d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</div>
+      <div class="b">${typeCfg(o.typ).label.toUpperCase()}</div><hr>
+      ${o.kunde_name ? `<div class="b">${esc(o.kunde_name)}</div>` : ''}${o.kunde_telefon ? `<div>Tel: ${esc(o.kunde_telefon)}</div>` : ''}${o.typ === 'lieferung' && o.kunde_adresse ? `<div>${esc(o.kunde_adresse)}</div>` : ''}<hr>
+      ${lines}<hr>${prepMin ? `<div class="c b" style="font-size:15px">FERTIG IN ${prepMin} MIN</div>` : ''}
+      ${bag ? `<div class="c"><div class="bag">BEUTEL ${bag.bagIndex} / ${o.delivery_bag_count}</div><img class="qr" src="${qrImages[index]}" alt=""><div class="code">ERSATZCODE ${bag.fallbackCode}</div><div class="hint">Fahrer scannt bei der Übergabe</div></div>` : ''}
+      <div class="c" style="margin-top:8px">.</div></section>`).join('');
+    return `<!doctype html><html><head><meta charset="utf-8"><style>@page{size:80mm auto;margin:0}*{margin:0;padding:0;box-sizing:border-box}body{width:80mm;font-family:'Courier New',monospace;color:#000;font-size:13px;line-height:1.35}.page{width:80mm;padding:4mm 3mm;break-after:page;page-break-after:always}.page:last-child{break-after:auto;page-break-after:auto}.c{text-align:center}.b{font-weight:800}.big{font-size:17px;font-weight:800}hr{border:none;border-top:1px dashed #000;margin:6px 0}.it{margin:3px 0;font-size:14px}.n{font-style:italic;font-size:12px}.bag{margin-top:7px;font-size:20px;font-weight:900}.qr{display:block;width:48mm;height:48mm;margin:2mm auto}.code{font-size:16px;font-weight:900;letter-spacing:.08em}.hint{font-size:10px;margin-top:2px}</style></head><body>${pages}</body></html>`;
+  }
+  async function printBon(o: Order, prepMin?: number) {
+    try {
+      const f = document.createElement('iframe'); f.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0'; document.body.appendChild(f);
+      const doc = f.contentWindow!.document; doc.open(); doc.write(await buildBon(o, prepMin)); doc.close();
+      setTimeout(() => { try { f.contentWindow!.focus(); f.contentWindow!.print(); } catch { /* noop */ } setTimeout(() => { try { document.body.removeChild(f); } catch { /* noop */ } }, 1500); }, 300);
+    } catch { /* noop */ }
+  }
+  function activate() { try { const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext; audioCtxRef.current = new Ctx(); audioCtxRef.current!.resume(); } catch { /* noop */ } setActivated(true); }
+
+  if (!activated) {
+    return (
+      <div onClick={activate} style={{ minHeight: '100vh', background: `radial-gradient(120% 80% at 50% -10%, ${brand}22, ${C.appBg} 60%)`, color: C.t1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, cursor: 'pointer', fontFamily: 'system-ui, sans-serif' }}>
+        {logoUrl && !logoFailed ? <img src={logoUrl} alt={shopName} onError={() => setLogoFailed(true)} style={{ height: 80, borderRadius: 16 }} /> : <UtensilsCrossed size={72} color={brand} />}
+        <div style={{ fontSize: 30, fontWeight: 800 }}>{shopName}</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: C.t3, letterSpacing: '.12em' }}>mise · KÜCHE</div>
+        <button onClick={activate} style={{ padding: '22px 48px', borderRadius: 16, border: 'none', background: brand, color: '#fff', fontSize: 22, fontWeight: 800, cursor: 'pointer', boxShadow: `0 12px 40px -8px ${brand}88` }}>▶ Bildschirm starten</button>
+        <div style={{ fontSize: 14, color: C.t3, maxWidth: 340, textAlign: 'center' }}>Einmal tippen, damit der Klingel-Ton funktioniert. Danach läuft alles automatisch.</div>
+      </div>
+    );
+  }
+
+  const sharedCardProps = { onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onBagCount, onPrint: (ord: Order) => void printBon(ord) };
+
+  return (
+    <div style={{ minHeight: '100vh', background: C.appBg, color: C.t1, fontFamily: 'system-ui, sans-serif' }}>
+      <div style={{ height: 3, background: brand }} />
+      {/* ALARM-POPUP */}
+      {ringing && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(11,15,13,.82)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, animation: 'kvig 1.2s ease-in-out infinite' }}>
+          <style>{'@keyframes kvig{0%,100%{box-shadow:inset 0 0 160px 30px rgba(255,77,79,.18)}50%{box-shadow:inset 0 0 220px 60px rgba(255,77,79,.42)}}@keyframes kin{from{transform:scale(.92);opacity:.4}to{transform:scale(1);opacity:1}}@keyframes kpul{0%,100%{opacity:1}50%{opacity:.5}}'}</style>
+          <div style={{ width: 'min(640px, 94vw)', background: C.card, borderRadius: 24, padding: 28, boxShadow: `0 0 0 3px ${C.warn}, 0 30px 90px -10px #000`, animation: 'kin .22s cubic-bezier(.2,.8,.2,1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+              <BellRing size={34} color={C.warn} style={{ animation: 'kpul .8s ease-in-out infinite' }} />
+              <span style={{ fontSize: 32, fontWeight: 900, color: '#FF6B6D' }}>NEUE BESTELLUNG</span>
+              {neu.length > 1 && <span style={{ marginLeft: 'auto', fontSize: 15, fontWeight: 800, color: C.t2, background: C.laneBg, padding: '5px 12px', borderRadius: 999 }}>+{neu.length - 1} weitere</span>}
+              <button onClick={() => setMuted((m) => !m)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: muted ? C.warn : C.t2, marginLeft: neu.length > 1 ? 8 : 'auto' }}>{muted ? <VolumeX size={26} /> : <Volume2 size={26} />}</button>
+            </div>
+            <CardHead o={ringing} big />
+            <div style={{ margin: '14px 0', maxHeight: '36vh', overflowY: 'auto' }}>
+              {(ringing.items ?? []).map((it) => (
+                <div key={it.id} style={{ display: 'flex', gap: 10, fontSize: 22, padding: '6px 0' }}>
+                  <span style={{ fontWeight: 900, color: C.zub, minWidth: 34 }}>{it.menge}×</span>
+                  <span style={{ fontWeight: 700 }}>{it.name}{it.notiz ? <span style={{ color: C.gold, fontSize: 16 }}> · {it.notiz}</span> : null}</span>
+                </div>
+              ))}
+            </div>
+            {ringingHold && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.warnTint, color: C.warnSoft, borderRadius: 12, padding: '12px 14px', marginBottom: 10, fontSize: 15, fontWeight: 700 }}>
+                ⏸ Alle Fahrer unterwegs — du kannst mit dem Kochen warten, bis einer zurückkommt.
+              </div>
+            )}
+            {acceptingId === ringing.id ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                {PREP.map((m) => (
+                  <button key={m} onClick={() => onAccept(ringing.id, m)} disabled={!!busy} style={{ flex: '1 0 30%', padding: '20px 0', borderRadius: 14, border: 'none', background: C.zub, color: '#fff', fontWeight: 900, fontSize: 21, cursor: 'pointer' }}>{m} Min</button>
+                ))}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={() => onAccept(ringing.id, DEFAULT_PREP)} disabled={busy === ringing.id} style={{ flex: 1, padding: '24px 0', borderRadius: 16, border: 'none', background: C.zub, color: '#fff', fontWeight: 900, fontSize: 24, cursor: 'pointer' }}>✓ ANNEHMEN · {DEFAULT_PREP} Min</button>
+                <button onClick={() => setAcceptingId(ringing.id)} style={{ padding: '0 22px', borderRadius: 16, border: `1px solid ${C.borderStrong}`, background: C.laneBg, color: C.t2, fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>andere<br />Zeit</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* HEADER */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', background: C.headerBg, borderBottom: `1px solid ${C.border}`, gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+          {logoUrl && !logoFailed ? <img src={logoUrl} alt={shopName} onError={() => setLogoFailed(true)} style={{ height: 36, borderRadius: 8 }} /> : <UtensilsCrossed size={28} color={brand} />}
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 20, fontWeight: 800, whiteSpace: 'nowrap' }}>{shopName}</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.t2 }}>Küche · {orders.length} aktiv</div>
+          </div>
+        </div>
+        {/* All-Day-Counts */}
+        <div style={{ display: 'flex', gap: 8, flex: 1, overflowX: 'auto', justifyContent: 'center' }}>
+          {allDay.map(([name, n]) => (
+            <span key={name} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: C.laneBg, border: `1px solid ${C.border}`, borderRadius: 10, padding: '6px 11px', whiteSpace: 'nowrap', fontSize: 13.5 }}>
+              <b style={{ color: brand, fontSize: 16 }}>{n}×</b><span style={{ color: C.t2 }}>{name}</span>
+            </span>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <span style={{ fontFamily: 'monospace', fontSize: 20, fontWeight: 700, color: C.t1 }}>{new Date(now).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}</span>
+          <IconBtn on={() => setMuted((m) => !m)} active={!muted}>{muted ? <VolumeX size={20} /> : <Volume2 size={20} />}</IconBtn>
+          <IconBtn on={() => setSoundOpen(true)}><Settings2 size={20} /></IconBtn>
+          <IconBtn on={() => setAutoPrint((v) => !v)} active={autoPrint}><Printer size={20} /></IconBtn>
+          <button onClick={() => setSoldOutOpen(true)} style={{ minHeight: 44, padding: '11px 16px', borderRadius: 12, fontWeight: 700, fontSize: 14, border: 'none', background: soldOutCount > 0 ? C.warn : C.border, color: '#fff', cursor: 'pointer' }}>{soldOutCount > 0 ? `${soldOutCount} ausverkauft` : 'Ausverkauft'}</button>
+          <IconBtn on={() => setMapOpen(true)} active={drivers.some((d) => d.returning)}><MapIcon size={20} /></IconBtn>
+          <IconBtn on={() => { try { document.documentElement.requestFullscreen(); } catch { /* noop */ } }}><Maximize size={20} /></IconBtn>
+        </div>
+      </div>
+
+      {/* P1: Stuck-Order-Alarm */}
+      {stuck.length > 0 && (
+        <div style={{ background: C.warnTint, border: `2px solid ${C.warn}`, borderRadius: 12, padding: '14px 18px', margin: '12px 16px 0' }}>
+          <div style={{ fontSize: 18, fontWeight: 900, color: C.warn }}>⚠ {stuck.length === 1 ? 'Eine Lieferung hängt fest!' : `${stuck.length} Lieferungen hängen fest!`}</div>
+          {stuck.map((s) => (
+            <div key={s.id} style={{ marginTop: 6, color: C.t1, fontSize: 15 }}>
+              #{String(s.bestellnummer || '').slice(-6)} · seit {s.waitingMin} Min fertig · {s.noDriverOnline ? 'KEIN Fahrer online' : 'Fahrer nimmt nicht an'} — selbst fahren oder Kunde anrufen
+              {s.kunde_telefon && <a href={`tel:${s.kunde_telefon}`} style={{ color: C.link, marginLeft: 8, fontWeight: 700 }}>{s.kunde_telefon}</a>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Fahrer-auf-Rueckweg-Banner */}
+      {returnBanner && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '12px 16px 0', padding: '14px 18px', borderRadius: 14, background: C.zubTint, border: `1px solid ${C.zub}` }}>
+          <Truck size={24} color={C.zub} />
+          <span style={{ fontSize: 17, fontWeight: 800, color: C.zub }}>{returnBanner} ist auf dem Rückweg</span>
+          <span style={{ fontSize: 14, color: C.t2 }}>— nächste Bestellung vorbereiten!</span>
+          <button onClick={() => setReturnBanner(null)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: C.t2, cursor: 'pointer' }}><X size={20} /></button>
+        </div>
+      )}
+
+      {/* Fahrer-Panel (aktive Fahrer + Standort) */}
+      {drivers.length > 0 && (
+        <div style={{ display: 'flex', gap: 10, padding: '12px 16px 0', overflowX: 'auto', alignItems: 'center' }}>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: C.t3, letterSpacing: '.05em', whiteSpace: 'nowrap' }}>FAHRER</span>
+          {drivers.map((d) => {
+            const st = d.stale ? { t: 'kein GPS-Signal', c: C.warn } : d.returning ? { t: 'auf Rückweg', c: C.zub } : d.busy ? { t: `unterwegs · ${d.undelivered} offen`, c: C.warnSoft } : { t: 'frei', c: C.t2 };
+            return (
+              <div key={d.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: C.card, border: `1px solid ${d.returning ? C.zub : C.border}`, borderRadius: 12, padding: '7px 12px', whiteSpace: 'nowrap' }}>
+                <Bike size={16} color={st.c} />
+                <span style={{ fontWeight: 700, fontSize: 14 }}>{d.name}</span>
+                <span style={{ fontSize: 12.5, fontWeight: 700, color: st.c }}>{st.t}</span>
+                {d.lat != null && d.lng != null && (
+                  <a href={`https://www.google.com/maps?q=${d.lat},${d.lng}`} target="_blank" rel="noreferrer" style={{ display: 'flex', color: C.link }}><MapPin size={15} /></a>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* SPALTEN */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, padding: 16, alignItems: 'start' }}>
+        <Column title="NEU" count={neu.length} color={C.neu}>
+          {heldOrders.length > 0 && (
+            <div style={{ fontSize: 13, fontWeight: 800, color: C.warnSoft, letterSpacing: '.05em', padding: '0 4px 2px' }}>⏸ WARTET AUF FAHRER</div>
+          )}
+          {heldOrders.map((o) => (
+            <Card key={o.id} o={o} now={now} cookHold {...sharedCardProps}>
+              <button onClick={() => onAccept(o.id, DEFAULT_PREP)} disabled={busy === o.id}
+                style={{ width: '100%', padding: '16px 0', borderRadius: 14, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: 15, background: C.border, color: C.t2 }}>
+                ⏸ Fahrer unterwegs · trotzdem annehmen
+              </button>
+            </Card>
+          ))}
+          {heldOrders.length > 0 && readyNeu.length > 0 && (
+            <div style={{ fontSize: 13, fontWeight: 800, color: C.zub, letterSpacing: '.05em', padding: '10px 4px 2px' }}>▶ JETZT KOCHEN</div>
+          )}
+          {readyNeu.map((o) => {
+            const overdue = o.typ === 'lieferung' && !canCook; // war 'warten', per Notfall-Timer freigegeben
+            const dim = overCapacityIds.has(o.id); // ueber Fahrer-Kapazitaet -> erst nach Rueckkehr
+            return (
+              <Card key={o.id} o={o} now={now} cookWarn={overdue} {...sharedCardProps}>
+                <button onClick={() => onAccept(o.id, DEFAULT_PREP)} disabled={busy === o.id}
+                  style={{ width: '100%', padding: '16px 0', borderRadius: 14, border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: (overdue || dim) ? 15 : 19, background: dim ? C.border : overdue ? C.warnSoft : C.zub, color: dim ? C.t2 : '#fff' }}>
+                  {dim ? '⏳ Fahrer voll · nach Rückkehr (trotzdem)' : overdue ? '⚠ Wartet zu lange · jetzt kochen!' : `✓ Annehmen · ${DEFAULT_PREP} Min`}
+                </button>
+              </Card>
+            );
+          })}
+          {neu.length === 0 && <Empty text="Keine neuen Bestellungen" />}
+        </Column>
+        <Column title="IN ZUBEREITUNG" count={kochen.length} color={C.zub}>
+          {kochen.map((o) => (
+            <Card key={o.id} o={o} now={now} {...sharedCardProps}>
+              <button onClick={() => onFertig(o.id)} disabled={busy === o.id} style={{ width: '100%', padding: '18px 0', borderRadius: 14, border: 'none', background: C.zub, color: '#fff', fontWeight: 800, fontSize: 19, cursor: 'pointer' }}>🍽 Fertig</button>
+            </Card>
+          ))}
+          {kochen.length === 0 && <Empty text="Nichts in Zubereitung" />}
+        </Column>
+        <Column title="FERTIG" count={fertig.length} color={C.fertig}>
+          {fertig.map((o) => (
+            <Card key={o.id} o={o} now={now} {...sharedCardProps}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ flex: 1, textAlign: 'center', padding: '12px 0', color: C.fertig, fontWeight: 800, fontSize: 15, background: C.fertigTint, borderRadius: 12 }}>{o.mise_driver_id ? '🚗 Fahrer zugewiesen' : '✓ Bereit'}</div>
+                <button onClick={() => onRecall(o.id)} title="Zurück in Zubereitung" style={{ padding: '0 14px', borderRadius: 12, border: `1px solid ${C.borderStrong}`, background: 'transparent', color: C.t2, cursor: 'pointer' }}><RotateCcw size={18} /></button>
+              </div>
+            </Card>
+          ))}
+          {fertig.length === 0 && <Empty text="Nichts fertig" />}
+        </Column>
+      </div>
+
+      {/* Undo-Toast */}
+      {toast && (
+        <div style={{ position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 90, display: 'flex', alignItems: 'center', gap: 14, background: C.card, border: `1px solid ${C.borderStrong}`, borderRadius: 14, padding: '12px 18px', boxShadow: '0 10px 40px -10px #000' }}>
+          <span style={{ fontSize: 15, fontWeight: 600 }}>{toast.text}</span>
+          <button onClick={() => { toast.undo(); setToast(null); }} style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.zub, border: 'none', color: '#fff', borderRadius: 10, padding: '8px 14px', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}><Undo2 size={16} /> Rückgängig</button>
+        </div>
+      )}
+
+      {/* Live-Karte */}
+      {mapOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 60, background: C.appBg, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 18px', background: C.headerBg, borderBottom: `1px solid ${C.border}` }}>
+            <span style={{ fontSize: 18, fontWeight: 800 }}>🗺️ Fahrer-Karte · {drivers.filter((d) => d.lat != null).length} live</span>
+            <button onClick={() => setMapOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 6, background: C.border, border: 'none', color: '#fff', borderRadius: 12, padding: '10px 16px', fontWeight: 700, cursor: 'pointer' }}><X size={18} /> Schließen</button>
+          </div>
+          <div style={{ flex: 1, padding: 12 }}>
+            <MapView shopLat={shopLat} shopLng={shopLng} shopName={shopName} drivers={drivers} />
+          </div>
+        </div>
+      )}
+
+      {/* Sound-Drawer */}
+      {soundOpen && (
+        <div onClick={() => setSoundOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', display: 'flex', justifyContent: 'flex-end', zIndex: 50 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(440px, 92vw)', height: '100%', background: C.headerBg, padding: 20, overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={{ fontSize: 19, fontWeight: 800 }}>Einstellungen</div>
+              <button onClick={() => setSoundOpen(false)} style={{ background: 'none', border: 'none', color: C.t2, cursor: 'pointer' }}><X size={24} /></button>
+            </div>
+            <div style={{ fontSize: 14, color: C.t2, marginBottom: 14 }}>Wähle den Ton für neue Bestellungen. Tippen = auswählen + vorhören.</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: C.t2, letterSpacing: '.04em', marginBottom: 8 }}>🔔 KLINGELTON</div>
+            {Object.entries(SOUNDS).map(([k, v]) => (
+              <button key={k} onClick={() => chooseSound(k)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', borderRadius: 12, marginBottom: 8, border: soundType === k ? `2px solid ${C.zub}` : `1px solid ${C.border}`, cursor: 'pointer', background: soundType === k ? C.zubTint : C.card, color: C.t1 }}>
+                <span style={{ fontWeight: 700, fontSize: 16 }}>{v.label}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {soundType === k && <Check size={18} color={C.zub} />}<Play size={18} color={C.t2} />
+                </span>
+              </button>
+            ))}
+            <div style={{ fontSize: 14, fontWeight: 800, color: C.t2, letterSpacing: '.04em', margin: '24px 0 8px' }}>🖨 DRUCKER</div>
+            <div style={{ fontSize: 13, color: C.t3, marginBottom: 10 }}>Wie soll der Küchen-Bon gedruckt werden?</div>
+            {([['browser', 'Browser-Druck (PC/Tablet, Kiosk-Modus = ohne Dialog)'], ['cloudprnt', 'CloudPRNT-Drucker (Star — ohne PC, druckt automatisch)'], ['off', 'Kein Druck']] as [string, string][]).map(([k, label]) => (
+              <button key={k} onClick={() => chooseMethod(k)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, padding: '14px 16px', borderRadius: 12, marginBottom: 8, border: printMethod === k ? `2px solid ${C.zub}` : `1px solid ${C.border}`, cursor: 'pointer', background: printMethod === k ? C.zubTint : C.card, color: C.t1, textAlign: 'left' }}>
+                <span style={{ fontWeight: 700, fontSize: 15 }}>{label}</span>
+                {printMethod === k && <Check size={18} color={C.zub} style={{ flexShrink: 0 }} />}
+              </button>
+            ))}
+            {printMethod === 'cloudprnt' && (
+              <div style={{ marginTop: 10, padding: 14, background: C.card, borderRadius: 12, border: `1px solid ${C.border}` }}>
+                <div style={{ fontSize: 13, color: C.t2, marginBottom: 8 }}>Diese URL beim Drucker eintragen (CloudPRNT-Server-URL):</div>
+                <div style={{ fontFamily: 'monospace', fontSize: 12.5, color: C.link, wordBreak: 'break-all', background: C.laneBg, padding: 10, borderRadius: 8, marginBottom: 10 }}>{`https://mise-gastro.de/api/print/cloudprnt?token=${token}`}</div>
+                <button onClick={() => testPrint(token)} style={{ width: '100%', padding: 12, borderRadius: 10, border: 'none', background: C.zub, color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>🖨 Test-Druck senden</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Ausverkauft-Drawer */}
+      {soldOutOpen && (
+        <div onClick={() => setSoldOutOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.6)', display: 'flex', justifyContent: 'flex-end', zIndex: 50 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: 'min(460px, 92vw)', height: '100%', background: C.headerBg, padding: 20, overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div style={{ fontSize: 19, fontWeight: 800 }}>Ausverkauft heute</div>
+              <button onClick={() => setSoldOutOpen(false)} style={{ background: 'none', border: 'none', color: C.t2, cursor: 'pointer' }}><X size={24} /></button>
+            </div>
+            <div style={{ fontSize: 14, color: C.t2, marginBottom: 14 }}>Tippe ein Gericht → ausverkauft (verschwindet sofort aus der Kunden-Speisekarte).</div>
+            {items.map((it) => (
+              <button key={it.id} onClick={() => onToggle(it)} style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 16px', borderRadius: 12, marginBottom: 8, border: 'none', cursor: 'pointer', background: it.verfuegbar ? C.card : C.warnTint, color: it.verfuegbar ? C.t1 : '#ff9b9e' }}>
+                <span style={{ fontWeight: 600, fontSize: 16, textDecoration: it.verfuegbar ? 'none' : 'line-through' }}>{it.name}</span>
+                <span style={{ fontSize: 13, fontWeight: 800 }}>{it.verfuegbar ? 'verfügbar' : 'AUSVERKAUFT'}</span>
+              </button>
+            ))}
+            {items.length === 0 && <div style={{ color: C.t3, fontSize: 14, textAlign: 'center', marginTop: 20 }}>Keine Gerichte gefunden.</div>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function IconBtn({ on, active, children }: { on: () => void; active?: boolean; children: React.ReactNode }) {
+  return <button onClick={on} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: 12, border: 'none', cursor: 'pointer', background: active ? C.zub : C.border, color: '#fff' }}>{children}</button>;
+}
+function Column({ title, count, color, children }: { title: string; count: number; color: string; children: React.ReactNode }) {
+  return (
+    <div style={{ background: C.laneBg, borderRadius: 20, padding: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '4px 6px 12px' }}>
+        <span style={{ width: 12, height: 12, borderRadius: '50%', background: color }} />
+        <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: '.08em', color: C.t1 }}>{title}</span>
+        <span style={{ fontSize: 15, fontWeight: 800, color, background: C.card, borderRadius: 9, padding: '2px 11px' }}>{count}</span>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>{children}</div>
+    </div>
+  );
+}
+function CardHead({ o, big }: { o: Order; big?: boolean }) {
+  const tc = typeCfg(o.typ);
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <span style={{ fontWeight: 800, fontSize: big ? 26 : 28, fontFamily: 'monospace', letterSpacing: '-.01em' }}>#{(o.bestellnummer || '').slice(-4) || '----'}</span>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: tc.tint, color: tc.color, borderRadius: 999, padding: '4px 11px', fontSize: 13.5, fontWeight: 700 }}><tc.Icon size={15} /> {tc.label}</span>
+    </div>
+  );
+}
+function Card({ o, now, children, onStorno, stornoConfirm, setStornoConfirm, onItemMissing, onBagCount, onPrint, cookHold, cookWarn }: {
+  o: Order; now: number; children: React.ReactNode; onStorno?: (id: string) => void; stornoConfirm?: string | null;
+  setStornoConfirm?: (id: string | null) => void; onItemMissing?: (itemId: string, missing: boolean) => void;
+  onBagCount?: (orderId: string, count: number) => void; onPrint?: (o: Order) => void; cookHold?: boolean; cookWarn?: boolean;
+}) {
+  const tc = typeCfg(o.typ);
+  // Timer: in Zubereitung = Countdown zu fertig_am, sonst Alter seit Eingang
+  let sec = 0; let mode: 'count' | 'age' = 'age';
+  if (o.status === 'in_zubereitung' && o.fertig_am) { sec = Math.round((new Date(o.fertig_am).getTime() - now) / 1000); mode = 'count'; }
+  else { sec = Math.round((now - new Date(o.created_at).getTime()) / 1000); mode = 'age'; }
+  const over = mode === 'count' && sec < 0;
+  const soon = mode === 'count' && sec >= 0 && sec <= 180;
+  const oldAge = mode === 'age' && sec > 600;
+  const tColor = over ? C.warn : soon ? C.warnSoft : oldAge ? C.warnSoft : o.status === 'in_zubereitung' ? C.zub : C.neu;
+  const edge = o.status === 'neu' || o.status === 'bestätigt' ? C.neu : o.status === 'in_zubereitung' ? C.zub : C.fertig;
+  return (
+    <div style={{ background: C.card, borderRadius: 18, padding: 18, borderLeft: `5px solid ${edge}`, border: `1px solid ${C.borderStrong}`, borderLeftWidth: 5, boxShadow: '0 4px 16px -6px rgba(0,0,0,.6)', animation: over ? 'kpul 1.2s ease-in-out infinite' : undefined }}>
+      {cookHold && (
+        <div style={{ background: C.warnTint, color: C.warnSoft, borderRadius: 8, padding: '7px 10px', fontSize: 12.5, fontWeight: 800, marginBottom: 10, textAlign: 'center', letterSpacing: '.02em' }}>⏸ ALLE FAHRER UNTERWEGS — NOCH NICHT KOCHEN</div>
+      )}
+      {cookWarn && (
+        <div style={{ background: C.warn, color: '#fff', borderRadius: 8, padding: '7px 10px', fontSize: 12.5, fontWeight: 800, marginBottom: 10, textAlign: 'center', letterSpacing: '.02em' }}>⚠ WARTET ZU LANGE — JETZT KOCHEN</div>
+      )}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <span style={{ fontWeight: 800, fontSize: 28, fontFamily: 'monospace' }}>#{(o.bestellnummer || '').slice(-4) || '----'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: tc.tint, color: tc.color, borderRadius: 999, padding: '4px 10px', fontSize: 13, fontWeight: 700 }}><tc.Icon size={14} /> {tc.label}</span>
+          {onPrint && <button onClick={() => onPrint(o)} aria-label="Bon drucken" style={{ display: 'flex', width: 44, height: 44, alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', color: C.t3, cursor: 'pointer' }}><Printer size={18} /></button>}
+        </div>
+      </div>
+      {(o.kunde_name || o.kunde_telefon) && (
+        <div style={{ fontSize: 14.5, color: C.t2, marginBottom: 8, lineHeight: 1.4 }}>
+          {o.kunde_name && <span style={{ fontWeight: 700, color: C.t1 }}>{o.kunde_name}</span>}
+          {o.kunde_telefon && <a href={`tel:${o.kunde_telefon}`} style={{ color: C.link, textDecoration: 'none', marginLeft: 8 }}>{o.kunde_telefon}</a>}
+          {o.typ === 'lieferung' && o.kunde_adresse && <div style={{ fontSize: 14 }}>{o.kunde_adresse}</div>}
+        </div>
+      )}
+      <div style={{ margin: '6px 0 12px' }}>
+        {(o.items ?? []).map((it) => (
+          <div key={it.id} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 20, padding: '6px 0', color: it.pick_missing ? '#ff9b9e' : C.t1 }}>
+            <span style={{ fontWeight: 900, color: it.pick_missing ? '#ff9b9e' : C.zub, minWidth: 30 }}>{it.menge}×</span>
+            <span style={{ fontWeight: 700, textDecoration: it.pick_missing ? 'line-through' : 'none', flex: 1 }}>{it.name}</span>
+            {onItemMissing && <button onClick={() => onItemMissing(it.id, !it.pick_missing)} aria-label={it.pick_missing ? `${it.name} wieder verfügbar` : `${it.name} fehlt`} style={{ width: 44, height: 44, borderRadius: 10, border: 'none', background: it.pick_missing ? C.warnTint : 'transparent', color: it.pick_missing ? '#ff9b9e' : C.t3, cursor: 'pointer', flexShrink: 0 }}><AlertTriangle size={17} /></button>}
+          </div>
+        ))}
+        {(o.items ?? []).flatMap((it) => it.notiz ? [<div key={it.id + 'n'} style={{ background: C.goldTint, color: C.gold, borderRadius: 8, padding: '4px 9px', fontSize: 14, fontWeight: 600, marginTop: 2 }}>{it.name}: {it.notiz}</div>] : [])}
+      </div>
+      {o.typ === 'lieferung' && onBagCount && (
+        <div style={{ margin: '0 0 12px', padding: '10px 12px', borderRadius: 12, background: C.laneBg, border: `1px solid ${C.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 13, color: C.t2, fontWeight: 800 }}>Lieferbeutel</div>
+            <div style={{ fontSize: 11, color: C.t3 }}>Ein QR pro Beutel</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button type="button" onClick={() => onBagCount(o.id, Math.max(1, o.delivery_bag_count - 1))} disabled={o.delivery_bag_count <= 1} aria-label="Ein Beutel weniger" style={{ width: 44, height: 44, borderRadius: 12, border: `1px solid ${C.borderStrong}`, background: C.card, color: C.t1, fontSize: 22, cursor: 'pointer' }}>−</button>
+            <strong style={{ minWidth: 24, textAlign: 'center', fontSize: 20 }}>{o.delivery_bag_count || 1}</strong>
+            <button type="button" onClick={() => onBagCount(o.id, Math.min(12, o.delivery_bag_count + 1))} disabled={o.delivery_bag_count >= 12} aria-label="Ein Beutel mehr" style={{ width: 44, height: 44, borderRadius: 12, border: `1px solid ${C.borderStrong}`, background: C.card, color: C.t1, fontSize: 22, cursor: 'pointer' }}>+</button>
+          </div>
+        </div>
+      )}
+      {o.status !== 'fertig' && (
+        <div style={{ textAlign: 'center', marginBottom: 12, fontSize: 40, fontWeight: 800, fontVariantNumeric: 'tabular-nums', color: tColor }}>
+          {mode === 'count' ? (over ? `+${fmt(sec)}` : fmt(sec)) : fmt(sec)}
+          <span style={{ fontSize: 13, fontWeight: 600, color: C.t3, marginLeft: 8 }}>{mode === 'count' ? (over ? 'überfällig' : 'bis fertig') : 'seit Eingang'}</span>
+        </div>
+      )}
+      {children}
+      {onStorno && (stornoConfirm === o.id ? (
+        <div style={{ display: 'flex', gap: 16, marginTop: 10 }}>
+          <button onClick={() => setStornoConfirm && setStornoConfirm(null)} style={{ flex: 1, padding: 14, borderRadius: 10, border: 'none', background: C.border, color: C.t2, fontSize: 14, cursor: 'pointer' }}>Nein</button>
+          <button onClick={() => onStorno(o.id)} style={{ flex: 1, padding: 14, borderRadius: 10, border: 'none', background: C.warn, color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>Stornieren</button>
+        </div>
+      ) : (
+        <button onClick={() => setStornoConfirm && setStornoConfirm(o.id)} style={{ width: '100%', minHeight: 44, marginTop: 8, padding: 10, borderRadius: 10, border: 'none', background: 'transparent', color: C.t3, fontSize: 13, cursor: 'pointer' }}>Stornieren</button>
+      ))}
+    </div>
+  );
+}
+function Empty({ text }: { text: string }) { return <div style={{ textAlign: 'center', color: C.t3, fontSize: 14, padding: '30px 0' }}>{text}</div>; }

@@ -1,0 +1,154 @@
+import { redirect } from 'next/navigation';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
+import { FahrerApp } from './client';
+
+export const dynamic = 'force-dynamic';
+
+export default async function FahrerAppPage() {
+  const sb = await createClient();
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) redirect('/fahrer/login');
+
+  const svc = createServiceClient();
+
+  const { data: driver } = await svc
+    .from('employees')
+    .select('id, vorname, nachname, tenant_id, location_id, rolle, fahrzeug_praeferenz')
+    .eq('auth_user_id', user.id)
+    .eq('kann_ausliefern', true)
+    .maybeSingle();
+
+  if (!driver) {
+    redirect('/fahrer?noaccess=1');
+  }
+
+  // Mise-Driver-ID via auth_user_id ermitteln (für Smart-Dispatch-Batches)
+  const { data: miseDriver } = await svc
+    .from('mise_drivers')
+    .select('id,dispatch_availability,availability_reason,availability_changed_at,shift_started_at,active')
+    .eq('auth_user_id', user.id)
+    .maybeSingle();
+
+  const [{ data: status }, { data: openBatches }, { data: legacyActiveBatch }, { data: miseActiveBatchesRaw }] = await Promise.all([
+    svc.from('driver_status').select('*').eq('employee_id', driver.id).maybeSingle(),
+    svc.from('v_open_dispatch_batches').select('*').eq('tenant_id', driver.tenant_id),
+    // Legacy-Batch (delivery_batches)
+    svc.from('delivery_batches')
+      .select('*, stops:delivery_batch_stops(*, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,kunde_notiz,kunde_lieferhinweis))')
+      .eq('fahrer_id', driver.id)
+      .in('status', ['zugewiesen', 'pickup', 'unterwegs'])
+      .maybeSingle(),
+    // Mise-Batch (mise_delivery_batches) — nur wenn Mise-Driver-Account vorhanden
+    miseDriver
+      ? svc.from('mise_delivery_batches')
+          .select('id, state, assignment_mode, handoff_state, planned_at, plan_expires_at, handoff_started_at, committed_at, stops:mise_delivery_batch_stops(id, batch_id, order_id, sequence, completed_at, type, cancelled, pick_verification, order:customer_orders(id,bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_lat,kunde_lng,gesamtbetrag,bezahlt,zahlungsart,kunde_telefon,kunde_notiz,kunde_lieferhinweis,delivery_bag_count,items:order_items(id,order_id,name,menge,notiz,pick_confirmed_at,pick_missing)))')
+          .eq('driver_id', miseDriver.id)
+          .in('state', ['assigned', 'at_restaurant', 'picked_up', 'in_progress'])
+          .order('created_at', { ascending: false })
+      : Promise.resolve({ data: null }),
+  ]);
+
+  // Mehr-Batch: in_progress (laufende Lieferung) bleibt aktiv; andere (assigned) sind Warte-Touren (waehrend Liefern angenommen).
+  const allMiseBatches = ((miseActiveBatchesRaw as unknown) as any[]) ?? [];
+  const miseActiveBatch = allMiseBatches.find((b) => ['in_progress', 'picked_up'].includes(b.state)) ?? allMiseBatches[0] ?? null;
+  const miseWaiting = allMiseBatches.filter((b) => b !== miseActiveBatch && ['assigned', 'at_restaurant'].includes(b.state));
+
+  // Mise-Batch auf Legacy-Format normalisieren (client.tsx erwartet ActiveBatch-Typ)
+  const normalizedMiseBatch = miseActiveBatch ? {
+    id: (miseActiveBatch as any).id,
+    status: ['in_progress', 'picked_up'].includes((miseActiveBatch as any).state) ? 'unterwegs' : 'pickup',
+    assignment_mode: (miseActiveBatch as any).assignment_mode ?? 'offer',
+    handoff_state: (miseActiveBatch as any).handoff_state ?? 'planned',
+    planned_at: (miseActiveBatch as any).planned_at ?? null,
+    plan_expires_at: (miseActiveBatch as any).plan_expires_at ?? null,
+    handoff_started_at: (miseActiveBatch as any).handoff_started_at ?? null,
+    committed_at: (miseActiveBatch as any).committed_at ?? null,
+    started_at: null,
+    stops: ((miseActiveBatch as any).stops ?? [])
+      // Stornierte Stops (Requeue/Order-Storno) nie an den Fahrer rendern
+      .filter((s: any) => s.type === 'dropoff' && !s.cancelled)
+      .map((s: any) => ({
+        id: s.id,
+        batch_id: s.batch_id,
+        order_id: s.order_id,
+        reihenfolge: s.sequence,
+        angekommen_am: null,
+        geliefert_am: s.completed_at ?? null,
+        pick_verification: s.pick_verification ?? null,
+        order: s.order ?? null,
+      })),
+  } : null;
+
+  // Legacy-Batch hat Vorrang; Mise-Batch als Fallback
+  const activeBatch = legacyActiveBatch ?? normalizedMiseBatch;
+
+  // Warte-Touren (waehrend Liefern angenommen, warten auf Abholung) -> Box-Format
+  const waitingBatches = miseWaiting.map((b: any) => ({
+    batch_id: b.id,
+    orders: ((b.stops ?? []) as any[]).filter((s: any) => s.type === 'dropoff' && !s.cancelled).map((s: any) => ({
+      order_id: s.order_id,
+      bestellnummer: s.order?.bestellnummer ?? '',
+      kunde_name: s.order?.kunde_name ?? '',
+      kunde_adresse: s.order?.kunde_adresse ?? '',
+      picked: ((s.order?.items ?? []) as any[]).length > 0 && ((s.order?.items ?? []) as any[]).every((it: any) => it.pick_confirmed_at),
+    })),
+  }));
+
+  // Offene Mise-Touren (pending_acceptance) -> OpenBatch-Format (Klingeln + Annehmen).
+  // Restaurant-Info kommt ueber order.location (mise_delivery_batches hat keine location_id).
+  const { data: misePending } = miseDriver
+    ? await svc
+        .from('mise_delivery_batches')
+        .select('id, created_at, assignment_mode, stops:mise_delivery_batch_stops(order_id, type, order:customer_orders(bestellnummer,kunde_name,kunde_adresse,kunde_plz,kunde_stadt,kunde_lat,kunde_lng,gesamtbetrag,zahlungsart,bezahlt,geschaetzte_lieferung_min,location:locations(name,lat,lng)))')
+        .eq('driver_id', miseDriver.id)
+        .eq('state', 'pending_acceptance')
+        .eq('assignment_mode', 'offer')
+    : { data: null };
+
+  const misePendingOpen = (((misePending as unknown) as any[]) ?? []).flatMap((b: any) =>
+    (b.stops ?? [])
+      .filter((s: any) => s.type === 'dropoff' && s.order)
+      .map((s: any) => ({
+        batch_id: b.id,
+        tenant_id: (driver as any).tenant_id,
+        location_id: null,
+        created_at: b.created_at,
+        order_id: s.order_id,
+        bestellnummer: s.order.bestellnummer,
+        kunde_name: s.order.kunde_name,
+        kunde_adresse: s.order.kunde_adresse,
+        kunde_plz: s.order.kunde_plz,
+        kunde_stadt: s.order.kunde_stadt,
+        kunde_lat: s.order.kunde_lat,
+        kunde_lng: s.order.kunde_lng,
+        gesamtbetrag: s.order.gesamtbetrag,
+        geschaetzte_lieferung_min: s.order.geschaetzte_lieferung_min ?? null,
+        location_name: s.order.location?.name ?? 'Restaurant',
+        location_lat: s.order.location?.lat ?? null,
+        location_lng: s.order.location?.lng ?? null,
+        source_system: 'mise',
+        zahlungsart: s.order.zahlungsart ?? null,
+        bezahlt: s.order.bezahlt ?? null,
+      })),
+  );
+
+  const allOpenBatches = [...(((openBatches as unknown) as any[]) ?? []), ...misePendingOpen];
+
+  return (
+    <FahrerApp
+      driver={driver as any}
+      miseDriverId={miseDriver?.id ?? null}
+      initialStatus={(status as any) ?? null}
+      initialOpenBatches={allOpenBatches}
+      initialActiveBatch={(activeBatch as any) ?? null}
+      initialWaitingBatches={waitingBatches as any}
+      initialDutyStatus={{
+        state: (miseDriver?.dispatch_availability as 'off_duty' | 'available' | 'paused' | undefined)
+          ?? ((status as any)?.ist_online ? 'available' : 'off_duty'),
+        reason: (miseDriver?.availability_reason as string | null | undefined) ?? null,
+        changedAt: (miseDriver?.availability_changed_at as string | null | undefined) ?? null,
+        shiftStartedAt: (miseDriver?.shift_started_at as string | null | undefined) ?? null,
+      }}
+    />
+  );
+}

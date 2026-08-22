@@ -1,0 +1,49 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# next.js build
+.next/
+.next-*/
+out/
+
+# production
+build/
+dist/
+
+# env
+.env
+.env.local
+.env.*.local
+.env.production
+
+# pnpm is the only lockfile used by the production Docker build
+/package-lock.json
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# misc
+.DS_Store
+*.pem
+.vercel
+.turbo
+.eslintcache
+playwright-report/
+test-results/
+supabase/.temp/
+.idea
+.vscode
+
+# backup files
+*.bak
+*.bak-*
+*.bak.*
+
+# OS
+Thumbs.db
+tsconfig.tsbuildinfo

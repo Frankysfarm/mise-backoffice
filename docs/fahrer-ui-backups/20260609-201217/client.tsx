@@ -1,0 +1,1766 @@
+'use client';
+
+import React, { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import {
+  Banknote, Bike, Calendar, Check, Car, CheckCircle2, ChevronDown, ChevronUp, Clock, Footprints,
+  Loader2, LogOut, Map as MapIcon, MapPin, Navigation, Phone, Power, Route, ShoppingBag,
+  TrendingUp, Trophy, Zap,
+} from 'lucide-react';
+import { cn, euro } from '@/lib/utils';
+import { PickDialog } from './pick-dialog';
+import { DeliveryView } from './delivery-view';
+import { AlarmRinger } from './alarm-ringer';
+import { PushRegister } from './push-register';
+import { UpdateBanner } from './update-banner';
+import { PermissionsGate } from './permissions-gate';
+
+
+type Driver = {
+  id: string;
+  vorname: string;
+  nachname: string;
+  tenant_id: string;
+  location_id: string | null;
+  fahrzeug_praeferenz: string | null;
+};
+
+type Status = {
+  employee_id: string;
+  ist_online: boolean;
+  fahrzeug: string | null;
+  aktueller_batch_id: string | null;
+  online_seit: string | null;
+};
+
+type OpenBatch = {
+  batch_id: string;
+  tenant_id: string;
+  location_id: string;
+  order_id: string;
+  bestellnummer: string;
+  kunde_name: string;
+  kunde_adresse: string | null;
+  kunde_plz: string | null;
+  kunde_stadt: string | null;
+  kunde_lat: number | null;
+  kunde_lng: number | null;
+  gesamtbetrag: number;
+  geschaetzte_lieferung_min: number | null;
+  location_name: string;
+  location_lat: number | null;
+  location_lng: number | null;
+  source_system: 'legacy' | 'mise' | null;
+  zahlungsart?: string | null;
+  bezahlt?: boolean | null;
+};
+
+type ActiveBatch = {
+  id: string;
+  status: string;
+  started_at: string | null;
+  total_eta_min?: number | null;
+  total_distance_km?: number | null;
+  stops: {
+    id: string;
+    batch_id: string;
+    order_id: string;
+    reihenfolge: number;
+    angekommen_am: string | null;
+    geliefert_am: string | null;
+    distanz_zum_vorgaenger_m?: number | null;
+    order: {
+      id: string;
+      bestellnummer: string;
+      kunde_name: string;
+      kunde_adresse: string | null;
+      kunde_plz: string | null;
+      kunde_lat: number | null;
+      kunde_lng: number | null;
+      gesamtbetrag: number;
+      kunde_notiz?: string | null;
+      kunde_lieferhinweis?: string | null;
+    };
+  }[];
+};
+
+export function FahrerApp({
+  driver, miseDriverId, initialStatus, initialOpenBatches, initialActiveBatch,
+}: {
+  driver: Driver;
+  miseDriverId: string | null;
+  initialStatus: Status | null;
+  initialOpenBatches: OpenBatch[];
+  initialActiveBatch: ActiveBatch | null;
+}) {
+  const supabase = createClient();
+  const router = useRouter();
+  const [status, setStatus] = useState(initialStatus);
+  const [openBatches, setOpenBatches] = useState(initialOpenBatches);
+  const [activeBatch, setActiveBatch] = useState(initialActiveBatch);
+  // Server-Daten -> lokalen State syncen: macht router.refresh() wirksam (kein Full-Reload noetig)
+  useEffect(() => { setActiveBatch(initialActiveBatch); }, [initialActiveBatch]);
+  useEffect(() => { setOpenBatches(initialOpenBatches); }, [initialOpenBatches]);
+  const [pending, startTransition] = useTransition();
+
+  const isOnline = status?.ist_online ?? false;
+  const gpsWatchRef = useRef<number | null>(null);
+  const [gpsOk, setGpsOk] = useState<boolean | null>(null);
+  const [gpsSpeed, setGpsSpeed] = useState<number | null>(null);
+  const [driverPos, setDriverPos] = useState<{ lat: number; lng: number } | null>(null);
+  const [pickOpen, setPickOpen] = useState(false);
+  const [pickItems, setPickItems] = useState<any[]>([]);
+  const [showShiftEnd, setShowShiftEnd] = useState(false);
+  const [shiftSnapshot, setShiftSnapshot] = useState<{
+    deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number;
+  } | null>(null);
+
+  // Betriebsnachrichten vom Dispatch
+  const [broadcasts, setBroadcasts] = useState<{ id: string; message: string; priority: string; sentByName: string | null; createdAt: string }[]>([]);
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const load = () => {
+      fetch('/api/delivery/driver/messages')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (Array.isArray(d?.messages)) setBroadcasts(d.messages); })
+        .catch(() => {});
+    };
+    if (isOnline) {
+      load();
+      const iv = setInterval(load, 60_000);
+      return () => clearInterval(iv);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline]);
+
+  function dismissBroadcast(id: string) {
+    setDismissedIds(prev => new Set([...prev, id]));
+    fetch('/api/delivery/driver/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ broadcast_id: id }),
+    }).catch(() => {});
+  }
+
+  const visibleBroadcasts = broadcasts.filter(b => !dismissedIds.has(b.id));
+
+  // Küchenstatus für Pickup-Phase: welche Bestellungen sind schon fertig?
+  const [kitchenStatuses, setKitchenStatuses] = useState<Map<string, string>>(new Map());
+
+  useEffect(() => {
+    if (!activeBatch || activeBatch.status === 'unterwegs') return;
+    const orderIds = activeBatch.stops.map((s) => s.order_id).filter(Boolean);
+    if (orderIds.length === 0) return;
+
+    // Initial fetch
+    supabase.from('customer_orders')
+      .select('id, status')
+      .in('id', orderIds)
+      .then(({ data }: { data: { id: string; status: string }[] | null }) => {
+        if (!data) return;
+        setKitchenStatuses(new Map(data.map((r) => [r.id, r.status])));
+      });
+
+    // Realtime subscription
+    const ch = supabase
+      .channel(`kitchen-status-${activeBatch.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'customer_orders',
+        filter: `id=in.(${orderIds.join(',')})`,
+      }, (payload: { new: { id: string; status: string } }) => {
+        const { id, status: newStatus } = payload.new;
+        setKitchenStatuses((prev) => new Map(prev).set(id, newStatus));
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(ch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeBatch?.id, activeBatch?.status]);
+
+  // Fetch Items wenn Pick-Dialog geöffnet wird
+  useEffect(() => {
+    if (!pickOpen || !activeBatch) return;
+    (async () => {
+      const orderIds = activeBatch.stops.map((s) => s.order_id);
+      const { data } = await supabase.from('order_items')
+        .select('id, order_id, name, menge, notiz, pick_confirmed_at, pick_missing')
+        .in('order_id', orderIds);
+      setPickItems((data as any[]) ?? []);
+    })();
+  }, [pickOpen, activeBatch, supabase]);
+
+  /* SW-Auto-Update-Check: alle 60s Polling; UpdateBanner zeigt sich wenn neue Version */
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    const iv = setInterval(() => {
+      navigator.serviceWorker.ready.then((reg) => reg.update()).catch(() => {});
+    }, 60_000);
+    const vis = () => {
+      if (document.visibilityState === 'visible') {
+        navigator.serviceWorker.ready.then((reg) => reg.update()).catch(() => {});
+      }
+    };
+    document.addEventListener('visibilitychange', vis);
+    return () => {
+      clearInterval(iv);
+      document.removeEventListener('visibilitychange', vis);
+    };
+  }, []);
+
+  /* Beim Zurueckkommen in die App (z.B. nach CallKit-Anruf) frisch laden -> neue Tour erscheint */
+  useEffect(() => {
+    const onVis = () => {
+      if (document.visibilityState === 'visible' && !activeBatch && !pickOpen) {
+        router.refresh();
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [activeBatch, pickOpen]);
+
+  /* GPS-Tracking: bei Online-Status watchPosition starten, Updates alle ~15s */
+  useEffect(() => {
+    if (!isOnline) {
+      if (gpsWatchRef.current != null) {
+        navigator.geolocation.clearWatch(gpsWatchRef.current);
+        gpsWatchRef.current = null;
+      }
+      return;
+    }
+    if (!('geolocation' in navigator)) { setGpsOk(false); return; }
+
+    let lastPush = 0;
+    gpsWatchRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        setGpsOk(true);
+        if (pos.coords.speed != null) setGpsSpeed(Math.round(pos.coords.speed * 3.6));
+        setDriverPos({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        const now = Date.now();
+        if (now - lastPush < 15000) return;   // max alle 15s
+        lastPush = now;
+        supabase.from('driver_status').update({
+          last_lat: pos.coords.latitude,
+          last_lng: pos.coords.longitude,
+          last_heading: pos.coords.heading ?? null,
+          last_speed_kmh: pos.coords.speed != null ? Math.round(pos.coords.speed * 3.6) : null,
+          last_update: new Date().toISOString(),
+        }).eq('employee_id', driver.id).then(() => {});
+      },
+      () => setGpsOk(false),
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 },
+    );
+    return () => {
+      if (gpsWatchRef.current != null) {
+        navigator.geolocation.clearWatch(gpsWatchRef.current);
+        gpsWatchRef.current = null;
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline]);
+
+  /* Push-Subscribe beim ersten Online-Gehen */
+  useEffect(() => {
+    if (!isOnline) return;
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    (async () => {
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const existing = await reg.pushManager.getSubscription();
+        if (existing) return;
+        const vapid = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+        if (!vapid) return;
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(vapid).buffer as ArrayBuffer,
+        });
+        await fetch('/api/drivers/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription: sub.toJSON() }),
+        });
+      } catch {}
+    })();
+  }, [isOnline]);
+
+  /* Realtime: refresh bei Änderungen in Legacy- UND Mise-Tabellen */
+  useEffect(() => {
+    const ch = supabase
+      .channel('fahrer-app')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batches' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_batch_stops' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batches' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'mise_delivery_batch_stops' }, refresh)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'driver_status', filter: `employee_id=eq.${driver.id}` }, refresh)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function refresh() {
+    router.refresh();
+  }
+
+  async function goOffline() {
+    setShowShiftEnd(false);
+    startTransition(async () => {
+      await supabase.from('driver_status').upsert({
+        employee_id: driver.id, ist_online: false, fahrzeug: driver.fahrzeug_praeferenz, online_seit: null,
+      });
+      // Mise-Fahrer: state auf offline -> Frank ruft NICHT mehr an
+      await supabase.from('mise_drivers').update({ state: 'offline' }).eq('id', miseDriverId ?? '');
+      setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: false, online_seit: null }));
+    });
+  }
+
+  async function toggleOnline() {
+    const next = !isOnline;
+    if (!next) {
+      // Going offline — check if there are deliveries to show summary
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const { data: batches } = await supabase
+        .from('delivery_batches')
+        .select('id, total_distance_km')
+        .eq('fahrer_id', driver.id)
+        .gte('created_at', today.toISOString());
+      if (batches && (batches as any[]).length > 0) {
+        const { data: stops } = await supabase
+          .from('delivery_batch_stops')
+          .select('id, order:customer_orders(gesamtbetrag)')
+          .in('batch_id', (batches as any[]).map((b: any) => b.id))
+          .not('geliefert_am', 'is', null);
+        const deliveries = (stops as any[])?.length ?? 0;
+        if (deliveries > 0) {
+          const betrag = ((stops as any[]) ?? []).reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
+          const distKm = ((batches as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
+          const onlineMin = status?.online_seit
+            ? Math.floor((Date.now() - new Date(status.online_seit as string).getTime()) / 60_000)
+            : 0;
+          setShiftSnapshot({ deliveries, tours: (batches as any[]).length, distKm, betrag, onlineMin });
+          setShowShiftEnd(true);
+          return;
+        }
+      }
+      await goOffline();
+      return;
+    }
+    // Going online
+    startTransition(async () => {
+      await supabase.from('driver_status').upsert({
+        employee_id: driver.id, ist_online: true, fahrzeug: driver.fahrzeug_praeferenz,
+        online_seit: new Date().toISOString(),
+      });
+      // Mise-Fahrer: state auf idle -> Frank darf zuteilen (nur wenn nicht auf aktiver Tour)
+      await supabase.from('mise_drivers').update({ state: 'idle' }).eq('id', miseDriverId ?? '').eq('state', 'offline');
+      setStatus((s) => ({ ...(s ?? { employee_id: driver.id, fahrzeug: driver.fahrzeug_praeferenz, aktueller_batch_id: null, online_seit: null }), ist_online: true, online_seit: new Date().toISOString() }));
+    });
+  }
+
+  async function claimBatch(batchId: string) {
+    const batch = openBatches.find((b) => b.batch_id === batchId);
+    const isMise = batch?.source_system === 'mise';
+    startTransition(async () => {
+      if (isMise) {
+        await supabase.rpc('claim_mise_delivery_batch', { p_batch_id: batchId, p_employee_id: miseDriverId ?? driver.id });
+      } else {
+        await supabase.rpc('claim_delivery_batch', { p_batch_id: batchId });
+      }
+      // Voller Reload: page.tsx laedt den jetzt-aktiven Batch -> Tour erscheint zuverlaessig
+      window.location.reload();
+    });
+  }
+
+  async function markDelivered(stopId: string) {
+    startTransition(async () => {
+      const now = new Date().toISOString();
+
+      // Legacy-Stop updaten
+      await supabase.from('delivery_batch_stops')
+        .update({ geliefert_am: now })
+        .eq('id', stopId);
+
+      // Mise-Stop updaten (falls dieser Stop aus dem Mise-System stammt)
+      await supabase.from('mise_delivery_batch_stops')
+        .update({ completed_at: now })
+        .eq('id', stopId);
+
+      const stop = activeBatch?.stops.find((s) => s.id === stopId);
+      if (stop) {
+        await supabase.from('customer_orders')
+          .update({ status: 'geliefert', geliefert_am: now })
+          .eq('id', stop.order_id);
+      }
+
+      router.refresh();
+    });
+  }
+
+  async function logout() {
+    await supabase.auth.signOut();
+    router.push('/fahrer');
+  }
+
+  const VAPID = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? '';
+
+  return (
+    <>
+    <div className="min-h-screen pb-24">
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-[var(--bg)] px-4 py-4 border-b border-[var(--line)]">
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            'h-11 w-11 rounded-2xl flex items-center justify-center',
+            isOnline ? 'bg-[var(--accent)] text-white' : 'bg-[var(--surface-2)]',
+          )}>
+            <Bike size={22} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink-2)]">Fahrer</div>
+            <div className="font-display font-bold truncate">{driver.vorname} {driver.nachname}</div>
+          </div>
+          <button
+            onClick={logout}
+            className="h-10 w-10 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] flex items-center justify-center"
+            aria-label="Abmelden"
+          >
+            <LogOut size={16} />
+          </button>
+        </div>
+      </header>
+
+      <main className="px-4 py-6 space-y-5">
+        {/* Betriebsnachrichten vom Dispatch */}
+        {visibleBroadcasts.map(b => (
+          <div
+            key={b.id}
+            className={cn(
+              'flex items-start gap-3 rounded-2xl border px-4 py-3 animate-in slide-in-from-top-2 duration-200',
+              b.priority === 'urgent'
+                ? 'border-[var(--danger)]/40 bg-[var(--danger-tint)] text-[var(--danger)]'
+                : 'border-[var(--accent)]/40 bg-[var(--accent-tint)] text-[var(--accent)]',
+            )}
+          >
+            <span className="text-lg shrink-0">{b.priority === 'urgent' ? '🚨' : '📢'}</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium leading-snug">{b.message}</p>
+              {b.sentByName && (
+                <p className="text-[10px] opacity-60 mt-0.5">{b.sentByName}</p>
+              )}
+            </div>
+            <button
+              onClick={() => dismissBroadcast(b.id)}
+              className="shrink-0 opacity-50 hover:opacity-100 transition p-1"
+              aria-label="Schließen"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+
+        {/* Online Toggle */}
+        {!activeBatch && (
+          <section>
+            <button
+              onClick={toggleOnline}
+              disabled={pending}
+              className={cn(
+                'w-full rounded-3xl p-5 font-display font-bold text-lg flex items-center gap-4 transition active:scale-[0.98]',
+                isOnline
+                  ? 'bg-[var(--accent)] text-white shadow-lg'
+                  : 'bg-[var(--surface-2)] border-2 border-[var(--line)] text-[var(--ink-2)]',
+              )}
+            >
+              <div className={cn(
+                'h-14 w-14 rounded-2xl flex items-center justify-center shrink-0',
+                isOnline ? 'bg-white text-accent' : 'bg-[var(--surface-2)]',
+              )}>
+                <Power size={26} />
+              </div>
+              <div className="text-left flex-1">
+                <div className="text-xl">{isOnline ? 'Du bist online' : 'Los geht&apos;s'}</div>
+                <div className={cn('text-sm font-normal mt-0.5', isOnline ? 'text-[var(--ink)]/70' : 'text-[var(--ink-3)]')}>
+                  {isOnline ? 'Tippe hier zum Offline-Gehen' : 'Tippe um online zu gehen'}
+                </div>
+              </div>
+            </button>
+            {isOnline && !activeBatch && (
+              <>
+
+                {/* GPS-Status */}
+                <div className="mt-3 flex items-center gap-2 text-[11px]">
+                  {gpsOk === false && <span className="text-[var(--danger)]">⚠️ GPS blockiert — in Safari/Chrome Standort erlauben</span>}
+                  {gpsOk === true && <span className="text-accent">📍 GPS aktiv</span>}
+                  {gpsOk === null && <span className="text-[var(--ink-3)]">📍 Warte auf GPS-Signal…</span>}
+                </div>
+              </>
+            )}
+          </section>
+        )}
+
+        {/* Active Batch — NEUE Delivery-View wenn unterwegs */}
+        {activeBatch && activeBatch.status === 'unterwegs' && (
+          <DeliveryView
+            batchId={activeBatch.id}
+            stops={activeBatch.stops as any}
+            batchStartedAt={activeBatch.started_at}
+            totalEtaMin={activeBatch.total_eta_min ?? null}
+            gpsSpeed={gpsSpeed}
+            driverLat={driverPos?.lat ?? null}
+            driverLng={driverPos?.lng ?? null}
+            onAllDone={() => router.refresh()}
+          />
+        )}
+
+        {/* Active Batch — Pick-Phase: groß + zentral, kein ablenkender Kram */}
+        {activeBatch && activeBatch.status !== 'unterwegs' && (
+          <section>
+            <div className="flex items-center justify-between mb-3 text-accent">
+              <div className="flex items-center gap-2">
+                <Navigation className="h-4 w-4" />
+                <h2 className="font-display text-sm font-bold uppercase tracking-wider">Tour #{activeBatch.stops[0]?.order.bestellnummer.slice(-4)}</h2>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-[var(--ink-3)]">{activeBatch.stops.length} {activeBatch.stops.length === 1 ? 'Stopp' : 'Stopps'}</span>
+                <span className="font-display font-bold text-accent">
+                  {euro(activeBatch.stops.reduce((s, st) => s + st.order.gesamtbetrag, 0))}
+                </span>
+              </div>
+            </div>
+
+            {/* Küchen-Bereitschafts-Fortschritt: X von Y Bestellungen fertig */}
+            {(() => {
+              const total = activeBatch.stops.length;
+              if (total === 0) return null;
+              const readyCount = activeBatch.stops.filter((s) => {
+                const ks = kitchenStatuses.get(s.order_id);
+                return ks === 'fertig' || ks === 'unterwegs';
+              }).length;
+              const cookingCount = activeBatch.stops.filter((s) => kitchenStatuses.get(s.order_id) === 'in_zubereitung').length;
+              const allReady = readyCount === total;
+              const pct = Math.round((readyCount / total) * 100);
+              return (
+                <div className={cn(
+                  'rounded-xl border px-4 py-3 mb-3',
+                  allReady
+                    ? 'bg-accent/15 border-[var(--accent)]/40'
+                    : cookingCount > 0
+                    ? 'bg-[var(--warn-tint)] border-[var(--warn)]/30'
+                    : 'bg-[var(--surface-2)] border-[var(--line)]',
+                )}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className={cn(
+                      'text-[11px] font-bold uppercase tracking-wider',
+                      allReady ? 'text-accent' : 'text-[var(--ink-3)]',
+                    )}>
+                      {allReady ? '✓ Alle bereit zum Abholen' : `Küche: ${readyCount} von ${total} fertig`}
+                    </span>
+                    {cookingCount > 0 && (
+                      <span className="text-[10px] font-bold text-[var(--warn)] animate-pulse">
+                        {cookingCount} kocht noch
+                      </span>
+                    )}
+                  </div>
+                  <div className="h-1.5 rounded-full bg-[var(--surface-2)] overflow-hidden">
+                    <div
+                      className={cn(
+                        'h-full rounded-full transition-all duration-500',
+                        allReady ? 'bg-accent' : pct >= 50 ? 'bg-[var(--warn)]' : 'bg-[var(--accent)]',
+                      )}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Cash-to-collect Banner */}
+            {(() => {
+              const cashStops = activeBatch.stops.filter((s) => {
+                const o = s.order as any;
+                return o.zahlungsart === 'bar' || o.bezahlt === false;
+              });
+              const totalCash = cashStops.reduce((sum, s) => sum + s.order.gesamtbetrag, 0);
+              if (totalCash <= 0) return null;
+              return (
+                <div className="rounded-xl bg-[var(--warn-tint)] border border-[var(--warn)]/30 px-4 py-3 mb-3 flex items-center gap-3">
+                  <Banknote className="h-5 w-5 text-[var(--warn)] shrink-0" />
+                  <div className="flex-1">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--warn)]">Bar kassieren</div>
+                    <div className="font-display font-black text-[var(--warn)] text-xl">{euro(totalCash)}</div>
+                  </div>
+                  <div className="text-[10px] text-[var(--warn)]">{cashStops.length} {cashStops.length === 1 ? 'Zahlung' : 'Zahlungen'}</div>
+                </div>
+              );
+            })()}
+
+            {/* Geschätzte Fahrervergütung für diese Tour */}
+            {(() => {
+              const stopCount = activeBatch.stops.length;
+              const distKm = (activeBatch as any).total_distance_km as number | null ?? 0;
+              const estEarnings = stopCount * 1.50 + distKm * 0.20;
+              if (estEarnings <= 0) return null;
+              return (
+                <div className="rounded-xl bg-[var(--surface-2)]/30 border border-[var(--line)] px-4 py-3 mb-3 flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Geschätzte Vergütung</div>
+                    <div className="text-[9px] text-[var(--ink-3)] mt-0.5">
+                      {stopCount}× €1.50
+                      {distKm > 0 ? ` + ${distKm.toFixed(1)} km × €0.20` : ''}
+                    </div>
+                  </div>
+                  <div className="font-display font-black text-accent text-xl">{euro(estEarnings)}</div>
+                </div>
+              );
+            })()}
+
+            {/* Tour-Stopp-Übersicht: jede Lieferadresse mit individuellem Nav-Link */}
+            <div className="space-y-2 mb-4">
+              {activeBatch.stops
+                .slice()
+                .sort((a, b) => a.reihenfolge - b.reihenfolge)
+                .map((stop, idx, arr) => {
+                  const o = stop.order as any;
+                  const isCash = o.zahlungsart === 'bar' || o.bezahlt === false;
+                  const kStatus = kitchenStatuses.get(stop.order_id) ?? null;
+                  const kitchenReady = kStatus === 'fertig' || kStatus === 'unterwegs';
+                  const kitchenCooking = kStatus === 'in_zubereitung';
+                  const isLast = idx === arr.length - 1;
+
+                  // Individual stop nav URL
+                  const stopNavUrl = stop.order.kunde_lat && stop.order.kunde_lng
+                    ? `https://www.google.com/maps/dir/?api=1&destination=${stop.order.kunde_lat},${stop.order.kunde_lng}&travelmode=driving`
+                    : stop.order.kunde_adresse
+                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(stop.order.kunde_adresse)}`
+                    : null;
+
+                  // Distanz-Chip
+                  const distM = (stop as any).distanz_zum_vorgaenger_m as number | null;
+
+                  return (
+                    <div key={stop.id} className="relative">
+                      {/* Vertical connector line between stops */}
+                      {!isLast && (
+                        <div className="absolute left-[15px] top-[52px] bottom-[-8px] w-0.5 bg-[var(--surface-2)] z-0" />
+                      )}
+                      <div className={cn(
+                        'relative z-10 rounded-xl border p-3 flex items-center gap-3 transition',
+                        kitchenReady ? 'bg-[var(--surface-2)] border-[var(--accent)]/40' :
+                        isCash ? 'bg-[var(--warn-tint)] border-[var(--warn)]/30' : 'bg-[var(--surface-2)] border-[var(--line)]',
+                      )}>
+                        <div className={cn(
+                          'h-8 w-8 rounded-lg grid place-items-center font-display font-black shrink-0',
+                          kitchenReady ? 'bg-[var(--accent)] text-white' : 'bg-[var(--accent-tint)] text-accent',
+                        )}>{kitchenReady ? '✓' : stop.reihenfolge}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <div className="font-display font-bold truncate">{stop.order.kunde_name}</div>
+                            {kitchenReady && (
+                              <span className="shrink-0 rounded-full bg-[var(--accent-tint)] text-accent px-1.5 py-0.5 text-[9px] font-black uppercase">Fertig!</span>
+                            )}
+                            {kitchenCooking && (
+                              <span className="shrink-0 rounded-full bg-[var(--warn-tint)] text-[var(--warn)] px-1.5 py-0.5 text-[9px] font-black animate-pulse">🍳 Kocht</span>
+                            )}
+                            {kStatus === 'bestätigt' && (
+                              <span className="shrink-0 rounded-full bg-[var(--accent-tint)] text-[var(--accent)] px-1.5 py-0.5 text-[9px] font-black">Angenommen</span>
+                            )}
+                          </div>
+                          <div className="text-xs text-[var(--ink-3)] truncate">{stop.order.kunde_adresse}</div>
+                          {/* Distanz + ETA */}
+                          <div className="flex items-center gap-2 mt-0.5">
+                            {distM != null && distM > 0 && (
+                              <span className="text-[9px] text-[var(--ink-3)] tabular-nums">
+                                {distM >= 1000 ? `${(distM / 1000).toFixed(1)} km` : `${Math.round(distM)} m`}
+                              </span>
+                            )}
+                            {o.eta_earliest ? (() => {
+                              const etaMs = new Date(o.eta_earliest).getTime();
+                              const etaStr = new Date(o.eta_earliest).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                              const minLeft = Math.round((etaMs - Date.now()) / 60_000);
+                              const isOverdue = etaMs < Date.now();
+                              return (
+                                <span className={cn(
+                                  'text-[9px] font-bold tabular-nums rounded-full px-1.5 py-0.5',
+                                  isOverdue ? 'bg-[var(--danger-tint)] text-[var(--danger)]' : minLeft <= 10 ? 'bg-[var(--warn-tint)] text-[var(--warn)]' : 'bg-accent/15 text-accent/80',
+                                )}>
+                                  ⏰ {isOverdue ? `${Math.abs(minLeft)}m verspätet` : `~${minLeft} Min`} ({etaStr})
+                                </span>
+                              );
+                            })() : (activeBatch as any).total_eta_min && arr.length > 0 ? (() => {
+                              const estMs = Date.now() + ((idx + 1) / arr.length) * (activeBatch as any).total_eta_min * 60_000;
+                              const estTime = new Date(estMs).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+                              const estMin = Math.round(((idx + 1) / arr.length) * (activeBatch as any).total_eta_min);
+                              return (
+                                <span className="text-[9px] font-bold text-[var(--ink-3)] tabular-nums rounded-full bg-[var(--surface-2)] px-1.5 py-0.5">
+                                  ⏰ ~{estMin} Min ({estTime})
+                                </span>
+                              );
+                            })() : null}
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <div className={cn('font-display font-bold', isCash ? 'text-[var(--warn)]' : 'text-accent')}>
+                            {euro(stop.order.gesamtbetrag)}
+                          </div>
+                          {isCash && <div className="text-[9px] font-bold text-[var(--warn)] uppercase">Bar</div>}
+                          {/* Individual Navigation Button */}
+                          {stopNavUrl && (
+                            <a
+                              href={stopNavUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 rounded-lg bg-[var(--accent-tint)] text-accent px-2 py-1 text-[9px] font-bold hover:bg-accent/30 transition"
+                              title="Diesen Stopp in Maps öffnen"
+                            >
+                              <Navigation className="h-3 w-3" />
+                              Nav
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+              })}
+            </div>
+
+            {/* Alle-Fertig-Banner wenn alle Bestellungen bereit sind */}
+            {activeBatch.stops.length > 0 && activeBatch.stops.every((s) => {
+              const ks = kitchenStatuses.get(s.order_id);
+              return ks === 'fertig' || ks === 'unterwegs';
+            }) && (
+              <div className="mb-3 rounded-xl bg-accent/15 border-2 border-accent/50 px-4 py-3 flex items-center gap-3">
+                <span className="text-2xl">🎉</span>
+                <div>
+                  <div className="font-display font-bold text-accent">Alle Bestellungen bereit!</div>
+                  <div className="text-[11px] text-[var(--ink-3)]">Packen & starten</div>
+                </div>
+              </div>
+            )}
+
+            {/* Route-Vorschau in Google Maps */}
+            {activeBatch.stops.length > 0 && (() => {
+              const withCoords = activeBatch.stops
+                .sort((a, b) => a.reihenfolge - b.reihenfolge)
+                .filter((s) => s.order.kunde_lat && s.order.kunde_lng);
+              if (withCoords.length === 0) return null;
+              const dest = `${withCoords[withCoords.length - 1].order.kunde_lat},${withCoords[withCoords.length - 1].order.kunde_lng}`;
+              const waypoints = withCoords.slice(0, -1).map((s) => `${s.order.kunde_lat},${s.order.kunde_lng}`).join('|');
+              const mapsUrl = waypoints
+                ? `https://www.google.com/maps/dir/?api=1&destination=${dest}&waypoints=${encodeURIComponent(waypoints)}&travelmode=driving`
+                : `https://www.google.com/maps/dir/?api=1&destination=${dest}&travelmode=driving`;
+              return (
+                <a
+                  href={mapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full h-11 rounded-xl bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] text-sm font-bold text-[var(--ink-2)] inline-flex items-center justify-center gap-2 mb-3 transition"
+                >
+                  <MapIcon className="h-4 w-4" />
+                  Route in Maps vorschauen ({withCoords.length} {withCoords.length === 1 ? 'Stopp' : 'Stopps'})
+                </a>
+              );
+            })()}
+
+            {/* Großer Pick-Starten Button */}
+            <button
+              onClick={() => setPickOpen(true)}
+              className="w-full h-16 rounded-2xl bg-[var(--accent)] text-white font-display text-xl font-black inline-flex items-center justify-center gap-3 active:scale-[0.98] shadow-xl shadow-accent/30"
+            >
+              <ShoppingBag className="h-6 w-6" />
+              Jetzt Packen & Kontrollieren
+            </button>
+
+            <div className="mt-3 text-xs text-[var(--ink-3)] text-center leading-relaxed">
+              Tippe „Packen" → geh jedes Item durch („ist dabei" / „fehlt"). Danach wird die schnellste Route berechnet.
+            </div>
+          </section>
+        )}
+
+        {/* Eingehende Bestellung(en) — POPUP zum Annehmen */}
+        {!activeBatch && isOnline && openBatches.length > 0 && (
+          <div className="fixed inset-0 z-[60] bg-white/95 backdrop-blur-sm flex flex-col p-4 overflow-y-auto">
+            <div className="text-center pt-5 pb-3 shrink-0">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[var(--accent-tint)] text-accent px-4 py-1.5 font-display font-black uppercase tracking-wider text-sm animate-pulse">
+                <ShoppingBag size={16} /> Neue Bestellung
+              </div>
+              <div className="text-[var(--ink-2)] text-sm mt-2">Nimm die Tour an, um loszulegen</div>
+            </div>
+            <OpenBatchSection
+              openBatches={openBatches}
+              pending={pending}
+              onClaim={claimBatch}
+              driverPos={driverPos}
+            />
+          </div>
+        )}
+
+        {/* Warte-Anzeige: kein Batch, online, keine offenen Touren */}
+        {!activeBatch && isOnline && openBatches.length === 0 && (
+          <FahrerWarteAnzeige driverId={driver.id} />
+        )}
+
+        {/* Offline state */}
+        {!isOnline && !activeBatch && (
+          <section className="text-center py-8">
+            <Power className="h-12 w-12 text-[var(--ink-3)] mx-auto mb-2 opacity-40" />
+            <div className="text-[var(--ink-2)]">Du bist offline. Geh online, um Touren anzunehmen.</div>
+          </section>
+        )}
+
+        {/* Schicht-Statistik — immer sichtbar wenn kein aktiver Batch */}
+        {!activeBatch && <SchichtStats driverId={driver.id} isOnline={isOnline} />}
+
+        {/* Schicht-Buchung — Fahrer können sich für offene Schichten anmelden */}
+        {!activeBatch && driver.location_id && (
+          <SchichtBuchung locationId={driver.location_id} />
+        )}
+      </main>
+
+      <UpdateBanner />
+
+      {/* Alarm-Ringer: klingelt wenn Tour in Open-Liste (zum Annehmen) ODER zugewiesen (zum Picken) */}
+      <PushRegister />
+      <AlarmRinger
+        openBatchIds={openBatches.map((b) => b.batch_id)}
+        assignedBatchId={activeBatch?.status === 'zugewiesen' && !pickOpen ? activeBatch.id : null}
+      />
+
+      {pickOpen && activeBatch && (
+        <PickDialog
+          orderBestellnummer={activeBatch.stops[0]?.order.bestellnummer ?? ''}
+          items={pickItems}
+          batchId={activeBatch.id}
+          onClose={() => setPickOpen(false)}
+          onComplete={() => { setPickOpen(false); router.refresh(); }}
+        />
+      )}
+
+      {/* Schicht-Abschluss Modal */}
+      {showShiftEnd && shiftSnapshot && (
+        <SchichtAbschlussModal
+          snapshot={shiftSnapshot}
+          onConfirm={goOffline}
+          onCancel={() => setShowShiftEnd(false)}
+        />
+      )}
+    </div>
+    </>
+  );
+}
+
+/* ---------- SchichtStats ---------- */
+
+function SchichtStats({ driverId, isOnline }: { driverId: string; isOnline: boolean }) {
+  const supabase = createClient();
+  const [stats, setStats] = useState<{
+    deliveries: number;
+    tours: number;
+    totalBetrag: number;
+    totalDistKm: number;
+  } | null>(null);
+  const [onlineMin, setOnlineMin] = useState<number>(0);
+  const prevOnlineRef = React.useRef<number>(0);
+
+  // Tick für Online-Zeit
+  useEffect(() => {
+    const t = setInterval(() => setOnlineMin((m) => m + 1), 60_000);
+    return () => clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    (async () => {
+      // Legacy + Mise parallel abfragen
+      const [
+        { data: legacyBatches },
+        { data: miseDriver },
+      ] = await Promise.all([
+        supabase
+          .from('delivery_batches')
+          .select('id, total_distance_km')
+          .eq('fahrer_id', driverId)
+          .gte('created_at', today.toISOString()),
+        supabase
+          .from('mise_drivers')
+          .select('id')
+          .eq('employee_id', driverId)
+          .maybeSingle(),
+      ]);
+
+      const miseDriverId = (miseDriver as any)?.id ?? null;
+
+      const [{ data: legacyStops }, { data: miseBatches }] = await Promise.all([
+        legacyBatches?.length
+          ? supabase
+              .from('delivery_batch_stops')
+              .select('id, geliefert_am, order:customer_orders(gesamtbetrag)')
+              .in('batch_id', (legacyBatches as any[]).map((b) => b.id))
+              .not('geliefert_am', 'is', null)
+          : Promise.resolve({ data: [] }),
+        miseDriverId
+          ? supabase
+              .from('mise_delivery_batches')
+              .select('id, total_distance_km')
+              .eq('driver_id', miseDriverId)
+              .gte('created_at', today.toISOString())
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      const { data: miseStops } = miseBatches?.length
+        ? await supabase
+            .from('mise_delivery_batch_stops')
+            .select('id, completed_at, type, order:customer_orders(gesamtbetrag)')
+            .in('batch_id', (miseBatches as any[]).map((b) => b.id))
+            .eq('type', 'dropoff')
+            .not('completed_at', 'is', null)
+        : { data: [] };
+
+      const legacyDelivered = (legacyStops as any[])?.length ?? 0;
+      const miseDelivered = (miseStops as any[])?.length ?? 0;
+      const legacyBetrag = ((legacyStops as any[]) ?? []).reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
+      const miseBetrag = ((miseStops as any[]) ?? []).reduce((s: number, st: any) => s + (st.order?.gesamtbetrag ?? 0), 0);
+      const legacyDist = ((legacyBatches as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
+      const miseDist = ((miseBatches as any[]) ?? []).reduce((s: number, b: any) => s + (b.total_distance_km ?? 0), 0);
+
+      setStats({
+        deliveries: legacyDelivered + miseDelivered,
+        tours: ((legacyBatches as any[])?.length ?? 0) + ((miseBatches as any[])?.length ?? 0),
+        totalBetrag: legacyBetrag + miseBetrag,
+        totalDistKm: legacyDist + miseDist,
+      });
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverId]);
+
+  const [realEarnings, setRealEarnings] = useState<{ deliveries: number; totalEur: number } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/delivery/driver/earnings')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.today?.deliveries >= 0) setRealEarnings(d.today); })
+      .catch(() => {});
+  }, []);
+
+  // Online-Zeit aus driver_status
+  useEffect(() => {
+    if (!isOnline) return;
+    (async () => {
+      const { data } = await supabase
+        .from('driver_status')
+        .select('online_seit')
+        .eq('employee_id', driverId)
+        .maybeSingle();
+      if (data?.online_seit) {
+        const min = Math.floor((Date.now() - new Date(data.online_seit as string).getTime()) / 60_000);
+        setOnlineMin(min);
+        prevOnlineRef.current = min;
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverId, isOnline]);
+
+  if (!stats && !isOnline) return null;
+  if (!stats) return null;
+
+  const hasData = stats.deliveries > 0 || stats.tours > 0;
+
+  return (
+    <section className={cn(
+      'rounded-2xl border p-4',
+      hasData ? 'bg-[var(--surface-2)] border-[var(--line)]' : 'bg-[var(--surface)] border-[var(--line)] opacity-60',
+    )}>
+      <div className="flex items-center gap-2 mb-3">
+        <Trophy className="h-4 w-4 text-accent" />
+        <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink-3)]">Heutige Schicht</div>
+        {onlineMin > 0 && (
+          <div className="ml-auto text-[10px] font-bold text-[var(--ink-3)] tabular-nums">
+            {Math.floor(onlineMin / 60) > 0 ? `${Math.floor(onlineMin / 60)}h ` : ''}{onlineMin % 60}m online
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="rounded-xl bg-[var(--surface-2)] p-3 text-center">
+          <div className="font-display text-2xl font-black text-accent leading-none">{stats.deliveries}</div>
+          <div className="text-[10px] text-[var(--ink-3)] mt-1">Lieferungen</div>
+        </div>
+        <div className="rounded-xl bg-[var(--surface-2)] p-3 text-center">
+          <div className="font-display text-2xl font-black text-accent leading-none">{stats.tours}</div>
+          <div className="text-[10px] text-[var(--ink-3)] mt-1">Touren</div>
+        </div>
+        <div className="rounded-xl bg-[var(--surface-2)] p-3 text-center">
+          <div className="font-display text-lg font-black text-accent leading-none">
+            {stats.totalDistKm > 0 ? `${stats.totalDistKm.toFixed(1)} km` : '—'}
+          </div>
+          <div className="text-[10px] text-[var(--ink-3)] mt-1">Strecke</div>
+        </div>
+        <div className="rounded-xl bg-[var(--surface-2)] p-3 text-center">
+          <div className="font-display text-lg font-black text-accent leading-none">
+            {euro(stats.totalBetrag)}
+          </div>
+          <div className="text-[10px] text-[var(--ink-3)] mt-1">Umsatz</div>
+        </div>
+      </div>
+      {!hasData && isOnline && (
+        <div className="mt-2 text-center text-[11px] text-[var(--ink-3)]">
+          Noch keine Lieferungen heute — erste Tour annehmen!
+        </div>
+      )}
+      {stats.deliveries > 0 && (
+        <>
+          <div className="mt-2 flex items-center gap-1.5 text-[11px] text-[var(--ink-3)]">
+            <TrendingUp className="h-3 w-3 text-accent" />
+            Ø {stats.tours > 0 ? Math.round(stats.deliveries / stats.tours * 10) / 10 : 0} Stopps/Tour
+            {stats.totalDistKm > 0 && stats.deliveries > 0 && (
+              <span className="ml-2 opacity-70">· Ø {(stats.totalDistKm / stats.deliveries).toFixed(1)} km/Lieferung</span>
+            )}
+          </div>
+          {/* Effizienz-Streifen */}
+          {onlineMin > 0 && (() => {
+            const delivPerHour = Math.round((stats.deliveries / Math.max(1, onlineMin)) * 60 * 10) / 10;
+            const effScore = Math.min(100, Math.round(delivPerHour * 20)); // ~5/h = 100%
+            const effLabel = effScore >= 80 ? 'Excellent' : effScore >= 60 ? 'Sehr gut' : effScore >= 40 ? 'Gut' : 'Aufwärmen';
+            const effColor = effScore >= 80 ? 'bg-accent' : effScore >= 60 ? 'bg-[var(--accent)]' : effScore >= 40 ? 'bg-[var(--warn)]' : 'bg-muted';
+            const estimatedEarnings = realEarnings?.totalEur ?? (stats.deliveries * 3 + stats.totalDistKm * 0.15);
+            const isRealEarnings = realEarnings !== null && realEarnings.totalEur > 0;
+            const earningsPerHour = onlineMin >= 5 ? (estimatedEarnings / Math.max(1, onlineMin)) * 60 : null;
+            return (
+              <div className="mt-3 space-y-2">
+                <div className="rounded-xl bg-[var(--surface-2)] px-3 py-2">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Schicht-Effizienz</span>
+                    <span className="text-[10px] font-black text-accent">{effLabel}</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-[var(--surface-2)] overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-700 ${effColor}`}
+                      style={{ width: `${effScore}%` }}
+                    />
+                  </div>
+                  <div className="mt-1 flex justify-between text-[10px] text-[var(--ink-3)]">
+                    <span>{delivPerHour}/h Lieferungen</span>
+                    {earningsPerHour != null && (
+                      <span className="text-accent font-bold">
+                        ≈ {earningsPerHour.toFixed(2)}€/h
+                        <span className="ml-1 opacity-60 text-[9px]">{isRealEarnings ? '✓ echt' : '~schätz.'}</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {/* Schicht-Endprognose */}
+                {earningsPerHour != null && (() => {
+                  const nowH = new Date().getHours();
+                  const shiftEndH = 22;
+                  const hoursLeft = Math.max(0, shiftEndH - nowH - new Date().getMinutes() / 60);
+                  const currentEarnings = estimatedEarnings;
+                  const projectedEarnings = currentEarnings + earningsPerHour * hoursLeft;
+                  if (hoursLeft <= 0 || projectedEarnings <= 0) return null;
+                  return (
+                    <div className="rounded-xl bg-[var(--accent-tint)] border border-accent/20 px-3 py-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-wider">
+                          Prognose bis {shiftEndH}:00 Uhr
+                        </span>
+                        <span className="font-display text-lg font-black text-accent tabular-nums">
+                          ~{projectedEarnings.toFixed(0)}€
+                        </span>
+                      </div>
+                      <div className="text-[9px] text-[var(--ink-3)] mt-0.5">
+                        {currentEarnings.toFixed(0)}€ bereits{isRealEarnings ? ' (Echtdaten)' : ' (Schätzung)'} + {(earningsPerHour * hoursLeft).toFixed(0)}€ prognose
+                      </div>
+                    </div>
+                  );
+                })()}
+                {/* Tages-Meilenstein */}
+                {(() => {
+                  const MILESTONES = [5, 10, 15, 20, 30, 50];
+                  const next = MILESTONES.find((m) => m > stats.deliveries);
+                  if (!next) return null;
+                  const pct = Math.round((stats.deliveries / next) * 100);
+                  const remaining = next - stats.deliveries;
+                  return (
+                    <div className="rounded-xl bg-[var(--surface-2)] px-3 py-2">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Nächstes Ziel</span>
+                        <span className="text-[10px] font-black text-[var(--ink-2)]">
+                          {stats.deliveries}/{next} <span className="text-accent">🏆</span>
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-[var(--surface-2)] overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-[var(--ink-3)] transition-all duration-700"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <div className="mt-1 text-[10px] text-[var(--ink-3)]">
+                        Noch {remaining} {remaining === 1 ? 'Lieferung' : 'Lieferungen'} bis zum Meilenstein
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            );
+          })()}
+        </>
+      )}
+    </section>
+  );
+}
+
+/* ---------- Haversine ---------- */
+function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLon = ((b.lng - a.lng) * Math.PI) / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  const out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+
+/* ---------- FahrerWarteAnzeige ---------- */
+
+function FahrerWarteAnzeige({ driverId }: { driverId: string }) {
+  const supabase = createClient();
+  const [waitSec, setWaitSec] = useState(0);
+  const [lastDeliveryMin, setLastDeliveryMin] = useState<number | null>(null);
+  const [pulse, setPulse] = useState(false);
+
+  // Tick every second for wait timer
+  useEffect(() => {
+    const t = setInterval(() => {
+      setWaitSec((s) => s + 1);
+      setPulse((p) => !p);
+    }, 1_000);
+    return () => clearInterval(t);
+  }, []);
+
+  // Fetch last completed delivery time
+  useEffect(() => {
+    (async () => {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const { data: lastStop } = await supabase
+        .from('delivery_batch_stops')
+        .select('geliefert_am, batch:delivery_batches!inner(fahrer_id)')
+        .eq('batch.fahrer_id', driverId)
+        .gte('geliefert_am', today.toISOString())
+        .not('geliefert_am', 'is', null)
+        .order('geliefert_am', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (lastStop?.geliefert_am) {
+        const min = Math.floor((Date.now() - new Date(lastStop.geliefert_am as string).getTime()) / 60_000);
+        setLastDeliveryMin(min);
+      }
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [driverId]);
+
+  const waitMin = Math.floor(waitSec / 60);
+  const waitSecDisplay = waitSec % 60;
+
+  return (
+    <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-5 text-center">
+      {/* Pulse ring */}
+      <div className="relative inline-flex items-center justify-center mb-4">
+        <div className={cn(
+          'absolute h-16 w-16 rounded-full border-2 border-accent transition-all duration-1000',
+          pulse ? 'scale-125 opacity-0' : 'scale-100 opacity-40',
+        )} />
+        <div className="h-12 w-12 rounded-full bg-[var(--accent-tint)] border border-[var(--accent)]/40 flex items-center justify-center">
+          <Route className="h-6 w-6 text-accent" />
+        </div>
+      </div>
+
+      <div className="font-display text-[var(--ink-2)] font-bold text-base mb-1">
+        Warte auf nächste Tour…
+      </div>
+      <div className="text-[11px] text-[var(--ink-3)] mb-3">
+        System ist aktiv — du bekommst sofort eine Benachrichtigung
+      </div>
+
+      {/* Wait timer */}
+      <div className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--surface-2)] px-4 py-2 tabular-nums">
+        <Clock className="h-3.5 w-3.5 text-[var(--ink-3)]" />
+        <span className="text-sm font-black text-[var(--ink-2)]">
+          {waitMin > 0 ? `${waitMin}m ` : ''}{waitSecDisplay.toString().padStart(2, '0')}s
+        </span>
+        <span className="text-[10px] text-[var(--ink-3)]">Wartezeit</span>
+      </div>
+
+      {lastDeliveryMin !== null && (
+        <div className="mt-2 text-[10px] text-[var(--ink-3)]">
+          Letzte Lieferung vor {lastDeliveryMin} Min
+        </div>
+      )}
+    </section>
+  );
+}
+
+function OpenBatchSection({
+  openBatches,
+  pending,
+  onClaim,
+  driverPos,
+}: {
+  openBatches: OpenBatch[];
+  pending: boolean;
+  onClaim: (batchId: string) => void;
+  driverPos?: { lat: number; lng: number } | null;
+}) {
+  // Group stops by batch_id for multi-stop display
+  const grouped = useMemo(() => {
+    const map = new Map<string, OpenBatch[]>();
+    for (const b of openBatches) {
+      if (!map.has(b.batch_id)) map.set(b.batch_id, []);
+      map.get(b.batch_id)!.push(b);
+    }
+    return Array.from(map.entries()).map(([batchId, stops]) => {
+      const locLat = stops[0].location_lat;
+      const locLng = stops[0].location_lng;
+      let totalDistanceKm = 0;
+      let prev = locLat != null && locLng != null ? { lat: locLat, lng: locLng } : null;
+      for (const s of stops) {
+        if (s.kunde_lat && s.kunde_lng && prev) {
+          totalDistanceKm += haversineKm(prev, { lat: s.kunde_lat, lng: s.kunde_lng });
+          prev = { lat: s.kunde_lat, lng: s.kunde_lng };
+        }
+      }
+      const estEtaMin = Math.round((totalDistanceKm / 20) * 60 + stops.length * 3);
+      const cashAmount = stops
+        .filter((s) => s.zahlungsart === 'bar' || s.bezahlt === false)
+        .reduce((sum, s) => sum + s.gesamtbetrag, 0);
+      // Fahrer-Verdienstschätzung: Basis 3€/Stop + 0.15€/km
+      const estDriverEarnings = Math.round((stops.length * 3 + totalDistanceKm * 0.15) * 100) / 100;
+      return {
+        batchId,
+        stops,
+        totalAmount: stops.reduce((s, x) => s + x.gesamtbetrag, 0),
+        cashAmount,
+        estDriverEarnings,
+        locationName: stops[0].location_name,
+        locationLat: locLat,
+        locationLng: locLng,
+        maxEta: stops.reduce((m, x) => Math.max(m, x.geschaetzte_lieferung_min ?? 0), 0),
+        totalDistanceKm: totalDistanceKm > 0 ? totalDistanceKm : null,
+        estEtaMin: estEtaMin > 0 ? estEtaMin : null,
+      };
+    });
+  }, [openBatches]);
+
+  return (
+    <section>
+      <div className="flex items-center gap-2 mb-3 text-accent">
+        <ShoppingBag className="h-4 w-4" />
+        <h2 className="font-display text-sm font-bold uppercase tracking-wider">Verfügbare Touren</h2>
+        {grouped.length > 0 && (
+          <span className="ml-auto rounded-full bg-[var(--accent)] text-white px-2 py-0.5 text-xs font-bold">{grouped.length}</span>
+        )}
+      </div>
+
+      {grouped.length === 0 ? (
+        <div className="rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] p-6 text-center">
+          <Clock className="h-8 w-8 text-[var(--ink-3)] mx-auto mb-2 opacity-60" />
+          <div className="text-[var(--ink-2)] text-sm">Gerade keine offenen Touren.</div>
+          <div className="text-[var(--ink-3)] text-xs mt-1">Bleib online — wir sagen dir Bescheid.</div>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {grouped.map(({ batchId, stops, totalAmount, cashAmount, estDriverEarnings, locationName, maxEta, totalDistanceKm, estEtaMin }, idx) => {
+            // Beste Wahl: höchster Verdienst / geschätzte Minuten
+            const earningRate = estEtaMin && estEtaMin > 0 && estDriverEarnings > 0
+              ? estDriverEarnings / estEtaMin
+              : 0;
+            const bestIdx = grouped.reduce((best, g, i) => {
+              const r = g.estEtaMin && g.estEtaMin > 0 && g.estDriverEarnings > 0
+                ? g.estDriverEarnings / g.estEtaMin : 0;
+              return r > (grouped[best].estEtaMin && grouped[best].estEtaMin! > 0 && grouped[best].estDriverEarnings > 0
+                ? grouped[best].estDriverEarnings / grouped[best].estEtaMin! : 0) ? i : best;
+            }, 0);
+            const isBestChoice = grouped.length > 1 && idx === bestIdx && earningRate > 0;
+            return (
+            <div key={batchId} className={cn('rounded-2xl p-4', isBestChoice ? 'bg-[var(--accent-tint)] border-2 border-accent' : 'bg-[var(--accent-tint)] border-2 border-[var(--accent)]/30')}>
+              <div className="flex items-start gap-3 mb-3">
+                <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center shrink-0', isBestChoice ? 'bg-[var(--accent)] text-white' : 'bg-[var(--accent-tint)] text-accent')}>
+                  <Zap size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="font-display font-bold">
+                      {stops.length === 1 ? stops[0].kunde_name : `${stops.length} Stopps · ${locationName}`}
+                    </div>
+                    {isBestChoice && (
+                      <span className="rounded-full bg-[var(--accent)] text-white px-2 py-0.5 text-[10px] font-black uppercase tracking-wide">
+                        ⭐ Beste Wahl
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-[var(--ink-3)]">
+                    <span className="font-bold text-accent">{euro(totalAmount)}</span>
+                    {cashAmount > 0 && (
+                      <span className="flex items-center gap-1 font-bold text-[var(--warn)]">
+                        <Banknote size={10} /> Bar: {euro(cashAmount)}
+                      </span>
+                    )}
+                    {/* Fahrer-Verdienstschätzung */}
+                    {estDriverEarnings > 0 && (
+                      <span className="flex items-center gap-1 rounded-full bg-[var(--surface-2)] border border-[var(--line)] px-2 py-0.5 font-bold text-[var(--ink-2)]">
+                        <TrendingUp size={10} /> ~{euro(estDriverEarnings)} Verdienst
+                      </span>
+                    )}
+                    {estEtaMin ? (
+                      <span className="flex items-center gap-1"><Clock size={10} /> ~{estEtaMin} Min</span>
+                    ) : maxEta > 0 ? (
+                      <span className="flex items-center gap-1"><Clock size={10} /> ~{maxEta} Min</span>
+                    ) : null}
+                    {totalDistanceKm != null && (
+                      <span className="flex items-center gap-1"><Route size={10} /> {totalDistanceKm.toFixed(1)} km</span>
+                    )}
+                    <span>{stops.length} {stops.length === 1 ? 'Stopp' : 'Stopps'}</span>
+                    {/* Distance from driver to pickup location */}
+                    {driverPos && stops[0].location_lat && stops[0].location_lng && (() => {
+                      const d = haversineKm(driverPos, { lat: stops[0].location_lat!, lng: stops[0].location_lng! });
+                      const label = d < 0.1 ? '< 100m' : d < 1 ? `${Math.round(d * 1000)} m` : `${d.toFixed(1)} km`;
+                      return (
+                        <span className={cn(
+                          'flex items-center gap-1 rounded-full px-2 py-0.5 font-bold',
+                          d < 0.3 ? 'bg-[var(--accent-tint)] text-accent' : d < 1 ? 'bg-[var(--warn-tint)] text-[var(--warn)]' : 'bg-[var(--surface-2)] text-[var(--ink-3)]',
+                        )}>
+                          <Navigation size={9} /> {label} zur Abholung
+                        </span>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </div>
+
+              {/* Route-Visualisierung für Multi-Stop */}
+              {stops.length > 1 && totalDistanceKm != null && (
+                <div className="mb-3 rounded-xl bg-[var(--surface-2)] px-3 py-2">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)] mb-1.5">Route</div>
+                  <div className="flex items-center gap-1 overflow-x-auto pb-1">
+                    <div className="flex flex-col items-center shrink-0">
+                      <div className="h-5 w-5 rounded-full bg-[var(--surface-2)] text-accent flex items-center justify-center">
+                        <MapPin size={10} />
+                      </div>
+                      <div className="text-[9px] text-[var(--ink-3)] max-w-[52px] truncate text-center mt-0.5">{locationName}</div>
+                    </div>
+                    {stops.map((s, i) => (
+                      <div key={s.order_id} className="flex items-center gap-1 shrink-0">
+                        <div className="w-4 h-0.5 bg-accent/40 rounded-full mb-3" />
+                        <div className="flex flex-col items-center">
+                          <div className="h-5 w-5 rounded-full bg-[var(--accent-tint)] border border-[var(--accent)]/40 text-accent flex items-center justify-center text-[9px] font-black">{i + 1}</div>
+                          <div className="text-[9px] text-[var(--ink-3)] max-w-[52px] truncate text-center mt-0.5">{s.kunde_name.split(' ')[0]}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Stop list */}
+              <div className="space-y-2 mb-3">
+                {stops.map((s, i) => {
+                  const isCash = s.zahlungsart === 'bar' || s.bezahlt === false;
+                  return (
+                    <div key={s.order_id} className={cn(
+                      'flex items-start gap-2 rounded-xl px-3 py-2',
+                      isCash ? 'bg-[var(--warn-tint)] border border-[var(--warn)]/30' : 'bg-[var(--surface-2)]',
+                    )}>
+                      <div className="h-6 w-6 rounded-lg bg-[var(--accent-tint)] text-accent grid place-items-center text-[11px] font-black shrink-0">{i + 1}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold truncate">{s.kunde_name}</div>
+                        <div className="text-[11px] text-[var(--ink-3)] truncate">
+                          {s.kunde_adresse}{s.kunde_plz ? `, ${s.kunde_plz}` : ''}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <div className={cn('text-sm font-bold', isCash ? 'text-[var(--warn)]' : 'text-accent')}>{euro(s.gesamtbetrag)}</div>
+                        {isCash && (
+                          <div className="flex items-center gap-0.5 text-[9px] font-bold text-[var(--warn)] uppercase tracking-wide">
+                            <Banknote size={9} /> Bar
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={() => onClaim(batchId)}
+                disabled={pending}
+                className="w-full h-14 rounded-xl bg-[var(--accent)] text-white font-display font-bold text-lg inline-flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
+              >
+                {pending ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
+                {stops.length === 1 ? 'Tour annehmen' : `${stops.length}-Stopp-Tour annehmen`}
+              </button>
+            </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------- SchichtBuchung ---------- */
+
+type BookableSlot = {
+  slotStart: string;
+  slotEnd: string;
+  dayLabel: string;
+  timeLabel: string;
+  driverNeeded: number;
+  driverTarget: number;
+  alreadyClaimed: boolean;
+};
+
+type DriverClaim = {
+  id: string;
+  plannedStart: string;
+  plannedEnd: string;
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  rejectionReason: string | null;
+};
+
+function SchichtBuchung({ locationId }: { locationId: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [slots, setSlots] = useState<BookableSlot[]>([]);
+  const [claims, setClaims] = useState<DriverClaim[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [claimPending, setClaimPending] = useState<string | null>(null);
+  const [cancelPending, setCancelPending] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    try {
+      const [slotsRes, claimsRes] = await Promise.all([
+        fetch(`/api/delivery/shifts/available?location_id=${locationId}`),
+        fetch('/api/delivery/shifts/claim'),
+      ]);
+      if (slotsRes.ok) {
+        const { slots: s = [] } = await slotsRes.json() as { slots: BookableSlot[] };
+        setSlots(s);
+      }
+      if (claimsRes.ok) {
+        const { claims: c = [] } = await claimsRes.json() as { claims: DriverClaim[] };
+        setClaims(c);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function toggle() {
+    if (!expanded) load();
+    setExpanded(v => !v);
+  }
+
+  async function doClaim(slot: BookableSlot) {
+    setClaimPending(slot.slotStart);
+    try {
+      const res = await fetch('/api/delivery/shifts/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          location_id:   locationId,
+          planned_start: slot.slotStart,
+          planned_end:   slot.slotEnd,
+        }),
+      });
+      if (!res.ok) {
+        const { error } = await res.json() as { error?: string };
+        alert(error ?? 'Anmeldung fehlgeschlagen');
+      } else {
+        await load();
+      }
+    } finally {
+      setClaimPending(null);
+    }
+  }
+
+  async function doCancel(claimId: string) {
+    setCancelPending(claimId);
+    try {
+      await fetch(`/api/delivery/shifts/claim?claim_id=${claimId}`, { method: 'DELETE' });
+      await load();
+    } finally {
+      setCancelPending(null);
+    }
+  }
+
+  const pendingClaims  = claims.filter(c => c.status === 'pending');
+  const approvedClaims = claims.filter(c => c.status === 'approved');
+  const openSlots      = slots.filter(s => !s.alreadyClaimed);
+  const totalBadge     = openSlots.length + pendingClaims.length + approvedClaims.length;
+
+  return (
+    <section className="rounded-2xl border border-[var(--line)] bg-[var(--surface-2)]">
+      <button
+        onClick={toggle}
+        className="w-full flex items-center gap-3 px-4 py-4 text-left"
+      >
+        <div className="h-9 w-9 rounded-xl bg-[var(--surface-2)] flex items-center justify-center shrink-0">
+          <Calendar size={18} className="text-accent" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-display font-bold text-sm">Schichten buchen</div>
+          <div className="text-[11px] text-[var(--ink-3)]">
+            {expanded
+              ? 'Tippe um zuzuklappen'
+              : openSlots.length > 0
+              ? `${openSlots.length} offene Slot${openSlots.length === 1 ? '' : 's'}`
+              : 'Verfügbare Schichten anzeigen'}
+          </div>
+        </div>
+        {totalBadge > 0 && !expanded && (
+          <span className="rounded-full bg-[var(--accent)] text-white px-2 py-0.5 text-xs font-black">
+            {totalBadge}
+          </span>
+        )}
+        {expanded
+          ? <ChevronUp size={16} className="text-[var(--ink-3)] shrink-0" />
+          : <ChevronDown size={16} className="text-[var(--ink-3)] shrink-0" />}
+      </button>
+
+      {expanded && (
+        <div className="px-4 pb-4 space-y-4">
+          {loading && (
+            <div className="flex items-center justify-center gap-2 py-4 text-[var(--ink-3)] text-sm">
+              <Loader2 size={16} className="animate-spin" />
+              Lade Schichten…
+            </div>
+          )}
+
+          {/* Meine Anmeldungen */}
+          {!loading && (pendingClaims.length > 0 || approvedClaims.length > 0) && (
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink-3)] mb-2">
+                Meine Anmeldungen
+              </div>
+              <div className="space-y-2">
+                {[...approvedClaims, ...pendingClaims].map(c => {
+                  const start = new Date(c.plannedStart);
+                  const end   = new Date(c.plannedEnd);
+                  const dayLbl = start.toLocaleDateString('de-DE', {
+                    weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC',
+                  });
+                  const timeLbl = `${start.toISOString().slice(11, 16)} – ${end.toISOString().slice(11, 16)} Uhr`;
+                  const isApproved = c.status === 'approved';
+                  return (
+                    <div key={c.id} className={cn(
+                      'rounded-xl border px-3 py-2.5 flex items-center gap-3',
+                      isApproved
+                        ? 'bg-[var(--accent-tint)] border-[var(--accent)]/30'
+                        : 'bg-[var(--surface-2)] border-[var(--line)]',
+                    )}>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold truncate">{dayLbl}</div>
+                        <div className="text-[11px] text-[var(--ink-3)]">{timeLbl}</div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={cn(
+                          'text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full',
+                          isApproved
+                            ? 'bg-[var(--accent-tint)] text-accent'
+                            : 'bg-[var(--warn-tint)] text-[var(--warn)]',
+                        )}>
+                          {isApproved ? '✓ Genehmigt' : '⏳ Wartet'}
+                        </span>
+                        {c.status === 'pending' && (
+                          <button
+                            onClick={() => doCancel(c.id)}
+                            disabled={cancelPending === c.id}
+                            className="h-7 w-7 rounded-lg bg-[var(--surface-2)] hover:bg-[var(--accent-tint)] flex items-center justify-center text-[var(--ink-3)] transition disabled:opacity-40"
+                            title="Anmeldung zurückziehen"
+                          >
+                            {cancelPending === c.id
+                              ? <Loader2 size={12} className="animate-spin" />
+                              : <span className="text-xs">✕</span>}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Verfügbare Slots */}
+          {!loading && (
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ink-3)] mb-2">
+                Offene Slots
+              </div>
+              {openSlots.length === 0 ? (
+                <div className="rounded-xl bg-[var(--surface-2)] border border-[var(--line)] px-4 py-5 text-center">
+                  <Clock size={20} className="mx-auto mb-1.5 text-[var(--ink-3)] opacity-60" />
+                  <div className="text-sm text-[var(--ink-2)]">Keine offenen Schichten</div>
+                  <div className="text-[11px] text-[var(--ink-3)] mt-0.5">
+                    Alle Slots für die nächsten 7 Tage sind gedeckt.
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {openSlots.map(slot => (
+                    <div
+                      key={slot.slotStart}
+                      className="rounded-xl border border-[var(--line)] bg-[var(--surface-2)] px-3 py-2.5 flex items-center gap-3"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold truncate">{slot.dayLabel}</div>
+                        <div className="text-[11px] text-[var(--ink-3)]">{slot.timeLabel}</div>
+                        <div className="text-[10px] text-[var(--warn)] mt-0.5">
+                          {slot.driverNeeded} von {slot.driverTarget} Fahrern noch gesucht
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => doClaim(slot)}
+                        disabled={claimPending === slot.slotStart}
+                        className="h-9 px-3 rounded-xl bg-[var(--accent)] text-white font-display font-bold text-xs inline-flex items-center gap-1.5 shrink-0 transition active:scale-95 disabled:opacity-60"
+                      >
+                        {claimPending === slot.slotStart
+                          ? <Loader2 size={12} className="animate-spin" />
+                          : <Check size={12} />}
+                        Anmelden
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          <button
+            onClick={load}
+            disabled={loading}
+            className="w-full text-center text-[11px] text-[var(--ink-3)] hover:text-[var(--ink-2)] transition py-1"
+          >
+            {loading ? 'Aktualisiere…' : '↻ Aktualisieren'}
+          </button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------- SchichtAbschlussModal ---------- */
+
+function SchichtAbschlussModal({
+  snapshot,
+  onConfirm,
+  onCancel,
+}: {
+  snapshot: { deliveries: number; tours: number; distKm: number; betrag: number; onlineMin: number };
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const effScore = snapshot.onlineMin > 0
+    ? Math.min(100, Math.round((snapshot.deliveries / Math.max(1, snapshot.onlineMin)) * 60 * 20))
+    : 0;
+  const badge = effScore >= 80
+    ? { label: 'Excellent! 🏆', color: 'text-accent' }
+    : effScore >= 60
+    ? { label: 'Sehr gut! ⭐', color: 'text-blue-400' }
+    : effScore >= 40
+    ? { label: 'Gut gemacht! 👏', color: 'text-[var(--warn)]' }
+    : { label: 'Danke für deine Schicht!', color: 'text-[var(--ink-2)]' };
+
+  const estEarnings = snapshot.deliveries * 3 + snapshot.distKm * 0.15;
+  const hStr = snapshot.onlineMin >= 60 ? `${Math.floor(snapshot.onlineMin / 60)}h ` : '';
+  const mStr = `${snapshot.onlineMin % 60}m`;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center bg-[var(--surface)]0 backdrop-blur-sm">
+      <div className="w-full max-w-sm bg-white border border-[var(--line)] rounded-t-3xl sm:rounded-3xl p-6 animate-in slide-in-from-bottom-4 duration-300">
+        {/* Header */}
+        <div className="text-center mb-5">
+          <div className="text-5xl mb-2">🎉</div>
+          <div className="font-display text-2xl font-black text-accent">Schicht abgeschlossen!</div>
+          <div className={`text-sm font-bold mt-1 ${badge.color}`}>{badge.label}</div>
+        </div>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 gap-2.5 mb-4">
+          <div className="rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] p-4 text-center">
+            <div className="font-display text-3xl font-black text-accent leading-none">{snapshot.deliveries}</div>
+            <div className="text-[11px] text-[var(--ink-3)] mt-1.5">Lieferungen</div>
+          </div>
+          <div className="rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] p-4 text-center">
+            <div className="font-display text-3xl font-black text-accent leading-none">{snapshot.tours}</div>
+            <div className="text-[11px] text-[var(--ink-3)] mt-1.5">Touren</div>
+          </div>
+          <div className="rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] p-4 text-center">
+            <div className="font-display text-xl font-black text-accent leading-none">
+              {snapshot.distKm > 0 ? `${snapshot.distKm.toFixed(1)} km` : '—'}
+            </div>
+            <div className="text-[11px] text-[var(--ink-3)] mt-1.5">Strecke</div>
+          </div>
+          <div className="rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] p-4 text-center">
+            <div className="font-display text-xl font-black text-accent leading-none">
+              {snapshot.onlineMin > 0 ? `${hStr}${mStr}` : '—'}
+            </div>
+            <div className="text-[11px] text-[var(--ink-3)] mt-1.5">Online-Zeit</div>
+          </div>
+        </div>
+
+        {/* Estimated earnings */}
+        {estEarnings > 0 && (
+          <div className="rounded-2xl bg-[var(--accent-tint)] border border-accent/20 px-4 py-3 mb-5 text-center">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)] mb-1">
+              Geschätzter Verdienst
+            </div>
+            <div className="font-display text-2xl font-black text-accent">{euro(Math.round(estEarnings * 100) / 100)}</div>
+            <div className="text-[9px] text-[var(--ink-3)] mt-0.5">Ø {euro(Math.round((estEarnings / Math.max(1, snapshot.deliveries)) * 100) / 100)} pro Lieferung</div>
+          </div>
+        )}
+
+        {/* Efficiency bar */}
+        {effScore > 0 && (
+          <div className="rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] px-4 py-3 mb-5">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ink-3)]">Schicht-Effizienz</span>
+              <span className="text-[10px] font-black text-accent">{effScore}%</span>
+            </div>
+            <div className="h-2 rounded-full bg-[var(--surface-2)] overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${effScore >= 80 ? 'bg-accent' : effScore >= 60 ? 'bg-[var(--accent)]' : 'bg-[var(--warn)]'}`}
+                style={{ width: `${effScore}%` }}
+              />
+            </div>
+            <div className="mt-1 text-[10px] text-[var(--ink-3)] text-right">
+              {snapshot.onlineMin > 0 ? `${((snapshot.deliveries / Math.max(1, snapshot.onlineMin)) * 60).toFixed(1)}/h Lieferungen` : ''}
+            </div>
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="space-y-2.5">
+          <button
+            onClick={onConfirm}
+            className="w-full h-13 rounded-2xl bg-[var(--surface-2)] border border-[var(--line)] text-[var(--ink-2)] font-display font-bold text-base inline-flex items-center justify-center gap-2 active:scale-[0.98] transition"
+          >
+            <Power size={18} />
+            Schicht abschließen
+          </button>
+          <button
+            onClick={onCancel}
+            className="w-full h-12 rounded-2xl bg-[var(--accent)] text-white font-display font-bold text-base inline-flex items-center justify-center gap-2 active:scale-[0.98] transition"
+          >
+            Weiter arbeiten
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
