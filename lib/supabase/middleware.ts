@@ -60,6 +60,7 @@ export async function updateSession(request: NextRequest) {
     pathname === '/manifest.json' ||
     pathname === '/mais.webmanifest' ||
     pathname === '/sw.js' ||
+    pathname === '/sw-owner.js' ||
     pathname === '/sw-customer.js' ||
     pathname.startsWith('/api/push/') ||
     pathname.startsWith('/api/cron/') ||

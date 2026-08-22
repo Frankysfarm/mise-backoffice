@@ -34,6 +34,13 @@ test('employee PWA manifest is public and valid', async ({ request }) => {
   expect(manifest).toMatchObject({ name: 'Mise Team', start_url: '/mitarbeiter', display: 'standalone' });
 });
 
+test('owner service worker is public JavaScript instead of an auth redirect', async ({ request }) => {
+  const response = await request.get('/sw-owner.js', { maxRedirects: 0 });
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('javascript');
+  expect(await response.text()).toContain("self.addEventListener('push'");
+});
+
 test('order status requires a tracking capability in addition to the order id', async ({ request }) => {
   const response = await request.get('/api/order/status?id=00000000-0000-0000-0000-000000000001');
   expect(response.status()).toBe(400);

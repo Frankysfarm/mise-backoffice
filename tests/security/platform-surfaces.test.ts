@@ -46,8 +46,10 @@ describe('retired and protected platform surfaces', () => {
   it('keeps owner push isolated from the driver service worker scope', () => {
     const setup = source('app/(neo)/neo/app/pwa-setup.tsx');
     const ownerWorker = source('public/sw-owner.js');
+    const middleware = source('lib/supabase/middleware.ts');
     expect(setup).toContain("register('/sw-owner.js', { scope: '/neo/' })");
     expect(setup).not.toContain("register('/sw.js')");
+    expect(middleware).toContain("pathname === '/sw-owner.js'");
     expect(ownerWorker).toContain("self.addEventListener('push'");
     expect(ownerWorker).toContain('self.registration.showNotification');
     expect(ownerWorker).toContain("data.url || '/neo/app/uebersicht'");
