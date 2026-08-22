@@ -128,7 +128,7 @@ export default async function MitarbeiterPage() {
               </div>
             </div>
             <form action="/auth/signout" method="post">
-              <button className="inline-flex h-10 items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 text-xs font-semibold text-white transition hover:bg-white/15" type="submit">
+              <button className="inline-flex h-11 w-11 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 text-xs font-semibold text-white transition hover:bg-white/15 sm:w-auto" type="submit">
                 <LogOut size={15} /> <span className="hidden sm:inline">Abmelden</span>
               </button>
             </form>

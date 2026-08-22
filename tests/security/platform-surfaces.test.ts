@@ -43,6 +43,16 @@ describe('retired and protected platform surfaces', () => {
     expect(portal).toContain(".eq('tenant_id', employee.tenant_id)");
   });
 
+  it('keeps owner push isolated from the driver service worker scope', () => {
+    const setup = source('app/(neo)/neo/app/pwa-setup.tsx');
+    const ownerWorker = source('public/sw-owner.js');
+    expect(setup).toContain("register('/sw-owner.js', { scope: '/neo/' })");
+    expect(setup).not.toContain("register('/sw.js')");
+    expect(ownerWorker).toContain("self.addEventListener('push'");
+    expect(ownerWorker).toContain('self.registration.showNotification');
+    expect(ownerWorker).toContain("data.url || '/neo/app/uebersicht'");
+  });
+
   it('uses prefix matching for module gates and leaves no hard-coded pilot server links', () => {
     const modules = source('lib/modules.ts');
     const allAppSource = [

@@ -14,7 +14,9 @@ export function PwaSetup() {
   const [pushShow, setPushShow] = useState(false);
 
   useEffect(() => {
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw-owner.js', { scope: '/neo/' }).catch(() => {});
+    }
     const standalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
     // Install-Banner nur wenn nicht installiert
     if (!standalone) {
