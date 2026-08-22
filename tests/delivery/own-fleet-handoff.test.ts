@@ -7,6 +7,7 @@ const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf
 describe('own-fleet QR handoff contract', () => {
   const migration = source('scripts/migrations/066_own_fleet_qr_handoff.sql');
   const duplicateFlagFix = source('scripts/migrations/067_fix_pickup_scan_duplicate_flag.sql');
+  const pickupStateFix = source('scripts/migrations/075_pickup_commits_order_state.sql');
 
   it('plans internal tours directly without a driver acceptance race', () => {
     expect(migration).toContain("'own_fleet','planned',now()");
@@ -79,5 +80,14 @@ describe('own-fleet QR handoff contract', () => {
     expect(duplicateFlagFix).toContain('value::integer=p_bag_index');
     expect(duplicateFlagFix).toContain("'duplicate',v_already_scanned");
     expect(duplicateFlagFix).not.toContain("'duplicate',p_bag_index=any(v_scanned)");
+  });
+
+  it('commits pickup custody and order state in the same transaction', () => {
+    expect(pickupStateFix).toContain('for update');
+    expect(pickupStateFix).toContain("o.status::text not in ('fertig','unterwegs'");
+    expect(pickupStateFix).toContain("set status='unterwegs',updated_at=now()");
+    expect(pickupStateFix).toContain("set state='in_progress',picked_up_at=coalesce(picked_up_at,now())");
+    expect(pickupStateFix).toContain("handoff_state=case when assignment_mode='own_fleet' then 'committed'");
+    expect(pickupStateFix).toContain("set state='en_route',updated_at=now()");
   });
 });

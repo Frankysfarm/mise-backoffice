@@ -12,12 +12,17 @@ describe('delivered path safety', () => {
   it('delivered route is idempotent and keeps driver state consistent', () => {
     const route = source('app/api/driver/v1/orders/[id]/delivered/route.ts');
     const migration = source('scripts/migrations/072_atomic_driver_delivery_flow.sql');
+    const timestampFix = source('scripts/migrations/076_delivery_completion_timestamp.sql');
     expect(route).toContain("rpc('complete_driver_delivery'");
     // Doppel-Tap/Outbox-Retry: bereits gelieferte Order ist Erfolg-No-op.
     expect(migration).toContain("v_order.status::text='geliefert'");
     expect(migration).toContain("'already_delivered',true");
     // Nach Batch-Abschluss: Fahrer nicht in en_route hängen lassen.
     expect(migration).toContain("when state='en_route' then 'returning'");
+    // Status und fachlicher Lieferzeitpunkt werden gemeinsam persistiert.
+    expect(timestampFix).toContain("set status='geliefert'");
+    expect(timestampFix).toContain('geliefert_am=coalesce(geliefert_am,v_now)');
+    expect(timestampFix).toContain('completed_at=coalesce(completed_at,v_now)');
   });
 
   it('binds pickup and delivery atomically to the current batch and driver', () => {
