@@ -47,7 +47,9 @@ export async function middleware(request: NextRequest) {
   const hostname = request.nextUrl.hostname.toLowerCase();
 
   // Browser-QA fixture: disabled in every normal runtime and never backed by production data.
-  if (process.env.MISE_E2E_TABLE_ORDER === '1' && request.nextUrl.pathname === '/t/qa-preview') {
+  const isTableQa = process.env.MISE_E2E_TABLE_ORDER === '1' && request.nextUrl.pathname === '/t/qa-preview';
+  const isPosQa = process.env.MISE_E2E_POS === '1' && request.nextUrl.pathname === '/pos/qa-preview';
+  if (isTableQa || isPosQa) {
     const headers = new Headers(request.headers);
     headers.set('x-pathname', request.nextUrl.pathname);
     return NextResponse.next({ request: { headers } });

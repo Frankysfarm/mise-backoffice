@@ -5,18 +5,20 @@
 // Fields: areas, roomLayout, categories, products, bestsellerIds, soldOut
 const _override = (typeof globalThis !== 'undefined' && globalThis.MISE_POS_DATA) || null;
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Settings, Printer, CreditCard, Shield, Clock, Plus, Minus,
-  Trash2, Split, Receipt, X, Check, ChevronLeft, ChevronRight,
+  X, Check, ChevronRight,
   Search, Coffee, Wine, IceCream, Pizza, Banknote,
   ArrowLeft, Users, Wifi, WifiOff, Salad, Beef,
-  MapPin, FileText, Hash, ChefHat, Sparkles, Building2,
+  MapPin, Hash, ChefHat, Sparkles,
   Languages, ShoppingBag, Store, Home, Bell, Zap,
-  Mail, Smartphone, Loader, AlertCircle, RotateCw, QrCode, 
-  CheckCircle2, XCircle, Calendar, TrendingUp, Star, ArrowUpDown, Wallet,
+  Mail, Loader, AlertCircle, RotateCw, QrCode,
+  CheckCircle2, XCircle, Star,
   Gift, Percent, Ticket, ScanLine, Tag, Trash, Edit3, Copy
 } from 'lucide-react';
+
+const ICONS = { Coffee, IceCream, Salad, Sparkles, Star, Pizza, Wine, Beef, Tag };
 
 // ============ DESIGN TOKENS ============
 const T = {
@@ -224,7 +226,7 @@ const SOLD_OUT = _override?.soldOut ?? ['p14'];
 const STORNO_REASONS = ['Falsche Eingabe', 'Gast unzufrieden', 'Küche überlastet', 'Falsche Tischzuordnung', 'Allergie nicht erwähnt', 'Sonstiges'];
 
 // ============ COUPONS ============
-const INITIAL_COUPONS = [
+const MOCK_COUPONS = [
   {
     id: 'cp1', code: 'MISE-WELCOME-10', name: 'Willkommen-Rabatt',
     description: '10% auf gesamte Rechnung — für Neukunden',
@@ -261,8 +263,9 @@ const INITIAL_COUPONS = [
     usageLimit: null, usageCount: 0, color: '#D2691E',
   },
 ];
+const INITIAL_COUPONS = _override?.coupons ?? MOCK_COUPONS;
 
-const INITIAL_ORDERS = {
+const MOCK_ORDERS = {
   T02: { guests: 4, items: [
     { id: 'i1', productId: 'p10', name: 'Burger Mise', price: 1790, qty: 3, mods: ['medium', 'extra Käse'], extra: 150, course: 'main', sent: true, seat: 1 },
     { id: 'i2', productId: 'p60', name: 'Pils 0,3', price: 380, qty: 2, mods: [], course: 'drinks', sent: true, seat: 0 },
@@ -279,6 +282,12 @@ const INITIAL_ORDERS = {
     { id: 'i11', productId: 'p80', name: 'Aperol Spritz', price: 890, qty: 4, mods: [], course: 'drinks', sent: true, seat: 0 },
   ], opened: '22:51', waiter: 'Anna', state: 'active' },
 };
+const INITIAL_ORDERS = _override?.initialOrders ?? MOCK_ORDERS;
+const INITIAL_PAGERS = _override?.activePagers ?? [
+  { num: 44, items: 2, status: 'preparing', time: '23:14' },
+  { num: 45, items: 1, status: 'ready', time: '23:17' },
+];
+const OPERATOR_NAME = _override?.runtime?.employeeName || 'Mitarbeiter';
 
 // ============ HELPERS ============
 
@@ -341,11 +350,8 @@ export default function MisePOSv5() {
   const [counterCart, setCounterCart] = useState([]);
   const [sendToKitchen, setSendToKitchen] = useState(true);
   const [defaultTakeaway, setDefaultTakeaway] = useState(false);
-  const [nextPager, setNextPager] = useState(47);
-  const [activePagers, setActivePagers] = useState([
-    { num: 44, items: 2, status: 'preparing', time: '23:14' },
-    { num: 45, items: 1, status: 'ready', time: '23:17' },
-  ]);
+  const [nextPager, setNextPager] = useState(_override?.nextPager ?? 1);
+  const [activePagers, setActivePagers] = useState(INITIAL_PAGERS);
 
   // PAYMENT FLOW STATE (the big new thing)
   const [paymentFlow, setPaymentFlow] = useState(null);
@@ -426,7 +432,7 @@ export default function MisePOSv5() {
     }
   };
 
-  const addToCounterCart = (product, mods = [], extra = 0) => {
+  const addToCounterCart = (product, mods = [], extra = 0, selections = {}, note = '') => {
     const cat = getProductCategory(product.id);
     const isFood = ['vorspeisen', 'hauptgaenge', 'pizza', 'desserts'].includes(cat);
     
@@ -442,9 +448,9 @@ export default function MisePOSv5() {
       ));
     } else {
       setCounterCart(prev => [...prev, {
-        id: `c_${Date.now()}_${Math.random()}`,
+        id: crypto.randomUUID(),
         productId: product.id, name: product.name, price: product.price,
-        qty: 1, mods, extra, isFood, takeaway: defaultTakeaway, category: cat,
+        qty: 1, mods, extra, selections, note, isFood, takeaway: defaultTakeaway, category: cat,
       }]);
     }
     setOptionsProduct(null);
@@ -491,7 +497,7 @@ export default function MisePOSv5() {
   const openTable = (guests) => {
     setTableOrders(prev => ({
       ...prev,
-      [pendingTableId]: { guests, items: [], opened: formatTime(), waiter: 'Tahar', state: 'active', coupon: null },
+      [pendingTableId]: { guests, items: [], opened: formatTime(), waiter: OPERATOR_NAME, state: 'active', coupon: null },
     }));
     setActiveTableId(pendingTableId); setPendingTableId(null);
     setShowGuestModal(false); setView('order'); setActiveSeat(0);
@@ -506,7 +512,7 @@ export default function MisePOSv5() {
     }
   };
 
-  const addProductToTable = (product, mods = [], extra = 0) => {
+  const addProductToTable = (product, mods = [], extra = 0, selections = {}, note = '') => {
     const cat = getProductCategory(product.id);
     const isDrink = ['softdrinks', 'bier', 'wein', 'spirituosen', 'kaffee'].includes(cat);
     setTableOrders(prev => ({
@@ -514,9 +520,9 @@ export default function MisePOSv5() {
       [activeTableId]: {
         ...prev[activeTableId],
         items: [...prev[activeTableId].items, {
-          id: `i_${Date.now()}_${Math.random()}`,
+          id: crypto.randomUUID(),
           productId: product.id, name: product.name, price: product.price,
-          qty: 1, mods, extra,
+          qty: 1, mods, extra, selections, note,
           course: isDrink ? 'drinks' : (cat === 'desserts' || cat === 'kaffee' ? 'dessert' : 'main'),
           sent: false, seat: activeSeat,
         }],
@@ -572,11 +578,54 @@ export default function MisePOSv5() {
       total: subtotal - discount,
       tip: 0,
       items: context === 'table' ? activeOrder.items : counterCart,
+      tableId: context === 'table' ? activeTableId : null,
       tableLabel: context === 'table' ? activeTable?.label : 'Counter',
       guests: context === 'table' ? activeOrder?.guests : 1,
+      idempotencyKey: crypto.randomUUID(),
     });
   };
 
+  const buildSaleRequest = (saleFlow) => {
+    const runtime = globalThis.MISE_POS_DATA?.runtime;
+    if (!runtime?.registerId || !runtime.shiftId) throw new Error('Keine aktive Kasse oder Schicht');
+    if (saleFlow.discount > 0) throw new Error('Dieser Rabatt ist noch nicht serverseitig freigegeben');
+    const fulfillment = saleFlow.context === 'table'
+      ? 'table'
+      : saleFlow.items.every((item) => item.takeaway) ? 'takeaway' : 'counter';
+    return {
+      registerId: runtime.registerId, shiftId: runtime.shiftId, tableId: saleFlow.tableId, fulfillment,
+      items: saleFlow.items.map((item) => ({
+        id: item.productId, qty: item.qty, selections: item.selections || {}, note: item.note || '',
+      })),
+      tip: (saleFlow.tip || 0) / 100, training: false,
+    };
+  };
+
+  const persistPayment = async (saleFlow, { paymentMethod, cashGivenCents = 0, sumupCheckoutId = null }) => {
+    const request = buildSaleRequest(saleFlow);
+    const response = await fetch('/api/pos/checkout', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'Idempotency-Key': saleFlow.idempotencyKey },
+      body: JSON.stringify({
+        ...request, paymentMethod, cashGiven: cashGivenCents / 100, sumupCheckoutId,
+      }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(payload.error || 'Verkauf konnte nicht gespeichert werden');
+    return payload;
+  };
+
+  const createCardCheckout = async (saleFlow) => {
+    const request = buildSaleRequest(saleFlow);
+    const response = await fetch('/api/pos/sumup/checkout', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'Idempotency-Key': saleFlow.idempotencyKey },
+      body: JSON.stringify({ ...request, idempotencyKey: saleFlow.idempotencyKey }),
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.ok) throw new Error(payload.error || 'SumUp-Checkout konnte nicht erstellt werden');
+    return payload;
+  };
   const onPaymentComplete = () => {
     const ctx = paymentFlow.context;
     // Coupon-Nutzung zählen
@@ -696,10 +745,10 @@ export default function MisePOSv5() {
           </div>
         </div>
 
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden pos-counter-layout">
           <CategoryRail activeCategory={activeCategory} onChange={(c) => { setActiveCategory(c); setSearch(''); }} />
 
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden pos-counter-products">
             <SearchBar value={search} onChange={setSearch} />
 
             <div className="flex-1 overflow-y-auto p-6" style={{ backgroundColor: T.bg }}>
@@ -719,7 +768,7 @@ export default function MisePOSv5() {
           </div>
 
           {/* Counter cart */}
-          <div className="w-96 border-l flex flex-col" style={{ backgroundColor: T.surface, borderColor: T.border }}>
+          <div className="w-96 border-l flex flex-col pos-counter-cart" style={{ backgroundColor: T.surface, borderColor: T.border }}>
             <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: T.border }}>
               <div>
                 <div style={{ color: T.text, fontFamily: FONT.ui, fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em' }}>
@@ -824,7 +873,9 @@ export default function MisePOSv5() {
 
         {optionsProduct && (
           <OptionsModal product={optionsProduct}
-            onConfirm={(mods, extra) => optionsProduct._counter ? addToCounterCart(optionsProduct, mods, extra) : addProductToTable(optionsProduct, mods, extra)}
+            onConfirm={(mods, extra, selections, note) => optionsProduct._counter
+              ? addToCounterCart(optionsProduct, mods, extra, selections, note)
+              : addProductToTable(optionsProduct, mods, extra, selections, note)}
             onClose={() => setOptionsProduct(null)} />
         )}
         {showScanner && (
@@ -833,7 +884,7 @@ export default function MisePOSv5() {
             onScan={onCouponScanned} onClose={() => setShowScanner(false)} />
         )}
         {paymentFlow && (
-          <PaymentFlow flow={paymentFlow} setFlow={setPaymentFlow} onComplete={onPaymentComplete}
+          <PaymentFlow flow={paymentFlow} setFlow={setPaymentFlow} onComplete={onPaymentComplete} onPersist={persistPayment} onCreateCardCheckout={createCardCheckout}
             withPager={sendToKitchen && counterCart.some(i => i.isFood)} pagerNum={nextPager} />
         )}
       </Chrome>
@@ -845,8 +896,8 @@ export default function MisePOSv5() {
     const filteredTables = ROOM_LAYOUT[activeArea].filter(t =>
       !tableSearch || t.label.toLowerCase().includes(tableSearch.toLowerCase()) || t.id.toLowerCase().includes(tableSearch.toLowerCase())
     );
-    const totalToday = Object.values(tableOrders).reduce((s, o) => s + calcOrderTotal(o.items), 0) + 142080;
-    const totalGuests = Object.values(tableOrders).reduce((s, o) => s + o.guests, 0) + 47;
+    const totalToday = _override?.summary?.revenueCents ?? 0;
+    const totalGuests = _override?.summary?.guests ?? 0;
     const occupied = Object.values(tableOrders).filter(o => o.items.length > 0).length;
 
     return (
@@ -1066,7 +1117,7 @@ export default function MisePOSv5() {
 
       {optionsProduct && (
         <OptionsModal product={optionsProduct}
-          onConfirm={(mods, extra) => addProductToTable(optionsProduct, mods, extra)}
+          onConfirm={(mods, extra, selections, note) => addProductToTable(optionsProduct, mods, extra, selections, note)}
           onClose={() => setOptionsProduct(null)} />
       )}
       {showStorno && (
@@ -1079,7 +1130,7 @@ export default function MisePOSv5() {
           onScan={onCouponScanned} onClose={() => setShowScanner(false)} />
       )}
       {paymentFlow && (
-        <PaymentFlow flow={paymentFlow} setFlow={setPaymentFlow} onComplete={onPaymentComplete} />
+        <PaymentFlow flow={paymentFlow} setFlow={setPaymentFlow} onComplete={onPaymentComplete} onPersist={persistPayment} onCreateCardCheckout={createCardCheckout} />
       )}
     </Chrome>
   );
@@ -1087,17 +1138,20 @@ export default function MisePOSv5() {
 
 // ============ THE NEW BIG ONE: PAYMENT FLOW ============
 
-function PaymentFlow({ flow, setFlow, onComplete, withPager, pagerNum }) {
-  const total = flow.total + (flow.tip || 0);
+function PaymentFlow({ flow, setFlow, onComplete, onPersist, onCreateCardCheckout, withPager, pagerNum }) {
+  const cardRef = useRef(null);
+  useEffect(() => {
+    cardRef.current?.scrollTo({ top: 0, behavior: 'instant' });
+  }, [flow.stage]);
 
   return (
-    <div style={{
+    <div className="pos-payment-overlay" style={{
       position: 'fixed', inset: 0,
       backgroundColor: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(12px)',
       zIndex: 50,
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
     }}>
-      <div style={{
+      <div ref={cardRef} className="pos-payment-card" style={{
         width: '100%', maxWidth: 640,
         backgroundColor: T.surface, border: `1px solid ${T.border}`,
         borderRadius: 16,
@@ -1108,10 +1162,10 @@ function PaymentFlow({ flow, setFlow, onComplete, withPager, pagerNum }) {
           <MethodSelect flow={flow} setFlow={setFlow} />
         )}
         {flow.stage === 'cash-amount' && (
-          <CashAmountScreen flow={flow} setFlow={setFlow} onComplete={onComplete} withPager={withPager} pagerNum={pagerNum} />
+          <CashAmountScreen flow={flow} setFlow={setFlow} onPersist={onPersist} />
         )}
         {flow.stage === 'sumup-pairing' && (
-          <SumUpFlow flow={flow} setFlow={setFlow} onComplete={onComplete} withPager={withPager} pagerNum={pagerNum} />
+          <SumUpFlow flow={flow} setFlow={setFlow} onCreateCardCheckout={onCreateCardCheckout} onPersist={onPersist} />
         )}
         {flow.stage === 'success' && (
           <SuccessScreen flow={flow} setFlow={setFlow} onComplete={onComplete} withPager={withPager} pagerNum={pagerNum} />
@@ -1194,10 +1248,12 @@ function MethodSelect({ flow, setFlow }) {
         <PayBig icon={Banknote} label="Bar" sub="mit Wechselgeld-Rechner" onClick={() => selectMethod('Bar')} />
       </div>
       {flow.context === 'table' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-          <PaySmall icon={Split} label="Splitten" onClick={() => alert('Split-Flow folgt')} />
-          <PaySmall icon={Receipt} label="Bewirtungsbeleg" onClick={() => setFlow({ ...flow, stage: 'success', method: 'Bewirtung', tip, withBewirtung: true })} />
-          <PaySmall icon={FileText} label="Auf Rechnung" onClick={() => setFlow({ ...flow, stage: 'success', method: 'Rechnung', tip })} />
+        <div style={{
+          padding: '10px 12px', borderRadius: 8, backgroundColor: T.surfaceHi,
+          border: '1px solid ' + T.border, color: T.textMute,
+          fontFamily: FONT.body, fontSize: 12, lineHeight: 1.5,
+        }}>
+          Splitzahlung, Bewirtungsbeleg und Rechnung werden erst nach ihrer serverseitigen Verbuchung freigeschaltet.
         </div>
       )}
     </div>
@@ -1205,9 +1261,11 @@ function MethodSelect({ flow, setFlow }) {
 }
 
 // ===== CASH AMOUNT SCREEN =====
-function CashAmountScreen({ flow, setFlow, onComplete, withPager, pagerNum }) {
+function CashAmountScreen({ flow, setFlow, onPersist }) {
   const finalTotal = flow.total + (flow.tip || 0);
   const [given, setGiven] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
   const givenCents = parseFloat(given.replace(',', '.')) * 100 || 0;
   const change = givenCents - finalTotal;
 
@@ -1237,14 +1295,30 @@ function CashAmountScreen({ flow, setFlow, onComplete, withPager, pagerNum }) {
     }
   };
 
-  const confirm = () => {
-    setFlow({ 
-      ...flow, 
-      stage: 'success', 
-      cashGiven: givenCents, 
-      cashChange: change,
-      transactionId: `MISE-${Date.now().toString(36).toUpperCase()}`
-    });
+  const confirm = async () => {
+    if (saving || givenCents < finalTotal) return;
+    setSaving(true);
+    setError('');
+    try {
+      const sale = await onPersist(flow, {
+        paymentMethod: 'bar',
+        cashGivenCents: givenCents,
+      });
+      setFlow({
+        ...flow,
+        stage: 'success',
+        method: 'Bar',
+        cashGiven: givenCents,
+        cashChange: sale.changeCents,
+        transactionId: sale.transactionId,
+        orderNumber: sale.orderNumber,
+        bonToken: sale.bonToken,
+        tseActive: sale.tseActive,
+      });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Verkauf konnte nicht gespeichert werden');
+      setSaving(false);
+    }
   };
 
   return (
@@ -1339,157 +1413,143 @@ function CashAmountScreen({ flow, setFlow, onComplete, withPager, pagerNum }) {
         </div>
       </div>
 
-      <button onClick={confirm} disabled={givenCents < finalTotal} style={{
+      {error && (
+        <div role="alert" style={{
+          marginBottom: 12, padding: '10px 12px', borderRadius: 8,
+          backgroundColor: T.errTint, border: '1px solid ' + T.err,
+          color: T.errBright, fontFamily: FONT.body, fontSize: 13,
+        }}>{error}</div>
+      )}
+
+      <button onClick={confirm} disabled={saving || givenCents < finalTotal} style={{
         width: '100%', padding: '16px',
         backgroundColor: T.action, color: T.surfaceTop,
         border: 'none', borderRadius: 10,
         fontFamily: FONT.ui, fontSize: 15, fontWeight: 700, letterSpacing: '-0.01em',
-        cursor: givenCents >= finalTotal ? 'pointer' : 'not-allowed',
-        opacity: givenCents >= finalTotal ? 1 : 0.4,
-        boxShadow: givenCents >= finalTotal ? `0 8px 24px rgba(230, 138, 44, 0.3)` : 'none',
+        cursor: !saving && givenCents >= finalTotal ? 'pointer' : 'not-allowed',
+        opacity: !saving && givenCents >= finalTotal ? 1 : 0.4,
+        boxShadow: !saving && givenCents >= finalTotal ? `0 8px 24px rgba(230, 138, 44, 0.3)` : 'none',
       }}>
-        Bestätigen{givenCents > finalTotal && ` · ${formatEUR(change)} Rückgeld`}
+        {saving ? 'Verkauf wird sicher gespeichert…' : <>Bestätigen{givenCents > finalTotal && ` · ${formatEUR(change)} Rückgeld`}</>}
       </button>
     </div>
   );
 }
 
 // ===== SUMUP FLOW WITH PROGRESS STATES =====
-function SumUpFlow({ flow, setFlow, onComplete, withPager, pagerNum }) {
-  const [stage, setStage] = useState('pairing'); // pairing | sending | card | pin | processing
+function SumUpFlow({ flow, setFlow, onCreateCardCheckout, onPersist }) {
   const finalTotal = flow.total + (flow.tip || 0);
+  const [status, setStatus] = useState('connecting');
+  const [checkoutId, setCheckoutId] = useState(null);
+  const [error, setError] = useState('');
+  const paymentRef = useRef({ flow, setFlow, onCreateCardCheckout, onPersist });
 
   useEffect(() => {
-    // Simulate flow
-    const timeouts = [];
-    if (stage === 'pairing') {
-      timeouts.push(setTimeout(() => setStage('sending'), 1200));
-    } else if (stage === 'sending') {
-      timeouts.push(setTimeout(() => setStage('card'), 1500));
-    } else if (stage === 'card') {
-      timeouts.push(setTimeout(() => setStage('pin'), 3000));
-    } else if (stage === 'pin') {
-      timeouts.push(setTimeout(() => setStage('processing'), 2500));
-    } else if (stage === 'processing') {
-      timeouts.push(setTimeout(() => {
-        // 92% Erfolg, 8% Fehler — realistisch für eine Demo
-        if (Math.random() < 0.08) {
-          setFlow({ 
-            ...flow, 
-            stage: 'error', 
-            errorReason: 'Karte abgelehnt — Bitte andere Karte versuchen oder Kontostand prüfen.',
-          });
-        } else {
-          setFlow({ 
-            ...flow, 
-            stage: 'success',
-            transactionId: `MISE-${Date.now().toString(36).toUpperCase()}`,
-          });
-        }
-      }, 2200));
-    }
-    return () => timeouts.forEach(clearTimeout);
-  }, [stage]);
+    const {
+      flow: paymentFlow,
+      setFlow: completeFlow,
+      onCreateCardCheckout: createCheckout,
+      onPersist: persistSale,
+    } = paymentRef.current;
+    let cancelled = false;
+    let timer;
+    let attempts = 0;
+    const fail = (cause) => {
+      if (cancelled) return;
+      setStatus('error');
+      setError(cause instanceof Error ? cause.message : 'SumUp-Zahlung konnte nicht bestätigt werden');
+    };
+    const begin = async () => {
+      try {
+        const created = await createCheckout(paymentFlow);
+        if (cancelled) return;
+        setCheckoutId(created.checkoutId);
+        setStatus('waiting');
+        const poll = async () => {
+          if (cancelled) return;
+          attempts += 1;
+          if (attempts > 60) throw new Error('Zeitüberschreitung am Kartenterminal');
+          const query = new URLSearchParams({ checkoutId: created.checkoutId, idempotencyKey: paymentFlow.idempotencyKey });
+          const response = await fetch('/api/pos/sumup/checkout?' + query, { credentials: 'same-origin', cache: 'no-store' });
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok || !payload.ok) throw new Error(payload.error || 'SumUp-Status konnte nicht gelesen werden');
+          if (payload.status === 'PAID') {
+            setStatus('booking');
+            const sale = await persistSale(paymentFlow, { paymentMethod: 'karte', sumupCheckoutId: created.checkoutId });
+            if (!cancelled) completeFlow({
+              ...paymentFlow, stage: 'success', method: 'SumUp', transactionId: sale.transactionId,
+              orderNumber: sale.orderNumber, bonToken: sale.bonToken, tseActive: sale.tseActive,
+            });
+            return;
+          }
+          if (['FAILED', 'CANCELLED', 'EXPIRED'].includes(payload.status)) {
+            throw new Error('Kartenzahlung wurde abgebrochen oder abgelehnt');
+          }
+          timer = setTimeout(() => { poll().catch(fail); }, 2000);
+        };
+        await poll();
+      } catch (cause) { fail(cause); }
+    };
+    begin();
+    return () => { cancelled = true; if (timer) clearTimeout(timer); };
+  }, []);
 
-  const stages = [
-    { id: 'pairing', icon: Wifi, label: 'Terminal verbinden', sub: 'SumUp Solo Lite · Bluetooth' },
-    { id: 'sending', icon: ArrowUpDown, label: 'Betrag an Terminal senden', sub: formatEUR(finalTotal) },
-    { id: 'card', icon: CreditCard, label: 'Bitte Karte einlegen oder halten', sub: 'Kontaktlos, Chip oder Magnet' },
-    { id: 'pin', icon: Hash, label: 'PIN eingeben', sub: 'Falls erforderlich, am Terminal' },
-    { id: 'processing', icon: Loader, label: 'Zahlung wird verarbeitet', sub: 'Bitte Karte stecken lassen' },
-  ];
-
-  const currentStage = stages.find(s => s.id === stage);
-  const currentIdx = stages.findIndex(s => s.id === stage);
+  const statusLabel = status === 'connecting' ? 'SumUp-Checkout wird erstellt'
+    : status === 'waiting' ? 'Bitte Karte am Terminal vorhalten'
+      : status === 'booking' ? 'Zahlung wird verbucht' : 'Kartenzahlung nicht abgeschlossen';
 
   return (
     <div style={{ padding: 32 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
-        <Eyebrow>SumUp Solo Lite · Live</Eyebrow>
-        <button onClick={() => setFlow({ ...flow, stage: 'select-method' })} style={{
-          color: T.err, fontFamily: FONT.mono, fontSize: 11, fontWeight: 500,
-          letterSpacing: '0.08em', textTransform: 'uppercase',
-          background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px',
-        }}>abbrechen</button>
-      </div>
-
-      <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <div style={{
-          width: 120, height: 120, margin: '0 auto 24px',
-          borderRadius: '50%',
-          backgroundColor: T.actionTint,
-          border: `2px solid ${T.action}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          position: 'relative',
-          animation: 'misePulse 2s ease-in-out infinite',
-        }}>
-          <style>{`
-            @keyframes misePulse {
-              0%, 100% { box-shadow: 0 0 0 0 rgba(230, 138, 44, 0.4); }
-              50% { box-shadow: 0 0 0 16px rgba(230, 138, 44, 0); }
-            }
-            @keyframes miseSpin {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-          `}</style>
-          <currentStage.icon size={48} style={{ 
-            color: T.action,
-            animation: stage === 'processing' ? 'miseSpin 1.2s linear infinite' : 'none',
-          }} />
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <div style={{ width: 96, height: 96, margin: '0 auto 18px', borderRadius: '50%', backgroundColor: error ? T.errTint : T.actionTint, border: '2px solid ' + (error ? T.err : T.action), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {error ? <XCircle size={44} style={{ color: T.errBright }} /> : <Loader size={44} style={{ color: T.action, animation: 'miseSpin 1.2s linear infinite' }} />}
         </div>
-        <div style={{
-          color: T.text, fontFamily: FONT.ui,
-          fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em',
-          marginBottom: 6,
-        }}>
-          {currentStage.label}
-        </div>
-        <div style={{ color: T.textMute, fontFamily: FONT.body, fontSize: 14 }}>
-          {currentStage.sub}
+        <Eyebrow>SumUp · Live-Checkout</Eyebrow>
+        <div style={{ color: T.text, fontFamily: FONT.ui, fontSize: 24, fontWeight: 700, marginTop: 10 }}>{statusLabel}</div>
+        <div style={{ color: T.textMute, fontFamily: FONT.body, fontSize: 14, lineHeight: 1.6, marginTop: 8 }}>
+          Betrag: {formatEUR(finalTotal)}{checkoutId ? ` · Checkout ${checkoutId.slice(0, 12)}` : ''}
         </div>
       </div>
-
-      <div style={{
-        padding: 16, borderRadius: 10,
-        backgroundColor: T.surfaceHi, border: `1px solid ${T.border}`,
-        textAlign: 'center', marginBottom: 24,
-      }}>
-        <div style={{ color: T.textMute, fontFamily: FONT.mono, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 4 }}>
-          Betrag am Terminal
-        </div>
-        <div style={{
-          color: T.text, fontFamily: FONT.mono, fontSize: 36, fontWeight: 500,
-          fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.02em',
-        }}>
-          {formatEUR(finalTotal)}
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', gap: 4, justifyContent: 'center' }}>
-        {stages.map((s, i) => (
-          <div key={s.id} style={{
-            width: 32, height: 4, borderRadius: 2,
-            backgroundColor: i <= currentIdx ? T.action : T.border,
-            transition: 'all 0.3s',
-          }} />
-        ))}
+      {error && <div role="alert" style={{ padding: 12, marginBottom: 16, borderRadius: 8, backgroundColor: T.errTint, border: '1px solid ' + T.err, color: T.errBright, fontFamily: FONT.body, fontSize: 13 }}>{error}</div>}
+      <div style={{ display: 'grid', gridTemplateColumns: error ? '1fr 1fr' : '1fr', gap: 8 }}>
+        <button onClick={() => setFlow({ ...flow, stage: 'select-method' })} style={{ padding: 14, borderRadius: 10, backgroundColor: T.surfaceHi, color: T.text, border: '1px solid ' + T.border, fontFamily: FONT.ui, fontWeight: 600, cursor: 'pointer' }}>{error ? 'Andere Zahlart' : 'Abbrechen'}</button>
+        {error && <button onClick={() => setFlow({ ...flow, stage: 'cash-amount', method: 'Bar' })} style={{ padding: 14, borderRadius: 10, backgroundColor: T.action, color: T.surfaceTop, border: 'none', fontFamily: FONT.ui, fontWeight: 700, cursor: 'pointer' }}>Bar kassieren</button>}
       </div>
     </div>
   );
 }
-
 // ===== SUCCESS WITH QR =====
-function SuccessScreen({ flow, setFlow, onComplete, withPager, pagerNum }) {
-  const [printRequested, setPrintRequested] = useState(false);
+function SuccessScreen({ flow, onComplete, withPager, pagerNum }) {
   const [emailMode, setEmailMode] = useState(false);
   const [email, setEmail] = useState('');
+  const [emailStatus, setEmailStatus] = useState('idle');
+  const [emailError, setEmailError] = useState('');
   const finalTotal = flow.total + (flow.tip || 0);
-  const txId = flow.transactionId || `MISE-${Date.now().toString(36).toUpperCase()}`;
-  const receiptUrl = `https://bon.mise.app/r/${txId}`;
+  const txId = flow.transactionId || 'Nicht verfügbar';
+  const receiptUrl = flow.bonToken ? `${window.location.origin}/bon/${encodeURIComponent(flow.bonToken)}` : null;
+
+  const sendReceiptEmail = async () => {
+    if (!flow.bonToken || !email.trim() || emailStatus === 'sending') return;
+    setEmailStatus('sending');
+    setEmailError('');
+    try {
+      const response = await fetch('/api/pos/bon/email', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bon_token: flow.bonToken, email: email.trim() }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.ok) throw new Error(payload.error || 'E-Mail konnte nicht gesendet werden');
+      setEmailStatus('sent');
+    } catch (cause) {
+      setEmailStatus('error');
+      setEmailError(cause instanceof Error ? cause.message : 'E-Mail konnte nicht gesendet werden');
+    }
+  };
 
   return (
-    <div style={{ padding: 32 }}>
+    <div className="pos-payment-success" style={{ padding: 32 }}>
       {/* Big success icon */}
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         <div style={{
@@ -1524,7 +1584,7 @@ function SuccessScreen({ flow, setFlow, onComplete, withPager, pagerNum }) {
           {formatEUR(finalTotal)}
         </div>
         <div style={{ color: T.textMute, fontFamily: FONT.mono, fontSize: 11, letterSpacing: '0.06em' }}>
-          {flow.method} · {txId}
+          {flow.method} · {flow.orderNumber || txId}
         </div>
         {flow.coupon && (
           <div style={{
@@ -1549,13 +1609,13 @@ function SuccessScreen({ flow, setFlow, onComplete, withPager, pagerNum }) {
       </div>
 
       {/* QR Code Box */}
-      <div style={{
+      {receiptUrl && <div className="pos-receipt-card" style={{
         padding: 20, borderRadius: 12,
         backgroundColor: T.surfaceTop, border: `1px solid ${T.border}`,
         marginBottom: 16,
         display: 'flex', alignItems: 'center', gap: 20,
       }}>
-        <div style={{
+        <div className="pos-receipt-qr" style={{
           width: 132, height: 132, borderRadius: 10,
           backgroundColor: T.cream, padding: 10,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1563,7 +1623,7 @@ function SuccessScreen({ flow, setFlow, onComplete, withPager, pagerNum }) {
         }}>
           <QRPlaceholder url={receiptUrl} />
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="pos-receipt-details" style={{ flex: 1, minWidth: 0 }}>
           <Eyebrow>Digitaler Bon</Eyebrow>
           <div style={{
             color: T.text, fontFamily: FONT.ui,
@@ -1575,7 +1635,7 @@ function SuccessScreen({ flow, setFlow, onComplete, withPager, pagerNum }) {
           <div style={{ color: T.textMute, fontFamily: FONT.body, fontSize: 12, lineHeight: 1.5, marginBottom: 8 }}>
             Der Gast scannt mit der Kamera. Bon mit allen Pflichtangaben (TSE-Signatur, MwSt, Steuernummer) im Browser.
           </div>
-          <div style={{
+          <div className="pos-receipt-url" style={{
             display: 'inline-block', padding: '4px 8px', borderRadius: 4,
             backgroundColor: T.surfaceHi,
             color: T.textMute, fontFamily: FONT.mono, fontSize: 11,
@@ -1583,7 +1643,7 @@ function SuccessScreen({ flow, setFlow, onComplete, withPager, pagerNum }) {
             {receiptUrl}
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Optional: Email */}
       {!emailMode ? (
@@ -1606,29 +1666,24 @@ function SuccessScreen({ flow, setFlow, onComplete, withPager, pagerNum }) {
               backgroundColor: T.surfaceHi, border: `1px solid ${T.border}`,
               color: T.text, fontFamily: FONT.body, fontSize: 13, outline: 'none',
             }} />
-          <button onClick={() => { setEmail(''); setEmailMode(false); }} style={{
+          <button onClick={sendReceiptEmail} disabled={emailStatus === 'sending' || emailStatus === 'sent'} style={{
             padding: '11px 18px', borderRadius: 10,
             backgroundColor: T.action, color: T.surfaceTop,
             border: 'none', cursor: 'pointer',
             fontFamily: FONT.ui, fontSize: 13, fontWeight: 600,
-          }}>Senden</button>
+          }}>{emailStatus === 'sending' ? 'Sende…' : emailStatus === 'sent' ? 'Gesendet' : 'Senden'}</button>
         </div>
       )}
+      {emailError && <div role="alert" style={{ color: T.errBright, fontFamily: FONT.body, fontSize: 12, marginBottom: 8 }}>{emailError}</div>}
 
-      {/* Optional: Print — NICHT default */}
-      <button onClick={() => setPrintRequested(true)} disabled={printRequested} style={{
-        width: '100%', padding: '11px',
-        backgroundColor: printRequested ? T.okTint : T.surfaceHi,
-        color: printRequested ? T.okBright : T.text,
-        border: `1px solid ${printRequested ? T.ok : T.border}`,
-        borderRadius: 10,
-        fontFamily: FONT.ui, fontSize: 13, fontWeight: 500,
-        cursor: printRequested ? 'default' : 'pointer', marginBottom: 16,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-      }}>
-        {printRequested ? <><Check size={14} /> Bon wird gedruckt</> : <><Printer size={14} /> Papier-Bon drucken (auf Wunsch)</>}
-      </button>
-
+      {/* Optional: Print — öffnet den echten digitalen Beleg */}
+      <button onClick={() => receiptUrl && window.open(receiptUrl, '_blank', 'noopener,noreferrer')} disabled={!receiptUrl} style={{
+        width: '100%', padding: '11px', backgroundColor: T.surfaceHi, color: T.text,
+        border: '1px solid ' + T.border, borderRadius: 10, fontFamily: FONT.ui,
+        fontSize: 13, fontWeight: 500, cursor: receiptUrl ? 'pointer' : 'not-allowed',
+        marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        opacity: receiptUrl ? 1 : 0.5,
+      }}><Printer size={14} /> Bon öffnen & drucken</button>
       {withPager && (
         <div style={{
           padding: 14, marginBottom: 16, borderRadius: 10,
@@ -1780,9 +1835,6 @@ function QRPlaceholder({ url }) {
       const isCorner = 
         (i < 7 && j < 7) || (i < 7 && j > 13) || (i > 13 && j < 7);
       if (isCorner) {
-        const inFrame = i === 0 || i === 6 || j === 0 || j === 6 ||
-                        (i < 7 && i > 0 && j < 7 && j > 0 && 
-                         !(i === 1 || i === 5 || j === 1 || j === 5));
         if (i < 7 && j < 7) row.push(i === 0 || i === 6 || j === 0 || j === 6 || (i >= 2 && i <= 4 && j >= 2 && j <= 4) ? 1 : 0);
         else if (i < 7 && j > 13) {
           const ii = i, jj = j - 14;
@@ -1926,7 +1978,7 @@ function TopBar({ mode, onModeSwitch, time, onSettings, showBack, onBack, backLa
             fontFamily: FONT.ui, fontSize: 13, fontWeight: 700,
           }}>T</div>
           <div>
-            <div style={{ color: T.text, fontFamily: FONT.body, fontSize: 13, fontWeight: 600, lineHeight: 1.1 }}>Tahar</div>
+            <div style={{ color: T.text, fontFamily: FONT.body, fontSize: 13, fontWeight: 600, lineHeight: 1.1 }}>{OPERATOR_NAME}</div>
             <div style={{ color: T.textMute, fontFamily: FONT.mono, fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 1 }}>Service</div>
           </div>
         </div>
@@ -2006,7 +2058,7 @@ function CategoryRail({ activeCategory, onChange }) {
       backgroundColor: T.surface, overflowY: 'auto',
     }}>
       {CATEGORIES.map(cat => {
-        const Icon = cat.icon;
+        const Icon = typeof cat.icon === 'string' ? (ICONS[cat.icon] || Tag) : cat.icon;
         const isActive = activeCategory === cat.id;
         return (
           <button key={cat.id} onClick={() => onChange(cat.id)} style={{
@@ -2496,148 +2548,105 @@ function GuestModal({ tableId, onConfirm, onClose }) {
 }
 
 function OptionsModal({ product, onConfirm, onClose }) {
+  const groups = Array.isArray(product.modGroups) ? product.modGroups : [];
   const [selected, setSelected] = useState({});
   const [note, setNote] = useState('');
-  const handleSelect = (groupName, optName, isMulti) => {
-    setSelected(prev => {
-      if (isMulti) {
-        const arr = prev[groupName] || [];
-        return { ...prev, [groupName]: arr.includes(optName) ? arr.filter(o => o !== optName) : [...arr, optName] };
+
+  const handleSelect = (group, optionId) => {
+    setSelected((previous) => {
+      if (group.type === 'multi') {
+        const current = Array.isArray(previous[group.id]) ? previous[group.id] : [];
+        const next = current.includes(optionId)
+          ? current.filter((id) => id !== optionId)
+          : [...current, optionId];
+        if (group.max && next.length > group.max) return previous;
+        return { ...previous, [group.id]: next };
       }
-      return { ...prev, [groupName]: optName };
+      return { ...previous, [group.id]: optionId };
     });
   };
-  const canConfirm = product.modGroups.every(g => !g.required || selected[g.name]);
+
+  const canConfirm = groups.every((group) => {
+    if (!group.required) return true;
+    const value = selected[group.id];
+    return Array.isArray(value) ? value.length > 0 : Boolean(value);
+  });
+
   const handleConfirm = () => {
     const mods = [];
     let extra = 0;
-    product.modGroups.forEach(g => {
-      const sel = selected[g.name];
-      if (Array.isArray(sel)) {
-        sel.forEach(s => {
-          mods.push(s);
-          const opt = g.options.find(o => o.name === s);
-          if (opt) extra += opt.price;
-        });
-      } else if (sel) {
-        mods.push(sel);
-        const opt = g.options.find(o => o.name === sel);
-        if (opt) extra += opt.price;
+    for (const group of groups) {
+      const value = selected[group.id];
+      const ids = Array.isArray(value) ? value : value ? [value] : [];
+      for (const id of ids) {
+        const option = group.options.find((candidate) => candidate.id === id);
+        if (!option) continue;
+        mods.push(option.name);
+        extra += option.price || 0;
       }
-    });
-    if (note) mods.push(`📝 ${note}`);
-    onConfirm(mods, extra);
+    }
+    onConfirm(mods, extra, selected, note.trim());
   };
 
   return (
     <Modal onClose={onClose} wide>
       <Eyebrow>Optionen</Eyebrow>
-      <div style={{
-        color: T.text, fontFamily: FONT.ui,
-        fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em',
-        marginTop: 4, marginBottom: 2,
-      }}>{product.name}</div>
-      <div style={{
-        color: T.action, fontFamily: FONT.mono,
-        fontSize: 14, marginBottom: 24, fontWeight: 600,
-      }}>{formatEUR(product.price)}</div>
+      <div style={{ color: T.text, fontFamily: FONT.ui, fontSize: 26, fontWeight: 700, marginTop: 4 }}>
+        {product.name}
+      </div>
+      <div style={{ color: T.action, fontFamily: FONT.mono, fontSize: 14, marginBottom: 24, fontWeight: 600 }}>
+        {formatEUR(product.price)}
+      </div>
 
-      {product.modGroups.map((group, gi) => {
-        const isMulti = !group.required;
-        return (
-          <div key={gi} style={{ marginBottom: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <span style={{
-                color: T.text, fontFamily: FONT.ui,
-                fontSize: 14, fontWeight: 600, letterSpacing: '-0.01em',
-              }}>{group.name}</span>
-              {group.required ? (
-                <span style={{
-                  color: T.err, fontFamily: FONT.mono, fontSize: 9,
-                  letterSpacing: '0.12em', textTransform: 'uppercase',
-                  backgroundColor: T.errTint,
-                  padding: '2px 7px', borderRadius: 4, fontWeight: 600,
-                }}>Pflicht</span>
-              ) : (
-                <span style={{
-                  color: T.textMute, fontFamily: FONT.mono, fontSize: 9,
-                  letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500,
-                }}>optional</span>
-              )}
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-              {group.options.map(opt => {
-                const sel = selected[group.name];
-                const isSelected = isMulti ? (sel || []).includes(opt.name) : sel === opt.name;
-                return (
-                  <button key={opt.name} onClick={() => handleSelect(group.name, opt.name, isMulti)} style={{
-                    padding: '12px 14px', borderRadius: 8,
-                    textAlign: 'left',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    backgroundColor: isSelected ? T.actionTint : T.surfaceHi,
-                    border: `1.5px solid ${isSelected ? T.action : T.border}`,
-                    color: T.text, fontFamily: FONT.body, fontSize: 13, fontWeight: 500,
-                    cursor: 'pointer',
-                  }}>
-                    <span>{opt.name}</span>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      {opt.price > 0 && (
-                        <span style={{ color: T.action, fontFamily: FONT.mono, fontSize: 11, fontWeight: 500 }}>
-                          +{formatEUR(opt.price)}
-                        </span>
-                      )}
-                      {isSelected && <Check size={14} style={{ color: T.action }} />}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+      {groups.map((group) => (
+        <div key={group.id} style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <span style={{ color: T.text, fontFamily: FONT.ui, fontSize: 14, fontWeight: 600 }}>{group.name}</span>
+            <span style={{
+              color: group.required ? T.err : T.textMute, fontFamily: FONT.mono, fontSize: 9,
+              letterSpacing: '0.12em', textTransform: 'uppercase',
+            }}>{group.required ? 'Pflicht' : group.type === 'multi' ? 'Mehrfachauswahl' : 'optional'}</span>
           </div>
-        );
-      })}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+            {group.options.map((option) => {
+              const value = selected[group.id];
+              const isSelected = Array.isArray(value) ? value.includes(option.id) : value === option.id;
+              return (
+                <button key={option.id} onClick={() => handleSelect(group, option.id)} style={{
+                  padding: '12px 14px', borderRadius: 8, textAlign: 'left',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  backgroundColor: isSelected ? T.actionTint : T.surfaceHi,
+                  border: '1.5px solid ' + (isSelected ? T.action : T.border),
+                  color: T.text, fontFamily: FONT.body, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                }}>
+                  <span>{option.name}</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {option.price > 0 && <span style={{ color: T.action, fontFamily: FONT.mono, fontSize: 11 }}>+{formatEUR(option.price)}</span>}
+                    {isSelected && <Check size={14} style={{ color: T.action }} />}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
 
       <div style={{ marginBottom: 24 }}>
         <div style={{ marginBottom: 8 }}><Eyebrow>Notiz für die Küche</Eyebrow></div>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
-          {['ohne Knoblauch', 'sehr scharf', 'Allergie', 'kleine Portion'].map(q => (
-            <button key={q} onClick={() => setNote(note ? `${note}, ${q}` : q)} style={{
-              padding: '5px 11px', borderRadius: 14,
-              backgroundColor: T.surfaceHi, color: T.textMute,
-              border: `1px solid ${T.border}`,
-              fontFamily: FONT.body, fontSize: 11, fontWeight: 500,
-              cursor: 'pointer',
-            }}>+ {q}</button>
-          ))}
-        </div>
-        <input value={note} onChange={e => setNote(e.target.value)}
-          placeholder="z.B. ‚ohne Salz, extra Zitrone'"
-          style={{
-            width: '100%', padding: '10px 14px', borderRadius: 8,
-            backgroundColor: T.surfaceHi, border: `1px solid ${T.border}`,
-            color: T.text, fontFamily: FONT.body, fontSize: 13, outline: 'none',
+        <input value={note} onChange={(event) => setNote(event.target.value)} maxLength={500}
+          placeholder="z. B. ohne Salz, extra Zitrone" style={{
+            width: '100%', padding: '10px 14px', borderRadius: 8, backgroundColor: T.surfaceHi,
+            border: '1px solid ' + T.border, color: T.text, fontFamily: FONT.body, fontSize: 13, outline: 'none',
           }} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-        <button onClick={onClose} style={{
-          padding: '14px', borderRadius: 10,
-          backgroundColor: 'transparent', color: T.text,
-          border: `1px solid ${T.border}`,
-          fontFamily: FONT.ui, fontSize: 14, fontWeight: 600, cursor: 'pointer',
-        }}>Abbrechen</button>
-        <button onClick={handleConfirm} disabled={!canConfirm} style={{
-          padding: '14px', borderRadius: 10,
-          backgroundColor: T.action, color: T.surfaceTop, border: 'none',
-          fontFamily: FONT.ui, fontSize: 14, fontWeight: 700,
-          opacity: canConfirm ? 1 : 0.4,
-          cursor: canConfirm ? 'pointer' : 'not-allowed',
-          boxShadow: canConfirm ? `0 4px 12px rgba(230, 138, 44, 0.3)` : 'none',
-        }}>Hinzufügen</button>
+        <button onClick={onClose} style={{ padding: 14, borderRadius: 10, backgroundColor: 'transparent', color: T.text, border: '1px solid ' + T.border, fontFamily: FONT.ui, fontWeight: 600, cursor: 'pointer' }}>Abbrechen</button>
+        <button onClick={handleConfirm} disabled={!canConfirm} style={{ padding: 14, borderRadius: 10, backgroundColor: T.action, color: T.surfaceTop, border: 'none', fontFamily: FONT.ui, fontWeight: 700, opacity: canConfirm ? 1 : 0.4, cursor: canConfirm ? 'pointer' : 'not-allowed' }}>Hinzufügen</button>
       </div>
     </Modal>
   );
 }
-
 function StornoModal({ itemName, onConfirm, onClose }) {
   const [reason, setReason] = useState(null);
   const [free, setFree] = useState('');
@@ -2723,21 +2732,6 @@ function PayBig({ icon: Icon, label, sub, primary, onClick }) {
           marginTop: 1,
         }}>{sub}</div>
       </div>
-    </button>
-  );
-}
-
-function PaySmall({ icon: Icon, label, onClick }) {
-  return (
-    <button onClick={onClick} style={{
-      padding: '14px 8px', borderRadius: 10,
-      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-      backgroundColor: T.surfaceHi, color: T.text,
-      border: `1px solid ${T.border}`,
-      fontFamily: FONT.ui, fontSize: 11, fontWeight: 600,
-      cursor: 'pointer',
-    }}>
-      <Icon size={18} />{label}
     </button>
   );
 }
@@ -2879,65 +2873,49 @@ function SettingsBelege() {
           padding: 12, borderRadius: 8,
           backgroundColor: T.bg, border: `1px solid ${T.border}`,
           fontFamily: FONT.mono, fontSize: 13, color: T.text,
-        }}>bon.mise.app/r/&#123;txid&#125;</div>
+        }}>/bon/&#123;bon-token&#125;</div>
       </SettingsCard>
     </div>
   );
 }
 
 function SettingsSumUp() {
+  const configured = _override?.runtime?.sumupConfigured === true;
   return (
     <div style={{ maxWidth: 640 }}>
-      <SettingsHeader title="SumUp Terminal" subtitle="Kartenzahlung & native Integration" />
+      <SettingsHeader title="SumUp Terminal" subtitle="Kartenzahlung & verifizierte API-Integration" />
       <SettingsCard>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: 10,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              backgroundColor: 'rgba(34, 181, 176, 0.15)',
-            }}><CreditCard size={24} style={{ color: '#22B5B0' }} /></div>
+            <div style={{ width: 48, height: 48, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(34, 181, 176, 0.15)' }}><CreditCard size={24} style={{ color: '#22B5B0' }} /></div>
             <div>
-              <div style={{ color: T.text, fontFamily: FONT.ui, fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>SumUp Solo Lite</div>
-              <div style={{ color: T.textMute, fontFamily: FONT.mono, fontSize: 11, marginTop: 2 }}>S/N: SU-44A7-2B91 · Bluetooth</div>
+              <div style={{ color: T.text, fontFamily: FONT.ui, fontSize: 18, fontWeight: 700 }}>SumUp Checkout API</div>
+              <div style={{ color: T.textMute, fontFamily: FONT.body, fontSize: 12, marginTop: 3 }}>Betrag wird serverseitig berechnet und erst nach PAID-Status verbucht.</div>
             </div>
           </div>
-          <StatusPill icon={Wifi} label="Verbunden" dot tone="ok" />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
-          <Stat label="Akku" value="84%" />
-          <Stat label="Letzter Sync" value="22:41" />
-          <Stat label="Heute" value="142,80 €" />
-          <Stat label="Gebühr" value="0,79%" />
+          <StatusPill icon={configured ? Wifi : WifiOff} label={configured ? 'Eingerichtet' : 'Nicht eingerichtet'} dot tone={configured ? 'ok' : 'warn'} />
         </div>
       </SettingsCard>
     </div>
   );
 }
-
 function SettingsTSE() {
+  const configured = _override?.runtime?.tseConfigured === true;
   return (
     <div style={{ maxWidth: 640 }}>
       <SettingsHeader title="TSE" subtitle="KassenSichV · fiskaly Cloud" />
       <SettingsCard>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div>
-            <div style={{ color: T.text, fontFamily: FONT.ui, fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>fiskaly Cloud-TSE</div>
-            <div style={{ color: T.textMute, fontFamily: FONT.mono, fontSize: 11, marginTop: 2 }}>S/N: FSK-2026-44A7B91 · BSI-zertifiziert</div>
+            <div style={{ color: T.text, fontFamily: FONT.ui, fontSize: 18, fontWeight: 700 }}>fiskaly Cloud-TSE</div>
+            <div style={{ color: T.textMute, fontFamily: FONT.body, fontSize: 12, marginTop: 3 }}>Jeder neue Verkauf wird signiert; Ausfälle werden im TSE-Ausfallprotokoll erfasst.</div>
           </div>
-          <StatusPill icon={Shield} label="Aktiv" dot tone="ok" />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
-          <Stat label="Signaturen heute" value="247" />
-          <Stat label="Letzte Signatur" value="22:51:14" />
-          <Stat label="Zertifikat gültig" value="bis 2031" />
-          <Stat label="ELSTER" value="aktiv" />
+          <StatusPill icon={Shield} label={configured ? 'Eingerichtet' : 'Notbetrieb'} dot tone={configured ? 'ok' : 'warn'} />
         </div>
       </SettingsCard>
     </div>
   );
 }
-
 function SettingsTische() {
   return (
     <div style={{ maxWidth: 640 }}>
@@ -3100,7 +3078,7 @@ function CouponSlot({ coupon, onScan, onRemove, discount }) {
 
 // ============ COUPON SCANNER MODAL ============
 
-function CouponScannerModal({ coupons, context, subtotal, onScan, onClose }) {
+function CouponScannerModal({ coupons, context: _context, subtotal, onScan, onClose }) {
   const [stage, setStage] = useState('scanning');
   const [manualCode, setManualCode] = useState('');
   const activeCoupons = coupons.filter(c => c.active);

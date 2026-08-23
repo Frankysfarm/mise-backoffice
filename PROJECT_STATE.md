@@ -1,33 +1,40 @@
-# Mise Gastro — Projektstatus
+# Mise Gastro+�u���T Projektstatus
 
 Aktualisiert: 23.08.2026, Europe/Berlin
 
-## Aktueller Arbeitsstand — QR-Tischbestellung und POS
+## Aktueller Arbeitsstand+�u���T QR-Tischbestellung und POS
 
 Feature-Branch: `factory/table-order-pos-20260822`
 
-- **Erledigt:** QR-Tischbestellung mit sicherer atomarer Bestellung, Idempotenz,
-  Suche, Warenkorb-Fortsetzung, Varianten, Cross-Selling, Live-Status und
-  konfigurierbarem kontrastgeprüftem Branding. QR-Design kann pro Mandant mit
-  Primär-/Akzentfarbe, Begrüßung und CTA angepasst werden.
-- **Qualität:** 202/202 Vitest-Tests, vollständiger Typecheck, Next.js-15-
-  Produktionsbuild, 4/4 Playwright-Flows auf Desktop und Pixel-5-Profil,
-  SQL-Migration/Vertrag/Rollback in isoliertem PostgreSQL 16 sowie
-  `git diff --check` bestanden. Dependency-Audit: keine High- oder Critical-
-  Findings; zwei Moderate verbleiben.
-- **Sicherheit:** Preise, Optionen, Mandant, Standort und Tisch werden serverseitig
-  geprüft; Bestellerstellung läuft atomar über eine service-role-geschützte RPC.
-  Migration `082` ist vorbereitet, aber noch nicht produktiv angewendet.
-- **Aktuell:** nächstes Paket ist die POS-Härtung mit Schicht/Kassenlade,
-  Tischtransfer, Split-Payment, Storno/Refund, Bon/Küche und Restaurant-E2E.
-- **Blocker:** keine Code-Blocker. Factory nutzt derzeit Node 24, während das Repo
-  Node 22 vorgibt; die Gates laufen grün, die Release-Umgebung soll vor Deployment
-  dennoch auf Node 22 vereinheitlicht werden.
-- **Restzeit:** QR-Paket ist release-fähig auf dem Feature-Branch. Für vollständige
-  POS-Härtung und realistische Betriebsabnahme werden voraussichtlich 4–7
-  konzentrierte Arbeitstage benötigt.
-- **Nächster Schritt:** Feature-Branch pushen, anschließend POS-Lückenmatrix und
-  ersten durchgängigen Kassen-/Tisch-/Küchenfluss umsetzen.
+- **Erledigt:** QR-Tischbestellung mit sicherer atomarer Bestellung,
+  Idempotenz, Suche, Warenkorb-Fortsetzung, Varianten, Cross-Selling,
+  Live-Status und konfigurierbarem kontrastgepr�ftem Branding.
+- **Erledigt:** POS-Terminal v5 nutzt echte Men�-, Kassen-, Schicht-, Tisch- und
+  Mitarbeiterdaten. Bar- und SumUp-Verk�ufe werden serverseitig bepreist,
+  providerseitig verifiziert und �ber Migration `083` atomar gespeichert.
+  Bons, Drucklink, Bon-E-Mail und einmalige TSE-Signierung sind angebunden.
+- **Qualit�t:** 210/210 Vitest-Tests, vollst�ndiger Typecheck, Next.js-15-
+  Produktionsbuild und 10/10 relevante Playwright-Flows auf Desktop und
+  Pixel-5-Profil bestanden. Migration `083`, SQL-Vertrag und Rollback liefen
+  in isoliertem PostgreSQL 16 gr�n. Der gezielte Lint ist warnungsfrei.
+- **Sicherheit:** Preise, Optionen, Steuern, Trinkgeld, Mandant, Standort,
+  Kasse, Schicht, Tisch und Mitarbeiter werden serverseitig gepr�ft.
+  Unbest�tigte SumUp-Zahlungen schlagen geschlossen fehl. Migrationen `082`
+  und `083` sind vorbereitet, aber nicht produktiv angewendet.
+- **Audit:** keine High- oder Critical-Funde; zwei Moderate in bestehenden
+  Abh�ngigkeiten (`@anthropic-ai/sdk` und transitiv `uuid`) bleiben offen.
+- **Aktuell:** n�chstes Paket ist der persistente K�chenfluss mit Bons,
+  Stationszuordnung und Status�berg�ngen.
+- **Blocker:** keine Code-Blocker. Der vollst�ndige historische Smoke-Lauf
+  ben�tigt Supabase-Testzugangsdaten, die im isolierten Factory-Browserprofil
+  nicht hinterlegt sind; die neuen QR/POS-E2E-Flows laufen vollst�ndig gr�n.
+  Factory nutzt au�erdem Node 24, das Repo gibt Node 22 vor.
+- **Restzeit:** dieses POS-Checkout-Paket ist release-f�hig auf dem
+  Feature-Branch. F�r K�che, Split-Payment, atomare Stornos/Refunds,
+  Tischaktionen, Offline-Wiederaufnahme und Hardwareabnahme werden
+  voraussichtlich weitere 3�w^~)�w6 konzentrierte Arbeitstage ben�tigt.
+- **N�chster Schritt:** persistenten K�chenbonfluss umsetzen und anschlie�end
+  Split-Payment sowie Storno/Refund h�rten.
 
 ## Release-Status
 

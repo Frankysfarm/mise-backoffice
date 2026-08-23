@@ -1,3 +1,5 @@
+@keyframes miseSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
 /* ============================================================
  * Mise POS v5 — Mobile Overrides (erweitert v2)
  * Aktiviert über Wrapper <div class="pos-root">
@@ -25,6 +27,35 @@
  * ============================================================ */
 @media (max-width: 640px) {
 
+  /* Counter: Kategorien horizontal, Produkte und Bon ohne Überlagerung. */
+  .pos-root .pos-counter-layout { min-height: 0; }
+  .pos-root .pos-counter-layout > div:first-child {
+    width: 100% !important; max-height: 76px; min-height: 76px; flex-shrink: 0;
+    display: flex; overflow-x: auto !important; overflow-y: hidden !important;
+    border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .pos-root .pos-counter-layout > div:first-child > button {
+    min-width: 104px; padding: 8px 6px !important; flex-shrink: 0;
+  }
+  .pos-root .pos-counter-products { min-height: 220px; flex: 1 1 auto; }
+  .pos-root .pos-counter-cart { position: relative; z-index: 2; max-height: 42vh !important; flex: 0 0 auto; }
+  /* Payment/Bon: kompakt, scrollbar und ohne horizontales Abschneiden. */
+  .pos-root .pos-payment-overlay {
+    align-items: flex-start !important; padding: 8px !important; overflow-y: auto;
+  }
+  .pos-root .pos-payment-card {
+    max-height: calc(100dvh - 16px) !important; border-radius: 12px !important;
+  }
+  .pos-root .pos-payment-success { padding: 16px !important; }
+  .pos-root .pos-receipt-card {
+    padding: 14px !important; gap: 14px !important; align-items: flex-start !important;
+    flex-direction: column !important;
+  }
+  .pos-root .pos-receipt-qr { width: 108px !important; height: 108px !important; align-self: center; }
+  .pos-root .pos-receipt-details { width: 100%; }
+  .pos-root .pos-receipt-url {
+    display: block !important; max-width: 100%; overflow-wrap: anywhere; word-break: break-word;
+  }
   /* Main-Container: kein border-radius / margin */
   .pos-root {
     font-size: 14px;

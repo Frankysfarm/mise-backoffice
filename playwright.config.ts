@@ -45,7 +45,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'MISE_E2E_TABLE_ORDER=1 corepack pnpm dev',
+    command: 'MISE_E2E_TABLE_ORDER=1 MISE_E2E_POS=1 corepack pnpm dev',
     url: 'http://localhost:3200/t/qa-preview',
     reuseExistingServer: !process.env.CI,
   },

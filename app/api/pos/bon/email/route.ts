@@ -1,30 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServiceClient } from '@/lib/supabase/server';
+import { createClient, createServiceClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
-/**
- * Sendet Bon-Link per E-Mail an Kunden.
- * Keine Auth erforderlich — Token schützt den Zugriff.
- */
+const PRIVATE_HEADERS = { 'Cache-Control': 'private, no-store' };
+
+/** Sendet einen existierenden Bon-Link aus einer eingeloggten Kassenschicht. */
 export async function POST(req: NextRequest) {
-  const { bon_token, email } = await req.json() as { bon_token: string; email: string };
-  if (!bon_token || !email) return NextResponse.json({ ok: false, error: 'Fehlende Daten' }, { status: 400 });
+  const origin = req.headers.get('origin');
+  if (origin && origin !== req.nextUrl.origin) {
+    return NextResponse.json({ ok: false, error: 'Origin nicht erlaubt' }, { status: 403, headers: PRIVATE_HEADERS });
+  }
+
+  const auth = await createClient();
+  const { data: { user } } = await auth.auth.getUser();
+  if (!user) return NextResponse.json({ ok: false, error: 'Nicht eingeloggt' }, { status: 401, headers: PRIVATE_HEADERS });
+
+  const body = await req.json().catch(() => null) as { bon_token?: unknown; email?: unknown } | null;
+  const bon_token = String(body?.bon_token ?? '').trim();
+  const email = String(body?.email ?? '').trim().toLowerCase();
+  if (!bon_token || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ ok: false, error: 'Bon oder E-Mail-Adresse prüfen' }, { status: 400, headers: PRIVATE_HEADERS });
+  }
 
   const svc = createServiceClient();
+  const { data: employee } = await svc.from('employees')
+    .select('tenant_id,location_id').eq('auth_user_id', user.id).maybeSingle();
+  if (!employee?.tenant_id || !employee.location_id) {
+    return NextResponse.json({ ok: false, error: 'Kein POS-Zugriff' }, { status: 403, headers: PRIVATE_HEADERS });
+  }
   const { data: tx } = await svc.from('pos_transactions')
     .select('id, tenant_id, brutto_gesamt, created_at, tenant:tenants(name, resend_api_key, resend_from_email, resend_verified_at)')
-    .eq('bon_token', bon_token).maybeSingle();
+    .eq('bon_token', bon_token)
+    .eq('tenant_id', employee.tenant_id)
+    .eq('location_id', employee.location_id)
+    .maybeSingle();
 
-  if (!tx) return NextResponse.json({ ok: false, error: 'Bon nicht gefunden' }, { status: 404 });
+  if (!tx) return NextResponse.json({ ok: false, error: 'Bon nicht gefunden' }, { status: 404, headers: PRIVATE_HEADERS });
 
   const tenant = (tx as any).tenant;
   if (!tenant?.resend_api_key || !tenant?.resend_verified_at) {
-    return NextResponse.json({ ok: false, error: 'E-Mail-Versand noch nicht konfiguriert (Resend fehlt)' });
+    return NextResponse.json({ ok: false, error: 'E-Mail-Versand ist noch nicht eingerichtet' }, { status: 503, headers: PRIVATE_HEADERS });
   }
 
-  const origin = req.nextUrl.origin;
-  const bonUrl = `${origin}/bon/${bon_token}`;
+  const publicOrigin = req.nextUrl.origin;
+  const bonUrl = `${publicOrigin}/bon/${bon_token}`;
   const summe = Number(tx.brutto_gesamt).toFixed(2).replace('.', ',');
 
   try {
@@ -57,8 +78,8 @@ export async function POST(req: NextRequest) {
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      return NextResponse.json({ ok: false, error: `Resend: ${err.slice(0, 200)}` });
+      console.error('POS receipt email provider rejected request', { status: res.status });
+      return NextResponse.json({ ok: false, error: 'E-Mail konnte nicht gesendet werden' }, { status: 502, headers: PRIVATE_HEADERS });
     }
 
     // Markiere Bon als versendet
@@ -66,11 +87,9 @@ export async function POST(req: NextRequest) {
       .update({ beleg_email: email, beleg_ausgegeben_am: new Date().toISOString() })
       .eq('id', tx.id);
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true }, { headers: PRIVATE_HEADERS });
   } catch (e) {
-    return NextResponse.json({
-      ok: false,
-      error: e instanceof Error ? e.message : 'Fehler',
-    });
+    console.error('POS receipt email failed', { message: e instanceof Error ? e.message : 'unknown' });
+    return NextResponse.json({ ok: false, error: 'E-Mail konnte nicht gesendet werden' }, { status: 502, headers: PRIVATE_HEADERS });
   }
 }

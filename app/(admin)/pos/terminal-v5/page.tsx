@@ -44,7 +44,15 @@ export default async function POSTerminalV5Page() {
   const tenantId = employee.tenant_id;
   const locationId = employee.location_id;
 
-  const [{ data: rawCategories }, { data: rawItems }, { data: rawTables }, { data: rawReservations }] = await Promise.all([
+  const [
+    { data: rawCategories },
+    { data: rawItems },
+    { data: rawTables },
+    { data: rawReservations },
+    { data: register },
+    { data: openShift },
+    { data: integrationSettings },
+  ] = await Promise.all([
     svc.from('menu_categories')
       .select('id, name, sort_order')
       .eq('location_id', locationId)
@@ -65,12 +73,43 @@ export default async function POSTerminalV5Page() {
       .eq('tenant_id', tenantId)
       .eq('location_id', locationId)
       .order('zeit_von', { ascending: true }),
+    svc.from('pos_registers')
+      .select('id, name')
+      .eq('tenant_id', tenantId)
+      .eq('location_id', locationId)
+      .eq('aktiv', true)
+      .limit(1)
+      .maybeSingle(),
+    svc.from('pos_shifts')
+      .select('id, employee_id, start_at, status')
+      .eq('tenant_id', tenantId)
+      .eq('location_id', locationId)
+      .eq('employee_id', employee.id)
+      .eq('status', 'offen')
+      .order('start_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    svc.from('tenants')
+      .select('sumup_api_key,sumup_merchant_code,fiskaly_api_key,fiskaly_tss_id,fiskaly_client_id')
+      .eq('id', tenantId)
+      .maybeSingle(),
   ]);
 
+  const employeeName = [employee.vorname, employee.nachname].filter(Boolean).join(' ').trim();
   const data = transformToV5({
     categories: rawCategories ?? [],
     items: rawItems ?? [],
     tables: rawTables ?? [],
+    runtime: {
+      tenantId,
+      locationId,
+      employeeId: employee.id,
+      employeeName,
+      registerId: register?.id ?? null,
+      shiftId: openShift?.id ?? null,
+      sumupConfigured: Boolean(integrationSettings?.sumup_api_key && integrationSettings.sumup_merchant_code),
+      tseConfigured: Boolean(integrationSettings?.fiskaly_api_key && integrationSettings.fiskaly_tss_id && integrationSettings.fiskaly_client_id),
+    },
   });
 
   return (
@@ -81,7 +120,14 @@ export default async function POSTerminalV5Page() {
           __html: `globalThis.MISE_POS_DATA = ${safeJSONForScript(data)};`,
         }}
       />
-      <MisePOSv5Wrapper />
+      <MisePOSv5Wrapper
+        tenantId={tenantId}
+        locationId={locationId}
+        employeeId={employee.id}
+        employeeName={employeeName}
+        registerId={register?.id ?? null}
+        initialShift={(openShift as { id: string; employee_id: string; start_at: string; status: string } | null) ?? null}
+      />
       <ReservationsSidebar
         initialReservations={(rawReservations as any) ?? []}
         tenantId={tenantId}
@@ -108,10 +154,22 @@ type DBTable = {
   form: string | null;
 };
 
-function transformToV5({ categories, items, tables }: {
+type PosRuntime = {
+  tenantId: string;
+  locationId: string;
+  employeeId: string;
+  employeeName: string;
+  registerId: string | null;
+  shiftId: string | null;
+  sumupConfigured: boolean;
+  tseConfigured: boolean;
+};
+
+function transformToV5({ categories, items, tables, runtime }: {
   categories: DBCategory[];
   items: DBItem[];
   tables: DBTable[];
+  runtime: PosRuntime;
 }) {
   const v5Categories = [
     { id: 'bestseller', name: 'Top 8', icon: 'Star', color: '#E68A2C', taxRate: null, special: true },
@@ -134,7 +192,7 @@ function transformToV5({ categories, items, tables }: {
     v5Products[it.category_id].push({
       id: it.id, name: it.name,
       price: Math.round(Number(it.preis) * 100),
-      modGroups: it.option_groups ?? undefined,
+      modGroups: normalizeOptionGroups(it.option_groups),
       featured: it.beliebt || undefined,
     });
   });
@@ -172,5 +230,41 @@ function transformToV5({ categories, items, tables }: {
     });
   });
 
-  return { areas, roomLayout, categories: v5Categories, products: v5Products, bestsellerIds, soldOut };
+  return {
+    areas,
+    roomLayout,
+    categories: v5Categories,
+    products: v5Products,
+    bestsellerIds,
+    soldOut,
+    runtime,
+    initialOrders: {},
+    coupons: [],
+    activePagers: [],
+    summary: { revenueCents: 0, guests: 0 },
+  };
+}
+
+function normalizeOptionGroups(value: unknown) {
+  if (!Array.isArray(value)) return undefined;
+  return value.map((rawGroup) => {
+    const group = rawGroup && typeof rawGroup === 'object' ? rawGroup as Record<string, unknown> : {};
+    const options = Array.isArray(group.options) ? group.options : [];
+    return {
+      id: String(group.id ?? ''),
+      name: String(group.name ?? 'Option'),
+      type: group.type === 'multi' ? 'multi' : 'single',
+      required: group.required === true,
+      max: Number.isFinite(Number(group.max)) ? Math.max(0, Math.trunc(Number(group.max))) : undefined,
+      options: options.map((rawOption) => {
+        const option = rawOption && typeof rawOption === 'object' ? rawOption as Record<string, unknown> : {};
+        const delta = Number(option.priceDelta ?? 0);
+        return {
+          id: String(option.id ?? ''),
+          name: String(option.name ?? 'Option'),
+          price: Number.isFinite(delta) ? Math.round(delta * 100) : 0,
+        };
+      }).filter((option) => option.id),
+    };
+  }).filter((group) => group.id && group.options.length > 0);
 }
