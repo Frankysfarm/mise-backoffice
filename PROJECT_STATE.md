@@ -2,6 +2,54 @@
 
 Aktualisiert: 23.08.2026, Europe/Berlin
 
+## Arbeitspaket 085 — persistentes Split-Payment
+
+- **Erledigt:** POS-Teilzahlungen werden als persistente Split-Sitzung,
+  Zahlungsversuche und Positionszuordnungen ausschließlich in Integer-Cent
+  geführt. Unterstützt sind freie Beträge, einzelne Positionen und Sitz/Gast.
+- **Erledigt:** Bar, SumUp und Stripe können in beliebiger Reihenfolge
+  kombiniert werden. Providerzahlungen bleiben reserviert, bis Betrag,
+  Währung, Mandant und Zahlungsreferenz serverseitig verifiziert wurden.
+  Unsichere Statusabfragen werden mit demselben Versuch erneut geprüft und
+  erzeugen keinen zweiten Checkout.
+- **Erledigt:** Mandant, Standort, Kasse, offene Schicht, Mitarbeiter und Tisch
+  werden serverseitig gebunden; Menüpreise, Optionen, Steuer und Trinkgeld
+  werden neu berechnet. Browserrollen haben weder Tabellen- noch RPC-
+  Schreibrechte.
+- **Erledigt:** Idempotenzschlüssel und Split-Sitzungen sind mit Advisory- und
+  Row-Locks serialisiert. Veränderte Wiederholungsdaten, Doppel-Taps,
+  Mehrfachzuordnungen, Nullbeträge und Überzahlungen schlagen geschlossen fehl.
+- **Erledigt:** Erst bei exakt bezahlter Gesamtsumme wechseln Bestellung und
+  POS-Transaktion atomar auf bezahlt. Dadurch erzeugt der bestehende 084-
+  Zahlungstrigger genau einen vollständigen Küchenbon; Teilzahlungen bleiben
+  für die Küche unsichtbar. Der finale Verkauf wird einmalig TSE-signiert.
+- **Erledigt:** Die Touch-Oberfläche zeigt Gesamt, Restbetrag und bisherige
+  Zahlungen, bietet Betrag/Position/Sitz sowie Bar/SumUp/Stripe und funktioniert
+  per Touch und Tastatur auf Desktop, Tablet und Mobil.
+- **Beweise:** 230/230 Vitest-Tests, vollständiger TypeScript-Typecheck,
+  Delivery-Typecheck, gezielter ESLint und Next.js-Produktionsbuild
+  (113/113 Seiten) bestanden. Die POS-v5-Browserdatei bestand 8/8 Flows in
+  Chromium und Mobile Chromium, inklusive Provider-Netzfehler und sicherem
+  Status-Retry. Ein separater 1024×768-Lauf bestätigte Fokus und Enter-
+  Bedienung, Bar-Teilzahlung, fehlenden horizontalen Overflow und eine
+  fehlerfreie Browserkonsole. Migration, Vertragslauf, echte dblink-Races, Double-Tap,
+  exakte Küchenfreigabe und Rollback liefen auf PostgreSQL 16 grün. Der
+  Rollback entfernt nur 085-Objekte und erhält den 084-Küchenfluss.
+- **Security/Dependencies:** keine Dependency- oder Lockfile-Änderung, keine
+  Secret-Funde und keine High-/Critical-Advisories. Zwei bestehende Moderate
+  (`@anthropic-ai/sdk`, transitiv `uuid`) bleiben unverändert offen.
+- **Umgebungshinweis:** Der globale Playwright-Lauf erreichte 14/40; alle 26
+  Smoke-Fehler entstanden vor der Anwendung in der Middleware, weil der
+  isolierte Worktree bewusst weder `NEXT_PUBLIC_SUPABASE_URL` noch
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` enthält. Die acht relevanten POS-Flows sind
+  vollständig grün. Factory nutzt Node 24 statt der Repo-Vorgabe Node 22.
+- **Blocker:** keine Code-Blocker. Migration `085` ist vorbereitet, aber nicht
+  produktiv angewendet; reale SumUp-/Stripe-Terminals und TSE-Hardware wurden
+  nicht belastet. Ein Browser-/Geräteabbruch während einer laufenden
+  Providerzahlung gehört zur separaten Offline-Wiederaufnahme.
+  **Restzeit P0:** 0.
+
+
 ## Arbeitspaket 084 — persistenter Küchenbonfluss
 
 - **Erledigt:** `kitchen_tickets`, `kitchen_ticket_items` und

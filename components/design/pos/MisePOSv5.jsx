@@ -17,6 +17,7 @@ import {
   CheckCircle2, XCircle, Star,
   Gift, Percent, Ticket, ScanLine, Tag, Trash, Edit3, Copy
 } from 'lucide-react';
+import SplitPaymentScreen from './SplitPaymentScreen';
 
 const ICONS = { Coffee, IceCream, Salad, Sparkles, Star, Pizza, Wine, Beef, Tag };
 
@@ -596,6 +597,7 @@ export default function MisePOSv5() {
       registerId: runtime.registerId, shiftId: runtime.shiftId, tableId: saleFlow.tableId, fulfillment,
       items: saleFlow.items.map((item) => ({
         id: item.productId, qty: item.qty, selections: item.selections || {}, note: item.note || '',
+        ...(item.seat ? { seat: item.seat } : {}),
       })),
       tip: (saleFlow.tip || 0) / 100, training: false,
     };
@@ -625,6 +627,70 @@ export default function MisePOSv5() {
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || !payload.ok) throw new Error(payload.error || 'SumUp-Checkout konnte nicht erstellt werden');
     return payload;
+  };
+  const splitRequest = async (body, idempotencyKey = null) => {
+    const response = await fetch('/api/pos/split', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+    const payload = await response.json().catch(() => ({}));
+    const confirmedFailure = body.action === 'confirm_provider' && payload.status === 'failed';
+    if (!response.ok && response.status !== 202 && !confirmedFailure) {
+      throw new Error(payload.error || 'Split-Zahlung konnte nicht verarbeitet werden');
+    }
+    return payload;
+  };
+
+  const beginSplitPayment = async (saleFlow) => {
+    const request = buildSaleRequest(saleFlow);
+    const payload = await splitRequest({
+      action: 'begin',
+      ...request,
+      idempotencyKey: saleFlow.idempotencyKey,
+    }, saleFlow.idempotencyKey);
+    return payload.split;
+  };
+
+  const recordSplitCash = async ({ splitSessionId, scope, cashReceivedCents, idempotencyKey }) => {
+    const runtime = globalThis.MISE_POS_DATA?.runtime;
+    const payload = await splitRequest({
+      action: 'cash',
+      splitSessionId,
+      scope,
+      cashReceivedCents,
+      idempotencyKey,
+      registerId: runtime?.registerId,
+      shiftId: runtime?.shiftId,
+    });
+    return payload.split;
+  };
+
+  const createSplitProvider = async ({ provider, splitSessionId, scope, idempotencyKey }) => {
+    const runtime = globalThis.MISE_POS_DATA?.runtime;
+    return splitRequest({
+      action: 'create_provider',
+      provider,
+      splitSessionId,
+      scope,
+      idempotencyKey,
+      registerId: runtime?.registerId,
+      shiftId: runtime?.shiftId,
+    });
+  };
+
+  const confirmSplitProvider = async ({ paymentAttemptId }) => {
+    const runtime = globalThis.MISE_POS_DATA?.runtime;
+    return splitRequest({
+      action: 'confirm_provider',
+      paymentAttemptId,
+      registerId: runtime?.registerId,
+      shiftId: runtime?.shiftId,
+    });
   };
   const onPaymentComplete = () => {
     const ctx = paymentFlow.context;
@@ -885,6 +951,7 @@ export default function MisePOSv5() {
         )}
         {paymentFlow && (
           <PaymentFlow flow={paymentFlow} setFlow={setPaymentFlow} onComplete={onPaymentComplete} onPersist={persistPayment} onCreateCardCheckout={createCardCheckout}
+            onBeginSplit={beginSplitPayment} onSplitCash={recordSplitCash} onCreateSplitProvider={createSplitProvider} onConfirmSplitProvider={confirmSplitProvider}
             withPager={sendToKitchen && counterCart.some(i => i.isFood)} pagerNum={nextPager} />
         )}
       </Chrome>
@@ -1130,7 +1197,8 @@ export default function MisePOSv5() {
           onScan={onCouponScanned} onClose={() => setShowScanner(false)} />
       )}
       {paymentFlow && (
-        <PaymentFlow flow={paymentFlow} setFlow={setPaymentFlow} onComplete={onPaymentComplete} onPersist={persistPayment} onCreateCardCheckout={createCardCheckout} />
+        <PaymentFlow flow={paymentFlow} setFlow={setPaymentFlow} onComplete={onPaymentComplete} onPersist={persistPayment} onCreateCardCheckout={createCardCheckout}
+          onBeginSplit={beginSplitPayment} onSplitCash={recordSplitCash} onCreateSplitProvider={createSplitProvider} onConfirmSplitProvider={confirmSplitProvider} />
       )}
     </Chrome>
   );
@@ -1138,7 +1206,7 @@ export default function MisePOSv5() {
 
 // ============ THE NEW BIG ONE: PAYMENT FLOW ============
 
-function PaymentFlow({ flow, setFlow, onComplete, onPersist, onCreateCardCheckout, withPager, pagerNum }) {
+function PaymentFlow({ flow, setFlow, onComplete, onPersist, onCreateCardCheckout, onBeginSplit, onSplitCash, onCreateSplitProvider, onConfirmSplitProvider, withPager, pagerNum }) {
   const cardRef = useRef(null);
   useEffect(() => {
     cardRef.current?.scrollTo({ top: 0, behavior: 'instant' });
@@ -1167,6 +1235,12 @@ function PaymentFlow({ flow, setFlow, onComplete, onPersist, onCreateCardCheckou
         {flow.stage === 'sumup-pairing' && (
           <SumUpFlow flow={flow} setFlow={setFlow} onCreateCardCheckout={onCreateCardCheckout} onPersist={onPersist} />
         )}
+        {flow.stage === 'split-payment' && (
+          <SplitPaymentScreen flow={flow} setFlow={setFlow}
+            onBegin={onBeginSplit} onCash={onSplitCash}
+            onCreateProvider={onCreateSplitProvider}
+            onConfirmProvider={onConfirmSplitProvider} />
+        )}
         {flow.stage === 'success' && (
           <SuccessScreen flow={flow} setFlow={setFlow} onComplete={onComplete} withPager={withPager} pagerNum={pagerNum} />
         )}
@@ -1189,6 +1263,8 @@ function MethodSelect({ flow, setFlow }) {
       setFlow({ ...flow, stage: 'cash-amount', method, tip });
     } else if (method === 'SumUp') {
       setFlow({ ...flow, stage: 'sumup-pairing', method, tip });
+    } else if (method === 'Split') {
+      setFlow({ ...flow, stage: 'split-payment', method, tip });
     }
   };
 
@@ -1243,9 +1319,10 @@ function MethodSelect({ flow, setFlow }) {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 8 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 8 }}>
         <PayBig icon={CreditCard} label="SumUp" sub="Solo Lite · 0,79%" primary onClick={() => selectMethod('SumUp')} />
         <PayBig icon={Banknote} label="Bar" sub="mit Wechselgeld-Rechner" onClick={() => selectMethod('Bar')} />
+        <PayBig icon={Users} label="Split" sub="Betrag · Position · Sitz" onClick={() => selectMethod('Split')} />
       </div>
       {flow.context === 'table' && (
         <div style={{
