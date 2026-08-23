@@ -46,6 +46,13 @@ export async function middleware(request: NextRequest) {
   const host = (request.headers.get('host') ?? '').toLowerCase();
   const hostname = request.nextUrl.hostname.toLowerCase();
 
+  // Browser-QA fixture: disabled in every normal runtime and never backed by production data.
+  if (process.env.MISE_E2E_TABLE_ORDER === '1' && request.nextUrl.pathname === '/t/qa-preview') {
+    const headers = new Headers(request.headers);
+    headers.set('x-pathname', request.nextUrl.pathname);
+    return NextResponse.next({ request: { headers } });
+  }
+
   // ─── Custom-Domain-Rewrite ───────────────────────────────────────
   // Wenn der Host nicht mise-gastro.de ist, schau ob er auf einen Tenant zeigt.
   if (host && !PRIMARY_HOSTS.has(hostname)) {

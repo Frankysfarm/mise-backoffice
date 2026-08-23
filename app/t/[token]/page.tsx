@@ -20,7 +20,7 @@ export default async function TableOrderPage({
 
   const [{ data: tenant }, { data: location }, { data: categories }, { data: items }] = await Promise.all([
     svc.from('tenants')
-      .select('name,slug,logo_url,hero_image_url,storefront_theme_id,theme_primary,theme_accent,qr_logo_url,qr_hero_image_url')
+      .select('name,slug,logo_url,hero_image_url,storefront_theme_id,theme_primary,theme_accent,qr_logo_url,qr_hero_image_url,qr_theme_primary,qr_theme_accent,qr_welcome_text,qr_cta_label')
       .eq('id', table.tenant_id)
       .single(),
     svc.from('locations')

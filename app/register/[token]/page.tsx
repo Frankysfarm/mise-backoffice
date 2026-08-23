@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,8 +18,8 @@ const STEPS = [
   { id: 'fertig',      title: 'Abschicken', icon: '🎉' },
 ];
 
-export default function RegisterPage({ params }: { params: { token: string } }) {
-  const { token } = params;
+export default function RegisterPage() {
+  const { token } = useParams<{ token: string }>();
   const [loaded, setLoaded] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [step, setStep] = React.useState(0);

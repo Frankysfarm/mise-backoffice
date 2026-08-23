@@ -24,8 +24,9 @@ const VALID_STATES = ['pending_acceptance', 'assigned', 'at_restaurant', 'on_rou
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
@@ -38,7 +39,7 @@ export async function PATCH(
   const { error } = await sb
     .from('mise_delivery_batches')
     .update({ state: body.state })
-    .eq('id', params.id);
+    .eq('id', routeParams.id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -47,7 +48,7 @@ export async function PATCH(
     const { data: batch } = await sb
       .from('mise_delivery_batches')
       .select('id, driver_id, location_id')
-      .eq('id', params.id)
+      .eq('id', routeParams.id)
       .maybeSingle();
 
     if (batch?.driver_id) {
@@ -59,7 +60,7 @@ export async function PATCH(
         const { data: stops } = await sb
           .from('mise_delivery_batch_stops')
           .select('id, order_id, lat, lng, completed_at')
-          .eq('batch_id', params.id)
+          .eq('batch_id', routeParams.id)
           .eq('type', 'dropoff')
           .not('completed_at', 'is', null);
 
@@ -112,7 +113,7 @@ export async function PATCH(
 
   // Bei Stornierung: Recovery Engine befreit nicht-gelieferte Stops (fire-and-forget)
   if (body.state === 'cancelled') {
-    recoverCancelledBatch(params.id, 'admin_cancelled', true).catch(() => {});
+    recoverCancelledBatch(routeParams.id, 'admin_cancelled', true).catch(() => {});
   }
 
   // Webhook-Events für externe Systeme (fire-and-forget)
@@ -122,7 +123,7 @@ export async function PATCH(
         const { data: batchForWebhook } = await sb
           .from('mise_delivery_batches')
           .select('id, driver_id, location_id')
-          .eq('id', params.id)
+          .eq('id', routeParams.id)
           .maybeSingle();
 
         if (!batchForWebhook?.location_id) return;
@@ -130,18 +131,18 @@ export async function PATCH(
 
         if (body.state === 'on_route') {
           await queueWebhookEvent(locId, 'batch_picked_up', {
-            batch_id:  params.id,
+            batch_id:  routeParams.id,
             driver_id: batchForWebhook.driver_id ?? null,
           });
         } else if (body.state === 'delivered') {
           await queueWebhookEvent(locId, 'batch_completed', {
-            batch_id:   params.id,
+            batch_id:   routeParams.id,
             driver_id:  batchForWebhook.driver_id ?? null,
             completed_at: new Date().toISOString(),
           });
         } else if (body.state === 'cancelled') {
           await queueWebhookEvent(locId, 'batch_cancelled', {
-            batch_id: params.id,
+            batch_id: routeParams.id,
             reason:   'admin_cancelled',
           });
         }
@@ -156,7 +157,7 @@ export async function PATCH(
         const { data: bEvt } = await sb
           .from('mise_delivery_batches')
           .select('location_id')
-          .eq('id', params.id)
+          .eq('id', routeParams.id)
           .maybeSingle();
         if (!bEvt?.location_id) return;
         const locId = bEvt.location_id as string;
@@ -164,7 +165,7 @@ export async function PATCH(
         const { data: sEvt } = await sb
           .from('mise_delivery_batch_stops')
           .select('order_id')
-          .eq('batch_id', params.id)
+          .eq('batch_id', routeParams.id)
           .eq('type', 'dropoff')
           .not('order_id', 'is', null);
 
@@ -182,7 +183,7 @@ export async function PATCH(
 
         await Promise.all(
           orderIds.map((oid) =>
-            recordCustomerEvent(oid, locId, evType, { batch_id: params.id }),
+            recordCustomerEvent(oid, locId, evType, { batch_id: routeParams.id }),
           ),
         );
       } catch { /* fire-and-forget */ }

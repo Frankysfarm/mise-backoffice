@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: { typedRoutes: false },
+  typedRoutes: false,
   // Allows CI/local release builds to avoid colliding with a running dev
   // server that owns .next. Production keeps Next's default directory.
   ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),

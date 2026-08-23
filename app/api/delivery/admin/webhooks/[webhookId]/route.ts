@@ -26,8 +26,9 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { webhookId: string } },
+  { params }: { params: Promise<{ webhookId: string }> },
 ) {
+  const routeParams = await params;
   const actor = await getDeliveryAdminActor();
   if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
@@ -38,12 +39,12 @@ export async function GET(
     return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
   }
 
-  const webhook = await getWebhook(locationId, params.webhookId);
+  const webhook = await getWebhook(locationId, routeParams.webhookId);
   if (!webhook) return NextResponse.json({ error: 'Webhook nicht gefunden' }, { status: 404 });
 
   if (searchParams.get('log') === 'true') {
     const limit = Math.min(Math.max(Number(searchParams.get('limit') ?? 50), 1), 200);
-    const log = await getDeliveryLog(locationId, params.webhookId, limit);
+    const log = await getDeliveryLog(locationId, routeParams.webhookId, limit);
     return NextResponse.json({ webhook, log });
   }
 
@@ -52,8 +53,9 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { webhookId: string } },
+  { params }: { params: Promise<{ webhookId: string }> },
 ) {
+  const routeParams = await params;
   const actor = await getDeliveryAdminActor();
   if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
@@ -80,7 +82,7 @@ export async function PATCH(
   if (body.description !== undefined) changes.description = body.description ?? null;
 
   try {
-    const webhook = await updateWebhook(locationId, params.webhookId, changes);
+    const webhook = await updateWebhook(locationId, routeParams.webhookId, changes);
     return NextResponse.json({ webhook });
   } catch (err) {
     return NextResponse.json({ error: err instanceof Error ? err.message : String(err) }, { status: 400 });
@@ -89,8 +91,9 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { webhookId: string } },
+  { params }: { params: Promise<{ webhookId: string }> },
 ) {
+  const routeParams = await params;
   const actor = await getDeliveryAdminActor();
   if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
@@ -100,17 +103,18 @@ export async function DELETE(
     return NextResponse.json({ error: 'Standort nicht autorisiert' }, { status: 403 });
   }
 
-  const existing = await getWebhook(locationId, params.webhookId);
+  const existing = await getWebhook(locationId, routeParams.webhookId);
   if (!existing) return NextResponse.json({ error: 'Webhook nicht gefunden' }, { status: 404 });
 
-  await deleteWebhook(locationId, params.webhookId);
+  await deleteWebhook(locationId, routeParams.webhookId);
   return NextResponse.json({ ok: true });
 }
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { webhookId: string } },
+  { params }: { params: Promise<{ webhookId: string }> },
 ) {
+  const routeParams = await params;
   const actor = await getDeliveryAdminActor();
   if (!actor) return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 403 });
 
@@ -127,7 +131,7 @@ export async function POST(
   }
 
   try {
-    const result = await sendTestEvent(locationId, params.webhookId);
+    const result = await sendTestEvent(locationId, routeParams.webhookId);
     return NextResponse.json({
       ok:        result.ok,
       status:    result.status,

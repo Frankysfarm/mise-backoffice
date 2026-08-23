@@ -15,17 +15,18 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }
 
 export default async function RatingPage({ params }: Props) {
+  const { token } = await params;
   const sb = createServiceClient();
 
   // Bestelldetails zum Token laden
   const { data: order } = await sb
     .from('customer_orders')
     .select('id, bestellnummer, status, rating_token')
-    .eq('rating_token', params.token)
+    .eq('rating_token', token)
     .maybeSingle();
 
   const alreadyRated = order ? await (async () => {
@@ -39,7 +40,7 @@ export default async function RatingPage({ params }: Props) {
 
   return (
     <RatingClient
-      token={params.token}
+      token={token}
       orderId={order?.id ?? null}
       bestellnummer={order?.bestellnummer ?? null}
       orderStatus={order?.status ?? null}

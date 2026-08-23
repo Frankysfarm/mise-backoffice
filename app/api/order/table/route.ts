@@ -9,6 +9,8 @@ import {
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+const PRIVATE_HEADERS = { 'Cache-Control': 'private, no-store' };
+
 type MenuItemRow = {
   id: string;
   name: string;
@@ -16,21 +18,40 @@ type MenuItemRow = {
   option_groups: unknown;
 };
 
+type AtomicOrderRow = {
+  order_id: string;
+  order_number: string;
+  status_token: string;
+  was_created: boolean;
+};
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export async function POST(req: NextRequest) {
   const origin = req.headers.get('origin');
   if (origin && origin !== req.nextUrl.origin) {
-    return NextResponse.json({ error: 'Origin nicht erlaubt' }, { status: 403 });
+    return NextResponse.json({ error: 'Origin nicht erlaubt' }, { status: 403, headers: PRIVATE_HEADERS });
   }
 
   const body = await req.json().catch(() => null);
   const token = String(body?.token ?? '').trim();
   const tableId = String(body?.tableId ?? '').trim();
+  const idempotencyKey = String(req.headers.get('idempotency-key') ?? body?.idempotencyKey ?? '').trim();
   const paymentMethod = body?.paymentMethod;
   if (!token || token.length > 200 || !tableId || !Array.isArray(body?.items) || body.items.length === 0) {
-    return NextResponse.json({ error: 'Tisch-Token und Artikel sind Pflicht' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Tisch-Token und Artikel sind Pflicht' },
+      { status: 400, headers: PRIVATE_HEADERS },
+    );
+  }
+  if (!UUID_RE.test(idempotencyKey)) {
+    return NextResponse.json(
+      { error: 'Ungültiger Wiederholungsschutz' },
+      { status: 400, headers: PRIVATE_HEADERS },
+    );
   }
   if (body.items.length > 100 || !['bar', 'karte'].includes(paymentMethod)) {
-    return NextResponse.json({ error: 'Ungültige Bestellung' }, { status: 400 });
+    return NextResponse.json({ error: 'Ungültige Bestellung' }, { status: 400, headers: PRIVATE_HEADERS });
   }
 
   const svc = createServiceClient();
@@ -39,7 +60,9 @@ export async function POST(req: NextRequest) {
     .select('id,nummer,tenant_id,location_id,qr_token,aktiv')
     .eq('id', tableId)
     .maybeSingle();
-  if (!table?.aktiv) return NextResponse.json({ error: 'Tisch nicht gefunden' }, { status: 404 });
+  if (!table?.aktiv) {
+    return NextResponse.json({ error: 'Tisch nicht gefunden' }, { status: 404, headers: PRIVATE_HEADERS });
+  }
 
   let tokenValid = table.qr_token === token;
   if (!tokenValid) {
@@ -52,10 +75,19 @@ export async function POST(req: NextRequest) {
       .maybeSingle();
     tokenValid = Boolean(location);
   }
-  if (!tokenValid) return NextResponse.json({ error: 'Tisch-Token ungültig' }, { status: 403 });
+  if (!tokenValid) {
+    return NextResponse.json({ error: 'Tisch-Token ungültig' }, { status: 403, headers: PRIVATE_HEADERS });
+  }
 
-  const requestedIds = [...new Set(body.items.map((item: { id?: unknown }) => String(item?.id ?? '')).filter(Boolean))];
-  if (requestedIds.length === 0) return NextResponse.json({ error: 'Keine gültigen Artikel' }, { status: 400 });
+  const requestedIds = [...new Set(
+    body.items
+      .map((item: { id?: unknown }) => String(item?.id ?? ''))
+      .filter(Boolean),
+  )];
+  if (requestedIds.length === 0) {
+    return NextResponse.json({ error: 'Keine gültigen Artikel' }, { status: 400, headers: PRIVATE_HEADERS });
+  }
+
   const { data: menuItems } = await svc
     .from('menu_items')
     .select('id,name,preis,option_groups')
@@ -64,7 +96,10 @@ export async function POST(req: NextRequest) {
     .eq('location_id', table.location_id)
     .eq('verfuegbar', true);
   if (!menuItems || menuItems.length !== requestedIds.length) {
-    return NextResponse.json({ error: 'Bestellpositionen sind nicht verfügbar' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Bestellpositionen sind nicht verfügbar' },
+      { status: 400, headers: PRIVATE_HEADERS },
+    );
   }
 
   const itemMap = new Map((menuItems as MenuItemRow[]).map((item) => [item.id, item]));
@@ -81,63 +116,60 @@ export async function POST(req: NextRequest) {
       });
     });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Ungültige Bestellung' }, { status: 400 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Ungültige Bestellung' },
+      { status: 400, headers: PRIVATE_HEADERS },
+    );
   }
 
   const total = roundMoney(resolved.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0));
   if (total < 0.5 || total > 5_000) {
-    return NextResponse.json({ error: 'Bestellsumme ist ungültig' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Bestellsumme ist ungültig' },
+      { status: 400, headers: PRIVATE_HEADERS },
+    );
   }
 
-  const { data: order, error: orderError } = await svc
-    .from('customer_orders')
-    .insert({
-      tenant_id: table.tenant_id,
-      location_id: table.location_id,
-      tisch_id: table.id,
-      typ: 'vor_ort',
-      status: 'wartet_auf_zahlung',
-      kunde_name: `Tisch ${table.nummer}`,
-      zwischensumme: total,
-      gesamtbetrag: total,
-      zahlungsart: paymentMethod,
-      bezahlt: false,
-      bestellt_am: new Date().toISOString(),
-      geschaetzte_zubereitung_min: Math.max(10, resolved.length * 3),
-      order_channel: 'tisch',
-      payment_status: 'pending_payment',
-      amount_total_cents: Math.round(total * 100),
-      table_number: table.nummer,
-      order_items_json: resolved.map((item) => ({
-        id: item.id,
-        name: item.name,
-        qty: item.quantity,
-        priceCents: Math.round(item.unitPrice * 100) * item.quantity,
-      })),
-    })
-    .select('id,bestellnummer')
-    .single();
-  if (orderError || !order) {
-    return NextResponse.json({ error: 'Bestellung konnte nicht angelegt werden' }, { status: 500 });
-  }
-
-  const { error: itemError } = await svc.from('order_items').insert(resolved.map((item) => ({
-    order_id: order.id,
-    menu_item_id: item.id,
+  const rpcItems = resolved.map((item, index) => ({
+    id: item.id,
     name: item.name,
-    menge: item.quantity,
-    einzelpreis: item.unitPrice,
-    gesamtpreis: roundMoney(item.unitPrice * item.quantity),
-    notiz: item.note,
-  })));
-  if (itemError) {
-    await svc.from('customer_orders').delete().eq('id', order.id);
-    return NextResponse.json({ error: 'Bestellpositionen konnten nicht angelegt werden' }, { status: 500 });
+    quantity: item.quantity,
+    unitPrice: item.unitPrice,
+    note: item.note,
+    selections: body.items[index]?.selections ?? {},
+  }));
+
+  const { data, error } = await svc.rpc('create_table_order_atomic', {
+    p_tenant_id: table.tenant_id,
+    p_location_id: table.location_id,
+    p_table_id: table.id,
+    p_payment_method: paymentMethod,
+    p_total: total,
+    p_items: rpcItems,
+    p_idempotency_key: idempotencyKey,
+  });
+  const order = (Array.isArray(data) ? data[0] : data) as AtomicOrderRow | null;
+  if (error || !order) {
+    console.error('create_table_order_atomic failed', { code: error?.code ?? 'missing_result' });
+    const isRateLimited = error?.message?.includes('Too many table orders');
+    return NextResponse.json(
+      {
+        error: isRateLimited
+          ? 'Zu viele Bestellungen in kurzer Zeit. Bitte einen Moment warten.'
+          : 'Bestellung konnte nicht angelegt werden',
+      },
+      { status: isRateLimited ? 429 : 500, headers: PRIVATE_HEADERS },
+    );
   }
 
   return NextResponse.json({
-    orderId: order.id,
-    orderNumber: order.bestellnummer,
+    orderId: order.order_id,
+    orderNumber: order.order_number,
+    trackingToken: order.status_token,
     amountCents: Math.round(total * 100),
-  }, { status: 201 });
+    idempotent: !order.was_created,
+  }, {
+    status: order.was_created ? 201 : 200,
+    headers: PRIVATE_HEADERS,
+  });
 }

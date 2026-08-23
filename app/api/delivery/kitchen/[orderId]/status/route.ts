@@ -11,8 +11,9 @@ export const dynamic = 'force-dynamic';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { orderId: string } },
+  { params }: { params: Promise<{ orderId: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
@@ -21,13 +22,13 @@ export async function PATCH(
 
   switch (body.status) {
     case 'cooking':
-      await markCooking(params.orderId);
+      await markCooking(routeParams.orderId);
       break;
     case 'ready':
-      await markReady(params.orderId);
+      await markReady(routeParams.orderId);
       break;
     case 'picked_up':
-      await markPickedUp(params.orderId);
+      await markPickedUp(routeParams.orderId);
       break;
     default:
       return NextResponse.json(

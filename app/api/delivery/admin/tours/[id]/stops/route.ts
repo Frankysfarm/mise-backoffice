@@ -15,8 +15,9 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
@@ -35,7 +36,7 @@ export async function POST(
   }
 
   const result = await insertStopIntoActiveTour(
-    params.id,
+    routeParams.id,
     body.order_id,
     emp.location_id as string,
     user.id,

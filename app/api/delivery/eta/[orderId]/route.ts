@@ -12,8 +12,9 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { orderId: string } },
+  { params }: { params: Promise<{ orderId: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
 
   const { data: o, error } = await sb
@@ -27,7 +28,7 @@ export async function GET(
         driver:mise_drivers(id, last_lat, last_lng, vehicle)
       )
     `)
-    .eq('id', params.orderId)
+    .eq('id', routeParams.orderId)
     .maybeSingle();
 
   if (error || !o) {
@@ -81,7 +82,7 @@ export async function GET(
   await sb.from('customer_orders').update({
     eta_earliest: eta.earliestUtc.toISOString(),
     eta_latest:   eta.latestUtc.toISOString(),
-  }).eq('id', params.orderId);
+  }).eq('id', routeParams.orderId);
 
   return NextResponse.json({
     eta_earliest:  eta.earliestUtc.toISOString(),

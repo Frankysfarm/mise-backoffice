@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { ArrowRight, Check, Layers, Package } from 'lucide-react';
@@ -168,7 +169,7 @@ export function UseCasePicker({ presets }: { presets: Preset[] }) {
       )}
 
       <div className="mt-12 text-center text-sm text-matcha-300">
-        Noch unsicher? <a href="/welcome" className="underline hover:text-white">Alle Module im Detail →</a>
+        Noch unsicher? <Link href="/welcome" className="underline hover:text-white">Alle Module im Detail →</Link>
       </div>
     </>
   );

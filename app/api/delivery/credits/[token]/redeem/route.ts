@@ -15,9 +15,10 @@ import { redeemCreditOnOrder } from '@/lib/delivery/credits';
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { token: string } },
+  { params }: { params: Promise<{ token: string }> },
 ): Promise<NextResponse> {
-  const token = params.token?.trim();
+  const routeParams = await params;
+  const token = routeParams.token?.trim();
   if (!token || token.length < 10) {
     return NextResponse.json({ ok: false, reason: 'invalid_token' }, { status: 400 });
   }

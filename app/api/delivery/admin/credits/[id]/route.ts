@@ -13,8 +13,9 @@ export const dynamic = 'force-dynamic';
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
@@ -28,7 +29,7 @@ export async function DELETE(
   const locationId = emp?.location_id as string | null;
   if (!locationId) return NextResponse.json({ error: 'Kein Employee-Konto' }, { status: 403 });
 
-  const result = await cancelCredit(params.id, locationId);
+  const result = await cancelCredit(routeParams.id, locationId);
 
   if (!result.ok) {
     const status = result.reason === 'not_found' ? 404 : 409;

@@ -15,8 +15,9 @@ export const dynamic = 'force-dynamic';
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string; stopId: string } },
+  { params }: { params: Promise<{ id: string; stopId: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
@@ -38,8 +39,8 @@ export async function DELETE(
   }
 
   const result = await removeStopFromActiveTour(
-    params.id,
-    params.stopId,
+    routeParams.id,
+    routeParams.stopId,
     emp.location_id as string,
     reason,
     user.id,

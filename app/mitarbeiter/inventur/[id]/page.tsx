@@ -12,7 +12,8 @@ function one<T>(value: T | T[] | null): T | null {
   return Array.isArray(value) ? value[0] ?? null : value;
 }
 
-export default async function EmployeeInventoryPage({ params }: { params: { id: string } }) {
+export default async function EmployeeInventoryPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const employee = await requirePosAccess();
   if (!employee.tenant_id) redirect('/login?reason=no_access');
 
@@ -20,7 +21,7 @@ export default async function EmployeeInventoryPage({ params }: { params: { id: 
   const { data: session } = await service
     .from('inventory_sessions')
     .select('id,area_id,notiz,area:inventory_areas!inner(name,location:locations!inner(id,name,tenant_id))')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('assigned_to', employee.id)
     .eq('area.location.tenant_id', employee.tenant_id)
     .is('abgeschlossen_am', null)

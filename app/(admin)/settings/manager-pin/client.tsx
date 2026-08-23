@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Check, KeyRound, Loader2, Lock, Shuffle } from 'lucide-react';
@@ -47,7 +48,7 @@ export function ManagerPinSettings({ managers: initial }: { managers: Manager[] 
 
       {managers.length === 0 && (
         <Card className="p-6 text-center text-muted-foreground">
-          Keine Manager gefunden. <a href="/employees" className="underline">Team verwalten →</a>
+          Keine Manager gefunden. <Link href="/employees" className="underline">Team verwalten →</Link>
         </Card>
       )}
     </div>

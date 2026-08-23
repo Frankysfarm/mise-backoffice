@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Check, Minus, Plus, X } from 'lucide-react';
 import { cn, euro } from '@/lib/utils';
+import { contrastText, readableTextColor } from '@/lib/branding/contrast';
+import { useModalDialog } from '@/lib/hooks/use-modal-dialog';
 
 /**
  * MiseItemSheet — Item-Detail-Modal mit Variants/Optionen für QR-Tisch-Storefront.
@@ -63,6 +65,10 @@ export function MiseItemSheet({ item, primary, accent, onClose, onAdd }: Props) 
   const [selections, setSelections] = useState<Selections>({});
   const [notiz, setNotiz] = useState('');
   const [validateError, setValidateError] = useState<string | null>(null);
+  const dialogRef = useModalDialog<HTMLDivElement>(onClose, Boolean(item));
+  const onPrimary = contrastText(primary);
+  const primaryInk = readableTextColor(primary, '#ffffff');
+  const accentInk = readableTextColor(accent, '#ffffff');
 
   const groups: OptionGroup[] = useMemo(() => (item?.option_groups ?? []), [item]);
 
@@ -78,13 +84,6 @@ export function MiseItemSheet({ item, primary, accent, onClose, onAdd }: Props) 
     }
     setSelections(next);
   }, [item, groups]);
-
-  useEffect(() => {
-    if (!item) return;
-    const orig = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = orig; };
-  }, [item]);
 
   const extraPrice = useMemo(() => {
     let extra = 0;
@@ -143,10 +142,17 @@ export function MiseItemSheet({ item, primary, accent, onClose, onAdd }: Props) 
   if (!item) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center" role="dialog" aria-modal="true">
-      <button aria-label="Schließen" onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center sm:justify-center">
+      <button aria-label="Produktdetails schließen" onClick={onClose} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-      <div className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[88dvh] rounded-t-3xl sm:rounded-3xl bg-white flex flex-col overflow-hidden shadow-2xl">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="item-sheet-title"
+        tabIndex={-1}
+        className="relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:max-h-[88dvh] sm:max-w-lg sm:rounded-3xl"
+      >
         {/* Drag-Handle (mobile) */}
         <div className="sm:hidden pt-3 pb-1 flex justify-center">
           <span className="block w-10 h-1.5 rounded-full bg-gray-200" />
@@ -155,7 +161,7 @@ export function MiseItemSheet({ item, primary, accent, onClose, onAdd }: Props) 
         {/* Close-Button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 z-10 w-10 h-10 rounded-full grid place-items-center bg-black/40 backdrop-blur text-white hover:bg-black/60 transition shadow-lg"
+          className="absolute right-3 top-3 z-10 grid h-11 w-11 place-items-center rounded-full bg-black/50 text-white shadow-lg backdrop-blur transition hover:bg-black/70"
           aria-label="Schließen"
         >
           <X size={18} />
@@ -182,7 +188,7 @@ export function MiseItemSheet({ item, primary, accent, onClose, onAdd }: Props) 
               )}
             </div>
             <div className="absolute inset-x-0 bottom-0 px-5 pb-4">
-              <h2 className="font-display font-black text-3xl md:text-4xl leading-none text-white" style={{ letterSpacing: '-0.04em' }}>
+              <h2 id="item-sheet-title" className="font-display font-black text-3xl md:text-4xl leading-none text-white" style={{ letterSpacing: '-0.04em' }}>
                 {item.name}
               </h2>
             </div>
@@ -214,7 +220,7 @@ export function MiseItemSheet({ item, primary, accent, onClose, onAdd }: Props) 
                 <div className="flex items-baseline justify-between mb-2">
                   <h3 className="font-bold text-xs uppercase tracking-wider text-gray-800">
                     {g.name}
-                    {g.required && <span className="ml-2" style={{ color: accent }}>·</span>}
+                    {g.required && <span className="ml-2" style={{ color: accentInk }}>·</span>}
                   </h3>
                   <span className="font-mono text-[10px] text-gray-500 uppercase">
                     {g.required ? 'Pflicht' : 'Optional'}
@@ -233,28 +239,28 @@ export function MiseItemSheet({ item, primary, accent, onClose, onAdd }: Props) 
                           'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border-2 transition text-left',
                           active ? 'bg-gray-50' : 'border-gray-200 hover:bg-gray-50',
                         )}
-                        style={active ? { borderColor: primary } : undefined}
+                        style={active ? { borderColor: primaryInk } : undefined}
                       >
                         <span
                           className="w-5 h-5 flex items-center justify-center shrink-0 border-2"
                           style={{
                             borderRadius: g.type === 'single' ? 9999 : 6,
-                            borderColor: active ? primary : '#d1d5db',
+                            borderColor: active ? primaryInk : '#d1d5db',
                             background: active ? primary : 'transparent',
                           }}
                         >
-                          {active && <Check size={12} strokeWidth={3} className="text-white" />}
+                          {active && <Check size={12} strokeWidth={3} style={{ color: onPrimary }} />}
                         </span>
                         <span className="flex-1 text-sm">
                           {opt.name}
                           {opt.badge && (
-                            <span className="ml-2 font-mono text-[10px] uppercase tracking-wider" style={{ color: accent }}>
+                            <span className="ml-2 font-mono text-[10px] uppercase tracking-wider" style={{ color: accentInk }}>
                               {opt.badge}
                             </span>
                           )}
                         </span>
                         {opt.priceDelta > 0 && (
-                          <span className="font-mono text-xs shrink-0" style={{ color: primary }}>
+                          <span className="font-mono text-xs shrink-0" style={{ color: primaryInk }}>
                             +{euro(opt.priceDelta)}
                           </span>
                         )}
@@ -273,7 +279,7 @@ export function MiseItemSheet({ item, primary, accent, onClose, onAdd }: Props) 
                 value={notiz}
                 onChange={(e) => setNotiz(e.target.value)}
                 placeholder="z.B. ohne Zwiebel, extra scharf …"
-                className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:ring-2"
+                className="min-h-11 w-full rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2"
                 style={{ '--tw-ring-color': accent } as React.CSSProperties}
               />
             </div>
@@ -289,18 +295,18 @@ export function MiseItemSheet({ item, primary, accent, onClose, onAdd }: Props) 
         {/* Footer mit Mengen + Add-Button */}
         <footer className="px-5 py-3 border-t bg-white flex items-center gap-3">
           <div className="flex items-center gap-1 rounded-full bg-gray-100 border border-gray-200">
-            <button aria-label="Reduzieren" onClick={() => setQty(Math.max(1, qty - 1))} className="w-9 h-9 rounded-full flex items-center justify-center">
+            <button aria-label="Menge reduzieren" onClick={() => setQty(Math.max(1, qty - 1))} className="flex h-11 w-11 items-center justify-center rounded-full">
               <Minus size={14} strokeWidth={2.5} />
             </button>
             <span className="font-mono font-bold text-sm px-1 min-w-[20px] text-center">{qty}</span>
-            <button aria-label="Mehr" onClick={() => setQty(qty + 1)} className="w-9 h-9 rounded-full flex items-center justify-center">
+            <button aria-label="Menge erhöhen" onClick={() => setQty(qty + 1)} className="flex h-11 w-11 items-center justify-center rounded-full">
               <Plus size={14} strokeWidth={2.5} />
             </button>
           </div>
           <button
             onClick={add}
-            className="flex-1 h-12 rounded-full font-bold text-sm uppercase tracking-wider flex items-center justify-center text-white active:scale-[0.98] transition"
-            style={{ background: primary }}
+            className="flex h-12 flex-1 items-center justify-center rounded-full text-sm font-bold uppercase tracking-wider transition active:scale-[0.98]"
+            style={{ background: primary, color: onPrimary }}
           >
             Hinzufügen · {euro(totalPrice)}
           </button>

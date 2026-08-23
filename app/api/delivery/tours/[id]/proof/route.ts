@@ -20,13 +20,14 @@ const VALID_PROOF_TYPES: ProofType[] = [
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
 
-  const batchId = params.id;
+  const batchId = routeParams.id;
   if (!UUID_RE.test(batchId)) {
     return NextResponse.json({ error: 'Ungültige Batch-ID' }, { status: 400 });
   }
@@ -114,13 +115,14 @@ export async function POST(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
 
-  const batchId = params.id;
+  const batchId = routeParams.id;
   if (!UUID_RE.test(batchId)) {
     return NextResponse.json({ error: 'Ungültige Batch-ID' }, { status: 400 });
   }

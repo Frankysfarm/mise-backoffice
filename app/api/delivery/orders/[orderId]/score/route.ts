@@ -14,20 +14,21 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { orderId: string } },
+  { params }: { params: Promise<{ orderId: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
 
-  if (!UUID_RE.test(params.orderId)) {
+  if (!UUID_RE.test(routeParams.orderId)) {
     return NextResponse.json({ error: 'Ungültige Order-ID' }, { status: 400 });
   }
 
   const { data, error } = await sb
     .from('dispatch_scores')
     .select('total_score, f_distance, f_load, f_vehicle, f_experience, f_zone, f_prep_time, f_time_of_day, f_priority, f_bundle_fit, f_history, decision, reason, created_at, driver:mise_drivers(name)')
-    .eq('order_id', params.orderId)
+    .eq('order_id', routeParams.orderId)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();

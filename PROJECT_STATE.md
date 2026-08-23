@@ -1,6 +1,33 @@
 # Mise Gastro — Projektstatus
 
-Aktualisiert: 22.08.2026, Europe/Berlin
+Aktualisiert: 23.08.2026, Europe/Berlin
+
+## Aktueller Arbeitsstand — QR-Tischbestellung und POS
+
+Feature-Branch: `factory/table-order-pos-20260822`
+
+- **Erledigt:** QR-Tischbestellung mit sicherer atomarer Bestellung, Idempotenz,
+  Suche, Warenkorb-Fortsetzung, Varianten, Cross-Selling, Live-Status und
+  konfigurierbarem kontrastgeprüftem Branding. QR-Design kann pro Mandant mit
+  Primär-/Akzentfarbe, Begrüßung und CTA angepasst werden.
+- **Qualität:** 202/202 Vitest-Tests, vollständiger Typecheck, Next.js-15-
+  Produktionsbuild, 4/4 Playwright-Flows auf Desktop und Pixel-5-Profil,
+  SQL-Migration/Vertrag/Rollback in isoliertem PostgreSQL 16 sowie
+  `git diff --check` bestanden. Dependency-Audit: keine High- oder Critical-
+  Findings; zwei Moderate verbleiben.
+- **Sicherheit:** Preise, Optionen, Mandant, Standort und Tisch werden serverseitig
+  geprüft; Bestellerstellung läuft atomar über eine service-role-geschützte RPC.
+  Migration `082` ist vorbereitet, aber noch nicht produktiv angewendet.
+- **Aktuell:** nächstes Paket ist die POS-Härtung mit Schicht/Kassenlade,
+  Tischtransfer, Split-Payment, Storno/Refund, Bon/Küche und Restaurant-E2E.
+- **Blocker:** keine Code-Blocker. Factory nutzt derzeit Node 24, während das Repo
+  Node 22 vorgibt; die Gates laufen grün, die Release-Umgebung soll vor Deployment
+  dennoch auf Node 22 vereinheitlicht werden.
+- **Restzeit:** QR-Paket ist release-fähig auf dem Feature-Branch. Für vollständige
+  POS-Härtung und realistische Betriebsabnahme werden voraussichtlich 4–7
+  konzentrierte Arbeitstage benötigt.
+- **Nächster Schritt:** Feature-Branch pushen, anschließend POS-Lückenmatrix und
+  ersten durchgängigen Kassen-/Tisch-/Küchenfluss umsetzen.
 
 ## Release-Status
 

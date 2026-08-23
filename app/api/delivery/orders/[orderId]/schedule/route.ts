@@ -16,8 +16,9 @@ export const dynamic = 'force-dynamic';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { orderId: string } },
+  { params }: { params: Promise<{ orderId: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
@@ -37,14 +38,14 @@ export async function PATCH(
     return NextResponse.json({ error: 'Ungültiges Datum in scheduled_at' }, { status: 400 });
   }
 
-  const result = await scheduleOrder(params.orderId, scheduledDate, location_id);
+  const result = await scheduleOrder(routeParams.orderId, scheduledDate, location_id);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 422 });
   }
 
   return NextResponse.json({
     ok: true,
-    order_id: params.orderId,
+    order_id: routeParams.orderId,
     scheduled_at: scheduledDate.toISOString(),
     schedule_status: 'scheduled',
   });
@@ -52,8 +53,9 @@ export async function PATCH(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { orderId: string } },
+  { params }: { params: Promise<{ orderId: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
@@ -64,10 +66,10 @@ export async function DELETE(
     return NextResponse.json({ error: 'location_id erforderlich' }, { status: 400 });
   }
 
-  const result = await unscheduleOrder(params.orderId, locationId);
+  const result = await unscheduleOrder(routeParams.orderId, locationId);
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 422 });
   }
 
-  return NextResponse.json({ ok: true, order_id: params.orderId, schedule_status: null });
+  return NextResponse.json({ ok: true, order_id: routeParams.orderId, schedule_status: null });
 }

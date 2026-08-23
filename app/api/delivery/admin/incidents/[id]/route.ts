@@ -31,8 +31,9 @@ export const dynamic = 'force-dynamic';
 // ── GET ───────────────────────────────────────────────────────────────────────
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
@@ -45,7 +46,7 @@ export async function GET(
 
   if (!emp?.location_id) return NextResponse.json({ error: 'Kein Standort' }, { status: 403 });
 
-  const incident = await getIncident(params.id, emp.location_id);
+  const incident = await getIncident(routeParams.id, emp.location_id);
   if (!incident) return NextResponse.json({ error: 'Nicht gefunden' }, { status: 404 });
 
   return NextResponse.json({ incident });
@@ -54,8 +55,9 @@ export async function GET(
 // ── PATCH ─────────────────────────────────────────────────────────────────────
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
+  const routeParams = await params;
   const sb = await createClient();
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Nicht eingeloggt' }, { status: 401 });
@@ -88,7 +90,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'notes erforderlich' }, { status: 400 });
     }
     const incident = await resolveIncident(
-      params.id,
+      routeParams.id,
       emp.location_id,
       body.notes,
       body.credit_issued_id,
@@ -101,7 +103,7 @@ export async function PATCH(
   // ── action=escalate ────────────────────────────────────────
   if (action === 'escalate') {
     const incident = await escalateIncident(
-      params.id,
+      routeParams.id,
       emp.location_id,
       body.note ?? body.notes ?? 'Eskaliert',
       performedBy,
@@ -113,7 +115,7 @@ export async function PATCH(
   // ── action=close ───────────────────────────────────────────
   if (action === 'close') {
     const incident = await updateIncident(
-      params.id,
+      routeParams.id,
       emp.location_id,
       { status: 'closed' as IncidentStatus },
       performedBy,
@@ -127,7 +129,7 @@ export async function PATCH(
   const mappedAction = action === 'add_note' ? 'note' : action as IncidentActionType | null;
   if (mappedAction && contactActions.includes(mappedAction)) {
     const actionEntry = await addIncidentAction(
-      params.id,
+      routeParams.id,
       emp.location_id,
       mappedAction,
       body.note ?? body.notes ?? null,
@@ -152,7 +154,7 @@ export async function PATCH(
   if (body.resolution_notes) update.resolution_notes = body.resolution_notes;
   if (body.credit_issued_id) update.credit_issued_id = body.credit_issued_id;
 
-  const incident = await updateIncident(params.id, emp.location_id, update, performedBy);
+  const incident = await updateIncident(routeParams.id, emp.location_id, update, performedBy);
   if (!incident) return NextResponse.json({ error: 'Nicht gefunden oder Fehler' }, { status: 404 });
 
   return NextResponse.json({ incident });

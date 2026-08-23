@@ -9,7 +9,8 @@ export const dynamic = 'force-dynamic';
 
 const MANAGER_ROLES = new Set(['manager', 'backoffice', 'admin']);
 
-export async function POST(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const routeParams = await params;
   const employee = await getCurrentEmployee();
   if (!employee || !employee.tenant_id || !MANAGER_ROLES.has(employee.rolle)) {
     return NextResponse.json({ error: 'Nicht berechtigt' }, { status: 403 });
@@ -19,7 +20,7 @@ export async function POST(_request: NextRequest, { params }: { params: { id: st
   const { data: order, error: orderError } = await service
     .from('order_lists')
     .select('id,location_id,supplier_id,lieferant,positionen,gesamtbetrag,status,referenz')
-    .eq('id', params.id)
+    .eq('id', routeParams.id)
     .maybeSingle();
   if (orderError) return NextResponse.json({ error: 'Bestellung konnte nicht geladen werden' }, { status: 500 });
   if (!order) return NextResponse.json({ error: 'Bestellung nicht gefunden' }, { status: 404 });
