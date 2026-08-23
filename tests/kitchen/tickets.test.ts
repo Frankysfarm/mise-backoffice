@@ -27,6 +27,10 @@ describe('kitchen ticket domain', () => {
       status: 409,
       error: 'Dieser Küchenstatus ist nicht mehr aktuell',
     });
+    expect(kitchenTransitionError({ message: 'Kitchen idempotency key conflict' })).toEqual({
+      status: 409,
+      error: 'Diese Küchenaktion wurde bereits anders verwendet',
+    });
     expect(kitchenTransitionError({ message: 'sensitive database detail' })).toEqual({
       status: 500,
       error: 'Küchenstatus konnte nicht gespeichert werden',

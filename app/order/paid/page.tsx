@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Check, ArrowRight, MapPin } from 'lucide-react';
 import { createServiceClient } from '@/lib/supabase/server';
@@ -28,10 +27,34 @@ export default async function OrderPaidPage({
 
       // Order-Status aktualisieren, falls Webhook noch nicht durch ist
       if (paid && session.metadata?.order_id) {
-        await svc
+        const paidAt = new Date().toISOString();
+        const { data: promoted, error: promoteError } = await svc
           .from('customer_orders')
-          .update({ bezahlt: true, stripe_payment_id: session.id })
-          .eq('id', session.metadata.order_id);
+          .update({
+            bezahlt: true,
+            stripe_payment_id: session.id,
+            payment_status: 'paid',
+            payment_method: 'card',
+            paid_at: paidAt,
+            status: 'neu',
+          })
+          .eq('id', session.metadata.order_id)
+          .eq('status', 'wartet_auf_zahlung')
+          .select('id');
+        if (promoteError) throw promoteError;
+        if (!promoted || promoted.length === 0) {
+          const { error: fallbackError } = await svc
+            .from('customer_orders')
+            .update({
+              bezahlt: true,
+              stripe_payment_id: session.id,
+              payment_status: 'paid',
+              payment_method: 'card',
+              paid_at: paidAt,
+            })
+            .eq('id', session.metadata.order_id);
+          if (fallbackError) throw fallbackError;
+        }
       }
       if (session.metadata?.order_id) {
         const { data } = await svc
@@ -42,7 +65,8 @@ export default async function OrderPaidPage({
         verifiedOrder = data;
       }
     } catch {
-      // Session nicht ladbar — trotzdem Success-UI anzeigen
+      // Zahlungsbestätigung bleibt sichtbar; der Stripe-Webhook wiederholt eine
+      // fehlgeschlagene Datenbankfreigabe serverseitig.
     }
   }
 

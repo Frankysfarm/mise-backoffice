@@ -7,21 +7,33 @@ Aktualisiert: 23.08.2026, Europe/Berlin
 - **Erledigt:** `kitchen_tickets`, `kitchen_ticket_items` und
   `kitchen_ticket_events` speichern Küchenbons, Stationspositionen,
   Versionsstände und unveränderliche Statusereignisse.
-- **Erledigt:** QR-Barbestellungen und bezahlte POS-Verkäufe erzeugen Bons
-  automatisch und idempotent im selben Transaktionskontext wie die Position.
+- **Erledigt:** Unbezahlte Karten-/Tischbestellungen speichern zunächst nur ihre
+  Positionen. Erst der providerverifizierte Wechsel auf `bezahlt = true`
+  erzeugt genau einen Küchenbon im selben Datenbank-Transaktionskontext.
+- **Erledigt:** Stripe bestätigt nur tatsächlich bezahlte Sessions und liefert
+  bei fehlgeschlagener Freigabe HTTP 500 für einen Provider-Retry. SumUp- und
+  weitere serverseitige Zahlungsfreigaben werden durch denselben Trigger erfasst.
 - **Erledigt:** Stationsrouting nutzt Kategoriezuweisungen und fällt
   deterministisch auf die erste aktive Standortstation zurück.
+- **Erledigt:** Der 24-Stunden-Backfill übernimmt `offen`, `in_arbeit`, `fertig`
+  und `storniert` inklusive Zeitstempeln und aggregiert Ticket-/Bestellstatus.
+  Quellen werden deterministisch als `qr_table`, `pos`, `staff` oder `legacy`
+  eingeordnet; externe Kanäle wie Wolt/Uber bleiben `legacy`.
 - **Erledigt:** Statuswechsel sind atomar begrenzt. Mandant, Standort, Station,
   Mitarbeiter und Idempotenz werden serverseitig gebunden; Browserrollen
   besitzen kein RPC-Schreibrecht.
 - **Erledigt:** Beide tokenbasierten KDS-Varianten schreiben über die
-  geschützte Kitchen-Route. Fehler werden sichtbar angezeigt; der
-  Legacy-Status wird für bestehende Anzeigen gespiegelt.
-- **Beweise:** 215/215 Vitest-Tests, TypeScript, gezielter ESLint und
-  `git diff --check` bestanden. Migration, QR-/POS-Hook, Routing, Übergänge,
-  Idempotenz, Tenant-Abgrenzung und Rollback liefen in PostgreSQL 16 grün.
+  geschützte Kitchen-Route. HTTP-409-Idempotenzkonflikte sowie Fetch-/Netzfehler
+  werden sichtbar angezeigt; der Legacy-Status bleibt gespiegelt.
+- **Beweise:** 218/218 Vitest-Tests, beide TypeScript-Gates, gezielter ESLint,
+  Next.js-Produktionsbuild (113/113 Seiten) und `git diff --check` bestanden.
+  Migration, Zahlungsfreigabe, Legacy-Backfill, echte parallele Inserts,
+  Idempotenzkollision, Tenant-Abgrenzung und Rollback liefen in PostgreSQL 16
+  grün. Der Rollback entfernt 084-eigene Objekte und behält vorbestehende
+  Kompatibilitätsspalten bewusst bei.
 - **Blocker:** keine Code-Blocker. Migration `084` ist vorbereitet, aber nicht
-  produktiv angewendet. **Restzeit P0:** 0.
+  produktiv angewendet. Factory nutzt Node 24, während das Repo Node 22 fordert;
+  alle Gates liefen trotzdem grün. **Restzeit P0:** 0.
 
 ## Aktueller Arbeitsstand+�u���T QR-Tischbestellung und POS
 

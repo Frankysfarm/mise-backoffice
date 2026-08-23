@@ -43,10 +43,14 @@ export async function POST(req: NextRequest) {
     case 'payment_intent.succeeded': {
       const obj = event.data.object as any;
       const orderId = obj.metadata?.order_id ?? null;
+      const paymentVerified = event.type === 'payment_intent.succeeded'
+        || obj.payment_status === 'paid';
+      if (!paymentVerified) break;
+
       if (orderId) {
         // Online-Order war 'wartet_auf_zahlung' (nicht in der Küche) → bei Zahlung atomar auf 'neu'+bezahlt
         // promoten, damit sie in die Küche kommt UND der Loyalty-Trigger (braucht status IN (neu,…)) greift.
-        const { data: promoted } = await svc
+        const { data: promoted, error: promoteError } = await svc
           .from('customer_orders')
           .update({
             bezahlt: true,
@@ -58,15 +62,21 @@ export async function POST(req: NextRequest) {
           })
           .eq('id', orderId).eq('status', 'wartet_auf_zahlung')
           .select('id');
+        if (promoteError) {
+          return NextResponse.json({ received: false, reason: 'payment_release_failed' }, { status: 500 });
+        }
         // Fallback: war die Order nicht im Warte-Status (z. B. Altbestand), nur bezahlt markieren
         if (!promoted || promoted.length === 0) {
-          await svc.from('customer_orders').update({
+          const { error: fallbackError } = await svc.from('customer_orders').update({
             bezahlt: true,
             stripe_payment_id: obj.id,
             payment_status: 'paid',
             payment_method: 'card',
             paid_at: new Date().toISOString(),
           }).eq('id', orderId);
+          if (fallbackError) {
+            return NextResponse.json({ received: false, reason: 'payment_release_failed' }, { status: 500 });
+          }
         }
       }
       break;

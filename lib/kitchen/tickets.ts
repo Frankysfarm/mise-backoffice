@@ -28,6 +28,7 @@ export function toLegacyStationStatus(status: KitchenItemStatus) {
 
 export function kitchenTransitionError(error: { message?: string } | null | undefined) {
   const message = error?.message ?? '';
+  if (message.includes('Kitchen idempotency key conflict')) return { status: 409, error: 'Diese Küchenaktion wurde bereits anders verwendet' };
   if (message.includes('outside tenant, location or station')) return { status: 404, error: 'Küchenposition nicht gefunden' };
   if (message.includes('status transition is not allowed')) return { status: 409, error: 'Dieser Küchenstatus ist nicht mehr aktuell' };
   if (message.includes('actor is outside')) return { status: 403, error: 'Keine Berechtigung für diese Filiale' };

@@ -79,6 +79,25 @@ revoke all on table public.kitchen_tickets from anon, authenticated;
 revoke all on table public.kitchen_ticket_items from anon, authenticated;
 revoke all on table public.kitchen_ticket_events from anon, authenticated;
 
+create or replace function public.kitchen_ticket_source_084(
+  p_order_channel text, p_external_source text, p_employee_id uuid
+)
+returns text language sql immutable set search_path = public, pg_catalog
+as $$
+  select case
+    when p_order_channel = 'tisch' then 'qr_table'
+    when p_order_channel in ('pos', 'kasse') then 'pos'
+    when nullif(btrim(coalesce(p_external_source, '')), '') is not null then 'legacy'
+    when p_order_channel in ('staff', 'service', 'mitarbeiter') or p_employee_id is not null then 'staff'
+    else 'legacy'
+  end
+$$;
+
+revoke all on function public.kitchen_ticket_source_084(text,text,uuid)
+  from public, anon, authenticated;
+grant execute on function public.kitchen_ticket_source_084(text,text,uuid)
+  to service_role;
+
 create or replace function public.enqueue_kitchen_ticket_atomic(
   p_tenant_id uuid, p_location_id uuid, p_order_id uuid, p_source text, p_idempotency_key uuid
 )
@@ -90,6 +109,15 @@ declare
   v_created boolean := false;
   v_count integer := 0;
   v_order public.customer_orders%rowtype;
+  v_all_count integer;
+  v_ready_count integer;
+  v_cancelled_count integer;
+  v_preparing_count integer;
+  v_ticket_status text;
+  v_preparing_at timestamptz;
+  v_ready_at timestamptz;
+  v_cancelled_at timestamptz;
+  v_idempotent_ticket uuid;
 begin
   if p_tenant_id is null or p_location_id is null or p_order_id is null or p_idempotency_key is null then
     raise exception 'Missing kitchen ticket identity';
@@ -104,8 +132,22 @@ begin
     raise exception 'Order is not released to kitchen';
   end if;
 
-  insert into public.kitchen_tickets (tenant_id, location_id, order_id, source)
-  values (p_tenant_id, p_location_id, p_order_id, p_source)
+  select e.ticket_id into v_idempotent_ticket
+  from public.kitchen_ticket_events e
+  where e.tenant_id = p_tenant_id and e.idempotency_key = p_idempotency_key;
+  if found and not exists (
+    select 1 from public.kitchen_tickets t
+    where t.id = v_idempotent_ticket and t.order_id = p_order_id
+      and t.tenant_id = p_tenant_id and t.location_id = p_location_id
+  ) then
+    raise exception 'Kitchen idempotency key conflict';
+  end if;
+
+  insert into public.kitchen_tickets (tenant_id, location_id, order_id, source, queued_at)
+  values (
+    p_tenant_id, p_location_id, p_order_id, p_source,
+    coalesce(v_order.bestellt_am, nullif(to_jsonb(v_order)->>'created_at', '')::timestamptz, now())
+  )
   on conflict (order_id) do nothing returning id into v_ticket_id;
   if v_ticket_id is not null then
     v_created := true;
@@ -116,7 +158,8 @@ begin
   end if;
 
   insert into public.kitchen_ticket_items (
-    tenant_id, location_id, ticket_id, order_item_id, station_id, quantity, item_name, note
+    tenant_id, location_id, ticket_id, order_item_id, station_id, status,
+    quantity, item_name, note, queued_at, preparing_at, ready_at, cancelled_at
   )
   select p_tenant_id, p_location_id, v_ticket_id, oi.id,
     coalesce(oi.station_id,
@@ -129,26 +172,87 @@ begin
       (select ks.id from public.kitchen_stations ks
        where ks.tenant_id = p_tenant_id and ks.location_id = p_location_id and ks.aktiv
        order by ks.sort_order, ks.id limit 1)),
+    case oi.station_status
+      when 'in_arbeit' then 'preparing'
+      when 'fertig' then 'ready'
+      when 'storniert' then 'cancelled'
+      else 'queued'
+    end,
     greatest(coalesce(oi.menge, 1), 1),
     left(coalesce(nullif(btrim(oi.name), ''), 'Position'), 255),
-    nullif(left(btrim(coalesce(oi.notiz, '')), 500), '')
-  from public.order_items oi where oi.order_id = p_order_id
+    nullif(left(btrim(coalesce(oi.notiz, '')), 500), ''),
+    coalesce(o.bestellt_am, nullif(to_jsonb(o)->>'created_at', '')::timestamptz, now()),
+    case when oi.station_status in ('in_arbeit', 'fertig')
+      then coalesce(o.zubereitung_start, o.bestaetigt_am, o.bestellt_am, nullif(to_jsonb(o)->>'created_at', '')::timestamptz, now()) end,
+    case when oi.station_status = 'fertig' then coalesce(o.fertig_am, now()) end,
+    case when oi.station_status = 'storniert' then now() end
+  from public.order_items oi
+  join public.customer_orders o on o.id = oi.order_id
+  where oi.order_id = p_order_id
   on conflict (order_item_id) do nothing;
 
   update public.order_items oi
   set station_id = kti.station_id,
-      station_status = case when oi.station_status in ('offen', 'in_arbeit', 'fertig') then oi.station_status else 'offen' end
+      station_status = case when oi.station_status in ('offen', 'in_arbeit', 'fertig', 'storniert') then oi.station_status else 'offen' end
   from public.kitchen_ticket_items kti
   where kti.ticket_id = v_ticket_id and kti.order_item_id = oi.id;
 
-  select count(*) into v_count from public.kitchen_ticket_items i where i.ticket_id = v_ticket_id;
+  select count(*), count(*) filter (where i.status = 'ready'),
+    count(*) filter (where i.status = 'cancelled'), count(*) filter (where i.status = 'preparing'),
+    min(i.preparing_at), max(i.ready_at), max(i.cancelled_at)
+  into v_all_count, v_ready_count, v_cancelled_count, v_preparing_count,
+    v_preparing_at, v_ready_at, v_cancelled_at
+  from public.kitchen_ticket_items i where i.ticket_id = v_ticket_id;
+  v_count := v_all_count;
   if v_count = 0 then raise exception 'Kitchen ticket has no items'; end if;
+  v_ticket_status := case
+    when v_cancelled_count = v_all_count then 'cancelled'
+    when v_ready_count + v_cancelled_count = v_all_count then 'ready'
+    when v_preparing_count > 0 or v_ready_count > 0 then 'preparing'
+    else 'queued' end;
+
+  update public.kitchen_tickets t set
+    status = v_ticket_status,
+    version = t.version + 1,
+    preparing_at = case when v_ticket_status in ('preparing', 'ready')
+      then coalesce(t.preparing_at, v_preparing_at, v_ready_at, now()) else t.preparing_at end,
+    ready_at = case when v_ticket_status = 'ready'
+      then coalesce(t.ready_at, v_ready_at, now()) else t.ready_at end,
+    cancelled_at = case when v_ticket_status = 'cancelled'
+      then coalesce(t.cancelled_at, v_cancelled_at, now()) else t.cancelled_at end,
+    updated_at = now()
+  where t.id = v_ticket_id
+    and (t.status is distinct from v_ticket_status
+      or (v_ticket_status in ('preparing', 'ready') and t.preparing_at is null)
+      or (v_ticket_status = 'ready' and t.ready_at is null)
+      or (v_ticket_status = 'cancelled' and t.cancelled_at is null));
+
+  update public.customer_orders o set
+    status = case v_ticket_status
+      when 'preparing' then 'in_zubereitung'
+      when 'ready' then 'fertig'
+      when 'cancelled' then 'storniert'
+      else o.status end,
+    zubereitung_start = case when v_ticket_status in ('preparing', 'ready')
+      then coalesce(o.zubereitung_start, v_preparing_at, v_ready_at, now()) else o.zubereitung_start end,
+    fertig_am = case when v_ticket_status = 'ready'
+      then coalesce(o.fertig_am, v_ready_at, now()) else o.fertig_am end
+  where o.id = p_order_id and o.tenant_id = p_tenant_id and o.location_id = p_location_id
+    and o.status in ('wartet_auf_zahlung', 'neu', 'bestätigt', 'in_zubereitung', 'fertig');
+
   insert into public.kitchen_ticket_events (
     tenant_id, location_id, ticket_id, event_type, to_status, idempotency_key, metadata
   ) values (
-    p_tenant_id, p_location_id, v_ticket_id, 'enqueued', 'queued', p_idempotency_key,
+    p_tenant_id, p_location_id, v_ticket_id, 'enqueued', v_ticket_status, p_idempotency_key,
     jsonb_build_object('source', p_source, 'items', v_count)
   ) on conflict (tenant_id, idempotency_key) do nothing;
+
+  select e.ticket_id into v_idempotent_ticket
+  from public.kitchen_ticket_events e
+  where e.tenant_id = p_tenant_id and e.idempotency_key = p_idempotency_key;
+  if v_idempotent_ticket is distinct from v_ticket_id then
+    raise exception 'Kitchen idempotency key conflict';
+  end if;
   return query select v_ticket_id, v_created, v_count;
 end;
 $$;
@@ -266,8 +370,22 @@ begin
   if found and (coalesce(v_order.bezahlt, false) or v_order.zahlungsart = 'bar') then
     perform * from public.enqueue_kitchen_ticket_atomic(
       v_order.tenant_id, v_order.location_id, v_order.id,
-      case when coalesce(v_order.order_channel, '') = 'tisch' then 'qr_table' else 'pos' end,
+      public.kitchen_ticket_source_084(v_order.order_channel, to_jsonb(v_order)->>'external_source', v_order.kellner_id),
       v_order.id
+    );
+  end if;
+  return new;
+end;
+$$;
+
+create or replace function public.enqueue_kitchen_ticket_after_payment_084()
+returns trigger language plpgsql security definer set search_path = public, pg_catalog as $$
+begin
+  if coalesce(new.bezahlt, false) and not coalesce(old.bezahlt, false) then
+    perform * from public.enqueue_kitchen_ticket_atomic(
+      new.tenant_id, new.location_id, new.id,
+      public.kitchen_ticket_source_084(new.order_channel, to_jsonb(new)->>'external_source', new.kellner_id),
+      new.id
     );
   end if;
   return new;
@@ -278,21 +396,27 @@ drop trigger if exists enqueue_kitchen_item_084 on public.order_items;
 create trigger enqueue_kitchen_item_084 after insert on public.order_items
 for each row execute function public.enqueue_kitchen_item_after_insert_084();
 
+drop trigger if exists enqueue_kitchen_payment_084 on public.customer_orders;
+create trigger enqueue_kitchen_payment_084 after update of bezahlt on public.customer_orders
+for each row when (new.bezahlt is true and old.bezahlt is distinct from true)
+execute function public.enqueue_kitchen_ticket_after_payment_084();
+
 -- Preserve active work that was created shortly before the migration. Closed
 -- history is deliberately not copied into the operational kitchen queue.
 do $$
 declare v_order record;
 begin
   for v_order in
-    select o.id, o.tenant_id, o.location_id, o.order_channel
+    select o.id, o.tenant_id, o.location_id, o.order_channel, o.kellner_id, to_jsonb(o)->>'external_source' as external_source
     from public.customer_orders o
     where (coalesce(o.bezahlt, false) or o.zahlungsart = 'bar')
       and o.status in ('wartet_auf_zahlung', 'neu', 'bestätigt', 'in_zubereitung')
       and exists (select 1 from public.order_items oi where oi.order_id = o.id)
+      and coalesce(o.bestellt_am, nullif(to_jsonb(o)->>'created_at', '')::timestamptz) >= now() - interval '24 hours'
   loop
     perform * from public.enqueue_kitchen_ticket_atomic(
       v_order.tenant_id, v_order.location_id, v_order.id,
-      case when coalesce(v_order.order_channel, '') = 'tisch' then 'qr_table' else 'legacy' end,
+      public.kitchen_ticket_source_084(v_order.order_channel, v_order.external_source, v_order.kellner_id),
       v_order.id
     );
   end loop;

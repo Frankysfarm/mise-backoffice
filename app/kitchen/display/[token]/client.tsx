@@ -88,24 +88,28 @@ export function StationDisplay({
 
   async function advance(itemId: string, to: 'in_arbeit' | 'fertig') {
     setTransitionError(null);
-    const idempotencyKey = crypto.randomUUID();
-    const response = await fetch(`/api/kitchen/tickets/${encodeURIComponent(itemId)}/status`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
-      body: JSON.stringify({
-        token: accessToken,
-        idempotencyKey,
-        status: to === 'in_arbeit' ? 'preparing' : 'ready',
-      }),
-    });
-    if (!response.ok) {
-      const payload = await response.json().catch(() => null) as { error?: string } | null;
-      setTransitionError(payload?.error ?? 'Status konnte nicht gespeichert werden. Bitte erneut versuchen.');
-      await refresh();
-      return;
+    try {
+      const idempotencyKey = crypto.randomUUID();
+      const response = await fetch(`/api/kitchen/tickets/${encodeURIComponent(itemId)}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
+        body: JSON.stringify({
+          token: accessToken,
+          idempotencyKey,
+          status: to === 'in_arbeit' ? 'preparing' : 'ready',
+        }),
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null) as { error?: string } | null;
+        setTransitionError(payload?.error ?? 'Status konnte nicht gespeichert werden. Bitte erneut versuchen.');
+        await refresh();
+        return;
+      }
+      if (to === 'fertig') setItems((arr) => arr.filter((i) => i.id !== itemId));
+      else setItems((arr) => arr.map((item) => item.id === itemId ? { ...item, station_status: to } : item));
+    } catch {
+      setTransitionError('Netzwerkfehler: Status konnte nicht gespeichert werden. Bitte erneut versuchen.');
     }
-    if (to === 'fertig') setItems((arr) => arr.filter((i) => i.id !== itemId));
-    else setItems((arr) => arr.map((item) => item.id === itemId ? { ...item, station_status: to } : item));
   }
 
   // Gruppiert nach Order

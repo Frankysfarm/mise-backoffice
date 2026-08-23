@@ -233,7 +233,7 @@ begin
   insert into public.customer_orders (
     tenant_id, location_id, tisch_id, kellner_id, typ, status, kunde_name,
     zwischensumme, gesamtbetrag, zahlungsart, bezahlt, bestellt_am,
-    bestaetigt_am, geschaetzte_zubereitung_min
+    bestaetigt_am, geschaetzte_zubereitung_min, order_channel
   ) values (
     p_tenant_id, p_location_id, p_table_id, p_employee_id,
     case when p_fulfillment in ('table', 'counter') then 'vor_ort' else 'abholung' end,
@@ -244,7 +244,7 @@ begin
       else 'POS-Abholung'
     end,
     v_calculated_subtotal, v_calculated_subtotal, p_payment_method, true, now(), now(),
-    greatest(5, v_item_count * 3)
+    greatest(5, v_item_count * 3), 'pos'
   )
   returning id, bestellnummer::text into v_order_id, v_order_number;
 

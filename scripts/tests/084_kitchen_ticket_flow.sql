@@ -18,6 +18,9 @@ declare
   v_order uuid;
   v_qr_order uuid;
   v_ticket uuid;
+  v_card_order uuid;
+  v_legacy_order uuid;
+  v_collision_key uuid := gen_random_uuid();
   v_ticket_item uuid;
   v_transition_key uuid := gen_random_uuid();
   v_changed boolean;
@@ -51,6 +54,85 @@ begin
     where t.order_id = v_qr_order and t.source = 'qr_table' and i.station_id = v_station
   ) then raise exception 'QR cash order hook did not create routed ticket'; end if;
 
+  -- Card table orders insert every item first, remain invisible to KDS, and
+  -- enqueue exactly once in the same transaction that marks payment verified.
+  insert into public.customer_orders (
+    tenant_id, location_id, typ, status, kunde_name, zahlungsart, bezahlt,
+    bestellt_am, order_channel
+  ) values (
+    v_tenant, v_location, 'vor_ort', 'wartet_auf_zahlung', 'Tisch Karte QA',
+    'karte', false, now(), 'tisch'
+  ) returning id into v_card_order;
+  insert into public.order_items (
+    order_id, menu_item_id, name, menge, einzelpreis, gesamtpreis
+  ) values
+    (v_card_order, v_item, v_item_name, 1, v_price, v_price),
+    (v_card_order, v_item, v_item_name || ' 2', 1, v_price, v_price);
+  if exists (select 1 from public.kitchen_tickets where order_id = v_card_order) then
+    raise exception 'unpaid card order reached kitchen';
+  end if;
+
+  update public.customer_orders set
+    bezahlt = true, status = 'neu'
+  where id = v_card_order;
+  select id into v_ticket from public.kitchen_tickets where order_id = v_card_order;
+  if v_ticket is null
+     or (select count(*) from public.kitchen_tickets where order_id = v_card_order) <> 1
+     or (select count(*) from public.kitchen_ticket_items where ticket_id = v_ticket) <> 2
+     or (select count(*) from public.kitchen_ticket_events
+         where ticket_id = v_ticket and event_type = 'enqueued') <> 1 then
+    raise exception 'paid card order did not create exactly one complete ticket';
+  end if;
+  update public.customer_orders set bezahlt = true where id = v_card_order;
+  perform * from public.enqueue_kitchen_ticket_atomic(v_tenant, v_location, v_card_order, 'qr_table', v_card_order);
+  if (select count(*) from public.kitchen_tickets where order_id = v_card_order) <> 1 then
+    raise exception 'payment retry duplicated card ticket';
+  end if;
+
+  -- Legacy station state is preserved and aggregated for an active,
+  -- partially-finished multi-item order.
+  insert into public.customer_orders (
+    tenant_id, location_id, typ, status, kunde_name, zahlungsart, bezahlt,
+    bestellt_am, order_channel, zubereitung_start
+  ) values (
+    v_tenant, v_location, 'abholung', 'bestätigt', 'Wolt QA', 'karte', false,
+    now(), 'legacy', now() - interval '10 minutes'
+  ) returning id into v_legacy_order;
+  insert into public.order_items (
+    order_id, menu_item_id, name, menge, einzelpreis, gesamtpreis, station_status
+  ) values
+    (v_legacy_order, v_item, v_item_name, 1, v_price, v_price, 'fertig'),
+    (v_legacy_order, v_item, v_item_name || ' offen', 1, v_price, v_price, 'offen');
+  update public.customer_orders set bezahlt = true where id = v_legacy_order;
+  select id into v_ticket from public.kitchen_tickets where order_id = v_legacy_order;
+  if (select source from public.kitchen_tickets where id = v_ticket) <> 'legacy'
+     or (select status from public.kitchen_tickets where id = v_ticket) <> 'preparing'
+     or (select preparing_at from public.kitchen_tickets where id = v_ticket) is null
+     or (select status from public.customer_orders where id = v_legacy_order) <> 'in_zubereitung'
+     or (select count(*) from public.kitchen_ticket_items
+         where ticket_id = v_ticket and status = 'ready' and ready_at is not null) <> 1 then
+    raise exception 'legacy partial state was not aggregated';
+  end if;
+
+  if public.kitchen_ticket_source_084('tisch', null, null) <> 'qr_table'
+     or public.kitchen_ticket_source_084('pos', null, v_employee) <> 'pos'
+     or public.kitchen_ticket_source_084(null, 'uber_eats', v_employee) <> 'legacy'
+     or public.kitchen_ticket_source_084('staff', null, v_employee) <> 'staff' then
+    raise exception 'kitchen source classification is not deterministic';
+  end if;
+
+  perform * from public.enqueue_kitchen_ticket_atomic(
+    v_tenant, v_location, v_card_order, 'qr_table', v_collision_key
+  );
+  begin
+    perform * from public.enqueue_kitchen_ticket_atomic(
+      v_tenant, v_location, v_legacy_order, 'legacy', v_collision_key
+    );
+    raise exception 'enqueue idempotency collision was accepted';
+  exception when others then
+    if sqlerrm <> 'Kitchen idempotency key conflict' then raise; end if;
+  end;
+
   select order_id into v_order from public.create_pos_sale_atomic(
     v_tenant, v_location, v_register, v_shift, v_employee, null,
     'counter', 'bar',
@@ -63,7 +145,9 @@ begin
   select t.id into v_ticket from public.kitchen_tickets t where t.order_id = v_order;
   select i.id into v_ticket_item from public.kitchen_ticket_items i
   where i.ticket_id = v_ticket and i.station_id = v_station;
-  if v_ticket is null or v_ticket_item is null then raise exception 'POS hook did not create routed ticket'; end if;
+  if v_ticket is null or v_ticket_item is null
+     or (select source from public.kitchen_tickets where id = v_ticket) <> 'pos'
+  then raise exception 'POS hook did not create routed POS ticket'; end if;
 
   perform * from public.enqueue_kitchen_ticket_atomic(v_tenant, v_location, v_order, 'pos', v_order);
   select count(*) into v_count from public.kitchen_tickets where order_id = v_order;
@@ -85,7 +169,7 @@ begin
     );
     raise exception 'idempotency key conflict was accepted';
   exception when others then
-    if sqlerrm = 'idempotency key conflict was accepted' then raise; end if;
+    if sqlerrm <> 'Kitchen idempotency key conflict' then raise; end if;
   end;
 
   select ticket_status, order_status into v_status, v_order_state
