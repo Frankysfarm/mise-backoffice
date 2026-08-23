@@ -36,11 +36,12 @@ type Item = {
 type TableInfo = { nummer: string; name: string | null; bereich: string | null };
 
 export function StationDisplay({
-  station, initialItems, initialTableMap,
+  station, initialItems, initialTableMap, accessToken,
 }: {
   station: Station;
   initialItems: Item[];
   initialTableMap: Record<string, TableInfo>;
+  accessToken: string;
 }) {
   const supabase = createClient();
   const [items, setItems] = useState(initialItems);
@@ -48,6 +49,7 @@ export function StationDisplay({
   const [audio, setAudio] = useState(station.sound_enabled);
   const prevCount = useRef(initialItems.length);
   const [tick, setTick] = useState(0);
+  const [transitionError, setTransitionError] = useState<string | null>(null);
 
   // Ticker für Wartezeit-Anzeige
   useEffect(() => {
@@ -85,8 +87,25 @@ export function StationDisplay({
   }, [items.length, audio]);
 
   async function advance(itemId: string, to: 'in_arbeit' | 'fertig') {
-    await supabase.from('order_items').update({ station_status: to }).eq('id', itemId);
+    setTransitionError(null);
+    const idempotencyKey = crypto.randomUUID();
+    const response = await fetch(`/api/kitchen/tickets/${encodeURIComponent(itemId)}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
+      body: JSON.stringify({
+        token: accessToken,
+        idempotencyKey,
+        status: to === 'in_arbeit' ? 'preparing' : 'ready',
+      }),
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null) as { error?: string } | null;
+      setTransitionError(payload?.error ?? 'Status konnte nicht gespeichert werden. Bitte erneut versuchen.');
+      await refresh();
+      return;
+    }
     if (to === 'fertig') setItems((arr) => arr.filter((i) => i.id !== itemId));
+    else setItems((arr) => arr.map((item) => item.id === itemId ? { ...item, station_status: to } : item));
   }
 
   // Gruppiert nach Order
@@ -133,6 +152,11 @@ export function StationDisplay({
 
       {/* Items */}
       <main className="p-4">
+        {transitionError && (
+          <div role="alert" className="mb-4 rounded-xl border border-red-400 bg-red-950/70 p-3 text-sm text-red-100">
+            {transitionError}
+          </div>
+        )}
         {orderBlocks.length === 0 ? (
           <div className="min-h-[60vh] grid place-items-center text-white/40">
             <div className="text-center">

@@ -50,6 +50,7 @@ export default async function KitchenDeviceDisplayPage({
       station={station as any}
       initialItems={filtered as any}
       initialTableMap={tableMap}
+      accessToken={token}
     />
   );
 }

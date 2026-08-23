@@ -2,6 +2,27 @@
 
 Aktualisiert: 23.08.2026, Europe/Berlin
 
+## Arbeitspaket 084 — persistenter Küchenbonfluss
+
+- **Erledigt:** `kitchen_tickets`, `kitchen_ticket_items` und
+  `kitchen_ticket_events` speichern Küchenbons, Stationspositionen,
+  Versionsstände und unveränderliche Statusereignisse.
+- **Erledigt:** QR-Barbestellungen und bezahlte POS-Verkäufe erzeugen Bons
+  automatisch und idempotent im selben Transaktionskontext wie die Position.
+- **Erledigt:** Stationsrouting nutzt Kategoriezuweisungen und fällt
+  deterministisch auf die erste aktive Standortstation zurück.
+- **Erledigt:** Statuswechsel sind atomar begrenzt. Mandant, Standort, Station,
+  Mitarbeiter und Idempotenz werden serverseitig gebunden; Browserrollen
+  besitzen kein RPC-Schreibrecht.
+- **Erledigt:** Beide tokenbasierten KDS-Varianten schreiben über die
+  geschützte Kitchen-Route. Fehler werden sichtbar angezeigt; der
+  Legacy-Status wird für bestehende Anzeigen gespiegelt.
+- **Beweise:** 215/215 Vitest-Tests, TypeScript, gezielter ESLint und
+  `git diff --check` bestanden. Migration, QR-/POS-Hook, Routing, Übergänge,
+  Idempotenz, Tenant-Abgrenzung und Rollback liefen in PostgreSQL 16 grün.
+- **Blocker:** keine Code-Blocker. Migration `084` ist vorbereitet, aber nicht
+  produktiv angewendet. **Restzeit P0:** 0.
+
 ## Aktueller Arbeitsstand+�u���T QR-Tischbestellung und POS
 
 Feature-Branch: `factory/table-order-pos-20260822`
