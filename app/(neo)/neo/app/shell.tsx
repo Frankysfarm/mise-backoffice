@@ -20,10 +20,14 @@ const ICONS: Record<string, string> = {
   mitarbeiter: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>',
   dienstplan: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></svg>',
   lager: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6v11a1 1 0 01-1 1H4a1 1 0 01-1-1V9z"/><path d="M7 21v-8h10v8M7 16h10"/></svg>',
+  ablaeufe: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',
+  schulungen: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5M22 10v6"/></svg>',
+  compliance: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
+  rezeptbuch: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M4 19.5A2.5 2.5 0 006.5 22H20V2H6.5A2.5 2.5 0 004 4.5z"/><path d="M8 7h8M8 11h5"/></svg>',
 };
 const NAV: { label: string; managerOnly?: boolean; items: [string, string][] }[] = [
   { label: 'BETRIEB', items: [['overview', 'Übersicht'], ['lieferzentrale', 'Lieferzentrale'], ['tischbestellung', 'Tischbestellung'], ['fahrer', 'Fahrer']] },
-  { label: 'TEAM & ABLÄUFE', managerOnly: true, items: [['bewerbungen', 'Bewerbungen'], ['mitarbeiter', 'Mitarbeiter'], ['dienstplan', 'Dienstplan'], ['lager', 'Lager']] },
+  { label: 'TEAM & ABLÄUFE', managerOnly: true, items: [['bewerbungen', 'Bewerbungen'], ['mitarbeiter', 'Mitarbeiter & Bereiche'], ['dienstplan', 'Dienstplan'], ['lager', 'Lager'], ['ablaeufe', 'Listen & Abläufe'], ['schulungen', 'Schulungen'], ['compliance', 'Team & Compliance'], ['rezeptbuch', 'Rezeptbuch']] },
   { label: 'SHOP', items: [['shopdesign', 'Shop-Design'], ['shopsettings', 'Shop-Einstellungen'], ['menu', 'Menü'], ['aktionen', 'Aktionen & Rabatte'], ['loyalty', 'Bonusprogramme'], ['zahlungen', 'Zahlungen']] },
   { label: 'GESCHÄFT', items: [['kunden', 'Kundenstamm'], ['statistik', 'Statistik'], ['buchhaltung', 'Buchhaltung']] },
 ];
@@ -39,13 +43,26 @@ const META: Record<string, [string, string]> = {
   mitarbeiter: ['Mitarbeiter', 'Team, Rollen und Stammdaten verwalten'],
   dienstplan: ['Dienstplan', 'Schichten planen und Besetzung im Blick behalten'],
   lager: ['Lager', 'Bestände, Inventuren und Bestellungen steuern'],
+  ablaeufe: ['Listen & Abläufe', 'Wiederkehrende Betriebsaufgaben verbindlich steuern'],
+  schulungen: ['Schulungen', 'Onboarding, Wissen und Praxisnachweise verwalten'],
+  compliance: ['Team & Compliance', 'Qualifikationen, Zertifikate und Pflichten im Blick behalten'],
+  rezeptbuch: ['Rezeptbuch', 'Rezepte und Küchenwissen gemeinsam pflegen'],
 };
 const ROUTE: Record<string, string> = {
   overview: 'uebersicht',
   // Loyalty rewards are configured in the combined promotions module.
   loyalty: 'aktionen',
 };
-const href = (k: string) => `/neo/app/${ROUTE[k] || k}`;
+const MISE_OS_ROUTE: Record<string, string> = {
+  mitarbeiter: 'bereiche',
+  dienstplan: 'dienstplan',
+  lager: 'lager',
+  ablaeufe: 'builder',
+  schulungen: 'schulung',
+  compliance: 'compliance',
+  rezeptbuch: 'rezeptbuch',
+};
+const href = (k: string) => MISE_OS_ROUTE[k] ? `/neo/os/${MISE_OS_ROUTE[k]}` : `/neo/app/${ROUTE[k] || k}`;
 const Svg = ({ html }: { html: string }) => <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: html }} />;
 
 export default function Shell({ children, newCount = 0, tenantName = 'Mein Shop', shopUrl = '#', canManageOperations = false }: { children: React.ReactNode; newCount?: number; tenantName?: string; shopUrl?: string; canManageOperations?: boolean }) {
@@ -53,7 +70,7 @@ export default function Shell({ children, newCount = 0, tenantName = 'Mein Shop'
   const seg = path.split('/neo/app/')[1]?.split('/')[0] || 'uebersicht';
   const active = seg === 'uebersicht' ? 'overview' : seg;
   const [title, sub] = META[active] || META.overview;
-  const isOperations = ['bewerbungen', 'mitarbeiter', 'dienstplan', 'lager'].includes(active);
+  const isOperations = ['bewerbungen', 'mitarbeiter', 'dienstplan', 'lager', 'ablaeufe', 'schulungen', 'compliance', 'rezeptbuch'].includes(active);
   const initials = tenantName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
   const [menuOpen, setMenuOpen] = useState(false);
   return (

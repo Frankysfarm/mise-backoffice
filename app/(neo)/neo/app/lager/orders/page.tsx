@@ -1,1 +1,5 @@
-export { default } from '@/app/(admin)/inventory/orders/page';
+import { redirect } from 'next/navigation';
+
+export default function LagerOrdersPage() {
+  redirect('/neo/os/lager');
+}

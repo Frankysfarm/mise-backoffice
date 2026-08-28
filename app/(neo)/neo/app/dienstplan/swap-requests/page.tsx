@@ -1,1 +1,5 @@
-export { default } from '@/app/(admin)/schedule/swap-requests/page';
+import { redirect } from 'next/navigation';
+
+export default function DienstplanTauschPage() {
+  redirect('/neo/os/dienstplan');
+}

@@ -1,1 +1,5 @@
-export { default } from '@/app/(admin)/inventory/waste/page';
+import { redirect } from 'next/navigation';
+
+export default function LagerWastePage() {
+  redirect('/neo/os/lager');
+}
