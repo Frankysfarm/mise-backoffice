@@ -40,6 +40,6 @@ export function getMiseOsAppUrl(): string {
 export function getMiseOsApiUrl(): string {
   return safeHttpsUrl(
     process.env.MISE_OS_API_URL ?? '',
-    `${getMiseOsAppUrl()}/api/v1`,
+    'https://mise-gastro.de/api/v1',
   );
 }

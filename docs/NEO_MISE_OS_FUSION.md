@@ -47,7 +47,7 @@ Neo:
 ```dotenv
 MISE_OS_SSO_SECRET=<gemeinsames-zufaelliges-secret-mindestens-16-zeichen>
 MISE_OS_APP_URL=https://mise-os-theta.vercel.app
-MISE_OS_API_URL=https://mise-os-theta.vercel.app/api/v1
+MISE_OS_API_URL=https://mise-gastro.de/api/v1
 ```
 
 Mise-OS-Backend:
