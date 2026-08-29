@@ -64,6 +64,21 @@ export async function getValidTableSession(
 
 export function isSameOriginRequest(request: NextRequest): boolean {
   const origin = request.headers.get('origin');
-  return !origin || origin === request.nextUrl.origin;
-}
+  if (!origin) return true;
+  let parsedOrigin: URL;
+  try {
+    parsedOrigin = new URL(origin);
+  } catch {
+    return false;
+  }
 
+  // Inside the production container request.nextUrl points at localhost. Use
+  // the public host/protocol that the trusted reverse proxy forwards instead.
+  const forwardedHost = request.headers.get('x-forwarded-host')?.split(',')[0]?.trim();
+  const requestHost = request.headers.get('host')?.split(',')[0]?.trim();
+  const expectedHost = forwardedHost || requestHost || request.nextUrl.host;
+  const forwardedProtocol = request.headers.get('x-forwarded-proto')?.split(',')[0]?.trim().replace(/:$/, '');
+  const expectedProtocol = forwardedProtocol || request.nextUrl.protocol.replace(/:$/, '');
+  return parsedOrigin.host.toLocaleLowerCase('en-US') === expectedHost.toLocaleLowerCase('en-US')
+    && parsedOrigin.protocol === `${expectedProtocol}:`;
+}
