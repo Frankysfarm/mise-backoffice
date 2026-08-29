@@ -24,6 +24,10 @@ COPY . .
 
 # Next.js telemetrie aus
 ENV NEXT_TELEMETRY_DISABLED=1
+# The full unified Neo route graph needs more than Node's default ~2 GB heap
+# while Next.js performs static analysis. This affects the build stage only;
+# the production runner keeps Node's normal memory limit.
+ENV NODE_OPTIONS=--max-old-space-size=4096
 
 # Build-time env-vars (Platzhalter — echte werden per Build-Arg reingereicht)
 ARG NEXT_PUBLIC_SUPABASE_URL
