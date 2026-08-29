@@ -4,9 +4,11 @@ import { PageHeader } from '@/components/layout/page-header';
 import { notFound } from 'next/navigation';
 import { RecipeEditor } from './editor';
 import { RecipeIngredients } from './ingredients';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function RecipeDetail({ params }: { params: Promise<{ id: string }> }) {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/recipes', '/neo/app/rezeptbuch');
   const { id } = await params;
   const supabase = await createClient();
   const [{ data: recipe }, { data: allergens }, { data: ingredients }, { data: invItems }] = await Promise.all([
@@ -18,7 +20,7 @@ export default async function RecipeDetail({ params }: { params: Promise<{ id: s
   if (!recipe) notFound();
   return (
     <div className="space-y-6">
-      <PageHeader backHref="/recipes" title={recipe.name} description="Zutaten, Zubereitung, Allergene, Food-Cost." />
+      <PageHeader backHref={basePath} title={recipe.name} description="Zutaten, Zubereitung, Allergene, Food-Cost." />
       <RecipeIngredients recipeId={id} ingredients={(ingredients ?? []) as any[]} inventoryItems={(invItems ?? []) as any[]} />
       <RecipeEditor recipe={recipe} allergens={allergens ?? []} />
     </div>

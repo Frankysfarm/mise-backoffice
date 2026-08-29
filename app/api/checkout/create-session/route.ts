@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
 import { createServiceClient } from '@/lib/supabase/server';
+import { isSameOriginRequest } from '@/lib/orders/table-session';
+import { computePlatformFeeCents, getStripe, PLATFORM_FEE_BPS_DEFAULT } from '@/lib/stripe/client';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -8,26 +9,32 @@ export const dynamic = 'force-dynamic';
 /**
  * POST /api/checkout/create-session
  *
- * Self-Service Stripe: Tenant hat seinen eigenen Secret-Key in
- * `tenants.stripe_secret_key` eingetragen. Wir benutzen diesen direkt
- * für die Checkout-Session — Geld geht 1:1 auf seinen Stripe-Account,
- * keine Plattform-Fee, keine Connect-Komplexität.
+ * Zentrale Stripe-Connect-Session. Der öffentliche Tracking-Token bindet
+ * die Zahlungsanlage an genau die zuvor erstellte Bestellung.
  *
  * Body: { order_id: string }
  * Response: { url: string, session_id: string }
  */
 export async function POST(req: NextRequest) {
-  const { order_id } = (await req.json().catch(() => null)) as { order_id?: string } | null ?? {};
-  if (!order_id) return NextResponse.json({ error: 'order_id erforderlich' }, { status: 400 });
+  if (!isSameOriginRequest(req)) return NextResponse.json({ error: 'Origin nicht erlaubt' }, { status: 403 });
+  const { order_id, tracking_token } = (await req.json().catch(() => null)) as { order_id?: string; tracking_token?: string } | null ?? {};
+  if (!order_id || !tracking_token) return NextResponse.json({ error: 'Bestellnachweis erforderlich' }, { status: 400 });
 
   const svc = createServiceClient();
 
   const { data: order } = await svc
     .from('customer_orders')
-    .select('id,bestellnummer,kunde_name,kunde_email,gesamtbetrag,location_id,items:order_items(name,menge,einzelpreis)')
+    .select('id,bestellnummer,kunde_name,kunde_email,gesamtbetrag,location_id,status,bezahlt,payment_status,created_at,items:order_items(name,menge,einzelpreis)')
     .eq('id', order_id)
-    .single();
+    .eq('tracking_token', tracking_token)
+    .maybeSingle();
   if (!order) return NextResponse.json({ error: 'Order nicht gefunden' }, { status: 404 });
+  if ((order as any).bezahlt || ['paid', 'succeeded'].includes(String((order as any).payment_status ?? ''))) {
+    return NextResponse.json({ error: 'Bestellung wurde bereits bezahlt.' }, { status: 409 });
+  }
+  if (Date.now() - new Date((order as any).created_at).getTime() > 60 * 60_000) {
+    return NextResponse.json({ error: 'Zahlungsfenster ist abgelaufen.' }, { status: 410 });
+  }
 
   const { data: location } = await svc
     .from('locations')
@@ -38,23 +45,19 @@ export async function POST(req: NextRequest) {
 
   const { data: tenant } = await svc
     .from('tenants')
-    .select('slug,name,stripe_secret_key,stripe_connect_charges_enabled')
+    .select('slug,name,stripe_connect_account_id,stripe_connect_charges_enabled,platform_fee_percent')
     .eq('id', location.tenant_id)
     .single();
 
-  if (!tenant?.stripe_secret_key) {
+  const stripe = getStripe();
+  if (!stripe || !tenant?.stripe_connect_account_id || !tenant.stripe_connect_charges_enabled) {
     return NextResponse.json(
       { error: 'Restaurant hat Stripe noch nicht verbunden.' },
       { status: 400 },
     );
   }
 
-  // Tenant-spezifischer Stripe-Client
-  const stripe = new Stripe(tenant.stripe_secret_key, {
-    apiVersion: '2024-12-18.acacia' as any,
-  });
-
-  const origin = req.headers.get('origin') ?? new URL(req.url).origin;
+  const origin = req.nextUrl.origin;
 
   // Line-Items aus Order-Items
   const lineItems = ((order as any).items as { name: string; menge: number; einzelpreis: number }[])
@@ -85,10 +88,13 @@ export async function POST(req: NextRequest) {
       mode: 'payment',
       customer_email: (order as any).kunde_email ?? undefined,
       line_items: lineItems,
-      // Self-Service: Direct Charge auf Tenant's eigenen Account
-      // Apple/Google Pay / Karten / SEPA werden automatisch von Stripe
-      // basierend auf Browser/Gerät angeboten.
       payment_intent_data: {
+        application_fee_amount: computePlatformFeeCents(
+          gesamtCents,
+          Number(tenant.platform_fee_percent ?? (PLATFORM_FEE_BPS_DEFAULT / 100)),
+        ),
+        transfer_data: { destination: tenant.stripe_connect_account_id },
+        on_behalf_of: tenant.stripe_connect_account_id,
         metadata: {
           order_id: (order as any).id,
           bestellnummer: (order as any).bestellnummer,

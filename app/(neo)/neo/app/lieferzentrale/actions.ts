@@ -2,14 +2,28 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { revalidatePath } from 'next/cache';
-const VALID = ['neu', 'bestätigt', 'in_zubereitung', 'fertig', 'unterwegs', 'geliefert', 'storniert'];
+const VALID = ['neu', 'bestätigt', 'in_zubereitung', 'teilweise_fertig', 'fertig', 'abholbereit', 'wird_serviert', 'serviert', 'bezahlt', 'abgeschlossen', 'unterwegs', 'geliefert', 'storniert'];
 export async function advanceOrder(id: string, next: string) {
   if (!VALID.includes(next)) throw new Error('Ungültiger Status: ' + next);
   const emp = await getCurrentEmployee();
-  if (!emp?.location_id) throw new Error('Nicht autorisiert');
+  if (!emp?.location_id || !['mitarbeiter', 'teamleiter', 'manager', 'backoffice', 'admin', 'server', 'bartender', 'cook'].includes(emp.rolle)) throw new Error('Nicht autorisiert');
   const sb = createServiceClient();
-  const { error } = await sb.from('customer_orders').update({ status: next }).eq('id', id).eq('location_id', emp.location_id);
+  const { data: order } = await sb.from('customer_orders').select('id,tenant_id,tisch_id,typ,status').eq('id', id).eq('location_id', emp.location_id).maybeSingle();
+  if (!order) throw new Error('Bestellung nicht gefunden');
+  const allowed = nextStatuses(order.typ, order.status);
+  if (!allowed.includes(next)) throw new Error(`Statuswechsel ${order.status} → ${next} ist nicht erlaubt`);
+  const patch: Record<string, unknown> = { status: next };
+  if (next === 'bezahlt') Object.assign(patch, { bezahlt: true, payment_status: 'paid', paid_at: new Date().toISOString() });
+  const { error } = await sb.from('customer_orders').update(patch).eq('id', id).eq('status', order.status);
   if (error) throw new Error('Update fehlgeschlagen: ' + error.message);
+  if (order.typ === 'vor_ort') {
+    await sb.from('table_order_events').insert({ tenant_id: order.tenant_id, order_id: order.id, actor_employee_id: emp.id, event_type: 'status_changed', from_status: order.status, to_status: next });
+    if (next === 'abgeschlossen' && order.tisch_id) {
+      const { count } = await sb.from('customer_orders').select('id', { count: 'exact', head: true })
+        .eq('tisch_id', order.tisch_id).not('status', 'in', '(abgeschlossen,storniert,cancelled)');
+      if (!count) await sb.from('restaurant_tables').update({ status: 'frei' }).eq('id', order.tisch_id);
+    }
+  }
   revalidatePath('/neo/app/lieferzentrale');
 }
 export async function rejectOrder(id: string) {
@@ -19,6 +33,16 @@ export async function rejectOrder(id: string) {
   const { error } = await sb.from('customer_orders').update({ status: 'storniert' }).eq('id', id).eq('location_id', emp.location_id);
   if (error) throw new Error('Storno fehlgeschlagen: ' + error.message);
   revalidatePath('/neo/app/lieferzentrale');
+}
+
+function nextStatuses(type: string, status: string): string[] {
+  if (type === 'vor_ort') return ({
+    neu: ['bestätigt', 'in_zubereitung'], bestätigt: ['in_zubereitung'],
+    in_zubereitung: ['teilweise_fertig', 'abholbereit'], teilweise_fertig: ['abholbereit'],
+    fertig: ['abholbereit'], abholbereit: ['wird_serviert'], wird_serviert: ['serviert'],
+    serviert: ['bezahlt'], bezahlt: ['abgeschlossen'],
+  } as Record<string, string[]>)[status] ?? [];
+  return ({ neu: ['bestätigt', 'in_zubereitung'], bestätigt: ['in_zubereitung'], in_zubereitung: ['fertig'], fertig: ['unterwegs', 'abgeholt'], unterwegs: ['geliefert'] } as Record<string, string[]>)[status] ?? [];
 }
 export async function getDriverPositions() {
   const emp = await getCurrentEmployee();
@@ -85,7 +109,7 @@ export async function getOrdersForKanban(locationId: string) {
     .from('customer_orders')
     .select('id, bestellnummer, status, typ, gesamtbetrag, zwischensumme, bezahlt, kunde_name, voucher_code, voucher_rabatt, reward_items_count, mise_batch_id, mise_driver_id, created_at, items:order_items(name, menge, einzelpreis, notiz)')
     .eq('location_id', locationId)
-    .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig', 'unterwegs'])
+    .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'teilweise_fertig', 'fertig', 'abholbereit', 'wird_serviert', 'serviert', 'bezahlt', 'unterwegs'])
     .order('created_at', { ascending: true })
     .limit(80);
   return (orders ?? []) as any[];

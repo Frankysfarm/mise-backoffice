@@ -21,6 +21,7 @@ import {
   shiftsInRange,
   totalShiftMinutes,
 } from '@/lib/workforce/shifts';
+import { MyOperations } from './my-operations';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,7 +81,10 @@ export default async function MitarbeiterPage() {
   const rangeStart = new Date(now.getTime() - 14 * 86_400_000);
   const rangeEnd = new Date(now.getTime() + 60 * 86_400_000);
 
-  const [{ data: activeEmployee }, { data: shiftData }, { data: tenant }, { data: inventoryTaskData }] = await Promise.all([
+  const [
+    { data: activeEmployee }, { data: shiftData }, { data: tenant }, { data: inventoryTaskData },
+    { data: responsibilityData }, { data: operationalTaskData }, { data: handoverData }, { data: subordinateData },
+  ] = await Promise.all([
     service.from('employees')
       .select('id')
       .eq('id', employee.id)
@@ -100,6 +104,22 @@ export default async function MitarbeiterPage() {
       .is('abgeschlossen_am', null)
       .eq('area.location.tenant_id', employee.tenant_id)
       .order('created_at', { ascending: true }),
+    service.from('department_responsibility_assignments')
+      .select('id,responsibility_role,weekday_scope,shift_start,shift_end,department:departments(id,name)')
+      .eq('tenant_id', employee.tenant_id).eq('employee_id', employee.id).eq('aktiv', true),
+    service.from('operational_tasks')
+      .select('id,title,description,status,priority,due_at,completed_at,evidence_requirements,escalation_level,assigned_to,accountable_employee_id,controller_employee_id,department:departments(name),evidence:operational_task_evidence(id,evidence_type,verification_status,submitted_at)')
+      .eq('tenant_id', employee.tenant_id)
+      .or(`assigned_to.eq.${employee.id},accountable_employee_id.eq.${employee.id},controller_employee_id.eq.${employee.id}`)
+      .not('status', 'eq', 'storniert').order('due_at', { ascending: true, nullsFirst: false }).limit(150),
+    service.from('responsibility_handovers')
+      .select('id,reason,starts_at,ends_at,note,status,from_employee_id,to_employee_id,department:departments(name),from_employee:employees!responsibility_handovers_from_employee_id_fkey(vorname,nachname),to_employee:employees!responsibility_handovers_to_employee_id_fkey(vorname,nachname)')
+      .eq('tenant_id', employee.tenant_id)
+      .or(`from_employee_id.eq.${employee.id},to_employee_id.eq.${employee.id}`)
+      .in('status', ['offen', 'angenommen']).order('starts_at'),
+    service.from('employees').select('id,vorname,nachname,position_title')
+      .eq('tenant_id', employee.tenant_id).eq('reports_to_employee_id', employee.id)
+      .in('status', ['aktiv', 'in_training', 'in_probe']).order('nachname'),
   ]);
 
   if (!activeEmployee) redirect('/login?reason=no_access');
@@ -241,6 +261,15 @@ export default async function MitarbeiterPage() {
             </div>
           )}
         </section>
+
+        <MyOperations
+          actorId={employee.id}
+          locationId={employee.location_id ?? ''}
+          responsibilities={(responsibilityData ?? []) as never[]}
+          tasks={(operationalTaskData ?? []) as never[]}
+          handovers={(handoverData ?? []) as never[]}
+          subordinates={(subordinateData ?? []) as never[]}
+        />
 
         <section className="mt-8 grid gap-3 px-4 sm:grid-cols-2 sm:px-8">
           <a href="/pos" className="group flex items-center gap-4 rounded-2xl bg-slate-950 p-4 text-white shadow-lg shadow-slate-950/10">

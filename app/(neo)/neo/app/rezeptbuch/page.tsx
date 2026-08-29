@@ -1,5 +1,1 @@
-import { redirect } from 'next/navigation';
-
-export default function RezeptbuchPage() {
-  redirect('/neo/os/rezeptbuch');
-}
+export { default } from '@/app/(admin)/recipes/page';

@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Sparkles } from 'lucide-react';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function TrainingPage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/training', '/neo/app/schulungen');
   const supabase = await createClient();
   const { data: modulesRaw } = await supabase.from('training_modules')
     .select('*')
@@ -22,8 +24,8 @@ export default async function TrainingPage() {
         title="Schulungen"
         description={`${modules?.length ?? 0} Module.`}
         actions={<>
-          <Link href="/training/ai-create"><Button variant="secondary" className="gap-2"><Sparkles className="h-4 w-4" /> AI erstellen</Button></Link>
-          <Link href="/training/new"><Button><Plus className="h-4 w-4" /> Manuell</Button></Link>
+          <Link href={`${basePath}/ai-create`}><Button variant="secondary" className="gap-2"><Sparkles className="h-4 w-4" /> AI erstellen</Button></Link>
+          <Link href={`${basePath}/new`}><Button><Plus className="h-4 w-4" /> Manuell</Button></Link>
         </>}
       />
       <Card>
@@ -43,7 +45,7 @@ export default async function TrainingPage() {
                 <TableRow key={m.id} className="cursor-pointer">
                   <TableCell className="font-mono text-xs">{m.reihenfolge ?? '—'}</TableCell>
                   <TableCell className="font-medium">
-                    <Link href={`/training/${m.id}`} className="hover:underline">{m.titel}</Link>
+                    <Link href={`${basePath}/${m.id}`} className="hover:underline">{m.titel}</Link>
                   </TableCell>
                   <TableCell>{m.kategorie ?? '—'}</TableCell>
                   <TableCell>{m.position_typ ?? '—'}</TableCell>

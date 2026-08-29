@@ -40,7 +40,7 @@ const META: Record<string, [string, string]> = {
   kunden: ['Kundenstamm', 'Kunden verwalten und Kampagnen erstellen'], statistik: ['Statistik', 'Kennzahlen deines Liefergeschäfts'],
   buchhaltung: ['Buchhaltung', 'Steuerlich saubere Auswertung & Export'],
   bewerbungen: ['Bewerbungen', 'Prüfen, Probearbeit planen und Einstellung entscheiden'],
-  mitarbeiter: ['Mitarbeiter', 'Team, Rollen und Stammdaten verwalten'],
+  mitarbeiter: ['Verantwortung & Team', 'Hierarchie, Pflichtbereiche, Aufgaben und Vertretungen verwalten'],
   dienstplan: ['Dienstplan', 'Schichten planen und Besetzung im Blick behalten'],
   lager: ['Lager', 'Bestände, Inventuren und Bestellungen steuern'],
   ablaeufe: ['Listen & Abläufe', 'Wiederkehrende Betriebsaufgaben verbindlich steuern'],
@@ -53,16 +53,7 @@ const ROUTE: Record<string, string> = {
   // Loyalty rewards are configured in the combined promotions module.
   loyalty: 'aktionen',
 };
-const MISE_OS_ROUTE: Record<string, string> = {
-  mitarbeiter: 'bereiche',
-  dienstplan: 'dienstplan',
-  lager: 'lager',
-  ablaeufe: 'builder',
-  schulungen: 'schulung',
-  compliance: 'compliance',
-  rezeptbuch: 'rezeptbuch',
-};
-const href = (k: string) => MISE_OS_ROUTE[k] ? `/neo/os/${MISE_OS_ROUTE[k]}` : `/neo/app/${ROUTE[k] || k}`;
+const href = (k: string) => `/neo/app/${ROUTE[k] || k}`;
 const Svg = ({ html }: { html: string }) => <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: html }} />;
 
 export default function Shell({ children, newCount = 0, tenantName = 'Mein Shop', shopUrl = '#', canManageOperations = false }: { children: React.ReactNode; newCount?: number; tenantName?: string; shopUrl?: string; canManageOperations?: boolean }) {

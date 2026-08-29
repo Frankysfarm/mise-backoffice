@@ -6,6 +6,10 @@
       "schedule": "*/2 * * * *"
     },
     {
+      "path": "/api/cron/operational-escalations",
+      "schedule": "*/3 * * * *"
+    },
+    {
       "path": "/api/push/send",
       "schedule": "* * * * *"
     },

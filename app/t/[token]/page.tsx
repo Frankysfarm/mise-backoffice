@@ -13,14 +13,14 @@ export default async function TableOrderPage({
   const svc = createServiceClient();
   const { data: table } = await svc
     .from('restaurant_tables')
-    .select('id,nummer,name,bereich,tenant_id,location_id,aktiv')
+    .select('id,nummer,name,bereich,tenant_id,location_id,aktiv,status,qr_disabled_at')
     .eq('qr_token', token)
     .maybeSingle();
-  if (!table?.aktiv) notFound();
+  if (!table?.aktiv || table.qr_disabled_at || table.status === 'gesperrt') notFound();
 
   const [{ data: tenant }, { data: location }, { data: categories }, { data: items }] = await Promise.all([
     svc.from('tenants')
-      .select('name,slug,logo_url,hero_image_url,storefront_theme_id,theme_primary,theme_accent,qr_logo_url,qr_hero_image_url')
+      .select('name,slug,logo_url,hero_image_url,storefront_theme_id,theme_primary,theme_accent,qr_logo_url,qr_hero_image_url,stripe_connect_account_id,stripe_connect_charges_enabled')
       .eq('id', table.tenant_id)
       .single(),
     svc.from('locations')
@@ -61,7 +61,8 @@ export default async function TableOrderPage({
       categories={categories ?? []}
       items={items ?? []}
       relations={relations ?? []}
-      orderToken={token}
+      qrToken={token}
+      onlinePaymentEnabled={Boolean(tenant.stripe_connect_account_id && tenant.stripe_connect_charges_enabled)}
     />
   );
 }

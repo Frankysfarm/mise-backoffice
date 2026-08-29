@@ -1,5 +1,1 @@
-import { redirect } from 'next/navigation';
-
-export default function DienstplanTemplatesPage() {
-  redirect('/neo/os/dienstplan');
-}
+export { default } from '@/app/(admin)/schedule/templates/page';

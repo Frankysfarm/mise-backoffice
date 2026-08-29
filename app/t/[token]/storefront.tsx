@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Image from 'next/image';
 import { cn, euro } from '@/lib/utils';
 import { MiseItemSheet, makeCartLineId, type MiseItem, type Selections } from './item-sheet';
 import {
-  ArrowLeft, ArrowRight, Check, CreditCard, Flame,
-  Minus, Plus, ShoppingBag, Utensils, Wallet, X,
+  ArrowLeft, ArrowRight, Bell, Check, CreditCard, Flame,
+  Minus, Plus, ReceiptText, ShoppingBag, Utensils, Wallet, X,
 } from 'lucide-react';
 
 type Table = { id: string; nummer: string; name: string | null; bereich: string | null; tenant_id: string; location_id: string };
@@ -33,12 +33,14 @@ type CartLine = { item: MenuItem; qty: number; notiz: string; selections?: Selec
 type Relation = { item_id: string; related_item_id: string; typ: 'crosssell' | 'upsell'; sort_order: number };
 
 export function TableStorefront({
-  table, tenant, location, categories, items, relations = [], orderToken,
+  table, tenant, location, categories, items, relations = [], qrToken, universalOrderToken, onlinePaymentEnabled = false,
 }: {
   table: Table; tenant: Tenant; location: Location;
   categories: Category[]; items: MenuItem[];
   relations?: Relation[];
-  orderToken?: string;
+  qrToken?: string;
+  universalOrderToken?: string;
+  onlinePaymentEnabled?: boolean;
 }) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [sheetItem, setSheetItem] = useState<MenuItem | null>(null);
@@ -47,8 +49,63 @@ export function TableStorefront({
   const [crossSellOpen, setCrossSellOpen] = useState(false);
   const [payOpen, setPayOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState<{ number: string; method: 'bar' | 'karte' } | null>(null);
+  const [sessionState, setSessionState] = useState<'starting' | 'ready' | 'pending_confirmation' | 'error'>('starting');
+  const [sessionMessage, setSessionMessage] = useState('Sichere Tischsitzung wird gestartet …');
+  const [serviceOpen, setServiceOpen] = useState(false);
+  const [serviceNotice, setServiceNotice] = useState('');
+  const [success, setSuccess] = useState<{
+    number: string;
+    method: 'service' | 'online';
+    orderId: string;
+    trackingToken: string;
+  } | null>(null);
+  const [liveOrderStatus, setLiveOrderStatus] = useState('neu');
   const tischNummer = table.nummer;
+
+  useEffect(() => {
+    if ((!qrToken && !universalOrderToken) || table.id === 'preview') {
+      setSessionState('error');
+      setSessionMessage('Die Vorschau kann keine Tischsitzung starten.');
+      return;
+    }
+    let cancelled = false;
+    fetch('/api/order/table/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(qrToken
+        ? { qrToken }
+        : { universalToken: universalOrderToken, tableId: table.id }),
+    }).then(async (response) => {
+      const result = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(result?.error ?? 'Tischsitzung konnte nicht gestartet werden.');
+      if (cancelled) return;
+      if (result.status === 'wartet_auf_bestaetigung') {
+        setSessionState('pending_confirmation');
+        setSessionMessage('Der Service bestätigt deinen Tisch gleich.');
+      } else {
+        setSessionState('ready');
+        setSessionMessage('Tisch sicher erkannt.');
+      }
+    }).catch((error) => {
+      if (cancelled) return;
+      setSessionState('error');
+      setSessionMessage(error instanceof Error ? error.message : 'Tischsitzung fehlgeschlagen.');
+    });
+    return () => { cancelled = true; };
+  }, [qrToken, universalOrderToken, table.id]);
+
+  useEffect(() => {
+    if (!success?.orderId || !success.trackingToken) return;
+    let cancelled = false;
+    const poll = async () => {
+      const response = await fetch(`/api/order/status?id=${encodeURIComponent(success.orderId)}&token=${encodeURIComponent(success.trackingToken)}`, { cache: 'no-store' });
+      const result = await response.json().catch(() => null);
+      if (!cancelled && response.ok && result?.orderStatus) setLiveOrderStatus(result.orderStatus);
+    };
+    void poll();
+    const timer = window.setInterval(() => void poll(), 8_000);
+    return () => { cancelled = true; window.clearInterval(timer); };
+  }, [success]);
 
   // Cross-Sell: Items, die zu den aktuell im Warenkorb liegenden passen (nicht selbst schon drin)
   const itemMap = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
@@ -122,8 +179,8 @@ export function TableStorefront({
     });
   }
 
-  async function submitOrder(paymentMethod: 'bar' | 'karte') {
-    if (!orderToken || table.id === 'preview') {
+  async function submitOrder(paymentMethod: 'service' | 'online') {
+    if (sessionState !== 'ready' || table.id === 'preview') {
       alert('Die Vorschau kann keine Bestellung auslösen.');
       return;
     }
@@ -133,7 +190,6 @@ export function TableStorefront({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          token: orderToken,
           tableId: table.id,
           paymentMethod,
           items: cart.map((line) => ({
@@ -147,8 +203,18 @@ export function TableStorefront({
       const result = await response.json().catch(() => null);
       if (!response.ok) throw new Error(result?.error ?? 'Bestellung fehlgeschlagen');
 
-      if (!result?.orderNumber) throw new Error('Bestellnummer fehlt');
-      setSuccess({ number: result.orderNumber, method: paymentMethod });
+      if (result?.checkoutUrl) {
+        window.location.assign(result.checkoutUrl);
+        return;
+      }
+      if (!result?.orderNumber || !result?.orderId || !result?.trackingToken) throw new Error('Bestellbestätigung unvollständig');
+      setLiveOrderStatus('neu');
+      setSuccess({
+        number: result.orderNumber,
+        method: paymentMethod,
+        orderId: result.orderId,
+        trackingToken: result.trackingToken,
+      });
       setCart([]);
       setCartOpen(false);
       setPayOpen(false);
@@ -157,6 +223,22 @@ export function TableStorefront({
       alert(e instanceof Error ? e.message : 'Fehler beim Bestellen');
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function sendServiceRequest(requestType: 'service' | 'rechnung' | 'bezahlen' | 'besteck' | 'problem') {
+    setServiceNotice('');
+    try {
+      const response = await fetch('/api/order/table/service', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tableId: table.id, requestType, orderId: success?.orderId }),
+      });
+      const result = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(result?.error ?? 'Anfrage konnte nicht gesendet werden.');
+      setServiceNotice('Der Service wurde informiert.');
+    } catch (error) {
+      setServiceNotice(error instanceof Error ? error.message : 'Serviceanfrage fehlgeschlagen.');
     }
   }
 
@@ -172,14 +254,14 @@ export function TableStorefront({
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur border border-white/20 px-4 py-1.5 mb-4 text-xs font-bold uppercase tracking-wider">
                   <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: accent }} />
-                  Noch nicht bezahlt
+                  {success.method === 'service' ? 'Bezahlung beim Service' : 'Online bezahlt'}
                 </div>
                 <h1 className="font-display text-4xl font-black mb-3 leading-tight">Fast geschafft!</h1>
                 <p className="text-lg opacity-90 leading-relaxed">
-                  Bitte komm <strong>kurz vor zur Kasse</strong> und zahl dort <strong>{success.method === 'bar' ? 'bar' : 'mit Karte'}</strong>.
+                  Deine Bestellung ist eingegangen. {success.method === 'service' ? 'Du kannst bequem beim Service bezahlen.' : 'Die Zahlung wird gerade bestätigt.'}
                 </p>
                 <p className="mt-3 text-sm opacity-75 leading-relaxed">
-                  Sobald das durch ist, legt die Küche los und dein Essen landet gleich an Tisch {tischNummer}. Versprochen — keine langen Warteschlangen. ✨
+                  Sie bleibt vollständig Tisch {tischNummer} zugeordnet und wird an die passenden Stationen verteilt.
                 </p>
 
                 <div className="mt-6 rounded-3xl bg-white/10 backdrop-blur border-2 border-white/20 p-5">
@@ -188,18 +270,27 @@ export function TableStorefront({
                     #{success.number.replace('FF-', '')}
                   </div>
                   <div className="mt-2 text-xs opacity-80">Tisch <strong>{tischNummer}</strong></div>
+                  <div className="mt-3 rounded-full bg-black/15 px-3 py-2 text-xs font-bold">Status: {orderStatusLabel(liveOrderStatus)}</div>
                 </div>
 
                 <button
-                  onClick={() => setSuccess(null)}
+                  onClick={() => setServiceOpen(true)}
                   className="mt-8 w-full h-14 rounded-2xl font-display font-bold text-lg"
                   style={{ background: accent, color: primary }}
                 >
-                  Alles klar, ich geh hin
+                  Service oder Rechnung anfordern
                 </button>
             </>
           </div>
         </div>
+        {serviceOpen && (
+          <ServiceSheet
+            primary={primary}
+            notice={serviceNotice}
+            onClose={() => setServiceOpen(false)}
+            onRequest={sendServiceRequest}
+          />
+        )}
       </div>
     );
   }
@@ -258,6 +349,18 @@ export function TableStorefront({
           </div>
         </div>
       </section>
+
+      <div className="max-w-3xl mx-auto px-5 pt-4">
+        <div className={cn(
+          'rounded-2xl border px-4 py-3 text-sm font-semibold',
+          sessionState === 'ready' && 'border-emerald-200 bg-emerald-50 text-emerald-900',
+          sessionState === 'pending_confirmation' && 'border-amber-200 bg-amber-50 text-amber-950',
+          sessionState === 'starting' && 'border-slate-200 bg-white text-slate-600',
+          sessionState === 'error' && 'border-red-200 bg-red-50 text-red-900',
+        )} role={sessionState === 'error' ? 'alert' : 'status'}>
+          {sessionMessage}
+        </div>
+      </div>
 
       {/* ============ CATEGORY TABS (sticky) ============ */}
       {categories.length > 0 && (
@@ -379,6 +482,7 @@ export function TableStorefront({
           primary={primary}
           accent={accent}
           submitting={submitting}
+          onlinePaymentEnabled={onlinePaymentEnabled}
           onClose={() => setPayOpen(false)}
           onPay={submitOrder}
         />
@@ -390,8 +494,35 @@ export function TableStorefront({
         onClose={() => setSheetItem(null)}
         onAdd={(input) => addConfiguredItem({ ...input, item: input.item as MenuItem })}
       />
+      <button
+        type="button"
+        onClick={() => setServiceOpen(true)}
+        disabled={sessionState === 'starting' || sessionState === 'error'}
+        className="fixed right-4 top-20 z-30 inline-flex h-11 items-center gap-2 rounded-full border border-white/30 bg-white/95 px-4 text-sm font-bold shadow-lg backdrop-blur disabled:opacity-50"
+        style={{ color: primary }}
+      >
+        <Bell className="h-4 w-4" /> Service
+      </button>
+      {serviceOpen && (
+        <ServiceSheet
+          primary={primary}
+          notice={serviceNotice}
+          onClose={() => setServiceOpen(false)}
+          onRequest={sendServiceRequest}
+        />
+      )}
     </div>
   );
+}
+
+function orderStatusLabel(status: string): string {
+  const labels: Record<string, string> = {
+    wartet_auf_zahlung: 'Zahlung wird erwartet', neu: 'Eingegangen', 'bestätigt': 'Bestätigt',
+    in_zubereitung: 'In Vorbereitung', teilweise_fertig: 'Teilweise fertig', fertig: 'Fertig',
+    abholbereit: 'Abholbereit', wird_serviert: 'Wird serviert', serviert: 'Serviert',
+    bezahlt: 'Bezahlt', abgeschlossen: 'Abgeschlossen', storniert: 'Storniert',
+  };
+  return labels[status] ?? status;
 }
 
 /* ============================================ Item Row ============================================ */
@@ -641,10 +772,11 @@ function CrossSellSheet({
 /* ============================================ Payment Sheet ============================================ */
 
 function PaymentSheet({
-  total, tischNummer, primary, accent, submitting, onClose, onPay,
+  total, tischNummer, primary, accent, submitting, onlinePaymentEnabled, onClose, onPay,
 }: {
   total: number; tischNummer: string; primary: string; accent: string; submitting: boolean;
-  onClose: () => void; onPay: (m: 'bar' | 'karte') => void;
+  onlinePaymentEnabled: boolean;
+  onClose: () => void; onPay: (m: 'service' | 'online') => void;
 }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/80 grid items-end sm:items-center justify-center p-0 sm:p-4">
@@ -668,26 +800,61 @@ function PaymentSheet({
         </div>
 
         <div className="space-y-2">
-          <button
-            onClick={() => onPay('karte')}
+          {onlinePaymentEnabled && <button
+            onClick={() => onPay('online')}
             disabled={submitting}
             className="w-full h-14 rounded-2xl font-bold inline-flex items-center justify-center gap-2 disabled:opacity-60 border-2"
             style={{ borderColor: primary, color: primary, background: 'white' }}
           >
-            <CreditCard className="h-4 w-4" /> Vorn an der Kasse zahlen (Karte)
-          </button>
+            <CreditCard className="h-4 w-4" /> Jetzt sicher online bezahlen
+          </button>}
 
           <button
-            onClick={() => onPay('bar')}
+            onClick={() => onPay('service')}
             disabled={submitting}
             className="w-full h-14 rounded-2xl bg-muted text-foreground font-bold inline-flex items-center justify-center gap-2 hover:bg-muted/70 disabled:opacity-60 border-2 border-transparent"
           >
-            <Wallet className="h-4 w-4" /> Vorn an der Kasse zahlen (Bar)
+            <Wallet className="h-4 w-4" /> Beim Service bezahlen
           </button>
         </div>
 
         <div className="mt-4 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-[11px] text-amber-900 leading-relaxed">
-          <strong>Hinweis:</strong> Du zahlst die Bestellung vorn an der Kasse. Erst nach der Zahlung wird sie verbindlich an die Küche übergeben.
+          <strong>Hinweis:</strong> Bei „Beim Service bezahlen“ geht die Bestellung direkt ein und bleibt bis zur Bezahlung als offen markiert.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ServiceSheet({
+  primary, notice, onClose, onRequest,
+}: {
+  primary: string;
+  notice: string;
+  onClose: () => void;
+  onRequest: (type: 'service' | 'rechnung' | 'bezahlen' | 'besteck' | 'problem') => void;
+}) {
+  const actions = [
+    ['service', 'Service rufen', Bell],
+    ['rechnung', 'Rechnung anfordern', ReceiptText],
+    ['bezahlen', 'Bezahlen', CreditCard],
+    ['besteck', 'Besteck anfordern', Utensils],
+    ['problem', 'Problem melden', Bell],
+  ] as const;
+  return (
+    <div className="fixed inset-0 z-[60] grid items-end bg-black/70 sm:items-center sm:justify-center">
+      <div className="w-full rounded-t-3xl bg-white p-5 sm:max-w-md sm:rounded-3xl">
+        <div className="flex items-center justify-between">
+          <div><div className="text-xs font-bold uppercase tracking-wider text-slate-400">Tischservice</div><h2 className="mt-1 text-2xl font-black">Wie können wir helfen?</h2></div>
+          <button onClick={onClose} className="grid h-10 w-10 place-items-center rounded-full bg-slate-100"><X className="h-4 w-4" /></button>
+        </div>
+        {notice && <div className="mt-4 rounded-xl bg-slate-100 px-4 py-3 text-sm font-semibold" role="status">{notice}</div>}
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          {actions.map(([type,label,Icon]) => (
+            <button key={type} onClick={() => onRequest(type)} className="flex min-h-24 flex-col items-start justify-between rounded-2xl border border-slate-200 p-4 text-left font-bold hover:bg-slate-50">
+              <Icon className="h-5 w-5" style={{ color: primary }} /><span>{label}</span>
+            </button>
+          ))}
         </div>
       </div>
     </div>

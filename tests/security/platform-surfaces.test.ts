@@ -106,8 +106,9 @@ describe('retired and protected platform surfaces', () => {
     expect(page).toContain(".eq('qr_token', token)");
     expect(storefront).toContain("fetch('/api/order/table'");
     expect(storefront).not.toContain("from('customer_orders').insert");
-    expect(route).toContain('table.qr_token === token');
-    expect(route).toContain(".eq('tenant_id', table.tenant_id)");
+    expect(route).toContain('getValidTableSession(req, tableId)');
+    expect(route).toContain(".eq('tenant_id', session.tenant_id)");
+    expect(route).toContain(".eq('qr_version', session.qr_version)");
     expect(route).toContain('resolveTableOrderItem');
     expect(route).not.toContain('body.total');
   });

@@ -30,8 +30,12 @@ export default async function OrderPaidPage({
       if (paid && session.metadata?.order_id) {
         await svc
           .from('customer_orders')
-          .update({ bezahlt: true, stripe_payment_id: session.id })
-          .eq('id', session.metadata.order_id);
+          .update({
+            bezahlt: true, stripe_payment_id: session.id, payment_status: 'paid',
+            payment_method: 'card', paid_at: new Date().toISOString(), status: 'neu',
+          })
+          .eq('id', session.metadata.order_id)
+          .eq('status', 'wartet_auf_zahlung');
       }
       if (session.metadata?.order_id) {
         const { data } = await svc

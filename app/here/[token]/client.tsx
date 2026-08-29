@@ -70,7 +70,7 @@ export function UniversalStorefront({
         categories={categories}
         items={items}
         relations={relations}
-        orderToken={orderToken}
+        universalOrderToken={orderToken}
       />
     );
   }

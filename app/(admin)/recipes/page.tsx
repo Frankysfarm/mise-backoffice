@@ -8,9 +8,11 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Plus } from 'lucide-react';
 import { euro } from '@/lib/utils';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function RecipesPage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/recipes', '/neo/app/rezeptbuch');
   const supabase = await createClient();
   const { data: recipes } = await supabase.from('recipes')
     .select('id,name,kategorie,beschreibung,preis,kalorien_pro_portion,schwierigkeit,zubereitungszeit_min,tags,aktiv,allergene:recipe_allergens(allergen)')
@@ -19,7 +21,7 @@ export default async function RecipesPage() {
   return (
     <div>
       <PageHeader title="Rezepte" description={`${recipes?.length ?? 0} Rezepte.`}
-        actions={<Link href="/recipes/new"><Button><Plus className="h-4 w-4" /> Neu</Button></Link>}
+        actions={<Link href={`${basePath}/new`}><Button><Plus className="h-4 w-4" /> Neu</Button></Link>}
       />
       <Card>
         <Table>
@@ -37,7 +39,7 @@ export default async function RecipesPage() {
           <TableBody>
             {recipes?.map(r => (
               <TableRow key={r.id}>
-                <TableCell className="font-medium"><Link href={`/recipes/${r.id}`} className="hover:underline">{r.name}</Link></TableCell>
+                <TableCell className="font-medium"><Link href={`${basePath}/${r.id}`} className="hover:underline">{r.name}</Link></TableCell>
                 <TableCell>{r.kategorie ?? '—'}</TableCell>
                 <TableCell>{(r.tags ?? []).map((t: string) => <Badge key={t} variant="muted" className="mr-1">{t}</Badge>)}</TableCell>
                 <TableCell className="text-right font-mono text-sm">{r.preis ? euro(r.preis) : '—'}</TableCell>

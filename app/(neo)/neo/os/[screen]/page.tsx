@@ -1,12 +1,18 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { isMiseOsScreen } from '@/lib/mise-os';
-import { MiseOsLaunchClient } from './launch-client';
 
 export const dynamic = 'force-dynamic';
 
-export default async function MiseOsLaunchPage({ params }: { params: { screen: string } }) {
-  if (!isMiseOsScreen(params.screen)) notFound();
+const NATIVE_ROUTES: Record<string, string> = {
+  dashboard: '/neo', builder: '/neo/app/ablaeufe', schulung: '/neo/app/schulungen',
+  bereiche: '/neo/app/mitarbeiter', dienstplan: '/neo/app/dienstplan',
+  rezeptbuch: '/neo/app/rezeptbuch', lager: '/neo/app/lager', compliance: '/neo/app/compliance',
+};
+
+export default async function MiseOsLaunchPage({ params }: { params: Promise<{ screen: string }> }) {
+  const { screen } = await params;
+  if (!isMiseOsScreen(screen)) notFound();
   await requireManagerPlus();
-  return <MiseOsLaunchClient screen={params.screen} />;
+  redirect(NATIVE_ROUTES[screen]);
 }

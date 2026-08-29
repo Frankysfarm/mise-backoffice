@@ -5,9 +5,11 @@ import { PageHeader } from '@/components/layout/page-header';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function ShiftGuidesPage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/shift-guides', '/neo/app/ablaeufe/schichtleitfaeden');
   const supabase = await createClient();
   const { data: guides } = await supabase.from('shift_guides')
     .select('id,titel,phase,position_typ,aktiv,version,inhalt,department:departments(name)')
@@ -35,7 +37,7 @@ export default async function ShiftGuidesPage() {
               return (
                 <TableRow key={g.id}>
                   <TableCell className="font-medium">
-                    <Link href={`/shift-guides/${g.id}`} className="hover:underline">{g.titel}</Link>
+                    <Link href={`${basePath}/${g.id}`} className="hover:underline">{g.titel}</Link>
                   </TableCell>
                   <TableCell><Badge variant={g.phase === 'opening' ? 'secondary' : 'gold'}>{g.phase}</Badge></TableCell>
                   <TableCell>{g.position_typ ?? '—'}</TableCell>

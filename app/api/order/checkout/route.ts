@@ -1,62 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { getStripe, stripeConfigured, computePlatformFeeCents, PLATFORM_FEE_BPS_DEFAULT } from '@/lib/stripe/client';
+import { getValidTableSession, isSameOriginRequest } from '@/lib/orders/table-session';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
 
 type ResolvedItem = { id?: string; name: string; qty: number; priceCents: number };
 type TableRef = { id: string; location_id: string; nummer: string };
 
 export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: CORS });
-}
-
-function normalizeTableNumber(value: unknown): string {
-  return String(value ?? '').trim().toLowerCase().replace(/^tisch\s*/i, '').replace(/^t(?=\d)/i, '');
+  return new NextResponse(null, { status: 405, headers: { Allow: 'POST' } });
 }
 
 /** Erstellt eine Tischbestellung und einen Stripe PaymentIntent. */
 export async function POST(req: NextRequest) {
+  if (!isSameOriginRequest(req)) return NextResponse.json({ error: 'Origin nicht erlaubt' }, { status: 403 });
   if (!stripeConfigured()) {
-    return NextResponse.json({ error: 'Stripe nicht konfiguriert' }, { status: 503, headers: CORS });
+    return NextResponse.json({ error: 'Stripe nicht konfiguriert' }, { status: 503 });
   }
 
   const body = await req.json().catch(() => null);
-  if (!body?.tenant || !body?.table || !Array.isArray(body?.items) || body.items.length === 0) {
-    return NextResponse.json({ error: 'tenant, table und items sind Pflicht' }, { status: 400, headers: CORS });
+  if (!Array.isArray(body?.items) || body.items.length === 0) {
+    return NextResponse.json({ error: 'Bestellpositionen fehlen' }, { status: 400 });
   }
 
   const svc = createServiceClient();
+  const tableSession = await getValidTableSession(req);
+  if (!tableSession || tableSession.status !== 'aktiv') {
+    return NextResponse.json({ error: 'Sichere Tischsitzung fehlt oder ist abgelaufen.' }, { status: 401 });
+  }
   const { data: tenant } = await svc
     .from('tenants')
     .select('id,name,stripe_connect_account_id,stripe_connect_charges_enabled,platform_fee_percent')
-    .eq('slug', String(body.tenant))
+    .eq('id', tableSession.tenant_id)
     .maybeSingle();
 
-  if (!tenant) return NextResponse.json({ error: 'Tenant nicht gefunden' }, { status: 404, headers: CORS });
+  if (!tenant) return NextResponse.json({ error: 'Tenant nicht gefunden' }, { status: 404 });
   if (!tenant.stripe_connect_account_id || !tenant.stripe_connect_charges_enabled) {
-    return NextResponse.json({ error: 'Stripe nicht aktiv für dieses Restaurant' }, { status: 400, headers: CORS });
+    return NextResponse.json({ error: 'Stripe nicht aktiv für dieses Restaurant' }, { status: 400 });
   }
 
-  const { data: tenantTables } = await svc
+  const { data: table } = await svc
     .from('restaurant_tables')
     .select('id,location_id,nummer')
-    .eq('tenant_id', tenant.id)
+    .eq('id', tableSession.table_id)
+    .eq('tenant_id', tableSession.tenant_id)
+    .eq('location_id', tableSession.location_id)
     .eq('aktiv', true)
-    .limit(500);
-  const wantedTable = normalizeTableNumber(body.table);
-  const tableMatches = (tenantTables ?? []).filter((table) => normalizeTableNumber(table.nummer) === wantedTable);
-  if (tableMatches.length !== 1) {
-    return NextResponse.json({ error: tableMatches.length ? 'Tischnummer ist nicht eindeutig' : 'Aktiver Tisch nicht gefunden' }, { status: 404, headers: CORS });
-  }
-  const table = tableMatches[0] as TableRef;
+    .maybeSingle();
+  if (!table) return NextResponse.json({ error: 'Aktiver Tisch nicht gefunden' }, { status: 404 });
 
   const itemIds = [...new Set(body.items.map((item: { id?: unknown }) => String(item.id ?? '')).filter(Boolean))];
   const { data: menuItems } = itemIds.length
@@ -65,7 +58,7 @@ export async function POST(req: NextRequest) {
     : { data: [] as { id: string; name: string; preis: number }[] };
 
   if (!menuItems || menuItems.length !== itemIds.length || itemIds.length === 0) {
-    return NextResponse.json({ error: 'Bestellpositionen sind nicht verfügbar' }, { status: 400, headers: CORS });
+    return NextResponse.json({ error: 'Bestellpositionen sind nicht verfügbar' }, { status: 400 });
   }
   const priceMap = new Map(menuItems.map((item) => [item.id, item]));
   const resolvedItems: ResolvedItem[] = body.items.map((raw: { id: string; qty: number }) => {
@@ -74,22 +67,23 @@ export async function POST(req: NextRequest) {
     return { id: item.id, name: item.name, qty, priceCents: Math.round(Number(item.preis) * 100) * qty };
   });
   if (resolvedItems.some((item) => !Number.isInteger(item.qty) || item.qty < 1 || item.qty > 50 || item.priceCents < 0)) {
-    return NextResponse.json({ error: 'Ungültige Bestellmenge' }, { status: 400, headers: CORS });
+    return NextResponse.json({ error: 'Ungültige Bestellmenge' }, { status: 400 });
   }
 
   const amountCents = resolvedItems.reduce((sum, item) => sum + item.priceCents, 0);
   const requestedAmount = Math.round(Number(body.amountCents));
   if (amountCents < 50 || amountCents > 500_000 || requestedAmount !== amountCents) {
-    return NextResponse.json({ error: 'Bestellsumme ist ungültig' }, { status: 400, headers: CORS });
+    return NextResponse.json({ error: 'Bestellsumme ist ungültig' }, { status: 400 });
   }
 
-  return createIntent(svc, tenant, table, body, amountCents, resolvedItems);
+  return createIntent(svc, tenant, table as TableRef, tableSession.id, body, amountCents, resolvedItems);
 }
 
 async function createIntent(
   svc: ReturnType<typeof createServiceClient>,
   tenant: { id: string; name: string; stripe_connect_account_id: string; platform_fee_percent: number | null },
   table: TableRef,
+  tableSessionId: string,
   body: { guestName?: string; note?: string },
   amountCents: number,
   items: ResolvedItem[],
@@ -119,6 +113,7 @@ async function createIntent(
       amount_total_cents: amountCents,
       application_fee_cents: feeCents,
       table_number: table.nummer,
+      table_session_id: tableSessionId,
       guest_name: guestName,
       guest_note: note,
       order_items_json: items,
@@ -127,7 +122,7 @@ async function createIntent(
     .single();
 
   if (orderError || !order) {
-    return NextResponse.json({ error: orderError?.message ?? 'Order konnte nicht angelegt werden' }, { status: 500, headers: CORS });
+    return NextResponse.json({ error: orderError?.message ?? 'Order konnte nicht angelegt werden' }, { status: 500 });
   }
 
   const { error: itemError } = await svc.from('order_items').insert(items.map((item) => ({
@@ -139,7 +134,7 @@ async function createIntent(
   })));
   if (itemError) {
     await svc.from('customer_orders').delete().eq('id', order.id);
-    return NextResponse.json({ error: 'Bestellpositionen konnten nicht angelegt werden' }, { status: 500, headers: CORS });
+    return NextResponse.json({ error: 'Bestellpositionen konnten nicht angelegt werden' }, { status: 500 });
   }
 
   const stripe = getStripe()!;
@@ -156,9 +151,9 @@ async function createIntent(
     }, { idempotencyKey: order.id });
   } catch (error) {
     await svc.from('customer_orders').delete().eq('id', order.id);
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Stripe-Fehler' }, { status: 502, headers: CORS });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Stripe-Fehler' }, { status: 502 });
   }
 
   await svc.from('customer_orders').update({ payment_intent_id: paymentIntent.id }).eq('id', order.id);
-  return NextResponse.json({ orderId: order.id, clientSecret: paymentIntent.client_secret, amountCents }, { headers: CORS });
+  return NextResponse.json({ orderId: order.id, clientSecret: paymentIntent.client_secret, amountCents });
 }

@@ -7,9 +7,11 @@ import { PhotoGallery, type Photo } from '@/components/photo-gallery';
 import { signUrls } from '@/lib/storage';
 import { dateTimeDE } from '@/lib/utils';
 import { notFound } from 'next/navigation';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function CheckupSessionPage({ params }: { params: Promise<{ id: string }> }) {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/checkups', '/neo/app/ablaeufe/kontrollen');
   const { id } = await params;
   const supabase = await createClient();
 
@@ -48,7 +50,7 @@ export default async function CheckupSessionPage({ params }: { params: Promise<{
   return (
     <div>
       <PageHeader
-        backHref="/checkups"
+        backHref={basePath}
         title={`Check-up: ${(session.template as any)?.titel ?? 'Session'}`}
         description={`${session.datum} · ${session.phase ?? ''} · Start ${dateTimeDE(session.started_at)}${session.completed_at ? ` · Fertig ${dateTimeDE(session.completed_at)}` : ' · läuft'}`}
       />

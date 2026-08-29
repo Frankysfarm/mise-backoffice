@@ -3,9 +3,11 @@ import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { PageHeader } from '@/components/layout/page-header';
 import { notFound } from 'next/navigation';
 import { TemplateEditor } from './editor';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function CheckupTemplateDetail({ params }: { params: Promise<{ id: string }> }) {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/checkups', '/neo/app/ablaeufe/kontrollen');
   const { id } = await params;
   const supabase = await createClient();
   const [{ data: tpl }, { data: deps }] = await Promise.all([
@@ -15,7 +17,7 @@ export default async function CheckupTemplateDetail({ params }: { params: Promis
   if (!tpl) notFound();
   return (
     <div>
-      <PageHeader backHref="/checkups" title={tpl.titel} description="Aufgaben-Liste als JSON bearbeiten." />
+      <PageHeader backHref={basePath} title={tpl.titel} description="Aufgaben-Liste als JSON bearbeiten." />
       <TemplateEditor tpl={tpl} departments={deps ?? []} />
     </div>
   );

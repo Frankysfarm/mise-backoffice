@@ -541,10 +541,21 @@ function waitingMinutes(createdAt: string): number {
 
 const COLS = [
   { title: 'Neu', dot: '#F59E0B', match: ['neu', 'bestätigt'], next: 'in_zubereitung', btn: 'Annehmen', btnBg: '#4F46E5', btnColor: '#fff', canReject: true },
-  { title: 'In Vorbereitung', dot: '#4F46E5', match: ['in_zubereitung'], next: 'fertig', btn: 'Fertig', btnBg: '#12B85C', btnColor: '#fff', canReject: false },
-  { title: 'Bereit', dot: '#10B981', match: ['fertig'], next: 'unterwegs', btn: 'An Fahrer', btnBg: '#1D4ED8', btnColor: '#fff', canReject: false },
-  { title: 'Unterwegs', dot: '#1D4ED8', match: ['unterwegs'], next: 'geliefert', btn: 'Geliefert', btnBg: '#0F172A', btnColor: '#fff', canReject: false },
+  { title: 'In Vorbereitung', dot: '#4F46E5', match: ['in_zubereitung', 'teilweise_fertig'], next: 'fertig', btn: 'Fertig', btnBg: '#12B85C', btnColor: '#fff', canReject: false },
+  { title: 'Bereit', dot: '#10B981', match: ['fertig', 'abholbereit'], next: 'unterwegs', btn: 'Ausgeben', btnBg: '#1D4ED8', btnColor: '#fff', canReject: false },
+  { title: 'Ausgabe', dot: '#1D4ED8', match: ['unterwegs', 'wird_serviert'], next: 'geliefert', btn: 'Erledigt', btnBg: '#0F172A', btnColor: '#fff', canReject: false },
+  { title: 'Tischabschluss', dot: '#7C3AED', match: ['serviert', 'bezahlt'], next: 'bezahlt', btn: 'Bezahlen', btnBg: '#7C3AED', btnColor: '#fff', canReject: false },
 ];
+
+function orderNext(order: any, fallback: string) {
+  if (order.typ !== 'vor_ort') return fallback;
+  return ({ neu: 'in_zubereitung', bestätigt: 'in_zubereitung', in_zubereitung: 'abholbereit', teilweise_fertig: 'abholbereit', fertig: 'abholbereit', abholbereit: 'wird_serviert', wird_serviert: 'serviert', serviert: 'bezahlt', bezahlt: 'abgeschlossen' } as Record<string, string>)[order.status] ?? fallback;
+}
+
+function orderActionLabel(order: any, fallback: string) {
+  if (order.typ !== 'vor_ort') return fallback;
+  return ({ neu: 'Annehmen', bestätigt: 'Vorbereiten', in_zubereitung: 'Abholbereit', teilweise_fertig: 'Abholbereit', fertig: 'Abholbereit', abholbereit: 'Servieren', wird_serviert: 'Serviert', serviert: 'Als bezahlt', bezahlt: 'Abschließen' } as Record<string, string>)[order.status] ?? fallback;
+}
 
 export function CopyBtn({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
@@ -606,7 +617,7 @@ export function Kanban({ orders: initialOrders, locationId }: { orders: any[]; l
           {refreshing ? 'Laden...' : 'Neu laden'}
         </button>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 16, alignItems: 'start' }}>
         {COLS.map((col) => {
           const cards = orders.filter((o) => col.match.includes(o.status));
           return (
@@ -686,7 +697,7 @@ export function Kanban({ orders: initialOrders, locationId }: { orders: any[]; l
                           x
                         </button>
                       )}
-                      <button disabled={busy === o.id} onClick={() => act(() => advanceOrder(o.id, col.next), o.id)} style={{ flex: 1, height: 36, border: 'none', borderRadius: 9, background: col.btnBg, color: col.btnColor, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{col.btn}</button>
+                      <button disabled={busy === o.id} onClick={() => act(() => advanceOrder(o.id, orderNext(o, col.next)), o.id)} style={{ flex: 1, height: 36, border: 'none', borderRadius: 9, background: col.btnBg, color: col.btnColor, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{orderActionLabel(o, col.btn)}</button>
                     </div>
                   </div>
                 );

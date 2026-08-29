@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +23,8 @@ type GeneratedModule = {
 
 export default function AiCreateTraining() {
   const router = useRouter();
+  const pathname = usePathname();
+  const basePath = pathname.startsWith('/neo/app/schulungen') ? '/neo/app/schulungen' : '/training';
   const [pending, start] = useTransition();
   const [generating, setGenerating] = useState(false);
   const [prompt, setPrompt] = useState('');
@@ -136,14 +138,14 @@ export default function AiCreateTraining() {
       }
 
       toastSuccess('Modul gespeichert', result.titel);
-      router.push(`/training/${data!.id}`);
+      router.push(`${basePath}/${data!.id}`);
     });
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        backHref="/training"
+        backHref={basePath}
         title="AI Training erstellen"
         description="Beschreibe was du brauchst — die KI erstellt Lernkarten + Quiz automatisch."
         actions={<Badge variant="accent" className="gap-1"><Sparkles className="h-3 w-3" /> Powered by Claude</Badge>}
@@ -295,7 +297,7 @@ export default function AiCreateTraining() {
             <Button variant="outline" onClick={() => setResult(null)} className="gap-2">
               ← Nochmal generieren
             </Button>
-            <Button onClick={() => router.push(`/training/new`)} variant="outline" className="gap-2">
+            <Button onClick={() => router.push(`${basePath}/new`)} variant="outline" className="gap-2">
               <Eye className="h-4 w-4" /> Manuell bearbeiten
             </Button>
             <Button onClick={saveModule} disabled={pending} size="lg" className="flex-1 gap-2">

@@ -7,9 +7,11 @@ import { PhotoGallery, type Photo } from '@/components/photo-gallery';
 import { AutoSubmitSelect } from '@/components/auto-submit-select';
 import { signUrls } from '@/lib/storage';
 import { dateTimeDE } from '@/lib/utils';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function CleaningPhotosPage({ searchParams }: { searchParams: Promise<{ days?: string }> }) {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/cleaning', '/neo/app/ablaeufe/reinigung');
   const params = await searchParams;
   const days = Number(params.days ?? '7');
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
@@ -37,7 +39,7 @@ export default async function CleaningPhotosPage({ searchParams }: { searchParam
   return (
     <div>
       <PageHeader
-        backHref="/cleaning"
+        backHref={basePath}
         title="Reinigungs-Fotos"
         description={`Letzte ${days} Tage — ${photos.length} Foto-Nachweise.`}
         actions={<form className="flex items-center gap-2 text-sm">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 
 export default function NewRecipe() {
   const router = useRouter();
+  const pathname = usePathname();
+  const basePath = pathname.startsWith('/neo/app/rezeptbuch') ? '/neo/app/rezeptbuch' : '/recipes';
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
 
@@ -26,13 +28,13 @@ export default function NewRecipe() {
         portionen: 1, zutaten: [], zubereitung: '', aktiv: true,
       }).select('id').single();
       if (error) return setErr(error.message);
-      router.push(`/recipes/${data!.id}`);
+      router.push(`${basePath}/${data!.id}`);
     });
   }
 
   return (
     <div>
-      <PageHeader backHref="/recipes" title="Neues Rezept" />
+      <PageHeader backHref={basePath} title="Neues Rezept" />
       <Card><CardContent className="p-6">
         <form onSubmit={onSubmit} className="grid grid-cols-2 gap-3">
           <div className="col-span-2"><Label>Name</Label><Input name="name" required /></div>

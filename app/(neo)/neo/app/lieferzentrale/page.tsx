@@ -16,7 +16,7 @@ export default async function Lieferzentrale() {
     .from('customer_orders')
     .select('id, bestellnummer, status, typ, gesamtbetrag, zwischensumme, bezahlt, kunde_name, voucher_code, voucher_rabatt, reward_items_count, mise_batch_id, mise_driver_id, created_at, items:order_items(name, menge, einzelpreis, notiz)')
     .eq('location_id', loc?.id ?? '')
-    .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'fertig', 'unterwegs'])
+    .in('status', ['neu', 'bestätigt', 'in_zubereitung', 'teilweise_fertig', 'fertig', 'abholbereit', 'wird_serviert', 'serviert', 'bezahlt', 'unterwegs'])
     .order('created_at', { ascending: true })
     .limit(80);
   const { data: driverLinks } = emp?.tenant_id

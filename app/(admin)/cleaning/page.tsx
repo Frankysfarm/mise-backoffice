@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { dateTimeDE } from '@/lib/utils';
 import { Image as ImageIcon } from 'lucide-react';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function CleaningPage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/cleaning', '/neo/app/ablaeufe/reinigung');
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
 
@@ -34,9 +36,9 @@ export default async function CleaningPage() {
         title="Reinigung"
         description="Zonen, Aufgaben pro Phase, heutige Erledigungen."
         actions={<>
-          <Link href="/cleaning/plan"><Button variant="outline">📅 Reinigungsplan</Button></Link>
+          <Link href={`${basePath}/plan`}><Button variant="outline">📅 Reinigungsplan</Button></Link>
           <Link href={`/api/pdf/haccp?month=${new Date().toISOString().slice(0, 7)}`}><Button variant="outline">📄 HACCP</Button></Link>
-          <Link href="/cleaning/photos"><Button variant="outline"><ImageIcon className="h-4 w-4" /> Fotos</Button></Link>
+          <Link href={`${basePath}/photos`}><Button variant="outline"><ImageIcon className="h-4 w-4" /> Fotos</Button></Link>
         </>}
       />
 

@@ -308,7 +308,7 @@ export function Storefront({ location, categories, items, paymentMethods = [], t
           const res = await fetch('/api/checkout/create-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ order_id: order.id }),
+            body: JSON.stringify({ order_id: order.id, tracking_token: order.tracking_token }),
           });
           const json = await res.json();
           if (res.ok && json.url) {

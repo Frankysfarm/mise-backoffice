@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EmptyState } from '@/components/ui/empty';
 import { dateDE } from '@/lib/utils';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 function ampel(ablauf: string | null) {
   if (!ablauf) return { label: '—', variant: 'muted' as const };
@@ -19,6 +20,7 @@ function ampel(ablauf: string | null) {
 
 export default async function DocumentsPage() {
   await requireManagerPlus();
+  const employeeBasePath = await operationsBasePath('/employees', '/neo/app/mitarbeiter');
   const supabase = await createClient();
   const { data: docs } = await supabase.from('documents')
     .select('id,titel,kategorie,ablaufdatum,created_at,employee:employees!documents_employee_id_fkey(id,vorname,nachname)')
@@ -47,7 +49,7 @@ export default async function DocumentsPage() {
                     <TableCell className="font-medium">{d.titel}</TableCell>
                     <TableCell>{d.kategorie ?? '—'}</TableCell>
                     <TableCell>
-                      {d.employee ? <Link href={`/employees/${(d.employee as any).id}`} className="hover:underline">
+                      {d.employee ? <Link href={`${employeeBasePath}/${(d.employee as any).id}`} className="hover:underline">
                         {(d.employee as any).vorname} {(d.employee as any).nachname}
                       </Link> : '—'}
                     </TableCell>

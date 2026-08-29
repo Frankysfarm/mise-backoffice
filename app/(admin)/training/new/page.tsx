@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 
 export default function NewTrainingModule() {
   const router = useRouter();
+  const pathname = usePathname();
+  const basePath = pathname.startsWith('/neo/app/schulungen') ? '/neo/app/schulungen' : '/training';
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
 
@@ -28,13 +30,13 @@ export default function NewTrainingModule() {
         inhalt: { lessons: [] },
       }).select('id').single();
       if (error) return setErr(error.message);
-      router.push(`/training/${data!.id}`);
+      router.push(`${basePath}/${data!.id}`);
     });
   }
 
   return (
     <div>
-      <PageHeader backHref="/training" title="Neues Schulungsmodul" />
+      <PageHeader backHref={basePath} title="Neues Schulungsmodul" />
       <Card>
         <CardContent className="p-6">
           <form onSubmit={onSubmit} className="grid grid-cols-2 gap-3">

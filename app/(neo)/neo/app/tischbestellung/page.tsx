@@ -17,11 +17,25 @@ export default async function TischbestellungPage() {
     .maybeSingle();
   if (!employeeRow?.tenant_id || !employeeRow.location_id) redirect('/start');
 
-  const [{ data: tables }, { data: tenant }, { count: menuCount }, { data: payments }] = await Promise.all([
+  const [
+    { data: tables }, { data: tenant }, { count: menuCount }, { data: payments },
+    { data: serviceRequests }, { data: pendingSessions },
+    { data: serviceDepartments },
+  ] = await Promise.all([
     service.from('restaurant_tables').select('*').eq('location_id', employeeRow.location_id).order('sort_order'),
     service.from('tenants').select('slug,name').eq('id', employeeRow.tenant_id).maybeSingle(),
     service.from('menu_items').select('id', { count: 'exact', head: true }).eq('location_id', employeeRow.location_id).eq('verfuegbar', true),
     service.from('tenant_payment_methods').select('method,enabled_lieferung,enabled_abholung,enabled_vor_ort').eq('tenant_id', employeeRow.tenant_id),
+    service.from('table_service_requests')
+      .select('id,table_id,request_type,message,status,assigned_to,created_at,table:restaurant_tables(nummer,name,bereich)')
+      .eq('tenant_id', employeeRow.tenant_id).eq('location_id', employeeRow.location_id)
+      .in('status', ['offen', 'angenommen']).order('created_at'),
+    service.from('table_sessions')
+      .select('id,table_id,status,created_at,expires_at,table:restaurant_tables(nummer,name,bereich)')
+      .eq('tenant_id', employeeRow.tenant_id).eq('location_id', employeeRow.location_id)
+      .eq('status', 'wartet_auf_bestaetigung').gt('expires_at', new Date().toISOString()).order('created_at'),
+    service.from('departments').select('id,name').eq('tenant_id', employeeRow.tenant_id)
+      .eq('location_id', employeeRow.location_id).eq('aktiv', true).order('name'),
   ]);
 
   const tableList = (tables ?? []) as any[];
@@ -61,9 +75,10 @@ export default async function TischbestellungPage() {
 
       <TischbestellungClient
         tables={tableList}
-        tenantId={employeeRow.tenant_id}
-        locationId={employeeRow.location_id}
         slug={tenant?.slug ?? ''}
+        initialServiceRequests={(serviceRequests ?? []) as any[]}
+        initialPendingSessions={(pendingSessions ?? []) as any[]}
+        serviceDepartments={(serviceDepartments ?? []) as any[]}
       />
     </div>
   );

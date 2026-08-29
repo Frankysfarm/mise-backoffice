@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { EmptyState } from '@/components/ui/empty';
 import { dateDE } from '@/lib/utils';
 import { AssignCleaningForm } from './assign-form';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 const STATUS_MAP: Record<string, { label: string; variant: 'secondary' | 'gold' | 'muted' | 'destructive' }> = {
   geplant: { label: 'Geplant', variant: 'muted' },
@@ -17,6 +18,7 @@ const STATUS_MAP: Record<string, { label: string; variant: 'secondary' | 'gold' 
 
 export default async function CleaningPlanPage({ searchParams }: { searchParams: Promise<{ date?: string }> }) {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/cleaning', '/neo/app/ablaeufe/reinigung');
   const params = await searchParams;
   const supabase = await createClient();
   const date = params.date ?? new Date().toISOString().slice(0, 10);
@@ -35,7 +37,7 @@ export default async function CleaningPlanPage({ searchParams }: { searchParams:
   return (
     <div className="space-y-6">
       <PageHeader
-        backHref="/cleaning"
+        backHref={basePath}
         title="Reinigungsplan"
         description={`Wer macht welche Zone — ${new Date(date).toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long' })}`}
         actions={

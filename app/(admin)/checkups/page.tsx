@@ -7,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { dateTimeDE } from '@/lib/utils';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function CheckupsPage() {
   await requireManagerPlus();
+  const basePath = await operationsBasePath('/checkups', '/neo/app/ablaeufe/kontrollen');
   const supabase = await createClient();
   const today = new Date().toISOString().slice(0, 10);
   const [{ data: templates }, { data: sessions }] = await Promise.all([
@@ -44,7 +46,7 @@ export default async function CheckupsPage() {
                 {sessions!.map(s => (
                   <TableRow key={s.id}>
                     <TableCell className="font-medium">
-                      <Link href={`/checkups/sessions/${s.id}`} className="hover:underline">
+                      <Link href={`${basePath}/sessions/${s.id}`} className="hover:underline">
                         {(s.template as any)?.titel}
                       </Link>
                     </TableCell>
@@ -80,7 +82,7 @@ export default async function CheckupsPage() {
                 return (
                   <TableRow key={t.id}>
                     <TableCell className="font-medium">
-                      <Link href={`/checkups/${t.id}`} className="hover:underline">{t.titel}</Link>
+                      <Link href={`${basePath}/${t.id}`} className="hover:underline">{t.titel}</Link>
                     </TableCell>
                     <TableCell>{t.phase ?? '—'}</TableCell>
                     <TableCell>{t.position_typ ?? '—'}</TableCell>

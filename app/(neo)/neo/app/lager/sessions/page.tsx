@@ -1,5 +1,1 @@
-import { redirect } from 'next/navigation';
-
-export default function LagerSessionsPage() {
-  redirect('/neo/os/lager');
-}
+export { default } from '@/app/(admin)/inventory/sessions/page';
