@@ -57,6 +57,7 @@ export default async function MitarbeiterPage({
 
   return (
     <ResponsibilityClient
+      key={locationId}
       actorId={actor.id}
       locationId={locationId}
       locations={availableLocations}

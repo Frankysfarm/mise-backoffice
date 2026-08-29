@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
+import { berlinScheduleMoment, isResponsibilityScheduleActive, type ResponsibilitySchedule } from '@/lib/operations/responsibility-scope';
 import { createServiceClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -33,12 +34,19 @@ export async function POST(request: NextRequest) {
     .select('id,tenant_id,location_id,department_id,assigned_to,accountable_employee_id,controller_employee_id,status')
     .eq('id', taskId).eq('tenant_id', actor.tenant_id).maybeSingle();
   if (!task) return NextResponse.json({ error: 'Aufgabe nicht gefunden.' }, { status: 404 });
+  if (!['backoffice', 'admin'].includes(actor.rolle) && task.location_id !== actor.location_id) {
+    return NextResponse.json({ error: 'Standort nicht freigegeben' }, { status: 403 });
+  }
   const participant = [task.assigned_to, task.accountable_employee_id, task.controller_employee_id].includes(actor.id);
   let departmentLead = false;
   if (task.department_id) {
-    const { data } = await service.from('department_responsibility_assignments').select('id')
-      .eq('department_id', task.department_id).eq('employee_id', actor.id).eq('aktiv', true).limit(1);
-    departmentLead = Boolean(data?.length);
+    const moment = berlinScheduleMoment();
+    const { data } = await service.from('department_responsibility_assignments')
+      .select('valid_from,valid_until,weekday_scope,shift_start,shift_end')
+      .eq('tenant_id', actor.tenant_id).eq('department_id', task.department_id).eq('employee_id', actor.id)
+      .eq('aktiv', true).lte('valid_from', moment.date)
+      .or(`valid_until.is.null,valid_until.gte.${moment.previousDate}`);
+    departmentLead = ((data ?? []) as ResponsibilitySchedule[]).some((assignment) => isResponsibilityScheduleActive(assignment, moment));
   }
   if (!participant && !departmentLead && !['manager', 'backoffice', 'admin'].includes(actor.rolle)) {
     return NextResponse.json({ error: 'Keine Berechtigung' }, { status: 403 });

@@ -4,14 +4,17 @@ import {
   BriefcaseBusiness,
   CalendarDays,
   CheckCircle2,
+  ClipboardCheck,
   Clock3,
   LogOut,
   MapPin,
+  Network,
   ReceiptText,
   Sparkles,
   Warehouse,
 } from 'lucide-react';
 import { requirePosAccess } from '@/lib/auth/requireRole';
+import { berlinScheduleMoment, isResponsibilityScheduleActive, type ResponsibilitySchedule } from '@/lib/operations/responsibility-scope';
 import { createServiceClient } from '@/lib/supabase/server';
 import {
   berlinWeekBounds,
@@ -45,6 +48,29 @@ type InventoryTaskRow = {
   location: { name: string } | { name: string }[] | null;
 };
 
+type TeamMemberRow = {
+  id: string;
+  vorname: string;
+  nachname: string;
+  rolle: string;
+  position_title: string | null;
+  reports_to_employee_id: string | null;
+};
+
+type ResponsibilityTeamRow = ResponsibilitySchedule & {
+  id: string;
+  department_id: string;
+  employee_id: string;
+  responsibility_role: string;
+  employee: { vorname: string; nachname: string } | { vorname: string; nachname: string }[] | null;
+};
+
+type OwnResponsibilityRow = ResponsibilitySchedule & {
+  id: string;
+  responsibility_role: string;
+  department: { id: string; name: string } | { id: string; name: string }[] | null;
+};
+
 const DATE = new Intl.DateTimeFormat('de-DE', {
   weekday: 'long', day: '2-digit', month: 'long', timeZone: 'Europe/Berlin',
 });
@@ -55,6 +81,11 @@ const TIME = new Intl.DateTimeFormat('de-DE', {
 function relationName(value: ShiftRow['location']): string | null {
   if (!value) return null;
   return Array.isArray(value) ? value[0]?.name ?? null : value.name;
+}
+
+function personRelationName(value: ResponsibilityTeamRow['employee']): string {
+  const person = Array.isArray(value) ? value[0] : value;
+  return person ? `${person.vorname} ${person.nachname}` : 'Nicht zugeordnet';
 }
 
 function hoursLabel(minutes: number) {
@@ -75,6 +106,7 @@ function roleLabel(role: string) {
 export default async function MitarbeiterPage() {
   const employee = await requirePosAccess();
   if (!employee.tenant_id) redirect('/login?reason=no_access');
+  const employeeLocationId = employee.location_id ?? '00000000-0000-0000-0000-000000000000';
 
   const service = createServiceClient();
   const now = new Date();
@@ -83,10 +115,11 @@ export default async function MitarbeiterPage() {
 
   const [
     { data: activeEmployee }, { data: shiftData }, { data: tenant }, { data: inventoryTaskData },
-    { data: responsibilityData }, { data: operationalTaskData }, { data: handoverData }, { data: subordinateData },
+    { data: responsibilityData }, { data: operationalTaskData }, { data: handoverData },
+    { data: teamMemberData }, { data: responsibilityTeamData },
   ] = await Promise.all([
     service.from('employees')
-      .select('id')
+      .select('id,vorname,nachname,rolle,position_title,reports_to_employee_id')
       .eq('id', employee.id)
       .eq('tenant_id', employee.tenant_id)
       .in('status', ['aktiv', 'in_training', 'in_probe'])
@@ -105,21 +138,26 @@ export default async function MitarbeiterPage() {
       .eq('area.location.tenant_id', employee.tenant_id)
       .order('created_at', { ascending: true }),
     service.from('department_responsibility_assignments')
-      .select('id,responsibility_role,weekday_scope,shift_start,shift_end,department:departments(id,name)')
-      .eq('tenant_id', employee.tenant_id).eq('employee_id', employee.id).eq('aktiv', true),
+      .select('id,responsibility_role,weekday_scope,shift_start,shift_end,valid_from,valid_until,department:departments(id,name)')
+      .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
+      .eq('employee_id', employee.id).eq('aktiv', true),
     service.from('operational_tasks')
       .select('id,title,description,status,priority,due_at,completed_at,evidence_requirements,escalation_level,assigned_to,accountable_employee_id,controller_employee_id,department:departments(name),evidence:operational_task_evidence(id,evidence_type,verification_status,submitted_at)')
-      .eq('tenant_id', employee.tenant_id)
+      .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .or(`assigned_to.eq.${employee.id},accountable_employee_id.eq.${employee.id},controller_employee_id.eq.${employee.id}`)
       .not('status', 'eq', 'storniert').order('due_at', { ascending: true, nullsFirst: false }).limit(150),
     service.from('responsibility_handovers')
       .select('id,reason,starts_at,ends_at,note,status,from_employee_id,to_employee_id,department:departments(name),from_employee:employees!responsibility_handovers_from_employee_id_fkey(vorname,nachname),to_employee:employees!responsibility_handovers_to_employee_id_fkey(vorname,nachname)')
-      .eq('tenant_id', employee.tenant_id)
+      .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .or(`from_employee_id.eq.${employee.id},to_employee_id.eq.${employee.id}`)
       .in('status', ['offen', 'angenommen']).order('starts_at'),
-    service.from('employees').select('id,vorname,nachname,position_title')
-      .eq('tenant_id', employee.tenant_id).eq('reports_to_employee_id', employee.id)
+    service.from('employees').select('id,vorname,nachname,rolle,position_title,reports_to_employee_id')
+      .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .in('status', ['aktiv', 'in_training', 'in_probe']).order('nachname'),
+    service.from('department_responsibility_assignments')
+      .select('id,department_id,employee_id,responsibility_role,weekday_scope,shift_start,shift_end,valid_from,valid_until,employee:employees!department_responsibility_assignments_employee_id_fkey(vorname,nachname)')
+      .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
+      .eq('aktiv', true),
   ]);
 
   if (!activeEmployee) redirect('/login?reason=no_access');
@@ -130,6 +168,37 @@ export default async function MitarbeiterPage() {
   const bounds = berlinWeekBounds(now);
   const weekShifts = shiftsInRange(shifts, bounds.start, bounds.end);
   const inventoryTasks = (inventoryTaskData ?? []) as unknown as InventoryTaskRow[];
+  const teamMembers = (teamMemberData ?? []) as unknown as TeamMemberRow[];
+  const selfInTeam = teamMembers.find((person) => person.id === employee.id)
+    ?? (activeEmployee as unknown as TeamMemberRow);
+  const teamById = new Map(teamMembers.map((person) => [person.id, person]));
+  const leadershipChain: TeamMemberRow[] = [];
+  const seenLeaders = new Set<string>([employee.id]);
+  let leaderId = selfInTeam.reports_to_employee_id;
+  while (leaderId && !seenLeaders.has(leaderId) && leadershipChain.length < 8) {
+    const leader = teamById.get(leaderId);
+    if (!leader) break;
+    leadershipChain.unshift(leader);
+    seenLeaders.add(leader.id);
+    leaderId = leader.reports_to_employee_id;
+  }
+  const directReports = teamMembers.filter((person) => person.reports_to_employee_id === employee.id);
+  const scheduleMoment = berlinScheduleMoment(now);
+  const ownResponsibilities = ((responsibilityData ?? []) as unknown as OwnResponsibilityRow[])
+    .filter((item) => isResponsibilityScheduleActive(item, scheduleMoment));
+  const ownDepartmentIds = new Set(ownResponsibilities.flatMap((item) => {
+    const department = Array.isArray(item.department) ? item.department[0] : item.department;
+    return department?.id ? [department.id] : [];
+  }));
+  const responsibilityCoverage = ((responsibilityTeamData ?? []) as unknown as ResponsibilityTeamRow[])
+    .filter((item) => ownDepartmentIds.has(item.department_id) && isResponsibilityScheduleActive(item, scheduleMoment))
+    .map((item) => ({
+      id: item.id,
+      department_id: item.department_id,
+      employee_id: item.employee_id,
+      responsibility_role: item.responsibility_role,
+      employee_name: personRelationName(item.employee),
+    }));
   const name = [employee.vorname, employee.nachname].filter(Boolean).join(' ') || 'Mitarbeiter';
   const canOpenBackoffice = ['manager', 'backoffice', 'admin'].includes(employee.rolle);
 
@@ -201,7 +270,14 @@ export default async function MitarbeiterPage() {
           <Metric label="Kommende Schichten" value={String(upcoming.length)} />
         </section>
 
-        <section className="mt-8 px-4 sm:px-8">
+        <nav className="sticky top-0 z-30 mt-6 flex gap-2 overflow-x-auto border-y border-slate-200 bg-slate-100/95 px-4 py-2 shadow-sm backdrop-blur sm:px-8" aria-label="Mise Team Bereiche">
+          <a href="#dienstplan" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><CalendarDays size={14} className="text-emerald-700" /> Dienstplan</a>
+          <a href="#verantwortung" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><Network size={14} className="text-indigo-700" /> Mein Team</a>
+          <a href="#meine-aufgaben" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><ClipboardCheck size={14} className="text-amber-700" /> Aufgaben</a>
+          <a href="#inventuren" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><Warehouse size={14} className="text-amber-700" /> Inventuren</a>
+        </nav>
+
+        <section id="dienstplan" className="mt-8 scroll-mt-20 px-4 sm:px-8">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
               <div className="text-xs font-bold uppercase tracking-[.14em] text-emerald-700">Dienstplan</div>
@@ -233,7 +309,17 @@ export default async function MitarbeiterPage() {
           </div>
         </section>
 
-        <section className="mt-8 px-4 sm:px-8" aria-labelledby="inventory-tasks-title">
+        <MyOperations
+          actorId={employee.id}
+          locationId={employee.location_id ?? ''}
+          responsibilities={ownResponsibilities as never[]}
+          tasks={(operationalTaskData ?? []) as never[]}
+          handovers={(handoverData ?? []) as never[]}
+          organization={{ self: selfInTeam, leaders: leadershipChain, directReports }}
+          responsibilityCoverage={responsibilityCoverage}
+        />
+
+        <section id="inventuren" className="mt-8 scroll-mt-20 px-4 sm:px-8" aria-labelledby="inventory-tasks-title">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
               <div className="text-xs font-bold uppercase tracking-[.14em] text-amber-700">Lageraufgaben</div>
@@ -261,15 +347,6 @@ export default async function MitarbeiterPage() {
             </div>
           )}
         </section>
-
-        <MyOperations
-          actorId={employee.id}
-          locationId={employee.location_id ?? ''}
-          responsibilities={(responsibilityData ?? []) as never[]}
-          tasks={(operationalTaskData ?? []) as never[]}
-          handovers={(handoverData ?? []) as never[]}
-          subordinates={(subordinateData ?? []) as never[]}
-        />
 
         <section className="mt-8 grid gap-3 px-4 sm:grid-cols-2 sm:px-8">
           <a href="/pos" className="group flex items-center gap-4 rounded-2xl bg-slate-950 p-4 text-white shadow-lg shadow-slate-950/10">

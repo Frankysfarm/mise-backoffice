@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getCurrentEmployee, type CurrentEmployee } from '@/lib/auth/getCurrentEmployee';
+import { berlinScheduleMoment, isResponsibilityScheduleActive, type ResponsibilitySchedule } from '@/lib/operations/responsibility-scope';
 import { createServiceClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -56,24 +57,32 @@ type Service = ReturnType<typeof createServiceClient>;
 
 async function canAccessLocation(service: Service, actor: CurrentEmployee, locationId: string) {
   if (!actor.tenant_id) return false;
-  if (actor.rolle === 'manager') return actor.location_id === locationId;
+  if (!['backoffice', 'admin'].includes(actor.rolle)) return actor.location_id === locationId;
   const { data } = await service.from('locations').select('id').eq('id', locationId).eq('tenant_id', actor.tenant_id).maybeSingle();
   return Boolean(data);
 }
 
 async function isDepartmentLead(service: Service, actor: CurrentEmployee, departmentId: string | null | undefined) {
   if (!actor.tenant_id || !departmentId) return false;
-  const { data } = await service.from('department_responsibility_assignments').select('id')
+  const moment = berlinScheduleMoment();
+  const { data } = await service.from('department_responsibility_assignments')
+    .select('valid_from,valid_until,weekday_scope,shift_start,shift_end')
     .eq('tenant_id', actor.tenant_id).eq('department_id', departmentId).eq('employee_id', actor.id)
-    .eq('aktiv', true).lte('valid_from', new Date().toISOString().slice(0, 10))
-    .or(`valid_until.is.null,valid_until.gte.${new Date().toISOString().slice(0, 10)}`).limit(1);
-  return Boolean(data?.length);
+    .eq('aktiv', true).lte('valid_from', moment.date)
+    .or(`valid_until.is.null,valid_until.gte.${moment.previousDate}`);
+  return ((data ?? []) as ResponsibilitySchedule[]).some((assignment) => isResponsibilityScheduleActive(assignment, moment));
 }
 
 async function employeeInScope(service: Service, tenantId: string, locationId: string, employeeId: string) {
   const { data } = await service.from('employees').select('id').eq('id', employeeId)
     .eq('tenant_id', tenantId).eq('location_id', locationId)
     .in('status', ['aktiv', 'in_training', 'in_probe']).maybeSingle();
+  return Boolean(data);
+}
+
+async function departmentInScope(service: Service, tenantId: string, locationId: string, departmentId: string) {
+  const { data } = await service.from('departments').select('id').eq('id', departmentId)
+    .eq('tenant_id', tenantId).eq('location_id', locationId).maybeSingle();
   return Boolean(data);
 }
 
@@ -148,21 +157,32 @@ export async function POST(request: NextRequest) {
       if (parentId && !rows.some((employee) => employee.id === parentId)) return notFound('Vorgesetzte Person nicht gefunden.');
       let cursor = parentId;
       const byId = new Map(rows.map((employee) => [employee.id, employee.reports_to_employee_id]));
+      const visited = new Set<string>();
       while (cursor) {
         if (cursor === input.employeeId) return NextResponse.json({ error: 'Diese Zuordnung würde einen Hierarchie-Kreis erzeugen.' }, { status: 409 });
+        if (visited.has(cursor)) return NextResponse.json({ error: 'Die bestehende Führungslinie enthält einen Kreis und muss zuerst korrigiert werden.' }, { status: 409 });
+        visited.add(cursor);
         cursor = byId.get(cursor) ?? null;
       }
-      const patch: { reports_to_employee_id: string | null; position_title?: string } = { reports_to_employee_id: parentId };
-      if (input.positionTitle !== undefined) patch.position_title = input.positionTitle || 'Mitarbeiter';
-      const { data, error } = await service.from('employees').update(patch).eq('id', input.employeeId)
-        .eq('tenant_id', actor.tenant_id).eq('location_id', input.locationId)
-        .select('id,reports_to_employee_id,position_title').maybeSingle();
-      if (error || !data) return failure(error?.message ?? 'Zuordnung fehlgeschlagen.');
-      return NextResponse.json({ employee: data });
+      const { data, error } = await service.rpc('move_employee_in_organization', {
+        p_tenant_id: actor.tenant_id,
+        p_location_id: input.locationId,
+        p_employee_id: input.employeeId,
+        p_reports_to_employee_id: parentId,
+        p_position_title: input.positionTitle || null,
+        p_update_position: input.positionTitle !== undefined,
+        p_actor_id: actor.id,
+      });
+      const moved = Array.isArray(data) ? data[0] ?? null : data ?? null;
+      if (error || !moved) return failure(error?.message ?? 'Zuordnung fehlgeschlagen.');
+      return NextResponse.json({ employee: moved });
     }
 
     if (input.action === 'create_task') {
       const departmentId = input.departmentId || null;
+      if (departmentId && !await departmentInScope(service, actor.tenant_id, input.locationId, departmentId)) {
+        return notFound('Bereich gehört nicht zu diesem Standort.');
+      }
       const manages = managerRoles.has(actor.rolle);
       if (!manages && !await isDepartmentLead(service, actor, departmentId)) return forbidden();
       const referenced = [input.assignedTo, input.accountableEmployeeId, input.controllerEmployeeId].filter(Boolean) as string[];
@@ -173,10 +193,18 @@ export async function POST(request: NextRequest) {
       }
       let accountable = input.accountableEmployeeId || null;
       if (!accountable && departmentId) {
-        const { data } = await service.from('department_responsibility_assignments').select('employee_id')
-          .eq('tenant_id', actor.tenant_id).eq('department_id', departmentId)
-          .eq('responsibility_role', 'hauptverantwortung').eq('aktiv', true).limit(1).maybeSingle();
-        accountable = data?.employee_id ?? null;
+        const moment = berlinScheduleMoment();
+        const { data } = await service.from('department_responsibility_assignments')
+          .select('employee_id,valid_from,valid_until,weekday_scope,shift_start,shift_end')
+          .eq('tenant_id', actor.tenant_id).eq('location_id', input.locationId).eq('department_id', departmentId)
+          .eq('responsibility_role', 'hauptverantwortung').eq('aktiv', true)
+          .lte('valid_from', moment.date).or(`valid_until.is.null,valid_until.gte.${moment.previousDate}`)
+          .order('valid_from', { ascending: false });
+        const current = (data ?? []).find((assignment) => isResponsibilityScheduleActive(assignment as ResponsibilitySchedule, moment));
+        accountable = current?.employee_id ?? null;
+      }
+      if (accountable && !await employeeInScope(service, actor.tenant_id, input.locationId, accountable)) {
+        return NextResponse.json({ error: 'Die konfigurierte Hauptverantwortung gehört nicht zu diesem Standort.' }, { status: 409 });
       }
       if (!accountable) accountable = actor.id;
       if (!manages) accountable = actor.id;
@@ -238,6 +266,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (input.action === 'create_handover') {
+      if (input.departmentId && !await departmentInScope(service, actor.tenant_id, input.locationId, input.departmentId)) {
+        return notFound('Bereich gehört nicht zu diesem Standort.');
+      }
       const manages = managerRoles.has(actor.rolle);
       if (!manages && !await isDepartmentLead(service, actor, input.departmentId || null)) return forbidden();
       if (!await employeeInScope(service, actor.tenant_id, input.locationId, input.toEmployeeId) || input.toEmployeeId === actor.id) {

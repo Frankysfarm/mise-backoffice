@@ -230,11 +230,11 @@ export function ResponsibilityClient({
 
       {tab === 'organigramm' && (
         <div className={styles.stack}>
-          <div className={styles.toolbar}><div><h2>Aktives Organigramm</h2><p>Ziehe eine Person auf ihre neue Führungskraft. Die Änderung wird sofort protokolliert.</p></div><div className={styles.dragHint}><GripVertical size={15} /> Drag-and-drop aktiv</div></div>
+          <div className={styles.toolbar}><div><h2>Aktives Organigramm</h2><p>Ziehe eine Person auf ihre neue Führungskraft oder tippe die Karte an. Die Änderung wird sofort protokolliert.</p></div><div className={styles.dragHint}><GripVertical size={15} /> Ziehen oder antippen</div></div>
           <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
             <OrgRoot employees={employees} assignments={assignments} tasks={activeTasks} departments={byDepartment} onEditPosition={setPositionEdit} />
           </DndContext>
-          {positionEdit && <PositionEditor employee={positionEdit} onClose={() => setPositionEdit(null)} pending={pending} onSave={(title) => mutation({ action: 'move_employee', employeeId: positionEdit.id, reportsToEmployeeId: positionEdit.reports_to_employee_id, positionTitle: title }, 'Position aktualisiert.', () => { setEmployees((current) => current.map((item) => item.id === positionEdit.id ? { ...item, position_title: title } : item)); setPositionEdit(null); })} />}
+          {positionEdit && <PositionEditor employee={positionEdit} employees={employees} onClose={() => setPositionEdit(null)} pending={pending} onSave={(title, reportsToEmployeeId) => mutation({ action: 'move_employee', employeeId: positionEdit.id, reportsToEmployeeId, positionTitle: title }, 'Position und Zuordnung aktualisiert.', () => { setEmployees((current) => current.map((item) => item.id === positionEdit.id ? { ...item, position_title: title, reports_to_employee_id: reportsToEmployeeId } : item)); setPositionEdit(null); })} />}
         </div>
       )}
 
@@ -305,26 +305,70 @@ function DepartmentEditor({ form, setForm, onSave, pending }: { form: Department
 }
 
 function OrgRoot({ employees, assignments, tasks, departments, onEditPosition }: { employees: Employee[]; assignments: Assignment[]; tasks: Task[]; departments: Map<string, Department>; onEditPosition: (employee: Employee) => void }) {
-  const roots = employees.filter((employee) => !employee.reports_to_employee_id || !employees.some((candidate) => candidate.id === employee.reports_to_employee_id));
+  const naturalRoots = employees.filter((employee) => !employee.reports_to_employee_id || !employees.some((candidate) => candidate.id === employee.reports_to_employee_id));
+  const disconnectedRoots = disconnectedOrganizationRoots(employees, naturalRoots);
+  const roots = [...naturalRoots, ...disconnectedRoots];
+  const disconnectedIds = new Set(disconnectedRoots.map((employee) => employee.id));
+  const leadershipRoots = roots.filter((employee) => !disconnectedIds.has(employee.id) && isLeadershipRoot(employee, employees));
+  const unassignedRoots = roots.filter((employee) => !leadershipRoots.some((leader) => leader.id === employee.id));
+  const openTaskCount = tasks.filter((task) => TASK_OPEN.has(task.status)).length;
+  const organizationData = useMemo(() => {
+    const children = new Map<string, Employee[]>();
+    const responsibilities = new Map<string, Assignment[]>();
+    const operationalTasks = new Map<string, Task[]>();
+    for (const employee of employees) {
+      if (employee.reports_to_employee_id) children.set(employee.reports_to_employee_id, [...(children.get(employee.reports_to_employee_id) ?? []), employee]);
+    }
+    for (const assignment of assignments) responsibilities.set(assignment.employee_id, [...(responsibilities.get(assignment.employee_id) ?? []), assignment]);
+    for (const task of tasks) {
+      for (const employeeId of new Set([task.assigned_to, task.accountable_employee_id].filter(Boolean) as string[])) {
+        operationalTasks.set(employeeId, [...(operationalTasks.get(employeeId) ?? []), task]);
+      }
+    }
+    return { children, responsibilities, operationalTasks };
+  }, [assignments, employees, tasks]);
   const { setNodeRef, isOver } = useDroppable({ id: 'org-root' });
-  return <div ref={setNodeRef} className={`${styles.orgCanvas} ${isOver ? styles.dropActive : ''}`}><div className={styles.orgRootLabel}>Unternehmens- / Standortleitung</div><div className={styles.orgRoots}>{roots.map((employee) => <OrgNode key={employee.id} employee={employee} all={employees} assignments={assignments} tasks={tasks} departments={departments} onEditPosition={onEditPosition} visited={new Set()} />)}</div>{roots.length === 0 && <Empty text="Ziehe eine Person hierher, um die oberste Ebene anzulegen." />}</div>;
+  return <div ref={setNodeRef} className={`${styles.orgCanvas} ${isOver ? styles.dropActive : ''}`}>
+    <div className={styles.orgCanvasHeader}>
+      <div><span className={styles.orgRootLabel}>Verantwortungslinie</span><strong>{employees.length} Personen · {openTaskCount} offene Punkte</strong><small>Die Verbindungslinien zeigen, wer wem organisatorisch zugeordnet ist.</small></div>
+      <div className={styles.orgLegend}><span><i className={styles.legendPrimary} /> Hauptverantwortung</span><span><i className={styles.legendDeputy} /> Stellvertretung</span><span><i className={styles.legendAlert} /> Handlungsbedarf</span></div>
+    </div>
+    <div className={styles.orgTreeViewport}>
+      <div className={styles.orgRoots}>{leadershipRoots.map((employee) => <OrgNode key={employee.id} employee={employee} organizationData={organizationData} departments={departments} onEditPosition={onEditPosition} visited={new Set()} />)}</div>
+      {leadershipRoots.length === 0 && <Empty text="Noch keine Geschäfts-, Betriebs- oder Filialleitung als oberste Ebene zugeordnet." />}
+    </div>
+    {unassignedRoots.length > 0 && <section className={styles.orgUnassigned}><div><strong>{unassignedRoots.length} Linien noch nicht sauber zugeordnet</strong><small>Ziehe diese Personen auf ihre direkte Führungskraft oder korrigiere die Zuordnung per Antippen. Erst danach gehören sie zur gültigen Verantwortungslinie.</small></div><div className={styles.orgUnassignedGrid}>{unassignedRoots.map((employee) => <OrgNode key={employee.id} employee={employee} organizationData={organizationData} departments={departments} onEditPosition={onEditPosition} visited={new Set()} compact />)}</div></section>}
+  </div>;
 }
 
-function OrgNode({ employee, all, assignments, tasks, departments, onEditPosition, visited }: { employee: Employee; all: Employee[]; assignments: Assignment[]; tasks: Task[]; departments: Map<string, Department>; onEditPosition: (employee: Employee) => void; visited: Set<string> }) {
+function OrgNode({ employee, organizationData, departments, onEditPosition, visited, compact = false }: { employee: Employee; organizationData: { children: Map<string, Employee[]>; responsibilities: Map<string, Assignment[]>; operationalTasks: Map<string, Task[]> }; departments: Map<string, Department>; onEditPosition: (employee: Employee) => void; visited: Set<string>; compact?: boolean }) {
+  const [expanded, setExpanded] = useState(true);
   const cyclicReference = visited.has(employee.id);
   const nextVisited = new Set(visited).add(employee.id);
-  const children = all.filter((candidate) => candidate.reports_to_employee_id === employee.id);
-  const responsibilities = assignments.filter((assignment) => assignment.employee_id === employee.id);
-  const openTasks = tasks.filter((task) => task.assigned_to === employee.id || task.accountable_employee_id === employee.id);
+  const children = organizationData.children.get(employee.id) ?? [];
+  const responsibilities = organizationData.responsibilities.get(employee.id) ?? [];
+  const openTasks = organizationData.operationalTasks.get(employee.id) ?? [];
+  const primaryResponsibilities = responsibilities.filter((assignment) => assignment.responsibility_role === 'hauptverantwortung');
+  const deputyResponsibilities = responsibilities.filter((assignment) => assignment.responsibility_role === 'stellvertretung');
+  const accountableTasks = openTasks.filter((task) => task.accountable_employee_id === employee.id);
+  const hasOverdue = openTasks.some((task) => task.due_at && new Date(task.due_at) < new Date());
   const { attributes, listeners, setNodeRef: setDragRef, transform, isDragging } = useDraggable({ id: `employee:${employee.id}` });
   const { setNodeRef: setDropRef, isOver } = useDroppable({ id: `manager:${employee.id}` });
   if (cyclicReference) return null;
-  return <div className={styles.orgBranch}><div ref={setDropRef} className={`${styles.orgDrop} ${isOver ? styles.dropActive : ''}`}><article ref={setDragRef} style={{ transform: transform ? `translate3d(${transform.x}px,${transform.y}px,0)` : undefined, opacity: isDragging ? .55 : 1 }} className={styles.orgCard}><button className={styles.dragHandle} {...listeners} {...attributes} aria-label="Mitarbeiter verschieben"><GripVertical size={17} /></button><button className={styles.orgMain} onClick={() => onEditPosition(employee)}><Avatar employee={employee} /><span><strong>{employee.vorname} {employee.nachname}</strong><small>{employee.position_title || roleLabel(employee.rolle)}</small></span></button><div className={styles.orgFacts}>{responsibilities.map((assignment) => <span key={assignment.id}>{assignment.responsibility_role === 'hauptverantwortung' ? 'Verantwortung' : 'Vertretung'} · {departments.get(assignment.department_id)?.name}</span>)}{openTasks.length > 0 && <span className={overdue(tasks, employee.id) ? styles.factDanger : ''}>{openTasks.length} offene Punkte</span>}{children.length > 0 && <span>{children.length} direkt zugeordnet</span>}</div></article></div>{children.length > 0 && <div className={styles.orgChildren}>{children.map((child) => <OrgNode key={child.id} employee={child} all={all} assignments={assignments} tasks={tasks} departments={departments} onEditPosition={onEditPosition} visited={nextVisited} />)}</div>}</div>;
+  return <div className={`${styles.orgBranch} ${compact ? styles.orgBranchCompact : ''}`}><div ref={setDropRef} className={`${styles.orgDrop} ${isOver ? styles.dropActive : ''}`}><article ref={setDragRef} style={{ transform: transform ? `translate3d(${transform.x}px,${transform.y}px,0)` : undefined, opacity: isDragging ? .55 : 1 }} className={`${styles.orgCard} ${hasOverdue ? styles.orgCardAlert : ''}`}>
+    <div className={styles.orgCardTop}><span className={`${styles.orgRole} ${styles[`orgRole_${orgTier(employee.rolle)}`]}`}>{employee.position_title || roleLabel(employee.rolle)}</span><div className={styles.orgCardActions}>{children.length > 0 && <button className={`${styles.orgExpand} ${expanded ? styles.orgExpandOpen : ''}`} aria-label={`${employee.vorname} ${employee.nachname}: Team ${expanded ? 'einklappen' : 'ausklappen'}`} aria-expanded={expanded} onClick={() => setExpanded((current) => !current)}><ChevronRight size={15} /></button>}<button className={styles.dragHandle} {...listeners} {...attributes} aria-label={`${employee.vorname} ${employee.nachname} verschieben`}><GripVertical size={17} /></button></div></div>
+    <button className={styles.orgMain} onClick={() => onEditPosition(employee)}><Avatar employee={employee} /><span><strong>{employee.vorname} {employee.nachname}</strong><small>{roleLabel(employee.rolle)} · Ebene {employee.organization_level}</small></span></button>
+    {(primaryResponsibilities.length > 0 || deputyResponsibilities.length > 0) && <div className={styles.orgResponsibilityList}>{primaryResponsibilities.map((assignment) => <span className={styles.orgPrimary} key={assignment.id}><ShieldCheck size={11} /> {departments.get(assignment.department_id)?.name ?? 'Bereich'}</span>)}{deputyResponsibilities.map((assignment) => <span className={styles.orgDeputy} key={assignment.id}><BadgeCheck size={11} /> {departments.get(assignment.department_id)?.name ?? 'Bereich'}</span>)}</div>}
+    <div className={styles.orgSignals}><span><UsersRound size={13} /><b>{children.length}</b> direkt</span><span className={hasOverdue ? styles.orgSignalAlert : ''}><ClipboardCheck size={13} /><b>{openTasks.length}</b> offen</span><span><ShieldCheck size={13} /><b>{accountableTasks.length}</b> verantwortlich</span></div>
+    {openTasks.length > 0 && !compact && <div className={styles.orgTaskPreview}><strong>{hasOverdue ? 'Überfällige / offene Punkte' : 'Offene Punkte'}</strong>{openTasks.slice(0, 2).map((task) => <span key={task.id}>{task.title}</span>)}{openTasks.length > 2 && <small>+ {openTasks.length - 2} weitere</small>}</div>}
+  </article></div>{children.length > 0 && expanded && <div className={styles.orgChildren}>{children.map((child) => <OrgNode key={child.id} employee={child} organizationData={organizationData} departments={departments} onEditPosition={onEditPosition} visited={nextVisited} compact={compact} />)}</div>}</div>;
 }
 
-function PositionEditor({ employee, onClose, onSave, pending }: { employee: Employee; onClose: () => void; onSave: (title: string) => void; pending: boolean }) {
+function PositionEditor({ employee, employees, onClose, onSave, pending }: { employee: Employee; employees: Employee[]; onClose: () => void; onSave: (title: string, reportsToEmployeeId: string | null) => void; pending: boolean }) {
   const [title, setTitle] = useState(employee.position_title ?? roleLabel(employee.rolle));
-  return <section className={styles.editor}><div className={styles.editorHeader}><div><strong>Position von {employee.vorname} {employee.nachname}</strong><small>Diese Bezeichnung ist im Organigramm für alle sichtbar.</small></div><button className={styles.iconButton} onClick={onClose}><X size={17} /></button></div><div className={styles.inlineForm}><input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="z. B. Filialleitung" /><button className={styles.primaryButton} disabled={pending || title.trim().length < 2} onClick={() => onSave(title.trim())}><Save size={15} /> Position speichern</button></div></section>;
+  const [reportsToEmployeeId, setReportsToEmployeeId] = useState(employee.reports_to_employee_id ?? '');
+  const excludedManagers = descendantIds(employee.id, employees);
+  return <section className={styles.editor}><div className={styles.editorHeader}><div><strong>Position von {employee.vorname} {employee.nachname}</strong><small>Position und direkte Führung gelten im Organigramm und in der Mitarbeiter-App.</small></div><button className={styles.iconButton} onClick={onClose}><X size={17} /></button></div><div className={styles.formGrid}><label>Position<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="z. B. Filialleitung" /></label><label>Direkte Führung<select value={reportsToEmployeeId} onChange={(event) => setReportsToEmployeeId(event.target.value)}><option value="">Oberste Ebene / noch nicht zugeordnet</option>{employees.filter((candidate) => candidate.id !== employee.id && !excludedManagers.has(candidate.id)).map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.vorname} {candidate.nachname} · {candidate.position_title || roleLabel(candidate.rolle)}</option>)}</select></label></div><button className={styles.primaryButton} disabled={pending || title.trim().length < 2} onClick={() => onSave(title.trim(), reportsToEmployeeId || null)}><Save size={15} /> Position & Führung speichern</button></section>;
 }
 
 function TaskEditor({ departments, employees, pending, onClose, onSave }: { departments: Department[]; employees: Employee[]; pending: boolean; onClose: () => void; onSave: (payload: Record<string, unknown>) => void }) {
@@ -356,11 +400,14 @@ function Empty({ text }: { text: string }) { return <div className={styles.empty
 
 function employeeName(id: string | null | undefined, map: Map<string, Employee>) { const employee = id ? map.get(id) : null; return employee ? `${employee.vorname} ${employee.nachname}` : 'Nicht zugeordnet'; }
 function roleLabel(role: string) { return ({ admin: 'Geschäftsführung', backoffice: 'Betriebsleitung', manager: 'Filialleitung', teamleiter: 'Schichtleitung', mitarbeiter: 'Mitarbeiter', server: 'Service', bartender: 'Theke', cook: 'Küche', dishwasher: 'Spülküche' } as Record<string, string>)[role] ?? (role || 'Mitarbeiter'); }
+function orgTier(role: string) { return ({ admin: 'executive', backoffice: 'operations', manager: 'location', teamleiter: 'lead' } as Record<string, string>)[role] ?? 'team'; }
+function isLeadershipRoot(employee: Employee, employees: Employee[]) { return ['admin', 'backoffice', 'manager'].includes(employee.rolle) || employees.some((candidate) => candidate.reports_to_employee_id === employee.id) || /geschäftsführung|betriebsleitung|filialleitung|standortleitung/i.test(employee.position_title ?? ''); }
+function disconnectedOrganizationRoots(employees: Employee[], naturalRoots: Employee[]) { const children = new Map<string, Employee[]>(); for (const employee of employees) { if (employee.reports_to_employee_id) children.set(employee.reports_to_employee_id, [...(children.get(employee.reports_to_employee_id) ?? []), employee]); } const visited = new Set<string>(); const visit = (root: Employee) => { const pending = [root]; while (pending.length) { const current = pending.pop()!; if (visited.has(current.id)) continue; visited.add(current.id); pending.push(...(children.get(current.id) ?? [])); } }; naturalRoots.forEach(visit); const disconnected: Employee[] = []; for (const employee of employees) { if (!visited.has(employee.id)) { disconnected.push(employee); visit(employee); } } return disconnected; }
+function descendantIds(employeeId: string, employees: Employee[]) { const result = new Set<string>(); let changed = true; while (changed) { changed = false; for (const employee of employees) { if (!result.has(employee.id) && (employee.reports_to_employee_id === employeeId || (employee.reports_to_employee_id && result.has(employee.reports_to_employee_id)))) { result.add(employee.id); changed = true; } } } return result; }
 function coverageLabel(status: string) { return ({ hauptverantwortung_fehlt: 'Hauptverantwortung fehlt', stellvertretung_fehlt: 'Stellvertretung fehlt', vertretung_waehrend_abwesenheit_fehlt: 'Vertretung bei Abwesenheit fehlt', aktive_vertretung: 'Vertretung ist aktiv', abgedeckt: 'Vollständig abgedeckt' } as Record<string, string>)[status] ?? status; }
 function reasonLabel(reason: string) { return ({ schichtende: 'Schichtende', urlaub: 'Urlaub', krankheit: 'Krankheit', sonstiges: 'Sonstiger Grund' } as Record<string, string>)[reason] ?? reason; }
 function formatDateTime(value: string) { return new Intl.DateTimeFormat('de-DE', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value)); }
 function toLocalInput(value: Date) { const shifted = new Date(value.getTime() - value.getTimezoneOffset() * 60_000); return shifted.toISOString().slice(0, 16); }
 function signedDelta(value: number) { return `${value > 0 ? '+' : ''}${value}`; }
 function weekCompletions(tasks: Task[], offsetDays: number) { const end = Date.now() - offsetDays * 86_400_000; const start = end - 7 * 86_400_000; return tasks.filter((task) => task.status === 'erledigt' && task.completed_at && new Date(task.completed_at).getTime() >= start && new Date(task.completed_at).getTime() < end).length; }
-function overdue(tasks: Task[], employeeId: string) { return tasks.some((task) => (task.assigned_to === employeeId || task.accountable_employee_id === employeeId) && task.due_at && new Date(task.due_at) < new Date()); }
 function isTab(value: string | null): value is Tab { return value === 'dashboard' || value === 'bereiche' || value === 'organigramm' || value === 'aufgaben' || value === 'uebergaben'; }
