@@ -65,6 +65,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/api/push/') ||
     pathname.startsWith('/api/cron/') ||
     pathname === '/api/mise-os/sso' ||
+    pathname === '/api/auth/change-password' ||
     pathname === '/api/delivery/health' ||
     pathname === '/api/delivery/windows' ||
     pathname === '/api/delivery/dispatch' ||

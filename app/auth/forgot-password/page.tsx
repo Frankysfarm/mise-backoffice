@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Loader2, Mail, Check } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { buildPasswordRecoveryRedirect } from '@/lib/auth/password-recovery';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -16,11 +17,11 @@ export default function ForgotPasswordPage() {
     setBusy(true);
     setErr(null);
     const { error } = await createClient().auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset-password`,
+      redirectTo: buildPasswordRecoveryRedirect(window.location.origin),
     });
     setBusy(false);
     if (error) {
-      setErr(error.message);
+      setErr('Die Recovery-Mail konnte nicht gesendet werden. Bitte versuche es gleich noch einmal.');
       return;
     }
     setSent(true);
