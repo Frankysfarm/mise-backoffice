@@ -99,9 +99,10 @@ Wareneingänge und alte Online-Bestellungen enthalten aktuell keine Datensätze.
    in dieser Reihenfolge importieren.
 5. Pro Entität Quell-/Zielanzahl, verwaiste Fremdschlüssel und Stichproben
    prüfen; den Import idempotent wiederholbar halten.
-6. Für eine Übergangszeit Mise OS nur lesend betreiben.
-7. Nach fachlicher Abnahme SSO-Weiterleitungen durch native Neo-Routen ersetzen
-   und die separate Schreibdatenbank archivieren.
+6. Nach erfolgreichem Produktionsimport alle früheren Mise-OS-Links auf die
+   nativen Neo-Routen umstellen und den alten API-Pfad mit HTTP 410 stilllegen.
+7. Den separaten Schreibdienst stoppen; Datenbank, Dump und Backend bleiben
+   ausschließlich als wiederherstellbares Archiv erhalten.
 
 Der Importer liegt in `mise-os/backend/scripts/migrate-to-neo.mjs`, läuft
 standardmäßig nur als Vorschau und bricht bei nicht abgebildeten Datentypen,

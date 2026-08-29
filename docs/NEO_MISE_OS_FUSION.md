@@ -1,73 +1,60 @@
-# Neo + Mise OS: verbindliche Fusion
+# Neo + Mise OS: abgeschlossene Fusion
 
-## Zielbild
+## Verbindliches Zielbild
 
-Neo ist der einzige Einstieg für die Betriebsleitung. Die fertigen operativen
-Module bleiben fachlich in Mise OS und werden aus Neo ohne zweiten Login
-geöffnet. Es gibt keine parallelen, unfertigen Kopien dieser Module mehr.
+Mise Gastro Neo ist der einzige Einstieg, die einzige Anmeldung und die
+einzige schreibende Datenbasis. Die fachlich fertigen Mise-OS-Funktionen laufen
+nativ auf den vorhandenen Neo-Mandanten, Standorten, Mitarbeitern, Rollen und
+Benachrichtigungen. Ein externer SSO-Start oder ein zweites Mitarbeiterkonto
+ist nicht mehr Teil der Architektur.
 
-## Modulverantwortung
+## Native Modulzuordnung
 
-| Neo-Navigation | Mise-OS-Screen | Verantwortliches System |
-| --- | --- | --- |
-| Mitarbeiter & Bereiche | `bereiche` | Mise OS |
-| Dienstplan | `dienstplan` | Mise OS |
-| Lager | `lager` | Mise OS |
-| Listen & Abläufe | `builder` | Mise OS |
-| Schulungen | `schulung` | Mise OS |
-| Team & Compliance | `compliance` | Mise OS |
-| Rezeptbuch | `rezeptbuch` | Mise OS |
-| Mise-OS-Dashboard | `dashboard` | Mise OS |
+| Frühere Mise-OS-Funktion | Verbindliche Neo-Route |
+| --- | --- |
+| Dashboard | `/neo` |
+| Listen & Abläufe | `/neo/app/ablaeufe` |
+| Schulungen | `/neo/app/schulungen` |
+| Mitarbeiter & Bereiche | `/neo/app/mitarbeiter` |
+| Dienstplan | `/neo/app/dienstplan` |
+| Rezeptbuch | `/neo/app/rezeptbuch` |
+| Lager | `/neo/app/lager` |
+| Team & Compliance | `/neo/app/compliance` |
 
-Lieferzentrale, Tischbestellung, POS und die übrige Geschäftsverwaltung
-bleiben in Neo. Ihre alten Mise-OS-Varianten werden im integrierten Modus nicht
-angezeigt.
+Historische Links unter `/neo/os/[screen]` werden ausschließlich auf diese
+nativen Routen umgeleitet. `/api/mise-os/sso` ist stillgelegt und antwortet
+mit HTTP 410; es wird kein zweites Sitzungstoken mehr ausgestellt.
 
-## Anmeldung und Mandantentrennung
+## Datenübernahme und Stilllegung
 
-1. Neo prüft die Supabase-Sitzung serverseitig und erlaubt den Betriebsbereich
-   nur für `manager`, `backoffice` und `admin`.
-2. Neo liest Betrieb und Mitarbeiter ausschließlich aus der verifizierten
-   Sitzung. Browserwerte können diese IDs nicht überschreiben.
-3. Neo sendet Betriebs-ID, Betriebs-Slug, Mitarbeiter-ID, Name, E-Mail und Rolle
-   serverseitig an Mise OS.
-4. Mise OS verknüpft den Betrieb dauerhaft über `neoTenantId`. Beim ersten
-   Aufruf kann ein bereits vorhandener Mise-OS-Tenant mit demselben Slug
-   übernommen werden, damit seine operativen Daten erhalten bleiben.
-5. Mitarbeiter werden innerhalb dieses Betriebs zuerst über `neoEmployeeId`
-   und erst danach über ihre E-Mail gefunden. Identische E-Mails in zwei
-   Betrieben bleiben dadurch strikt getrennt.
-6. Das kurzlebige Mise-OS-JWT wird im URL-Fragment übergeben; URL-Fragmente
-   werden nicht an Webserver oder externe Ziele gesendet.
+Der idempotente Importer `mise-os/backend/scripts/migrate-to-neo.mjs` überträgt
+Legacy-Datensätze anhand stabiler IDs in das zentrale Neo-Schema. Vor dem
+Produktionsimport werden beide Datenbanken gesichert. Der Import wird zweimal
+ausgeführt: Der zweite Lauf darf keine neuen Datensätze erzeugen.
 
-## Produktionskonfiguration
+Nach Mengenabgleich, Fremdschlüsselprüfung und RLS-Test wird der alte
+Mise-OS-Schreibdienst gestoppt. Die bisherige Datenbank und das Backend bleiben
+als Archiv erhalten, sind aber öffentlich nicht mehr erreichbar. Alte
+Browserpfade führen zur gemeinsamen Neo-Mitarbeiteroberfläche; alte API-Pfade
+antworten mit HTTP 410 und können deshalb keine getrennten Datenbestände mehr
+erzeugen.
 
-Neo:
+## Sicherheitsgrenzen
 
-```dotenv
-MISE_OS_SSO_SECRET=<gemeinsames-zufaelliges-secret-mindestens-16-zeichen>
-MISE_OS_APP_URL=https://mise-os-theta.vercel.app
-MISE_OS_API_URL=https://mise-gastro.de/api/v1
-```
+- Supabase Auth ist die einzige Identitätsquelle.
+- Rollen und Sichtbereiche werden serverseitig aus `employees`, Tenant,
+  Standort, Schicht und Verantwortung bestimmt.
+- Browserwerte dürfen Tenant, Standort oder Mitarbeiter nicht vorgeben.
+- Schreibende APIs prüfen Rolle und fachlichen Scope; RLS bleibt aktiv.
+- Service-Role- und Cron-Secrets werden ausschließlich serverseitig verwendet.
+- Verantwortungs-, Aufgaben-, Kontroll- und Bestelländerungen werden
+  revisionsfähig protokolliert.
 
-Mise-OS-Backend:
+## Abnahme
 
-```dotenv
-SSO_SECRET=<identisch-zu-MISE_OS_SSO_SECRET>
-CORS_ORIGINS=https://mise-os-theta.vercel.app,https://mise-gastro.de
-```
-
-Das gemeinsame Secret darf nie als `NEXT_PUBLIC_*` oder `VITE_*` konfiguriert
-werden. In Produktion verweigert das Mise-OS-Backend den Start, wenn es fehlt
-oder zu kurz ist.
-
-## Abnahmekriterien
-
-- Ein Manager öffnet jedes oben genannte Modul aus Neo ohne zweiten Login.
-- Der angeforderte Mise-OS-Screen ist nach dem SSO direkt aktiv.
-- Der Zurück-Link führt wieder zu `/neo`.
-- Ein Mitarbeiter ohne Leitungsrolle erhält keinen SSO-Token.
-- Gleiche E-Mail-Adressen in unterschiedlichen Betrieben sehen nie dieselben
-  Mise-OS-Daten.
-- Bestehende URLs unter `/neo/app/mitarbeiter`, `/dienstplan` und `/lager`
-  leiten auf die jeweilige Mise-OS-Integration weiter.
+- Alle früheren Mise-OS-Module öffnen nativ in Neo.
+- Es gibt keine zweite Anmeldung, kein SSO-Token und keinen öffentlichen
+  Legacy-Schreibpfad.
+- Importierte Datensätze sind gezählt, mandantenrein und ohne Duplikate.
+- Der alte Datenstand ist gesichert und wiederherstellbar archiviert.
+- Desktop-, Mobil-, Rollen-, RLS-, Build- und Regressionstests sind grün.

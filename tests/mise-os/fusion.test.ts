@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   isMiseOsScreen,
-  mapEmployeeRoleToMiseOs,
+  MISE_OS_NATIVE_ROUTES,
   MISE_OS_SCREENS,
-  getMiseOsAppUrl,
 } from '@/lib/mise-os';
+import { POST as retireLegacySso } from '@/app/api/mise-os/sso/route';
+import { NextRequest } from 'next/server';
 
 describe('Neo ↔ Mise OS fusion contract', () => {
   it('exposes every finished operating-system screen through the allowlist', () => {
@@ -22,25 +23,16 @@ describe('Neo ↔ Mise OS fusion contract', () => {
     expect(isMiseOsScreen('unknown')).toBe(false);
   });
 
-  it('maps Neo hierarchy roles to the Mise OS authorization model', () => {
-    expect(mapEmployeeRoleToMiseOs('admin')).toBe('ADMIN');
-    expect(mapEmployeeRoleToMiseOs('backoffice')).toBe('ADMIN');
-    expect(mapEmployeeRoleToMiseOs('manager')).toBe('ADMIN');
-    expect(mapEmployeeRoleToMiseOs('teamleiter')).toBe('SCHICHTLEITER');
-    expect(mapEmployeeRoleToMiseOs('mitarbeiter')).toBe('MITARBEITER');
-    expect(mapEmployeeRoleToMiseOs('cook')).toBe('MITARBEITER');
+  it('maps every former Mise OS screen to one native Neo module', () => {
+    expect(Object.keys(MISE_OS_NATIVE_ROUTES)).toEqual(Object.keys(MISE_OS_SCREENS));
+    expect(MISE_OS_NATIVE_ROUTES.dienstplan).toBe('/neo/app/dienstplan');
+    expect(MISE_OS_NATIVE_ROUTES.bereiche).toBe('/neo/app/mitarbeiter');
+    expect(Object.values(MISE_OS_NATIVE_ROUTES).every((route) => !route.startsWith('/neo/os'))).toBe(true);
   });
 
-  it('only accepts HTTPS for a remote Mise OS deployment', () => {
-    const before = process.env.MISE_OS_APP_URL;
-    try {
-      process.env.MISE_OS_APP_URL = 'https://os.example.test/';
-      expect(getMiseOsAppUrl()).toBe('https://os.example.test');
-      process.env.MISE_OS_APP_URL = 'http://os.example.test';
-      expect(() => getMiseOsAppUrl()).toThrow(/HTTPS/i);
-    } finally {
-      if (before === undefined) delete process.env.MISE_OS_APP_URL;
-      else process.env.MISE_OS_APP_URL = before;
-    }
+  it('retires the legacy SSO writer instead of opening a second session', async () => {
+    const response = await retireLegacySso(new NextRequest('https://mise-gastro.de/api/mise-os/sso', { method: 'POST' }));
+    expect(response.status).toBe(410);
+    await expect(response.json()).resolves.toMatchObject({ redirect: '/neo' });
   });
 });
