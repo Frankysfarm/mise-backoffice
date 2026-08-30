@@ -139,8 +139,10 @@ release must repeat staging acceptance; deployment is outside this run.
   - `20260830113000_shift_linked_operational_tasks.sql`
   - `20260830154500_daily_clarity_automation.sql`
   - `20260830183000_predeploy_operational_hardening.sql`
-- No production migration was applied. Before deployment, the safe rollback is
-  therefore to revert the listed application commits and deploy nothing.
+- Production attempt 5 applied all three migrations in order. The application
+  was then rolled back to source commit `50b554e9`; the additive schema and
+  seeded audit/operational records were retained. The four new automation
+  triggers are disabled as recorded in the attempt-5 evidence below.
 - If application rollback occurs after migration, the previous application is
   compatible with the additive schema. Disable calls to the operational cron and
   the `shifts_operational_tasks_materialize`,
@@ -213,3 +215,79 @@ release must repeat staging acceptance; deployment is outside this run.
   migration, route nginx back to a preserved previous image and disable the
   operational cron plus the four materialization/retirement triggers named in
   **Database change and rollback**; retain additive schema and audit records.
+
+## Production deployment attempt 5 — aborted and rolled back 2026-08-30
+
+- Owner-approved release guard: the clean local branch
+  `codex/neo-module-integration-20260826` was exactly `87320087`. Production
+  `/opt/mise/backoffice` was re-verified on
+  `deployment-mise-ready-20260821` at exact HEAD `50b554e9`, and
+  `git merge-base --is-ancestor 50b554e9 87320087` passed before any production
+  change. The known generated-only modification to
+  `app/fahrer/build-version.ts` was the sole checkout change.
+- Transport used
+  `/tmp/neo-module-integration-attempt5.bundle` through the approved SSH jump
+  host. The bundle required exact base `50b554e9`, exposed exact candidate
+  `87320087`, and had SHA-256
+  `e07d399475fb57da366aed93261297bca9e7a60626ddf57f131d57368304b8bb`.
+  The production checkout was advanced with `git merge --ff-only`; no GitHub
+  fetch, rebase, merge, or `origin/main` reconciliation occurred.
+- Preflight disk state was 75 GB total, 60 GB used, 13 GB available (83%).
+  Docker reported zero build cache and no useful safe unused-image cleanup, so
+  no image cleanup was run manually. The prior validated backup was reused and
+  retained unchanged:
+  `/opt/mise/backups/neo-module-integration-pre-20260830T190043Z.dump`,
+  8,978,042 bytes, mode `0600`, 4,129 archive-list entries, SHA-256
+  `79847b1e11290d317c16a223cde0bfadb49fe6865de4c99e82e41453793ff9c2`.
+- The production database has no
+  `supabase_migrations.schema_migrations` registry. The reviewed SQL files were
+  therefore applied directly with `psql`, `ON_ERROR_STOP`, and their explicit
+  transactions. All three committed successfully in order:
+  `20260830113000`, `20260830154500`, `20260830183000`. Verification found the
+  new `trigger_type` column and `operational_daily_briefings` table/function,
+  plus the installed 12-hour historical guard and advisory-lock hardening.
+- The Pontstraße seed ran twice and printed
+  `Pontstraße organization seed passed` both times. Both runs ended with the
+  same assertions: 9 draft employee profiles, 11 active
+  `pontstrasse_initial` templates, 10 `pontstrasse_setup` tasks, zero uncovered
+  required areas, and zero draft profiles linked to Auth identities.
+- Candidate image `507aa0201593b25a6c892f8129a77c09371dac98e78a5558029dd7365a275f68`
+  built successfully, passed inactive-port 3300 health in two seconds with HTTP
+  `307` and `running|0`, and nginx switched from 3310 to 3300 at
+  `2026-08-30T20:09:59Z`.
+- Mandatory post-switch rollback-readiness verification then failed: the
+  pre-tagged old image and tag `mise-backoffice:rollback-50b554e9-attempt5`
+  were both absent after the deployment script's final container/image cleanup
+  phase. The old image had been
+  `2068f64b9440b5acfaa0530041277616f1cc40b45a99ea406f6be9135fcec2b0`.
+  Acceptance stopped immediately; briefing materialization and production RLS
+  smoke were not run.
+- Rollback rebuilt exact application source commit `50b554e9` in isolated
+  detached worktree `/opt/mise/rollback-attempt5-50b554e9` as image
+  `df8cf1b837fbad52511a25247fa104e5941f8c3ddb0b87700296489a1c505dc7`
+  tagged `mise-backoffice:rollback-50b554e9-attempt5`. It passed inactive-port
+  3310 health in two seconds with HTTP `307` and `running|0`; nginx switched
+  back to 3310 at `2026-08-30T20:22:59Z`, and the candidate container was
+  removed.
+- Rollback verification: the active container is
+  `mise_backoffice_3310` on the rebuilt `50b554e9` image; public
+  `https://mise-gastro.de/login` returns `200`; unauthenticated
+  `/api/cron/operational-escalations` returns `401`. The production source
+  checkout intentionally remains the authorized fast-forward at `87320087`
+  with only the generated build-version modification; the deployed application
+  is the previous `50b554e9` release.
+- Database rollback retained the additive migrations and seed records. The
+  application rollback removes the new cron invocation path. In one committed
+  transaction, triggers `shifts_operational_tasks_materialize`,
+  `shifts_operational_tasks_retire_change`,
+  `shifts_operational_tasks_cancel_delete`, and
+  `task_templates_materialize_shifts` were disabled; catalog verification
+  reported `tgenabled = 'D'` for all four. Do not restore the pre-migration dump
+  or drop the additive objects as an emergency rollback.
+- Release state: **not deployed**. Before another attempt, fix and independently
+  verify rollback-image preservation across the deployment script's cleanup,
+  re-enable the four triggers only as part of an authorized successful release,
+  and repeat live briefing materialization plus RLS smoke. Reconciliation with
+  the stale/diverged GitHub `origin/main` remains explicitly out of scope and is
+  a HANDOFF follow-up, not a prerequisite to preserving the production
+  fast-forward ancestry.
