@@ -1,0 +1,77 @@
+.module{max-width:1180px;margin:0 auto;color:#172033;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+
+.hero{position:relative;display:flex;align-items:center;gap:18px;overflow:hidden;padding:22px 24px;margin-bottom:18px;border-radius:19px;color:#fff;background:linear-gradient(125deg,#1e1b4b,#3730a3 62%,#4f46e5);box-shadow:0 16px 35px rgba(49,46,129,.17)}
+.hero:after{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.14) 1px,transparent 0);background-size:23px 23px;mask-image:linear-gradient(90deg,transparent,#000)}
+.heroIcon{position:relative;z-index:1;width:54px;height:54px;border:1px solid rgba(255,255,255,.2);border-radius:16px;background:rgba(255,255,255,.12);display:grid;place-items:center}
+.heroCopy{position:relative;z-index:1;flex:1}
+.eyebrow{margin-bottom:5px;color:#c7d2fe;font-size:11px;font-weight:800;letter-spacing:.075em}
+.hero h1{margin:0;font-family:'Space Grotesk',system-ui,sans-serif;font-size:24px;letter-spacing:-.035em}
+.hero p{margin:6px 0 0;color:#dbeafe;font-size:13px;line-height:1.45}
+.locationPicker{position:relative;z-index:2;display:grid;gap:5px;color:#c7d2fe;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.locationPicker select{min-width:210px;height:41px;padding:0 36px 0 12px;border:1px solid rgba(255,255,255,.28);border-radius:10px;color:#fff;background:#312e81;font:700 12px inherit;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23c7d2fe' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 9l4-4 4 4M8 15l4 4 4-4'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.locationPicker select:disabled{opacity:.55}
+
+.section{margin-bottom:22px}
+.sectionHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.sectionEyebrow{margin-bottom:3px;color:#64748b;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.sectionTitle{margin:0;font-family:'Space Grotesk',system-ui,sans-serif;font-size:18px;font-weight:700;letter-spacing:-.02em}
+.sectionIcon{flex-shrink:0;color:#94a3b8}
+.okIcon{flex-shrink:0;color:#16a34a}
+.alertBadge{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;color:#fff;background:#dc2626;font-size:11px;font-weight:800}
+
+.stack{display:grid;gap:10px}
+.card{padding:14px 16px;border:1px solid #e2e8f0;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.cardAlert{border-color:#fecaca;background:#fef2f2}
+.cardHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.deptName{font-weight:700;font-size:14px;color:#0f172a}
+.countBadge{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border-radius:999px;color:#475569;background:#f1f5f9;font-size:11px;font-weight:800}
+.cardAlert .countBadge{background:#fee2e2;color:#991b1b}
+.gapBadge{flex-shrink:0;display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:999px;color:#991b1b;background:#fee2e2;font-size:10px;font-weight:800}
+.overdueMark{color:#dc2626;font-weight:800}
+
+.rowList{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid #f1f5f9;border-radius:10px;background:#f8fafc}
+.rowActive{border-color:#a7f3d0;background:#f0fdf4}
+.rowAlert{border-color:#fecaca;background:#fff1f2}
+.rowMain{min-width:0}
+.rowName{display:block;font-weight:700;font-size:13px;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rowMeta{display:block;margin-top:2px;font-size:11px;color:#64748b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rowTime{display:grid;justify-items:end;gap:2px;text-align:right}
+.rowTime span{font-weight:700;font-size:12px;color:#334155}
+.rowDuration{font-size:10px;font-weight:600;color:#94a3b8}
+.activePill{grid-column:1/-1;justify-self:start;display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;color:#166534;background:#bbf7d0;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.escalation{justify-self:end;display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:6px;color:#991b1b;background:#fee2e2;font-size:9px;font-weight:800}
+.absenceType{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;color:#854d0e;background:#fef9c3;font-size:10px;font-weight:800}
+
+.coverageRow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid #fee2e2;font-size:12px}
+.coverageRow:first-of-type{border-top:0}
+.coverageLabel{color:#64748b;font-weight:600}
+.coverageValue{color:#0f172a;font-weight:700}
+
+.subSection{margin-top:14px;padding-top:14px;border-top:1px dashed #e2e8f0}
+.subTitle{display:inline-flex;align-items:center;gap:7px;margin:0 0 10px;font-family:'Space Grotesk',system-ui,sans-serif;font-size:13px;font-weight:700;color:#b91c1c}
+
+.empty{display:flex;align-items:center;justify-content:center;gap:10px;padding:26px 16px;border:1px dashed #cbd5e1;border-radius:14px;color:#64748b;background:#f8fafc;font-size:13px;font-weight:600;text-align:center}
+
+@media(max-width:700px){
+  .hero{flex-wrap:wrap;align-items:flex-start;padding:18px 18px 20px}
+  .heroIcon{display:none}
+  .heroCopy{min-width:100%}
+  .hero h1{font-size:21px}
+  .locationPicker,.locationPicker select{width:100%}
+  .sectionHead{align-items:center}
+  .sectionTitle{font-size:17px}
+  .row{grid-template-columns:1fr auto;gap:8px;padding:10px}
+  .rowTime{justify-items:start;text-align:left}
+  .activePill{grid-column:auto;justify-self:auto}
+  .coverageRow{flex-direction:column;align-items:flex-start;gap:2px}
+}
+
+@media(max-width:1050px){
+  .hero{gap:14px}
+  .locationPicker select{min-width:170px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .locationPicker select{transition:none}
+}

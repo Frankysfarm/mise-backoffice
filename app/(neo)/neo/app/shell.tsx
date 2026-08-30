@@ -24,10 +24,11 @@ const ICONS: Record<string, string> = {
   schulungen: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5M22 10v6"/></svg>',
   compliance: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>',
   rezeptbuch: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M4 19.5A2.5 2.5 0 006.5 22H20V2H6.5A2.5 2.5 0 004 4.5z"/><path d="M8 7h8M8 11h5"/></svg>',
+  klarheit: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>',
 };
 const NAV: { label: string; managerOnly?: boolean; items: [string, string][] }[] = [
   { label: 'BETRIEB', items: [['overview', 'Übersicht'], ['lieferzentrale', 'Lieferzentrale'], ['tischbestellung', 'Tischbestellung'], ['fahrer', 'Fahrer']] },
-  { label: 'TEAM & ABLÄUFE', managerOnly: true, items: [['bewerbungen', 'Bewerbungen'], ['mitarbeiter', 'Mitarbeiter & Bereiche'], ['dienstplan', 'Dienstplan'], ['lager', 'Lager'], ['ablaeufe', 'Listen & Abläufe'], ['schulungen', 'Schulungen'], ['compliance', 'Team & Compliance'], ['rezeptbuch', 'Rezeptbuch']] },
+  { label: 'TEAM & ABLÄUFE', managerOnly: true, items: [['klarheit', 'Tagesklarheit'], ['bewerbungen', 'Bewerbungen'], ['mitarbeiter', 'Mitarbeiter & Bereiche'], ['dienstplan', 'Dienstplan'], ['lager', 'Lager'], ['ablaeufe', 'Listen & Abläufe'], ['schulungen', 'Schulungen'], ['compliance', 'Team & Compliance'], ['rezeptbuch', 'Rezeptbuch']] },
   { label: 'SHOP', items: [['shopdesign', 'Shop-Design'], ['shopsettings', 'Shop-Einstellungen'], ['menu', 'Menü'], ['aktionen', 'Aktionen & Rabatte'], ['loyalty', 'Bonusprogramme'], ['zahlungen', 'Zahlungen']] },
   { label: 'GESCHÄFT', items: [['kunden', 'Kundenstamm'], ['statistik', 'Statistik'], ['buchhaltung', 'Buchhaltung']] },
 ];
@@ -47,6 +48,7 @@ const META: Record<string, [string, string]> = {
   schulungen: ['Schulungen', 'Onboarding, Wissen und Praxisnachweise verwalten'],
   compliance: ['Team & Compliance', 'Qualifikationen, Zertifikate und Pflichten im Blick behalten'],
   rezeptbuch: ['Rezeptbuch', 'Rezepte und Küchenwissen gemeinsam pflegen'],
+  klarheit: ['Tagesklarheit', 'Heute im Dienst, offene Aufgaben und Abdeckung auf einen Blick'],
 };
 const ROUTE: Record<string, string> = {
   overview: 'uebersicht',
@@ -61,7 +63,7 @@ export default function Shell({ children, newCount = 0, tenantName = 'Mein Shop'
   const seg = path.split('/neo/app/')[1]?.split('/')[0] || 'uebersicht';
   const active = seg === 'uebersicht' ? 'overview' : seg;
   const [title, sub] = META[active] || META.overview;
-  const isOperations = ['bewerbungen', 'mitarbeiter', 'dienstplan', 'lager', 'ablaeufe', 'schulungen', 'compliance', 'rezeptbuch'].includes(active);
+  const isOperations = ['klarheit', 'bewerbungen', 'mitarbeiter', 'dienstplan', 'lager', 'ablaeufe', 'schulungen', 'compliance', 'rezeptbuch'].includes(active);
   const initials = tenantName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
   const [menuOpen, setMenuOpen] = useState(false);
   return (
