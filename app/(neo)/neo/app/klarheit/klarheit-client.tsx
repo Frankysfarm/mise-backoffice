@@ -46,7 +46,7 @@ const COVERAGE_LABELS: Record<string, string> = {
   abgedeckt: 'Vollständig abgedeckt',
 };
 const ABSENCE_LABELS: Record<string, string> = {
-  krank: 'Krank', urlaub: 'Urlaub', abwesend: 'Abwesend', gesperrt: 'Gesperrt',
+  krank: 'Krank', urlaub: 'Urlaub', abwesend: 'Abwesend', gesperrt: 'Abwesend',
   nicht_verfuegbar: 'Nicht verfügbar', unavailable: 'Nicht verfügbar', sick: 'Krank',
 };
 const ROLE_LABELS: Record<string, string> = {

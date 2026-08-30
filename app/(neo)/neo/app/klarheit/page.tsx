@@ -51,11 +51,13 @@ export default async function KlarheitPage({
   if (!actor.tenant_id || !actor.location_id) redirect('/start');
   const requested = (await searchParams).location;
   const service = createServiceClient();
-  const { data: locations } = await service.from('locations')
-    .select('id,name,stadt')
-    .eq('tenant_id', actor.tenant_id).order('name').throwOnError();
-  const availableLocations = locations ?? [];
   const mayUseAllLocations = ['backoffice', 'admin'].includes(actor.rolle);
+  let locationsQuery = service.from('locations')
+    .select('id,name,stadt')
+    .eq('tenant_id', actor.tenant_id);
+  if (!mayUseAllLocations) locationsQuery = locationsQuery.eq('id', actor.location_id);
+  const { data: locations } = await locationsQuery.order('name').throwOnError();
+  const availableLocations = locations ?? [];
   const locationId = mayUseAllLocations && requested && availableLocations.some((location) => location.id === requested)
     ? requested
     : actor.location_id;

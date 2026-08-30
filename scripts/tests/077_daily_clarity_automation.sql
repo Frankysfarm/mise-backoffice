@@ -64,11 +64,13 @@ insert into public.departments(
 );
 insert into public.shifts(
   id,employee_id,department_id,location_id,start_zeit,end_zeit,status,position
-) values (
-  '82000000-0000-0000-0000-000000000001','40000000-0000-0000-0000-000000000002',
-  '30000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
-  '2026-09-07 05:00:00+00','2026-09-07 13:00:00+00','bestätigt','Service'
-);
+) values
+  ('82000000-0000-0000-0000-000000000001','40000000-0000-0000-0000-000000000002',
+   '30000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
+   '2026-09-07 05:00:00+00','2026-09-07 13:00:00+00','bestätigt','Service'),
+  ('82000000-0000-0000-0000-000000000002','40000000-0000-0000-0000-000000000002',
+   '30000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
+   '2026-09-06 20:00:00+00','2026-09-07 00:00:00+00','bestätigt','Nachtdienst');
 insert into public.availability_exceptions(tenant_id,employee_id,datum,typ,grund)
 values(
   '10000000-0000-0000-0000-000000000001','40000000-0000-0000-0000-000000000002',
@@ -95,6 +97,9 @@ begin
     raise exception 'briefing upsert created duplicates';
   end if;
   if jsonb_array_length(v_briefing.shifts)<1 then raise exception 'briefing omitted today shifts'; end if;
+  if not v_briefing.shifts @> '[{"id":"82000000-0000-0000-0000-000000000002"}]'::jsonb then
+    raise exception 'briefing omitted shift overlapping Berlin midnight';
+  end if;
   if jsonb_array_length(v_briefing.task_counts)<1 then raise exception 'briefing omitted task counts'; end if;
   if jsonb_array_length(v_briefing.coverage_gaps)<1 then raise exception 'briefing omitted coverage gaps'; end if;
   if jsonb_array_length(v_briefing.absences)<>1 then raise exception 'briefing omitted absence'; end if;
@@ -139,11 +144,16 @@ insert into public.employees(
    'Berta','Spät','mitarbeiter','aktiv'),
   ('40000000-0000-0000-0000-000000000008','10000000-0000-0000-0000-000000000001',
    '20000000-0000-0000-0000-000000000001','30000000-0000-0000-0000-000000000005',
-   'Cora','Fremdbereich','mitarbeiter','aktiv');
+   'Cora','Fremdbereich','mitarbeiter','aktiv'),
+  ('40000000-0000-0000-0000-000000000009','10000000-0000-0000-0000-000000000001',
+   '20000000-0000-0000-0000-000000000001','30000000-0000-0000-0000-000000000004',
+   'Dora','Gesperrt','mitarbeiter','aktiv');
 insert into public.employee_availability(employee_id,weekday,start_time,end_time,typ) values
   ('40000000-0000-0000-0000-000000000006',0,'08:00','16:00','verfügbar'),
   ('40000000-0000-0000-0000-000000000007',0,'08:00','16:00','verfügbar'),
-  ('40000000-0000-0000-0000-000000000008',0,'08:00','16:00','bevorzugt');
+  ('40000000-0000-0000-0000-000000000008',0,'08:00','16:00','bevorzugt'),
+  ('40000000-0000-0000-0000-000000000009',0,'08:00','16:00','bevorzugt'),
+  ('40000000-0000-0000-0000-000000000009',0,'08:00','16:00','gesperrt');
 
 insert into public.shifts(
   id,employee_id,department_id,location_id,start_zeit,end_zeit,status,position
@@ -189,9 +199,33 @@ begin
   ) then raise exception 'assistant ignored department qualification'; end if;
   if exists(
     select 1 from public.weekly_shift_assignment_suggestions
+    where employee_id='40000000-0000-0000-0000-000000000009'
+  ) then raise exception 'assistant ignored an overlapping availability block'; end if;
+  if exists(
+    select 1 from public.weekly_shift_assignment_suggestions
     where reason not like '%Verfügbarkeit%' or reason not like '%Bereichsqualifikation%'
   ) then raise exception 'suggestion reason is not owner-friendly or explainable'; end if;
 end $$;
+
+insert into public.employee_availability(employee_id,weekday,start_time,end_time,typ)
+values('40000000-0000-0000-0000-000000000007',0,'08:00','09:00','gesperrt');
+do $$
+begin
+  begin
+    perform public.confirm_weekly_shift_assignment_suggestion(
+      '10000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
+      (select id from public.weekly_shift_assignment_suggestions
+       where shift_id='83000000-0000-0000-0000-000000000002'),
+      '40000000-0000-0000-0000-000000000001'
+    );
+    raise exception 'confirmation ignored a new availability block';
+  exception when others then
+    if sqlerrm='confirmation ignored a new availability block' then raise; end if;
+    if position('no longer available' in sqlerrm)=0 then raise; end if;
+  end;
+end $$;
+delete from public.employee_availability
+where employee_id='40000000-0000-0000-0000-000000000007' and typ='gesperrt';
 
 select * from public.confirm_weekly_shift_assignment_suggestion(
   '10000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',

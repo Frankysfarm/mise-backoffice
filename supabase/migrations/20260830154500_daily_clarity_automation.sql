@@ -170,7 +170,7 @@ begin
       left join public.employees e on e.id=s.employee_id and e.tenant_id=s.tenant_id
       left join public.departments d on d.id=s.department_id and d.tenant_id=s.tenant_id
       where s.tenant_id=v_location.tenant_id and s.location_id=v_location.id
-        and s.start_zeit>=v_day_start and s.start_zeit<v_day_end
+        and s.start_zeit<v_day_end and s.end_zeit>v_day_start
         and s.status::text not in ('abgesagt','storniert')
         and coalesce(s.typ::text,'')<>'probe'
     ) rows_for_day;
@@ -215,7 +215,10 @@ begin
       from public.availability_exceptions x
       join public.employees e on e.id=x.employee_id and e.tenant_id=x.tenant_id
       where x.tenant_id=v_location.tenant_id and e.location_id=v_location.id
-        and x.datum=v_date and x.typ='gesperrt'
+        and x.datum=v_date
+        and x.typ::text in (
+          'gesperrt','nicht_verfuegbar','krank','urlaub','abwesend','unavailable','sick'
+        )
     ) absence_rows;
 
     select coalesce(jsonb_agg(row_data order by (row_data->>'escalation_level')::integer desc,row_data->>'due_at'),'[]'::jsonb)
@@ -356,7 +359,6 @@ declare
   v_candidate record;
   v_week_start_at timestamptz;
   v_week_end_at timestamptz;
-  v_shift_minutes numeric;
   v_reason text;
 begin
   if extract(isodow from p_week_start)<>1 then raise exception 'week_start must be a Monday'; end if;
@@ -396,8 +398,6 @@ begin
     order by s.start_zeit,s.id
     for update skip locked
   loop
-    v_shift_minutes:=extract(epoch from (v_shift.end_zeit-v_shift.start_zeit))/60;
-
     select ranked.* into v_candidate
     from (
       select candidate.*,
@@ -416,7 +416,7 @@ begin
               and x.datum=(v_shift.start_zeit at time zone 'Europe/Berlin')::date
               and x.typ in ('verfügbar','bevorzugt')
           ) as exception_available,
-          coalesce(availability.available_minutes,0)>=v_shift_minutes as regular_available,
+          coalesce(availability.fully_available,false) as regular_available,
           coalesce(availability.preferred,false) or exists(
             select 1 from public.availability_exceptions x
             where x.tenant_id=p_tenant_id and x.employee_id=e.id
@@ -427,10 +427,18 @@ begin
         from public.employees e
         left join lateral (
           select
-            coalesce(sum(extract(epoch from (
-              least(a.end_time,(v_shift.end_zeit at time zone 'Europe/Berlin')::time)
-              - greatest(a.start_time,(v_shift.start_zeit at time zone 'Europe/Berlin')::time)
-            ))/60) filter(where a.typ in ('verfügbar','bevorzugt')),0) as available_minutes,
+            coalesce(
+              range_agg(tsrange(
+                (v_shift.start_zeit at time zone 'Europe/Berlin')::date+a.start_time,
+                (v_shift.start_zeit at time zone 'Europe/Berlin')::date+a.end_time,
+                '[)'
+              )) filter(where a.typ in ('verfügbar','bevorzugt')),
+              '{}'::tsmultirange
+            ) @> tsrange(
+              v_shift.start_zeit at time zone 'Europe/Berlin',
+              v_shift.end_zeit at time zone 'Europe/Berlin',
+              '[)'
+            ) as fully_available,
             coalesce(bool_or(a.typ='bevorzugt'),false) as preferred
           from public.employee_availability a
           where a.employee_id=e.id
@@ -477,7 +485,9 @@ begin
             select 1 from public.availability_exceptions x
             where x.tenant_id=p_tenant_id and x.employee_id=e.id
               and x.datum=(v_shift.start_zeit at time zone 'Europe/Berlin')::date
-              and x.typ='gesperrt'
+              and x.typ::text in (
+                'gesperrt','nicht_verfuegbar','krank','urlaub','abwesend','unavailable','sick'
+              )
           )
           and not exists(
             select 1 from public.employee_availability blocked
@@ -600,7 +610,17 @@ begin
     select 1 from public.availability_exceptions x
     where x.tenant_id=p_tenant_id and x.employee_id=v_suggestion.employee_id
       and x.datum=(v_shift.start_zeit at time zone 'Europe/Berlin')::date
-      and x.typ='gesperrt'
+      and x.typ::text in (
+        'gesperrt','nicht_verfuegbar','krank','urlaub','abwesend','unavailable','sick'
+      )
+  ) then raise exception 'suggested employee is no longer available'; end if;
+  if exists(
+    select 1 from public.employee_availability blocked
+    where blocked.employee_id=v_suggestion.employee_id
+      and blocked.weekday=extract(isodow from v_shift.start_zeit at time zone 'Europe/Berlin')::integer-1
+      and blocked.typ='gesperrt'
+      and blocked.start_time<(v_shift.end_zeit at time zone 'Europe/Berlin')::time
+      and blocked.end_time>(v_shift.start_zeit at time zone 'Europe/Berlin')::time
   ) then raise exception 'suggested employee is no longer available'; end if;
   if exists(
     select 1 from public.shifts other

@@ -54,7 +54,7 @@ type Coverage = {
   department_id: string; hauptverantwortlicher_id: string | null; stellvertretung_id: string | null;
   aktuell_zustaendig_id: string | null; hauptverantwortlicher_abwesend: boolean; abdeckungsstatus: string;
 };
-type Absence = { employee_id: string; datum: string; typ: string; grund: string | null };
+type Absence = { employee_id: string; datum: string; typ: string };
 type DailyBriefing = {
   briefing_date: string; generated_at: string;
   shifts: unknown[];
@@ -228,7 +228,7 @@ export function ResponsibilityClient({
                 ? <Empty text="Heute liegen keine Abwesenheiten mit Vertretungsbedarf vor." />
                 : <div className={styles.list}>
                   {coverage.filter((item) => item.hauptverantwortlicher_abwesend).map((item) => <div className={styles.listRow} key={item.department_id}><span><strong>{byDepartment.get(item.department_id)?.name}</strong><small>{employeeName(item.hauptverantwortlicher_id, byEmployee)} → {employeeName(item.aktuell_zustaendig_id, byEmployee)}</small></span><Status tone={item.aktuell_zustaendig_id ? 'success' : 'danger'}>{item.aktuell_zustaendig_id ? 'Vertretung aktiv' : 'Unbesetzt'}</Status></div>)}
-                  {absences.filter((absence) => !coverage.some((item) => item.hauptverantwortlicher_id === absence.employee_id)).map((absence) => <div className={styles.listRow} key={`${absence.employee_id}:${absence.datum}`}><span><strong>{employeeName(absence.employee_id, byEmployee)}</strong><small>{absence.typ}{absence.grund ? ` · ${absence.grund}` : ''}</small></span><Status tone="warning">Abwesend</Status></div>)}
+                  {absences.filter((absence) => !coverage.some((item) => item.hauptverantwortlicher_id === absence.employee_id)).map((absence) => <div className={styles.listRow} key={`${absence.employee_id}:${absence.datum}`}><span><strong>{employeeName(absence.employee_id, byEmployee)}</strong><small>{absence.typ}</small></span><Status tone="warning">Abwesend</Status></div>)}
                 </div>}
             </Panel>
           </div>

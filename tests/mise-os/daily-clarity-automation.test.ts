@@ -28,7 +28,9 @@ describe('daily clarity automation contracts', () => {
     expect(migration).toContain('unique(tenant_id,location_id,briefing_date)');
     expect(migration).toContain("p_generated_at at time zone 'Europe/Berlin'");
     expect(migration).toContain('operational_daily_briefing_manager_read');
+    expect(migration).toContain('s.start_zeit<v_day_end and s.end_zeit>v_day_start');
     expect(migration).not.toContain("'grund',x.grund");
+    expect(page).not.toContain('typ,grund');
     expect(sqlTest).toContain('briefing exposed private absence reason');
     expect(sqlTest).toContain('manager can read foreign-location briefing');
     expect(page).toContain("from('operational_daily_briefings')");
@@ -41,6 +43,7 @@ describe('daily clarity automation contracts', () => {
     expect(migration).toContain('generate_weekly_shift_assignment_suggestions');
     expect(migration).toContain('tstzrange(other.start_zeit,other.end_zeit');
     expect(migration).toContain('assigned_hours*2');
+    expect(migration).toContain("'{}'::tsmultirange");
     expect(migration).toContain('Bereichsqualifikation passt');
     expect(migration).toContain("v_shift.employee_id is not null");
     expect(route).toContain('getCurrentEmployee');
@@ -48,6 +51,8 @@ describe('daily clarity automation contracts', () => {
     expect(assistant).toContain('Jede Schicht wird erst nach deiner Bestätigung zugewiesen.');
     expect(assistant).toContain('Schicht bestätigen');
     expect(sqlTest).toContain('assistant double-booked the early employee');
+    expect(sqlTest).toContain('assistant ignored an overlapping availability block');
+    expect(sqlTest).toContain('confirmation ignored a new availability block');
     expect(sqlTest).toContain('confirmed shift was silently overwritten');
     expect(sqlTest).toContain('confirmed suggestion did not close the shift-task loop');
   });

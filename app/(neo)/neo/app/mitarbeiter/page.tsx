@@ -20,10 +20,12 @@ export default async function MitarbeiterPage({
   if (!actor.tenant_id || !actor.location_id) redirect('/start');
   const requested = (await searchParams).location;
   const service = createServiceClient();
-  const { data: locations } = await service.from('locations').select('id,name,stadt')
-    .eq('tenant_id', actor.tenant_id).order('name');
-  const availableLocations = locations ?? [];
   const mayUseAllLocations = ['backoffice', 'admin'].includes(actor.rolle);
+  let locationsQuery = service.from('locations').select('id,name,stadt')
+    .eq('tenant_id', actor.tenant_id);
+  if (!mayUseAllLocations) locationsQuery = locationsQuery.eq('id', actor.location_id);
+  const { data: locations } = await locationsQuery.order('name');
+  const availableLocations = locations ?? [];
   const locationId = mayUseAllLocations && requested && availableLocations.some((location) => location.id === requested)
     ? requested
     : actor.location_id;
@@ -67,7 +69,7 @@ export default async function MitarbeiterPage({
 
   const employeeIds = (employees ?? []).map((employee) => employee.id);
   const { data: absences } = employeeIds.length
-    ? await service.from('availability_exceptions').select('employee_id,datum,typ,grund')
+    ? await service.from('availability_exceptions').select('employee_id,datum,typ')
       .in('employee_id', employeeIds).eq('datum', today)
     : { data: [] };
 
