@@ -6,6 +6,7 @@ const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf
 
 describe('daily clarity automation contracts', () => {
   const migration = source('supabase/migrations/20260830154500_daily_clarity_automation.sql');
+  const hardeningMigration = source('supabase/migrations/20260830183000_predeploy_operational_hardening.sql');
   const sqlTest = source('scripts/tests/077_daily_clarity_automation.sql');
 
   it('runs escalation through the protected Vercel cron with a configurable interval', () => {
@@ -51,6 +52,8 @@ describe('daily clarity automation contracts', () => {
     expect(migration).toContain('Bereichsqualifikation passt');
     expect(migration).toContain("v_shift.employee_id is not null");
     expect(migration).toContain("'schedule-employee:'");
+    expect(hardeningMigration).toContain('v_suggestion.week_start::text');
+    expect(hardeningMigration).toContain('preventing a suggestion -> shift / shift -> suggestion cycle');
     expect(route).toContain('getCurrentEmployee');
     expect(route).toContain("action: z.literal('confirm')");
     expect(assistant).toContain('Jede Schicht wird erst nach deiner Bestätigung zugewiesen.');
@@ -61,6 +64,8 @@ describe('daily clarity automation contracts', () => {
     expect(sqlTest).toContain('confirmed shift was silently overwritten');
     expect(sqlTest).toContain('cleared confirmed shift could not receive a new suggestion');
     expect(sqlTest).toContain('confirmed suggestion did not close the shift-task loop');
+    expect(sqlTest).toContain('generation does not acquire the week lock before row locks');
+    expect(sqlTest).toContain('confirmation does not acquire the matching week lock before row locks');
   });
 
   it('keeps privileged automation RPCs away from authenticated browser sessions', () => {

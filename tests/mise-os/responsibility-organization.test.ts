@@ -109,6 +109,7 @@ describe('responsibility organization', () => {
 
   it('connects recurring workflows to shifts without exposing a second task model', () => {
     const migration = source('supabase/migrations/20260830113000_shift_linked_operational_tasks.sql');
+    const hardeningMigration = source('supabase/migrations/20260830183000_predeploy_operational_hardening.sql');
     const sqlTest = source('scripts/tests/076_shift_linked_operational_tasks.sql');
     const route = source('app/api/operations/responsibility/route.ts');
     const managerPage = source('app/(neo)/neo/app/mitarbeiter/page.tsx');
@@ -122,6 +123,8 @@ describe('responsibility organization', () => {
     expect(migration).toContain('update_operational_task_as_actor');
     expect(migration).toContain("coalesce(v_shift.typ::text,'')='probe'");
     expect(migration).toContain('revoke all on function public.materialize_shift_operational_tasks');
+    expect(hardeningMigration).toContain('v_participant:=coalesce(');
+    expect(hardeningMigration).toContain("new.end_zeit < now()-interval '12 hours'");
     expect(sqlTest).toContain('progressed task was silently reassigned');
     expect(sqlTest).toContain('canceled shift did not cancel its open task');
     expect(sqlTest).toContain('revived task retained stale acceptance');
@@ -130,6 +133,10 @@ describe('responsibility organization', () => {
     expect(sqlTest).toContain('trial shift received operational tasks');
     expect(sqlTest).toContain('manager can read foreign-location template');
     expect(sqlTest).toContain('task audit did not record acting employee');
+    expect(sqlTest).toContain('malformed task participant membership failed open');
+    expect(sqlTest).toContain('malformed task reviewer membership failed open');
+    expect(sqlTest).toContain('historical shift insert materialized stale tasks');
+    expect(sqlTest).toContain('historical shift update materialized stale tasks');
     expect(route).toContain("action: z.literal('save_task_template')");
     expect(route).toContain('departmentInScope');
     expect(managerPage).toContain("shift:shifts(start_zeit,end_zeit,position)");

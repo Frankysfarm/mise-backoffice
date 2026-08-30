@@ -192,6 +192,30 @@ select * from public.generate_weekly_shift_assignment_suggestions(
   '2026-09-14','40000000-0000-0000-0000-000000000001'
 );
 
+-- Generation and confirmation must take the shared week lock before either
+-- suggestion or shift row locks, removing their former inverse lock order.
+do $$
+declare
+  v_generate text;
+  v_confirm text;
+begin
+  select lower(pg_get_functiondef(
+    'public.generate_weekly_shift_assignment_suggestions(uuid,uuid,date,uuid)'::regprocedure
+  )) into strict v_generate;
+  select lower(pg_get_functiondef(
+    'public.confirm_weekly_shift_assignment_suggestion(uuid,uuid,uuid,uuid)'::regprocedure
+  )) into strict v_confirm;
+
+  if position('pg_advisory_xact_lock' in v_generate)=0
+    or position('pg_advisory_xact_lock' in v_generate)>position('for update skip locked' in v_generate) then
+    raise exception 'generation does not acquire the week lock before row locks';
+  end if;
+  if position('v_suggestion.week_start::text' in v_confirm)=0
+    or position('pg_advisory_xact_lock' in v_confirm)>position('for update;' in v_confirm) then
+    raise exception 'confirmation does not acquire the matching week lock before row locks';
+  end if;
+end $$;
+
 do $$
 begin
   if (select count(*) from public.weekly_shift_assignment_suggestions

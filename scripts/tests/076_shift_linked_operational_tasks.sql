@@ -140,6 +140,32 @@ begin
   ) then raise exception 'departmentless shift matched department-bound template'; end if;
 end $$;
 
+-- Historical imports stay inert once the 12-hour delayed-sync grace window has
+-- elapsed, both on insert and on a later material assignment change.
+insert into public.shifts(
+  id,employee_id,department_id,location_id,start_zeit,end_zeit,status
+) values (
+  '70000000-0000-0000-0000-000000000009','40000000-0000-0000-0000-000000000002',
+  '30000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
+  now()-interval '56 hours',now()-interval '48 hours','geplant'
+);
+do $$
+begin
+  if exists(
+    select 1 from public.operational_tasks
+    where shift_id='70000000-0000-0000-0000-000000000009'
+  ) then raise exception 'historical shift insert materialized stale tasks'; end if;
+
+  update public.shifts
+  set employee_id='40000000-0000-0000-0000-000000000001'
+  where id='70000000-0000-0000-0000-000000000009';
+
+  if exists(
+    select 1 from public.operational_tasks
+    where shift_id='70000000-0000-0000-0000-000000000009'
+  ) then raise exception 'historical shift update materialized stale tasks'; end if;
+end $$;
+
 insert into public.operational_task_templates(
   id,tenant_id,location_id,department_id,title,task_kind,trigger_type,shift_phase,
   due_offset_minutes,assignment_mode,evidence_requirements,priority,created_by,source_type,source_id
@@ -282,6 +308,61 @@ begin
       and a.payload_after->>'status'='angenommen'
   ) then raise exception 'task audit did not record acting employee'; end if;
 end $$;
+
+-- Reproduce a malformed legacy row by temporarily bypassing the current
+-- accountability default/constraint. Nullable membership must fail closed for
+-- both participant updates and reviewer-only closing states.
+alter table public.operational_tasks disable trigger operational_tasks_prepare;
+alter table public.operational_tasks alter column accountable_employee_id drop not null;
+insert into public.operational_tasks(
+  id,tenant_id,location_id,department_id,title,status,created_by,
+  assigned_to,accountable_employee_id,controller_employee_id
+) values (
+  '80000000-0000-0000-0000-000000000005',
+  '10000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
+  '30000000-0000-0000-0000-000000000001','Fehlerhafte Altaufgabe','offen',
+  '40000000-0000-0000-0000-000000000001',null,null,null
+);
+alter table public.operational_tasks enable trigger operational_tasks_prepare;
+
+set role service_role;
+do $$
+begin
+  begin
+    perform public.update_operational_task_as_actor(
+      '80000000-0000-0000-0000-000000000005',
+      '10000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
+      '40000000-0000-0000-0000-000000000002','in_arbeit',null
+    );
+    raise exception 'malformed task participant membership failed open';
+  exception when others then
+    if sqlerrm='malformed task participant membership failed open' then raise; end if;
+    if position('actor may not update task' in sqlerrm)=0 then raise; end if;
+  end;
+
+  begin
+    perform public.update_operational_task_as_actor(
+      '80000000-0000-0000-0000-000000000005',
+      '10000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
+      '40000000-0000-0000-0000-000000000002','erledigt',null
+    );
+    raise exception 'malformed task reviewer membership failed open';
+  exception when others then
+    if sqlerrm='malformed task reviewer membership failed open' then raise; end if;
+    if position('actor may not review or close task' in sqlerrm)=0 then raise; end if;
+  end;
+end $$;
+reset role;
+
+do $$
+begin
+  if (select status from public.operational_tasks
+      where id='80000000-0000-0000-0000-000000000005')<>'offen' then
+    raise exception 'malformed task changed despite rejected membership';
+  end if;
+end $$;
+delete from public.operational_tasks where id='80000000-0000-0000-0000-000000000005';
+alter table public.operational_tasks alter column accountable_employee_id set not null;
 
 -- RLS: branch managers cannot read or mutate another branch's workflows/tasks;
 -- normal employees do not receive the manager-only template catalogue.
