@@ -65,7 +65,7 @@ imports do not create stale work after a documented grace period.
 
 ## Handoff
 
-- Commit: recorded in `docs/agents/HANDOFF.md` after integration.
+- Commit: `48a587b1`.
 - Known risks: the lock-order regression inspects installed function structure;
   a two-session exact interleave remains stronger optional evidence.
 - Reviewer required: Claude read-only integrated-diff review — `PASS`, no blocker

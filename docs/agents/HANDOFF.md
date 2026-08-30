@@ -11,11 +11,12 @@ reporting, and operational data source.
 
 ## Current assignment
 
-- Codex: integration lead for the Pontstraße shift-task packet and daily clarity
-  automation.
+- Codex: completed integration of the Pontstraße shift-task packet, daily clarity
+  automation, and final pre-deploy SQL hardening.
 - Kimi: completed the bounded, read-only Tagesklarheit UI packet; its three
   commits are integrated.
-- Claude: completed the independent integrated-diff re-review with `PASS`.
+- Claude: completed the original integrated-diff re-review and the final
+  pre-deploy hardening review with `PASS`.
 
 ## Integration status
 
@@ -24,6 +25,7 @@ reporting, and operational data source.
 - Task packets:
   - `docs/agents/tasks/2026-08-30-pontstrasse-shift-operations.md`
   - `docs/agents/tasks/2026-08-30-daily-clarity-automation.md`
+  - `docs/agents/tasks/2026-08-30-predeploy-operational-hardening.md`
 - Integrated code commits, in order:
   - `5f8e4880` — shift-linked recurring tasks and both Step 0 MINOR fixes
   - `b8036dba` — escalation, briefing, and weekly schedule assistant
@@ -33,6 +35,8 @@ reporting, and operational data source.
     hardening for Tagesklarheit
   - `1e85f775`, `d7e93213` — integrated acceptance and reviewer finding fixes
   - `edd5c7ad` — stable Berlin week calendar/query boundaries
+  - `48a587b1` — nullable membership, schedule lock-order, and historical-shift
+    import hardening
 - Deployment state: **not deployed**. No production schema or data operation was
   performed in this run, as requested.
 
@@ -57,15 +61,23 @@ reporting, and operational data source.
 - Weekly assignment suggestions consider availability, responsibility/
   qualification, overlaps, and fairness. Every suggestion explains itself and
   requires per-shift manager confirmation. Confirmation revalidates eligibility,
-  serializes per employee, never overwrites an assignment, and closes the normal
-  shift-task materialization loop.
+  serializes first by tenant/location/week and then per employee, never overwrites
+  an assignment, and closes the normal shift-task materialization loop. Generation
+  and confirmation now take the same week lock before any row lock.
+- Operational-task actor and reviewer membership treats nullable legacy
+  participant columns as false. A malformed row therefore cannot bypass update
+  or close authorization.
+- Historical shift import policy: inserts and material updates may materialize
+  tasks only when `end_zeit` is within the preceding 12 hours or later. The grace
+  window permits delayed same-day syncs and overnight closeout; older historical
+  imports remain inert and are not backfilled.
 - Neo is the only surface. The new clarity route and schedule assistant reuse the
   existing Supabase identity, employee, tenant, location, navigation, task, and
   shift models.
 
 ## Verification evidence
 
-- `git diff --check`: passed before the evidence commit; repeat after the final
+- `git diff --check`: passed before the implementation commit and after the final
   review record.
 - Full Vitest suite with pinned Node 22.23.0: **34 files / 222 tests passed**.
 - `tsc -p tsconfig.delivery-hardening.json --noEmit`: passed.
@@ -75,9 +87,13 @@ reporting, and operational data source.
 - Repository Playwright suite: **28 passed** across Desktop Chrome and Pixel 5.
 - Fresh isolated PostgreSQL 16 chain passed, in order:
   `unified-operations-base.sql`, migrations `20260828174510`, `20260829204500`,
-  `20260830113000`, `20260830154500`, then SQL suites `075`, `076`, and `077`.
-  Final markers: responsibility organization, shift-linked operational task, and
-  daily clarity automation tests all passed.
+  `20260830113000`, `20260830154500`, `20260830183000`, then SQL suites `075`,
+  `076`, and `077`. Final markers passed for responsibility organization,
+  shift-linked operational tasks, and daily clarity automation. New assertions
+  prove both malformed membership paths fail closed, historical insert/update
+  stays inert, and installed generation/confirmation functions share the week-
+  first lock order.
+- Focused follow-up Vitest run: **2 files / 12 tests passed**.
 - Authenticated local acceptance passed through the real Next middleware, server
   components, APIs, desktop Chrome, and Pixel 5 using a disposable Supabase-
   protocol fixture and non-production auth cookie. Verified: Tagesklarheit
@@ -98,39 +114,31 @@ drift, probe-shift inclusion, manager location scope, cleared-shift regeneration
 concurrent confirmation race, and null-location company-wide actor behavior.
 The stale handoff/evidence major is addressed by this document.
 
-Final read-only re-review of `50b554e9..30d7515a`: **PASS**, with no blocker or
+Original final read-only re-review of `50b554e9..30d7515a`: **PASS**, with no blocker or
 major and all nine previously open findings verified closed. Claude independently
 reproduced SQL suites `075`–`077` on PostgreSQL 16.13 and the four newly relevant
-unit files (19/19). Three non-gating minors remain for a pre-deploy follow-up or
-explicit human disposition:
+unit files (19/19). Its three non-gating pre-deploy follow-ups are now closed in
+`48a587b1`.
 
-- `20260830113000_shift_linked_operational_tasks.sql:778`: membership expressed
-  with `id in (nullable columns)` can evaluate to SQL NULL rather than false.
-  The reviewer empirically confirmed the fail-open for a task with every
-  participant field null; current application-created tasks make those actors
-  non-null, so the app path is not reachable. Follow-up: wrap membership checks
-  in `coalesce(...,false)` and add the malformed-row regression.
-- `20260830154500_daily_clarity_automation.sql:380` and `:589`: generation and
-  confirmation acquire week/suggestion/employee/shift locks in different orders,
-  leaving a transient deadlock possibility under an exact concurrent interleave.
-  Follow-up: align lock order or add bounded SQLSTATE `40P01` retry coverage.
-- `20260830113000_shift_linked_operational_tasks.sql:815`: the shift trigger has
-  no historical-date guard, so a newly inserted or materially updated historical
-  shift can materialize tasks. Existing historical rows are not backfilled.
-  Follow-up: define the intended import behavior and add an end-time guard if
-  historical imports must remain inert.
+Claude's final read-only review of the follow-up implementation: **PASS**, no
+blocker or major. It verified both nullable membership checks fail closed, the
+malformed-row regression exercises update and close paths, the shared week-first
+lock removes the generation/confirmation cycle, the installed function order is
+tested, and the 12-hour historical import guard matches the existing template
+rematerialization boundary. The only minor is that lock-order coverage is
+structural rather than a live two-session interleave; the reviewer accepted it as
+adequate for the requested lock-alignment option.
 
-Evidence gaps retained from the review: authenticated workflow proof uses the
-controlled local protocol fixture rather than a real Supabase staging project;
-the exact concurrent deadlock interleave and historical-import policy do not yet
-have automated acceptance coverage. These are pre-deploy items; deployment is
-outside this run.
+Remaining evidence gap: authenticated workflow proof still uses the controlled
+local protocol fixture rather than a real Supabase staging project. A later
+release must repeat staging acceptance; deployment is outside this run.
 
 ## Database change and rollback
 
 - Additive migrations:
   - `20260830113000_shift_linked_operational_tasks.sql`
   - `20260830154500_daily_clarity_automation.sql`
+  - `20260830183000_predeploy_operational_hardening.sql`
 - No production migration was applied. Before deployment, the safe rollback is
   therefore to revert the listed application commits and deploy nothing.
 - If application rollback occurs after migration, the previous application is
@@ -143,6 +151,9 @@ outside this run.
 - Do not drop tables/columns as an emergency rollback. A later destructive down
   migration may remove briefing/suggestion functions, policies, and tables only
   after dependency and retention review.
+- If rollback is required after applying `20260830183000`, ship a new additive
+  migration restoring the previous three function bodies. Do not edit applied
+  migration history; keep operational tasks and audit records intact.
 
 ## Known risks and next authorized step
 
@@ -150,8 +161,9 @@ outside this run.
   deployed-environment acceptance remain a pre-deploy requirement. The local
   protocol fixture contains no secrets; SQL/RLS behavior was separately proven
   in PostgreSQL.
-- The three final-review minors above require a follow-up fix packet or explicit
-  human acceptance before a later deployment.
+- The original three final-review follow-ups are closed. A live two-session
+  confirmation/generation interleave remains optional stronger evidence; the
+  installed lock-order regression and independent review are green.
 - Pontstraße draft employee profiles still require real email addresses before
   invitations/login creation.
 - Stop in the current run after the final green commit. A later, explicitly
