@@ -15,8 +15,7 @@ reporting, and operational data source.
   automation.
 - Kimi: completed the bounded, read-only Tagesklarheit UI packet; its three
   commits are integrated.
-- Claude: independent integrated-diff reviewer; final re-review is pending after
-  the evidence commit.
+- Claude: completed the independent integrated-diff re-review with `PASS`.
 
 ## Integration status
 
@@ -97,8 +96,35 @@ The first integrated Claude review returned FAIL with two major and five minor
 findings. Code fixes now close the audit-refresh flood, briefing/task-count
 drift, probe-shift inclusion, manager location scope, cleared-shift regeneration,
 concurrent confirmation race, and null-location company-wide actor behavior.
-The stale handoff/evidence major is addressed by this document. A final Claude
-re-review must return PASS before deployment; deployment is outside this run.
+The stale handoff/evidence major is addressed by this document.
+
+Final read-only re-review of `50b554e9..30d7515a`: **PASS**, with no blocker or
+major and all nine previously open findings verified closed. Claude independently
+reproduced SQL suites `075`–`077` on PostgreSQL 16.13 and the four newly relevant
+unit files (19/19). Three non-gating minors remain for a pre-deploy follow-up or
+explicit human disposition:
+
+- `20260830113000_shift_linked_operational_tasks.sql:778`: membership expressed
+  with `id in (nullable columns)` can evaluate to SQL NULL rather than false.
+  The reviewer empirically confirmed the fail-open for a task with every
+  participant field null; current application-created tasks make those actors
+  non-null, so the app path is not reachable. Follow-up: wrap membership checks
+  in `coalesce(...,false)` and add the malformed-row regression.
+- `20260830154500_daily_clarity_automation.sql:380` and `:589`: generation and
+  confirmation acquire week/suggestion/employee/shift locks in different orders,
+  leaving a transient deadlock possibility under an exact concurrent interleave.
+  Follow-up: align lock order or add bounded SQLSTATE `40P01` retry coverage.
+- `20260830113000_shift_linked_operational_tasks.sql:815`: the shift trigger has
+  no historical-date guard, so a newly inserted or materially updated historical
+  shift can materialize tasks. Existing historical rows are not backfilled.
+  Follow-up: define the intended import behavior and add an end-time guard if
+  historical imports must remain inert.
+
+Evidence gaps retained from the review: authenticated workflow proof uses the
+controlled local protocol fixture rather than a real Supabase staging project;
+the exact concurrent deadlock interleave and historical-import policy do not yet
+have automated acceptance coverage. These are pre-deploy items; deployment is
+outside this run.
 
 ## Database change and rollback
 
@@ -124,6 +150,8 @@ re-review must return PASS before deployment; deployment is outside this run.
   deployed-environment acceptance remain a pre-deploy requirement. The local
   protocol fixture contains no secrets; SQL/RLS behavior was separately proven
   in PostgreSQL.
+- The three final-review minors above require a follow-up fix packet or explicit
+  human acceptance before a later deployment.
 - Pontstraße draft employee profiles still require real email addresses before
   invitations/login creation.
 - Stop in the current run after the final green commit. A later, explicitly

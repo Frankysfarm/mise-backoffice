@@ -117,7 +117,8 @@ they confirm — never silent auto-assignment.
 - [x] Full verification is recorded in `docs/agents/HANDOFF.md`: 34/222 unit
   tests, both TypeScript checks, 227-page build, 28 Playwright checks, fresh SQL
   suites `075`–`077`, and authenticated desktop/mobile local acceptance.
-- [ ] Final independent Claude re-review after this evidence commit.
+- [x] Final independent Claude re-review: `PASS`, no blocker/major. Three
+  non-gating pre-deploy follow-ups are recorded in `docs/agents/HANDOFF.md`.
 - [x] No deploy or production database operation performed in this run.
 
 ## Operational choices and rollback
