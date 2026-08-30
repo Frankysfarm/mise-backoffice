@@ -48,19 +48,21 @@ export default async function KlarheitPage({
   searchParams: Promise<{ location?: string }>;
 }) {
   const actor = await requireManagerPlus();
-  if (!actor.tenant_id || !actor.location_id) redirect('/start');
+  if (!actor.tenant_id) redirect('/start');
   const requested = (await searchParams).location;
   const service = createServiceClient();
   const mayUseAllLocations = ['backoffice', 'admin'].includes(actor.rolle);
+  if (!mayUseAllLocations && !actor.location_id) redirect('/start');
   let locationsQuery = service.from('locations')
     .select('id,name,stadt')
     .eq('tenant_id', actor.tenant_id);
-  if (!mayUseAllLocations) locationsQuery = locationsQuery.eq('id', actor.location_id);
+  if (!mayUseAllLocations) locationsQuery = locationsQuery.eq('id', actor.location_id!);
   const { data: locations } = await locationsQuery.order('name').throwOnError();
   const availableLocations = locations ?? [];
   const locationId = mayUseAllLocations && requested && availableLocations.some((location) => location.id === requested)
     ? requested
-    : actor.location_id;
+    : actor.location_id ?? availableLocations[0]?.id;
+  if (!locationId) redirect('/start');
   if (!availableLocations.some((location) => location.id === locationId)) redirect('/start');
 
   const { start: todayStart, end: todayEnd, date: todayDate } = berlinTodayBounds();
@@ -92,6 +94,7 @@ export default async function KlarheitPage({
       .select('id,start_zeit,end_zeit,status,position,typ,employee:employees!shifts_employee_id_fkey(id,vorname,nachname,rolle,position_title),department:departments(id,name)')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
       .not('status', 'in', '(abgesagt,storniert)')
+      .or('typ.is.null,typ.neq.probe')
       .lt('start_zeit', todayEnd.toISOString())
       .gt('end_zeit', todayStart.toISOString())
       .order('start_zeit', { ascending: true }).throwOnError(),
@@ -99,7 +102,7 @@ export default async function KlarheitPage({
       .select('id,department_id,title,status,priority,due_at,escalation_level,assigned_to,assignee:employees!operational_tasks_assigned_to_fkey(vorname,nachname)')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
       .in('status', ['offen', 'angenommen', 'in_arbeit', 'wartet_auf_pruefung', 'blockiert'])
-      .lt('due_at', todayEnd.toISOString())
+      .or(`due_at.is.null,due_at.lt.${todayEnd.toISOString()}`)
       .order('due_at', { ascending: true, nullsFirst: false })
       .limit(300).throwOnError(),
     service.from('v_responsibility_coverage')
@@ -120,7 +123,6 @@ export default async function KlarheitPage({
   return (
     <KlarheitClient
       key={locationId}
-      actorId={actor.id}
       locationId={locationId}
       locations={availableLocations}
       canSelectLocation={mayUseAllLocations}
@@ -131,7 +133,6 @@ export default async function KlarheitPage({
       coverage={(coverage ?? []) as never[]}
       absences={(absences ?? []) as never[]}
       todayDate={todayDate}
-      todayEnd={todayEnd.toISOString()}
       now={now}
     />
   );

@@ -105,17 +105,16 @@ function shiftDurationMinutes(shift: Shift): number {
 export function KlarheitClient({
   locationId, locations, canSelectLocation,
   departments, employees, shifts, tasks, coverage, absences,
-  todayDate, todayEnd, now,
+  todayDate, now,
 }: {
-  actorId: string; locationId: string; locations: Location[]; canSelectLocation: boolean;
+  locationId: string; locations: Location[]; canSelectLocation: boolean;
   departments: Department[]; employees: Employee[]; shifts: Shift[]; tasks: Task[];
-  coverage: Coverage[]; absences: Absence[]; todayDate: string; todayEnd: string; now: string;
+  coverage: Coverage[]; absences: Absence[]; todayDate: string; now: string;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const nowMs = useMemo(() => new Date(now).getTime(), [now]);
-  const todayEndMs = useMemo(() => new Date(todayEnd).getTime(), [todayEnd]);
 
   const departmentById = useMemo(() => {
     const map = new Map<string, Department>();
@@ -153,8 +152,6 @@ export function KlarheitClient({
 
   const openTasks = useMemo(() => tasks.filter((t) => TASK_OPEN.has(t.status)), [tasks]);
   const overdueTasks = useMemo(() => openTasks.filter((t) => t.due_at && Date.parse(t.due_at) < nowMs), [openTasks, nowMs]);
-  const dueTodayTasks = useMemo(() => openTasks.filter((t) => t.due_at && Date.parse(t.due_at) >= nowMs && Date.parse(t.due_at) <= todayEndMs), [openTasks, nowMs, todayEndMs]);
-
   const taskCountsByDepartment = useMemo(() => {
     const counts = new Map<string, { total: number; overdue: number }>();
     for (const t of openTasks) {

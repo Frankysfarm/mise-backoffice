@@ -31,7 +31,8 @@ describe('Tagesklarheit page', () => {
     expect(page).toContain('todayDate');
     expect(page).toContain('KlarheitClient');
     expect(page).toContain(".not('status', 'in', '(abgesagt,storniert)')");
-    expect(page).toContain(".lt('due_at', todayEnd.toISOString())");
+    expect(page).toContain('due_at.is.null,due_at.lt.');
+    expect(page).toContain(".or('typ.is.null,typ.neq.probe')");
     expect(page).not.toContain('grund');
 
     expect(client).toContain('Heute im Dienst');
@@ -56,11 +57,9 @@ describe('Tagesklarheit page', () => {
 
   it('renders shifts grouped by department, tasks and coverage gaps', () => {
     const today = new Date().toISOString().slice(0, 10);
-    const todayEnd = new Date(`${today}T23:59:59.000Z`).toISOString();
     const now = new Date(`${today}T12:00:00.000Z`).toISOString();
 
     const props: ComponentProps<typeof KlarheitClient> = {
-      actorId: '40000000-0000-0000-0000-000000000001',
       locationId: '20000000-0000-0000-0000-000000000001',
       locations: [{ id: '20000000-0000-0000-0000-000000000001', name: 'Hauptlocation', stadt: 'Berlin' }],
       canSelectLocation: false,
@@ -119,7 +118,6 @@ describe('Tagesklarheit page', () => {
         },
       ],
       todayDate: today,
-      todayEnd,
       now,
     };
 

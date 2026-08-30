@@ -28,10 +28,14 @@ describe('daily clarity automation contracts', () => {
     expect(migration).toContain('unique(tenant_id,location_id,briefing_date)');
     expect(migration).toContain("p_generated_at at time zone 'Europe/Berlin'");
     expect(migration).toContain('operational_daily_briefing_manager_read');
+    expect(migration).toContain('after insert or delete on public.operational_daily_briefings');
     expect(migration).toContain('s.start_zeit<v_day_end and s.end_zeit>v_day_start');
+    expect(migration).toContain('(t.due_at is null or t.due_at<v_day_end)');
     expect(migration).not.toContain("'grund',x.grund");
     expect(page).not.toContain('typ,grund');
     expect(sqlTest).toContain('briefing exposed private absence reason');
+    expect(sqlTest).toContain('briefing refresh flooded the audit log');
+    expect(sqlTest).toContain('briefing counted a future task as due today');
     expect(sqlTest).toContain('manager can read foreign-location briefing');
     expect(page).toContain("from('operational_daily_briefings')");
     expect(client).toContain('Morgenbriefing');
@@ -46,6 +50,7 @@ describe('daily clarity automation contracts', () => {
     expect(migration).toContain("'{}'::tsmultirange");
     expect(migration).toContain('Bereichsqualifikation passt');
     expect(migration).toContain("v_shift.employee_id is not null");
+    expect(migration).toContain("'schedule-employee:'");
     expect(route).toContain('getCurrentEmployee');
     expect(route).toContain("action: z.literal('confirm')");
     expect(assistant).toContain('Jede Schicht wird erst nach deiner Bestätigung zugewiesen.');
@@ -54,6 +59,7 @@ describe('daily clarity automation contracts', () => {
     expect(sqlTest).toContain('assistant ignored an overlapping availability block');
     expect(sqlTest).toContain('confirmation ignored a new availability block');
     expect(sqlTest).toContain('confirmed shift was silently overwritten');
+    expect(sqlTest).toContain('cleared confirmed shift could not receive a new suggestion');
     expect(sqlTest).toContain('confirmed suggestion did not close the shift-task loop');
   });
 

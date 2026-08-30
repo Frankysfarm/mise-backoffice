@@ -127,7 +127,7 @@ for select to authenticated using (
 
 drop trigger if exists operational_daily_briefing_audit on public.operational_daily_briefings;
 create trigger operational_daily_briefing_audit
-after insert or update or delete on public.operational_daily_briefings
+after insert or delete on public.operational_daily_briefings
 for each row execute function public.unified_audit_change();
 
 create function public.materialize_operational_daily_briefings(
@@ -188,6 +188,7 @@ begin
       left join public.departments d on d.id=t.department_id and d.tenant_id=t.tenant_id
       where t.tenant_id=v_location.tenant_id and t.location_id=v_location.id
         and t.status in ('offen','angenommen','in_arbeit','wartet_auf_pruefung','blockiert')
+        and (t.due_at is null or t.due_at<v_day_end)
       group by t.department_id,d.name
     ) task_groups;
 
@@ -382,6 +383,15 @@ begin
   perform set_config('app.audit_employee_id',p_actor_id::text,true);
   v_week_start_at:=p_week_start::timestamp at time zone 'Europe/Berlin';
   v_week_end_at:=(p_week_start+7)::timestamp at time zone 'Europe/Berlin';
+
+  update public.weekly_shift_assignment_suggestions suggestion
+  set status='obsolete',updated_at=now()
+  from public.shifts shift
+  where suggestion.shift_id=shift.id
+    and suggestion.tenant_id=p_tenant_id and suggestion.location_id=p_location_id
+    and suggestion.week_start=p_week_start and suggestion.status='confirmed'
+    and shift.employee_id is null
+    and shift.status::text not in ('abgesagt','storniert');
 
   update public.weekly_shift_assignment_suggestions
   set status='obsolete',updated_at=now()
@@ -581,6 +591,10 @@ begin
   for update;
   if not found then raise exception 'schedule suggestion not found'; end if;
   if v_suggestion.status<>'draft' then raise exception 'schedule suggestion is no longer open'; end if;
+
+  perform pg_advisory_xact_lock(hashtextextended(
+    'schedule-employee:'||p_tenant_id::text||':'||v_suggestion.employee_id::text,0
+  ));
 
   select * into v_shift from public.shifts
   where id=v_suggestion.shift_id and tenant_id=p_tenant_id and location_id=p_location_id

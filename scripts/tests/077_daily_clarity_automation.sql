@@ -76,6 +76,14 @@ values(
   '10000000-0000-0000-0000-000000000001','40000000-0000-0000-0000-000000000002',
   '2026-09-07','gesperrt','Privater Testgrund darf nicht im Briefing stehen'
 );
+insert into public.operational_tasks(
+  id,tenant_id,location_id,department_id,title,status,priority,created_by,due_at
+) values (
+  '81000000-0000-0000-0000-000000000002',
+  '10000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
+  '30000000-0000-0000-0000-000000000005','Erst später fällig','offen',50,
+  '40000000-0000-0000-0000-000000000001','2026-09-30 08:00:00+00'
+);
 
 select public.materialize_operational_daily_briefings(
   '2026-09-07','2026-09-07 08:00:00+00'
@@ -101,6 +109,9 @@ begin
     raise exception 'briefing omitted shift overlapping Berlin midnight';
   end if;
   if jsonb_array_length(v_briefing.task_counts)<1 then raise exception 'briefing omitted task counts'; end if;
+  if v_briefing.task_counts @> '[{"department_id":"30000000-0000-0000-0000-000000000005"}]'::jsonb then
+    raise exception 'briefing counted a future task as due today';
+  end if;
   if jsonb_array_length(v_briefing.coverage_gaps)<1 then raise exception 'briefing omitted coverage gaps'; end if;
   if jsonb_array_length(v_briefing.absences)<>1 then raise exception 'briefing omitted absence'; end if;
   if v_briefing.absences::text like '%Privater Testgrund%' then raise exception 'briefing exposed private absence reason'; end if;
@@ -108,6 +119,10 @@ begin
   if v_briefing.generated_at<>'2026-09-07 08:05:00+00'::timestamptz then
     raise exception 'briefing was not refreshed idempotently';
   end if;
+  if exists(
+    select 1 from public.audit_log
+    where entity_type='operational_daily_briefings' and action='update'
+  ) then raise exception 'briefing refresh flooded the audit log'; end if;
   if exists(
     select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
     where n.nspname='public' and p.proname='materialize_operational_daily_briefings'
@@ -271,6 +286,21 @@ begin
       'confirm_weekly_shift_assignment_suggestion'
     ) and has_function_privilege('authenticated',p.oid,'EXECUTE')
   ) then raise exception 'authenticated can execute schedule assistant RPC'; end if;
+end $$;
+
+update public.shifts
+set employee_id=null,status='geplant'
+where id='83000000-0000-0000-0000-000000000002';
+select * from public.generate_weekly_shift_assignment_suggestions(
+  '10000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
+  '2026-09-14','40000000-0000-0000-0000-000000000001'
+);
+do $$
+begin
+  if not exists(
+    select 1 from public.weekly_shift_assignment_suggestions
+    where shift_id='83000000-0000-0000-0000-000000000002' and status='draft'
+  ) then raise exception 'cleared confirmed shift could not receive a new suggestion'; end if;
 end $$;
 
 select 'daily clarity automation test passed' as result;

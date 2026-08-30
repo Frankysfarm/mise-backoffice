@@ -17,18 +17,20 @@ export default async function MitarbeiterPage({
   searchParams: Promise<{ location?: string }>;
 }) {
   const actor = await requireManagerPlus();
-  if (!actor.tenant_id || !actor.location_id) redirect('/start');
+  if (!actor.tenant_id) redirect('/start');
   const requested = (await searchParams).location;
   const service = createServiceClient();
   const mayUseAllLocations = ['backoffice', 'admin'].includes(actor.rolle);
+  if (!mayUseAllLocations && !actor.location_id) redirect('/start');
   let locationsQuery = service.from('locations').select('id,name,stadt')
     .eq('tenant_id', actor.tenant_id);
-  if (!mayUseAllLocations) locationsQuery = locationsQuery.eq('id', actor.location_id);
+  if (!mayUseAllLocations) locationsQuery = locationsQuery.eq('id', actor.location_id!);
   const { data: locations } = await locationsQuery.order('name');
   const availableLocations = locations ?? [];
   const locationId = mayUseAllLocations && requested && availableLocations.some((location) => location.id === requested)
     ? requested
-    : actor.location_id;
+    : actor.location_id ?? availableLocations[0]?.id;
+  if (!locationId) redirect('/start');
   if (!availableLocations.some((location) => location.id === locationId)) redirect('/start');
   const today = berlinDate();
 
