@@ -169,3 +169,47 @@ release must repeat staging acceptance; deployment is outside this run.
 - Stop in the current run after the final green commit. A later, explicitly
   authorized release must repeat backup, migration, authenticated staging smoke,
   health checks, and rollback verification before production deploy.
+
+## Production deployment attempt — aborted 2026-08-30
+
+- The business owner authorized deployment. The mandatory local guard passed at
+  `/Users/eule/mise-neo-module-integration-20260826` on branch
+  `codex/neo-module-integration-20260826` at `19e7cc4c` with a clean worktree.
+- Production preflight found `/opt/mise/backoffice` on
+  `deployment-mise-ready-20260821` at `50b554e9`. The existing generated
+  `app/fahrer/build-version.ts` modification was preserved. The active Neo app
+  remained `mise_backoffice_3310`; `deploy-app-1` and `deploy-db-1` belong to the
+  separate `/opt/rufwaechter/deploy` project and were not changed.
+- Required pre-migration backup:
+  `/opt/mise/backups/neo-module-integration-pre-20260830T190043Z.dump`
+  (PostgreSQL custom format, 8,978,042 bytes, mode `0600`, 4,129 archive-list
+  entries, SHA-256
+  `79847b1e11290d317c16a223cde0bfadb49fe6865de4c99e82e41453793ff9c2`).
+- GitHub `main` was fetched at `92d371ec`. It had diverged from the recorded
+  release base, so the release used the required explicit candidate rebase:
+  `git rebase --onto 92d371ec 50b554e9`. The first approved release commit
+  stopped with nine modify/delete conflicts because concurrent `main` had
+  deleted Neo operations application, API, test, and handoff files modified by
+  the release. No conflict was resolved or skipped.
+- Stop/rollback action: `git rebase --abort` restored the local release exactly
+  to `19e7cc4c`. Production source was re-verified at `50b554e9`; no fast-forward
+  merge, application build, proxy switch, migration, seed, or production data
+  mutation occurred. The validated backup is retained.
+- Migration count: **0/3**. Migrations `20260830113000`, `20260830154500`, and
+  `20260830183000` were not applied. Post-abort checks found no
+  `operational_task_templates.trigger_type` column and no
+  `operational_daily_briefings` table.
+- Seed count: **0 runs**. Post-abort counts were zero for Pontstraße draft
+  employees, `pontstrasse_initial` templates, and `pontstrasse_setup` tasks; the
+  seed assertions were therefore not invoked.
+- Live checks before the stop: public `/login` returned `200`; unauthenticated
+  `/api/cron/operational-escalations` returned protected `401`. Briefing
+  materialization and RLS smoke were not run because their migration was not
+  applied.
+- Resume only with a newly reviewed integration strategy for the deleted Neo
+  surfaces. Repeat `fetch`, the explicit release-only rebase, full combined
+  gates, backup, migrations in order, seed assertions, blue-green deploy, and
+  all live smoke checks. If a future application rollback is needed after
+  migration, route nginx back to a preserved previous image and disable the
+  operational cron plus the four materialization/retirement triggers named in
+  **Database change and rollback**; retain additive schema and audit records.
