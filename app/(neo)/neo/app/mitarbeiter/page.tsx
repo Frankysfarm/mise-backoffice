@@ -5,6 +5,12 @@ import { ResponsibilityClient } from './responsibility-client';
 
 export const dynamic = 'force-dynamic';
 
+function berlinDate() {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date());
+}
+
 export default async function MitarbeiterPage({
   searchParams,
 }: {
@@ -22,10 +28,11 @@ export default async function MitarbeiterPage({
     ? requested
     : actor.location_id;
   if (!availableLocations.some((location) => location.id === locationId)) redirect('/start');
+  const today = berlinDate();
 
   const [
     { data: employees }, { data: departments }, { data: assignments }, { data: tasks },
-    { data: templates }, { data: handovers }, { data: coverage },
+    { data: templates }, { data: handovers }, { data: coverage }, { data: briefing },
   ] = await Promise.all([
     service.from('employees')
       .select('id,vorname,nachname,rolle,status,department_id,reports_to_employee_id,position_title,organization_level')
@@ -52,12 +59,16 @@ export default async function MitarbeiterPage({
       .in('status', ['offen', 'angenommen']).order('starts_at'),
     service.from('v_responsibility_coverage').select('*')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId),
+    service.from('operational_daily_briefings')
+      .select('briefing_date,generated_at,shifts,task_counts,coverage_gaps,absences,escalated_tasks')
+      .eq('tenant_id', actor.tenant_id).eq('location_id', locationId).eq('briefing_date', today)
+      .maybeSingle(),
   ]);
 
   const employeeIds = (employees ?? []).map((employee) => employee.id);
   const { data: absences } = employeeIds.length
     ? await service.from('availability_exceptions').select('employee_id,datum,typ,grund')
-      .in('employee_id', employeeIds).eq('datum', new Date().toISOString().slice(0, 10))
+      .in('employee_id', employeeIds).eq('datum', today)
     : { data: [] };
 
   return (
@@ -75,6 +86,7 @@ export default async function MitarbeiterPage({
       handovers={(handovers ?? []) as never[]}
       coverage={(coverage ?? []) as never[]}
       absences={(absences ?? []) as never[]}
+      briefing={(briefing ?? null) as never}
     />
   );
 }

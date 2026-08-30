@@ -9,7 +9,7 @@ import {
 import {
   AlertTriangle, ArrowRight, BadgeCheck, BarChart3, CalendarClock, CheckCircle2,
   ChevronRight, CircleAlert, ClipboardCheck, Clock3, GripVertical, Network,
-  Pencil, Plus, RefreshCcw, Save, ShieldCheck, UserRound, UsersRound, Workflow, X,
+  Pencil, Plus, RefreshCcw, Save, ShieldCheck, Sunrise, UserRound, UsersRound, Workflow, X,
 } from 'lucide-react';
 import styles from './responsibility.module.css';
 
@@ -55,6 +55,12 @@ type Coverage = {
   aktuell_zustaendig_id: string | null; hauptverantwortlicher_abwesend: boolean; abdeckungsstatus: string;
 };
 type Absence = { employee_id: string; datum: string; typ: string; grund: string | null };
+type DailyBriefing = {
+  briefing_date: string; generated_at: string;
+  shifts: unknown[];
+  task_counts: { open_count: number; overdue_count: number }[];
+  coverage_gaps: unknown[]; absences: unknown[]; escalated_tasks: unknown[];
+};
 type Location = { id: string; name: string; stadt: string | null };
 type Tab = 'dashboard' | 'bereiche' | 'organigramm' | 'aufgaben' | 'ablaeufe' | 'uebergaben';
 
@@ -74,11 +80,11 @@ const WEEKDAYS = [
 
 export function ResponsibilityClient({
   actorId, locationId, locations, canSelectLocation,
-  employees: initialEmployees, departments, assignments, tasks, templates, handovers, coverage, absences,
+  employees: initialEmployees, departments, assignments, tasks, templates, handovers, coverage, absences, briefing,
 }: {
   actorId: string; locationId: string; locations: Location[]; canSelectLocation: boolean;
   employees: Employee[]; departments: Department[]; assignments: Assignment[]; tasks: Task[]; templates: TaskTemplate[];
-  handovers: Handover[]; coverage: Coverage[]; absences: Absence[];
+  handovers: Handover[]; coverage: Coverage[]; absences: Absence[]; briefing: DailyBriefing | null;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -106,6 +112,8 @@ export function ResponsibilityClient({
   const completionRate = tasks.length ? Math.round(tasks.filter((task) => task.status === 'erledigt').length / tasks.length * 100) : 100;
   const currentWeek = weekCompletions(tasks, 0);
   const previousWeek = weekCompletions(tasks, 7);
+  const briefingOpen = briefing?.task_counts.reduce((sum, item) => sum + Number(item.open_count || 0), 0) ?? 0;
+  const briefingOverdue = briefing?.task_counts.reduce((sum, item) => sum + Number(item.overdue_count || 0), 0) ?? 0;
 
   function mutation(payload: Record<string, unknown>, successMessage: string, local?: (result: any) => void) {
     setError('');
@@ -182,6 +190,21 @@ export function ResponsibilityClient({
             <Metric label="Kontrollen offen" value={tasks.filter((task) => task.status === 'wartet_auf_pruefung').length} detail={`${failedTasks.length} nicht bestanden · ${missingEvidenceTasks.length} Nachweise fehlen`} tone={failedTasks.length || missingEvidenceTasks.length ? 'warning' : 'neutral'} />
             <Metric label="Erledigungsquote" value={`${completionRate}%`} detail={`${signedDelta(currentWeek - previousWeek)} zur Vorwoche`} tone={completionRate >= 90 ? 'success' : completionRate >= 70 ? 'warning' : 'danger'} />
           </div>
+
+          <section className={styles.briefingCard}>
+            <div className={styles.briefingHeading}>
+              <div className={styles.briefingIcon}><Sunrise size={20} /></div>
+              <div><strong>Morgenbriefing</strong><small>{briefing ? `Aktualisiert ${formatDateTime(briefing.generated_at)}` : 'Der erste automatische Lauf steht noch aus.'}</small></div>
+              <a href="/neo/app/klarheit">Tagesklarheit öffnen <ChevronRight size={15} /></a>
+            </div>
+            {briefing ? <div className={styles.briefingFacts}>
+              <span><b>{briefing.shifts.length}</b> im Dienst</span>
+              <span className={briefingOverdue ? styles.briefingDanger : ''}><b>{briefingOpen}</b> offen · {briefingOverdue} überfällig</span>
+              <span className={briefing.coverage_gaps.length ? styles.briefingDanger : ''}><b>{briefing.coverage_gaps.length}</b> Abdeckungslücken</span>
+              <span><b>{briefing.absences.length}</b> abwesend</span>
+              <span className={briefing.escalated_tasks.length ? styles.briefingDanger : ''}><b>{briefing.escalated_tasks.length}</b> eskaliert</span>
+            </div> : <Empty text="Noch kein Briefing für heute materialisiert. Der geschützte Automationslauf holt das selbstständig nach." />}
+          </section>
 
           {missingCoverage.length > 0 && (
             <section className={styles.alertPanel}>

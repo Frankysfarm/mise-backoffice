@@ -123,6 +123,23 @@ begin
   ) then raise exception 'unassigned shift left an active task'; end if;
 end $$;
 
+-- Department-bound workflows never attach to a shift without a department.
+-- Location-wide shifts remain valid, but they need a location-wide template.
+insert into public.shifts(
+  id,employee_id,department_id,location_id,start_zeit,end_zeit,status
+) values (
+  '70000000-0000-0000-0000-000000000008','40000000-0000-0000-0000-000000000002',null,
+  '20000000-0000-0000-0000-000000000001',
+  '2026-09-03 17:00:00+00','2026-09-03 20:00:00+00','geplant'
+);
+do $$
+begin
+  if exists(
+    select 1 from public.operational_tasks
+    where shift_id='70000000-0000-0000-0000-000000000008'
+  ) then raise exception 'departmentless shift matched department-bound template'; end if;
+end $$;
+
 insert into public.operational_task_templates(
   id,tenant_id,location_id,department_id,title,task_kind,trigger_type,shift_phase,
   due_offset_minutes,assignment_mode,evidence_requirements,priority,created_by,source_type,source_id

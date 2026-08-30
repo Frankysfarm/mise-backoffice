@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ScheduleWeek } from './week-view';
 import { NewShiftDialog } from './new-shift-dialog';
+import { ScheduleAssistant } from './schedule-assistant';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 function parseWeek(param?: string): Date {
@@ -64,6 +65,11 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
       .order('nachname'),
     supabase.from('shift_swaps').select('id,status').eq('status', 'angefragt'),
   ]);
+  const selectedLocationId = params.location && (locations ?? []).some((location) => location.id === params.location)
+    ? params.location
+    : currentEmployee.rolle === 'manager'
+      ? currentEmployee.location_id
+      : (locations?.length === 1 ? locations[0].id : null);
 
   return (
     <div>
@@ -106,6 +112,8 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
           <Button type="submit" variant="outline" size="sm">Anwenden</Button>
         </form>
       </div>
+
+      <ScheduleAssistant locationId={selectedLocationId ?? null} weekStart={isoDate(weekStart)} />
 
       <Card>
         <ScheduleWeek

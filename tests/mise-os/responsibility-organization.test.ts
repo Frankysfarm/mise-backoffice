@@ -126,6 +126,7 @@ describe('responsibility organization', () => {
     expect(sqlTest).toContain('canceled shift did not cancel its open task');
     expect(sqlTest).toContain('revived task retained stale acceptance');
     expect(sqlTest).toContain('unassigned shift left an active task');
+    expect(sqlTest).toContain('departmentless shift matched department-bound template');
     expect(sqlTest).toContain('trial shift received operational tasks');
     expect(sqlTest).toContain('manager can read foreign-location template');
     expect(sqlTest).toContain('task audit did not record acting employee');

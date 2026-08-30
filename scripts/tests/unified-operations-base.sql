@@ -11,7 +11,8 @@ create type public.order_status as enum (
 create table public.tenants (id uuid primary key default gen_random_uuid());
 create table public.locations (
   id uuid primary key default gen_random_uuid(),
-  tenant_id uuid not null references public.tenants(id)
+  tenant_id uuid not null references public.tenants(id),
+  name text not null default 'Teststandort'
 );
 create table public.departments (
   id uuid primary key default gen_random_uuid(),
@@ -22,6 +23,9 @@ create table public.employees (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references public.tenants(id),
   location_id uuid references public.locations(id),
+  department_id uuid references public.departments(id),
+  vorname text not null default 'Test',
+  nachname text not null default 'Person',
   rolle text not null default 'mitarbeiter',
   status text not null default 'aktiv'
 );
@@ -29,7 +33,7 @@ create table public.shifts (
   id uuid primary key default gen_random_uuid(), employee_id uuid references public.employees(id),
   department_id uuid references public.departments(id), location_id uuid references public.locations(id),
   start_zeit timestamptz not null, end_zeit timestamptz not null, typ text not null default 'normal',
-  status text not null default 'geplant'
+  status text not null default 'geplant', position text, pause_minuten integer not null default 30
 );
 create table public.inventory_areas (
   id uuid primary key default gen_random_uuid(), location_id uuid references public.locations(id), name text not null
@@ -85,7 +89,15 @@ create table public.vacation_requests (
 );
 create table public.availability_exceptions (
   id uuid primary key default gen_random_uuid(), employee_id uuid references public.employees(id),
-  datum date, typ text
+  datum date, typ text, grund text
+);
+create table public.employee_availability (
+  id uuid primary key default gen_random_uuid(),
+  employee_id uuid not null references public.employees(id),
+  weekday integer not null,
+  start_time time not null,
+  end_time time not null,
+  typ text not null default 'verfügbar'
 );
 create table public.notifications (
   id uuid primary key default gen_random_uuid(), employee_id uuid references public.employees(id),
