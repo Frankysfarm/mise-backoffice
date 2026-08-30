@@ -8,23 +8,12 @@ import { ScheduleWeek } from './week-view';
 import { NewShiftDialog } from './new-shift-dialog';
 import { ScheduleAssistant } from './schedule-assistant';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
-
-function parseWeek(param?: string): Date {
-  if (param) {
-    const d = new Date(param);
-    if (!isNaN(d.getTime())) return startOfWeekMonday(d);
-  }
-  return startOfWeekMonday(new Date());
-}
-function startOfWeekMonday(d: Date) {
-  const r = new Date(d);
-  const day = (r.getDay() + 6) % 7;
-  r.setHours(0, 0, 0, 0);
-  r.setDate(r.getDate() - day);
-  return r;
-}
-function addDays(d: Date, n: number) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
-function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
+import {
+  addCalendarDays,
+  berlinCalendarDate,
+  berlinScheduleWeek,
+  calendarDisplayDate,
+} from '@/lib/scheduling/berlin-week';
 
 type SchedulePageProps = { searchParams: Promise<{ week?: string; location?: string }> };
 
@@ -35,16 +24,16 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
   const params = await searchParams;
   const supabase = await createClient();
 
-  const weekStart = parseWeek(params.week);
-  const weekEnd = addDays(weekStart, 7);
-  const prev = isoDate(addDays(weekStart, -7));
-  const next = isoDate(addDays(weekStart, 7));
-  const today = isoDate(new Date());
+  const week = berlinScheduleWeek(params.week);
+  const weekStart = calendarDisplayDate(week.calendarStart);
+  const prev = addCalendarDays(week.calendarStart, -7);
+  const next = addCalendarDays(week.calendarStart, 7);
+  const today = berlinCalendarDate(new Date());
 
   let q = supabase.from('shifts')
     .select('id,start_zeit,end_zeit,status,position,pause_minuten,employee_id,department_id,location_id,typ,notiz,offen_fuer_bewerbung,employee:employees!shifts_employee_id_fkey(id,vorname,nachname,rolle,geburtsdatum,wochenstunden),department:departments(name,farbe),location:locations(name)')
-    .gte('start_zeit', weekStart.toISOString())
-    .lt('start_zeit', weekEnd.toISOString())
+    .gte('start_zeit', week.rangeStart.toISOString())
+    .lt('start_zeit', week.rangeEnd.toISOString())
     .order('start_zeit');
   if (params.location) q = q.eq('location_id', params.location);
   const { data: shiftsRaw } = await q;
@@ -75,13 +64,13 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
     <div>
       <PageHeader
         title="Dienstplan"
-        description={`Woche ab ${weekStart.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' })}. ${shifts?.length ?? 0} Schichten.`}
+        description={`Woche ab ${weekStart.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Europe/Berlin' })}. ${shifts?.length ?? 0} Schichten.`}
         actions={<>
           <Link href={`${basePath}/templates`}>
             <Button variant="outline">Vorlagen</Button>
           </Link>
           <Link
-            href={`/api/pdf/schedule?week=${isoDate(weekStart)}${params.location ? `&location=${params.location}` : ''}`}
+            href={`/api/pdf/schedule?week=${week.calendarStart}${params.location ? `&location=${params.location}` : ''}`}
           >
             <Button variant="outline">📄 PDF</Button>
           </Link>
@@ -104,7 +93,7 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
         <Link href={basePath}><Button variant="ghost" size="sm">Heute</Button></Link>
         <Link href={`${basePath}?week=${next}${params.location ? `&location=${params.location}` : ''}`}><Button variant="outline" size="sm">Nächste Woche →</Button></Link>
         <form className="ml-auto flex items-center gap-2">
-          <input type="hidden" name="week" value={isoDate(weekStart)} />
+          <input type="hidden" name="week" value={week.calendarStart} />
           <select name="location" defaultValue={params.location ?? ''} className="h-9 rounded-md border bg-background px-2 text-sm">
             <option value="">Alle Standorte</option>
             {locations?.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
@@ -113,7 +102,7 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
         </form>
       </div>
 
-      <ScheduleAssistant locationId={selectedLocationId ?? null} weekStart={isoDate(weekStart)} />
+      <ScheduleAssistant locationId={selectedLocationId ?? null} weekStart={week.calendarStart} />
 
       <Card>
         <ScheduleWeek
