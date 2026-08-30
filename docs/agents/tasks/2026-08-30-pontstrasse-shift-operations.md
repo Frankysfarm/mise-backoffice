@@ -20,18 +20,18 @@ or login model.
 
 ## Acceptance criteria
 
-- [ ] An active shift template materializes exactly one task per matching shift.
-- [ ] Open generated tasks follow safe shift assignment/time changes; progressed
+- [x] An active shift template materializes exactly one task per matching shift.
+- [x] Open generated tasks follow safe shift assignment/time changes; progressed
       tasks are not silently reassigned.
-- [ ] Individual tasks continue to work without a shift.
-- [ ] Managers can create and deactivate shift workflows in Neo on desktop and
+- [x] Individual tasks continue to work without a shift.
+- [x] Managers can create and deactivate shift workflows in Neo on desktop and
       mobile; employees see the linked shift in the existing team app.
-- [ ] Tenant, location, department, shift, and employee scope are enforced in
+- [x] Tenant, location, department, shift, and employee scope are enforced in
       SQL and the server route.
-- [ ] Pontstraße profiles, hierarchy, responsibilities, deputies, and starter
+- [x] Pontstraße profiles, hierarchy, responsibilities, deputies, and starter
       workflows are inserted idempotently. Draft profiles do not create Auth
       accounts before real email addresses are supplied.
-- [ ] Recruiting, trial-shift review, and training routes remain available.
+- [x] Recruiting, trial-shift review, and training routes remain available.
 
 ## Exclusive file boundary
 
@@ -68,7 +68,15 @@ or login model.
 
 ## Handoff
 
-- Commit: pending
+- Commit: `5f8e4880`
+- Step 0 review fixes: revived canceled tasks always clear `accepted_at`; the
+  template edit action uses `Pencil` rather than the save icon.
+- Department decision: departmentless shifts remain permitted but intentionally
+  match none of the 11 department-bound Pontstraße templates. The isolated SQL
+  regression proves the non-match; managers select a department when a recurring
+  department workflow is required.
+- Evidence: SQL suites `075` and `076`, full unit/type/build/browser gates, and
+  the integrated evidence record in `docs/agents/HANDOFF.md`.
 - Known risks: employee logins remain unavailable until real emails are supplied.
 - Reviewer required: independent security and product logic review.
 - Rollback: application rollback is compatible with additive schema; disable

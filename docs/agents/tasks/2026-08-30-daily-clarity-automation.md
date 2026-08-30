@@ -91,3 +91,42 @@ they confirm — never silent auto-assignment.
   new migrations; full suite + typecheck + build green; update
   `docs/agents/HANDOFF.md` with evidence; request independent Claude review
   before deploy. Only you deploy, with backup + rollback note, as usual.
+
+## Execution record
+
+- [x] Step 0 Pontstraße review fixes applied and committed as `5f8e4880`.
+- [x] Escalation sweep implemented through the existing protected Vercel cron;
+  configurable four-hour default interval, level cap, accountable/controller
+  owner, notifications, and audit evidence are covered by SQL suite `077`.
+- [x] Privacy-safe Berlin-day briefings materialize idempotently per location,
+  use location-scoped manager RLS, include overlapping shifts and today/null-due
+  tasks, and render read-only in Neo.
+- [x] Weekly schedule suggestions use availability (including continuous weekly
+  ranges), department qualification, conflict checks, and fair assigned hours.
+  Managers confirm one shift at a time; confirmation rechecks constraints and
+  serializes per employee.
+- [x] Kimi's read-only Tagesklarheit page was integrated and hardened for
+  loading, error, empty, desktop, mobile, privacy, probe/canceled shift, and
+  Berlin-date states.
+- [x] A browser-discovered UTC serialization defect was closed in `edd5c7ad`;
+  `2026-09-14` now remains the assistant week while shift queries use the correct
+  Berlin-midnight UTC bounds.
+- [x] Departmentless shifts intentionally match no department-bound Pontstraße
+  template. They remain valid for location-wide planning; department recurring
+  workflows require the manager to select a department.
+- [x] Full verification is recorded in `docs/agents/HANDOFF.md`: 34/222 unit
+  tests, both TypeScript checks, 227-page build, 28 Playwright checks, fresh SQL
+  suites `075`–`077`, and authenticated desktop/mobile local acceptance.
+- [ ] Final independent Claude re-review after this evidence commit.
+- [x] No deploy or production database operation performed in this run.
+
+## Operational choices and rollback
+
+- Scheduler: Vercel cron was chosen because it is already configured in the
+  deploy target at `/api/cron/operational-escalations`. Briefings refresh on the
+  same three-minute invocation; only insert/delete briefing lifecycle events are
+  audited, so derived refreshes do not flood the audit log.
+- Rollback before deployment: revert the integration commits and deploy nothing.
+  After an additive migration, revert the app and disable cron/shift-task
+  triggers; retain generated rows for auditability. Any destructive schema down
+  migration requires a separate retention/dependency review.

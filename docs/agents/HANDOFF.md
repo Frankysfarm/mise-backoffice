@@ -6,48 +6,126 @@ ownership, commits, test evidence, risks, or deployment state change.
 ## Current product invariant
 
 Mise OS is fused into Mais Gastro Neo. Neo remains the only active login,
-employee model, tenant/location structure, navigation, and operational data source.
+employee model, tenant/location structure, navigation, notifications, tasks,
+reporting, and operational data source.
 
 ## Current assignment
 
-- Codex: integration lead, Pontstraße organization data, shift-linked task
-  workflows, employee mobile context, security, release gates, deployment.
-- Kimi: available for future bounded UI implementation packets; no active worktree.
-- Claude: independent post-integration review; no active review branch.
+- Codex: integration lead for the Pontstraße shift-task packet and daily clarity
+  automation.
+- Kimi: completed the bounded, read-only Tagesklarheit UI packet; its three
+  commits are integrated.
+- Claude: independent integrated-diff reviewer; final re-review is pending after
+  the evidence commit.
 
 ## Integration status
 
-- Base commit: `2b09cfcc`
+- Base commit: `50b554e9`
 - Working branch: `codex/neo-module-integration-20260826`
-- Active change: `docs/agents/tasks/2026-08-30-pontstrasse-shift-operations.md`.
-  Add recurring shift workflows to the existing responsibility module and
-  configure the Pontstraße hierarchy without a second identity model.
-- Production data note: organizational configuration must be entered by the
-  business; employees without a reporting line are shown as unassigned.
+- Task packets:
+  - `docs/agents/tasks/2026-08-30-pontstrasse-shift-operations.md`
+  - `docs/agents/tasks/2026-08-30-daily-clarity-automation.md`
+- Integrated code commits, in order:
+  - `5f8e4880` — shift-linked recurring tasks and both Step 0 MINOR fixes
+  - `b8036dba` — escalation, briefing, and weekly schedule assistant
+  - `445bf41c`, `348f4c5b`, `679e9a36` — Kimi Tagesklarheit page,
+    navigation, and handoff
+  - `b2bdaf85` — privacy, loading/error, canceled-shift, and Berlin-date
+    hardening for Tagesklarheit
+  - `1e85f775`, `d7e93213` — integrated acceptance and reviewer finding fixes
+  - `edd5c7ad` — stable Berlin week calendar/query boundaries
+- Deployment state: **not deployed**. No production schema or data operation was
+  performed in this run, as requested.
 
-## Evidence
+## Acceptance mapping and decisions
 
-- Targeted organization/fusion tests: 8 passed before final tree refinement;
-  final focused responsibility suite: 6 passed.
-- TypeScript and warning-free lint for every changed source file: passed.
-- Final full unit suite: 31 files / 210 tests passed.
-- Next.js production build: passed (226 generated pages; unrelated repository
-  warnings remain, optional GitHub fetch failed closed during static generation).
-- Pending: authenticated desktop/mobile acceptance
-- Claude Code 2.1.241 is installed but the local CLI is not authenticated; its
-  read-only review attempt made no changes and returned `Not logged in`.
-- First independent fallback review returned six major findings. All six were
-  fixed and the final independent re-review returned `PASS` with no remaining
-  blocker or major finding.
+- Shift-linked tasks are unique per template/shift, keep tenant/location/
+  department scope, safely follow unprogressed shift changes, and never silently
+  reassign progressed tasks. Reviving any canceled task clears `accepted_at`.
+- Departmentless shifts intentionally remain valid location-wide shifts. They
+  match no department-bound template; all 11 Pontstraße starter templates are
+  department-bound, so a manager must select a department for those workflows.
+  This behavior is explicit in the isolated SQL regression suite.
+- Escalation uses the existing protected Vercel cron route
+  `/api/cron/operational-escalations`, already scheduled every three minutes.
+  The escalation interval is independently configurable through
+  `OPERATIONAL_ESCALATION_INTERVAL_HOURS` (default four hours, cap level 3).
+  The same invocation refreshes derived daily briefings; refresh updates are not
+  audit events, preventing a three-minute audit-log flood.
+- One Berlin-day briefing is materialized per tenant/location and exposes safe
+  operational facts only. Private absence reasons are absent from browser and
+  briefing payloads; managers are limited to their own location.
+- Weekly assignment suggestions consider availability, responsibility/
+  qualification, overlaps, and fairness. Every suggestion explains itself and
+  requires per-shift manager confirmation. Confirmation revalidates eligibility,
+  serializes per employee, never overwrites an assignment, and closes the normal
+  shift-task materialization loop.
+- Neo is the only surface. The new clarity route and schedule assistant reuse the
+  existing Supabase identity, employee, tenant, location, navigation, task, and
+  shift models.
+
+## Verification evidence
+
+- `git diff --check`: passed before the evidence commit; repeat after the final
+  review record.
+- Full Vitest suite with pinned Node 22.23.0: **34 files / 222 tests passed**.
+- `tsc -p tsconfig.delivery-hardening.json --noEmit`: passed.
+- Full `tsc --noEmit`: passed with a 4096 MB Node heap.
+- Next.js production build: passed; **227 pages** generated. Existing unrelated
+  repository lint warnings remain non-fatal.
+- Repository Playwright suite: **28 passed** across Desktop Chrome and Pixel 5.
+- Fresh isolated PostgreSQL 16 chain passed, in order:
+  `unified-operations-base.sql`, migrations `20260828174510`, `20260829204500`,
+  `20260830113000`, `20260830154500`, then SQL suites `075`, `076`, and `077`.
+  Final markers: responsibility organization, shift-linked operational task, and
+  daily clarity automation tests all passed.
+- Authenticated local acceptance passed through the real Next middleware, server
+  components, APIs, desktop Chrome, and Pixel 5 using a disposable Supabase-
+  protocol fixture and non-production auth cookie. Verified: Tagesklarheit
+  desktop/mobile, privacy-safe absence display, morning briefing, explainable
+  weekly suggestions, per-shift confirmation, and the exact Berlin week value
+  `2026-09-14` reaching the generation RPC.
+- Browser artifacts:
+  - `docs/agents/evidence/daily-clarity-2026-08-30/klarheit-desktop.png`
+  - `docs/agents/evidence/daily-clarity-2026-08-30/klarheit-mobile.png`
+  - `docs/agents/evidence/daily-clarity-2026-08-30/morgenbriefing-desktop.png`
+  - `docs/agents/evidence/daily-clarity-2026-08-30/wochenassistent-desktop.png`
+
+## Independent review
+
+The first integrated Claude review returned FAIL with two major and five minor
+findings. Code fixes now close the audit-refresh flood, briefing/task-count
+drift, probe-shift inclusion, manager location scope, cleared-shift regeneration,
+concurrent confirmation race, and null-location company-wide actor behavior.
+The stale handoff/evidence major is addressed by this document. A final Claude
+re-review must return PASS before deployment; deployment is outside this run.
 
 ## Database change and rollback
 
-- Additive migration: `20260829204500_responsibility_scope_and_organization_audit.sql`.
-- Isolated PostgreSQL migration/test passed; no production data was touched.
-- A previous application release remains compatible with the migrated schema.
-  On rollback, revert the application release and retain the security migration.
+- Additive migrations:
+  - `20260830113000_shift_linked_operational_tasks.sql`
+  - `20260830154500_daily_clarity_automation.sql`
+- No production migration was applied. Before deployment, the safe rollback is
+  therefore to revert the listed application commits and deploy nothing.
+- If application rollback occurs after migration, the previous application is
+  compatible with the additive schema. Disable calls to the operational cron and
+  the `shifts_operational_tasks_materialize`,
+  `shifts_operational_tasks_retire_change`,
+  `shifts_operational_tasks_cancel_delete`, and
+  `task_templates_materialize_shifts` triggers to stop new automation while
+  retaining generated records for auditability.
+- Do not drop tables/columns as an emergency rollback. A later destructive down
+  migration may remove briefing/suggestion functions, policies, and tables only
+  after dependency and retention review.
 
-## Release ownership
+## Known risks and next authorized step
 
-Only Codex integrates and deploys this change. Production secrets and global
-Claude/Kimi CLI configuration are intentionally outside the repository.
+- No staging/live Supabase credentials were present, so real-provider auth and
+  deployed-environment acceptance remain a pre-deploy requirement. The local
+  protocol fixture contains no secrets; SQL/RLS behavior was separately proven
+  in PostgreSQL.
+- Pontstraße draft employee profiles still require real email addresses before
+  invitations/login creation.
+- Stop in the current run after the final green commit. A later, explicitly
+  authorized release must repeat backup, migration, authenticated staging smoke,
+  health checks, and rollback verification before production deploy.
