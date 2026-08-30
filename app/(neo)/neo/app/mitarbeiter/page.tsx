@@ -25,10 +25,10 @@ export default async function MitarbeiterPage({
 
   const [
     { data: employees }, { data: departments }, { data: assignments }, { data: tasks },
-    { data: handovers }, { data: coverage },
+    { data: templates }, { data: handovers }, { data: coverage },
   ] = await Promise.all([
     service.from('employees')
-      .select('id,vorname,nachname,email,rolle,status,department_id,reports_to_employee_id,position_title,organization_level')
+      .select('id,vorname,nachname,rolle,status,department_id,reports_to_employee_id,position_title,organization_level')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
       .in('status', ['aktiv', 'in_training', 'in_probe']).order('nachname'),
     service.from('departments')
@@ -38,9 +38,14 @@ export default async function MitarbeiterPage({
       .select('id,department_id,employee_id,responsibility_role,weekday_scope,shift_start,shift_end,valid_from,valid_until,aktiv')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId).eq('aktiv', true),
     service.from('operational_tasks')
-      .select('id,department_id,title,description,status,priority,created_by,assigned_to,accountable_employee_id,controller_employee_id,due_at,completed_at,evidence_requirements,escalation_level,review_note,created_at,evidence:operational_task_evidence(id,evidence_type,verification_status)')
+      .select('id,department_id,template_id,shift_id,title,description,status,priority,created_by,assigned_to,accountable_employee_id,controller_employee_id,due_at,completed_at,evidence_requirements,escalation_level,review_note,created_at,shift:shifts(start_zeit,end_zeit,position),evidence:operational_task_evidence(id,evidence_type,verification_status)')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
       .not('status', 'eq', 'storniert').order('due_at', { ascending: true, nullsFirst: false }).limit(300),
+    service.from('operational_task_templates')
+      .select('id,department_id,title,description,task_kind,trigger_type,shift_phase,due_offset_minutes,assignment_mode,assigned_employee_id,accountable_employee_id,controller_employee_id,evidence_requirements,control_required,priority,aktiv,created_at')
+      .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
+      .eq('trigger_type', 'shift')
+      .order('priority', { ascending: false }).order('title'),
     service.from('responsibility_handovers')
       .select('id,department_id,from_employee_id,to_employee_id,reason,starts_at,ends_at,note,status,accepted_at,created_at')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
@@ -66,6 +71,7 @@ export default async function MitarbeiterPage({
       departments={(departments ?? []) as never[]}
       assignments={(assignments ?? []) as never[]}
       tasks={(tasks ?? []) as never[]}
+      templates={(templates ?? []) as never[]}
       handovers={(handovers ?? []) as never[]}
       coverage={(coverage ?? []) as never[]}
       absences={(absences ?? []) as never[]}

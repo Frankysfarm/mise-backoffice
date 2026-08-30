@@ -106,4 +106,35 @@ describe('responsibility organization', () => {
     expect(sqlTest).toContain('organization audit row is missing actor or change');
     expect(sqlTest).toContain('reporting cycle unexpectedly accepted');
   });
+
+  it('connects recurring workflows to shifts without exposing a second task model', () => {
+    const migration = source('supabase/migrations/20260830113000_shift_linked_operational_tasks.sql');
+    const sqlTest = source('scripts/tests/076_shift_linked_operational_tasks.sql');
+    const route = source('app/api/operations/responsibility/route.ts');
+    const managerPage = source('app/(neo)/neo/app/mitarbeiter/page.tsx');
+    const client = source('app/(neo)/neo/app/mitarbeiter/responsibility-client.tsx');
+    const employeePage = source('app/mitarbeiter/page.tsx');
+    const employeeClient = source('app/mitarbeiter/my-operations.tsx');
+    expect(migration).toContain('materialize_shift_operational_tasks');
+    expect(migration).toContain("source_type='shift_template'");
+    expect(migration).toContain("operational_tasks.status in ('offen','angenommen','storniert')");
+    expect(migration).toContain('can_manage_operational_location');
+    expect(migration).toContain('update_operational_task_as_actor');
+    expect(migration).toContain("coalesce(v_shift.typ::text,'')='probe'");
+    expect(migration).toContain('revoke all on function public.materialize_shift_operational_tasks');
+    expect(sqlTest).toContain('progressed task was silently reassigned');
+    expect(sqlTest).toContain('canceled shift did not cancel its open task');
+    expect(sqlTest).toContain('revived task retained stale acceptance');
+    expect(sqlTest).toContain('unassigned shift left an active task');
+    expect(sqlTest).toContain('trial shift received operational tasks');
+    expect(sqlTest).toContain('manager can read foreign-location template');
+    expect(sqlTest).toContain('task audit did not record acting employee');
+    expect(route).toContain("action: z.literal('save_task_template')");
+    expect(route).toContain('departmentInScope');
+    expect(managerPage).toContain("shift:shifts(start_zeit,end_zeit,position)");
+    expect(client).toContain('Schichtabläufe');
+    expect(client).toContain('<Pencil size={15} />');
+    expect(employeePage).toContain("shift:shifts(start_zeit,end_zeit,position)");
+    expect(employeeClient).toContain('Gehört zu deiner Schicht');
+  });
 });

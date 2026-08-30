@@ -10,8 +10,8 @@ employee model, tenant/location structure, navigation, and operational data sour
 
 ## Current assignment
 
-- Codex: integration lead, organization tree, employee mobile context, security,
-  release gates, deployment.
+- Codex: integration lead, Pontstraße organization data, shift-linked task
+  workflows, employee mobile context, security, release gates, deployment.
 - Kimi: available for future bounded UI implementation packets; no active worktree.
 - Claude: independent post-integration review; no active review branch.
 
@@ -19,8 +19,9 @@ employee model, tenant/location structure, navigation, and operational data sour
 
 - Base commit: `2b09cfcc`
 - Working branch: `codex/neo-module-integration-20260826`
-- Active change: responsive responsibility tree and personal team path in the
-  employee PWA, plus location/schedule authorization hardening.
+- Active change: `docs/agents/tasks/2026-08-30-pontstrasse-shift-operations.md`.
+  Add recurring shift workflows to the existing responsibility module and
+  configure the Pontstraße hierarchy without a second identity model.
 - Production data note: organizational configuration must be entered by the
   business; employees without a reporting line are shown as unassigned.
 

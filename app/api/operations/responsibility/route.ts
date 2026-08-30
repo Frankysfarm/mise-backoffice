@@ -31,6 +31,17 @@ const requestSchema = z.discriminatedUnion('action', [
     positionTitle: z.string().trim().max(100).optional(),
   }),
   z.object({
+    action: z.literal('save_task_template'), locationId: uuid, id: optionalUuid, departmentId: uuid,
+    title: z.string().trim().min(2).max(160), description: z.string().trim().max(3000).optional(),
+    taskKind: z.enum(['aufgabe','checkliste','kontrolle','hygiene','temperatur','lager','reinigung','kasse','training','qualitaet']),
+    shiftPhase: z.enum(['start','end']), dueOffsetMinutes: z.number().int().min(-720).max(1440),
+    assignmentMode: z.enum(['shift_employee','fixed_employee','responsibility_primary']),
+    assignedEmployeeId: optionalUuid, accountableEmployeeId: optionalUuid, controllerEmployeeId: optionalUuid,
+    priority: z.number().int().min(0).max(100),
+    evidenceRequirements: z.array(z.enum(['foto','kommentar','dokument','unterschrift','messwert'])).max(5),
+    active: z.boolean(),
+  }),
+  z.object({
     action: z.literal('create_task'), locationId: uuid, departmentId: optionalUuid,
     title: z.string().trim().min(2).max(160), description: z.string().trim().max(3000).optional(),
     assignedTo: optionalUuid, accountableEmployeeId: optionalUuid, controllerEmployeeId: optionalUuid,
@@ -178,6 +189,45 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ employee: moved });
     }
 
+    if (input.action === 'save_task_template') {
+      if (!managerRoles.has(actor.rolle)) return forbidden();
+      if (input.assignmentMode === 'fixed_employee' && !input.assignedEmployeeId) {
+        return NextResponse.json({ error: 'Für eine feste Aufgabe muss eine ausführende Person gewählt werden.' }, { status: 400 });
+      }
+      if (!await departmentInScope(service, actor.tenant_id, input.locationId, input.departmentId)) {
+        return notFound('Bereich gehört nicht zu diesem Standort.');
+      }
+      const referenced = [input.assignedEmployeeId, input.accountableEmployeeId, input.controllerEmployeeId]
+        .filter(Boolean) as string[];
+      for (const employeeId of referenced) {
+        if (!await employeeInScope(service, actor.tenant_id, input.locationId, employeeId)) {
+          return NextResponse.json({ error: 'Eine ausgewählte Person gehört nicht zu diesem Standort.' }, { status: 400 });
+        }
+      }
+      const { data, error } = await service.rpc('save_shift_operational_template', {
+        p_id: input.id || null,
+        p_tenant_id: actor.tenant_id,
+        p_location_id: input.locationId,
+        p_department_id: input.departmentId,
+        p_actor_id: actor.id,
+        p_title: input.title,
+        p_description: input.description || null,
+        p_task_kind: input.taskKind,
+        p_shift_phase: input.shiftPhase,
+        p_due_offset_minutes: input.dueOffsetMinutes,
+        p_assignment_mode: input.assignmentMode,
+        p_assigned_employee_id: input.assignedEmployeeId || null,
+        p_accountable_employee_id: input.accountableEmployeeId || null,
+        p_controller_employee_id: input.controllerEmployeeId || null,
+        p_evidence_requirements: input.evidenceRequirements,
+        p_priority: input.priority,
+        p_active: input.active,
+      });
+      const template = Array.isArray(data) ? data[0] ?? null : data ?? null;
+      if (error || !template) return failure(error?.message ?? 'Schichtablauf konnte nicht gespeichert werden.');
+      return NextResponse.json({ template });
+    }
+
     if (input.action === 'create_task') {
       const departmentId = input.departmentId || null;
       if (departmentId && !await departmentInScope(service, actor.tenant_id, input.locationId, departmentId)) {
@@ -233,6 +283,7 @@ export async function POST(request: NextRequest) {
       if (!manages && !isAssignee && !isReviewer && !isLead) return forbidden();
       if (terminalTaskStates.has(task.status)) return NextResponse.json({ error: 'Abgeschlossene Aufgaben können nicht erneut geändert werden.' }, { status: 409 });
       if (['erledigt', 'nicht_bestanden'].includes(input.status) && !manages && !isReviewer) return forbidden();
+      if (input.status === 'storniert' && !manages && !isReviewer) return forbidden();
       if (['angenommen', 'in_arbeit', 'wartet_auf_pruefung', 'blockiert'].includes(input.status) && !manages && !isAssignee && !isReviewer) return forbidden();
       if (input.status === 'wartet_auf_pruefung') {
         const requirements = Array.isArray(task.evidence_requirements)
@@ -246,23 +297,17 @@ export async function POST(request: NextRequest) {
           if (missing.length) return NextResponse.json({ error: `Erforderliche Nachweise fehlen: ${missing.join(', ')}` }, { status: 409 });
         }
       }
-      const patch: Record<string, unknown> = { status: input.status };
-      if (input.status === 'angenommen') patch.accepted_at = new Date().toISOString();
-      if (input.status === 'in_arbeit') patch.started_at = new Date().toISOString();
-      if (['erledigt', 'nicht_bestanden'].includes(input.status)) {
-        patch.reviewed_by = actor.id;
-        patch.reviewed_at = new Date().toISOString();
-        patch.review_note = input.reviewNote || null;
-      }
-      const { data, error } = await service.from('operational_tasks').update(patch).eq('id', task.id).select('*').single();
-      if (error) return failure(error.message);
-      if (['erledigt', 'nicht_bestanden'].includes(input.status)) {
-        await service.from('operational_task_evidence').update({
-          verification_status: input.status === 'erledigt' ? 'akzeptiert' : 'abgelehnt',
-          verified_by: actor.id, verified_at: new Date().toISOString(), verification_note: input.reviewNote || null,
-        }).eq('task_id', task.id).eq('verification_status', 'offen');
-      }
-      return NextResponse.json({ task: data });
+      const { data, error } = await service.rpc('update_operational_task_as_actor', {
+        p_task_id: task.id,
+        p_tenant_id: actor.tenant_id,
+        p_location_id: input.locationId,
+        p_actor_id: actor.id,
+        p_status: input.status,
+        p_review_note: input.reviewNote || null,
+      });
+      const updated = Array.isArray(data) ? data[0] ?? null : data ?? null;
+      if (error || !updated) return failure(error?.message ?? 'Aufgabe konnte nicht aktualisiert werden.');
+      return NextResponse.json({ task: updated });
     }
 
     if (input.action === 'create_handover') {

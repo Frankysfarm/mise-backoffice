@@ -28,7 +28,8 @@ create table public.employees (
 create table public.shifts (
   id uuid primary key default gen_random_uuid(), employee_id uuid references public.employees(id),
   department_id uuid references public.departments(id), location_id uuid references public.locations(id),
-  start_zeit timestamptz not null, end_zeit timestamptz not null, typ text not null default 'normal'
+  start_zeit timestamptz not null, end_zeit timestamptz not null, typ text not null default 'normal',
+  status text not null default 'geplant'
 );
 create table public.inventory_areas (
   id uuid primary key default gen_random_uuid(), location_id uuid references public.locations(id), name text not null

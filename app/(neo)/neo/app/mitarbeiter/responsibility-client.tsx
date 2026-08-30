@@ -8,13 +8,13 @@ import {
 } from '@dnd-kit/core';
 import {
   AlertTriangle, ArrowRight, BadgeCheck, BarChart3, CalendarClock, CheckCircle2,
-  ChevronRight, CircleAlert, ClipboardCheck, GripVertical, Network, Plus, RefreshCcw,
-  Save, ShieldCheck, UserRound, UsersRound, X,
+  ChevronRight, CircleAlert, ClipboardCheck, Clock3, GripVertical, Network,
+  Pencil, Plus, RefreshCcw, Save, ShieldCheck, UserRound, UsersRound, Workflow, X,
 } from 'lucide-react';
 import styles from './responsibility.module.css';
 
 type Employee = {
-  id: string; vorname: string; nachname: string; email: string | null; rolle: string; status: string;
+  id: string; vorname: string; nachname: string; rolle: string; status: string;
   department_id: string | null; reports_to_employee_id: string | null; position_title: string | null;
   organization_level: number;
 };
@@ -29,11 +29,21 @@ type Assignment = {
   shift_start: string | null; shift_end: string | null; valid_from: string; valid_until: string | null; aktiv: boolean;
 };
 type Task = {
-  id: string; department_id: string | null; title: string; description: string | null; status: string;
+  id: string; department_id: string | null; template_id: string | null; shift_id: string | null;
+  title: string; description: string | null; status: string;
   priority: number; created_by: string; assigned_to: string | null; accountable_employee_id: string;
   controller_employee_id: string | null; due_at: string | null; completed_at?: string | null;
   evidence_requirements: string[] | null; escalation_level: number; review_note: string | null; created_at: string;
+  shift: { start_zeit: string; end_zeit: string; position: string | null } | { start_zeit: string; end_zeit: string; position: string | null }[] | null;
   evidence: { id: string; evidence_type: string; verification_status: string }[] | null;
+};
+type TaskTemplate = {
+  id: string; department_id: string; title: string; description: string | null; task_kind: string;
+  trigger_type: string; shift_phase: 'start' | 'end'; due_offset_minutes: number;
+  assignment_mode: 'shift_employee' | 'fixed_employee' | 'responsibility_primary';
+  assigned_employee_id: string | null; accountable_employee_id: string | null;
+  controller_employee_id: string | null; evidence_requirements: string[] | null;
+  control_required: boolean; priority: number; aktiv: boolean; created_at: string;
 };
 type Handover = {
   id: string; department_id: string | null; from_employee_id: string; to_employee_id: string;
@@ -46,7 +56,7 @@ type Coverage = {
 };
 type Absence = { employee_id: string; datum: string; typ: string; grund: string | null };
 type Location = { id: string; name: string; stadt: string | null };
-type Tab = 'dashboard' | 'bereiche' | 'organigramm' | 'aufgaben' | 'uebergaben';
+type Tab = 'dashboard' | 'bereiche' | 'organigramm' | 'aufgaben' | 'ablaeufe' | 'uebergaben';
 
 const TASK_OPEN = new Set(['offen', 'angenommen', 'in_arbeit', 'wartet_auf_pruefung', 'blockiert']);
 const EVIDENCE_LABELS: Record<string, string> = {
@@ -64,10 +74,10 @@ const WEEKDAYS = [
 
 export function ResponsibilityClient({
   actorId, locationId, locations, canSelectLocation,
-  employees: initialEmployees, departments, assignments, tasks, handovers, coverage, absences,
+  employees: initialEmployees, departments, assignments, tasks, templates, handovers, coverage, absences,
 }: {
   actorId: string; locationId: string; locations: Location[]; canSelectLocation: boolean;
-  employees: Employee[]; departments: Department[]; assignments: Assignment[]; tasks: Task[];
+  employees: Employee[]; departments: Department[]; assignments: Assignment[]; tasks: Task[]; templates: TaskTemplate[];
   handovers: Handover[]; coverage: Coverage[]; absences: Absence[];
 }) {
   const router = useRouter();
@@ -77,6 +87,7 @@ export function ResponsibilityClient({
   const [employees, setEmployees] = useState(initialEmployees);
   const [departmentForm, setDepartmentForm] = useState<DepartmentForm | null>(null);
   const [taskFormOpen, setTaskFormOpen] = useState(false);
+  const [templateForm, setTemplateForm] = useState<TaskTemplateForm | null>(null);
   const [handoverFormOpen, setHandoverFormOpen] = useState(false);
   const [positionEdit, setPositionEdit] = useState<Employee | null>(null);
   const [notice, setNotice] = useState('');
@@ -159,6 +170,7 @@ export function ResponsibilityClient({
         <TabButton active={tab === 'bereiche'} onClick={() => selectTab('bereiche')} icon={<ShieldCheck size={16} />}>Bereiche</TabButton>
         <TabButton active={tab === 'organigramm'} onClick={() => selectTab('organigramm')} icon={<Network size={16} />}>Organigramm</TabButton>
         <TabButton active={tab === 'aufgaben'} onClick={() => selectTab('aufgaben')} icon={<ClipboardCheck size={16} />}>Aufgaben</TabButton>
+        <TabButton active={tab === 'ablaeufe'} onClick={() => selectTab('ablaeufe')} icon={<Workflow size={16} />}>Schichtabläufe</TabButton>
         <TabButton active={tab === 'uebergaben'} onClick={() => selectTab('uebergaben')} icon={<ArrowRight size={16} />}>Übergaben</TabButton>
       </nav>
 
@@ -246,6 +258,37 @@ export function ResponsibilityClient({
             <TaskColumn title="Offen / in Arbeit" count={tasks.filter((task) => ['offen', 'angenommen', 'in_arbeit', 'blockiert'].includes(task.status)).length}><TaskList tasks={tasks.filter((task) => ['offen', 'angenommen', 'in_arbeit', 'blockiert'].includes(task.status))} employees={byEmployee} departments={byDepartment} onAction={(task, status) => mutation({ action: 'update_task', taskId: task.id, status }, 'Aufgabenstatus aktualisiert.')} /></TaskColumn>
             <TaskColumn title="Kontrolle erforderlich" count={tasks.filter((task) => task.status === 'wartet_auf_pruefung').length}><TaskList tasks={tasks.filter((task) => task.status === 'wartet_auf_pruefung')} employees={byEmployee} departments={byDepartment} onAction={(task, status) => mutation({ action: 'update_task', taskId: task.id, status }, status === 'erledigt' ? 'Aufgabe geprüft und freigegeben.' : 'Prüfung als nicht bestanden dokumentiert.')} /></TaskColumn>
             <TaskColumn title="Abgeschlossen" count={tasks.filter((task) => ['erledigt', 'nicht_bestanden'].includes(task.status)).length}><TaskList tasks={tasks.filter((task) => ['erledigt', 'nicht_bestanden'].includes(task.status)).slice(0, 30)} employees={byEmployee} departments={byDepartment} /></TaskColumn>
+          </div>
+        </div>
+      )}
+
+      {tab === 'ablaeufe' && (
+        <div className={styles.stack}>
+          <div className={styles.toolbar}>
+            <div><h2>Schichtabläufe</h2><p>Aus einer Vorlage entsteht pro passender Schicht genau eine Aufgabe – mit Frist, Verantwortung und Kontrolle.</p></div>
+            <button className={styles.primaryButton} onClick={() => setTemplateForm(emptyTaskTemplate())}><Plus size={16} /> Ablauf anlegen</button>
+          </div>
+          {templateForm && <TaskTemplateEditor
+            form={templateForm}
+            setForm={setTemplateForm}
+            departments={departments.filter((department) => department.aktiv)}
+            employees={employees}
+            pending={pending}
+            onSave={(form) => mutation({
+              action: 'save_task_template', id: form.id || null, departmentId: form.departmentId,
+              title: form.title, description: form.description, taskKind: form.taskKind,
+              shiftPhase: form.shiftPhase, dueOffsetMinutes: form.dueOffsetMinutes,
+              assignmentMode: form.assignmentMode, assignedEmployeeId: form.assignedEmployeeId || null,
+              accountableEmployeeId: form.accountableEmployeeId || null,
+              controllerEmployeeId: form.controllerEmployeeId || null, priority: form.priority,
+              evidenceRequirements: form.evidenceRequirements, active: form.active,
+            }, 'Schichtablauf gespeichert und mit passenden Schichten verbunden.', () => setTemplateForm(null))}
+          />}
+          <div className={styles.workflowGrid}>
+            {templates.length ? templates.map((template) => <TaskTemplateCard
+              key={template.id} template={template} departments={byDepartment} employees={byEmployee}
+              onEdit={() => setTemplateForm(fromTaskTemplate(template))}
+            />) : <Empty text="Noch keine Schichtabläufe hinterlegt. Lege den ersten Ablauf für Öffnung, Übergabe oder Schichtende an." />}
           </div>
         </div>
       )}
@@ -377,6 +420,61 @@ function TaskEditor({ departments, employees, pending, onClose, onSave }: { depa
   return <section className={styles.editor}><div className={styles.editorHeader}><div><strong>Neue Aufgabe oder Kontrolle</strong><small>Ausführung, Rechenschaft und Prüfung werden getrennt dokumentiert.</small></div><button className={styles.iconButton} onClick={onClose}><X size={17} /></button></div><div className={styles.formGrid}><label>Titel<input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="z. B. Schließkontrolle" /></label><label>Bereich<select value={form.departmentId} onChange={(event) => setForm({ ...form, departmentId: event.target.value })}><option value="">Standortweit</option>{departments.map((department) => <option value={department.id} key={department.id}>{department.name}</option>)}</select></label><EmployeeSelect label="Ausführung" value={form.assignedTo} employees={employees} onChange={(value) => setForm({ ...form, assignedTo: value })} /><EmployeeSelect label="Rechenschaft" value={form.accountableEmployeeId} employees={employees} onChange={(value) => setForm({ ...form, accountableEmployeeId: value })} optional /><EmployeeSelect label="Kontrolle / Freigabe" value={form.controllerEmployeeId} employees={employees} onChange={(value) => setForm({ ...form, controllerEmployeeId: value })} optional /><label>Fällig<input type="datetime-local" value={form.dueAt} onChange={(event) => setForm({ ...form, dueAt: event.target.value })} /></label><label>Priorität<input type="number" min={0} max={100} value={form.priority} onChange={(event) => setForm({ ...form, priority: Number(event.target.value) })} /></label><label className={styles.full}>Beschreibung<textarea rows={3} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label><fieldset className={styles.full}><legend>Erforderliche Nachweise</legend><div className={styles.evidenceChecks}>{Object.entries(EVIDENCE_LABELS).map(([value, label]) => <label className={styles.check} key={value}><input type="checkbox" checked={form.evidenceRequirements.includes(value)} onChange={() => toggleEvidence(value)} /> {label}</label>)}</div></fieldset></div><button className={styles.primaryButton} disabled={pending || form.title.trim().length < 2 || !form.assignedTo} onClick={() => onSave({ ...form, departmentId: form.departmentId || null, accountableEmployeeId: form.accountableEmployeeId || null, controllerEmployeeId: form.controllerEmployeeId || null, dueAt: form.dueAt ? new Date(form.dueAt).toISOString() : null })}><Plus size={16} /> Verbindlich vergeben</button></section>;
 }
 
+type TaskTemplateForm = {
+  id: string; departmentId: string; title: string; description: string; taskKind: string;
+  shiftPhase: 'start' | 'end'; dueOffsetMinutes: number;
+  assignmentMode: 'shift_employee' | 'fixed_employee' | 'responsibility_primary';
+  assignedEmployeeId: string; accountableEmployeeId: string; controllerEmployeeId: string;
+  evidenceRequirements: string[]; priority: number; active: boolean;
+};
+function emptyTaskTemplate(): TaskTemplateForm {
+  return { id: '', departmentId: '', title: '', description: '', taskKind: 'kontrolle', shiftPhase: 'start', dueOffsetMinutes: 30, assignmentMode: 'shift_employee', assignedEmployeeId: '', accountableEmployeeId: '', controllerEmployeeId: '', evidenceRequirements: [], priority: 70, active: true };
+}
+function fromTaskTemplate(template: TaskTemplate): TaskTemplateForm {
+  return { id: template.id, departmentId: template.department_id, title: template.title, description: template.description ?? '', taskKind: template.task_kind, shiftPhase: template.shift_phase, dueOffsetMinutes: template.due_offset_minutes, assignmentMode: template.assignment_mode, assignedEmployeeId: template.assigned_employee_id ?? '', accountableEmployeeId: template.accountable_employee_id ?? '', controllerEmployeeId: template.controller_employee_id ?? '', evidenceRequirements: template.evidence_requirements ?? [], priority: template.priority, active: template.aktiv };
+}
+
+function TaskTemplateEditor({ form, setForm, departments, employees, pending, onSave }: { form: TaskTemplateForm; setForm: (form: TaskTemplateForm | null) => void; departments: Department[]; employees: Employee[]; pending: boolean; onSave: (form: TaskTemplateForm) => void }) {
+  const toggleEvidence = (value: string) => setForm({ ...form, evidenceRequirements: form.evidenceRequirements.includes(value) ? form.evidenceRequirements.filter((item) => item !== value) : [...form.evidenceRequirements, value] });
+  const fixedEmployeeMissing = form.assignmentMode === 'fixed_employee' && !form.assignedEmployeeId;
+  return <section className={`${styles.editor} ${styles.workflowEditor}`}>
+    <div className={styles.editorHeader}><div><strong>{form.id ? 'Schichtablauf bearbeiten' : 'Neuer Schichtablauf'}</strong><small>Der Ablauf wird automatisch erzeugt, sobald eine passende Schicht einer Person zugeteilt ist.</small></div><button className={styles.iconButton} onClick={() => setForm(null)}><X size={17} /></button></div>
+    <div className={styles.formGrid}>
+      <label>Titel<input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="z. B. Barista-Abschluss" /></label>
+      <label>Bereich<select value={form.departmentId} onChange={(event) => setForm({ ...form, departmentId: event.target.value })}><option value="">Bitte auswählen</option>{departments.map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}</select></label>
+      <label>Art<select value={form.taskKind} onChange={(event) => setForm({ ...form, taskKind: event.target.value })}><option value="kontrolle">Kontrolle</option><option value="checkliste">Checkliste</option><option value="hygiene">Hygiene</option><option value="temperatur">Temperatur</option><option value="lager">Lager</option><option value="reinigung">Reinigung</option><option value="training">Training</option><option value="qualitaet">Qualität</option><option value="aufgabe">Aufgabe</option></select></label>
+      <label>Zeitpunkt<select value={form.shiftPhase} onChange={(event) => setForm({ ...form, shiftPhase: event.target.value as 'start' | 'end' })}><option value="start">Ab Schichtbeginn</option><option value="end">Zum Schichtende</option></select></label>
+      <label>Fristversatz in Minuten<input type="number" min={-720} max={1440} value={form.dueOffsetMinutes} onChange={(event) => setForm({ ...form, dueOffsetMinutes: Number(event.target.value) })} /></label>
+      <label>Ausführung<select value={form.assignmentMode} onChange={(event) => setForm({ ...form, assignmentMode: event.target.value as TaskTemplateForm['assignmentMode'], assignedEmployeeId: '' })}><option value="shift_employee">Diensthabende Person</option><option value="responsibility_primary">Bereichsverantwortung</option><option value="fixed_employee">Feste Person</option></select></label>
+      {form.assignmentMode === 'fixed_employee' && <EmployeeSelect label="Feste Ausführung" value={form.assignedEmployeeId} employees={employees} onChange={(value) => setForm({ ...form, assignedEmployeeId: value })} />}
+      <EmployeeSelect label="Bleibt verantwortlich" value={form.accountableEmployeeId} employees={employees} onChange={(value) => setForm({ ...form, accountableEmployeeId: value })} optional />
+      <EmployeeSelect label="Kontrolliert und gibt frei" value={form.controllerEmployeeId} employees={employees} onChange={(value) => setForm({ ...form, controllerEmployeeId: value })} optional />
+      <label>Priorität<input type="number" min={0} max={100} value={form.priority} onChange={(event) => setForm({ ...form, priority: Number(event.target.value) })} /></label>
+      <label className={styles.check}><input type="checkbox" checked={form.active} onChange={(event) => setForm({ ...form, active: event.target.checked })} /> Ablauf ist aktiv</label>
+      <label className={styles.full}>Klare Arbeitsanweisung<textarea rows={3} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Was ist zu tun, wann gilt es als erledigt und was wird bei einer Abweichung gemeldet?" /></label>
+      <fieldset className={styles.full}><legend>Nachweis vor Einreichung</legend><div className={styles.evidenceChecks}>{Object.entries(EVIDENCE_LABELS).map(([value, label]) => <label className={styles.check} key={value}><input type="checkbox" checked={form.evidenceRequirements.includes(value)} onChange={() => toggleEvidence(value)} /> {label}</label>)}</div></fieldset>
+    </div>
+    <button className={styles.primaryButton} disabled={pending || form.title.trim().length < 2 || !form.departmentId || fixedEmployeeMissing} onClick={() => onSave(form)}><Save size={16} /> Ablauf speichern</button>
+  </section>;
+}
+
+function TaskTemplateCard({ template, departments, employees, onEdit }: { template: TaskTemplate; departments: Map<string, Department>; employees: Map<string, Employee>; onEdit: () => void }) {
+  const assignee = template.assignment_mode === 'shift_employee' ? 'Diensthabende Person' : template.assignment_mode === 'responsibility_primary' ? 'Bereichsverantwortung' : employeeName(template.assigned_employee_id, employees);
+  const phase = template.shift_phase === 'start' ? 'Schichtbeginn' : 'Schichtende';
+  const offset = template.due_offset_minutes === 0 ? 'sofort fällig' : template.due_offset_minutes > 0 ? `+${template.due_offset_minutes} Min.` : `${template.due_offset_minutes} Min.`;
+  return <article className={`${styles.workflowCard} ${!template.aktiv ? styles.workflowInactive : ''}`}>
+    <div className={styles.workflowTop}><div><span>{departments.get(template.department_id)?.name ?? 'Bereich'}</span><h3>{template.title}</h3></div><div className={styles.workflowActions}><Status tone={template.aktiv ? 'success' : 'neutral'}>{template.aktiv ? 'Aktiv' : 'Pausiert'}</Status><button className={styles.iconButton} aria-label="Schichtablauf bearbeiten" onClick={onEdit}><Pencil size={15} /></button></div></div>
+    {template.description && <p>{template.description}</p>}
+    <div className={styles.workflowRail} aria-label={`${phase}, ${assignee}, ${offset}, Kontrolle`}>
+      <span><Clock3 size={14} /><b>{phase}</b></span><i />
+      <span><UserRound size={14} /><b>{assignee}</b></span><i />
+      <span><CalendarClock size={14} /><b>{offset}</b></span><i />
+      <span><ShieldCheck size={14} /><b>Freigabe</b></span>
+    </div>
+    <div className={styles.workflowFacts}><span>Verantwortung: <b>{employeeName(template.accountable_employee_id, employees).replace('Nicht zugeordnet', 'automatisch aus Bereich')}</b></span><span>Kontrolle: <b>{employeeName(template.controller_employee_id, employees).replace('Nicht zugeordnet', 'Bereichsverantwortung')}</b></span><span>Nachweis: <b>{template.evidence_requirements?.length ? template.evidence_requirements.map((item) => EVIDENCE_LABELS[item] ?? item).join(', ') : 'keiner'}</b></span></div>
+  </article>;
+}
+
 function HandoverEditor({ employees, departments, pending, onClose, onSave }: { employees: Employee[]; departments: Department[]; pending: boolean; onClose: () => void; onSave: (payload: Record<string, unknown>) => void }) {
   const now = toLocalInput(new Date());
   const [form, setForm] = useState({ toEmployeeId: '', departmentId: '', reason: 'schichtende', startsAt: now, endsAt: '', note: '' });
@@ -391,7 +489,7 @@ function TaskColumn({ title, count, children }: { title: string; count: number; 
 
 function TaskList({ tasks, employees, departments, compact, onAction }: { tasks: Task[]; employees: Map<string, Employee>; departments: Map<string, Department>; compact?: boolean; onAction?: (task: Task, status: string) => void }) {
   if (!tasks.length) return <Empty text="Keine Einträge in diesem Status." />;
-  return <div className={styles.taskList}>{tasks.map((task) => { const overdueNow = Boolean(task.due_at && TASK_OPEN.has(task.status) && new Date(task.due_at) < new Date()); const missing = (task.evidence_requirements ?? []).filter((requirement) => !(task.evidence ?? []).some((evidence) => evidence.evidence_type === requirement)); return <article className={`${styles.taskCard} ${overdueNow ? styles.taskOverdue : ''}`} key={task.id}><div className={styles.taskTop}><Status tone={task.status === 'erledigt' ? 'success' : task.status === 'nicht_bestanden' || overdueNow ? 'danger' : task.status === 'wartet_auf_pruefung' ? 'warning' : 'neutral'}>{TASK_LABELS[task.status] ?? task.status}</Status>{task.escalation_level > 0 && <span className={styles.escalation}>Eskalation {task.escalation_level}</span>}</div><h4>{task.title}</h4>{!compact && task.description && <p>{task.description}</p>}<div className={styles.taskDetails}><span>{departments.get(task.department_id ?? '')?.name ?? 'Standortweit'}</span><span>Ausführung: {employeeName(task.assigned_to, employees)}</span><span>Verantwortung: {employeeName(task.accountable_employee_id, employees)}</span><span>Kontrolle: {employeeName(task.controller_employee_id, employees)}</span>{task.due_at && <span className={overdueNow ? styles.dueDanger : ''}>Fällig: {formatDateTime(task.due_at)}</span>}{task.evidence_requirements?.length ? <span className={missing.length ? styles.dueDanger : ''}>Nachweise: {missing.length ? `${missing.map((item) => EVIDENCE_LABELS[item] ?? item).join(', ')} fehlt` : 'vollständig'}</span> : null}</div>{onAction && <div className={styles.taskActions}>{task.status === 'offen' && <button onClick={() => onAction(task, 'angenommen')}>Annehmen</button>}{task.status === 'angenommen' && <button onClick={() => onAction(task, 'in_arbeit')}>Starten</button>}{['offen', 'angenommen', 'in_arbeit', 'blockiert'].includes(task.status) && <button onClick={() => onAction(task, 'wartet_auf_pruefung')}>Zur Prüfung</button>}{task.status === 'wartet_auf_pruefung' && <><button className={styles.passButton} onClick={() => onAction(task, 'erledigt')}>Freigeben</button><button className={styles.failButton} onClick={() => onAction(task, 'nicht_bestanden')}>Ablehnen</button></>}</div>}</article>; })}</div>;
+  return <div className={styles.taskList}>{tasks.map((task) => { const overdueNow = Boolean(task.due_at && TASK_OPEN.has(task.status) && new Date(task.due_at) < new Date()); const missing = (task.evidence_requirements ?? []).filter((requirement) => !(task.evidence ?? []).some((evidence) => evidence.evidence_type === requirement)); const shift = relationOne(task.shift); return <article className={`${styles.taskCard} ${overdueNow ? styles.taskOverdue : ''}`} key={task.id}><div className={styles.taskTop}><Status tone={task.status === 'erledigt' ? 'success' : task.status === 'nicht_bestanden' || overdueNow ? 'danger' : task.status === 'wartet_auf_pruefung' ? 'warning' : 'neutral'}>{TASK_LABELS[task.status] ?? task.status}</Status>{task.escalation_level > 0 && <span className={styles.escalation}>Eskalation {task.escalation_level}</span>}</div><h4>{task.title}</h4>{!compact && task.description && <p>{task.description}</p>}<div className={styles.taskDetails}><span>{departments.get(task.department_id ?? '')?.name ?? 'Standortweit'}</span>{shift && <span className={styles.shiftTask}><Clock3 size={11} /> Schicht {formatShift(shift)}</span>}<span>Ausführung: {employeeName(task.assigned_to, employees)}</span><span>Verantwortung: {employeeName(task.accountable_employee_id, employees)}</span><span>Kontrolle: {employeeName(task.controller_employee_id, employees)}</span>{task.due_at && <span className={overdueNow ? styles.dueDanger : ''}>Fällig: {formatDateTime(task.due_at)}</span>}{task.evidence_requirements?.length ? <span className={missing.length ? styles.dueDanger : ''}>Nachweise: {missing.length ? `${missing.map((item) => EVIDENCE_LABELS[item] ?? item).join(', ')} fehlt` : 'vollständig'}</span> : null}</div>{onAction && <div className={styles.taskActions}>{task.status === 'offen' && <button onClick={() => onAction(task, 'angenommen')}>Annehmen</button>}{task.status === 'angenommen' && <button onClick={() => onAction(task, 'in_arbeit')}>Starten</button>}{['offen', 'angenommen', 'in_arbeit', 'blockiert'].includes(task.status) && <button onClick={() => onAction(task, 'wartet_auf_pruefung')}>Zur Prüfung</button>}{task.status === 'wartet_auf_pruefung' && <><button className={styles.passButton} onClick={() => onAction(task, 'erledigt')}>Freigeben</button><button className={styles.failButton} onClick={() => onAction(task, 'nicht_bestanden')}>Ablehnen</button></>}</div>}</article>; })}</div>;
 }
 
 function Person({ employee }: { employee?: Employee }) { return <div className={styles.person}><Avatar employee={employee} /><span><strong>{employee ? `${employee.vorname} ${employee.nachname}` : 'Unbekannt'}</strong><small>{employee?.position_title || roleLabel(employee?.rolle ?? '')}</small></span></div>; }
@@ -406,8 +504,10 @@ function disconnectedOrganizationRoots(employees: Employee[], naturalRoots: Empl
 function descendantIds(employeeId: string, employees: Employee[]) { const result = new Set<string>(); let changed = true; while (changed) { changed = false; for (const employee of employees) { if (!result.has(employee.id) && (employee.reports_to_employee_id === employeeId || (employee.reports_to_employee_id && result.has(employee.reports_to_employee_id)))) { result.add(employee.id); changed = true; } } } return result; }
 function coverageLabel(status: string) { return ({ hauptverantwortung_fehlt: 'Hauptverantwortung fehlt', stellvertretung_fehlt: 'Stellvertretung fehlt', vertretung_waehrend_abwesenheit_fehlt: 'Vertretung bei Abwesenheit fehlt', aktive_vertretung: 'Vertretung ist aktiv', abgedeckt: 'Vollständig abgedeckt' } as Record<string, string>)[status] ?? status; }
 function reasonLabel(reason: string) { return ({ schichtende: 'Schichtende', urlaub: 'Urlaub', krankheit: 'Krankheit', sonstiges: 'Sonstiger Grund' } as Record<string, string>)[reason] ?? reason; }
-function formatDateTime(value: string) { return new Intl.DateTimeFormat('de-DE', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value)); }
+function formatDateTime(value: string) { return new Intl.DateTimeFormat('de-DE', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Europe/Berlin' }).format(new Date(value)); }
+function relationOne<T>(value: T | T[] | null): T | null { return Array.isArray(value) ? value[0] ?? null : value; }
+function formatShift(shift: { start_zeit: string; end_zeit: string; position: string | null }) { const start = new Date(shift.start_zeit); const end = new Date(shift.end_zeit); const timeZone = 'Europe/Berlin'; return `${start.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', timeZone })} · ${start.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone })}–${end.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', timeZone })}${shift.position ? ` · ${shift.position}` : ''}`; }
 function toLocalInput(value: Date) { const shifted = new Date(value.getTime() - value.getTimezoneOffset() * 60_000); return shifted.toISOString().slice(0, 16); }
 function signedDelta(value: number) { return `${value > 0 ? '+' : ''}${value}`; }
 function weekCompletions(tasks: Task[], offsetDays: number) { const end = Date.now() - offsetDays * 86_400_000; const start = end - 7 * 86_400_000; return tasks.filter((task) => task.status === 'erledigt' && task.completed_at && new Date(task.completed_at).getTime() >= start && new Date(task.completed_at).getTime() < end).length; }
-function isTab(value: string | null): value is Tab { return value === 'dashboard' || value === 'bereiche' || value === 'organigramm' || value === 'aufgaben' || value === 'uebergaben'; }
+function isTab(value: string | null): value is Tab { return value === 'dashboard' || value === 'bereiche' || value === 'organigramm' || value === 'aufgaben' || value === 'ablaeufe' || value === 'uebergaben'; }

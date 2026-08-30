@@ -142,7 +142,7 @@ export default async function MitarbeiterPage() {
       .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .eq('employee_id', employee.id).eq('aktiv', true),
     service.from('operational_tasks')
-      .select('id,title,description,status,priority,due_at,completed_at,evidence_requirements,escalation_level,assigned_to,accountable_employee_id,controller_employee_id,department:departments(name),evidence:operational_task_evidence(id,evidence_type,verification_status,submitted_at)')
+      .select('id,shift_id,title,description,status,priority,due_at,completed_at,evidence_requirements,escalation_level,assigned_to,accountable_employee_id,controller_employee_id,department:departments(name),shift:shifts(start_zeit,end_zeit,position),evidence:operational_task_evidence(id,evidence_type,verification_status,submitted_at)')
       .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .or(`assigned_to.eq.${employee.id},accountable_employee_id.eq.${employee.id},controller_employee_id.eq.${employee.id}`)
       .not('status', 'eq', 'storniert').order('due_at', { ascending: true, nullsFirst: false }).limit(150),
