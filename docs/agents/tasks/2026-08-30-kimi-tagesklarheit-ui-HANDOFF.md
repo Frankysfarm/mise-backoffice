@@ -40,3 +40,5 @@
 ## Commit
 
 Branch: `kimi/tagesklarheit-ui` (tip).
+- `ae352a8f` – Tagesklarheit page, styles, tests and Neo shell nav entry.
+- `bec97195` – Add Tagesklarheit to the operations module sidebar.
