@@ -37,8 +37,11 @@ reporting, and operational data source.
   - `edd5c7ad` — stable Berlin week calendar/query boundaries
   - `48a587b1` — nullable membership, schedule lock-order, and historical-shift
     import hardening
-- Deployment state: **not deployed**. No production schema or data operation was
-  performed in this run, as requested.
+- Deployment state: **deployed to production** in owner-approved attempt 6. The
+  application is serving release `87320087` from image `2d29e61b`; the additive
+  schema and Pontstraße seed are live, and the four automation triggers are
+  enabled. Full attempt-6 evidence and the executable rollback outline are
+  recorded below.
 
 ## Acceptance mapping and decisions
 
@@ -129,9 +132,11 @@ rematerialization boundary. The only minor is that lock-order coverage is
 structural rather than a live two-session interleave; the reviewer accepted it as
 adequate for the requested lock-alignment option.
 
-Remaining evidence gap: authenticated workflow proof still uses the controlled
-local protocol fixture rather than a real Supabase staging project. A later
-release must repeat staging acceptance; deployment is outside this run.
+The controlled local authenticated browser evidence remains the broad UI proof.
+Attempt 6 adds live-provider evidence for identity resolution and manager RLS:
+an Auth-linked production manager could read the one own-location briefing and
+zero of three foreign-location briefings. Public application and protected-cron
+checks also passed after the production switch.
 
 ## Database change and rollback
 
@@ -142,7 +147,12 @@ release must repeat staging acceptance; deployment is outside this run.
 - Production attempt 5 applied all three migrations in order. The application
   was then rolled back to source commit `50b554e9`; the additive schema and
   seeded audit/operational records were retained. The four new automation
-  triggers are disabled as recorded in the attempt-5 evidence below.
+  triggers were disabled as recorded in the attempt-5 evidence below.
+- Production attempt 6 deployed source commit `87320087` and re-enabled all four
+  automation triggers in one committed transaction after rollback-image and
+  application health verification. The schema was not reapplied; installed
+  migration objects were verified before deployment. The idempotent Pontstraße
+  seed was rerun once and passed.
 - If application rollback occurs after migration, the previous application is
   compatible with the additive schema. Disable calls to the operational cron and
   the `shifts_operational_tasks_materialize`,
@@ -157,20 +167,24 @@ release must repeat staging acceptance; deployment is outside this run.
   migration restoring the previous three function bodies. Do not edit applied
   migration history; keep operational tasks and audit records intact.
 
-## Known risks and next authorized step
+## Known risks and post-release follow-up
 
-- No staging/live Supabase credentials were present, so real-provider auth and
-  deployed-environment acceptance remain a pre-deploy requirement. The local
-  protocol fixture contains no secrets; SQL/RLS behavior was separately proven
-  in PostgreSQL.
+- The full authenticated browser suite still uses the controlled local protocol
+  fixture. Production acceptance covered live identity helper resolution and
+  manager briefing RLS directly in PostgreSQL, plus public HTTP health; it did
+  not use a human production browser session.
 - The original three final-review follow-ups are closed. A live two-session
   confirmation/generation interleave remains optional stronger evidence; the
   installed lock-order regression and independent review are green.
 - Pontstraße draft employee profiles still require real email addresses before
   invitations/login creation.
-- Stop in the current run after the final green commit. A later, explicitly
-  authorized release must repeat backup, migration, authenticated staging smoke,
-  health checks, and rollback verification before production deploy.
+- The production deploy-script fix currently lives at
+  `/opt/mise/auto-deploy.sh`; its exact pre-attempt-6 backup and both checksums
+  are recorded below. A future infrastructure change should bring that script
+  under version control without restoring the old global-prune behavior.
+- GitHub `origin/main` reconciliation remains a separate reviewed task. The
+  production checkout intentionally follows the previously authorized
+  fast-forward ancestry and was not rebased or merged during attempt 6.
 
 ## Production deployment attempt — aborted 2026-08-30
 
@@ -291,3 +305,90 @@ release must repeat staging acceptance; deployment is outside this run.
   the stale/diverged GitHub `origin/main` remains explicitly out of scope and is
   a HANDOFF follow-up, not a prerequisite to preserving the production
   fast-forward ancestry.
+
+## Production deployment attempt 6 — deployed 2026-08-30
+
+- Owner-approved release guard: local
+  `/Users/eule/mise-neo-module-integration-20260826` was clean at `cdd72763`,
+  whose only change after authorized release `87320087` is this handoff record.
+  Production `/opt/mise/backoffice` was exact `87320087` with only the expected
+  generated `app/fahrer/build-version.ts` modification. No Git fetch, merge,
+  rebase, or checkout advance was performed.
+- Phase-1 disk preflight reported 75 GB total, 62 GB used, and 11 GB available
+  (86%). The live application was `mise_backoffice_3310` on exact image
+  `df8cf1b837fbad52511a25247fa104e5941f8c3ddb0b87700296489a1c505dc7`.
+  The validated pre-migration backup remained present, mode `0600`, 8,978,042
+  bytes, SHA-256
+  `79847b1e11290d317c16a223cde0bfadb49fe6865de4c99e82e41453793ff9c2`.
+- The production deployment script was fixed in place. Before nginx can switch,
+  it now resolves the active container's immutable image ID, tags that exact ID
+  as `mise-backoffice:previous`, and verifies the tag-to-ID mapping. After a
+  successful switch it tags the candidate as `mise-backoffice:current` and
+  cleans only obsolete `mise-backoffice` images; current, previous, and any
+  image still used by a container are excluded. New builds carry the
+  `com.mise.app=backoffice` label, and the former global
+  `docker image prune -f` is gone. Cleanup ends with a second exact previous-ID
+  assertion.
+- Script evidence: the original is retained as
+  `/opt/mise/auto-deploy.sh.pre-attempt6-20260830T210444Z`, SHA-256
+  `401d9f291069240e2db8719201edf5eb8e0b16130de7822e2f6a2223d1629d37`.
+  The fixed `/opt/mise/auto-deploy.sh` is mode `0755`, owned by root, passed
+  `bash -n`, and has SHA-256
+  `e8ca14dfcf64c762bf632e5fa571b2c121f9d376fe78e4eac12954e5ddd4caf9`.
+  Its `--check-rollback-preservation` dry-run resolved the exact live image,
+  marked it protected, and reported `PASS`; before/after comparisons proved the
+  Docker image and container inventories were unchanged.
+- Installed migration objects were verified rather than reapplied. All four
+  automation triggers were still disabled before deployment. The existing seed
+  counts were 9 Pontstraße draft profiles, 11 active starter templates, and 10
+  setup tasks; one authorized idempotent rerun committed and printed
+  `Pontstraße organization seed passed` with the same assertions.
+- The fixed script built candidate image
+  `2d29e61bfdda98fb82570361da139a3945c864fe4e37a6740f28d2d27be18085`,
+  which passed inactive-port 3300 health in two seconds with HTTP `307` and
+  `running|0`. It preserved the old image before switching nginx to 3300 at
+  `2026-08-30T21:21:16Z`; cleanup finished at `21:21:20Z` with its rollback
+  assertion green.
+- Independent post-cleanup verification found active tag
+  `mise-backoffice:current` on `2d29e61b` and rollback tag
+  `mise-backoffice:previous` on exact old image `df8cf1b`. Only those two unique
+  backoffice images remain (the candidate also has `auto`; the previous also
+  retains `rollback-50b554e9-attempt5`). Disk use remained 62 GB with 11 GB
+  available (86%).
+- Only after that verification, one transaction enabled
+  `shifts_operational_tasks_materialize`,
+  `shifts_operational_tasks_retire_change`,
+  `shifts_operational_tasks_cancel_delete`, and
+  `task_templates_materialize_shifts`. The transaction committed and final
+  catalog verification reported `tgenabled = 'O'` for all four.
+- Live acceptance passed. Briefing materialization returned 6 and produced one
+  Berlin-day row for each of the 6 production locations. An Auth-linked manager
+  resolved to the expected employee and tenant, read exactly 1 own-location
+  briefing, and read 0 of 3 same-tenant foreign-location briefings under role
+  `authenticated`. `https://mise-gastro.de/login` returned `200`, while an
+  unauthenticated request to
+  `https://mise-gastro.de/api/cron/operational-escalations` returned `401`.
+  Final container state was `running|0` on 3300, the rollback tag still resolved
+  to `df8cf1b`, and all four triggers remained enabled.
+
+### Final rollback notes for attempt 6
+
+- Application rollback target is the preserved
+  `mise-backoffice:previous` image, immutable ID
+  `df8cf1b837fbad52511a25247fa104e5941f8c3ddb0b87700296489a1c505dc7`,
+  corresponding to source release `50b554e9`. Before using it, re-verify both
+  the tag and immutable ID with `docker image inspect`.
+- Recreate `mise_backoffice_3310` from `mise-backoffice:previous` using the same
+  `.env`, `.env.local`, read-only `/opt/mise/secrets` mount, host network,
+  `PORT=3310`, `HOSTNAME=0.0.0.0`, and `unless-stopped` policy used by the deploy
+  script. Require HTTP `200/30x`, container `running`, and restart count zero on
+  inactive port 3310 before changing nginx or `/opt/mise/.mise_active_port`.
+- If traffic is rolled back to 3310, disable all four attempt-6 triggers in one
+  transaction and verify `tgenabled = 'D'` for each; then remove the 3300
+  candidate container only after public `/login` is `200` and unauthenticated
+  cron remains `401` on the previous application. Keep the additive schema,
+  seeded records, briefings, operational tasks, and audit history intact.
+- Do not restore the pre-migration dump, drop additive objects, or use the old
+  deploy script as an emergency shortcut. The pre-attempt-6 script backup is
+  retained for audit/forensics; it contains the cleanup defect that caused
+  attempt 5 to abort.
