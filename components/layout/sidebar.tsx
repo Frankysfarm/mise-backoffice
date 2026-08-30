@@ -209,8 +209,9 @@ const MODULE_DEFS: SidebarModule[] = [
       { group: 'Mitarbeiter', href: '/employees',    icon: 'Users',    label: 'Alle Mitarbeiter' },
       { group: 'Mitarbeiter', href: '/applications', icon: 'Users',    label: 'Bewerbungen' },
 
-      { group: 'Schicht',     href: '/schedule',     icon: 'Calendar', label: 'Dienstplan' },
-      { group: 'Schicht',     href: '/shift-guides', icon: 'BookOpen', label: 'Schichtleitfäden' },
+      { group: 'Schicht',     href: '/schedule',          icon: 'Calendar',    label: 'Dienstplan' },
+      { group: 'Schicht',     href: '/shift-guides',      icon: 'BookOpen',    label: 'Schichtleitfäden' },
+      { group: 'Schicht',     href: '/neo/app/klarheit',  icon: 'CheckSquare', label: 'Tagesklarheit' },
 
       { group: 'Inventar',    href: '/equipment',    icon: 'Wrench',   label: 'Geräte verwalten' },
     ],
