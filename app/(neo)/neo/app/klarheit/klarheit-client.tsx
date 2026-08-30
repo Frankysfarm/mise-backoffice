@@ -28,7 +28,7 @@ type Coverage = {
   aktuell_zustaendig_id: string | null; hauptverantwortlicher_abwesend: boolean; abdeckungsstatus: string;
 };
 type Absence = {
-  id: string; employee_id: string; datum: string; typ: string; grund: string | null;
+  id: string; employee_id: string; datum: string; typ: string;
   employee: Person | Person[] | null;
 };
 type Location = { id: string; name: string; stadt: string | null };
@@ -176,7 +176,7 @@ export function KlarheitClient({
 
   const currentLocation = locations.find((l) => l.id === locationId);
   const headerDate = useMemo(() => {
-    try { return DATE.format(new Date(`${todayDate}T12:00:00`)); }
+    try { return DATE.format(new Date(`${todayDate}T12:00:00Z`)); }
     catch { return todayDate; }
   }, [todayDate]);
 
@@ -416,7 +416,6 @@ export function KlarheitClient({
                     </div>
                     <div className={styles.rowTime}>
                       <span className={styles.absenceType}>{ABSENCE_LABELS[absence.typ] ?? absence.typ}</span>
-                      {absence.grund && <span className={styles.rowDuration}>{absence.grund}</span>}
                     </div>
                   </div>
                 </article>

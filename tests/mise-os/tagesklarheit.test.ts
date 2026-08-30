@@ -18,6 +18,8 @@ describe('Tagesklarheit page', () => {
     const client = source('app/(neo)/neo/app/klarheit/klarheit-client.tsx');
     const styles = source('app/(neo)/neo/app/klarheit/klarheit.module.css');
     const shell = source('app/(neo)/neo/app/shell.tsx');
+    const error = source('app/(neo)/neo/app/klarheit/error.tsx');
+    const loading = source('app/(neo)/neo/app/klarheit/loading.tsx');
 
     expect(page).toContain('requireManagerPlus');
     expect(page).toContain('createServiceClient');
@@ -28,6 +30,9 @@ describe('Tagesklarheit page', () => {
     expect(page).toContain('berlinTodayBounds');
     expect(page).toContain('todayDate');
     expect(page).toContain('KlarheitClient');
+    expect(page).toContain(".not('status', 'in', '(abgesagt,storniert)')");
+    expect(page).toContain(".lt('due_at', todayEnd.toISOString())");
+    expect(page).not.toContain('grund');
 
     expect(client).toContain('Heute im Dienst');
     expect(client).toContain('Aufgaben heute');
@@ -41,6 +46,8 @@ describe('Tagesklarheit page', () => {
     expect(styles).toContain('.hero');
     expect(styles).toContain('.section');
     expect(styles).toContain('.cardAlert');
+    expect(error).toContain('Tagesklarheit konnte nicht geladen werden');
+    expect(loading).toContain('Tagesklarheit wird geladen');
 
     expect(shell).toContain("['klarheit', 'Tagesklarheit']");
     expect(shell).toContain("klarheit: ['Tagesklarheit'");
@@ -108,7 +115,6 @@ describe('Tagesklarheit page', () => {
           employee_id: '40000000-0000-0000-0000-000000000001',
           datum: today,
           typ: 'krank',
-          grund: 'Erkältung',
           employee: { id: '40000000-0000-0000-0000-000000000001', vorname: 'Mara', nachname: 'Leitung', rolle: 'manager', position_title: 'Betriebsleitung' },
         },
       ],

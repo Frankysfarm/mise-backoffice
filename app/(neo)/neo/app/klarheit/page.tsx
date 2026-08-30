@@ -53,7 +53,7 @@ export default async function KlarheitPage({
   const service = createServiceClient();
   const { data: locations } = await service.from('locations')
     .select('id,name,stadt')
-    .eq('tenant_id', actor.tenant_id).order('name');
+    .eq('tenant_id', actor.tenant_id).order('name').throwOnError();
   const availableLocations = locations ?? [];
   const mayUseAllLocations = ['backoffice', 'admin'].includes(actor.rolle);
   const locationId = mayUseAllLocations && requested && availableLocations.some((location) => location.id === requested)
@@ -71,11 +71,11 @@ export default async function KlarheitPage({
     service.from('departments')
       .select('id,name,aktiv,prioritaet')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
-      .eq('aktiv', true).order('prioritaet', { ascending: false }),
+      .eq('aktiv', true).order('prioritaet', { ascending: false }).throwOnError(),
     service.from('employees')
       .select('id,vorname,nachname,rolle,position_title,department_id')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
-      .in('status', ['aktiv', 'in_training', 'in_probe']).order('nachname'),
+      .in('status', ['aktiv', 'in_training', 'in_probe']).order('nachname').throwOnError(),
   ]);
 
   const employeeIds = (employees ?? []).map((employee) => employee.id);
@@ -89,28 +89,29 @@ export default async function KlarheitPage({
     service.from('shifts')
       .select('id,start_zeit,end_zeit,status,position,typ,employee:employees!shifts_employee_id_fkey(id,vorname,nachname,rolle,position_title),department:departments(id,name)')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
+      .not('status', 'in', '(abgesagt,storniert)')
       .lt('start_zeit', todayEnd.toISOString())
       .gt('end_zeit', todayStart.toISOString())
-      .order('start_zeit', { ascending: true }),
+      .order('start_zeit', { ascending: true }).throwOnError(),
     service.from('operational_tasks')
       .select('id,department_id,title,status,priority,due_at,escalation_level,assigned_to,assignee:employees!operational_tasks_assigned_to_fkey(vorname,nachname)')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
       .in('status', ['offen', 'angenommen', 'in_arbeit', 'wartet_auf_pruefung', 'blockiert'])
-      .lte('due_at', todayEnd.toISOString())
+      .lt('due_at', todayEnd.toISOString())
       .order('due_at', { ascending: true, nullsFirst: false })
-      .limit(300),
+      .limit(300).throwOnError(),
     service.from('v_responsibility_coverage')
       .select('*')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
-      .neq('abdeckungsstatus', 'abgedeckt'),
+      .neq('abdeckungsstatus', 'abgedeckt').throwOnError(),
     employeeIds.length
       ? service.from('availability_exceptions')
-        .select('id,employee_id,datum,typ,grund,employee:employees!availability_exceptions_employee_id_fkey(vorname,nachname,rolle,position_title)')
+        .select('id,employee_id,datum,typ,employee:employees!availability_exceptions_employee_id_fkey(vorname,nachname,rolle,position_title)')
         .eq('tenant_id', actor.tenant_id)
         .in('employee_id', employeeIds)
         .eq('datum', todayDate)
         .in('typ', ['krank', 'urlaub', 'abwesend', 'gesperrt', 'nicht_verfuegbar', 'unavailable', 'sick'])
-        .order('typ')
+        .order('typ').throwOnError()
       : { data: [] },
   ]);
 

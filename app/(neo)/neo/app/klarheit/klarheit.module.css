@@ -53,6 +53,12 @@
 
 .empty{display:flex;align-items:center;justify-content:center;gap:10px;padding:26px 16px;border:1px dashed #cbd5e1;border-radius:14px;color:#64748b;background:#f8fafc;font-size:13px;font-weight:600;text-align:center}
 
+.statePanel{display:flex;align-items:center;gap:16px;max-width:680px;margin:40px auto;padding:22px;border:1px solid #cbd5e1;border-radius:16px;color:#475569;background:#fff;box-shadow:0 8px 24px rgba(15,23,42,.07)}
+.statePanel h1{margin:0;color:#0f172a;font-family:'Space Grotesk',system-ui,sans-serif;font-size:18px;letter-spacing:-.02em}
+.statePanel p{margin:5px 0 0;font-size:13px;line-height:1.45}
+.statePanel button{margin-left:auto;min-height:38px;padding:0 14px;border:0;border-radius:9px;color:#fff;background:#4338ca;font:700 12px 'Plus Jakarta Sans',system-ui,sans-serif;cursor:pointer}
+.statePanel button:focus-visible{outline:3px solid rgba(79,70,229,.28);outline-offset:2px}
+
 @media(max-width:700px){
   .hero{flex-wrap:wrap;align-items:flex-start;padding:18px 18px 20px}
   .heroIcon{display:none}
@@ -65,6 +71,8 @@
   .rowTime{justify-items:start;text-align:left}
   .activePill{grid-column:auto;justify-self:auto}
   .coverageRow{flex-direction:column;align-items:flex-start;gap:2px}
+  .statePanel{align-items:flex-start;flex-wrap:wrap;margin:20px auto}
+  .statePanel button{width:100%;margin-left:0}
 }
 
 @media(max-width:1050px){
