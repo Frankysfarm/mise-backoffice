@@ -542,6 +542,7 @@ declare
   v_question_id text;
   v_department_id uuid;
   v_location_id uuid;
+  v_existing_location_id uuid;
 begin
   select e.rolle::text as rolle,e.location_id,e.status::text as status
   into v_actor
@@ -551,10 +552,13 @@ begin
     or v_actor.rolle not in ('manager','backoffice','admin') then
     raise exception 'actor may not manage assessments';
   end if;
-  v_location_id:=case when v_actor.rolle='manager' then v_actor.location_id else p_location_id end;
   if v_actor.rolle='manager' and v_actor.location_id is null then
     raise exception 'manager is outside assessment location';
   end if;
+  if v_actor.rolle='manager' and p_location_id is not null and p_location_id<>v_actor.location_id then
+    raise exception 'manager is outside assessment location';
+  end if;
+  v_location_id:=case when v_actor.rolle='manager' then v_actor.location_id else p_location_id end;
   if v_location_id is not null and not exists(
     select 1 from public.locations l where l.id=v_location_id and l.tenant_id=p_tenant_id
   ) then raise exception 'assessment location is outside tenant'; end if;
@@ -584,11 +588,12 @@ begin
       case when p_active then 'ACTIVE' else 'DRAFT' end,p_actor_id,now()
     );
   else
-    perform 1 from public.assessment_templates t
+    select t.location_id into v_existing_location_id from public.assessment_templates t
     where t.id=p_id and t.tenant_id=p_tenant_id and not t.is_system_template
       and (v_actor.rolle<>'manager' or t.location_id is null or t.location_id=v_actor.location_id)
     for update;
     if not found then raise exception 'assessment template not found'; end if;
+    if v_actor.rolle='manager' then v_location_id:=v_existing_location_id; end if;
     update public.assessment_templates set
       location_id=v_location_id,name=trim(p_name),description=nullif(trim(p_description),''),
       status=case when p_active then 'ACTIVE' else 'DRAFT' end,updated_at=now()
@@ -612,7 +617,7 @@ begin
       'passMessage',left(coalesce(nullif(trim(p_pass_message),''),'Danke. Der Test wurde erfolgreich abgeschlossen.'),1000),
       'failMessage',left(coalesce(nullif(trim(p_fail_message),''),'Danke. Der Betrieb prüft nun den nächsten Schritt.'),1000)
     ),
-    encode(digest(convert_to(coalesce(p_questions,'[]'::jsonb)::text||coalesce(p_targets,'[]'::jsonb)::text,'UTF8'),'sha256'),'hex')
+    encode(extensions.digest(convert_to(coalesce(p_questions,'[]'::jsonb)::text||coalesce(p_targets,'[]'::jsonb)::text,'UTF8'),'sha256'),'hex')
   );
 
   for v_question in select value from jsonb_array_elements(p_questions)
@@ -670,7 +675,7 @@ begin
       if not exists(
         select 1 from public.departments d
         where d.id=v_department_id and d.tenant_id=p_tenant_id
-          and (p_location_id is null or d.location_id=p_location_id)
+          and (v_location_id is null or d.location_id=v_location_id)
       ) then raise exception 'assessment department is outside scope'; end if;
       insert into public.assessment_template_targets(tenant_id,template_id,target_type,department_id)
       values(p_tenant_id,v_template_id,'department',v_department_id)
@@ -715,7 +720,7 @@ begin
   v_action:=case when v_passed then v_config->>'passAction' else v_config->>'failAction' end;
   v_message:=case when v_passed then v_config->>'passMessage' else v_config->>'failMessage' end;
   insert into public.assessment_results(session_id,tenant_id,candidate_id,overall_score,score_band,recommendation,safety_review_required,critical_error_count,critical_errors_json,confidence,confidence_reasons,insight_json,metric_json,scoring_version,content_version,input_checksum,result_checksum,passed,earned_points,max_points,outcome_action,outcome_message)
-  values(p_session_id,v_session.tenant_id,v_session.candidate_id,v_score,case when v_score>=90 then 'A' when v_score>=75 then 'B' when v_score>=60 then 'C' else 'D' end,case when v_passed then 'NEXT_STAGE' else 'REVIEW' end,v_must_failed,case when v_must_failed then 1 else 0 end,'[]','HIGH','[]','{}',jsonb_build_object('earnedPoints',v_earned,'maxPoints',v_total),'OWNER_POINTS_V1','OWNER_CONTENT_V1',encode(digest(p_session_id::text,'sha256'),'hex'),encode(digest(p_session_id::text||v_score::text,'sha256'),'hex'),v_passed,v_earned,v_total,v_action,v_message);
+  values(p_session_id,v_session.tenant_id,v_session.candidate_id,v_score,case when v_score>=90 then 'A' when v_score>=75 then 'B' when v_score>=60 then 'C' else 'D' end,case when v_passed then 'NEXT_STAGE' else 'REVIEW' end,v_must_failed,case when v_must_failed then 1 else 0 end,'[]','HIGH','[]','{}',jsonb_build_object('earnedPoints',v_earned,'maxPoints',v_total),'OWNER_POINTS_V1','OWNER_CONTENT_V1',encode(extensions.digest(p_session_id::text,'sha256'),'hex'),encode(extensions.digest(p_session_id::text||v_score::text,'sha256'),'hex'),v_passed,v_earned,v_total,v_action,v_message);
   update public.assessment_sessions set status=case when v_action='manual_review' then 'AWAITING_REVIEW' else 'COMPLETED' end,completed_at=now(),score_calculated_at=now(),completion_percentage=100,updated_at=now() where id=p_session_id;
   if v_action='next_stage' then update public.employees set status=case when status='wartet_zuteilung' then 'in_probe' else status end where id=v_session.candidate_id and tenant_id=v_session.tenant_id;
   elsif v_action='reject' then update public.employees set status='abgelehnt' where id=v_session.candidate_id and tenant_id=v_session.tenant_id; end if;

@@ -17,7 +17,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
   const currentEmployee = await requireManagerPlus();
   if (!currentEmployee.tenant_id) throw new Error('Mitarbeiterkonto ist keinem Mandanten zugeordnet.');
   const basePath = await operationsBasePath('/applications', '/neo/app/bewerbungen');
-  const testsPath = '/neo/app/tests';
+  const testsPath = await operationsBasePath('/application-tests', '/neo/app/tests');
   const employeeBasePath = basePath.startsWith('/neo/') ? '/neo/app/mitarbeiter' : '/employees';
   const { id } = await params;
   // Application progress and reviews are intentionally manager-visible here;

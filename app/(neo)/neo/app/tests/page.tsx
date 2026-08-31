@@ -12,5 +12,5 @@ export default async function AssessmentPage() {
     service.from('departments').select('id,name,location_id').eq('tenant_id', actor.tenant_id).order('name'),
     service.from('locations').select('id,name').eq('tenant_id', actor.tenant_id).order('name'),
   ]);
-  return <div><PageHeader backHref="/neo/app/bewerbungen" title="Bewerbungstests" description="Tests erstellen, Stellen zuordnen und Ergebnisse nachvollziehen." /><AssessmentManager initialTemplates={templates ?? []} departments={departments ?? []} locations={locations ?? []} managerLocationId={actor.rolle === 'manager' ? actor.location_id : null} /></div>;
+  return <div><PageHeader backHref="/neo/app/bewerbungen" title="Bewerbungstests" description="Tests erstellen, Stellen zuordnen und Ergebnisse nachvollziehen." /><AssessmentManager initialTemplates={templates ?? []} departments={departments ?? []} locations={locations ?? []} isManager={actor.rolle === 'manager'} managerLocationId={actor.rolle === 'manager' ? actor.location_id : null} /></div>;
 }

@@ -16,6 +16,13 @@ describe('packet C-A database security', () => {
     expect(sql).toContain("where e.id=p_actor_id and e.tenant_id=p_tenant_id");
     expect(sql).toContain("manager is outside assessment location");
     expect(sql).toContain("employee is outside tenant");
+    expect(sql).toContain("if v_actor.rolle='manager' then v_location_id:=v_existing_location_id; end if");
+    expect(sql).toContain('(v_location_id is null or d.location_id=v_location_id)');
+  });
+
+  it('resolves pgcrypto from the production extension schema', () => {
+    expect(sql.match(/extensions\.digest\(/g)).toHaveLength(3);
+    expect(sql).not.toMatch(/(?<!extensions\.)digest\(/);
   });
 
   it('feeds overdue required training into canonical operational tasks', () => {

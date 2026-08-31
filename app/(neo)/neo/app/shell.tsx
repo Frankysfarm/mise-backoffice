@@ -46,7 +46,6 @@ const META: Record<string, [string, string]> = {
   lager: ['Lager', 'Bestände, Inventuren und Bestellungen steuern'],
   ablaeufe: ['Listen & Abläufe', 'Wiederkehrende Betriebsaufgaben verbindlich steuern'],
   schulungen: ['Schulungen', 'Onboarding, Wissen und Praxisnachweise verwalten'],
-  tests: ['Bewerbungstests', 'Fragen, Zuordnung und Auswertung verwalten'],
   compliance: ['Team & Compliance', 'Qualifikationen, Zertifikate und Pflichten im Blick behalten'],
   rezeptbuch: ['Rezeptbuch', 'Rezepte und Küchenwissen gemeinsam pflegen'],
   klarheit: ['Tagesklarheit', 'Heute im Dienst, offene Aufgaben und Abdeckung auf einen Blick'],
@@ -64,7 +63,7 @@ export default function Shell({ children, newCount = 0, tenantName = 'Mein Shop'
   const seg = path.split('/neo/app/')[1]?.split('/')[0] || 'uebersicht';
   const active = seg === 'uebersicht' ? 'overview' : seg;
   const [title, sub] = META[active] || META.overview;
-  const isOperations = ['klarheit', 'bewerbungen', 'tests', 'mitarbeiter', 'dienstplan', 'lager', 'ablaeufe', 'schulungen', 'compliance', 'rezeptbuch'].includes(active);
+  const isOperations = ['klarheit', 'bewerbungen', 'mitarbeiter', 'dienstplan', 'lager', 'ablaeufe', 'schulungen', 'compliance', 'rezeptbuch'].includes(active);
   const initials = tenantName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
   const [menuOpen, setMenuOpen] = useState(false);
   return (
