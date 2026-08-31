@@ -428,3 +428,177 @@ checks also passed after the production switch.
 - Produktions-Preconditions: verifiziertes Backup vor Datei 1; die beiden Scope-Abfragen im Runbook müssen auf Produktion vor Datei 8 null Zeilen liefern. Kein Deploy und keine Produktionsmutation in dieser Runde.
 - Evidence: Vitest 42/42 Dateien und 276/276 Tests; TypeScript Exit 0; Next Build Exit 0 und 242/242 Seiten; August-31-Migrationssatz 9/9 OK; `git diff --check` Exit 0. Der exakt angeforderte Glob `2026083*.sql` bleibt wegen des vorbestehenden Snapshot-Konflikts von `20260830154500_daily_clarity_automation.sql` Exit 1; alle Fix-Round-Migrationen darin sind OK. Details: `docs/agents/reports/2026-08-31-c-int.md`.
 - Rollback: RPC-/Triggerdefinitionen aus dem unmittelbar vor Datei 9 gesicherten Schema wiederherstellen; Datenkorrekturen aus Datei 1 nur aus dem verpflichtenden Pre-Deploy-Backup. Reviewer-Freigabe ist vor Deployment weiterhin erforderlich.
+
+## Production deployment — Vollausbau 2026-08-31
+
+- Result: **deployed to production**. The approved source candidate is
+  `a69bf7d0b8956cb75e44726e31ce3dbd53aec8ab`; production serves it from
+  `mise_backoffice_3310`, container
+  `5c338387d791ffff345b2413168459a1316347975c3c560730bc7339216f4836`,
+  immutable image
+  `22ccae64d4d10a5b781f672875455dee06078ddf111353faad770fd484292c87`.
+  Final verification at `2026-08-31T22:52:43Z` found `running|0`, start time
+  `2026-08-31T20:29:31.502665463Z`, public `/login` `200`, and no error matches
+  in the preceding five minutes of container logs. Production had therefore
+  remained stable for more than two hours before final handoff.
+- Release guards passed. The local `vollausbau/integration` worktree was clean
+  at `a69bf7d`; `87320087` was an ancestor. Production started at exact
+  `873200876190c90833174ecde8e33764b4f47b34` with only generated
+  `app/fahrer/build-version.ts` modified. Disk was 75 GB total, 62 GB used,
+  11 GB available (86%), above the 8 GB stop threshold. The live pre-deploy
+  container was `mise_backoffice_3300` on immutable image
+  `2d29e61bfdda98fb82570361da139a3945c864fe4e37a6740f28d2d27be18085`;
+  it was `running|1`. The fixed `/opt/mise/auto-deploy.sh` was mode `0755`,
+  root-owned, passed `bash -n`, retained SHA-256
+  `e8ca14dfcf64c762bf632e5fa571b2c121f9d376fe78e4eac12954e5ddd4caf9`,
+  and its rollback-preservation dry-run passed.
+- Transport followed the supplied `px`/`pscp` helpers exclusively. The first
+  read-only `px` preflight was locally denied access to the existing control
+  socket; after the mandated 60-second wait, the single retry connected and no
+  production command had run before it. A later client connection ended with
+  SSH exit `255` during rollback-artifact recovery; after the mandated wait,
+  the single reconnect succeeded and showed that the remote guarded command
+  had completed. No production command used a separately created SSH control
+  master.
+- Git bundle evidence: Git rejected a raw-SHA-only positive revision as an
+  empty advertised bundle, so the same 63-commit range was created from the
+  verified `vollausbau/integration` ref, which pointed exactly at `a69bf7d`,
+  excluding `87320087`. `/tmp/vollausbau-a69bf7d.bundle` was 499,385 bytes,
+  required `873200876190c90833174ecde8e33764b4f47b34`, advertised
+  `a69bf7d0b8956cb75e44726e31ce3dbd53aec8ab`, passed `git bundle verify`
+  locally and on production, and had SHA-256
+  `be7bc9a8a28f07011950a9c8ffe6b48f210e3f28b7a165e5512dde689b60a3c5`.
+  Production fetched only that bundle and fast-forwarded at
+  `2026-08-31T20:12:35Z`; no GitHub fetch, rebase, or non-fast-forward merge was
+  used. Production source ended at exact `a69bf7d` with only the generated
+  build-version file modified.
+- The required full pre-migration restore point is
+  `/opt/mise/backups/vollausbau-pre-20260831T201020Z.dump`, mode `0600`,
+  root-owned, 9,097,310 bytes, SHA-256
+  `bb26e52278c491f7e5611ecf2e6d3bc524077b053958dbc98911ea27200b3a67`.
+  `pg_restore --list` returned 4,200 entries. Immediately before migration 9,
+  a separate schema-only restore point was created at
+  `/opt/mise/backups/vollausbau-pre-review-corrections-20260831T201326Z.dump`,
+  mode `0600`, root-owned, 2,253,286 bytes, SHA-256
+  `6068a64c05ae8cc94f6549571f9d484fe50b82b9a5e4d0b62facac1bc36e91ae`,
+  with 4,112 restore-list entries. Both were re-hashed during final verification.
+- The literal pre-deploy scope query in
+  `docs/agents/deploy/2026-08-31-migrations.md` initially stopped read-only with
+  `function min(uuid) does not exist`; it did not mutate the database. The
+  operator reran the semantically identical UUID-safe fallback actually used by
+  migration 8, `(array_agg(id))[1]`, query SHA-256
+  `51755c5fbac17db0fd24a8ea2f588dff5df1bba4f12963288fc57590d77fab52`.
+  Both required result sets were empty: `shift_guides` `(0 rows)` and
+  `checkup_templates` `(0 rows)`. The runbook expression should be corrected
+  before it is reused; production scope itself passed.
+- All nine migrations applied with `ON_ERROR_STOP=1`, one explicit transaction
+  per file, in the documented order between `20:13:21Z` and `20:13:29Z`:
+
+  ```text
+  bed3f64738c9f823a1c5056e07c501fb90f81af7d0cb1c953657db3261fe648c  20260831100944_application_assessments_training_onboarding.sql
+  20cf9b495cc441853f616eee0d7d1a7013699b2b3380e67f7e42d6c2172800be  20260831115000_employee_avatars.sql
+  f683f7728bd86850668393ac71c4f48d048b012c39e44bb7e1d05edc351449e1  20260831120000_recurring_tasks_and_handover_ack.sql
+  715a1504d630a553784ec63cd69d6eb214efdc34d2da576e420c3f1435f2d231  20260831120100_recurring_tasks_escalation_enum_fix.sql
+  1e607425badfd7be98c4aa4aaa2b1faf26153e5350535f9be0695ca5fbfa7aec  20260831130000_schedule_planning_loop.sql
+  ee3d89a19485a35803ba69e20d7714e7388e14f9c8b285f6b5c4b4d579a00685  20260831140000_inventory_warehouse_plan.sql
+  3ff5d7cfefd2796c568c016a5b7f82f7441ab781e4afa5a84537c844225c2d5c  20260831140100_inventory_warehouse_plan_review_fixes.sql
+  b113af657fd7159ebf3f394dc5c6ff7889f0d807def22ab2480d4b7723ebd5f1  20260831150000_visual_shift_guide_editor.sql
+  b9578038bb452fd1502292303888d51f373702c13f01f85c75e68bfed3888704  20260831160000_vollausbau_review_corrections.sql
+  ```
+
+  Migration 1 reported zero removed training duplicates. Migration 8 updated
+  four legacy guides and two templates; its ambiguity guards passed. All nine
+  transactions printed `COMMIT`. No application switch occurred until the
+  entire set and post-migration assertions had passed.
+- Final post-migration assertion script SHA-256 was
+  `e9b267353aa33fd87910df90f5210ca85dbedc63178422588884fd22d08d2613`.
+  It verified all required tables, columns, functions, the public `avatars`
+  bucket contract, the training-progress unique key, and `pgcrypto` in schema
+  `extensions`. All four `shift_guides` and both `checkup_templates` rows had
+  non-null tenant/location scope. The eight expected scoped policies existed,
+  and these eight expected triggers were enabled with `tgenabled='O'`:
+  `operational_tasks_escalation_notify`,
+  `inventory_shelves_validate_hierarchy`,
+  `shifts_published_schedule_change`, `schedule_templates_audit`,
+  `schedule_template_slots_audit`, `schedule_weeks_audit`,
+  `shift_availability_responses_audit`, and
+  `schedule_publication_changes_audit`. Earlier read-only verifier drafts used
+  an incorrect legacy column name and bucket ID; they stopped without mutation
+  before the corrected assertion set passed.
+- `/opt/mise/auto-deploy.sh` built candidate image
+  `22ccae64d4d10a5b781f672875455dee06078ddf111353faad770fd484292c87`.
+  Candidate container
+  `5c338387d791ffff345b2413168459a1316347975c3c560730bc7339216f4836`
+  passed inactive-port 3310 health after two seconds with HTTP `307` and
+  `running|0`. The script tagged old image `2d29e61b...18085` as
+  `mise-backoffice:previous` before nginx switched at `20:29:34Z`, then
+  re-verified that exact tag after its own cleanup. The deploy completed at
+  `20:29:37Z`; independent local `/login` returned `200`, `current` pointed to
+  `22ccae64...92c87`, and disk still had 11 GB available.
+- Public unauthenticated smoke passed twice, initially at `20:30:46Z` and in
+  the final pass at `22:52:43Z`: `/login` returned `200`;
+  `/api/cron/operational-escalations` returned `401`; `/neo/app/tests`,
+  `/neo/app/lager/plan`, `/neo/app/ablaeufe/aufgaben`,
+  `/neo/app/dienstplan`, `/neo/app/schulungen`, and `/neo/app/mitarbeiter`
+  each returned `307` to `/login?next=...`, never `500`. Candidate startup logs
+  contained only the normal Next.js ready sequence, and the final five-minute
+  log window was empty with zero error-pattern matches.
+
+### Vollausbau rollback artifact recovery and final rollback recipe
+
+- An external cleanup race was observed after the successful script-level
+  preservation check: at `20:30:46Z`, about one minute after the switch, the
+  required `mise-backoffice:previous` tag and immutable old image
+  `2d29e61b...18085` were both gone. The candidate remained healthy. A separate
+  scheduled `/opt/mise/storefront-auto-deploy.sh` process was observed starting
+  at the same `20:30` boundary, but causality was not proven. The original old
+  binary image could not be recovered and this fact must not be hidden.
+- Rollback safety was rebuilt without changing live traffic. A detached remote
+  worktree at exact source `873200876190c90833174ecde8e33764b4f47b34`
+  produced a replacement `mise-backoffice:previous` image with immutable ID
+  `0365022eed3f636c8f784613c37104964a9ef842c20eb72de42846d33e488faf`,
+  size 257,904,911 bytes, label
+  `com.mise.rollback-source=873200876190c90833174ecde8e33764b4f47b34`.
+  This is a source-equivalent rebuild of the immediately preceding release, not
+  the deleted original binary. At `22:53:56Z` it was started independently on
+  inactive port 3300, returned `/login` `200`, and reported `running|0`; it was
+  then cleanly stopped with exit code 0 while public candidate `/login`
+  remained `200`.
+- The stopped prune guard is container
+  `mise_backoffice_rollback_guard`, immutable container ID
+  `6c0011d2c6dc83ac00d5375e3ab0279e243ff5199f4df2986c134a69d0120c65`.
+  It references exact rollback image `0365022e...8faf`, uses host networking,
+  the production env files, read-only `/opt/mise/secrets`, `PORT=3300`,
+  `HOSTNAME=0.0.0.0`, and restart policy `unless-stopped`. Its stopped state
+  protects the rollback image from ordinary unused-image pruning.
+- A second recovery copy is
+  `/opt/mise/backups/mise-backoffice-rollback-87320087-20260831T204753Z.tar`,
+  mode `0600`, root-owned, 265,664,000 bytes. `tar -tf` passed and SHA-256 is
+  `58d37bfdaa044478aef6f3f14a0d1bd6bedff56bc09f232addec015d76969cc6`.
+  Final image inventory contained only `current` on `22ccae64...92c87` and
+  `previous` on `0365022e...8faf`; final disk was 75 GB total, 61 GB used,
+  12 GB available (84%).
+- For an authorized **application-only rollback**, first verify
+  `mise-backoffice:previous` resolves exactly to `0365022e...8faf` and that the
+  guard references the same ID. If the tag/image is absent, load the verified
+  archive and re-check the immutable ID. With candidate traffic still on 3310
+  and port 3300 free, rename the stopped guard to `mise_backoffice_3300`, start
+  it, and require local `/login` `200`, state `running`, and restart count zero.
+  Only then point `/etc/nginx/conf.d/mise-upstream.conf` to `127.0.0.1:3300`,
+  pass `nginx -t`, reload nginx, and write `3300` to
+  `/opt/mise/.mise_active_port`. Re-run the full public smoke matrix before
+  stopping or removing candidate container `mise_backoffice_3310`.
+- The nine Vollausbau migrations are left in place for an application rollback;
+  do not restore either database dump, drop objects, or reverse the
+  `training_progress` deduplication automatically. Use the full pre-migration
+  dump only for a separately authorized data recovery, and the pre-file-9
+  schema dump only for the migration-9 RPC/trigger rollback described in
+  `docs/agents/deploy/2026-08-31-migrations.md`. The cross-deployment image
+  cleanup race remains an operational follow-up: future backoffice deploys
+  should create a stopped guard and/or verified archive before any unrelated
+  host build can prune the newly preserved previous image.
+- Per the deployment packet, no local build or test command was run during this
+  production operation. Durable acceptance evidence consists of the approved
+  pre-deploy gates, production migration assertions, inactive-port health,
+  public smoke, container/log checks, backup validation, and rollback
+  re-health/archive verification above.
