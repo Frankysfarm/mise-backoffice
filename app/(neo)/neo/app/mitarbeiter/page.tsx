@@ -55,12 +55,12 @@ export default async function MitarbeiterPage({
     service.from('operational_task_templates')
       .select('id,department_id,title,description,task_kind,trigger_type,shift_phase,due_offset_minutes,assignment_mode,assigned_employee_id,accountable_employee_id,controller_employee_id,evidence_requirements,control_required,priority,aktiv,created_at')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
-      .eq('trigger_type', 'shift')
+      .eq('trigger_type', 'shift').is('deleted_at', null)
       .order('priority', { ascending: false }).order('title'),
     service.from('responsibility_handovers')
-      .select('id,department_id,from_employee_id,to_employee_id,reason,starts_at,ends_at,note,status,accepted_at,created_at')
+      .select('id,department_id,from_employee_id,to_employee_id,reason,starts_at,ends_at,note,status,accepted_at,read_at,confirmed_at,open_task_ids,incidents,inventory_notes,damage_notes,cleaning_notes,important_notes,created_at')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
-      .in('status', ['offen', 'angenommen']).order('starts_at'),
+      .in('status', ['offen', 'gelesen', 'angenommen']).order('starts_at'),
     service.from('v_responsibility_coverage').select('*')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId),
     service.from('operational_daily_briefings')
@@ -74,6 +74,16 @@ export default async function MitarbeiterPage({
     ? await service.from('availability_exceptions').select('employee_id,datum,typ')
       .in('employee_id', employeeIds).eq('datum', today)
     : { data: [] };
+  const handoverTaskIds = [...new Set((handovers ?? []).flatMap((handover) => handover.open_task_ids ?? []))];
+  const { data: handedOverTasks } = handoverTaskIds.length
+    ? await service.from('operational_tasks').select('id,title')
+      .eq('tenant_id', actor.tenant_id).eq('location_id', locationId).in('id', handoverTaskIds)
+    : { data: [] };
+  const handedOverTaskTitles = new Map((handedOverTasks ?? []).map((task) => [task.id, task.title]));
+  const handoversWithTasks = (handovers ?? []).map((handover) => ({
+    ...handover,
+    open_tasks: (handover.open_task_ids ?? []).map((id: string) => ({ id, title: handedOverTaskTitles.get(id) ?? 'Aufgabe aus der Übergabe' })),
+  }));
 
   return (
     <ResponsibilityClient
@@ -87,7 +97,7 @@ export default async function MitarbeiterPage({
       assignments={(assignments ?? []) as never[]}
       tasks={(tasks ?? []) as never[]}
       templates={(templates ?? []) as never[]}
-      handovers={(handovers ?? []) as never[]}
+      handovers={handoversWithTasks as never[]}
       coverage={(coverage ?? []) as never[]}
       absences={(absences ?? []) as never[]}
       briefing={(briefing ?? null) as never}

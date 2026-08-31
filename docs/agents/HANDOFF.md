@@ -406,3 +406,10 @@ checks also passed after the production switch.
 - Mobile geführte Ausführung nutzt `operational_tasks` und den bestehenden Foto-Evidence-Mechanismus; Pflichtschritte blockieren den Abschluss.
 - Additive Migration: `20260831150000_visual_shift_guide_editor.sql` (Scope/RLS, Legacy-Normalisierung, Procedure-Snapshots).
 - Gates: Vitest 228/228, TypeScript Exit 0, Next Build 228/228. Playwright-Spec vorhanden; Factory-Webserver durch read-only `node_modules`/`.next/standalone` EROFS blockiert. Details und manuelle Prüfung: `docs/agents/reports/2026-08-31-c-f.md`.
+
+# Vollausbau Packet C-C — 2026-08-31
+
+- Wiederkehrende operative Regeln und strukturierte Übergaben sind additiv auf `operational_task_templates`, `operational_tasks` und `responsibility_handovers` umgesetzt; keine parallelen Mitarbeiter-, Aufgaben- oder Authmodelle.
+- Gate-Evidence: Vitest 35/35 Dateien und 230/230 Tests grün; `tsc -p .` und finaler `next build` Exit 0; `git diff --check` Exit 0. Details und manuelle Verifikation: `docs/agents/reports/2026-08-31-c-c.md`.
+- Playwright ist nicht grün belegt: ohne `E2E_AUTH_STATE` überspringt die packet-eigene Spec ihre vier authentifizierten Abläufe; der letzte Gesamtlauf endete nach lokalem Server-Reset mit 6 bestandenen, 4 übersprungenen und 22 Verbindungsfehlern.
+- Migration/Rollback/RLS-Sicherheitsprüfung: `supabase/migrations/20260831120000_recurring_tasks_and_handover_ack.sql` und `supabase/migrations/20260831120100_recurring_tasks_escalation_enum_fix.sql` bestehen den Produktionsschema-Dry-Run; `scripts/tests/077_recurring_tasks_handovers.sql` verwendet ausschließlich zurückgerollte eigene Fixtures und lief in Fix-Runde 4 gegen den restaurierten Produktionsschema-Snapshot mit Exit 0.
