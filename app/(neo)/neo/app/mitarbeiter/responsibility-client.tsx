@@ -49,6 +49,8 @@ type Handover = {
   id: string; department_id: string | null; from_employee_id: string; to_employee_id: string;
   reason: string; starts_at: string; ends_at: string | null; note: string; status: string;
   accepted_at: string | null; read_at: string | null; confirmed_at: string | null; created_at: string;
+  open_task_ids: string[]; incidents: string | null; inventory_notes: string | null;
+  damage_notes: string | null; cleaning_notes: string | null; important_notes: string | null;
 };
 type Coverage = {
   department_id: string; hauptverantwortlicher_id: string | null; stellvertretung_id: string | null;
@@ -320,7 +322,7 @@ export function ResponsibilityClient({
         <div className={styles.stack}>
           <div className={styles.toolbar}><div><h2>Verbindliche Übergaben</h2><p>Offene Punkte wechseln mit Zeitraum und Annahmebestätigung zur Vertretung.</p></div><button className={styles.primaryButton} onClick={() => setHandoverFormOpen(true)}><Plus size={16} /> Übergabe erstellen</button></div>
           {handoverFormOpen && <HandoverEditor employees={employees.filter((employee) => employee.id !== actorId)} departments={departments.filter((department) => department.aktiv)} pending={pending} onClose={() => setHandoverFormOpen(false)} onSave={(payload) => mutation({ action: 'create_handover', ...payload }, 'Übergabe erstellt und an die Vertretung gesendet.', () => setHandoverFormOpen(false))} />}
-          <div className={styles.handoverGrid}>{handovers.length ? handovers.map((handover) => <article className={styles.handoverCard} key={handover.id}><div className={styles.handoverFlow}><Person employee={byEmployee.get(handover.from_employee_id)} /><ArrowRight size={19} /><Person employee={byEmployee.get(handover.to_employee_id)} /></div><div className={styles.handoverMeta}><Status tone={handover.confirmed_at ? 'success' : 'warning'}>{handover.confirmed_at ? 'Bestätigt' : handover.read_at ? 'Gelesen · Bestätigung offen' : 'Ungelesen'}</Status><span>{reasonLabel(handover.reason)}</span><span>{formatDateTime(handover.starts_at)}{handover.ends_at ? ` – ${formatDateTime(handover.ends_at)}` : ''}</span></div><p>{handover.note}</p>{!handover.confirmed_at && handover.to_employee_id === actorId && <button className={styles.secondaryButton} onClick={() => mutation({ action: 'accept_handover', handoverId: handover.id }, 'Übergabe angenommen.')}><BadgeCheck size={15} /> Lesen & bestätigen</button>}</article>) : <Empty text="Keine offenen oder aktiven Übergaben." />}</div>
+          <div className={styles.handoverGrid}>{handovers.length ? handovers.map((handover) => <article className={styles.handoverCard} key={handover.id}><div className={styles.handoverFlow}><Person employee={byEmployee.get(handover.from_employee_id)} /><ArrowRight size={19} /><Person employee={byEmployee.get(handover.to_employee_id)} /></div><div className={styles.handoverMeta}><Status tone={handover.confirmed_at ? 'success' : 'warning'}>{handover.confirmed_at ? 'Bestätigt' : handover.read_at ? 'Gelesen · Bestätigung offen' : 'Ungelesen'}</Status><span>{reasonLabel(handover.reason)}</span><span>{formatDateTime(handover.starts_at)}{handover.ends_at ? ` – ${formatDateTime(handover.ends_at)}` : ''}</span></div>{handover.note && <HandoverDetail label="Notiz">{handover.note}</HandoverDetail>}{handover.open_task_ids.length > 0 && <HandoverDetail label="Offene Aufgaben"><ul>{handover.open_task_ids.map((id) => <li key={id}>{tasks.find((task) => task.id === id)?.title ?? 'Aufgabe aus der Übergabe'}</li>)}</ul></HandoverDetail>}{handover.incidents && <HandoverDetail label="Besondere Vorkommnisse">{handover.incidents}</HandoverDetail>}{handover.inventory_notes && <HandoverDetail label="Bestände">{handover.inventory_notes}</HandoverDetail>}{handover.damage_notes && <HandoverDetail label="Schäden">{handover.damage_notes}</HandoverDetail>}{handover.cleaning_notes && <HandoverDetail label="Reinigungsprobleme">{handover.cleaning_notes}</HandoverDetail>}{handover.important_notes && <HandoverDetail label="Wichtige Hinweise">{handover.important_notes}</HandoverDetail>}{!handover.confirmed_at && handover.to_employee_id === actorId && <button className={styles.secondaryButton} onClick={() => mutation({ action: 'accept_handover', handoverId: handover.id }, 'Übergabe angenommen.')}><BadgeCheck size={15} /> Lesen & bestätigen</button>}</article>) : <Empty text="Keine offenen oder aktiven Übergaben." />}</div>
         </div>
       )}
 
@@ -343,6 +345,10 @@ function Panel({ title, icon, children }: { title: string; icon: ReactNode; chil
 
 function Status({ tone, children }: { tone: 'success' | 'warning' | 'danger' | 'neutral'; children: ReactNode }) {
   return <span className={`${styles.status} ${styles[`status_${tone}`]}`}>{children}</span>;
+}
+
+function HandoverDetail({ label, children }: { label: string; children: ReactNode }) {
+  return <div><strong>{label}</strong><div>{children}</div></div>;
 }
 
 function AssignmentEditor({ label, required, assignment, employees, pending, onSave }: { label: string; required: boolean; assignment?: Assignment; employees: Employee[]; pending: boolean; onSave: (scope: { employeeId: string | null; weekdays: number[]; shiftStart: string | null; shiftEnd: string | null }) => void }) {

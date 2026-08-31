@@ -1,3 +1,5 @@
+\set ON_ERROR_STOP on
+
 begin;
 
 do $test$
@@ -27,14 +29,23 @@ end
 $test$;
 
 do $escalation_insert_test$
-declare v_task_id uuid; v_employee_id uuid; v_before bigint; v_after bigint;
+declare
+  v_tenant_id constant uuid := 'cc000000-0000-0000-0000-000000000001';
+  v_location_id constant uuid := 'cc000000-0000-0000-0000-000000000002';
+  v_employee_id constant uuid := 'cc000000-0000-0000-0000-000000000003';
+  v_task_id constant uuid := 'cc000000-0000-0000-0000-000000000004';
+  v_before bigint;
+  v_after bigint;
 begin
-  select t.id,e.id into v_task_id,v_employee_id
-  from public.operational_tasks t
-  join public.employees e on e.tenant_id=t.tenant_id and e.location_id=t.location_id
-  where e.status in ('aktiv','in_training','in_probe')
-  order by t.created_at desc limit 1;
-  if v_task_id is null then raise exception 'fixture missing: operational task and employee required'; end if;
+  insert into public.tenants(id) values (v_tenant_id);
+  insert into public.locations(id,tenant_id) values (v_location_id,v_tenant_id);
+  insert into public.employees(id,tenant_id,location_id,rolle,status)
+    values (v_employee_id,v_tenant_id,v_location_id,'manager','aktiv');
+  insert into public.operational_tasks(
+    id,tenant_id,location_id,title,created_by,assigned_to,accountable_employee_id
+  ) values (
+    v_task_id,v_tenant_id,v_location_id,'C-C Eskalationstest',v_employee_id,v_employee_id,v_employee_id
+  );
   select count(*) into v_before from public.notifications where employee_id=v_employee_id and link='/mitarbeiter#meine-aufgaben';
   update public.operational_tasks set assigned_to=v_employee_id,accountable_employee_id=v_employee_id,
     escalation_owner_employee_id=null,escalation_level=1,last_escalated_at=clock_timestamp() where id=v_task_id;

@@ -58,7 +58,7 @@ export default async function MitarbeiterPage({
       .eq('trigger_type', 'shift').is('deleted_at', null)
       .order('priority', { ascending: false }).order('title'),
     service.from('responsibility_handovers')
-      .select('id,department_id,from_employee_id,to_employee_id,reason,starts_at,ends_at,note,status,accepted_at,read_at,confirmed_at,created_at')
+      .select('id,department_id,from_employee_id,to_employee_id,reason,starts_at,ends_at,note,status,accepted_at,read_at,confirmed_at,open_task_ids,incidents,inventory_notes,damage_notes,cleaning_notes,important_notes,created_at')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
       .in('status', ['offen', 'gelesen', 'angenommen']).order('starts_at'),
     service.from('v_responsibility_coverage').select('*')

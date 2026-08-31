@@ -395,5 +395,5 @@ checks also passed after the production switch.
 # Vollausbau Packet C-C — 2026-08-31
 
 - Wiederkehrende operative Regeln und strukturierte Übergaben sind additiv auf `operational_task_templates`, `operational_tasks` und `responsibility_handovers` umgesetzt; keine parallelen Mitarbeiter-, Aufgaben- oder Authmodelle.
-- Gate-Evidence: Vitest 35/35 Dateien und 231/231 Tests grün; `tsc -p .`, Delivery-Typecheck und finaler `next build` Exit 0; `git diff --check` Exit 0. Playwright ausgeführt, aber mangels `.env`/DB und nach lokalem Server-Reset nicht grün (6 passed, 4 skipped, 22 connection failures). Details und manuelle Verifikation: `docs/agents/reports/2026-08-31-c-c.md`.
-- Migration/Rollback/RLS-Sicherheitsprüfung: `supabase/migrations/20260831120000_recurring_tasks_and_handover_ack.sql`, isolierter Smoke `scripts/tests/077_recurring_tasks_handovers.sql` ist mangels Datenbank noch auszuführen.
+- Gate-Evidence: Vitest 35/35 Dateien und 230/230 Tests grün; `tsc -p .` und finaler `next build` Exit 0; `git diff --check` Exit 0. Details und manuelle Verifikation: `docs/agents/reports/2026-08-31-c-c.md`.
+- Migration/Rollback/RLS-Sicherheitsprüfung: `supabase/migrations/20260831120000_recurring_tasks_and_handover_ack.sql` und `supabase/migrations/20260831120100_recurring_tasks_escalation_enum_fix.sql` bestehen den Produktionsschema-Dry-Run; `scripts/tests/077_recurring_tasks_handovers.sql` verwendet ausschließlich zurückgerollte eigene Fixtures und wurde vom Reviewer gegen den restaurierten Snapshot erfolgreich ausgeführt.
