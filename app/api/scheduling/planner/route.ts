@@ -62,13 +62,21 @@ export async function POST(request: NextRequest) {
   const germanWeek = new Date(`${input.weekStart}T12:00:00Z`).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' });
   const rows = (employees ?? []).map((employee) => ({ employee_id: employee.id, typ: 'info', titel: 'Verfügbarkeit eintragen', nachricht: `Bitte trage deine Verfügbarkeit für die Woche ab ${germanWeek} ein.`, link: '/mitarbeiter#verfuegbarkeit' }));
   const mails = (employees ?? []).filter((employee) => employee.email).map((employee) => ({ tenant_id: actor.tenant_id, to_email: employee.email!, subject: 'Verfügbarkeit für den Dienstplan', html: '', template: 'schedule_availability_reminder', template_data: { employee_id: employee.id, week_start: input.weekStart } }));
-  if (mails.length) {
-    const { error } = await service.from('email_outbox').insert(mails);
+  const retryCutoff = new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString();
+  const mailAddresses = mails.map((mail) => mail.to_email);
+  const { data: existingMails, error: existingMailError } = mailAddresses.length
+    ? await service.from('email_outbox').select('to_email').eq('tenant_id', actor.tenant_id).eq('template', 'schedule_availability_reminder').contains('template_data', { week_start: input.weekStart }).in('to_email', mailAddresses).gte('created_at', retryCutoff)
+    : { data: [], error: null };
+  if (existingMailError) return NextResponse.json({ error: 'E-Mail-Erinnerungen konnten nicht geprüft werden.' }, { status: 502 });
+  const queuedAddresses = new Set((existingMails ?? []).map((mail) => mail.to_email));
+  const missingMails = mails.filter((mail) => !queuedAddresses.has(mail.to_email));
+  if (missingMails.length) {
+    const { error } = await service.from('email_outbox').insert(missingMails);
     if (error) return NextResponse.json({ error: 'E-Mail-Erinnerungen konnten nicht eingeplant werden.' }, { status: 502 });
   }
   const employeeIds = rows.map((row) => row.employee_id);
   const { data: existing, error: existingError } = employeeIds.length
-    ? await service.from('notifications').select('employee_id').in('employee_id', employeeIds).eq('titel', 'Verfügbarkeit eintragen').eq('nachricht', `Bitte trage deine Verfügbarkeit für die Woche ab ${germanWeek} ein.`).eq('link', '/mitarbeiter#verfuegbarkeit')
+    ? await service.from('notifications').select('employee_id').in('employee_id', employeeIds).eq('titel', 'Verfügbarkeit eintragen').eq('nachricht', `Bitte trage deine Verfügbarkeit für die Woche ab ${germanWeek} ein.`).eq('link', '/mitarbeiter#verfuegbarkeit').gte('created_at', retryCutoff)
     : { data: [], error: null };
   if (existingError) return NextResponse.json({ error: 'In-App-Erinnerungen konnten nicht geprüft werden.' }, { status: 502 });
   const alreadyNotified = new Set((existing ?? []).map((row) => row.employee_id));
@@ -77,7 +85,7 @@ export async function POST(request: NextRequest) {
     const { error } = await service.from('notifications').insert(missingRows);
     if (error) return NextResponse.json({ error: 'In-App-Erinnerungen konnten nicht zugestellt werden.' }, { status: 502 });
   }
-  return NextResponse.json({ ok: true, notified: missingRows.length, emailQueued: mails.length });
+  return NextResponse.json({ ok: true, notified: missingRows.length, emailQueued: missingMails.length, message: `${missingRows.length} In-App- und ${missingMails.length} E-Mail-Erinnerungen eingeplant.` });
 }
 
 async function canAccessLocation(service: ReturnType<typeof createServiceClient>, actor: CurrentEmployee, locationId: string) {

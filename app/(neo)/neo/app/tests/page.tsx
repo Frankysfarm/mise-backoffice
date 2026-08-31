@@ -2,6 +2,7 @@ import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createServiceClient } from '@/lib/supabase/server';
 import { PageHeader } from '@/components/layout/page-header';
 import { AssessmentManager } from './assessment-manager';
+import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
 export default async function AssessmentPage() {
   const actor = await requireManagerPlus();
@@ -12,5 +13,6 @@ export default async function AssessmentPage() {
     service.from('departments').select('id,name,location_id').eq('tenant_id', actor.tenant_id).order('name'),
     service.from('locations').select('id,name').eq('tenant_id', actor.tenant_id).order('name'),
   ]);
-  return <div><PageHeader backHref="/neo/app/bewerbungen" title="Bewerbungstests" description="Tests erstellen, Stellen zuordnen und Ergebnisse nachvollziehen." /><AssessmentManager initialTemplates={templates ?? []} departments={departments ?? []} locations={locations ?? []} isManager={actor.rolle === 'manager'} managerLocationId={actor.rolle === 'manager' ? actor.location_id : null} /></div>;
+  const backHref = await operationsBasePath('/applications', '/neo/app/bewerbungen');
+  return <div><PageHeader backHref={backHref} title="Bewerbungstests" description="Tests erstellen, Stellen zuordnen und Ergebnisse nachvollziehen." /><AssessmentManager initialTemplates={templates ?? []} departments={departments ?? []} locations={locations ?? []} isManager={actor.rolle === 'manager'} managerLocationId={actor.rolle === 'manager' ? actor.location_id : null} /></div>;
 }

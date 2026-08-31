@@ -65,7 +65,7 @@ const MODULE_DEFINITIONS: Record<ModuleId, ModuleDefinition> = {
   },
   operations: {
     entryRoute: '/schedule',
-    routes: ['/employees', '/schedule', '/applications', '/shift-guides', '/equipment'],
+    routes: ['/employees', '/schedule', '/applications', '/application-tests', '/shift-guides', '/equipment'],
   },
   training: {
     entryRoute: '/training',

@@ -36,21 +36,11 @@ export async function POST(req: NextRequest) {
     current: item.letzte_inventur ?? 0,
   })));
 
-  const groups = new Map<string, { supplier_id: string | null; lieferant: string; location_id: string | null; items: any[] }>();
-  for (const proposal of proposals) {
-    const key = `${proposal.locationId}:${proposal.supplierId ?? proposal.supplierName}`;
-    groups.set(key, {
-      supplier_id: proposal.supplierId,
-      lieferant: proposal.supplierName,
-      location_id: proposal.locationId,
-      items: underMin.filter((item: any) => proposal.itemIds.includes(item.id)),
-    });
-  }
-
   const createdOrders: string[] = [];
 
-  for (const [, group] of groups) {
-    const positionen = group.items.map((i: any) => {
+  for (const proposal of proposals) {
+    const proposalItems = underMin.filter((item: any) => proposal.itemIds.includes(item.id));
+    const positionen = proposalItems.map((i: any) => {
       const menge = i.nachbestell_menge
         ?? (i.soll_bestand != null ? Math.max(0, i.soll_bestand - (i.letzte_inventur ?? 0)) : i.min_bestand ?? 1);
       return {
@@ -67,9 +57,9 @@ export async function POST(req: NextRequest) {
     const gesamtbetrag = positionen.reduce((s, p) => s + (p.menge * (p.preis_pro_einheit ?? 0)), 0);
 
     const { data: order, error } = await supabase.from('order_lists').insert({
-      location_id: group.location_id,
-      lieferant: group.lieferant,
-      supplier_id: group.supplier_id,
+      location_id: proposal.locationId,
+      lieferant: proposal.supplierName,
+      supplier_id: proposal.supplierId,
       erstellt_von: me.id,
       positionen,
       gesamtbetrag: Math.round(gesamtbetrag * 100) / 100,

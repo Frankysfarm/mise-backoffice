@@ -21,6 +21,9 @@ describe('packet C-A database security', () => {
   });
 
   it('resolves pgcrypto from the production extension schema', () => {
+    expect(sql).toContain('create schema if not exists extensions');
+    expect(sql).toContain('create extension if not exists pgcrypto with schema extensions');
+    expect(sql).toContain('alter extension pgcrypto set schema extensions');
     expect(sql.match(/extensions\.digest\(/g)).toHaveLength(3);
     expect(sql).not.toMatch(/(?<!extensions\.)digest\(/);
   });

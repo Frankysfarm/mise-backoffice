@@ -120,24 +120,29 @@ export function ResponsibilityClient({
   const briefingOpen = briefing?.task_counts.reduce((sum, item) => sum + Number(item.open_count || 0), 0) ?? 0;
   const briefingOverdue = briefing?.task_counts.reduce((sum, item) => sum + Number(item.overdue_count || 0), 0) ?? 0;
 
-  function mutation(payload: Record<string, unknown>, successMessage: string, local?: (result: any) => void): Promise<void> {
+  function mutation(payload: Record<string, unknown>, successMessage: string, local?: (result: any) => void): Promise<boolean> {
     setError('');
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       startTransition(async () => {
-        const response = await fetch('/api/operations/responsibility', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, locationId }),
-        });
-        const result = await response.json().catch(() => null);
-        if (!response.ok) {
-          setError(result?.error ?? 'Änderung fehlgeschlagen.');
-          reject(new Error(result?.error ?? 'Änderung fehlgeschlagen.'));
-          return;
+        try {
+          const response = await fetch('/api/operations/responsibility', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, locationId }),
+          });
+          const result = await response.json().catch(() => null);
+          if (!response.ok) {
+            setError(result?.error ?? 'Änderung fehlgeschlagen.');
+            resolve(false);
+            return;
+          }
+          local?.(result);
+          setNotice(successMessage);
+          window.setTimeout(() => setNotice(''), 2600);
+          router.refresh();
+          resolve(true);
+        } catch {
+          setError('Änderung fehlgeschlagen. Bitte prüfe deine Verbindung und versuche es erneut.');
+          resolve(false);
         }
-        local?.(result);
-        setNotice(successMessage);
-        window.setTimeout(() => setNotice(''), 2600);
-        router.refresh();
-        resolve();
       });
     });
   }
@@ -284,11 +289,12 @@ export function ResponsibilityClient({
           </div>
           {assignmentWizardOpen && <AssignmentWizard employees={employees} departments={departments} pending={pending} onClose={() => setAssignmentWizardOpen(false)} onSave={async (payload) => {
             try {
-              if (payload.reportsToEmployeeId !== undefined && payload.employeeId) {
-                await mutation({ action: 'move_employee', employeeId: payload.employeeId, reportsToEmployeeId: payload.reportsToEmployeeId || null }, 'Zuordnung aktualisiert.', () => setEmployees((current) => current.map((item) => item.id === payload.employeeId ? { ...item, reports_to_employee_id: payload.reportsToEmployeeId || null } : item)));
+              const selectedEmployee = payload.employeeId ? byEmployee.get(payload.employeeId) : null;
+              if (payload.reportsToEmployeeId !== undefined && payload.employeeId && selectedEmployee?.reports_to_employee_id !== (payload.reportsToEmployeeId || null)) {
+                if (!await mutation({ action: 'move_employee', employeeId: payload.employeeId, reportsToEmployeeId: payload.reportsToEmployeeId || null }, 'Zuordnung aktualisiert.', () => setEmployees((current) => current.map((item) => item.id === payload.employeeId ? { ...item, reports_to_employee_id: payload.reportsToEmployeeId || null } : item)))) return;
               }
               if (payload.departmentId && payload.employeeId && payload.role) {
-                await mutation({ action: 'assign_responsibility', departmentId: payload.departmentId, employeeId: payload.employeeId, role: payload.role, weekdays: [1, 2, 3, 4, 5, 6, 7] }, `${payload.role === 'hauptverantwortung' ? 'Hauptverantwortung' : 'Stellvertretung'} zugewiesen.`);
+                if (!await mutation({ action: 'assign_responsibility', departmentId: payload.departmentId, employeeId: payload.employeeId, role: payload.role, weekdays: [1, 2, 3, 4, 5, 6, 7] }, `${payload.role === 'hauptverantwortung' ? 'Hauptverantwortung' : 'Stellvertretung'} zugewiesen.`)) return;
               }
               setAssignmentWizardOpen(false);
             } catch {

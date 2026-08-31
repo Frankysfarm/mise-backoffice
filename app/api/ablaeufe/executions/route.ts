@@ -277,7 +277,12 @@ export async function POST(request: NextRequest) {
   };
   const { error: resultError } = await service
     .from("operational_tasks")
-    .update({ procedure_results: procedureResults })
+    .update({
+      procedure_results: procedureResults,
+      review_note: task.controller_employee_id === null
+        ? "Ohne unabhängige prüfende Person eingereicht"
+        : null,
+    })
     .eq("id", task.id);
   if (resultError)
     return NextResponse.json(

@@ -195,7 +195,9 @@ describe('responsibility organization', () => {
     expect(migration).toContain("alter table public.employees\n  add column if not exists avatar_url text");
     expect(migration).toContain("insert into storage.buckets (id, name, public");
     expect(migration).toContain('drop policy if exists "Avatar public read" on storage.objects');
-    expect(migration).toContain('create policy "Avatar public read"');
+    expect(migration).toContain('drop policy if exists "Avatar authenticated write" on storage.objects');
+    expect(migration).not.toContain('create policy "Avatar public read"');
+    expect(migration).not.toContain('create policy "Avatar authenticated write"');
     expect(profilePage).toContain('AvatarUploader');
     expect(uploader).toContain('/api/employees/avatar');
     expect(adminPage).toContain('AvatarUploader');

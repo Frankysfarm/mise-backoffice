@@ -18,7 +18,8 @@ update public.shift_guides g set ablauf_typ=case
   when g.phase='opening' then 'opening'
   when g.phase='closing' then 'closing'
   else g.ablauf_typ
-end;
+end
+where g.ablauf_typ='other';
 
 -- Legacy installations with exactly one company/site also contain site-wide
 -- guides without a department. That unambiguous scope can be recovered safely.
