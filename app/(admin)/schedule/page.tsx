@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ScheduleWeek } from './week-view';
 import { NewShiftDialog } from './new-shift-dialog';
 import { ScheduleAssistant } from './schedule-assistant';
+import { PlanningControls } from './planning-controls';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
 import {
   addCalendarDays,
@@ -39,7 +40,7 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
   const { data: shiftsRaw } = await q;
   const shifts = shiftsRaw as any[] | null;
 
-  const [{ data: locations }, { data: departments }, { data: employees }, { data: swaps }] = await Promise.all([
+  const [{ data: locations }, { data: departments }, { data: employees }, { data: swaps }, { data: scheduleTemplates }] = await Promise.all([
     supabase.from('locations').select('id,name').eq('tenant_id', currentEmployee.tenant_id).order('name'),
     supabase
       .from('departments')
@@ -53,12 +54,14 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
       .eq('status', 'aktiv')
       .order('nachname'),
     supabase.from('shift_swaps').select('id,status').eq('status', 'angefragt'),
+    supabase.from('schedule_templates').select('id,name,location_id').eq('tenant_id', currentEmployee.tenant_id).eq('aktiv', true).order('name'),
   ]);
   const selectedLocationId = params.location && (locations ?? []).some((location) => location.id === params.location)
     ? params.location
     : currentEmployee.rolle === 'manager'
       ? currentEmployee.location_id
       : (locations?.length === 1 ? locations[0].id : null);
+  const { data: scheduleWeek } = selectedLocationId ? await supabase.from('schedule_weeks').select('status,availability_deadline').eq('tenant_id', currentEmployee.tenant_id).eq('location_id', selectedLocationId).eq('week_start', week.calendarStart).maybeSingle() : { data: null };
 
   return (
     <div>
@@ -102,6 +105,7 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
         </form>
       </div>
 
+      <PlanningControls locationId={selectedLocationId ?? null} weekStart={week.calendarStart} templates={(scheduleTemplates ?? []).filter(template => template.location_id === selectedLocationId)} initialStatus={scheduleWeek?.status} initialDeadline={scheduleWeek?.availability_deadline} />
       <ScheduleAssistant locationId={selectedLocationId ?? null} weekStart={week.calendarStart} />
 
       <Card>

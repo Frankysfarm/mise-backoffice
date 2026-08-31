@@ -25,6 +25,7 @@ import {
   totalShiftMinutes,
 } from '@/lib/workforce/shifts';
 import { MyOperations } from './my-operations';
+import { AvailabilityLoop } from './availability-loop';
 
 export const dynamic = 'force-dynamic';
 
@@ -116,7 +117,7 @@ export default async function MitarbeiterPage() {
   const [
     { data: activeEmployee }, { data: shiftData }, { data: tenant }, { data: inventoryTaskData },
     { data: responsibilityData }, { data: operationalTaskData }, { data: handoverData },
-    { data: teamMemberData }, { data: responsibilityTeamData },
+    { data: teamMemberData }, { data: responsibilityTeamData }, { data: openShiftData }, { data: availabilityResponseData },
   ] = await Promise.all([
     service.from('employees')
       .select('id,vorname,nachname,rolle,position_title,reports_to_employee_id')
@@ -158,6 +159,8 @@ export default async function MitarbeiterPage() {
       .select('id,department_id,employee_id,responsibility_role,weekday_scope,shift_start,shift_end,valid_from,valid_until,employee:employees!department_responsibility_assignments_employee_id_fkey(vorname,nachname)')
       .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .eq('aktiv', true),
+    service.from('shifts').select('id,start_zeit,end_zeit,position,department:departments(name)').eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId).eq('offen_fuer_bewerbung', true).is('employee_id', null).gte('start_zeit', now.toISOString()).lt('start_zeit', rangeEnd.toISOString()).order('start_zeit'),
+    service.from('shift_availability_responses').select('shift_id,state,applied').eq('tenant_id', employee.tenant_id).eq('employee_id', employee.id),
   ]);
 
   if (!activeEmployee) redirect('/login?reason=no_access');
@@ -272,6 +275,7 @@ export default async function MitarbeiterPage() {
 
         <nav className="sticky top-0 z-30 mt-6 flex gap-2 overflow-x-auto border-y border-slate-200 bg-slate-100/95 px-4 py-2 shadow-sm backdrop-blur sm:px-8" aria-label="Mise Team Bereiche">
           <a href="#dienstplan" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><CalendarDays size={14} className="text-emerald-700" /> Dienstplan</a>
+          <a href="#verfuegbarkeit" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><Sparkles size={14} className="text-sky-700" /> Verfügbarkeit</a>
           <a href="#verantwortung" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><Network size={14} className="text-indigo-700" /> Mein Team</a>
           <a href="#meine-aufgaben" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><ClipboardCheck size={14} className="text-amber-700" /> Aufgaben</a>
           <a href="#inventuren" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><Warehouse size={14} className="text-amber-700" /> Inventuren</a>
@@ -308,6 +312,8 @@ export default async function MitarbeiterPage() {
             ))}
           </div>
         </section>
+
+        <AvailabilityLoop shifts={(openShiftData ?? []) as never[]} initial={(availabilityResponseData ?? []) as never[]} />
 
         <MyOperations
           actorId={employee.id}
