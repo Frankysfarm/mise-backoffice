@@ -1,18 +1,24 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { requireManagerPlus } from '@/lib/auth/requireRole';
+import { requirePosAccess } from '@/lib/auth/requireRole';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
+const TYPE_LABELS: Record<string, string> = {
+  opening: 'Öffnung', closing: 'Schließung', cleaning: 'Reinigung', control: 'Kontrolle',
+  production: 'Produktion', handover: 'Übergabe', hygiene_temperature: 'Hygiene / Temperatur', other: 'Sonstiges',
+};
+
 export default async function ShiftGuidesPage() {
-  await requireManagerPlus();
+  const actor = await requirePosAccess();
+  const canManage = ['manager', 'backoffice', 'admin'].includes(actor.rolle);
   const basePath = await operationsBasePath('/shift-guides', '/neo/app/ablaeufe/schichtleitfaeden');
   const supabase = await createClient();
   const { data: guides } = await supabase.from('shift_guides')
-    .select('id,titel,phase,position_typ,aktiv,version,inhalt,department:departments(name)')
+    .select('id,titel,phase,ablauf_typ,position_typ,aktiv,version,inhalt,department:departments(name)')
     .order('titel');
 
   return (
@@ -22,12 +28,11 @@ export default async function ShiftGuidesPage() {
         <Table>
           <TableHeader><TableRow>
             <TableHead>Titel</TableHead>
-            <TableHead>Phase</TableHead>
+            <TableHead>Art</TableHead>
             <TableHead>Position</TableHead>
             <TableHead>Abteilung</TableHead>
             <TableHead className="text-right">Kategorien</TableHead>
             <TableHead className="text-right">Schritte</TableHead>
-            <TableHead>Version</TableHead>
             <TableHead>Aktiv</TableHead>
           </TableRow></TableHeader>
           <TableBody>
@@ -37,15 +42,14 @@ export default async function ShiftGuidesPage() {
               return (
                 <TableRow key={g.id}>
                   <TableCell className="font-medium">
-                    <Link href={`${basePath}/${g.id}`} className="hover:underline">{g.titel}</Link>
+                    <Link href={canManage ? `${basePath}/${g.id}` : `${basePath}/${g.id}/ausfuehren`} className="hover:underline">{g.titel}</Link>
                   </TableCell>
-                  <TableCell><Badge variant={g.phase === 'opening' ? 'secondary' : 'gold'}>{g.phase}</Badge></TableCell>
+                  <TableCell><Badge variant={g.ablauf_typ === 'opening' ? 'secondary' : 'gold'}>{TYPE_LABELS[g.ablauf_typ] ?? 'Sonstiges'}</Badge></TableCell>
                   <TableCell>{g.position_typ ?? '—'}</TableCell>
                   <TableCell>{(g.department as any)?.name ?? '—'}</TableCell>
                   <TableCell className="text-right font-mono">{cats.length}</TableCell>
                   <TableCell className="text-right font-mono">{steps}</TableCell>
-                  <TableCell className="font-mono text-xs">v{g.version}</TableCell>
-                  <TableCell>{g.aktiv ? '✓' : '—'}</TableCell>
+                  <TableCell>{g.aktiv ? <Link className="font-medium text-primary hover:underline" href={`${basePath}/${g.id}/ausfuehren`}>Starten</Link> : '—'}</TableCell>
                 </TableRow>
               );
             })}

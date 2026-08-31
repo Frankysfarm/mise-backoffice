@@ -398,3 +398,11 @@ checks also passed after the production switch.
 - Audit/Änderungen/DB/RLS/Rollback/manuelle Klickwege: `docs/agents/reports/2026-08-31-c-a.md`.
 - Gates: TypeScript Exit 0; Vitest 37 Dateien/229 Tests grün (Stand Fix round 2, inklusive AI-Normalisierungsregression); Next Build Exit 0/233 Seiten; gezieltes, API-simuliertes Playwright für den Bewerberbildschirm Desktop + Mobile 2/2 grün (kein Ende-zu-Ende-/Datenbankbeleg); `git diff --check` Exit 0.
 - Risiko/Restpunkt: kein `.env` und keine Datenbank auf Factory-Host, daher Migration und authentifizierter Live-Supabase-Personaflow vor Deployment in isolierter Testinstanz ausführen. Kein Deploy aus diesem Packet.
+
+# 2026-08-31 — Packet C-F (vollausbau/c-f)
+
+- Implementierungscommit: `18be150` (`feat(ablaeufe): replace JSON editor with guided workflows`).
+- Visueller Ablauf-/Listen-Editor ersetzt das bisherige JSON-Textarea auf dem kanonischen `shift_guides.inhalt`-Modell.
+- Mobile geführte Ausführung nutzt `operational_tasks` und den bestehenden Foto-Evidence-Mechanismus; Pflichtschritte blockieren den Abschluss.
+- Additive Migration: `20260831150000_visual_shift_guide_editor.sql` (Scope/RLS, Legacy-Normalisierung, Procedure-Snapshots).
+- Gates: Vitest 228/228, TypeScript Exit 0, Next Build 228/228. Playwright-Spec vorhanden; Factory-Webserver durch read-only `node_modules`/`.next/standalone` EROFS blockiert. Details und manuelle Prüfung: `docs/agents/reports/2026-08-31-c-f.md`.
