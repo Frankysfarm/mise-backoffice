@@ -1,15 +1,14 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { toastError, toastSuccess } from '@/components/ui/toaster';
-import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 
 type Shelf = { id: string; area_id: string; name: string; position: number; beschreibung: string | null; ebene: string | null; area: { name: string } | null };
 type Area = { id: string; name: string };
@@ -42,7 +41,8 @@ export function ShelvesEditor({ shelves, areas }: { shelves: Shelf[]; areas: Are
   async function del(id: string) {
     if (!confirm('Fach löschen? Produkte verlieren ihre Fach-Zuordnung.')) return;
     start(async () => {
-      await createClient().from('inventory_shelves').delete().eq('id', id);
+      const { error } = await createClient().from('inventory_shelves').delete().eq('id', id);
+      if (error) return toastError('Löschen fehlgeschlagen', 'Das Fach enthält noch Produkte oder Lagerplätze und kann nicht gelöscht werden.');
       router.refresh();
     });
   }
@@ -59,7 +59,7 @@ export function ShelvesEditor({ shelves, areas }: { shelves: Shelf[]; areas: Are
               <p className="text-sm text-muted-foreground italic">Keine Fächer angelegt.</p>
             ) : (
               <div className="space-y-2">
-                {area.shelves.map((s, i) => (
+                {area.shelves.map((s) => (
                   <div key={s.id} className="flex items-center gap-3 rounded-lg border bg-card p-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-matcha-100 text-matcha-800 font-mono text-sm font-bold">
                       {s.position}

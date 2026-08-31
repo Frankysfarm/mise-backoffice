@@ -12,7 +12,8 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ token: stri
   const supabase = await createClient();
   const { data } = await supabase.from('inventory_shelves').select('id,area:inventory_areas!inner(location:locations!inner(tenant_id))').eq('qr_token', token).eq('area.location.tenant_id', actor.tenant_id).maybeSingle();
   if (!data) return new NextResponse('Lagerplatz nicht gefunden', { status: 404 });
-  const url = `${new URL(req.url).origin}/neo/app/lager/platz/${token}`;
+  const origin = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? new URL(req.url).origin;
+  const url = `${origin}/neo/app/lager/platz/${token}`;
   const svg = await QRCode.toString(url, { type: 'svg', width: 480, margin: 2, errorCorrectionLevel: 'H', color: { dark: '#0f2922', light: '#ffffff' } });
   return new NextResponse(svg, { headers: { 'content-type': 'image/svg+xml', 'cache-control': 'private, max-age=300' } });
 }
