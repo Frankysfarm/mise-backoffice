@@ -11,12 +11,13 @@ import {
   ChevronRight, CircleAlert, ClipboardCheck, Clock3, GripVertical, Network,
   Pencil, Plus, RefreshCcw, Save, ShieldCheck, Sunrise, UserRound, UsersRound, Workflow, X,
 } from 'lucide-react';
+import { EmployeeAvatar } from '@/components/employee-avatar';
 import styles from './responsibility.module.css';
 
 type Employee = {
   id: string; vorname: string; nachname: string; rolle: string; status: string;
   department_id: string | null; reports_to_employee_id: string | null; position_title: string | null;
-  organization_level: number;
+  organization_level: number; avatar_url: string | null;
 };
 type Department = {
   id: string; name: string; aktiv: boolean; prioritaet: number;
@@ -96,6 +97,7 @@ export function ResponsibilityClient({
   const [templateForm, setTemplateForm] = useState<TaskTemplateForm | null>(null);
   const [handoverFormOpen, setHandoverFormOpen] = useState(false);
   const [positionEdit, setPositionEdit] = useState<Employee | null>(null);
+  const [assignmentWizardOpen, setAssignmentWizardOpen] = useState(false);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [pending, startTransition] = useTransition();
@@ -254,8 +256,12 @@ export function ResponsibilityClient({
                   <button className={styles.iconButton} aria-label="Bereich bearbeiten" onClick={() => setDepartmentForm(fromDepartment(department))}><Save size={15} /></button>
                 </div>
                 <div className={styles.coverageState}><Status tone={hasGap ? 'danger' : item?.abdeckungsstatus === 'aktive_vertretung' ? 'warning' : 'success'}>{coverageLabel(item?.abdeckungsstatus ?? 'abgedeckt')}</Status></div>
-                <AssignmentEditor key={`${department.id}:primary:${primary?.id ?? 'empty'}`} label="Hauptverantwortung" required={department.hauptverantwortung_erforderlich} assignment={primary} employees={employees.filter((employee) => employee.id !== deputy?.employee_id)} pending={pending} onSave={(scope) => mutation({ action: 'assign_responsibility', departmentId: department.id, role: 'hauptverantwortung', ...scope }, 'Hauptverantwortung aktualisiert.')} />
-                <AssignmentEditor key={`${department.id}:deputy:${deputy?.id ?? 'empty'}`} label="Stellvertretung" required={department.stellvertretung_erforderlich} assignment={deputy} employees={employees.filter((employee) => employee.id !== primary?.employee_id)} pending={pending} onSave={(scope) => mutation({ action: 'assign_responsibility', departmentId: department.id, role: 'stellvertretung', ...scope }, 'Stellvertretung aktualisiert.')} />
+                <div className={styles.assignmentSummary}>
+                  <span className={styles.assignmentSummaryPrimary}><ShieldCheck size={12} /> Hauptverantwortung: <strong>{primary ? employeeName(primary.employee_id, byEmployee) : 'noch nicht besetzt'}</strong></span>
+                  <span className={styles.assignmentSummaryDeputy}><BadgeCheck size={12} /> Stellvertretung: <strong>{deputy ? employeeName(deputy.employee_id, byEmployee) : 'noch nicht besetzt'}</strong></span>
+                </div>
+                <AssignmentEditor key={`${department.id}:primary:${primary?.id ?? 'empty'}`} label="Hauptverantwortung ändern" required={department.hauptverantwortung_erforderlich} assignment={primary} employees={employees.filter((employee) => employee.id !== deputy?.employee_id)} pending={pending} onSave={(scope) => mutation({ action: 'assign_responsibility', departmentId: department.id, role: 'hauptverantwortung', ...scope }, 'Hauptverantwortung aktualisiert.')} />
+                <AssignmentEditor key={`${department.id}:deputy:${deputy?.id ?? 'empty'}`} label="Stellvertretung ändern" required={department.stellvertretung_erforderlich} assignment={deputy} employees={employees.filter((employee) => employee.id !== primary?.employee_id)} pending={pending} onSave={(scope) => mutation({ action: 'assign_responsibility', departmentId: department.id, role: 'stellvertretung', ...scope }, 'Stellvertretung aktualisiert.')} />
                 <div className={styles.duties}><strong>Aufgaben & Pflichten</strong>{department.pflichten?.length ? <ul>{department.pflichten.map((duty) => <li key={duty}>{duty}</li>)}</ul> : <small>Noch keine Pflichten hinterlegt.</small>}</div>
               </article>;
             })}
@@ -266,6 +272,20 @@ export function ResponsibilityClient({
       {tab === 'organigramm' && (
         <div className={styles.stack}>
           <div className={styles.toolbar}><div><h2>Aktives Organigramm</h2><p>Ziehe eine Person auf ihre neue Führungskraft oder tippe die Karte an. Die Änderung wird sofort protokolliert.</p></div><div className={styles.dragHint}><GripVertical size={15} /> Ziehen oder antippen</div></div>
+          <div className={styles.toolbar}>
+            <button className={styles.secondaryButton} onClick={() => setAssignmentWizardOpen((open) => !open)}>{assignmentWizardOpen ? 'Assistent schließen' : 'Zuordnung per Auswahl'}</button>
+          </div>
+          {assignmentWizardOpen && <AssignmentWizard employees={employees} departments={departments} pending={pending} onClose={() => setAssignmentWizardOpen(false)} onSave={(payload) => {
+            const steps: Array<() => void> = [];
+            if (payload.reportsToEmployeeId !== undefined && payload.employeeId) {
+              steps.push(() => mutation({ action: 'move_employee', employeeId: payload.employeeId, reportsToEmployeeId: payload.reportsToEmployeeId || null }, 'Zuordnung aktualisiert.', () => setEmployees((current) => current.map((item) => item.id === payload.employeeId ? { ...item, reports_to_employee_id: payload.reportsToEmployeeId || null } : item))));
+            }
+            if (payload.departmentId && payload.employeeId && payload.role) {
+              steps.push(() => mutation({ action: 'assign_responsibility', departmentId: payload.departmentId, employeeId: payload.employeeId, role: payload.role, weekdays: [1, 2, 3, 4, 5, 6, 7] }, `${payload.role === 'hauptverantwortung' ? 'Hauptverantwortung' : 'Stellvertretung'} zugewiesen.`));
+            }
+            steps.forEach((step, index) => window.setTimeout(step, index * 120));
+            setAssignmentWizardOpen(false);
+          }} />}
           <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
             <OrgRoot employees={employees} assignments={assignments} tasks={activeTasks} departments={byDepartment} onEditPosition={setPositionEdit} />
           </DndContext>
@@ -421,10 +441,14 @@ function OrgNode({ employee, organizationData, departments, onEditPosition, visi
   const { attributes, listeners, setNodeRef: setDragRef, transform, isDragging } = useDraggable({ id: `employee:${employee.id}` });
   const { setNodeRef: setDropRef, isOver } = useDroppable({ id: `manager:${employee.id}` });
   if (cyclicReference) return null;
+  const responsibilityChips = [
+    ...primaryResponsibilities.map((assignment) => ({ key: assignment.id, tone: 'primary' as const, label: departments.get(assignment.department_id)?.name ?? 'Bereich', role: 'Hauptverantwortung' })),
+    ...deputyResponsibilities.map((assignment) => ({ key: assignment.id, tone: 'deputy' as const, label: departments.get(assignment.department_id)?.name ?? 'Bereich', role: 'Stellvertretung' })),
+  ];
   return <div className={`${styles.orgBranch} ${compact ? styles.orgBranchCompact : ''}`}><div ref={setDropRef} className={`${styles.orgDrop} ${isOver ? styles.dropActive : ''}`}><article ref={setDragRef} style={{ transform: transform ? `translate3d(${transform.x}px,${transform.y}px,0)` : undefined, opacity: isDragging ? .55 : 1 }} className={`${styles.orgCard} ${hasOverdue ? styles.orgCardAlert : ''}`}>
     <div className={styles.orgCardTop}><span className={`${styles.orgRole} ${styles[`orgRole_${orgTier(employee.rolle)}`]}`}>{employee.position_title || roleLabel(employee.rolle)}</span><div className={styles.orgCardActions}>{children.length > 0 && <button className={`${styles.orgExpand} ${expanded ? styles.orgExpandOpen : ''}`} aria-label={`${employee.vorname} ${employee.nachname}: Team ${expanded ? 'einklappen' : 'ausklappen'}`} aria-expanded={expanded} onClick={() => setExpanded((current) => !current)}><ChevronRight size={15} /></button>}<button className={styles.dragHandle} {...listeners} {...attributes} aria-label={`${employee.vorname} ${employee.nachname} verschieben`}><GripVertical size={17} /></button></div></div>
-    <button className={styles.orgMain} onClick={() => onEditPosition(employee)}><Avatar employee={employee} /><span><strong>{employee.vorname} {employee.nachname}</strong><small>{roleLabel(employee.rolle)} · Ebene {employee.organization_level}</small></span></button>
-    {(primaryResponsibilities.length > 0 || deputyResponsibilities.length > 0) && <div className={styles.orgResponsibilityList}>{primaryResponsibilities.map((assignment) => <span className={styles.orgPrimary} key={assignment.id}><ShieldCheck size={11} /> {departments.get(assignment.department_id)?.name ?? 'Bereich'}</span>)}{deputyResponsibilities.map((assignment) => <span className={styles.orgDeputy} key={assignment.id}><BadgeCheck size={11} /> {departments.get(assignment.department_id)?.name ?? 'Bereich'}</span>)}</div>}
+    <button className={styles.orgMain} onClick={() => onEditPosition(employee)}><EmployeeAvatar employee={employee} size="lg" /><span><strong>{employee.vorname} {employee.nachname}</strong><small>{roleLabel(employee.rolle)}{employee.position_title ? ` · ${employee.position_title}` : ''}</small></span></button>
+    {responsibilityChips.length > 0 && <div className={styles.orgResponsibilityList}>{responsibilityChips.map((chip) => <span className={chip.tone === 'primary' ? styles.orgPrimary : styles.orgDeputy} key={chip.key} title={`${chip.role}: ${chip.label}`}><ShieldCheck size={11} /> {chip.label} <em>{chip.role}</em></span>)}</div>}
     <div className={styles.orgSignals}><span><UsersRound size={13} /><b>{children.length}</b> direkt</span><span className={hasOverdue ? styles.orgSignalAlert : ''}><ClipboardCheck size={13} /><b>{openTasks.length}</b> offen</span><span><ShieldCheck size={13} /><b>{accountableTasks.length}</b> verantwortlich</span></div>
     {openTasks.length > 0 && !compact && <div className={styles.orgTaskPreview}><strong>{hasOverdue ? 'Überfällige / offene Punkte' : 'Offene Punkte'}</strong>{openTasks.slice(0, 2).map((task) => <span key={task.id}>{task.title}</span>)}{openTasks.length > 2 && <small>+ {openTasks.length - 2} weitere</small>}</div>}
   </article></div>{children.length > 0 && expanded && <div className={styles.orgChildren}>{children.map((child) => <OrgNode key={child.id} employee={child} organizationData={organizationData} departments={departments} onEditPosition={onEditPosition} visited={nextVisited} compact={compact} />)}</div>}</div>;
@@ -435,6 +459,26 @@ function PositionEditor({ employee, employees, onClose, onSave, pending }: { emp
   const [reportsToEmployeeId, setReportsToEmployeeId] = useState(employee.reports_to_employee_id ?? '');
   const excludedManagers = descendantIds(employee.id, employees);
   return <section className={styles.editor}><div className={styles.editorHeader}><div><strong>Position von {employee.vorname} {employee.nachname}</strong><small>Position und direkte Führung gelten im Organigramm und in der Mitarbeiter-App.</small></div><button className={styles.iconButton} onClick={onClose}><X size={17} /></button></div><div className={styles.formGrid}><label>Position<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="z. B. Filialleitung" /></label><label>Direkte Führung<select value={reportsToEmployeeId} onChange={(event) => setReportsToEmployeeId(event.target.value)}><option value="">Oberste Ebene / noch nicht zugeordnet</option>{employees.filter((candidate) => candidate.id !== employee.id && !excludedManagers.has(candidate.id)).map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.vorname} {candidate.nachname} · {candidate.position_title || roleLabel(candidate.rolle)}</option>)}</select></label></div><button className={styles.primaryButton} disabled={pending || title.trim().length < 2} onClick={() => onSave(title.trim(), reportsToEmployeeId || null)}><Save size={15} /> Position & Führung speichern</button></section>;
+}
+
+type AssignmentWizardPayload = { employeeId: string; reportsToEmployeeId?: string; departmentId?: string; role?: 'hauptverantwortung' | 'stellvertretung' };
+function AssignmentWizard({ employees, departments, pending, onClose, onSave }: { employees: Employee[]; departments: Department[]; pending: boolean; onClose: () => void; onSave: (payload: AssignmentWizardPayload) => void }) {
+  const [employeeId, setEmployeeId] = useState('');
+  const [reportsToEmployeeId, setReportsToEmployeeId] = useState('');
+  const [departmentId, setDepartmentId] = useState('');
+  const [role, setRole] = useState<'hauptverantwortung' | 'stellvertretung'>('hauptverantwortung');
+  const selected = employees.find((employee) => employee.id === employeeId);
+  const excludedManagers = selected ? descendantIds(selected.id, employees) : new Set<string>();
+  return <section className={styles.editor}>
+    <div className={styles.editorHeader}><div><strong>Mitarbeiter zuordnen</strong><small>Wähle eine Person, die direkte Führung und optional einen Bereich – funktioniert auch ohne Ziehen.</small></div><button className={styles.iconButton} onClick={onClose}><X size={17} /></button></div>
+    <div className={styles.formGrid}>
+      <label>Mitarbeiter<select value={employeeId} onChange={(event) => { setEmployeeId(event.target.value); setReportsToEmployeeId(''); }}><option value="">Bitte auswählen</option>{employees.map((employee) => <option key={employee.id} value={employee.id}>{employee.vorname} {employee.nachname} · {roleLabel(employee.rolle)}</option>)}</select></label>
+      <label>Direkte Führung<select value={reportsToEmployeeId} onChange={(event) => setReportsToEmployeeId(event.target.value)} disabled={!employeeId}><option value="">Oberste Ebene</option>{employees.filter((candidate) => candidate.id !== employeeId && !excludedManagers.has(candidate.id)).map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.vorname} {candidate.nachname} · {candidate.position_title || roleLabel(candidate.rolle)}</option>)}</select></label>
+      <label>Bereich (optional)<select value={departmentId} onChange={(event) => setDepartmentId(event.target.value)} disabled={!employeeId}>{departments.map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}<option value="">Keinen Bereich ändern</option></select></label>
+      {departmentId && <label>Verantwortung<select value={role} onChange={(event) => setRole(event.target.value as 'hauptverantwortung' | 'stellvertretung')}><option value="hauptverantwortung">Hauptverantwortung</option><option value="stellvertretung">Stellvertretung</option></select></label>}
+    </div>
+    <button className={styles.primaryButton} disabled={pending || !employeeId} onClick={() => onSave({ employeeId, reportsToEmployeeId: reportsToEmployeeId || undefined, departmentId: departmentId || undefined, role: departmentId ? role : undefined })}><Save size={15} /> Zuordnung speichern</button>
+  </section>;
 }
 
 function TaskEditor({ departments, employees, pending, onClose, onSave }: { departments: Department[]; employees: Employee[]; pending: boolean; onClose: () => void; onSave: (payload: Record<string, unknown>) => void }) {
@@ -515,8 +559,8 @@ function TaskList({ tasks, employees, departments, compact, onAction }: { tasks:
   return <div className={styles.taskList}>{tasks.map((task) => { const overdueNow = Boolean(task.due_at && TASK_OPEN.has(task.status) && new Date(task.due_at) < new Date()); const missing = (task.evidence_requirements ?? []).filter((requirement) => !(task.evidence ?? []).some((evidence) => evidence.evidence_type === requirement)); const shift = relationOne(task.shift); return <article className={`${styles.taskCard} ${overdueNow ? styles.taskOverdue : ''}`} key={task.id}><div className={styles.taskTop}><Status tone={task.status === 'erledigt' ? 'success' : task.status === 'nicht_bestanden' || overdueNow ? 'danger' : task.status === 'wartet_auf_pruefung' ? 'warning' : 'neutral'}>{TASK_LABELS[task.status] ?? task.status}</Status>{task.escalation_level > 0 && <span className={styles.escalation}>Eskalation {task.escalation_level}</span>}</div><h4>{task.title}</h4>{!compact && task.description && <p>{task.description}</p>}<div className={styles.taskDetails}><span>{departments.get(task.department_id ?? '')?.name ?? 'Standortweit'}</span>{shift && <span className={styles.shiftTask}><Clock3 size={11} /> Schicht {formatShift(shift)}</span>}<span>Ausführung: {employeeName(task.assigned_to, employees)}</span><span>Verantwortung: {employeeName(task.accountable_employee_id, employees)}</span><span>Kontrolle: {employeeName(task.controller_employee_id, employees)}</span>{task.due_at && <span className={overdueNow ? styles.dueDanger : ''}>Fällig: {formatDateTime(task.due_at)}</span>}{task.evidence_requirements?.length ? <span className={missing.length ? styles.dueDanger : ''}>Nachweise: {missing.length ? `${missing.map((item) => EVIDENCE_LABELS[item] ?? item).join(', ')} fehlt` : 'vollständig'}</span> : null}</div>{onAction && <div className={styles.taskActions}>{task.status === 'offen' && <button onClick={() => onAction(task, 'angenommen')}>Annehmen</button>}{task.status === 'angenommen' && <button onClick={() => onAction(task, 'in_arbeit')}>Starten</button>}{['offen', 'angenommen', 'in_arbeit', 'blockiert'].includes(task.status) && <button onClick={() => onAction(task, 'wartet_auf_pruefung')}>Zur Prüfung</button>}{task.status === 'wartet_auf_pruefung' && <><button className={styles.passButton} onClick={() => onAction(task, 'erledigt')}>Freigeben</button><button className={styles.failButton} onClick={() => onAction(task, 'nicht_bestanden')}>Ablehnen</button></>}</div>}</article>; })}</div>;
 }
 
-function Person({ employee }: { employee?: Employee }) { return <div className={styles.person}><Avatar employee={employee} /><span><strong>{employee ? `${employee.vorname} ${employee.nachname}` : 'Unbekannt'}</strong><small>{employee?.position_title || roleLabel(employee?.rolle ?? '')}</small></span></div>; }
-function Avatar({ employee }: { employee?: Employee }) { return <span className={styles.avatar}>{employee ? `${employee.vorname[0] ?? ''}${employee.nachname[0] ?? ''}` : <UserRound size={16} />}</span>; }
+function Person({ employee }: { employee?: Employee }) { return <div className={styles.person}><EmployeeAvatar employee={employee} size="sm" /><span><strong>{employee ? `${employee.vorname} ${employee.nachname}` : 'Unbekannt'}</strong><small>{employee?.position_title || roleLabel(employee?.rolle ?? '')}</small></span></div>; }
+function Avatar({ employee }: { employee?: Employee }) { return <EmployeeAvatar employee={employee} size="sm" />; }
 function Empty({ text }: { text: string }) { return <div className={styles.empty}>{text}</div>; }
 
 function employeeName(id: string | null | undefined, map: Map<string, Employee>) { const employee = id ? map.get(id) : null; return employee ? `${employee.vorname} ${employee.nachname}` : 'Nicht zugeordnet'; }
