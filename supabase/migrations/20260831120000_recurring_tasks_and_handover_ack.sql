@@ -52,7 +52,7 @@ begin
       select a.employee_id from public.department_responsibility_assignments a
       where a.tenant_id=new.tenant_id and a.location_id=new.location_id and a.department_id=new.department_id
         and a.responsibility_role='stellvertretung' and a.aktiv
-    ) recipients where employee_id is not null
+    ) recipients where employee_id is not null and employee_id is distinct from new.escalation_owner_employee_id
   loop
     insert into public.notifications(employee_id,typ,titel,nachricht,link)
     values(v_recipient,case when new.escalation_level>1 then 'dringend' else 'warnung' end,'Aufgabe überfällig',new.title,'/mitarbeiter#meine-aufgaben');
@@ -93,16 +93,16 @@ begin
   on conflict(id) do update set department_id=excluded.department_id,title=excluded.title,description=excluded.description,
     recurrence_rule=excluded.recurrence_rule,trigger_type=excluded.trigger_type,shift_phase=excluded.shift_phase,
     assignment_mode=excluded.assignment_mode,assigned_employee_id=excluded.assigned_employee_id,target_type=excluded.target_type,
-    target_role=excluded.target_role,priority=excluded.priority,aktiv=excluded.aktiv,paused_at=excluded.paused_at,deleted_at=null,updated_at=now()
+    target_role=excluded.target_role,priority=excluded.priority,updated_at=now()
   returning id into v_id;
   return query select * from public.operational_task_templates where id=v_id;
 end
 $function$;
 
-create or replace function public.recurring_template_due_at(p_rule jsonb,p_day date)
-returns timestamptz language plpgsql immutable set search_path=public,pg_temp
+create or replace function public.recurring_template_due_at(p_rule jsonb,p_day date,p_anchor timestamptz default null)
+returns timestamptz language plpgsql stable set search_path=public,pg_temp
 as $function$
-declare v_time time:=coalesce((p_rule->>'time')::time,'09:00'); v_kind text:=p_rule->>'kind'; v_anchor date:=coalesce((p_rule->>'anchor')::date,p_day); v_match boolean:=false; v_target integer;
+declare v_time time:=coalesce((p_rule->>'time')::time,'09:00'); v_kind text:=p_rule->>'kind'; v_anchor date:=coalesce((p_rule->>'anchor')::date,(p_anchor at time zone 'Europe/Berlin')::date,p_day); v_match boolean:=false; v_target integer;
 begin
   if v_kind='daily' then v_match:=true;
   elsif v_kind='weekdays' then v_match:=extract(isodow from p_day)::integer in (select jsonb_array_elements_text(coalesce(p_rule->'weekdays','[]'))::integer);
@@ -116,14 +116,14 @@ begin
 end
 $function$;
 
-create or replace function public.materialize_recurring_operational_tasks(p_until timestamptz default now()+interval '14 days')
+create or replace function public.materialize_recurring_operational_tasks(p_tenant_id uuid,p_location_id uuid,p_until timestamptz default now()+interval '14 days')
 returns integer language plpgsql security definer set search_path=public,pg_temp
 as $function$
 declare v_template public.operational_task_templates%rowtype; v_day date; v_due timestamptz; v_assignee uuid; v_accountable uuid; v_creator uuid; v_rows integer; v_count integer:=0;
 begin
-  for v_template in select * from public.operational_task_templates where trigger_type='manual' and aktiv and paused_at is null and deleted_at is null loop
+  for v_template in select * from public.operational_task_templates where tenant_id=p_tenant_id and location_id=p_location_id and trigger_type='manual' and aktiv and paused_at is null and deleted_at is null loop
     for v_day in select generate_series((now() at time zone 'Europe/Berlin')::date,(p_until at time zone 'Europe/Berlin')::date,'1 day')::date loop
-      v_due:=public.recurring_template_due_at(v_template.recurrence_rule,v_day); if v_due is null or v_due>p_until then continue; end if;
+      v_due:=public.recurring_template_due_at(v_template.recurrence_rule,v_day,v_template.recurrence_anchor); if v_due is null or v_due>p_until then continue; end if;
       v_assignee:=v_template.assigned_employee_id;
       if v_template.target_type='role' then select id into v_assignee from public.employees where tenant_id=v_template.tenant_id and location_id=v_template.location_id and rolle=v_template.target_role and status in ('aktiv','in_training','in_probe') order by id limit 1;
       elsif v_template.target_type='department' then select employee_id into v_assignee from public.department_responsibility_assignments where tenant_id=v_template.tenant_id and location_id=v_template.location_id and department_id=v_template.department_id and responsibility_role='hauptverantwortung' and aktiv order by valid_from desc limit 1;
@@ -149,7 +149,8 @@ begin
   select * into v_row from public.responsibility_handovers where id=p_handover_id for update;
   if not found or not exists(select 1 from public.employees where id=p_actor_id and tenant_id=v_row.tenant_id and status in ('aktiv','in_training','in_probe')) then raise exception 'forbidden'; end if;
   if p_actor_id<>v_row.to_employee_id and not exists(select 1 from public.employees where id=p_actor_id and tenant_id=v_row.tenant_id and (location_id=v_row.location_id or rolle in ('backoffice','admin')) and rolle in ('manager','backoffice','admin')) then raise exception 'forbidden'; end if;
-  if p_action='read' and v_row.read_at is null then update public.responsibility_handovers set read_at=now(),read_by=p_actor_id,status='gelesen',updated_at=now() where id=p_handover_id;
+  if p_action='read' then
+    if v_row.read_at is null then update public.responsibility_handovers set read_at=now(),read_by=p_actor_id,status='gelesen',updated_at=now() where id=p_handover_id; end if;
   elsif p_action='confirm' then
     if v_row.read_at is null then raise exception 'handover must be read first'; end if;
     if v_row.confirmed_at is not null then raise exception 'handover already confirmed'; end if;
@@ -164,8 +165,8 @@ alter table public.responsibility_handovers add constraint responsibility_handov
 
 revoke all on function public.save_recurring_operational_template(uuid,uuid,uuid,uuid,text,text,uuid,jsonb,text,uuid,text,smallint,boolean) from public,anon;
 grant execute on function public.save_recurring_operational_template(uuid,uuid,uuid,uuid,text,text,uuid,jsonb,text,uuid,text,smallint,boolean) to authenticated,service_role;
-revoke all on function public.materialize_recurring_operational_tasks(timestamptz) from public,anon,authenticated;
-grant execute on function public.materialize_recurring_operational_tasks(timestamptz) to service_role;
+revoke all on function public.materialize_recurring_operational_tasks(uuid,uuid,timestamptz) from public,anon,authenticated;
+grant execute on function public.materialize_recurring_operational_tasks(uuid,uuid,timestamptz) to service_role;
 revoke all on function public.acknowledge_responsibility_handover(uuid,uuid,text) from public,anon;
 grant execute on function public.acknowledge_responsibility_handover(uuid,uuid,text) to authenticated,service_role;
 

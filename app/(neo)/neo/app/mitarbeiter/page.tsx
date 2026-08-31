@@ -55,12 +55,12 @@ export default async function MitarbeiterPage({
     service.from('operational_task_templates')
       .select('id,department_id,title,description,task_kind,trigger_type,shift_phase,due_offset_minutes,assignment_mode,assigned_employee_id,accountable_employee_id,controller_employee_id,evidence_requirements,control_required,priority,aktiv,created_at')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
-      .eq('trigger_type', 'shift')
+      .eq('trigger_type', 'shift').is('deleted_at', null)
       .order('priority', { ascending: false }).order('title'),
     service.from('responsibility_handovers')
       .select('id,department_id,from_employee_id,to_employee_id,reason,starts_at,ends_at,note,status,accepted_at,created_at')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
-      .in('status', ['offen', 'angenommen']).order('starts_at'),
+      .in('status', ['offen', 'gelesen', 'angenommen']).order('starts_at'),
     service.from('v_responsibility_coverage').select('*')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId),
     service.from('operational_daily_briefings')

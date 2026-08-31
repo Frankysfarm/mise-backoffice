@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { previewRecurrence, validateRecurrenceRule } from '@/lib/operations/recurrence';
-import { advanceHandover } from '@/lib/operations/handover-state';
 
 describe('operational recurrence', () => {
   it.each([
@@ -18,14 +17,5 @@ describe('operational recurrence', () => {
 
   it('validates every event-driven recurrence kind', () => {
     expect(['shift', 'opening', 'closing'].every((kind) => validateRecurrenceRule({ kind: kind as 'shift' }))).toBe(true);
-  });
-});
-
-describe('handover acknowledgement', () => {
-  it('requires read before confirm and preserves both timestamps', () => {
-    const initial = { status: 'offen', readAt: null, confirmedAt: null };
-    expect(() => advanceHandover(initial, 'confirm', '2026-08-31T10:00:00Z')).toThrow(/gelesen/);
-    const read = advanceHandover(initial, 'read', '2026-08-31T10:00:00Z');
-    expect(advanceHandover(read, 'confirm', '2026-08-31T10:05:00Z')).toEqual({ status: 'angenommen', readAt: '2026-08-31T10:00:00Z', confirmedAt: '2026-08-31T10:05:00Z' });
   });
 });

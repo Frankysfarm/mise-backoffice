@@ -147,10 +147,10 @@ export default async function MitarbeiterPage() {
       .or(`assigned_to.eq.${employee.id},accountable_employee_id.eq.${employee.id},controller_employee_id.eq.${employee.id}`)
       .not('status', 'eq', 'storniert').order('due_at', { ascending: true, nullsFirst: false }).limit(150),
     service.from('responsibility_handovers')
-      .select('id,reason,starts_at,ends_at,note,status,from_employee_id,to_employee_id,department:departments(name),from_employee:employees!responsibility_handovers_from_employee_id_fkey(vorname,nachname),to_employee:employees!responsibility_handovers_to_employee_id_fkey(vorname,nachname)')
+      .select('id,reason,starts_at,ends_at,note,status,read_at,confirmed_at,from_employee_id,to_employee_id,department:departments(name),from_employee:employees!responsibility_handovers_from_employee_id_fkey(vorname,nachname),to_employee:employees!responsibility_handovers_to_employee_id_fkey(vorname,nachname)')
       .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .or(`from_employee_id.eq.${employee.id},to_employee_id.eq.${employee.id}`)
-      .in('status', ['offen', 'angenommen']).order('starts_at'),
+      .in('status', ['offen', 'gelesen', 'angenommen']).order('starts_at'),
     service.from('employees').select('id,vorname,nachname,rolle,position_title,reports_to_employee_id')
       .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .in('status', ['aktiv', 'in_training', 'in_probe']).order('nachname'),

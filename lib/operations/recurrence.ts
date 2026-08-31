@@ -33,6 +33,11 @@ function berlinInstant(year: number, month: number, day: number, time = '09:00')
   return instant;
 }
 
+export function berlinDateBoundary(date: string, endOfDay = false) {
+  const [year, month, day] = date.split('-').map(Number);
+  return berlinInstant(year, month, day, endOfDay ? '23:59' : '00:00').toISOString();
+}
+
 function daysInMonth(year: number, month: number) {
   return new Date(Date.UTC(year, month, 0)).getUTCDate();
 }
@@ -41,6 +46,7 @@ export function validateRecurrenceRule(rule: RecurrenceRule) {
   if (!['daily', 'weekdays', 'weekly', 'monthly_day', 'monthly_weekday', 'shift', 'opening', 'closing', 'interval'].includes(rule.kind)) return false;
   if (rule.time && !/^([01]\d|2[0-3]):[0-5]\d$/.test(rule.time)) return false;
   if (rule.kind === 'weekdays' && (!rule.weekdays?.length || rule.weekdays.some((day) => day < 1 || day > 7))) return false;
+  if (rule.kind === 'weekly' && (!rule.weekday || rule.weekday < 1 || rule.weekday > 7)) return false;
   if (rule.kind === 'monthly_day' && (!rule.day || rule.day < 1 || rule.day > 31)) return false;
   if (rule.kind === 'monthly_weekday' && (!rule.ordinal || rule.ordinal < 1 || rule.ordinal > 5 || !rule.weekday || rule.weekday < 1 || rule.weekday > 7)) return false;
   if (rule.kind === 'interval' && (!rule.interval || rule.interval < 1 || rule.interval > 365 || !['days', 'weeks'].includes(rule.unit ?? ''))) return false;
@@ -67,11 +73,13 @@ export function previewRecurrence(rule: RecurrenceRule, start: Date, count = 5):
 }
 
 export function recurrenceLabel(rule: RecurrenceRule) {
+  const weekday = (day?: number) => ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'][(day ?? 1) - 1] ?? 'Mo';
+  const weekdayLong = (day?: number) => ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'][(day ?? 1) - 1] ?? 'Montag';
   if (rule.kind === 'daily') return 'Täglich';
-  if (rule.kind === 'weekdays') return `Wochentage: ${(rule.weekdays ?? []).join(', ')}`;
-  if (rule.kind === 'weekly') return 'Wöchentlich';
+  if (rule.kind === 'weekdays') return `Wochentage: ${(rule.weekdays ?? []).map(weekday).join(', ')}`;
+  if (rule.kind === 'weekly') return `Wöchentlich am ${weekdayLong(rule.weekday)}`;
   if (rule.kind === 'monthly_day') return `Monatlich am ${rule.day}.`;
-  if (rule.kind === 'monthly_weekday') return `Monatlich: ${rule.ordinal}. Wochentag`;
+  if (rule.kind === 'monthly_weekday') return `Jeden ${rule.ordinal}. ${weekdayLong(rule.weekday)} im Monat`;
   if (rule.kind === 'shift') return 'Pro Schicht';
   if (rule.kind === 'opening') return 'Bei Öffnung';
   if (rule.kind === 'closing') return 'Bei Schließung';

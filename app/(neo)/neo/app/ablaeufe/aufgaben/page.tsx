@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createServiceClient } from '@/lib/supabase/server';
 import { OperationsClient } from './operations-client';
+import { berlinDateBoundary } from '@/lib/operations/recurrence';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,8 +16,10 @@ export default async function OperationsPage({ searchParams }: { searchParams: P
   const { data: locations } = await locationQuery.order('name');
   const locationId = locations?.some((item) => item.id === params.location) ? params.location! : actor.location_id ?? locations?.[0]?.id;
   if (!locationId) redirect('/start');
-  const from = /^\d{4}-\d{2}-\d{2}$/.test(params.from ?? '') ? `${params.from}T00:00:00+02:00` : new Date(Date.now()-30*86_400_000).toISOString();
-  const to = /^\d{4}-\d{2}-\d{2}$/.test(params.to ?? '') ? `${params.to}T23:59:59+02:00` : new Date(Date.now()+86_400_000).toISOString();
+  const fromDate = /^\d{4}-\d{2}-\d{2}$/.test(params.from ?? '') ? params.from! : '';
+  const toDate = /^\d{4}-\d{2}-\d{2}$/.test(params.to ?? '') ? params.to! : '';
+  const from = fromDate ? berlinDateBoundary(fromDate) : new Date(Date.now()-30*86_400_000).toISOString();
+  const to = toDate ? berlinDateBoundary(toDate, true) : new Date(Date.now()+86_400_000).toISOString();
   const [{ data: employees }, { data: departments }, { data: rules }, { data: tasks }, { data: handovers }] = await Promise.all([
     service.from('employees').select('id,vorname,nachname,rolle').eq('tenant_id', actor.tenant_id).eq('location_id', locationId).in('status',['aktiv','in_training','in_probe']).order('nachname'),
     service.from('departments').select('id,name').eq('tenant_id', actor.tenant_id).eq('location_id', locationId).eq('aktiv',true).order('name'),
@@ -24,5 +27,11 @@ export default async function OperationsPage({ searchParams }: { searchParams: P
     service.from('operational_tasks').select('id,title,status,due_at,assigned_to,department_id,completed_at,assigned:employees!operational_tasks_assigned_to_fkey(vorname,nachname)').eq('tenant_id',actor.tenant_id).eq('location_id',locationId).not('status','in','(erledigt,storniert)').order('due_at').limit(200),
     service.from('responsibility_handovers').select('id,department_id,from_employee_id,to_employee_id,created_at,read_at,read_by,confirmed_at,confirmed_by,status,open_task_ids,incidents,inventory_notes,damage_notes,cleaning_notes,important_notes,evidence,from_employee:employees!responsibility_handovers_from_employee_id_fkey(vorname,nachname),to_employee:employees!responsibility_handovers_to_employee_id_fkey(vorname,nachname)').eq('tenant_id',actor.tenant_id).eq('location_id',locationId).gte('created_at',from).lte('created_at',to).order('created_at',{ascending:false}).limit(300),
   ]);
-  return <OperationsClient actorId={actor.id} locationId={locationId} locations={locations ?? []} employees={(employees ?? []) as never[]} departments={departments ?? []} rules={(rules ?? []) as never[]} tasks={(tasks ?? []) as never[]} handovers={(handovers ?? []) as never[]} />;
+  const titleByTaskId = new Map((tasks ?? []).map((task) => [task.id, task.title]));
+  const handoversWithTasks = (handovers ?? []).map((handover) => {
+    const openTasks = (handover.open_task_ids as string[]).map((id: string) => ({ id, title: titleByTaskId.get(id) ?? 'Nicht mehr offene Aufgabe' }));
+    const taskSummary = openTasks.length ? `Offene Aufgaben:\n${openTasks.map((task: { title: string }) => `• ${task.title}`).join('\n')}` : '';
+    return { ...handover, open_tasks: openTasks, important_notes: [taskSummary, handover.important_notes].filter(Boolean).join('\n\n') || null };
+  }).sort((left, right) => Number(Boolean(left.confirmed_at)) - Number(Boolean(right.confirmed_at)) || Date.parse(right.created_at) - Date.parse(left.created_at));
+  return <OperationsClient actorId={actor.id} locationId={locationId} fromDate={fromDate} toDate={toDate} locations={locations ?? []} employees={(employees ?? []) as never[]} departments={departments ?? []} rules={(rules ?? []) as never[]} tasks={(tasks ?? []) as never[]} handovers={handoversWithTasks as never[]} />;
 }

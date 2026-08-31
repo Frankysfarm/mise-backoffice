@@ -332,11 +332,11 @@ export async function POST(request: NextRequest) {
       .eq('id', input.handoverId).eq('tenant_id', actor.tenant_id).eq('location_id', input.locationId).maybeSingle();
     if (!handover) return notFound('Übergabe nicht gefunden.');
     if (handover.to_employee_id !== actor.id && !managerRoles.has(actor.rolle)) return forbidden();
-    const { data, error } = await service.from('responsibility_handovers').update({
-      status: 'angenommen', accepted_by: actor.id, accepted_at: new Date().toISOString(),
-    }).eq('id', handover.id).eq('status', 'offen').select('*').maybeSingle();
-    if (error || !data) return NextResponse.json({ error: 'Übergabe wurde bereits bearbeitet.' }, { status: 409 });
-    return NextResponse.json({ handover: data });
+    const { error: readError } = await service.rpc('acknowledge_responsibility_handover', { p_handover_id: handover.id, p_actor_id: actor.id, p_action: 'read' });
+    if (readError) return NextResponse.json({ error: 'Übergabe konnte nicht gelesen werden.' }, { status: 409 });
+    const { data, error } = await service.rpc('acknowledge_responsibility_handover', { p_handover_id: handover.id, p_actor_id: actor.id, p_action: 'confirm' });
+    if (error || !data) return NextResponse.json({ error: 'Übergabe konnte nicht bestätigt werden.' }, { status: 409 });
+    return NextResponse.json({ handover: Array.isArray(data) ? data[0] : data });
   } catch (error) {
     return failure(error instanceof Error ? error.message : 'Aktion fehlgeschlagen.');
   }
