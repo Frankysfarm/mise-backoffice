@@ -37,34 +37,52 @@ function roleLabel(role: string) {
   return labels[role] ?? role;
 }
 
+function statusLabel(status: string) {
+  const labels: Record<string, string> = {
+    aktiv: 'Aktiv', in_probe: 'In Probearbeit', in_training: 'In Einarbeitung',
+  };
+  return labels[status] ?? status;
+}
+
+function employmentLabel(type: string | null) {
+  if (!type) return '—';
+  const labels: Record<string, string> = {
+    vollzeit: 'Vollzeit', teilzeit: 'Teilzeit', minijob: 'Minijob',
+    aushilfe: 'Aushilfe', praktikum: 'Praktikum', werkstudent: 'Werkstudent',
+  };
+  return labels[type] ?? `${type.charAt(0).toUpperCase()}${type.slice(1)}`;
+}
+
 export default async function ProfilPage() {
   const employee = await requirePosAccess();
   if (!employee.tenant_id) redirect('/login?reason=no_access');
-  const currentEmployee = employee as typeof employee & { reports_to_employee_id: string | null };
 
   const service = createServiceClient();
-  const [{ data: profile }, { data: responsibilities }, { data: manager }] = await Promise.all([
-    service.from('employees')
-      .select('id,vorname,nachname,email,telefon,rolle,position_title,avatar_url,status,employment_type')
-      .eq('id', employee.id)
-      .eq('tenant_id', employee.tenant_id)
-      .maybeSingle(),
+  const { data: profile } = await service.from('employees')
+    .select('id,vorname,nachname,email,telefon,rolle,position_title,avatar_url,status,employment_type,reports_to_employee_id')
+    .eq('id', employee.id)
+    .eq('tenant_id', employee.tenant_id)
+    .maybeSingle();
+
+  if (!profile) redirect('/login?reason=no_access');
+
+  const typedProfile = profile as EmployeeWithReports;
+  const managerId = typedProfile.reports_to_employee_id;
+  const [{ data: responsibilities }, { data: manager }] = await Promise.all([
     service.from('department_responsibility_assignments')
       .select('id,responsibility_role,weekday_scope,shift_start,shift_end,valid_from,valid_until,department:departments(id,name)')
       .eq('tenant_id', employee.tenant_id)
       .eq('location_id', employee.location_id ?? '')
       .eq('employee_id', employee.id)
       .eq('aktiv', true),
-    currentEmployee.reports_to_employee_id
+    managerId
       ? service.from('employees')
           .select('id,vorname,nachname,position_title,rolle,avatar_url')
-          .eq('id', currentEmployee.reports_to_employee_id)
+          .eq('id', managerId)
           .eq('tenant_id', employee.tenant_id)
           .maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
-
-  if (!profile) redirect('/login?reason=no_access');
 
   const moment = berlinScheduleMoment();
   const activeResponsibilities = ((responsibilities ?? []) as EmployeeResponsibility[])
@@ -118,8 +136,8 @@ export default async function ProfilPage() {
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-4">
             <div className="text-[11px] font-bold uppercase tracking-wide text-slate-400">Beschäftigung</div>
-            <div className="mt-2 text-sm font-semibold text-slate-800">{profile.employment_type ? `${profile.employment_type.charAt(0).toUpperCase()}${profile.employment_type.slice(1)}` : '—'}</div>
-            <div className="text-xs text-slate-500">Status: {profile.status}</div>
+            <div className="mt-2 text-sm font-semibold text-slate-800">{employmentLabel(profile.employment_type)}</div>
+            <div className="text-xs text-slate-500">Status: {statusLabel(profile.status)}</div>
           </div>
         </section>
 

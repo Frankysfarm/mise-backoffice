@@ -28,7 +28,6 @@ export default async function EmployeeDetail({ params }: EmployeeDetailProps) {
     .eq('id', id)
     .eq('tenant_id', currentEmployee.tenant_id)
     .maybeSingle();
-  const initialAvatarUrl = (emp as any)?.avatar_url ?? null;
   if (!emp) notFound();
 
   const [{ data: shifts }, { data: trainingRaw }, { data: docs }, { data: badges }, { data: locations }, { data: departments }, { data: probeShifts }, { data: review }, { data: availRaw }, { data: excRaw }] = await Promise.all([

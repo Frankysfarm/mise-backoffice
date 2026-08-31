@@ -165,9 +165,20 @@ describe('responsibility organization', () => {
     expect(client).toContain('Zuordnung per Auswahl');
     expect(client).toContain('Hauptverantwortung:');
     expect(client).toContain('Stellvertretung:');
+    expect(client).toContain('await mutation(');
+    expect(client).toContain("ROOT_SENTINEL");
     expect(styles).toContain('.assignmentSummary');
     expect(styles).toContain('@media(max-width:700px)');
     expect(managerPage).toContain('avatar_url');
+  });
+
+  it('renders the profile page with manager, status and employment labels', () => {
+    const profilePage = source('app/mitarbeiter/profil/page.tsx');
+    expect(profilePage).toContain('reports_to_employee_id');
+    expect(profilePage).toContain('statusLabel');
+    expect(profilePage).toContain('employmentLabel');
+    expect(profilePage).toContain('Aktiv');
+    expect(profilePage).toContain('In Probearbeit');
   });
 
   it('exposes a tenant-scoped avatar upload route and storage bucket migration', () => {
@@ -179,8 +190,12 @@ describe('responsibility organization', () => {
     expect(route).toContain("service.storage.from('avatars')");
     expect(route).toContain('avatar_url');
     expect(route).toContain("if (!isSelf && !isManager)");
+    expect(route).toContain("publicUrl('avatars', storagePath)");
+    expect(route).toContain(".in('status', ['aktiv', 'in_training', 'in_probe'])");
     expect(migration).toContain("alter table public.employees\n  add column if not exists avatar_url text");
     expect(migration).toContain("insert into storage.buckets (id, name, public");
+    expect(migration).toContain('drop policy if exists "Avatar public read" on storage.objects');
+    expect(migration).toContain('create policy "Avatar public read"');
     expect(profilePage).toContain('AvatarUploader');
     expect(uploader).toContain('/api/employees/avatar');
     expect(adminPage).toContain('AvatarUploader');

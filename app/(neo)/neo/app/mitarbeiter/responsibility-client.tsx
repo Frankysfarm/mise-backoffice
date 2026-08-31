@@ -117,21 +117,25 @@ export function ResponsibilityClient({
   const briefingOpen = briefing?.task_counts.reduce((sum, item) => sum + Number(item.open_count || 0), 0) ?? 0;
   const briefingOverdue = briefing?.task_counts.reduce((sum, item) => sum + Number(item.overdue_count || 0), 0) ?? 0;
 
-  function mutation(payload: Record<string, unknown>, successMessage: string, local?: (result: any) => void) {
+  function mutation(payload: Record<string, unknown>, successMessage: string, local?: (result: any) => void): Promise<void> {
     setError('');
-    startTransition(async () => {
-      const response = await fetch('/api/operations/responsibility', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, locationId }),
+    return new Promise((resolve, reject) => {
+      startTransition(async () => {
+        const response = await fetch('/api/operations/responsibility', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, locationId }),
+        });
+        const result = await response.json().catch(() => null);
+        if (!response.ok) {
+          setError(result?.error ?? 'Änderung fehlgeschlagen.');
+          reject(new Error(result?.error ?? 'Änderung fehlgeschlagen.'));
+          return;
+        }
+        local?.(result);
+        setNotice(successMessage);
+        window.setTimeout(() => setNotice(''), 2600);
+        router.refresh();
+        resolve();
       });
-      const result = await response.json().catch(() => null);
-      if (!response.ok) {
-        setError(result?.error ?? 'Änderung fehlgeschlagen.');
-        return;
-      }
-      local?.(result);
-      setNotice(successMessage);
-      window.setTimeout(() => setNotice(''), 2600);
-      router.refresh();
     });
   }
 
@@ -275,16 +279,18 @@ export function ResponsibilityClient({
           <div className={styles.toolbar}>
             <button className={styles.secondaryButton} onClick={() => setAssignmentWizardOpen((open) => !open)}>{assignmentWizardOpen ? 'Assistent schließen' : 'Zuordnung per Auswahl'}</button>
           </div>
-          {assignmentWizardOpen && <AssignmentWizard employees={employees} departments={departments} pending={pending} onClose={() => setAssignmentWizardOpen(false)} onSave={(payload) => {
-            const steps: Array<() => void> = [];
-            if (payload.reportsToEmployeeId !== undefined && payload.employeeId) {
-              steps.push(() => mutation({ action: 'move_employee', employeeId: payload.employeeId, reportsToEmployeeId: payload.reportsToEmployeeId || null }, 'Zuordnung aktualisiert.', () => setEmployees((current) => current.map((item) => item.id === payload.employeeId ? { ...item, reports_to_employee_id: payload.reportsToEmployeeId || null } : item))));
+          {assignmentWizardOpen && <AssignmentWizard employees={employees} departments={departments} pending={pending} onClose={() => setAssignmentWizardOpen(false)} onSave={async (payload) => {
+            try {
+              if (payload.reportsToEmployeeId !== undefined && payload.employeeId) {
+                await mutation({ action: 'move_employee', employeeId: payload.employeeId, reportsToEmployeeId: payload.reportsToEmployeeId || null }, 'Zuordnung aktualisiert.', () => setEmployees((current) => current.map((item) => item.id === payload.employeeId ? { ...item, reports_to_employee_id: payload.reportsToEmployeeId || null } : item)));
+              }
+              if (payload.departmentId && payload.employeeId && payload.role) {
+                await mutation({ action: 'assign_responsibility', departmentId: payload.departmentId, employeeId: payload.employeeId, role: payload.role, weekdays: [1, 2, 3, 4, 5, 6, 7] }, `${payload.role === 'hauptverantwortung' ? 'Hauptverantwortung' : 'Stellvertretung'} zugewiesen.`);
+              }
+              setAssignmentWizardOpen(false);
+            } catch {
+              // Error is already surfaced by mutation; keep wizard open so the user can retry.
             }
-            if (payload.departmentId && payload.employeeId && payload.role) {
-              steps.push(() => mutation({ action: 'assign_responsibility', departmentId: payload.departmentId, employeeId: payload.employeeId, role: payload.role, weekdays: [1, 2, 3, 4, 5, 6, 7] }, `${payload.role === 'hauptverantwortung' ? 'Hauptverantwortung' : 'Stellvertretung'} zugewiesen.`));
-            }
-            steps.forEach((step, index) => window.setTimeout(step, index * 120));
-            setAssignmentWizardOpen(false);
           }} />}
           <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
             <OrgRoot employees={employees} assignments={assignments} tasks={activeTasks} departments={byDepartment} onEditPosition={setPositionEdit} />
@@ -461,10 +467,11 @@ function PositionEditor({ employee, employees, onClose, onSave, pending }: { emp
   return <section className={styles.editor}><div className={styles.editorHeader}><div><strong>Position von {employee.vorname} {employee.nachname}</strong><small>Position und direkte Führung gelten im Organigramm und in der Mitarbeiter-App.</small></div><button className={styles.iconButton} onClick={onClose}><X size={17} /></button></div><div className={styles.formGrid}><label>Position<input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="z. B. Filialleitung" /></label><label>Direkte Führung<select value={reportsToEmployeeId} onChange={(event) => setReportsToEmployeeId(event.target.value)}><option value="">Oberste Ebene / noch nicht zugeordnet</option>{employees.filter((candidate) => candidate.id !== employee.id && !excludedManagers.has(candidate.id)).map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.vorname} {candidate.nachname} · {candidate.position_title || roleLabel(candidate.rolle)}</option>)}</select></label></div><button className={styles.primaryButton} disabled={pending || title.trim().length < 2} onClick={() => onSave(title.trim(), reportsToEmployeeId || null)}><Save size={15} /> Position & Führung speichern</button></section>;
 }
 
-type AssignmentWizardPayload = { employeeId: string; reportsToEmployeeId?: string; departmentId?: string; role?: 'hauptverantwortung' | 'stellvertretung' };
+const ROOT_SENTINEL = '__root__';
+type AssignmentWizardPayload = { employeeId: string; reportsToEmployeeId?: string | null; departmentId?: string; role?: 'hauptverantwortung' | 'stellvertretung' };
 function AssignmentWizard({ employees, departments, pending, onClose, onSave }: { employees: Employee[]; departments: Department[]; pending: boolean; onClose: () => void; onSave: (payload: AssignmentWizardPayload) => void }) {
   const [employeeId, setEmployeeId] = useState('');
-  const [reportsToEmployeeId, setReportsToEmployeeId] = useState('');
+  const [reportsToEmployeeId, setReportsToEmployeeId] = useState(ROOT_SENTINEL);
   const [departmentId, setDepartmentId] = useState('');
   const [role, setRole] = useState<'hauptverantwortung' | 'stellvertretung'>('hauptverantwortung');
   const selected = employees.find((employee) => employee.id === employeeId);
@@ -472,12 +479,17 @@ function AssignmentWizard({ employees, departments, pending, onClose, onSave }: 
   return <section className={styles.editor}>
     <div className={styles.editorHeader}><div><strong>Mitarbeiter zuordnen</strong><small>Wähle eine Person, die direkte Führung und optional einen Bereich – funktioniert auch ohne Ziehen.</small></div><button className={styles.iconButton} onClick={onClose}><X size={17} /></button></div>
     <div className={styles.formGrid}>
-      <label>Mitarbeiter<select value={employeeId} onChange={(event) => { setEmployeeId(event.target.value); setReportsToEmployeeId(''); }}><option value="">Bitte auswählen</option>{employees.map((employee) => <option key={employee.id} value={employee.id}>{employee.vorname} {employee.nachname} · {roleLabel(employee.rolle)}</option>)}</select></label>
-      <label>Direkte Führung<select value={reportsToEmployeeId} onChange={(event) => setReportsToEmployeeId(event.target.value)} disabled={!employeeId}><option value="">Oberste Ebene</option>{employees.filter((candidate) => candidate.id !== employeeId && !excludedManagers.has(candidate.id)).map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.vorname} {candidate.nachname} · {candidate.position_title || roleLabel(candidate.rolle)}</option>)}</select></label>
-      <label>Bereich (optional)<select value={departmentId} onChange={(event) => setDepartmentId(event.target.value)} disabled={!employeeId}>{departments.map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}<option value="">Keinen Bereich ändern</option></select></label>
+      <label>Mitarbeiter<select value={employeeId} onChange={(event) => {
+        const nextId = event.target.value;
+        const nextEmployee = employees.find((employee) => employee.id === nextId);
+        setEmployeeId(nextId);
+        setReportsToEmployeeId(nextEmployee?.reports_to_employee_id ?? ROOT_SENTINEL);
+      }}><option value="">Bitte auswählen</option>{employees.map((employee) => <option key={employee.id} value={employee.id}>{employee.vorname} {employee.nachname} · {roleLabel(employee.rolle)}</option>)}</select></label>
+      <label>Direkte Führung<select value={reportsToEmployeeId} onChange={(event) => setReportsToEmployeeId(event.target.value)} disabled={!employeeId}><option value={ROOT_SENTINEL}>Oberste Ebene</option>{employees.filter((candidate) => candidate.id !== employeeId && !excludedManagers.has(candidate.id)).map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.vorname} {candidate.nachname} · {candidate.position_title || roleLabel(candidate.rolle)}</option>)}</select></label>
+      <label>Bereich (optional)<select value={departmentId} onChange={(event) => setDepartmentId(event.target.value)} disabled={!employeeId}><option value="">Keinen Bereich ändern</option>{departments.filter((department) => department.aktiv).map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}</select></label>
       {departmentId && <label>Verantwortung<select value={role} onChange={(event) => setRole(event.target.value as 'hauptverantwortung' | 'stellvertretung')}><option value="hauptverantwortung">Hauptverantwortung</option><option value="stellvertretung">Stellvertretung</option></select></label>}
     </div>
-    <button className={styles.primaryButton} disabled={pending || !employeeId} onClick={() => onSave({ employeeId, reportsToEmployeeId: reportsToEmployeeId || undefined, departmentId: departmentId || undefined, role: departmentId ? role : undefined })}><Save size={15} /> Zuordnung speichern</button>
+    <button className={styles.primaryButton} disabled={pending || !employeeId} onClick={() => onSave({ employeeId, reportsToEmployeeId: reportsToEmployeeId === ROOT_SENTINEL ? null : reportsToEmployeeId, departmentId: departmentId || undefined, role: departmentId ? role : undefined })}><Save size={15} /> Zuordnung speichern</button>
   </section>;
 }
 
@@ -560,7 +572,6 @@ function TaskList({ tasks, employees, departments, compact, onAction }: { tasks:
 }
 
 function Person({ employee }: { employee?: Employee }) { return <div className={styles.person}><EmployeeAvatar employee={employee} size="sm" /><span><strong>{employee ? `${employee.vorname} ${employee.nachname}` : 'Unbekannt'}</strong><small>{employee?.position_title || roleLabel(employee?.rolle ?? '')}</small></span></div>; }
-function Avatar({ employee }: { employee?: Employee }) { return <EmployeeAvatar employee={employee} size="sm" />; }
 function Empty({ text }: { text: string }) { return <div className={styles.empty}>{text}</div>; }
 
 function employeeName(id: string | null | undefined, map: Map<string, Employee>) { const employee = id ? map.get(id) : null; return employee ? `${employee.vorname} ${employee.nachname}` : 'Nicht zugeordnet'; }

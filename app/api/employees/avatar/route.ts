@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
+import { publicUrl } from '@/lib/storage';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -32,6 +33,7 @@ export async function POST(request: NextRequest) {
     .select('id,tenant_id,location_id')
     .eq('id', employeeId)
     .eq('tenant_id', actor.tenant_id)
+    .in('status', ['aktiv', 'in_training', 'in_probe'])
     .maybeSingle();
   if (!target) {
     return NextResponse.json({ error: 'Mitarbeiter nicht gefunden.' }, { status: 404 });
@@ -42,7 +44,7 @@ export async function POST(request: NextRequest) {
   if (!isSelf && !isManager) {
     return NextResponse.json({ error: 'Keine Berechtigung.' }, { status: 403 });
   }
-  if (isManager && actor.rolle === 'manager' && actor.location_id !== target.location_id) {
+  if (isManager && actor.rolle === 'manager' && (!actor.location_id || !target.location_id || actor.location_id !== target.location_id)) {
     return NextResponse.json({ error: 'Standort nicht freigegeben.' }, { status: 403 });
   }
 
@@ -58,9 +60,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Bild konnte nicht gespeichert werden.' }, { status: 500 });
   }
 
-  const publicUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${storagePath}`;
+  const avatarUrl = publicUrl('avatars', storagePath);
+  if (!avatarUrl) {
+    await service.storage.from('avatars').remove([storagePath]);
+    return NextResponse.json({ error: 'Öffentliche URL konnte nicht erzeugt werden.' }, { status: 500 });
+  }
   const { error: updateError } = await service.from('employees')
-    .update({ avatar_url: publicUrl })
+    .update({ avatar_url: avatarUrl })
     .eq('id', employeeId)
     .eq('tenant_id', actor.tenant_id);
 
@@ -69,5 +75,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Profilbild konnte nicht verknüpft werden.' }, { status: 500 });
   }
 
-  return NextResponse.json({ avatarUrl: publicUrl }, { status: 201 });
+  return NextResponse.json({ avatarUrl }, { status: 201 });
 }

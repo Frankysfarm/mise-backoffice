@@ -15,33 +15,20 @@ on conflict (id) do update set
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 
--- Drop any legacy policies on the avatars bucket to avoid overlap.
-delete from storage.policies
-  using storage.buckets
-  where storage.policies.bucket_id = storage.buckets.id
-    and storage.buckets.name = 'avatars';
-
 -- Public read for avatar images.
-insert into storage.policies (name, definition, bucket_id, operation)
-select
-  'Avatar public read',
-  '(bucket_id = (select id from storage.buckets where name = ''avatars''))'::text,
-  b.id,
-  'SELECT'::text
-from storage.buckets b
-where b.name = 'avatars'
-on conflict do nothing;
+drop policy if exists "Avatar public read" on storage.objects;
+create policy "Avatar public read"
+  on storage.objects
+  for select
+  using (bucket_id = 'avatars');
 
 -- Authenticated write: only authenticated users, scoped to avatars bucket.
 -- The server route performs the actual tenant/location/ownership checks.
-insert into storage.policies (name, definition, bucket_id, operation)
-select
-  'Avatar authenticated write',
-  '(bucket_id = (select id from storage.buckets where name = ''avatars''))'::text,
-  b.id,
-  'INSERT'::text
-from storage.buckets b
-where b.name = 'avatars'
-on conflict do nothing;
+drop policy if exists "Avatar authenticated write" on storage.objects;
+create policy "Avatar authenticated write"
+  on storage.objects
+  for insert
+  to authenticated
+  with check (bucket_id = 'avatars');
 
 commit;

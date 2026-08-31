@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useTransition } from 'react';
-import { Upload, X, Loader2 } from 'lucide-react';
+import { Upload, Loader2 } from 'lucide-react';
 import { EmployeeAvatar } from './employee-avatar';
 
 type EmployeeLike = {
