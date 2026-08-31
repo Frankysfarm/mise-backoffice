@@ -16,6 +16,7 @@ export default async function InventorySessionsPage() {
   const supabase = await createClient();
   const { data: sessions } = await supabase.from('inventory_sessions')
     .select('*,location:locations(name),area:inventory_areas(name),starter:employees!inventory_sessions_gestartet_von_fkey(vorname,nachname),assignee:employees!inventory_sessions_assigned_to_fkey(vorname,nachname)')
+    .neq('typ', 'spontan')
     .order('gestartet_am', { ascending: false }).limit(50);
 
   return (

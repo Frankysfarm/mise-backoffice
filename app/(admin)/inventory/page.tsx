@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { euro } from '@/lib/utils';
 import {
   Package, AlertTriangle, TrendingDown, Truck, Trash2,
-  BarChart3, ClipboardList, ShoppingCart, Warehouse, PackageCheck, ListTree, UserRoundCheck,
+  BarChart3, ClipboardList, ShoppingCart, Warehouse, PackageCheck, UserRoundCheck,
 } from 'lucide-react';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
@@ -47,7 +47,7 @@ export default async function InventoryDashboard() {
     { href: `${basePath}/waste`,      icon: Trash2,         label: 'Schwund',        value: euro(wasteTotal30d) + ' / 30T', desc: 'Was weggeworfen wird' },
     { href: `${basePath}/movements`,  icon: BarChart3,      label: 'Bewegungen',     value: '',                          desc: 'Audit-Trail aller Änderungen' },
     { href: `${basePath}/receiving`,  icon: PackageCheck,   label: 'Wareneingang',   value: '',                          desc: 'Lieferungen prüfen + buchen' },
-    { href: `${basePath}/shelves`,    icon: ListTree,       label: 'Regalplätze',    value: '',                          desc: 'Physische Lagerplätze ordnen' },
+    { href: `${basePath}/plan`,       icon: Warehouse,      label: 'Lagerplan',      value: '',                          desc: 'Räume, Geräte, Plätze + QR' },
     { href: `${basePath}/assign`,     icon: UserRoundCheck, label: 'Inventur zuweisen', value: '',                       desc: 'Zählaufgaben ans Team geben' },
   ];
 

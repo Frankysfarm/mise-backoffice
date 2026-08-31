@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
+import { groupReorderProposals } from '@/lib/inventory/warehouse-plan';
 
 /**
  * POST /api/inventory/auto-reorder
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
 
   // Alle Items unter Minimum laden
   const { data: items } = await supabase.from('inventory_items')
-    .select('id,name,artikelnummer,einheit,soll_bestand,min_bestand,letzte_inventur,preis_pro_einheit,nachbestell_menge,lieferant,supplier_id,area:inventory_areas(location_id)')
+    .select('id,name,artikelnummer,einheit,soll_bestand,min_bestand,letzte_inventur,preis_pro_einheit,nachbestell_menge,lieferant,supplier_id,shelf:inventory_shelves(name),area:inventory_areas(location_id)')
     .eq('aktiv', true);
 
   const underMin = (items ?? []).filter((i: any) =>
@@ -24,19 +25,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, message: 'Alles auf Lager — nichts zu bestellen.', orders: [] });
   }
 
-  // Gruppiere nach supplier_id oder lieferant-Text
+  const proposals = groupReorderProposals(underMin.map((item: any) => ({
+    id: item.id,
+    supplierId: item.supplier_id ?? null,
+    supplierName: item.lieferant ?? null,
+    locationId: item.area?.location_id ?? null,
+    target: item.nachbestell_menge != null
+      ? (item.letzte_inventur ?? 0) + item.nachbestell_menge
+      : (item.soll_bestand ?? item.min_bestand ?? 1),
+    current: item.letzte_inventur ?? 0,
+  })));
+
   const groups = new Map<string, { supplier_id: string | null; lieferant: string; location_id: string | null; items: any[] }>();
-  for (const item of underMin) {
-    const key = (item as any).supplier_id ?? (item as any).lieferant ?? 'Unbekannt';
-    if (!groups.has(key)) {
-      groups.set(key, {
-        supplier_id: (item as any).supplier_id,
-        lieferant: (item as any).lieferant ?? 'Unbekannt',
-        location_id: (item as any).area?.location_id ?? null,
-        items: [],
-      });
-    }
-    groups.get(key)!.items.push(item);
+  for (const proposal of proposals) {
+    const key = `${proposal.locationId}:${proposal.supplierId ?? proposal.supplierName}`;
+    groups.set(key, {
+      supplier_id: proposal.supplierId,
+      lieferant: proposal.supplierName,
+      location_id: proposal.locationId,
+      items: underMin.filter((item: any) => proposal.itemIds.includes(item.id)),
+    });
   }
 
   const createdOrders: string[] = [];
@@ -52,6 +60,7 @@ export async function POST(req: NextRequest) {
         menge,
         einheit: i.einheit,
         preis_pro_einheit: i.preis_pro_einheit,
+        lagerplatz: i.shelf?.name ?? null,
       };
     });
 
