@@ -1,0 +1,11 @@
+import Link from 'next/link';
+import { requirePosAccess } from '@/lib/auth/requireRole';
+import { createServiceClient } from '@/lib/supabase/server';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+export default async function MyTrainingsPage() {
+  const employee = await requirePosAccess(); if (!employee.tenant_id) throw new Error('Betrieb fehlt.'); const service = createServiceClient();
+  const { data } = await service.from('training_progress').select('id,status,due_at,fortschritt_prozent,module:training_modules(titel,beschreibung,dauer_minuten,pflicht)').eq('employee_id', employee.id).eq('tenant_id', employee.tenant_id).order('due_at');
+  const trainings = (data ?? []).map((row: any) => ({ ...row, visibleStatus: row.status !== 'bestanden' && row.due_at && new Date(row.due_at) < new Date() ? 'ueberfaellig' : row.status }));
+  return <main className="mx-auto max-w-3xl space-y-4 px-4 py-6"><header><Link href="/mitarbeiter" className="text-sm text-muted-foreground">← Zur Mitarbeiter-App</Link><h1 className="mt-2 text-2xl font-bold">Meine Schulungen</h1><p className="text-sm text-muted-foreground">Pflichtschulungen und freiwillige Lerninhalte an einem Ort.</p></header>{trainings.length === 0 ? <Card><CardContent className="p-8 text-center"><h2 className="font-semibold">Alles erledigt</h2><p className="mt-1 text-sm text-muted-foreground">Dir ist aktuell keine Schulung zugewiesen.</p></CardContent></Card> : trainings.map((training: any) => <Link key={training.id} href={`/mitarbeiter/schulungen/${training.id}`}><Card className="mb-3"><CardContent className="flex items-center justify-between gap-3 p-4"><div><div className="font-semibold">{training.module?.titel}</div><div className="mt-1 text-xs text-muted-foreground">{training.module?.dauer_minuten ? `${training.module.dauer_minuten} Min. · ` : ''}{training.due_at ? `fällig ${new Date(training.due_at).toLocaleDateString('de-DE')}` : 'ohne feste Frist'}</div></div><Badge variant={training.visibleStatus === 'bestanden' ? 'accent' : training.visibleStatus === 'ueberfaellig' ? 'destructive' : training.visibleStatus === 'begonnen' ? 'gold' : 'muted'}>{training.visibleStatus === 'ueberfaellig' ? 'überfällig' : training.visibleStatus}</Badge></CardContent></Card></Link>)}</main>;
+}

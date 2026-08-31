@@ -11,6 +11,7 @@ import { operationsBasePath } from '@/lib/routing/operations-base-path';
 import { notFound } from 'next/navigation';
 import { TrialSetupForm } from './trial-setup-form';
 import { ProbeReview } from '../../employees/[id]/probe-review';
+import { AssessmentAssignment } from './assessment-assignment';
 
 export default async function ApplicationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const currentEmployee = await requireManagerPlus();
@@ -29,7 +30,7 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
     .maybeSingle();
   if (!application) notFound();
 
-  const [{ data: progress }, { data: departmentsRaw }, { data: locations }, { data: trialShifts }, { data: reviews }] = await Promise.all([
+  const [{ data: progress }, { data: departmentsRaw }, { data: locations }, { data: trialShifts }, { data: reviews }, { data: assessmentSessions }, { data: assessmentTemplates }] = await Promise.all([
     supabase.from('onboarding_progress').select('daten').eq('employee_id', id).maybeSingle(),
     supabase.from('departments')
       .select('id,name,location_id,location:locations!inner(tenant_id)')
@@ -38,6 +39,8 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
     supabase.from('locations').select('id,name').eq('tenant_id', currentEmployee.tenant_id).order('name'),
     supabase.from('shifts').select('id,start_zeit,end_zeit,position,status,notiz,created_at,location:locations(name),department:departments(name)').eq('employee_id', id).eq('typ', 'probe').order('start_zeit', { ascending: false }),
     supabase.from('performance_reviews').select('*').eq('employee_id', id).order('created_at', { ascending: false }),
+    supabase.from('assessment_sessions').select('id,status,created_at,completed_at,template:assessment_templates(name),result:assessment_results(overall_score,passed,earned_points,max_points,outcome_action,outcome_message),items:assessment_session_items(id,item_order,candidate_payload_json,response:assessment_responses(response_json))').eq('candidate_id', id).eq('tenant_id', currentEmployee.tenant_id).order('created_at', { ascending: false }),
+    supabase.from('assessment_templates').select('id,name,location_id,status,targets:assessment_template_targets(target_type,department_id,position_type)').eq('tenant_id', currentEmployee.tenant_id).eq('category', 'APPLICATION').eq('status', 'ACTIVE').order('name'),
   ]);
   const departments = (departmentsRaw ?? []).map(({ id: departmentId, name, location_id }) => ({ id: departmentId, name, location_id }));
   const data = (progress?.daten as Record<string, any>) ?? {};
@@ -94,6 +97,10 @@ export default async function ApplicationDetailPage({ params }: { params: Promis
           <OutcomeCard icon={<XCircle className="h-6 w-6 text-red-600" />} title="Nicht eingestellt" text="Die Bewerbung ist abgeschlossen und im Archiv abgelegt." />
         )}
       </div>
+
+      <Card className="mt-6"><CardHeader><CardTitle>Bewerbungstests</CardTitle></CardHeader><CardContent className="space-y-4">
+        {['wartet_zuteilung', 'in_probe'].includes(application.status) && <AssessmentAssignment candidateId={id} templates={(assessmentTemplates ?? []).filter((template: any) => (!template.location_id || template.location_id === application.location_id) && !(template.targets ?? []).some((target: any) => target.target_type === 'department' && target.department_id !== application.department_id) && !(template.targets ?? []).some((target: any) => target.target_type === 'position' && target.position_type?.toLowerCase() !== application.position_typ?.toLowerCase()))} />}
+        {(assessmentSessions?.length ?? 0) === 0 ? <p className="text-sm text-muted-foreground">Noch kein Bewerbungstest zugewiesen.</p> : assessmentSessions!.map((session: any) => <div key={session.id} className="rounded-lg border p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div className="font-semibold">{session.template?.name ?? 'Bewerbungstest'}</div><Badge variant={session.result?.passed ? 'accent' : session.completed_at ? 'destructive' : 'gold'}>{session.result ? `${Number(session.result.overall_score).toLocaleString('de-DE')} % · ${session.result.passed ? 'bestanden' : 'nicht bestanden'}` : session.status === 'IN_PROGRESS' ? 'begonnen' : 'offen'}</Badge></div>{session.result && <p className="mt-2 text-sm text-muted-foreground">{session.result.earned_points} von {session.result.max_points} Punkten · Nächster Schritt: {session.result.outcome_action === 'next_stage' ? 'nächste Bewerbungsphase' : session.result.outcome_action === 'reject' ? 'Bewerbung abschließen' : 'persönlich prüfen'}</p>}<div className="mt-3 space-y-2">{(session.items ?? []).map((item: any) => <div key={item.id} className="rounded bg-muted/40 p-3 text-sm"><div className="font-medium">{item.candidate_payload_json?.question}</div><div className="mt-1 text-muted-foreground">Antwort: {(item.response?.[0]?.response_json?.optionIds ?? []).map((optionId: string) => item.candidate_payload_json?.options?.find((option: any) => option.id === optionId)?.label).filter(Boolean).join(', ') || 'Noch nicht beantwortet'}</div></div>)}</div></div>)}</CardContent></Card>
 
       {currentTrialShifts.length > 0 && (
         <Card className="mt-6">

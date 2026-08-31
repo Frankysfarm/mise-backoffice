@@ -275,6 +275,7 @@ export default async function MitarbeiterPage() {
           <a href="#verantwortung" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><Network size={14} className="text-indigo-700" /> Mein Team</a>
           <a href="#meine-aufgaben" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><ClipboardCheck size={14} className="text-amber-700" /> Aufgaben</a>
           <a href="#inventuren" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><Warehouse size={14} className="text-amber-700" /> Inventuren</a>
+          <a href="/mitarbeiter/schulungen" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><Sparkles size={14} className="text-indigo-700" /> Schulungen</a>
         </nav>
 
         <section id="dienstplan" className="mt-8 scroll-mt-20 px-4 sm:px-8">

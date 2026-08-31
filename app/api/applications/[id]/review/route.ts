@@ -95,5 +95,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
+  if (parsed.data.decision === 'einstellen') {
+    const { error: trainingError } = await sb.rpc('assign_matching_onboarding_trainings', {
+      p_tenant_id: currentEmployee.tenant_id,
+      p_employee_id: id,
+      p_actor_id: currentEmployee.id,
+      p_source: 'onboarding',
+    });
+    if (trainingError) {
+      return NextResponse.json({ error: `Einstellung gespeichert, Pflichtschulungen konnten jedoch nicht zugewiesen werden: ${trainingError.message}` }, { status: 500 });
+    }
+  }
+
   return NextResponse.json({ ok: true, status: nextStatus, review_id: review.id });
 }

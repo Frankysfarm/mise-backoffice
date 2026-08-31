@@ -54,7 +54,7 @@ export default async function ApplicationsPage({ searchParams }: { searchParams:
       <PageHeader
         title="Bewerbungen & Probearbeit"
         description="Erst kennenlernen und bewerten, dann bewusst als Mitarbeiter übernehmen."
-        actions={<InviteApplicantButton locations={locations ?? []} />}
+        actions={<><Link href="/neo/app/tests"><Button variant="secondary">Bewerbungstests verwalten</Button></Link><InviteApplicantButton locations={locations ?? []} /></>}
       />
 
       <div className="mb-6 grid grid-cols-1 overflow-hidden rounded-xl border bg-white shadow-subtle sm:grid-cols-4">

@@ -28,7 +28,7 @@ const ICONS: Record<string, string> = {
 };
 const NAV: { label: string; managerOnly?: boolean; items: [string, string][] }[] = [
   { label: 'BETRIEB', items: [['overview', 'Übersicht'], ['lieferzentrale', 'Lieferzentrale'], ['tischbestellung', 'Tischbestellung'], ['fahrer', 'Fahrer']] },
-  { label: 'TEAM & ABLÄUFE', managerOnly: true, items: [['klarheit', 'Tagesklarheit'], ['bewerbungen', 'Bewerbungen'], ['mitarbeiter', 'Mitarbeiter & Bereiche'], ['dienstplan', 'Dienstplan'], ['lager', 'Lager'], ['ablaeufe', 'Listen & Abläufe'], ['schulungen', 'Schulungen'], ['compliance', 'Team & Compliance'], ['rezeptbuch', 'Rezeptbuch']] },
+  { label: 'TEAM & ABLÄUFE', managerOnly: true, items: [['klarheit', 'Tagesklarheit'], ['bewerbungen', 'Bewerbungen'], ['tests', 'Bewerbungstests'], ['mitarbeiter', 'Mitarbeiter & Bereiche'], ['dienstplan', 'Dienstplan'], ['lager', 'Lager'], ['ablaeufe', 'Listen & Abläufe'], ['schulungen', 'Schulungen'], ['compliance', 'Team & Compliance'], ['rezeptbuch', 'Rezeptbuch']] },
   { label: 'SHOP', items: [['shopdesign', 'Shop-Design'], ['shopsettings', 'Shop-Einstellungen'], ['menu', 'Menü'], ['aktionen', 'Aktionen & Rabatte'], ['loyalty', 'Bonusprogramme'], ['zahlungen', 'Zahlungen']] },
   { label: 'GESCHÄFT', items: [['kunden', 'Kundenstamm'], ['statistik', 'Statistik'], ['buchhaltung', 'Buchhaltung']] },
 ];
@@ -46,6 +46,7 @@ const META: Record<string, [string, string]> = {
   lager: ['Lager', 'Bestände, Inventuren und Bestellungen steuern'],
   ablaeufe: ['Listen & Abläufe', 'Wiederkehrende Betriebsaufgaben verbindlich steuern'],
   schulungen: ['Schulungen', 'Onboarding, Wissen und Praxisnachweise verwalten'],
+  tests: ['Bewerbungstests', 'Fragen, Zuordnung und Auswertung verwalten'],
   compliance: ['Team & Compliance', 'Qualifikationen, Zertifikate und Pflichten im Blick behalten'],
   rezeptbuch: ['Rezeptbuch', 'Rezepte und Küchenwissen gemeinsam pflegen'],
   klarheit: ['Tagesklarheit', 'Heute im Dienst, offene Aufgaben und Abdeckung auf einen Blick'],
@@ -63,7 +64,7 @@ export default function Shell({ children, newCount = 0, tenantName = 'Mein Shop'
   const seg = path.split('/neo/app/')[1]?.split('/')[0] || 'uebersicht';
   const active = seg === 'uebersicht' ? 'overview' : seg;
   const [title, sub] = META[active] || META.overview;
-  const isOperations = ['klarheit', 'bewerbungen', 'mitarbeiter', 'dienstplan', 'lager', 'ablaeufe', 'schulungen', 'compliance', 'rezeptbuch'].includes(active);
+  const isOperations = ['klarheit', 'bewerbungen', 'tests', 'mitarbeiter', 'dienstplan', 'lager', 'ablaeufe', 'schulungen', 'compliance', 'rezeptbuch'].includes(active);
   const initials = tenantName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
   const [menuOpen, setMenuOpen] = useState(false);
   return (

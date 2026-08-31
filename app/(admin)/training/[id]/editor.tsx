@@ -1,148 +1,30 @@
 'use client';
-
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Wysiwyg } from '@/components/ui/wysiwyg';
+import { Badge } from '@/components/ui/badge';
 
-export function ModuleEditor({ mod, progress }: { mod: any; progress: any[] }) {
-  const router = useRouter();
-  const [pending, start] = useTransition();
-  const [msg, setMsg] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    titel: mod.titel, beschreibung: mod.beschreibung ?? '',
-    kategorie: mod.kategorie ?? '', position_typ: mod.position_typ ?? '',
-    dauer_minuten: mod.dauer_minuten ?? '', reihenfolge: mod.reihenfolge ?? '',
-    gültig_monate: mod.gültig_monate ?? '', pflicht: mod.pflicht ?? false,
-    aktiv: mod.aktiv ?? true,
-    inhalt: JSON.stringify(mod.inhalt ?? { lessons: [] }, null, 2),
-  });
-
-  async function onSave(e: React.FormEvent) {
-    e.preventDefault(); setMsg(null);
-    let inhaltParsed;
-    try { inhaltParsed = JSON.parse(form.inhalt); } catch { setMsg('JSON im Inhalt ungültig'); return; }
-    start(async () => {
-      const { error } = await createClient().from('training_modules').update({
-        titel: form.titel, beschreibung: form.beschreibung || null,
-        kategorie: form.kategorie || null, position_typ: form.position_typ || null,
-        dauer_minuten: form.dauer_minuten ? Number(form.dauer_minuten) : null,
-        reihenfolge: form.reihenfolge ? Number(form.reihenfolge) : null,
-        gültig_monate: form.gültig_monate ? Number(form.gültig_monate) : null,
-        pflicht: form.pflicht, aktiv: form.aktiv, inhalt: inhaltParsed,
-      }).eq('id', mod.id);
-      setMsg(error ? error.message : 'Gespeichert ✓');
-      router.refresh();
-    });
-  }
-
-  return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[2fr_1fr]">
-      <Card>
-        <CardContent className="p-6">
-          <form onSubmit={onSave} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Titel"><Input value={form.titel} onChange={e => setForm({ ...form, titel: e.target.value })} required /></Field>
-              <Field label="Reihenfolge"><Input type="number" value={form.reihenfolge} onChange={e => setForm({ ...form, reihenfolge: e.target.value as any })} /></Field>
-              <Field label="Kategorie"><Input value={form.kategorie} onChange={e => setForm({ ...form, kategorie: e.target.value })} /></Field>
-              <Field label="Position (Typ)"><Input value={form.position_typ} onChange={e => setForm({ ...form, position_typ: e.target.value })} placeholder="barista" /></Field>
-              <Field label="Dauer (Min.)"><Input type="number" value={form.dauer_minuten} onChange={e => setForm({ ...form, dauer_minuten: e.target.value as any })} /></Field>
-              <Field label="Gültig (Monate)"><Input type="number" value={form.gültig_monate} onChange={e => setForm({ ...form, gültig_monate: e.target.value as any })} /></Field>
-            </div>
-            <Field label="Beschreibung (wird auf der Modul-Start-Karte angezeigt)">
-              <Wysiwyg
-                value={form.beschreibung || ''}
-                onChange={html => setForm({ ...form, beschreibung: html })}
-                placeholder="Worum geht es in diesem Modul?"
-                minHeight={140}
-              />
-            </Field>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.pflicht} onChange={e => setForm({ ...form, pflicht: e.target.checked })} /> Pflichtmodul</label>
-              <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.aktiv} onChange={e => setForm({ ...form, aktiv: e.target.checked })} /> Aktiv</label>
-            </div>
-            <Field label="Inhalt (JSON: lessons[] mit type=info|quiz)">
-              <Textarea rows={14} value={form.inhalt} onChange={e => setForm({ ...form, inhalt: e.target.value })} />
-              <LessonPreview json={form.inhalt} />
-            </Field>
-            <div className="flex items-center gap-3">
-              <Button type="submit" disabled={pending}>{pending ? 'Speichere...' : 'Speichern'}</Button>
-              {msg && <span className="text-sm text-muted-foreground">{msg}</span>}
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader><CardTitle className="text-base">Fortschritt</CardTitle></CardHeader>
-        <CardContent className="space-y-2">
-          {progress.length === 0 && <p className="text-sm text-muted-foreground">Noch niemand hat angefangen.</p>}
-          {progress.map((p, i) => (
-            <div key={i} className="flex items-center justify-between text-sm">
-              <span>{p.employee?.vorname} {p.employee?.nachname}</span>
-              <span className={p.abgeschlossen ? 'text-matcha-700' : 'text-muted-foreground'}>
-                {p.fortschritt_prozent}%{p.testergebnis ? ` · Test ${p.testergebnis}%` : ''}
-              </span>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-    </div>
-  );
+type Block = any;
+export function ModuleEditor({ mod, progress, targets = [], quizKeys = [], locations = [], departments = [], employees = [] }: { mod: any; progress: any[]; targets?: any[]; quizKeys?: any[]; locations?: any[]; departments?: any[]; employees?: any[] }) {
+  const router = useRouter(); const [pending, start] = useTransition(); const [message, setMessage] = useState(''); const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+  const keys = new Map(quizKeys.map((key) => [key.question_id, key]));
+  const [form, setForm] = useState({ title: mod.titel, description: mod.beschreibung ?? '', category: mod.kategorie ?? '', durationMinutes: mod.dauer_minuten ?? 15, required: mod.pflicht ?? false, active: mod.aktiv ?? true, passingThreshold: mod.passing_threshold ?? 80, deadlineDays: mod.deadline_days ?? '', recurrenceMonths: mod.recurrence_months ?? '', locationIds: targets.filter((t) => t.target_type === 'location').map((t) => t.location_id), departmentIds: targets.filter((t) => t.target_type === 'department').map((t) => t.department_id), positionTypes: targets.filter((t) => t.target_type === 'position').map((t) => t.position_type).join(', '), blocks: ((mod.inhalt as any)?.lessons ?? []).map((block: any) => block.type === 'quiz' ? { ...block, correctOptionIds: keys.get(block.id)?.correct_option_ids ?? [], points: keys.get(block.id)?.points ?? 1, mustPass: keys.get(block.id)?.must_pass ?? false } : block) as Block[] });
+  const updateBlock = (index: number, value: Block) => setForm({ ...form, blocks: form.blocks.map((b, i) => i === index ? value : b) });
+  function add(type: string) { const id = crypto.randomUUID(); const block = type === 'text' ? { id, type, title: '', body: '' } : type === 'quiz' ? { id, type, question: '', options: [{ id: crypto.randomUUID(), label: '' }, { id: crypto.randomUUID(), label: '' }], correctOptionIds: [], points: 1, mustPass: false } : { id, type, title: '', url: '' }; setForm({ ...form, blocks: [...form.blocks, block] }); }
+  function save() { start(async () => { setMessage(''); const targets = [...form.locationIds.map((locationId: string) => ({ type: 'location', locationId })), ...form.departmentIds.map((departmentId: string) => ({ type: 'department', departmentId })), ...form.positionTypes.split(',').map((v: string) => v.trim()).filter(Boolean).map((positionType: string) => ({ type: 'position', positionType }))]; const response = await fetch('/api/training/modules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: mod.id, ...form, deadlineDays: form.deadlineDays === '' ? null : Number(form.deadlineDays), recurrenceMonths: form.recurrenceMonths === '' ? null : Number(form.recurrenceMonths), targets }) }); const data = await response.json(); setMessage(response.ok ? 'Schulung gespeichert ✓' : data.error); if (response.ok) router.refresh(); }); }
+  function assign() { start(async () => { const response = await fetch('/api/training/assign', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ moduleId: mod.id, employeeIds: selectedEmployees }) }); const data = await response.json(); setMessage(response.ok ? `${data.assigned} Mitarbeiter zugewiesen ✓` : data.error); if (response.ok) { setSelectedEmployees([]); router.refresh(); } }); }
+  return <div className="space-y-6"><Card><CardContent className="space-y-4 p-6"><div className="grid gap-3 md:grid-cols-2"><Field label="Titel"><Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></Field><Field label="Kategorie"><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} /></Field></div><Field label="Beschreibung"><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></Field><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><Field label="Dauer (Min.)"><Input type="number" min={1} value={form.durationMinutes} onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })} /></Field><Field label="Bestehensgrenze %"><Input type="number" min={0} max={100} value={form.passingThreshold} onChange={(e) => setForm({ ...form, passingThreshold: Number(e.target.value) })} /></Field><Field label="Frist nach Zuweisung (Tage)"><Input type="number" min={1} value={form.deadlineDays} onChange={(e) => setForm({ ...form, deadlineDays: e.target.value })} /></Field><Field label="Wiederholung (Monate)"><Input type="number" min={1} value={form.recurrenceMonths} onChange={(e) => setForm({ ...form, recurrenceMonths: e.target.value })} /></Field></div><div className="flex gap-5"><label className="flex gap-2 text-sm"><input type="checkbox" checked={form.required} onChange={(e) => setForm({ ...form, required: e.target.checked })} />Pflichtschulung</label><label className="flex gap-2 text-sm"><input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} />Aktiv</label></div><div className="grid gap-4 md:grid-cols-3"><Checks label="Standorte" rows={locations} selected={form.locationIds} onChange={(locationIds) => setForm({ ...form, locationIds })} /><Checks label="Bereiche" rows={departments} selected={form.departmentIds} onChange={(departmentIds) => setForm({ ...form, departmentIds })} /><Field label="Positionen (Komma getrennt)"><Input value={form.positionTypes} onChange={(e) => setForm({ ...form, positionTypes: e.target.value })} placeholder="service, barista" /></Field></div></CardContent></Card>
+  {/* Type labels intentionally share one render line with heterogeneous visual blocks. */}
+  {/* @ts-expect-error -- index values are constrained by the editor's add controls. */}
+  <div className="space-y-3"><div className="flex flex-wrap items-center gap-2"><h2 className="mr-auto text-lg font-semibold">Schulungsinhalte</h2>{['text', 'image', 'video', 'document', 'quiz'].map((type) => <Button key={type} size="sm" variant="secondary" onClick={() => add(type)}><Plus className="h-4 w-4" />{{ text: 'Text', image: 'Bild', video: 'Video', document: 'Dokument', quiz: 'Frage' }[type]}</Button>)}</div>{form.blocks.length === 0 && <Card><CardContent className="p-8 text-center text-sm text-muted-foreground">Noch keine Inhalte. Füge Text, Medien, Dokumente oder eine Wissensfrage hinzu.</CardContent></Card>}{form.blocks.map((block, index) => <Card key={block.id}><CardHeader className="flex-row items-center"><CardTitle className="text-base">{index + 1}. {{ text: 'Textabschnitt', image: 'Bild', video: 'Video', document: 'Dokument', quiz: 'Wissensfrage' }[block.type] as string}</CardTitle><div className="ml-auto flex"><Button size="icon" variant="ghost" disabled={index === 0} onClick={() => setForm({ ...form, blocks: form.blocks.map((_, i, a) => a[i === index ? index - 1 : i === index - 1 ? index : i]) })}><ArrowUp className="h-4 w-4" /></Button><Button size="icon" variant="ghost" disabled={index === form.blocks.length - 1} onClick={() => setForm({ ...form, blocks: form.blocks.map((_, i, a) => a[i === index ? index + 1 : i === index + 1 ? index : i]) })}><ArrowDown className="h-4 w-4" /></Button><Button size="icon" variant="ghost" onClick={() => setForm({ ...form, blocks: form.blocks.filter((_, i) => i !== index) })}><Trash2 className="h-4 w-4" /></Button></div></CardHeader><CardContent className="space-y-3">{block.type === 'text' ? <><Input placeholder="Überschrift" value={block.title} onChange={(e) => updateBlock(index, { ...block, title: e.target.value })} /><Textarea rows={6} placeholder="Schulungsinhalt verständlich erklären" value={block.body} onChange={(e) => updateBlock(index, { ...block, body: e.target.value })} /></> : block.type === 'quiz' ? <Quiz block={block} onChange={(value) => updateBlock(index, value)} /> : <><Input placeholder="Titel" value={block.title} onChange={(e) => updateBlock(index, { ...block, title: e.target.value })} /><Input type="url" placeholder={block.type === 'image' ? 'https://…/bild.jpg' : block.type === 'video' ? 'https://…/video' : 'https://…/dokument.pdf'} value={block.url} onChange={(e) => updateBlock(index, { ...block, url: e.target.value })} /></>}</CardContent></Card>)}</div>
+  {message && <p className="rounded-md bg-muted p-3 text-sm">{message}</p>}<Button size="lg" onClick={save} disabled={pending}>{pending ? 'Speichert…' : 'Schulung speichern'}</Button>
+  <Card><CardHeader><CardTitle>Mitarbeiter zuweisen & Fortschritt</CardTitle></CardHeader><CardContent className="space-y-4"><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{employees.map((employee) => <label key={employee.id} className="flex gap-2 rounded border p-2 text-sm"><input type="checkbox" checked={selectedEmployees.includes(employee.id)} onChange={(e) => setSelectedEmployees(e.target.checked ? [...selectedEmployees, employee.id] : selectedEmployees.filter((id) => id !== employee.id))} />{employee.vorname} {employee.nachname}</label>)}</div><Button variant="secondary" disabled={pending || selectedEmployees.length === 0} onClick={assign}>Ausgewählte zuweisen</Button><div className="space-y-2">{progress.length === 0 && <p className="text-sm text-muted-foreground">Noch niemandem zugewiesen.</p>}{progress.map((p) => <div key={p.id} className="flex items-center justify-between rounded border p-3 text-sm"><span>{p.employee?.vorname} {p.employee?.nachname}</span><Badge variant={p.status === 'bestanden' ? 'accent' : p.status === 'ueberfaellig' ? 'destructive' : 'muted'}>{p.status === 'ueberfaellig' ? 'überfällig' : p.status}</Badge></div>)}</div></CardContent></Card></div>;
 }
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <div className="space-y-1.5"><Label>{label}</Label>{children}</div>;
-}
-
-function LessonPreview({ json }: { json: string }) {
-  let lessons: any[] = [];
-  let err: string | null = null;
-  try {
-    const parsed = JSON.parse(json);
-    lessons = Array.isArray(parsed?.lessons) ? parsed.lessons : [];
-  } catch (e: any) {
-    err = e?.message ?? 'JSON ungültig';
-  }
-
-  if (err) return (
-    <div className="mt-2 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
-      JSON-Fehler: {err}
-    </div>
-  );
-  if (lessons.length === 0) return (
-    <div className="mt-2 rounded-md border border-dashed p-3 text-xs text-muted-foreground">
-      Noch keine Lektionen. Füge im JSON oben eine hinzu, z.B. <code className="bg-muted px-1 rounded">{'{"id":"l1","type":"info","title":"…","body":"…"}'}</code>
-    </div>
-  );
-
-  const infoCount = lessons.filter(l => l.type === 'info').length;
-  const quizCount = lessons.filter(l => l.type === 'quiz').length;
-  const recipeCount = lessons.filter(l => l.type === 'recipe').length;
-
-  return (
-    <div className="mt-3 space-y-2">
-      <div className="flex gap-2 text-xs">
-        <span className="rounded-full bg-matcha-100 text-matcha-800 px-2 py-0.5 font-semibold">{lessons.length} Lektionen</span>
-        {infoCount > 0 && <span className="rounded-full bg-muted px-2 py-0.5">📖 {infoCount} Info</span>}
-        {quizCount > 0 && <span className="rounded-full bg-gold-soft text-matcha-800 px-2 py-0.5 font-medium">🧠 {quizCount} Quiz</span>}
-        {recipeCount > 0 && <span className="rounded-full bg-accent/20 text-matcha-800 px-2 py-0.5 font-medium">🍽 {recipeCount} Rezept</span>}
-      </div>
-      <ol className="space-y-1 text-xs text-muted-foreground">
-        {lessons.map((l, i) => (
-          <li key={l.id ?? i} className="flex gap-2">
-            <span className="font-mono text-matcha-600">{i + 1}.</span>
-            <span className="flex-1 truncate">
-              <span className="mr-1">{l.type === 'quiz' ? '🧠' : l.type === 'recipe' ? '🍽' : '📖'}</span>
-              {l.title ?? l.question ?? l.name ?? <em>(ohne Titel)</em>}
-            </span>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
+function Field({ label, children }: { label: string; children: React.ReactNode }) { return <div className="space-y-1.5"><Label>{label}</Label>{children}</div>; }
+function Checks({ label, rows, selected, onChange }: { label: string; rows: any[]; selected: string[]; onChange: (ids: string[]) => void }) { return <Field label={label}><div className="max-h-36 space-y-1 overflow-auto rounded border p-2">{rows.map((row) => <label key={row.id} className="flex gap-2 text-sm"><input type="checkbox" checked={selected.includes(row.id)} onChange={(e) => onChange(e.target.checked ? [...selected, row.id] : selected.filter((id) => id !== row.id))} />{row.name}</label>)}</div></Field>; }
+function Quiz({ block, onChange }: { block: any; onChange: (value: any) => void }) { return <><Input value={block.question} onChange={(e) => onChange({ ...block, question: e.target.value })} placeholder="Frage" />{block.options.map((option: any, index: number) => <div key={option.id} className="flex gap-2"><input type="checkbox" aria-label="Richtige Antwort" checked={block.correctOptionIds.includes(option.id)} onChange={(e) => onChange({ ...block, correctOptionIds: e.target.checked ? [...block.correctOptionIds, option.id] : block.correctOptionIds.filter((id: string) => id !== option.id) })} /><Input value={option.label} onChange={(e) => onChange({ ...block, options: block.options.map((o: any, i: number) => i === index ? { ...o, label: e.target.value } : o) })} /><Button size="icon" variant="ghost" disabled={block.options.length === 2} onClick={() => onChange({ ...block, options: block.options.filter((_: any, i: number) => i !== index), correctOptionIds: block.correctOptionIds.filter((id: string) => id !== option.id) })}><Trash2 className="h-4 w-4" /></Button></div>)}<Button size="sm" variant="secondary" onClick={() => onChange({ ...block, options: [...block.options, { id: crypto.randomUUID(), label: '' }] })}>Antwort ergänzen</Button><div className="flex flex-wrap gap-4"><label className="text-sm">Punkte <Input className="ml-2 inline-flex w-20" type="number" min={1} value={block.points} onChange={(e) => onChange({ ...block, points: Number(e.target.value) })} /></label><label className="flex gap-2 text-sm"><input type="checkbox" checked={block.mustPass} onChange={(e) => onChange({ ...block, mustPass: e.target.checked })} />Muss richtig sein</label></div></>; }
