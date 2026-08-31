@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,17 +19,10 @@ export default function NewTrainingModule() {
     e.preventDefault(); setErr(null);
     const fd = new FormData(e.currentTarget);
     start(async () => {
-      const { data, error } = await createClient().from('training_modules').insert({
-        titel: fd.get('titel'),
-        kategorie: fd.get('kategorie') || null,
-        position_typ: fd.get('position_typ') || null,
-        dauer_minuten: fd.get('dauer_minuten') ? Number(fd.get('dauer_minuten')) : null,
-        reihenfolge: fd.get('reihenfolge') ? Number(fd.get('reihenfolge')) : null,
-        pflicht: fd.get('pflicht') === 'on', aktiv: true,
-        inhalt: { lessons: [] },
-      }).select('id').single();
-      if (error) return setErr(error.message);
-      router.push(`${basePath}/${data!.id}`);
+      const response = await fetch('/api/training/modules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: fd.get('titel'), description: '', category: fd.get('kategorie') || '', durationMinutes: fd.get('dauer_minuten') ? Number(fd.get('dauer_minuten')) : null, required: fd.get('pflicht') === 'on', active: true, passingThreshold: 80, deadlineDays: null, recurrenceMonths: null, targets: fd.get('position_typ') ? [{ type: 'position', positionType: fd.get('position_typ') }] : [], blocks: [] }) });
+      const data = await response.json();
+      if (!response.ok) return setErr(data.error ?? 'Schulung konnte nicht angelegt werden.');
+      router.push(`${basePath}/${data.id}`);
     });
   }
 

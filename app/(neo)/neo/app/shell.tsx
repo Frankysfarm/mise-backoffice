@@ -28,7 +28,7 @@ const ICONS: Record<string, string> = {
 };
 const NAV: { label: string; managerOnly?: boolean; items: [string, string][] }[] = [
   { label: 'BETRIEB', items: [['overview', 'Übersicht'], ['lieferzentrale', 'Lieferzentrale'], ['tischbestellung', 'Tischbestellung'], ['fahrer', 'Fahrer']] },
-  { label: 'TEAM & ABLÄUFE', managerOnly: true, items: [['klarheit', 'Tagesklarheit'], ['bewerbungen', 'Bewerbungen'], ['mitarbeiter', 'Mitarbeiter & Bereiche'], ['dienstplan', 'Dienstplan'], ['lager', 'Lager'], ['ablaeufe', 'Listen & Abläufe'], ['schulungen', 'Schulungen'], ['compliance', 'Team & Compliance'], ['rezeptbuch', 'Rezeptbuch']] },
+  { label: 'TEAM & ABLÄUFE', managerOnly: true, items: [['klarheit', 'Tagesklarheit'], ['bewerbungen', 'Bewerbungen'], ['tests', 'Bewerbungstests'], ['mitarbeiter', 'Mitarbeiter & Bereiche'], ['dienstplan', 'Dienstplan'], ['lager', 'Lager'], ['ablaeufe', 'Listen & Abläufe'], ['schulungen', 'Schulungen'], ['compliance', 'Team & Compliance'], ['rezeptbuch', 'Rezeptbuch']] },
   { label: 'SHOP', items: [['shopdesign', 'Shop-Design'], ['shopsettings', 'Shop-Einstellungen'], ['menu', 'Menü'], ['aktionen', 'Aktionen & Rabatte'], ['loyalty', 'Bonusprogramme'], ['zahlungen', 'Zahlungen']] },
   { label: 'GESCHÄFT', items: [['kunden', 'Kundenstamm'], ['statistik', 'Statistik'], ['buchhaltung', 'Buchhaltung']] },
 ];

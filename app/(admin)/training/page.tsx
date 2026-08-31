@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
+import { createServiceClient } from '@/lib/supabase/server';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card } from '@/components/ui/card';
@@ -8,15 +8,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Plus, Sparkles } from 'lucide-react';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
+import { trainingStatus, trainingStatusLabels } from '@/lib/training/domain';
 
 export default async function TrainingPage() {
-  await requireManagerPlus();
+  const actor = await requireManagerPlus();
+  if (!actor.tenant_id) throw new Error('Betrieb fehlt.');
   const basePath = await operationsBasePath('/training', '/neo/app/schulungen');
-  const supabase = await createClient();
+  const supabase = createServiceClient();
   const { data: modulesRaw } = await supabase.from('training_modules')
     .select('*')
+    .eq('tenant_id', actor.tenant_id)
     .order('reihenfolge');
   const modules = modulesRaw as any[] | null;
+  const { data: progress } = await supabase.from('training_progress').select('status,due_at').eq('tenant_id', actor.tenant_id);
+  const counts = (progress ?? []).reduce((all: Record<string, number>, row: any) => { const status = trainingStatus(row.status, row.due_at); all[status] = (all[status] ?? 0) + 1; return all; }, {});
 
   return (
     <div>
@@ -28,6 +33,7 @@ export default async function TrainingPage() {
           <Link href={`${basePath}/new`}><Button><Plus className="h-4 w-4" /> Manuell</Button></Link>
         </>}
       />
+      <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{Object.entries(trainingStatusLabels).map(([key,label]) => <Card key={key} className={key === 'ueberfaellig' && counts[key] ? 'border-red-300' : ''}><div className="p-4"><div className="text-2xl font-bold">{counts[key] ?? 0}</div><div className="text-sm text-muted-foreground">{label}</div></div></Card>)}</div>
       <Card>
         <Table>
           <TableHeader><TableRow>

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createServiceClient } from '@/lib/supabase/server';
+import { assessmentErrorMessage } from '@/lib/application-assessments/errors';
 
 const scores = z.object({
   punktlichkeit: z.number().int().min(1).max(5),
@@ -93,6 +94,18 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   if (updateError) {
     await sb.from('performance_reviews').delete().eq('id', review.id);
     return NextResponse.json({ error: updateError.message }, { status: 500 });
+  }
+
+  if (parsed.data.decision === 'einstellen') {
+    const { error: trainingError } = await sb.rpc('assign_matching_onboarding_trainings', {
+      p_tenant_id: currentEmployee.tenant_id,
+      p_employee_id: id,
+      p_actor_id: currentEmployee.id,
+      p_source: 'onboarding',
+    });
+    if (trainingError) {
+      return NextResponse.json({ error: `Einstellung gespeichert. ${assessmentErrorMessage(trainingError.message)}` }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ ok: true, status: nextStatus, review_id: review.id });

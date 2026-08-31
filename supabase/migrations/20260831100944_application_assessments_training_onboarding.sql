@@ -33,6 +33,20 @@ create table if not exists public.assessment_templates (
 alter table public.assessment_templates
   add column if not exists location_id uuid references public.locations(id) on delete set null;
 
+-- Preserve referenced historical templates: retire duplicates and make their
+-- slugs unique instead of deleting versions/sessions through a cascade.
+with ranked as (
+  select id,row_number() over (
+    partition by coalesce(tenant_id,'00000000-0000-0000-0000-000000000000'::uuid),slug
+    order by updated_at desc nulls last,id
+  ) as duplicate_rank
+  from public.assessment_templates
+)
+update public.assessment_templates template
+set status='RETIRED',slug=template.slug||'-archived-'||left(template.id::text,8)
+from ranked
+where ranked.id=template.id and ranked.duplicate_rank>1;
+
 create unique index if not exists assessment_templates_scope_slug_uq
   on public.assessment_templates(
     coalesce(tenant_id,'00000000-0000-0000-0000-000000000000'::uuid),slug
@@ -373,6 +387,24 @@ begin
 end
 $constraints$;
 
+do $deduplicate_training_progress$
+declare v_removed integer;
+begin
+  with ranked as (
+    select id,row_number() over (
+      partition by employee_id,module_id
+      order by abgeschlossen desc,passed_at desc nulls last,fortschritt_prozent desc nulls last,updated_at desc nulls last,id
+    ) as duplicate_rank
+    from public.training_progress
+  )
+  delete from public.training_progress progress
+  using ranked
+  where progress.id=ranked.id and ranked.duplicate_rank>1;
+  get diagnostics v_removed=row_count;
+  raise notice 'training_progress de-duplication removed % lower-priority duplicate row(s)',v_removed;
+end
+$deduplicate_training_progress$;
+
 create unique index if not exists training_progress_employee_module_uq
   on public.training_progress(employee_id,module_id);
 create index if not exists training_progress_owner_dashboard_idx
@@ -407,7 +439,7 @@ alter table public.operational_tasks
   add column if not exists training_progress_id uuid references public.training_progress(id) on delete set null;
 create unique index if not exists operational_tasks_training_progress_uq
   on public.operational_tasks(training_progress_id)
-  where training_progress_id is not null and status<>'storniert';
+  where training_progress_id is not null;
 
 -- Every assessment object and every answer key stays behind server routes.
 -- Existing manager policies may remain for compatibility, but revoked grants
@@ -437,9 +469,43 @@ $rls$;
 -- quiz keys out of the browser while training_progress retains its canonical
 -- self/manager RLS policies from the fusion migration.
 revoke all on table public.training_modules from anon,authenticated;
+grant select on table public.training_modules to authenticated;
 grant all on table public.training_modules to service_role;
-grant select,insert,update,delete on table public.training_progress to authenticated;
+grant select on table public.training_progress to authenticated;
 grant all on table public.training_progress to service_role;
+
+create or replace function public.save_training_module(
+  p_id uuid,
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_module jsonb,
+  p_targets jsonb,
+  p_keys jsonb
+)
+returns uuid language plpgsql security definer set search_path=public,pg_temp
+as $function$
+declare v_id uuid:=coalesce(p_id,gen_random_uuid()); v_actor record; v_target jsonb; v_key jsonb;
+begin
+  select rolle::text as rolle,location_id,status::text as status into v_actor from public.employees where id=p_actor_id and tenant_id=p_tenant_id;
+  if not found or v_actor.rolle not in ('manager','backoffice','admin') or v_actor.status not in ('aktiv','in_training','in_probe') then raise exception 'actor may not manage trainings'; end if;
+  if p_id is not null and not exists(select 1 from public.training_modules where id=p_id and tenant_id=p_tenant_id and (v_actor.rolle<>'manager' or location_id is null or location_id=v_actor.location_id)) then raise exception 'training module not found'; end if;
+  insert into public.training_modules(id,tenant_id,titel,beschreibung,kategorie,dauer_minuten,pflicht,aktiv,passing_threshold,deadline_days,recurrence_months,gültig_monate,inhalt,updated_at)
+  values(v_id,p_tenant_id,p_module->>'titel',nullif(p_module->>'beschreibung',''),nullif(p_module->>'kategorie',''),(p_module->>'dauer_minuten')::integer,(p_module->>'pflicht')::boolean,(p_module->>'aktiv')::boolean,(p_module->>'passing_threshold')::integer,(p_module->>'deadline_days')::integer,(p_module->>'recurrence_months')::integer,(p_module->>'recurrence_months')::integer,p_module->'inhalt',now())
+  on conflict(id) do update set titel=excluded.titel,beschreibung=excluded.beschreibung,kategorie=excluded.kategorie,dauer_minuten=excluded.dauer_minuten,pflicht=excluded.pflicht,aktiv=excluded.aktiv,passing_threshold=excluded.passing_threshold,deadline_days=excluded.deadline_days,recurrence_months=excluded.recurrence_months,gültig_monate=excluded.gültig_monate,inhalt=excluded.inhalt,updated_at=now();
+  delete from public.training_module_targets where module_id=v_id and tenant_id=p_tenant_id;
+  delete from public.training_quiz_keys where module_id=v_id and tenant_id=p_tenant_id;
+  for v_target in select value from jsonb_array_elements(coalesce(p_targets,'[]')) loop
+    insert into public.training_module_targets(tenant_id,module_id,target_type,location_id,department_id,position_type) values(p_tenant_id,v_id,v_target->>'target_type',(v_target->>'location_id')::uuid,(v_target->>'department_id')::uuid,v_target->>'position_type');
+  end loop;
+  for v_key in select value from jsonb_array_elements(coalesce(p_keys,'[]')) loop
+    insert into public.training_quiz_keys(tenant_id,module_id,question_id,correct_option_ids,points,must_pass,updated_at) values(p_tenant_id,v_id,v_key->>'question_id',v_key->'correct_option_ids',(v_key->>'points')::integer,(v_key->>'must_pass')::boolean,now());
+  end loop;
+  return v_id;
+end
+$function$;
+
+revoke all on function public.save_training_module(uuid,uuid,uuid,jsonb,jsonb,jsonb) from public,anon,authenticated;
+grant execute on function public.save_training_module(uuid,uuid,uuid,jsonb,jsonb,jsonb) to service_role;
 
 -- Atomic, actor-aware save. Every edit publishes a new immutable version; an
 -- already assigned session continues to use its original snapshots.
@@ -475,6 +541,8 @@ declare
   v_index integer:=0;
   v_question_id text;
   v_department_id uuid;
+  v_location_id uuid;
+  v_existing_location_id uuid;
 begin
   select e.rolle::text as rolle,e.location_id,e.status::text as status
   into v_actor
@@ -484,11 +552,15 @@ begin
     or v_actor.rolle not in ('manager','backoffice','admin') then
     raise exception 'actor may not manage assessments';
   end if;
-  if v_actor.rolle='manager' and p_location_id is distinct from v_actor.location_id then
+  if v_actor.rolle='manager' and v_actor.location_id is null then
     raise exception 'manager is outside assessment location';
   end if;
-  if p_location_id is not null and not exists(
-    select 1 from public.locations l where l.id=p_location_id and l.tenant_id=p_tenant_id
+  if v_actor.rolle='manager' and p_location_id is not null and p_location_id<>v_actor.location_id then
+    raise exception 'manager is outside assessment location';
+  end if;
+  v_location_id:=case when v_actor.rolle='manager' then v_actor.location_id else p_location_id end;
+  if v_location_id is not null and not exists(
+    select 1 from public.locations l where l.id=v_location_id and l.tenant_id=p_tenant_id
   ) then raise exception 'assessment location is outside tenant'; end if;
   if nullif(trim(p_name),'') is null or length(trim(p_name))>160 then
     raise exception 'assessment name is invalid';
@@ -511,17 +583,19 @@ begin
       id,tenant_id,location_id,name,slug,category,description,is_system_template,
       status,created_by,updated_at
     ) values(
-      v_template_id,p_tenant_id,p_location_id,trim(p_name),'owner-'||v_template_id,
+      v_template_id,p_tenant_id,v_location_id,trim(p_name),'owner-'||v_template_id,
       'APPLICATION',nullif(trim(p_description),''),false,
       case when p_active then 'ACTIVE' else 'DRAFT' end,p_actor_id,now()
     );
   else
-    perform 1 from public.assessment_templates t
+    select t.location_id into v_existing_location_id from public.assessment_templates t
     where t.id=p_id and t.tenant_id=p_tenant_id and not t.is_system_template
+      and (v_actor.rolle<>'manager' or t.location_id is null or t.location_id=v_actor.location_id)
     for update;
     if not found then raise exception 'assessment template not found'; end if;
+    if v_actor.rolle='manager' then v_location_id:=v_existing_location_id; end if;
     update public.assessment_templates set
-      location_id=p_location_id,name=trim(p_name),description=nullif(trim(p_description),''),
+      location_id=v_location_id,name=trim(p_name),description=nullif(trim(p_description),''),
       status=case when p_active then 'ACTIVE' else 'DRAFT' end,updated_at=now()
     where id=p_id;
   end if;
@@ -543,7 +617,7 @@ begin
       'passMessage',left(coalesce(nullif(trim(p_pass_message),''),'Danke. Der Test wurde erfolgreich abgeschlossen.'),1000),
       'failMessage',left(coalesce(nullif(trim(p_fail_message),''),'Danke. Der Betrieb prüft nun den nächsten Schritt.'),1000)
     ),
-    encode(digest(convert_to(coalesce(p_questions,'[]'::jsonb)::text||coalesce(p_targets,'[]'::jsonb)::text,'UTF8'),'sha256'),'hex')
+    encode(extensions.digest(convert_to(coalesce(p_questions,'[]'::jsonb)::text||coalesce(p_targets,'[]'::jsonb)::text,'UTF8'),'sha256'),'hex')
   );
 
   for v_question in select value from jsonb_array_elements(p_questions)
@@ -601,7 +675,7 @@ begin
       if not exists(
         select 1 from public.departments d
         where d.id=v_department_id and d.tenant_id=p_tenant_id
-          and (p_location_id is null or d.location_id=p_location_id)
+          and (v_location_id is null or d.location_id=v_location_id)
       ) then raise exception 'assessment department is outside scope'; end if;
       insert into public.assessment_template_targets(tenant_id,template_id,target_type,department_id)
       values(p_tenant_id,v_template_id,'department',v_department_id)
@@ -625,6 +699,78 @@ begin
   return v_template_id;
 end
 $function$;
+
+create or replace function public.complete_application_assessment(p_session_id uuid,p_token_hash text)
+returns table(passed boolean,score_percent numeric,outcome_message text)
+language plpgsql security definer set search_path=public,pg_temp
+as $function$
+declare v_session public.assessment_sessions%rowtype; v_config jsonb; v_total numeric:=0; v_earned numeric:=0;
+  v_must_failed boolean:=false; v_passed boolean; v_score numeric; v_action text; v_message text;
+begin
+  select * into v_session from public.assessment_sessions where id=p_session_id and invite_token_hash=p_token_hash for update;
+  if not found or v_session.status<>'IN_PROGRESS' or v_session.expires_at<=now() then raise exception 'assessment session is not active'; end if;
+  if exists(select 1 from public.assessment_session_items where session_id=p_session_id and response_status<>'COMPLETED') then raise exception 'assessment is incomplete'; end if;
+  select config_json into v_config from public.assessment_template_versions where id=v_session.template_version_id;
+  select coalesce(sum((item.server_scoring_snapshot_json->>'points')::numeric),0),
+    coalesce(sum(case when response.response_json->'optionIds'=item.server_scoring_snapshot_json->'correctOptionIds' then (item.server_scoring_snapshot_json->>'points')::numeric else 0 end),0),
+    coalesce(bool_or(coalesce((item.server_scoring_snapshot_json->>'mustPass')::boolean,false) and response.response_json->'optionIds'<>item.server_scoring_snapshot_json->'correctOptionIds'),false)
+  into v_total,v_earned,v_must_failed from public.assessment_session_items item join public.assessment_responses response on response.session_item_id=item.id where item.session_id=p_session_id;
+  v_score:=case when v_total=0 then 0 else round(v_earned/v_total*100,2) end;
+  v_passed:=v_score>=coalesce((v_config->>'passingThreshold')::numeric,80) and not v_must_failed;
+  v_action:=case when v_passed then v_config->>'passAction' else v_config->>'failAction' end;
+  v_message:=case when v_passed then v_config->>'passMessage' else v_config->>'failMessage' end;
+  insert into public.assessment_results(session_id,tenant_id,candidate_id,overall_score,score_band,recommendation,safety_review_required,critical_error_count,critical_errors_json,confidence,confidence_reasons,insight_json,metric_json,scoring_version,content_version,input_checksum,result_checksum,passed,earned_points,max_points,outcome_action,outcome_message)
+  values(p_session_id,v_session.tenant_id,v_session.candidate_id,v_score,case when v_score>=90 then 'A' when v_score>=75 then 'B' when v_score>=60 then 'C' else 'D' end,case when v_passed then 'NEXT_STAGE' else 'REVIEW' end,v_must_failed,case when v_must_failed then 1 else 0 end,'[]','HIGH','[]','{}',jsonb_build_object('earnedPoints',v_earned,'maxPoints',v_total),'OWNER_POINTS_V1','OWNER_CONTENT_V1',encode(extensions.digest(p_session_id::text,'sha256'),'hex'),encode(extensions.digest(p_session_id::text||v_score::text,'sha256'),'hex'),v_passed,v_earned,v_total,v_action,v_message);
+  update public.assessment_sessions set status=case when v_action='manual_review' then 'AWAITING_REVIEW' else 'COMPLETED' end,completed_at=now(),score_calculated_at=now(),completion_percentage=100,updated_at=now() where id=p_session_id;
+  if v_action='next_stage' then update public.employees set status=case when status='wartet_zuteilung' then 'in_probe' else status end where id=v_session.candidate_id and tenant_id=v_session.tenant_id;
+  elsif v_action='reject' then update public.employees set status='abgelehnt' where id=v_session.candidate_id and tenant_id=v_session.tenant_id; end if;
+  insert into public.assessment_audit_logs(tenant_id,session_id,actor_type,action,details_json) values(v_session.tenant_id,p_session_id,'CANDIDATE','TEST_COMPLETED',jsonb_build_object('passed',v_passed,'score',v_score,'action',v_action));
+  return query select v_passed,v_score,v_message;
+end
+$function$;
+
+create or replace function public.assign_matching_onboarding_trainings(p_tenant_id uuid,p_employee_id uuid,p_actor_id uuid,p_source text default 'onboarding')
+returns integer language plpgsql security definer set search_path=public,pg_temp
+as $function$
+declare v_employee record; v_count integer;
+begin
+  perform 1 from public.employees actor where actor.id=p_actor_id and actor.tenant_id=p_tenant_id and actor.rolle::text in ('manager','backoffice','admin');
+  if not found then raise exception 'actor may not assign trainings'; end if;
+  select * into v_employee from public.employees where id=p_employee_id and tenant_id=p_tenant_id;
+  if not found then raise exception 'employee is outside tenant'; end if;
+  insert into public.training_progress(tenant_id,employee_id,module_id,fortschritt_prozent,abgeschlossen,status,assigned_at,due_at,assignment_source,assigned_by)
+  select p_tenant_id,p_employee_id,module.id,0,false,'offen',now(),case when module.deadline_days is null then null else now()+make_interval(days=>module.deadline_days) end,left(coalesce(nullif(p_source,''),'manual'),40),p_actor_id
+  from public.training_modules module where module.tenant_id=p_tenant_id and module.aktiv and module.pflicht and (module.location_id is null or module.location_id=v_employee.location_id)
+    and (not exists(select 1 from public.training_module_targets target where target.module_id=module.id and target.target_type='location') or exists(select 1 from public.training_module_targets target where target.module_id=module.id and target.target_type='location' and target.location_id=v_employee.location_id))
+    and (not exists(select 1 from public.training_module_targets target where target.module_id=module.id and target.target_type='department') or exists(select 1 from public.training_module_targets target where target.module_id=module.id and target.target_type='department' and target.department_id=v_employee.department_id))
+    and (not exists(select 1 from public.training_module_targets target where target.module_id=module.id and target.target_type='position') or exists(select 1 from public.training_module_targets target where target.module_id=module.id and target.target_type='position' and lower(target.position_type)=lower(coalesce(v_employee.position_typ,''))))
+  on conflict(employee_id,module_id) do nothing;
+  get diagnostics v_count=row_count; return v_count;
+end
+$function$;
+
+create or replace function public.process_overdue_trainings(p_now timestamptz default now())
+returns integer language plpgsql security definer set search_path=public,pg_temp
+as $function$
+declare v_count integer;
+begin
+  update public.training_progress set status='ueberfaellig',updated_at=p_now where status in ('offen','begonnen') and due_at<p_now;
+  get diagnostics v_count=row_count;
+  insert into public.operational_tasks(tenant_id,location_id,title,description,status,priority,created_by,assigned_to,accountable_employee_id,due_at,training_progress_id,source_type,source_id,created_at,updated_at)
+  select progress.tenant_id,employee.location_id,'Überfällige Pflichtschulung: '||module.titel,employee.vorname||' '||employee.nachname||' benötigt die fällige Schulung.','offen',80,progress.employee_id,progress.employee_id,progress.employee_id,coalesce(progress.due_at,p_now),progress.id,'training_overdue',progress.id::text,p_now,p_now
+  from public.training_progress progress join public.training_modules module on module.id=progress.module_id join public.employees employee on employee.id=progress.employee_id where progress.status='ueberfaellig' and module.pflicht and employee.location_id is not null
+  on conflict(tenant_id,source_type,source_id)
+    where source_type is not null and source_id is not null do nothing;
+  return v_count;
+end
+$function$;
+
+revoke all on function public.complete_application_assessment(uuid,text) from public,anon,authenticated;
+revoke all on function public.assign_matching_onboarding_trainings(uuid,uuid,uuid,text) from public,anon,authenticated;
+revoke all on function public.process_overdue_trainings(timestamptz) from public,anon,authenticated;
+grant execute on function public.complete_application_assessment(uuid,text) to service_role;
+grant execute on function public.assign_matching_onboarding_trainings(uuid,uuid,uuid,text) to service_role;
+grant execute on function public.process_overdue_trainings(timestamptz) to service_role;
 
 create or replace function public.assign_application_assessment(
   p_session_id uuid,
@@ -790,3 +936,14 @@ begin
   return query select round(v_complete::numeric/greatest(v_total,1)*100,2),'QUIZ'::text;
 end
 $function$;
+
+revoke all on function public.save_application_assessment_template(uuid,uuid,uuid,uuid,text,text,integer,text,text,text,text,jsonb,jsonb,boolean) from public,anon,authenticated;
+revoke all on function public.assign_application_assessment(uuid,uuid,uuid,uuid,uuid,text,timestamptz) from public,anon,authenticated;
+revoke all on function public.start_application_assessment(uuid,text,text) from public,anon,authenticated;
+revoke all on function public.submit_application_assessment_response(uuid,uuid,jsonb) from public,anon,authenticated;
+grant execute on function public.save_application_assessment_template(uuid,uuid,uuid,uuid,text,text,integer,text,text,text,text,jsonb,jsonb,boolean) to service_role;
+grant execute on function public.assign_application_assessment(uuid,uuid,uuid,uuid,uuid,text,timestamptz) to service_role;
+grant execute on function public.start_application_assessment(uuid,text,text) to service_role;
+grant execute on function public.submit_application_assessment_response(uuid,uuid,jsonb) to service_role;
+
+commit;

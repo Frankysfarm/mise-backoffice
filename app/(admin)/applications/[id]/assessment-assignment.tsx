@@ -1,0 +1,9 @@
+'use client';
+import { useState, useTransition } from 'react';
+import { Button } from '@/components/ui/button';
+import { toastError, toastSuccess } from '@/components/ui/toaster';
+export function AssessmentAssignment({ candidateId, templates, testsPath }: { candidateId: string; templates: { id: string; name: string }[]; testsPath: string }) {
+  const [templateId, setTemplateId] = useState(templates[0]?.id ?? ''); const [pending, start] = useTransition(); const [link, setLink] = useState('');
+  if (!templates.length) return <p className="text-sm text-muted-foreground">Kein aktiver Test passt zu Bereich und Stelle. <a className="font-semibold text-indigo-700 underline" href={testsPath}>Test anlegen</a></p>;
+  return <div className="space-y-2"><div className="flex flex-col gap-2 sm:flex-row"><select className="h-10 flex-1 rounded-md border bg-background px-3 text-sm" value={templateId} onChange={(e) => setTemplateId(e.target.value)}>{templates.map((template) => <option key={template.id} value={template.id}>{template.name}</option>)}</select><Button disabled={pending} onClick={() => start(async () => { const response = await fetch('/api/application-assessments/assign', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidateId, templateId }) }); const data = await response.json(); if (!response.ok) return toastError('Test konnte nicht zugewiesen werden', data.error); setLink(data.link); toastSuccess('Test zugewiesen', 'Link kann jetzt sicher an den Bewerber gesendet werden.'); })}>{pending ? 'Wird zugewiesen…' : 'Test zuweisen'}</Button></div>{link && <div className="rounded-md bg-indigo-50 p-3 text-sm"><div className="font-semibold text-indigo-900">Persönlicher Testlink</div><a href={link} className="break-all text-indigo-700 underline">{link}</a></div>}</div>;
+}

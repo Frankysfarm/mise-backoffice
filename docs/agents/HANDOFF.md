@@ -392,3 +392,9 @@ checks also passed after the production switch.
   deploy script as an emergency shortcut. The pre-attempt-6 script backup is
   retained for audit/forensics; it contains the cleanup defect that caused
   attempt 5 to abort.
+# 2026-08-31 — Packet C-A Bewerbungstests, Schulungen, Onboarding
+
+- Branch: `vollausbau/c-a`; Implementierungscommit `ca8a8f3`.
+- Audit/Änderungen/DB/RLS/Rollback/manuelle Klickwege: `docs/agents/reports/2026-08-31-c-a.md`.
+- Gates: TypeScript Exit 0; Vitest 37 Dateien/229 Tests grün (Stand Fix round 2, inklusive AI-Normalisierungsregression); Next Build Exit 0/233 Seiten; gezieltes, API-simuliertes Playwright für den Bewerberbildschirm Desktop + Mobile 2/2 grün (kein Ende-zu-Ende-/Datenbankbeleg); `git diff --check` Exit 0.
+- Risiko/Restpunkt: kein `.env` und keine Datenbank auf Factory-Host, daher Migration und authentifizierter Live-Supabase-Personaflow vor Deployment in isolierter Testinstanz ausführen. Kein Deploy aus diesem Packet.
