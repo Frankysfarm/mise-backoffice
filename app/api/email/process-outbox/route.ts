@@ -120,7 +120,7 @@ function renderByTemplate(
  */
 function emailShell(
   ctx: { tenant: any },
-  opts: { icon: string; title: string; eyebrow: string; bestellnummer?: string; inner: string; footerNote?: string },
+  opts: { icon: string; title: string; eyebrow: string; bestellnummer?: string; inner: string; footerNote?: string; operationalMail?: boolean },
 ): string {
   const themeColor = ctx.tenant.theme_primary ?? '#14532d';
   const accentColor = ctx.tenant.theme_accent ?? '#4ae68a';
@@ -140,7 +140,7 @@ function emailShell(
 ${opts.inner}
   <tr><td style="padding:24px 40px; background:#f5f5f5; font-size:11px; color:#999; text-align:center; line-height:1.6;">
     Gesendet von <strong>${ctx.tenant.name}</strong>${opts.footerNote ? ' · ' + opts.footerNote : ''}<br>
-    Diese E-Mail gehört zu deinem Betrieb — keine Werbung.
+    ${opts.operationalMail ? 'Diese E-Mail gehört zu deinem Betrieb — keine Werbung.' : 'Diese E-Mail bekommst du weil du bei uns bestellt hast — keine Werbung.'}
   </td></tr>
 </table>
 </td></tr>
@@ -148,9 +148,9 @@ ${opts.inner}
 </body></html>`;
 }
 
-function scheduleMail(ctx: { tenant: any }, icon: string, title: string, message: string) {
-  const inner = `<tr><td style="padding:32px 40px; font-size:15px; line-height:1.7;">${message}<br><br><a href="/mitarbeiter" style="font-weight:700; color:#14532d;">Mitarbeiter-App öffnen</a></td></tr>`;
-  return emailShell(ctx, { icon, title, eyebrow: ctx.tenant.name, inner });
+function scheduleMail(ctx: { origin: string; tenant: any }, icon: string, title: string, message: string) {
+  const inner = `<tr><td style="padding:32px 40px; font-size:15px; line-height:1.7;">${message}<br><br><a href="${ctx.origin}/mitarbeiter" style="font-weight:700; color:#14532d;">Mitarbeiter-App öffnen</a></td></tr>`;
+  return emailShell(ctx, { icon, title, eyebrow: ctx.tenant.name, inner, operationalMail: true });
 }
 
 function formatGermanDate(value: unknown) {

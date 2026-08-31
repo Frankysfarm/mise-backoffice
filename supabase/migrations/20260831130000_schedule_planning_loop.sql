@@ -7,7 +7,8 @@ create table if not exists public.schedule_templates (
   created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
 create table if not exists public.schedule_template_slots (
-  id uuid primary key default gen_random_uuid(), template_id uuid not null references public.schedule_templates(id) on delete cascade,
+  id uuid primary key default gen_random_uuid(), tenant_id uuid not null references public.tenants(id) on delete cascade,
+  template_id uuid not null references public.schedule_templates(id) on delete cascade,
   weekday smallint not null check(weekday between 0 and 6), name text not null, department_id uuid references public.departments(id) on delete restrict,
   position text, start_time time not null, end_time time not null, pause_minutes integer not null default 0 check(pause_minutes between 0 and 240),
   headcount integer not null default 1 check(headcount between 1 and 50), sort_order integer not null default 0,
@@ -77,14 +78,14 @@ begin
     select * into v_copy from public.schedule_templates where id=p_template_id and tenant_id=p_tenant_id and location_id=p_location_id;
     if not found then raise exception 'template not found'; end if;
     insert into public.schedule_templates(tenant_id,location_id,name,description,created_by) values(p_tenant_id,p_location_id,v_copy.name||' (Kopie)',v_copy.description,p_actor_id) returning id into v_id;
-    insert into public.schedule_template_slots(template_id,weekday,name,department_id,position,start_time,end_time,pause_minutes,headcount,sort_order) select v_id,weekday,name,department_id,position,start_time,end_time,pause_minutes,headcount,sort_order from public.schedule_template_slots where template_id=p_template_id;
+    insert into public.schedule_template_slots(tenant_id,template_id,weekday,name,department_id,position,start_time,end_time,pause_minutes,headcount,sort_order) select p_tenant_id,v_id,weekday,name,department_id,position,start_time,end_time,pause_minutes,headcount,sort_order from public.schedule_template_slots where template_id=p_template_id;
     return v_id;
   end if;
   if p_action='create' then insert into public.schedule_templates(tenant_id,location_id,name,description,created_by) values(p_tenant_id,p_location_id,p_name,p_description,p_actor_id) returning id into v_id;
   elsif p_action='update' then update public.schedule_templates set name=p_name,description=p_description,updated_at=now() where id=p_template_id and tenant_id=p_tenant_id and location_id=p_location_id; if not found then raise exception 'template not found'; end if; delete from public.schedule_template_slots where template_id=v_id;
   else raise exception 'unknown action'; end if;
   for v_slot in select value from jsonb_array_elements(coalesce(p_slots,'[]'::jsonb)) loop
-    insert into public.schedule_template_slots(template_id,weekday,name,department_id,position,start_time,end_time,pause_minutes,headcount,sort_order) values(v_id,(v_slot->>'weekday')::smallint,v_slot->>'name',nullif(v_slot->>'departmentId','')::uuid,nullif(v_slot->>'position',''),(v_slot->>'startTime')::time,(v_slot->>'endTime')::time,coalesce((v_slot->>'pauseMinutes')::integer,0),coalesce((v_slot->>'headcount')::integer,1),coalesce((v_slot->>'sortOrder')::integer,0));
+    insert into public.schedule_template_slots(tenant_id,template_id,weekday,name,department_id,position,start_time,end_time,pause_minutes,headcount,sort_order) values(p_tenant_id,v_id,(v_slot->>'weekday')::smallint,v_slot->>'name',nullif(v_slot->>'departmentId','')::uuid,nullif(v_slot->>'position',''),(v_slot->>'startTime')::time,(v_slot->>'endTime')::time,coalesce((v_slot->>'pauseMinutes')::integer,0),coalesce((v_slot->>'headcount')::integer,1),coalesce((v_slot->>'sortOrder')::integer,0));
   end loop; return v_id;
 end $function$;
 
@@ -117,7 +118,7 @@ begin
     v_date:=p_week_start+v_slot.weekday; v_start:=(v_date+v_slot.start_time) at time zone 'Europe/Berlin'; v_end:=((case when v_slot.end_time<=v_slot.start_time then v_date+1 else v_date end)+v_slot.end_time) at time zone 'Europe/Berlin';
     for v_n in 1..v_slot.headcount loop
       insert into public.shifts(tenant_id,location_id,department_id,start_zeit,end_zeit,status,position,notiz,pause_minuten,employee_id,offen_fuer_bewerbung,schedule_template_instance_key)
-      values(p_tenant_id,p_location_id,v_slot.department_id,v_start,v_end,'geplant',v_slot.position,v_slot.name,v_slot.pause_minutes,null,true,p_template_id::text||':'||v_slot.weekday::text||':'||v_slot.start_time::text||':'||coalesce(v_slot.position,'')||':'||v_n::text||':'||p_week_start::text)
+      values(p_tenant_id,p_location_id,v_slot.department_id,v_start,v_end,'geplant',v_slot.position,v_slot.name,v_slot.pause_minutes,null,true,p_template_id::text||':'||v_slot.weekday::text||':'||v_slot.start_time::text||':'||v_slot.end_time::text||':'||v_slot.name||':'||coalesce(v_slot.position,'')||':'||v_n::text||':'||p_week_start::text)
       on conflict(tenant_id,location_id,schedule_template_instance_key) where schedule_template_instance_key is not null do nothing;
       if found then v_count:=v_count+1; end if;
     end loop;
@@ -136,7 +137,7 @@ begin
   insert into public.schedule_publication_changes(tenant_id,location_id,schedule_week_id,shift_id,employee_id,change_type,summary,changed_by)
   select p_tenant_id,p_location_id,v_week.id,s.id,s.employee_id,'published','Dienstplan veröffentlicht',p_actor_id from public.shifts s where s.tenant_id=p_tenant_id and s.location_id=p_location_id and s.employee_id is not null and s.start_zeit>=p_week_start::timestamp at time zone 'Europe/Berlin' and s.start_zeit<(p_week_start+7)::timestamp at time zone 'Europe/Berlin';
   for v_employee in select distinct e.id,e.email from public.shifts s join public.employees e on e.id=s.employee_id where s.tenant_id=p_tenant_id and s.location_id=p_location_id and s.start_zeit>=p_week_start::timestamp at time zone 'Europe/Berlin' and s.start_zeit<(p_week_start+7)::timestamp at time zone 'Europe/Berlin' loop
-    insert into public.notifications(employee_id,typ,titel,nachricht,link) values(v_employee.id,'dienstplan','Dienstplan veröffentlicht','Deine Schichten für die kommende Woche sind jetzt verbindlich.','/mitarbeiter#dienstplan');
+    insert into public.notifications(employee_id,typ,titel,nachricht,link) values(v_employee.id,'info','Dienstplan veröffentlicht','Deine Schichten für die kommende Woche sind jetzt verbindlich.','/mitarbeiter#dienstplan');
     if v_employee.email is not null then insert into public.email_outbox(tenant_id,to_email,subject,html,template,template_data) values(p_tenant_id,v_employee.email,'Dein Dienstplan wurde veröffentlicht',null,'schedule_published',jsonb_build_object('employee_id',v_employee.id,'week_start',p_week_start)); end if;
     v_count:=v_count+1;
   end loop; return v_count;
@@ -157,7 +158,9 @@ begin
   perform public.generate_weekly_shift_assignment_suggestions_core(p_tenant_id,p_location_id,p_week_start,p_actor_id);
   v_week_start_at:=p_week_start::timestamp at time zone 'Europe/Berlin';
   v_week_end_at:=(p_week_start+7)::timestamp at time zone 'Europe/Berlin';
-  for v_shift in select s.* from public.shifts s where s.tenant_id=p_tenant_id and s.location_id=p_location_id and s.start_zeit>=v_week_start_at and s.start_zeit<v_week_end_at and s.employee_id is null and s.status::text not in ('abgesagt','storniert') loop
+  -- Only reconsider shifts with concrete answers. All other shifts keep the
+  -- proven core engine's result and filters.
+  for v_shift in select s.* from public.shifts s where s.tenant_id=p_tenant_id and s.location_id=p_location_id and s.start_zeit>=v_week_start_at and s.start_zeit<v_week_end_at and s.employee_id is null and s.status::text not in ('abgesagt','storniert') and exists(select 1 from public.shift_availability_responses response where response.shift_id=s.id) loop
     select ranked.* into v_candidate from (
       select e.id,e.vorname,e.nachname,response.state,
         (case response.state when 'moechte' then 165 when 'kann' then 120 else 0 end
@@ -167,15 +170,17 @@ begin
       from public.employees e
       left join public.shift_availability_responses response on response.shift_id=v_shift.id and response.employee_id=e.id
       left join lateral (
-        select coalesce(sum(extract(epoch from (assigned.end_zeit-assigned.start_zeit))/3600),0) assigned_hours
-        from public.shifts assigned where assigned.tenant_id=p_tenant_id and assigned.employee_id=e.id and assigned.start_zeit>=v_week_start_at and assigned.start_zeit<v_week_end_at and assigned.status::text not in ('abgesagt','storniert')
+        select coalesce((select sum(extract(epoch from (assigned.end_zeit-assigned.start_zeit))/3600) from public.shifts assigned where assigned.tenant_id=p_tenant_id and assigned.employee_id=e.id and assigned.start_zeit>=v_week_start_at and assigned.start_zeit<v_week_end_at and assigned.status::text not in ('abgesagt','storniert')),0)
+          + coalesce((select sum(extract(epoch from (suggested_shift.end_zeit-suggested_shift.start_zeit))/3600) from public.weekly_shift_assignment_suggestions suggested join public.shifts suggested_shift on suggested_shift.id=suggested.shift_id where suggested.tenant_id=p_tenant_id and suggested.location_id=p_location_id and suggested.week_start=p_week_start and suggested.employee_id=e.id and suggested.status='draft' and suggested.shift_id<>v_shift.id),0) assigned_hours
       ) hours on true
       where e.tenant_id=p_tenant_id and e.location_id=p_location_id and e.status::text='aktiv'
         and coalesce(response.state,'kann')<>'kann_nicht'
-        and (v_shift.department_id is null or e.department_id=v_shift.department_id or exists(select 1 from public.department_responsibility_assignments responsibility where responsibility.tenant_id=p_tenant_id and responsibility.location_id=p_location_id and responsibility.department_id=v_shift.department_id and responsibility.employee_id=e.id and responsibility.aktiv))
+        and (v_shift.department_id is null or e.department_id=v_shift.department_id or exists(select 1 from public.department_responsibility_assignments responsibility where responsibility.tenant_id=p_tenant_id and responsibility.location_id=p_location_id and responsibility.department_id=v_shift.department_id and responsibility.employee_id=e.id and responsibility.aktiv and public.responsibility_assignment_active_at(responsibility.valid_from,responsibility.valid_until,responsibility.weekday_scope,responsibility.shift_start,responsibility.shift_end,v_shift.start_zeit)))
         and (v_shift.position is null or lower(coalesce(e.position_title,e.rolle::text))=lower(v_shift.position))
         and not exists(select 1 from public.availability_exceptions x where x.tenant_id=p_tenant_id and x.employee_id=e.id and x.datum=(v_shift.start_zeit at time zone 'Europe/Berlin')::date and x.typ::text in ('gesperrt','nicht_verfuegbar','krank','urlaub','abwesend','unavailable','sick'))
+        and not exists(select 1 from public.employee_availability blocked where blocked.employee_id=e.id and blocked.weekday=extract(isodow from v_shift.start_zeit at time zone 'Europe/Berlin')::integer-1 and blocked.typ='gesperrt' and blocked.start_time<(v_shift.end_zeit at time zone 'Europe/Berlin')::time and blocked.end_time>(v_shift.start_zeit at time zone 'Europe/Berlin')::time)
         and not exists(select 1 from public.shifts other where other.tenant_id=p_tenant_id and other.employee_id=e.id and other.id<>v_shift.id and other.status::text not in ('abgesagt','storniert') and tstzrange(other.start_zeit,other.end_zeit,'[)') && tstzrange(v_shift.start_zeit,v_shift.end_zeit,'[)'))
+        and not exists(select 1 from public.weekly_shift_assignment_suggestions other_suggestion join public.shifts other_shift on other_shift.id=other_suggestion.shift_id where other_suggestion.tenant_id=p_tenant_id and other_suggestion.employee_id=e.id and other_suggestion.status='draft' and other_suggestion.shift_id<>v_shift.id and tstzrange(other_shift.start_zeit,other_shift.end_zeit,'[)') && tstzrange(v_shift.start_zeit,v_shift.end_zeit,'[)'))
     ) ranked order by ranked.final_score desc,ranked.assigned_hours,ranked.id limit 1;
     if found then
       insert into public.weekly_shift_assignment_suggestions(tenant_id,location_id,week_start,shift_id,employee_id,score,reason,status,generated_at,updated_at)
@@ -209,7 +214,7 @@ begin
   foreach v_employee in array array[old.employee_id,new.employee_id] loop
     if v_employee is not null and not exists(select 1 from public.schedule_publication_changes c where c.schedule_week_id=v_week.id and c.shift_id=new.id and c.employee_id=v_employee and c.changed_at>now()-interval '2 seconds') then
       insert into public.schedule_publication_changes(tenant_id,location_id,schedule_week_id,shift_id,employee_id,change_type,summary,changed_by) values(new.tenant_id,new.location_id,v_week.id,new.id,v_employee,case when old.employee_id is distinct from new.employee_id then 'assignment_changed' when old.status::text is distinct from new.status::text then 'cancelled' else 'time_changed' end,'Geändert seit Veröffentlichung',nullif(current_setting('app.audit_employee_id',true),'')::uuid);
-      insert into public.notifications(employee_id,typ,titel,nachricht,link) values(v_employee,'dienstplan_geaendert','Dienstplan geändert','Eine veröffentlichte Schicht wurde geändert. Bitte prüfe deinen Dienstplan.','/mitarbeiter#dienstplan');
+      insert into public.notifications(employee_id,typ,titel,nachricht,link) values(v_employee,'info','Dienstplan geändert','Eine veröffentlichte Schicht wurde geändert. Bitte prüfe deinen Dienstplan.','/mitarbeiter#dienstplan');
     end if;
   end loop; return new;
 end $function$;

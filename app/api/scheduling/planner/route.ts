@@ -60,10 +60,16 @@ export async function POST(request: NextRequest) {
   if (!week) return NextResponse.json({ error: 'Planungswoche wurde noch nicht geöffnet.' }, { status: 409 });
   const { data: employees } = await service.from('employees').select('id,email').eq('tenant_id', actor.tenant_id).eq('location_id', input.locationId).eq('status', 'aktiv');
   const germanWeek = new Date(`${input.weekStart}T12:00:00Z`).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' });
-  const rows = (employees ?? []).map((employee) => ({ employee_id: employee.id, typ: 'dienstplan_verfuegbarkeit', titel: 'Verfügbarkeit eintragen', nachricht: `Bitte trage deine Verfügbarkeit für die Woche ab ${germanWeek} ein.`, link: '/mitarbeiter#verfuegbarkeit' }));
-  if (rows.length) await service.from('notifications').insert(rows);
+  const rows = (employees ?? []).map((employee) => ({ employee_id: employee.id, typ: 'info', titel: 'Verfügbarkeit eintragen', nachricht: `Bitte trage deine Verfügbarkeit für die Woche ab ${germanWeek} ein.`, link: '/mitarbeiter#verfuegbarkeit' }));
+  if (rows.length) {
+    const { error } = await service.from('notifications').insert(rows);
+    if (error) return NextResponse.json({ error: 'In-App-Erinnerungen konnten nicht zugestellt werden.' }, { status: 502 });
+  }
   const mails = (employees ?? []).filter((employee) => employee.email).map((employee) => ({ tenant_id: actor.tenant_id, to_email: employee.email!, subject: 'Verfügbarkeit für den Dienstplan', html: null, template: 'schedule_availability_reminder', template_data: { employee_id: employee.id, week_start: input.weekStart } }));
-  if (mails.length) await service.from('email_outbox').insert(mails);
+  if (mails.length) {
+    const { error } = await service.from('email_outbox').insert(mails);
+    if (error) return NextResponse.json({ error: 'E-Mail-Erinnerungen konnten nicht eingeplant werden.' }, { status: 502 });
+  }
   return NextResponse.json({ ok: true, notified: rows.length, emailQueued: mails.length });
 }
 

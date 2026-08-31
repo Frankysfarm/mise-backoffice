@@ -282,7 +282,12 @@ function DraggableShift({ s, warnings, conflicts, responses, onEdit }: {
   const fmt = (d: Date) => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
   const color = s.department?.farbe ?? '#2d6b45';
   const unassigned = !s.employee_id;
-  const severity = conflicts.some(conflict => conflict.severity === 'blocker') ? 'error' : conflicts.length ? 'warn' : highestSeverity(warnings);
+  const warningSeverity = highestSeverity(warnings);
+  const severity = conflicts.some(conflict => conflict.severity === 'blocker') || warningSeverity === 'error'
+    ? 'error'
+    : conflicts.length || warningSeverity === 'warn'
+      ? 'warn'
+      : warningSeverity;
 
   return (
     <div

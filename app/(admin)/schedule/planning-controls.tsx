@@ -12,7 +12,7 @@ export function PlanningControls({ locationId, weekStart, templates, initialStat
   async function run(action: 'open' | 'apply' | 'remind' | 'publish') {
     if (!locationId) return;
     setBusy(action);
-    const response = await fetch('/api/scheduling/planner', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, locationId, weekStart, ...(['open', 'apply'].includes(action) ? { deadline: deadline ? new Date(deadline).toISOString() : null } : {}), ...(action === 'apply' ? { templateId } : {}) }) });
+    const response = await fetch('/api/scheduling/planner', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, locationId, weekStart, ...(['open', 'apply'].includes(action) ? { deadline: deadline ? berlinWallClockToIso(deadline) : null } : {}), ...(action === 'apply' ? { templateId } : {}) }) });
     const result = await response.json().catch(() => null); setBusy('');
     if (!response.ok) return toastError('Aktion fehlgeschlagen', result?.error ?? 'Bitte erneut versuchen.');
     toastSuccess(action === 'open' ? 'Planungsrunde geöffnet' : action === 'apply' ? 'Woche vorbereitet' : action === 'remind' ? 'Erinnerungen eingeplant' : 'Dienstplan veröffentlicht', result?.message ?? (action === 'publish' ? `${result?.notified ?? 0} Personen wurden benachrichtigt.` : undefined));
@@ -33,4 +33,18 @@ function berlinLocalInput(value: string) {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(value));
   const get = (type: Intl.DateTimeFormatPartTypes) => parts.find(part => part.type === type)?.value ?? '';
   return `${get('year')}-${get('month')}-${get('day')}T${get('hour')}:${get('minute')}`;
+}
+
+function berlinWallClockToIso(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
+  if (!match) throw new Error('Ungültige Eintragungsfrist');
+  const desired = Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), Number(match[4]), Number(match[5]));
+  let instant = new Date(desired);
+  for (let pass = 0; pass < 2; pass++) {
+    const rendered = berlinLocalInput(instant.toISOString());
+    const parts = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(rendered)!;
+    const renderedAsUtc = Date.UTC(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]), Number(parts[4]), Number(parts[5]));
+    instant = new Date(instant.getTime() + desired - renderedAsUtc);
+  }
+  return instant.toISOString();
 }
