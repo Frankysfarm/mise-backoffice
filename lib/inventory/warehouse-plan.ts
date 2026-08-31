@@ -72,6 +72,7 @@ export function inventoryDeviation(expected: number, counted: number): number {
 }
 
 export type ReorderItem = {
+  id: string;
   supplierId: string | null;
   supplierName: string | null;
   locationId: string | null;
@@ -87,20 +88,24 @@ export function groupReorderProposals(items: ReorderItem[]) {
       locationId: string | null;
       amount: number;
       itemCount: number;
+      itemIds: string[];
     }
   >();
   for (const item of items) {
-    if (item.current >= item.target) continue;
     const key = `${item.locationId}:${item.supplierId ?? item.supplierName ?? "ohne-lieferant"}`;
     const group = groups.get(key) ?? {
       supplierId: item.supplierId,
-      supplierName: item.supplierName ?? "Ohne Lieferant",
+      supplierName:
+        item.supplierName ??
+        (item.supplierId ? "Lieferant ohne Namen" : "Ohne Lieferant"),
       locationId: item.locationId,
       amount: 0,
       itemCount: 0,
+      itemIds: [],
     };
-    group.amount += item.target - item.current;
+    group.amount += Math.max(0, item.target - item.current);
     group.itemCount += 1;
+    group.itemIds.push(item.id);
     groups.set(key, group);
   }
   return [...groups.values()];

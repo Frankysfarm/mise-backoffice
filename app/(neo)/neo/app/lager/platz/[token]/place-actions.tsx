@@ -23,7 +23,7 @@ export function PlaceActions({
   };
   placeId: string;
   locationId: string;
-  targets: { id: string; name: string }[];
+  targets: { id: string; label: string }[];
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -32,10 +32,10 @@ export function PlaceActions({
 
   function submit(fd: FormData) {
     if (!action) return;
-    const targetName = String(fd.get("targetPlaceName") ?? "");
+    const targetLabel = String(fd.get("targetPlaceLabel") ?? "");
     const targetPlaceId =
       action === "transfer"
-        ? targets.find((target) => target.name === targetName)?.id
+        ? targets.find((target) => target.label === targetLabel)?.id
         : null;
     if (action === "transfer" && !targetPlaceId)
       return toastError(
@@ -118,14 +118,14 @@ export function PlaceActions({
               </Label>
               <Input
                 id={`target-${item.id}`}
-                name="targetPlaceName"
+                name="targetPlaceLabel"
                 list={`targets-${item.id}`}
                 required
                 placeholder="Name eingeben oder auswählen"
               />
               <datalist id={`targets-${item.id}`}>
                 {targets.map((target) => (
-                  <option key={target.id} value={target.name} />
+                  <option key={target.id} value={target.label} />
                 ))}
               </datalist>
             </div>

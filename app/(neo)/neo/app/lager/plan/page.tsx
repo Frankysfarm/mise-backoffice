@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireManagerPlus } from "@/lib/auth/requireRole";
 import { PageHeader } from "@/components/layout/page-header";
+import { operationsBasePath } from "@/lib/routing/operations-base-path";
 import {
   WarehousePlan,
   type WarehouseArea,
@@ -13,6 +14,7 @@ export default async function WarehousePlanPage() {
   if (!actor.tenant_id)
     throw new Error("Mitarbeiterkonto ist keinem Mandanten zugeordnet.");
   const supabase = await createClient();
+  const basePath = await operationsBasePath("/inventory", "/neo/app/lager");
   let areasQuery = supabase
     .from("inventory_areas")
     .select("id,name,location_id,location:locations!inner(name,tenant_id)")
@@ -42,7 +44,7 @@ export default async function WarehousePlanPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        backHref="/neo/app/lager"
+        backHref={basePath}
         title="Visueller Lagerplan"
         description="Räume, Regale, Kühlgeräte und Lagerplätze übersichtlich organisieren."
       />
@@ -50,6 +52,7 @@ export default async function WarehousePlanPage() {
         areas={(areas ?? []) as unknown as WarehouseArea[]}
         shelves={(shelves ?? []) as unknown as WarehouseShelf[]}
         items={(items ?? []) as unknown as WarehouseItem[]}
+        basePath={basePath}
       />
     </div>
   );

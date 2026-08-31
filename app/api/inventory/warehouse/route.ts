@@ -41,6 +41,8 @@ export async function POST(req: NextRequest) {
     if (
       typeof body.areaId !== "string" ||
       !UUID.test(body.areaId) ||
+      (body.id != null &&
+        (typeof body.id !== "string" || !UUID.test(body.id))) ||
       typeof body.name !== "string" ||
       !body.name.trim() ||
       !["unit", "place"].includes(String(body.kind)) ||

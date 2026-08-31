@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PlaceActions } from "./place-actions";
+import { operationsBasePath } from "@/lib/routing/operations-base-path";
 
 type PlaceArea = {
   id: string;
@@ -23,6 +24,7 @@ export default async function InventoryPlacePage({
   if (!actor.tenant_id) notFound();
   const { token } = await params;
   const supabase = await createClient();
+  const basePath = await operationsBasePath("/inventory", "/neo/app/lager");
   let query = supabase
     .from("inventory_shelves")
     .select(
@@ -48,7 +50,7 @@ export default async function InventoryPlacePage({
     supabase
       .from("inventory_shelves")
       .select(
-        "id,name,area:inventory_areas!inner(location_id,location:locations!inner(tenant_id))",
+        "id,name,parent:inventory_shelves!inventory_shelves_parent_shelf_id_fkey(name),area:inventory_areas!inner(name,location_id,location:locations!inner(tenant_id))",
       )
       .eq("place_kind", "place")
       .eq("area.location_id", area.location_id)
@@ -60,7 +62,7 @@ export default async function InventoryPlacePage({
   return (
     <div className="mx-auto max-w-2xl space-y-5 pb-24">
       <PageHeader
-        backHref="/neo/app/lager/plan"
+        backHref={`${basePath}/plan`}
         title={place.name}
         description={`${area.name} · ${area.location.name}`}
       />
@@ -74,7 +76,7 @@ export default async function InventoryPlacePage({
           </div>
           <a
             className="mt-3 inline-block font-medium text-primary underline"
-            href={`/neo/app/lager/plan/print?place=${place.id}`}
+            href={`${basePath}/plan/print?place=${place.id}`}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -116,7 +118,7 @@ export default async function InventoryPlacePage({
                 locationId={area.location_id}
                 targets={(targets ?? []).map((target) => ({
                   id: target.id,
-                  name: target.name,
+                  label: `${(target.area as unknown as { name: string }).name} · ${(target.parent as unknown as { name: string } | null)?.name ?? "Ohne Einrichtung"} · ${target.name}`,
                 }))}
               />
             </CardContent>

@@ -55,10 +55,12 @@ export function WarehousePlan({
   areas,
   shelves,
   items,
+  basePath,
 }: {
   areas: WarehouseArea[];
   shelves: WarehouseShelf[];
   items: WarehouseItem[];
+  basePath: string;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -148,7 +150,7 @@ export function WarehousePlan({
               </div>
               <Button variant="outline" asChild>
                 <Link
-                  href={`/neo/app/lager/plan/print?area=${area.id}`}
+                  href={`${basePath}/plan/print?area=${area.id}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -224,7 +226,7 @@ export function WarehousePlan({
                         return (
                           <div key={place.id} className="rounded-xl border p-3">
                             <Link
-                              href={`/neo/app/lager/platz/${place.qr_token}`}
+                              href={`${basePath}/platz/${place.qr_token}`}
                               className="block transition hover:text-primary"
                             >
                               <div className="flex items-start justify-between gap-2">

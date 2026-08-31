@@ -43,6 +43,7 @@ it("groups reorder proposals by supplier and location", () =>
   expect(
     groupReorderProposals([
       {
+        id: "one",
         supplierId: "s",
         supplierName: "S",
         locationId: "l",
@@ -50,6 +51,7 @@ it("groups reorder proposals by supplier and location", () =>
         current: 4,
       },
       {
+        id: "two",
         supplierId: "s",
         supplierName: "S",
         locationId: "l",
@@ -57,6 +59,7 @@ it("groups reorder proposals by supplier and location", () =>
         current: 3,
       },
       {
+        id: "three",
         supplierId: "s",
         supplierName: "S",
         locationId: "x",
@@ -71,5 +74,53 @@ it("groups reorder proposals by supplier and location", () =>
       locationId: "l",
       amount: 8,
       itemCount: 2,
+      itemIds: ["one", "two"],
+    },
+    {
+      supplierId: "s",
+      supplierName: "S",
+      locationId: "x",
+      amount: 0,
+      itemCount: 1,
+      itemIds: ["three"],
+    },
+  ]));
+
+it("keeps exact reorder membership and zero-quantity under-minimum lines", () =>
+  expect(
+    groupReorderProposals([
+      {
+        id: "supplier-item",
+        supplierId: "supplier",
+        supplierName: null,
+        locationId: "location",
+        target: 2,
+        current: 2,
+      },
+      {
+        id: "unassigned-item",
+        supplierId: null,
+        supplierName: null,
+        locationId: "location",
+        target: 1,
+        current: 0,
+      },
+    ]),
+  ).toEqual([
+    {
+      supplierId: "supplier",
+      supplierName: "Lieferant ohne Namen",
+      locationId: "location",
+      amount: 0,
+      itemCount: 1,
+      itemIds: ["supplier-item"],
+    },
+    {
+      supplierId: null,
+      supplierName: "Ohne Lieferant",
+      locationId: "location",
+      amount: 1,
+      itemCount: 1,
+      itemIds: ["unassigned-item"],
     },
   ]));
