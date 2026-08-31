@@ -138,7 +138,7 @@ begin
   select p_tenant_id,p_location_id,v_week.id,s.id,s.employee_id,'published','Dienstplan veröffentlicht',p_actor_id from public.shifts s where s.tenant_id=p_tenant_id and s.location_id=p_location_id and s.employee_id is not null and s.start_zeit>=p_week_start::timestamp at time zone 'Europe/Berlin' and s.start_zeit<(p_week_start+7)::timestamp at time zone 'Europe/Berlin';
   for v_employee in select distinct e.id,e.email from public.shifts s join public.employees e on e.id=s.employee_id where s.tenant_id=p_tenant_id and s.location_id=p_location_id and s.start_zeit>=p_week_start::timestamp at time zone 'Europe/Berlin' and s.start_zeit<(p_week_start+7)::timestamp at time zone 'Europe/Berlin' loop
     insert into public.notifications(employee_id,typ,titel,nachricht,link) values(v_employee.id,'info','Dienstplan veröffentlicht','Deine Schichten für die kommende Woche sind jetzt verbindlich.','/mitarbeiter#dienstplan');
-    if v_employee.email is not null then insert into public.email_outbox(tenant_id,to_email,subject,html,template,template_data) values(p_tenant_id,v_employee.email,'Dein Dienstplan wurde veröffentlicht',null,'schedule_published',jsonb_build_object('employee_id',v_employee.id,'week_start',p_week_start)); end if;
+    if v_employee.email is not null then insert into public.email_outbox(tenant_id,to_email,subject,html,template,template_data) values(p_tenant_id,v_employee.email,'Dein Dienstplan wurde veröffentlicht','','schedule_published',jsonb_build_object('employee_id',v_employee.id,'week_start',p_week_start)); end if;
     v_count:=v_count+1;
   end loop; return v_count;
 end $function$;
@@ -165,8 +165,10 @@ begin
       select e.id,e.vorname,e.nachname,response.state,
         (case response.state when 'moechte' then 165 when 'kann' then 120 else 0 end
          + case when v_shift.department_id is null then 10 else 40 end
+         - case when v_shift.position is not null and lower(coalesce(e.position_title,e.rolle::text))<>lower(v_shift.position) then 35 else 0 end
          - ceil(coalesce(hours.assigned_hours,0)*2)::integer) as final_score,
-        coalesce(hours.assigned_hours,0) as assigned_hours
+        coalesce(hours.assigned_hours,0) as assigned_hours,
+        v_shift.position is null or lower(coalesce(e.position_title,e.rolle::text))=lower(v_shift.position) as position_matches
       from public.employees e
       left join public.shift_availability_responses response on response.shift_id=v_shift.id and response.employee_id=e.id
       left join lateral (
@@ -176,7 +178,6 @@ begin
       where e.tenant_id=p_tenant_id and e.location_id=p_location_id and e.status::text='aktiv'
         and coalesce(response.state,'kann')<>'kann_nicht'
         and (v_shift.department_id is null or e.department_id=v_shift.department_id or exists(select 1 from public.department_responsibility_assignments responsibility where responsibility.tenant_id=p_tenant_id and responsibility.location_id=p_location_id and responsibility.department_id=v_shift.department_id and responsibility.employee_id=e.id and responsibility.aktiv and public.responsibility_assignment_active_at(responsibility.valid_from,responsibility.valid_until,responsibility.weekday_scope,responsibility.shift_start,responsibility.shift_end,v_shift.start_zeit)))
-        and (v_shift.position is null or lower(coalesce(e.position_title,e.rolle::text))=lower(v_shift.position))
         and not exists(select 1 from public.availability_exceptions x where x.tenant_id=p_tenant_id and x.employee_id=e.id and x.datum=(v_shift.start_zeit at time zone 'Europe/Berlin')::date and x.typ::text in ('gesperrt','nicht_verfuegbar','krank','urlaub','abwesend','unavailable','sick'))
         and not exists(select 1 from public.employee_availability blocked where blocked.employee_id=e.id and blocked.weekday=extract(isodow from v_shift.start_zeit at time zone 'Europe/Berlin')::integer-1 and blocked.typ='gesperrt' and blocked.start_time<(v_shift.end_zeit at time zone 'Europe/Berlin')::time and blocked.end_time>(v_shift.start_zeit at time zone 'Europe/Berlin')::time)
         and not exists(select 1 from public.shifts other where other.tenant_id=p_tenant_id and other.employee_id=e.id and other.id<>v_shift.id and other.status::text not in ('abgesagt','storniert') and tstzrange(other.start_zeit,other.end_zeit,'[)') && tstzrange(v_shift.start_zeit,v_shift.end_zeit,'[)'))
@@ -185,7 +186,9 @@ begin
     if found then
       insert into public.weekly_shift_assignment_suggestions(tenant_id,location_id,week_start,shift_id,employee_id,score,reason,status,generated_at,updated_at)
       values(p_tenant_id,p_location_id,p_week_start,v_shift.id,v_candidate.id,v_candidate.final_score,
-        case v_candidate.state when 'moechte' then 'Wunschschicht · konkrete Bewerbung' when 'kann' then 'Für diese Schicht verfügbar' else 'Keine konkrete Sperre eingetragen' end||format(' · bisher %s Std. in dieser Woche',round(v_candidate.assigned_hours::numeric,1)),'draft',now(),now())
+        case v_candidate.state when 'moechte' then 'Wunschschicht · konkrete Bewerbung' when 'kann' then 'Für diese Schicht verfügbar' else 'Keine konkrete Sperre eingetragen' end
+          ||case when not v_candidate.position_matches then ' · Position passt nicht' else '' end
+          ||format(' · bisher %s Std. in dieser Woche',round(v_candidate.assigned_hours::numeric,1)),'draft',now(),now())
       on conflict(shift_id) do update set employee_id=excluded.employee_id,score=excluded.score,reason=excluded.reason,status='draft',generated_at=now(),updated_at=now() where weekly_shift_assignment_suggestions.status<>'confirmed';
     else
       update public.weekly_shift_assignment_suggestions set status='obsolete',updated_at=now() where shift_id=v_shift.id and status='draft';
@@ -207,13 +210,14 @@ end $function$;
 
 create or replace function public.record_published_schedule_change()
 returns trigger language plpgsql security definer set search_path=public,pg_temp as $function$
-declare v_week public.schedule_weeks%rowtype; v_employee uuid;
+  declare v_week public.schedule_weeks%rowtype; v_employee uuid; v_change_type text;
 begin
   select * into v_week from public.schedule_weeks w where w.tenant_id=new.tenant_id and w.location_id=new.location_id and w.status='published' and (new.start_zeit at time zone 'Europe/Berlin')::date>=w.week_start and (new.start_zeit at time zone 'Europe/Berlin')::date<w.week_start+7;
   if not found or (old.employee_id is not distinct from new.employee_id and old.start_zeit=new.start_zeit and old.end_zeit=new.end_zeit and old.status::text=new.status::text) then return new; end if;
+  v_change_type:=case when old.employee_id is distinct from new.employee_id then 'assignment_changed' when old.status::text is distinct from new.status::text then 'cancelled' else 'time_changed' end;
   foreach v_employee in array array[old.employee_id,new.employee_id] loop
-    if v_employee is not null and not exists(select 1 from public.schedule_publication_changes c where c.schedule_week_id=v_week.id and c.shift_id=new.id and c.employee_id=v_employee and c.changed_at>now()-interval '2 seconds') then
-      insert into public.schedule_publication_changes(tenant_id,location_id,schedule_week_id,shift_id,employee_id,change_type,summary,changed_by) values(new.tenant_id,new.location_id,v_week.id,new.id,v_employee,case when old.employee_id is distinct from new.employee_id then 'assignment_changed' when old.status::text is distinct from new.status::text then 'cancelled' else 'time_changed' end,'Geändert seit Veröffentlichung',nullif(current_setting('app.audit_employee_id',true),'')::uuid);
+    if v_employee is not null and not exists(select 1 from public.schedule_publication_changes c where c.schedule_week_id=v_week.id and c.shift_id=new.id and c.employee_id=v_employee and c.change_type=v_change_type and c.changed_at>now()-interval '2 seconds') then
+      insert into public.schedule_publication_changes(tenant_id,location_id,schedule_week_id,shift_id,employee_id,change_type,summary,changed_by) values(new.tenant_id,new.location_id,v_week.id,new.id,v_employee,v_change_type,'Geändert seit Veröffentlichung',nullif(current_setting('app.audit_employee_id',true),'')::uuid);
       insert into public.notifications(employee_id,typ,titel,nachricht,link) values(v_employee,'info','Dienstplan geändert','Eine veröffentlichte Schicht wurde geändert. Bitte prüfe deinen Dienstplan.','/mitarbeiter#dienstplan');
     end if;
   end loop; return new;

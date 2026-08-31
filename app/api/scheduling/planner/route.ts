@@ -61,16 +61,23 @@ export async function POST(request: NextRequest) {
   const { data: employees } = await service.from('employees').select('id,email').eq('tenant_id', actor.tenant_id).eq('location_id', input.locationId).eq('status', 'aktiv');
   const germanWeek = new Date(`${input.weekStart}T12:00:00Z`).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' });
   const rows = (employees ?? []).map((employee) => ({ employee_id: employee.id, typ: 'info', titel: 'Verfügbarkeit eintragen', nachricht: `Bitte trage deine Verfügbarkeit für die Woche ab ${germanWeek} ein.`, link: '/mitarbeiter#verfuegbarkeit' }));
-  if (rows.length) {
-    const { error } = await service.from('notifications').insert(rows);
-    if (error) return NextResponse.json({ error: 'In-App-Erinnerungen konnten nicht zugestellt werden.' }, { status: 502 });
-  }
-  const mails = (employees ?? []).filter((employee) => employee.email).map((employee) => ({ tenant_id: actor.tenant_id, to_email: employee.email!, subject: 'Verfügbarkeit für den Dienstplan', html: null, template: 'schedule_availability_reminder', template_data: { employee_id: employee.id, week_start: input.weekStart } }));
+  const mails = (employees ?? []).filter((employee) => employee.email).map((employee) => ({ tenant_id: actor.tenant_id, to_email: employee.email!, subject: 'Verfügbarkeit für den Dienstplan', html: '', template: 'schedule_availability_reminder', template_data: { employee_id: employee.id, week_start: input.weekStart } }));
   if (mails.length) {
     const { error } = await service.from('email_outbox').insert(mails);
     if (error) return NextResponse.json({ error: 'E-Mail-Erinnerungen konnten nicht eingeplant werden.' }, { status: 502 });
   }
-  return NextResponse.json({ ok: true, notified: rows.length, emailQueued: mails.length });
+  const employeeIds = rows.map((row) => row.employee_id);
+  const { data: existing, error: existingError } = employeeIds.length
+    ? await service.from('notifications').select('employee_id').in('employee_id', employeeIds).eq('titel', 'Verfügbarkeit eintragen').eq('nachricht', `Bitte trage deine Verfügbarkeit für die Woche ab ${germanWeek} ein.`).eq('link', '/mitarbeiter#verfuegbarkeit')
+    : { data: [], error: null };
+  if (existingError) return NextResponse.json({ error: 'In-App-Erinnerungen konnten nicht geprüft werden.' }, { status: 502 });
+  const alreadyNotified = new Set((existing ?? []).map((row) => row.employee_id));
+  const missingRows = rows.filter((row) => !alreadyNotified.has(row.employee_id));
+  if (missingRows.length) {
+    const { error } = await service.from('notifications').insert(missingRows);
+    if (error) return NextResponse.json({ error: 'In-App-Erinnerungen konnten nicht zugestellt werden.' }, { status: 502 });
+  }
+  return NextResponse.json({ ok: true, notified: missingRows.length, emailQueued: mails.length });
 }
 
 async function canAccessLocation(service: ReturnType<typeof createServiceClient>, actor: CurrentEmployee, locationId: string) {
