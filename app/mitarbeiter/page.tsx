@@ -11,6 +11,7 @@ import {
   Network,
   ReceiptText,
   Sparkles,
+  UserRound,
   Warehouse,
 } from 'lucide-react';
 import { requirePosAccess } from '@/lib/auth/requireRole';
@@ -119,7 +120,7 @@ export default async function MitarbeiterPage() {
     { data: teamMemberData }, { data: responsibilityTeamData },
   ] = await Promise.all([
     service.from('employees')
-      .select('id,vorname,nachname,rolle,position_title,reports_to_employee_id')
+      .select('id,vorname,nachname,rolle,position_title,reports_to_employee_id,avatar_url')
       .eq('id', employee.id)
       .eq('tenant_id', employee.tenant_id)
       .in('status', ['aktiv', 'in_training', 'in_probe'])
@@ -216,6 +217,9 @@ export default async function MitarbeiterPage() {
                 <div className="text-xs text-slate-300">{tenant?.name ?? 'Mein Betrieb'}</div>
               </div>
             </div>
+            <a href="/mitarbeiter/profil" className="inline-flex h-11 w-11 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 text-xs font-semibold text-white transition hover:bg-white/15 sm:w-auto">
+              <UserRound size={15} /> <span className="hidden sm:inline">Profil</span>
+            </a>
             <form action="/auth/signout" method="post">
               <button className="inline-flex h-11 w-11 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 text-xs font-semibold text-white transition hover:bg-white/15 sm:w-auto" type="submit">
                 <LogOut size={15} /> <span className="hidden sm:inline">Abmelden</span>

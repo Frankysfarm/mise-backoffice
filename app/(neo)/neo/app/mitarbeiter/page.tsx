@@ -39,7 +39,7 @@ export default async function MitarbeiterPage({
     { data: templates }, { data: handovers }, { data: coverage }, { data: briefing },
   ] = await Promise.all([
     service.from('employees')
-      .select('id,vorname,nachname,rolle,status,department_id,reports_to_employee_id,position_title,organization_level')
+      .select('id,vorname,nachname,rolle,status,department_id,reports_to_employee_id,position_title,organization_level,avatar_url')
       .eq('tenant_id', actor.tenant_id).eq('location_id', locationId)
       .in('status', ['aktiv', 'in_training', 'in_probe']).order('nachname'),
     service.from('departments')

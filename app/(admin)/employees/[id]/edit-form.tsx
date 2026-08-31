@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { toastSuccess, toastError } from '@/components/ui/toaster';
+import { AvatarUploader } from '@/components/avatar-uploader';
 
 type Location = { id: string; name: string };
 type Department = { id: string; name: string };
@@ -34,6 +35,7 @@ export function EditEmployeeForm({ employee, locations, departments }: {
     location_id: employee.location?.id ?? '',
     personalnummer: employee.personalnummer ?? '',
   });
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(employee.avatar_url ?? null);
 
   function upd<K extends keyof typeof form>(key: K, val: typeof form[K]) { setForm(f => ({ ...f, [key]: val })); }
 
@@ -59,6 +61,13 @@ export function EditEmployeeForm({ employee, locations, departments }: {
     <Card>
       <CardContent className="p-6">
         <form onSubmit={onSave} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="col-span-full mb-2 flex items-center gap-4">
+            <AvatarUploader employee={{ id: employee.id, vorname: form.vorname, nachname: form.nachname, avatar_url: avatarUrl }} onUploaded={setAvatarUrl} />
+            <div>
+              <div className="text-sm font-semibold text-slate-700">Profilbild</div>
+              <div className="text-xs text-slate-500">JPG, PNG oder WebP, max. 2 MB</div>
+            </div>
+          </div>
           <Field label="Personalnummer"><Input value={form.personalnummer} onChange={e => upd('personalnummer', e.target.value)} /></Field>
           <Field label="Rolle">
             <select className="h-10 w-full rounded-md border bg-background px-3 text-sm"

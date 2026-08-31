@@ -4,6 +4,7 @@ import { createElement, type ComponentProps } from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { MyOperations } from '@/app/mitarbeiter/my-operations';
+import { EmployeeAvatar } from '@/components/employee-avatar';
 import { berlinScheduleMoment, isResponsibilityScheduleActive } from '@/lib/operations/responsibility-scope';
 
 const source = (path: string) => readFileSync(resolve(process.cwd(), path), 'utf8');
@@ -144,5 +145,59 @@ describe('responsibility organization', () => {
     expect(client).toContain('<Pencil size={15} />');
     expect(employeePage).toContain("shift:shifts(start_zeit,end_zeit,position)");
     expect(employeeClient).toContain('Gehört zu deiner Schicht');
+  });
+
+  it('renders an avatar image with initials fallback', () => {
+    const { container, rerender } = render(createElement(EmployeeAvatar, { employee: { vorname: 'Anna', nachname: 'Müller' }, size: 'md' }));
+    expect(container.textContent).toContain('AM');
+    rerender(createElement(EmployeeAvatar, { employee: { vorname: 'Anna', nachname: 'Müller', avatar_url: 'https://example.com/avatar.jpg' }, size: 'md' }));
+    const img = container.querySelector('img');
+    expect(img).toBeInTheDocument();
+    expect(img).toHaveAttribute('src', 'https://example.com/avatar.jpg');
+  });
+
+  it('surfaces avatar upload, select-based assignment and readable responsibility chips in the org UI', () => {
+    const client = source('app/(neo)/neo/app/mitarbeiter/responsibility-client.tsx');
+    const styles = source('app/(neo)/neo/app/mitarbeiter/responsibility.module.css');
+    const managerPage = source('app/(neo)/neo/app/mitarbeiter/page.tsx');
+    expect(client).toContain('EmployeeAvatar');
+    expect(client).toContain('AssignmentWizard');
+    expect(client).toContain('Zuordnung per Auswahl');
+    expect(client).toContain('Hauptverantwortung:');
+    expect(client).toContain('Stellvertretung:');
+    expect(client).toContain('await mutation(');
+    expect(client).toContain("ROOT_SENTINEL");
+    expect(styles).toContain('.assignmentSummary');
+    expect(styles).toContain('@media(max-width:700px)');
+    expect(managerPage).toContain('avatar_url');
+  });
+
+  it('renders the profile page with manager, status and employment labels', () => {
+    const profilePage = source('app/mitarbeiter/profil/page.tsx');
+    expect(profilePage).toContain('reports_to_employee_id');
+    expect(profilePage).toContain('statusLabel');
+    expect(profilePage).toContain('employmentLabel');
+    expect(profilePage).toContain('Aktiv');
+    expect(profilePage).toContain('In Probearbeit');
+  });
+
+  it('exposes a tenant-scoped avatar upload route and storage bucket migration', () => {
+    const route = source('app/api/employees/avatar/route.ts');
+    const migration = source('supabase/migrations/20260831115000_employee_avatars.sql');
+    const profilePage = source('app/mitarbeiter/profil/page.tsx');
+    const adminPage = source('app/(admin)/employees/[id]/edit-form.tsx');
+    const uploader = source('components/avatar-uploader.tsx');
+    expect(route).toContain("service.storage.from('avatars')");
+    expect(route).toContain('avatar_url');
+    expect(route).toContain("if (!isSelf && !isManager)");
+    expect(route).toContain("publicUrl('avatars', storagePath)");
+    expect(route).toContain(".in('status', ['aktiv', 'in_training', 'in_probe'])");
+    expect(migration).toContain("alter table public.employees\n  add column if not exists avatar_url text");
+    expect(migration).toContain("insert into storage.buckets (id, name, public");
+    expect(migration).toContain('drop policy if exists "Avatar public read" on storage.objects');
+    expect(migration).toContain('create policy "Avatar public read"');
+    expect(profilePage).toContain('AvatarUploader');
+    expect(uploader).toContain('/api/employees/avatar');
+    expect(adminPage).toContain('AvatarUploader');
   });
 });
