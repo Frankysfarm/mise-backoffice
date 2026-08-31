@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getCurrentEmployee, type CurrentEmployee } from '@/lib/auth/getCurrentEmployee';
 import { createServiceClient } from '@/lib/supabase/server';
+import { addCalendarDays, berlinScheduleWeek } from '@/lib/scheduling/berlin-week';
+import { evaluateScheduleConflicts } from '@/lib/scheduling/planner';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -41,21 +43,33 @@ async function listSuggestions(
 
   const shiftIds = suggestions.map((row) => row.shift_id);
   const employeeIds = [...new Set(suggestions.map((row) => row.employee_id))];
-  const [{ data: shifts, error: shiftError }, { data: employees, error: employeeError }] = await Promise.all([
+  const week = berlinScheduleWeek(selectedWeek);
+  const [{ data: shifts, error: shiftError }, { data: employees, error: employeeError }, { data: weekShifts }, { data: absences }] = await Promise.all([
     service.from('shifts')
       .select('id,start_zeit,end_zeit,position,department_id,employee_id,department:departments(name)')
       .eq('tenant_id', tenantId).eq('location_id', locationId).in('id', shiftIds),
-    service.from('employees').select('id,vorname,nachname')
+    service.from('employees').select('id,vorname,nachname,department_id,position_title,rolle,wochenstunden,geburtsdatum')
       .eq('tenant_id', tenantId).eq('location_id', locationId).in('id', employeeIds),
+    service.from('shifts').select('id,employee_id,department_id,position,start_zeit,end_zeit,pause_minuten')
+      .eq('tenant_id', tenantId).eq('location_id', locationId).gte('start_zeit', week.rangeStart.toISOString()).lt('start_zeit', week.rangeEnd.toISOString()),
+    service.from('availability_exceptions').select('employee_id,datum,typ')
+      .eq('tenant_id', tenantId).in('employee_id', employeeIds).gte('datum', selectedWeek).lt('datum', addCalendarDays(selectedWeek, 7)),
   ]);
   if (shiftError || employeeError) throw shiftError ?? employeeError;
   const shiftsById = new Map((shifts ?? []).map((row) => [row.id, row]));
   const employeesById = new Map((employees ?? []).map((row) => [row.id, row]));
-  return suggestions.map((row) => ({
-    ...row,
-    shift: shiftsById.get(row.shift_id) ?? null,
-    employee: employeesById.get(row.employee_id) ?? null,
-  }));
+  const plannerShifts = (weekShifts ?? []).map(shift => ({ id: shift.id, employeeId: shift.employee_id, departmentId: shift.department_id, position: shift.position, start: shift.start_zeit, end: shift.end_zeit, pauseMinutes: shift.pause_minuten }));
+  return suggestions.map((row) => {
+    const shift = shiftsById.get(row.shift_id) ?? null;
+    const employee = employeesById.get(row.employee_id) ?? null;
+    const conflicts = shift && employee ? evaluateScheduleConflicts({
+      shift: { id: shift.id, employeeId: employee.id, departmentId: shift.department_id, position: shift.position, start: shift.start_zeit, end: shift.end_zeit },
+      employee: { id: employee.id, departmentId: employee.department_id, positions: [employee.position_title, employee.rolle].filter((value): value is string => Boolean(value)), weeklyHours: employee.wochenstunden, birthDate: employee.geburtsdatum },
+      allShifts: plannerShifts,
+      absences: (absences ?? []).map(absence => ({ employeeId: absence.employee_id, date: absence.datum, type: absence.typ })),
+    }) : [];
+    return { ...row, shift, employee, conflicts };
+  });
 }
 
 export async function GET(request: NextRequest) {
@@ -119,6 +133,12 @@ function scheduleFailure(message: string) {
   }
   if (message.includes('no longer') || message.includes('double-booked') || message.includes('available') || message.includes('qualified')) {
     return NextResponse.json({ error: 'Der Vorschlag ist nicht mehr aktuell. Bitte neu berechnen.' }, { status: 409 });
+  }
+  if (message.includes('availability deadline is required')) {
+    return NextResponse.json({ error: 'Bitte zuerst eine Eintragungsfrist für diese Planungsrunde setzen.' }, { status: 409 });
+  }
+  if (message.includes('availability deadline has not passed')) {
+    return NextResponse.json({ error: 'Vorschläge können erst nach Ablauf der Eintragungsfrist berechnet werden.' }, { status: 409 });
   }
   return NextResponse.json({ error: 'Wochenvorschläge konnten nicht verarbeitet werden.' }, { status: 400 });
 }

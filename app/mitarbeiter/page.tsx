@@ -26,6 +26,7 @@ import {
 } from '@/lib/workforce/shifts';
 import { MyOperations } from './my-operations';
 import { AvailabilityLoop } from './availability-loop';
+import { berlinScheduleWeek } from '@/lib/scheduling/berlin-week';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +42,8 @@ type ShiftRow = {
   department: { name: string } | { name: string }[] | null;
   location: { name: string } | { name: string }[] | null;
 };
+
+type PublicationChangeRow = { shift_id: string | null; summary: string; changed_at: string };
 
 type InventoryTaskRow = {
   id: string;
@@ -117,7 +120,7 @@ export default async function MitarbeiterPage() {
   const [
     { data: activeEmployee }, { data: shiftData }, { data: tenant }, { data: inventoryTaskData },
     { data: responsibilityData }, { data: operationalTaskData }, { data: handoverData },
-    { data: teamMemberData }, { data: responsibilityTeamData }, { data: openShiftData }, { data: availabilityResponseData },
+    { data: teamMemberData }, { data: responsibilityTeamData }, { data: openShiftRows }, { data: availabilityResponseData }, { data: publicationChangeData }, { data: openWeekData },
   ] = await Promise.all([
     service.from('employees')
       .select('id,vorname,nachname,rolle,position_title,reports_to_employee_id')
@@ -161,6 +164,8 @@ export default async function MitarbeiterPage() {
       .eq('aktiv', true),
     service.from('shifts').select('id,start_zeit,end_zeit,position,department:departments(name)').eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId).eq('offen_fuer_bewerbung', true).is('employee_id', null).gte('start_zeit', now.toISOString()).lt('start_zeit', rangeEnd.toISOString()).order('start_zeit'),
     service.from('shift_availability_responses').select('shift_id,state,applied').eq('tenant_id', employee.tenant_id).eq('employee_id', employee.id),
+    service.from('schedule_publication_changes').select('shift_id,summary,changed_at').eq('tenant_id', employee.tenant_id).eq('employee_id', employee.id).neq('change_type', 'published').gte('changed_at', rangeStart.toISOString()).order('changed_at', { ascending: false }),
+    service.from('schedule_weeks').select('week_start,availability_deadline').eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId).eq('status', 'draft'),
   ]);
 
   if (!activeEmployee) redirect('/login?reason=no_access');
@@ -204,6 +209,9 @@ export default async function MitarbeiterPage() {
     }));
   const name = [employee.vorname, employee.nachname].filter(Boolean).join(' ') || 'Mitarbeiter';
   const canOpenBackoffice = ['manager', 'backoffice', 'admin'].includes(employee.rolle);
+  const changesByShift = new Map(((publicationChangeData ?? []) as PublicationChangeRow[]).flatMap(change => change.shift_id ? [[change.shift_id, change] as const] : []));
+  const openWeeks = new Set((openWeekData ?? []).filter(week => !week.availability_deadline || Date.parse(week.availability_deadline) >= now.getTime()).map(week => week.week_start));
+  const openShiftData = (openShiftRows ?? []).filter(shift => openWeeks.has(berlinScheduleWeek(undefined, new Date(shift.start_zeit)).calendarStart));
 
   return (
     <main className="min-h-screen bg-slate-100 text-slate-950">
@@ -305,6 +313,7 @@ export default async function MitarbeiterPage() {
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-3 sm:block sm:text-right">
+                  {changesByShift.has(shift.id) && <div className="mb-1 inline-flex rounded-full bg-amber-100 px-2 py-1 text-[10px] font-bold text-amber-800" title={changesByShift.get(shift.id)?.summary}>Geändert seit Veröffentlichung</div>}
                   <div className="text-sm font-semibold text-slate-800">{shift.position || relationName(shift.department) || 'Schicht'}</div>
                   <div className="mt-1 text-xs text-slate-400">{shift.status || 'geplant'}</div>
                 </div>

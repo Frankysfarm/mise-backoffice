@@ -32,7 +32,7 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
   const today = berlinCalendarDate(new Date());
 
   let q = supabase.from('shifts')
-    .select('id,start_zeit,end_zeit,status,position,pause_minuten,employee_id,department_id,location_id,typ,notiz,offen_fuer_bewerbung,employee:employees!shifts_employee_id_fkey(id,vorname,nachname,rolle,geburtsdatum,wochenstunden),department:departments(name,farbe),location:locations(name)')
+    .select('id,start_zeit,end_zeit,status,position,pause_minuten,employee_id,department_id,location_id,typ,notiz,offen_fuer_bewerbung,employee:employees!shifts_employee_id_fkey(id,vorname,nachname,rolle,geburtsdatum,wochenstunden,department_id,position_title),department:departments(name,farbe),location:locations(name)')
     .gte('start_zeit', week.rangeStart.toISOString())
     .lt('start_zeit', week.rangeEnd.toISOString())
     .order('start_zeit');
@@ -62,6 +62,12 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
       ? currentEmployee.location_id
       : (locations?.length === 1 ? locations[0].id : null);
   const { data: scheduleWeek } = selectedLocationId ? await supabase.from('schedule_weeks').select('status,availability_deadline').eq('tenant_id', currentEmployee.tenant_id).eq('location_id', selectedLocationId).eq('week_start', week.calendarStart).maybeSingle() : { data: null };
+  const employeeIds = [...new Set((shifts ?? []).flatMap(shift => shift.employee_id ? [shift.employee_id] : []))];
+  const shiftIds = (shifts ?? []).map(shift => shift.id);
+  const [{ data: absenceRows }, { data: availabilityResponses }] = await Promise.all([
+    employeeIds.length ? supabase.from('availability_exceptions').select('employee_id,datum,typ').eq('tenant_id', currentEmployee.tenant_id).in('employee_id', employeeIds).gte('datum', week.calendarStart).lt('datum', next) : Promise.resolve({ data: [] }),
+    selectedLocationId && shiftIds.length ? supabase.from('shift_availability_responses').select('shift_id,state,applied,employee:employees(vorname,nachname)').eq('tenant_id', currentEmployee.tenant_id).eq('location_id', selectedLocationId).in('shift_id', shiftIds) : Promise.resolve({ data: [] }),
+  ]);
 
   return (
     <div>
@@ -115,6 +121,8 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
           employees={employees ?? []}
           departments={(departments ?? []).map(({ id, name }) => ({ id, name }))}
           locations={locations ?? []}
+          absences={(absenceRows ?? []).map(row => ({ employeeId: row.employee_id, date: row.datum, type: row.typ }))}
+          availabilityResponses={availabilityResponses ?? []}
         />
       </Card>
 

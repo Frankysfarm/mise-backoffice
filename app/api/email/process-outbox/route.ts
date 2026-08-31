@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
           .maybeSingle();
         if (order) templateData = { ...templateData, ...order };
       }
-      const knownTemplate = ['order_confirmation', 'delivery_unterwegs', 'delivery_delivered', 'delivery_abholbereit']
+      const knownTemplate = ['order_confirmation', 'delivery_unterwegs', 'delivery_delivered', 'delivery_abholbereit', 'schedule_availability_reminder', 'schedule_published']
         .includes(mail.template ?? '');
       const html = knownTemplate
         ? renderByTemplate(mail.template, templateData, { origin, tenant })
@@ -105,6 +105,12 @@ function renderByTemplate(
   if (template === 'delivery_abholbereit') {
     return deliveryAbholbereitHtml(data as any, ctx);
   }
+  if (template === 'schedule_availability_reminder') {
+    return scheduleMail(ctx, '📅', 'Verfügbarkeit eintragen', `Bitte trage deine Verfügbarkeit für die Woche ab ${formatGermanDate(data.week_start)} in der Mitarbeiter-App ein.`);
+  }
+  if (template === 'schedule_published') {
+    return scheduleMail(ctx, '✅', 'Dienstplan veröffentlicht', `Dein Dienstplan für die Woche ab ${formatGermanDate(data.week_start)} ist jetzt verbindlich. Prüfe deine Schichten in der Mitarbeiter-App.`);
+  }
   return `<p>${JSON.stringify(data)}</p>`;
 }
 
@@ -114,7 +120,7 @@ function renderByTemplate(
  */
 function emailShell(
   ctx: { tenant: any },
-  opts: { icon: string; title: string; eyebrow: string; bestellnummer: string; inner: string; footerNote?: string },
+  opts: { icon: string; title: string; eyebrow: string; bestellnummer?: string; inner: string; footerNote?: string },
 ): string {
   const themeColor = ctx.tenant.theme_primary ?? '#14532d';
   const accentColor = ctx.tenant.theme_accent ?? '#4ae68a';
@@ -129,19 +135,27 @@ function emailShell(
     <div style="font-size:11px; letter-spacing:3px; text-transform:uppercase; opacity:0.7;">${opts.eyebrow}</div>
     <div style="font-size:32px; margin-top:12px;">${opts.icon}</div>
     <h1 style="margin:8px 0 0; font-size:28px; font-weight:800; letter-spacing:-0.5px;">${opts.title}</h1>
-    <div style="margin-top:8px; font-family:monospace; font-size:13px; color:${accentColor}; letter-spacing:2px;">
-      #${opts.bestellnummer}
-    </div>
+    ${opts.bestellnummer ? `<div style="margin-top:8px; font-family:monospace; font-size:13px; color:${accentColor}; letter-spacing:2px;">#${opts.bestellnummer}</div>` : ''}
   </td></tr>
 ${opts.inner}
   <tr><td style="padding:24px 40px; background:#f5f5f5; font-size:11px; color:#999; text-align:center; line-height:1.6;">
     Gesendet von <strong>${ctx.tenant.name}</strong>${opts.footerNote ? ' · ' + opts.footerNote : ''}<br>
-    Diese E-Mail bekommst du weil du bei uns bestellt hast — keine Werbung.
+    Diese E-Mail gehört zu deinem Betrieb — keine Werbung.
   </td></tr>
 </table>
 </td></tr>
 </table>
 </body></html>`;
+}
+
+function scheduleMail(ctx: { tenant: any }, icon: string, title: string, message: string) {
+  const inner = `<tr><td style="padding:32px 40px; font-size:15px; line-height:1.7;">${message}<br><br><a href="/mitarbeiter" style="font-weight:700; color:#14532d;">Mitarbeiter-App öffnen</a></td></tr>`;
+  return emailShell(ctx, { icon, title, eyebrow: ctx.tenant.name, inner });
+}
+
+function formatGermanDate(value: unknown) {
+  if (typeof value !== 'string') return 'der geplanten Woche';
+  return new Date(`${value}T12:00:00Z`).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' });
 }
 
 /** Status-Mail: Fahrer unterwegs (nur Lieferung). */

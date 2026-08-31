@@ -31,19 +31,6 @@ export function normalizeAvailabilityState(value: string): AvailabilityState | n
   return value === 'kann' || value === 'moechte' || value === 'kann_nicht' ? value : null;
 }
 
-export function templateInstanceKey(templateSlotId: string, weekStart: string, weekday: number, occurrence: number) {
-  return `${templateSlotId}:${weekStart}:${weekday}:${occurrence}`;
-}
-
-export function missingTemplateInstances(input: {
-  templateSlotId: string; weekStart: string; weekday: number; headcount: number; existingKeys: string[];
-}) {
-  const existing = new Set(input.existingKeys);
-  return Array.from({ length: Math.max(0, input.headcount) }, (_, index) =>
-    templateInstanceKey(input.templateSlotId, input.weekStart, input.weekday, index + 1),
-  ).filter((key) => !existing.has(key));
-}
-
 export function evaluateScheduleConflicts(input: {
   shift: PlannerShift;
   employee: PlannerEmployee;
@@ -68,7 +55,11 @@ export function evaluateScheduleConflicts(input: {
   })) push('ruhezeit', 'blocker', 'Die gesetzliche Ruhezeit von 11 Stunden wird unterschritten.');
   const absence = absences.find((item) => item.employeeId === employee.id && item.date === date(shift.start) && blockedAbsence.has(item.type.toLocaleLowerCase('de-DE')));
   if (absence) push(absence.type.toLocaleLowerCase('de-DE') === 'krank' ? 'krankheit' : 'abwesenheit', 'blocker', absence.type.toLocaleLowerCase('de-DE') === 'krank' ? 'Für diesen Tag ist Krankheit eingetragen.' : 'Für diesen Tag ist Urlaub oder Abwesenheit eingetragen.');
-  const weeklyTotal = allShifts.filter((item) => item.employeeId === employee.id).reduce((sum, item) => sum + hours(item), 0);
+  const weekStart = startOfIsoWeek(shift.start);
+  const weekEnd = weekStart + 7 * 86_400_000;
+  const weeklyTotal = allShifts
+    .filter((item) => item.employeeId === employee.id && Date.parse(item.start) >= weekStart && Date.parse(item.start) < weekEnd)
+    .reduce((sum, item) => sum + hours(item), 0);
   if (employee.weeklyHours && weeklyTotal > employee.weeklyHours)
     push('vertragsstunden', 'warnung', `${weeklyTotal.toFixed(1)} Std. geplant bei ${employee.weeklyHours} Vertragsstunden.`);
   if (employee.birthDate && ageAt(employee.birthDate, shift.start) < 18) {
@@ -78,21 +69,6 @@ export function evaluateScheduleConflicts(input: {
     if (dayFormat.format(new Date(shift.start)) !== dayFormat.format(new Date(shift.end)) || berlinStart < 6 || berlinStart >= 20 || berlinEnd < 6 || berlinEnd > 20) push('minderjaehrig_nacht', 'blocker', 'Minderjährige dürfen nur zwischen 06:00 und 20:00 Uhr arbeiten.');
   }
   return result;
-}
-
-export function scoreProposal(input: {
-  availability: AvailabilityState | null; qualified: boolean; sameDepartment: boolean;
-  assignedHours: number; weeklyHours?: number | null; responsibility?: 'hauptverantwortung' | 'stellvertretung' | null;
-}) {
-  if (input.availability === 'kann_nicht' || !input.qualified) return { eligible: false, score: -1, reason: 'Nicht einsetzbar: Verfügbarkeit oder Qualifikation passt nicht.' };
-  let score = input.availability === 'moechte' ? 140 : input.availability === 'kann' ? 110 : 30;
-  if (input.sameDepartment) score += 35;
-  if (input.responsibility === 'hauptverantwortung') score += 20;
-  if (input.responsibility === 'stellvertretung') score += 12;
-  score -= Math.round(input.assignedHours * 2);
-  if (input.weeklyHours && input.assignedHours >= input.weeklyHours) score -= 80;
-  const reason = `${input.availability === 'moechte' ? 'Wunschschicht' : input.availability === 'kann' ? 'Verfügbarkeit passt' : 'Keine Sperre'} · ${input.sameDepartment ? 'Bereich passt' : 'bereichsübergreifend'} · ${input.assignedHours.toFixed(1)} Std. bisher`;
-  return { eligible: true, score, reason };
 }
 
 export function affectedEmployees(before: PlannerShift[], after: PlannerShift[]) {
@@ -114,4 +90,15 @@ function ageAt(birthDate: string, at: string) {
   let age = ref.getUTCFullYear() - birth.getUTCFullYear();
   if (ref.getUTCMonth() < birth.getUTCMonth() || (ref.getUTCMonth() === birth.getUTCMonth() && ref.getUTCDate() < birth.getUTCDate())) age--;
   return age;
+}
+
+function startOfIsoWeek(value: string) {
+  const date = new Date(value);
+  const berlinDate = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(date);
+  const noon = new Date(`${berlinDate}T12:00:00Z`);
+  const isoDay = noon.getUTCDay() || 7;
+  noon.setUTCDate(noon.getUTCDate() - isoDay + 1);
+  return Date.parse(`${noon.toISOString().slice(0, 10)}T00:00:00Z`);
 }
