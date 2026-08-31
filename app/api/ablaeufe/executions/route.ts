@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
 
   const { data: task } = await service
     .from("operational_tasks")
-    .select("id,assigned_to,status,procedure_content")
+    .select("id,assigned_to,status,procedure_content,controller_employee_id")
     .eq("id", input.taskId)
     .eq("tenant_id", actor.tenant_id)
     .eq("location_id", actor.location_id)
@@ -269,6 +269,11 @@ export async function POST(request: NextRequest) {
     evidence: input.evidence,
     values: input.values,
     submittedBy: actor.id,
+    independentReviewRequired: task.controller_employee_id !== null,
+    reviewNotice:
+      task.controller_employee_id === null
+        ? "Ohne unabhängige prüfende Person eingereicht"
+        : null,
   };
   const { error: resultError } = await service
     .from("operational_tasks")
@@ -287,7 +292,10 @@ export async function POST(request: NextRequest) {
       p_location_id: actor.location_id,
       p_actor_id: actor.id,
       p_status: "wartet_auf_pruefung",
-      p_review_note: null,
+      p_review_note:
+        task.controller_employee_id === null
+          ? "Ohne unabhängige prüfende Person eingereicht"
+          : null,
     },
   );
   const submitted = Array.isArray(updated) ? updated[0] : updated;

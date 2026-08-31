@@ -392,10 +392,11 @@ checks also passed after the production switch.
   deploy script as an emergency shortcut. The pre-attempt-6 script backup is
   retained for audit/forensics; it contains the cleanup defect that caused
   attempt 5 to abort.
+
 # 2026-08-31 — Packet C-F (vollausbau/c-f)
 
 - Implementierungscommit: `18be150` (`feat(ablaeufe): replace JSON editor with guided workflows`).
 - Visueller Ablauf-/Listen-Editor ersetzt das bisherige JSON-Textarea auf dem kanonischen `shift_guides.inhalt`-Modell.
 - Mobile geführte Ausführung nutzt `operational_tasks` und den bestehenden Foto-Evidence-Mechanismus; Pflichtschritte blockieren den Abschluss.
 - Additive Migration: `20260831150000_visual_shift_guide_editor.sql` (Scope/RLS, Legacy-Normalisierung, Procedure-Snapshots).
-- Gates: Vitest 227/227, TypeScript Exit 0, Next Build 228/228. Playwright-Spec vorhanden; Factory-Webserver durch read-only `node_modules`/`.next/standalone` EROFS blockiert. Details und manuelle Prüfung: `docs/agents/reports/2026-08-31-c-f.md`.
+- Gates: Vitest 228/228, TypeScript Exit 0, Next Build 228/228. Playwright-Spec vorhanden; Factory-Webserver durch read-only `node_modules`/`.next/standalone` EROFS blockiert. Details und manuelle Prüfung: `docs/agents/reports/2026-08-31-c-f.md`.

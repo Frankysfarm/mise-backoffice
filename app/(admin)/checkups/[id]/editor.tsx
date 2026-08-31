@@ -59,7 +59,7 @@ export function TemplateEditor({
   const [message, setMessage] = useState("");
   const [form, setForm] = useState({
     title: tpl.titel ?? "",
-    phase: tpl.phase ?? "",
+    phase: tpl.phase === "middle" ? "midday" : (tpl.phase ?? ""),
     position: tpl.position_typ ?? "",
     departmentId: tpl.department_id ?? "",
     active: tpl.aktiv !== false,
@@ -119,7 +119,7 @@ export function TemplateEditor({
           <Field label="Tageszeit">
             <select
               className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-              value={form.phase === "middle" ? "midday" : form.phase}
+              value={form.phase}
               onChange={(event) =>
                 setForm({ ...form, phase: event.target.value })
               }

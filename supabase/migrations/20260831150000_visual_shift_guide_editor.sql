@@ -9,9 +9,16 @@ alter table public.shift_guides
 
 update public.shift_guides g set
   tenant_id=coalesce(g.tenant_id,d.tenant_id),
-  location_id=coalesce(g.location_id,d.location_id),
-  ablauf_typ=case when g.phase='opening' then 'opening' when g.phase='closing' then 'closing' else g.ablauf_typ end
+  location_id=coalesce(g.location_id,d.location_id)
 from public.departments d where d.id=g.department_id and (g.tenant_id is null or g.location_id is null);
+
+-- The procedure type is independent of department scope. In particular,
+-- site-wide legacy guides have no department but still retain their phase.
+update public.shift_guides g set ablauf_typ=case
+  when g.phase='opening' then 'opening'
+  when g.phase='closing' then 'closing'
+  else g.ablauf_typ
+end;
 
 -- Legacy installations with exactly one company/site also contain site-wide
 -- guides without a department. That unambiguous scope can be recovered safely.
@@ -51,6 +58,12 @@ alter table public.operational_tasks
 alter table public.checkup_templates
   add column if not exists tenant_id uuid references public.tenants(id) on delete cascade,
   add column if not exists location_id uuid references public.locations(id) on delete cascade;
+
+-- location_id already exists in the production baseline and is the strongest
+-- scope source for site-wide templates without a department.
+update public.checkup_templates t set tenant_id=l.tenant_id
+from public.locations l
+where l.id=t.location_id and t.tenant_id is null;
 
 update public.checkup_templates t set
   tenant_id=coalesce(t.tenant_id,d.tenant_id),
@@ -107,8 +120,8 @@ update public.shift_guides g set inhalt=jsonb_set(
           ),
           'description',coalesce(s.value->>'description',s.value->>'hint',''),
           'required',case
-            when lower(coalesce(s.value->>'required',s.value->>'pflicht','')) in ('true','t','1','ja','yes') then true
-            when lower(coalesce(s.value->>'required',s.value->>'pflicht','')) in ('false','f','0','nein','no') then false
+            when lower(coalesce(nullif(s.value->>'required',''),nullif(s.value->>'pflicht',''),'')) in ('true','t','1','ja','yes') then true
+            when lower(coalesce(nullif(s.value->>'required',''),nullif(s.value->>'pflicht',''),'')) in ('false','f','0','nein','no') then false
             else true
           end,
           'evidence',case coalesce(s.value->>'evidence',s.value->>'evidence_type','none') when 'foto' then 'photo' when 'messwert' then 'value' when 'unterschrift' then 'confirmation' else coalesce(s.value->>'evidence',s.value->>'evidence_type','none') end,
