@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Plus, Sparkles } from 'lucide-react';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
+import { trainingStatus } from '@/lib/training/domain';
 
 export default async function TrainingPage() {
   const actor = await requireManagerPlus();
@@ -20,7 +21,7 @@ export default async function TrainingPage() {
     .order('reihenfolge');
   const modules = modulesRaw as any[] | null;
   const { data: progress } = await supabase.from('training_progress').select('status,due_at').eq('tenant_id', actor.tenant_id);
-  const counts = (progress ?? []).reduce((all: Record<string, number>, row: any) => { const status = row.status !== 'bestanden' && row.due_at && new Date(row.due_at) < new Date() ? 'ueberfaellig' : row.status; all[status] = (all[status] ?? 0) + 1; return all; }, {});
+  const counts = (progress ?? []).reduce((all: Record<string, number>, row: any) => { const status = trainingStatus(row.status, row.due_at); all[status] = (all[status] ?? 0) + 1; return all; }, {});
 
   return (
     <div>

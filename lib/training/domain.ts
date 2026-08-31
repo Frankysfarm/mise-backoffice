@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const contentBlockSchema = z.discriminatedUnion('type', [
+export const contentBlockSchema = z.discriminatedUnion('type', [
   z.object({ id: z.string().min(1), type: z.literal('text'), title: z.string().max(300), body: z.string().max(20_000) }),
   z.object({ id: z.string().min(1), type: z.literal('image'), title: z.string().max(300), url: z.string().url() }),
   z.object({ id: z.string().min(1), type: z.literal('video'), title: z.string().max(300), url: z.string().url() }),
@@ -30,8 +30,11 @@ export const trainingModuleSchema = z.object({
 });
 
 export const trainingAssignmentSchema = z.object({
-  moduleId: z.string().uuid(), employeeIds: z.array(z.string().uuid()).min(1).max(500),
-});
+  moduleId: z.string().uuid(), employeeIds: z.array(z.string().uuid()).min(1).max(500).optional(), allActive: z.boolean().optional(),
+}).refine((value) => value.allActive || value.employeeIds?.length, 'Mitarbeiter fehlen.');
+
+export type TrainingContentBlock = z.infer<typeof contentBlockSchema>;
+export const trainingStatusLabels: Record<string, string> = { offen: 'Offen', begonnen: 'Begonnen', bestanden: 'Bestanden', ueberfaellig: 'Überfällig' };
 
 export function trainingStatus(status: string, dueAt: string | null, now = new Date()) {
   if (status !== 'bestanden' && dueAt && new Date(dueAt) < now) return 'ueberfaellig';

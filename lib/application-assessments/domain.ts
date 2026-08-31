@@ -41,24 +41,3 @@ export const assessmentTemplateSchema = z.object({
 });
 
 export type AssessmentQuestion = z.infer<typeof assessmentQuestionSchema>;
-
-export function scoreAssessment(
-  questions: AssessmentQuestion[],
-  answers: Record<string, string[]>,
-  passingThreshold: number,
-) {
-  let earnedPoints = 0;
-  let maxPoints = 0;
-  let mustPassFailed = false;
-  const details = questions.map((question) => {
-    const expected = [...question.correctOptionIds].sort();
-    const actual = [...new Set(answers[question.id] ?? [])].sort();
-    const correct = expected.length === actual.length && expected.every((id, index) => id === actual[index]);
-    maxPoints += question.points;
-    if (correct) earnedPoints += question.points;
-    if (question.mustPass && !correct) mustPassFailed = true;
-    return { questionId: question.id, answerOptionIds: actual, correct, points: correct ? question.points : 0, maxPoints: question.points, mustPass: question.mustPass };
-  });
-  const scorePercent = maxPoints > 0 ? Math.round((earnedPoints / maxPoints) * 10_000) / 100 : 0;
-  return { earnedPoints, maxPoints, scorePercent, mustPassFailed, passed: scorePercent >= passingThreshold && !mustPassFailed, details };
-}

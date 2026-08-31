@@ -27,6 +27,7 @@ export default async function ApplicationsPage({ searchParams }: { searchParams:
   const params = await searchParams;
   const archived = params.ansicht === 'archiv';
   const basePath = await operationsBasePath('/applications', '/neo/app/bewerbungen');
+  const testsPath = await operationsBasePath('/application-tests', '/neo/app/tests');
   // Auth is checked above; the service client lets managers see application
   // progress while every query remains explicitly tenant-scoped.
   const supabase = createServiceClient();
@@ -54,7 +55,7 @@ export default async function ApplicationsPage({ searchParams }: { searchParams:
       <PageHeader
         title="Bewerbungen & Probearbeit"
         description="Erst kennenlernen und bewerten, dann bewusst als Mitarbeiter übernehmen."
-        actions={<><Link href="/neo/app/tests"><Button variant="secondary">Bewerbungstests verwalten</Button></Link><InviteApplicantButton locations={locations ?? []} /></>}
+        actions={<><Link href={testsPath}><Button variant="secondary">Bewerbungstests verwalten</Button></Link><InviteApplicantButton locations={locations ?? []} /></>}
       />
 
       <div className="mb-6 grid grid-cols-1 overflow-hidden rounded-xl border bg-white shadow-subtle sm:grid-cols-4">

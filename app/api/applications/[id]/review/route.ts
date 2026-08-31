@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { requireManagerPlus } from '@/lib/auth/requireRole';
 import { createServiceClient } from '@/lib/supabase/server';
+import { assessmentErrorMessage } from '@/lib/application-assessments/errors';
 
 const scores = z.object({
   punktlichkeit: z.number().int().min(1).max(5),
@@ -103,7 +104,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       p_source: 'onboarding',
     });
     if (trainingError) {
-      return NextResponse.json({ error: `Einstellung gespeichert, Pflichtschulungen konnten jedoch nicht zugewiesen werden: ${trainingError.message}` }, { status: 500 });
+      return NextResponse.json({ error: `Einstellung gespeichert. ${assessmentErrorMessage(trainingError.message)}` }, { status: 500 });
     }
   }
 

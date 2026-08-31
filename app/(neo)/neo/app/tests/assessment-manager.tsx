@@ -13,8 +13,8 @@ type Question = { id: string; question: string; options: { id: string; label: st
 const emptyQuestion = (): Question => ({ id: crypto.randomUUID(), question: '', options: [{ id: crypto.randomUUID(), label: '' }, { id: crypto.randomUUID(), label: '' }], correctOptionIds: [], points: 1, mustPass: false });
 const blank = { id: null as string | null, name: '', description: '', locationId: '', passingThreshold: 80, passAction: 'next_stage', failAction: 'manual_review', passMessage: 'Danke! Du hast den Test bestanden. Wir melden uns mit dem nächsten Schritt.', failMessage: 'Danke für deine Teilnahme. Wir prüfen deine Bewerbung persönlich.', active: true, questions: [emptyQuestion()], departmentIds: [] as string[], positionTypes: '' };
 
-export function AssessmentManager({ initialTemplates, departments, locations }: { initialTemplates: any[]; departments: any[]; locations: any[] }) {
-  const router = useRouter(); const [pending, start] = useTransition(); const [editing, setEditing] = useState(false); const [form, setForm] = useState(blank); const [message, setMessage] = useState('');
+export function AssessmentManager({ initialTemplates, departments, locations, managerLocationId }: { initialTemplates: any[]; departments: any[]; locations: any[]; managerLocationId: string | null }) {
+  const router = useRouter(); const [pending, start] = useTransition(); const [editing, setEditing] = useState(false); const [form, setForm] = useState({ ...blank, locationId: managerLocationId ?? '' }); const [message, setMessage] = useState('');
   const setQuestion = (index: number, value: Question) => setForm({ ...form, questions: form.questions.map((q, i) => i === index ? value : q) });
   async function edit(id: string, duplicate = false) {
     setMessage(''); const response = await fetch(`/api/application-assessments/${id}`); const data = await response.json();

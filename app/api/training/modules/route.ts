@@ -14,18 +14,9 @@ export async function POST(request: NextRequest) {
   }
   const safeBlocks = value.blocks.map((block) => block.type === 'quiz' ? { ...block, correctOptionIds: undefined, points: undefined, mustPass: undefined } : block);
   const modulePayload = { tenant_id: actor.tenant_id, titel: value.title, beschreibung: value.description || null, kategorie: value.category || null, dauer_minuten: value.durationMinutes ?? null, pflicht: value.required, aktiv: value.active, passing_threshold: value.passingThreshold, deadline_days: value.deadlineDays ?? null, recurrence_months: value.recurrenceMonths ?? null, gültig_monate: value.recurrenceMonths ?? null, inhalt: { lessons: safeBlocks }, updated_at: new Date().toISOString() };
-  let moduleId = value.id ?? null;
-  if (moduleId) {
-    const { data, error } = await service.from('training_modules').update(modulePayload).eq('id', moduleId).eq('tenant_id', actor.tenant_id).select('id').maybeSingle();
-    if (error || !data) return NextResponse.json({ error: error?.message ?? 'Schulung nicht gefunden.' }, { status: 400 });
-  } else {
-    const { data, error } = await service.from('training_modules').insert(modulePayload).select('id').single();
-    if (error) return NextResponse.json({ error: error.message }, { status: 400 }); moduleId = data.id;
-  }
-  await Promise.all([service.from('training_module_targets').delete().eq('module_id', moduleId).eq('tenant_id', actor.tenant_id), service.from('training_quiz_keys').delete().eq('module_id', moduleId).eq('tenant_id', actor.tenant_id)]);
-  const targets = value.targets.map((target) => ({ tenant_id: actor.tenant_id!, module_id: moduleId!, target_type: target.type, location_id: target.type === 'location' ? target.locationId : null, department_id: target.type === 'department' ? target.departmentId : null, position_type: target.type === 'position' ? target.positionType.toLowerCase() : null }));
-  const keys = value.blocks.filter((block): block is Extract<typeof block, { type: 'quiz' }> => block.type === 'quiz').map((block) => ({ tenant_id: actor.tenant_id!, module_id: moduleId!, question_id: block.id, correct_option_ids: [...block.correctOptionIds].sort(), points: block.points, must_pass: block.mustPass, updated_at: new Date().toISOString() }));
-  const targetError = targets.length ? (await service.from('training_module_targets').insert(targets)).error : null; const keyError = keys.length ? (await service.from('training_quiz_keys').insert(keys)).error : null;
-  if (targetError || keyError) return NextResponse.json({ error: targetError?.message ?? keyError?.message }, { status: 400 });
+  const targets = value.targets.map((target) => ({ target_type: target.type, location_id: target.type === 'location' ? target.locationId : null, department_id: target.type === 'department' ? target.departmentId : null, position_type: target.type === 'position' ? target.positionType.toLowerCase() : null }));
+  const keys = value.blocks.filter((block): block is Extract<typeof block, { type: 'quiz' }> => block.type === 'quiz').map((block) => ({ question_id: block.id, correct_option_ids: [...block.correctOptionIds].sort(), points: block.points, must_pass: block.mustPass }));
+  const { data: moduleId, error } = await service.rpc('save_training_module', { p_id: value.id ?? null, p_tenant_id: actor.tenant_id, p_actor_id: actor.id, p_module: modulePayload, p_targets: targets, p_keys: keys });
+  if (error || !moduleId) return NextResponse.json({ error: 'Schulung konnte nicht gespeichert werden.' }, { status: 400 });
   return NextResponse.json({ id: moduleId });
 }

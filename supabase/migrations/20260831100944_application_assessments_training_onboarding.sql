@@ -33,6 +33,12 @@ create table if not exists public.assessment_templates (
 alter table public.assessment_templates
   add column if not exists location_id uuid references public.locations(id) on delete set null;
 
+delete from public.assessment_templates duplicate
+using public.assessment_templates keeper
+where duplicate.id>keeper.id
+  and coalesce(duplicate.tenant_id,'00000000-0000-0000-0000-000000000000'::uuid)=coalesce(keeper.tenant_id,'00000000-0000-0000-0000-000000000000'::uuid)
+  and duplicate.slug=keeper.slug;
+
 create unique index if not exists assessment_templates_scope_slug_uq
   on public.assessment_templates(
     coalesce(tenant_id,'00000000-0000-0000-0000-000000000000'::uuid),slug
@@ -373,6 +379,10 @@ begin
 end
 $constraints$;
 
+delete from public.training_progress duplicate
+using public.training_progress keeper
+where duplicate.id>keeper.id and duplicate.employee_id=keeper.employee_id and duplicate.module_id=keeper.module_id;
+
 create unique index if not exists training_progress_employee_module_uq
   on public.training_progress(employee_id,module_id);
 create index if not exists training_progress_owner_dashboard_idx
@@ -407,7 +417,7 @@ alter table public.operational_tasks
   add column if not exists training_progress_id uuid references public.training_progress(id) on delete set null;
 create unique index if not exists operational_tasks_training_progress_uq
   on public.operational_tasks(training_progress_id)
-  where training_progress_id is not null and status<>'storniert';
+  where training_progress_id is not null;
 
 -- Every assessment object and every answer key stays behind server routes.
 -- Existing manager policies may remain for compatibility, but revoked grants
@@ -437,9 +447,43 @@ $rls$;
 -- quiz keys out of the browser while training_progress retains its canonical
 -- self/manager RLS policies from the fusion migration.
 revoke all on table public.training_modules from anon,authenticated;
+grant select on table public.training_modules to authenticated;
 grant all on table public.training_modules to service_role;
-grant select,insert,update,delete on table public.training_progress to authenticated;
+grant select on table public.training_progress to authenticated;
 grant all on table public.training_progress to service_role;
+
+create or replace function public.save_training_module(
+  p_id uuid,
+  p_tenant_id uuid,
+  p_actor_id uuid,
+  p_module jsonb,
+  p_targets jsonb,
+  p_keys jsonb
+)
+returns uuid language plpgsql security definer set search_path=public,pg_temp
+as $function$
+declare v_id uuid:=coalesce(p_id,gen_random_uuid()); v_actor record; v_target jsonb; v_key jsonb;
+begin
+  select rolle::text as rolle,location_id,status::text as status into v_actor from public.employees where id=p_actor_id and tenant_id=p_tenant_id;
+  if not found or v_actor.rolle not in ('manager','backoffice','admin') or v_actor.status not in ('aktiv','in_training','in_probe') then raise exception 'actor may not manage trainings'; end if;
+  if p_id is not null and not exists(select 1 from public.training_modules where id=p_id and tenant_id=p_tenant_id and (v_actor.rolle<>'manager' or location_id is null or location_id=v_actor.location_id)) then raise exception 'training module not found'; end if;
+  insert into public.training_modules(id,tenant_id,titel,beschreibung,kategorie,dauer_minuten,pflicht,aktiv,passing_threshold,deadline_days,recurrence_months,gültig_monate,inhalt,updated_at)
+  values(v_id,p_tenant_id,p_module->>'titel',nullif(p_module->>'beschreibung',''),nullif(p_module->>'kategorie',''),(p_module->>'dauer_minuten')::integer,(p_module->>'pflicht')::boolean,(p_module->>'aktiv')::boolean,(p_module->>'passing_threshold')::integer,(p_module->>'deadline_days')::integer,(p_module->>'recurrence_months')::integer,(p_module->>'recurrence_months')::integer,p_module->'inhalt',now())
+  on conflict(id) do update set titel=excluded.titel,beschreibung=excluded.beschreibung,kategorie=excluded.kategorie,dauer_minuten=excluded.dauer_minuten,pflicht=excluded.pflicht,aktiv=excluded.aktiv,passing_threshold=excluded.passing_threshold,deadline_days=excluded.deadline_days,recurrence_months=excluded.recurrence_months,gültig_monate=excluded.gültig_monate,inhalt=excluded.inhalt,updated_at=now();
+  delete from public.training_module_targets where module_id=v_id and tenant_id=p_tenant_id;
+  delete from public.training_quiz_keys where module_id=v_id and tenant_id=p_tenant_id;
+  for v_target in select value from jsonb_array_elements(coalesce(p_targets,'[]')) loop
+    insert into public.training_module_targets(tenant_id,module_id,target_type,location_id,department_id,position_type) values(p_tenant_id,v_id,v_target->>'target_type',(v_target->>'location_id')::uuid,(v_target->>'department_id')::uuid,v_target->>'position_type');
+  end loop;
+  for v_key in select value from jsonb_array_elements(coalesce(p_keys,'[]')) loop
+    insert into public.training_quiz_keys(tenant_id,module_id,question_id,correct_option_ids,points,must_pass,updated_at) values(p_tenant_id,v_id,v_key->>'question_id',v_key->'correct_option_ids',(v_key->>'points')::integer,(v_key->>'must_pass')::boolean,now());
+  end loop;
+  return v_id;
+end
+$function$;
+
+revoke all on function public.save_training_module(uuid,uuid,uuid,jsonb,jsonb,jsonb) from public,anon,authenticated;
+grant execute on function public.save_training_module(uuid,uuid,uuid,jsonb,jsonb,jsonb) to service_role;
 
 -- Atomic, actor-aware save. Every edit publishes a new immutable version; an
 -- already assigned session continues to use its original snapshots.
@@ -518,6 +562,7 @@ begin
   else
     perform 1 from public.assessment_templates t
     where t.id=p_id and t.tenant_id=p_tenant_id and not t.is_system_template
+      and (v_actor.rolle<>'manager' or t.location_id is null or t.location_id=v_actor.location_id)
     for update;
     if not found then raise exception 'assessment template not found'; end if;
     update public.assessment_templates set
@@ -684,8 +729,8 @@ begin
   get diagnostics v_count=row_count;
   insert into public.operational_tasks(tenant_id,location_id,title,description,status,priority,created_by,assigned_to,accountable_employee_id,due_at,training_progress_id,source_type,source_id,created_at,updated_at)
   select progress.tenant_id,employee.location_id,'Überfällige Pflichtschulung: '||module.titel,employee.vorname||' '||employee.nachname||' benötigt die fällige Schulung.','offen',80,progress.employee_id,progress.employee_id,progress.employee_id,coalesce(progress.due_at,p_now),progress.id,'training_overdue',progress.id::text,p_now,p_now
-  from public.training_progress progress join public.training_modules module on module.id=progress.module_id join public.employees employee on employee.id=progress.employee_id where progress.status='ueberfaellig' and module.pflicht
-  on conflict(training_progress_id) where training_progress_id is not null and status<>'storniert' do nothing;
+  from public.training_progress progress join public.training_modules module on module.id=progress.module_id join public.employees employee on employee.id=progress.employee_id where progress.status='ueberfaellig' and module.pflicht and employee.location_id is not null
+  on conflict(tenant_id,source_type,source_id) do nothing;
   return v_count;
 end
 $function$;

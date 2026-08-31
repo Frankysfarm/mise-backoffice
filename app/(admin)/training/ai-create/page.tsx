@@ -2,7 +2,6 @@
 
 import { useState, useTransition, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -111,34 +110,20 @@ export default function AiCreateTraining() {
   async function saveModule() {
     if (!result) return;
     start(async () => {
-      const sb = createClient();
-      const { data, error } = await sb.from('training_modules').insert({
-        titel: result.titel,
-        beschreibung: result.beschreibung,
-        kategorie: result.kategorie,
-        dauer_minuten: result.dauer_minuten,
-        inhalt: result.inhalt,
-        pflicht: mode === 'onboarding',
-        position_typ: department.toLowerCase() === 'allgemein' ? null : department.toLowerCase(),
-        aktiv: true,
-      }).select('id').single();
-      if (error) return toastError('Speichern fehlgeschlagen', error.message);
+      const response = await fetch('/api/training/modules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: result.titel, description: result.beschreibung, category: result.kategorie, durationMinutes: result.dauer_minuten, required: mode === 'onboarding', active: true, passingThreshold: 80, targets: department.toLowerCase() === 'allgemein' ? [] : [{ type: 'position', positionType: department }], blocks: result.inhalt.lessons }) });
+      const data = await response.json();
+      if (!response.ok) return toastError('Speichern fehlgeschlagen', data.error ?? 'Schulung konnte nicht gespeichert werden.');
 
       // Bei "update" → allen aktiven MA der Abteilung zuweisen
-      if (mode === 'update' && data) {
-        const { data: employees } = await sb.from('employees')
-          .select('id').eq('status', 'aktiv');
-        if (employees && employees.length > 0) {
-          const rows = employees.map((e: { id: string }) => ({
-            employee_id: e.id, module_id: data.id, fortschritt_prozent: 0,
-          }));
-          await sb.from('training_progress').insert(rows).select();
-          toastSuccess('Allen zugewiesen', `${employees.length} Mitarbeiter bekommen das Modul.`);
-        }
+      if (mode === 'update') {
+        const assignment = await fetch('/api/training/assign', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ moduleId: data.id, allActive: true }) });
+        const assigned = await assignment.json();
+        if (!assignment.ok) return toastError('Zuweisung fehlgeschlagen', assigned.error);
+        toastSuccess('Allen zugewiesen', `${assigned.assigned} Mitarbeiter bekommen das Modul.`);
       }
 
       toastSuccess('Modul gespeichert', result.titel);
-      router.push(`${basePath}/${data!.id}`);
+      router.push(`${basePath}/${data.id}`);
     });
   }
 
