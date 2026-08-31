@@ -172,7 +172,7 @@ describe('responsibility organization', () => {
 
   it('exposes a tenant-scoped avatar upload route and storage bucket migration', () => {
     const route = source('app/api/employees/avatar/route.ts');
-    const migration = source('supabase/migrations/20260831120000_employee_avatars.sql');
+    const migration = source('supabase/migrations/20260831115000_employee_avatars.sql');
     const profilePage = source('app/mitarbeiter/profil/page.tsx');
     const adminPage = source('app/(admin)/employees/[id]/edit-form.tsx');
     const uploader = source('components/avatar-uploader.tsx');
