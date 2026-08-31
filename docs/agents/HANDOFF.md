@@ -394,6 +394,7 @@ checks also passed after the production switch.
   attempt 5 to abort.
 # 2026-08-31 — Packet C-F (vollausbau/c-f)
 
+- Implementierungscommit: `18be150` (`feat(ablaeufe): replace JSON editor with guided workflows`).
 - Visueller Ablauf-/Listen-Editor ersetzt das bisherige JSON-Textarea auf dem kanonischen `shift_guides.inhalt`-Modell.
 - Mobile geführte Ausführung nutzt `operational_tasks` und den bestehenden Foto-Evidence-Mechanismus; Pflichtschritte blockieren den Abschluss.
 - Additive Migration: `20260831150000_visual_shift_guide_editor.sql` (Scope/RLS, Legacy-Normalisierung, Procedure-Snapshots).
