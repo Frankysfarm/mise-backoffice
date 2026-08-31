@@ -26,4 +26,21 @@ begin
 end
 $test$;
 
+do $escalation_insert_test$
+declare v_task_id uuid; v_employee_id uuid; v_before bigint; v_after bigint;
+begin
+  select t.id,e.id into v_task_id,v_employee_id
+  from public.operational_tasks t
+  join public.employees e on e.tenant_id=t.tenant_id and e.location_id=t.location_id
+  where e.status in ('aktiv','in_training','in_probe')
+  order by t.created_at desc limit 1;
+  if v_task_id is null then raise exception 'fixture missing: operational task and employee required'; end if;
+  select count(*) into v_before from public.notifications where employee_id=v_employee_id and link='/mitarbeiter#meine-aufgaben';
+  update public.operational_tasks set assigned_to=v_employee_id,accountable_employee_id=v_employee_id,
+    escalation_owner_employee_id=null,escalation_level=1,last_escalated_at=clock_timestamp() where id=v_task_id;
+  select count(*) into v_after from public.notifications where employee_id=v_employee_id and link='/mitarbeiter#meine-aufgaben';
+  if v_after<=v_before then raise exception 'escalation trigger did not insert an enum-typed notification'; end if;
+end
+$escalation_insert_test$;
+
 rollback;

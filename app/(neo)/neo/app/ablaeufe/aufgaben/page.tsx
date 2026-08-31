@@ -27,11 +27,14 @@ export default async function OperationsPage({ searchParams }: { searchParams: P
     service.from('operational_tasks').select('id,title,status,due_at,assigned_to,department_id,completed_at,assigned:employees!operational_tasks_assigned_to_fkey(vorname,nachname)').eq('tenant_id',actor.tenant_id).eq('location_id',locationId).not('status','in','(erledigt,storniert)').order('due_at').limit(200),
     service.from('responsibility_handovers').select('id,department_id,from_employee_id,to_employee_id,created_at,read_at,read_by,confirmed_at,confirmed_by,status,open_task_ids,incidents,inventory_notes,damage_notes,cleaning_notes,important_notes,evidence,from_employee:employees!responsibility_handovers_from_employee_id_fkey(vorname,nachname),to_employee:employees!responsibility_handovers_to_employee_id_fkey(vorname,nachname)').eq('tenant_id',actor.tenant_id).eq('location_id',locationId).gte('created_at',from).lte('created_at',to).order('created_at',{ascending:false}).limit(300),
   ]);
-  const titleByTaskId = new Map((tasks ?? []).map((task) => [task.id, task.title]));
+  const handedOverTaskIds = [...new Set((handovers ?? []).flatMap((handover) => handover.open_task_ids as string[]))];
+  const { data: handedOverTasks } = handedOverTaskIds.length
+    ? await service.from('operational_tasks').select('id,title').eq('tenant_id', actor.tenant_id).eq('location_id', locationId).in('id', handedOverTaskIds)
+    : { data: [] };
+  const titleByTaskId = new Map((handedOverTasks ?? []).map((task) => [task.id, task.title]));
   const handoversWithTasks = (handovers ?? []).map((handover) => {
     const openTasks = (handover.open_task_ids as string[]).map((id: string) => ({ id, title: titleByTaskId.get(id) ?? 'Nicht mehr offene Aufgabe' }));
-    const taskSummary = openTasks.length ? `Offene Aufgaben:\n${openTasks.map((task: { title: string }) => `• ${task.title}`).join('\n')}` : '';
-    return { ...handover, open_tasks: openTasks, important_notes: [taskSummary, handover.important_notes].filter(Boolean).join('\n\n') || null };
+    return { ...handover, open_tasks: openTasks };
   }).sort((left, right) => Number(Boolean(left.confirmed_at)) - Number(Boolean(right.confirmed_at)) || Date.parse(right.created_at) - Date.parse(left.created_at));
   return <OperationsClient actorId={actor.id} locationId={locationId} fromDate={fromDate} toDate={toDate} locations={locations ?? []} employees={(employees ?? []) as never[]} departments={departments ?? []} rules={(rules ?? []) as never[]} tasks={(tasks ?? []) as never[]} handovers={handoversWithTasks as never[]} />;
 }

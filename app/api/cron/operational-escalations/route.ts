@@ -16,9 +16,9 @@ function escapeHtml(value: string) { return value.replace(/[&<>'"]/g, (character
 export async function GET(request: NextRequest) {
   if (!isInternalCronRequest(request)) return internalCronUnauthorized();
   const service = createServiceClient();
-  const { data: recurringScopes, error: scopeError } = await service.from('operational_task_templates').select('tenant_id,location_id').eq('trigger_type', 'manual').eq('aktiv', true).is('paused_at', null).is('deleted_at', null);
-  const scopes = [...new Map((recurringScopes ?? []).map((scope) => [`${scope.tenant_id}:${scope.location_id}`, scope])).values()];
-  const recurringRuns = scopeError ? [] : await Promise.all(scopes.map((scope) => service.rpc('materialize_recurring_operational_tasks', { p_tenant_id: scope.tenant_id, p_location_id: scope.location_id, p_until: new Date(Date.now() + 14 * 86_400_000).toISOString() })));
+  const { data: recurringScopes, error: scopeError } = await service.rpc('active_recurring_operational_scopes');
+  const scopes = recurringScopes ?? [];
+  const recurringRuns = scopeError ? [] : await Promise.all(scopes.map((scope: { tenant_id: string; location_id: string }) => service.rpc('materialize_recurring_operational_tasks', { p_tenant_id: scope.tenant_id, p_location_id: scope.location_id, p_until: new Date(Date.now() + 14 * 86_400_000).toISOString() })));
   const [
     { data: tasks, error: taskError },
     { data: briefings, error: briefingError },

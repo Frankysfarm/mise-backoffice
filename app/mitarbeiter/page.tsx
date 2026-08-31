@@ -147,7 +147,7 @@ export default async function MitarbeiterPage() {
       .or(`assigned_to.eq.${employee.id},accountable_employee_id.eq.${employee.id},controller_employee_id.eq.${employee.id}`)
       .not('status', 'eq', 'storniert').order('due_at', { ascending: true, nullsFirst: false }).limit(150),
     service.from('responsibility_handovers')
-      .select('id,reason,starts_at,ends_at,note,status,read_at,confirmed_at,from_employee_id,to_employee_id,department:departments(name),from_employee:employees!responsibility_handovers_from_employee_id_fkey(vorname,nachname),to_employee:employees!responsibility_handovers_to_employee_id_fkey(vorname,nachname)')
+      .select('id,reason,starts_at,ends_at,note,status,read_at,confirmed_at,from_employee_id,to_employee_id,open_task_ids,incidents,inventory_notes,damage_notes,cleaning_notes,important_notes,department:departments(name),from_employee:employees!responsibility_handovers_from_employee_id_fkey(vorname,nachname),to_employee:employees!responsibility_handovers_to_employee_id_fkey(vorname,nachname)')
       .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .or(`from_employee_id.eq.${employee.id},to_employee_id.eq.${employee.id}`)
       .in('status', ['offen', 'gelesen', 'angenommen']).order('starts_at'),
@@ -159,6 +159,16 @@ export default async function MitarbeiterPage() {
       .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .eq('aktiv', true),
   ]);
+
+  const handoverTaskIds = [...new Set((handoverData ?? []).flatMap((handover) => handover.open_task_ids ?? []))];
+  const { data: handedOverTasks } = handoverTaskIds.length
+    ? await service.from('operational_tasks').select('id,title').eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId).in('id', handoverTaskIds)
+    : { data: [] };
+  const handedOverTaskTitles = new Map((handedOverTasks ?? []).map((task) => [task.id, task.title]));
+  const handoversWithTasks = (handoverData ?? []).map((handover) => ({
+    ...handover,
+    open_tasks: (handover.open_task_ids ?? []).map((id: string) => ({ id, title: handedOverTaskTitles.get(id) ?? 'Aufgabe aus der Übergabe' })),
+  }));
 
   if (!activeEmployee) redirect('/login?reason=no_access');
 
@@ -314,7 +324,7 @@ export default async function MitarbeiterPage() {
           locationId={employee.location_id ?? ''}
           responsibilities={ownResponsibilities as never[]}
           tasks={(operationalTaskData ?? []) as never[]}
-          handovers={(handoverData ?? []) as never[]}
+          handovers={handoversWithTasks as never[]}
           organization={{ self: selfInTeam, leaders: leadershipChain, directReports }}
           responsibilityCoverage={responsibilityCoverage}
         />
