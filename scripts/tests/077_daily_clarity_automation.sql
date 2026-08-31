@@ -200,7 +200,7 @@ declare
   v_confirm text;
 begin
   select lower(pg_get_functiondef(
-    'public.generate_weekly_shift_assignment_suggestions(uuid,uuid,date,uuid)'::regprocedure
+    'public.generate_weekly_shift_assignment_suggestions_core(uuid,uuid,date,uuid)'::regprocedure
   )) into strict v_generate;
   select lower(pg_get_functiondef(
     'public.confirm_weekly_shift_assignment_suggestion(uuid,uuid,uuid,uuid)'::regprocedure
@@ -325,6 +325,35 @@ begin
     select 1 from public.weekly_shift_assignment_suggestions
     where shift_id='83000000-0000-0000-0000-000000000002' and status='draft'
   ) then raise exception 'cleared confirmed shift could not receive a new suggestion'; end if;
+end $$;
+
+-- Publishing and a subsequent edit must both commit. This guards the
+-- notification enum, non-null outbox HTML and the shared shifts trigger.
+update public.employees set email='published-shift@example.test'
+where id=(select employee_id from public.shifts where id='83000000-0000-0000-0000-000000000001');
+insert into public.schedule_weeks(
+  tenant_id,location_id,week_start,availability_deadline,status,created_by
+) values (
+  '10000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
+  '2026-09-14','2026-09-13 12:00:00+00','draft','40000000-0000-0000-0000-000000000001'
+) on conflict(tenant_id,location_id,week_start) do update set status='draft',published_at=null,published_by=null;
+select public.publish_schedule_week(
+  '10000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000001',
+  '40000000-0000-0000-0000-000000000001','2026-09-14'
+);
+update public.shifts set end_zeit=end_zeit+interval '15 minutes'
+where id='83000000-0000-0000-0000-000000000001';
+do $$
+begin
+  if not exists(select 1 from public.schedule_weeks where tenant_id='10000000-0000-0000-0000-000000000001' and location_id='20000000-0000-0000-0000-000000000001' and week_start='2026-09-14' and status='published') then
+    raise exception 'schedule publication did not commit';
+  end if;
+  if not exists(select 1 from public.email_outbox where to_email='published-shift@example.test' and template='schedule_published' and html='') then
+    raise exception 'schedule publication mail was not queued with valid html';
+  end if;
+  if not exists(select 1 from public.schedule_publication_changes where shift_id='83000000-0000-0000-0000-000000000001' and change_type='time_changed') then
+    raise exception 'published shift edit did not record a change';
+  end if;
 end $$;
 
 select 'daily clarity automation test passed' as result;

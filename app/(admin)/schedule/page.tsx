@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ScheduleWeek } from './week-view';
 import { NewShiftDialog } from './new-shift-dialog';
 import { ScheduleAssistant } from './schedule-assistant';
+import { PlanningControls } from './planning-controls';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
 import {
   addCalendarDays,
@@ -31,7 +32,7 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
   const today = berlinCalendarDate(new Date());
 
   let q = supabase.from('shifts')
-    .select('id,start_zeit,end_zeit,status,position,pause_minuten,employee_id,department_id,location_id,typ,notiz,offen_fuer_bewerbung,employee:employees!shifts_employee_id_fkey(id,vorname,nachname,rolle,geburtsdatum,wochenstunden),department:departments(name,farbe),location:locations(name)')
+    .select('id,start_zeit,end_zeit,status,position,pause_minuten,employee_id,department_id,location_id,typ,notiz,offen_fuer_bewerbung,employee:employees!shifts_employee_id_fkey(id,vorname,nachname,rolle,geburtsdatum,wochenstunden,department_id,position_title),department:departments(name,farbe),location:locations(name)')
     .gte('start_zeit', week.rangeStart.toISOString())
     .lt('start_zeit', week.rangeEnd.toISOString())
     .order('start_zeit');
@@ -39,7 +40,7 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
   const { data: shiftsRaw } = await q;
   const shifts = shiftsRaw as any[] | null;
 
-  const [{ data: locations }, { data: departments }, { data: employees }, { data: swaps }] = await Promise.all([
+  const [{ data: locations }, { data: departments }, { data: employees }, { data: swaps }, { data: scheduleTemplates }] = await Promise.all([
     supabase.from('locations').select('id,name').eq('tenant_id', currentEmployee.tenant_id).order('name'),
     supabase
       .from('departments')
@@ -53,12 +54,20 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
       .eq('status', 'aktiv')
       .order('nachname'),
     supabase.from('shift_swaps').select('id,status').eq('status', 'angefragt'),
+    supabase.from('schedule_templates').select('id,name,location_id').eq('tenant_id', currentEmployee.tenant_id).eq('aktiv', true).order('name'),
   ]);
   const selectedLocationId = params.location && (locations ?? []).some((location) => location.id === params.location)
     ? params.location
     : currentEmployee.rolle === 'manager'
       ? currentEmployee.location_id
       : (locations?.length === 1 ? locations[0].id : null);
+  const { data: scheduleWeek } = selectedLocationId ? await supabase.from('schedule_weeks').select('status,availability_deadline').eq('tenant_id', currentEmployee.tenant_id).eq('location_id', selectedLocationId).eq('week_start', week.calendarStart).maybeSingle() : { data: null };
+  const employeeIds = [...new Set((shifts ?? []).flatMap(shift => shift.employee_id ? [shift.employee_id] : []))];
+  const shiftIds = (shifts ?? []).map(shift => shift.id);
+  const [{ data: absenceRows }, { data: availabilityResponses }] = await Promise.all([
+    employeeIds.length ? supabase.from('availability_exceptions').select('employee_id,datum,typ').eq('tenant_id', currentEmployee.tenant_id).in('employee_id', employeeIds).gte('datum', week.calendarStart).lt('datum', next) : Promise.resolve({ data: [] }),
+    selectedLocationId && shiftIds.length ? supabase.from('shift_availability_responses').select('shift_id,state,applied,employee:employees(vorname,nachname)').eq('tenant_id', currentEmployee.tenant_id).eq('location_id', selectedLocationId).in('shift_id', shiftIds) : Promise.resolve({ data: [] }),
+  ]);
 
   return (
     <div>
@@ -102,6 +111,7 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
         </form>
       </div>
 
+      <PlanningControls locationId={selectedLocationId ?? null} weekStart={week.calendarStart} templates={(scheduleTemplates ?? []).filter(template => template.location_id === selectedLocationId)} initialStatus={scheduleWeek?.status} initialDeadline={scheduleWeek?.availability_deadline} />
       <ScheduleAssistant locationId={selectedLocationId ?? null} weekStart={week.calendarStart} />
 
       <Card>
@@ -111,6 +121,8 @@ export default async function SchedulePage({ searchParams }: SchedulePageProps) 
           employees={employees ?? []}
           departments={(departments ?? []).map(({ id, name }) => ({ id, name }))}
           locations={locations ?? []}
+          absences={(absenceRows ?? []).map(row => ({ employeeId: row.employee_id, date: row.datum, type: row.typ }))}
+          availabilityResponses={availabilityResponses ?? []}
         />
       </Card>
 

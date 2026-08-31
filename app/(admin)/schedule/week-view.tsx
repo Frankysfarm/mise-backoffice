@@ -11,6 +11,7 @@ import { toastError, toastSuccess } from '@/components/ui/toaster';
 import { validateShift, validateWeek, highestSeverity, type ArbZGWarning, type ShiftLike } from '@/lib/validation/arbzg';
 import { useRealtimeTable } from '@/hooks/useRealtimeTable';
 import { EditShiftDialog } from './edit-shift-dialog';
+import { evaluateScheduleConflicts, type PlannerAbsence, type ScheduleConflict } from '@/lib/scheduling/planner';
 
 export type Shift = {
   id: string;
@@ -25,7 +26,7 @@ export type Shift = {
   typ?: string | null;
   notiz?: string | null;
   offen_fuer_bewerbung?: boolean | null;
-  employee: { id?: string; vorname?: string; nachname?: string; rolle?: string; geburtsdatum?: string; wochenstunden?: number } | null;
+  employee: { id?: string; vorname?: string; nachname?: string; rolle?: string; geburtsdatum?: string; wochenstunden?: number; department_id?: string | null; position_title?: string | null } | null;
   department: { name?: string; farbe?: string } | null;
   location: { name?: string } | null;
 };
@@ -36,12 +37,16 @@ function toDate(s: string) { return new Date(s); }
 function sameDay(a: Date, b: Date) { return a.toDateString() === b.toDateString(); }
 function isoDate(d: Date) { return d.toISOString().slice(0, 10); }
 
-export function ScheduleWeek({ weekStart, initialShifts, employees, departments, locations }: {
+type AvailabilityResponse = { shift_id: string; state: string; applied: boolean; employee: { vorname: string; nachname: string } | { vorname: string; nachname: string }[] | null };
+
+export function ScheduleWeek({ weekStart, initialShifts, employees, departments, locations, absences, availabilityResponses }: {
   weekStart: Date;
   initialShifts: Shift[];
   employees: { id: string; vorname: string; nachname: string }[];
   departments: { id: string; name: string }[];
   locations: { id: string; name: string }[];
+  absences: PlannerAbsence[];
+  availabilityResponses: AvailabilityResponse[];
 }) {
   const router = useRouter();
   const dndContextId = React.useId();
@@ -75,6 +80,34 @@ export function ScheduleWeek({ weekStart, initialShifts, employees, departments,
     }
     return map;
   }, [shifts]);
+
+  const conflictsByShift = React.useMemo(() => {
+    const plannerShifts = shifts.map(s => ({
+      id: s.id, employeeId: s.employee_id, departmentId: s.department_id, position: s.position,
+      start: s.start_zeit, end: s.end_zeit, pauseMinutes: s.pause_minuten,
+    }));
+    return new Map(shifts.map(s => {
+      if (!s.employee_id || !s.employee) return [s.id, [] as ScheduleConflict[]] as const;
+      return [s.id, evaluateScheduleConflicts({
+        shift: plannerShifts.find(item => item.id === s.id)!,
+        employee: {
+          id: s.employee_id,
+          departmentId: s.employee.department_id,
+          positions: [s.employee.position_title, s.employee.rolle].filter((value): value is string => Boolean(value)),
+          weeklyHours: s.employee.wochenstunden,
+          birthDate: s.employee.geburtsdatum,
+        },
+        allShifts: plannerShifts,
+        absences,
+      })] as const;
+    }));
+  }, [absences, shifts]);
+
+  const responsesByShift = React.useMemo(() => {
+    const map = new Map<string, AvailabilityResponse[]>();
+    for (const response of availabilityResponses) map.set(response.shift_id, [...(map.get(response.shift_id) ?? []), response]);
+    return map;
+  }, [availabilityResponses]);
 
   // Wochenstunden-Check pro Employee
   const weekWarningsByEmp = React.useMemo(() => {
@@ -157,6 +190,8 @@ export function ScheduleWeek({ weekStart, initialShifts, employees, departments,
             date={d}
             shifts={shiftsFor(d)}
             warningsByShift={warningsByShift}
+            conflictsByShift={conflictsByShift}
+            responsesByShift={responsesByShift}
             onEdit={setEditingShift}
           />
         ))}
@@ -192,10 +227,12 @@ export function ScheduleWeek({ weekStart, initialShifts, employees, departments,
   );
 }
 
-function Day({ date, shifts, warningsByShift, onEdit }: {
+function Day({ date, shifts, warningsByShift, conflictsByShift, responsesByShift, onEdit }: {
   date: Date;
   shifts: Shift[];
   warningsByShift: Map<string, ArbZGWarning[]>;
+  conflictsByShift: Map<string, ScheduleConflict[]>;
+  responsesByShift: Map<string, AvailabilityResponse[]>;
   onEdit: (shift: Shift) => void;
 }) {
   const iso = isoDate(date);
@@ -220,7 +257,7 @@ function Day({ date, shifts, warningsByShift, onEdit }: {
       </div>
       <div className="space-y-1.5">
         {shifts.map(s => (
-          <DraggableShift key={s.id} s={s} warnings={warningsByShift.get(s.id) ?? []} onEdit={onEdit} />
+          <DraggableShift key={s.id} s={s} warnings={warningsByShift.get(s.id) ?? []} conflicts={conflictsByShift.get(s.id) ?? []} responses={responsesByShift.get(s.id) ?? []} onEdit={onEdit} />
         ))}
         {shifts.length === 0 && (
           <div className="rounded-md border border-dashed py-4 text-center text-xs text-muted-foreground">
@@ -232,9 +269,11 @@ function Day({ date, shifts, warningsByShift, onEdit }: {
   );
 }
 
-function DraggableShift({ s, warnings, onEdit }: {
+function DraggableShift({ s, warnings, conflicts, responses, onEdit }: {
   s: Shift;
   warnings: ArbZGWarning[];
+  conflicts: ScheduleConflict[];
+  responses: AvailabilityResponse[];
   onEdit: (shift: Shift) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: s.id });
@@ -243,7 +282,12 @@ function DraggableShift({ s, warnings, onEdit }: {
   const fmt = (d: Date) => d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
   const color = s.department?.farbe ?? '#2d6b45';
   const unassigned = !s.employee_id;
-  const severity = highestSeverity(warnings);
+  const warningSeverity = highestSeverity(warnings);
+  const severity = conflicts.some(conflict => conflict.severity === 'blocker') || warningSeverity === 'error'
+    ? 'error'
+    : conflicts.length || warningSeverity === 'warn'
+      ? 'warn'
+      : warningSeverity;
 
   return (
     <div
@@ -258,7 +302,7 @@ function DraggableShift({ s, warnings, onEdit }: {
         severity === 'error' && 'ring-1 ring-destructive',
         severity === 'warn' && 'ring-1 ring-gold',
       )}
-      title={warnings.map(w => `${w.severity.toUpperCase()}: ${w.message}`).join('\n')}
+      title={[...conflicts.map(conflict => conflict.text), ...warnings.map(w => w.message)].join('\n')}
     >
       <div className="flex items-center justify-between">
         <div className="font-mono text-[10px] text-muted-foreground">{fmt(start)}–{fmt(end)}</div>
@@ -291,6 +335,8 @@ function DraggableShift({ s, warnings, onEdit }: {
           ))}
         </div>
       )}
+      {conflicts.length > 0 && <div className="mt-1 space-y-0.5">{conflicts.slice(0, 3).map(conflict => <div key={conflict.code} className={cn('text-[10px] leading-tight', conflict.severity === 'blocker' ? 'text-destructive' : 'text-gold-700')}>· Konflikt: {conflict.text}</div>)}</div>}
+      {responses.length > 0 && <div className="mt-1 border-t pt-1 text-[10px] text-sky-700">{responses.map(response => { const employee = Array.isArray(response.employee) ? response.employee[0] : response.employee; return <div key={`${response.shift_id}-${employee?.vorname}-${employee?.nachname}`}>{employee?.vorname} {employee?.nachname}: {response.state === 'moechte' ? 'möchte' : response.state === 'kann_nicht' ? 'kann nicht' : 'kann'}</div>; })}</div>}
     </div>
   );
 }

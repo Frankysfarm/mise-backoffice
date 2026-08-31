@@ -26,6 +26,7 @@ create table public.employees (
   department_id uuid references public.departments(id),
   vorname text not null default 'Test',
   nachname text not null default 'Person',
+  email text,
   rolle text not null default 'mitarbeiter',
   status text not null default 'aktiv'
 );
@@ -102,6 +103,11 @@ create table public.employee_availability (
 create table public.notifications (
   id uuid primary key default gen_random_uuid(), employee_id uuid references public.employees(id),
   typ text, titel text, nachricht text, link text
+);
+create table public.email_outbox (
+  id uuid primary key default gen_random_uuid(), tenant_id uuid not null references public.tenants(id),
+  to_email text not null, subject text not null, html text not null,
+  template text, template_data jsonb, created_at timestamptz not null default now()
 );
 create table public.audit_log (
   id bigint generated always as identity primary key,

@@ -13,6 +13,7 @@ type Suggestion = {
     department: { name: string } | { name: string }[] | null;
   } | null;
   employee: { id: string; vorname: string; nachname: string } | null;
+  conflicts: { code: string; text: string; severity: 'blocker' | 'warnung' }[];
 };
 
 export function ScheduleAssistant({ locationId, weekStart }: { locationId: string | null; weekStart: string }) {
@@ -67,7 +68,8 @@ export function ScheduleAssistant({ locationId, weekStart }: { locationId: strin
             <span className="rounded-full bg-sky-100 px-2 py-1 text-[10px] font-bold text-sky-700">{suggestion.score} P.</span>
           </div>
           <p className="my-2 text-[11px] leading-5 text-slate-600">{suggestion.reason}</p>
-          <Button className="w-full" size="sm" variant="secondary" disabled={loading || !suggestion.shift || !suggestion.employee} onClick={() => mutate({ action: 'confirm', suggestionId: suggestion.id })}><Check className="h-4 w-4" /> Schicht bestätigen</Button>
+          {suggestion.conflicts?.length > 0 && <div className="mb-2 rounded-md bg-amber-50 p-2 text-[11px] text-amber-900">{suggestion.conflicts.map(conflict => <div key={conflict.code}>Konflikt: {conflict.text}</div>)}</div>}
+          <Button className="w-full" size="sm" variant="secondary" disabled={loading || !suggestion.shift || !suggestion.employee || suggestion.conflicts?.some(conflict => conflict.severity === 'blocker')} onClick={() => mutate({ action: 'confirm', suggestionId: suggestion.id })}><Check className="h-4 w-4" /> Schicht bestätigen</Button>
         </article>;
       })}
     </div>}
