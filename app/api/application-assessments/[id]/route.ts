@@ -4,7 +4,7 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { assessmentErrorMessage } from '@/lib/application-assessments/errors';
 
 function scopeForManager(query: any, actor: { rolle: string; location_id: string | null }) {
-  return actor.rolle === 'manager' ? query.or(`location_id.is.null,location_id.eq.${actor.location_id}`) : query;
+  return actor.rolle === 'manager' ? query.or(actor.location_id ? `location_id.is.null,location_id.eq.${actor.location_id}` : 'location_id.is.null') : query;
 }
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {

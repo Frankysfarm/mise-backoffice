@@ -33,11 +33,19 @@ create table if not exists public.assessment_templates (
 alter table public.assessment_templates
   add column if not exists location_id uuid references public.locations(id) on delete set null;
 
-delete from public.assessment_templates duplicate
-using public.assessment_templates keeper
-where duplicate.id>keeper.id
-  and coalesce(duplicate.tenant_id,'00000000-0000-0000-0000-000000000000'::uuid)=coalesce(keeper.tenant_id,'00000000-0000-0000-0000-000000000000'::uuid)
-  and duplicate.slug=keeper.slug;
+-- Preserve referenced historical templates: retire duplicates and make their
+-- slugs unique instead of deleting versions/sessions through a cascade.
+with ranked as (
+  select id,row_number() over (
+    partition by coalesce(tenant_id,'00000000-0000-0000-0000-000000000000'::uuid),slug
+    order by updated_at desc nulls last,id
+  ) as duplicate_rank
+  from public.assessment_templates
+)
+update public.assessment_templates template
+set status='RETIRED',slug=template.slug||'-archived-'||left(template.id::text,8)
+from ranked
+where ranked.id=template.id and ranked.duplicate_rank>1;
 
 create unique index if not exists assessment_templates_scope_slug_uq
   on public.assessment_templates(
@@ -379,9 +387,23 @@ begin
 end
 $constraints$;
 
-delete from public.training_progress duplicate
-using public.training_progress keeper
-where duplicate.id>keeper.id and duplicate.employee_id=keeper.employee_id and duplicate.module_id=keeper.module_id;
+do $deduplicate_training_progress$
+declare v_removed integer;
+begin
+  with ranked as (
+    select id,row_number() over (
+      partition by employee_id,module_id
+      order by abgeschlossen desc,passed_at desc nulls last,fortschritt_prozent desc nulls last,updated_at desc nulls last,id
+    ) as duplicate_rank
+    from public.training_progress
+  )
+  delete from public.training_progress progress
+  using ranked
+  where progress.id=ranked.id and ranked.duplicate_rank>1;
+  get diagnostics v_removed=row_count;
+  raise notice 'training_progress de-duplication removed % lower-priority duplicate row(s)',v_removed;
+end
+$deduplicate_training_progress$;
 
 create unique index if not exists training_progress_employee_module_uq
   on public.training_progress(employee_id,module_id);
@@ -519,6 +541,7 @@ declare
   v_index integer:=0;
   v_question_id text;
   v_department_id uuid;
+  v_location_id uuid;
 begin
   select e.rolle::text as rolle,e.location_id,e.status::text as status
   into v_actor
@@ -528,11 +551,12 @@ begin
     or v_actor.rolle not in ('manager','backoffice','admin') then
     raise exception 'actor may not manage assessments';
   end if;
-  if v_actor.rolle='manager' and p_location_id is distinct from v_actor.location_id then
+  v_location_id:=case when v_actor.rolle='manager' then v_actor.location_id else p_location_id end;
+  if v_actor.rolle='manager' and v_actor.location_id is null then
     raise exception 'manager is outside assessment location';
   end if;
-  if p_location_id is not null and not exists(
-    select 1 from public.locations l where l.id=p_location_id and l.tenant_id=p_tenant_id
+  if v_location_id is not null and not exists(
+    select 1 from public.locations l where l.id=v_location_id and l.tenant_id=p_tenant_id
   ) then raise exception 'assessment location is outside tenant'; end if;
   if nullif(trim(p_name),'') is null or length(trim(p_name))>160 then
     raise exception 'assessment name is invalid';
@@ -555,7 +579,7 @@ begin
       id,tenant_id,location_id,name,slug,category,description,is_system_template,
       status,created_by,updated_at
     ) values(
-      v_template_id,p_tenant_id,p_location_id,trim(p_name),'owner-'||v_template_id,
+      v_template_id,p_tenant_id,v_location_id,trim(p_name),'owner-'||v_template_id,
       'APPLICATION',nullif(trim(p_description),''),false,
       case when p_active then 'ACTIVE' else 'DRAFT' end,p_actor_id,now()
     );
@@ -566,7 +590,7 @@ begin
     for update;
     if not found then raise exception 'assessment template not found'; end if;
     update public.assessment_templates set
-      location_id=p_location_id,name=trim(p_name),description=nullif(trim(p_description),''),
+      location_id=v_location_id,name=trim(p_name),description=nullif(trim(p_description),''),
       status=case when p_active then 'ACTIVE' else 'DRAFT' end,updated_at=now()
     where id=p_id;
   end if;
@@ -730,7 +754,8 @@ begin
   insert into public.operational_tasks(tenant_id,location_id,title,description,status,priority,created_by,assigned_to,accountable_employee_id,due_at,training_progress_id,source_type,source_id,created_at,updated_at)
   select progress.tenant_id,employee.location_id,'Überfällige Pflichtschulung: '||module.titel,employee.vorname||' '||employee.nachname||' benötigt die fällige Schulung.','offen',80,progress.employee_id,progress.employee_id,progress.employee_id,coalesce(progress.due_at,p_now),progress.id,'training_overdue',progress.id::text,p_now,p_now
   from public.training_progress progress join public.training_modules module on module.id=progress.module_id join public.employees employee on employee.id=progress.employee_id where progress.status='ueberfaellig' and module.pflicht and employee.location_id is not null
-  on conflict(tenant_id,source_type,source_id) do nothing;
+  on conflict(tenant_id,source_type,source_id)
+    where source_type is not null and source_id is not null do nothing;
   return v_count;
 end
 $function$;

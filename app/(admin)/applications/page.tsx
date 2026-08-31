@@ -27,7 +27,7 @@ export default async function ApplicationsPage({ searchParams }: { searchParams:
   const params = await searchParams;
   const archived = params.ansicht === 'archiv';
   const basePath = await operationsBasePath('/applications', '/neo/app/bewerbungen');
-  const testsPath = await operationsBasePath('/application-tests', '/neo/app/tests');
+  const testsPath = '/neo/app/tests';
   // Auth is checked above; the service client lets managers see application
   // progress while every query remains explicitly tenant-scoped.
   const supabase = createServiceClient();

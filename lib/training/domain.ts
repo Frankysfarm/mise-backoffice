@@ -36,6 +36,20 @@ export const trainingAssignmentSchema = z.object({
 export type TrainingContentBlock = z.infer<typeof contentBlockSchema>;
 export const trainingStatusLabels: Record<string, string> = { offen: 'Offen', begonnen: 'Begonnen', bestanden: 'Bestanden', ueberfaellig: 'Überfällig' };
 
+type LegacyGeneratedBlock = { type?: string; title?: string; body?: string; question?: string; options?: string[]; correct?: number };
+
+export function normalizeGeneratedTrainingBlocks(blocks: LegacyGeneratedBlock[]): TrainingContentBlock[] {
+  return blocks.map((block, blockIndex) => {
+    const id = `ai-block-${blockIndex + 1}`;
+    if (block.type === 'quiz') {
+      const options = (block.options ?? []).map((label, optionIndex) => ({ id: `${id}-option-${optionIndex + 1}`, label }));
+      const correctIndex = Number.isInteger(block.correct) ? block.correct! : 0;
+      return { id, type: 'quiz' as const, question: block.question ?? block.title ?? '', options, correctOptionIds: options[correctIndex] ? [options[correctIndex].id] : [], points: 1, mustPass: false };
+    }
+    return { id, type: 'text' as const, title: block.title ?? '', body: block.body ?? '' };
+  });
+}
+
 export function trainingStatus(status: string, dueAt: string | null, now = new Date()) {
   if (status !== 'bestanden' && dueAt && new Date(dueAt) < now) return 'ueberfaellig';
   return status;

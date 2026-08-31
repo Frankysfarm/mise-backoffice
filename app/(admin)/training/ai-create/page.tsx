@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { toastError, toastSuccess } from '@/components/ui/toaster';
 import { Sparkles, Upload, Mic, MicOff, FileText, Eye, Save, Users, UserPlus, Loader2 } from 'lucide-react';
+import { normalizeGeneratedTrainingBlocks } from '@/lib/training/domain';
 
 type GeneratedModule = {
   titel: string;
@@ -110,7 +111,7 @@ export default function AiCreateTraining() {
   async function saveModule() {
     if (!result) return;
     start(async () => {
-      const response = await fetch('/api/training/modules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: result.titel, description: result.beschreibung, category: result.kategorie, durationMinutes: result.dauer_minuten, required: mode === 'onboarding', active: true, passingThreshold: 80, targets: department.toLowerCase() === 'allgemein' ? [] : [{ type: 'position', positionType: department }], blocks: result.inhalt.lessons }) });
+      const response = await fetch('/api/training/modules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: result.titel, description: result.beschreibung, category: result.kategorie, durationMinutes: result.dauer_minuten, required: mode === 'onboarding', active: true, passingThreshold: 80, targets: department.toLowerCase() === 'allgemein' ? [] : [{ type: 'position', positionType: department }], blocks: normalizeGeneratedTrainingBlocks(result.inhalt.lessons) }) });
       const data = await response.json();
       if (!response.ok) return toastError('Speichern fehlgeschlagen', data.error ?? 'Schulung konnte nicht gespeichert werden.');
 

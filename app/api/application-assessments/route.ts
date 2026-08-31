@@ -11,7 +11,7 @@ export async function GET() {
   let query = service.from('assessment_templates')
     .select('id,name,description,status,location_id,updated_at,versions:assessment_template_versions(id,config_json,status,created_at),targets:assessment_template_targets(target_type,department_id,position_type)')
     .eq('tenant_id', actor.tenant_id).eq('category', 'APPLICATION');
-  if (actor.rolle === 'manager') query = query.or(`location_id.is.null,location_id.eq.${actor.location_id}`);
+  if (actor.rolle === 'manager') query = query.or(actor.location_id ? `location_id.is.null,location_id.eq.${actor.location_id}` : 'location_id.is.null');
   const { data, error } = await query.order('updated_at', { ascending: false });
   if (error) return NextResponse.json({ error: assessmentErrorMessage(error.message) }, { status: 500 });
   return NextResponse.json({ templates: data ?? [] });
