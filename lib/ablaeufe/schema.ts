@@ -30,6 +30,7 @@ export const procedureContentSchema = z.object({
 });
 
 export type ProcedureStep = z.infer<typeof procedureStepSchema>;
+export type ProcedureCategory = z.infer<typeof procedureCategorySchema>;
 export type ProcedureContent = z.infer<typeof procedureContentSchema>;
 
 const slug = () => globalThis.crypto?.randomUUID?.() ?? `step-${Date.now()}-${Math.random().toString(16).slice(2)}`;

@@ -13,6 +13,24 @@ update public.shift_guides g set
   ablauf_typ=case when g.phase='opening' then 'opening' when g.phase='closing' then 'closing' else g.ablauf_typ end
 from public.departments d where d.id=g.department_id and (g.tenant_id is null or g.location_id is null);
 
+-- Legacy installations with exactly one company/site also contain site-wide
+-- guides without a department. That unambiguous scope can be recovered safely.
+update public.shift_guides g set tenant_id=t.id
+from (select min(id) id from public.tenants having count(*)=1) t
+where g.tenant_id is null;
+
+update public.shift_guides g set location_id=l.id
+from (
+  select tenant_id,min(id) id from public.locations group by tenant_id having count(*)=1
+) l
+where g.location_id is null and g.tenant_id=l.tenant_id;
+
+do $scope$ begin
+  if exists(select 1 from public.shift_guides where tenant_id is null or location_id is null) then
+    raise exception 'shift_guides contains legacy rows whose tenant/location scope is ambiguous';
+  end if;
+end $scope$;
+
 do $constraints$ begin
   if not exists(select 1 from pg_constraint where conname='shift_guides_ablauf_typ_check') then
     alter table public.shift_guides add constraint shift_guides_ablauf_typ_check check(ablauf_typ in ('opening','closing','cleaning','control','production','handover','hygiene_temperature','other'));
@@ -50,13 +68,15 @@ update public.shift_guides g set inhalt=jsonb_set(
       coalesce((select jsonb_agg(
         jsonb_build_object(
           'id',coalesce(nullif(s.value->>'id',''),'step-'||c.ordinality||'-'||s.ordinality),
-          'title',coalesce(s.value->>'title',s.value->>'text',s.value->>'name','Schritt '||s.ordinality),
+          'title',coalesce(s.value->>'title',s.value->>'text',s.value->>'name',s.value #>> '{}','Schritt '||s.ordinality),
           'description',coalesce(s.value->>'description',s.value->>'hint',''),
           'required',coalesce(nullif(s.value->>'required','')::boolean,nullif(s.value->>'pflicht','')::boolean,true),
           'evidence',case coalesce(s.value->>'evidence',s.value->>'evidence_type','none') when 'foto' then 'photo' when 'messwert' then 'value' when 'unterschrift' then 'confirmation' else coalesce(s.value->>'evidence',s.value->>'evidence_type','none') end,
           'confirmationText',coalesce(s.value->>'confirmationText',''),'unit',coalesce(s.value->>'unit',''),
           'assigneeHint',coalesce(s.value->>'assigneeHint',s.value->>'role','')
-        ) || (s.value - array['id','title','text','name','description','hint','required','pflicht','evidence','evidence_type','confirmationText','unit','assigneeHint','role'])
+        ) || case when jsonb_typeof(s.value)='object'
+          then s.value - array['id','title','text','name','description','hint','required','pflicht','evidence','evidence_type','confirmationText','unit','assigneeHint','role']
+          else '{}'::jsonb end
         order by s.ordinality
       ) from jsonb_array_elements(coalesce(c.value->'steps','[]'::jsonb)) with ordinality s(value,ordinality)),'[]'::jsonb)
     ) order by c.ordinality

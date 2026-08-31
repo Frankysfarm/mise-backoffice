@@ -19,7 +19,7 @@ export default async function GuideDetail({ params }: { params: Promise<{ id: st
   return (
     <div>
       <PageHeader backHref={basePath} title={guide.titel} description="Ablauf visuell aufbauen – so sieht ihn später das Team." />
-      <GuideEditor guide={guide} departments={deps ?? []} locations={locations ?? []} />
+      <GuideEditor guide={guide} departments={deps ?? []} locations={locations ?? []} basePath={basePath} />
     </div>
   );
 }

@@ -17,7 +17,7 @@ export default async function CheckupTemplateDetail({ params }: { params: Promis
   if (!tpl) notFound();
   return (
     <div>
-      <PageHeader backHref={basePath} title={tpl.titel} description="Aufgaben-Liste als JSON bearbeiten." />
+      <PageHeader backHref={basePath} title={tpl.titel} description="Kontrollschritte verständlich aufbauen und Nachweise festlegen." />
       <TemplateEditor tpl={tpl} departments={deps ?? []} />
     </div>
   );

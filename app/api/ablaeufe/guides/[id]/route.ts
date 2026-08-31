@@ -6,10 +6,10 @@ import { createServiceClient } from '@/lib/supabase/server';
 
 const schema = z.object({
   action: z.enum(['save', 'duplicate']).default('save'),
-  title: z.string().trim().min(2).max(180),
+  title: z.string().trim().min(2, 'Bitte einen Namen mit mindestens zwei Zeichen eingeben.').max(180, 'Der Name ist zu lang.'),
   type: z.enum(['opening', 'closing', 'cleaning', 'control', 'production', 'handover', 'hygiene_temperature', 'other']),
-  position: z.string().trim().max(100).optional(), departmentId: z.string().uuid().nullable().optional(),
-  locationId: z.string().uuid().nullable().optional(), shiftHint: z.string().trim().max(120).optional(),
+  position: z.string().trim().max(100, 'Die Position ist zu lang.').optional(), departmentId: z.string().uuid('Der Bereich ist ungültig.').nullable().optional(),
+  locationId: z.string().uuid('Der Standort ist ungültig.').nullable().optional(), shiftHint: z.string().trim().max(120, 'Der Schichthinweis ist zu lang.').optional(),
   active: z.boolean(), content: procedureContentSchema,
 });
 
@@ -24,6 +24,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   if (!existing) return NextResponse.json({ error: 'Ablauf nicht gefunden.' }, { status: 404 });
   const locationId = input.locationId ?? existing.location_id ?? actor.location_id;
   if (!locationId || (actor.rolle === 'manager' && actor.location_id !== locationId)) return NextResponse.json({ error: 'Standort nicht freigegeben.' }, { status: 403 });
+  const { data: location } = await service.from('locations').select('id').eq('id', locationId).eq('tenant_id', actor.tenant_id).maybeSingle();
+  if (!location) return NextResponse.json({ error: 'Standort nicht freigegeben.' }, { status: 403 });
+  if (input.departmentId) {
+    const { data: department } = await service.from('departments').select('id').eq('id', input.departmentId)
+      .eq('tenant_id', actor.tenant_id).eq('location_id', locationId).maybeSingle();
+    if (!department) return NextResponse.json({ error: 'Bereich gehört nicht zu diesem Standort.' }, { status: 403 });
+  }
   const payload = { tenant_id: actor.tenant_id, location_id: locationId, titel: input.action === 'duplicate' ? `${input.title} – Kopie` : input.title,
     phase: input.type === 'opening' ? 'opening' : input.type === 'closing' ? 'closing' : 'middle', ablauf_typ: input.type,
     position_typ: input.position || null, department_id: input.departmentId || null, shift_hint: input.shiftHint || null,
