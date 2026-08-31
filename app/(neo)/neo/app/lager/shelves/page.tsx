@@ -1,1 +1,2 @@
-export { default } from '@/app/(admin)/inventory/shelves/page';
+import { redirect } from 'next/navigation';
+export default function LegacyShelvesPage() { redirect('/neo/app/lager/plan'); }

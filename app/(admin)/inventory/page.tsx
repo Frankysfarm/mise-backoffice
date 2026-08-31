@@ -47,7 +47,8 @@ export default async function InventoryDashboard() {
     { href: `${basePath}/waste`,      icon: Trash2,         label: 'Schwund',        value: euro(wasteTotal30d) + ' / 30T', desc: 'Was weggeworfen wird' },
     { href: `${basePath}/movements`,  icon: BarChart3,      label: 'Bewegungen',     value: '',                          desc: 'Audit-Trail aller Änderungen' },
     { href: `${basePath}/receiving`,  icon: PackageCheck,   label: 'Wareneingang',   value: '',                          desc: 'Lieferungen prüfen + buchen' },
-    { href: `${basePath}/shelves`,    icon: ListTree,       label: 'Regalplätze',    value: '',                          desc: 'Physische Lagerplätze ordnen' },
+    { href: `${basePath}/plan`,       icon: Warehouse,      label: 'Lagerplan',      value: '',                          desc: 'Räume, Geräte, Plätze + QR' },
+    { href: `${basePath}/shelves`,    icon: ListTree,       label: 'Regalplätze',    value: '',                          desc: 'Bestehende Plätze verwalten' },
     { href: `${basePath}/assign`,     icon: UserRoundCheck, label: 'Inventur zuweisen', value: '',                       desc: 'Zählaufgaben ans Team geben' },
   ];
 
