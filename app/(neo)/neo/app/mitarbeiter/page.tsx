@@ -74,6 +74,16 @@ export default async function MitarbeiterPage({
     ? await service.from('availability_exceptions').select('employee_id,datum,typ')
       .in('employee_id', employeeIds).eq('datum', today)
     : { data: [] };
+  const handoverTaskIds = [...new Set((handovers ?? []).flatMap((handover) => handover.open_task_ids ?? []))];
+  const { data: handedOverTasks } = handoverTaskIds.length
+    ? await service.from('operational_tasks').select('id,title')
+      .eq('tenant_id', actor.tenant_id).eq('location_id', locationId).in('id', handoverTaskIds)
+    : { data: [] };
+  const handedOverTaskTitles = new Map((handedOverTasks ?? []).map((task) => [task.id, task.title]));
+  const handoversWithTasks = (handovers ?? []).map((handover) => ({
+    ...handover,
+    open_tasks: (handover.open_task_ids ?? []).map((id: string) => ({ id, title: handedOverTaskTitles.get(id) ?? 'Aufgabe aus der Übergabe' })),
+  }));
 
   return (
     <ResponsibilityClient
@@ -87,7 +97,7 @@ export default async function MitarbeiterPage({
       assignments={(assignments ?? []) as never[]}
       tasks={(tasks ?? []) as never[]}
       templates={(templates ?? []) as never[]}
-      handovers={(handovers ?? []) as never[]}
+      handovers={handoversWithTasks as never[]}
       coverage={(coverage ?? []) as never[]}
       absences={(absences ?? []) as never[]}
       briefing={(briefing ?? null) as never}

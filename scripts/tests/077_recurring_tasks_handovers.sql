@@ -37,10 +37,12 @@ declare
   v_before bigint;
   v_after bigint;
 begin
-  insert into public.tenants(id) values (v_tenant_id);
-  insert into public.locations(id,tenant_id) values (v_location_id,v_tenant_id);
-  insert into public.employees(id,tenant_id,location_id,rolle,status)
-    values (v_employee_id,v_tenant_id,v_location_id,'manager','aktiv');
+  insert into public.tenants(id,name,slug)
+    values (v_tenant_id,'C-C Testtenant','cc-escalation-test');
+  insert into public.locations(id,tenant_id,name)
+    values (v_location_id,v_tenant_id,'C-C Teststandort');
+  insert into public.employees(id,tenant_id,location_id,vorname,nachname,email,rolle,status)
+    values (v_employee_id,v_tenant_id,v_location_id,'C-C','Testperson','cc-escalation@example.invalid','manager','aktiv');
   insert into public.operational_tasks(
     id,tenant_id,location_id,title,created_by,assigned_to,accountable_employee_id
   ) values (
