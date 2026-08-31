@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { canCompleteProcedure, normalizeProcedureContent, procedureContentSchema, reorder, valueRangeState } from '@/lib/ablaeufe/schema';
+import {
+  canCompleteProcedure,
+  normalizeProcedureContent,
+  procedureContentSchema,
+  procedureTasks,
+  reorder,
+  valueRangeState,
+} from '@/lib/ablaeufe/schema';
 
 const content = normalizeProcedureContent({ categories: [{ name: 'Öffnung', steps: [{ text: 'Licht einschalten' }, { title: 'Kühlung prüfen', evidence: 'messwert', unit: '°C', min: 2, max: 7 }] }] });
 
@@ -22,5 +29,20 @@ describe('visuelle Abläufe', () => {
   });
   it('bewertet Messwerte inklusive Grenzen', () => {
     const step=content.categories[0].steps[1]; expect(valueRangeState(step,2)).toBe('in-range'); expect(valueRangeState(step,7)).toBe('in-range'); expect(valueRangeState(step,8)).toBe('out-of-range'); expect(valueRangeState(step,null)).toBe('missing');
+  });
+  it('erhält unbekannte Legacy-Felder und erzeugt die Check-up-Kompatibilitätsansicht', () => {
+    const normalized = normalizeProcedureContent({
+      categories: [{
+        name: 'Kontrolle',
+        steps: [{ title: 'Kühlung', requiresPhoto: true, estMin: 4, extra: 'behalten' }],
+      }],
+    });
+    expect(normalized.categories[0].steps[0]).toMatchObject({ estMin: 4, extra: 'behalten' });
+    expect(procedureTasks(normalized)[0]).toMatchObject({
+      title: 'Kühlung',
+      estMin: 4,
+      extra: 'behalten',
+      requiresPhoto: false,
+    });
   });
 });

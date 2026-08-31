@@ -16,12 +16,12 @@ from public.departments d where d.id=g.department_id and (g.tenant_id is null or
 -- Legacy installations with exactly one company/site also contain site-wide
 -- guides without a department. That unambiguous scope can be recovered safely.
 update public.shift_guides g set tenant_id=t.id
-from (select min(id) id from public.tenants having count(*)=1) t
+from (select (array_agg(id))[1] id from public.tenants having count(*)=1) t
 where g.tenant_id is null;
 
 update public.shift_guides g set location_id=l.id
 from (
-  select tenant_id,min(id) id from public.locations group by tenant_id having count(*)=1
+  select tenant_id,(array_agg(id))[1] id from public.locations group by tenant_id having count(*)=1
 ) l
 where g.location_id is null and g.tenant_id=l.tenant_id;
 
@@ -46,6 +46,38 @@ alter table public.operational_tasks
   add column if not exists procedure_content jsonb,
   add column if not exists procedure_results jsonb not null default '{}'::jsonb;
 
+-- Check-up templates historically had no company/site scope. Add it so the
+-- guided server-side writer cannot address a template from another tenant.
+alter table public.checkup_templates
+  add column if not exists tenant_id uuid references public.tenants(id) on delete cascade,
+  add column if not exists location_id uuid references public.locations(id) on delete cascade;
+
+update public.checkup_templates t set
+  tenant_id=coalesce(t.tenant_id,d.tenant_id),
+  location_id=coalesce(t.location_id,d.location_id)
+from public.departments d
+where d.id=t.department_id and (t.tenant_id is null or t.location_id is null);
+
+update public.checkup_templates t set tenant_id=one_tenant.id
+from (select (array_agg(id))[1] id from public.tenants having count(*)=1) one_tenant
+where t.tenant_id is null;
+
+update public.checkup_templates t set location_id=one_location.id
+from (
+  select tenant_id,(array_agg(id))[1] id
+  from public.locations group by tenant_id having count(*)=1
+) one_location
+where t.location_id is null and t.tenant_id=one_location.tenant_id;
+
+do $checkup_scope$ begin
+  if exists(select 1 from public.checkup_templates where tenant_id is null or location_id is null) then
+    raise exception 'checkup_templates contains legacy rows whose tenant/location scope is ambiguous';
+  end if;
+end $checkup_scope$;
+
+create index if not exists checkup_templates_scope_idx
+  on public.checkup_templates(tenant_id,location_id,aktiv,titel);
+
 drop policy if exists shift_guides_read_scoped on public.shift_guides;
 drop policy if exists shift_guides_manage_scoped on public.shift_guides;
 create policy shift_guides_read_scoped on public.shift_guides for select to authenticated using (
@@ -68,9 +100,17 @@ update public.shift_guides g set inhalt=jsonb_set(
       coalesce((select jsonb_agg(
         jsonb_build_object(
           'id',coalesce(nullif(s.value->>'id',''),'step-'||c.ordinality||'-'||s.ordinality),
-          'title',coalesce(s.value->>'title',s.value->>'text',s.value->>'name',s.value #>> '{}','Schritt '||s.ordinality),
+          'title',coalesce(
+            s.value->>'title',s.value->>'text',s.value->>'name',
+            case when jsonb_typeof(s.value)='string' then s.value #>> '{}' end,
+            'Schritt '||s.ordinality
+          ),
           'description',coalesce(s.value->>'description',s.value->>'hint',''),
-          'required',coalesce(nullif(s.value->>'required','')::boolean,nullif(s.value->>'pflicht','')::boolean,true),
+          'required',case
+            when lower(coalesce(s.value->>'required',s.value->>'pflicht','')) in ('true','t','1','ja','yes') then true
+            when lower(coalesce(s.value->>'required',s.value->>'pflicht','')) in ('false','f','0','nein','no') then false
+            else true
+          end,
           'evidence',case coalesce(s.value->>'evidence',s.value->>'evidence_type','none') when 'foto' then 'photo' when 'messwert' then 'value' when 'unterschrift' then 'confirmation' else coalesce(s.value->>'evidence',s.value->>'evidence_type','none') end,
           'confirmationText',coalesce(s.value->>'confirmationText',''),'unit',coalesce(s.value->>'unit',''),
           'assigneeHint',coalesce(s.value->>'assigneeHint',s.value->>'role','')
