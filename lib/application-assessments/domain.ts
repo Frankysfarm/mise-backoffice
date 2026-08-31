@@ -20,6 +20,9 @@ export const assessmentQuestionSchema = z.object({
   if (question.correctOptionIds.some((id) => !ids.has(id))) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: 'Eine richtige Antwort fehlt in den Antwortmöglichkeiten.' });
   }
+  if (new Set(question.correctOptionIds).size !== question.correctOptionIds.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'Richtige Antwort-IDs müssen eindeutig sein.' });
+  }
 });
 
 export const assessmentTemplateSchema = z.object({

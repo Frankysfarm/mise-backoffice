@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const sql = readFileSync(resolve('supabase/migrations/20260831100944_application_assessments_training_onboarding.sql'), 'utf8');
+const corrections = readFileSync(resolve('supabase/migrations/20260831160000_vollausbau_review_corrections.sql'), 'utf8');
 
 describe('packet C-A database security', () => {
   it('keeps answer keys and assessments behind service routes', () => {
@@ -32,5 +33,16 @@ describe('packet C-A database security', () => {
     expect(sql).toContain("add column if not exists training_progress_id");
     expect(sql).toContain("'training_overdue',progress.id::text");
     expect(sql).toContain('process_overdue_trainings');
+  });
+
+  it('scores multi-select answers as duplicate- and order-insensitive sets', () => {
+    expect(corrections).toContain('array_agg(distinct value order by value)');
+    expect(corrections).toContain('selected.ids=correct.ids');
+  });
+
+  it('requires an active training assigner and scopes check-up templates with RLS', () => {
+    expect(corrections).toContain("actor.status::text in ('aktiv','in_training','in_probe')");
+    expect(corrections).toContain('alter table public.checkup_templates enable row level security');
+    expect(corrections).toContain('checkup_templates_manage_scoped');
   });
 });

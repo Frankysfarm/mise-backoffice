@@ -11,4 +11,8 @@ describe('application assessment domain', () => {
     expect(assessmentTemplateSchema.safeParse({ name: 'Barista', passingThreshold: 80, passAction: 'next_stage', failAction: 'manual_review', questions, active: true }).success).toBe(true);
     expect(assessmentTemplateSchema.safeParse({ name: 'Barista', passingThreshold: 80, passAction: 'next_stage', failAction: 'manual_review', questions: [{ ...questions[0], correctOptionIds: ['missing'] }], active: true }).success).toBe(false);
   });
+
+  it('rejects duplicate correct answer IDs', () => {
+    expect(assessmentTemplateSchema.safeParse({ name: 'Barista', passingThreshold: 80, passAction: 'next_stage', failAction: 'manual_review', questions: [{ ...questions[0], correctOptionIds: ['a', 'a'] }], active: true }).success).toBe(false);
+  });
 });

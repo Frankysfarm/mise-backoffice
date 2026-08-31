@@ -22,6 +22,10 @@ const warehouseFixMigration = fs.readFileSync(
   path.join(root, "supabase/migrations/20260831140100_inventory_warehouse_plan_review_fixes.sql"),
   "utf8",
 );
+const integrationCorrections = fs.readFileSync(
+  path.join(root, "supabase/migrations/20260831160000_vollausbau_review_corrections.sql"),
+  "utf8",
+);
 const employeePage = fs.readFileSync(
   path.join(root, "app/mitarbeiter/page.tsx"),
   "utf8",
@@ -89,6 +93,8 @@ describe("inventory tenant and workflow contract", () => {
     expect(warehouseMigration).toContain("'transfer'");
     expect(warehouseFixMigration).toContain("::public.movement_type");
     expect(warehouseFixMigration).toContain("insert into public.inventory_counts");
+    expect(integrationCorrections).toContain("'transfer',-p_amount");
+    expect(integrationCorrections).toContain("letzte_inventur=v_after");
   });
 
   it("shows only the signed-in employee’s open tasks and submits one atomic RPC", () => {

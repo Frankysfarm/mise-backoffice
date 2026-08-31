@@ -29,7 +29,8 @@ export async function POST(_: NextRequest, { params }: { params: Promise<{ token
   const { data: items } = await service.from('assessment_session_items').select('id').eq('session_id', session.id);
   if (!items?.length || items.some((item) => !parsed.data.answers[item.id]?.length)) return NextResponse.json({ error: 'Bitte jede Frage beantworten.' }, { status: 400 });
   for (const item of items) {
-    const { error } = await service.rpc('submit_application_assessment_response', { p_session_id: session.id, p_session_item_id: item.id, p_response: { optionIds: [...parsed.data.answers[item.id]].sort() } });
+    const optionIds = [...new Set(parsed.data.answers[item.id])].sort();
+    const { error } = await service.rpc('submit_application_assessment_response', { p_session_id: session.id, p_session_item_id: item.id, p_response: { optionIds } });
     if (error) return NextResponse.json({ error: assessmentErrorMessage(error.message) }, { status: 400 });
   }
   const { data, error } = await service.rpc('complete_application_assessment', { p_session_id: session.id, p_token_hash: hash });

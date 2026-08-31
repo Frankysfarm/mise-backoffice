@@ -421,3 +421,10 @@ checks also passed after the production switch.
 - **DB-Änderungen:** acht additive, transaktionale Migrationen seit `87320087`; geordnete Liste, Objekte und Rollback in `docs/agents/deploy/2026-08-31-migrations.md`. Gemeinsamer Produktionsschema-Snapshot-Dry-Run: 243 Tabellen, Restore 0 Fehler, 8/8 `OK`.
 - **Was getestet:** Typecheck nach jedem der sechs Merges; Fokus 57/57 Tests; final Vitest 42 Dateien/271 Tests, Typecheck Exit 0, Next Build Exit 0 mit 242/242 statischen Seiten, `git diff --check` Exit 0. Playwright ohne Live-DB Desktop/Mobile 32 bestanden, 8 authentifizierte Fälle übersprungen. Details: `docs/agents/reports/2026-08-31-c-int.md`.
 - **Offen:** kein Deploy/keine Produktionsänderung. Vor Deployment Staging-Migration, authentifizierte Persona-E2E mit `E2E_AUTH_STATE`, Delivery-Health gegen Live-DB und echte E-Mail-/Worker-Zustellung. Owner-Testplan: `docs/agents/reports/2026-08-31-persona-e2e.md`.
+
+# Vollausbau Final Review — Fix round 1
+
+- Claude-NO-GO M1–M4 und alle sicher behebbaren MINORs sind in `20260831160000_vollausbau_review_corrections.sql`, TypeScript, Tests und dem Deploy-Runbook geschlossen. Die reviewte Migration `20260831100944` blieb unverändert.
+- Produktions-Preconditions: verifiziertes Backup vor Datei 1; die beiden Scope-Abfragen im Runbook müssen auf Produktion vor Datei 8 null Zeilen liefern. Kein Deploy und keine Produktionsmutation in dieser Runde.
+- Evidence: Vitest 42/42 Dateien und 276/276 Tests; TypeScript Exit 0; Next Build Exit 0 und 242/242 Seiten; August-31-Migrationssatz 9/9 OK; `git diff --check` Exit 0. Der exakt angeforderte Glob `2026083*.sql` bleibt wegen des vorbestehenden Snapshot-Konflikts von `20260830154500_daily_clarity_automation.sql` Exit 1; alle Fix-Round-Migrationen darin sind OK. Details: `docs/agents/reports/2026-08-31-c-int.md`.
+- Rollback: RPC-/Triggerdefinitionen aus dem unmittelbar vor Datei 9 gesicherten Schema wiederherstellen; Datenkorrekturen aus Datei 1 nur aus dem verpflichtenden Pre-Deploy-Backup. Reviewer-Freigabe ist vor Deployment weiterhin erforderlich.
