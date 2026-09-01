@@ -234,9 +234,25 @@ returns uuid language sql stable security definer set search_path=public,pg_temp
 $$;
 
 -- Ist ein gespeicherter Controller noch gültig (aktiv, am Standort)?
-create or replace function public.is_valid_shift_guide_controller(p_employee_id uuid, p_tenant_id uuid, p_location_id uuid)
+create or replace function public.is_valid_shift_guide_controller(p_employee_id uuid, p_tenant_id uuid, p_location_id uuid, p_department_id uuid default null, p_at timestamptz default now())
 returns boolean language sql stable security definer set search_path=public,pg_temp as $$
-  select exists (select 1 from public.employees e where e.id = p_employee_id and e.tenant_id = p_tenant_id and e.location_id = p_location_id and e.status::text in ('aktiv','in_training','in_probe'))
+  -- gültig = aktiv am Standort UND (Leitungsrolle ODER aktuell gültige Hauptverantwortung für den Bereich)
+  select exists (
+    select 1 from public.employees e
+    where e.id = p_employee_id and e.tenant_id = p_tenant_id and e.location_id = p_location_id
+      and e.status::text in ('aktiv','in_training','in_probe')
+      and (
+        e.rolle::text in ('manager','backoffice','admin')
+        or exists (
+          select 1 from public.department_responsibility_assignments a
+          where a.employee_id = e.id and a.tenant_id = p_tenant_id and a.location_id = p_location_id
+            and (p_department_id is null or a.department_id = p_department_id)
+            and a.responsibility_role = 'hauptverantwortung' and a.aktiv
+            and a.valid_from <= (p_at at time zone 'Europe/Berlin')::date and (a.valid_until is null or a.valid_until >= (p_at at time zone 'Europe/Berlin')::date)
+            and (a.weekday_scope is null or extract(isodow from (p_at at time zone 'Europe/Berlin'))::smallint = any(a.weekday_scope))
+        )
+      )
+  )
 $$;
 
 create or replace function public.materialize_shift_guide_tasks(p_now timestamptz default now())
@@ -247,13 +263,18 @@ begin
   -- source_id = 'shift_guide:<shift>:<guide>:<mitarbeiter>' (Unique-Index auf source_type/source_id erlaubt so eine Neuanlage nach Umbesetzung)
   begin
     update public.operational_tasks t
-      set status = 'storniert', review_note = 'Automatisch storniert: Schicht geändert oder Ablauf deaktiviert.', updated_at = p_now
+      set status = 'storniert',
+          review_note = 'Automatisch storniert: Schicht geändert oder Ablauf deaktiviert.',
+          -- eindeutig machen: der Unique-Index auf source_id gilt auch für stornierte Aufgaben,
+          -- die Neuanlage (z. B. Umbesetzung A→B→A, Leitfaden reaktiviert) braucht die ursprüngliche ID wieder
+          source_id = t.source_id || ':storniert:' || t.id,
+          updated_at = p_now
       where t.source_type = 'shift_guide' and t.status in ('offen','angenommen','in_arbeit')
-        and t.source_id ~ '^shift_guide:[0-9a-f-]{36}:[0-9a-f-]{36}'
+        and t.source_id like 'shift_guide:%' and t.source_id not like '%:storniert:%'
         and (
           not exists (select 1 from public.shifts s where s.id = t.shift_id)
           or exists (select 1 from public.shifts s where s.id = t.shift_id and (s.status::text in ('abgesagt','storniert') or s.employee_id is distinct from t.assigned_to))
-          or not exists (select 1 from public.shift_guides g where g.id = split_part(t.source_id, ':', 3)::uuid and g.aktiv)
+          or not exists (select 1 from public.shift_guides g where g.id::text = split_part(t.source_id, ':', 3) and g.aktiv)
         );
   exception when others then
     raise notice 'materialize_shift_guide_tasks: reconcile übersprungen: %', sqlerrm;
@@ -337,7 +358,7 @@ begin
     limit 200
   loop
     v_controller := case
-      when v_task.controller_employee_id is not null and public.is_valid_shift_guide_controller(v_task.controller_employee_id, v_task.tenant_id, v_task.location_id) then v_task.controller_employee_id
+      when v_task.controller_employee_id is not null and public.is_valid_shift_guide_controller(v_task.controller_employee_id, v_task.tenant_id, v_task.location_id, v_task.department_id, p_now) then v_task.controller_employee_id
       else public.resolve_shift_guide_controller(v_task.tenant_id, v_task.location_id, v_task.department_id, v_task.assigned_to, p_now) end;
     -- Ohne Leitung am Standort: beim nächsten Lauf erneut versuchen (Kriterium bleibt „keine Kontrolle vorhanden“)
     if v_controller is null or v_controller = v_task.assigned_to then continue; end if;
@@ -384,7 +405,7 @@ revoke all on function public.materialize_shift_guide_tasks(timestamptz) from pu
 revoke all on function public.escalate_overdue_shift_guides(timestamptz) from public, anon, authenticated;
 revoke all on function public.assign_onboarding_trainings_internal(uuid) from public, anon, authenticated;
 revoke all on function public.resolve_shift_guide_controller(uuid, uuid, uuid, uuid, timestamptz) from public, anon, authenticated;
-revoke all on function public.is_valid_shift_guide_controller(uuid, uuid, uuid) from public, anon, authenticated;
+revoke all on function public.is_valid_shift_guide_controller(uuid, uuid, uuid, uuid, timestamptz) from public, anon, authenticated;
 grant execute on function public.materialize_shift_guide_tasks(timestamptz) to service_role;
 grant execute on function public.escalate_overdue_shift_guides(timestamptz) to service_role;
 grant execute on function public.assign_onboarding_trainings_internal(uuid) to service_role;

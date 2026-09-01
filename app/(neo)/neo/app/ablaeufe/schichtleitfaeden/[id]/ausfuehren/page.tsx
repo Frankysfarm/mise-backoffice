@@ -16,7 +16,10 @@ export default async function ExecuteGuide({
   const actor = await requirePosAccess();
   const { id } = await params;
   const query = (await searchParams) ?? {};
-  const initialTaskId = typeof query.task === "string" && /^[0-9a-f-]{36}$/i.test(query.task) ? query.task : undefined;
+  const rawTask = (query as { task?: string | string[] }).task;
+  // ?task= gesetzt, aber nicht exakt eine UUID → 404 (kein stiller Rückfall auf den Live-Leitfaden)
+  if (rawTask !== undefined && (typeof rawTask !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawTask))) notFound();
+  const initialTaskId = typeof rawTask === "string" ? rawTask : undefined;
   const service = createServiceClient();
   if (!actor.location_id) notFound();
 
