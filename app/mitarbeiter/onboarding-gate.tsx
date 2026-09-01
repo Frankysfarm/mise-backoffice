@@ -69,7 +69,7 @@ export function OnboardingGate({ vorname, tenantName, trainings }: { vorname: st
           <h2 className="mb-3 text-base font-bold tracking-tight">Alle Pflichtschulungen</h2>
           <ol className="space-y-2">
             {trainings.map((training, index) => {
-              const module = moduleOf(training);
+              const mod = moduleOf(training);
               const visible = trainingStatus(training.status, training.due_at);
               const done = training.status === 'bestanden';
               return (
@@ -79,9 +79,9 @@ export function OnboardingGate({ vorname, tenantName, trainings }: { vorname: st
                       {done ? <CheckCircle2 size={18} /> : index + 1}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate font-semibold">{module?.titel ?? 'Schulung'}</span>
+                      <span className="block truncate font-semibold">{mod?.titel ?? 'Schulung'}</span>
                       <span className="mt-0.5 flex items-center gap-2 text-xs text-slate-500">
-                        {module?.dauer_minuten ? <span className="inline-flex items-center gap-1"><Clock size={12} /> {module.dauer_minuten} Min.</span> : null}
+                        {mod?.dauer_minuten ? <span className="inline-flex items-center gap-1"><Clock size={12} /> {mod.dauer_minuten} Min.</span> : null}
                         {training.due_at ? <span>fällig {new Date(training.due_at).toLocaleDateString('de-DE', { timeZone: 'Europe/Berlin' })}</span> : null}
                       </span>
                     </span>
