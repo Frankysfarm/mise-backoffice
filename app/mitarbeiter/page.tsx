@@ -352,11 +352,19 @@ export default async function MitarbeiterPage() {
         />
 
         <section id="ablaeufe" className="mt-8 scroll-mt-20 px-4 sm:px-8">
-          <a href="/neo/app/ablaeufe/schichtleitfaeden" className="group flex items-center gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-indigo-950 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-100">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-indigo-100"><ListChecks size={20} /></span>
-            <span className="min-w-0 flex-1"><span className="block font-bold">Öffnung, Schließung & Abläufe</span><span className="mt-0.5 block text-xs text-indigo-700">Geführte Checklisten für deinen Standort starten</span></span>
-            <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
-          </a>
+          {canOpenBackoffice ? (
+            <a href="/neo/app/ablaeufe/schichtleitfaeden" className="group flex items-center gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-indigo-950 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-100">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-indigo-100"><ListChecks size={20} /></span>
+              <span className="min-w-0 flex-1"><span className="block font-bold">Öffnung, Schließung & Abläufe</span><span className="mt-0.5 block text-xs text-indigo-700">Geführte Checklisten für deinen Standort starten</span></span>
+              <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
+            </a>
+          ) : (
+            // Mitarbeiter starten Abläufe aus ihrer Schicht (Leitfaden-Liste ist Verwaltung, Middleware sperrt sie).
+            <div className="flex items-center gap-4 rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-indigo-950">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-indigo-100"><ListChecks size={20} /></span>
+              <span className="min-w-0 flex-1"><span className="block font-bold">Öffnung, Schließung & Abläufe</span><span className="mt-0.5 block text-xs text-indigo-700">Deine Schichtleitung startet den Ablauf – die Schritte erscheinen dann in deiner Schicht unter „Meine nächsten Schichten“.</span></span>
+            </div>
+          )}
         </section>
 
         <section id="inventuren" className="mt-8 scroll-mt-20 px-4 sm:px-8" aria-labelledby="inventory-tasks-title">

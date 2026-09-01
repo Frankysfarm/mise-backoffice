@@ -107,7 +107,16 @@ export function QRScanner({ open, onClose, onScan, expectedOrigin }: Props) {
         };
 
         function tryAccept(raw: string): boolean {
-          if (raw.startsWith(expectedOrigin) && raw.includes('/auth/qr-login')) {
+          // Nur exakt unser Origin + Login-Pfad: verhindert Open-Redirect über
+          // Look-alike-Domains (z. B. https://app.example.com.evil.tld/auth/qr-login).
+          let accepted = false;
+          try {
+            const u = new URL(raw);
+            accepted = !!expectedOrigin && u.origin === expectedOrigin && u.pathname === '/auth/qr-login';
+          } catch {
+            accepted = false;
+          }
+          if (accepted) {
             stopped = true;
             cleanup();
             onScan(raw);

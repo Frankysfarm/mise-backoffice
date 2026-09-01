@@ -170,9 +170,10 @@ export async function updateSession(request: NextRequest) {
     const isEmployeeArea = pathname === '/mitarbeiter' || pathname.startsWith('/mitarbeiter/');
     // Ausführen statt Verwalten: Schichtleitfaden abarbeiten und QR-Lagerplatz öffnen
     // sind Mitarbeiter-Aufgaben (Persona-E2E), die Neo-Verwaltung bleibt Hierarchie-Rollen vorbehalten.
+    // Bewusst exakt (keine Unterpfade): Ziel-Seiten prüfen selbst Tenant/Standort per requirePosAccess.
     const isEmployeeExecution =
-      /^\/neo\/app\/ablaeufe\/schichtleitfaeden\/[^/]+\/ausfuehren(\/|$)/.test(pathname) ||
-      pathname.startsWith('/neo/app/lager/platz/');
+      /^\/neo\/app\/ablaeufe\/schichtleitfaeden\/[^/]+\/ausfuehren\/?$/.test(pathname) ||
+      /^\/neo\/app\/lager\/platz\/[^/]+\/?$/.test(pathname);
     const allowedForPath = isPosArea || isEmployeeArea || isEmployeeExecution ? posRoles : backofficeRoles;
     if (!emp || !allowedForPath.includes(emp.rolle)) {
       const url = request.nextUrl.clone();

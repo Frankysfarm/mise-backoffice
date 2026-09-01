@@ -12,5 +12,5 @@ export const viewport: Viewport = { width: 'device-width', initialScale: 1, view
 
 /** Neutraler Team-Eingang ohne Betrieb – z. B. wenn der Link ohne Betriebskürzel geteilt wurde. */
 export default function TeamLoginNeutralPage() {
-  return <TeamLogin brand={{ name: 'Mise', slug: null, logoUrl: null, primary: '#1f5a3a', accent: '#7ee2a8' }} />;
+  return <TeamLogin brand={{ name: 'Mise', slug: null, logoUrl: null, primary: '#1f5a3a', accent: '#7ee2a8', onBrand: '#ffffff' }} />;
 }
