@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
           .maybeSingle();
         if (order) templateData = { ...templateData, ...order };
       }
-      const knownTemplate = ['order_confirmation', 'delivery_unterwegs', 'delivery_delivered', 'delivery_abholbereit', 'schedule_availability_reminder', 'schedule_published']
+      const knownTemplate = ['order_confirmation', 'delivery_unterwegs', 'delivery_delivered', 'delivery_abholbereit', 'schedule_availability_reminder', 'schedule_published', 'employee_notification']
         .includes(mail.template ?? '');
       const html = knownTemplate
         ? renderByTemplate(mail.template, templateData, { origin, tenant })
@@ -107,6 +107,14 @@ function renderByTemplate(
   }
   if (template === 'schedule_availability_reminder') {
     return scheduleMail(ctx, '📅', 'Verfügbarkeit eintragen', `Bitte trage deine Verfügbarkeit für die Woche ab ${formatGermanDate(data.week_start)} in der Mitarbeiter-App ein.`);
+  }
+  if (template === 'employee_notification') {
+    const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+    const icon = data.typ === 'dringend' ? '🚨' : data.typ === 'warnung' ? '⚠️' : data.typ === 'erfolg' ? '🎉' : '🔔';
+    const link = String(data.link ?? '/mitarbeiter');
+    const href = `${ctx.origin}${link.startsWith('/') ? link : '/mitarbeiter'}`;
+    const inner = `<tr><td style="padding:32px 40px; font-size:15px; line-height:1.7;">Hallo ${esc(data.vorname) || 'Team'},<br><br>${esc(data.nachricht).replace(/\n/g, '<br>')}<br><br><a href="${href}" style="display:inline-block; padding:12px 20px; border-radius:12px; background:${ctx.tenant.theme_primary ?? '#14532d'}; color:#ffffff; font-weight:700; text-decoration:none;">In der Mitarbeiter-App öffnen</a></td></tr>`;
+    return emailShell(ctx, { icon, title: esc(data.titel), eyebrow: ctx.tenant.name, inner, operationalMail: true });
   }
   if (template === 'schedule_published') {
     return scheduleMail(ctx, '✅', 'Dienstplan veröffentlicht', `Dein Dienstplan für die Woche ab ${formatGermanDate(data.week_start)} ist jetzt verbindlich. Prüfe deine Schichten in der Mitarbeiter-App.`);

@@ -18,6 +18,8 @@ import {
 import { requirePosAccess } from '@/lib/auth/requireRole';
 import { berlinScheduleMoment, isResponsibilityScheduleActive, type ResponsibilitySchedule } from '@/lib/operations/responsibility-scope';
 import { createServiceClient } from '@/lib/supabase/server';
+import { OnboardingGate, type OnboardingTraining } from './onboarding-gate';
+import { PflichtHeute, type PflichtTask } from './pflicht-heute';
 import {
   berlinWeekBounds,
   nextRelevantShift,
@@ -125,7 +127,7 @@ export default async function MitarbeiterPage() {
     { data: teamMemberData }, { data: responsibilityTeamData }, { data: openShiftRows }, { data: availabilityResponseData }, { data: publicationChangeData }, { data: openWeekData },
   ] = await Promise.all([
     service.from('employees')
-      .select('id,vorname,nachname,rolle,position_title,reports_to_employee_id,avatar_url')
+      .select('id,vorname,nachname,rolle,position_title,reports_to_employee_id,avatar_url,onboarding_completed_at,status')
       .eq('id', employee.id)
       .eq('tenant_id', employee.tenant_id)
       .in('status', ['aktiv', 'in_training', 'in_probe'])
@@ -148,7 +150,7 @@ export default async function MitarbeiterPage() {
       .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .eq('employee_id', employee.id).eq('aktiv', true),
     service.from('operational_tasks')
-      .select('id,shift_id,title,description,status,priority,due_at,completed_at,evidence_requirements,escalation_level,assigned_to,accountable_employee_id,controller_employee_id,department:departments(name),shift:shifts(start_zeit,end_zeit,position),evidence:operational_task_evidence(id,evidence_type,verification_status,submitted_at)')
+      .select('id,shift_id,title,description,status,priority,due_at,completed_at,evidence_requirements,escalation_level,source_type,source_id,assigned_to,accountable_employee_id,controller_employee_id,department:departments(name),shift:shifts(start_zeit,end_zeit,position),evidence:operational_task_evidence(id,evidence_type,verification_status,submitted_at)')
       .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .or(`assigned_to.eq.${employee.id},accountable_employee_id.eq.${employee.id},controller_employee_id.eq.${employee.id}`)
       .not('status', 'eq', 'storniert').order('due_at', { ascending: true, nullsFirst: false }).limit(150),
@@ -221,6 +223,32 @@ export default async function MitarbeiterPage() {
     }));
   const name = [employee.vorname, employee.nachname].filter(Boolean).join(' ') || 'Mitarbeiter';
   const canOpenBackoffice = ['manager', 'backoffice', 'admin'].includes(employee.rolle);
+
+  // Onboarding-Sperre: neue Mitarbeiter sehen nur ihre Pflichtschulungen, bis alle bestanden sind.
+  // (Trigger training_progress_onboarding_complete setzt onboarding_completed_at und schaltet frei.)
+  const onboardingState = activeEmployee as { onboarding_completed_at?: string | null; status?: string | null };
+  if (!canOpenBackoffice && (onboardingState.status === 'in_training' || !onboardingState.onboarding_completed_at)) {
+    const { data: mandatoryRows, error: mandatoryError } = await service
+      .from('training_progress')
+      .select('id,status,due_at,fortschritt_prozent,module:training_modules!inner(titel,dauer_minuten,pflicht,aktiv)')
+      .eq('employee_id', employee.id)
+      .eq('tenant_id', employee.tenant_id)
+      .eq('module.pflicht', true)
+      .eq('module.aktiv', true)
+      .order('due_at', { ascending: true, nullsFirst: false });
+    // Fail-closed: bei Datenbankfehler lieber den Onboarding-Modus zeigen als die volle App freigeben
+    if (mandatoryError) throw new Error(`Onboarding-Status konnte nicht geladen werden (${mandatoryError.code ?? 'db'})`);
+    const mandatory = (mandatoryRows ?? []) as unknown as OnboardingTraining[];
+    if (mandatory.some((t) => t.status !== 'bestanden')) {
+      return <OnboardingGate vorname={employee.vorname || 'du'} tenantName={tenant?.name ?? 'Mein Betrieb'} trainings={mandatory} />;
+    }
+  }
+
+  // Pflicht-Checklisten der Schicht: eigene Sektion, nicht in der allgemeinen Aufgabenliste doppelt
+  const allOperationalTasks = (operationalTaskData ?? []) as unknown as (PflichtTask & { assigned_to?: string | null })[];
+  const isOwnOpenGuideTask = (task: PflichtTask & { assigned_to?: string | null }) => task.source_type === 'shift_guide' && task.assigned_to === employee.id && ['offen', 'angenommen', 'in_arbeit'].includes(task.status);
+  const pflichtTasks = allOperationalTasks.filter(isOwnOpenGuideTask);
+  const generalOperationalTasks = allOperationalTasks.filter((task) => !isOwnOpenGuideTask(task));
   const changesByShift = new Map(((publicationChangeData ?? []) as PublicationChangeRow[]).flatMap(change => change.shift_id ? [[change.shift_id, change] as const] : []));
   const openWeeks = new Set((openWeekData ?? []).filter(week => !week.availability_deadline || Date.parse(week.availability_deadline) >= now.getTime()).map(week => week.week_start));
   const openShiftData = (openShiftRows ?? []).filter(shift => openWeeks.has(berlinScheduleWeek(undefined, new Date(shift.start_zeit)).calendarStart));
@@ -306,6 +334,8 @@ export default async function MitarbeiterPage() {
           <a href="/mitarbeiter/schulungen" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><Sparkles size={14} className="text-indigo-700" /> Schulungen</a>
         </nav>
 
+        <PflichtHeute tasks={pflichtTasks} now={now} />
+
         <section id="dienstplan" className="mt-8 scroll-mt-20 px-4 sm:px-8">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
@@ -345,7 +375,7 @@ export default async function MitarbeiterPage() {
           actorId={employee.id}
           locationId={employee.location_id ?? ''}
           responsibilities={ownResponsibilities as never[]}
-          tasks={(operationalTaskData ?? []) as never[]}
+          tasks={generalOperationalTasks as never[]}
           handovers={handoversWithTasks as never[]}
           organization={{ self: selfInTeam, leaders: leadershipChain, directReports }}
           responsibilityCoverage={responsibilityCoverage}

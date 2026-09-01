@@ -5,7 +5,7 @@ import { normalizeProcedureContent } from "@/lib/ablaeufe/schema";
 import { createServiceClient } from "@/lib/supabase/server";
 
 const requestSchema = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("start"), guideId: z.string().uuid() }),
+  z.object({ action: z.literal("start"), guideId: z.string().uuid(), taskId: z.string().uuid().optional() }),
   z.object({
     action: z.literal("finish"),
     taskId: z.string().uuid(),
@@ -38,6 +38,45 @@ export async function POST(request: NextRequest) {
   const service = createServiceClient();
   const input = parsed.data;
 
+  if (input.action === "start" && input.taskId) {
+    // Pflicht-Checkliste aus der Schicht: vorhandene Aufgabe übernehmen statt neue anlegen
+    const { data: task } = await service
+      .from("operational_tasks")
+      .select("id,status,assigned_to,source_type,source_id,procedure_content")
+      .eq("id", input.taskId)
+      .eq("tenant_id", actor.tenant_id)
+      .eq("location_id", actor.location_id)
+      .maybeSingle();
+    if (!task || task.assigned_to !== actor.id || task.source_type !== "shift_guide") {
+      return NextResponse.json({ error: "Diese Checkliste ist dir nicht zugewiesen." }, { status: 404 });
+    }
+    if (!["offen", "angenommen", "in_arbeit"].includes(task.status)) {
+      return NextResponse.json({ error: "Diese Checkliste ist bereits abgeschlossen." }, { status: 409 });
+    }
+    if (task.source_id?.split(":")[2] !== input.guideId) {
+      return NextResponse.json({ error: "Checkliste und Ablauf passen nicht zusammen." }, { status: 409 });
+    }
+    let content;
+    try {
+      content = normalizeProcedureContent(task.procedure_content);
+    } catch {
+      return NextResponse.json({ error: "Dieser Ablauf muss von der Leitung einmal gespeichert werden." }, { status: 409 });
+    }
+    if (task.status !== "in_arbeit") {
+      // Atomar: nur übernehmen, wenn die Aufgabe jetzt noch mir gehört und offen ist
+      const { data: taken, error } = await service
+        .from("operational_tasks")
+        .update({ status: "in_arbeit", started_at: new Date().toISOString(), procedure_content: content, updated_at: new Date().toISOString() })
+        .eq("id", task.id)
+        .eq("assigned_to", actor.id)
+        .in("status", ["offen", "angenommen"])
+        .select("id")
+        .maybeSingle();
+      if (error) return NextResponse.json({ error: "Checkliste konnte nicht gestartet werden." }, { status: 500 });
+      if (!taken) return NextResponse.json({ error: "Diese Checkliste wurde inzwischen geändert. Bitte Seite neu laden." }, { status: 409 });
+    }
+    return NextResponse.json({ taskId: task.id }, { status: 200 });
+  }
   if (input.action === "start") {
     const { data: guide } = await service
       .from("shift_guides")

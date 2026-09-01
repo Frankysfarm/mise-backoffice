@@ -15,10 +15,13 @@ export function GuidedProcedure({
   guideId,
   title,
   content,
+  initialTaskId,
 }: {
   guideId: string;
   title: string;
   content: ProcedureContent;
+  /** Pflicht-Checkliste aus der Schicht: vorhandene Aufgabe wird übernommen. */
+  initialTaskId?: string;
 }) {
   const steps = content.categories.flatMap((category) => category.steps);
   const [taskId, setTaskId] = useState("");
@@ -39,7 +42,7 @@ export function GuidedProcedure({
     const response = await fetch("/api/ablaeufe/executions", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ action: "start", guideId }),
+      body: JSON.stringify({ action: "start", guideId, ...(initialTaskId ? { taskId: initialTaskId } : {}) }),
     });
     const result = await response.json();
     setBusy(false);
