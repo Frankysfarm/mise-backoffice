@@ -99,6 +99,8 @@ begin
                      join public.employees he on he.id = a2.employee_id
                     where a2.tenant_id = e.tenant_id and a2.location_id = e.location_id and a2.department_id = e.department_id
                       and a2.responsibility_role = 'hauptverantwortung' and a2.aktiv and a2.employee_id <> e.id
+                      and a2.valid_from <= (p_now at time zone 'Europe/Berlin')::date and (a2.valid_until is null or a2.valid_until >= (p_now at time zone 'Europe/Berlin')::date)
+                      and (a2.weekday_scope is null or extract(isodow from (p_now at time zone 'Europe/Berlin'))::smallint = any(a2.weekday_scope))
                       and he.location_id = e.location_id and he.status::text in ('aktiv','in_training','in_probe'))
       )
     order by p.due_at
@@ -214,6 +216,7 @@ grant execute on function public.escalate_overdue_trainings(timestamptz) to serv
 grant execute on function public.auto_reorder_drafts(timestamptz) to service_role;
 
 -- Performance im 3-Minuten-Cron
-create index if not exists order_lists_open_positions_gin on public.order_lists using gin (positionen jsonb_path_ops) where status in ('entwurf','bestellt');
+drop index if exists order_lists_open_positions_gin;
+create index if not exists order_lists_open_positions_gin on public.order_lists using gin (positionen jsonb_path_ops) where status in ('entwurf','bestellt','geliefert');
 create index if not exists inventory_items_under_min_idx on public.inventory_items(area_id) where aktiv and min_bestand is not null;
 create index if not exists training_progress_overdue_idx on public.training_progress(due_at) where status = 'ueberfaellig';

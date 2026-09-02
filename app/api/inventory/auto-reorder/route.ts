@@ -21,11 +21,15 @@ export async function POST(req: NextRequest) {
     i.letzte_inventur === null || (i.min_bestand !== null && i.letzte_inventur < i.min_bestand)
   );
   // Artikel-Guard wie im Auto-Cron: Artikel, die schon in einem offenen Entwurf stecken, nicht doppelt vorschlagen
-  const { data: openOrders, error: openOrdersError } = await supabase.from('order_lists').select('positionen').in('status', ['entwurf', 'bestellt']);
+  const graceCutoff = Date.now() - 7 * 86_400_000;
+  const { data: openOrders, error: openOrdersError } = await supabase.from('order_lists').select('positionen,status,geliefert_am,updated_at').in('status', ['entwurf', 'bestellt', 'geliefert']);
   if (openOrdersError) {
     return NextResponse.json({ error: 'Offene Bestellungen konnten nicht geprüft werden. Bitte erneut versuchen.' }, { status: 502 });
   }
-  const inOpenDraft = new Set((openOrders ?? []).flatMap((o: any) => (Array.isArray(o.positionen) ? o.positionen : []).map((p: any) => String(p?.item_id ?? ''))));
+  const relevantOrders = (openOrders ?? []).filter((o: any) =>
+    o.status !== 'geliefert' || Date.parse(o.geliefert_am ?? o.updated_at ?? '') > graceCutoff, // geliefert: 7 Tage Schonfrist bis Einbuchen/Zählung
+  );
+  const inOpenDraft = new Set(relevantOrders.flatMap((o: any) => (Array.isArray(o.positionen) ? o.positionen : []).map((p: any) => String(p?.item_id ?? ''))));
   const underMin = allUnderMin.filter((i: any) => !inOpenDraft.has(String(i.id)));
   if (underMin.length === 0) {
     return NextResponse.json({ ok: true, message: allUnderMin.length === 0 ? 'Alles auf Lager — nichts zu bestellen.' : 'Alles Fehlende steckt bereits in offenen Bestellungen.', orders: [] });
