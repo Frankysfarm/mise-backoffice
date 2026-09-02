@@ -301,25 +301,26 @@ export async function POST(request: NextRequest) {
           if (missing.length) return NextResponse.json({ error: `Erforderliche Nachweise fehlen: ${missing.join(', ')}` }, { status: 409 });
         }
       }
-      const { data, error } = await service.rpc('update_operational_task_as_actor', {
-        p_task_id: task.id,
-        p_tenant_id: actor.tenant_id,
-        p_location_id: input.locationId,
-        p_actor_id: actor.id,
-        p_status: input.status,
-        p_review_note: input.reviewNote || null,
-      });
+      // Beanstandet ist keine Sackgasse: reject-RPC lehnt ab (Benachrichtigung mit Grund via Trigger)
+      // und öffnet die Aufgabe in derselben Transaktion wieder zur Nacharbeit.
+      const { data, error } = input.status === 'nicht_bestanden'
+        ? await service.rpc('reject_operational_task_as_actor', {
+            p_task_id: task.id,
+            p_tenant_id: actor.tenant_id,
+            p_location_id: input.locationId,
+            p_actor_id: actor.id,
+            p_review_note: input.reviewNote!.trim(),
+          })
+        : await service.rpc('update_operational_task_as_actor', {
+            p_task_id: task.id,
+            p_tenant_id: actor.tenant_id,
+            p_location_id: input.locationId,
+            p_actor_id: actor.id,
+            p_status: input.status,
+            p_review_note: input.reviewNote || null,
+          });
       const updated = Array.isArray(data) ? data[0] ?? null : data ?? null;
       if (error || !updated) return failure(error?.message ?? 'Aufgabe konnte nicht aktualisiert werden.');
-      // Beanstandet ist keine Sackgasse: Aufgabe geht zur Nacharbeit zurück auf „offen“
-      // (Benachrichtigung mit Grund hat der Statuswechsel zu nicht_bestanden bereits ausgelöst,
-      //  reviewed_by/review_note bleiben als Historie erhalten).
-      if (input.status === 'nicht_bestanden' && updated.status === 'nicht_bestanden') {
-        const { data: reopened } = await service.from('operational_tasks')
-          .update({ status: 'offen', completed_at: null, updated_at: new Date().toISOString() })
-          .eq('id', task.id).eq('tenant_id', actor.tenant_id).select('*').maybeSingle();
-        if (reopened) return NextResponse.json({ task: reopened });
-      }
       return NextResponse.json({ task: updated });
     }
 
