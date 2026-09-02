@@ -57,8 +57,10 @@ export async function POST(req: NextRequest) {
   for (const proposal of proposals) {
     const proposalItems = underMin.filter((item: any) => proposal.itemIds.includes(item.id));
     const positionen = proposalItems.map((i: any) => {
+      // Mindestens bis Soll- bzw. Mindestbestand auffüllen, nie 0
+      const ist = i.letzte_inventur ?? 0;
       const menge = i.nachbestell_menge
-        ?? (i.soll_bestand != null ? Math.max(0, i.soll_bestand - (i.letzte_inventur ?? 0)) : i.min_bestand ?? 1);
+        ?? Math.max(i.soll_bestand != null ? i.soll_bestand - ist : 0, i.min_bestand != null ? i.min_bestand - ist : 0, 1);
       return {
         item_id: i.id,
         name: i.name,

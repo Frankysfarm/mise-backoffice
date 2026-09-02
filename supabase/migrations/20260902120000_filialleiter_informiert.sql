@@ -188,14 +188,14 @@ begin
       if v_creator is null then continue; end if;
       -- Lieferant nur übernehmen, wenn er zum Betrieb gehört
       v_supplier := case when v_group.supplier_id is not null and exists (select 1 from public.suppliers sp where sp.id = v_group.supplier_id and sp.tenant_id = v_group.tenant_id) then v_group.supplier_id else null end;
-      -- Mengenformel identisch zur bestehenden Route: nachbestell_menge, sonst soll-ist, sonst min, sonst 1
+      -- Menge: nachbestell_menge, sonst mindestens bis Soll- bzw. Mindestbestand auffüllen, nie 0
       select jsonb_agg(jsonb_build_object(
                'item_id', i.id::text, 'name', i.name, 'artikelnummer', i.artikelnummer,
-               'menge', coalesce(i.nachbestell_menge, case when i.soll_bestand is not null then greatest(0, i.soll_bestand - coalesce(i.letzte_inventur, 0)) else coalesce(i.min_bestand, 1) end),
+               'menge', coalesce(i.nachbestell_menge, greatest(coalesce(i.soll_bestand - i.letzte_inventur, 0), coalesce(i.min_bestand - i.letzte_inventur, 0), 1)),
                'einheit', i.einheit, 'preis_pro_einheit', i.preis_pro_einheit,
                'lagerplatz', (select sh.name from public.inventory_shelves sh where sh.id = i.shelf_id and sh.area_id = i.area_id)
              )),
-             coalesce(sum(coalesce(i.nachbestell_menge, case when i.soll_bestand is not null then greatest(0, i.soll_bestand - coalesce(i.letzte_inventur, 0)) else coalesce(i.min_bestand, 1) end) * coalesce(i.preis_pro_einheit, 0)), 0)
+             coalesce(sum(coalesce(i.nachbestell_menge, greatest(coalesce(i.soll_bestand - i.letzte_inventur, 0), coalesce(i.min_bestand - i.letzte_inventur, 0), 1)) * coalesce(i.preis_pro_einheit, 0)), 0)
         into v_positions, v_total
       from public.inventory_items i where i.id = any(v_group.item_ids);
       if v_positions is null then continue; end if;
