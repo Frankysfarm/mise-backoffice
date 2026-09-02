@@ -358,6 +358,12 @@ export default async function MitarbeiterPage() {
                     <span>{hoursLabel(shiftDurationMinutes(shift))}</span>
                     {relationName(shift.location) && <span>{relationName(shift.location)}</span>}
                   </div>
+                  {shift.notiz && (
+                    <div className="mt-2 rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs leading-relaxed text-amber-900">
+                      <span className="font-bold">Besonderheiten: </span>
+                      <span className="whitespace-pre-line">{shift.notiz}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center justify-between gap-3 sm:block sm:text-right">
                   {changesByShift.has(shift.id) && <div className="mb-1 inline-flex rounded-full bg-amber-100 px-2 py-1 text-[10px] font-bold text-amber-800" title={changesByShift.get(shift.id)?.summary}>Geändert seit Veröffentlichung</div>}
