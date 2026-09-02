@@ -20,6 +20,9 @@ export async function GET(request: NextRequest) {
   // Pflichtkette: erst Schicht-Checklisten materialisieren, dann Überfälliges zur Filialleiter-Kontrolle eskalieren
   const { data: guideTasks, error: guideError } = await service.rpc('materialize_shift_guide_tasks', { p_now: new Date().toISOString() });
   const { data: guideControls, error: guideControlError } = await service.rpc('escalate_overdue_shift_guides', { p_now: new Date().toISOString() });
+  // Filialleitung informiert immer: überfällige Pflichtschulungen → Kontrolle; Fehlbestände → Bestellentwurf (+ Fehlliste per Trigger)
+  const { data: trainingControls, error: trainingControlError } = await service.rpc('escalate_overdue_trainings', { p_now: new Date().toISOString() });
+  const { data: reorderDrafts, error: reorderError } = await service.rpc('auto_reorder_drafts', { p_now: new Date().toISOString() });
   const [
     { data: tasks, error: taskError },
     { data: briefings, error: briefingError },
@@ -35,10 +38,10 @@ export async function GET(request: NextRequest) {
     service.rpc('process_overdue_trainings', { p_now: new Date().toISOString() }),
   ]);
   const recurringError = scopeError ?? recurringRuns.find((run) => run.error)?.error;
-  if (taskError || briefingError || serviceError || trainingError || recurringError || guideError || guideControlError) {
+  if (taskError || briefingError || serviceError || trainingError || recurringError || guideError || guideControlError || trainingControlError || reorderError) {
     return NextResponse.json({
       ok: false,
-      error: taskError?.message ?? briefingError?.message ?? serviceError?.message ?? trainingError?.message ?? recurringError?.message ?? guideError?.message ?? guideControlError?.message ?? 'Tagesklarheitslauf fehlgeschlagen',
+      error: taskError?.message ?? briefingError?.message ?? serviceError?.message ?? trainingError?.message ?? recurringError?.message ?? guideError?.message ?? guideControlError?.message ?? trainingControlError?.message ?? reorderError?.message ?? 'Tagesklarheitslauf fehlgeschlagen',
     }, { status: 500 });
   }
   // E-Mails: jede Eskalations-Benachrichtigung wird per DB-Trigger (notifications → email_outbox) im Betriebs-Branding versendet.
@@ -51,5 +54,7 @@ export async function GET(request: NextRequest) {
     recurring_tasks_materialized: recurringRuns.reduce((sum, run) => sum + Number(run.data ?? 0), 0),
     shift_guide_tasks_materialized: guideTasks ?? 0,
     shift_guide_controls_created: guideControls ?? 0,
+    training_overdue_controls_created: trainingControls ?? 0,
+    reorder_drafts_created: reorderDrafts ?? 0,
   });
 }
