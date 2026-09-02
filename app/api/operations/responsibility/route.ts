@@ -273,6 +273,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (input.action === 'update_task') {
+      // Beanstandung braucht immer einen Grund – der geht als Nachricht an die zuständige Person
+      if (input.status === 'nicht_bestanden' && (input.reviewNote ?? '').trim().length < 3) {
+        return NextResponse.json({ error: 'Bitte einen kurzen Grund für die Beanstandung angeben.' }, { status: 400 });
+      }
       const { data: task } = await service.from('operational_tasks').select('*').eq('id', input.taskId)
         .eq('tenant_id', actor.tenant_id).eq('location_id', input.locationId).maybeSingle();
       if (!task) return notFound('Aufgabe nicht gefunden.');
@@ -307,6 +311,15 @@ export async function POST(request: NextRequest) {
       });
       const updated = Array.isArray(data) ? data[0] ?? null : data ?? null;
       if (error || !updated) return failure(error?.message ?? 'Aufgabe konnte nicht aktualisiert werden.');
+      // Beanstandet ist keine Sackgasse: Aufgabe geht zur Nacharbeit zurück auf „offen“
+      // (Benachrichtigung mit Grund hat der Statuswechsel zu nicht_bestanden bereits ausgelöst,
+      //  reviewed_by/review_note bleiben als Historie erhalten).
+      if (input.status === 'nicht_bestanden' && updated.status === 'nicht_bestanden') {
+        const { data: reopened } = await service.from('operational_tasks')
+          .update({ status: 'offen', completed_at: null, updated_at: new Date().toISOString() })
+          .eq('id', task.id).eq('tenant_id', actor.tenant_id).select('*').maybeSingle();
+        if (reopened) return NextResponse.json({ task: reopened });
+      }
       return NextResponse.json({ task: updated });
     }
 

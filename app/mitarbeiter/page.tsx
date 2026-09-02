@@ -153,7 +153,9 @@ export default async function MitarbeiterPage() {
       .select('id,shift_id,title,description,status,priority,due_at,completed_at,evidence_requirements,escalation_level,source_type,source_id,assigned_to,accountable_employee_id,controller_employee_id,department:departments(name),shift:shifts(start_zeit,end_zeit,position),evidence:operational_task_evidence(id,evidence_type,verification_status,submitted_at)')
       .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
       .or(`assigned_to.eq.${employee.id},accountable_employee_id.eq.${employee.id},controller_employee_id.eq.${employee.id}`)
-      .not('status', 'eq', 'storniert').order('due_at', { ascending: true, nullsFirst: false }).limit(150),
+      .not('status', 'eq', 'storniert')
+      .or(`status.neq.erledigt,completed_at.gte.${new Date(now.getTime() - 7 * 86_400_000).toISOString()}`)
+      .order('created_at', { ascending: false }).limit(200),
     service.from('responsibility_handovers')
       .select('id,reason,starts_at,ends_at,note,status,read_at,confirmed_at,from_employee_id,to_employee_id,open_task_ids,incidents,inventory_notes,damage_notes,cleaning_notes,important_notes,department:departments(name),from_employee:employees!responsibility_handovers_from_employee_id_fkey(vorname,nachname),to_employee:employees!responsibility_handovers_to_employee_id_fkey(vorname,nachname)')
       .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
@@ -249,6 +251,31 @@ export default async function MitarbeiterPage() {
   const isOwnOpenGuideTask = (task: PflichtTask & { assigned_to?: string | null }) => task.source_type === 'shift_guide' && task.assigned_to === employee.id && ['offen', 'angenommen', 'in_arbeit'].includes(task.status);
   const pflichtTasks = allOperationalTasks.filter(isOwnOpenGuideTask);
   const generalOperationalTasks = allOperationalTasks.filter((task) => !isOwnOpenGuideTask(task));
+  // Ampel-Daten: heute erledigte Pflicht-Checklisten (Ring) + Prüf-Stapel der Leitung
+  const berlinDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(now);
+  const doneGuidesToday = allOperationalTasks.filter((task) =>
+    task.source_type === 'shift_guide' && (task as { assigned_to?: string | null }).assigned_to === employee.id
+    && ['wartet_auf_pruefung', 'erledigt'].includes(task.status)
+    && ((task as { completed_at?: string | null }).completed_at ?? '').length > 0
+    && new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(new Date((task as { completed_at?: string | null }).completed_at!)) === berlinDay).length;
+  const reviewQueue = allOperationalTasks.filter((task) => {
+    const t = task as { accountable_employee_id?: string | null; controller_employee_id?: string | null; assigned_to?: string | null };
+    const mine = t.accountable_employee_id === employee.id || t.controller_employee_id === employee.id;
+    const isControl = (task.source_type ?? '').endsWith('_control') && t.assigned_to === employee.id && ['offen', 'angenommen', 'in_arbeit'].includes(task.status);
+    return (task.status === 'wartet_auf_pruefung' && mine && t.assigned_to !== employee.id) || isControl;
+  }).length;
+  // Schrittzahlen der offenen Pflicht-Checklisten (kleine Extra-Abfrage, nur wenn nötig)
+  const stepCounts: Record<string, number> = {};
+  if (pflichtTasks.length > 0) {
+    const { data: contentRows } = await service.from('operational_tasks').select('id,procedure_content')
+      .eq('tenant_id', employee.tenant_id).eq('location_id', employeeLocationId)
+      .in('id', pflichtTasks.map((task) => task.id));
+    for (const row of contentRows ?? []) {
+      const categories = (row.procedure_content as { categories?: { steps?: unknown[] }[] } | null)?.categories;
+      const count = Array.isArray(categories) ? categories.reduce((sum, category) => sum + (Array.isArray(category?.steps) ? category.steps.length : 0), 0) : 0;
+      if (count > 0) stepCounts[row.id] = count;
+    }
+  }
   const changesByShift = new Map(((publicationChangeData ?? []) as PublicationChangeRow[]).flatMap(change => change.shift_id ? [[change.shift_id, change] as const] : []));
   const openWeeks = new Set((openWeekData ?? []).filter(week => !week.availability_deadline || Date.parse(week.availability_deadline) >= now.getTime()).map(week => week.week_start));
   const openShiftData = (openShiftRows ?? []).filter(shift => openWeeks.has(berlinScheduleWeek(undefined, new Date(shift.start_zeit)).calendarStart));
@@ -284,6 +311,24 @@ export default async function MitarbeiterPage() {
             <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Hallo {employee.vorname || name}</h1>
             <p className="mt-2 text-sm text-slate-300">{roleLabel(employee.rolle)} · deine Schichten auf einen Blick</p>
           </div>
+          {(pflichtTasks.length > 0 || reviewQueue > 0) && (
+            <div className="relative mt-6">
+              {pflichtTasks.length > 0 && (
+                <a href="#pflicht" className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-bold text-white ${pflichtTasks.some((task) => task.due_at && Date.parse(task.due_at) < now.getTime()) ? 'bg-red-600 animate-pulse [animation-duration:2.5s]' : 'bg-emerald-700'}`}>
+                  <span aria-hidden className="h-2 w-2 shrink-0 rounded-full bg-white" />
+                  {pflichtTasks.length} Pflicht-Checkliste{pflichtTasks.length === 1 ? '' : 'n'} offen – jetzt durchgehen
+                  <ArrowRight size={15} className="ml-auto shrink-0" />
+                </a>
+              )}
+              {reviewQueue > 0 && (
+                <a href="#meine-aufgaben" className="mt-2 flex items-center gap-2 rounded-xl bg-amber-500 px-3 py-2.5 text-sm font-bold text-white">
+                  <ClipboardCheck size={15} className="shrink-0" />
+                  Zu prüfen: {reviewQueue}
+                  <ArrowRight size={15} className="ml-auto shrink-0" />
+                </a>
+              )}
+            </div>
+          )}
         </header>
 
         <section className="relative -mt-16 px-4 sm:px-8" aria-label="Nächste Schicht">
@@ -334,7 +379,7 @@ export default async function MitarbeiterPage() {
           <a href="/mitarbeiter/schulungen" className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm ring-1 ring-slate-200"><Sparkles size={14} className="text-indigo-700" /> Schulungen</a>
         </nav>
 
-        <PflichtHeute tasks={pflichtTasks} now={now} />
+        <PflichtHeute tasks={pflichtTasks} now={now} doneToday={doneGuidesToday} stepCounts={stepCounts} />
 
         <section id="dienstplan" className="mt-8 scroll-mt-20 px-4 sm:px-8">
           <div className="mb-4 flex items-end justify-between gap-3">
