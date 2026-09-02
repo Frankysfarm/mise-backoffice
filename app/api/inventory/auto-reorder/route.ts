@@ -17,15 +17,18 @@ export async function POST(req: NextRequest) {
     .select('id,name,artikelnummer,einheit,soll_bestand,min_bestand,letzte_inventur,preis_pro_einheit,nachbestell_menge,lieferant,supplier_id,shelf:inventory_shelves(name),area:inventory_areas(location_id)')
     .eq('aktiv', true);
 
-  let underMin = (items ?? []).filter((i: any) =>
+  const allUnderMin = (items ?? []).filter((i: any) =>
     i.letzte_inventur === null || (i.min_bestand !== null && i.letzte_inventur < i.min_bestand)
   );
   // Artikel-Guard wie im Auto-Cron: Artikel, die schon in einem offenen Entwurf stecken, nicht doppelt vorschlagen
-  const { data: openOrders } = await supabase.from('order_lists').select('positionen').in('status', ['entwurf', 'bestellt']);
+  const { data: openOrders, error: openOrdersError } = await supabase.from('order_lists').select('positionen').in('status', ['entwurf', 'bestellt']);
+  if (openOrdersError) {
+    return NextResponse.json({ error: 'Offene Bestellungen konnten nicht geprüft werden. Bitte erneut versuchen.' }, { status: 502 });
+  }
   const inOpenDraft = new Set((openOrders ?? []).flatMap((o: any) => (Array.isArray(o.positionen) ? o.positionen : []).map((p: any) => String(p?.item_id ?? ''))));
-  underMin = underMin.filter((i: any) => !inOpenDraft.has(String(i.id)));
+  const underMin = allUnderMin.filter((i: any) => !inOpenDraft.has(String(i.id)));
   if (underMin.length === 0) {
-    return NextResponse.json({ ok: true, message: 'Alles Fehlende steckt bereits in offenen Bestellungen.', orders: [] });
+    return NextResponse.json({ ok: true, message: allUnderMin.length === 0 ? 'Alles auf Lager — nichts zu bestellen.' : 'Alles Fehlende steckt bereits in offenen Bestellungen.', orders: [] });
   }
 
   if (underMin.length === 0) {

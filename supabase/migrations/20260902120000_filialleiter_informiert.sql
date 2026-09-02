@@ -90,9 +90,17 @@ begin
     where p.status = 'ueberfaellig' and m.pflicht and m.aktiv
       and e.location_id is not null and e.status::text in ('aktiv','in_training','in_probe')
       and not exists (select 1 from public.operational_tasks c where c.source_type = 'training_overdue_control' and c.source_id = 'trctl:' || p.id)
-      -- nur Fälle mit auflösbarer Leitung, sonst verdrängen Altfälle das Limit dauerhaft
-      and exists (select 1 from public.employees mgr where mgr.tenant_id = e.tenant_id and mgr.location_id = e.location_id
-                    and mgr.rolle::text in ('manager','backoffice','admin') and mgr.status::text in ('aktiv','in_training','in_probe') and mgr.id <> e.id)
+      -- nur Fälle mit auflösbarer Leitung (gleiche Kriterien wie der Resolver), sonst verdrängen Altfälle das Limit dauerhaft
+      and (
+        exists (select 1 from public.employees mgr where mgr.tenant_id = e.tenant_id and mgr.location_id = e.location_id
+                  and mgr.rolle::text in ('manager','backoffice','admin') and mgr.status::text in ('aktiv','in_training','in_probe') and mgr.id <> e.id
+                  and coalesce(mgr.email, '') not ilike '%@mise.local' and coalesce(mgr.email, '') not ilike '%@kiosk.%')
+        or exists (select 1 from public.department_responsibility_assignments a2
+                     join public.employees he on he.id = a2.employee_id
+                    where a2.tenant_id = e.tenant_id and a2.location_id = e.location_id and a2.department_id = e.department_id
+                      and a2.responsibility_role = 'hauptverantwortung' and a2.aktiv and a2.employee_id <> e.id
+                      and he.location_id = e.location_id and he.status::text in ('aktiv','in_training','in_probe'))
+      )
     order by p.due_at
     limit 100
   loop
@@ -156,7 +164,7 @@ returns integer language plpgsql security definer set search_path=public,pg_temp
 declare v_group record; v_positions jsonb; v_total numeric; v_creator uuid; v_supplier uuid; v_count integer := 0;
 begin
   for v_group in
-    select a.location_id, i.tenant_id, i.supplier_id, coalesce(i.lieferant, '') as lieferant, array_agg(i.id) as item_ids
+    select a.location_id, i.tenant_id, max(i.supplier_id::text)::uuid as supplier_id, max(coalesce(i.lieferant, '')) as lieferant, array_agg(i.id) as item_ids
     from public.inventory_items i
     join public.inventory_areas a on a.id = i.area_id
     join public.locations l on l.id = a.location_id and l.tenant_id = i.tenant_id -- Tenant-Konsistenz erzwingen
@@ -164,10 +172,14 @@ begin
       and i.letzte_inventur < i.min_bestand
       and not exists (
         select 1 from public.order_lists o
-        where o.location_id = a.location_id and o.status in ('entwurf','bestellt')
+        where o.location_id = a.location_id
+          and (o.status in ('entwurf','bestellt')
+               -- Wareneingang ohne Einbuchen: 7 Tage Schonfrist, sonst entstünde täglich ein neuer Entwurf
+               or (o.status = 'geliefert' and coalesce(o.geliefert_am, o.updated_at) > p_now - interval '7 days'))
           and o.positionen @> jsonb_build_array(jsonb_build_object('item_id', i.id::text))
       )
-    group by a.location_id, i.tenant_id, i.supplier_id, coalesce(i.lieferant, '')
+    -- Gruppenschlüssel wie in der Route: Lieferanten-ID hat Vorrang, sonst Freitext-Name
+    group by a.location_id, i.tenant_id, coalesce(i.supplier_id::text, 'name:' || coalesce(i.lieferant, ''))
   loop
     begin
       v_creator := public.resolve_shift_guide_controller(v_group.tenant_id, v_group.location_id, null, '00000000-0000-0000-0000-000000000000'::uuid, p_now);
@@ -179,7 +191,7 @@ begin
                'item_id', i.id::text, 'name', i.name, 'artikelnummer', i.artikelnummer,
                'menge', coalesce(i.nachbestell_menge, case when i.soll_bestand is not null then greatest(0, i.soll_bestand - coalesce(i.letzte_inventur, 0)) else coalesce(i.min_bestand, 1) end),
                'einheit', i.einheit, 'preis_pro_einheit', i.preis_pro_einheit,
-               'lagerplatz', (select sh.name from public.inventory_shelves sh where sh.id = i.shelf_id)
+               'lagerplatz', (select sh.name from public.inventory_shelves sh where sh.id = i.shelf_id and sh.area_id = i.area_id)
              )),
              coalesce(sum(coalesce(i.nachbestell_menge, case when i.soll_bestand is not null then greatest(0, i.soll_bestand - coalesce(i.letzte_inventur, 0)) else coalesce(i.min_bestand, 1) end) * coalesce(i.preis_pro_einheit, 0)), 0)
         into v_positions, v_total
