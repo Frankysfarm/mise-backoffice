@@ -174,7 +174,19 @@ export async function updateSession(request: NextRequest) {
     const isEmployeeExecution =
       /^\/neo\/app\/ablaeufe\/schichtleitfaeden\/[^/]+\/ausfuehren\/?$/.test(pathname) ||
       /^\/neo\/app\/lager\/platz\/[^/]+\/?$/.test(pathname);
-    const allowedForPath = isPosArea || isEmployeeArea || isEmployeeExecution ? posRoles : backofficeRoles;
+    // APIs der Mitarbeiter-App (Verfügbarkeit, Checklisten, Aufgaben/Übergaben, Schulungen, Profilbild).
+    // Jede dieser Routen prüft Rolle/Standort selbst (Manager-Aktionen bleiben dort gesperrt).
+    const isEmployeeApi =
+      pathname === '/api/scheduling/planner' ||
+      pathname === '/api/ablaeufe/executions' ||
+      pathname === '/api/operations/tasks' ||
+      pathname === '/api/operations/responsibility' ||
+      pathname === '/api/operations/responsibility/evidence' ||
+      pathname.startsWith('/api/training/my/') ||
+      pathname === '/api/employees/avatar' ||
+      pathname === '/api/inventory/warehouse' ||
+      pathname.startsWith('/api/inventory/warehouse/');
+    const allowedForPath = isPosArea || isEmployeeArea || isEmployeeExecution || isEmployeeApi ? posRoles : backofficeRoles;
     if (!emp || !allowedForPath.includes(emp.rolle)) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';
