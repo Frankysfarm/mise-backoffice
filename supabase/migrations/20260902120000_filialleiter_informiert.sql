@@ -37,10 +37,10 @@ returns trigger language plpgsql security definer set search_path=public,pg_temp
 declare v_emp record; v_modul text;
 begin
   if coalesce(new.status, '') <> 'bestanden' or old.status is not distinct from new.status then return new; end if;
-  select e.* into v_emp from public.employees e where e.id = new.employee_id;
+  select e.* into v_emp from public.employees e where e.id = new.employee_id and e.tenant_id = new.tenant_id;
   if v_emp.id is null or v_emp.location_id is null then return new; end if;
   if v_emp.rolle::text in ('manager','backoffice','admin') then return new; end if; -- Leitung meldet sich nicht selbst
-  select m.titel into v_modul from public.training_modules m where m.id = new.module_id;
+  select m.titel into v_modul from public.training_modules m where m.id = new.module_id and m.tenant_id = v_emp.tenant_id;
   perform public.notify_location_leadership(
     v_emp.tenant_id, v_emp.location_id, v_emp.id, 'erfolg',
     'Schulung bestanden: ' || coalesce(v_modul, 'Schulung'),
@@ -85,11 +85,14 @@ begin
     select p.id as progress_id, p.due_at, e.id as employee_id, e.tenant_id, e.location_id, e.department_id,
            e.vorname, e.nachname, m.titel as modul
     from public.training_progress p
-    join public.training_modules m on m.id = p.module_id
-    join public.employees e on e.id = p.employee_id
+    join public.training_modules m on m.id = p.module_id and m.tenant_id = p.tenant_id
+    join public.employees e on e.id = p.employee_id and e.tenant_id = p.tenant_id
     where p.status = 'ueberfaellig' and m.pflicht and m.aktiv
       and e.location_id is not null and e.status::text in ('aktiv','in_training','in_probe')
       and not exists (select 1 from public.operational_tasks c where c.source_type = 'training_overdue_control' and c.source_id = 'trctl:' || p.id)
+      -- nur Fälle mit auflösbarer Leitung, sonst verdrängen Altfälle das Limit dauerhaft
+      and exists (select 1 from public.employees mgr where mgr.tenant_id = e.tenant_id and mgr.location_id = e.location_id
+                    and mgr.rolle::text in ('manager','backoffice','admin') and mgr.status::text in ('aktiv','in_training','in_probe') and mgr.id <> e.id)
     order by p.due_at
     limit 100
   loop
@@ -148,38 +151,42 @@ create trigger order_lists_notify_leadership after insert on public.order_lists
 -- ---------------------------------------------------------------------------
 create or replace function public.auto_reorder_drafts(p_now timestamptz default now())
 returns integer language plpgsql security definer set search_path=public,pg_temp as $$
-declare v_group record; v_positions jsonb; v_total numeric; v_creator uuid; v_count integer := 0;
+-- Bewusst nur gezählte Artikel (letzte_inventur not null): der Cron soll auf Inventuren reagieren,
+-- nie-gezählte Artikel meldet weiterhin nur der manuelle Bestellvorschlag-Button.
+declare v_group record; v_positions jsonb; v_total numeric; v_creator uuid; v_supplier uuid; v_count integer := 0;
 begin
   for v_group in
-    select a.location_id, i.supplier_id, max(i.lieferant) as lieferant, i.tenant_id, array_agg(i.id) as item_ids
+    select a.location_id, i.tenant_id, i.supplier_id, coalesce(i.lieferant, '') as lieferant, array_agg(i.id) as item_ids
     from public.inventory_items i
     join public.inventory_areas a on a.id = i.area_id
+    join public.locations l on l.id = a.location_id and l.tenant_id = i.tenant_id -- Tenant-Konsistenz erzwingen
     where i.aktiv and i.min_bestand is not null and i.letzte_inventur is not null
       and i.letzte_inventur < i.min_bestand
-      and a.location_id is not null
-      -- Artikel-Guard: steckt der Artikel schon in einem offenen Entwurf, keinen zweiten anlegen
       and not exists (
         select 1 from public.order_lists o
         where o.location_id = a.location_id and o.status in ('entwurf','bestellt')
           and o.positionen @> jsonb_build_array(jsonb_build_object('item_id', i.id::text))
       )
-    group by a.location_id, i.supplier_id, i.tenant_id
+    group by a.location_id, i.tenant_id, i.supplier_id, coalesce(i.lieferant, '')
   loop
     begin
-      -- Ausschluss-Parameter darf nicht NULL sein (NULL-Vergleich würde alle Kandidaten verwerfen)
       v_creator := public.resolve_shift_guide_controller(v_group.tenant_id, v_group.location_id, null, '00000000-0000-0000-0000-000000000000'::uuid, p_now);
       if v_creator is null then continue; end if;
+      -- Lieferant nur übernehmen, wenn er zum Betrieb gehört
+      v_supplier := case when v_group.supplier_id is not null and exists (select 1 from public.suppliers sp where sp.id = v_group.supplier_id and sp.tenant_id = v_group.tenant_id) then v_group.supplier_id else null end;
+      -- Mengenformel identisch zur bestehenden Route: nachbestell_menge, sonst soll-ist, sonst min, sonst 1
       select jsonb_agg(jsonb_build_object(
                'item_id', i.id::text, 'name', i.name, 'artikelnummer', i.artikelnummer,
-               'menge', coalesce(i.nachbestell_menge, greatest(0, coalesce(i.soll_bestand, i.min_bestand, 1) - coalesce(i.letzte_inventur, 0))),
-               'einheit', i.einheit, 'preis_pro_einheit', i.preis_pro_einheit
+               'menge', coalesce(i.nachbestell_menge, case when i.soll_bestand is not null then greatest(0, i.soll_bestand - coalesce(i.letzte_inventur, 0)) else coalesce(i.min_bestand, 1) end),
+               'einheit', i.einheit, 'preis_pro_einheit', i.preis_pro_einheit,
+               'lagerplatz', (select sh.name from public.inventory_shelves sh where sh.id = i.shelf_id)
              )),
-             coalesce(sum(coalesce(i.nachbestell_menge, greatest(0, coalesce(i.soll_bestand, i.min_bestand, 1) - coalesce(i.letzte_inventur, 0))) * coalesce(i.preis_pro_einheit, 0)), 0)
+             coalesce(sum(coalesce(i.nachbestell_menge, case when i.soll_bestand is not null then greatest(0, i.soll_bestand - coalesce(i.letzte_inventur, 0)) else coalesce(i.min_bestand, 1) end) * coalesce(i.preis_pro_einheit, 0)), 0)
         into v_positions, v_total
       from public.inventory_items i where i.id = any(v_group.item_ids);
       if v_positions is null then continue; end if;
       insert into public.order_lists(location_id, supplier_id, lieferant, erstellt_von, positionen, gesamtbetrag, status, referenz)
-      values (v_group.location_id, v_group.supplier_id, v_group.lieferant, v_creator, v_positions, round(v_total * 100) / 100, 'entwurf', 'auto-inventur');
+      values (v_group.location_id, v_supplier, nullif(v_group.lieferant, ''), v_creator, v_positions, round(v_total * 100) / 100, 'entwurf', 'auto-inventur');
       v_count := v_count + 1;
     exception when others then
       raise notice 'auto_reorder_drafts: Gruppe % übersprungen: %', v_group.location_id, sqlerrm;
@@ -193,3 +200,8 @@ revoke all on function public.escalate_overdue_trainings(timestamptz) from publi
 revoke all on function public.auto_reorder_drafts(timestamptz) from public, anon, authenticated;
 grant execute on function public.escalate_overdue_trainings(timestamptz) to service_role;
 grant execute on function public.auto_reorder_drafts(timestamptz) to service_role;
+
+-- Performance im 3-Minuten-Cron
+create index if not exists order_lists_open_positions_gin on public.order_lists using gin (positionen jsonb_path_ops) where status in ('entwurf','bestellt');
+create index if not exists inventory_items_under_min_idx on public.inventory_items(area_id) where aktiv and min_bestand is not null;
+create index if not exists training_progress_overdue_idx on public.training_progress(due_at) where status = 'ueberfaellig';

@@ -20,8 +20,7 @@ export async function GET(request: NextRequest) {
   // Pflichtkette: erst Schicht-Checklisten materialisieren, dann Überfälliges zur Filialleiter-Kontrolle eskalieren
   const { data: guideTasks, error: guideError } = await service.rpc('materialize_shift_guide_tasks', { p_now: new Date().toISOString() });
   const { data: guideControls, error: guideControlError } = await service.rpc('escalate_overdue_shift_guides', { p_now: new Date().toISOString() });
-  // Filialleitung informiert immer: überfällige Pflichtschulungen → Kontrolle; Fehlbestände → Bestellentwurf (+ Fehlliste per Trigger)
-  const { data: trainingControls, error: trainingControlError } = await service.rpc('escalate_overdue_trainings', { p_now: new Date().toISOString() });
+  // Fehlbestände → Bestellentwurf (+ Fehlliste per Trigger); Schulungs-Eskalation folgt NACH process_overdue_trainings
   const { data: reorderDrafts, error: reorderError } = await service.rpc('auto_reorder_drafts', { p_now: new Date().toISOString() });
   const [
     { data: tasks, error: taskError },
@@ -37,6 +36,8 @@ export async function GET(request: NextRequest) {
     service.rpc('process_table_service_escalations'),
     service.rpc('process_overdue_trainings', { p_now: new Date().toISOString() }),
   ]);
+  // Nach dem Überfällig-Markieren: sofort Kontrollaufgabe bei der Leitung (statt erst im nächsten Lauf)
+  const { data: trainingControls, error: trainingControlError } = await service.rpc('escalate_overdue_trainings', { p_now: new Date().toISOString() });
   const recurringError = scopeError ?? recurringRuns.find((run) => run.error)?.error;
   if (taskError || briefingError || serviceError || trainingError || recurringError || guideError || guideControlError || trainingControlError || reorderError) {
     return NextResponse.json({
