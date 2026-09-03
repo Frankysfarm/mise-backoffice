@@ -28,7 +28,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex min-h-screen bg-surface">
       <Sidebar />
-      <div className="flex-1">
+      {/* min-w-0: breite Inhalte (Tabellen) scrollen in ihren Wrappern, statt die Seite aus dem Fenster zu drücken */}
+      <div className="flex-1 min-w-0">
         <Header employee={employee} />
         <main className="container py-8">{children}</main>
       </div>
