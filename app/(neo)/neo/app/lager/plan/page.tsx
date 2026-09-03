@@ -47,6 +47,11 @@ export default async function WarehousePlanPage() {
         backHref={basePath}
         title="Visueller Lagerplan"
         description="Räume, Regale, Kühlgeräte und Lagerplätze übersichtlich organisieren."
+        actions={
+          <a href={`${basePath}/plan/print`} className="inline-flex h-10 items-center gap-2 rounded-md border border-input bg-background px-4 text-sm font-medium hover:bg-muted">
+            🖨️ Alle QR-Etiketten drucken
+          </a>
+        }
       />
       <WarehousePlan
         areas={(areas ?? []) as unknown as WarehouseArea[]}

@@ -17,8 +17,8 @@ export function OnboardingCheck() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    // Nicht auf Help-Seiten, /modules, /start etc. zeigen
-    if (pathname.startsWith('/help') || pathname === '/modules' || pathname === '/start') return;
+    // Nur auf der Startseite zeigen – nie mitten in Arbeitsseiten Klicks blockieren
+    if (pathname !== '/dashboard') return;
     const done = localStorage.getItem('mise_onboarding_done');
     if (!done) {
       // kleiner Delay, damit Page erst gerendert wird

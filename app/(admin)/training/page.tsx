@@ -35,6 +35,7 @@ export default async function TrainingPage() {
       />
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{Object.entries(trainingStatusLabels).map(([key,label]) => <Card key={key} className={key === 'ueberfaellig' && counts[key] ? 'border-red-300' : ''}><div className="p-4"><div className="text-2xl font-bold">{counts[key] ?? 0}</div><div className="text-sm text-muted-foreground">{label}</div></div></Card>)}</div>
       <Card>
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader><TableRow>
             <TableHead>Reihenfolge</TableHead><TableHead>Titel</TableHead><TableHead>Kategorie</TableHead>
@@ -65,6 +66,7 @@ export default async function TrainingPage() {
             })}
           </TableBody>
         </Table>
+        </div>
       </Card>
     </div>
   );

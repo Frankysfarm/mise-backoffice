@@ -192,7 +192,7 @@ export function ResponsibilityClient({
         <TabButton active={tab === 'bereiche'} onClick={() => selectTab('bereiche')} icon={<ShieldCheck size={16} />}>Bereiche</TabButton>
         <TabButton active={tab === 'organigramm'} onClick={() => selectTab('organigramm')} icon={<Network size={16} />}>Organigramm</TabButton>
         <TabButton active={tab === 'aufgaben'} onClick={() => selectTab('aufgaben')} icon={<ClipboardCheck size={16} />}>Aufgaben</TabButton>
-        <TabButton active={tab === 'ablaeufe'} onClick={() => selectTab('ablaeufe')} icon={<Workflow size={16} />}>Schichtabläufe</TabButton>
+        <TabButton active={tab === 'ablaeufe'} onClick={() => selectTab('ablaeufe')} icon={<Workflow size={16} />}>Aufgaben pro Schicht</TabButton>
         <TabButton active={tab === 'uebergaben'} onClick={() => selectTab('uebergaben')} icon={<ArrowRight size={16} />}>Übergaben</TabButton>
       </nav>
 
@@ -323,7 +323,7 @@ export function ResponsibilityClient({
       {tab === 'ablaeufe' && (
         <div className={styles.stack}>
           <div className={styles.toolbar}>
-            <div><h2>Schichtabläufe</h2><p>Aus einer Vorlage entsteht pro passender Schicht genau eine Aufgabe – mit Frist, Verantwortung und Kontrolle.</p></div>
+            <div><h2>Aufgaben pro Schicht</h2><p>Aus einer Vorlage entsteht pro passender Schicht genau eine Aufgabe – mit Frist, Verantwortung und Kontrolle. Geführte Schritt-für-Schritt-Checklisten (Öffnen/Schließen) pflegst du unter <a href="/neo/app/ablaeufe/schichtleitfaeden" style={{ textDecoration: 'underline' }}>Listen &amp; Abläufe → Schichtleitfäden</a>.</p></div>
             <button className={styles.primaryButton} onClick={() => setTemplateForm(emptyTaskTemplate())}><Plus size={16} /> Ablauf anlegen</button>
           </div>
           {templateForm && <TaskTemplateEditor
