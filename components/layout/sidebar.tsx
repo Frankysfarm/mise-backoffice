@@ -231,28 +231,15 @@ const MODULE_DEFS: SidebarModule[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════════
-  // 🧹 REINIGUNG & HYGIENE
+  // 🧹 REINIGUNG & HYGIENE (konsolidiert: Pläne leben im Listen-Builder)
   // ═══════════════════════════════════════════════════════════════════
   {
     moduleId: 'cleaning',
     label: 'Reinigung & Hygiene',
     icon: 'Sparkles',
     items: [
-      { href: '/cleaning',        icon: 'Sparkles', label: 'Reinigungsplan' },
-      { href: '/cleaning/plan',   icon: 'Sparkles', label: 'Plan bearbeiten' },
+      { href: '/shift-guides?typ=cleaning', icon: 'Sparkles', label: 'Reinigungslisten' },
       { href: '/cleaning/photos', icon: 'Sparkles', label: 'Foto-Nachweise' },
-    ],
-  },
-
-  // ═══════════════════════════════════════════════════════════════════
-  // ✅ CHECK-UPS
-  // ═══════════════════════════════════════════════════════════════════
-  {
-    moduleId: 'checkups',
-    label: 'Check-ups',
-    icon: 'CheckSquare',
-    items: [
-      { href: '/checkups', icon: 'CheckSquare', label: 'Check-ups' },
     ],
   },
 

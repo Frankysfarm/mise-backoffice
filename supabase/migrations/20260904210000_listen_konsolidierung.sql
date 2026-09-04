@@ -27,6 +27,11 @@ select
   false,
   case
     when jsonb_typeof(t.fragen) = 'object' and t.fragen ? 'categories' then t.fragen
+    -- Alt-Format des Checkup-Editors: { tasks: [...] }
+    when jsonb_typeof(t.fragen) = 'object' and jsonb_typeof(t.fragen->'tasks') = 'array' then jsonb_build_object(
+      'schemaVersion', 1,
+      'categories', jsonb_build_array(jsonb_build_object(
+        'id', 'main', 'title', 'Prüfpunkte', 'steps', t.fragen->'tasks')))
     when jsonb_typeof(t.fragen) = 'array' then jsonb_build_object(
       'schemaVersion', 1,
       'categories', jsonb_build_array(jsonb_build_object(

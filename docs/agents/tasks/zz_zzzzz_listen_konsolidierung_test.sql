@@ -9,7 +9,7 @@ begin
   insert into public.tenants(id,name,slug) values (v_tenant,'Testbetrieb KONS','testbetrieb-kons');
   insert into public.locations(id,tenant_id,name) values (v_loc,v_tenant,'Teststandort KONS');
   insert into public.checkup_templates(id,tenant_id,location_id,titel,fragen,aktiv)
-    values (v_tpl,v_tenant,v_loc,'Hygiene-Check KONS','[{"title":"Kühlhaus prüfen","evidence":"messwert","unit":"°C"}]'::jsonb,true);
+    values (v_tpl,v_tenant,v_loc,'Hygiene-Check KONS','{"tasks":[{"title":"Kühlhaus prüfen","evidence":"messwert","unit":"°C"}]}'::jsonb,true);
   insert into public.cleaning_zones(id,location_id,name,aktiv) values (v_zone,v_loc,'Küche KONS',true);
   insert into public.cleaning_tasks(id,zone_id,titel,beschreibung,aktiv,requires_photo,sort_order)
     values (v_task1,v_zone,'Boden wischen','Mit Reiniger',true,true,1),
@@ -23,6 +23,7 @@ begin
     'control', t.position_typ, false,
     case
       when jsonb_typeof(t.fragen) = 'object' and t.fragen ? 'categories' then t.fragen
+      when jsonb_typeof(t.fragen) = 'object' and jsonb_typeof(t.fragen->'tasks') = 'array' then jsonb_build_object('schemaVersion',1,'categories',jsonb_build_array(jsonb_build_object('id','main','title','Prüfpunkte','steps',t.fragen->'tasks')))
       when jsonb_typeof(t.fragen) = 'array' then jsonb_build_object('schemaVersion',1,'categories',jsonb_build_array(jsonb_build_object('id','main','title','Prüfpunkte','steps',t.fragen)))
       else jsonb_build_object('schemaVersion',1,'categories',jsonb_build_array(jsonb_build_object('id','main','title','Prüfpunkte','steps','[]'::jsonb)))
     end,
