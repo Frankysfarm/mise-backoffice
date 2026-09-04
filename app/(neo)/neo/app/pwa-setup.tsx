@@ -9,23 +9,15 @@ function urlB64ToUint8Array(base64: string) {
 }
 
 export function PwaSetup() {
-  const [deferred, setDeferred] = useState<any>(null);
-  const [show, setShow] = useState(false);
   const [pushShow, setPushShow] = useState(false);
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw-owner.js', { scope: '/neo/' }).catch(() => {});
     }
+    // Kein Install-Banner mehr (Owner-Wunsch 04.09.); nur installiert + Push offen → Push-Banner
     const standalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
-    // Install-Banner nur wenn nicht installiert
-    if (!standalone) {
-      const onPrompt = (e: any) => { e.preventDefault(); setDeferred(e); setShow(true); };
-      window.addEventListener('beforeinstallprompt', onPrompt);
-      return () => window.removeEventListener('beforeinstallprompt', onPrompt);
-    }
-    // Installiert + Push noch nicht erlaubt → Push-Banner
-    if ('Notification' in window && Notification.permission === 'default' && 'PushManager' in window) setPushShow(true);
+    if (standalone && 'Notification' in window && Notification.permission === 'default' && 'PushManager' in window) setPushShow(true);
   }, []);
 
   async function enablePush() {
@@ -43,22 +35,6 @@ export function PwaSetup() {
     } catch { /* ignore */ }
   }
 
-  async function install() {
-    if (!deferred) return;
-    deferred.prompt();
-    await deferred.userChoice.catch(() => {});
-    setDeferred(null); setShow(false);
-    setTimeout(() => { if ('Notification' in window && Notification.permission === 'default') enablePush(); }, 1500);
-  }
-
-  if (show) return (
-    <div style={{ position: 'fixed', left: 16, right: 16, bottom: 16, zIndex: 500, maxWidth: 420, margin: '0 auto', background: '#0F172A', color: '#fff', borderRadius: 14, padding: '13px 15px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 12px 30px rgba(0,0,0,.3)' }}>
-      <div style={{ width: 38, height: 38, borderRadius: 10, background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>📲</div>
-      <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 14, fontWeight: 700 }}>MAIS als App installieren</div><div style={{ fontSize: 12, color: '#CBD5E1' }}>Direkt vom Homescreen — Umsatz, Bestellungen & mehr.</div></div>
-      <button onClick={install} style={{ height: 36, padding: '0 14px', borderRadius: 9, border: 'none', background: '#4F46E5', color: '#fff', fontWeight: 700, fontSize: 13, cursor: 'pointer', flexShrink: 0 }}>Installieren</button>
-      <button onClick={() => setShow(false)} aria-label="Schließen" style={{ width: 30, height: 36, border: 'none', background: 'transparent', color: '#94A3B8', cursor: 'pointer', fontSize: 16, flexShrink: 0 }}>×</button>
-    </div>
-  );
   if (pushShow) return (
     <div style={{ position: 'fixed', left: 16, right: 16, bottom: 16, zIndex: 500, maxWidth: 420, margin: '0 auto', background: '#0F172A', color: '#fff', borderRadius: 14, padding: '13px 15px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 12px 30px rgba(0,0,0,.3)' }}>
       <div style={{ width: 38, height: 38, borderRadius: 10, background: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>🔔</div>
