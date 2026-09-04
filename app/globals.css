@@ -5846,3 +5846,28 @@
   text-transform: uppercase;
   letter-spacing: 0.16em;
 }
+
+/* ── Geführter Listen-Lauf (Schritt-für-Schritt-Ausführung) ─────────────── */
+@keyframes gp-slide-forward {
+  from { opacity: 0; transform: translateX(44px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes gp-slide-back {
+  from { opacity: 0; transform: translateX(-44px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes gp-pop {
+  0% { opacity: 0; transform: scale(0.7); }
+  60% { transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes gp-draw { to { stroke-dashoffset: 0; } }
+.gp-anim.gp-slide-forward { animation: gp-slide-forward 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+.gp-anim.gp-slide-back { animation: gp-slide-back 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+.gp-pop { animation: gp-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.gp-draw-circle { stroke-dasharray: 202; stroke-dashoffset: 202; animation: gp-draw 0.6s ease-out forwards; }
+.gp-draw-check { stroke-dasharray: 42; stroke-dashoffset: 42; animation: gp-draw 0.35s ease-out 0.45s forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .gp-anim, .gp-pop { animation: none; }
+  .gp-draw-circle, .gp-draw-check { animation: none; stroke-dashoffset: 0; }
+}

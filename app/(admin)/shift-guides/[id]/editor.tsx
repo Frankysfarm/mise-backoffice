@@ -178,7 +178,9 @@ export function GuideEditor({
   return (
     <div className="space-y-5">
       <Card>
-        <CardContent className="grid gap-4 p-5 md:grid-cols-3">
+        <CardContent className="space-y-4 p-5">
+          <h2 className="text-base font-semibold"><span className="mr-2 text-primary">1</span>Grundlagen</h2>
+          <div className="grid gap-4 md:grid-cols-3">
           <Field label="Name des Ablaufs">
             <Input
               value={form.title}
@@ -243,13 +245,14 @@ export function GuideEditor({
             />{" "}
             Aktiv und für das Team sichtbar
           </label>
+          </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardContent className="space-y-4 p-5">
           <div>
-            <h2 className="text-base font-semibold">Zuordnung</h2>
+            <h2 className="text-base font-semibold"><span className="mr-2 text-primary">2</span>Zuordnung & Zeitplan</h2>
             <p className="text-sm text-muted-foreground">
               An Schichten gekoppelte Listen erscheinen automatisch zur Schicht.
               Rollen- oder Mitarbeiter-Listen werden jeden Tag als Pflichtaufgabe
@@ -396,7 +399,7 @@ export function GuideEditor({
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold">
-            Abschnitte und Arbeitsschritte
+            <span className="mr-2 text-primary">3</span>Abschnitte und Arbeitsschritte
           </h2>
           <p className="text-sm text-muted-foreground">
             Alle Abschnitte bleiben in ihrer Reihenfolge erhalten.
