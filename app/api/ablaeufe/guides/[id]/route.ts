@@ -72,6 +72,21 @@ export async function POST(
         { status: 403 },
       );
   }
+  if (input.assignmentKind === "bereich") {
+    const { data: assignedDepartment } = await service
+      .from("departments")
+      .select("id")
+      .eq("id", input.assignedDepartmentId!)
+      .eq("tenant_id", actor.tenant_id)
+      .eq("location_id", locationId)
+      .maybeSingle();
+    if (!assignedDepartment)
+      return NextResponse.json(
+        { error: "Der zugeordnete Bereich gehört nicht zu diesem Standort." },
+        { status: 403 },
+      );
+  }
+  const directKinds = ["rolle", "mitarbeiter", "bereich"];
   const payload = {
     tenant_id: actor.tenant_id,
     location_id: locationId,
@@ -91,6 +106,14 @@ export async function POST(
     inhalt: input.content,
     assignment_kind: input.assignmentKind,
     assigned_role: input.assignmentKind === "rolle" ? input.assignedRole : null,
+    assigned_department_id:
+      input.assignmentKind === "bereich" ? input.assignedDepartmentId : null,
+    schedule_weekdays: directKinds.includes(input.assignmentKind)
+      ? input.scheduleWeekdays
+      : null,
+    due_time: directKinds.includes(input.assignmentKind)
+      ? (input.dueTime ?? null)
+      : null,
     version: (existing.version ?? 1) + 1,
     updated_at: new Date().toISOString(),
   };

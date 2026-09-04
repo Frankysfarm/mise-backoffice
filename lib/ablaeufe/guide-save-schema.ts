@@ -48,12 +48,30 @@ export const guideSaveSchema = z.object({
     .optional(),
   active: z.boolean(),
   content: procedureContentSchema,
-  assignmentKind: z.enum(["schicht", "rolle", "mitarbeiter"]).default("schicht"),
+  assignmentKind: z.enum(["schicht", "rolle", "mitarbeiter", "bereich"]).default("schicht"),
   assignedRole: z.enum(guideRoleValues).nullable().optional(),
+  assignedDepartmentId: z.string().uuid("Der Bereich ist ungültig.").nullable().optional(),
   assigneeIds: z.array(z.string().uuid()).max(100).default([]),
+  scheduleWeekdays: z
+    .array(z.number().int().min(1).max(7))
+    .max(7)
+    .nullable()
+    .optional()
+    .transform((value) => {
+      const unique = [...new Set(value ?? [])].sort((a, b) => a - b);
+      // Alle 7 Tage = täglich = kein Filter
+      return unique.length === 0 || unique.length === 7 ? null : unique;
+    }),
+  dueTime: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Bitte eine Uhrzeit im Format HH:MM angeben.")
+    .nullable()
+    .optional(),
 }).superRefine((value, ctx) => {
   if (value.assignmentKind === "rolle" && !value.assignedRole)
     ctx.addIssue({ code: "custom", path: ["assignedRole"], message: "Bitte eine Rolle für die Zuordnung wählen." });
+  if (value.assignmentKind === "bereich" && !value.assignedDepartmentId)
+    ctx.addIssue({ code: "custom", path: ["assignedDepartmentId"], message: "Bitte einen Bereich für die Zuordnung wählen." });
   if (value.assignmentKind === "mitarbeiter" && !value.assigneeIds.length)
     ctx.addIssue({ code: "custom", path: ["assigneeIds"], message: "Bitte mindestens einen Mitarbeiter zuordnen." });
 });

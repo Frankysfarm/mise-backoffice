@@ -56,7 +56,11 @@ export const ROLE_LABELS = [
 const ASSIGNMENT_KINDS = [
   ["schicht", "An Schichten (Bereich/Position)"],
   ["rolle", "An eine Rolle (z. B. alle Filialleiter)"],
+  ["bereich", "An einen Bereich (z. B. ganze Küche)"],
   ["mitarbeiter", "An bestimmte Mitarbeiter"],
+] as const;
+const WEEKDAYS = [
+  [1, "Mo"], [2, "Di"], [3, "Mi"], [4, "Do"], [5, "Fr"], [6, "Sa"], [7, "So"],
 ] as const;
 
 const newCategory = (): ProcedureCategory => ({
@@ -99,9 +103,12 @@ export function GuideEditor({
     shiftHint: guide.shift_hint ?? "",
     active: guide.aktiv !== false,
     content: initial,
-    assignmentKind: (guide.assignment_kind ?? "schicht") as "schicht" | "rolle" | "mitarbeiter",
+    assignmentKind: (guide.assignment_kind ?? "schicht") as "schicht" | "rolle" | "mitarbeiter" | "bereich",
     assignedRole: (guide.assigned_role ?? "") as string,
+    assignedDepartmentId: (guide.assigned_department_id ?? "") as string,
     assigneeIds: initialAssigneeIds,
+    scheduleWeekdays: (guide.schedule_weekdays ?? []) as number[],
+    dueTime: (guide.due_time ? String(guide.due_time).slice(0, 5) : "") as string,
   });
 
   const updateContent = (content: ProcedureContent) =>
@@ -146,7 +153,10 @@ export function GuideEditor({
           departmentId: form.departmentId || null,
           locationId: form.locationId || null,
           assignedRole: form.assignmentKind === "rolle" ? form.assignedRole || null : null,
+          assignedDepartmentId: form.assignmentKind === "bereich" ? form.assignedDepartmentId || null : null,
           assigneeIds: form.assignmentKind === "mitarbeiter" ? form.assigneeIds : [],
+          scheduleWeekdays: form.scheduleWeekdays,
+          dueTime: form.dueTime || null,
           action,
         }),
       });
@@ -268,6 +278,20 @@ export function GuideEditor({
               />
             </Field>
           )}
+          {form.assignmentKind === "bereich" && (
+            <Field label="Bereich">
+              <Select
+                value={form.assignedDepartmentId}
+                onChange={(value) =>
+                  setForm({ ...form, assignedDepartmentId: value })
+                }
+                options={departments.map(
+                  (department) => [department.id, department.name] as const,
+                )}
+                empty="Bereich wählen"
+              />
+            </Field>
+          )}
           {form.assignmentKind === "mitarbeiter" && (
             <fieldset className="space-y-2">
               <legend className="text-sm font-medium">
@@ -307,6 +331,64 @@ export function GuideEditor({
                 )}
               </div>
             </fieldset>
+          )}
+          {form.assignmentKind !== "schicht" && (
+            <div className="space-y-3 rounded-xl border bg-muted/20 p-4">
+              <div>
+                <span className="text-sm font-semibold">Zeitplan</span>
+                <p className="text-sm text-muted-foreground">
+                  An welchen Tagen wird die Liste zugeteilt und bis wann muss
+                  sie erledigt sein? Ohne Auswahl gilt: jeden Tag bis 18:00.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {WEEKDAYS.map(([value, label]) => {
+                  const activeDay =
+                    !form.scheduleWeekdays.length ||
+                    form.scheduleWeekdays.includes(value);
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-pressed={activeDay}
+                      onClick={() =>
+                        setForm({
+                          ...form,
+                          scheduleWeekdays: (form.scheduleWeekdays.length
+                            ? form.scheduleWeekdays.includes(value)
+                              ? form.scheduleWeekdays.filter(
+                                  (day) => day !== value,
+                                )
+                              : [...form.scheduleWeekdays, value]
+                            : WEEKDAYS.map(([day]) => day).filter(
+                                (day) => day !== value,
+                              )
+                          ).sort((a, b) => a - b),
+                        })
+                      }
+                      className={`h-9 w-11 rounded-lg border text-sm font-semibold transition ${
+                        activeDay
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "bg-background text-muted-foreground"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <Field label="Fällig bis (Uhrzeit)">
+                <Input
+                  className="max-w-40"
+                  type="time"
+                  value={form.dueTime}
+                  onChange={(event) =>
+                    setForm({ ...form, dueTime: event.target.value })
+                  }
+                  placeholder="18:00"
+                />
+              </Field>
+            </div>
           )}
         </CardContent>
       </Card>
