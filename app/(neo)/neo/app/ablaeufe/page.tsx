@@ -1,22 +1,18 @@
 import Link from 'next/link';
-import { ClipboardCheck, ListChecks, ShieldCheck, Sparkles } from 'lucide-react';
+import { ListChecks, Sparkles } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { requirePosAccess } from '@/lib/auth/requireRole';
 
 export default async function AblaeufePage() {
   const actor = await requirePosAccess();
   const service = await createClient();
-  const [{ count: guides }, { count: checks }, { count: cleaning }, { count: operational }] = await Promise.all([
-    service.from('shift_guides').select('id', { count: 'exact', head: true }).eq('aktiv', true),
-    service.from('checkup_templates').select('id', { count: 'exact', head: true }).eq('aktiv', true),
-    service.from('cleaning_tasks').select('id', { count: 'exact', head: true }).eq('aktiv', true),
+  const [{ count: guides }, { count: operational }] = await Promise.all([
+    service.from('shift_guides').select('id', { count: 'exact', head: true }),
     service.from('operational_tasks').select('id', { count: 'exact', head: true }).not('status', 'in', '(erledigt,storniert)'),
   ]);
   const cards = [
-    { href: '/neo/app/ablaeufe/schichtleitfaeden', title: 'Listen & Abläufe', text: 'Checklisten mit Bild-/Video-Anleitung und Foto-Nachweis – gekoppelt an Schichten, Rollen oder einzelne Mitarbeiter.', value: guides ?? 0, icon: ListChecks },
+    { href: '/neo/app/ablaeufe/schichtleitfaeden', title: 'Listen', text: 'Alle Checklisten an einem Ort: Öffnung, Schließung, Reinigung, Kontrollen – mit Bild-/Video-Anleitung, Foto-Nachweis, Zuweisung und Zeitplan.', value: guides ?? 0, icon: ListChecks },
     ...(['manager', 'backoffice', 'admin'].includes(actor.rolle) ? [
-      { href: '/neo/app/ablaeufe/kontrollen', title: 'Checklisten & Kontrollen', text: 'Hygiene-, Kassen-, Qualitäts- und Betriebskontrollen.', value: checks ?? 0, icon: ClipboardCheck },
-      { href: '/neo/app/ablaeufe/reinigung', title: 'Reinigung & HACCP', text: 'Reinigungsplan, Fotonachweise und HACCP-Protokolle.', value: cleaning ?? 0, icon: ShieldCheck },
       { href: '/neo/app/ablaeufe/aufgaben', title: 'Operative Aufgaben & Übergaben', text: 'Einmalige und wiederkehrende Aufgaben, Nachweise, Übergaben und automatische Eskalation.', value: operational ?? 0, icon: Sparkles },
     ] : []),
   ];
