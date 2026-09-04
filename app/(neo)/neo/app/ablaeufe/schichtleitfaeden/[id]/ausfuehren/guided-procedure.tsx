@@ -10,18 +10,22 @@ import {
   valueRangeState,
   type ProcedureContent,
 } from "@/lib/ablaeufe/schema";
+import { StepMediaGallery } from "./step-media";
 
 export function GuidedProcedure({
   guideId,
   title,
   content,
   initialTaskId,
+  mediaUrls = {},
 }: {
   guideId: string;
   title: string;
   content: ProcedureContent;
   /** Pflicht-Checkliste aus der Schicht: vorhandene Aufgabe wird übernommen. */
   initialTaskId?: string;
+  /** Server-seitig signierte URLs für Anleitungs-Medien (Pfad → URL). */
+  mediaUrls?: Record<string, string>;
 }) {
   const steps = content.categories.flatMap((category) => category.steps);
   const [taskId, setTaskId] = useState("");
@@ -161,6 +165,7 @@ export function GuidedProcedure({
               {step.description}
             </p>
           )}
+          <StepMediaGallery media={step.media ?? []} urls={mediaUrls} />
           {step.assigneeHint && (
             <p className="rounded-lg bg-muted p-3 text-sm">
               Zuständig: {step.assigneeHint}

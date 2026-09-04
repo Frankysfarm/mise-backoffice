@@ -1,10 +1,38 @@
 import { notFound } from "next/navigation";
 import { requirePosAccess } from "@/lib/auth/requireRole";
 import { createServiceClient } from "@/lib/supabase/server";
-import { normalizeProcedureContent } from "@/lib/ablaeufe/schema";
+import {
+  normalizeProcedureContent,
+  type ProcedureContent,
+} from "@/lib/ablaeufe/schema";
 import { GuidedProcedure } from "./guided-procedure";
 
 export const dynamic = "force-dynamic";
+
+/** Signiert alle Anleitungs-Medien der Liste (1h), fehlende Pfade fallen still weg. */
+async function signGuideMedia(
+  service: ReturnType<typeof createServiceClient>,
+  content: ProcedureContent,
+): Promise<Record<string, string>> {
+  const paths = [
+    ...new Set(
+      content.categories.flatMap((category) =>
+        category.steps.flatMap((step) =>
+          (step.media ?? []).map((item) => item.path),
+        ),
+      ),
+    ),
+  ];
+  if (!paths.length) return {};
+  const { data } = await service.storage
+    .from("documents")
+    .createSignedUrls(paths, 3600);
+  return Object.fromEntries(
+    (data ?? [])
+      .filter((entry) => entry.path && entry.signedUrl)
+      .map((entry) => [entry.path as string, entry.signedUrl]),
+  );
+}
 
 export default async function ExecuteGuide({
   params,
@@ -44,7 +72,15 @@ export default async function ExecuteGuide({
     } catch {
       notFound();
     }
-    return <GuidedProcedure guideId={id} title={task.title} content={taskContent} initialTaskId={task.id} />;
+    return (
+      <GuidedProcedure
+        guideId={id}
+        title={task.title}
+        content={taskContent}
+        initialTaskId={task.id}
+        mediaUrls={await signGuideMedia(service, taskContent)}
+      />
+    );
   }
 
   const { data: guide } = await service
@@ -69,6 +105,7 @@ export default async function ExecuteGuide({
       title={guide.titel}
       content={content}
       initialTaskId={initialTaskId}
+      mediaUrls={await signGuideMedia(service, content)}
     />
   );
 }

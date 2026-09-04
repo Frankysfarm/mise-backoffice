@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
   const recurringRuns = scopeError ? [] : await Promise.all(scopes.map((scope: { tenant_id: string; location_id: string }) => service.rpc('materialize_recurring_operational_tasks', { p_tenant_id: scope.tenant_id, p_location_id: scope.location_id, p_until: new Date(Date.now() + 14 * 86_400_000).toISOString() })));
   // Pflichtkette: erst Schicht-Checklisten materialisieren, dann Überfälliges zur Filialleiter-Kontrolle eskalieren
   const { data: guideTasks, error: guideError } = await service.rpc('materialize_shift_guide_tasks', { p_now: new Date().toISOString() });
+  // Listen-Builder: an Rolle/Mitarbeiter gekoppelte Listen als Tagesaufgabe materialisieren
+  const { data: directGuideTasks, error: directGuideError } = await service.rpc('materialize_direct_guide_tasks', { p_now: new Date().toISOString() });
   const { data: guideControls, error: guideControlError } = await service.rpc('escalate_overdue_shift_guides', { p_now: new Date().toISOString() });
   // Fehlbestände → Bestellentwurf (+ Fehlliste per Trigger); Schulungs-Eskalation folgt NACH process_overdue_trainings
   const { data: reorderDrafts, error: reorderError } = await service.rpc('auto_reorder_drafts', { p_now: new Date().toISOString() });
@@ -39,10 +41,10 @@ export async function GET(request: NextRequest) {
   // Nach dem Überfällig-Markieren: sofort Kontrollaufgabe bei der Leitung (statt erst im nächsten Lauf)
   const { data: trainingControls, error: trainingControlError } = await service.rpc('escalate_overdue_trainings', { p_now: new Date().toISOString() });
   const recurringError = scopeError ?? recurringRuns.find((run) => run.error)?.error;
-  if (taskError || briefingError || serviceError || trainingError || recurringError || guideError || guideControlError || trainingControlError || reorderError) {
+  if (taskError || briefingError || serviceError || trainingError || recurringError || guideError || directGuideError || guideControlError || trainingControlError || reorderError) {
     return NextResponse.json({
       ok: false,
-      error: taskError?.message ?? briefingError?.message ?? serviceError?.message ?? trainingError?.message ?? recurringError?.message ?? guideError?.message ?? guideControlError?.message ?? trainingControlError?.message ?? reorderError?.message ?? 'Tagesklarheitslauf fehlgeschlagen',
+      error: taskError?.message ?? briefingError?.message ?? serviceError?.message ?? trainingError?.message ?? recurringError?.message ?? guideError?.message ?? directGuideError?.message ?? guideControlError?.message ?? trainingControlError?.message ?? reorderError?.message ?? 'Tagesklarheitslauf fehlgeschlagen',
     }, { status: 500 });
   }
   // E-Mails: jede Eskalations-Benachrichtigung wird per DB-Trigger (notifications → email_outbox) im Betriebs-Branding versendet.
@@ -54,6 +56,7 @@ export async function GET(request: NextRequest) {
     overdue_trainings: overdueTrainings ?? 0,
     recurring_tasks_materialized: recurringRuns.reduce((sum, run) => sum + Number(run.data ?? 0), 0),
     shift_guide_tasks_materialized: guideTasks ?? 0,
+    direct_guide_tasks_materialized: directGuideTasks ?? 0,
     shift_guide_controls_created: guideControls ?? 0,
     training_overdue_controls_created: trainingControls ?? 0,
     reorder_drafts_created: reorderDrafts ?? 0,

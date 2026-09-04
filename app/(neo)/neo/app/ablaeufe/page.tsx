@@ -13,7 +13,7 @@ export default async function AblaeufePage() {
     service.from('operational_tasks').select('id', { count: 'exact', head: true }).not('status', 'in', '(erledigt,storniert)'),
   ]);
   const cards = [
-    { href: '/neo/app/ablaeufe/schichtleitfaeden', title: 'Öffnung & Schließung', text: 'Schichtleitfäden, Kategorien und verbindliche Arbeitsschritte.', value: guides ?? 0, icon: ListChecks },
+    { href: '/neo/app/ablaeufe/schichtleitfaeden', title: 'Listen & Abläufe', text: 'Checklisten mit Bild-/Video-Anleitung und Foto-Nachweis – gekoppelt an Schichten, Rollen oder einzelne Mitarbeiter.', value: guides ?? 0, icon: ListChecks },
     ...(['manager', 'backoffice', 'admin'].includes(actor.rolle) ? [
       { href: '/neo/app/ablaeufe/kontrollen', title: 'Checklisten & Kontrollen', text: 'Hygiene-, Kassen-, Qualitäts- und Betriebskontrollen.', value: checks ?? 0, icon: ClipboardCheck },
       { href: '/neo/app/ablaeufe/reinigung', title: 'Reinigung & HACCP', text: 'Reinigungsplan, Fotonachweise und HACCP-Protokolle.', value: cleaning ?? 0, icon: ShieldCheck },

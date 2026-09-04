@@ -7,6 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { operationsBasePath } from '@/lib/routing/operations-base-path';
 
+const ROLE_LABELS: Record<string, string> = {
+  manager: 'Filialleiter', teamleiter: 'Teamleiter', mitarbeiter: 'Mitarbeiter', backoffice: 'Backoffice',
+  admin: 'Admin', server: 'Service', bartender: 'Bar', cook: 'Küche', dishwasher: 'Spüle',
+};
+
 const TYPE_LABELS: Record<string, string> = {
   opening: 'Öffnung', closing: 'Schließung', cleaning: 'Reinigung', control: 'Kontrolle',
   production: 'Produktion', handover: 'Übergabe', hygiene_temperature: 'Hygiene / Temperatur', other: 'Sonstiges',
@@ -18,17 +23,18 @@ export default async function ShiftGuidesPage() {
   const basePath = await operationsBasePath('/shift-guides', '/neo/app/ablaeufe/schichtleitfaeden');
   const supabase = await createClient();
   const { data: guides } = await supabase.from('shift_guides')
-    .select('id,titel,phase,ablauf_typ,position_typ,aktiv,version,inhalt,department:departments(name)')
+    .select('id,titel,phase,ablauf_typ,position_typ,aktiv,version,inhalt,assignment_kind,assigned_role,department:departments(name)')
     .order('titel');
 
   return (
     <div>
-      <PageHeader title="Schichtleitfäden" description="Aufmach- und Zumach-Anweisungen pro Position." />
+      <PageHeader title="Listen & Abläufe" description="Checklisten mit Schritt-Anleitung (Bilder/Videos, Foto-Nachweis) – gekoppelt an Schichten, Rollen oder einzelne Mitarbeiter." />
       <Card>
         <Table>
           <TableHeader><TableRow>
             <TableHead>Titel</TableHead>
             <TableHead>Art</TableHead>
+            <TableHead>Zuordnung</TableHead>
             <TableHead>Position</TableHead>
             <TableHead>Abteilung</TableHead>
             <TableHead className="text-right">Kategorien</TableHead>
@@ -45,6 +51,13 @@ export default async function ShiftGuidesPage() {
                     <Link href={canManage ? `${basePath}/${g.id}` : `${basePath}/${g.id}/ausfuehren`} className="hover:underline">{g.titel}</Link>
                   </TableCell>
                   <TableCell><Badge variant={g.ablauf_typ === 'opening' ? 'secondary' : 'gold'}>{TYPE_LABELS[g.ablauf_typ] ?? 'Sonstiges'}</Badge></TableCell>
+                  <TableCell>
+                    {(g as any).assignment_kind === 'rolle'
+                      ? <Badge variant="secondary">Rolle: {ROLE_LABELS[(g as any).assigned_role as string] ?? (g as any).assigned_role}</Badge>
+                      : (g as any).assignment_kind === 'mitarbeiter'
+                        ? <Badge variant="secondary">Mitarbeiter</Badge>
+                        : <Badge variant="outline">Schicht</Badge>}
+                  </TableCell>
                   <TableCell>{g.position_typ ?? '—'}</TableCell>
                   <TableCell>{(g.department as any)?.name ?? '—'}</TableCell>
                   <TableCell className="text-right font-mono">{cats.length}</TableCell>

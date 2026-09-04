@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { StepMediaEditor } from "./step-media-editor";
 import {
   emptyStep,
   normalizeProcedureContent,
@@ -41,6 +42,23 @@ const EVIDENCE = [
   ["value", "Messwert"],
 ] as const;
 
+export const ROLE_LABELS = [
+  ["manager", "Filialleiter"],
+  ["teamleiter", "Teamleiter"],
+  ["mitarbeiter", "Mitarbeiter"],
+  ["backoffice", "Backoffice"],
+  ["admin", "Admin"],
+  ["server", "Service"],
+  ["bartender", "Bar"],
+  ["cook", "Küche"],
+  ["dishwasher", "Spüle"],
+] as const;
+const ASSIGNMENT_KINDS = [
+  ["schicht", "An Schichten (Bereich/Position)"],
+  ["rolle", "An eine Rolle (z. B. alle Filialleiter)"],
+  ["mitarbeiter", "An bestimmte Mitarbeiter"],
+] as const;
+
 const newCategory = (): ProcedureCategory => ({
   id: globalThis.crypto?.randomUUID?.() ?? `category-${Date.now()}`,
   title: "Neuer Abschnitt",
@@ -51,6 +69,8 @@ type GuideEditorProps = {
   guide: any;
   departments: { id: string; name: string }[];
   locations: { id: string; name: string }[];
+  employees?: { id: string; vorname: string; nachname: string | null; rolle: string }[];
+  initialAssigneeIds?: string[];
   basePath: string;
 };
 
@@ -58,6 +78,8 @@ export function GuideEditor({
   guide,
   departments,
   locations,
+  employees = [],
+  initialAssigneeIds = [],
   basePath,
 }: GuideEditorProps) {
   const router = useRouter();
@@ -77,6 +99,9 @@ export function GuideEditor({
     shiftHint: guide.shift_hint ?? "",
     active: guide.aktiv !== false,
     content: initial,
+    assignmentKind: (guide.assignment_kind ?? "schicht") as "schicht" | "rolle" | "mitarbeiter",
+    assignedRole: (guide.assigned_role ?? "") as string,
+    assigneeIds: initialAssigneeIds,
   });
 
   const updateContent = (content: ProcedureContent) =>
@@ -120,6 +145,8 @@ export function GuideEditor({
           ...form,
           departmentId: form.departmentId || null,
           locationId: form.locationId || null,
+          assignedRole: form.assignmentKind === "rolle" ? form.assignedRole || null : null,
+          assigneeIds: form.assignmentKind === "mitarbeiter" ? form.assigneeIds : [],
           action,
         }),
       });
@@ -209,6 +236,81 @@ export function GuideEditor({
         </CardContent>
       </Card>
 
+      <Card>
+        <CardContent className="space-y-4 p-5">
+          <div>
+            <h2 className="text-base font-semibold">Zuordnung</h2>
+            <p className="text-sm text-muted-foreground">
+              An Schichten gekoppelte Listen erscheinen automatisch zur Schicht.
+              Rollen- oder Mitarbeiter-Listen werden jeden Tag als Pflichtaufgabe
+              zugeteilt und bei Nichterledigung an die Leitung eskaliert.
+            </p>
+          </div>
+          <Field label="Diese Liste gilt">
+            <Select
+              value={form.assignmentKind}
+              onChange={(value) =>
+                setForm({
+                  ...form,
+                  assignmentKind: value as typeof form.assignmentKind,
+                })
+              }
+              options={ASSIGNMENT_KINDS}
+            />
+          </Field>
+          {form.assignmentKind === "rolle" && (
+            <Field label="Rolle">
+              <Select
+                value={form.assignedRole}
+                onChange={(value) => setForm({ ...form, assignedRole: value })}
+                options={ROLE_LABELS}
+                empty="Rolle wählen"
+              />
+            </Field>
+          )}
+          {form.assignmentKind === "mitarbeiter" && (
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium">
+                Mitarbeiter ({form.assigneeIds.length} ausgewählt)
+              </legend>
+              <div className="grid max-h-64 gap-1 overflow-y-auto rounded-lg border p-3 sm:grid-cols-2">
+                {employees.map((employee) => (
+                  <label
+                    key={employee.id}
+                    className="flex items-center gap-2 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={form.assigneeIds.includes(employee.id)}
+                      onChange={(event) =>
+                        setForm({
+                          ...form,
+                          assigneeIds: event.target.checked
+                            ? [...form.assigneeIds, employee.id]
+                            : form.assigneeIds.filter(
+                                (entry) => entry !== employee.id,
+                              ),
+                        })
+                      }
+                    />
+                    {employee.vorname} {employee.nachname ?? ""}
+                    <span className="text-xs text-muted-foreground">
+                      {ROLE_LABELS.find(([value]) => value === employee.rolle)?.[1] ??
+                        employee.rolle}
+                    </span>
+                  </label>
+                ))}
+                {!employees.length && (
+                  <p className="text-sm text-muted-foreground">
+                    Keine aktiven Mitarbeiter gefunden.
+                  </p>
+                )}
+              </div>
+            </fieldset>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="flex items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold">
@@ -235,6 +337,7 @@ export function GuideEditor({
       {form.content.categories.map((category, categoryIndex) => (
         <CategoryEditor
           key={category.id}
+          guideId={guide.id}
           category={category}
           categoryIndex={categoryIndex}
           categoryCount={form.content.categories.length}
@@ -279,6 +382,8 @@ export function GuideEditor({
 }
 
 type CategoryEditorProps = {
+  /** Ohne guideId (z. B. Checkup-Editor) gibt es keine Anleitungs-Medien. */
+  guideId?: string;
   category: ProcedureCategory;
   categoryIndex: number;
   categoryCount: number;
@@ -289,6 +394,7 @@ type CategoryEditorProps = {
 };
 
 export function CategoryEditor({
+  guideId,
   category,
   categoryIndex,
   categoryCount,
@@ -456,6 +562,13 @@ export function CategoryEditor({
                 />
               </Field>
             </div>
+            {guideId && (
+              <StepMediaEditor
+                guideId={guideId}
+                media={step.media ?? []}
+                onChange={(media) => patchStep(index, { media })}
+              />
+            )}
             <label className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"

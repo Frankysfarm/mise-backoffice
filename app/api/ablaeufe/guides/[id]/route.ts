@@ -1,45 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
 import { getCurrentEmployee } from "@/lib/auth/getCurrentEmployee";
-import { procedureContentSchema } from "@/lib/ablaeufe/schema";
+import { guideSaveSchema } from "@/lib/ablaeufe/guide-save-schema";
 import { createServiceClient } from "@/lib/supabase/server";
-
-const schema = z.object({
-  action: z.enum(["save", "duplicate"]).default("save"),
-  title: z
-    .string()
-    .trim()
-    .min(2, "Bitte einen Namen mit mindestens zwei Zeichen eingeben.")
-    .max(180, "Der Name ist zu lang."),
-  type: z.enum([
-    "opening",
-    "closing",
-    "cleaning",
-    "control",
-    "production",
-    "handover",
-    "hygiene_temperature",
-    "other",
-  ]),
-  position: z.string().trim().max(100, "Die Position ist zu lang.").optional(),
-  departmentId: z
-    .string()
-    .uuid("Der Bereich ist ungültig.")
-    .nullable()
-    .optional(),
-  locationId: z
-    .string()
-    .uuid("Der Standort ist ungültig.")
-    .nullable()
-    .optional(),
-  shiftHint: z
-    .string()
-    .trim()
-    .max(120, "Der Schichthinweis ist zu lang.")
-    .optional(),
-  active: z.boolean(),
-  content: procedureContentSchema,
-});
 
 export async function POST(
   request: NextRequest,
@@ -50,7 +12,7 @@ export async function POST(
     return NextResponse.json({ error: "Nicht angemeldet." }, { status: 401 });
   if (!["manager", "backoffice", "admin"].includes(actor.rolle))
     return NextResponse.json({ error: "Keine Berechtigung." }, { status: 403 });
-  const parsed = schema.safeParse(await request.json().catch(() => null));
+  const parsed = guideSaveSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success)
     return NextResponse.json(
       { error: parsed.error.issues[0]?.message ?? "Bitte Eingaben prüfen." },
@@ -122,6 +84,8 @@ export async function POST(
     shift_hint: input.shiftHint || null,
     aktiv: input.active,
     inhalt: input.content,
+    assignment_kind: input.assignmentKind,
+    assigned_role: input.assignmentKind === "rolle" ? input.assignedRole : null,
     version: (existing.version ?? 1) + 1,
     updated_at: new Date().toISOString(),
   };
@@ -137,6 +101,41 @@ export async function POST(
   if (error || !data)
     return NextResponse.json(
       { error: "Ablauf konnte nicht gespeichert werden." },
+      { status: 500 },
+    );
+
+  // Mitarbeiter-Zuordnung synchronisieren (nur Mitarbeiter des eigenen Betriebs)
+  const assigneeIds =
+    input.assignmentKind === "mitarbeiter" ? [...new Set(input.assigneeIds)] : [];
+  if (assigneeIds.length) {
+    const { data: employees } = await service
+      .from("employees")
+      .select("id")
+      .eq("tenant_id", actor.tenant_id)
+      .in("id", assigneeIds);
+    if ((employees ?? []).length !== assigneeIds.length)
+      return NextResponse.json(
+        { error: "Mindestens ein zugeordneter Mitarbeiter gehört nicht zum Betrieb." },
+        { status: 403 },
+      );
+  }
+  const { error: clearError } = await service
+    .from("shift_guide_assignees")
+    .delete()
+    .eq("guide_id", data.id)
+    .eq("tenant_id", actor.tenant_id);
+  const { error: assignError } = assigneeIds.length
+    ? await service.from("shift_guide_assignees").insert(
+        assigneeIds.map((employeeId) => ({
+          tenant_id: actor.tenant_id,
+          guide_id: data.id,
+          employee_id: employeeId,
+        })),
+      )
+    : { error: null };
+  if (clearError || assignError)
+    return NextResponse.json(
+      { error: "Die Mitarbeiter-Zuordnung konnte nicht gespeichert werden." },
       { status: 500 },
     );
   return NextResponse.json({ id: data.id });

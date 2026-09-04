@@ -46,3 +46,44 @@ describe('visuelle Abläufe', () => {
     });
   });
 });
+
+describe('Anleitungs-Medien pro Schritt (Listen-Builder)', () => {
+  it('akzeptiert Bild- und Video-Medien mit Storage-Pfad und Beschriftung', () => {
+    const normalized = normalizeProcedureContent({
+      categories: [{
+        name: 'Öffnung',
+        steps: [{
+          title: 'Maschine entkalken',
+          media: [
+            { kind: 'image', path: 't1/guides/g1/a.jpg', caption: 'Ventil' },
+            { kind: 'video', path: 't1/guides/g1/b.mp4' },
+          ],
+        }],
+      }],
+    });
+    expect(normalized.categories[0].steps[0].media).toEqual([
+      { kind: 'image', path: 't1/guides/g1/a.jpg', caption: 'Ventil' },
+      { kind: 'video', path: 't1/guides/g1/b.mp4', caption: '' },
+    ]);
+    expect(procedureContentSchema.safeParse(normalized).success).toBe(true);
+  });
+  it('weist ungültige Medien zurück (fremde Art, fehlender Pfad, mehr als 5)', () => {
+    const base = structuredClone(content);
+    (base.categories[0].steps[0] as Record<string, unknown>).media = [{ kind: 'audio', path: 'x' }];
+    expect(procedureContentSchema.safeParse(base).success).toBe(false);
+    (base.categories[0].steps[0] as Record<string, unknown>).media = [{ kind: 'image', path: '' }];
+    expect(procedureContentSchema.safeParse(base).success).toBe(false);
+    (base.categories[0].steps[0] as Record<string, unknown>).media = Array.from({ length: 6 }, (_, i) => ({ kind: 'image', path: `p${i}.jpg` }));
+    expect(procedureContentSchema.safeParse(base).success).toBe(false);
+  });
+  it('verwirft beim Normalisieren kaputte Medien-Einträge statt zu scheitern', () => {
+    const normalized = normalizeProcedureContent({
+      categories: [{ name: 'X', steps: [{ title: 'S', media: [{ kind: 'image' }, 'quatsch', { kind: 'image', path: 'ok.jpg' }] }] }],
+    });
+    expect(normalized.categories[0].steps[0].media).toEqual([{ kind: 'image', path: 'ok.jpg', caption: '' }]);
+  });
+  it('Schritte ohne media-Feld bleiben unverändert gültig (Bestandsschutz)', () => {
+    expect(content.categories[0].steps[0].media).toEqual([]);
+    expect(procedureContentSchema.safeParse(content).success).toBe(true);
+  });
+});

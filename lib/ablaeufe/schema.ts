@@ -7,6 +7,12 @@ export const evidenceKindSchema = z.enum([
   "value",
 ]);
 
+export const stepMediaSchema = z.object({
+  kind: z.enum(["image", "video"]),
+  path: z.string().min(1).max(300),
+  caption: z.string().trim().max(200).optional().default(""),
+});
+
 export const procedureStepSchema = z
   .object({
     id: z.string().min(1).max(80),
@@ -23,6 +29,7 @@ export const procedureStepSchema = z
     min: z.number().finite().optional(),
     max: z.number().finite().optional(),
     assigneeHint: z.string().trim().max(120).optional().default(""),
+    media: z.array(stepMediaSchema).max(5).optional().default([]),
   })
   .passthrough()
   .superRefine((step, ctx) => {
@@ -55,6 +62,7 @@ export const procedureContentSchema = z
   })
   .passthrough();
 
+export type StepMedia = z.infer<typeof stepMediaSchema>;
 export type ProcedureStep = z.infer<typeof procedureStepSchema>;
 export type ProcedureCategory = z.infer<typeof procedureCategorySchema>;
 export type ProcedureContent = z.infer<typeof procedureContentSchema>;
@@ -73,7 +81,31 @@ export function emptyStep(): ProcedureStep {
     confirmationText: "",
     unit: "",
     assigneeHint: "",
+    media: [],
   };
+}
+
+export function sanitizeStepMedia(input: unknown): StepMedia[] {
+  if (!Array.isArray(input)) return [];
+  const result: StepMedia[] = [];
+  for (const entry of input) {
+    if (!entry || typeof entry !== "object") continue;
+    const record = entry as Record<string, unknown>;
+    const kind =
+      record.kind === "image" || record.kind === "video" ? record.kind : null;
+    const path = typeof record.path === "string" ? record.path.trim() : "";
+    if (!kind || !path || path.length > 300) continue;
+    result.push({
+      kind,
+      path,
+      caption:
+        typeof record.caption === "string"
+          ? record.caption.trim().slice(0, 200)
+          : "",
+    });
+    if (result.length === 5) break;
+  }
+  return result;
 }
 
 export function normalizeProcedureContent(input: unknown): ProcedureContent {
@@ -136,6 +168,7 @@ export function normalizeProcedureContent(input: unknown): ProcedureContent {
           min: typeof value.min === "number" ? value.min : undefined,
           max: typeof value.max === "number" ? value.max : undefined,
           assigneeHint: String(value.assigneeHint ?? value.role ?? ""),
+          media: sanitizeStepMedia(value.media),
         };
       }),
     };
