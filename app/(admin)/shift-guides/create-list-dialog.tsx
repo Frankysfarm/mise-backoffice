@@ -8,11 +8,22 @@ import { Input } from "@/components/ui/input";
 import { LIST_TEMPLATES } from "@/lib/ablaeufe/list-templates";
 
 /** „+ Neue Liste“: Name + Vorlage wählen → Liste wird inaktiv angelegt und der Editor geöffnet. */
-export function CreateListDialog({ basePath }: { basePath: string }) {
+export function CreateListDialog({
+  basePath,
+  locations,
+  defaultLocationId,
+}: {
+  basePath: string;
+  locations: { id: string; name: string }[];
+  defaultLocationId: string | null;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [templateKey, setTemplateKey] = useState("oeffnung");
+  const [locationId, setLocationId] = useState(
+    defaultLocationId ?? locations[0]?.id ?? "",
+  );
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -22,7 +33,7 @@ export function CreateListDialog({ basePath }: { basePath: string }) {
     const response = await fetch("/api/ablaeufe/guides", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ title, templateKey }),
+      body: JSON.stringify({ title, templateKey, locationId: locationId || null }),
     });
     const result = await response.json().catch(() => ({}));
     setBusy(false);
@@ -64,6 +75,22 @@ export function CreateListDialog({ basePath }: { basePath: string }) {
             onChange={(event) => setTitle(event.target.value)}
           />
         </label>
+        {locations.length > 1 && (
+          <label className="block space-y-1.5 text-sm font-medium">
+            <span>Standort</span>
+            <select
+              className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+              value={locationId}
+              onChange={(event) => setLocationId(event.target.value)}
+            >
+              {locations.map((location) => (
+                <option key={location.id} value={location.id}>
+                  {location.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         <fieldset className="space-y-2">
           <legend className="text-sm font-medium">Vorlage</legend>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -101,7 +128,10 @@ export function CreateListDialog({ basePath }: { basePath: string }) {
           >
             Abbrechen
           </Button>
-          <Button disabled={busy || title.trim().length < 2} onClick={create}>
+          <Button
+            disabled={busy || title.trim().length < 2 || !locationId}
+            onClick={create}
+          >
             {busy ? "Legt an …" : "Liste anlegen"}
           </Button>
         </div>

@@ -48,6 +48,13 @@ begin
   select public.materialize_direct_guide_tasks(now()) into v_n;
   if v_n <> 0 then raise exception 'FAIL zeitplan not idempotent: %', v_n; end if;
 
+  -- Uhrzeit geändert ⇒ bestehende offene Aufgabe bekommt die neue Fälligkeit
+  update public.shift_guides set due_time = time '15:45' where id = v_today_guide;
+  perform public.materialize_direct_guide_tasks(now());
+  select due_at into v_due from public.operational_tasks
+    where source_id like 'shift_guide:direkt:'||v_today_guide||':'||v_mgr||':%' and status<>'storniert';
+  if to_char(v_due at time zone 'Europe/Berlin','HH24:MI') <> '15:45' then raise exception 'FAIL due_time update: %', v_due; end if;
+
   -- Bereich gewechselt ⇒ Aufgabe wird beim nächsten Lauf storniert
   update public.employees set department_id = null where id = v_koch2;
   perform public.materialize_direct_guide_tasks(now());

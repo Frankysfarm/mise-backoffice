@@ -108,7 +108,14 @@ begin
         where t.source_type = 'shift_guide'
           and t.source_id = 'shift_guide:direkt:' || v_guide.id || ':' || v_employee.id || ':' || v_date
           and t.status <> 'storniert'
-      ) then continue; end if;
+      ) then
+        -- Uhrzeit wurde nach der Tagesmaterialisierung geändert: Fälligkeit nachziehen
+        update public.operational_tasks t set due_at = v_due, updated_at = p_now
+          where t.source_type = 'shift_guide'
+            and t.source_id = 'shift_guide:direkt:' || v_guide.id || ':' || v_employee.id || ':' || v_date
+            and t.status in ('offen','angenommen','in_arbeit') and t.due_at is distinct from v_due;
+        continue;
+      end if;
       v_controller := public.resolve_shift_guide_controller(
         v_guide.tenant_id, v_location,
         case when v_guide.location_id is not null then v_guide.department_id else null end,

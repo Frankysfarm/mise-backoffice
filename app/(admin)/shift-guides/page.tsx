@@ -34,13 +34,16 @@ export default async function ShiftGuidesPage({ searchParams }: { searchParams?:
     .select('id,titel,phase,ablauf_typ,position_typ,aktiv,version,inhalt,assignment_kind,assigned_role,schedule_weekdays,due_time,department:departments(name)')
     .order('titel');
   if (typFilter && TYPE_LABELS[typFilter]) query = query.eq('ablauf_typ', typFilter);
-  const { data: guides } = await query;
+  const [{ data: guides }, { data: locations }] = await Promise.all([
+    query,
+    supabase.from('locations').select('id,name').order('name'),
+  ]);
 
   return (
     <div>
       <PageHeader title="Listen & Abläufe" description="Eine Liste = Schritte mit Anleitung und Nachweis, zugeteilt an Schicht, Rolle, Bereich oder Mitarbeiter – mit Zeitplan." />
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        {canManage && <CreateListDialog basePath={basePath} />}
+        {canManage && <CreateListDialog basePath={basePath} locations={locations ?? []} defaultLocationId={actor.location_id} />}
         <div className="ml-auto flex flex-wrap gap-1.5">
           <Link href={basePath} className={`rounded-full border px-3 py-1 text-xs font-semibold no-underline ${!typFilter ? 'border-primary bg-primary text-primary-foreground' : 'text-muted-foreground hover:border-muted-foreground/50'}`}>Alle</Link>
           {Object.entries(TYPE_LABELS).map(([value, label]) => (
