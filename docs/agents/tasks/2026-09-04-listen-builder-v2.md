@@ -18,7 +18,7 @@ Kontrolle …) ist nur ein farbiges Etikett, kein eigener Bereich.
 
 ## Scope heute (Release „Builder v2")
 
-- [ ] S1 Migration `20260904190000_listen_zeitplan.sql`:
+- [x] S1 Migration `20260904190000_listen_zeitplan.sql`:
       - `shift_guides.schedule_weekdays smallint[]` (ISO 1=Mo…7=So, NULL=täglich)
       - `shift_guides.due_time time` (NULL ⇒ 18:00)
       - `shift_guides.assigned_department_id uuid` + assignment_kind `'bereich'`
@@ -26,12 +26,12 @@ Kontrolle …) ist nur ein farbiges Etikett, kein eigener Bereich.
       - `materialize_direct_guide_tasks` v2: nur an gewählten Wochentagen,
         Fälligkeit = Tag + due_time (Europe/Berlin), Bereichs-Zweig,
         Reconcile entsprechend. Dry-Run + Verhaltenstest Pflicht.
-- [ ] S2 Anlegen: `POST /api/ablaeufe/guides` (Neu-Erstellen mit Vorlage),
+- [x] S2 Anlegen: `POST /api/ablaeufe/guides` (Neu-Erstellen mit Vorlage),
       Vorlagen in `lib/ablaeufe/list-templates.ts` (Leer, Öffnung, Schließung,
       Reinigung, Kontrolle — je 3–6 sinnvolle Starter-Schritte).
       Save-Schema: `assignmentKind` +`'bereich'`, `assignedDepartmentId`,
       `scheduleWeekdays` (1–7, unique), `dueTime` (HH:MM).
-- [ ] S3 UI:
+- [x] S3 UI:
       - Listen-Seite: großer „+ Neue Liste"-Dialog (Name, Typ, Vorlage),
         Filter-Chips nach Typ, Zuweisungs-/Zeitplan-Spalte.
       - Editor: Zuweisung „An einen Bereich" + Zeitplan-Block
