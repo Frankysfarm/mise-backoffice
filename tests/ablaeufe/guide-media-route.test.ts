@@ -39,7 +39,7 @@ describe('Anleitungs-Medien-Upload für Listen', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.actor.mockResolvedValue(manager);
-    mocks.maybeSingle.mockResolvedValue({ data: { id: GUIDE_ID, tenant_id: 'tenant-1' } });
+    mocks.maybeSingle.mockResolvedValue({ data: { id: GUIDE_ID, tenant_id: 'tenant-1', location_id: 'loc-1' } });
     mocks.upload.mockResolvedValue({ error: null });
     mocks.remove.mockResolvedValue({ error: null });
   });
@@ -54,7 +54,9 @@ describe('Anleitungs-Medien-Upload für Listen', () => {
   it('lehnt fremde Listen und falsche Dateitypen ab', async () => {
     mocks.maybeSingle.mockResolvedValue({ data: null });
     expect((await POST(uploadRequest(new File(['x'], 'a.jpg', { type: 'image/jpeg' })), { params }))?.status).toBe(404);
-    mocks.maybeSingle.mockResolvedValue({ data: { id: GUIDE_ID, tenant_id: 'tenant-1' } });
+    mocks.maybeSingle.mockResolvedValue({ data: { id: GUIDE_ID, tenant_id: 'tenant-1', location_id: 'loc-2' } });
+    expect((await POST(uploadRequest(new File(['x'], 'a.jpg', { type: 'image/jpeg' })), { params }))?.status).toBe(403);
+    mocks.maybeSingle.mockResolvedValue({ data: { id: GUIDE_ID, tenant_id: 'tenant-1', location_id: 'loc-1' } });
     expect((await POST(uploadRequest(new File(['x'], 'a.gif', { type: 'image/gif' })), { params }))?.status).toBe(400);
     expect((await POST(uploadRequest(null), { params }))?.status).toBe(400);
   });

@@ -49,6 +49,12 @@ export function StepMediaEditor({
   }
 
   async function remove(item: StepMedia) {
+    // Aus einer Kopie geerbte Medien liegen im Ordner der Vorlage – dort wird
+    // nur die Referenz entfernt, die Datei der Vorlage bleibt unangetastet.
+    if (!item.path.includes(`/guides/${guideId}/`)) {
+      onChange(media.filter((entry) => entry.path !== item.path));
+      return;
+    }
     setBusy(true);
     setMessage("");
     const response = await fetch(`/api/ablaeufe/guides/${guideId}/media`, {

@@ -50,20 +50,24 @@ alter table public.shift_guide_assignees enable row level security;
 drop policy if exists shift_guide_assignees_read_scoped on public.shift_guide_assignees;
 drop policy if exists shift_guide_assignees_manage_scoped on public.shift_guide_assignees;
 create policy shift_guide_assignees_read_scoped on public.shift_guide_assignees
-  for select to authenticated using (tenant_id = public.current_tenant_id());
+  for select to authenticated using (
+    shift_guide_assignees.tenant_id = public.current_tenant_id()
+  );
 create policy shift_guide_assignees_manage_scoped on public.shift_guide_assignees
   for all to authenticated using (
-    tenant_id = public.current_tenant_id()
+    shift_guide_assignees.tenant_id = public.current_tenant_id()
     and exists (
       select 1 from public.shift_guides g
-      where g.id = guide_id and g.tenant_id = tenant_id
+      where g.id = shift_guide_assignees.guide_id
+        and g.tenant_id = shift_guide_assignees.tenant_id
         and public.can_manage_operational_location(g.tenant_id, g.location_id)
     )
   ) with check (
-    tenant_id = public.current_tenant_id()
+    shift_guide_assignees.tenant_id = public.current_tenant_id()
     and exists (
       select 1 from public.shift_guides g
-      where g.id = guide_id and g.tenant_id = tenant_id
+      where g.id = shift_guide_assignees.guide_id
+        and g.tenant_id = shift_guide_assignees.tenant_id
         and public.can_manage_operational_location(g.tenant_id, g.location_id)
     )
   );
@@ -187,10 +191,14 @@ begin
                 where e.id = t.assigned_to and e.tenant_id = g.tenant_id
                   and e.status in ('aktiv','in_training','in_probe')
                   and lower(e.rolle::text) = lower(coalesce(g.assigned_role, ''))
+                  and (g.location_id is null or e.location_id = g.location_id)
               ))
               or (g.assignment_kind = 'mitarbeiter' and exists (
                 select 1 from public.shift_guide_assignees a
+                join public.employees e on e.id = a.employee_id
                 where a.guide_id = g.id and a.employee_id = t.assigned_to
+                  and e.status in ('aktiv','in_training','in_probe')
+                  and (g.location_id is null or e.location_id = g.location_id)
               ))
             )
         );

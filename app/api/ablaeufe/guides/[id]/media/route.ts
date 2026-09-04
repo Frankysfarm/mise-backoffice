@@ -41,7 +41,7 @@ async function requireGuideEditor(guideId: string) {
   const service = createServiceClient();
   const { data: guide } = await service
     .from("shift_guides")
-    .select("id,tenant_id")
+    .select("id,tenant_id,location_id")
     .eq("id", guideId)
     .eq("tenant_id", actor.tenant_id)
     .maybeSingle();
@@ -50,6 +50,17 @@ async function requireGuideEditor(guideId: string) {
       error: NextResponse.json(
         { error: "Liste nicht gefunden." },
         { status: 404 },
+      ),
+    };
+  if (
+    actor.rolle === "manager" &&
+    guide.location_id &&
+    actor.location_id !== guide.location_id
+  )
+    return {
+      error: NextResponse.json(
+        { error: "Standort nicht freigegeben." },
+        { status: 403 },
       ),
     };
   return { actor, service };

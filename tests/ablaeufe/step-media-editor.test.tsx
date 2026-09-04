@@ -58,6 +58,15 @@ describe('Medien-Verwaltung im Listen-Editor', () => {
     expect(screen.getByText(/Höchstens 5 Medien/i)).toBeInTheDocument();
   });
 
+  it('entfernt geerbte Medien einer Kopie nur aus der Liste, ohne die Vorlagen-Datei zu löschen', () => {
+    const inherited = { kind: 'image' as const, path: 't1/guides/99999999-8888-4777-8666-555555555555/x.jpg', caption: '' };
+    const onChange = vi.fn();
+    render(<StepMediaEditor guideId={GUIDE_ID} media={[inherited]} onChange={onChange} />);
+    fireEvent.click(screen.getByRole('button', { name: /entfernen/i }));
+    expect(onChange).toHaveBeenCalledWith([]);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it('übernimmt Beschriftungs-Änderungen', () => {
     const onChange = vi.fn();
     render(<StepMediaEditor guideId={GUIDE_ID} media={[image]} onChange={onChange} />);

@@ -12,13 +12,18 @@ export const dynamic = "force-dynamic";
 /** Signiert alle Anleitungs-Medien der Liste (1h), fehlende Pfade fallen still weg. */
 async function signGuideMedia(
   service: ReturnType<typeof createServiceClient>,
+  tenantId: string,
   content: ProcedureContent,
 ): Promise<Record<string, string>> {
+  // Nur Betriebs-eigene Listen-Medien signieren – Service-Role darf nie
+  // beliebige Pfade (anderer Betrieb, Nachweisfotos) herausgeben.
   const paths = [
     ...new Set(
       content.categories.flatMap((category) =>
         category.steps.flatMap((step) =>
-          (step.media ?? []).map((item) => item.path),
+          (step.media ?? [])
+            .map((item) => item.path)
+            .filter((path) => path.startsWith(`${tenantId}/guides/`)),
         ),
       ),
     ),
@@ -78,7 +83,7 @@ export default async function ExecuteGuide({
         title={task.title}
         content={taskContent}
         initialTaskId={task.id}
-        mediaUrls={await signGuideMedia(service, taskContent)}
+        mediaUrls={await signGuideMedia(service, actor.tenant_id!, taskContent)}
       />
     );
   }
@@ -105,7 +110,7 @@ export default async function ExecuteGuide({
       title={guide.titel}
       content={content}
       initialTaskId={initialTaskId}
-      mediaUrls={await signGuideMedia(service, content)}
+      mediaUrls={await signGuideMedia(service, actor.tenant_id!, content)}
     />
   );
 }

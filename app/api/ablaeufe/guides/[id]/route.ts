@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentEmployee } from "@/lib/auth/getCurrentEmployee";
-import { guideSaveSchema } from "@/lib/ablaeufe/guide-save-schema";
+import { guideSaveSchema, invalidGuideMediaPaths } from "@/lib/ablaeufe/guide-save-schema";
 import { createServiceClient } from "@/lib/supabase/server";
 
 export async function POST(
@@ -21,6 +21,11 @@ export async function POST(
   const { id } = await params;
   const service = createServiceClient();
   const input = parsed.data;
+  if (invalidGuideMediaPaths(actor.tenant_id, input.content).length)
+    return NextResponse.json(
+      { error: "Mindestens ein Anleitungs-Medium gehört nicht zu diesem Betrieb." },
+      { status: 400 },
+    );
   const { data: existing } = await service
     .from("shift_guides")
     .select("id,tenant_id,location_id,version")

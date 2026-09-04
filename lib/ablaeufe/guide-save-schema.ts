@@ -59,3 +59,26 @@ export const guideSaveSchema = z.object({
 });
 
 export type GuideSaveInput = z.infer<typeof guideSaveSchema>;
+
+/**
+ * Anleitungs-Medien dürfen nur im eigenen Betriebs-Ordner liegen
+ * (`<tenant>/guides/<liste>/<datei>`). Beliebige Pfade würden beim Anzeigen
+ * per Service-Role signiert – das wäre ein Leck über Betriebsgrenzen hinweg.
+ * Kopierte Listen dürfen auf die Ordner ihrer Vorlage im selben Betrieb zeigen.
+ */
+export function invalidGuideMediaPaths(
+  tenantId: string,
+  content: z.infer<typeof procedureContentSchema>,
+): string[] {
+  const allowed = new RegExp(
+    `^${tenantId}/guides/[0-9a-f-]{36}/[0-9a-f-]{36}\\.[a-z0-9]{2,5}$`,
+    "i",
+  );
+  return content.categories.flatMap((category) =>
+    category.steps.flatMap((step) =>
+      (step.media ?? [])
+        .map((item) => item.path)
+        .filter((path) => !allowed.test(path)),
+    ),
+  );
+}
