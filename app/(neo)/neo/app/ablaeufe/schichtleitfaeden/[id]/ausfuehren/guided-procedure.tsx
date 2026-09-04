@@ -225,7 +225,7 @@ export function GuidedProcedure({
               <div
                 className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                 style={{
-                  width: `${((current + (completed[step.id] ? 1 : 0.15)) / steps.length) * 100}%`,
+                  width: `${Math.max((count / steps.length) * 100, 4)}%`,
                 }}
               />
             </div>
@@ -265,7 +265,7 @@ export function GuidedProcedure({
           )}
           {step.evidence === "photo" && (
             <label
-              className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-sm font-medium ${evidence[step.id] ? "border-emerald-300 bg-emerald-50 text-emerald-800" : ""}`}
+              className={`flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed p-6 text-sm font-medium ${evidence[step.id] ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-200" : ""}`}
             >
               <Camera size={20} />
               {evidence[step.id]
@@ -366,6 +366,19 @@ export function GuidedProcedure({
             Überspringen
           </button>
         )}
+        {!step.required &&
+          isLast &&
+          !satisfied &&
+          canCompleteProcedure(steps, completed, evidence) && (
+            <button
+              className="w-full py-1 text-center text-sm text-muted-foreground underline-offset-2 hover:underline"
+              disabled={busy}
+              type="button"
+              onClick={() => void finish(completed)}
+            >
+              Ohne diesen optionalen Schritt einreichen
+            </button>
+          )}
         {isLast &&
           !canCompleteProcedure(
             steps,
